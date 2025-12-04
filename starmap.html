@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sol Sector Starmap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* HUD Panel Styling */
+        #hud {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 280px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00FF88;
+            border-radius: 5px;
+            color: #FFFFFF;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+            z-index: 100;
+        }
+        
+        #hud h2 {
+            margin-bottom: 10px;
+            color: #00FF88;
+            font-size: 18px;
+        }
+        
+        #hud .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #00FF88;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        #hud .close-btn:hover {
+            color: #FFFFFF;
+        }
+        
+        #hud .info-row {
+            margin: 5px 0;
+        }
+        
+        #hud .label {
+            color: #00FF88;
+            font-weight: bold;
+        }
+        
+        /* Control Buttons Styling */
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            width: 120px;
+            height: 40px;
+            background-color: #222222;
+            color: #FFFFFF;
+            border: 2px solid #00FF88;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #333333;
+        }
+        
+        .control-btn.active {
+            background-color: #00FF88;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <!-- HUD Panel -->
+    <div id="hud">
+        <button class="close-btn" onclick="deselectStar()">×</button>
+        <h2 id="hud-name">System Name</h2>
+        <div class="info-row">
+            <span class="label">Coordinates:</span>
+            <span id="hud-coords">0, 0, 0</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Spectral Class:</span>
+            <span id="hud-spectral">G2</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Wormholes:</span>
+            <span id="hud-wormholes">0</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Status:</span>
+            <span id="hud-reachable">Reachable</span>
+        </div>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div id="controls">
+        <button class="control-btn" onclick="zoomIn()">Zoom In</button>
+        <button class="control-btn" onclick="zoomOut()">Zoom Out</button>
+        <button class="control-btn active" id="rotation-btn" onclick="toggleRotation()">Toggle Rotation</button>
+    </div>
+    
+    <!-- Three.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+    
+    <!-- Application Code -->
+    <script>
+        // Star System Data
+        const STAR_DATA = [
+            { "id": 0, "x": 0, "y": 0, "z": 0, "name": "Sol", "type": "G2", "wh": 8, "st": 6, "r": 1 },
+            { "id": 1, "x": -23.1, "y": -19.18, "z": -53.76, "name": "Alpha Centauri A", "type": "G2", "wh": 6, "st": 9, "r": 1 },
+            { "id": 2, "x": -23.1, "y": -19.18, "z": -53.76, "name": "Alpha Centauri B", "type": "K0", "wh": 0, "st": 0, "r": 0 },
+            { "id": 3, "x": -21.56, "y": -16.38, "z": -52.5, "name": "Proxima Centauri C", "type": "M5.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 4, "x": -0.98, "y": -82.88, "z": 6.86, "name": "Barnard's Star", "type": "M5", "wh": 3, "st": 1, "r": 1 },
+            { "id": 5, "x": -104.16, "y": 29.82, "z": 13.3, "name": "Wolf 359", "type": "M6", "wh": 4, "st": 6, "r": 1 },
+            { "id": 6, "x": -91.28, "y": 23.1, "z": 68.32, "name": "Lalande 21185", "type": "M2", "wh": 1, "st": 8, "r": 1 },
+            { "id": 7, "x": -22.54, "y": 113.12, "z": -34.58, "name": "Sirius A", "type": "A1", "wh": 4, "st": 3, "r": 1 },
+            { "id": 8, "x": -22.54, "y": 113.12, "z": -34.58, "name": "Sirius B", "type": "DA2", "wh": 0, "st": 0, "r": 0 },
+            { "id": 9, "x": 105.56, "y": 48.72, "z": -37.66, "name": "L 726-8 A", "type": "M5.5", "wh": 5, "st": 2, "r": 1 },
+            { "id": 10, "x": 105.56, "y": 48.72, "z": -37.66, "name": "L 726-8 B", "type": "M5.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 11, "x": 26.46, "y": -121.24, "z": -54.88, "name": "Ross 154", "type": "M4.5", "wh": 4, "st": 4, "r": 1 },
+            { "id": 12, "x": 103.32, "y": -8.54, "z": 100.8, "name": "Ross 248", "type": "M6", "wh": 1, "st": 2, "r": 1 },
+            { "id": 13, "x": 87.22, "y": 115.92, "z": -24.22, "name": "Epsilon Eridani", "type": "K2", "wh": 4, "st": 5, "r": 1 },
+            { "id": 14, "x": 118.3, "y": -28.84, "z": -87.92, "name": "Lacaille 9352", "type": "M2", "wh": 2, "st": 5, "r": 1 },
+            { "id": 15, "x": -152.18, "y": 8.54, "z": 2.1, "name": "Ross 128", "type": "M4.5", "wh": 3, "st": 9, "r": 1 },
+            { "id": 16, "x": 140.14, "y": -52.36, "z": -40.88, "name": "L 789-6 A", "type": "M5.5", "wh": 2, "st": 4, "r": 1 },
+            { "id": 17, "x": 140.14, "y": -52.36, "z": -40.88, "name": "L 789-6 B", "type": "M5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 18, "x": 140.14, "y": -52.36, "z": -40.88, "name": "L 789-6 C", "type": "M7", "wh": 0, "st": 0, "r": 0 },
+            { "id": 19, "x": -66.64, "y": 144.48, "z": 14.56, "name": "Procyon A", "type": "F5", "wh": 1, "st": 7, "r": 1 },
+            { "id": 20, "x": -66.64, "y": 144.48, "z": 14.56, "name": "Procyon B", "type": "DA", "wh": 0, "st": 0, "r": 0 },
+            { "id": 21, "x": 90.44, "y": -85.68, "z": 99.96, "name": "61 Cygni A", "type": "K5", "wh": 2, "st": 5, "r": 0 },
+            { "id": 22, "x": 90.44, "y": -85.68, "z": 99.96, "name": "61 Cygni B", "type": "K7", "wh": 0, "st": 0, "r": 0 },
+            { "id": 23, "x": 14.98, "y": -80.78, "z": 140.14, "name": "Struve 2398 A", "type": "M4", "wh": 3, "st": 3, "r": 1 },
+            { "id": 24, "x": 14.98, "y": -80.78, "z": 140.14, "name": "Struve 2398 B", "type": "M5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 25, "x": 116.76, "y": 9.24, "z": 113.26, "name": "Groombridge 34 A", "type": "M2", "wh": 3, "st": 5, "r": 0 },
+            { "id": 26, "x": 116.76, "y": 9.24, "z": 113.26, "name": "Groombridge 34 B", "type": "M6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 27, "x": -89.6, "y": 117.6, "z": 74.62, "name": "G51-15", "type": "M6.5", "wh": 3, "st": 8, "r": 1 },
+            { "id": 28, "x": 79.24, "y": -44.24, "z": -138.6, "name": "Epsilon Indi A", "type": "K4", "wh": 3, "st": 1, "r": 0 },
+            { "id": 29, "x": 79.38, "y": -43.96, "z": -138.6, "name": "Epsilon Indi B", "type": "T1", "wh": 0, "st": 0, "r": 0 },
+            { "id": 30, "x": 79.38, "y": -43.96, "z": -138.6, "name": "Epsilon Indi C", "type": "T6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 31, "x": 143.92, "y": 70.28, "z": -45.78, "name": "Tau Ceti", "type": "G8", "wh": 3, "st": 2, "r": 1 },
+            { "id": 32, "x": 70.7, "y": 97.44, "z": -118.44, "name": "L 372-58", "type": "M5.5", "wh": 3, "st": 1, "r": 1 },
+            { "id": 33, "x": 154.28, "y": 50.26, "z": -49.56, "name": "L 725-32", "type": "M5", "wh": 1, "st": 4, "r": 1 },
+            { "id": 34, "x": -64.12, "y": 160.44, "z": 15.82, "name": "Luyten's Star", "type": "M3.5", "wh": 2, "st": 5, "r": 1 },
+            { "id": 35, "x": 122.78, "y": 115.5, "z": 51.24, "name": "SO 0253+1652", "type": "M6.5", "wh": 3, "st": 3, "r": 1 },
+            { "id": 36, "x": 26.74, "y": 123.62, "z": -126.56, "name": "Kapteyn's Star", "type": "M1", "wh": 2, "st": 2, "r": 1 },
+            { "id": 37, "x": 15.4, "y": -77.42, "z": -161.56, "name": "SCR 1845-6357 A", "type": "M8.5", "wh": 3, "st": 1, "r": 0 },
+            { "id": 38, "x": 15.4, "y": -77.42, "z": -161.56, "name": "SCR 1845-6357 B", "type": "T5.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 39, "x": 106.26, "y": -91.56, "z": -113.12, "name": "Lacaille 8760", "type": "M0", "wh": 1, "st": 4, "r": 1 },
+            { "id": 40, "x": 90.02, "y": -38.22, "z": 154.7, "name": "Kruger 60 A", "type": "M3", "wh": 2, "st": 9, "r": 0 },
+            { "id": 41, "x": 90.02, "y": -38.22, "z": 154.7, "name": "Kruger 60 B", "type": "M6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 42, "x": -134.4, "y": 43.68, "z": -118.3, "name": "DENIS 1048-39", "type": "M9", "wh": 1, "st": 13, "r": 1 },
+            { "id": 43, "x": -23.8, "y": 186.34, "z": -9.24, "name": "Ross 614 A", "type": "M4.5", "wh": 0, "st": 9, "r": 0 },
+            { "id": 44, "x": -23.8, "y": 186.34, "z": -9.24, "name": "Ross 614 B", "type": "M7", "wh": 0, "st": 0, "r": 0 },
+            { "id": 45, "x": -72.66, "y": -175.56, "z": -42.7, "name": "Wolf 1061", "type": "M3.5", "wh": 1, "st": 5, "r": 1 },
+            { "id": 46, "x": -192.22, "y": -27.86, "z": 30.8, "name": "Wolf 424 A", "type": "M5.5", "wh": 3, "st": 9, "r": 1 },
+            { "id": 47, "x": -192.22, "y": -27.86, "z": 30.8, "name": "Wolf 424 B", "type": "M7", "wh": 0, "st": 0, "r": 0 },
+            { "id": 48, "x": 158.2, "y": 3.5, "z": -120.82, "name": "CD-37 15492", "type": "M4", "wh": 1, "st": 4, "r": 1 },
+            { "id": 49, "x": 195.72, "y": 42.56, "z": 18.9, "name": "van Maanen's Star", "type": "DZ7", "wh": 1, "st": 4, "r": 1 },
+            { "id": 50, "x": 172.06, "y": 99.4, "z": 46.06, "name": "L 1159-16", "type": "M8", "wh": 1, "st": 8, "r": 1 },
+            { "id": 51, "x": -93.1, "y": 32.06, "z": -179.06, "name": "L 143-23", "type": "M5.5", "wh": 2, "st": 10, "r": 1 },
+            { "id": 52, "x": -192.64, "y": 62.58, "z": -40.6, "name": "LP 731-58", "type": "M6.5", "wh": 2, "st": 14, "r": 1 },
+            { "id": 53, "x": -7.98, "y": -75.88, "z": 192.22, "name": "BD+68 946", "type": "M3.5", "wh": 2, "st": 8, "r": 1 },
+            { "id": 54, "x": -19.6, "y": -140.14, "z": -151.34, "name": "CD-46 11540", "type": "M3", "wh": 1, "st": 6, "r": 0 },
+            { "id": 55, "x": -89.6, "y": 5.88, "z": -190.96, "name": "L 145-141", "type": "DQ6", "wh": 2, "st": 10, "r": 1 },
+            { "id": 56, "x": 212.66, "y": 5.74, "z": -28.14, "name": "G158-27", "type": "M5.5", "wh": 2, "st": 6, "r": 1 },
+            { "id": 57, "x": 199.36, "y": -59.92, "z": -52.92, "name": "Ross 780", "type": "M5", "wh": 2, "st": 6, "r": 1 },
+            { "id": 58, "x": 72.94, "y": -135.52, "z": 150.78, "name": "G208-44 A", "type": "M5.5", "wh": 1, "st": 7, "r": 0 },
+            { "id": 59, "x": 72.94, "y": -135.52, "z": 150.78, "name": "G208-44 B", "type": "M6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 60, "x": 72.94, "y": -135.52, "z": 150.78, "name": "G208-44 C", "type": "M8", "wh": 0, "st": 0, "r": 0 },
+            { "id": 61, "x": -155.4, "y": 37.94, "z": 152.04, "name": "Lalande 21258 A", "type": "M2", "wh": 2, "st": 9, "r": 0 },
+            { "id": 62, "x": -155.4, "y": 37.94, "z": 151.9, "name": "Lalande 21258 B", "type": "M6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 63, "x": -128.66, "y": 66.22, "z": 168.98, "name": "Groombridge 1618", "type": "K7", "wh": 2, "st": 9, "r": 1 },
+            { "id": 64, "x": 110.32, "y": 105.56, "z": -163.8, "name": "DENIS 0255-47", "type": "L8", "wh": 1, "st": 3, "r": 1 },
+            { "id": 65, "x": -190.54, "y": 89.74, "z": 76.16, "name": "BD+20 2465", "type": "M4.5", "wh": 2, "st": 10, "r": 1 },
+            { "id": 66, "x": 118.44, "y": -88.34, "z": -170.1, "name": "L 354-89", "type": "M1", "wh": 1, "st": 7, "r": 0 },
+            { "id": 67, "x": 106.54, "y": 150.92, "z": -131.46, "name": "LP 944-20", "type": "M9", "wh": 1, "st": 4, "r": 1 },
+            { "id": 68, "x": -16.52, "y": -163.94, "z": -160.86, "name": "CD-44 11909", "type": "M3.5", "wh": 2, "st": 6, "r": 0 },
+            { "id": 69, "x": 100.94, "y": 204.68, "z": -30.66, "name": "Omicron² Eridani A", "type": "K1", "wh": 1, "st": 10, "r": 0 },
+            { "id": 70, "x": 100.94, "y": 204.68, "z": -30.66, "name": "Omicron² Eridani B", "type": "DA4", "wh": 0, "st": 0, "r": 0 },
+            { "id": 71, "x": 100.94, "y": 204.68, "z": -30.66, "name": "Omicron² Eridani C", "type": "M4.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 72, "x": 156.38, "y": -52.22, "z": 161.14, "name": "BD+43 4305", "type": "M4.5", "wh": 1, "st": 2, "r": 0 },
+            { "id": 73, "x": 5.18, "y": -231.98, "z": 10.08, "name": "70 Ophiuchi A", "type": "K0", "wh": 2, "st": 8, "r": 1 },
+            { "id": 74, "x": 5.18, "y": -231.98, "z": 10.08, "name": "70 Ophiuchi B", "type": "K5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 75, "x": 107.24, "y": -205.66, "z": 36.12, "name": "Altair", "type": "A7", "wh": 1, "st": 9, "r": 1 },
+            { "id": 76, "x": -157.5, "y": 160.16, "z": 80.78, "name": "G9-38 A", "type": "M5.5", "wh": 1, "st": 7, "r": 1 },
+            { "id": 77, "x": -157.5, "y": 160.16, "z": 80.78, "name": "G9-38 B", "type": "M5.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 78, "x": 232.12, "y": 15.26, "z": -67.34, "name": "L 722-22 A", "type": "M4", "wh": 1, "st": 8, "r": 1 },
+            { "id": 79, "x": 232.12, "y": 15.26, "z": -67.34, "name": "L 722-22 B", "type": "M6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 80, "x": 0, "y": 244.86, "z": 11.48, "name": "G99-49", "type": "M4", "wh": 1, "st": 3, "r": 0 },
+            { "id": 81, "x": -48.3, "y": 2.66, "z": 241.5, "name": "G254-29", "type": "M4", "wh": 1, "st": 6, "r": 0 },
+            { "id": 82, "x": -214.9, "y": -106.12, "z": 63.7, "name": "Lalande 25372", "type": "M4", "wh": 1, "st": 10, "r": 1 },
+            { "id": 83, "x": 62.16, "y": 240.1, "z": -30.24, "name": "LP 656-38", "type": "M3.5", "wh": 1, "st": 4, "r": 0 },
+            { "id": 84, "x": 163.66, "y": -175.28, "z": -73.22, "name": "LP 816-60", "type": "M5", "wh": 1, "st": 6, "r": 0 },
+            { "id": 85, "x": 49.14, "y": 120.12, "z": 215.74, "name": "Stein 2051 A", "type": "M4", "wh": 1, "st": 8, "r": 0 },
+            { "id": 86, "x": 49.14, "y": 120.12, "z": 215.74, "name": "Stein 2051 B", "type": "DC5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 87, "x": -49.28, "y": 204.68, "z": 138.18, "name": "Wolf 294", "type": "M4", "wh": 1, "st": 7, "r": 0 },
+            { "id": 88, "x": 33.04, "y": -214.48, "z": 140.84, "name": "2MASS 1835+32", "type": "M8.5", "wh": 1, "st": 11, "r": 0 },
+            { "id": 89, "x": 32.62, "y": 257.18, "z": -16.66, "name": "Wolf 1453", "type": "M1.5", "wh": 1, "st": 7, "r": 0 },
+            { "id": 90, "x": 114.24, "y": 231.7, "z": -43.54, "name": "2MASS 0415-09", "type": "T8.5", "wh": 1, "st": 10, "r": 0 },
+            { "id": 91, "x": 35.84, "y": -84.28, "z": 246.96, "name": "Sigma Draconis", "type": "K0", "wh": 1, "st": 11, "r": 1 },
+            { "id": 92, "x": -10.78, "y": 244.44, "z": -98.14, "name": "L 668-21 A", "type": "M1", "wh": 1, "st": 8, "r": 1 },
+            { "id": 93, "x": -10.78, "y": 244.44, "z": -98.14, "name": "L 668-21 B", "type": "T6", "wh": 0, "st": 0, "r": 0 },
+            { "id": 94, "x": 20.16, "y": 257.32, "z": 57.12, "name": "Ross 47", "type": "M4", "wh": 1, "st": 11, "r": 0 },
+            { "id": 95, "x": -8.68, "y": -142.94, "z": -223.3, "name": "L 205-128", "type": "M3.5", "wh": 0, "st": 4, "r": 0 },
+            { "id": 96, "x": 87.08, "y": -252.56, "z": 24.22, "name": "Wolf 1055 A", "type": "M3.5", "wh": 0, "st": 5, "r": 0 },
+            { "id": 97, "x": 88.06, "y": -252.28, "z": 24.08, "name": "Wolf 1055 B", "type": "M8", "wh": 0, "st": 0, "r": 0 },
+            { "id": 98, "x": -136.22, "y": 209.58, "z": -98.7, "name": "L 674-15", "type": "M4", "wh": 1, "st": 8, "r": 0 },
+            { "id": 99, "x": -179.76, "y": -175.28, "z": -98.42, "name": "Lalande 27173 A", "type": "K5", "wh": 1, "st": 7, "r": 0 },
+            { "id": 100, "x": -179.76, "y": -175.28, "z": -98.42, "name": "Lalande 27173 B", "type": "M1", "wh": 0, "st": 0, "r": 0 },
+            { "id": 101, "x": -179.76, "y": -175.28, "z": -98.42, "name": "Lalande 27173 C", "type": "M3", "wh": 0, "st": 0, "r": 0 },
+            { "id": 102, "x": -179.9, "y": -175.28, "z": -98.28, "name": "Lalande 27173 D", "type": "T8", "wh": 0, "st": 0, "r": 0 },
+            { "id": 103, "x": 64.82, "y": -177.8, "z": -192.92, "name": "L 347-14", "type": "M4.5", "wh": 1, "st": 9, "r": 0 },
+            { "id": 104, "x": -118.72, "y": 242.9, "z": 16.8, "name": "Ross 882", "type": "M4.5", "wh": 0, "st": 9, "r": 0 },
+            { "id": 105, "x": -122.5, "y": -162.54, "z": -178.78, "name": "CD-40 9712", "type": "M3", "wh": 1, "st": 10, "r": 1 },
+            { "id": 106, "x": 141.54, "y": 30.8, "z": 230.16, "name": "Eta Cassiopeiae A", "type": "G0", "wh": 0, "st": 7, "r": 0 },
+            { "id": 107, "x": 141.54, "y": 30.8, "z": 230.16, "name": "Eta Cassiopeiae B", "type": "K7", "wh": 0, "st": 0, "r": 0 },
+            { "id": 108, "x": 272.02, "y": -13.02, "z": 11.48, "name": "Lalande 46650", "type": "M2", "wh": 0, "st": 9, "r": 0 },
+            { "id": 109, "x": -47.6, "y": -239.68, "z": -122.36, "name": "36 Ophiuchi A", "type": "K1", "wh": 1, "st": 7, "r": 0 },
+            { "id": 110, "x": -47.6, "y": -239.68, "z": -122.36, "name": "36 Ophiuchi B", "type": "K1", "wh": 0, "st": 0, "r": 0 },
+            { "id": 111, "x": -46.48, "y": -239.4, "z": -121.8, "name": "36 Ophiuchi C", "type": "K5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 112, "x": 120.82, "y": -187.74, "z": -162.82, "name": "CD-36 13940 A", "type": "K3", "wh": 0, "st": 9, "r": 0 },
+            { "id": 113, "x": 120.82, "y": -187.74, "z": -162.82, "name": "CD-36 13940 B", "type": "M3.5", "wh": 0, "st": 0, "r": 0 },
+            { "id": 114, "x": 130.48, "y": 154.42, "z": -189, "name": "82 Eridani", "type": "G5", "wh": 0, "st": 6, "r": 0 },
+            { "id": 115, "x": 59.78, "y": -95.48, "z": -255.08, "name": "Delta Pavonis", "type": "G5", "wh": 0, "st": 8, "r": 0 },
+            { "id": 116, "x": -213.36, "y": -169.82, "z": -60.48, "name": "Wolf 1481", "type": "M3", "wh": 0, "st": 9, "r": 0 }
+        ];
+        
+        // Wormhole Connection Data
+        const WORMHOLE_DATA = [
+            [0,1],[0,4],[0,7],[0,9],[0,11],[0,12],[0,16],[0,19],
+            [1,13],[4,23],[4,73],[5,6],[5,7],[5,27],[5,65],[7,34],
+            [7,36],[9,13],[9,14],[9,31],[9,33],[11,1],[11,39],[11,45],
+            [13,35],[14,48],[15,1],[15,42],[15,46],[16,57],[21,25],[21,58],
+            [23,53],[23,91],[25,40],[25,72],[27,34],[27,65],[28,37],[28,54],
+            [28,66],[31,13],[31,56],[32,36],[32,64],[32,67],[35,92],[37,68],
+            [37,103],[40,81],[46,52],[46,82],[49,56],[50,35],[51,1],[51,55],
+            [52,76],[53,63],[55,105],[57,78],[61,85],[61,87],[63,1],[68,109],
+            [69,90],[73,75],[80,89],[83,94],[84,88],[98,99]
+        ];
+        
+        // Global Three.js objects
+        let scene, camera, renderer;
+        let ambientLight, directionalLight;
+        
+        // Initialize Three.js scene and camera
+        function initScene() {
+            try {
+                // Check for WebGL support
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) {
+                    throw new Error('WebGL not supported');
+                }
+                
+                // Create scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x000000); // Dark background
+                
+                // Add volumetric background effects (fog for depth)
+                // Using exponential fog for subtle volumetric glow effect
+                scene.fog = new THREE.FogExp2(0x000000, 0.0003);
+                
+                // Create camera
+                camera = new THREE.PerspectiveCamera(
+                    60,  // FOV
+                    window.innerWidth / window.innerHeight,  // Aspect ratio
+                    1,   // Near clipping plane
+                    10000  // Far clipping plane
+                );
+                
+                // Set camera initial position (500, 500, 500)
+                camera.position.set(500, 500, 500);
+                
+                // Point camera at Sol (0, 0, 0)
+                camera.lookAt(0, 0, 0);
+                
+                // Create renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                
+                // Add renderer to container
+                const container = document.getElementById('container');
+                container.appendChild(renderer.domElement);
+                
+                // Add lighting
+                // Ambient light for overall illumination
+                ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft white light
+                scene.add(ambientLight);
+                
+                // Directional light for depth and dimension
+                directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(1, 1, 1).normalize();
+                scene.add(directionalLight);
+                
+                // Handle window resize
+                window.addEventListener('resize', onWindowResize, false);
+                
+                console.log('Scene initialized successfully');
+                
+            } catch (error) {
+                console.error('Failed to initialize Three.js scene:', error);
+                const container = document.getElementById('container');
+                container.innerHTML = '<div style="color: #FF0000; padding: 20px; text-align: center;">' +
+                    '<h2>WebGL Error</h2>' +
+                    '<p>Unable to initialize 3D visualization. Please ensure your browser supports WebGL.</p>' +
+                    '<p>Error: ' + error.message + '</p>' +
+                    '</div>';
+            }
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Placeholder functions for buttons (to be implemented in later tasks)
+        function zoomIn() {
+            console.log('Zoom In - to be implemented');
+        }
+        
+        function zoomOut() {
+            console.log('Zoom Out - to be implemented');
+        }
+        
+        function toggleRotation() {
+            console.log('Toggle Rotation - to be implemented');
+        }
+        
+        function deselectStar() {
+            console.log('Deselect Star - to be implemented');
+        }
+        
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', () => {
+            initScene();
+        });
+    </script>
+</body>
+</html>
