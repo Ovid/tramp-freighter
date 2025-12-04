@@ -305,6 +305,9 @@
         // Sector boundary
         let sectorBoundary = null;
         
+        // Rotation state (default: enabled)
+        let autoRotationEnabled = true;
+        
         // Spectral class color mapping
         const SPECTRAL_COLORS = {
             'O': 0x9BB0FF,  // Blue (hottest)
@@ -783,7 +786,18 @@
         }
         
         function toggleRotation() {
-            console.log('Toggle Rotation - to be implemented');
+            // Toggle rotation state
+            autoRotationEnabled = !autoRotationEnabled;
+            
+            // Update button visual state
+            const rotationBtn = document.getElementById('rotation-btn');
+            if (autoRotationEnabled) {
+                rotationBtn.classList.add('active');
+            } else {
+                rotationBtn.classList.remove('active');
+            }
+            
+            console.log(`Auto-rotation ${autoRotationEnabled ? 'enabled' : 'disabled'}`);
         }
         
         function deselectStar() {
@@ -796,6 +810,32 @@
         window.toggleRotation = toggleRotation;
         window.deselectStar = deselectStar;
         
+        // Update automatic rotation
+        function updateAutoRotation() {
+            if (autoRotationEnabled && controls) {
+                // Rotate camera around the scene center at 0.2 degrees per frame
+                // Convert degrees to radians: 0.2 degrees = 0.2 * (Math.PI / 180)
+                const rotationSpeed = 0.2 * (Math.PI / 180);
+                
+                // Get current camera position relative to target
+                const offset = new THREE.Vector3();
+                offset.copy(camera.position).sub(controls.target);
+                
+                // Apply rotation around Y-axis (vertical axis)
+                const cosAngle = Math.cos(rotationSpeed);
+                const sinAngle = Math.sin(rotationSpeed);
+                
+                const newX = offset.x * cosAngle - offset.z * sinAngle;
+                const newZ = offset.x * sinAngle + offset.z * cosAngle;
+                
+                offset.x = newX;
+                offset.z = newZ;
+                
+                // Update camera position
+                camera.position.copy(controls.target).add(offset);
+            }
+        }
+        
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
@@ -803,6 +843,9 @@
             try {
                 // Get current time for animations
                 const time = Date.now() * 0.001; // Convert to seconds
+                
+                // Update automatic rotation if enabled
+                updateAutoRotation();
                 
                 // Update camera controls (required for damping)
                 if (controls) {

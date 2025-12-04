@@ -130,7 +130,7 @@
   - **Property 3: Scroll wheel changes camera distance**
   - **Validates: Requirements 1.3**
 
-- [ ] 8. Implement automatic rotation
+- [x] 8. Implement automatic rotation
   - Add rotation state variable (default: enabled)
   - Implement rotation logic at 0.2 degrees per frame
   - Add rotation update to animation loop
