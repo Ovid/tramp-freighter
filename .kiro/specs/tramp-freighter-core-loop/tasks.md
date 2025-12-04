@@ -35,7 +35,7 @@
   - **Property 7: Fuel Cost Calculation**
   - **Validates: Requirements 3.3, 3.4**
 
-- [ ] 3. Implement wormhole connection validation and jump mechanics
+- [x] 3. Implement wormhole connection validation and jump mechanics
   - Add wormhole connection lookup to NavigationSystem
   - Implement connection validation (verify wormhole exists between systems)
   - Implement fuel validation (check sufficient fuel for jump)
@@ -43,23 +43,23 @@
   - Add error handling for invalid jumps (no connection, insufficient fuel)
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-- [ ] 3.1 Write property test for wormhole connection validation
+- [x] 3.1 Write property test for wormhole connection validation
   - **Property 9: Wormhole Connection Validation**
   - **Validates: Requirements 4.1, 4.2**
 
-- [ ] 3.2 Write property test for insufficient fuel prevention
+- [x] 3.2 Write property test for insufficient fuel prevention
   - **Property 10: Insufficient Fuel Prevention**
   - **Validates: Requirements 4.3**
 
-- [ ] 3.3 Write property test for jump state transition
+- [x] 3.3 Write property test for jump state transition
   - **Property 11: Jump State Transition**
   - **Validates: Requirements 4.4, 4.5, 4.6**
 
-- [ ] 3.4 Write property test for visited systems tracking
+- [x] 3.4 Write property test for visited systems tracking
   - **Property 12: Visited Systems Tracking**
   - **Validates: Requirements 4.7**
 
-- [ ] 4. Implement trading system with price calculations
+- [x] 4. Implement trading system with price calculations
   - Create TradingSystem class with price calculation methods
   - Define base prices for all six goods (grain: 10, ore: 15, tritium: 50, parts: 30, medicine: 40, electronics: 35)
   - Define spectral class modifiers for each good type
@@ -67,11 +67,11 @@
   - Add cargo capacity calculation (sum of all stack quantities)
   - _Requirements: 7.1, 7.2, 7.7_
 
-- [ ] 4.1 Write property test for good price calculation
+- [x] 4.1 Write property test for good price calculation
   - **Property 15: Good Price Calculation**
   - **Validates: Requirements 7.2**
 
-- [ ] 4.2 Write property test for cargo capacity calculation
+- [x] 4.2 Write property test for cargo capacity calculation
   - **Property 20: Cargo Capacity Calculation**
   - **Validates: Requirements 7.7**
 
