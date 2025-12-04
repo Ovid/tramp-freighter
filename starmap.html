@@ -305,6 +305,9 @@
         // Sector boundary
         let sectorBoundary = null;
         
+        // Starfield background
+        let starfield = null;
+        
         // Rotation state (default: enabled)
         let autoRotationEnabled = true;
         
@@ -859,6 +862,118 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
         
+        // Create a soft glowing star texture for background stars
+        function createBackgroundStarTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            const centerX = 32;
+            const centerY = 32;
+            
+            // Create radial gradient for soft glow
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 32);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+            gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+            gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+            gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+        
+        // Create starfield background
+        function createStarfield() {
+            const starfieldGeometry = new THREE.BufferGeometry();
+            const starCount = 1200;
+            const positions = new Float32Array(starCount * 3);
+            const colors = new Float32Array(starCount * 3);
+            
+            // Create stars at random positions in a spherical shell
+            const minRadius = 700;
+            const maxRadius = 1400;
+            
+            // Spectral types for random selection
+            const spectralTypes = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
+            const spectralWeights = [0.02, 0.08, 0.15, 0.20, 0.25, 0.20, 0.10]; // Realistic distribution
+            
+            for (let i = 0; i < starCount; i++) {
+                // Random spherical coordinates
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const radius = minRadius + Math.random() * (maxRadius - minRadius);
+                
+                // Convert to cartesian coordinates
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.sin(phi) * Math.sin(theta);
+                const z = radius * Math.cos(phi);
+                
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+                
+                // Select spectral type based on weighted distribution
+                const roll = Math.random();
+                let cumulativeWeight = 0;
+                let spectralType = 'G'; // Default
+                
+                for (let j = 0; j < spectralTypes.length; j++) {
+                    cumulativeWeight += spectralWeights[j];
+                    if (roll < cumulativeWeight) {
+                        spectralType = spectralTypes[j];
+                        break;
+                    }
+                }
+                
+                // Get color from SPECTRAL_COLORS
+                const baseColor = SPECTRAL_COLORS[spectralType];
+                const brightness = 0.6 + Math.random() * 0.4; // 60-100% brightness for variety
+                
+                // Extract RGB from hex color and apply brightness
+                const r = ((baseColor >> 16) & 255) / 255 * brightness;
+                const g = ((baseColor >> 8) & 255) / 255 * brightness;
+                const b = (baseColor & 255) / 255 * brightness;
+                
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+            
+            starfieldGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starfieldGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            // Create texture for stars
+            const starTexture = createBackgroundStarTexture();
+            
+            // Create material for starfield
+            const starfieldMaterial = new THREE.PointsMaterial({
+                size: 4,
+                map: starTexture,
+                sizeAttenuation: false,
+                vertexColors: true,
+                transparent: true,
+                opacity: 1.0,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            
+            // Create points mesh
+            starfield = new THREE.Points(starfieldGeometry, starfieldMaterial);
+            
+            // Add to scene
+            scene.add(starfield);
+            
+            console.log(`Created starfield background with ${starCount} stars`);
+            console.log('Starfield position:', starfield.position);
+            console.log('Starfield visible:', starfield.visible);
+        }
+        
         // Create sector boundary
         function setupSectorBoundary() {
             // Create sphere geometry with radius 300
@@ -1209,6 +1324,14 @@
             }
         }
         
+        // Update starfield rotation to match sphere
+        function updateStarfieldRotation() {
+            if (starfield && sectorBoundary) {
+                // Match starfield rotation to sector boundary rotation
+                starfield.rotation.copy(sectorBoundary.rotation);
+            }
+        }
+        
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
@@ -1239,6 +1362,9 @@
                 // Update label scales and opacities based on camera distance
                 updateLabelScale();
                 
+                // Update starfield rotation
+                updateStarfieldRotation();
+                
                 // Render scene
                 renderer.render(scene, camera);
             } catch (error) {
@@ -1252,6 +1378,9 @@
             
             // Create star systems after scene is initialized
             if (scene) {
+                // Create starfield background first (renders behind everything)
+                createStarfield();
+                
                 createStarSystems(STAR_DATA);
                 
                 // Create wormhole connections after stars are created
