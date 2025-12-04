@@ -20,6 +20,12 @@
   - **Property: Camera initialization sets correct position**
   - **Validates: Requirements 1.4**
 
+- [ ] 2.5. Add volumetric background effects
+  - Add fog or atmospheric glow to scene
+  - Configure subtle volumetric effects for depth
+  - Use dark-to-transparent gradient for sci-fi aesthetic
+  - _Requirements: 8.3_
+
 - [ ] 3. Implement star system rendering
   - Create function to map spectral class to color
   - Generate sprite for each star system using color-coded materials
