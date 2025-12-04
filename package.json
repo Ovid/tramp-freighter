@@ -10,9 +10,12 @@
     "test:coverage": "vitest --coverage"
   },
   "devDependencies": {
-    "vitest": "^1.0.0",
-    "fast-check": "^3.15.0",
     "@testing-library/dom": "^9.3.0",
-    "jsdom": "^23.0.0"
+    "fast-check": "^3.15.0",
+    "jsdom": "^23.0.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "three": "^0.150.0"
   }
 }
