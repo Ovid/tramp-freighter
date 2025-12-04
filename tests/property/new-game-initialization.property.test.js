@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
-import { GameStateManager } from '../../game-state.js';
+import { GameStateManager } from '../../js/game-state.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Property 0: New Game Initialization', () => {
