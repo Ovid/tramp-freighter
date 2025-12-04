@@ -270,4 +270,183 @@ export class GameStateManager {
         this.state.player.daysElapsed = newDays;
         this.emit('timeChanged', newDays);
     }
+    
+    // ========================================================================
+    // SAVE/LOAD SYSTEM
+    // ========================================================================
+    
+    /**
+     * Save game state to localStorage
+     * Requirements: 10.1, 10.2
+     */
+    saveGame() {
+        if (!this.state) {
+            console.error('Cannot save: no game state exists');
+            return false;
+        }
+        
+        try {
+            // Update timestamp before saving
+            this.state.meta.timestamp = Date.now();
+            
+            // Serialize state to JSON
+            const saveData = JSON.stringify(this.state);
+            
+            // Store in localStorage
+            localStorage.setItem('trampFreighterSave', saveData);
+            
+            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                console.log('Game saved successfully');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to save game:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Load game state from localStorage
+     * Requirements: 1.6, 10.7, 10.8, 10.9, 10.10
+     */
+    loadGame() {
+        try {
+            // Retrieve save data from localStorage
+            const saveData = localStorage.getItem('trampFreighterSave');
+            
+            if (!saveData) {
+                console.log('No saved game found');
+                return null;
+            }
+            
+            // Parse JSON
+            const loadedState = JSON.parse(saveData);
+            
+            // Validate version compatibility
+            if (!this.isVersionCompatible(loadedState.meta?.version)) {
+                console.warn('Save version incompatible, starting new game');
+                return null;
+            }
+            
+            // Validate state structure
+            if (!this.validateStateStructure(loadedState)) {
+                console.warn('Save data corrupted, starting new game');
+                return null;
+            }
+            
+            // Restore state
+            this.state = loadedState;
+            
+            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                console.log('Game loaded successfully');
+            }
+            
+            // Emit all state events to update UI
+            this.emit('creditsChanged', this.state.player.credits);
+            this.emit('debtChanged', this.state.player.debt);
+            this.emit('fuelChanged', this.state.ship.fuel);
+            this.emit('cargoChanged', this.state.ship.cargo);
+            this.emit('locationChanged', this.state.player.currentSystem);
+            this.emit('timeChanged', this.state.player.daysElapsed);
+            
+            return this.state;
+        } catch (error) {
+            console.error('Failed to load game:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Check if saved game exists
+     * Requirements: 1.1
+     */
+    hasSavedGame() {
+        try {
+            const saveData = localStorage.getItem('trampFreighterSave');
+            return saveData !== null;
+        } catch (error) {
+            console.error('Failed to check for saved game:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Clear saved game from localStorage
+     */
+    clearSave() {
+        try {
+            localStorage.removeItem('trampFreighterSave');
+            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                console.log('Save data cleared');
+            }
+            return true;
+        } catch (error) {
+            console.error('Failed to clear save:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Check if save version is compatible with current version
+     * Requirements: 10.10
+     */
+    isVersionCompatible(saveVersion) {
+        if (!saveVersion) return false;
+        
+        const CURRENT_VERSION = '1.0.0';
+        
+        // For now, only exact version match is compatible
+        // Future versions may implement migration logic
+        return saveVersion === CURRENT_VERSION;
+    }
+    
+    /**
+     * Validate that loaded state has required structure
+     * Requirements: 10.9
+     */
+    validateStateStructure(state) {
+        if (!state) return false;
+        
+        // Check player structure
+        if (!state.player || 
+            typeof state.player.credits !== 'number' ||
+            typeof state.player.debt !== 'number' ||
+            typeof state.player.currentSystem !== 'number' ||
+            typeof state.player.daysElapsed !== 'number') {
+            return false;
+        }
+        
+        // Check ship structure
+        if (!state.ship ||
+            typeof state.ship.name !== 'string' ||
+            typeof state.ship.fuel !== 'number' ||
+            typeof state.ship.cargoCapacity !== 'number' ||
+            !Array.isArray(state.ship.cargo)) {
+            return false;
+        }
+        
+        // Check cargo stacks
+        for (const stack of state.ship.cargo) {
+            if (!stack.good || 
+                typeof stack.qty !== 'number' ||
+                typeof stack.purchasePrice !== 'number') {
+                return false;
+            }
+        }
+        
+        // Check world structure
+        if (!state.world || !Array.isArray(state.world.visitedSystems)) {
+            return false;
+        }
+        
+        // Check meta structure
+        if (!state.meta || 
+            typeof state.meta.version !== 'string' ||
+            typeof state.meta.timestamp !== 'number') {
+            return false;
+        }
+        
+        return true;
+    }
 }

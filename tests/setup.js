@@ -1,20 +1,32 @@
 // Test setup file for Vitest
 // This file runs before all tests
 
-// Mock localStorage for testing
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
+// Create a proper localStorage mock that actually stores data
+class LocalStorageMock {
+  constructor() {
+    this.store = {};
+  }
 
-global.localStorage = localStorageMock;
+  getItem(key) {
+    return this.store[key] || null;
+  }
 
-// Reset mocks before each test
+  setItem(key, value) {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key) {
+    delete this.store[key];
+  }
+
+  clear() {
+    this.store = {};
+  }
+}
+
+global.localStorage = new LocalStorageMock();
+
+// Reset localStorage before each test
 beforeEach(() => {
-  localStorageMock.getItem.mockClear();
-  localStorageMock.setItem.mockClear();
-  localStorageMock.removeItem.mockClear();
-  localStorageMock.clear.mockClear();
+  global.localStorage.clear();
 });
