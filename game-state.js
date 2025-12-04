@@ -316,7 +316,9 @@ export class GameStateManager {
             const saveData = localStorage.getItem('trampFreighterSave');
             
             if (!saveData) {
-                console.log('No saved game found');
+                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                    console.log('No saved game found');
+                }
                 return null;
             }
             
@@ -325,13 +327,17 @@ export class GameStateManager {
             
             // Validate version compatibility
             if (!this.isVersionCompatible(loadedState.meta?.version)) {
-                console.warn('Save version incompatible, starting new game');
+                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                    console.warn('Save version incompatible, starting new game');
+                }
                 return null;
             }
             
             // Validate state structure
             if (!this.validateStateStructure(loadedState)) {
-                console.warn('Save data corrupted, starting new game');
+                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                    console.warn('Save data corrupted, starting new game');
+                }
                 return null;
             }
             
@@ -352,7 +358,9 @@ export class GameStateManager {
             
             return this.state;
         } catch (error) {
-            console.error('Failed to load game:', error);
+            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                console.error('Failed to load game:', error);
+            }
             return null;
         }
     }
