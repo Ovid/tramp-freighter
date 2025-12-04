@@ -331,7 +331,10 @@
         const VISUAL_CONFIG = {
             starSize: 20,
             pulseAmplitude: 0.15,
-            pulseSpeed: 2.0
+            pulseSpeed: 2.0,
+            selectionRingSize: 30,
+            selectionRingPulseSpeed: 3.0,
+            selectionColor: 0xFFFF00  // Bright yellow
         };
         
         // Label configuration
@@ -527,6 +530,145 @@
             console.log(`Created ${stars.length} star systems with labels`);
         }
         
+        // Create a targeting reticle texture with sci-fi HUD aesthetic
+        function createTargetingReticleTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            const centerX = 128;
+            const centerY = 128;
+            const radius = 100;
+            
+            // Set up glow effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(255, 255, 0, 0.8)';
+            ctx.lineCap = 'round';
+            
+            // Draw main circle with glow
+            ctx.strokeStyle = 'rgba(255, 255, 0, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw inner circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw crosshairs (with gaps in the center)
+            const crosshairLength = radius * 0.4;
+            const crosshairGap = 10;
+            
+            ctx.lineWidth = 2;
+            // Horizontal crosshair
+            ctx.beginPath();
+            ctx.moveTo(centerX - crosshairLength, centerY);
+            ctx.lineTo(centerX - crosshairGap, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX + crosshairGap, centerY);
+            ctx.lineTo(centerX + crosshairLength, centerY);
+            ctx.stroke();
+            
+            // Vertical crosshair
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - crosshairLength);
+            ctx.lineTo(centerX, centerY - crosshairGap);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY + crosshairGap);
+            ctx.lineTo(centerX, centerY + crosshairLength);
+            ctx.stroke();
+            
+            // Draw corner brackets (targeting reticle style)
+            const bracketSize = 20;
+            const bracketOffset = radius + 10;
+            ctx.lineWidth = 3;
+            
+            // Top-left bracket
+            ctx.beginPath();
+            ctx.moveTo(centerX - bracketOffset, centerY - bracketOffset + bracketSize);
+            ctx.lineTo(centerX - bracketOffset, centerY - bracketOffset);
+            ctx.lineTo(centerX - bracketOffset + bracketSize, centerY - bracketOffset);
+            ctx.stroke();
+            
+            // Top-right bracket
+            ctx.beginPath();
+            ctx.moveTo(centerX + bracketOffset - bracketSize, centerY - bracketOffset);
+            ctx.lineTo(centerX + bracketOffset, centerY - bracketOffset);
+            ctx.lineTo(centerX + bracketOffset, centerY - bracketOffset + bracketSize);
+            ctx.stroke();
+            
+            // Bottom-left bracket
+            ctx.beginPath();
+            ctx.moveTo(centerX - bracketOffset, centerY + bracketOffset - bracketSize);
+            ctx.lineTo(centerX - bracketOffset, centerY + bracketOffset);
+            ctx.lineTo(centerX - bracketOffset + bracketSize, centerY + bracketOffset);
+            ctx.stroke();
+            
+            // Bottom-right bracket
+            ctx.beginPath();
+            ctx.moveTo(centerX + bracketOffset - bracketSize, centerY + bracketOffset);
+            ctx.lineTo(centerX + bracketOffset, centerY + bracketOffset);
+            ctx.lineTo(centerX + bracketOffset, centerY + bracketOffset - bracketSize);
+            ctx.stroke();
+            
+            // Add small tick marks around the outer circle
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI * 2) / 8;
+                const x1 = centerX + Math.cos(angle) * (radius + 5);
+                const y1 = centerY + Math.sin(angle) * (radius + 5);
+                const x2 = centerX + Math.cos(angle) * (radius + 15);
+                const y2 = centerY + Math.sin(angle) * (radius + 15);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Add center dot
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.9)';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        // Create selection ring for a star with targeting reticle
+        function createSelectionRing() {
+            // Create a plane geometry for the reticle
+            const reticleGeometry = new THREE.PlaneGeometry(
+                VISUAL_CONFIG.selectionRingSize * 3,
+                VISUAL_CONFIG.selectionRingSize * 3
+            );
+            
+            // Create targeting reticle texture
+            const reticleTexture = createTargetingReticleTexture();
+            
+            // Create material with additive blending for glow effect
+            const reticleMaterial = new THREE.MeshBasicMaterial({
+                map: reticleTexture,
+                transparent: true,
+                opacity: 1.0,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+            
+            // Create mesh
+            const reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
+            
+            return reticle;
+        }
+        
         // Update star pulsing animation
         function updateStarPulse(time) {
             stars.forEach(star => {
@@ -540,6 +682,24 @@
                     1
                 );
             });
+        }
+        
+        // Update selection ring pulsing animation
+        function updateSelectionRingPulse(time) {
+            if (selectedStar && selectedStar.selectionRing) {
+                // Subtle pulsing scale for targeting lock effect
+                const pulseScale = 1.0 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.08;
+                
+                // Apply pulsing to reticle scale
+                selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
+                
+                // Pulse the opacity for "scanning" effect
+                const pulseOpacity = 0.75 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 1.5) * 0.25;
+                selectedStar.selectionRing.material.opacity = pulseOpacity;
+                
+                // Slow rotation for targeting system effect
+                selectedStar.selectionRing.rotation.z = time * 0.2;
+            }
         }
         
         // Get connection color based on reachability of both stars
@@ -913,7 +1073,22 @@
             
             console.log(`Selected star: ${star.data.name}`);
             
-            // Visual feedback will be implemented in task 11
+            // Change star sprite color to bright yellow
+            star.sprite.material.color.setHex(VISUAL_CONFIG.selectionColor);
+            
+            // Create and show selection ring if it doesn't exist
+            if (!star.selectionRing) {
+                star.selectionRing = createSelectionRing();
+                // Position ring at star location
+                star.selectionRing.position.copy(star.position);
+                // Orient ring to face camera (billboard effect)
+                star.selectionRing.lookAt(camera.position);
+                scene.add(star.selectionRing);
+            } else {
+                // If ring already exists, just make it visible
+                star.selectionRing.visible = true;
+            }
+            
             // HUD display will be implemented in tasks 12-13
         }
         
@@ -925,10 +1100,17 @@
             
             console.log(`Deselected star: ${selectedStar.data.name}`);
             
+            // Restore original star color
+            selectedStar.sprite.material.color.setHex(selectedStar.originalColor);
+            
+            // Hide selection ring
+            if (selectedStar.selectionRing) {
+                selectedStar.selectionRing.visible = false;
+            }
+            
             // Clear selection
             selectedStar = null;
             
-            // Visual feedback removal will be implemented in task 11
             // HUD hiding will be implemented in task 12
         }
         
@@ -982,6 +1164,14 @@
                 
                 // Update star pulsing animations
                 updateStarPulse(time);
+                
+                // Update selection ring pulsing animation
+                updateSelectionRingPulse(time);
+                
+                // Make selection ring face camera (billboard effect)
+                if (selectedStar && selectedStar.selectionRing) {
+                    selectedStar.selectionRing.lookAt(camera.position);
+                }
                 
                 // Update label scales and opacities based on camera distance
                 updateLabelScale();
