@@ -4,6 +4,7 @@
   "description": "A space trading survival game built on the Sol Sector Starmap",
   "type": "module",
   "scripts": {
+    "dev": "npx http-server -p 8080 -c-1",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage"
