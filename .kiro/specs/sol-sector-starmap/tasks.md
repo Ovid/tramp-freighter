@@ -109,7 +109,7 @@
   - **Property 25: Boundary visibility toggles correctly**
   - **Validates: Requirements 7.4**
 
-- [ ] 7. Implement camera controls
+- [x] 7. Implement camera controls
   - Set up OrbitControls with orbit, pan, and dolly enabled
   - Configure left mouse button for rotation
   - Configure right mouse button for panning

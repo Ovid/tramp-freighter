@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sol Sector Starmap</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"
+        }
+    }
+    </script>
     <style>
         * {
             margin: 0;
@@ -144,11 +152,15 @@
         <button class="control-btn active" id="boundary-btn" onclick="toggleBoundary()">Toggle Boundary</button>
     </div>
     
-    <!-- Three.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
-    
     <!-- Application Code -->
-    <script>
+    <script type="module">
+        // Import Three.js and OrbitControls as ES modules
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        // Make THREE available globally for debugging
+        window.THREE = THREE;
+        
         // Star System Data
         const STAR_DATA = [
             { "id": 0, "x": 0, "y": 0, "z": 0, "name": "Sol", "type": "G2", "wh": 8, "st": 6, "r": 1 },
@@ -284,7 +296,7 @@
         ];
         
         // Global Three.js objects
-        let scene, camera, renderer;
+        let scene, camera, renderer, controls;
         let ambientLight, directionalLight;
         
         // Runtime star objects storage
@@ -653,6 +665,9 @@
                 directionalLight.position.set(1, 1, 1).normalize();
                 scene.add(directionalLight);
                 
+                // Set up camera controls
+                setupCameraControls();
+                
                 // Handle window resize
                 window.addEventListener('resize', onWindowResize, false);
                 
@@ -714,6 +729,50 @@
             }
         }
         
+        // Expose to global scope for onclick handlers
+        window.toggleBoundary = toggleBoundary;
+        
+        // Set up camera controls with OrbitControls
+        function setupCameraControls() {
+            // Create OrbitControls
+            controls = new OrbitControls(camera, renderer.domElement);
+            
+            // Configure left mouse button for rotation (orbit)
+            controls.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.PAN
+            };
+            
+            // Enable damping for smooth movement
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Configure control speeds
+            controls.rotateSpeed = 1.0;
+            controls.panSpeed = 1.0;
+            // Configure scroll wheel for dolly (zoom) with sensitivity 150
+            // Note: Higher values make zoom more sensitive
+            controls.zoomSpeed = 1.5;
+            
+            // Set min/max distance limits
+            controls.minDistance = 50;
+            controls.maxDistance = 2000;
+            
+            // Enable orbit, pan, and dolly
+            controls.enableRotate = true;
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            
+            // Set the target to Sol (0, 0, 0)
+            controls.target.set(0, 0, 0);
+            
+            // Update controls to apply initial settings
+            controls.update();
+            
+            console.log('Camera controls initialized with OrbitControls');
+        }
+        
         // Placeholder functions for buttons (to be implemented in later tasks)
         function zoomIn() {
             console.log('Zoom In - to be implemented');
@@ -731,6 +790,12 @@
             console.log('Deselect Star - to be implemented');
         }
         
+        // Expose functions to global scope for onclick handlers
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.toggleRotation = toggleRotation;
+        window.deselectStar = deselectStar;
+        
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
@@ -738,6 +803,11 @@
             try {
                 // Get current time for animations
                 const time = Date.now() * 0.001; // Convert to seconds
+                
+                // Update camera controls (required for damping)
+                if (controls) {
+                    controls.update();
+                }
                 
                 // Update star pulsing animations
                 updateStarPulse(time);
