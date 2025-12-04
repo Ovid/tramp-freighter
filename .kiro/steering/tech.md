@@ -8,7 +8,7 @@ inclusion: always
 
 - **Three.js**: 3D rendering framework for hardware-accelerated graphics (starmap)
 - **Vanilla JavaScript**: Primary development language (no framework dependencies for game logic)
-- **localStorage**: Browser-based persistence for save games
+- **localStorage**: Browser-based persistence for save games (REQUIRED - all game state must be stored in browser localStorage, no server-side storage)
 
 ## Architecture
 

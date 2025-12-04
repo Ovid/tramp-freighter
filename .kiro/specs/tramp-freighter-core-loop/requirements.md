@@ -14,6 +14,7 @@ The Tramp Freighter Core Loop establishes the fundamental gameplay mechanics for
 - **Jump**: The act of traveling from one star system to another via wormhole
 - **Station**: A facility at a star system where trading and refueling occur
 - **Cargo**: Goods stored in the ship's cargo hold
+- **Cargo Stack**: A single entry in the cargo hold containing a Good type, quantity, and purchase price
 - **Good**: A tradeable commodity (grain, ore, tritium, parts, medicine, electronics)
 - **Credits**: The in-game currency
 - **Fuel**: Ship resource consumed during jumps, measured as percentage
@@ -32,7 +33,7 @@ The Tramp Freighter Core Loop establishes the fundamental gameplay mechanics for
 2. WHEN saved game data exists THEN the Game System SHALL display both Continue and New Game options
 3. WHEN no saved game data exists THEN the Game System SHALL display only the Start Game option
 4. WHEN the Player selects New Game THEN the Game System SHALL initialize the Player with 500 credits, 10000 debt, at Sol system, and 0 days elapsed
-5. WHEN the Player selects New Game THEN the Game System SHALL initialize the Ship with 100 percent fuel, 50 cargo capacity, and 20 units of grain
+5. WHEN the Player selects New Game THEN the Game System SHALL initialize the Ship with 100 percent fuel, 50 cargo capacity, and one Cargo stack containing 20 units of grain at Sol's grain price
 6. WHEN the Player selects Continue THEN the Game System SHALL restore all saved game state data
 
 ### Requirement 2
@@ -108,15 +109,20 @@ The Tramp Freighter Core Loop establishes the fundamental gameplay mechanics for
 
 1. WHEN the Player accesses the Trade interface THEN the Game System SHALL display all six Good types with their current prices
 2. WHEN calculating Good prices THEN the Game System SHALL apply spectral class modifiers to base prices
-3. WHEN the Player selects a Good THEN the Game System SHALL display the station price, the price the Player paid, and the profit margin
+3. WHEN the Player selects a cargo stack THEN the Game System SHALL display the station price, the price the Player paid for that stack, and the profit margin
 4. WHEN the Player buys a Good THEN the Game System SHALL decrease the Player's credits by the purchase price
-5. WHEN the Player buys a Good THEN the Game System SHALL increase the Cargo quantity for that Good
-6. WHEN the Player sells a Good THEN the Game System SHALL increase the Player's credits by the sale price
-7. WHEN the Player sells a Good THEN the Game System SHALL decrease the Cargo quantity for that Good
-8. WHEN the Player attempts to buy beyond cargo capacity THEN the Game System SHALL prevent the purchase
-9. WHEN the Player has insufficient credits for a purchase THEN the Game System SHALL prevent the purchase
-10. WHEN a trade transaction completes THEN the Game System SHALL save the game state automatically
-11. WHEN the Trade interface displays THEN the Game System SHALL show the Player's current Cargo with quantities and purchase prices
+5. WHEN the Player buys a Good THEN the Game System SHALL create a new Cargo stack storing the Good type, quantity, and purchase price
+6. WHEN the Player buys a Good at a different price than existing Cargo THEN the Game System SHALL create a separate Cargo stack for that purchase
+7. WHEN calculating cargo capacity THEN the Game System SHALL count the total quantity of all Goods across all stacks regardless of type
+8. WHEN the Player sells a Good THEN the Game System SHALL allow the Player to select which Cargo stack to sell from
+9. WHEN the Player sells a Good THEN the Game System SHALL increase the Player's credits by the sale price
+10. WHEN the Player sells a Good THEN the Game System SHALL decrease the Cargo quantity for that stack
+11. WHEN the Player attempts to buy beyond cargo capacity THEN the Game System SHALL prevent the purchase
+12. WHEN the Player has insufficient credits for a purchase THEN the Game System SHALL prevent the purchase
+13. WHEN the Player buys a Good THEN the Game System SHALL support buying quantities of 1, 10, or maximum affordable amount within cargo capacity
+14. WHEN the Player sells a Good THEN the Game System SHALL support selling quantities of 1 or all units from the selected stack
+15. WHEN a trade transaction completes THEN the Game System SHALL save the game state automatically
+16. WHEN the Trade interface displays THEN the Game System SHALL show all Cargo stacks separately with Good type, quantities, and purchase prices
 
 ### Requirement 8
 
@@ -130,11 +136,22 @@ The Tramp Freighter Core Loop establishes the fundamental gameplay mechanics for
 4. WHEN the Star System is a mid-range system THEN the Game System SHALL set fuel price to 3 credits per 1 percent
 5. WHEN the Star System is an outer system THEN the Game System SHALL set fuel price to 4 credits per 1 percent
 6. WHEN the Player selects a refuel amount THEN the Game System SHALL calculate the total cost as fuel price multiplied by percentage amount
-7. WHEN the Player has insufficient credits for refueling THEN the Game System SHALL prevent the refuel transaction
-8. WHEN the Player completes a refuel transaction THEN the Game System SHALL decrease credits by the cost and increase fuel by the amount
-9. WHEN a refuel transaction completes THEN the Game System SHALL save the game state automatically
+7. WHEN calculating refuel amount THEN the Game System SHALL prevent refueling beyond 100 percent fuel capacity
+8. WHEN the Player has insufficient credits for refueling THEN the Game System SHALL prevent the refuel transaction
+9. WHEN the Player completes a refuel transaction THEN the Game System SHALL decrease credits by the cost and increase fuel by the amount
+10. WHEN a refuel transaction completes THEN the Game System SHALL save the game state automatically
 
 ### Requirement 9
+
+**User Story:** As a player, I want to see clear feedback when actions fail, so that I understand why I cannot perform certain operations.
+
+#### Acceptance Criteria
+
+1. WHEN the Game System displays an error message THEN the Game System SHALL show the message in a visible notification area
+2. WHEN an error message is displayed THEN the Game System SHALL automatically dismiss the message after 3 seconds
+3. WHEN multiple error messages occur THEN the Game System SHALL display them sequentially without overlap
+
+### Requirement 10
 
 **User Story:** As a player, I want my game to save automatically, so that I don't lose progress if I close the browser.
 
@@ -148,3 +165,5 @@ The Tramp Freighter Core Loop establishes the fundamental gameplay mechanics for
 6. WHEN the Player docks or undocks THEN the Game System SHALL trigger an automatic save
 7. WHEN the Game System loads THEN the Game System SHALL attempt to retrieve save data from browser local storage
 8. WHEN save data is successfully retrieved THEN the Game System SHALL parse and restore all Game State values
+9. WHEN save data fails to parse or is corrupted THEN the Game System SHALL start a new game with default values
+10. WHEN save data version is incompatible THEN the Game System SHALL notify the Player and start a new game with default values
