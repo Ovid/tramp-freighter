@@ -286,6 +286,117 @@
         let scene, camera, renderer;
         let ambientLight, directionalLight;
         
+        // Runtime star objects storage
+        let stars = [];
+        
+        // Spectral class color mapping
+        const SPECTRAL_COLORS = {
+            'O': 0x9BB0FF,  // Blue (hottest)
+            'B': 0xAABFFF,  // Blue-white
+            'A': 0xCAD7FF,  // White
+            'F': 0xF8F7FF,  // Yellow-white
+            'G': 0xFFF4EA,  // Yellow (like Sol)
+            'K': 0xFFD2A1,  // Orange
+            'M': 0xFFCC6F,  // Red-orange (coolest)
+            'L': 0xFF6B6B,  // Brown dwarf (red)
+            'T': 0xCC5555,  // Brown dwarf (darker red)
+            'D': 0xFFFFFF   // White dwarf (white)
+        };
+        
+        // Visual configuration
+        const VISUAL_CONFIG = {
+            starSize: 20,
+            pulseAmplitude: 0.15,
+            pulseSpeed: 2.0
+        };
+        
+        // Map spectral class to color
+        function getStarColor(spectralClass) {
+            // Extract first character of spectral class (e.g., "G2" -> "G")
+            const spectralType = spectralClass.charAt(0).toUpperCase();
+            // Return color from mapping, default to white if unknown
+            return SPECTRAL_COLORS[spectralType] || 0xFFFFFF;
+        }
+        
+        // Create a realistic star texture with radial glow
+        function createStarTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            // Create radial gradient for glow effect
+            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+            gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+            gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+            gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        // Create star systems
+        function createStarSystems(starData) {
+            // Create shared star texture for all stars
+            const starTexture = createStarTexture();
+            
+            starData.forEach(data => {
+                // Create sprite material with color based on spectral class
+                const color = getStarColor(data.type);
+                const spriteMaterial = new THREE.SpriteMaterial({
+                    map: starTexture,
+                    color: color,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,  // Additive blending for glow effect
+                    depthWrite: false,
+                    sizeAttenuation: true
+                });
+                
+                // Create sprite
+                const sprite = new THREE.Sprite(spriteMaterial);
+                sprite.scale.set(VISUAL_CONFIG.starSize, VISUAL_CONFIG.starSize, 1);
+                
+                // Position sprite at x, y, z coordinates from data
+                sprite.position.set(data.x, data.y, data.z);
+                
+                // Add sprite to scene
+                scene.add(sprite);
+                
+                // Store runtime star object
+                const starObject = {
+                    data: data,
+                    sprite: sprite,
+                    label: null,  // To be created in label system task
+                    selectionRing: null,  // To be created in selection task
+                    position: new THREE.Vector3(data.x, data.y, data.z),
+                    originalColor: color  // Store original color for selection/deselection
+                };
+                
+                stars.push(starObject);
+            });
+            
+            console.log(`Created ${stars.length} star systems`);
+        }
+        
+        // Update star pulsing animation
+        function updateStarPulse(time) {
+            stars.forEach(star => {
+                // Calculate pulsing scale using sine wave
+                const pulseScale = 1.0 + Math.sin(time * VISUAL_CONFIG.pulseSpeed) * VISUAL_CONFIG.pulseAmplitude;
+                
+                // Apply pulsing to sprite scale
+                star.sprite.scale.set(
+                    VISUAL_CONFIG.starSize * pulseScale,
+                    VISUAL_CONFIG.starSize * pulseScale,
+                    1
+                );
+            });
+        }
+        
         // Initialize Three.js scene and camera
         function initScene() {
             try {
@@ -377,9 +488,35 @@
             console.log('Deselect Star - to be implemented');
         }
         
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            try {
+                // Get current time for animations
+                const time = Date.now() * 0.001; // Convert to seconds
+                
+                // Update star pulsing animations
+                updateStarPulse(time);
+                
+                // Render scene
+                renderer.render(scene, camera);
+            } catch (error) {
+                console.error('Animation loop error:', error);
+            }
+        }
+        
         // Initialize the application
         window.addEventListener('DOMContentLoaded', () => {
             initScene();
+            
+            // Create star systems after scene is initialized
+            if (scene) {
+                createStarSystems(STAR_DATA);
+                
+                // Start animation loop
+                animate();
+            }
         });
     </script>
 </body>
