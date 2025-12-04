@@ -17,7 +17,7 @@
   - **Property 1: Save/Load Round Trip Preservation**
   - **Validates: Requirements 1.6, 10.8**
 
-- [ ] 2. Implement distance and jump calculations
+- [x] 2. Implement distance and jump calculations
   - Create NavigationSystem class with distance calculation methods
   - Implement distance from Sol calculation: sqrt(x² + y² + z²) / 10
   - Implement distance between systems calculation: sqrt((x₁-x₂)² + (y₁-y₂)² + (z₁-z₂)²) / 10
@@ -25,12 +25,12 @@
   - Implement fuel cost calculation: 10 + (distance × 2)
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 2.1 Write property tests for distance calculations
+- [x] 2.1 Write property tests for distance calculations
   - **Property 4: Distance from Sol Calculation**
   - **Property 5: Distance Between Systems Calculation**
   - **Validates: Requirements 3.1, 3.2**
 
-- [ ] 2.2 Write property tests for jump calculations
+- [x] 2.2 Write property tests for jump calculations
   - **Property 6: Jump Time Calculation**
   - **Property 7: Fuel Cost Calculation**
   - **Validates: Requirements 3.3, 3.4**
