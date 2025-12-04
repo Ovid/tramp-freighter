@@ -195,7 +195,7 @@
   - **Property 10: Selected star shows visual feedback**
   - **Validates: Requirements 3.3**
 
-- [ ] 12. Create HUD panel
+- [x] 12. Create HUD panel
   - Create HUD div in top-right corner
   - Style with semi-transparent dark background and neon green borders
   - Add fields for name, coordinates, spectral class, wormhole count, reachability
@@ -211,7 +211,7 @@
   - **Property 18: Close button deselects and hides HUD**
   - **Validates: Requirements 4.7**
 
-- [ ] 13. Implement HUD data display
+- [x] 13. Implement HUD data display
   - Create function to populate HUD with star data
   - Display star name from data
   - Display coordinates (x, y, z)

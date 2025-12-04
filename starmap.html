@@ -1089,7 +1089,11 @@
                 star.selectionRing.visible = true;
             }
             
-            // HUD display will be implemented in tasks 12-13
+            // Update HUD with star data
+            updateHUD(star);
+            
+            // Show HUD panel
+            showHUD();
         }
         
         // Deselect current star
@@ -1108,10 +1112,69 @@
                 selectedStar.selectionRing.visible = false;
             }
             
+            // Hide HUD panel
+            hideHUD();
+            
             // Clear selection
             selectedStar = null;
+        }
+        
+        // Update HUD with star data
+        function updateHUD(star) {
+            if (!star || !star.data) {
+                console.warn('Cannot update HUD: invalid star data');
+                return;
+            }
             
-            // HUD hiding will be implemented in task 12
+            // Update star name
+            const hudName = document.getElementById('hud-name');
+            if (hudName) {
+                hudName.textContent = star.data.name;
+            }
+            
+            // Update coordinates (x, y, z)
+            const hudCoords = document.getElementById('hud-coords');
+            if (hudCoords) {
+                hudCoords.textContent = `${star.data.x}, ${star.data.y}, ${star.data.z}`;
+            }
+            
+            // Update spectral class
+            const hudSpectral = document.getElementById('hud-spectral');
+            if (hudSpectral) {
+                hudSpectral.textContent = star.data.type;
+            }
+            
+            // Update wormhole connection count
+            const hudWormholes = document.getElementById('hud-wormholes');
+            if (hudWormholes) {
+                hudWormholes.textContent = star.data.wh;
+            }
+            
+            // Update reachability status (interpret r: 1="Reachable", 0="Unreachable")
+            const hudReachable = document.getElementById('hud-reachable');
+            if (hudReachable) {
+                hudReachable.textContent = star.data.r === 1 ? 'Reachable' : 'Unreachable';
+            }
+            
+            console.log(`HUD updated with data for ${star.data.name}`);
+        }
+        
+        // Show HUD panel
+        function showHUD() {
+            const hud = document.getElementById('hud');
+            if (hud) {
+                hud.style.display = 'block';
+                console.log('HUD panel shown');
+            }
+        }
+        
+        // Hide HUD panel
+        function hideHUD() {
+            const hud = document.getElementById('hud');
+            if (hud) {
+                hud.style.display = 'none';
+                console.log('HUD panel hidden');
+            }
         }
         
         // Expose functions to global scope for onclick handlers
