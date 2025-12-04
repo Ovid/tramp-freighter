@@ -245,7 +245,7 @@
   - **Property 31: Reachability is interpreted as boolean**
   - **Validates: Requirements 10.3**
 
-- [ ] 14. Implement initial selection of Sol
+- [x] 14. Implement initial selection of Sol
   - Find Sol in star data (id: 0)
   - Select Sol on initialization
   - Display Sol's information in HUD

@@ -1263,6 +1263,15 @@
                 // Set up raycaster for selection
                 setupRaycaster();
                 
+                // Select Sol on initialization (id: 0)
+                const sol = stars.find(star => star.data.id === 0);
+                if (sol) {
+                    selectStar(sol);
+                    console.log('Sol pre-selected on initialization');
+                } else {
+                    console.warn('Sol (id: 0) not found in star data');
+                }
+                
                 // Start animation loop
                 animate();
             }
