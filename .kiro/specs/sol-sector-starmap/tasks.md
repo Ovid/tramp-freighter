@@ -141,7 +141,7 @@
   - **Property 6: Toggle Rotation button flips rotation state**
   - **Validates: Requirements 2.4**
 
-- [ ] 9. Create on-screen control buttons
+- [x] 9. Create on-screen control buttons
   - Create button container div in bottom-left corner
   - Add "Zoom In" button with click handler to decrease camera distance
   - Add "Zoom Out" button with click handler to increase camera distance

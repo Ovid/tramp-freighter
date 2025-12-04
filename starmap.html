@@ -776,13 +776,58 @@
             console.log('Camera controls initialized with OrbitControls');
         }
         
-        // Placeholder functions for buttons (to be implemented in later tasks)
+        // Zoom In button handler - decreases camera distance
         function zoomIn() {
-            console.log('Zoom In - to be implemented');
+            if (controls) {
+                // Calculate direction from camera to target
+                const direction = new THREE.Vector3();
+                direction.subVectors(controls.target, camera.position).normalize();
+                
+                // Calculate current distance
+                const currentDistance = camera.position.distanceTo(controls.target);
+                
+                // Calculate zoom amount (10% of current distance, minimum 10 units)
+                const zoomAmount = Math.max(currentDistance * 0.1, 10);
+                
+                // Calculate new position
+                const newPosition = camera.position.clone().add(direction.multiplyScalar(zoomAmount));
+                
+                // Check if new distance would be below minimum
+                const newDistance = newPosition.distanceTo(controls.target);
+                if (newDistance > controls.minDistance) {
+                    camera.position.copy(newPosition);
+                    controls.update();
+                }
+                
+                console.log(`Zoom In - Distance: ${newDistance.toFixed(2)}`);
+            }
         }
         
+        // Zoom Out button handler - increases camera distance
         function zoomOut() {
-            console.log('Zoom Out - to be implemented');
+            if (controls) {
+                // Calculate direction from target to camera
+                const direction = new THREE.Vector3();
+                direction.subVectors(camera.position, controls.target).normalize();
+                
+                // Calculate current distance
+                const currentDistance = camera.position.distanceTo(controls.target);
+                
+                // Calculate zoom amount (10% of current distance, minimum 10 units)
+                const zoomAmount = Math.max(currentDistance * 0.1, 10);
+                
+                // Calculate new position
+                const newPosition = camera.position.clone().add(direction.multiplyScalar(zoomAmount));
+                
+                // Check if new distance would be above maximum
+                const newDistance = newPosition.distanceTo(controls.target);
+                if (newDistance < controls.maxDistance) {
+                    camera.position.copy(newPosition);
+                    controls.update();
+                }
+                
+                console.log(`Zoom Out - Distance: ${newDistance.toFixed(2)}`);
+            }
         }
         
         function toggleRotation() {
