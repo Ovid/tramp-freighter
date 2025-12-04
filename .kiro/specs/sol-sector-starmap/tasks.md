@@ -98,7 +98,7 @@
   - **Property 32: Wormhole data structure is valid**
   - **Validates: Requirements 10.4**
 
-- [ ] 6. Implement sector boundary
+- [x] 6. Implement sector boundary
   - Create wireframe sphere with radius 300 centered at origin
   - Use EdgesGeometry for clean lines
   - Set initial visibility to true

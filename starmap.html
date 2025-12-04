@@ -141,6 +141,7 @@
         <button class="control-btn" onclick="zoomIn()">Zoom In</button>
         <button class="control-btn" onclick="zoomOut()">Zoom Out</button>
         <button class="control-btn active" id="rotation-btn" onclick="toggleRotation()">Toggle Rotation</button>
+        <button class="control-btn active" id="boundary-btn" onclick="toggleBoundary()">Toggle Boundary</button>
     </div>
     
     <!-- Three.js CDN -->
@@ -288,6 +289,9 @@
         
         // Runtime star objects storage
         let stars = [];
+        
+        // Sector boundary
+        let sectorBoundary = null;
         
         // Spectral class color mapping
         const SPECTRAL_COLORS = {
@@ -672,6 +676,44 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
         
+        // Create sector boundary
+        function setupSectorBoundary() {
+            // Create sphere geometry with radius 300
+            const sphereGeometry = new THREE.SphereGeometry(300, 32, 32);
+            
+            // Use EdgesGeometry for clean wireframe lines
+            const edgesGeometry = new THREE.EdgesGeometry(sphereGeometry);
+            
+            // Create line material with brighter color for visibility
+            const material = new THREE.LineBasicMaterial({
+                color: 0x00FF88,  // Neon green to match theme
+                transparent: true,
+                opacity: 0.5
+            });
+            
+            // Create line segments from edges geometry
+            sectorBoundary = new THREE.LineSegments(edgesGeometry, material);
+            
+            // Position at origin (0, 0, 0) - centered on Sol
+            sectorBoundary.position.set(0, 0, 0);
+            
+            // Set initial visibility to true
+            sectorBoundary.visible = true;
+            
+            // Add to scene
+            scene.add(sectorBoundary);
+            
+            console.log('Sector boundary created with radius 300');
+        }
+        
+        // Toggle sector boundary visibility
+        function toggleBoundary() {
+            if (sectorBoundary) {
+                sectorBoundary.visible = !sectorBoundary.visible;
+                console.log(`Sector boundary visibility: ${sectorBoundary.visible}`);
+            }
+        }
+        
         // Placeholder functions for buttons (to be implemented in later tasks)
         function zoomIn() {
             console.log('Zoom In - to be implemented');
@@ -720,6 +762,9 @@
                 
                 // Create wormhole connections after stars are created
                 createWormholeLines(WORMHOLE_DATA, stars);
+                
+                // Create sector boundary
+                setupSectorBoundary();
                 
                 // Start animation loop
                 animate();
