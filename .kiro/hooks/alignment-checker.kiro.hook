@@ -4,18 +4,7 @@
   "description": "Monitors changes to requirements, design, and implementation documents to verify alignment. Checks for requirements coverage, scope compliance, and design alignment. Reports misalignments with severity levels and remediation steps.",
   "version": "1",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "**/requirements.md",
-      "**/REQUIREMENTS.md",
-      "**/design.md",
-      "**/DESIGN.md",
-      "**/tasks.md",
-      "**/TASKS.md",
-      "**/TODO.md",
-      "**/implementation.md",
-      "**/IMPLEMENTATION.md"
-    ]
+    "type": "userTriggered"
   },
   "then": {
     "type": "askAgent",

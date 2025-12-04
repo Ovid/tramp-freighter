@@ -39,11 +39,12 @@ The Sol Sector Starmap Visualization is an interactive 3D star map that transfor
 
 #### Acceptance Criteria
 
-1. WHEN the System displays the interface THEN the System SHALL render visible buttons labeled "Zoom In", "Zoom Out", and "Toggle Rotation"
+1. WHEN the System displays the interface THEN the System SHALL render visible buttons labeled "Zoom In", "Zoom Out", and "Toggle Rotation" positioned in the bottom-left corner and stacked vertically
 2. WHEN a user clicks the "Zoom In" button THEN the System SHALL dolly the camera closer to the scene center
 3. WHEN a user clicks the "Zoom Out" button THEN the System SHALL dolly the camera farther from the scene center
 4. WHEN a user clicks the "Toggle Rotation" button THEN the System SHALL enable or disable automatic camera rotation around the scene center
 5. WHEN a button is in active state THEN the System SHALL display black text on a bright green background for clear legibility
+6. WHEN the System initializes THEN the System SHALL enable automatic rotation by default at a speed of 0.2 degrees per frame
 
 ### Requirement 3
 
@@ -53,8 +54,10 @@ The Sol Sector Starmap Visualization is an interactive 3D star map that transfor
 
 1. WHEN a user clicks on a star sprite THEN the System SHALL select that star system and display its information
 2. WHEN a user clicks on a star label THEN the System SHALL select that star system and display its information
-3. WHEN a star system is selected THEN the System SHALL provide visual feedback indicating the selection
+3. WHEN a star system is selected THEN the System SHALL change the star sprite color to bright yellow or white and add a subtle pulsing ring around it
 4. WHEN no star system is currently selected and a user clicks empty space THEN the System SHALL maintain the current state without errors
+5. WHEN a star system is currently selected and a user clicks empty space THEN the System SHALL deselect the star system and hide the HUD panel
+6. WHEN the System initializes THEN the System SHALL pre-select Sol and display its information in the HUD panel
 
 ### Requirement 4
 
@@ -62,11 +65,13 @@ The Sol Sector Starmap Visualization is an interactive 3D star map that transfor
 
 #### Acceptance Criteria
 
-1. WHEN a star system is selected THEN the System SHALL display a HUD panel containing the system name
-2. WHEN a star system is selected THEN the System SHALL display the system coordinates in the HUD panel
-3. WHEN a star system is selected THEN the System SHALL display the spectral class in the HUD panel
-4. WHEN a star system is selected THEN the System SHALL display the wormhole connection count in the HUD panel
-5. WHEN a star system is selected THEN the System SHALL display the reachability status in the HUD panel
+1. WHEN a star system is selected THEN the System SHALL display a HUD panel in the top-right corner with semi-transparent dark background and neon green borders
+2. WHEN a star system is selected THEN the System SHALL display the system name in the HUD panel
+3. WHEN a star system is selected THEN the System SHALL display the system coordinates in the HUD panel
+4. WHEN a star system is selected THEN the System SHALL display the spectral class in the HUD panel
+5. WHEN a star system is selected THEN the System SHALL display the wormhole connection count in the HUD panel
+6. WHEN a star system is selected THEN the System SHALL display the reachability status in the HUD panel
+7. WHEN the HUD panel is displayed THEN the System SHALL render a close button (X) that deselects the star system and hides the panel when clicked
 
 ### Requirement 5
 
@@ -111,6 +116,7 @@ The Sol Sector Starmap Visualization is an interactive 3D star map that transfor
 2. WHEN the System renders star sprites THEN the System SHALL apply a pulsing animation effect
 3. WHEN the System renders the scene THEN the System SHALL include subtle volumetric background glow effects
 4. WHEN the System renders visual elements THEN the System SHALL use neon color accents for stars and connections
+5. WHEN the System renders star sprites THEN the System SHALL color-code them by spectral class (e.g., G-class yellow, M-class red, K-class orange)
 
 ### Requirement 9
 
@@ -133,3 +139,16 @@ The Sol Sector Starmap Visualization is an interactive 3D star map that transfor
 2. WHEN the System positions stars THEN the System SHALL use the x, y, z coordinates directly as spatial positions
 3. WHEN the System displays system information THEN the System SHALL interpret the r property as a boolean where 1 equals reachable and 0 equals unreachable
 4. WHEN the System loads wormhole data THEN the System SHALL parse an array of two-element arrays where each element is a star system ID
+
+### Requirement 11
+
+**User Story:** As a user, I want to receive the visualization as a single self-contained file, so that I can easily share it via email and open it in any browser without installation.
+
+#### Acceptance Criteria
+
+1. WHEN the System is delivered THEN the System SHALL be packaged as a single HTML file
+2. WHEN the HTML file is delivered THEN the System SHALL include all JavaScript code inline within script tags
+3. WHEN the HTML file is delivered THEN the System SHALL include all CSS styles inline within style tags
+4. WHEN the HTML file is delivered THEN the System SHALL load Three.js library from a CDN
+5. WHEN a user opens the HTML file in a modern browser THEN the System SHALL function fully without requiring any additional files or network resources beyond the CDN library
+6. WHEN the HTML file is delivered THEN the System SHALL embed all star system data and wormhole connection data directly in the code
