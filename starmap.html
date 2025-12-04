@@ -310,6 +310,16 @@
             pulseSpeed: 2.0
         };
         
+        // Label configuration
+        const LABEL_CONFIG = {
+            maxFontSize: 18,      // pixels
+            minFontSize: 8,       // pixels
+            maxOpacity: 1.0,
+            minOpacity: 0.1,
+            nearDistance: 100,    // full size/opacity
+            farDistance: 500      // minimum opacity
+        };
+        
         // Map spectral class to color
         function getStarColor(spectralClass) {
             // Extract first character of spectral class (e.g., "G2" -> "G")
@@ -339,6 +349,108 @@
             return new THREE.CanvasTexture(canvas);
         }
         
+        // Create text sprite for star label
+        function createLabel(text, fontSize = 18) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set font for measuring text
+            ctx.font = `${fontSize}px 'Courier New', monospace`;
+            
+            // Measure text to size canvas appropriately
+            const metrics = ctx.measureText(text);
+            const textWidth = metrics.width;
+            const textHeight = fontSize * 1.4; // Add some padding
+            
+            // Set canvas size with padding
+            canvas.width = textWidth + 20;
+            canvas.height = textHeight + 10;
+            
+            // Re-set font after canvas resize (canvas resize clears context)
+            ctx.font = `${fontSize}px 'Courier New', monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Draw text with glow effect
+            ctx.fillStyle = '#00FF88'; // Neon green color
+            ctx.shadowColor = '#00FF88';
+            ctx.shadowBlur = 10;
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            
+            // Create texture from canvas
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            
+            // Create sprite material
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthTest: false,
+                depthWrite: false
+            });
+            
+            // Create sprite
+            const sprite = new THREE.Sprite(spriteMaterial);
+            
+            // Scale sprite to appropriate size
+            const scale = fontSize * 2;
+            sprite.scale.set(scale * (canvas.width / canvas.height), scale, 1);
+            
+            return sprite;
+        }
+        
+        // Calculate label properties based on distance from camera
+        function calculateLabelProperties(distance) {
+            // Clamp distance to configured range
+            const clampedDistance = Math.max(
+                LABEL_CONFIG.nearDistance,
+                Math.min(distance, LABEL_CONFIG.farDistance)
+            );
+            
+            // Calculate interpolation factor (0 at near, 1 at far)
+            const t = (clampedDistance - LABEL_CONFIG.nearDistance) / 
+                      (LABEL_CONFIG.farDistance - LABEL_CONFIG.nearDistance);
+            
+            // Calculate font size (linear interpolation)
+            const fontSize = LABEL_CONFIG.maxFontSize - 
+                           (LABEL_CONFIG.maxFontSize - LABEL_CONFIG.minFontSize) * t;
+            
+            // Calculate opacity (linear interpolation)
+            const opacity = LABEL_CONFIG.maxOpacity - 
+                          (LABEL_CONFIG.maxOpacity - LABEL_CONFIG.minOpacity) * t;
+            
+            return { fontSize, opacity };
+        }
+        
+        // Update label scale and opacity based on camera distance
+        function updateLabelScale() {
+            stars.forEach(star => {
+                if (star.label) {
+                    // Calculate distance from camera to star
+                    const distance = camera.position.distanceTo(star.position);
+                    
+                    // Get label properties for this distance
+                    const { fontSize, opacity } = calculateLabelProperties(distance);
+                    
+                    // Update label opacity
+                    star.label.material.opacity = opacity;
+                    
+                    // Update label scale based on font size
+                    // The scale factor maintains the aspect ratio
+                    const scaleFactor = fontSize / LABEL_CONFIG.maxFontSize;
+                    const baseScale = LABEL_CONFIG.maxFontSize * 2;
+                    const canvas = star.label.material.map.image;
+                    const aspectRatio = canvas.width / canvas.height;
+                    
+                    star.label.scale.set(
+                        baseScale * aspectRatio * scaleFactor,
+                        baseScale * scaleFactor,
+                        1
+                    );
+                }
+            });
+        }
+        
         // Create star systems
         function createStarSystems(starData) {
             // Create shared star texture for all stars
@@ -366,11 +478,20 @@
                 // Add sprite to scene
                 scene.add(sprite);
                 
+                // Create label for star system
+                const label = createLabel(data.name, LABEL_CONFIG.maxFontSize);
+                
+                // Position label near the star (offset slightly above)
+                label.position.set(data.x, data.y + 15, data.z);
+                
+                // Add label to scene
+                scene.add(label);
+                
                 // Store runtime star object
                 const starObject = {
                     data: data,
                     sprite: sprite,
-                    label: null,  // To be created in label system task
+                    label: label,
                     selectionRing: null,  // To be created in selection task
                     position: new THREE.Vector3(data.x, data.y, data.z),
                     originalColor: color  // Store original color for selection/deselection
@@ -379,7 +500,7 @@
                 stars.push(starObject);
             });
             
-            console.log(`Created ${stars.length} star systems`);
+            console.log(`Created ${stars.length} star systems with labels`);
         }
         
         // Update star pulsing animation
@@ -498,6 +619,9 @@
                 
                 // Update star pulsing animations
                 updateStarPulse(time);
+                
+                // Update label scales and opacities based on camera distance
+                updateLabelScale();
                 
                 // Render scene
                 renderer.render(scene, camera);
