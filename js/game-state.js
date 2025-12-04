@@ -272,6 +272,91 @@ export class GameStateManager {
     }
     
     // ========================================================================
+    // TRADING OPERATIONS
+    // ========================================================================
+    
+    /**
+     * Buy goods at current station
+     * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12
+     * 
+     * @param {string} goodType - Type of good to buy
+     * @param {number} quantity - Quantity to purchase
+     * @param {number} price - Price per unit at current station
+     * @returns {Object} { success: boolean, reason?: string }
+     */
+    buyGood(goodType, quantity, price) {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        const credits = this.state.player.credits;
+        const cargoSpace = this.getCargoRemaining();
+        
+        // Validate purchase using TradingSystem
+        const validation = this.validatePurchase(credits, cargoSpace, quantity, price);
+        if (!validation.valid) {
+            return { success: false, reason: validation.reason };
+        }
+        
+        // Calculate total cost
+        const totalCost = quantity * price;
+        
+        // Decrease credits (Requirement 7.4)
+        this.updateCredits(credits - totalCost);
+        
+        // Create new cargo stack (Requirements 7.5, 7.6)
+        const newCargo = this.addCargoStack(
+            this.state.ship.cargo,
+            goodType,
+            quantity,
+            price
+        );
+        this.updateCargo(newCargo);
+        
+        return { success: true };
+    }
+    
+    /**
+     * Validate if a purchase is possible
+     * Requirements: 7.11, 7.12
+     */
+    validatePurchase(credits, cargoSpace, quantity, price) {
+        const totalCost = quantity * price;
+        
+        if (totalCost > credits) {
+            return {
+                valid: false,
+                reason: 'Insufficient credits'
+            };
+        }
+        
+        if (quantity > cargoSpace) {
+            return {
+                valid: false,
+                reason: 'Not enough cargo space'
+            };
+        }
+        
+        return { valid: true };
+    }
+    
+    /**
+     * Add a cargo stack for a purchase
+     * Requirements: 7.5, 7.6
+     * 
+     * Always creates a separate stack (even if same good exists at different price).
+     */
+    addCargoStack(cargo, goodType, quantity, price) {
+        const newStack = {
+            good: goodType,
+            qty: quantity,
+            purchasePrice: price
+        };
+        
+        return [...cargo, newStack];
+    }
+    
+    // ========================================================================
     // SAVE/LOAD SYSTEM
     // ========================================================================
     

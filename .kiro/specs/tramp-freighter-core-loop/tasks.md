@@ -75,26 +75,26 @@
   - **Property 20: Cargo Capacity Calculation**
   - **Validates: Requirements 7.7**
 
-- [ ] 5. Implement buy mechanics with validation
+- [x] 5. Implement buy mechanics with validation
   - Implement purchase validation (check credits, check cargo space)
   - Implement buy transaction (decrease credits, create cargo stack with good type, quantity, purchase price)
   - Implement separate stack creation for different purchase prices
   - Add error handling for insufficient credits and cargo space
   - _Requirements: 7.4, 7.5, 7.6, 7.11, 7.12_
 
-- [ ] 5.1 Write property test for purchase credits deduction
+- [x] 5.1 Write property test for purchase credits deduction
   - **Property 17: Purchase Credits Deduction**
   - **Validates: Requirements 7.4**
 
-- [ ] 5.2 Write property test for purchase cargo stack creation
+- [x] 5.2 Write property test for purchase cargo stack creation
   - **Property 18: Purchase Cargo Stack Creation**
   - **Validates: Requirements 7.5**
 
-- [ ] 5.3 Write property test for separate stack for different prices
+- [x] 5.3 Write property test for separate stack for different prices
   - **Property 19: Separate Stack for Different Prices**
   - **Validates: Requirements 7.6**
 
-- [ ] 5.4 Write property test for resource constraint validation
+- [x] 5.4 Write property test for resource constraint validation
   - **Property 23: Resource Constraint Validation**
   - **Validates: Requirements 7.11, 7.12**
 
