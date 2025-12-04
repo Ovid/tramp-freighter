@@ -1,0 +1,17 @@
+{
+  "name": "tramp-freighter-blues",
+  "version": "1.0.0",
+  "description": "A space trading survival game built on the Sol Sector Starmap",
+  "type": "module",
+  "scripts": {
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "fast-check": "^3.15.0",
+    "@testing-library/dom": "^9.3.0",
+    "jsdom": "^23.0.0"
+  }
+}

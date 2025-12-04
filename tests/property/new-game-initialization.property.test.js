@@ -1,0 +1,128 @@
+/**
+ * Property-Based Tests for New Game Initialization
+ * Feature: tramp-freighter-core-loop, Property 0: New game initialization creates correct default state
+ * Validates: Requirements 1.4, 1.5
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import * as fc from 'fast-check';
+import { GameStateManager } from '../../game-state.js';
+import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+
+describe('Property 0: New Game Initialization', () => {
+    /**
+     * Property: For any new game initialization, the game state should contain exactly:
+     * - Player: 500 credits, 10000 debt, at system 0 (Sol), 0 days elapsed
+     * - Ship: 100% fuel, 50 cargo capacity, one cargo stack of 20 grain units at Sol's grain price
+     * - World: visitedSystems contains [0]
+     * - Meta: version and timestamp
+     */
+    it('should initialize with correct default values regardless of star data', () => {
+        fc.assert(
+            fc.property(
+                // We don't need to generate random data for this property
+                // since the initialization should always be the same
+                fc.constant(null),
+                () => {
+                    // Create a new game state manager
+                    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+                    
+                    // Initialize new game
+                    const state = manager.initNewGame();
+                    
+                    // Verify player state
+                    expect(state.player.credits).toBe(500);
+                    expect(state.player.debt).toBe(10000);
+                    expect(state.player.currentSystem).toBe(0); // Sol
+                    expect(state.player.daysElapsed).toBe(0);
+                    
+                    // Verify ship state
+                    expect(state.ship.name).toBe("Serendipity");
+                    expect(state.ship.fuel).toBe(100);
+                    expect(state.ship.cargoCapacity).toBe(50);
+                    
+                    // Verify cargo
+                    expect(state.ship.cargo).toHaveLength(1);
+                    expect(state.ship.cargo[0].good).toBe('grain');
+                    expect(state.ship.cargo[0].qty).toBe(20);
+                    
+                    // Verify cargo price is Sol's grain price (G2 spectral class)
+                    // G2 has modifier 0.8 for grain, base price is 10
+                    // Expected price: 10 * 0.8 = 8
+                    expect(state.ship.cargo[0].purchasePrice).toBe(8);
+                    
+                    // Verify world state
+                    expect(state.world.visitedSystems).toEqual([0]);
+                    
+                    // Verify meta
+                    expect(state.meta.version).toBe('1.0.0');
+                    expect(state.meta.timestamp).toBeTypeOf('number');
+                    expect(state.meta.timestamp).toBeGreaterThan(0);
+                }
+            ),
+            { numRuns: 100 } // Run 100 iterations as specified in design
+        );
+    });
+    
+    /**
+     * Additional property: Multiple initializations should produce consistent state
+     * (except for timestamp which will vary)
+     */
+    it('should produce consistent state across multiple initializations', () => {
+        fc.assert(
+            fc.property(
+                fc.integer({ min: 2, max: 10 }), // Number of times to initialize
+                (numInits) => {
+                    const states = [];
+                    
+                    for (let i = 0; i < numInits; i++) {
+                        const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+                        const state = manager.initNewGame();
+                        states.push(state);
+                    }
+                    
+                    // All states should have identical values (except timestamp)
+                    for (let i = 1; i < states.length; i++) {
+                        expect(states[i].player.credits).toBe(states[0].player.credits);
+                        expect(states[i].player.debt).toBe(states[0].player.debt);
+                        expect(states[i].player.currentSystem).toBe(states[0].player.currentSystem);
+                        expect(states[i].player.daysElapsed).toBe(states[0].player.daysElapsed);
+                        
+                        expect(states[i].ship.name).toBe(states[0].ship.name);
+                        expect(states[i].ship.fuel).toBe(states[0].ship.fuel);
+                        expect(states[i].ship.cargoCapacity).toBe(states[0].ship.cargoCapacity);
+                        
+                        expect(states[i].ship.cargo[0].good).toBe(states[0].ship.cargo[0].good);
+                        expect(states[i].ship.cargo[0].qty).toBe(states[0].ship.cargo[0].qty);
+                        expect(states[i].ship.cargo[0].purchasePrice).toBe(states[0].ship.cargo[0].purchasePrice);
+                        
+                        expect(states[i].world.visitedSystems).toEqual(states[0].world.visitedSystems);
+                        expect(states[i].meta.version).toBe(states[0].meta.version);
+                    }
+                }
+            ),
+            { numRuns: 100 }
+        );
+    });
+    
+    /**
+     * Property: Initial cargo should not exceed cargo capacity
+     */
+    it('should initialize with cargo that does not exceed capacity', () => {
+        fc.assert(
+            fc.property(
+                fc.constant(null),
+                () => {
+                    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+                    const state = manager.initNewGame();
+                    
+                    const totalCargo = state.ship.cargo.reduce((sum, stack) => sum + stack.qty, 0);
+                    
+                    expect(totalCargo).toBeLessThanOrEqual(state.ship.cargoCapacity);
+                    expect(totalCargo).toBe(20); // Should be exactly 20 for initial state
+                }
+            ),
+            { numRuns: 100 }
+        );
+    });
+});
