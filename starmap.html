@@ -308,6 +308,11 @@
         // Rotation state (default: enabled)
         let autoRotationEnabled = true;
         
+        // Selection state
+        let selectedStar = null;
+        let raycaster = null;
+        let mouse = new THREE.Vector2();
+        
         // Spectral class color mapping
         const SPECTRAL_COLORS = {
             'O': 0x9BB0FF,  // Blue (hottest)
@@ -845,8 +850,86 @@
             console.log(`Auto-rotation ${autoRotationEnabled ? 'enabled' : 'disabled'}`);
         }
         
+        // Set up raycaster for click detection
+        function setupRaycaster() {
+            raycaster = new THREE.Raycaster();
+            
+            // Add click event listener to canvas
+            renderer.domElement.addEventListener('click', onCanvasClick, false);
+            
+            console.log('Raycaster initialized for selection');
+        }
+        
+        // Handle canvas click events
+        function onCanvasClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update raycaster with camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Create array of all clickable objects (sprites and labels)
+            const clickableObjects = [];
+            stars.forEach(star => {
+                clickableObjects.push(star.sprite);
+                clickableObjects.push(star.label);
+            });
+            
+            // Calculate intersections
+            const intersects = raycaster.intersectObjects(clickableObjects, false);
+            
+            if (intersects.length > 0) {
+                // Find which star was clicked
+                const clickedObject = intersects[0].object;
+                
+                // Find the star that owns this sprite or label
+                const clickedStar = stars.find(star => 
+                    star.sprite === clickedObject || star.label === clickedObject
+                );
+                
+                if (clickedStar) {
+                    selectStar(clickedStar);
+                }
+            } else {
+                // Empty space clicked
+                if (selectedStar) {
+                    // Deselect if a star is currently selected
+                    deselectStar();
+                }
+                // If no star is selected, do nothing (no-op)
+            }
+        }
+        
+        // Select a star system
+        function selectStar(star) {
+            // Deselect current star if any
+            if (selectedStar) {
+                deselectStar();
+            }
+            
+            // Set new selection
+            selectedStar = star;
+            
+            console.log(`Selected star: ${star.data.name}`);
+            
+            // Visual feedback will be implemented in task 11
+            // HUD display will be implemented in tasks 12-13
+        }
+        
+        // Deselect current star
         function deselectStar() {
-            console.log('Deselect Star - to be implemented');
+            if (!selectedStar) {
+                return; // No star selected, nothing to do
+            }
+            
+            console.log(`Deselected star: ${selectedStar.data.name}`);
+            
+            // Clear selection
+            selectedStar = null;
+            
+            // Visual feedback removal will be implemented in task 11
+            // HUD hiding will be implemented in task 12
         }
         
         // Expose functions to global scope for onclick handlers
@@ -923,6 +1006,9 @@
                 
                 // Create sector boundary
                 setupSectorBoundary();
+                
+                // Set up raycaster for selection
+                setupRaycaster();
                 
                 // Start animation loop
                 animate();

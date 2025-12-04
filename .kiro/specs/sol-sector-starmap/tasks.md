@@ -162,7 +162,7 @@
   - **Property 7: Active buttons have correct styling**
   - **Validates: Requirements 2.5**
 
-- [ ] 10. Implement selection system with raycasting
+- [x] 10. Implement selection system with raycasting
   - Set up raycaster for click detection
   - Add click event listener to canvas
   - Implement raycast intersection with sprites and labels
