@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameStateManager } from './game-state.js';
 import { NavigationSystem } from './game-navigation.js';
 import { UIManager } from './game-ui.js';
-import { SPECTRAL_COLORS } from './game-constants.js';
+import { SPECTRAL_COLORS, VISUAL_CONFIG, LABEL_CONFIG } from './game-constants.js';
 
 // Make THREE available globally for debugging
 window.THREE = THREE;
@@ -170,32 +170,13 @@ let selectedStar = null;
 let raycaster = null;
 const mouse = { x: 0, y: 0 };
 
-// Visual configuration
-const VISUAL_CONFIG = {
-    starSize: 20,
-    pulseAmplitude: 0.15,
-    pulseSpeed: 2.0,
-    selectionRingSize: 30,
-    selectionRingPulseSpeed: 3.0,
-    selectionColor: 0xFFFF00  // Bright yellow
-};
+// Hover tooltip cache to avoid recalculating on every mousemove
+let _lastHoveredStarId = null;
 
-// Label configuration
-const LABEL_CONFIG = {
-    maxFontSize: 18,      // pixels
-    minFontSize: 8,       // pixels
-    maxOpacity: 1.0,
-    minOpacity: 0.1,
-    nearDistance: 100,    // full size/opacity
-    farDistance: 500      // minimum opacity
-};
-
-// Map spectral class to color
+// Spectral classes include subtypes (e.g., "G2", "M5.5"), but colors map to main types only
 function getStarColor(spectralClass) {
-    // Extract first character of spectral class (e.g., "G2" -> "G")
     const spectralType = spectralClass.charAt(0).toUpperCase();
-    // Return color from mapping, default to white if unknown
-    return SPECTRAL_COLORS[spectralType] || 0xFFFFFF;
+    return SPECTRAL_COLORS[spectralType] || VISUAL_CONFIG.defaultStarColor;
 }
 
 // Create a realistic star texture with radial glow
@@ -609,17 +590,25 @@ function createWormholeLines(connections, starObjects) {
             const geometry = new THREE.BufferGeometry();
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             
-            // Default color (will be updated based on fuel)
             const material = new THREE.LineBasicMaterial({
-                color: 0x00CCFF,
+                color: VISUAL_CONFIG.connectionColors.default,
                 linewidth: 2,
                 transparent: true,
-                opacity: 0.6
+                opacity: VISUAL_CONFIG.connectionOpacity.default
             });
             
             const line = new THREE.LineSegments(geometry, material);
             scene.add(line);
             wormholeLines.push(line);
+            
+            // Pre-calculate distance and fuel cost (star positions never change)
+            // This avoids recalculating on every fuel/location change
+            const distance = Math.sqrt(
+                Math.pow(star1.data.x - star2.data.x, 2) +
+                Math.pow(star1.data.y - star2.data.y, 2) +
+                Math.pow(star1.data.z - star2.data.z, 2)
+            ) / 10;
+            const fuelCost = 10 + (distance * 2);
             
             // Store connection data for fuel-based coloring
             wormholeConnections.push({
@@ -627,7 +616,9 @@ function createWormholeLines(connections, starObjects) {
                 systemId2: id2,
                 line: line,
                 star1: star1,
-                star2: star2
+                star2: star2,
+                distance: distance,
+                fuelCost: fuelCost
             });
             
             validConnections++;
@@ -641,12 +632,32 @@ function createWormholeLines(connections, starObjects) {
 }
 
 /**
+ * Determine connection color state based on fuel availability
+ * Pure function for testability
+ * 
+ * @param {number} currentFuel - Current fuel percentage (0-100)
+ * @param {number} fuelCost - Fuel cost for the jump
+ * @returns {'insufficient'|'warning'|'sufficient'} Color state
+ */
+export function determineConnectionColor(currentFuel, fuelCost) {
+    if (currentFuel < fuelCost) {
+        return 'insufficient';
+    }
+    const fuelRemaining = currentFuel - fuelCost;
+    if (fuelRemaining >= 10 && fuelRemaining <= 20) {
+        return 'warning';
+    }
+    return 'sufficient';
+}
+
+/**
  * Update wormhole connection colors based on current fuel availability
  * Requirements: 5.2, 5.3, 5.4
  * 
- * Green: sufficient fuel for jump
- * Yellow: 10-20% fuel remaining after jump
- * Red: insufficient fuel for jump
+ * Color coding provides visual feedback for jump feasibility:
+ * - Green: sufficient fuel with comfortable margin
+ * - Yellow: 10-20% remaining triggers warning (player should refuel soon)
+ * - Red: insufficient fuel prevents jump
  */
 function updateConnectionColors() {
     if (!gameStateManager || !gameStateManager.state) {
@@ -657,38 +668,15 @@ function updateConnectionColors() {
     const currentFuel = gameStateManager.state.ship.fuel;
     
     wormholeConnections.forEach(conn => {
-        // Only color connections from current system
         if (conn.systemId1 !== currentSystemId && conn.systemId2 !== currentSystemId) {
-            // Default color for non-current connections
-            conn.line.material.color.setHex(0x00CCFF);
-            conn.line.material.opacity = 0.6;
+            conn.line.material.color.setHex(VISUAL_CONFIG.connectionColors.default);
+            conn.line.material.opacity = VISUAL_CONFIG.connectionOpacity.default;
             return;
         }
         
-        // Calculate distance and fuel cost
-        const distance = gameStateManager.navigationSystem.calculateDistanceBetween(
-            conn.star1.data,
-            conn.star2.data
-        );
-        const fuelCost = gameStateManager.navigationSystem.calculateFuelCost(distance);
-        
-        // Determine color based on fuel availability
-        if (currentFuel < fuelCost) {
-            // Red: insufficient fuel
-            conn.line.material.color.setHex(0xFF0000);
-            conn.line.material.opacity = 0.8;
-        } else {
-            const fuelRemaining = currentFuel - fuelCost;
-            if (fuelRemaining >= 10 && fuelRemaining <= 20) {
-                // Yellow: 10-20% remaining
-                conn.line.material.color.setHex(0xFFFF00);
-                conn.line.material.opacity = 0.8;
-            } else {
-                // Green: sufficient fuel
-                conn.line.material.color.setHex(0x00FF00);
-                conn.line.material.opacity = 0.8;
-            }
-        }
+        const colorState = determineConnectionColor(currentFuel, conn.fuelCost);
+        conn.line.material.color.setHex(VISUAL_CONFIG.connectionColors[colorState]);
+        conn.line.material.opacity = VISUAL_CONFIG.connectionOpacity.active;
     });
 }
 
@@ -703,10 +691,10 @@ function initScene() {
         }
         
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
+        scene.background = new THREE.Color(VISUAL_CONFIG.sceneBackground);
         
         // Exponential fog creates subtle volumetric depth without obscuring nearby stars
-        scene.fog = new THREE.FogExp2(0x000000, 0.0003);
+        scene.fog = new THREE.FogExp2(VISUAL_CONFIG.sceneBackground, 0.0003);
         
         camera = new THREE.PerspectiveCamera(
             60,
@@ -726,10 +714,10 @@ function initScene() {
         container.appendChild(renderer.domElement);
         
         // Ambient + directional lighting provides depth without harsh shadows
-        ambientLight = new THREE.AmbientLight(0x404040, 1.5);
+        ambientLight = new THREE.AmbientLight(VISUAL_CONFIG.ambientLightColor, 1.5);
         scene.add(ambientLight);
         
-        directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight = new THREE.DirectionalLight(VISUAL_CONFIG.directionalLightColor, 0.8);
         directionalLight.position.set(1, 1, 1).normalize();
         scene.add(directionalLight);
         
@@ -877,9 +865,8 @@ function setupSectorBoundary() {
     // Use EdgesGeometry for clean wireframe lines
     const edgesGeometry = new THREE.EdgesGeometry(sphereGeometry);
     
-    // Create line material with brighter color for visibility
     const material = new THREE.LineBasicMaterial({
-        color: 0x00FF88,  // Neon green to match theme
+        color: VISUAL_CONFIG.sectorBoundaryColor,
         transparent: true,
         opacity: 0.5
     });
@@ -1119,16 +1106,8 @@ function showJumpTooltip(targetStar, mouseX, mouseY) {
         return;
     }
     
-    const currentSystem = gameStateManager.getCurrentSystem();
+    const currentSystemId = gameStateManager.state.player.currentSystem;
     const currentFuel = gameStateManager.state.ship.fuel;
-    
-    // Calculate jump parameters
-    const distance = gameStateManager.navigationSystem.calculateDistanceBetween(
-        currentSystem,
-        targetStar.data
-    );
-    const jumpTime = gameStateManager.navigationSystem.calculateJumpTime(distance);
-    const fuelCost = gameStateManager.navigationSystem.calculateFuelCost(distance);
     
     // Get or create tooltip element
     let tooltip = document.getElementById('jump-tooltip');
@@ -1149,18 +1128,35 @@ function showJumpTooltip(targetStar, mouseX, mouseY) {
         document.body.appendChild(tooltip);
     }
     
-    // Format tooltip content
-    const fuelStatus = currentFuel >= fuelCost ? '✓' : '✗';
-    const fuelColor = currentFuel >= fuelCost ? '#00FF88' : '#FF0000';
+    // Only recalculate content if hovering a different star
+    if (_lastHoveredStarId !== targetStar.data.id) {
+        // Find the connection to get pre-calculated values
+        const connection = wormholeConnections.find(conn =>
+            (conn.systemId1 === currentSystemId && conn.systemId2 === targetStar.data.id) ||
+            (conn.systemId2 === currentSystemId && conn.systemId1 === targetStar.data.id)
+        );
+        
+        if (connection) {
+            const distance = connection.distance;
+            const fuelCost = connection.fuelCost;
+            const jumpTime = Math.max(1, Math.ceil(distance * 0.5));
+            
+            // Format tooltip content
+            const fuelStatus = currentFuel >= fuelCost ? '✓' : '✗';
+            const fuelColor = currentFuel >= fuelCost ? '#00FF88' : '#FF0000';
+            
+            tooltip.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">${targetStar.data.name}</div>
+                <div>Distance: ${distance.toFixed(2)} LY</div>
+                <div>Jump Time: ${jumpTime} days</div>
+                <div style="color: ${fuelColor};">Fuel Cost: ${fuelCost.toFixed(1)}% ${fuelStatus}</div>
+            `;
+            
+            _lastHoveredStarId = targetStar.data.id;
+        }
+    }
     
-    tooltip.innerHTML = `
-        <div style="font-weight: bold; margin-bottom: 5px;">${targetStar.data.name}</div>
-        <div>Distance: ${distance.toFixed(2)} LY</div>
-        <div>Jump Time: ${jumpTime} days</div>
-        <div style="color: ${fuelColor};">Fuel Cost: ${fuelCost.toFixed(1)}% ${fuelStatus}</div>
-    `;
-    
-    // Position tooltip near mouse cursor (offset to avoid covering star)
+    // Always update position (cheap operation)
     tooltip.style.left = (mouseX + 15) + 'px';
     tooltip.style.top = (mouseY + 15) + 'px';
     tooltip.style.display = 'block';
@@ -1174,6 +1170,7 @@ function hideJumpTooltip() {
     if (tooltip) {
         tooltip.style.display = 'none';
     }
+    _lastHoveredStarId = null;
 }
 
 function selectStar(star) {
@@ -1236,7 +1233,7 @@ function updateCurrentSystemIndicator() {
     
     // Make it slightly larger and different color to distinguish from selection
     currentSystemIndicator.scale.set(1.2, 1.2, 1);
-    currentSystemIndicator.material.color.setHex(0x00FF88); // Green instead of yellow
+    currentSystemIndicator.material.color.setHex(VISUAL_CONFIG.currentSystemColor);
     
     scene.add(currentSystemIndicator);
 }

@@ -114,3 +114,48 @@ export const GAME_VERSION = '1.0.0';
  * localStorage key for save data
  */
 export const SAVE_KEY = 'trampFreighterSave';
+
+/**
+ * Visual configuration for starmap rendering
+ * 
+ * Centralized visual constants ensure consistent appearance across the starmap.
+ * Connection colors provide player feedback for jump feasibility.
+ */
+export const VISUAL_CONFIG = {
+    starSize: 20,
+    pulseAmplitude: 0.15,
+    pulseSpeed: 2.0,
+    selectionRingSize: 30,
+    selectionRingPulseSpeed: 3.0,
+    selectionColor: 0xFFFF00,
+    currentSystemColor: 0x00FF88,
+    sectorBoundaryColor: 0x00FF88,
+    defaultStarColor: 0xFFFFFF,
+    sceneBackground: 0x000000,
+    ambientLightColor: 0x404040,
+    directionalLightColor: 0xFFFFFF,
+    connectionColors: {
+        default: 0x00CCFF,
+        sufficient: 0x00FF00,
+        warning: 0xFFFF00,
+        insufficient: 0xFF0000
+    },
+    connectionOpacity: {
+        default: 0.6,
+        active: 0.8
+    }
+};
+
+/**
+ * Label configuration for star system names
+ * 
+ * Distance-based scaling provides depth perception without cluttering the view.
+ */
+export const LABEL_CONFIG = {
+    maxFontSize: 18,
+    minFontSize: 8,
+    maxOpacity: 1.0,
+    minOpacity: 0.1,
+    nearDistance: 100,
+    farDistance: 500
+};
