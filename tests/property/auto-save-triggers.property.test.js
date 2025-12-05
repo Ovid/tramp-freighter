@@ -22,6 +22,12 @@ describe('Property 34: Auto-Save Triggers', () => {
         gameStateManager.lastSaveTime = 0;
     });
     
+    // Helper to reset save state between property test iterations
+    function resetSaveState() {
+        localStorage.clear();
+        gameStateManager.lastSaveTime = 0;
+    }
+    
     /**
      * Feature: tramp-freighter-core-loop, Property 34: Auto-Save Triggers
      * Validates: Requirements 4.8, 7.15, 8.10, 10.3, 10.4, 10.5, 10.6
@@ -37,9 +43,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                 (connection) => {
                     const [systemId1, systemId2] = connection;
                     
-                    // Clear any previous save and reset debounce
-                    localStorage.clear();
-                    gameStateManager.lastSaveTime = 0;
+                    resetSaveState();
                     
                     // Set up game state with sufficient fuel
                     gameStateManager.updateLocation(systemId1);
@@ -59,7 +63,10 @@ describe('Property 34: Auto-Save Triggers', () => {
                     expect(savedData).not.toBe(null);
                     
                     // Verify saved state matches current state
-                    const parsedSave = JSON.parse(savedData);
+                    let parsedSave;
+                    expect(() => {
+                        parsedSave = JSON.parse(savedData);
+                    }).not.toThrow();
                     expect(parsedSave.player.currentSystem).toBe(systemId2);
                     
                     return true;
@@ -76,9 +83,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                 fc.integer({ min: 1, max: 10 }),
                 fc.integer({ min: 5, max: 50 }),
                 (goodType, quantity, price) => {
-                    // Clear any previous save and reset debounce
-                    localStorage.clear();
-                    gameStateManager.lastSaveTime = 0;
+                    resetSaveState();
                     
                     // Set up game state with sufficient credits and cargo space
                     // Clear existing cargo to ensure we have space
@@ -99,7 +104,10 @@ describe('Property 34: Auto-Save Triggers', () => {
                     expect(savedData).not.toBe(null);
                     
                     // Verify saved state reflects the purchase
-                    const parsedSave = JSON.parse(savedData);
+                    let parsedSave;
+                    expect(() => {
+                        parsedSave = JSON.parse(savedData);
+                    }).not.toThrow();
                     const hasPurchasedGood = parsedSave.ship.cargo.some(
                         stack => stack.good === goodType && stack.qty === quantity && stack.purchasePrice === price
                     );
@@ -118,9 +126,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                 fc.integer({ min: 1, max: 10 }),
                 fc.integer({ min: 5, max: 50 }),
                 (quantity, salePrice) => {
-                    // Clear any previous save and reset debounce
-                    localStorage.clear();
-                    gameStateManager.lastSaveTime = 0;
+                    resetSaveState();
                     
                     // Set up game state with cargo to sell
                     const initialCargo = [
@@ -142,7 +148,10 @@ describe('Property 34: Auto-Save Triggers', () => {
                     expect(savedData).not.toBe(null);
                     
                     // Verify saved state reflects the sale
-                    const parsedSave = JSON.parse(savedData);
+                    let parsedSave;
+                    expect(() => {
+                        parsedSave = JSON.parse(savedData);
+                    }).not.toThrow();
                     const expectedQty = 20 - Math.min(quantity, 20);
                     if (expectedQty > 0) {
                         expect(parsedSave.ship.cargo[0].qty).toBe(expectedQty);
@@ -163,9 +172,7 @@ describe('Property 34: Auto-Save Triggers', () => {
             fc.property(
                 fc.integer({ min: 1, max: 50 }),
                 (refuelAmount) => {
-                    // Clear any previous save and reset debounce
-                    localStorage.clear();
-                    gameStateManager.lastSaveTime = 0;
+                    resetSaveState();
                     
                     // Set up game state with low fuel and sufficient credits
                     gameStateManager.updateFuel(30);
@@ -185,7 +192,10 @@ describe('Property 34: Auto-Save Triggers', () => {
                     expect(savedData).not.toBe(null);
                     
                     // Verify saved state reflects the refuel
-                    const parsedSave = JSON.parse(savedData);
+                    let parsedSave;
+                    expect(() => {
+                        parsedSave = JSON.parse(savedData);
+                    }).not.toThrow();
                     expect(parsedSave.ship.fuel).toBe(30 + refuelAmount);
                     
                     return true;
@@ -232,16 +242,18 @@ describe('Property 34: Auto-Save Triggers', () => {
     });
     
     it('should debounce saves (max 1 save per second)', () => {
-        // Clear any previous save and reset debounce
-        localStorage.clear();
-        gameStateManager.lastSaveTime = 0;
+        resetSaveState();
         
         // First save should succeed
         const firstSave = gameStateManager.saveGame();
         expect(firstSave).toBe(true);
         
         const firstSaveData = localStorage.getItem('trampFreighterSave');
-        const firstTimestamp = JSON.parse(firstSaveData).meta.timestamp;
+        let firstParsedSave;
+        expect(() => {
+            firstParsedSave = JSON.parse(firstSaveData);
+        }).not.toThrow();
+        const firstTimestamp = firstParsedSave.meta.timestamp;
         const firstLastSaveTime = gameStateManager.lastSaveTime;
         
         // Immediate second save should be debounced
@@ -250,7 +262,11 @@ describe('Property 34: Auto-Save Triggers', () => {
         
         // Timestamp should not have changed
         const secondSaveData = localStorage.getItem('trampFreighterSave');
-        const secondTimestamp = JSON.parse(secondSaveData).meta.timestamp;
+        let secondParsedSave;
+        expect(() => {
+            secondParsedSave = JSON.parse(secondSaveData);
+        }).not.toThrow();
+        const secondTimestamp = secondParsedSave.meta.timestamp;
         expect(secondTimestamp).toBe(firstTimestamp);
         
         // lastSaveTime should not have changed
@@ -264,7 +280,11 @@ describe('Property 34: Auto-Save Triggers', () => {
         expect(thirdSave).toBe(true);
         
         const thirdSaveData = localStorage.getItem('trampFreighterSave');
-        const thirdTimestamp = JSON.parse(thirdSaveData).meta.timestamp;
+        let thirdParsedSave;
+        expect(() => {
+            thirdParsedSave = JSON.parse(thirdSaveData);
+        }).not.toThrow();
+        const thirdTimestamp = thirdParsedSave.meta.timestamp;
         // Third timestamp should be greater than or equal to first (time has passed)
         expect(thirdTimestamp).toBeGreaterThanOrEqual(firstTimestamp);
         // lastSaveTime should have been updated
@@ -291,8 +311,9 @@ describe('Property 34: Auto-Save Triggers', () => {
                     // Attempt purchase that should fail
                     const result = gameStateManager.buyGood(goodType, quantity, price);
                     
-                    // Should fail
+                    // Should fail due to insufficient cargo space
                     expect(result.success).toBe(false);
+                    expect(result.reason).toBe('Not enough cargo space');
                     
                     // Should NOT have auto-saved
                     const savedData = localStorage.getItem('trampFreighterSave');

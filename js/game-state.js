@@ -8,6 +8,9 @@ import {
     SAVE_KEY
 } from './game-constants.js';
 
+// Save debouncing prevents excessive localStorage writes (max 1 save per second)
+const SAVE_DEBOUNCE_MS = 1000;
+
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
  * 
@@ -36,9 +39,8 @@ export class GameStateManager {
         // Initialize with null state (will be set by initNewGame or loadGame)
         this.state = null;
         
-        // Save debouncing: max 1 save per second (Requirement 10.6)
+        // Track last save time for debouncing (Requirement 10.6)
         this.lastSaveTime = 0;
-        this.SAVE_DEBOUNCE_MS = 1000;
     }
     
     /**
@@ -274,7 +276,7 @@ export class GameStateManager {
         );
         this.updateCargo(newCargo);
         
-        // Auto-save after trade transaction (Requirement 7.15)
+        // Persist immediately - trade transactions modify credits and cargo (Requirement 7.15)
         this.saveGame();
         
         return { success: true };
@@ -340,7 +342,7 @@ export class GameStateManager {
         const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
         this.updateCargo(newCargo);
         
-        // Auto-save after trade transaction (Requirement 7.15)
+        // Persist immediately - trade transactions modify credits and cargo (Requirement 7.15)
         this.saveGame();
         
         return { 
@@ -503,6 +505,8 @@ export class GameStateManager {
         
         this.updateCredits(credits - validation.cost);
         this.updateFuel(currentFuel + amount);
+        
+        // Persist immediately - refuel modifies credits and fuel (Requirement 8.10)
         this.saveGame();
         
         return { success: true, reason: null };
@@ -513,36 +517,34 @@ export class GameStateManager {
     // ========================================================================
     
     /**
-     * Dock at current system's station
-     * Requirements: 10.5
+     * Dock at current system's station to access trading and refueling
      * 
-     * This is a state transition that triggers auto-save.
-     * Future implementation may add docked state tracking.
+     * Currently a state transition marker for auto-save (Requirement 10.5).
+     * Future: Will enable station UI, prevent jumps while docked, track docked state.
      */
     dock() {
         if (!this.state) {
             return { success: false, reason: 'No game state' };
         }
         
-        // Auto-save after dock operation (Requirement 10.5)
+        // Persist state transition - prevents loss if player closes browser while docked (Requirement 10.5)
         this.saveGame();
         
         return { success: true };
     }
     
     /**
-     * Undock from current system's station
-     * Requirements: 10.5
+     * Undock from current system's station to resume navigation
      * 
-     * This is a state transition that triggers auto-save.
-     * Future implementation may add docked state tracking.
+     * Currently a state transition marker for auto-save (Requirement 10.5).
+     * Future: Will close station UI, enable jumps, track undocked state.
      */
     undock() {
         if (!this.state) {
             return { success: false, reason: 'No game state' };
         }
         
-        // Auto-save after undock operation (Requirement 10.5)
+        // Persist state transition - prevents loss if player closes browser while undocked (Requirement 10.5)
         this.saveGame();
         
         return { success: true };
@@ -567,7 +569,7 @@ export class GameStateManager {
         
         // Debounce: skip save if less than 1 second since last save
         const now = Date.now();
-        if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
+        if (now - this.lastSaveTime < SAVE_DEBOUNCE_MS) {
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Save debounced (too soon since last save)');
             }
