@@ -115,9 +115,6 @@ export class GameStateManager {
         }
     }
     
-    /**
-     * Unsubscribe from state change events
-     */
     unsubscribe(eventType, callback) {
         if (!this.subscribers[eventType]) {
             return;
@@ -129,9 +126,6 @@ export class GameStateManager {
         }
     }
     
-    /**
-     * Emit an event to all subscribers
-     */
     emit(eventType, data) {
         if (!this.subscribers[eventType]) {
             return;
@@ -184,9 +178,6 @@ export class GameStateManager {
     // STATE MUTATIONS
     // ========================================================================
     
-    /**
-     * Update player credits and emit event
-     */
     updateCredits(newCredits) {
         if (!this.state) return;
         
@@ -194,9 +185,6 @@ export class GameStateManager {
         this.emit('creditsChanged', newCredits);
     }
     
-    /**
-     * Update player debt and emit event
-     */
     updateDebt(newDebt) {
         if (!this.state) return;
         
@@ -204,20 +192,14 @@ export class GameStateManager {
         this.emit('debtChanged', newDebt);
     }
     
-    /**
-     * Update ship fuel and emit event
-     */
     updateFuel(newFuel) {
         if (!this.state) return;
         
-        // Clamp fuel to 0-100 range
+        // Clamp to valid percentage range to prevent invalid states
         this.state.ship.fuel = Math.max(0, Math.min(100, newFuel));
         this.emit('fuelChanged', this.state.ship.fuel);
     }
     
-    /**
-     * Update cargo and emit event
-     */
     updateCargo(newCargo) {
         if (!this.state) return;
         
@@ -225,15 +207,12 @@ export class GameStateManager {
         this.emit('cargoChanged', newCargo);
     }
     
-    /**
-     * Update current system and emit event
-     */
     updateLocation(newSystemId) {
         if (!this.state) return;
         
         this.state.player.currentSystem = newSystemId;
         
-        // Add to visited systems if not already visited
+        // Track exploration progress for future features (price discovery, missions)
         if (!this.state.world.visitedSystems.includes(newSystemId)) {
             this.state.world.visitedSystems.push(newSystemId);
         }
@@ -241,9 +220,6 @@ export class GameStateManager {
         this.emit('locationChanged', newSystemId);
     }
     
-    /**
-     * Update days elapsed and emit event
-     */
     updateTime(newDays) {
         if (!this.state) return;
         
@@ -256,13 +232,8 @@ export class GameStateManager {
     // ========================================================================
     
     /**
-     * Buy goods at current station
+     * Execute a purchase transaction
      * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12
-     * 
-     * @param {string} goodType - Type of good to buy
-     * @param {number} quantity - Quantity to purchase
-     * @param {number} price - Price per unit at current station
-     * @returns {Object} { success: boolean, reason?: string }
      */
     buyGood(goodType, quantity, price) {
         if (!this.state) {
@@ -296,10 +267,7 @@ export class GameStateManager {
         return { success: true };
     }
     
-    /**
-     * Validate if a purchase is possible
-     * Requirements: 7.11, 7.12
-     */
+    // Requirements: 7.11, 7.12
     validatePurchase(credits, cargoSpace, quantity, price) {
         const totalCost = quantity * price;
         
@@ -321,10 +289,8 @@ export class GameStateManager {
     }
     
     /**
-     * Add a cargo stack for a purchase
+     * Always creates a separate stack (even if same good exists at different price)
      * Requirements: 7.5, 7.6
-     * 
-     * Always creates a separate stack (even if same good exists at different price).
      */
     addCargoStack(cargo, goodType, quantity, price) {
         const newStack = {
@@ -337,13 +303,8 @@ export class GameStateManager {
     }
     
     /**
-     * Sell goods from a cargo stack
+     * Execute a sale transaction from a specific cargo stack
      * Requirements: 7.3, 7.9, 7.10
-     * 
-     * @param {number} stackIndex - Index of cargo stack to sell from
-     * @param {number} quantity - Quantity to sell
-     * @param {number} salePrice - Price per unit at current station
-     * @returns {Object} { success: boolean, reason?: string, profitMargin?: number }
      */
     sellGood(stackIndex, quantity, salePrice) {
         if (!this.state) {
@@ -378,10 +339,7 @@ export class GameStateManager {
         };
     }
     
-    /**
-     * Validate if a sale is possible
-     * Requirements: 7.8
-     */
+    // Requirements: 7.8
     validateSale(cargo, stackIndex, quantity) {
         if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
             return {
@@ -409,11 +367,8 @@ export class GameStateManager {
     }
     
     /**
-     * Remove quantity from a cargo stack
+     * Decreases quantity in stack; removes stack if empty
      * Requirements: 7.10
-     * 
-     * Decreases the quantity in the specified stack.
-     * If quantity reaches 0, the stack is removed.
      */
     removeFromCargoStack(cargo, stackIndex, quantity) {
         const updatedCargo = [...cargo];
@@ -539,9 +494,6 @@ export class GameStateManager {
         }
     }
     
-    /**
-     * Clear saved game from localStorage
-     */
     clearSave() {
         try {
             localStorage.removeItem(SAVE_KEY);
