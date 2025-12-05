@@ -51,7 +51,6 @@ describe('Property 11: Jump State Transition', () => {
                     
                     const initialFuel = gameStateManager.getState().ship.fuel;
                     const initialTime = gameStateManager.getState().player.daysElapsed;
-                    const initialSystem = gameStateManager.getState().player.currentSystem;
                     
                     // Execute jump
                     const result = navSystem.executeJump(gameStateManager, systemId2);

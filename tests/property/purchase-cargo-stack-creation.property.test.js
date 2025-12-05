@@ -38,7 +38,6 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
                     gameState.updateCredits(initialCredits);
                     
                     // Clear cargo to start fresh
-                    const initialCargoCount = gameState.getShip().cargo.length;
                     gameState.updateCargo([]);
                     
                     const totalCost = quantity * price;

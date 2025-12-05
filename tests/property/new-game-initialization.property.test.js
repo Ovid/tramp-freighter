@@ -4,7 +4,7 @@
  * Validates: Requirements 1.4, 1.5
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
