@@ -543,36 +543,19 @@ function updateSelectionRingPulse(time) {
 
 // Create wormhole connection lines
 function createWormholeLines(connections, starObjects) {
-    // Create a map for quick star lookup by ID
     const starMap = new Map();
     starObjects.forEach(star => {
         starMap.set(star.data.id, star);
     });
     
-    // Create shared materials (only 2 materials for entire scene)
-    const reachableMaterial = new THREE.LineBasicMaterial({
-        color: 0x00CCFF,
-        linewidth: 2,
-        transparent: true,
-        opacity: 0.6
-    });
-    
-    const unreachableMaterial = new THREE.LineBasicMaterial({
-        color: 0x884444,
-        linewidth: 2,
-        transparent: true,
-        opacity: 0.6
-    });
+    // Separate positions for reachable and unreachable connections
+    const reachablePositions = [];
+    const unreachablePositions = [];
     
     let validConnections = 0;
     let invalidConnections = 0;
     
-    // Reuse points array to avoid allocation per connection
-    const points = [];
-    
-    // Process each wormhole connection
     connections.forEach(connection => {
-        // Validate that connection is a two-element array
         if (!Array.isArray(connection) || connection.length !== 2) {
             console.warn('Invalid wormhole connection format:', connection);
             invalidConnections++;
@@ -580,8 +563,6 @@ function createWormholeLines(connections, starObjects) {
         }
         
         const [id1, id2] = connection;
-        
-        // Validate that both star IDs exist
         const star1 = starMap.get(id1);
         const star2 = starMap.get(id2);
         
@@ -597,25 +578,52 @@ function createWormholeLines(connections, starObjects) {
             return;
         }
         
-        // Clear and reuse points array to avoid allocation
-        points.length = 0;
-        points.push(star1.position);
-        points.push(star2.position);
+        // Add positions to appropriate array
+        const positions = (star1.data.r === 1 && star2.data.r === 1) 
+            ? reachablePositions 
+            : unreachablePositions;
         
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        
-        // Select material based on reachability (reuse shared materials)
-        const material = (star1.data.r === 1 && star2.data.r === 1) 
-            ? reachableMaterial 
-            : unreachableMaterial;
-        
-        // Create line and add to scene
-        const line = new THREE.Line(geometry, material);
-        scene.add(line);
-        wormholeLines.push(line);
+        positions.push(star1.position.x, star1.position.y, star1.position.z);
+        positions.push(star2.position.x, star2.position.y, star2.position.z);
         
         validConnections++;
     });
+    
+    // Create reachable connections geometry
+    if (reachablePositions.length > 0) {
+        const reachableGeometry = new THREE.BufferGeometry();
+        reachableGeometry.setAttribute('position', 
+            new THREE.BufferAttribute(new Float32Array(reachablePositions), 3));
+        
+        const reachableMaterial = new THREE.LineBasicMaterial({
+            color: 0x00CCFF,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const reachableLines = new THREE.LineSegments(reachableGeometry, reachableMaterial);
+        scene.add(reachableLines);
+        wormholeLines.push(reachableLines);
+    }
+    
+    // Create unreachable connections geometry
+    if (unreachablePositions.length > 0) {
+        const unreachableGeometry = new THREE.BufferGeometry();
+        unreachableGeometry.setAttribute('position', 
+            new THREE.BufferAttribute(new Float32Array(unreachablePositions), 3));
+        
+        const unreachableMaterial = new THREE.LineBasicMaterial({
+            color: 0x884444,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const unreachableLines = new THREE.LineSegments(unreachableGeometry, unreachableMaterial);
+        scene.add(unreachableLines);
+        wormholeLines.push(unreachableLines);
+    }
     
     console.log(`Created ${validConnections} wormhole connections`);
     if (invalidConnections > 0) {
@@ -633,51 +641,39 @@ function initScene() {
             throw new Error('WebGL not supported');
         }
         
-        // Create scene
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000); // Dark background
+        scene.background = new THREE.Color(0x000000);
         
-        // Add volumetric background effects (fog for depth)
-        // Using exponential fog for subtle volumetric glow effect
+        // Exponential fog creates subtle volumetric depth without obscuring nearby stars
         scene.fog = new THREE.FogExp2(0x000000, 0.0003);
         
-        // Create camera
         camera = new THREE.PerspectiveCamera(
-            60,  // FOV
-            window.innerWidth / window.innerHeight,  // Aspect ratio
-            1,   // Near clipping plane
-            10000  // Far clipping plane
+            60,
+            window.innerWidth / window.innerHeight,
+            1,
+            10000
         );
         
-        // Set camera initial position (500, 500, 500)
         camera.position.set(500, 500, 500);
-        
-        // Point camera at Sol (0, 0, 0)
         camera.lookAt(0, 0, 0);
         
-        // Create renderer
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         
-        // Add renderer to container
         const container = document.getElementById('container');
         container.appendChild(renderer.domElement);
         
-        // Add lighting
-        // Ambient light for overall illumination
-        ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft white light
+        // Ambient + directional lighting provides depth without harsh shadows
+        ambientLight = new THREE.AmbientLight(0x404040, 1.5);
         scene.add(ambientLight);
         
-        // Directional light for depth and dimension
         directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(1, 1, 1).normalize();
         scene.add(directionalLight);
         
-        // Set up camera controls
         setupCameraControls();
         
-        // Handle window resize
         window.addEventListener('resize', onWindowResize, false);
         
         console.log('Scene initialized successfully');
@@ -1091,6 +1087,10 @@ const _tempOffset = new THREE.Vector3();           // For camera rotation calcul
 const _tempZoomDirection = new THREE.Vector3();    // For zoom in/out direction vectors
 const _tempZoomPosition = new THREE.Vector3();     // For zoom position calculations
 
+// Frame counter for throttling expensive operations
+let _frameCount = 0;
+const LABEL_UPDATE_INTERVAL = 3; // Update labels every 3 frames (~20fps)
+
 // Update automatic rotation
 function updateAutoRotation() {
     if (autoRotationEnabled && controls) {
@@ -1127,35 +1127,29 @@ function updateStarfieldRotation() {
 function animate() {
     requestAnimationFrame(animate);
     
-    // Get current time for animations
-    const time = Date.now() * 0.001; // Convert to seconds
+    const time = Date.now() * 0.001;
+    _frameCount++;
     
-    // Update automatic rotation if enabled
     updateAutoRotation();
     
-    // Update camera controls (required for damping)
     if (controls) {
         controls.update();
     }
     
-    // Update star pulsing animations
     updateStarPulse(time);
-    
-    // Update selection ring pulsing animation
     updateSelectionRingPulse(time);
     
-    // Make selection ring face camera (billboard effect)
     if (selectedStar && selectedStar.selectionRing) {
         selectedStar.selectionRing.lookAt(camera.position);
     }
     
-    // Update label scales and opacities based on camera distance
-    updateLabelScale();
+    // Throttle label updates to reduce distanceTo() calls
+    if (_frameCount % LABEL_UPDATE_INTERVAL === 0) {
+        updateLabelScale();
+    }
     
-    // Update starfield rotation
     updateStarfieldRotation();
     
-    // Render scene
     renderer.render(scene, camera);
 }
 

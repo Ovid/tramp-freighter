@@ -141,9 +141,6 @@ export class UIManager {
     }
     
     setupStationInterfaceHandlers() {
-        // Defensive: Station interface may not exist in all game states
-        if (!this.elements.stationInterface) return;
-        
         // Close button handler
         if (this.elements.stationCloseBtn) {
             this.elements.stationCloseBtn.addEventListener('click', () => {
@@ -234,8 +231,6 @@ export class UIManager {
     }
     
     showStationInterface() {
-        if (!this.elements.stationInterface) return;
-        
         const state = this.gameStateManager.getState();
         if (!state) return;
         
@@ -244,25 +239,16 @@ export class UIManager {
         
         if (!system) return;
         
-        // Update station interface with system information
-        if (this.elements.stationName) {
-            this.elements.stationName.textContent = `${system.name} Station`;
-        }
-        if (this.elements.stationSystemName) {
-            this.elements.stationSystemName.textContent = system.name;
-        }
+        this.elements.stationName.textContent = `${system.name} Station`;
+        this.elements.stationSystemName.textContent = system.name;
         
         const distance = calculateDistanceFromSol(system);
-        if (this.elements.stationDistance) {
-            this.elements.stationDistance.textContent = `${distance.toFixed(1)} LY`;
-        }
+        this.elements.stationDistance.textContent = `${distance.toFixed(1)} LY`;
         
-        // Show the interface
         this.elements.stationInterface.classList.add('visible');
     }
     
     hideStationInterface() {
-        if (!this.elements.stationInterface) return;
         this.elements.stationInterface.classList.remove('visible');
     }
     
@@ -277,8 +263,6 @@ export class UIManager {
     }
     
     showTradePanel() {
-        if (!this.elements.tradePanel) return;
-        
         const state = this.gameStateManager.getState();
         if (!state) return;
         
@@ -287,29 +271,21 @@ export class UIManager {
         
         if (!system) return;
         
-        // Update trade panel header with system name
-        if (this.elements.tradeSystemName) {
-            this.elements.tradeSystemName.textContent = system.name;
-        }
+        this.elements.tradeSystemName.textContent = system.name;
         
-        // Hide station interface
         this.hideStationInterface();
         
-        // Render market goods and cargo
         this.renderMarketGoods(system);
         this.renderCargoStacks(system);
         
-        // Show the trade panel
         this.elements.tradePanel.classList.add('visible');
     }
     
     hideTradePanel() {
-        if (!this.elements.tradePanel) return;
         this.elements.tradePanel.classList.remove('visible');
     }
     
     renderMarketGoods(system) {
-        if (!this.elements.marketGoods) return;
         
         const state = this.gameStateManager.getState();
         if (!state) return;
@@ -330,36 +306,32 @@ export class UIManager {
         const credits = state.player.credits;
         const cargoRemaining = this.gameStateManager.getCargoRemaining();
         
-        const goodItem = document.createElement('div');
-        goodItem.className = 'good-item';
+        const marketListing = document.createElement('div');
+        marketListing.className = 'good-item';
         
-        // Good info section
-        const goodInfo = document.createElement('div');
-        goodInfo.className = 'good-info';
+        const commodityInfo = document.createElement('div');
+        commodityInfo.className = 'good-info';
         
-        const goodName = document.createElement('div');
-        goodName.className = 'good-name';
-        goodName.textContent = this.capitalizeFirst(goodType);
+        const commodityName = document.createElement('div');
+        commodityName.className = 'good-name';
+        commodityName.textContent = this.capitalizeFirst(goodType);
         
-        const goodPrice = document.createElement('div');
-        goodPrice.className = 'good-price';
-        goodPrice.textContent = `${price} cr/unit`;
+        const stationPrice = document.createElement('div');
+        stationPrice.className = 'good-price';
+        stationPrice.textContent = `${price} cr/unit`;
         
-        goodInfo.appendChild(goodName);
-        goodInfo.appendChild(goodPrice);
+        commodityInfo.appendChild(commodityName);
+        commodityInfo.appendChild(stationPrice);
         
-        // Good actions section
-        const goodActions = document.createElement('div');
-        goodActions.className = 'good-actions';
+        const purchaseActions = document.createElement('div');
+        purchaseActions.className = 'good-actions';
         
-        // Buy 1 button
         const buy1Btn = document.createElement('button');
         buy1Btn.className = 'buy-btn';
         buy1Btn.textContent = 'Buy 1';
         buy1Btn.disabled = credits < price || cargoRemaining < 1;
         buy1Btn.addEventListener('click', () => this.handleBuy(goodType, 1, price));
         
-        // Buy 10 button
         const buy10Btn = document.createElement('button');
         buy10Btn.className = 'buy-btn';
         buy10Btn.textContent = 'Buy 10';
@@ -367,7 +339,6 @@ export class UIManager {
         buy10Btn.disabled = !canBuy10;
         buy10Btn.addEventListener('click', () => this.handleBuy(goodType, 10, price));
         
-        // Buy Max button
         const buyMaxBtn = document.createElement('button');
         buyMaxBtn.className = 'buy-btn';
         buyMaxBtn.textContent = 'Buy Max';
@@ -376,14 +347,14 @@ export class UIManager {
         buyMaxBtn.disabled = maxQuantity < 1;
         buyMaxBtn.addEventListener('click', () => this.handleBuy(goodType, maxQuantity, price));
         
-        goodActions.appendChild(buy1Btn);
-        goodActions.appendChild(buy10Btn);
-        goodActions.appendChild(buyMaxBtn);
+        purchaseActions.appendChild(buy1Btn);
+        purchaseActions.appendChild(buy10Btn);
+        purchaseActions.appendChild(buyMaxBtn);
         
-        goodItem.appendChild(goodInfo);
-        goodItem.appendChild(goodActions);
+        marketListing.appendChild(commodityInfo);
+        marketListing.appendChild(purchaseActions);
         
-        return goodItem;
+        return marketListing;
     }
     
     handleBuy(goodType, quantity, price) {
@@ -403,8 +374,6 @@ export class UIManager {
     }
     
     renderCargoStacks(system) {
-        if (!this.elements.cargoStacks) return;
-        
         const state = this.gameStateManager.getState();
         if (!state) return;
         
@@ -514,8 +483,6 @@ export class UIManager {
     }
     
     showRefuelPanel() {
-        if (!this.elements.refuelPanel) return;
-        
         const state = this.gameStateManager.getState();
         if (!state) return;
         
@@ -524,48 +491,30 @@ export class UIManager {
         
         if (!system) return;
         
-        // Update refuel panel with system information
-        if (this.elements.refuelSystemName) {
-            this.elements.refuelSystemName.textContent = system.name;
-        }
+        this.elements.refuelSystemName.textContent = system.name;
         
-        // Display current fuel percentage
         const currentFuel = state.ship.fuel;
-        if (this.elements.refuelCurrentFuel) {
-            this.elements.refuelCurrentFuel.textContent = `${Math.round(currentFuel)}%`;
-        }
+        this.elements.refuelCurrentFuel.textContent = `${Math.round(currentFuel)}%`;
         
-        // Display fuel price per percentage point
         const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-        if (this.elements.refuelPricePerPercent) {
-            this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
-        }
+        this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
         
-        // Set default refuel amount
         const defaultAmount = Math.min(10, 100 - Math.round(currentFuel));
-        if (this.elements.refuelAmountInput) {
-            this.elements.refuelAmountInput.value = defaultAmount > 0 ? defaultAmount : 0;
-            this.elements.refuelAmountInput.max = 100 - Math.round(currentFuel);
-        }
+        this.elements.refuelAmountInput.value = defaultAmount > 0 ? defaultAmount : 0;
+        this.elements.refuelAmountInput.max = 100 - Math.round(currentFuel);
         
-        // Update cost display
         this.updateRefuelCost();
         
-        // Hide station interface
         this.hideStationInterface();
         
-        // Show the refuel panel
         this.elements.refuelPanel.classList.add('visible');
     }
     
     hideRefuelPanel() {
-        if (!this.elements.refuelPanel) return;
         this.elements.refuelPanel.classList.remove('visible');
     }
     
     updateRefuelCost() {
-        if (!this.elements.refuelAmountInput || !this.elements.refuelTotalCost) return;
-        
         const state = this.gameStateManager.getState();
         if (!state) return;
         
@@ -576,20 +525,17 @@ export class UIManager {
         const totalCost = amount * fuelPrice;
         this.elements.refuelTotalCost.textContent = `${totalCost} cr`;
         
-        // Update confirm button state
-        if (this.elements.refuelConfirmBtn) {
-            const currentFuel = state.ship.fuel;
-            const credits = state.player.credits;
-            
-            const validation = this.gameStateManager.validateRefuel(
-                currentFuel,
-                amount,
-                credits,
-                fuelPrice
-            );
-            
-            this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
-        }
+        const currentFuel = state.ship.fuel;
+        const credits = state.player.credits;
+        
+        const validation = this.gameStateManager.validateRefuel(
+            currentFuel,
+            amount,
+            credits,
+            fuelPrice
+        );
+        
+        this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
     }
     
     setRefuelAmount(amount) {

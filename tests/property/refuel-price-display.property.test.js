@@ -65,18 +65,18 @@ describe('Refuel Price Display Properties', () => {
                 fc.property(
                     fc.constantFrom(...TEST_STAR_DATA),
                     (system) => {
-                        // Move player to the test system
                         gameStateManager.updateLocation(system.id);
                         
-                        // Show refuel panel
                         uiManager.showRefuelPanel();
                         
-                        // Get expected fuel price
                         const expectedPrice = gameStateManager.getFuelPrice(system.id);
                         
-                        // Check that the displayed price matches
                         const displayedPrice = document.getElementById('refuel-price-per-percent').textContent;
                         expect(displayedPrice).toBe(`${expectedPrice} cr/%`);
+                        
+                        // Boundary check: price must be positive integer
+                        expect(expectedPrice).toBeGreaterThan(0);
+                        expect(Number.isInteger(expectedPrice)).toBe(true);
                         
                         return true;
                     }
@@ -135,24 +135,18 @@ describe('Refuel Price Display Properties', () => {
                     fc.constantFrom(...TEST_STAR_DATA),
                     fc.integer({ min: 1, max: 100 }),
                     (system, amount) => {
-                        // Move player to the test system
                         gameStateManager.updateLocation(system.id);
                         
-                        // Show refuel panel
                         uiManager.showRefuelPanel();
                         
-                        // Set refuel amount
                         const amountInput = document.getElementById('refuel-amount-input');
                         amountInput.value = amount;
                         
-                        // Trigger cost calculation
                         uiManager.updateRefuelCost();
                         
-                        // Get expected cost
                         const pricePerPercent = gameStateManager.getFuelPrice(system.id);
                         const expectedCost = amount * pricePerPercent;
                         
-                        // Check that the displayed cost matches
                         const displayedCost = document.getElementById('refuel-total-cost').textContent;
                         expect(displayedCost).toBe(`${expectedCost} cr`);
                         
@@ -161,6 +155,23 @@ describe('Refuel Price Display Properties', () => {
                 ),
                 { numRuns: 100 }
             );
+        });
+        
+        it('should handle edge case fuel levels correctly', () => {
+            const testCases = [
+                { fuel: 0, description: 'empty tank' },
+                { fuel: 100, description: 'full tank' },
+                { fuel: 0.5, description: 'fractional fuel' },
+                { fuel: 99.9, description: 'near full' }
+            ];
+            
+            testCases.forEach(({ fuel, description }) => {
+                gameStateManager.updateFuel(fuel);
+                uiManager.showRefuelPanel();
+                
+                const displayedFuel = document.getElementById('refuel-current-fuel').textContent;
+                expect(displayedFuel).toBe(`${Math.round(fuel)}%`);
+            });
         });
     });
 });
