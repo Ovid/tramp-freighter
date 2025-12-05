@@ -247,18 +247,18 @@
   - **Property 32: Error Message Sequencing**
   - **Validates: Requirements 9.3**
 
-- [ ] 15. Integrate visual feedback into starmap
+- [x] 15. Integrate visual feedback into starmap
   - Add pulsing ring indicator around current system
   - Implement connection line color coding based on fuel availability (green: sufficient, yellow: 10-20% remaining, red: insufficient)
   - Add hover tooltip showing distance, jump time, and fuel cost for connected systems
   - Update connection colors when fuel changes
   - _Requirements: 3.5, 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 15.1 Write property test for connection visual fuel feedback
+- [x] 15.1 Write property test for connection visual fuel feedback
   - **Property 13: Connection Visual Fuel Feedback**
   - **Validates: Requirements 5.2, 5.3, 5.4**
 
-- [ ] 15.2 Write property test for jump information display
+- [x] 15.2 Write property test for jump information display
   - **Property 8: Jump Information Display**
   - **Validates: Requirements 3.5, 5.5**
 

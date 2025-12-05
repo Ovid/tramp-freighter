@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameStateManager } from './game-state.js';
+import { NavigationSystem } from './game-navigation.js';
 import { UIManager } from './game-ui.js';
 import { SPECTRAL_COLORS } from './game-constants.js';
 
@@ -542,18 +543,34 @@ function updateSelectionRingPulse(time) {
         // Slow rotation for targeting system effect
         selectedStar.selectionRing.rotation.z = time * 0.2;
     }
+    
+    // Update current system indicator
+    if (currentSystemIndicator) {
+        // Pulsing for current system indicator
+        const pulseScale = 1.2 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 0.8) * 0.1;
+        currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
+        
+        // Pulse opacity
+        const pulseOpacity = 0.7 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.3;
+        currentSystemIndicator.material.opacity = pulseOpacity;
+        
+        // Rotate in opposite direction from selection ring
+        currentSystemIndicator.rotation.z = -time * 0.15;
+        
+        // Always face camera
+        currentSystemIndicator.lookAt(camera.position);
+    }
 }
 
-// Create wormhole connection lines
+// Store wormhole connection objects for dynamic color updates
+const wormholeConnections = [];
+
+// Create wormhole connection lines with dynamic fuel-based coloring
 function createWormholeLines(connections, starObjects) {
     const starMap = new Map();
     starObjects.forEach(star => {
         starMap.set(star.data.id, star);
     });
-    
-    // Separate positions for reachable and unreachable connections
-    const reachablePositions = [];
-    const unreachablePositions = [];
     
     let validConnections = 0;
     let invalidConnections = 0;
@@ -581,57 +598,98 @@ function createWormholeLines(connections, starObjects) {
             return;
         }
         
-        // Add positions to appropriate array
-        const positions = (star1.data.r === 1 && star2.data.r === 1) 
-            ? reachablePositions 
-            : unreachablePositions;
-        
-        positions.push(star1.position.x, star1.position.y, star1.position.z);
-        positions.push(star2.position.x, star2.position.y, star2.position.z);
-        
-        validConnections++;
+        // Only create visual lines for reachable connections
+        if (star1.data.r === 1 && star2.data.r === 1) {
+            // Create individual line geometry for each connection
+            const positions = new Float32Array([
+                star1.position.x, star1.position.y, star1.position.z,
+                star2.position.x, star2.position.y, star2.position.z
+            ]);
+            
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            // Default color (will be updated based on fuel)
+            const material = new THREE.LineBasicMaterial({
+                color: 0x00CCFF,
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const line = new THREE.LineSegments(geometry, material);
+            scene.add(line);
+            wormholeLines.push(line);
+            
+            // Store connection data for fuel-based coloring
+            wormholeConnections.push({
+                systemId1: id1,
+                systemId2: id2,
+                line: line,
+                star1: star1,
+                star2: star2
+            });
+            
+            validConnections++;
+        }
     });
-    
-    // Create reachable connections geometry
-    if (reachablePositions.length > 0) {
-        const reachableGeometry = new THREE.BufferGeometry();
-        reachableGeometry.setAttribute('position', 
-            new THREE.BufferAttribute(new Float32Array(reachablePositions), 3));
-        
-        const reachableMaterial = new THREE.LineBasicMaterial({
-            color: 0x00CCFF,
-            linewidth: 2,
-            transparent: true,
-            opacity: 0.6
-        });
-        
-        const reachableLines = new THREE.LineSegments(reachableGeometry, reachableMaterial);
-        scene.add(reachableLines);
-        wormholeLines.push(reachableLines);
-    }
-    
-    // Create unreachable connections geometry
-    if (unreachablePositions.length > 0) {
-        const unreachableGeometry = new THREE.BufferGeometry();
-        unreachableGeometry.setAttribute('position', 
-            new THREE.BufferAttribute(new Float32Array(unreachablePositions), 3));
-        
-        const unreachableMaterial = new THREE.LineBasicMaterial({
-            color: 0x884444,
-            linewidth: 2,
-            transparent: true,
-            opacity: 0.6
-        });
-        
-        const unreachableLines = new THREE.LineSegments(unreachableGeometry, unreachableMaterial);
-        scene.add(unreachableLines);
-        wormholeLines.push(unreachableLines);
-    }
     
     console.log(`Created ${validConnections} wormhole connections`);
     if (invalidConnections > 0) {
         console.warn(`Skipped ${invalidConnections} invalid wormhole connections`);
     }
+}
+
+/**
+ * Update wormhole connection colors based on current fuel availability
+ * Requirements: 5.2, 5.3, 5.4
+ * 
+ * Green: sufficient fuel for jump
+ * Yellow: 10-20% fuel remaining after jump
+ * Red: insufficient fuel for jump
+ */
+function updateConnectionColors() {
+    if (!gameStateManager || !gameStateManager.state) {
+        return;
+    }
+    
+    const currentSystemId = gameStateManager.state.player.currentSystem;
+    const currentFuel = gameStateManager.state.ship.fuel;
+    
+    wormholeConnections.forEach(conn => {
+        // Only color connections from current system
+        if (conn.systemId1 !== currentSystemId && conn.systemId2 !== currentSystemId) {
+            // Default color for non-current connections
+            conn.line.material.color.setHex(0x00CCFF);
+            conn.line.material.opacity = 0.6;
+            return;
+        }
+        
+        // Calculate distance and fuel cost
+        const distance = gameStateManager.navigationSystem.calculateDistanceBetween(
+            conn.star1.data,
+            conn.star2.data
+        );
+        const fuelCost = gameStateManager.navigationSystem.calculateFuelCost(distance);
+        
+        // Determine color based on fuel availability
+        if (currentFuel < fuelCost) {
+            // Red: insufficient fuel
+            conn.line.material.color.setHex(0xFF0000);
+            conn.line.material.opacity = 0.8;
+        } else {
+            const fuelRemaining = currentFuel - fuelCost;
+            if (fuelRemaining >= 10 && fuelRemaining <= 20) {
+                // Yellow: 10-20% remaining
+                conn.line.material.color.setHex(0xFFFF00);
+                conn.line.material.opacity = 0.8;
+            } else {
+                // Green: sufficient fuel
+                conn.line.material.color.setHex(0x00FF00);
+                conn.line.material.opacity = 0.8;
+            }
+        }
+    });
 }
 
 // Initialize Three.js scene and camera
@@ -960,14 +1018,17 @@ function toggleRotation() {
     console.log(`Auto-rotation ${autoRotationEnabled ? 'enabled' : 'disabled'}`);
 }
 
-// Set up raycaster for click detection
+// Set up raycaster for click detection and hover
 function setupRaycaster() {
     raycaster = new THREE.Raycaster();
     
     // Add click event listener to canvas
     renderer.domElement.addEventListener('click', onCanvasClick, false);
     
-    console.log('Raycaster initialized for selection');
+    // Add mousemove event listener for hover tooltip
+    renderer.domElement.addEventListener('mousemove', onCanvasHover, false);
+    
+    console.log('Raycaster initialized for selection and hover');
 }
 
 // Rebuild clickable objects cache after stars are created or modified
@@ -1006,6 +1067,115 @@ function onCanvasClick(event) {
     }
 }
 
+// Handle canvas hover events for tooltip display
+function onCanvasHover(event) {
+    if (!gameStateManager || !gameStateManager.state) {
+        hideJumpTooltip();
+        return;
+    }
+    
+    // Convert to NDC for raycaster
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    raycaster.setFromCamera(mouse, camera);
+    
+    const intersects = raycaster.intersectObjects(_clickableObjects, false);
+    
+    if (intersects.length > 0) {
+        const hoveredObject = intersects[0].object;
+        
+        const hoveredStar = stars.find(star => 
+            star.sprite === hoveredObject || star.label === hoveredObject
+        );
+        
+        if (hoveredStar) {
+            const currentSystemId = gameStateManager.state.player.currentSystem;
+            
+            // Only show tooltip for connected systems (not current system)
+            if (hoveredStar.data.id !== currentSystemId) {
+                const isConnected = gameStateManager.navigationSystem.areSystemsConnected(
+                    currentSystemId,
+                    hoveredStar.data.id
+                );
+                
+                if (isConnected) {
+                    showJumpTooltip(hoveredStar, event.clientX, event.clientY);
+                    return;
+                }
+            }
+        }
+    }
+    
+    hideJumpTooltip();
+}
+
+/**
+ * Show jump information tooltip for a connected system
+ * Requirements: 3.5, 5.5
+ */
+function showJumpTooltip(targetStar, mouseX, mouseY) {
+    if (!gameStateManager || !gameStateManager.state) {
+        return;
+    }
+    
+    const currentSystem = gameStateManager.getCurrentSystem();
+    const currentFuel = gameStateManager.state.ship.fuel;
+    
+    // Calculate jump parameters
+    const distance = gameStateManager.navigationSystem.calculateDistanceBetween(
+        currentSystem,
+        targetStar.data
+    );
+    const jumpTime = gameStateManager.navigationSystem.calculateJumpTime(distance);
+    const fuelCost = gameStateManager.navigationSystem.calculateFuelCost(distance);
+    
+    // Get or create tooltip element
+    let tooltip = document.getElementById('jump-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'jump-tooltip';
+        tooltip.style.position = 'fixed';
+        tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        tooltip.style.color = '#00FF88';
+        tooltip.style.padding = '10px';
+        tooltip.style.borderRadius = '5px';
+        tooltip.style.border = '1px solid #00FF88';
+        tooltip.style.fontFamily = '"Courier New", monospace';
+        tooltip.style.fontSize = '14px';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.zIndex = '10000';
+        tooltip.style.whiteSpace = 'nowrap';
+        document.body.appendChild(tooltip);
+    }
+    
+    // Format tooltip content
+    const fuelStatus = currentFuel >= fuelCost ? '✓' : '✗';
+    const fuelColor = currentFuel >= fuelCost ? '#00FF88' : '#FF0000';
+    
+    tooltip.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;">${targetStar.data.name}</div>
+        <div>Distance: ${distance.toFixed(2)} LY</div>
+        <div>Jump Time: ${jumpTime} days</div>
+        <div style="color: ${fuelColor};">Fuel Cost: ${fuelCost.toFixed(1)}% ${fuelStatus}</div>
+    `;
+    
+    // Position tooltip near mouse cursor (offset to avoid covering star)
+    tooltip.style.left = (mouseX + 15) + 'px';
+    tooltip.style.top = (mouseY + 15) + 'px';
+    tooltip.style.display = 'block';
+}
+
+/**
+ * Hide jump information tooltip
+ */
+function hideJumpTooltip() {
+    const tooltip = document.getElementById('jump-tooltip');
+    if (tooltip) {
+        tooltip.style.display = 'none';
+    }
+}
+
 function selectStar(star) {
     if (selectedStar) {
         deselectStar();
@@ -1033,6 +1203,42 @@ function selectStar(star) {
     if (uiManager && gameStateManager) {
         uiManager.handleSystemClick(star.data.id);
     }
+}
+
+// Current system indicator (pulsing ring)
+let currentSystemIndicator = null;
+
+/**
+ * Update the current system indicator to show player's location
+ * Requirements: 5.1
+ */
+function updateCurrentSystemIndicator() {
+    if (!gameStateManager || !gameStateManager.state) {
+        return;
+    }
+    
+    const currentSystemId = gameStateManager.state.player.currentSystem;
+    const currentStar = stars.find(star => star.data.id === currentSystemId);
+    
+    if (!currentStar) {
+        return;
+    }
+    
+    // Remove old indicator if it exists
+    if (currentSystemIndicator) {
+        scene.remove(currentSystemIndicator);
+    }
+    
+    // Create new indicator at current system
+    currentSystemIndicator = createSelectionRing();
+    currentSystemIndicator.position.copy(currentStar.position);
+    currentSystemIndicator.lookAt(camera.position);
+    
+    // Make it slightly larger and different color to distinguish from selection
+    currentSystemIndicator.scale.set(1.2, 1.2, 1);
+    currentSystemIndicator.material.color.setHex(0x00FF88); // Green instead of yellow
+    
+    scene.add(currentSystemIndicator);
 }
 
 function deselectStar() {
@@ -1181,11 +1387,29 @@ window.addEventListener('DOMContentLoaded', () => {
         // Initialize game state manager
         gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
         
+        // Initialize navigation system
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        gameStateManager.navigationSystem = navigationSystem;
+        
         // Initialize UI manager
         uiManager = new UIManager(gameStateManager);
         
         // Initialize new game
         gameStateManager.initNewGame();
+        
+        // Subscribe to fuel and location changes to update connection colors
+        gameStateManager.subscribe('fuelChanged', () => {
+            updateConnectionColors();
+        });
+        
+        gameStateManager.subscribe('locationChanged', () => {
+            updateConnectionColors();
+            updateCurrentSystemIndicator();
+        });
+        
+        // Initial update of connection colors and current system indicator
+        updateConnectionColors();
+        updateCurrentSystemIndicator();
         
         // Show the game HUD
         uiManager.showHUD();
