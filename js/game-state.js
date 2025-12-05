@@ -35,6 +35,10 @@ export class GameStateManager {
         
         // Initialize with null state (will be set by initNewGame or loadGame)
         this.state = null;
+        
+        // Save debouncing: max 1 save per second (Requirement 10.6)
+        this.lastSaveTime = 0;
+        this.SAVE_DEBOUNCE_MS = 1000;
     }
     
     /**
@@ -244,7 +248,7 @@ export class GameStateManager {
     
     /**
      * Execute a purchase transaction
-     * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12
+     * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12, 7.15
      */
     buyGood(goodType, quantity, price) {
         if (!this.state) {
@@ -269,6 +273,9 @@ export class GameStateManager {
             price
         );
         this.updateCargo(newCargo);
+        
+        // Auto-save after trade transaction (Requirement 7.15)
+        this.saveGame();
         
         return { success: true };
     }
@@ -309,7 +316,7 @@ export class GameStateManager {
     
     /**
      * Execute a sale transaction from a specific cargo stack
-     * Requirements: 7.3, 7.9, 7.10
+     * Requirements: 7.3, 7.9, 7.10, 7.15
      */
     sellGood(stackIndex, quantity, salePrice) {
         if (!this.state) {
@@ -332,6 +339,9 @@ export class GameStateManager {
         
         const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
         this.updateCargo(newCargo);
+        
+        // Auto-save after trade transaction (Requirement 7.15)
+        this.saveGame();
         
         return { 
             success: true, 
@@ -499,12 +509,55 @@ export class GameStateManager {
     }
     
     // ========================================================================
+    // DOCK/UNDOCK OPERATIONS
+    // ========================================================================
+    
+    /**
+     * Dock at current system's station
+     * Requirements: 10.5
+     * 
+     * This is a state transition that triggers auto-save.
+     * Future implementation may add docked state tracking.
+     */
+    dock() {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        // Auto-save after dock operation (Requirement 10.5)
+        this.saveGame();
+        
+        return { success: true };
+    }
+    
+    /**
+     * Undock from current system's station
+     * Requirements: 10.5
+     * 
+     * This is a state transition that triggers auto-save.
+     * Future implementation may add docked state tracking.
+     */
+    undock() {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        // Auto-save after undock operation (Requirement 10.5)
+        this.saveGame();
+        
+        return { success: true };
+    }
+    
+    // ========================================================================
     // SAVE/LOAD SYSTEM
     // ========================================================================
     
     /**
-     * Save game state to localStorage
-     * Requirements: 10.1, 10.2
+     * Save game state to localStorage with debouncing
+     * Requirements: 10.1, 10.2, 10.6
+     * 
+     * Implements save debouncing to prevent excessive saves (max 1 save per second).
+     * This protects against rapid state changes causing performance issues.
      */
     saveGame() {
         if (!this.state) {
@@ -512,10 +565,21 @@ export class GameStateManager {
             return false;
         }
         
+        // Debounce: skip save if less than 1 second since last save
+        const now = Date.now();
+        if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
+            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+                console.log('Save debounced (too soon since last save)');
+            }
+            return false;
+        }
+        
         try {
-            this.state.meta.timestamp = Date.now();
+            this.state.meta.timestamp = now;
             const saveData = JSON.stringify(this.state);
             localStorage.setItem(SAVE_KEY, saveData);
+            
+            this.lastSaveTime = now;
             
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Game saved successfully');

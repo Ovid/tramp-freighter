@@ -16,6 +16,8 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
         // Clear localStorage before each test
         localStorage.clear();
         manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+        // Reset debounce timer to allow immediate saves in tests
+        manager.lastSaveTime = 0;
     });
     
     afterEach(() => {
@@ -69,6 +71,9 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
             fc.property(
                 gameStateArbitrary,
                 (generatedState) => {
+                    // Reset debounce timer for this iteration
+                    manager.lastSaveTime = 0;
+                    
                     // Set the manager's state to the generated state
                     manager.state = generatedState;
                     
@@ -192,6 +197,10 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
             fc.property(
                 fc.integer({ min: 50, max: 200 }), // Cargo capacity
                 (capacity) => {
+                    // Clear localStorage and reset debounce for this iteration
+                    localStorage.clear();
+                    manager.lastSaveTime = 0;
+                    
                     // Create state with full cargo
                     const fullCargoState = {
                         player: {
@@ -241,6 +250,10 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
             fc.property(
                 gameStateArbitrary,
                 (generatedState) => {
+                    // Clear localStorage and reset debounce for this iteration
+                    localStorage.clear();
+                    manager.lastSaveTime = 0;
+                    
                     // Initially no save
                     expect(manager.hasSavedGame()).toBe(false);
                     

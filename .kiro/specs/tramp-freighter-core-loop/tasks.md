@@ -161,7 +161,7 @@
   - **Property 33: Save Data Completeness**
   - **Validates: Requirements 10.1, 10.2**
 
-- [ ] 9. Implement auto-save triggers
+- [x] 9. Implement auto-save triggers
   - Add auto-save call after jump completion
   - Add auto-save call after trade transactions
   - Add auto-save call after refuel transactions
@@ -169,7 +169,7 @@
   - Implement save debouncing (max 1 save per second)
   - _Requirements: 4.8, 7.15, 8.10, 10.3, 10.4, 10.5, 10.6_
 
-- [ ] 9.1 Write property test for auto-save triggers
+- [x] 9.1 Write property test for auto-save triggers
   - **Property 34: Auto-Save Triggers**
   - **Validates: Requirements 4.8, 7.15, 8.10, 10.3, 10.4, 10.5, 10.6**
 
