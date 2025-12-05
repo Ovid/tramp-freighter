@@ -57,6 +57,14 @@ The game follows a client-side, event-driven architecture with clear separation 
 
 ### Component Responsibilities
 
+**Game Constants Module (New)**
+- Centralized repository for all static game data
+- Exports commodity base prices and spectral modifiers
+- Exports spectral class color mappings for visualization
+- Exports game version and localStorage keys
+- Prevents duplication and ensures consistency across modules
+- Single source of truth for economic and visual data
+
 **Starmap Visualization (Existing)**
 - Renders 3D star systems and wormhole connections
 - Handles camera controls (orbit, pan, zoom)

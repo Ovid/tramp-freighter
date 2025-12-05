@@ -1,3 +1,5 @@
+import { BASE_PRICES, SPECTRAL_MODIFIERS, GAME_VERSION, SAVE_KEY } from './game-constants.js';
+
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
  * 
@@ -59,7 +61,7 @@ export class GameStateManager {
                 visitedSystems: [0]  // Sol is visited at start
             },
             meta: {
-                version: '1.0.0',
+                version: GAME_VERSION,
                 timestamp: Date.now()
             }
         };
@@ -85,28 +87,6 @@ export class GameStateManager {
      * Requirements: 7.2
      */
     calculateGoodPrice(goodType, spectralClass) {
-        const BASE_PRICES = {
-            grain: 10,
-            ore: 15,
-            tritium: 50,
-            parts: 30,
-            medicine: 40,
-            electronics: 35
-        };
-        
-        const SPECTRAL_MODIFIERS = {
-            'G': { grain: 0.8, ore: 1.0, tritium: 1.2, parts: 1.0, medicine: 1.0, electronics: 1.0 },
-            'K': { grain: 1.0, ore: 0.9, tritium: 1.1, parts: 1.0, medicine: 1.0, electronics: 1.0 },
-            'M': { grain: 1.2, ore: 0.8, tritium: 1.0, parts: 1.1, medicine: 1.0, electronics: 1.0 },
-            'A': { grain: 0.9, ore: 1.1, tritium: 1.3, parts: 1.2, medicine: 1.1, electronics: 1.2 },
-            'F': { grain: 0.85, ore: 1.05, tritium: 1.25, parts: 1.1, medicine: 1.05, electronics: 1.1 },
-            'O': { grain: 1.0, ore: 1.2, tritium: 1.5, parts: 1.3, medicine: 1.2, electronics: 1.3 },
-            'B': { grain: 0.95, ore: 1.15, tritium: 1.4, parts: 1.25, medicine: 1.15, electronics: 1.25 },
-            'L': { grain: 1.3, ore: 0.7, tritium: 0.9, parts: 1.2, medicine: 0.9, electronics: 0.8 },
-            'T': { grain: 1.4, ore: 0.6, tritium: 0.8, parts: 1.3, medicine: 0.8, electronics: 0.7 },
-            'D': { grain: 1.0, ore: 1.0, tritium: 1.0, parts: 1.0, medicine: 1.0, electronics: 1.0 }
-        };
-        
         const basePrice = BASE_PRICES[goodType] || 10;
         const spectralLetter = spectralClass.charAt(0).toUpperCase();
         const modifier = SPECTRAL_MODIFIERS[spectralLetter]?.[goodType] || 1.0;
@@ -473,7 +453,7 @@ export class GameStateManager {
             const saveData = JSON.stringify(this.state);
             
             // Store in localStorage
-            localStorage.setItem('trampFreighterSave', saveData);
+            localStorage.setItem(SAVE_KEY, saveData);
             
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Game saved successfully');
@@ -493,7 +473,7 @@ export class GameStateManager {
     loadGame() {
         try {
             // Retrieve save data from localStorage
-            const saveData = localStorage.getItem('trampFreighterSave');
+            const saveData = localStorage.getItem(SAVE_KEY);
             
             if (!saveData) {
                 if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
@@ -551,7 +531,7 @@ export class GameStateManager {
      */
     hasSavedGame() {
         try {
-            const saveData = localStorage.getItem('trampFreighterSave');
+            const saveData = localStorage.getItem(SAVE_KEY);
             return saveData !== null;
         } catch (error) {
             console.error('Failed to check for saved game:', error);
@@ -564,7 +544,7 @@ export class GameStateManager {
      */
     clearSave() {
         try {
-            localStorage.removeItem('trampFreighterSave');
+            localStorage.removeItem(SAVE_KEY);
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Save data cleared');
             }
@@ -582,11 +562,9 @@ export class GameStateManager {
     isVersionCompatible(saveVersion) {
         if (!saveVersion) return false;
         
-        const CURRENT_VERSION = '1.0.0';
-        
         // For now, only exact version match is compatible
         // Future versions may implement migration logic
-        return saveVersion === CURRENT_VERSION;
+        return saveVersion === GAME_VERSION;
     }
     
     /**

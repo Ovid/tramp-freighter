@@ -19,6 +19,14 @@ inclusion: always
 
 ## Key Technical Components
 
+### Game Constants (Centralized Data)
+- `game-constants.js` - Single source of truth for all static game data
+- Commodity base prices and spectral modifiers
+- Spectral class color mappings for visualization
+- Game version and localStorage keys
+- Prevents duplication and ensures consistency across modules
+- All modules import from this file rather than defining constants locally
+
 ### Starmap (Existing)
 - Three.js scene management
 - Camera controls (orbit, pan, zoom/dolly)
@@ -64,6 +72,7 @@ Wormhole connections stored as array of ID pairs.
 
 ### Phase 1 (Core Loop)
 - `starmap.html` (existing, to be enhanced)
+- `game-constants.js` - Centralized game data (prices, modifiers, colors, version)
 - `game-state.js` - State management and initialization
 - `game-trading.js` - Trading logic and price calculations
 - `game-navigation.js` - Jump mechanics and distance calculations
