@@ -57,6 +57,49 @@ export const SPECTRAL_COLORS = {
 };
 
 /**
+ * Fuel pricing configuration by system distance from Sol
+ * 
+ * Pricing tiers reflect supply chain logistics:
+ * - Core systems (Sol, Alpha Centauri): Abundant fuel infrastructure
+ * - Mid-range systems (4.5-10 LY): Moderate supply chains
+ * - Outer systems (≥10 LY): Remote, expensive logistics
+ * - Inner systems (<4.5 LY, non-core): Close to Sol infrastructure
+ */
+export const FUEL_PRICING = {
+    CORE_SYSTEMS: {
+        IDS: [0, 1], // Sol and Alpha Centauri
+        PRICE: 2
+    },
+    MID_RANGE: {
+        MIN_DISTANCE: 4.5,
+        MAX_DISTANCE: 10,
+        PRICE: 3
+    },
+    OUTER: {
+        MIN_DISTANCE: 10,
+        PRICE: 4
+    },
+    INNER: {
+        PRICE: 2  // Systems < 4.5 LY (excluding core)
+    }
+};
+
+/**
+ * Calculate distance from Sol to a star system
+ * Uses the standard Euclidean distance formula with coordinate scaling
+ * 
+ * Coordinates are stored as light-years × 10, so we divide by 10 to get actual distance.
+ * This is a fundamental game mechanic used for fuel pricing, navigation, and future features.
+ * 
+ * @param {Object} system - Star system with x, y, z coordinates
+ * @returns {number} Distance in light years
+ */
+export function calculateDistanceFromSol(system) {
+    const distanceSquared = system.x * system.x + system.y * system.y + system.z * system.z;
+    return Math.sqrt(distanceSquared) / 10;
+}
+
+/**
  * Game version for save compatibility
  */
 export const GAME_VERSION = '1.0.0';

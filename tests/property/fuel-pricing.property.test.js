@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
+import { FUEL_PRICING, calculateDistanceFromSol } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Fuel Pricing Properties', () => {
@@ -24,14 +25,18 @@ describe('Fuel Pricing Properties', () => {
      * the fuel price should be 2 credits per 1%.
      */
     describe('Property 25.5: Core System Fuel Pricing', () => {
-        it('should price fuel at 2 credits per 1% for Sol', () => {
-            const fuelPrice = gameStateManager.getFuelPrice(0);
-            expect(fuelPrice).toBe(2);
-        });
-        
-        it('should price fuel at 2 credits per 1% for Alpha Centauri', () => {
-            const fuelPrice = gameStateManager.getFuelPrice(1);
-            expect(fuelPrice).toBe(2);
+        it('should price fuel at 2 credits per 1% for core systems', () => {
+            fc.assert(
+                fc.property(
+                    fc.constantFrom(0, 1), // Sol or Alpha Centauri
+                    (systemId) => {
+                        const fuelPrice = gameStateManager.getFuelPrice(systemId);
+                        expect(fuelPrice).toBe(FUEL_PRICING.CORE_SYSTEMS.PRICE);
+                        return true;
+                    }
+                ),
+                { numRuns: 100 }
+            );
         });
     });
     
@@ -47,19 +52,13 @@ describe('Fuel Pricing Properties', () => {
             fc.assert(
                 fc.property(
                     fc.constantFrom(...TEST_STAR_DATA.filter(s => {
-                        // Exclude Sol and Alpha Centauri
                         if (s.id === 0 || s.id === 1) return false;
-                        
-                        // Calculate distance from Sol
-                        const distanceSquared = s.x * s.x + s.y * s.y + s.z * s.z;
-                        const distance = Math.sqrt(distanceSquared) / 10;
-                        
-                        // Include only mid-range systems (4.5-10 LY)
+                        const distance = calculateDistanceFromSol(s);
                         return distance >= 4.5 && distance < 10;
                     })),
                     (system) => {
                         const fuelPrice = gameStateManager.getFuelPrice(system.id);
-                        expect(fuelPrice).toBe(3);
+                        expect(fuelPrice).toBe(FUEL_PRICING.MID_RANGE.PRICE);
                         return true;
                     }
                 ),
@@ -80,16 +79,12 @@ describe('Fuel Pricing Properties', () => {
             fc.assert(
                 fc.property(
                     fc.constantFrom(...TEST_STAR_DATA.filter(s => {
-                        // Calculate distance from Sol
-                        const distanceSquared = s.x * s.x + s.y * s.y + s.z * s.z;
-                        const distance = Math.sqrt(distanceSquared) / 10;
-                        
-                        // Include only outer systems (≥10 LY)
+                        const distance = calculateDistanceFromSol(s);
                         return distance >= 10;
                     })),
                     (system) => {
                         const fuelPrice = gameStateManager.getFuelPrice(system.id);
-                        expect(fuelPrice).toBe(4);
+                        expect(fuelPrice).toBe(FUEL_PRICING.OUTER.PRICE);
                         return true;
                     }
                 ),
@@ -144,7 +139,7 @@ describe('Fuel Pricing Properties', () => {
                     fc.integer({ min: 0, max: 100 }), // current fuel
                     fc.integer({ min: 1, max: 200 }), // refuel amount
                     (currentFuel, amount) => {
-                        const pricePerPercent = 2; // Use Sol pricing for simplicity
+                        const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
                         const totalCost = amount * pricePerPercent;
                         
                         const validation = gameStateManager.validateRefuel(
@@ -178,7 +173,7 @@ describe('Fuel Pricing Properties', () => {
                     fc.integer({ min: 0, max: 99 }), // current fuel (not full)
                     (currentFuel) => {
                         const amount = 100 - currentFuel; // Refuel to exactly 100%
-                        const pricePerPercent = 2;
+                        const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
                         const totalCost = amount * pricePerPercent;
                         
                         const validation = gameStateManager.validateRefuel(
@@ -214,7 +209,7 @@ describe('Fuel Pricing Properties', () => {
                     fc.integer({ min: 1, max: 50 }), // refuel amount
                     fc.integer({ min: 0, max: 1000 }), // player credits
                     (amount, credits) => {
-                        const pricePerPercent = 2; // Use Sol pricing
+                        const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
                         const totalCost = amount * pricePerPercent;
                         
                         const validation = gameStateManager.validateRefuel(
@@ -247,7 +242,7 @@ describe('Fuel Pricing Properties', () => {
                 fc.property(
                     fc.integer({ min: 1, max: 50 }), // refuel amount
                     (amount) => {
-                        const pricePerPercent = 2;
+                        const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
                         const totalCost = amount * pricePerPercent;
                         
                         const validation = gameStateManager.validateRefuel(

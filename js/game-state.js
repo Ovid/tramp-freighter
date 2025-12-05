@@ -1,4 +1,4 @@
-import { BASE_PRICES, SPECTRAL_MODIFIERS, GAME_VERSION, SAVE_KEY } from './game-constants.js';
+import { BASE_PRICES, SPECTRAL_MODIFIERS, FUEL_PRICING, calculateDistanceFromSol, GAME_VERSION, SAVE_KEY } from './game-constants.js';
 
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
@@ -195,9 +195,12 @@ export class GameStateManager {
     updateFuel(newFuel) {
         if (!this.state) return;
         
-        // Clamp to valid percentage range to prevent invalid states
-        this.state.ship.fuel = Math.max(0, Math.min(100, newFuel));
-        this.emit('fuelChanged', this.state.ship.fuel);
+        if (newFuel < 0 || newFuel > 100) {
+            throw new Error(`Invalid fuel value: ${newFuel}. Fuel must be between 0 and 100.`);
+        }
+        
+        this.state.ship.fuel = newFuel;
+        this.emit('fuelChanged', newFuel);
     }
     
     updateCargo(newCargo) {
@@ -398,40 +401,27 @@ export class GameStateManager {
      * @returns {number} Fuel price per percentage point
      */
     getFuelPrice(systemId) {
-        // Sol (0) and Alpha Centauri (1) have special pricing
-        if (systemId === 0 || systemId === 1) {
-            return 2;  // 2 credits per 1%
+        if (FUEL_PRICING.CORE_SYSTEMS.IDS.includes(systemId)) {
+            return FUEL_PRICING.CORE_SYSTEMS.PRICE;
         }
         
-        // Get system and calculate distance from Sol
         const system = this.starData.find(s => s.id === systemId);
         if (!system) {
-            return 3;  // Default to mid-range if system not found
+            return FUEL_PRICING.MID_RANGE.PRICE;
         }
         
-        const distanceFromSol = this.calculateDistanceFromSol(system);
+        const distanceFromSol = calculateDistanceFromSol(system);
         
-        // Mid-range systems (4.5-10 LY from Sol)
-        if (distanceFromSol >= 4.5 && distanceFromSol < 10) {
-            return 3;  // 3 credits per 1%
+        if (distanceFromSol >= FUEL_PRICING.MID_RANGE.MIN_DISTANCE && 
+            distanceFromSol < FUEL_PRICING.MID_RANGE.MAX_DISTANCE) {
+            return FUEL_PRICING.MID_RANGE.PRICE;
         }
         
-        // Outer systems (≥10 LY from Sol)
-        if (distanceFromSol >= 10) {
-            return 4;  // 4 credits per 1%
+        if (distanceFromSol >= FUEL_PRICING.OUTER.MIN_DISTANCE) {
+            return FUEL_PRICING.OUTER.PRICE;
         }
         
-        // Systems closer than 4.5 LY (but not Sol/Alpha Centauri)
-        return 2;  // 2 credits per 1%
-    }
-    
-    /**
-     * Calculate distance from Sol for a system
-     * Requirements: 3.1
-     */
-    calculateDistanceFromSol(system) {
-        const distanceSquared = system.x * system.x + system.y * system.y + system.z * system.z;
-        return Math.sqrt(distanceSquared) / 10;
+        return FUEL_PRICING.INNER.PRICE;
     }
     
     /**
