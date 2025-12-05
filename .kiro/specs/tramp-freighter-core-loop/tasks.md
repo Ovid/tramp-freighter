@@ -287,7 +287,7 @@
   - Transition to game view
   - _Requirements: 1.4, 1.5_
 
-- [ ] 17. Wire all systems together and test complete game loop
+- [x] 17. Wire all systems together and test complete game loop
   - Connect all UI components to game state manager
   - Connect all game systems to auto-save triggers
   - Test complete flow: start game → view HUD → dock → trade → refuel → undock → jump → dock at new system → trade → verify profit
@@ -296,7 +296,7 @@
   - Test save/load preserves complete game state
   - _Requirements: All_
 
-- [ ] 17.1 Write integration tests for complete game flow
+- [x] 17.1 Write integration tests for complete game flow
   - Test new game → jump → trade → refuel → save → load cycle
   - Test error scenarios (invalid jumps, insufficient resources)
   - Test UI integration (clicks trigger correct state changes)

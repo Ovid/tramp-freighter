@@ -8,7 +8,8 @@
 
 ## Overview
 
-Establish the fundamental game loop: navigate between systems, buy/sell goods, manage fuel and credits. This is the MVP that proves the core concept works.
+Establish the fundamental game loop: navigate between systems, buy/sell goods,
+manage fuel and credits. This is the MVP that proves the core concept works.
 
 ## Goals
 
@@ -148,9 +149,9 @@ function getPrice(good, system) {
 │  Electronics ₡300  │  ─────────────────                 │
 │                    │  Capacity: 20/50                   │
 ├────────────────────┴────────────────────────────────────┤
-│  Selected: Grain                                         │
+│  Selected: Grain                                        │
 │  Station price: ₡24  |  You paid: ₡24  |  Profit: ₡0    │
-│                                                          │
+│                                                         │
 │  [BUY 1] [BUY 10] [BUY MAX]  |  [SELL 1] [SELL ALL]     │
 └─────────────────────────────────────────────────────────┘
 ```

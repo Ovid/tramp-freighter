@@ -178,6 +178,12 @@ const mouse = { x: 0, y: 0 };
 // Hover tooltip cache to avoid recalculating on every mousemove
 let _lastHoveredStarId = null;
 
+// Reusable temp vectors to avoid object allocation in hot paths
+const _tempOffset = new THREE.Vector3();           // For camera rotation calculations
+const _tempZoomDirection = new THREE.Vector3();    // For zoom in/out direction vectors
+const _tempZoomPosition = new THREE.Vector3();     // For zoom position calculations
+const _tempLabelDistance = new THREE.Vector3();    // For label distance calculations
+
 // Spectral classes include subtypes (e.g., "G2", "M5.5"), but colors map to main types only
 function getStarColor(spectralClass) {
     const spectralType = spectralClass.charAt(0).toUpperCase();
@@ -309,8 +315,8 @@ function updateLabelScale() {
 }
 
 /**
- * Dispose of all star system resources
- * Prevents GPU memory leaks when recreating star systems
+ * THREE.js requires explicit disposal of geometries, materials, and textures
+ * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
  */
 function disposeStarSystems() {
     stars.forEach(star => {
@@ -353,7 +359,7 @@ function disposeStarSystems() {
 
 // Create star systems
 function createStarSystems(starData) {
-    // Create shared star texture once for all stars
+    // Texture creation is expensive; cache and reuse across all star sprites
     if (!sharedStarTexture) {
         sharedStarTexture = createStarTexture();
     }
@@ -361,7 +367,6 @@ function createStarSystems(starData) {
     starData.forEach(data => {
         const color = getStarColor(data.type);
         
-        // Reuse material if already created for this spectral class color
         // Reduces 117 materials down to ~7 (one per spectral class)
         let spriteMaterial = starMaterials.get(color);
         if (!spriteMaterial) {
@@ -531,7 +536,7 @@ function createSelectionRing() {
         VISUAL_CONFIG.selectionRingSize * 3
     );
     
-    // Reuse cached texture to avoid recreating on every selection
+    // Texture creation is expensive; cache and reuse across all selection rings
     if (!sharedReticleTexture) {
         sharedReticleTexture = createTargetingReticleTexture();
     }
@@ -606,8 +611,8 @@ function updateSelectionRingPulse(time) {
 const wormholeConnections = [];
 
 /**
- * Dispose of all wormhole line geometries and materials
- * Prevents GPU memory leaks when recreating connections
+ * THREE.js requires explicit disposal of geometries, materials, and textures
+ * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
  */
 function disposeWormholeLines() {
     wormholeConnections.length = 0;
@@ -845,8 +850,8 @@ function createBackgroundStarTexture() {
 }
 
 /**
- * Dispose of starfield resources
- * Prevents GPU memory leaks when recreating starfield
+ * THREE.js requires explicit disposal of geometries, materials, and textures
+ * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
  */
 function disposeStarfield() {
     if (starfield) {
@@ -947,8 +952,8 @@ function createStarfield() {
 }
 
 /**
- * Dispose of sector boundary resources
- * Prevents GPU memory leaks when recreating boundary
+ * THREE.js requires explicit disposal of geometries, materials, and textures
+ * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
  */
 function disposeSectorBoundary() {
     if (sectorBoundary) {
@@ -1385,14 +1390,6 @@ window.deselectStar = deselectStar;
 // Global game state manager and UI manager instances
 let gameStateManager = null;
 let uiManager = null;
-
-// Reusable temp vectors to avoid object allocation in hot paths
-// These are reused across function calls to prevent garbage collection pressure
-// Pattern: Declare once at module scope, reuse via .set()/.copy() methods
-const _tempOffset = new THREE.Vector3();           // For camera rotation calculations
-const _tempZoomDirection = new THREE.Vector3();    // For zoom in/out direction vectors
-const _tempZoomPosition = new THREE.Vector3();     // For zoom position calculations
-const _tempLabelDistance = new THREE.Vector3();    // For label distance calculations
 
 // Frame counter for throttling expensive operations
 let _frameCount = 0;
