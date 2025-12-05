@@ -173,7 +173,7 @@
   - **Property 34: Auto-Save Triggers**
   - **Validates: Requirements 4.8, 7.15, 8.10, 10.3, 10.4, 10.5, 10.6**
 
-- [ ] 10. Create HUD overlay UI
+- [x] 10. Create HUD overlay UI
   - Create DOM overlay positioned over Three.js canvas
   - Implement HUD display with all required fields (credits, debt, days, fuel, cargo, system name, distance from Sol)
   - Subscribe to state change events for reactive updates:
@@ -186,11 +186,11 @@
   - Style HUD with game aesthetic (monospace font, green/black theme)
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
 
-- [ ] 10.1 Write property test for HUD display completeness
+- [x] 10.1 Write property test for HUD display completeness
   - **Property 2: HUD Display Completeness**
   - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7**
 
-- [ ] 10.2 Write property test for HUD reactivity
+- [x] 10.2 Write property test for HUD reactivity
   - **Property 3: HUD Reactivity**
   - **Validates: Requirements 2.8**
 

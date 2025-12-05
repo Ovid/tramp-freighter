@@ -17,7 +17,53 @@
 <body>
     <div id="container"></div>
     
-    <!-- HUD Panel -->
+    <!-- Game HUD Overlay -->
+    <div id="game-hud">
+        <div class="hud-section hud-finances">
+            <div class="hud-row">
+                <span class="hud-label">Credits:</span>
+                <span id="hud-credits" class="hud-value">0</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">Debt:</span>
+                <span id="hud-debt" class="hud-value">0</span>
+            </div>
+        </div>
+        
+        <div class="hud-section hud-time">
+            <div class="hud-row">
+                <span class="hud-label">Days:</span>
+                <span id="hud-days" class="hud-value">0</span>
+            </div>
+        </div>
+        
+        <div class="hud-section hud-ship">
+            <div class="hud-row">
+                <span class="hud-label">Fuel:</span>
+                <div class="fuel-bar-container">
+                    <div id="fuel-bar" class="fuel-bar"></div>
+                    <span id="hud-fuel-text" class="fuel-text">100%</span>
+                </div>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">Cargo:</span>
+                <span id="hud-cargo" class="hud-value">0/50</span>
+            </div>
+        </div>
+        
+        <div class="hud-section hud-location">
+            <div class="hud-row">
+                <span class="hud-label">System:</span>
+                <span id="hud-system" class="hud-value">Sol</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">Distance from Sol:</span>
+                <span id="hud-distance" class="hud-value">0.0 LY</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Info Panel (existing) -->
     <div id="hud">
         <button class="close-btn" onclick="deselectStar()">×</button>
         <h2 id="hud-name">System Name</h2>

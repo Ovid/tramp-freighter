@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameStateManager } from './game-state.js';
+import { UIManager } from './game-ui.js';
 import { SPECTRAL_COLORS } from './game-constants.js';
 
 // Make THREE available globally for debugging
@@ -1092,8 +1093,9 @@ window.zoomOut = zoomOut;
 window.toggleRotation = toggleRotation;
 window.deselectStar = deselectStar;
 
-// Global game state manager instance
+// Global game state manager and UI manager instances
 let gameStateManager = null;
+let uiManager = null;
 
 // Reusable temp vectors to avoid object allocation in hot paths
 // These are reused across function calls to prevent garbage collection pressure
@@ -1193,13 +1195,20 @@ window.addEventListener('DOMContentLoaded', () => {
         // Initialize game state manager
         gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
         
+        // Initialize UI manager
+        uiManager = new UIManager(gameStateManager);
+        
         // Initialize new game
         gameStateManager.initNewGame();
         
-        // Make game state manager available globally for debugging
-        window.gameStateManager = gameStateManager;
+        // Show the game HUD
+        uiManager.showHUD();
         
-        console.log('Game state manager initialized');
+        // Make game state manager and UI manager available globally for debugging
+        window.gameStateManager = gameStateManager;
+        window.uiManager = uiManager;
+        
+        console.log('Game state manager and UI manager initialized');
         
         // Select Sol on initialization (id: 0)
         const sol = stars.find(star => star.data.id === 0);

@@ -23,6 +23,88 @@ canvas {
     height: 100%;
 }
 
+/* Game HUD Overlay */
+#game-hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    background-color: rgba(0, 0, 0, 0.85);
+    border: 2px solid #00FF88;
+    border-radius: 5px;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    color: #00FF88;
+    z-index: 100;
+    display: none;
+}
+
+#game-hud.visible {
+    display: block;
+}
+
+.hud-section {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.hud-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.hud-label {
+    color: #00FF88;
+    font-weight: bold;
+}
+
+.hud-value {
+    color: #FFFFFF;
+    text-align: right;
+}
+
+/* Fuel Bar Styling */
+.fuel-bar-container {
+    position: relative;
+    width: 150px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00FF88;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fuel-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #00FF88;
+    transition: width 0.3s ease;
+}
+
+.fuel-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    z-index: 1;
+}
+
 /* HUD Panel Styling */
 #hud {
     position: absolute;
