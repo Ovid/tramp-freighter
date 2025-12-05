@@ -148,7 +148,7 @@
   - **Property 31: Refuel State Mutation**
   - **Validates: Requirements 8.9**
 
-- [ ] 8. Implement save/load system with localStorage
+- [x] 8. Implement save/load system with localStorage
   - Create SaveLoadManager class with serialization methods
   - Implement save to localStorage with version number and timestamp
   - Implement load from localStorage with parsing and validation
@@ -157,7 +157,7 @@
   - Implement hasSavedGame check for initial menu
   - _Requirements: 1.1, 1.2, 1.3, 1.6, 10.1, 10.2, 10.7, 10.8, 10.9, 10.10_
 
-- [ ] 8.1 Write property test for save data completeness
+- [x] 8.1 Write property test for save data completeness
   - **Property 33: Save Data Completeness**
   - **Validates: Requirements 10.1, 10.2**
 
