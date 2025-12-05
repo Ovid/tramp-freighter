@@ -98,17 +98,17 @@
   - **Property 23: Resource Constraint Validation**
   - **Validates: Requirements 7.11, 7.12**
 
-- [ ] 6. Implement sell mechanics
+- [x] 6. Implement sell mechanics
   - Implement sell transaction (increase credits, decrease cargo stack quantity)
   - Add logic to remove empty cargo stacks after selling all units
   - Calculate and display profit margin (sale price - purchase price)
   - _Requirements: 7.3, 7.9, 7.10_
 
-- [ ] 6.1 Write property test for sale credits addition
+- [x] 6.1 Write property test for sale credits addition
   - **Property 21: Sale Credits Addition**
   - **Validates: Requirements 7.9**
 
-- [ ] 6.2 Write property test for sale cargo reduction
+- [x] 6.2 Write property test for sale cargo reduction
   - **Property 22: Sale Cargo Reduction**
   - **Validates: Requirements 7.10**
 

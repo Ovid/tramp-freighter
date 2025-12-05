@@ -356,6 +356,101 @@ export class GameStateManager {
         return [...cargo, newStack];
     }
     
+    /**
+     * Sell goods from a cargo stack
+     * Requirements: 7.3, 7.9, 7.10
+     * 
+     * @param {number} stackIndex - Index of cargo stack to sell from
+     * @param {number} quantity - Quantity to sell
+     * @param {number} salePrice - Price per unit at current station
+     * @returns {Object} { success: boolean, reason?: string, profitMargin?: number }
+     */
+    sellGood(stackIndex, quantity, salePrice) {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        const cargo = this.state.ship.cargo;
+        
+        // Validate sale
+        const validation = this.validateSale(cargo, stackIndex, quantity);
+        if (!validation.valid) {
+            return { success: false, reason: validation.reason };
+        }
+        
+        const stack = cargo[stackIndex];
+        const totalRevenue = quantity * salePrice;
+        
+        // Calculate profit margin (sale price - purchase price)
+        const profitMargin = salePrice - stack.purchasePrice;
+        
+        // Increase credits (Requirement 7.9)
+        const currentCredits = this.state.player.credits;
+        this.updateCredits(currentCredits + totalRevenue);
+        
+        // Decrease cargo stack quantity (Requirement 7.10)
+        const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
+        this.updateCargo(newCargo);
+        
+        return { 
+            success: true, 
+            profitMargin: profitMargin 
+        };
+    }
+    
+    /**
+     * Validate if a sale is possible
+     * Requirements: 7.8
+     */
+    validateSale(cargo, stackIndex, quantity) {
+        if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
+            return {
+                valid: false,
+                reason: 'Invalid cargo stack'
+            };
+        }
+        
+        const stack = cargo[stackIndex];
+        if (quantity > stack.qty) {
+            return {
+                valid: false,
+                reason: 'Not enough quantity in stack'
+            };
+        }
+        
+        if (quantity <= 0) {
+            return {
+                valid: false,
+                reason: 'Quantity must be positive'
+            };
+        }
+        
+        return { valid: true };
+    }
+    
+    /**
+     * Remove quantity from a cargo stack
+     * Requirements: 7.10
+     * 
+     * Decreases the quantity in the specified stack.
+     * If quantity reaches 0, the stack is removed.
+     */
+    removeFromCargoStack(cargo, stackIndex, quantity) {
+        const updatedCargo = [...cargo];
+        const stack = { ...updatedCargo[stackIndex] };
+        
+        stack.qty -= quantity;
+        
+        // Remove stack if empty (Requirement 7.10)
+        if (stack.qty <= 0) {
+            updatedCargo.splice(stackIndex, 1);
+        } else {
+            updatedCargo[stackIndex] = stack;
+        }
+        
+        return updatedCargo;
+    }
+    
     // ========================================================================
     // SAVE/LOAD SYSTEM
     // ========================================================================
