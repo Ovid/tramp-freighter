@@ -1303,6 +1303,14 @@ function selectStar(star) {
         star.selectionRing.visible = true;
     }
     
+    // Pause auto-rotation when a star is selected
+    if (autoRotationEnabled) {
+        toggleRotation();
+    }
+    
+    // Highlight connected systems
+    highlightConnectedSystems(star.data.id);
+    
     updateHUD(star);
     showHUD();
     
@@ -1348,6 +1356,130 @@ function updateCurrentSystemIndicator() {
     scene.add(currentSystemIndicator);
 }
 
+// Track highlighted systems for cleanup
+let highlightedStars = [];
+
+/**
+ * Highlight systems connected to the selected system
+ * Makes it easier to see which systems you can jump to
+ */
+function highlightConnectedSystems(systemId) {
+    // Clear any previous highlights
+    clearHighlightedSystems();
+    
+    if (!navigationSystem) return;
+    
+    // Get connected system IDs
+    const connectedIds = navigationSystem.getConnectedSystems(systemId);
+    
+    // Highlight each connected star
+    connectedIds.forEach(connectedId => {
+        const connectedStar = stars.find(s => s.data.id === connectedId);
+        if (connectedStar) {
+            // Store original color if not already stored
+            if (!connectedStar.highlightedOriginalColor) {
+                connectedStar.highlightedOriginalColor = connectedStar.sprite.material.color.getHex();
+            }
+            
+            // Set highlight color (bright cyan)
+            connectedStar.sprite.material.color.setHex(0x00FFFF);
+            
+            // Increase size slightly
+            connectedStar.sprite.scale.set(
+                VISUAL_CONFIG.starSize * 1.5,
+                VISUAL_CONFIG.starSize * 1.5,
+                1
+            );
+            
+            highlightedStars.push(connectedStar);
+        }
+    });
+}
+
+/**
+ * Clear all highlighted systems
+ */
+function clearHighlightedSystems() {
+    highlightedStars.forEach(star => {
+        // Restore original color
+        if (star.highlightedOriginalColor !== undefined) {
+            star.sprite.material.color.setHex(star.highlightedOriginalColor);
+            star.highlightedOriginalColor = undefined;
+        }
+        
+        // Restore original size
+        star.sprite.scale.set(
+            VISUAL_CONFIG.starSize,
+            VISUAL_CONFIG.starSize,
+            1
+        );
+    });
+    
+    highlightedStars = [];
+}
+
+/**
+ * Update the connected systems list in the HUD
+ * Shows clickable list of systems you can jump to from current location
+ */
+function updateConnectedSystemsList(currentSystemId, currentFuel) {
+    const connectedList = document.getElementById('connected-list');
+    if (!connectedList || !navigationSystem) return;
+    
+    // Clear existing list
+    connectedList.innerHTML = '';
+    
+    // Get connected system IDs
+    const connectedIds = navigationSystem.getConnectedSystems(currentSystemId);
+    
+    if (connectedIds.length === 0) {
+        connectedList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 12px; padding: 8px;">No connected systems</div>';
+        return;
+    }
+    
+    // Sort by distance
+    const connectedSystems = connectedIds.map(id => {
+        const star = STAR_DATA.find(s => s.id === id);
+        const currentStar = STAR_DATA.find(s => s.id === currentSystemId);
+        const distance = navigationSystem.calculateDistanceBetween(currentStar, star);
+        const fuelCost = navigationSystem.calculateFuelCost(distance);
+        const jumpTime = navigationSystem.calculateJumpTime(distance);
+        const canJump = currentFuel >= fuelCost;
+        
+        return { id, star, distance, fuelCost, jumpTime, canJump };
+    }).sort((a, b) => a.distance - b.distance);
+    
+    // Create list items
+    connectedSystems.forEach(system => {
+        const item = document.createElement('div');
+        item.className = 'connected-system-item';
+        if (!system.canJump) {
+            item.className += ' insufficient-fuel';
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'connected-system-name';
+        name.textContent = system.star.name;
+        
+        const info = document.createElement('div');
+        info.className = 'connected-system-info';
+        info.textContent = `${system.distance.toFixed(1)} LY • ${Math.round(system.fuelCost)}% fuel • ${system.jumpTime}d`;
+        
+        item.appendChild(name);
+        item.appendChild(info);
+        
+        // Click handler to select that system
+        item.addEventListener('click', () => {
+            const targetStar = stars.find(s => s.data.id === system.id);
+            if (targetStar) {
+                selectStar(targetStar);
+            }
+        });
+        
+        connectedList.appendChild(item);
+    });
+}
+
 function deselectStar() {
     if (!selectedStar) {
         return;
@@ -1360,6 +1492,9 @@ function deselectStar() {
     if (selectedStar.selectionRing) {
         selectedStar.selectionRing.visible = false;
     }
+    
+    // Clear highlighted connected systems
+    clearHighlightedSystems();
     
     hideHUD();
     selectedStar = null;
@@ -1386,17 +1521,23 @@ function updateHUD(star) {
             const jumpInfo = document.getElementById('jump-info');
             const jumpBtn = document.getElementById('jump-btn');
             const dockBtn = document.getElementById('dock-btn');
+            const connectedSystems = document.getElementById('connected-systems');
             
             if (isCurrentSystem) {
-                // Hide jump info, show dock button
+                // Hide jump info, show dock button and connected systems
                 jumpInfo.style.display = 'none';
                 jumpBtn.style.display = 'none';
                 dockBtn.style.display = 'block';
+                connectedSystems.style.display = 'block';
+                
+                // Populate connected systems list
+                updateConnectedSystemsList(currentSystemId, state.ship.fuel);
             } else {
                 // Show jump info
                 jumpInfo.style.display = 'block';
                 jumpBtn.style.display = 'block';
                 dockBtn.style.display = 'none';
+                connectedSystems.style.display = 'none';
                 
                 // Validate jump and display info
                 const validation = navigationSystem.validateJump(

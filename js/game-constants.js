@@ -122,10 +122,10 @@ export const SAVE_KEY = 'trampFreighterSave';
  * Connection colors provide player feedback for jump feasibility.
  */
 export const VISUAL_CONFIG = {
-    starSize: 20,
+    starSize: 30,
     pulseAmplitude: 0.15,
     pulseSpeed: 2.0,
-    selectionRingSize: 30,
+    selectionRingSize: 40,
     selectionRingPulseSpeed: 3.0,
     selectionColor: 0xFFFF00,
     currentSystemColor: 0x00FF88,

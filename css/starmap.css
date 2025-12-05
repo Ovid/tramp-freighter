@@ -160,6 +160,69 @@ canvas {
     border-top: 1px solid rgba(0, 255, 136, 0.3);
 }
 
+/* Connected Systems List */
+.connected-systems {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 136, 0.3);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.connected-header {
+    color: #00FF88;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.connected-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.connected-system-item {
+    padding: 6px 8px;
+    background-color: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.connected-system-item:hover {
+    background-color: rgba(0, 255, 255, 0.3);
+    border-color: rgba(0, 255, 255, 0.6);
+}
+
+.connected-system-item.insufficient-fuel {
+    background-color: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.3);
+    opacity: 0.7;
+}
+
+.connected-system-item.insufficient-fuel:hover {
+    background-color: rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.5);
+}
+
+.connected-system-name {
+    color: #00FFFF;
+    font-weight: bold;
+}
+
+.connected-system-item.insufficient-fuel .connected-system-name {
+    color: #FF6B6B;
+}
+
+.connected-system-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
 .hud-actions {
     margin-top: 15px;
     display: flex;
