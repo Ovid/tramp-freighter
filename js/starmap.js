@@ -1032,6 +1032,11 @@ function selectStar(star) {
     
     updateHUD(star);
     showHUD();
+    
+    // Check if this is the current system and show station interface
+    if (uiManager && gameStateManager) {
+        uiManager.handleSystemClick(star.data.id);
+    }
 }
 
 function deselectStar() {

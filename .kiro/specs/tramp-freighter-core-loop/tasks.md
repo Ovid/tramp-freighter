@@ -194,18 +194,18 @@
   - **Property 3: HUD Reactivity**
   - **Validates: Requirements 2.8**
 
-- [ ] 11. Create station interface UI
+- [x] 11. Create station interface UI
   - Create station modal/panel with system name and distance from Sol
   - Add Trade, Refuel, and Undock buttons
   - Implement show/hide logic for station interface
   - Hook station interface to current system click event
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 11.1 Write property test for station interface display
+- [x] 11.1 Write property test for station interface display
   - **Property 14: Station Interface Display**
   - **Validates: Requirements 6.2**
 
-- [ ] 12. Create trade panel UI
+- [x] 12. Create trade panel UI
   - Display all six goods with current prices at station
   - Display all cargo stacks separately with good type, quantity, and purchase price
   - Show profit margin for each cargo stack (station price vs purchase price)
@@ -215,11 +215,11 @@
   - Connect to trading system methods
   - _Requirements: 7.1, 7.3, 7.13, 7.14, 7.16_
 
-- [ ] 12.1 Write property test for cargo stack display
+- [x] 12.1 Write property test for cargo stack display
   - **Property 16: Cargo Stack Display**
   - **Validates: Requirements 7.3**
 
-- [ ] 12.2 Write property test for cargo stack display completeness
+- [x] 12.2 Write property test for cargo stack display completeness
   - **Property 24: Cargo Stack Display Completeness**
   - **Validates: Requirements 7.16**
 

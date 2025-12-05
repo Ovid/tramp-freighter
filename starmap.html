@@ -85,6 +85,55 @@
         </div>
     </div>
     
+    <!-- Station Interface -->
+    <div id="station-interface">
+        <button class="close-btn" id="station-close-btn">×</button>
+        <h2 id="station-name">Station Name</h2>
+        <div class="station-info">
+            <div class="info-row">
+                <span class="label">System:</span>
+                <span id="station-system-name">Sol</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Distance from Sol:</span>
+                <span id="station-distance">0.0 LY</span>
+            </div>
+        </div>
+        <div class="station-actions">
+            <button class="station-btn" id="trade-btn">Trade</button>
+            <button class="station-btn" id="refuel-btn">Refuel</button>
+            <button class="station-btn" id="undock-btn">Undock</button>
+        </div>
+    </div>
+    
+    <!-- Trade Panel -->
+    <div id="trade-panel">
+        <button class="close-btn" id="trade-close-btn">×</button>
+        <h2>Trade - <span id="trade-system-name">Sol</span></h2>
+        
+        <div class="trade-content">
+            <!-- Market Goods Section -->
+            <div class="trade-section">
+                <h3>Market Goods</h3>
+                <div id="market-goods" class="goods-list">
+                    <!-- Dynamically populated with goods -->
+                </div>
+            </div>
+            
+            <!-- Cargo Section -->
+            <div class="trade-section">
+                <h3>Your Cargo</h3>
+                <div id="cargo-stacks" class="cargo-list">
+                    <!-- Dynamically populated with cargo stacks -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="trade-actions">
+            <button class="station-btn" id="trade-back-btn">Back to Station</button>
+        </div>
+    </div>
+    
     <!-- Control Buttons -->
     <div id="controls">
         <button class="control-btn" onclick="zoomIn()">Zoom In</button>
