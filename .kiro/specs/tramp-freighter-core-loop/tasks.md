@@ -236,14 +236,14 @@
   - **Property 25: Refuel Price Display**
   - **Validates: Requirements 8.2**
 
-- [ ] 14. Implement error notification system
+- [x] 14. Implement error notification system
   - Create notification area in UI
   - Implement error message display with auto-dismiss (3 seconds)
   - Implement message queue for sequential display without overlap
   - Style notifications for visibility
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 14.1 Write property test for error message sequencing
+- [x] 14.1 Write property test for error message sequencing
   - **Property 32: Error Message Sequencing**
   - **Validates: Requirements 9.3**
 

@@ -18,6 +18,10 @@ export class UIManager {
         // List of all tradeable goods
         this.goodsList = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
         
+        // Notification queue for sequential display
+        this.notificationQueue = [];
+        this.isShowingNotification = false;
+        
         // Cache DOM elements for performance
         this.elements = {
             gameHud: document.getElementById('game-hud'),
@@ -52,7 +56,8 @@ export class UIManager {
             refuelConfirmBtn: document.getElementById('refuel-confirm-btn'),
             refuelCloseBtn: document.getElementById('refuel-close-btn'),
             refuelBackBtn: document.getElementById('refuel-back-btn'),
-            refuelMaxBtn: document.getElementById('refuel-max-btn')
+            refuelMaxBtn: document.getElementById('refuel-max-btn'),
+            notificationArea: document.getElementById('notification-area')
         };
         
         this.subscribeToStateChanges();
@@ -361,8 +366,7 @@ export class UIManager {
         const result = this.gameStateManager.buyGood(goodType, quantity, price);
         
         if (!result.success) {
-            console.error('Purchase failed:', result.reason);
-            // Future: show error notification
+            this.showError(`Purchase failed: ${result.reason}`);
             return;
         }
         
@@ -466,8 +470,7 @@ export class UIManager {
         const result = this.gameStateManager.sellGood(stackIndex, quantity, salePrice);
         
         if (!result.success) {
-            console.error('Sale failed:', result.reason);
-            // Future: show error notification
+            this.showError(`Sale failed: ${result.reason}`);
             return;
         }
         
@@ -480,6 +483,69 @@ export class UIManager {
     
     capitalizeFirst(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    /**
+     * Show an error notification with auto-dismiss
+     * Messages are queued to prevent overlap
+     * Requirements: 9.1, 9.2, 9.3
+     */
+    showError(message, duration = 3000) {
+        this.notificationQueue.push({ message, duration });
+        
+        if (!this.isShowingNotification) {
+            this.processNotificationQueue();
+        }
+    }
+    
+    /**
+     * Process the notification queue sequentially
+     * Ensures messages don't overlap
+     */
+    processNotificationQueue() {
+        if (this.notificationQueue.length === 0) {
+            this.isShowingNotification = false;
+            return;
+        }
+        
+        this.isShowingNotification = true;
+        const { message, duration } = this.notificationQueue.shift();
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        
+        // Add to notification area
+        this.elements.notificationArea.appendChild(notification);
+        
+        // Auto-dismiss after duration
+        setTimeout(() => {
+            // Add fade-out animation
+            notification.classList.add('fade-out');
+            
+            // Remove from DOM after animation completes
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                
+                // Process next notification in queue
+                this.processNotificationQueue();
+            }, 300); // Match animation duration
+        }, duration);
+    }
+    
+    /**
+     * Clear all notifications immediately
+     */
+    clearNotifications() {
+        this.notificationQueue = [];
+        this.isShowingNotification = false;
+        
+        if (this.elements.notificationArea) {
+            this.elements.notificationArea.innerHTML = '';
+        }
     }
     
     showRefuelPanel() {
@@ -579,15 +645,14 @@ export class UIManager {
         const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
         
         if (amount <= 0) {
-            console.error('Refuel failed: Invalid amount');
+            this.showError('Refuel failed: Invalid amount');
             return;
         }
         
         const result = this.gameStateManager.refuel(amount);
         
         if (!result.success) {
-            console.error('Refuel failed:', result.reason);
-            // Future: show error notification
+            this.showError(`Refuel failed: ${result.reason}`);
             return;
         }
         
