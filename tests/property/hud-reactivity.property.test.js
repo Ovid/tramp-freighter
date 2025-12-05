@@ -96,10 +96,6 @@ describe('Property 3: HUD Reactivity', () => {
         delete global.document;
     });
     
-    /**
-     * Property: For any game state change (credits, debt, fuel, cargo, location, time), 
-     * the HUD should immediately reflect the new values in its display.
-     */
     it('should update HUD immediately when credits change', () => {
         fc.assert(
             fc.property(
@@ -123,9 +119,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update immediately when debt changes
-     */
     it('should update HUD immediately when debt changes', () => {
         fc.assert(
             fc.property(
@@ -149,9 +142,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update immediately when fuel changes
-     */
     it('should update HUD immediately when fuel changes', () => {
         fc.assert(
             fc.property(
@@ -177,9 +167,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update immediately when cargo changes
-     */
     it('should update HUD immediately when cargo changes', () => {
         fc.assert(
             fc.property(
@@ -225,9 +212,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update immediately when location changes
-     */
     it('should update HUD immediately when location changes', () => {
         fc.assert(
             fc.property(
@@ -261,9 +245,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update immediately when time changes
-     */
     it('should update HUD immediately when time changes', () => {
         fc.assert(
             fc.property(
@@ -287,9 +268,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: Multiple rapid state changes should all be reflected in HUD
-     */
     it('should handle multiple rapid state changes correctly', () => {
         fc.assert(
             fc.property(
@@ -325,9 +303,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update when state changes through game operations
-     */
     it('should update HUD when buying goods', () => {
         fc.assert(
             fc.property(
@@ -371,9 +346,6 @@ describe('Property 3: HUD Reactivity', () => {
         );
     });
     
-    /**
-     * Property: HUD should update when refueling
-     */
     it('should update HUD when refueling', () => {
         fc.assert(
             fc.property(

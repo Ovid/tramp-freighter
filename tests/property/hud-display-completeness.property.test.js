@@ -95,9 +95,6 @@ describe('Property 2: HUD Display Completeness', () => {
         delete global.document;
     });
     
-    /**
-     * Generator for valid game states
-     */
     const gameStateArbitrary = fc.record({
         player: fc.record({
             credits: fc.integer({ min: 0, max: 100000 }),
@@ -130,11 +127,6 @@ describe('Property 2: HUD Display Completeness', () => {
         })
     });
     
-    /**
-     * Property: For any game state, the HUD should display all required information:
-     * player credits, player debt, days elapsed, ship fuel percentage, cargo usage 
-     * (current/maximum), current system name, and distance from Sol.
-     */
     it('should display all required HUD fields for any game state', () => {
         fc.assert(
             fc.property(
@@ -192,9 +184,6 @@ describe('Property 2: HUD Display Completeness', () => {
         );
     });
     
-    /**
-     * Property: HUD should correctly display zero values
-     */
     it('should handle zero values correctly', () => {
         fc.assert(
             fc.property(
@@ -239,9 +228,6 @@ describe('Property 2: HUD Display Completeness', () => {
         );
     });
     
-    /**
-     * Property: HUD should correctly display maximum values
-     */
     it('should handle maximum values correctly', () => {
         fc.assert(
             fc.property(
@@ -291,9 +277,6 @@ describe('Property 2: HUD Display Completeness', () => {
         );
     });
     
-    /**
-     * Property: HUD should display correct distance for all systems
-     */
     it('should display correct distance from Sol for all systems', () => {
         fc.assert(
             fc.property(
@@ -347,9 +330,6 @@ describe('Property 2: HUD Display Completeness', () => {
         );
     });
     
-    /**
-     * Property: HUD should format large numbers with locale separators
-     */
     it('should format large credit and debt values with separators', () => {
         fc.assert(
             fc.property(

@@ -109,3 +109,4 @@ Wormhole connections stored as array of ID pairs.
 - If comments are used, they should explain WHY the code behaves the way it does.
 - Comments should not be used to describe the code's structure unless the structure is unclear.
 - All public functions or data must have documentation or comments
+- NEVER MENTION TASK NUMBERS IN COMMENTS!

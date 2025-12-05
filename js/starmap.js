@@ -161,7 +161,7 @@ let autoRotationEnabled = true;
 // Selection state
 let selectedStar = null;
 let raycaster = null;
-let mouse = new THREE.Vector2();
+const mouse = { x: 0, y: 0 };
 
 // Visual configuration
 const VISUAL_CONFIG = {
@@ -1010,65 +1010,47 @@ function onCanvasClick(event) {
     }
 }
 
-// Select a star system
 function selectStar(star) {
-    // Deselect current star if any
     if (selectedStar) {
         deselectStar();
     }
     
-    // Set new selection
     selectedStar = star;
     
     console.log(`Selected star: ${star.data.name}`);
     
-    // Change star sprite color to bright yellow
     star.sprite.material.color.setHex(VISUAL_CONFIG.selectionColor);
     
-    // Create and show selection ring if it doesn't exist
     if (!star.selectionRing) {
         star.selectionRing = createSelectionRing();
-        // Position ring at star location
         star.selectionRing.position.copy(star.position);
-        // Orient ring to face camera (billboard effect)
         star.selectionRing.lookAt(camera.position);
         scene.add(star.selectionRing);
     } else {
-        // If ring already exists, just make it visible
         star.selectionRing.visible = true;
     }
     
-    // Update HUD with star data
     updateHUD(star);
-    
-    // Show HUD panel
     showHUD();
 }
 
-// Deselect current star
 function deselectStar() {
     if (!selectedStar) {
-        return; // No star selected, nothing to do
+        return;
     }
     
     console.log(`Deselected star: ${selectedStar.data.name}`);
     
-    // Restore original star color
     selectedStar.sprite.material.color.setHex(selectedStar.originalColor);
     
-    // Hide selection ring
     if (selectedStar.selectionRing) {
         selectedStar.selectionRing.visible = false;
     }
     
-    // Hide HUD panel
     hideHUD();
-    
-    // Clear selection
     selectedStar = null;
 }
 
-// Update HUD with star data (called only from selectStar with validated star)
 function updateHUD(star) {
     document.getElementById('hud-name').textContent = star.data.name;
     document.getElementById('hud-coords').textContent = `${star.data.x}, ${star.data.y}, ${star.data.z}`;
@@ -1077,12 +1059,10 @@ function updateHUD(star) {
     document.getElementById('hud-reachable').textContent = star.data.r === 1 ? 'Reachable' : 'Unreachable';
 }
 
-// Show HUD panel
 function showHUD() {
     document.getElementById('hud').style.display = 'block';
 }
 
-// Hide HUD panel
 function hideHUD() {
     document.getElementById('hud').style.display = 'none';
 }
