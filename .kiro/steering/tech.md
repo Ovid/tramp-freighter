@@ -104,3 +104,8 @@ Wormhole connections stored as array of ID pairs.
 
 - **Three.js** (existing) - 3D rendering
 - **No additional dependencies** - Vanilla JS for game logic to minimize complexity
+
+## Comments and Documentation
+- If comments are used, they should explain WHY the code behaves the way it does.
+- Comments should not be used to describe the code's structure unless the structure is unclear.
+- All public functions or data must have documentation or comments

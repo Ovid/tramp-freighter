@@ -112,7 +112,7 @@
   - **Property 22: Sale Cargo Reduction**
   - **Validates: Requirements 7.10**
 
-- [ ] 7. Implement refuel system with pricing
+- [x] 7. Implement refuel system with pricing
   - Implement fuel price calculation based on system distance from Sol
   - Set fuel prices: Sol/Alpha Centauri = 2 credits/%, mid-range (4.5-10 LY) = 3 credits/%, outer (≥10 LY) = 4 credits/%
   - Implement refuel cost calculation: amount × price
@@ -124,27 +124,27 @@
   - **Property 25.5: Core System Fuel Pricing**
   - **Validates: Requirements 8.3**
 
-- [ ] 7.1 Write property test for mid-range system fuel pricing
+- [x] 7.1 Write property test for mid-range system fuel pricing
   - **Property 26: Mid-Range System Fuel Pricing**
   - **Validates: Requirements 8.4**
 
-- [ ] 7.2 Write property test for outer system fuel pricing
+- [x] 7.2 Write property test for outer system fuel pricing
   - **Property 27: Outer System Fuel Pricing**
   - **Validates: Requirements 8.5**
 
-- [ ] 7.3 Write property test for refuel cost calculation
+- [x] 7.3 Write property test for refuel cost calculation
   - **Property 28: Refuel Cost Calculation**
   - **Validates: Requirements 8.6**
 
-- [ ] 7.4 Write property test for refuel capacity constraint
+- [x] 7.4 Write property test for refuel capacity constraint
   - **Property 29: Refuel Capacity Constraint**
   - **Validates: Requirements 8.7**
 
-- [ ] 7.5 Write property test for refuel credit validation
+- [x] 7.5 Write property test for refuel credit validation
   - **Property 30: Refuel Credit Validation**
   - **Validates: Requirements 8.8**
 
-- [ ] 7.6 Write property test for refuel state mutation
+- [x] 7.6 Write property test for refuel state mutation
   - **Property 31: Refuel State Mutation**
   - **Validates: Requirements 8.9**
 

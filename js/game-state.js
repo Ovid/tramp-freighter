@@ -387,6 +387,138 @@ export class GameStateManager {
     }
     
     // ========================================================================
+    // REFUEL SYSTEM
+    // ========================================================================
+    
+    /**
+     * Calculate fuel price based on system distance from Sol
+     * Requirements: 8.2, 8.3, 8.4, 8.5
+     * 
+     * @param {number} systemId - System ID to check
+     * @returns {number} Fuel price per percentage point
+     */
+    getFuelPrice(systemId) {
+        // Sol (0) and Alpha Centauri (1) have special pricing
+        if (systemId === 0 || systemId === 1) {
+            return 2;  // 2 credits per 1%
+        }
+        
+        // Get system and calculate distance from Sol
+        const system = this.starData.find(s => s.id === systemId);
+        if (!system) {
+            return 3;  // Default to mid-range if system not found
+        }
+        
+        const distanceFromSol = this.calculateDistanceFromSol(system);
+        
+        // Mid-range systems (4.5-10 LY from Sol)
+        if (distanceFromSol >= 4.5 && distanceFromSol < 10) {
+            return 3;  // 3 credits per 1%
+        }
+        
+        // Outer systems (≥10 LY from Sol)
+        if (distanceFromSol >= 10) {
+            return 4;  // 4 credits per 1%
+        }
+        
+        // Systems closer than 4.5 LY (but not Sol/Alpha Centauri)
+        return 2;  // 2 credits per 1%
+    }
+    
+    /**
+     * Calculate distance from Sol for a system
+     * Requirements: 3.1
+     */
+    calculateDistanceFromSol(system) {
+        const distanceSquared = system.x * system.x + system.y * system.y + system.z * system.z;
+        return Math.sqrt(distanceSquared) / 10;
+    }
+    
+    /**
+     * Validate refuel transaction
+     * Requirements: 8.7, 8.8
+     * 
+     * @param {number} currentFuel - Current fuel percentage
+     * @param {number} amount - Amount to refuel (percentage points)
+     * @param {number} credits - Player's current credits
+     * @param {number} pricePerPercent - Fuel price per percentage point
+     * @returns {Object} { valid: boolean, reason: string, cost: number }
+     */
+    validateRefuel(currentFuel, amount, credits, pricePerPercent) {
+        // Calculate total cost (Requirement 8.6)
+        const totalCost = amount * pricePerPercent;
+        
+        // Check capacity constraint (Requirement 8.7)
+        if (currentFuel + amount > 100) {
+            return {
+                valid: false,
+                reason: 'Cannot refuel beyond 100% capacity',
+                cost: totalCost
+            };
+        }
+        
+        // Check credit constraint (Requirement 8.8)
+        if (totalCost > credits) {
+            return {
+                valid: false,
+                reason: 'Insufficient credits for refuel',
+                cost: totalCost
+            };
+        }
+        
+        // Check for valid amount
+        if (amount <= 0) {
+            return {
+                valid: false,
+                reason: 'Refuel amount must be positive',
+                cost: totalCost
+            };
+        }
+        
+        return {
+            valid: true,
+            reason: null,
+            cost: totalCost
+        };
+    }
+    
+    /**
+     * Execute refuel transaction
+     * Requirements: 8.9, 8.10
+     * 
+     * @param {number} amount - Amount to refuel (percentage points)
+     * @returns {Object} { success: boolean, reason: string }
+     */
+    refuel(amount) {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        const currentFuel = this.state.ship.fuel;
+        const credits = this.state.player.credits;
+        const systemId = this.state.player.currentSystem;
+        
+        // Get fuel price for current system
+        const pricePerPercent = this.getFuelPrice(systemId);
+        
+        // Validate refuel
+        const validation = this.validateRefuel(currentFuel, amount, credits, pricePerPercent);
+        
+        if (!validation.valid) {
+            return { success: false, reason: validation.reason };
+        }
+        
+        // Execute refuel: decrease credits and increase fuel (Requirement 8.9)
+        this.updateCredits(credits - validation.cost);
+        this.updateFuel(currentFuel + amount);
+        
+        // Auto-save after refuel (Requirement 8.10)
+        this.saveGame();
+        
+        return { success: true, reason: null };
+    }
+    
+    // ========================================================================
     // SAVE/LOAD SYSTEM
     // ========================================================================
     
