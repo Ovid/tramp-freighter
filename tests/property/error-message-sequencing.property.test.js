@@ -87,42 +87,31 @@ describe('Property 32: Error Message Sequencing', () => {
     it('should display multiple error messages sequentially without overlap', () => {
         fc.assert(
             fc.property(
-                // Generate array of 2-5 error messages
                 fc.array(fc.string({ minLength: 5, maxLength: 50 }), { minLength: 2, maxLength: 5 }),
                 (messages) => {
-                    // Clear any previous state
                     uiManager.clearNotifications();
                     
-                    // Queue all messages
                     messages.forEach(msg => {
-                        uiManager.showError(msg, 100); // Short duration for testing
+                        uiManager.showError(msg, 100);
                     });
                     
-                    // Initially, only one notification should be visible
                     const notificationArea = document.getElementById('notification-area');
                     let visibleNotifications = notificationArea.querySelectorAll('.notification:not(.fade-out)');
                     
-                    // Should have exactly 1 visible notification
                     expect(visibleNotifications.length).toBeLessThanOrEqual(1);
                     
-                    // Process through all messages
                     for (let i = 0; i < messages.length; i++) {
-                        // Advance time to show message
                         vi.advanceTimersByTime(50);
                         
                         visibleNotifications = notificationArea.querySelectorAll('.notification:not(.fade-out)');
                         
-                        // Should never have more than 1 visible notification at a time
                         expect(visibleNotifications.length).toBeLessThanOrEqual(1);
                         
-                        // Advance time to dismiss message
                         vi.advanceTimersByTime(100);
-                        
-                        // Advance time for fade-out animation
                         vi.advanceTimersByTime(300);
                     }
                     
-                    // After all messages processed, queue should be empty
+                    // Boundary check: empty queue proves all messages were processed
                     expect(uiManager.notificationQueue.length).toBe(0);
                     expect(uiManager.isShowingNotification).toBe(false);
                 }

@@ -4,9 +4,9 @@ import { TradingSystem } from './game-trading.js';
 /**
  * UIManager - Reactive UI layer using event subscription pattern
  * 
- * Uses observer pattern to decouple UI updates from game state mutations,
- * preventing tight coupling and enabling multiple UI components to react
- * to the same state changes independently.
+ * Subscribes to GameStateManager events to update UI elements reactively.
+ * This decoupling prevents tight coupling between game logic and DOM manipulation,
+ * allowing multiple UI components to react independently to state changes.
  * 
  * Requirements: 2.1-2.8 (HUD), 6.1-6.4 (Station interface)
  */
@@ -146,35 +146,30 @@ export class UIManager {
     }
     
     setupStationInterfaceHandlers() {
-        // Close button handler
         if (this.elements.stationCloseBtn) {
             this.elements.stationCloseBtn.addEventListener('click', () => {
                 this.hideStationInterface();
             });
         }
         
-        // Undock button handler
         if (this.elements.undockBtn) {
             this.elements.undockBtn.addEventListener('click', () => {
                 this.hideStationInterface();
             });
         }
         
-        // Trade button handler
         if (this.elements.tradeBtn) {
             this.elements.tradeBtn.addEventListener('click', () => {
                 this.showTradePanel();
             });
         }
         
-        // Trade panel close button handler
         if (this.elements.tradeCloseBtn) {
             this.elements.tradeCloseBtn.addEventListener('click', () => {
                 this.hideTradePanel();
             });
         }
         
-        // Trade panel back button handler
         if (this.elements.tradeBackBtn) {
             this.elements.tradeBackBtn.addEventListener('click', () => {
                 this.hideTradePanel();
@@ -182,21 +177,18 @@ export class UIManager {
             });
         }
         
-        // Refuel button handler
         if (this.elements.refuelBtn) {
             this.elements.refuelBtn.addEventListener('click', () => {
                 this.showRefuelPanel();
             });
         }
         
-        // Refuel panel close button handler
         if (this.elements.refuelCloseBtn) {
             this.elements.refuelCloseBtn.addEventListener('click', () => {
                 this.hideRefuelPanel();
             });
         }
         
-        // Refuel panel back button handler
         if (this.elements.refuelBackBtn) {
             this.elements.refuelBackBtn.addEventListener('click', () => {
                 this.hideRefuelPanel();
@@ -204,14 +196,12 @@ export class UIManager {
             });
         }
         
-        // Refuel amount input handler
         if (this.elements.refuelAmountInput) {
             this.elements.refuelAmountInput.addEventListener('input', () => {
                 this.updateRefuelCost();
             });
         }
         
-        // Refuel preset buttons handler
         const presetButtons = document.querySelectorAll('.refuel-preset-btn[data-amount]');
         presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -220,14 +210,12 @@ export class UIManager {
             });
         });
         
-        // Refuel max button handler
         if (this.elements.refuelMaxBtn) {
             this.elements.refuelMaxBtn.addEventListener('click', () => {
                 this.setRefuelAmountToMax();
             });
         }
         
-        // Refuel confirm button handler
         if (this.elements.refuelConfirmBtn) {
             this.elements.refuelConfirmBtn.addEventListener('click', () => {
                 this.handleRefuel();
@@ -295,10 +283,8 @@ export class UIManager {
         const state = this.gameStateManager.getState();
         if (!state) return;
         
-        // Clear existing goods
         this.elements.marketGoods.innerHTML = '';
         
-        // Render each good
         this.goodsList.forEach(goodType => {
             const price = TradingSystem.calculatePrice(goodType, system.type);
             const goodItem = this.createGoodItem(goodType, price);
@@ -381,12 +367,10 @@ export class UIManager {
         const state = this.gameStateManager.getState();
         if (!state) return;
         
-        // Clear existing stacks
         this.elements.cargoStacks.innerHTML = '';
         
         const cargo = state.ship.cargo;
         
-        // Show empty message if no cargo
         if (!cargo || cargo.length === 0) {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = 'cargo-empty';
@@ -395,7 +379,6 @@ export class UIManager {
             return;
         }
         
-        // Render each cargo stack
         cargo.forEach((stack, index) => {
             const stackItem = this.createCargoStackItem(stack, index, system);
             this.elements.cargoStacks.appendChild(stackItem);
@@ -410,7 +393,6 @@ export class UIManager {
         const stackItem = document.createElement('div');
         stackItem.className = 'cargo-stack';
         
-        // Stack info section
         const stackInfo = document.createElement('div');
         stackInfo.className = 'stack-info';
         
@@ -440,18 +422,15 @@ export class UIManager {
         stackInfo.appendChild(stackDetails);
         stackInfo.appendChild(stackProfit);
         
-        // Stack actions section
         const stackActions = document.createElement('div');
         stackActions.className = 'stack-actions';
         
-        // Sell 1 button
         const sell1Btn = document.createElement('button');
         sell1Btn.className = 'sell-btn';
         sell1Btn.textContent = 'Sell 1';
         sell1Btn.disabled = stack.qty < 1;
         sell1Btn.addEventListener('click', () => this.handleSell(stackIndex, 1, currentPrice));
         
-        // Sell All button
         const sellAllBtn = document.createElement('button');
         sellAllBtn.className = 'sell-btn';
         sellAllBtn.textContent = `Sell All (${stack.qty})`;

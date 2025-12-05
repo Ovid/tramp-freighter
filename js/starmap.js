@@ -149,6 +149,9 @@ let ambientLight, directionalLight;
 // Runtime star objects storage
 let stars = [];
 
+// Cached array of clickable objects to avoid allocation on every click
+let _clickableObjects = [];
+
 // Sector boundary
 let sectorBoundary = null;
 
@@ -967,30 +970,28 @@ function setupRaycaster() {
     console.log('Raycaster initialized for selection');
 }
 
+// Rebuild clickable objects cache after stars are created or modified
+function rebuildClickableObjectsCache() {
+    _clickableObjects = [];
+    stars.forEach(star => {
+        _clickableObjects.push(star.sprite);
+        _clickableObjects.push(star.label);
+    });
+}
+
 // Handle canvas click events
 function onCanvasClick(event) {
-    // Calculate mouse position in normalized device coordinates (-1 to +1)
+    // Convert to NDC for raycaster (required by THREE.js raycasting API)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     
-    // Update raycaster with camera and mouse position
     raycaster.setFromCamera(mouse, camera);
     
-    // Create array of all clickable objects (sprites and labels)
-    const clickableObjects = [];
-    stars.forEach(star => {
-        clickableObjects.push(star.sprite);
-        clickableObjects.push(star.label);
-    });
-    
-    // Calculate intersections
-    const intersects = raycaster.intersectObjects(clickableObjects, false);
+    const intersects = raycaster.intersectObjects(_clickableObjects, false);
     
     if (intersects.length > 0) {
-        // Find which star was clicked
         const clickedObject = intersects[0].object;
         
-        // Find the star that owns this sprite or label
         const clickedStar = stars.find(star => 
             star.sprite === clickedObject || star.label === clickedObject
         );
@@ -999,12 +1000,9 @@ function onCanvasClick(event) {
             selectStar(clickedStar);
         }
     } else {
-        // Empty space clicked
         if (selectedStar) {
-            // Deselect if a star is currently selected
             deselectStar();
         }
-        // If no star is selected, do nothing (no-op)
     }
 }
 
@@ -1091,6 +1089,9 @@ const _tempZoomPosition = new THREE.Vector3();     // For zoom position calculat
 let _frameCount = 0;
 const LABEL_UPDATE_INTERVAL = 3; // Update labels every 3 frames (~20fps)
 
+// Time tracking for animation loop
+let _lastTime = 0;
+
 // Update automatic rotation
 function updateAutoRotation() {
     if (autoRotationEnabled && controls) {
@@ -1127,7 +1128,8 @@ function updateStarfieldRotation() {
 function animate() {
     requestAnimationFrame(animate);
     
-    const time = Date.now() * 0.001;
+    const currentTime = performance.now() * 0.001; // More precise than Date.now()
+    _lastTime = currentTime;
     _frameCount++;
     
     updateAutoRotation();
@@ -1136,8 +1138,8 @@ function animate() {
         controls.update();
     }
     
-    updateStarPulse(time);
-    updateSelectionRingPulse(time);
+    updateStarPulse(currentTime);
+    updateSelectionRingPulse(currentTime);
     
     if (selectedStar && selectedStar.selectionRing) {
         selectedStar.selectionRing.lookAt(camera.position);
@@ -1163,6 +1165,9 @@ window.addEventListener('DOMContentLoaded', () => {
         createStarfield();
         
         createStarSystems(STAR_DATA);
+        
+        // Build clickable objects cache for raycasting performance
+        rebuildClickableObjectsCache();
         
         // Create wormhole connections after stars are created
         createWormholeLines(WORMHOLE_DATA, stars);
