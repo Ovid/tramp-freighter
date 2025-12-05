@@ -1,16 +1,14 @@
-import { calculateDistanceFromSol, BASE_PRICES } from './game-constants.js';
+import { calculateDistanceFromSol } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
 /**
- * UIManager - Manages all UI components and their updates
+ * UIManager - Reactive UI layer using event subscription pattern
  * 
- * Responsibilities:
- * - Render and update HUD display
- * - Subscribe to game state changes for reactive updates
- * - Display station interface (trade, refuel, undock)
- * - Show error notifications with auto-dismiss
+ * Uses observer pattern to decouple UI updates from game state mutations,
+ * preventing tight coupling and enabling multiple UI components to react
+ * to the same state changes independently.
  * 
- * Requirements: 2.1-2.8 (HUD display and reactivity), 6.1-6.4 (Station interface)
+ * Requirements: 2.1-2.8 (HUD), 6.1-6.4 (Station interface)
  */
 export class UIManager {
     constructor(gameStateManager) {
@@ -132,12 +130,8 @@ export class UIManager {
         this.elements.distance.textContent = `${distance.toFixed(1)} LY`;
     }
     
-    /**
-     * Set up event handlers for station interface buttons
-     * Requirements: 6.3, 6.4
-     */
     setupStationInterfaceHandlers() {
-        // Only set up handlers if station interface elements exist
+        // Defensive: Station interface may not exist in all game states
         if (!this.elements.stationInterface) return;
         
         // Close button handler
@@ -185,10 +179,6 @@ export class UIManager {
         }
     }
     
-    /**
-     * Show station interface for the current system
-     * Requirements: 6.1, 6.2
-     */
     showStationInterface() {
         if (!this.elements.stationInterface) return;
         
@@ -217,19 +207,11 @@ export class UIManager {
         this.elements.stationInterface.classList.add('visible');
     }
     
-    /**
-     * Hide station interface
-     * Requirements: 6.4
-     */
     hideStationInterface() {
         if (!this.elements.stationInterface) return;
         this.elements.stationInterface.classList.remove('visible');
     }
     
-    /**
-     * Check if player is at the clicked system and show station interface
-     * Requirements: 6.1
-     */
     handleSystemClick(systemId) {
         const state = this.gameStateManager.getState();
         if (!state) return;
@@ -240,10 +222,6 @@ export class UIManager {
         }
     }
     
-    /**
-     * Show trade panel with market goods and cargo
-     * Requirements: 7.1, 7.3, 7.13, 7.14, 7.16
-     */
     showTradePanel() {
         if (!this.elements.tradePanel) return;
         
@@ -271,18 +249,11 @@ export class UIManager {
         this.elements.tradePanel.classList.add('visible');
     }
     
-    /**
-     * Hide trade panel
-     */
     hideTradePanel() {
         if (!this.elements.tradePanel) return;
         this.elements.tradePanel.classList.remove('visible');
     }
     
-    /**
-     * Render all market goods with current prices
-     * Requirements: 7.1
-     */
     renderMarketGoods(system) {
         if (!this.elements.marketGoods) return;
         
@@ -300,10 +271,6 @@ export class UIManager {
         });
     }
     
-    /**
-     * Create a market good item element
-     * Requirements: 7.13
-     */
     createGoodItem(goodType, price) {
         const state = this.gameStateManager.getState();
         const credits = state.player.credits;
@@ -365,10 +332,6 @@ export class UIManager {
         return goodItem;
     }
     
-    /**
-     * Handle buy transaction
-     * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12
-     */
     handleBuy(goodType, quantity, price) {
         const result = this.gameStateManager.buyGood(goodType, quantity, price);
         
@@ -385,10 +348,6 @@ export class UIManager {
         this.renderCargoStacks(system);
     }
     
-    /**
-     * Render all cargo stacks with profit margins
-     * Requirements: 7.3, 7.16
-     */
     renderCargoStacks(system) {
         if (!this.elements.cargoStacks) return;
         
@@ -416,10 +375,6 @@ export class UIManager {
         });
     }
     
-    /**
-     * Create a cargo stack item element
-     * Requirements: 7.3, 7.14, 7.16
-     */
     createCargoStackItem(stack, stackIndex, system) {
         const currentPrice = TradingSystem.calculatePrice(stack.good, system.type);
         const profitMargin = currentPrice - stack.purchasePrice;
@@ -484,10 +439,6 @@ export class UIManager {
         return stackItem;
     }
     
-    /**
-     * Handle sell transaction
-     * Requirements: 7.3, 7.9, 7.10
-     */
     handleSell(stackIndex, quantity, salePrice) {
         const result = this.gameStateManager.sellGood(stackIndex, quantity, salePrice);
         
@@ -504,9 +455,6 @@ export class UIManager {
         this.renderCargoStacks(system);
     }
     
-    /**
-     * Capitalize first letter of a string
-     */
     capitalizeFirst(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }

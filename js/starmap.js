@@ -155,6 +155,9 @@ let sectorBoundary = null;
 // Starfield background
 let starfield = null;
 
+// Wormhole lines storage for potential disposal
+const wormholeLines = [];
+
 // Rotation state (default: enabled)
 let autoRotationEnabled = true;
 
@@ -538,23 +541,27 @@ function updateSelectionRingPulse(time) {
     }
 }
 
-// Get connection color based on reachability of both stars
-function getConnectionColor(star1, star2) {
-    // Bright blue if both stars are reachable (r=1)
-    // Dull red if at least one star is unreachable (r=0)
-    if (star1.data.r === 1 && star2.data.r === 1) {
-        return 0x00CCFF; // Bright blue for reachable connections
-    } else {
-        return 0x884444; // Dull red for unreachable connections
-    }
-}
-
 // Create wormhole connection lines
 function createWormholeLines(connections, starObjects) {
     // Create a map for quick star lookup by ID
     const starMap = new Map();
     starObjects.forEach(star => {
         starMap.set(star.data.id, star);
+    });
+    
+    // Create shared materials (only 2 materials for entire scene)
+    const reachableMaterial = new THREE.LineBasicMaterial({
+        color: 0x00CCFF,
+        linewidth: 2,
+        transparent: true,
+        opacity: 0.6
+    });
+    
+    const unreachableMaterial = new THREE.LineBasicMaterial({
+        color: 0x884444,
+        linewidth: 2,
+        transparent: true,
+        opacity: 0.6
     });
     
     let validConnections = 0;
@@ -597,20 +604,15 @@ function createWormholeLines(connections, starObjects) {
         
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         
-        // Determine line color based on reachability
-        const color = getConnectionColor(star1, star2);
-        
-        // Create line material
-        const material = new THREE.LineBasicMaterial({
-            color: color,
-            linewidth: 2,  // Note: linewidth > 1 may not work on all platforms
-            transparent: true,
-            opacity: 0.6
-        });
+        // Select material based on reachability (reuse shared materials)
+        const material = (star1.data.r === 1 && star2.data.r === 1) 
+            ? reachableMaterial 
+            : unreachableMaterial;
         
         // Create line and add to scene
         const line = new THREE.Line(geometry, material);
         scene.add(line);
+        wormholeLines.push(line);
         
         validConnections++;
     });
