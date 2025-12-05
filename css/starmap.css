@@ -153,6 +153,53 @@ canvas {
     font-weight: bold;
 }
 
+/* Jump Info Styling */
+.jump-info {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.hud-actions {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #222222;
+    color: #00FF88;
+    border: 2px solid #00FF88;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: #00FF88;
+    color: #000000;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn.secondary {
+    background-color: transparent;
+    border-color: rgba(0, 255, 136, 0.5);
+}
+
+.action-btn.secondary:hover:not(:disabled) {
+    background-color: rgba(0, 255, 136, 0.2);
+    color: #FFFFFF;
+}
+
 /* Control Buttons Styling */
 #controls {
     position: absolute;

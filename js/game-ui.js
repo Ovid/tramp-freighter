@@ -467,7 +467,6 @@ export class UIManager {
     /**
      * Show an error notification with auto-dismiss
      * Messages are queued to prevent overlap
-     * Requirements: 9.1, 9.2, 9.3
      */
     showError(message, duration = 3000) {
         this.notificationQueue.push({ message, duration });

@@ -120,7 +120,7 @@
   - Implement refuel transaction (decrease credits, increase fuel)
   - _Requirements: 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9_
 
-- [ ] 7.0.1 Write property test for core system fuel pricing
+- [x] 7.0.1 Write property test for core system fuel pricing
   - **Property 25.5: Core System Fuel Pricing**
   - **Validates: Requirements 8.3**
 
@@ -301,6 +301,6 @@
   - Test error scenarios (invalid jumps, insufficient resources)
   - Test UI integration (clicks trigger correct state changes)
 
-- [ ] 18. Final checkpoint - Ensure all tests pass
+- [x] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 

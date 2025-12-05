@@ -1371,6 +1371,59 @@ function updateHUD(star) {
     document.getElementById('hud-spectral').textContent = star.data.type;
     document.getElementById('hud-wormholes').textContent = star.data.wh;
     document.getElementById('hud-reachable').textContent = star.data.r === 1 ? 'Reachable' : 'Unreachable';
+    
+    // Update jump information if game is active
+    if (gameStateManager && navigationSystem) {
+        const state = gameStateManager.getState();
+        if (state) {
+            const currentSystemId = state.player.currentSystem;
+            const targetSystemId = star.data.id;
+            
+            // Check if this is the current system
+            const isCurrentSystem = currentSystemId === targetSystemId;
+            
+            // Get jump info elements
+            const jumpInfo = document.getElementById('jump-info');
+            const jumpBtn = document.getElementById('jump-btn');
+            const dockBtn = document.getElementById('dock-btn');
+            
+            if (isCurrentSystem) {
+                // Hide jump info, show dock button
+                jumpInfo.style.display = 'none';
+                jumpBtn.style.display = 'none';
+                dockBtn.style.display = 'block';
+            } else {
+                // Show jump info
+                jumpInfo.style.display = 'block';
+                jumpBtn.style.display = 'block';
+                dockBtn.style.display = 'none';
+                
+                // Validate jump and display info
+                const validation = navigationSystem.validateJump(
+                    currentSystemId,
+                    targetSystemId,
+                    state.ship.fuel
+                );
+                
+                document.getElementById('jump-distance').textContent = 
+                    `${validation.distance.toFixed(1)} LY`;
+                document.getElementById('jump-fuel-cost').textContent = 
+                    `${Math.round(validation.fuelCost)}%`;
+                document.getElementById('jump-time').textContent = 
+                    `${validation.jumpTime} day${validation.jumpTime !== 1 ? 's' : ''}`;
+                
+                // Enable/disable jump button based on validation
+                jumpBtn.disabled = !validation.valid;
+                
+                // Update button text to show error
+                if (!validation.valid) {
+                    jumpBtn.textContent = validation.error;
+                } else {
+                    jumpBtn.textContent = 'Jump to System';
+                }
+            }
+        }
+    }
 }
 
 function showHUD() {
@@ -1387,8 +1440,9 @@ window.zoomOut = zoomOut;
 window.toggleRotation = toggleRotation;
 window.deselectStar = deselectStar;
 
-// Global game state manager and UI manager instances
+// Global game state manager, navigation system, and UI manager instances
 let gameStateManager = null;
+let navigationSystem = null;
 let uiManager = null;
 
 // Frame counter for throttling expensive operations
@@ -1466,7 +1520,7 @@ function startGame(isNewGame) {
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     
     // Initialize navigation system
-    const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+    navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.navigationSystem = navigationSystem;
     
     // Initialize UI manager
@@ -1521,6 +1575,50 @@ function startGame(isNewGame) {
     const gameMenu = document.getElementById('game-menu');
     if (gameMenu) {
         gameMenu.classList.add('hidden');
+    }
+    
+    // Setup jump and dock button handlers
+    setupJumpAndDockHandlers(navigationSystem);
+}
+
+/**
+ * Setup event handlers for jump and dock buttons
+ */
+function setupJumpAndDockHandlers(navigationSystem) {
+    const jumpBtn = document.getElementById('jump-btn');
+    const dockBtn = document.getElementById('dock-btn');
+    
+    if (jumpBtn) {
+        jumpBtn.addEventListener('click', () => {
+            if (!selectedStar || !gameStateManager) return;
+            
+            const targetSystemId = selectedStar.data.id;
+            const result = navigationSystem.executeJump(gameStateManager, targetSystemId);
+            
+            if (result.success) {
+                // Jump successful - deselect star and update UI
+                deselectStar();
+                uiManager.showError(`Jumped to ${selectedStar.data.name}`, 2000);
+                
+                // Update connection colors and current system indicator
+                updateConnectionColors();
+                updateCurrentSystemIndicator();
+            } else {
+                // Jump failed - show error
+                uiManager.showError(result.error);
+            }
+        });
+    }
+    
+    if (dockBtn) {
+        dockBtn.addEventListener('click', () => {
+            if (!gameStateManager) return;
+            
+            // Close the system info panel and show station interface
+            hideHUD();
+            deselectStar();
+            uiManager.showStationInterface();
+        });
     }
 }
 
