@@ -736,3 +736,100 @@ canvas {
         transform: translateY(-20px);
     }
 }
+
+/* Game Menu Styling */
+#game-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#game-menu.hidden {
+    display: none;
+}
+
+.menu-content {
+    text-align: center;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 3px solid #00FF88;
+    border-radius: 10px;
+    min-width: 400px;
+}
+
+.menu-title {
+    color: #00FF88;
+    font-size: 36px;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.menu-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    margin-bottom: 40px;
+    font-family: 'Courier New', monospace;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.menu-btn {
+    width: 100%;
+    height: 60px;
+    background-color: #222222;
+    color: #FFFFFF;
+    border: 2px solid #00FF88;
+    border-radius: 5px;
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-btn:hover {
+    background-color: #00FF88;
+    color: #000000;
+    transform: scale(1.02);
+}
+
+.menu-btn:active {
+    transform: scale(0.98);
+}
+
+.menu-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.menu-btn:disabled:hover {
+    background-color: #222222;
+    color: #FFFFFF;
+}
+
+.menu-footer {
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.menu-version {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+}

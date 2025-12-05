@@ -1358,6 +1358,124 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+/**
+ * Initialize the game after menu selection
+ * Called when user chooses New Game or Continue
+ */
+function startGame(isNewGame) {
+    // Initialize game state manager
+    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    
+    // Initialize navigation system
+    const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+    gameStateManager.navigationSystem = navigationSystem;
+    
+    // Initialize UI manager
+    uiManager = new UIManager(gameStateManager);
+    
+    // Load or create game state
+    if (isNewGame) {
+        gameStateManager.initNewGame();
+    } else {
+        const loadedState = gameStateManager.loadGame();
+        if (!loadedState) {
+            // Load failed, show error and offer new game
+            uiManager.showError('Failed to load saved game. Starting new game instead.');
+            gameStateManager.initNewGame();
+        }
+    }
+    
+    // Subscribe to fuel and location changes to update connection colors
+    gameStateManager.subscribe('fuelChanged', () => {
+        updateConnectionColors();
+    });
+    
+    gameStateManager.subscribe('locationChanged', () => {
+        updateConnectionColors();
+        updateCurrentSystemIndicator();
+    });
+    
+    // Initial update of connection colors and current system indicator
+    updateConnectionColors();
+    updateCurrentSystemIndicator();
+    
+    // Show the game HUD
+    uiManager.showHUD();
+    
+    // Make game state manager and UI manager available globally for debugging
+    window.gameStateManager = gameStateManager;
+    window.uiManager = uiManager;
+    
+    console.log('Game state manager and UI manager initialized');
+    
+    // Select current system on initialization
+    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentStar = stars.find(star => star.data.id === currentSystemId);
+    if (currentStar) {
+        selectStar(currentStar);
+        console.log(`Current system (${currentStar.data.name}) pre-selected on initialization`);
+    } else {
+        console.warn(`Current system (id: ${currentSystemId}) not found in star data`);
+    }
+    
+    // Hide menu
+    const gameMenu = document.getElementById('game-menu');
+    if (gameMenu) {
+        gameMenu.classList.add('hidden');
+    }
+}
+
+/**
+ * Initialize the menu and check for saved game
+ * Requirements: 1.1, 1.2, 1.3
+ */
+function initMenu() {
+    const gameMenu = document.getElementById('game-menu');
+    const continueBtn = document.getElementById('continue-btn');
+    const newGameBtn = document.getElementById('new-game-btn');
+    
+    if (!gameMenu || !continueBtn || !newGameBtn) {
+        console.error('Menu elements not found');
+        return;
+    }
+    
+    // Create temporary state manager to check for saved game
+    const tempStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const hasSave = tempStateManager.hasSavedGame();
+    
+    // Show/hide Continue button based on save existence (Requirements 1.2, 1.3)
+    if (hasSave) {
+        continueBtn.style.display = 'block';
+        continueBtn.disabled = false;
+    } else {
+        continueBtn.style.display = 'none';
+        continueBtn.disabled = true;
+    }
+    
+    // Set up Continue button handler (Requirement 1.6)
+    continueBtn.addEventListener('click', () => {
+        console.log('Continue game selected');
+        startGame(false);
+    });
+    
+    // Set up New Game button handler (Requirements 1.4, 1.5)
+    newGameBtn.addEventListener('click', () => {
+        // Show confirmation if save exists
+        if (hasSave) {
+            const confirmed = confirm('Starting a new game will overwrite your existing save. Continue?');
+            if (!confirmed) {
+                return;
+            }
+        }
+        
+        console.log('New game selected');
+        startGame(true);
+    });
+    
+    // Show menu
+    gameMenu.classList.remove('hidden');
+}
+
 // Initialize the application
 window.addEventListener('DOMContentLoaded', () => {
     initScene();
@@ -1381,50 +1499,8 @@ window.addEventListener('DOMContentLoaded', () => {
         // Set up raycaster for selection
         setupRaycaster();
         
-        // Initialize game state manager
-        gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        
-        // Initialize navigation system
-        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.navigationSystem = navigationSystem;
-        
-        // Initialize UI manager
-        uiManager = new UIManager(gameStateManager);
-        
-        // Initialize new game
-        gameStateManager.initNewGame();
-        
-        // Subscribe to fuel and location changes to update connection colors
-        gameStateManager.subscribe('fuelChanged', () => {
-            updateConnectionColors();
-        });
-        
-        gameStateManager.subscribe('locationChanged', () => {
-            updateConnectionColors();
-            updateCurrentSystemIndicator();
-        });
-        
-        // Initial update of connection colors and current system indicator
-        updateConnectionColors();
-        updateCurrentSystemIndicator();
-        
-        // Show the game HUD
-        uiManager.showHUD();
-        
-        // Make game state manager and UI manager available globally for debugging
-        window.gameStateManager = gameStateManager;
-        window.uiManager = uiManager;
-        
-        console.log('Game state manager and UI manager initialized');
-        
-        // Select Sol on initialization (id: 0)
-        const sol = stars.find(star => star.data.id === 0);
-        if (sol) {
-            selectStar(sol);
-            console.log('Sol pre-selected on initialization');
-        } else {
-            console.warn('Sol (id: 0) not found in star data');
-        }
+        // Initialize menu (Requirements 1.1, 1.2, 1.3)
+        initMenu();
         
         // Start animation loop
         animate();

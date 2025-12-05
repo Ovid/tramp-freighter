@@ -262,17 +262,17 @@
   - **Property 8: Jump Information Display**
   - **Validates: Requirements 3.5, 5.5**
 
-- [ ] 16. Create initial game menu
+- [x] 16. Create initial game menu
   - _Requirements: 1.1, 1.2, 1.3, 1.6_
 
-- [ ] 16.1 Implement menu UI and save detection
+- [x] 16.1 Implement menu UI and save detection
   - Create start screen modal/overlay
   - Check for saved game using hasSavedGame function
   - Show appropriate buttons based on save existence (Continue + New Game, or Start Game only)
   - Style menu with game aesthetic
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 16.2 Implement Continue functionality
+- [x] 16.2 Implement Continue functionality
   - Connect Continue button to loadGame function
   - Display loading state during restore operation
   - Handle corrupted save data gracefully (show error message, offer New Game option)
@@ -280,7 +280,7 @@
   - Transition to game view on successful load
   - _Requirements: 1.6, 10.9, 10.10_
 
-- [ ] 16.3 Implement New Game functionality
+- [x] 16.3 Implement New Game functionality
   - Connect New Game button to initNewGame function
   - Show confirmation dialog if save exists (warn about overwrite)
   - Initialize game state with default values
