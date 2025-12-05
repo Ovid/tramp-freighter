@@ -153,6 +153,11 @@ let stars = [];
 // Cached array of clickable objects to avoid allocation on every click
 let _clickableObjects = [];
 
+// Shared texture and material caches to reduce GPU memory usage
+let sharedStarTexture = null;
+const starMaterials = new Map(); // Cache materials by color hex value
+let sharedReticleTexture = null; // Reused for all selection rings
+
 // Sector boundary
 let sectorBoundary = null;
 
@@ -277,8 +282,9 @@ function calculateLabelProperties(distance) {
 function updateLabelScale() {
     stars.forEach(star => {
         if (star.label) {
-            // Calculate distance from camera to star
-            const distance = camera.position.distanceTo(star.position);
+            // Reuse temp vector to avoid allocation (117 stars * 20fps = 2,340 allocations/sec)
+            _tempLabelDistance.subVectors(camera.position, star.position);
+            const distance = _tempLabelDistance.length();
             
             // Get label properties for this distance
             const { fontSize, opacity } = calculateLabelProperties(distance);
@@ -302,22 +308,73 @@ function updateLabelScale() {
     });
 }
 
+/**
+ * Dispose of all star system resources
+ * Prevents GPU memory leaks when recreating star systems
+ */
+function disposeStarSystems() {
+    stars.forEach(star => {
+        if (star.sprite) {
+            scene.remove(star.sprite);
+        }
+        if (star.label) {
+            if (star.label.material.map) star.label.material.map.dispose();
+            star.label.material.dispose();
+            scene.remove(star.label);
+        }
+        if (star.selectionRing) {
+            if (star.selectionRing.geometry) star.selectionRing.geometry.dispose();
+            if (star.selectionRing.material) {
+                if (star.selectionRing.material.map) star.selectionRing.material.map.dispose();
+                star.selectionRing.material.dispose();
+            }
+            scene.remove(star.selectionRing);
+        }
+    });
+    
+    // Dispose shared materials (reused across stars of same spectral class)
+    starMaterials.forEach(material => material.dispose());
+    starMaterials.clear();
+    
+    // Dispose shared textures
+    if (sharedStarTexture) {
+        sharedStarTexture.dispose();
+        sharedStarTexture = null;
+    }
+    
+    if (sharedReticleTexture) {
+        sharedReticleTexture.dispose();
+        sharedReticleTexture = null;
+    }
+    
+    stars.length = 0;
+    _clickableObjects.length = 0;
+}
+
 // Create star systems
 function createStarSystems(starData) {
-    // Create shared star texture for all stars
-    const starTexture = createStarTexture();
+    // Create shared star texture once for all stars
+    if (!sharedStarTexture) {
+        sharedStarTexture = createStarTexture();
+    }
     
     starData.forEach(data => {
-        // Create sprite material with color based on spectral class
         const color = getStarColor(data.type);
-        const spriteMaterial = new THREE.SpriteMaterial({
-            map: starTexture,
-            color: color,
-            transparent: true,
-            blending: THREE.AdditiveBlending,  // Additive blending for glow effect
-            depthWrite: false,
-            sizeAttenuation: true
-        });
+        
+        // Reuse material if already created for this spectral class color
+        // Reduces 117 materials down to ~7 (one per spectral class)
+        let spriteMaterial = starMaterials.get(color);
+        if (!spriteMaterial) {
+            spriteMaterial = new THREE.SpriteMaterial({
+                map: sharedStarTexture,
+                color: color,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                sizeAttenuation: true
+            });
+            starMaterials.set(color, spriteMaterial);
+        }
         
         // Create sprite
         const sprite = new THREE.Sprite(spriteMaterial);
@@ -474,12 +531,14 @@ function createSelectionRing() {
         VISUAL_CONFIG.selectionRingSize * 3
     );
     
-    // Create targeting reticle texture
-    const reticleTexture = createTargetingReticleTexture();
+    // Reuse cached texture to avoid recreating on every selection
+    if (!sharedReticleTexture) {
+        sharedReticleTexture = createTargetingReticleTexture();
+    }
     
     // Create material with additive blending for glow effect
     const reticleMaterial = new THREE.MeshBasicMaterial({
-        map: reticleTexture,
+        map: sharedReticleTexture,
         transparent: true,
         opacity: 1.0,
         blending: THREE.AdditiveBlending,
@@ -545,6 +604,20 @@ function updateSelectionRingPulse(time) {
 
 // Store wormhole connection objects for dynamic color updates
 const wormholeConnections = [];
+
+/**
+ * Dispose of all wormhole line geometries and materials
+ * Prevents GPU memory leaks when recreating connections
+ */
+function disposeWormholeLines() {
+    wormholeConnections.length = 0;
+    wormholeLines.forEach(line => {
+        if (line.geometry) line.geometry.dispose();
+        if (line.material) line.material.dispose();
+        scene.remove(line);
+    });
+    wormholeLines.length = 0;
+}
 
 // Create wormhole connection lines with dynamic fuel-based coloring
 function createWormholeLines(connections, starObjects) {
@@ -771,6 +844,22 @@ function createBackgroundStarTexture() {
     return texture;
 }
 
+/**
+ * Dispose of starfield resources
+ * Prevents GPU memory leaks when recreating starfield
+ */
+function disposeStarfield() {
+    if (starfield) {
+        if (starfield.geometry) starfield.geometry.dispose();
+        if (starfield.material) {
+            if (starfield.material.map) starfield.material.map.dispose();
+            starfield.material.dispose();
+        }
+        scene.remove(starfield);
+        starfield = null;
+    }
+}
+
 // Create starfield background
 function createStarfield() {
     const starfieldGeometry = new THREE.BufferGeometry();
@@ -857,6 +946,19 @@ function createStarfield() {
     console.log('Starfield visible:', starfield.visible);
 }
 
+/**
+ * Dispose of sector boundary resources
+ * Prevents GPU memory leaks when recreating boundary
+ */
+function disposeSectorBoundary() {
+    if (sectorBoundary) {
+        if (sectorBoundary.geometry) sectorBoundary.geometry.dispose();
+        if (sectorBoundary.material) sectorBoundary.material.dispose();
+        scene.remove(sectorBoundary);
+        sectorBoundary = null;
+    }
+}
+
 // Create sector boundary
 function setupSectorBoundary() {
     // Create sphere geometry with radius 300
@@ -864,6 +966,9 @@ function setupSectorBoundary() {
     
     // Use EdgesGeometry for clean wireframe lines
     const edgesGeometry = new THREE.EdgesGeometry(sphereGeometry);
+    
+    // Dispose source geometry immediately - no longer needed after EdgesGeometry extracts edges
+    sphereGeometry.dispose();
     
     const material = new THREE.LineBasicMaterial({
         color: VISUAL_CONFIG.sectorBoundaryColor,
@@ -1287,13 +1392,11 @@ let uiManager = null;
 const _tempOffset = new THREE.Vector3();           // For camera rotation calculations
 const _tempZoomDirection = new THREE.Vector3();    // For zoom in/out direction vectors
 const _tempZoomPosition = new THREE.Vector3();     // For zoom position calculations
+const _tempLabelDistance = new THREE.Vector3();    // For label distance calculations
 
 // Frame counter for throttling expensive operations
 let _frameCount = 0;
 const LABEL_UPDATE_INTERVAL = 3; // Update labels every 3 frames (~20fps)
-
-// Time tracking for animation loop
-let _lastTime = 0;
 
 // Update automatic rotation
 function updateAutoRotation() {
@@ -1331,8 +1434,7 @@ function updateStarfieldRotation() {
 function animate() {
     requestAnimationFrame(animate);
     
-    const currentTime = performance.now() * 0.001; // More precise than Date.now()
-    _lastTime = currentTime;
+    const currentTime = performance.now() * 0.001;
     _frameCount++;
     
     updateAutoRotation();
