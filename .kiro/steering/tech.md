@@ -102,7 +102,7 @@ Wormhole connections stored as array of ID pairs.
 
 ## Dependencies
 
-- **Three.js** (existing) - 3D rendering
+- **Three.js** (existing) - 3D rendering. This is in js/vendor directory. NEVER EDIT THIS CODE.
 - **No additional dependencies** - Vanilla JS for game logic to minimize complexity
 
 ## Comments and Documentation

@@ -6,6 +6,12 @@
  */
 
 /**
+ * System IDs for key locations
+ */
+export const SOL_SYSTEM_ID = 0;
+export const ALPHA_CENTAURI_SYSTEM_ID = 1;
+
+/**
  * Base commodity prices in credits (before spectral modifiers)
  */
 export const BASE_PRICES = {
@@ -67,7 +73,7 @@ export const SPECTRAL_COLORS = {
  */
 export const FUEL_PRICING = {
     CORE_SYSTEMS: {
-        IDS: [0, 1], // Sol and Alpha Centauri
+        IDS: [SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID],
         PRICE: 2
     },
     MID_RANGE: {

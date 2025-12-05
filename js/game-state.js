@@ -1,4 +1,12 @@
-import { BASE_PRICES, SPECTRAL_MODIFIERS, FUEL_PRICING, calculateDistanceFromSol, GAME_VERSION, SAVE_KEY } from './game-constants.js';
+import {
+    BASE_PRICES,
+    SPECTRAL_MODIFIERS,
+    FUEL_PRICING,
+    calculateDistanceFromSol,
+    SOL_SYSTEM_ID,
+    GAME_VERSION,
+    SAVE_KEY
+} from './game-constants.js';
 
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
@@ -15,14 +23,14 @@ export class GameStateManager {
         this.starData = starData;
         this.wormholeData = wormholeData;
         
-        // Event subscribers: { eventType: [callback1, callback2, ...] }
+        // Supports multiple UI components subscribing to same state changes
         this.subscribers = {
-            'creditsChanged': [],
-            'debtChanged': [],
-            'fuelChanged': [],
-            'cargoChanged': [],
-            'locationChanged': [],
-            'timeChanged': []
+            creditsChanged: [],
+            debtChanged: [],
+            fuelChanged: [],
+            cargoChanged: [],
+            locationChanged: [],
+            timeChanged: []
         };
         
         // Initialize with null state (will be set by initNewGame or loadGame)
@@ -35,19 +43,19 @@ export class GameStateManager {
      */
     initNewGame() {
         // Get Sol's grain price for initial cargo
-        const solSystem = this.starData.find(s => s.id === 0);
+        const solSystem = this.starData.find(s => s.id === SOL_SYSTEM_ID);
         const solGrainPrice = this.calculateGoodPrice('grain', solSystem.type);
         
         this.state = {
             player: {
                 credits: 500,
                 debt: 10000,
-                currentSystem: 0,  // Sol
+                currentSystem: SOL_SYSTEM_ID,
                 daysElapsed: 0
             },
             ship: {
                 name: "Serendipity",
-                fuel: 100,  // 100%
+                fuel: 100,
                 cargoCapacity: 50,
                 cargo: [
                     {
@@ -58,7 +66,7 @@ export class GameStateManager {
                 ]
             },
             world: {
-                visitedSystems: [0]  // Sol is visited at start
+                visitedSystems: [SOL_SYSTEM_ID]
             },
             meta: {
                 version: GAME_VERSION,
@@ -246,19 +254,14 @@ export class GameStateManager {
         const credits = this.state.player.credits;
         const cargoSpace = this.getCargoRemaining();
         
-        // Validate purchase using TradingSystem
         const validation = this.validatePurchase(credits, cargoSpace, quantity, price);
         if (!validation.valid) {
             return { success: false, reason: validation.reason };
         }
         
-        // Calculate total cost
         const totalCost = quantity * price;
-        
-        // Decrease credits (Requirement 7.4)
         this.updateCredits(credits - totalCost);
         
-        // Create new cargo stack (Requirements 7.5, 7.6)
         const newCargo = this.addCargoStack(
             this.state.ship.cargo,
             goodType,
@@ -270,7 +273,6 @@ export class GameStateManager {
         return { success: true };
     }
     
-    // Requirements: 7.11, 7.12
     validatePurchase(credits, cargoSpace, quantity, price) {
         const totalCost = quantity * price;
         
@@ -316,7 +318,6 @@ export class GameStateManager {
         
         const cargo = this.state.ship.cargo;
         
-        // Validate sale
         const validation = this.validateSale(cargo, stackIndex, quantity);
         if (!validation.valid) {
             return { success: false, reason: validation.reason };
@@ -324,15 +325,11 @@ export class GameStateManager {
         
         const stack = cargo[stackIndex];
         const totalRevenue = quantity * salePrice;
-        
-        // Calculate profit margin (sale price - purchase price)
         const profitMargin = salePrice - stack.purchasePrice;
         
-        // Increase credits (Requirement 7.9)
         const currentCredits = this.state.player.credits;
         this.updateCredits(currentCredits + totalRevenue);
         
-        // Decrease cargo stack quantity (Requirement 7.10)
         const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
         this.updateCargo(newCargo);
         
@@ -342,7 +339,6 @@ export class GameStateManager {
         };
     }
     
-    // Requirements: 7.8
     validateSale(cargo, stackIndex, quantity) {
         if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
             return {
@@ -488,21 +484,15 @@ export class GameStateManager {
         const credits = this.state.player.credits;
         const systemId = this.state.player.currentSystem;
         
-        // Get fuel price for current system
         const pricePerPercent = this.getFuelPrice(systemId);
-        
-        // Validate refuel
         const validation = this.validateRefuel(currentFuel, amount, credits, pricePerPercent);
         
         if (!validation.valid) {
             return { success: false, reason: validation.reason };
         }
         
-        // Execute refuel: decrease credits and increase fuel (Requirement 8.9)
         this.updateCredits(credits - validation.cost);
         this.updateFuel(currentFuel + amount);
-        
-        // Auto-save after refuel (Requirement 8.10)
         this.saveGame();
         
         return { success: true, reason: null };
@@ -523,13 +513,8 @@ export class GameStateManager {
         }
         
         try {
-            // Update timestamp before saving
             this.state.meta.timestamp = Date.now();
-            
-            // Serialize state to JSON
             const saveData = JSON.stringify(this.state);
-            
-            // Store in localStorage
             localStorage.setItem(SAVE_KEY, saveData);
             
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
@@ -559,10 +544,8 @@ export class GameStateManager {
                 return null;
             }
             
-            // Parse JSON
             const loadedState = JSON.parse(saveData);
             
-            // Validate version compatibility
             if (!this.isVersionCompatible(loadedState.meta?.version)) {
                 if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                     console.warn('Save version incompatible, starting new game');
@@ -570,7 +553,6 @@ export class GameStateManager {
                 return null;
             }
             
-            // Validate state structure
             if (!this.validateStateStructure(loadedState)) {
                 if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                     console.warn('Save data corrupted, starting new game');
@@ -578,7 +560,6 @@ export class GameStateManager {
                 return null;
             }
             
-            // Restore state
             this.state = loadedState;
             
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
