@@ -223,7 +223,7 @@
   - **Property 24: Cargo Stack Display Completeness**
   - **Validates: Requirements 7.16**
 
-- [ ] 13. Create refuel panel UI
+- [x] 13. Create refuel panel UI
   - Display current fuel percentage
   - Display fuel price per percentage point
   - Add refuel amount input/buttons
@@ -232,7 +232,7 @@
   - Connect to refuel system methods
   - _Requirements: 8.1, 8.2_
 
-- [ ] 13.1 Write property test for refuel price display
+- [x] 13.1 Write property test for refuel price display
   - **Property 25: Refuel Price Display**
   - **Validates: Requirements 8.2**
 

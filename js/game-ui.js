@@ -42,7 +42,17 @@ export class UIManager {
             tradeCloseBtn: document.getElementById('trade-close-btn'),
             tradeBackBtn: document.getElementById('trade-back-btn'),
             marketGoods: document.getElementById('market-goods'),
-            cargoStacks: document.getElementById('cargo-stacks')
+            cargoStacks: document.getElementById('cargo-stacks'),
+            refuelPanel: document.getElementById('refuel-panel'),
+            refuelSystemName: document.getElementById('refuel-system-name'),
+            refuelCurrentFuel: document.getElementById('refuel-current-fuel'),
+            refuelPricePerPercent: document.getElementById('refuel-price-per-percent'),
+            refuelAmountInput: document.getElementById('refuel-amount-input'),
+            refuelTotalCost: document.getElementById('refuel-total-cost'),
+            refuelConfirmBtn: document.getElementById('refuel-confirm-btn'),
+            refuelCloseBtn: document.getElementById('refuel-close-btn'),
+            refuelBackBtn: document.getElementById('refuel-back-btn'),
+            refuelMaxBtn: document.getElementById('refuel-max-btn')
         };
         
         this.subscribeToStateChanges();
@@ -170,11 +180,55 @@ export class UIManager {
             });
         }
         
-        // Refuel button handler (placeholder for future implementation)
+        // Refuel button handler
         if (this.elements.refuelBtn) {
             this.elements.refuelBtn.addEventListener('click', () => {
-                console.log('Refuel panel - to be implemented');
-                // Future: this.showRefuelPanel();
+                this.showRefuelPanel();
+            });
+        }
+        
+        // Refuel panel close button handler
+        if (this.elements.refuelCloseBtn) {
+            this.elements.refuelCloseBtn.addEventListener('click', () => {
+                this.hideRefuelPanel();
+            });
+        }
+        
+        // Refuel panel back button handler
+        if (this.elements.refuelBackBtn) {
+            this.elements.refuelBackBtn.addEventListener('click', () => {
+                this.hideRefuelPanel();
+                this.showStationInterface();
+            });
+        }
+        
+        // Refuel amount input handler
+        if (this.elements.refuelAmountInput) {
+            this.elements.refuelAmountInput.addEventListener('input', () => {
+                this.updateRefuelCost();
+            });
+        }
+        
+        // Refuel preset buttons handler
+        const presetButtons = document.querySelectorAll('.refuel-preset-btn[data-amount]');
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.getAttribute('data-amount'));
+                this.setRefuelAmount(amount);
+            });
+        });
+        
+        // Refuel max button handler
+        if (this.elements.refuelMaxBtn) {
+            this.elements.refuelMaxBtn.addEventListener('click', () => {
+                this.setRefuelAmountToMax();
+            });
+        }
+        
+        // Refuel confirm button handler
+        if (this.elements.refuelConfirmBtn) {
+            this.elements.refuelConfirmBtn.addEventListener('click', () => {
+                this.handleRefuel();
             });
         }
     }
@@ -457,5 +511,141 @@ export class UIManager {
     
     capitalizeFirst(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    showRefuelPanel() {
+        if (!this.elements.refuelPanel) return;
+        
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const currentSystemId = state.player.currentSystem;
+        const system = this.starData.find(s => s.id === currentSystemId);
+        
+        if (!system) return;
+        
+        // Update refuel panel with system information
+        if (this.elements.refuelSystemName) {
+            this.elements.refuelSystemName.textContent = system.name;
+        }
+        
+        // Display current fuel percentage
+        const currentFuel = state.ship.fuel;
+        if (this.elements.refuelCurrentFuel) {
+            this.elements.refuelCurrentFuel.textContent = `${Math.round(currentFuel)}%`;
+        }
+        
+        // Display fuel price per percentage point
+        const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
+        if (this.elements.refuelPricePerPercent) {
+            this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
+        }
+        
+        // Set default refuel amount
+        const defaultAmount = Math.min(10, 100 - Math.round(currentFuel));
+        if (this.elements.refuelAmountInput) {
+            this.elements.refuelAmountInput.value = defaultAmount > 0 ? defaultAmount : 0;
+            this.elements.refuelAmountInput.max = 100 - Math.round(currentFuel);
+        }
+        
+        // Update cost display
+        this.updateRefuelCost();
+        
+        // Hide station interface
+        this.hideStationInterface();
+        
+        // Show the refuel panel
+        this.elements.refuelPanel.classList.add('visible');
+    }
+    
+    hideRefuelPanel() {
+        if (!this.elements.refuelPanel) return;
+        this.elements.refuelPanel.classList.remove('visible');
+    }
+    
+    updateRefuelCost() {
+        if (!this.elements.refuelAmountInput || !this.elements.refuelTotalCost) return;
+        
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
+        const currentSystemId = state.player.currentSystem;
+        const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
+        
+        const totalCost = amount * fuelPrice;
+        this.elements.refuelTotalCost.textContent = `${totalCost} cr`;
+        
+        // Update confirm button state
+        if (this.elements.refuelConfirmBtn) {
+            const currentFuel = state.ship.fuel;
+            const credits = state.player.credits;
+            
+            const validation = this.gameStateManager.validateRefuel(
+                currentFuel,
+                amount,
+                credits,
+                fuelPrice
+            );
+            
+            this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
+        }
+    }
+    
+    setRefuelAmount(amount) {
+        if (!this.elements.refuelAmountInput) return;
+        
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const currentFuel = Math.round(state.ship.fuel);
+        const maxAmount = 100 - currentFuel;
+        const actualAmount = Math.min(amount, maxAmount);
+        
+        this.elements.refuelAmountInput.value = actualAmount > 0 ? actualAmount : 0;
+        this.updateRefuelCost();
+    }
+    
+    setRefuelAmountToMax() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const currentFuel = Math.round(state.ship.fuel);
+        const credits = state.player.credits;
+        const currentSystemId = state.player.currentSystem;
+        const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
+        
+        // Calculate max affordable amount
+        const maxAffordable = Math.floor(credits / fuelPrice);
+        
+        // Calculate max capacity amount
+        const maxCapacity = 100 - currentFuel;
+        
+        // Use the smaller of the two
+        const maxAmount = Math.min(maxAffordable, maxCapacity);
+        
+        this.setRefuelAmount(maxAmount);
+    }
+    
+    handleRefuel() {
+        if (!this.elements.refuelAmountInput) return;
+        
+        const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
+        
+        if (amount <= 0) {
+            console.error('Refuel failed: Invalid amount');
+            return;
+        }
+        
+        const result = this.gameStateManager.refuel(amount);
+        
+        if (!result.success) {
+            console.error('Refuel failed:', result.reason);
+            // Future: show error notification
+            return;
+        }
+        
+        // Refresh the refuel panel to show updated state
+        this.showRefuelPanel();
     }
 }

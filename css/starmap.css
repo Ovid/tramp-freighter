@@ -496,3 +496,191 @@ canvas {
     padding-top: 10px;
     border-top: 1px solid rgba(0, 255, 136, 0.3);
 }
+
+/* Refuel Panel Styling */
+#refuel-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border: 3px solid #00FF88;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-size: 14px;
+    display: none;
+    z-index: 200;
+}
+
+#refuel-panel.visible {
+    display: block;
+}
+
+#refuel-panel h2 {
+    margin-bottom: 20px;
+    color: #00FF88;
+    font-size: 20px;
+    text-align: center;
+}
+
+#refuel-panel h3 {
+    margin-bottom: 12px;
+    color: #00FF88;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+    padding-bottom: 5px;
+}
+
+#refuel-panel .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #00FF88;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+#refuel-panel .close-btn:hover {
+    color: #FFFFFF;
+}
+
+.refuel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.refuel-section {
+    background-color: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.refuel-status .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.refuel-status .label {
+    color: #00FF88;
+    font-weight: bold;
+}
+
+.refuel-status .value {
+    color: #FFFFFF;
+}
+
+.refuel-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.refuel-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.refuel-input-group label {
+    color: #00FF88;
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.refuel-input-group input {
+    flex: 1;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00FF88;
+    border-radius: 3px;
+    color: #FFFFFF;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.refuel-input-group input:focus {
+    outline: none;
+    border-color: #FFFFFF;
+}
+
+.refuel-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.refuel-preset-btn {
+    flex: 1;
+    padding: 10px;
+    background-color: #222222;
+    color: #00FF88;
+    border: 1px solid #00FF88;
+    border-radius: 3px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refuel-preset-btn:hover {
+    background-color: #00FF88;
+    color: #000000;
+}
+
+.refuel-preset-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.refuel-cost-display {
+    background-color: rgba(0, 255, 136, 0.1);
+    border: 2px solid #00FF88;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cost-label {
+    color: #00FF88;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.cost-value {
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.refuel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.refuel-actions .station-btn.secondary {
+    background-color: transparent;
+    border-color: rgba(0, 255, 136, 0.5);
+}
+
+.refuel-actions .station-btn.secondary:hover {
+    background-color: rgba(0, 255, 136, 0.2);
+    color: #FFFFFF;
+}

@@ -134,6 +134,61 @@
         </div>
     </div>
     
+    <!-- Refuel Panel -->
+    <div id="refuel-panel">
+        <button class="close-btn" id="refuel-close-btn">×</button>
+        <h2>Refuel - <span id="refuel-system-name">Sol</span></h2>
+        
+        <div class="refuel-content">
+            <!-- Current Status Section -->
+            <div class="refuel-section">
+                <h3>Current Status</h3>
+                <div class="refuel-status">
+                    <div class="info-row">
+                        <span class="label">Current Fuel:</span>
+                        <span id="refuel-current-fuel" class="value">100%</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Fuel Price:</span>
+                        <span id="refuel-price-per-percent" class="value">2 cr/%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Refuel Controls Section -->
+            <div class="refuel-section">
+                <h3>Refuel Amount</h3>
+                <div class="refuel-controls">
+                    <div class="refuel-input-group">
+                        <label for="refuel-amount-input">Amount (%):</label>
+                        <input type="number" id="refuel-amount-input" min="1" max="100" value="10" />
+                    </div>
+                    <div class="refuel-buttons">
+                        <button class="refuel-preset-btn" data-amount="10">+10%</button>
+                        <button class="refuel-preset-btn" data-amount="25">+25%</button>
+                        <button class="refuel-preset-btn" data-amount="50">+50%</button>
+                        <button class="refuel-preset-btn" id="refuel-max-btn">Max</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cost Display Section -->
+            <div class="refuel-section">
+                <div class="refuel-cost-display">
+                    <div class="cost-row">
+                        <span class="cost-label">Total Cost:</span>
+                        <span id="refuel-total-cost" class="cost-value">20 cr</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="refuel-actions">
+            <button class="station-btn" id="refuel-confirm-btn">Confirm Refuel</button>
+            <button class="station-btn secondary" id="refuel-back-btn">Back to Station</button>
+        </div>
+    </div>
+    
     <!-- Control Buttons -->
     <div id="controls">
         <button class="control-btn" onclick="zoomIn()">Zoom In</button>
