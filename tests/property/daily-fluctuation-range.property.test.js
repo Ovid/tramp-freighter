@@ -102,4 +102,19 @@ describe('Property: Daily Fluctuation Range', () => {
             { numRuns: 100 }
         );
     });
+    
+    it('should utilize the full range (values near both 0.85 and 1.15)', () => {
+        const samples = [];
+        for (let i = 0; i < 1000; i++) {
+            const fluctuation = TradingSystem.getDailyFluctuation(i % 117, 'grain', i);
+            samples.push(fluctuation);
+        }
+        
+        const min = Math.min(...samples);
+        const max = Math.max(...samples);
+        
+        // Should get close to boundaries (within 5% of range)
+        expect(min).toBeLessThan(0.87);  // Close to 0.85
+        expect(max).toBeGreaterThan(1.13); // Close to 1.15
+    });
 });

@@ -115,15 +115,12 @@ describe('Property: Price Calculation with All Modifiers', () => {
                     }];
                     
                     const priceWithEvent = TradingSystem.calculatePrice(goodType, system, currentDay, activeEvents);
-                    const priceWithoutEvent = TradingSystem.calculatePrice(goodType, system, currentDay, []);
                     
                     // Calculate what the event modifier should be
                     const actualEventMod = TradingSystem.getEventModifier(systemId, goodType, activeEvents);
                     expect(actualEventMod).toBe(eventMultiplier);
                     
                     // Verify the price calculation includes the event modifier
-                    // We can't always guarantee prices are different due to rounding,
-                    // but we can verify the formula is correct
                     const basePrice = TradingSystem.BASE_PRICES[goodType];
                     const productionMod = TradingSystem.getProductionModifier(goodType, spectralClass);
                     const stationMod = TradingSystem.getStationCountModifier(stationCount);
