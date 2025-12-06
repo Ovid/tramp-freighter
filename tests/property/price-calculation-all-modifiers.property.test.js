@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
+import { BASE_PRICES } from '../../js/game-constants.js';
 
 describe('Property: Price Calculation with All Modifiers', () => {
     // Commodity types
@@ -43,7 +44,7 @@ describe('Property: Price Calculation with All Modifiers', () => {
                     const price = TradingSystem.calculatePrice(goodType, system, currentDay, activeEvents);
                     
                     // Calculate expected price manually
-                    const basePrice = TradingSystem.BASE_PRICES[goodType];
+                    const basePrice = BASE_PRICES[goodType];
                     const productionMod = TradingSystem.getProductionModifier(goodType, spectralClass);
                     const stationMod = TradingSystem.getStationCountModifier(stationCount);
                     const dailyMod = TradingSystem.getDailyFluctuation(systemId, goodType, currentDay);
@@ -120,7 +121,7 @@ describe('Property: Price Calculation with All Modifiers', () => {
                     expect(actualEventMod).toBe(eventMultiplier);
                     
                     // Verify the price calculation includes the event modifier
-                    const basePrice = TradingSystem.BASE_PRICES[goodType];
+                    const basePrice = BASE_PRICES[goodType];
                     const productionMod = TradingSystem.getProductionModifier(goodType, spectralClass);
                     const stationMod = TradingSystem.getStationCountModifier(stationCount);
                     const dailyMod = TradingSystem.getDailyFluctuation(systemId, goodType, currentDay);

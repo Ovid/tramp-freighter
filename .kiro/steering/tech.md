@@ -27,6 +27,14 @@ inclusion: always
 - Prevents duplication and ensures consistency across modules
 - All modules import from this file rather than defining constants locally
 
+**CRITICAL RULE: ALL numeric constants, configuration values, and magic numbers MUST be defined in `game-constants.js`**
+- Never hard-code numeric values directly in implementation files
+- If you find yourself typing a number that isn't 0, 1, or an obvious array index, it belongs in game-constants.js
+- This includes: percentages, multipliers, ranges, thresholds, prices, distances, timeouts, etc.
+- Export constants with descriptive names and documentation explaining their purpose
+- Import constants from game-constants.js in implementation files
+- This ensures all tunable values are in one place and prevents inconsistencies
+
 ### Starmap (Existing)
 - Three.js scene management
 - Camera controls (orbit, pan, zoom/dolly)

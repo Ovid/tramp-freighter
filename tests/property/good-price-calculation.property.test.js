@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
+import { BASE_PRICES, SPECTRAL_MODIFIERS } from '../../js/game-constants.js';
 
 describe('Property 15: Good Price Calculation', () => {
     /**
@@ -27,9 +28,9 @@ describe('Property 15: Good Price Calculation', () => {
                     const calculatedPrice = TradingSystem.calculatePrice(goodType, spectralClass);
                     
                     // Manually calculate expected price
-                    const basePrice = TradingSystem.BASE_PRICES[goodType];
+                    const basePrice = BASE_PRICES[goodType];
                     const spectralLetter = spectralClass.charAt(0).toUpperCase();
-                    const modifier = TradingSystem.SPECTRAL_MODIFIERS[spectralLetter]?.[goodType] || 1.0;
+                    const modifier = SPECTRAL_MODIFIERS[spectralLetter]?.[goodType] || 1.0;
                     const expectedPrice = Math.round(basePrice * modifier);
                     
                     // Verify they match

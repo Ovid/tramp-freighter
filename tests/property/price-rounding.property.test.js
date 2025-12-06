@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
+import { BASE_PRICES } from '../../js/game-constants.js';
 
 describe('Property: Price Rounding', () => {
     const commodities = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
@@ -54,7 +55,7 @@ describe('Property: Price Rounding', () => {
                     const price = TradingSystem.calculatePrice(goodType, system, currentDay, []);
                     
                     // Calculate the unrounded price
-                    const basePrice = TradingSystem.BASE_PRICES[goodType];
+                    const basePrice = BASE_PRICES[goodType];
                     const productionMod = TradingSystem.getProductionModifier(goodType, spectralClass);
                     const stationMod = TradingSystem.getStationCountModifier(stationCount);
                     const dailyMod = TradingSystem.getDailyFluctuation(systemId, goodType, currentDay);

@@ -63,6 +63,21 @@ export const SPECTRAL_COLORS = {
 };
 
 /**
+ * Daily price fluctuation range for dynamic economy
+ * 
+ * Uses ±30% range (0.70 to 1.30) to ensure price changes are visible
+ * after integer rounding, making the dynamic economy feel responsive.
+ * 
+ * MIN: 0.70 (30% below base price)
+ * MAX: 1.30 (30% above base price)
+ * RANGE: 0.60 (MAX - MIN)
+ */
+export const DAILY_FLUCTUATION = {
+    MIN: 0.70,
+    RANGE: 0.60
+};
+
+/**
  * Fuel pricing configuration by system distance from Sol
  * 
  * Pricing tiers reflect supply chain logistics:
