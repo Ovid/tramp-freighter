@@ -136,8 +136,8 @@ export class TradingSystem {
      * Add a cargo stack for a purchase
      * Requirements: 7.5, 7.6
      * 
-     * Creates a new stack with the purchased good, quantity, and price.
-     * Always creates a separate stack (even if same good exists at different price).
+     * If an existing stack has the same good type AND same price, adds to that stack.
+     * Otherwise creates a new stack with the purchased good, quantity, and price.
      * 
      * @param {Array} cargo - Current cargo array
      * @param {string} goodType - Type of good purchased
@@ -146,6 +146,22 @@ export class TradingSystem {
      * @returns {Array} Updated cargo array
      */
     static addCargoStack(cargo, goodType, quantity, price) {
+        // Check if we have an existing stack with same good and same price
+        const existingStackIndex = cargo.findIndex(
+            stack => stack.good === goodType && stack.purchasePrice === price
+        );
+        
+        if (existingStackIndex !== -1) {
+            // Consolidate into existing stack
+            const updatedCargo = [...cargo];
+            updatedCargo[existingStackIndex] = {
+                ...updatedCargo[existingStackIndex],
+                qty: updatedCargo[existingStackIndex].qty + quantity
+            };
+            return updatedCargo;
+        }
+        
+        // Create new stack if no match found
         const newStack = {
             good: goodType,
             qty: quantity,

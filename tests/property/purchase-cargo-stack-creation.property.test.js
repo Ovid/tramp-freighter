@@ -69,62 +69,51 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
     });
     
     /**
-     * Property: Each purchase creates a separate stack
-     * Multiple purchases should create multiple stacks
+     * Property: Purchases consolidate when good and price match
+     * Multiple purchases of same good at same price should consolidate into one stack
      */
-    it('should create separate stacks for each purchase', () => {
+    it('should consolidate stacks when buying same good at same price', () => {
         fc.assert(
             fc.property(
-                // Generate array of 2-4 purchases
-                fc.array(
-                    fc.record({
-                        goodType: fc.constantFrom('grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'),
-                        quantity: fc.integer({ min: 1, max: 5 }),
-                        price: fc.integer({ min: 5, max: 20 })
-                    }),
-                    { minLength: 2, maxLength: 4 }
-                ),
-                (purchases) => {
-                    // Reset to known state
+                fc.constantFrom('grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'),
+                fc.integer({ min: 1, max: 5 }),
+                fc.integer({ min: 5, max: 20 }),
+                fc.integer({ min: 2, max: 4 }), // Number of purchases
+                (goodType, quantity, price, numPurchases) => {
+                    // Reset to known state with empty cargo
                     gameState.initNewGame();
                     const initialCredits = 10000;
                     gameState.updateCredits(initialCredits);
-                    gameState.updateCargo([]);
+                    gameState.updateCargo([]); // Clear initial cargo
                     
+                    let totalQuantity = 0;
                     let successfulPurchases = 0;
                     
-                    // Execute all purchases
-                    for (const purchase of purchases) {
-                        const totalCost = purchase.quantity * purchase.price;
+                    // Execute multiple purchases of same good at same price
+                    for (let i = 0; i < numPurchases; i++) {
+                        const totalCost = quantity * price;
                         
                         // Only proceed if we can afford it and have space
                         if (totalCost <= gameState.getPlayer().credits && 
-                            gameState.getCargoRemaining() >= purchase.quantity) {
+                            gameState.getCargoRemaining() >= quantity) {
                             
-                            const result = gameState.buyGood(
-                                purchase.goodType,
-                                purchase.quantity,
-                                purchase.price
-                            );
+                            const result = gameState.buyGood(goodType, quantity, price);
                             
                             if (result.success) {
+                                totalQuantity += quantity;
                                 successfulPurchases++;
                             }
                         }
                     }
                     
-                    // Verify number of stacks equals number of successful purchases
+                    // Verify only one stack was created (consolidation)
                     const cargo = gameState.getShip().cargo;
-                    expect(cargo.length).toBe(successfulPurchases);
-                    
-                    // Verify each stack corresponds to a purchase
-                    for (let i = 0; i < successfulPurchases; i++) {
-                        const stack = cargo[i];
-                        expect(stack).toHaveProperty('good');
-                        expect(stack).toHaveProperty('qty');
-                        expect(stack).toHaveProperty('purchasePrice');
-                        expect(stack.qty).toBeGreaterThan(0);
-                        expect(stack.purchasePrice).toBeGreaterThan(0);
+                    if (successfulPurchases > 0) {
+                        // All purchases of same good at same price should consolidate into 1 stack
+                        expect(cargo.length).toBe(1);
+                        expect(cargo[0].good).toBe(goodType);
+                        expect(cargo[0].qty).toBe(totalQuantity);
+                        expect(cargo[0].purchasePrice).toBe(price);
                     }
                 }
             ),
@@ -133,9 +122,9 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
     });
     
     /**
-     * Property: Stack creation should not modify existing stacks
+     * Property: Stack creation should consolidate or create new based on good and price match
      */
-    it('should not modify existing cargo stacks when creating new ones', () => {
+    it('should consolidate matching stacks or create new ones appropriately', () => {
         fc.assert(
             fc.property(
                 fc.constantFrom('grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'),
@@ -163,18 +152,26 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
                     if (result2.success) {
                         const cargo = gameState.getShip().cargo;
                         
-                        // Verify we have 2 stacks
-                        expect(cargo.length).toBe(2);
-                        
-                        // Verify first stack unchanged
-                        expect(cargo[0].good).toBe(firstStack.good);
-                        expect(cargo[0].qty).toBe(firstStack.qty);
-                        expect(cargo[0].purchasePrice).toBe(firstStack.purchasePrice);
-                        
-                        // Verify second stack is new
-                        expect(cargo[1].good).toBe(goodType2);
-                        expect(cargo[1].qty).toBe(qty2);
-                        expect(cargo[1].purchasePrice).toBe(price2);
+                        // If same good and same price, should consolidate into 1 stack
+                        if (goodType1 === goodType2 && price1 === price2) {
+                            expect(cargo.length).toBe(1);
+                            expect(cargo[0].good).toBe(goodType1);
+                            expect(cargo[0].qty).toBe(qty1 + qty2);
+                            expect(cargo[0].purchasePrice).toBe(price1);
+                        } else {
+                            // Different good or different price, should have 2 stacks
+                            expect(cargo.length).toBe(2);
+                            
+                            // Verify first stack unchanged
+                            expect(cargo[0].good).toBe(firstStack.good);
+                            expect(cargo[0].qty).toBe(firstStack.qty);
+                            expect(cargo[0].purchasePrice).toBe(firstStack.purchasePrice);
+                            
+                            // Verify second stack is new
+                            expect(cargo[1].good).toBe(goodType2);
+                            expect(cargo[1].qty).toBe(qty2);
+                            expect(cargo[1].purchasePrice).toBe(price2);
+                        }
                     }
                 }
             ),

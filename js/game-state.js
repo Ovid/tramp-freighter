@@ -7,6 +7,7 @@ import {
     GAME_VERSION,
     SAVE_KEY
 } from './game-constants.js';
+import { TradingSystem } from './game-trading.js';
 
 // Save debouncing prevents excessive localStorage writes (max 1 save per second)
 const SAVE_DEBOUNCE_MS = 1000;
@@ -303,17 +304,13 @@ export class GameStateManager {
     }
     
     /**
-     * Always creates a separate stack (even if same good exists at different price)
+     * Add a cargo stack for a purchase
      * Requirements: 7.5, 7.6
+     * 
+     * Delegates to TradingSystem for consolidation logic
      */
     addCargoStack(cargo, goodType, quantity, price) {
-        const newStack = {
-            good: goodType,
-            qty: quantity,
-            purchasePrice: price
-        };
-        
-        return [...cargo, newStack];
+        return TradingSystem.addCargoStack(cargo, goodType, quantity, price);
     }
     
     /**

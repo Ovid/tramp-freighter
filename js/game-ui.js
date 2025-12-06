@@ -47,6 +47,9 @@ export class UIManager {
             tradeBackBtn: document.getElementById('trade-back-btn'),
             marketGoods: document.getElementById('market-goods'),
             cargoStacks: document.getElementById('cargo-stacks'),
+            tradeCargoUsed: document.getElementById('trade-cargo-used'),
+            tradeCargoCapacity: document.getElementById('trade-cargo-capacity'),
+            tradeCargoRemaining: document.getElementById('trade-cargo-remaining'),
             refuelPanel: document.getElementById('refuel-panel'),
             refuelSystemName: document.getElementById('refuel-system-name'),
             refuelCurrentFuel: document.getElementById('refuel-current-fuel'),
@@ -269,10 +272,24 @@ export class UIManager {
         
         this.hideStationInterface();
         
+        this.updateTradeCargoCapacity();
         this.renderMarketGoods(system);
         this.renderCargoStacks(system);
         
         this.elements.tradePanel.classList.add('visible');
+    }
+    
+    updateTradeCargoCapacity() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const cargoUsed = this.gameStateManager.getCargoUsed();
+        const cargoCapacity = state.ship.cargoCapacity;
+        const cargoRemaining = this.gameStateManager.getCargoRemaining();
+        
+        this.elements.tradeCargoUsed.textContent = cargoUsed;
+        this.elements.tradeCargoCapacity.textContent = cargoCapacity;
+        this.elements.tradeCargoRemaining.textContent = cargoRemaining;
     }
     
     hideTradePanel() {
@@ -373,6 +390,7 @@ export class UIManager {
         // Refresh the trade panel to show updated state
         const state = this.gameStateManager.getState();
         const system = this.starData.find(s => s.id === state.player.currentSystem);
+        this.updateTradeCargoCapacity();
         this.renderMarketGoods(system);
         this.renderCargoStacks(system);
     }
@@ -470,6 +488,7 @@ export class UIManager {
         // Refresh the trade panel to show updated state
         const state = this.gameStateManager.getState();
         const system = this.starData.find(s => s.id === state.player.currentSystem);
+        this.updateTradeCargoCapacity();
         this.renderMarketGoods(system);
         this.renderCargoStacks(system);
     }

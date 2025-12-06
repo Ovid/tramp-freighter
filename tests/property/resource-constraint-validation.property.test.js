@@ -150,7 +150,7 @@ describe('Property 23: Resource Constraint Validation', () => {
                     const hasEnoughSpace = quantity <= availableSpace;
                     
                     const initialCredits = gameState.getPlayer().credits;
-                    const initialCargoLength = gameState.getShip().cargo.length;
+                    const initialCargoUsed = gameState.getCargoUsed();
                     
                     // Attempt purchase
                     const result = gameState.buyGood(goodType, quantity, price);
@@ -168,14 +168,14 @@ describe('Property 23: Resource Constraint Validation', () => {
                         
                         // Verify state unchanged
                         expect(gameState.getPlayer().credits).toBe(initialCredits);
-                        expect(gameState.getShip().cargo.length).toBe(initialCargoLength);
+                        expect(gameState.getCargoUsed()).toBe(initialCargoUsed);
                     } else {
                         // Both constraints satisfied, should succeed
                         expect(result.success).toBe(true);
                         
                         // Verify state changed correctly
                         expect(gameState.getPlayer().credits).toBe(initialCredits - totalCost);
-                        expect(gameState.getShip().cargo.length).toBe(initialCargoLength + 1);
+                        expect(gameState.getCargoUsed()).toBe(initialCargoUsed + quantity);
                     }
                 }
             ),

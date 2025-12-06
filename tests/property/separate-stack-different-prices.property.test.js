@@ -185,10 +185,10 @@ describe('Property 19: Separate Stack for Different Prices', () => {
     });
     
     /**
-     * Property: Even at same price, always create new stack
-     * (This tests the "always separate" behavior)
+     * Property: Same good at same price consolidates into one stack
+     * (This tests the consolidation behavior)
      */
-    it('should create separate stacks even for same good at same price', () => {
+    it('should consolidate stacks for same good at same price', () => {
         fc.assert(
             fc.property(
                 fc.constantFrom('grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'),
@@ -210,18 +210,15 @@ describe('Property 19: Separate Stack for Different Prices', () => {
                     
                     const cargo = gameState.getShip().cargo;
                     
-                    // Verify 2 separate stacks (not merged)
-                    expect(cargo.length).toBe(2);
+                    // Verify consolidated into 1 stack
+                    expect(cargo.length).toBe(1);
                     
-                    // Verify both stacks have same good and price
+                    // Verify stack has correct good and price
                     expect(cargo[0].good).toBe(goodType);
-                    expect(cargo[1].good).toBe(goodType);
                     expect(cargo[0].purchasePrice).toBe(price);
-                    expect(cargo[1].purchasePrice).toBe(price);
                     
-                    // Verify quantities are separate
-                    expect(cargo[0].qty).toBe(qty1);
-                    expect(cargo[1].qty).toBe(qty2);
+                    // Verify quantities are combined
+                    expect(cargo[0].qty).toBe(qty1 + qty2);
                 }
             ),
             { numRuns: 100 }

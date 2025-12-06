@@ -516,6 +516,42 @@ canvas {
     cursor: not-allowed;
 }
 
+.cargo-capacity-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 3px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.cargo-capacity-display .capacity-label {
+    color: #00FF88;
+    font-weight: bold;
+}
+
+.cargo-capacity-display #trade-cargo-used {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.cargo-capacity-display #trade-cargo-capacity {
+    color: #FFFFFF;
+}
+
+.cargo-capacity-display .capacity-remaining {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    margin-left: 8px;
+}
+
+.cargo-capacity-display #trade-cargo-remaining {
+    color: #00FF88;
+}
+
 .cargo-list {
     display: flex;
     flex-direction: column;
