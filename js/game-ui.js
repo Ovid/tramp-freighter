@@ -343,8 +343,21 @@ export class UIManager {
         purchaseActions.appendChild(buy10Btn);
         purchaseActions.appendChild(buyMaxBtn);
         
+        // Add validation message if purchase not possible
+        const validationMessage = document.createElement('div');
+        validationMessage.className = 'validation-message';
+        
+        if (cargoRemaining < 1) {
+            validationMessage.textContent = 'Cargo capacity full';
+            validationMessage.classList.add('error');
+        } else if (credits < price) {
+            validationMessage.textContent = 'Insufficient credits for purchase';
+            validationMessage.classList.add('error');
+        }
+        
         marketListing.appendChild(commodityInfo);
         marketListing.appendChild(purchaseActions);
+        marketListing.appendChild(validationMessage);
         
         return marketListing;
     }
@@ -587,14 +600,14 @@ export class UIManager {
         if (this.elements.refuelValidationMessage) {
             if (amount <= 0) {
                 this.elements.refuelValidationMessage.textContent = 'Enter an amount to refuel';
-                this.elements.refuelValidationMessage.className = 'refuel-validation-message info';
+                this.elements.refuelValidationMessage.className = 'validation-message info';
             } else if (!validation.valid) {
                 this.elements.refuelValidationMessage.textContent = validation.reason;
-                this.elements.refuelValidationMessage.className = 'refuel-validation-message error';
+                this.elements.refuelValidationMessage.className = 'validation-message error';
             } else {
                 // Valid - hide message
                 this.elements.refuelValidationMessage.textContent = '';
-                this.elements.refuelValidationMessage.className = 'refuel-validation-message';
+                this.elements.refuelValidationMessage.className = 'validation-message';
             }
         }
     }

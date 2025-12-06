@@ -777,7 +777,8 @@ canvas {
     font-weight: bold;
 }
 
-.refuel-validation-message {
+/* Validation Messages - Standardized Pattern */
+.validation-message {
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
@@ -786,21 +787,21 @@ canvas {
     display: none;
 }
 
-.refuel-validation-message.error {
+.validation-message.error {
     display: block;
     background-color: rgba(255, 107, 107, 0.2);
     border: 1px solid rgba(255, 107, 107, 0.5);
     color: #FF6B6B;
 }
 
-.refuel-validation-message.warning {
+.validation-message.warning {
     display: block;
     background-color: rgba(255, 255, 0, 0.2);
     border: 1px solid rgba(255, 255, 0, 0.5);
     color: #FFFF00;
 }
 
-.refuel-validation-message.info {
+.validation-message.info {
     display: block;
     background-color: rgba(0, 255, 136, 0.2);
     border: 1px solid rgba(0, 255, 136, 0.5);
@@ -972,4 +973,94 @@ canvas {
     color: rgba(255, 255, 255, 0.5);
     font-size: 12px;
     font-family: 'Courier New', monospace;
+}
+
+/* Modal Dialog Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-dialog {
+    background-color: #1a1a1a;
+    border: 2px solid #00FF88;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 500px;
+    min-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.modal-message {
+    color: #FFFFFF;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.modal-cancel,
+.modal-confirm {
+    padding: 12px 30px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    border: 2px solid #00FF88;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.modal-cancel {
+    background-color: transparent;
+    color: #00FF88;
+}
+
+.modal-cancel:hover {
+    background-color: rgba(0, 255, 136, 0.1);
+}
+
+.modal-cancel:focus {
+    outline: 2px solid #00FF88;
+    outline-offset: 2px;
+}
+
+.modal-confirm {
+    background-color: #00FF88;
+    color: #000000;
+}
+
+.modal-confirm:hover {
+    background-color: #00DD77;
+    border-color: #00DD77;
+}
+
+.modal-confirm:focus {
+    outline: 2px solid #00FF88;
+    outline-offset: 2px;
 }

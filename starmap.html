@@ -96,6 +96,8 @@
                 <span class="label">Jump Time:</span>
                 <span id="jump-time">0 days</span>
             </div>
+            <!-- Jump Validation Message -->
+            <div id="jump-validation-message" class="validation-message"></div>
         </div>
         <div id="connected-systems" class="connected-systems">
             <div class="connected-header">Connected Systems:</div>
@@ -207,7 +209,7 @@
             </div>
             
             <!-- Validation Message -->
-            <div id="refuel-validation-message" class="refuel-validation-message"></div>
+            <div id="refuel-validation-message" class="validation-message"></div>
         </div>
         
         <div class="refuel-actions">
@@ -218,6 +220,19 @@
     
     <!-- Error Notification Area -->
     <div id="notification-area"></div>
+    
+    <!-- Confirmation Modal -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <p id="modal-message" class="modal-message"></p>
+                <div class="modal-actions">
+                    <button id="modal-cancel" class="modal-cancel">Cancel</button>
+                    <button id="modal-confirm" class="modal-confirm">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Initial Game Menu -->
     <div id="game-menu">

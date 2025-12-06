@@ -1556,11 +1556,19 @@ function updateHUD(star) {
                 // Enable/disable jump button based on validation
                 jumpBtn.disabled = !validation.valid;
                 
-                // Update button text to show error
-                if (!validation.valid) {
-                    jumpBtn.textContent = validation.error;
-                } else {
-                    jumpBtn.textContent = 'Jump to System';
+                // Keep button text consistent, show error in validation message
+                jumpBtn.textContent = 'Jump to System';
+                
+                // Show validation message if jump not possible
+                const jumpValidationMessage = document.getElementById('jump-validation-message');
+                if (jumpValidationMessage) {
+                    if (!validation.valid) {
+                        jumpValidationMessage.textContent = validation.error;
+                        jumpValidationMessage.className = 'validation-message error';
+                    } else {
+                        jumpValidationMessage.textContent = '';
+                        jumpValidationMessage.className = 'validation-message';
+                    }
                 }
             }
         }
@@ -1573,6 +1581,67 @@ function showHUD() {
 
 function hideHUD() {
     document.getElementById('hud').style.display = 'none';
+}
+
+/**
+ * Show a modal confirmation dialog
+ * @param {string} message - The message to display
+ * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
+ */
+function showModal(message) {
+    return new Promise((resolve) => {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        
+        if (!modalOverlay || !modalMessage || !modalCancel || !modalConfirm) {
+            console.error('Modal elements not found');
+            resolve(false);
+            return;
+        }
+        
+        // Set message
+        modalMessage.textContent = message;
+        
+        // Show modal
+        modalOverlay.classList.remove('hidden');
+        
+        // Focus cancel button (safer default)
+        modalCancel.focus();
+        
+        // Handle cancel
+        const handleCancel = () => {
+            cleanup();
+            resolve(false);
+        };
+        
+        // Handle confirm
+        const handleConfirm = () => {
+            cleanup();
+            resolve(true);
+        };
+        
+        // Handle escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                handleCancel();
+            }
+        };
+        
+        // Cleanup function
+        const cleanup = () => {
+            modalOverlay.classList.add('hidden');
+            modalCancel.removeEventListener('click', handleCancel);
+            modalConfirm.removeEventListener('click', handleConfirm);
+            document.removeEventListener('keydown', handleEscape);
+        };
+        
+        // Add event listeners
+        modalCancel.addEventListener('click', handleCancel);
+        modalConfirm.addEventListener('click', handleConfirm);
+        document.addEventListener('keydown', handleEscape);
+    });
 }
 
 // Expose functions to global scope for onclick handlers
@@ -1800,10 +1869,10 @@ function initMenu() {
     });
     
     // Set up New Game button handler (Requirements 1.4, 1.5)
-    newGameBtn.addEventListener('click', () => {
+    newGameBtn.addEventListener('click', async () => {
         // Show confirmation if save exists
         if (hasSave) {
-            const confirmed = confirm('Starting a new game will overwrite your existing save. Continue?');
+            const confirmed = await showModal('Starting a new game will overwrite your existing save. Continue?');
             if (!confirmed) {
                 return;
             }
