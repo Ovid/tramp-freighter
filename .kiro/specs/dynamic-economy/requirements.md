@@ -57,11 +57,12 @@ This specification defines the Dynamic Economy system for Tramp Freighter Blues,
 
 #### Acceptance Criteria
 
-1. WHEN the Player visits a system for the first time THEN the Game System SHALL record current prices and last visit day in the price knowledge database
-2. WHEN the Player docks at a station THEN the Game System SHALL update the price knowledge for that system with current prices and set last visit to zero
-3. WHEN the Player views the trade interface THEN the Game System SHALL display only prices from systems in the price knowledge database
-4. WHEN the Player has never visited a system THEN the Game System SHALL not display any price information for that system
-5. WHEN time passes THEN the Game System SHALL increment the last visit day counter for all systems in the price knowledge database
+1. WHEN a new game initializes THEN the Game System SHALL record Sol's current prices in the price knowledge database with last visit set to zero
+2. WHEN the Player visits a system for the first time THEN the Game System SHALL record current prices and last visit day in the price knowledge database
+3. WHEN the Player docks at a station THEN the Game System SHALL update the price knowledge for that system with current prices and set last visit to zero
+4. WHEN the Player views the trade interface THEN the Game System SHALL display only prices from systems in the price knowledge database
+5. WHEN the Player has never visited a system THEN the Game System SHALL not display any price information for that system
+6. WHEN time passes THEN the Game System SHALL increment the last visit day counter for all systems in the price knowledge database
 
 ### Requirement 4
 
@@ -144,7 +145,7 @@ This specification defines the Dynamic Economy system for Tramp Freighter Blues,
 
 #### Acceptance Criteria
 
-1. WHEN the Player purchases cargo THEN the Game System SHALL store the purchase price, system identifier, and purchase day with the cargo stack
+1. WHEN the Player purchases cargo THEN the Game System SHALL store the purchase price, purchase system identifier, and purchase day as flat fields in the cargo stack structure
 2. WHEN displaying cargo in the trade interface THEN the Game System SHALL show the purchase price for each cargo stack
 3. WHEN displaying cargo in the trade interface THEN the Game System SHALL show the system name where the cargo was purchased
 4. WHEN displaying cargo in the trade interface THEN the Game System SHALL calculate and show the number of days since the cargo was purchased
