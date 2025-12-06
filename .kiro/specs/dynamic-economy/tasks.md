@@ -11,7 +11,7 @@
   - **Property 1: Seeded Random Determinism**
   - **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5**
 
-- [ ] 2. Extend price calculation system with multiple modifiers
+- [-] 2. Extend price calculation system with multiple modifiers
   - Extend TradingSystem.calculatePrice() to accept currentDay and activeEvents parameters
   - Implement getProductionModifier() using spectral class lookup
   - Implement getStationCountModifier() using formula: 1.0 + (stationCount × 0.05)

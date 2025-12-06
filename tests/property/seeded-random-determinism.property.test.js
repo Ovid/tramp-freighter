@@ -1,16 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { SeededRandom, seededRandom } from '../../js/seeded-random.js';
+import { SeededRandom } from '../../js/seeded-random.js';
 
 describe('SeededRandom - Determinism (Property Tests)', () => {
     
-    // ========================================================================
-    // PROPERTY 1: Seeded Random Determinism
-    // Feature: dynamic-economy, Property 1: Seeded Random Determinism
-    // Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5
-    // ========================================================================
-    
-    it('Property 1: For any seed string, generating a sequence of random numbers multiple times with the same seed should produce identical sequences', () => {
+    it('Property 1: For any seed string, generating a sequence of random numbers multiple times with the same seed should produce identical sequences (Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5)', () => {
         // Generator for seed strings
         const seedGenerator = fc.string({ minLength: 1, maxLength: 50 });
         
@@ -187,25 +181,5 @@ describe('SeededRandom - Determinism (Property Tests)', () => {
         );
     });
     
-    it('Property 1 (variant): seededRandom utility function should create a working generator', () => {
-        const seedGenerator = fc.string({ minLength: 1, maxLength: 50 });
-        
-        fc.assert(
-            fc.property(seedGenerator, (seed) => {
-                // Create generator using utility function
-                const rng = seededRandom(seed);
-                
-                // Verify it produces valid values
-                const value = rng.next();
-                expect(value).toBeGreaterThanOrEqual(0);
-                expect(value).toBeLessThan(1);
-                
-                // Verify determinism
-                const rng2 = seededRandom(seed);
-                const value2 = rng2.next();
-                expect(value).toBe(value2);
-            }),
-            { numRuns: 100 }
-        );
-    });
+
 });

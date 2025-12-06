@@ -1,17 +1,13 @@
 /**
  * Seeded Random Number Generator
  * 
- * Provides deterministic random number generation using a seed value.
- * The same seed will always produce the same sequence of random numbers,
- * enabling reproducible price calculations and testing.
+ * Uses a Linear Congruential Generator (LCG) with parameters chosen for
+ * fast computation and adequate distribution for game price fluctuations.
+ * NOT cryptographically secure - designed for deterministic game mechanics.
  */
 
-/**
- * SeededRandom class for deterministic random number generation
- */
 export class SeededRandom {
     /**
-     * Create a seeded random number generator
      * @param {string} seed - Seed string for deterministic generation
      */
     constructor(seed) {
@@ -19,8 +15,8 @@ export class SeededRandom {
     }
     
     /**
-     * Convert string seed to numeric hash
-     * Uses formula: hash = ((hash << 5) - hash) + charCode
+     * djb2 hash variant - fast string hashing with good distribution.
+     * Formula: hash = ((hash << 5) - hash) + charCode
      * @param {string} str - Seed string
      * @returns {number} Hash value
      * @private
@@ -35,18 +31,17 @@ export class SeededRandom {
     }
     
     /**
-     * Generate next random number in sequence
-     * Uses formula: hash = (hash × 9301 + 49297) % 233280
+     * LCG parameters from Numerical Recipes - adequate period for game use.
+     * Formula: hash = (hash × 9301 + 49297) % 233280
+     * Math.abs needed because hash can be negative from djb2 overflow.
      * @returns {number} Random value between 0 and 1
      */
     next() {
         this.hash = (this.hash * 9301 + 49297) % 233280;
-        // Ensure positive value by using Math.abs
         return Math.abs(this.hash) / 233280;
     }
     
     /**
-     * Generate random integer in range [min, max] inclusive
      * @param {number} min - Minimum value (inclusive)
      * @param {number} max - Maximum value (inclusive)
      * @returns {number} Random integer
@@ -57,7 +52,6 @@ export class SeededRandom {
     }
     
     /**
-     * Generate random float in range [min, max)
      * @param {number} min - Minimum value
      * @param {number} max - Maximum value
      * @returns {number} Random float
@@ -68,11 +62,3 @@ export class SeededRandom {
     }
 }
 
-/**
- * Static utility function to create a seeded random generator
- * @param {string} seed - Seed string
- * @returns {SeededRandom} New seeded random generator
- */
-export function seededRandom(seed) {
-    return new SeededRandom(seed);
-}
