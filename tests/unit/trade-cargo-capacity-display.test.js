@@ -8,6 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { GameStateManager } from '../../js/game-state.js';
+import { TradingSystem } from '../../js/game-trading.js';
 import { UIManager } from '../../js/game-ui.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
@@ -101,7 +102,9 @@ describe('Trade Panel Cargo Capacity Display', () => {
         
         // Buy 10 grain
         const currentSystem = TEST_STAR_DATA.find(s => s.id === 0);
-        const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+        const currentDay = gameStateManager.state.player.daysElapsed;
+        const activeEvents = gameStateManager.state.world.activeEvents || [];
+        const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
         gameStateManager.buyGood('grain', 10, grainPrice);
         
         // Manually trigger UI update (simulating what handleBuy does)
@@ -119,7 +122,9 @@ describe('Trade Panel Cargo Capacity Display', () => {
         
         // Sell 10 units from first stack
         const currentSystem = TEST_STAR_DATA.find(s => s.id === 0);
-        const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+        const currentDay = gameStateManager.state.player.daysElapsed;
+        const activeEvents = gameStateManager.state.world.activeEvents || [];
+        const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
         gameStateManager.sellGood(0, 10, grainPrice);
         
         // Manually trigger UI update (simulating what handleSell does)
@@ -137,7 +142,9 @@ describe('Trade Panel Cargo Capacity Display', () => {
         
         // Sell all cargo
         const currentSystem = TEST_STAR_DATA.find(s => s.id === 0);
-        const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+        const currentDay = gameStateManager.state.player.daysElapsed;
+        const activeEvents = gameStateManager.state.world.activeEvents || [];
+        const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
         gameStateManager.sellGood(0, 20, grainPrice);
         
         uiManager.updateTradeCargoCapacity();
@@ -154,7 +161,9 @@ describe('Trade Panel Cargo Capacity Display', () => {
         
         // Fill cargo to capacity (already have 20, buy 30 more)
         const currentSystem = TEST_STAR_DATA.find(s => s.id === 0);
-        const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+        const currentDay = gameStateManager.state.player.daysElapsed;
+        const activeEvents = gameStateManager.state.world.activeEvents || [];
+        const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
         gameStateManager.buyGood('grain', 30, grainPrice);
         
         uiManager.updateTradeCargoCapacity();

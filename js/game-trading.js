@@ -68,12 +68,15 @@ export class TradingSystem {
     /**
      * Deterministic daily price fluctuation using seeded random
      * Seed format ensures same system/good/day always produces same fluctuation
+     * 
+     * Uses ±30% range (0.70 to 1.30) to ensure price changes are visible
+     * after integer rounding, making the dynamic economy feel responsive.
      */
     static getDailyFluctuation(systemId, goodType, currentDay) {
         const seed = `${systemId}_${goodType}_${currentDay}`;
         const rng = new SeededRandom(seed);
         const value = rng.next();
-        return 0.85 + (value * 0.3);
+        return 0.70 + (value * 0.6);
     }
     
     static getEventModifier(systemId, goodType, activeEvents) {

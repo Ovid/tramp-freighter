@@ -658,7 +658,7 @@ function calculatePrice(goodType, system, currentDay, activeEvents) {
   // 2. Station count modifier
   const stationMod = 1.0 + (system.st * 0.05);
   
-  // 3. Daily fluctuation (±15%)
+  // 3. Daily fluctuation (±30%)
   const dailyMod = getDailyFluctuation(system.id, goodType, currentDay);
   
   // 4. Event modifier (if active)
@@ -713,8 +713,8 @@ function getDailyFluctuation(systemId, goodType, currentDay) {
   const rng = seededRandom(seed);
   const value = rng();  // 0 to 1
   
-  // Map to 0.85 to 1.15 (±15%)
-  return 0.85 + (value * 0.3);
+  // Map to 0.70 to 1.30 (±30%)
+  return 0.70 + (value * 0.6);
 }
 ```
 
@@ -755,7 +755,7 @@ Correctness Properties
 
 ### Property 5: Daily Fluctuation Range
 
-*For any* system, commodity, and day, the daily fluctuation multiplier should be between 0.85 and 1.15 inclusive.
+*For any* system, commodity, and day, the daily fluctuation multiplier should be between 0.70 and 1.30 inclusive.
 
 **Validates: Requirements 2.7**
 

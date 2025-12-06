@@ -10,7 +10,7 @@ import { TradingSystem } from '../../js/game-trading.js';
 describe('Property: Daily Fluctuation Range', () => {
     const commodities = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
     
-    it('should always return a value between 0.85 and 1.15 inclusive', () => {
+    it('should always return a value between 0.70 and 1.30 inclusive', () => {
         fc.assert(
             fc.property(
                 fc.integer({ min: 0, max: 116 }),
@@ -19,8 +19,8 @@ describe('Property: Daily Fluctuation Range', () => {
                 (systemId, goodType, currentDay) => {
                     const fluctuation = TradingSystem.getDailyFluctuation(systemId, goodType, currentDay);
                     
-                    expect(fluctuation).toBeGreaterThanOrEqual(0.85);
-                    expect(fluctuation).toBeLessThanOrEqual(1.15);
+                    expect(fluctuation).toBeGreaterThanOrEqual(0.70);
+                    expect(fluctuation).toBeLessThanOrEqual(1.30);
                 }
             ),
             { numRuns: 100 }
@@ -102,7 +102,7 @@ describe('Property: Daily Fluctuation Range', () => {
         );
     });
     
-    it('should utilize the full range (values near both 0.85 and 1.15)', () => {
+    it('should utilize the full range (values near both 0.70 and 1.30)', () => {
         const samples = [];
         for (let i = 0; i < 1000; i++) {
             const fluctuation = TradingSystem.getDailyFluctuation(i % 117, 'grain', i);
@@ -113,7 +113,7 @@ describe('Property: Daily Fluctuation Range', () => {
         const max = Math.max(...samples);
         
         // Should get close to boundaries (within 5% of range)
-        expect(min).toBeLessThan(0.87);  // Close to 0.85
-        expect(max).toBeGreaterThan(1.13); // Close to 1.15
+        expect(min).toBeLessThan(0.73);  // Close to 0.70
+        expect(max).toBeGreaterThan(1.27); // Close to 1.30
     });
 });

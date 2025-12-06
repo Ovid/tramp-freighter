@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { GameStateManager } from '../../js/game-state.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
+import { TradingSystem } from '../../js/game-trading.js';
 import { UIManager } from '../../js/game-ui.js';
 import { TEST_STAR_DATA as STAR_DATA, TEST_WORMHOLE_DATA as WORMHOLE_DATA } from '../test-data.js';
 
@@ -101,7 +102,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Step 3: Sell initial grain cargo at Alpha Centauri
             const currentSystem = STAR_DATA.find(s => s.id === 1);
-            const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
             
             const sellResult = gameStateManager.sellGood(0, 20, grainPrice);
             
@@ -112,7 +115,7 @@ describe('Complete Game Flow Integration Tests', () => {
             const creditsAfterSale = gameStateManager.state.player.credits;
             
             // Step 4: Buy ore at Alpha Centauri
-            const orePrice = gameStateManager.calculateGoodPrice('ore', currentSystem.type);
+            const orePrice = TradingSystem.calculatePrice('ore', currentSystem, currentDay, activeEvents);
             const buyQuantity = 10;
             
             const buyResult = gameStateManager.buyGood('ore', buyQuantity, orePrice);
@@ -173,7 +176,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Sell initial grain
             const currentSystem = STAR_DATA.find(s => s.id === 1);
-            const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
             gameStateManager.sellGood(0, 20, grainPrice);
             
             const creditsAfterSale = gameStateManager.state.player.credits;
@@ -228,7 +233,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Attempt to buy expensive goods
             const currentSystem = STAR_DATA.find(s => s.id === 0);
-            const tritiumPrice = gameStateManager.calculateGoodPrice('tritium', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const tritiumPrice = TradingSystem.calculatePrice('tritium', currentSystem, currentDay, activeEvents);
             
             const buyResult = gameStateManager.buyGood('tritium', 10, tritiumPrice);
             
@@ -245,7 +252,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Fill cargo to near capacity
             const currentSystem = STAR_DATA.find(s => s.id === 0);
-            const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
             
             // Buy 30 more grain (20 initial + 30 = 50, at capacity)
             gameStateManager.buyGood('grain', 30, grainPrice);
@@ -329,7 +338,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Buy more goods
             const currentSystem = STAR_DATA.find(s => s.id === 0);
-            const orePrice = gameStateManager.calculateGoodPrice('ore', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const orePrice = TradingSystem.calculatePrice('ore', currentSystem, currentDay, activeEvents);
             gameStateManager.buyGood('ore', 10, orePrice);
             
             expect(document.getElementById('hud-cargo').textContent).toBe('30/50');
@@ -382,7 +393,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Execute trade
             const currentSystem = STAR_DATA.find(s => s.id === 0);
-            const grainPrice = gameStateManager.calculateGoodPrice('grain', currentSystem.type);
+            const currentDay = gameStateManager.state.player.daysElapsed;
+            const activeEvents = gameStateManager.state.world.activeEvents || [];
+            const grainPrice = TradingSystem.calculatePrice('grain', currentSystem, currentDay, activeEvents);
             gameStateManager.sellGood(0, 10, grainPrice);
             
             // Verify save exists
@@ -455,11 +468,13 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Step 1: Sell initial grain at Sol
             const solSystem = STAR_DATA.find(s => s.id === 0);
-            const solGrainPrice = gameStateManager.calculateGoodPrice('grain', solSystem.type);
+            let currentDay = gameStateManager.state.player.daysElapsed;
+            let activeEvents = gameStateManager.state.world.activeEvents || [];
+            const solGrainPrice = TradingSystem.calculatePrice('grain', solSystem, currentDay, activeEvents);
             gameStateManager.sellGood(0, 20, solGrainPrice);
             
             // Step 2: Buy ore at Sol
-            const solOrePrice = gameStateManager.calculateGoodPrice('ore', solSystem.type);
+            const solOrePrice = TradingSystem.calculatePrice('ore', solSystem, currentDay, activeEvents);
             gameStateManager.buyGood('ore', 20, solOrePrice);
             
             // Step 3: Jump to Alpha Centauri
@@ -467,11 +482,13 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Step 4: Sell ore at Alpha Centauri
             const alphaSystem = STAR_DATA.find(s => s.id === 1);
-            const alphaOrePrice = gameStateManager.calculateGoodPrice('ore', alphaSystem.type);
+            currentDay = gameStateManager.state.player.daysElapsed;
+            activeEvents = gameStateManager.state.world.activeEvents || [];
+            const alphaOrePrice = TradingSystem.calculatePrice('ore', alphaSystem, currentDay, activeEvents);
             gameStateManager.sellGood(0, 20, alphaOrePrice);
             
             // Step 5: Buy grain at Alpha Centauri
-            const alphaGrainPrice = gameStateManager.calculateGoodPrice('grain', alphaSystem.type);
+            const alphaGrainPrice = TradingSystem.calculatePrice('grain', alphaSystem, currentDay, activeEvents);
             gameStateManager.buyGood('grain', 20, alphaGrainPrice);
             
             // Step 6: Jump back to Sol
