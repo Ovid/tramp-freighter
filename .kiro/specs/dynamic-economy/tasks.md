@@ -11,7 +11,7 @@
   - **Property 1: Seeded Random Determinism**
   - **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5**
 
-- [-] 2. Extend price calculation system with multiple modifiers
+- [x] 2. Extend price calculation system with multiple modifiers
   - Extend TradingSystem.calculatePrice() to accept currentDay and activeEvents parameters
   - Implement getProductionModifier() using spectral class lookup
   - Implement getStationCountModifier() using formula: 1.0 + (stationCount × 0.05)
@@ -21,19 +21,19 @@
   - Round final price to nearest integer
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9_
 
-- [ ] 2.1 Write property test for price calculation with all modifiers
+- [x] 2.1 Write property test for price calculation with all modifiers
   - **Property 2: Price Calculation with All Modifiers**
   - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.8**
 
-- [ ] 2.2 Write property test for station count modifier formula
+- [x] 2.2 Write property test for station count modifier formula
   - **Property 3: Station Count Modifier Formula**
   - **Validates: Requirements 2.4**
 
-- [ ] 2.3 Write property test for daily fluctuation range
+- [x] 2.3 Write property test for daily fluctuation range
   - **Property 4: Daily Fluctuation Range**
   - **Validates: Requirements 2.7**
 
-- [ ] 2.4 Write property test for price rounding
+- [x] 2.4 Write property test for price rounding
   - **Property 5: Price Rounding**
   - **Validates: Requirements 2.9**
 

@@ -1,3 +1,5 @@
+import { SeededRandom } from './seeded-random.js';
+
 /**
  * TradingSystem - Handles commodity trading, price calculations, and cargo management
  * 
@@ -33,28 +35,124 @@ export class TradingSystem {
     };
     
     /**
-     * Calculate price for a good at a given spectral class
-     * Requirements: 7.2
+     * Calculate price for a good at a given system with all modifiers
+     * 
+     * Supports two signatures for backward compatibility:
+     * - Phase 1: calculatePrice(goodType, spectralClass)
+     * - Phase 2: calculatePrice(goodType, system, currentDay, activeEvents)
      * 
      * @param {string} goodType - One of: grain, ore, tritium, parts, medicine, electronics
-     * @param {string} spectralClass - Spectral class string (e.g., "G2V", "M3V")
-     * @returns {number} Calculated price (basePrice × spectralModifier)
+     * @param {Object|string} systemOrSpectralClass - Star system object OR spectral class string
+     * @param {number} currentDay - Current game day for daily fluctuation (Phase 2 only)
+     * @param {Array} activeEvents - Array of active economic events (Phase 2 only)
+     * @returns {number} Calculated price
      */
-    static calculatePrice(goodType, spectralClass) {
+    static calculatePrice(goodType, systemOrSpectralClass, currentDay = 0, activeEvents = []) {
         const basePrice = TradingSystem.BASE_PRICES[goodType];
         if (basePrice === undefined) {
             throw new Error(`Unknown good type: ${goodType}`);
         }
         
+        // Detect if this is Phase 1 (string) or Phase 2 (object) call
+        const isPhase1 = typeof systemOrSpectralClass === 'string';
+        
+        if (isPhase1) {
+            // Phase 1: Simple calculation with just spectral class
+            const spectralClass = systemOrSpectralClass;
+            const productionMod = TradingSystem.getProductionModifier(goodType, spectralClass);
+            return Math.round(basePrice * productionMod);
+        }
+        
+        // Phase 2: Full calculation with all modifiers
+        const system = systemOrSpectralClass;
+        
+        // 1. Production modifier (spectral class)
+        const productionMod = TradingSystem.getProductionModifier(goodType, system.type);
+        
+        // 2. Station count modifier
+        const stationMod = TradingSystem.getStationCountModifier(system.st || 0);
+        
+        // 3. Daily fluctuation (±15%)
+        const dailyMod = TradingSystem.getDailyFluctuation(system.id, goodType, currentDay);
+        
+        // 4. Event modifier (if active)
+        const eventMod = TradingSystem.getEventModifier(system.id, goodType, activeEvents);
+        
+        // Final price: multiply all modifiers together
+        const price = basePrice * productionMod * stationMod * dailyMod * eventMod;
+        
+        // Round to nearest integer
+        return Math.round(price);
+    }
+    
+    /**
+     * Calculate production modifier from spectral class
+     * 
+     * @param {string} goodType - Commodity type
+     * @param {string} spectralClass - System spectral class (e.g., "G2V", "M3V")
+     * @returns {number} Production multiplier
+     */
+    static getProductionModifier(goodType, spectralClass) {
         // Extract spectral letter (first character)
         const spectralLetter = spectralClass.charAt(0).toUpperCase();
         
         // Get modifier for this spectral class and good type
         const modifiers = TradingSystem.SPECTRAL_MODIFIERS[spectralLetter];
-        const modifier = modifiers?.[goodType] || 1.0;
+        return modifiers?.[goodType] || 1.0;
+    }
+    
+    /**
+     * Calculate station count modifier
+     * Formula: 1.0 + (stationCount × 0.05)
+     * 
+     * @param {number} stationCount - Number of stations in system
+     * @returns {number} Station multiplier
+     */
+    static getStationCountModifier(stationCount) {
+        return 1.0 + (stationCount * 0.05);
+    }
+    
+    /**
+     * Calculate daily fluctuation modifier using seeded random
+     * Seed format: "systemId_goodType_day"
+     * Range: 0.85 to 1.15 (±15%)
+     * 
+     * @param {number} systemId - System identifier
+     * @param {string} goodType - Commodity type
+     * @param {number} currentDay - Current game day
+     * @returns {number} Fluctuation multiplier (0.85 to 1.15)
+     */
+    static getDailyFluctuation(systemId, goodType, currentDay) {
+        const seed = `${systemId}_${goodType}_${currentDay}`;
+        const rng = new SeededRandom(seed);
+        const value = rng.next(); // 0 to 1
         
-        // Calculate and round to nearest integer
-        return Math.round(basePrice * modifier);
+        // Map to 0.85 to 1.15 (±15%)
+        return 0.85 + (value * 0.3);
+    }
+    
+    /**
+     * Calculate event modifier for a good at a system
+     * 
+     * @param {number} systemId - System identifier
+     * @param {string} goodType - Commodity type
+     * @param {Array} activeEvents - Active economic events
+     * @returns {number} Event multiplier (1.0 if no active event)
+     */
+    static getEventModifier(systemId, goodType, activeEvents) {
+        if (!Array.isArray(activeEvents)) {
+            return 1.0;
+        }
+        
+        // Find active event for this system
+        const activeEvent = activeEvents.find(event => event.systemId === systemId);
+        
+        if (!activeEvent || !activeEvent.modifiers) {
+            return 1.0;
+        }
+        
+        // Return modifier for this good type, or 1.0 if not affected
+        return activeEvent.modifiers[goodType] || 1.0;
     }
     
     /**
@@ -143,9 +241,11 @@ export class TradingSystem {
      * @param {string} goodType - Type of good purchased
      * @param {number} quantity - Quantity purchased
      * @param {number} price - Price paid per unit
+     * @param {number} systemId - System ID where purchased (optional for Phase 1 compatibility)
+     * @param {number} day - Game day when purchased (optional for Phase 1 compatibility)
      * @returns {Array} Updated cargo array
      */
-    static addCargoStack(cargo, goodType, quantity, price) {
+    static addCargoStack(cargo, goodType, quantity, price, systemId = null, day = null) {
         // Check if we have an existing stack with same good and same price
         const existingStackIndex = cargo.findIndex(
             stack => stack.good === goodType && stack.purchasePrice === price
@@ -167,6 +267,14 @@ export class TradingSystem {
             qty: quantity,
             purchasePrice: price
         };
+        
+        // Add Phase 2 metadata if provided
+        if (systemId !== null) {
+            newStack.purchaseSystem = systemId;
+        }
+        if (day !== null) {
+            newStack.purchaseDay = day;
+        }
         
         return [...cargo, newStack];
     }
