@@ -9,7 +9,6 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 4: Distance from Sol Calculation
     // Feature: tramp-freighter-core-loop, Property 4: Distance from Sol Calculation
-    // Validates: Requirements 3.1
     // ========================================================================
     
     it('Property 4: For any star system with coordinates (x, y, z), distance from Sol should equal hypot(x, y, z) * LY_PER_UNIT', () => {
@@ -46,7 +45,6 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 5: Distance Between Systems Calculation
     // Feature: tramp-freighter-core-loop, Property 5: Distance Between Systems Calculation
-    // Validates: Requirements 3.2
     // ========================================================================
     
     it('Property 5: For any two star systems, distance between them should equal hypot(x₁-x₂, y₁-y₂, z₁-z₂) * LY_PER_UNIT', () => {

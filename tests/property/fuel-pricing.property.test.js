@@ -19,7 +19,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 25.5: Core System Fuel Pricing
-     * Validates: Requirements 8.3
      * 
      * For any star system that is Sol (system ID 0) or Alpha Centauri (system ID 1),
      * the fuel price should be 2 credits per 1%.
@@ -42,7 +41,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 26: Mid-Range System Fuel Pricing
-     * Validates: Requirements 8.4
      * 
      * For any star system with distance from Sol between 4.5 and 10 light years
      * (excluding Sol and Alpha Centauri), the fuel price should be 3 credits per 1%.
@@ -69,7 +67,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 27: Outer System Fuel Pricing
-     * Validates: Requirements 8.5
      * 
      * For any star system with distance from Sol ≥ 10 light years,
      * the fuel price should be 4 credits per 1%.
@@ -95,7 +92,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 28: Refuel Cost Calculation
-     * Validates: Requirements 8.6
      * 
      * For any refuel amount A at fuel price P, the total cost should equal A × P.
      */
@@ -128,7 +124,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 29: Refuel Capacity Constraint
-     * Validates: Requirements 8.7
      * 
      * For any refuel attempt, the system should prevent refueling beyond 100% fuel capacity.
      */
@@ -197,7 +192,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 30: Refuel Credit Validation
-     * Validates: Requirements 8.8
      * 
      * For any refuel attempt with cost C, the system should prevent the transaction
      * if player credits < C.
@@ -266,7 +260,6 @@ describe('Fuel Pricing Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 31: Refuel State Mutation
-     * Validates: Requirements 8.9
      * 
      * For any valid refuel transaction with amount A and cost C,
      * the player's credits should decrease by C and the ship's fuel should increase by A.

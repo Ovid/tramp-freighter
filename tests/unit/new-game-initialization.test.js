@@ -1,7 +1,6 @@
 /**
  * Unit Tests for New Game Initialization
  * Feature: tramp-freighter-core-loop, Property 0: New game initialization creates correct default state
- * Validates: Requirements 1.4, 1.5
  */
 
 import { describe, it, expect } from 'vitest';

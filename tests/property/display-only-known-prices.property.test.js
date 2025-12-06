@@ -30,7 +30,7 @@ const wormholeData = [];
 
 describe('Price Knowledge - Display Only Known Prices (Property Tests)', () => {
     
-    it('Property 8: For any trade interface display, only prices from systems in the price knowledge database should be shown (Validates: Requirements 3.4, 3.5)', () => {
+    it('Property 8: For any trade interface display, only prices from systems in the price knowledge database should be shown', () => {
         // Generator for visited system IDs (excluding Sol which is always visited at start)
         const visitedSystemsGenerator = fc.uniqueArray(
             fc.integer({ min: 1, max: starData.length - 1 }),

@@ -17,7 +17,6 @@ describe('Property 10: Insufficient Fuel Prevention', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 10: Insufficient Fuel Prevention
-     * Validates: Requirements 4.3
      * 
      * For any jump attempt where the ship's current fuel is less than the required fuel cost,
      * the system should prevent the jump and display an error message.

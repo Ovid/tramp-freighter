@@ -9,8 +9,6 @@ import { TEST_STAR_DATA as STAR_DATA, TEST_WORMHOLE_DATA as WORMHOLE_DATA } from
  * 
  * These tests verify that all game systems work together correctly
  * through complete user workflows.
- * 
- * Requirements: All (comprehensive integration testing)
  */
 
 describe('Complete Game Flow Integration Tests', () => {

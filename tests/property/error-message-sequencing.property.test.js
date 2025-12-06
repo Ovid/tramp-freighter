@@ -7,7 +7,6 @@ import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 /**
  * Feature: tramp-freighter-core-loop, Property 32: Error Message Sequencing
- * Validates: Requirements 9.3
  * 
  * Property: For any sequence of multiple error messages, they should be displayed
  * one at a time without overlapping.

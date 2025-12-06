@@ -4,7 +4,7 @@ import { SeededRandom } from '../../js/seeded-random.js';
 
 describe('SeededRandom - Determinism (Property Tests)', () => {
     
-    it('Property 1: For any seed string, generating a sequence of random numbers multiple times with the same seed should produce identical sequences (Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5)', () => {
+    it('Property 1: For any seed string, generating a sequence of random numbers multiple times with the same seed should produce identical sequences', () => {
         // Generator for seed strings
         const seedGenerator = fc.string({ minLength: 1, maxLength: 50 });
         

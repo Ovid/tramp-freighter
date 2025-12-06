@@ -7,7 +7,6 @@ describe('Connection Visual Fuel Feedback (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 13: Connection Visual Fuel Feedback
     // Feature: tramp-freighter-core-loop, Property 13: Connection Visual Fuel Feedback
-    // Validates: Requirements 5.2, 5.3, 5.4
     // ========================================================================
     
     it('Property 13: Connection color determination based on fuel availability', () => {

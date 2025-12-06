@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Price Rounding
  * Feature: dynamic-economy, Property 5: Price Rounding
- * Validates: Requirements 2.9
  */
 
 import { describe, it, expect } from 'vitest';

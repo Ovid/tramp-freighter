@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Save/Load Round Trip
  * Feature: tramp-freighter-core-loop, Property 1: Save/Load Round Trip Preservation
- * Validates: Requirements 1.6, 10.8
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';

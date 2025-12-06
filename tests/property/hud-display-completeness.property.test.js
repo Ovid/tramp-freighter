@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for HUD Display Completeness
  * Feature: tramp-freighter-core-loop, Property 2: HUD Display Completeness
- * Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -138,22 +137,22 @@ describe('Property 2: HUD Display Completeness', () => {
                     // Update the HUD
                     uiManager.updateHUD();
                     
-                    // Requirement 2.1: HUD SHALL display the Player's current credits
+                    // HUD SHALL display the Player's current credits
                     const creditsElement = document.getElementById('hud-credits');
                     expect(creditsElement).not.toBeNull();
                     expect(creditsElement.textContent).toBe(generatedState.player.credits.toLocaleString());
                     
-                    // Requirement 2.2: HUD SHALL display the Player's current debt
+                    // HUD SHALL display the Player's current debt
                     const debtElement = document.getElementById('hud-debt');
                     expect(debtElement).not.toBeNull();
                     expect(debtElement.textContent).toBe(generatedState.player.debt.toLocaleString());
                     
-                    // Requirement 2.3: HUD SHALL display the days elapsed counter
+                    // HUD SHALL display the days elapsed counter
                     const daysElement = document.getElementById('hud-days');
                     expect(daysElement).not.toBeNull();
                     expect(daysElement.textContent).toBe(String(generatedState.player.daysElapsed));
                     
-                    // Requirement 2.4: HUD SHALL display the Ship's fuel level as a percentage
+                    // HUD SHALL display the Ship's fuel level as a percentage
                     const fuelBarElement = document.getElementById('fuel-bar');
                     const fuelTextElement = document.getElementById('hud-fuel-text');
                     expect(fuelBarElement).not.toBeNull();
@@ -161,19 +160,19 @@ describe('Property 2: HUD Display Completeness', () => {
                     expect(fuelBarElement.style.width).toBe(`${generatedState.ship.fuel}%`);
                     expect(fuelTextElement.textContent).toBe(`${Math.round(generatedState.ship.fuel)}%`);
                     
-                    // Requirement 2.5: HUD SHALL display the Ship's cargo usage as current over maximum capacity
+                    // HUD SHALL display the Ship's cargo usage as current over maximum capacity
                     const cargoElement = document.getElementById('hud-cargo');
                     expect(cargoElement).not.toBeNull();
                     const cargoUsed = generatedState.ship.cargo.reduce((total, stack) => total + stack.qty, 0);
                     expect(cargoElement.textContent).toBe(`${cargoUsed}/${generatedState.ship.cargoCapacity}`);
                     
-                    // Requirement 2.6: HUD SHALL display the Player's current Star System name
+                    // HUD SHALL display the Player's current Star System name
                     const systemElement = document.getElementById('hud-system');
                     expect(systemElement).not.toBeNull();
                     const currentSystem = TEST_STAR_DATA.find(s => s.id === generatedState.player.currentSystem);
                     expect(systemElement.textContent).toBe(currentSystem.name);
                     
-                    // Requirement 2.7: HUD SHALL display the distance from Sol to the current Star System
+                    // HUD SHALL display the distance from Sol to the current Star System
                     const distanceElement = document.getElementById('hud-distance');
                     expect(distanceElement).not.toBeNull();
                     // Distance should be a number followed by " LY"

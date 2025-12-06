@@ -21,7 +21,6 @@ describe('Property 12: Visited Systems Tracking', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 12: Visited Systems Tracking
-     * Validates: Requirements 4.7
      * 
      * For any jump to a previously unvisited system, that system's ID should be added
      * to the visited systems list.

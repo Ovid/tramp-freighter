@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for HUD Reactivity
  * Feature: tramp-freighter-core-loop, Property 3: HUD Reactivity
- * Validates: Requirements 2.8
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -111,7 +110,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Change credits
                     gameStateManager.updateCredits(newCredits);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('hud-credits').textContent).toBe(newCredits.toLocaleString());
                 }
             ),
@@ -134,7 +133,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Change debt
                     gameStateManager.updateDebt(newDebt);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('hud-debt').textContent).toBe(newDebt.toLocaleString());
                 }
             ),
@@ -158,7 +157,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Change fuel
                     gameStateManager.updateFuel(newFuel);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('fuel-bar').style.width).toBe(`${newFuel}%`);
                     expect(document.getElementById('hud-fuel-text').textContent).toBe(`${Math.round(newFuel)}%`);
                 }
@@ -204,7 +203,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Calculate new cargo used
                     const newCargoUsed = newCargo.reduce((total, stack) => total + stack.qty, 0);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('hud-cargo').textContent).toBe(`${newCargoUsed}/${cargoCapacity}`);
                 }
             ),
@@ -233,7 +232,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Get new system
                     const newSystem = TEST_STAR_DATA.find(s => s.id === newSystemId);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('hud-system').textContent).toBe(newSystem.name);
                     
                     // Verify distance also updated
@@ -260,7 +259,7 @@ describe('Property 3: HUD Reactivity', () => {
                     // Change time
                     gameStateManager.updateTime(newDays);
                     
-                    // Verify HUD updated immediately (Requirement 2.8)
+                    // Verify HUD updated immediately
                     expect(document.getElementById('hud-days').textContent).toBe(String(newDays));
                 }
             ),

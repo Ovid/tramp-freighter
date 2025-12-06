@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Save Data Completeness
  * Feature: tramp-freighter-core-loop, Property 33: Save Data Completeness
- * Validates: Requirements 10.1, 10.2
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -65,8 +64,6 @@ describe('Property 33: Save Data Completeness', () => {
      * Property: For any save operation, the stored data in localStorage should 
      * include the complete game state (player, ship, world) plus version number 
      * and timestamp metadata.
-     * 
-     * Requirements: 10.1, 10.2
      */
     it('should store complete game state with metadata in localStorage', () => {
         fc.assert(
@@ -134,7 +131,7 @@ describe('Property 33: Save Data Completeness', () => {
                     expect(Array.isArray(savedData.world.visitedSystems)).toBe(true);
                     expect(savedData.world.visitedSystems).toEqual(generatedState.world.visitedSystems);
                     
-                    // Verify metadata is complete (Requirement 10.2)
+                    // Verify metadata is complete
                     expect(savedData).toHaveProperty('meta');
                     expect(savedData.meta).toHaveProperty('version');
                     expect(savedData.meta).toHaveProperty('timestamp');

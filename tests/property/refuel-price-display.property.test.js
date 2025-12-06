@@ -54,7 +54,6 @@ describe('Refuel Price Display Properties', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 25: Refuel Price Display
-     * Validates: Requirements 8.2
      * 
      * For any refuel interface at a given star system, the display should show
      * the fuel price per percentage point based on that system's distance from Sol.

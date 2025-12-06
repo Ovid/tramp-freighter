@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Sale Credits Addition
  * Feature: tramp-freighter-core-loop, Property 21: Sale Credits Addition
- * Validates: Requirements 7.9
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

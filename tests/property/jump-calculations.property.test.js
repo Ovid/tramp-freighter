@@ -8,7 +8,6 @@ describe('NavigationSystem - Jump Calculations (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 6: Jump Time Calculation
     // Feature: tramp-freighter-core-loop, Property 6: Jump Time Calculation
-    // Validates: Requirements 3.3
     // ========================================================================
     
     it('Property 6: For any distance in light years, jump time should equal max(1, ceil(distance × 0.5)) days', () => {
@@ -54,7 +53,6 @@ describe('NavigationSystem - Jump Calculations (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 7: Fuel Cost Calculation
     // Feature: tramp-freighter-core-loop, Property 7: Fuel Cost Calculation
-    // Validates: Requirements 3.4
     // ========================================================================
     
     it('Property 7: For any distance in light years, fuel cost should equal 10 + (distance × 2) percent', () => {

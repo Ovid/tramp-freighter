@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Purchase Cargo Stack Creation
  * Feature: tramp-freighter-core-loop, Property 18: Purchase Cargo Stack Creation
- * Validates: Requirements 7.5
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

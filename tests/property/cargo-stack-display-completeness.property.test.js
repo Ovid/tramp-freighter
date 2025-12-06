@@ -1,6 +1,5 @@
 /**
- * Feature: tramp-freighter-core-loop, Property 24: Cargo Stack Display Completeness
- * Validates: Requirements 7.16
+ * Feature: tramp-freighter-core-loop, Cargo Stack Display Completeness
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

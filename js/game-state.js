@@ -41,13 +41,12 @@ export class GameStateManager {
         // Initialize with null state (will be set by initNewGame or loadGame)
         this.state = null;
         
-        // Track last save time for debouncing (Requirement 10.6)
+        // Track last save time for debouncing
         this.lastSaveTime = 0;
     }
     
     /**
      * Initialize a new game with default values
-     * Requirements: 1.4, 1.5, 3.1
      */
     initNewGame() {
         // Get Sol's grain price for initial cargo
@@ -113,7 +112,6 @@ export class GameStateManager {
     
     /**
      * Calculate good price based on spectral class
-     * Requirements: 7.2
      */
     calculateGoodPrice(goodType, spectralClass) {
         const basePrice = BASE_PRICES[goodType] || 10;
@@ -205,7 +203,6 @@ export class GameStateManager {
     
     /**
      * Get price knowledge database
-     * Requirements: 3.4, 3.5
      */
     getPriceKnowledge() {
         return this.state?.world.priceKnowledge || {};
@@ -213,7 +210,6 @@ export class GameStateManager {
     
     /**
      * Get known prices for a specific system
-     * Requirements: 3.4, 3.5
      */
     getKnownPrices(systemId) {
         return this.state?.world.priceKnowledge?.[systemId]?.prices || null;
@@ -221,7 +217,6 @@ export class GameStateManager {
     
     /**
      * Check if player has price knowledge for a system
-     * Requirements: 3.4, 3.5
      */
     hasVisitedSystem(systemId) {
         return this.state?.world.priceKnowledge?.[systemId] !== undefined;
@@ -298,7 +293,6 @@ export class GameStateManager {
     
     /**
      * Update price knowledge for a system
-     * Requirements: 3.2, 3.3
      * 
      * @param {number} systemId - System ID
      * @param {Object} prices - Price object with all commodity prices
@@ -321,7 +315,6 @@ export class GameStateManager {
     
     /**
      * Increment lastVisit counter for all systems in price knowledge
-     * Requirements: 3.6
      * 
      * Called automatically when time advances
      * 
@@ -339,7 +332,6 @@ export class GameStateManager {
     
     /**
      * Recalculate prices for all systems in price knowledge
-     * Requirements: 2.1
      * 
      * Called automatically when day changes to update prices with daily fluctuations.
      * Currently uses static price calculation; will use dynamic calculation once
@@ -391,7 +383,6 @@ export class GameStateManager {
     
     /**
      * Execute a purchase transaction
-     * Requirements: 7.4, 7.5, 7.6, 7.11, 7.12, 7.15
      */
     buyGood(goodType, quantity, price) {
         if (!this.state) {
@@ -417,7 +408,7 @@ export class GameStateManager {
         );
         this.updateCargo(newCargo);
         
-        // Persist immediately - trade transactions modify credits and cargo (Requirement 7.15)
+        // Persist immediately - trade transactions modify credits and cargo
         this.saveGame();
         
         return { success: true };
@@ -445,7 +436,6 @@ export class GameStateManager {
     
     /**
      * Add a cargo stack for a purchase
-     * Requirements: 7.5, 7.6
      * 
      * Delegates to TradingSystem for consolidation logic
      */
@@ -455,7 +445,6 @@ export class GameStateManager {
     
     /**
      * Execute a sale transaction from a specific cargo stack
-     * Requirements: 7.3, 7.9, 7.10, 7.15
      */
     sellGood(stackIndex, quantity, salePrice) {
         if (!this.state) {
@@ -479,7 +468,7 @@ export class GameStateManager {
         const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
         this.updateCargo(newCargo);
         
-        // Persist immediately - trade transactions modify credits and cargo (Requirement 7.15)
+        // Persist immediately - trade transactions modify credits and cargo
         this.saveGame();
         
         return { 
@@ -516,7 +505,6 @@ export class GameStateManager {
     
     /**
      * Decreases quantity in stack; removes stack if empty
-     * Requirements: 7.10
      */
     removeFromCargoStack(cargo, stackIndex, quantity) {
         const updatedCargo = [...cargo];
@@ -524,7 +512,7 @@ export class GameStateManager {
         
         stack.qty -= quantity;
         
-        // Remove stack if empty (Requirement 7.10)
+        // Remove stack if empty
         if (stack.qty <= 0) {
             updatedCargo.splice(stackIndex, 1);
         } else {
@@ -540,7 +528,6 @@ export class GameStateManager {
     
     /**
      * Calculate fuel price based on system distance from Sol
-     * Requirements: 8.2, 8.3, 8.4, 8.5
      * 
      * @param {number} systemId - System ID to check
      * @returns {number} Fuel price per percentage point
@@ -571,7 +558,6 @@ export class GameStateManager {
     
     /**
      * Validate refuel transaction
-     * Requirements: 8.7, 8.8
      * 
      * @param {number} currentFuel - Current fuel percentage
      * @param {number} amount - Amount to refuel (percentage points)
@@ -580,10 +566,10 @@ export class GameStateManager {
      * @returns {Object} { valid: boolean, reason: string, cost: number }
      */
     validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-        // Calculate total cost (Requirement 8.6)
+        // Calculate total cost
         const totalCost = amount * pricePerPercent;
         
-        // Check capacity constraint (Requirement 8.7)
+        // Check capacity constraint
         // Use small epsilon for floating point comparison
         if (currentFuel + amount > 100.01) {
             return {
@@ -593,7 +579,7 @@ export class GameStateManager {
             };
         }
         
-        // Check credit constraint (Requirement 8.8)
+        // Check credit constraint
         if (totalCost > credits) {
             return {
                 valid: false,
@@ -620,7 +606,6 @@ export class GameStateManager {
     
     /**
      * Execute refuel transaction
-     * Requirements: 8.9, 8.10
      * 
      * @param {number} amount - Amount to refuel (percentage points)
      * @returns {Object} { success: boolean, reason: string }
@@ -644,7 +629,7 @@ export class GameStateManager {
         this.updateCredits(credits - validation.cost);
         this.updateFuel(currentFuel + amount);
         
-        // Persist immediately - refuel modifies credits and fuel (Requirement 8.10)
+        // Persist immediately - refuel modifies credits and fuel
         this.saveGame();
         
         return { success: true, reason: null };
@@ -656,7 +641,6 @@ export class GameStateManager {
     
     /**
      * Dock at current system's station to access trading and refueling
-     * Requirements: 10.5, 3.2, 3.3
      * 
      * Updates price knowledge on dock:
      * - First visit: Records current prices with lastVisit = daysElapsed
@@ -681,7 +665,7 @@ export class GameStateManager {
             this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
         }
         
-        // Persist state transition - prevents loss if player closes browser while docked (Requirement 10.5)
+        // Persist state transition - prevents loss if player closes browser while docked
         this.saveGame();
         
         return { success: true };
@@ -690,7 +674,7 @@ export class GameStateManager {
     /**
      * Undock from current system's station to resume navigation
      * 
-     * Currently a state transition marker for auto-save (Requirement 10.5).
+     * Currently a state transition marker for auto-save
      * Future: Will close station UI, enable jumps, track undocked state.
      */
     undock() {
@@ -698,7 +682,7 @@ export class GameStateManager {
             return { success: false, reason: 'No game state' };
         }
         
-        // Persist state transition - prevents loss if player closes browser while undocked (Requirement 10.5)
+        // Persist state transition - prevents loss if player closes browser while undocked
         this.saveGame();
         
         return { success: true };
@@ -710,7 +694,6 @@ export class GameStateManager {
     
     /**
      * Save game state to localStorage with debouncing
-     * Requirements: 10.1, 10.2, 10.6
      * 
      * Implements save debouncing to prevent excessive saves (max 1 save per second).
      * This protects against rapid state changes causing performance issues.
@@ -750,7 +733,6 @@ export class GameStateManager {
     
     /**
      * Load game state from localStorage
-     * Requirements: 1.6, 10.7, 10.8, 10.9, 10.10
      */
     loadGame() {
         try {
@@ -826,7 +808,6 @@ export class GameStateManager {
     
     /**
      * Check if saved game exists
-     * Requirements: 1.1
      */
     hasSavedGame() {
         try {
@@ -853,7 +834,6 @@ export class GameStateManager {
     
     /**
      * Check if save version is compatible with current version
-     * Requirements: 10.10
      */
     isVersionCompatible(saveVersion) {
         if (!saveVersion) return false;
@@ -865,7 +845,6 @@ export class GameStateManager {
     
     /**
      * Validate that loaded state has required structure
-     * Requirements: 10.9
      */
     validateStateStructure(state) {
         if (!state) return false;

@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Daily Fluctuation Range
  * Feature: dynamic-economy, Property 4: Daily Fluctuation Range
- * Validates: Requirements 2.7
  */
 
 import { describe, it, expect } from 'vitest';

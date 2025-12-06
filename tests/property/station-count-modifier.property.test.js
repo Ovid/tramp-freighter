@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Station Count Modifier Formula
  * Feature: dynamic-economy, Property 3: Station Count Modifier Formula
- * Validates: Requirements 2.4
  */
 
 import { describe, it, expect } from 'vitest';

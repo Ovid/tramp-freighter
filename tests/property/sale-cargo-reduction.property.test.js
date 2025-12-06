@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Sale Cargo Reduction
  * Feature: tramp-freighter-core-loop, Property 22: Sale Cargo Reduction
- * Validates: Requirements 7.10
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

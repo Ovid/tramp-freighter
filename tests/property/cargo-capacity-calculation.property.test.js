@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Cargo Capacity Calculation
  * Feature: tramp-freighter-core-loop, Property 20: Cargo Capacity Calculation
- * Validates: Requirements 7.7
  */
 
 import { describe, it, expect } from 'vitest';

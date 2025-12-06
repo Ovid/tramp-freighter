@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Resource Constraint Validation
  * Feature: tramp-freighter-core-loop, Property 23: Resource Constraint Validation
- * Validates: Requirements 7.11, 7.12
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

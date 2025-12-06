@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Separate Stack for Different Prices
  * Feature: tramp-freighter-core-loop, Property 19: Separate Stack for Different Prices
- * Validates: Requirements 7.6
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

@@ -8,7 +8,6 @@ describe('Jump Information Display (Property Tests)', () => {
     // ========================================================================
     // PROPERTY 8: Jump Information Display
     // Feature: tramp-freighter-core-loop, Property 8: Jump Information Display
-    // Validates: Requirements 3.5, 5.5
     // ========================================================================
     
     it('Property 8: For any connected star system, when selected or hovered, the display should show distance, jump time, and fuel cost', () => {

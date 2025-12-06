@@ -21,7 +21,6 @@ describe('Property 11: Jump State Transition', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 11: Jump State Transition
-     * Validates: Requirements 4.4, 4.5, 4.6
      * 
      * For any valid jump from system A to system B with distance D, executing the jump should:
      * - decrease fuel by (10 + D×2)%

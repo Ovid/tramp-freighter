@@ -730,7 +730,6 @@ export function determineConnectionColor(currentFuel, fuelCost) {
 
 /**
  * Update wormhole connection colors based on current fuel availability
- * Requirements: 5.2, 5.3, 5.4
  * 
  * Color coding provides visual feedback for jump feasibility:
  * - Green: sufficient fuel with comfortable margin
@@ -1209,7 +1208,6 @@ function onCanvasHover(event) {
 
 /**
  * Show jump information tooltip for a connected system
- * Requirements: 3.5, 5.5
  */
 function showJumpTooltip(targetStar, mouseX, mouseY) {
     if (!gameStateManager || !gameStateManager.state) {
@@ -1325,7 +1323,6 @@ let currentSystemIndicator = null;
 
 /**
  * Update the current system indicator to show player's location
- * Requirements: 5.1
  */
 function updateCurrentSystemIndicator() {
     if (!gameStateManager || !gameStateManager.state) {
@@ -1837,7 +1834,6 @@ function setupJumpAndDockHandlers(navigationSystem) {
 
 /**
  * Initialize the menu and check for saved game
- * Requirements: 1.1, 1.2, 1.3
  */
 function initMenu() {
     const gameMenu = document.getElementById('game-menu');
@@ -1853,7 +1849,7 @@ function initMenu() {
     const tempStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     const hasSave = tempStateManager.hasSavedGame();
     
-    // Show/hide Continue button based on save existence (Requirements 1.2, 1.3)
+    // Show/hide Continue button based on save existence
     if (hasSave) {
         continueBtn.style.display = 'block';
         continueBtn.disabled = false;
@@ -1862,13 +1858,13 @@ function initMenu() {
         continueBtn.disabled = true;
     }
     
-    // Set up Continue button handler (Requirement 1.6)
+    // Set up Continue button handler
     continueBtn.addEventListener('click', () => {
         console.log('Continue game selected');
         startGame(false);
     });
     
-    // Set up New Game button handler (Requirements 1.4, 1.5)
+    // Set up New Game button handler
     newGameBtn.addEventListener('click', async () => {
         // Show confirmation if save exists
         if (hasSave) {
@@ -1909,7 +1905,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Set up raycaster for selection
         setupRaycaster();
         
-        // Initialize menu (Requirements 1.1, 1.2, 1.3)
+        // Initialize menu
         initMenu();
         
         // Start animation loop

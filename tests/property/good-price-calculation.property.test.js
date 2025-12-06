@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Good Price Calculation
  * Feature: tramp-freighter-core-loop, Property 15: Good Price Calculation
- * Validates: Requirements 7.2
  */
 
 import { describe, it, expect } from 'vitest';

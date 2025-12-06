@@ -30,7 +30,7 @@ const wormholeData = [];
 
 describe('Price Knowledge - First Visit Recording (Property Tests)', () => {
     
-    it('Property 6: For any system visited for the first time, the current prices and visit day should be recorded in the price knowledge database (Validates: Requirements 3.2)', () => {
+    it('Property 6: For any system visited for the first time, the current prices and visit day should be recorded in the price knowledge database', () => {
         // Generator for system IDs (excluding Sol which is visited at start)
         const systemIdGenerator = fc.integer({ min: 1, max: starData.length - 1 });
         

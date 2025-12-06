@@ -29,7 +29,7 @@ const wormholeData = [];
 
 describe('Price Knowledge - Staleness Increment (Property Tests)', () => {
     
-    it('Property 9: For any time advancement, the lastVisit counter for all systems in the price knowledge database should increment by the number of days passed (Validates: Requirements 3.6)', () => {
+    it('Property 9: For any time advancement, the lastVisit counter for all systems in the price knowledge database should increment by the number of days passed', () => {
         // Generator for visited system IDs
         const visitedSystemsGenerator = fc.uniqueArray(
             fc.integer({ min: 1, max: starData.length - 1 }),

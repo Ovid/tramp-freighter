@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Price Calculation with All Modifiers
  * Feature: dynamic-economy, Property 2: Price Calculation with All Modifiers
- * Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.8
  */
 
 import { describe, it, expect } from 'vitest';

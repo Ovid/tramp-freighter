@@ -30,7 +30,6 @@ describe('Property 34: Auto-Save Triggers', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 34: Auto-Save Triggers
-     * Validates: Requirements 4.8, 7.15, 8.10, 10.3, 10.4, 10.5, 10.6
      * 
      * For any game operation that modifies state (jump, trade, refuel, dock, undock),
      * the system should automatically trigger a save operation.
@@ -58,7 +57,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                     // Should succeed
                     expect(result.success).toBe(true);
                     
-                    // Should have auto-saved (Requirement 4.8)
+                    // Should have auto-saved
                     const savedData = localStorage.getItem('trampFreighterSave');
                     expect(savedData).not.toBe(null);
                     
@@ -99,7 +98,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                     // Should succeed
                     expect(result.success).toBe(true);
                     
-                    // Should have auto-saved (Requirement 7.15)
+                    // Should have auto-saved
                     const savedData = localStorage.getItem('trampFreighterSave');
                     expect(savedData).not.toBe(null);
                     
@@ -143,7 +142,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                     // Should succeed
                     expect(result.success).toBe(true);
                     
-                    // Should have auto-saved (Requirement 7.15)
+                    // Should have auto-saved
                     const savedData = localStorage.getItem('trampFreighterSave');
                     expect(savedData).not.toBe(null);
                     
@@ -187,7 +186,7 @@ describe('Property 34: Auto-Save Triggers', () => {
                     // Should succeed
                     expect(result.success).toBe(true);
                     
-                    // Should have auto-saved (Requirement 8.10)
+                    // Should have auto-saved
                     const savedData = localStorage.getItem('trampFreighterSave');
                     expect(savedData).not.toBe(null);
                     
@@ -218,7 +217,7 @@ describe('Property 34: Auto-Save Triggers', () => {
         // Should succeed
         expect(result.success).toBe(true);
         
-        // Should have auto-saved (Requirement 10.5)
+        // Should have auto-saved
         const savedData = localStorage.getItem('trampFreighterSave');
         expect(savedData).not.toBe(null);
     });
@@ -236,7 +235,7 @@ describe('Property 34: Auto-Save Triggers', () => {
         // Should succeed
         expect(result.success).toBe(true);
         
-        // Should have auto-saved (Requirement 10.5)
+        // Should have auto-saved
         const savedData = localStorage.getItem('trampFreighterSave');
         expect(savedData).not.toBe(null);
     });

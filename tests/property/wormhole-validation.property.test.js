@@ -17,7 +17,6 @@ describe('Property 9: Wormhole Connection Validation', () => {
     
     /**
      * Feature: tramp-freighter-core-loop, Property 9: Wormhole Connection Validation
-     * Validates: Requirements 4.1, 4.2
      * 
      * For any jump attempt, the system should verify that a wormhole connection exists
      * between the current and target systems, and prevent the jump if no connection exists.

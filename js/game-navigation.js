@@ -21,7 +21,6 @@ export class NavigationSystem {
     
     /**
      * Calculate distance from Sol to a star system
-     * Requirements: 3.1
      * Formula: hypot(x, y, z) * LY_PER_UNIT
      * 
      * @param {Object} star - Star system object with x, y, z coordinates
@@ -34,7 +33,6 @@ export class NavigationSystem {
     
     /**
      * Calculate distance between two star systems
-     * Requirements: 3.2
      * Formula: hypot(x₁-x₂, y₁-y₂, z₁-z₂) * LY_PER_UNIT
      * 
      * @param {Object} star1 - First star system with x, y, z coordinates
@@ -52,7 +50,6 @@ export class NavigationSystem {
     
     /**
      * Calculate jump time based on distance
-     * Requirements: 3.3
      * Formula: max(1, ceil(distance × 0.5))
      * 
      * @param {number} distance - Distance in light years
@@ -64,7 +61,6 @@ export class NavigationSystem {
     
     /**
      * Calculate fuel cost for a jump
-     * Requirements: 3.4
      * Formula: 10 + (distance × 2)
      * 
      * @param {number} distance - Distance in light years
@@ -80,7 +76,6 @@ export class NavigationSystem {
     
     /**
      * Check if two systems are connected by a wormhole
-     * Requirements: 4.1
      * 
      * @param {number} systemId1 - First system ID
      * @param {number} systemId2 - Second system ID
@@ -119,7 +114,6 @@ export class NavigationSystem {
     
     /**
      * Validate if a jump is possible
-     * Requirements: 4.1, 4.2, 4.3
      * 
      * @param {number} currentSystemId - Current system ID
      * @param {number} targetSystemId - Target system ID
@@ -179,7 +173,6 @@ export class NavigationSystem {
     
     /**
      * Execute a jump (updates game state)
-     * Requirements: 4.4, 4.5, 4.6, 4.7
      * 
      * @param {Object} gameStateManager - GameStateManager instance
      * @param {number} targetSystemId - Target system ID
@@ -207,7 +200,7 @@ export class NavigationSystem {
         gameStateManager.updateTime(state.player.daysElapsed + validation.jumpTime);
         gameStateManager.updateLocation(targetSystemId);
         
-        // Auto-save after jump (Requirement 4.8)
+        // Auto-save after jump
         gameStateManager.saveGame();
         
         return { success: true, error: null };

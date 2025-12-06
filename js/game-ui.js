@@ -7,8 +7,6 @@ import { TradingSystem } from './game-trading.js';
  * Subscribes to GameStateManager events to update UI elements reactively.
  * This decoupling prevents tight coupling between game logic and DOM manipulation,
  * allowing multiple UI components to react independently to state changes.
- * 
- * Requirements: 2.1-2.8 (HUD), 6.1-6.4 (Station interface)
  */
 export class UIManager {
     constructor(gameStateManager) {

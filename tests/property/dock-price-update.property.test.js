@@ -30,7 +30,7 @@ const wormholeData = [];
 
 describe('Price Knowledge - Dock Price Update (Property Tests)', () => {
     
-    it('Property 7: For any docking operation, the price knowledge for that system should be updated with current prices and lastVisit set to zero (Validates: Requirements 3.3)', () => {
+    it('Property 7: For any docking operation, the price knowledge for that system should be updated with current prices and lastVisit set to zero', () => {
         // Generator for system IDs
         const systemIdGenerator = fc.integer({ min: 0, max: starData.length - 1 });
         

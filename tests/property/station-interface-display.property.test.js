@@ -1,6 +1,5 @@
 /**
  * Feature: tramp-freighter-core-loop, Property 14: Station Interface Display
- * Validates: Requirements 6.2
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';

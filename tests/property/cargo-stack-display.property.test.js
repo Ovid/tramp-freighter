@@ -1,6 +1,5 @@
 /**
  * Feature: tramp-freighter-core-loop, Property 16: Cargo Stack Display
- * Validates: Requirements 7.3
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

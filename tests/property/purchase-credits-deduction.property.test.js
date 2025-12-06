@@ -1,7 +1,6 @@
 /**
  * Property-Based Tests for Purchase Credits Deduction
  * Feature: tramp-freighter-core-loop, Property 17: Purchase Credits Deduction
- * Validates: Requirements 7.4
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
