@@ -600,7 +600,7 @@ export class UIManager {
         const state = this.gameStateManager.getState();
         if (!state) return;
         
-        const currentFuel = Math.round(state.ship.fuel);
+        const currentFuel = state.ship.fuel;
         const credits = state.player.credits;
         const currentSystemId = state.player.currentSystem;
         const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
@@ -608,8 +608,8 @@ export class UIManager {
         // Calculate max affordable amount
         const maxAffordable = Math.floor(credits / fuelPrice);
         
-        // Calculate max capacity amount
-        const maxCapacity = 100 - currentFuel;
+        // Calculate max capacity amount (use ceiling to avoid exceeding 100%)
+        const maxCapacity = Math.floor(100 - currentFuel);
         
         // Use the smaller of the two
         const maxAmount = Math.min(maxAffordable, maxCapacity);

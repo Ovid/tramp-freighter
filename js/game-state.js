@@ -447,7 +447,8 @@ export class GameStateManager {
         const totalCost = amount * pricePerPercent;
         
         // Check capacity constraint (Requirement 8.7)
-        if (currentFuel + amount > 100) {
+        // Use small epsilon for floating point comparison
+        if (currentFuel + amount > 100.01) {
             return {
                 valid: false,
                 reason: 'Cannot refuel beyond 100% capacity',

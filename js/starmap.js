@@ -1734,12 +1734,15 @@ function setupJumpAndDockHandlers(navigationSystem) {
             if (!selectedStar || !gameStateManager) return;
             
             const targetSystemId = selectedStar.data.id;
+            const targetSystemName = selectedStar.data.name;
             const result = navigationSystem.executeJump(gameStateManager, targetSystemId);
             
             if (result.success) {
-                // Jump successful - deselect star and update UI
+                // Jump successful - show success message before deselecting
+                uiManager.showError(`Jumped to ${targetSystemName}`, 2000);
+                
+                // Deselect star and update UI
                 deselectStar();
-                uiManager.showError(`Jumped to ${selectedStar.data.name}`, 2000);
                 
                 // Update connection colors and current system indicator
                 updateConnectionColors();
