@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 
-// Create minimal test star data
+// Create minimal test star data with deterministic values for reproducible tests
 const createTestStarData = (count = 20) => {
     const spectralClasses = ['G', 'K', 'M', 'A', 'F'];
     const stars = [];
@@ -12,11 +12,11 @@ const createTestStarData = (count = 20) => {
             id: i,
             name: `Test Star ${i}`,
             type: `${spectralClasses[i % spectralClasses.length]}2V`,
-            x: Math.random() * 200 - 100,
-            y: Math.random() * 200 - 100,
-            z: Math.random() * 200 - 100,
-            st: Math.floor(Math.random() * 3),
-            wh: Math.floor(Math.random() * 3),
+            x: (i * 37) % 200 - 100,
+            y: (i * 73) % 200 - 100,
+            z: (i * 113) % 200 - 100,
+            st: i % 3,
+            wh: (i * 2) % 3,
             r: 1
         });
     }

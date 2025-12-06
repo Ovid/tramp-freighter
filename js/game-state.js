@@ -1,6 +1,5 @@
 import {
     BASE_PRICES,
-    SPECTRAL_MODIFIERS,
     FUEL_PRICING,
     calculateDistanceFromSol,
     SOL_SYSTEM_ID,
@@ -44,6 +43,15 @@ export class GameStateManager {
         
         // Track last save time for debouncing
         this.lastSaveTime = 0;
+    }
+    
+    /**
+     * Suppress console noise during test runs
+     */
+    _logIfNotTest(message, ...args) {
+        if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+            console.log(message, ...args);
+        }
     }
     
     /**
@@ -97,10 +105,7 @@ export class GameStateManager {
             }
         };
         
-        // Only log in non-test environments
-        if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-            console.log('New game initialized:', this.state);
-        }
+        this._logIfNotTest('New game initialized:', this.state);
         
         // Emit all initial state events
         this.emit('creditsChanged', this.state.player.credits);
@@ -114,16 +119,7 @@ export class GameStateManager {
         return this.state;
     }
     
-    /**
-     * Calculate good price based on spectral class
-     */
-    calculateGoodPrice(goodType, spectralClass) {
-        const basePrice = BASE_PRICES[goodType] || 10;
-        const spectralLetter = spectralClass.charAt(0).toUpperCase();
-        const modifier = SPECTRAL_MODIFIERS[spectralLetter]?.[goodType] || 1.0;
-        
-        return Math.round(basePrice * modifier);
-    }
+
     
     // ========================================================================
     // EVENT SYSTEM
@@ -141,9 +137,7 @@ export class GameStateManager {
         }
         
         this.subscribers[eventType].push(callback);
-        if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-            console.log(`Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`);
-        }
+        this._logIfNotTest(`Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`);
     }
     
     unsubscribe(eventType, callback) {
@@ -335,11 +329,10 @@ export class GameStateManager {
     }
     
     /**
-     * Recalculate prices for all systems in price knowledge
+     * Recalculate prices for all systems in price knowledge with current day's fluctuations
      * 
-     * Called automatically when day changes to update prices with daily fluctuations.
-     * Currently uses static price calculation; will use dynamic calculation once
-     * TradingSystem.calculatePrice() is extended with daily fluctuation support.
+     * Called automatically when day advances to update all known prices with new daily
+     * fluctuations and active event modifiers.
      */
     recalculatePricesForKnownSystems() {
         if (!this.state?.world.priceKnowledge) return;
@@ -357,20 +350,12 @@ export class GameStateManager {
                 
                 // Calculate new prices for all commodities
                 for (const goodType of Object.keys(BASE_PRICES)) {
-                    // Use TradingSystem.calculatePrice if available with daily fluctuation support
-                    // Otherwise fall back to current price calculation
-                    if (typeof TradingSystem !== 'undefined' && 
-                        typeof TradingSystem.calculatePrice === 'function') {
-                        newPrices[goodType] = TradingSystem.calculatePrice(
-                            goodType, 
-                            system, 
-                            currentDay, 
-                            activeEvents
-                        );
-                    } else {
-                        // Fallback to current static calculation
-                        newPrices[goodType] = this.calculateGoodPrice(goodType, system.type);
-                    }
+                    newPrices[goodType] = TradingSystem.calculatePrice(
+                        goodType, 
+                        system, 
+                        currentDay, 
+                        activeEvents
+                    );
                 }
                 
                 // Update prices while preserving lastVisit
@@ -759,9 +744,7 @@ export class GameStateManager {
         // Debounce: skip save if less than 1 second since last save
         const now = Date.now();
         if (now - this.lastSaveTime < SAVE_DEBOUNCE_MS) {
-            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                console.log('Save debounced (too soon since last save)');
-            }
+            this._logIfNotTest('Save debounced (too soon since last save)');
             return false;
         }
         
@@ -771,11 +754,7 @@ export class GameStateManager {
             localStorage.setItem(SAVE_KEY, saveData);
             
             this.lastSaveTime = now;
-            
-            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                console.log('Game saved successfully');
-            }
-            
+            this._logIfNotTest('Game saved successfully');
             return true;
         } catch (error) {
             console.error('Failed to save game:', error);
@@ -792,25 +771,19 @@ export class GameStateManager {
             const saveData = localStorage.getItem(SAVE_KEY);
             
             if (!saveData) {
-                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                    console.log('No saved game found');
-                }
+                this._logIfNotTest('No saved game found');
                 return null;
             }
             
             const loadedState = JSON.parse(saveData);
             
             if (!this.isVersionCompatible(loadedState.meta?.version)) {
-                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                    console.warn('Save version incompatible, starting new game');
-                }
+                this._logIfNotTest('Save version incompatible, starting new game');
                 return null;
             }
             
             if (!this.validateStateStructure(loadedState)) {
-                if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                    console.warn('Save data corrupted, starting new game');
-                }
+                this._logIfNotTest('Save data corrupted, starting new game');
                 return null;
             }
             
@@ -849,9 +822,7 @@ export class GameStateManager {
                 this.state.world.activeEvents = [];
             }
             
-            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                console.log('Game loaded successfully');
-            }
+            this._logIfNotTest('Game loaded successfully');
             
             // Emit all state events to update UI
             this.emit('creditsChanged', this.state.player.credits);
@@ -865,9 +836,7 @@ export class GameStateManager {
             
             return this.state;
         } catch (error) {
-            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                console.error('Failed to load game:', error);
-            }
+            this._logIfNotTest('Failed to load game:', error);
             return null;
         }
     }
@@ -888,9 +857,7 @@ export class GameStateManager {
     clearSave() {
         try {
             localStorage.removeItem(SAVE_KEY);
-            if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-                console.log('Save data cleared');
-            }
+            this._logIfNotTest('Save data cleared');
             return true;
         } catch (error) {
             console.error('Failed to clear save:', error);
