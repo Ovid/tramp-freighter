@@ -777,6 +777,36 @@ canvas {
     font-weight: bold;
 }
 
+.refuel-validation-message {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    text-align: center;
+    display: none;
+}
+
+.refuel-validation-message.error {
+    display: block;
+    background-color: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.5);
+    color: #FF6B6B;
+}
+
+.refuel-validation-message.warning {
+    display: block;
+    background-color: rgba(255, 255, 0, 0.2);
+    border: 1px solid rgba(255, 255, 0, 0.5);
+    color: #FFFF00;
+}
+
+.refuel-validation-message.info {
+    display: block;
+    background-color: rgba(0, 255, 136, 0.2);
+    border: 1px solid rgba(0, 255, 136, 0.5);
+    color: #00FF88;
+}
+
 .refuel-actions {
     display: flex;
     flex-direction: column;

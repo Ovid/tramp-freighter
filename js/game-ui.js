@@ -57,6 +57,7 @@ export class UIManager {
             refuelCloseBtn: document.getElementById('refuel-close-btn'),
             refuelBackBtn: document.getElementById('refuel-back-btn'),
             refuelMaxBtn: document.getElementById('refuel-max-btn'),
+            refuelValidationMessage: document.getElementById('refuel-validation-message'),
             notificationArea: document.getElementById('notification-area')
         };
         
@@ -579,7 +580,23 @@ export class UIManager {
             fuelPrice
         );
         
+        // Update button state
         this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
+        
+        // Show validation message if there's an issue
+        if (this.elements.refuelValidationMessage) {
+            if (amount <= 0) {
+                this.elements.refuelValidationMessage.textContent = 'Enter an amount to refuel';
+                this.elements.refuelValidationMessage.className = 'refuel-validation-message info';
+            } else if (!validation.valid) {
+                this.elements.refuelValidationMessage.textContent = validation.reason;
+                this.elements.refuelValidationMessage.className = 'refuel-validation-message error';
+            } else {
+                // Valid - hide message
+                this.elements.refuelValidationMessage.textContent = '';
+                this.elements.refuelValidationMessage.className = 'refuel-validation-message';
+            }
+        }
     }
     
     setRefuelAmount(amount) {
