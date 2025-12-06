@@ -381,7 +381,7 @@ class InformationBroker {
     RUMOR: 25              // Market rumor/hint
   }
   
-  static RECENT_THRESHOLD = 5  // Days to consider "recent"
+  static RECENT_THRESHOLD = 30  // Days to consider "recent"
   
   /**
    * Calculate intelligence cost for a system
@@ -833,7 +833,7 @@ Correctness Properties
 
 ### Property 18: Intelligence Cost Calculation
 
-*For any* system, the intelligence cost should be: ₡50 if visited within 5 days, ₡100 if never visited, ₡75 if visited more than 5 days ago.
+*For any* system, the intelligence cost should be: ₡50 if visited within 30 days, ₡100 if never visited, ₡75 if visited more than 30 days ago.
 
 **Validates: Requirements 5.4, 5.5, 5.6**
 

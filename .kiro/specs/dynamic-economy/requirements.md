@@ -91,9 +91,9 @@ This specification defines the Dynamic Economy system for Tramp Freighter Blues,
 1. WHEN the Player accesses the station menu THEN the Game System SHALL display an information broker option
 2. WHEN the Player opens the information broker interface THEN the Game System SHALL list available systems with their intelligence costs and last visit information
 3. WHEN the Player purchases market intelligence for a system THEN the Game System SHALL deduct the cost and update price knowledge with current prices for that system
-4. WHEN calculating intelligence cost for a recently visited system THEN the Game System SHALL charge ₡50
+4. WHEN calculating intelligence cost for a system visited within 30 days THEN the Game System SHALL charge ₡50
 5. WHEN calculating intelligence cost for a never visited system THEN the Game System SHALL charge ₡100
-6. WHEN calculating intelligence cost for a long-ago visited system THEN the Game System SHALL charge ₡75
+6. WHEN calculating intelligence cost for a system visited more than 30 days ago THEN the Game System SHALL charge ₡75
 7. WHEN the Player purchases a market rumor THEN the Game System SHALL provide a hint about current market conditions for ₡25
 8. WHEN generating a market rumor THEN the Game System SHALL provide information about commodity prices or economic events in a specific system
 9. WHEN the Player has insufficient credits for intelligence THEN the Game System SHALL prevent the purchase and display a validation message
