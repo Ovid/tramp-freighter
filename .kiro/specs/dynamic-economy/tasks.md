@@ -37,7 +37,7 @@
   - **Property 5: Price Rounding**
   - **Validates: Requirements 2.9**
 
-- [ ] 3. Implement price knowledge database system
+- [x] 3. Implement price knowledge database system
   - Add priceKnowledge object to world state: { [systemId]: { lastVisit, prices } }
   - Initialize Sol's prices in priceKnowledge at new game start with lastVisit = 0
   - Implement updatePriceKnowledge() to record prices on first visit
@@ -47,23 +47,23 @@
   - Filter trade interface to display only prices from priceKnowledge
   - _Requirements: 2.1, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-- [ ] 3.1 Write property test for first visit price recording
+- [x] 3.1 Write property test for first visit price recording
   - **Property 6: First Visit Price Recording**
   - **Validates: Requirements 3.2**
 
-- [ ] 3.2 Write property test for dock price update
+- [x] 3.2 Write property test for dock price update
   - **Property 7: Dock Price Update**
   - **Validates: Requirements 3.3**
 
-- [ ] 3.3 Write property test for display only known prices
+- [x] 3.3 Write property test for display only known prices
   - **Property 8: Display Only Known Prices**
   - **Validates: Requirements 3.4, 3.5**
 
-- [ ] 3.4 Write property test for price knowledge staleness increment
+- [x] 3.4 Write property test for price knowledge staleness increment
   - **Property 9: Price Knowledge Staleness Increment**
   - **Validates: Requirements 3.6**
 
-- [ ] 3.5 Implement automatic price recalculation on day advancement
+- [x] 3.5 Implement automatic price recalculation on day advancement
   - Add event listener for daysElapsed changes in GameStateManager
   - Trigger price recalculation for all systems in priceKnowledge when day changes
   - Update priceKnowledge with new calculated prices

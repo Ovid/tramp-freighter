@@ -34,7 +34,8 @@ export class GameStateManager {
             fuelChanged: [],
             cargoChanged: [],
             locationChanged: [],
-            timeChanged: []
+            timeChanged: [],
+            priceKnowledgeChanged: []
         };
         
         // Initialize with null state (will be set by initNewGame or loadGame)
@@ -46,12 +47,18 @@ export class GameStateManager {
     
     /**
      * Initialize a new game with default values
-     * Requirements: 1.4, 1.5
+     * Requirements: 1.4, 1.5, 3.1
      */
     initNewGame() {
         // Get Sol's grain price for initial cargo
         const solSystem = this.starData.find(s => s.id === SOL_SYSTEM_ID);
         const solGrainPrice = this.calculateGoodPrice('grain', solSystem.type);
+        
+        // Calculate all Sol prices for price knowledge initialization
+        const solPrices = {};
+        for (const goodType of Object.keys(BASE_PRICES)) {
+            solPrices[goodType] = this.calculateGoodPrice(goodType, solSystem.type);
+        }
         
         this.state = {
             player: {
@@ -73,7 +80,13 @@ export class GameStateManager {
                 ]
             },
             world: {
-                visitedSystems: [SOL_SYSTEM_ID]
+                visitedSystems: [SOL_SYSTEM_ID],
+                priceKnowledge: {
+                    [SOL_SYSTEM_ID]: {
+                        lastVisit: 0,
+                        prices: solPrices
+                    }
+                }
             },
             meta: {
                 version: GAME_VERSION,
@@ -93,6 +106,7 @@ export class GameStateManager {
         this.emit('cargoChanged', this.state.ship.cargo);
         this.emit('locationChanged', this.state.player.currentSystem);
         this.emit('timeChanged', this.state.player.daysElapsed);
+        this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
         
         return this.state;
     }
@@ -189,6 +203,30 @@ export class GameStateManager {
         return this.state?.world.visitedSystems.includes(systemId);
     }
     
+    /**
+     * Get price knowledge database
+     * Requirements: 3.4, 3.5
+     */
+    getPriceKnowledge() {
+        return this.state?.world.priceKnowledge || {};
+    }
+    
+    /**
+     * Get known prices for a specific system
+     * Requirements: 3.4, 3.5
+     */
+    getKnownPrices(systemId) {
+        return this.state?.world.priceKnowledge?.[systemId]?.prices || null;
+    }
+    
+    /**
+     * Check if player has price knowledge for a system
+     * Requirements: 3.4, 3.5
+     */
+    hasVisitedSystem(systemId) {
+        return this.state?.world.priceKnowledge?.[systemId] !== undefined;
+    }
+    
     // ========================================================================
     // STATE MUTATIONS
     // ========================================================================
@@ -241,8 +279,110 @@ export class GameStateManager {
     updateTime(newDays) {
         if (!this.state) return;
         
+        const oldDays = this.state.player.daysElapsed;
         this.state.player.daysElapsed = newDays;
+        
+        // When days advance, update price knowledge
+        if (newDays > oldDays) {
+            const daysPassed = newDays - oldDays;
+            
+            // Increment staleness for all systems
+            this.incrementPriceKnowledgeStaleness(daysPassed);
+            
+            // Recalculate prices with new day number (for daily fluctuations)
+            this.recalculatePricesForKnownSystems();
+        }
+        
         this.emit('timeChanged', newDays);
+    }
+    
+    /**
+     * Update price knowledge for a system
+     * Requirements: 3.2, 3.3
+     * 
+     * @param {number} systemId - System ID
+     * @param {Object} prices - Price object with all commodity prices
+     * @param {number} lastVisit - Days since last visit (0 = current)
+     */
+    updatePriceKnowledge(systemId, prices, lastVisit = 0) {
+        if (!this.state) return;
+        
+        if (!this.state.world.priceKnowledge) {
+            this.state.world.priceKnowledge = {};
+        }
+        
+        this.state.world.priceKnowledge[systemId] = {
+            lastVisit: lastVisit,
+            prices: { ...prices }
+        };
+        
+        this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    }
+    
+    /**
+     * Increment lastVisit counter for all systems in price knowledge
+     * Requirements: 3.6
+     * 
+     * Called automatically when time advances
+     * 
+     * @param {number} days - Number of days to increment (default 1)
+     */
+    incrementPriceKnowledgeStaleness(days = 1) {
+        if (!this.state?.world.priceKnowledge) return;
+        
+        for (const systemId in this.state.world.priceKnowledge) {
+            this.state.world.priceKnowledge[systemId].lastVisit += days;
+        }
+        
+        this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    }
+    
+    /**
+     * Recalculate prices for all systems in price knowledge
+     * Requirements: 2.1
+     * 
+     * Called automatically when day changes to update prices with daily fluctuations.
+     * Currently uses static price calculation; will use dynamic calculation once
+     * TradingSystem.calculatePrice() is extended with daily fluctuation support.
+     */
+    recalculatePricesForKnownSystems() {
+        if (!this.state?.world.priceKnowledge) return;
+        
+        const currentDay = this.state.player.daysElapsed;
+        const activeEvents = this.state.world.activeEvents || [];
+        
+        // Recalculate prices for each system in price knowledge
+        for (const systemIdStr in this.state.world.priceKnowledge) {
+            const systemId = parseInt(systemIdStr);
+            const system = this.starData.find(s => s.id === systemId);
+            
+            if (system) {
+                const newPrices = {};
+                
+                // Calculate new prices for all commodities
+                for (const goodType of Object.keys(BASE_PRICES)) {
+                    // Use TradingSystem.calculatePrice if available with daily fluctuation support
+                    // Otherwise fall back to current price calculation
+                    if (typeof TradingSystem !== 'undefined' && 
+                        typeof TradingSystem.calculatePrice === 'function') {
+                        newPrices[goodType] = TradingSystem.calculatePrice(
+                            goodType, 
+                            system, 
+                            currentDay, 
+                            activeEvents
+                        );
+                    } else {
+                        // Fallback to current static calculation
+                        newPrices[goodType] = this.calculateGoodPrice(goodType, system.type);
+                    }
+                }
+                
+                // Update prices while preserving lastVisit
+                this.state.world.priceKnowledge[systemId].prices = newPrices;
+            }
+        }
+        
+        this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
     }
     
     // ========================================================================
@@ -516,13 +656,29 @@ export class GameStateManager {
     
     /**
      * Dock at current system's station to access trading and refueling
+     * Requirements: 10.5, 3.2, 3.3
      * 
-     * Currently a state transition marker for auto-save (Requirement 10.5).
-     * Future: Will enable station UI, prevent jumps while docked, track docked state.
+     * Updates price knowledge on dock:
+     * - First visit: Records current prices with lastVisit = daysElapsed
+     * - Subsequent visits: Updates prices and resets lastVisit to 0
      */
     dock() {
         if (!this.state) {
             return { success: false, reason: 'No game state' };
+        }
+        
+        const currentSystemId = this.state.player.currentSystem;
+        const currentSystem = this.starData.find(s => s.id === currentSystemId);
+        
+        if (currentSystem) {
+            // Calculate current prices for all commodities
+            const currentPrices = {};
+            for (const goodType of Object.keys(BASE_PRICES)) {
+                currentPrices[goodType] = this.calculateGoodPrice(goodType, currentSystem.type);
+            }
+            
+            // Update price knowledge (resets lastVisit to 0)
+            this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
         }
         
         // Persist state transition - prevents loss if player closes browser while docked (Requirement 10.5)
@@ -626,6 +782,26 @@ export class GameStateManager {
             
             this.state = loadedState;
             
+            // Initialize priceKnowledge if missing (backward compatibility)
+            if (!this.state.world.priceKnowledge) {
+                this.state.world.priceKnowledge = {};
+                
+                // Record current system's prices
+                const currentSystemId = this.state.player.currentSystem;
+                const currentSystem = this.starData.find(s => s.id === currentSystemId);
+                
+                if (currentSystem) {
+                    const currentPrices = {};
+                    for (const goodType of Object.keys(BASE_PRICES)) {
+                        currentPrices[goodType] = this.calculateGoodPrice(goodType, currentSystem.type);
+                    }
+                    this.state.world.priceKnowledge[currentSystemId] = {
+                        lastVisit: 0,
+                        prices: currentPrices
+                    };
+                }
+            }
+            
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Game loaded successfully');
             }
@@ -637,6 +813,7 @@ export class GameStateManager {
             this.emit('cargoChanged', this.state.ship.cargo);
             this.emit('locationChanged', this.state.player.currentSystem);
             this.emit('timeChanged', this.state.player.daysElapsed);
+            this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
             
             return this.state;
         } catch (error) {
@@ -723,6 +900,23 @@ export class GameStateManager {
         // Check world structure
         if (!state.world || !Array.isArray(state.world.visitedSystems)) {
             return false;
+        }
+        
+        // Check priceKnowledge structure (optional for backward compatibility)
+        if (state.world.priceKnowledge !== undefined) {
+            if (typeof state.world.priceKnowledge !== 'object') {
+                return false;
+            }
+            
+            // Validate each price knowledge entry
+            for (const systemId in state.world.priceKnowledge) {
+                const knowledge = state.world.priceKnowledge[systemId];
+                if (!knowledge || 
+                    typeof knowledge.lastVisit !== 'number' ||
+                    typeof knowledge.prices !== 'object') {
+                    return false;
+                }
+            }
         }
         
         // Check meta structure
