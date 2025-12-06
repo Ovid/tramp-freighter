@@ -129,7 +129,9 @@ describe('Complete Game Flow Integration Tests', () => {
             
             // Step 5: Refuel at Alpha Centauri
             const fuelPrice = gameStateManager.getFuelPrice(1);
-            const refuelAmount = 20;
+            // Calculate safe refuel amount that won't exceed 100%
+            const maxRefuelAmount = 100 - fuelAfterJump;
+            const refuelAmount = Math.min(15, maxRefuelAmount);
             
             const refuelResult = gameStateManager.refuel(refuelAmount);
             

@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameStateManager } from './game-state.js';
 import { NavigationSystem } from './game-navigation.js';
 import { UIManager } from './game-ui.js';
-import { SPECTRAL_COLORS, VISUAL_CONFIG, LABEL_CONFIG } from './game-constants.js';
+import { SPECTRAL_COLORS, VISUAL_CONFIG, LABEL_CONFIG, LY_PER_UNIT } from './game-constants.js';
 
 // Make THREE available globally for debugging
 window.THREE = THREE;
@@ -681,11 +681,11 @@ function createWormholeLines(connections, starObjects) {
             
             // Pre-calculate distance and fuel cost (star positions never change)
             // This avoids recalculating on every fuel/location change
-            const distance = Math.sqrt(
-                Math.pow(star1.data.x - star2.data.x, 2) +
-                Math.pow(star1.data.y - star2.data.y, 2) +
-                Math.pow(star1.data.z - star2.data.z, 2)
-            ) / 10;
+            const distance = Math.hypot(
+                star1.data.x - star2.data.x,
+                star1.data.y - star2.data.y,
+                star1.data.z - star2.data.z
+            ) * LY_PER_UNIT;
             const fuelCost = 10 + (distance * 2);
             
             // Store connection data for fuel-based coloring

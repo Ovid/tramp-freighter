@@ -1,3 +1,5 @@
+import { LY_PER_UNIT } from './game-constants.js';
+
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
  * 
@@ -20,31 +22,28 @@ export class NavigationSystem {
     /**
      * Calculate distance from Sol to a star system
      * Requirements: 3.1
-     * Formula: sqrt(x² + y² + z²) / 10
+     * Formula: hypot(x, y, z) * LY_PER_UNIT
      * 
      * @param {Object} star - Star system object with x, y, z coordinates
      * @returns {number} Distance in light years
      */
     calculateDistanceFromSol(star) {
-        const distanceSquared = star.x * star.x + star.y * star.y + star.z * star.z;
-        return Math.sqrt(distanceSquared) / 10;
+        const r = Math.hypot(star.x, star.y, star.z);
+        return r * LY_PER_UNIT;
     }
     
     /**
      * Calculate distance between two star systems
      * Requirements: 3.2
-     * Formula: sqrt((x₁-x₂)² + (y₁-y₂)² + (z₁-z₂)²) / 10
+     * Formula: hypot(x₁-x₂, y₁-y₂, z₁-z₂) * LY_PER_UNIT
      * 
      * @param {Object} star1 - First star system with x, y, z coordinates
      * @param {Object} star2 - Second star system with x, y, z coordinates
      * @returns {number} Distance in light years
      */
     calculateDistanceBetween(star1, star2) {
-        const dx = star1.x - star2.x;
-        const dy = star1.y - star2.y;
-        const dz = star1.z - star2.z;
-        const distanceSquared = dx * dx + dy * dy + dz * dz;
-        return Math.sqrt(distanceSquared) / 10;
+        const r = Math.hypot(star1.x - star2.x, star1.y - star2.y, star1.z - star2.z);
+        return r * LY_PER_UNIT;
     }
     
     // ========================================================================

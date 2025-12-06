@@ -91,18 +91,28 @@ export const FUEL_PRICING = {
 };
 
 /**
+ * Coordinate scale factor for converting map units to light-years
+ * 
+ * The starmap coordinates are stored in arbitrary map units, not "light-years × 10".
+ * The catalog includes stars out to 20 light-years from Sol.
+ * The farthest star (Wolf 1481) has a radius of ~279.319 map units.
+ * Therefore: 1 map unit ≈ 20 / 279.319 ≈ 0.0716027 light-years
+ */
+export const LY_PER_UNIT = 20 / 279.3190870671033;
+
+/**
  * Calculate distance from Sol to a star system
  * Uses the standard Euclidean distance formula with coordinate scaling
  * 
- * Coordinates are stored as light-years × 10, so we divide by 10 to get actual distance.
+ * Coordinates are stored in map units. Multiply by LY_PER_UNIT to get light-years.
  * This is a fundamental game mechanic used for fuel pricing, navigation, and future features.
  * 
  * @param {Object} system - Star system with x, y, z coordinates
  * @returns {number} Distance in light years
  */
 export function calculateDistanceFromSol(system) {
-    const distanceSquared = system.x * system.x + system.y * system.y + system.z * system.z;
-    return Math.sqrt(distanceSquared) / 10;
+    const r = Math.hypot(system.x, system.y, system.z);
+    return r * LY_PER_UNIT;
 }
 
 /**

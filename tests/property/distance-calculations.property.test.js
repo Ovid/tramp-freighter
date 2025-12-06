@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { NavigationSystem } from '../../js/game-navigation.js';
+import { LY_PER_UNIT } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
@@ -11,7 +12,7 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
     // Validates: Requirements 3.1
     // ========================================================================
     
-    it('Property 4: For any star system with coordinates (x, y, z), distance from Sol should equal sqrt(x² + y² + z²) / 10', () => {
+    it('Property 4: For any star system with coordinates (x, y, z), distance from Sol should equal hypot(x, y, z) * LY_PER_UNIT', () => {
         const navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
         
         // Generator for star systems with random coordinates
@@ -33,7 +34,7 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
                 const calculatedDistance = navSystem.calculateDistanceFromSol(star);
                 
                 // Calculate expected distance using the formula
-                const expectedDistance = Math.sqrt(star.x * star.x + star.y * star.y + star.z * star.z) / 10;
+                const expectedDistance = Math.hypot(star.x, star.y, star.z) * LY_PER_UNIT;
                 
                 // Verify they match (with small tolerance for floating point)
                 expect(calculatedDistance).toBeCloseTo(expectedDistance, 10);
@@ -48,7 +49,7 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
     // Validates: Requirements 3.2
     // ========================================================================
     
-    it('Property 5: For any two star systems, distance between them should equal sqrt((x₁-x₂)² + (y₁-y₂)² + (z₁-z₂)²) / 10', () => {
+    it('Property 5: For any two star systems, distance between them should equal hypot(x₁-x₂, y₁-y₂, z₁-z₂) * LY_PER_UNIT', () => {
         const navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
         
         // Generator for star systems
@@ -70,10 +71,7 @@ describe('NavigationSystem - Distance Calculations (Property Tests)', () => {
                 const calculatedDistance = navSystem.calculateDistanceBetween(star1, star2);
                 
                 // Calculate expected distance using the formula
-                const dx = star1.x - star2.x;
-                const dy = star1.y - star2.y;
-                const dz = star1.z - star2.z;
-                const expectedDistance = Math.sqrt(dx * dx + dy * dy + dz * dz) / 10;
+                const expectedDistance = Math.hypot(star1.x - star2.x, star1.y - star2.y, star1.z - star2.z) * LY_PER_UNIT;
                 
                 // Verify they match (with small tolerance for floating point)
                 expect(calculatedDistance).toBeCloseTo(expectedDistance, 10);
