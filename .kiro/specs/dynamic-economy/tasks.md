@@ -21,24 +21,20 @@
   - Round final price to nearest integer
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9_
 
-- [ ] 2.1 Write property test for daily price recalculation
-  - **Property 2: Daily Price Recalculation**
-  - **Validates: Requirements 2.1**
+- [ ] 2.1 Write property test for price calculation with all modifiers
+  - **Property 2: Price Calculation with All Modifiers**
+  - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.8**
 
-- [ ] 2.2 Write property test for price calculation with all modifiers
-  - **Property 3: Price Calculation with All Modifiers**
-  - **Validates: Requirements 2.2, 2.3, 2.4, 2.5, 2.8**
-
-- [ ] 2.3 Write property test for station count modifier formula
-  - **Property 4: Station Count Modifier Formula**
+- [ ] 2.2 Write property test for station count modifier formula
+  - **Property 3: Station Count Modifier Formula**
   - **Validates: Requirements 2.4**
 
-- [ ] 2.4 Write property test for daily fluctuation range
-  - **Property 5: Daily Fluctuation Range**
+- [ ] 2.3 Write property test for daily fluctuation range
+  - **Property 4: Daily Fluctuation Range**
   - **Validates: Requirements 2.7**
 
-- [ ] 2.5 Write property test for price rounding
-  - **Property 6: Price Rounding**
+- [ ] 2.4 Write property test for price rounding
+  - **Property 5: Price Rounding**
   - **Validates: Requirements 2.9**
 
 - [ ] 3. Implement price knowledge database system
@@ -47,24 +43,32 @@
   - Implement updatePriceKnowledge() to record prices on first visit
   - Implement updatePriceKnowledge() to update prices and reset lastVisit on dock
   - Implement incrementPriceKnowledgeStaleness() to increment lastVisit for all systems on day change
+  - Wire price recalculation to day advancement (trigger when daysElapsed changes)
   - Filter trade interface to display only prices from priceKnowledge
-  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+  - _Requirements: 2.1, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
 - [ ] 3.1 Write property test for first visit price recording
-  - **Property 7: First Visit Price Recording**
+  - **Property 6: First Visit Price Recording**
   - **Validates: Requirements 3.2**
 
 - [ ] 3.2 Write property test for dock price update
-  - **Property 8: Dock Price Update**
+  - **Property 7: Dock Price Update**
   - **Validates: Requirements 3.3**
 
 - [ ] 3.3 Write property test for display only known prices
-  - **Property 9: Display Only Known Prices**
+  - **Property 8: Display Only Known Prices**
   - **Validates: Requirements 3.4, 3.5**
 
 - [ ] 3.4 Write property test for price knowledge staleness increment
-  - **Property 10: Price Knowledge Staleness Increment**
+  - **Property 9: Price Knowledge Staleness Increment**
   - **Validates: Requirements 3.6**
+
+- [ ] 3.5 Implement automatic price recalculation on day advancement
+  - Add event listener for daysElapsed changes in GameStateManager
+  - Trigger price recalculation for all systems in priceKnowledge when day changes
+  - Update priceKnowledge with new calculated prices
+  - Emit priceKnowledgeChanged event to update UI
+  - _Requirements: 2.1_
 
 - [ ] 4. Implement economic events system
   - Create EconomicEventsSystem class with EVENT_TYPES definitions
@@ -78,19 +82,19 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.7, 4.8, 4.9, 4.10, 4.11_
 
 - [ ] 4.1 Write property test for event trigger evaluation
-  - **Property 11: Event Trigger Evaluation**
+  - **Property 10: Event Trigger Evaluation**
   - **Validates: Requirements 4.1, 4.2**
 
 - [ ] 4.2 Write property test for event creation completeness
-  - **Property 12: Event Creation Completeness**
+  - **Property 11: Event Creation Completeness**
   - **Validates: Requirements 4.3**
 
 - [ ] 4.3 Write property test for event modifier application
-  - **Property 13: Event Modifier Application**
+  - **Property 12: Event Modifier Application**
   - **Validates: Requirements 4.4, 4.7**
 
 - [ ] 4.4 Write property test for event expiration cleanup
-  - **Property 14: Event Expiration Cleanup**
+  - **Property 13: Event Expiration Cleanup**
   - **Validates: Requirements 4.5**
 
 - [ ] 5. Implement event notification UI
@@ -101,7 +105,7 @@
   - _Requirements: 4.6_
 
 - [ ] 5.1 Write property test for event notification display
-  - **Property 15: Event Notification Display**
+  - **Property 14: Event Notification Display**
   - **Validates: Requirements 4.6**
 
 - [ ] 6. Implement information broker system
@@ -115,23 +119,23 @@
   - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9_
 
 - [ ] 6.1 Write property test for information broker system listing
-  - **Property 16: Information Broker System Listing**
+  - **Property 15: Information Broker System Listing**
   - **Validates: Requirements 5.2**
 
 - [ ] 6.2 Write property test for intelligence purchase transaction
-  - **Property 17: Intelligence Purchase Transaction**
+  - **Property 16: Intelligence Purchase Transaction**
   - **Validates: Requirements 5.3**
 
 - [ ] 6.3 Write property test for intelligence cost calculation
-  - **Property 18: Intelligence Cost Calculation**
+  - **Property 17: Intelligence Cost Calculation**
   - **Validates: Requirements 5.4, 5.5, 5.6**
 
 - [ ] 6.4 Write property test for market rumor generation
-  - **Property 19: Market Rumor Generation**
+  - **Property 18: Market Rumor Generation**
   - **Validates: Requirements 5.7, 5.8**
 
 - [ ] 6.5 Write property test for intelligence purchase validation
-  - **Property 20: Intelligence Purchase Validation**
+  - **Property 19: Intelligence Purchase Validation**
   - **Validates: Requirements 5.9**
 
 - [ ] 7. Implement information broker UI
@@ -141,7 +145,7 @@
   - Add purchase buttons for each system
   - Add "Market Rumor" option with ₡25 cost
   - Display validation messages for insufficient credits
-  - _Requirements: 5.1_
+  - _Requirements: 5.1, 5.2_
 
 - [ ] 8. Implement ship condition degradation system
   - Add hull, engine, lifeSupport fields to ship state (default 100)
@@ -151,11 +155,11 @@
   - _Requirements: 6.1, 6.2, 6.3_
 
 - [ ] 8.1 Write property test for jump degradation application
-  - **Property 21: Jump Degradation Application**
+  - **Property 20: Jump Degradation Application**
   - **Validates: Requirements 6.1**
 
 - [ ] 8.2 Write property test for ship condition clamping
-  - **Property 22: Ship Condition Clamping**
+  - **Property 21: Ship Condition Clamping**
   - **Validates: Requirements 6.2, 6.3**
 
 - [ ] 9. Implement engine condition penalties
@@ -165,11 +169,11 @@
   - _Requirements: 6.4, 6.5_
 
 - [ ] 9.1 Write property test for engine condition fuel penalty
-  - **Property 23: Engine Condition Fuel Penalty**
+  - **Property 22: Engine Condition Fuel Penalty**
   - **Validates: Requirements 6.4**
 
 - [ ] 9.2 Write property test for engine condition time penalty
-  - **Property 24: Engine Condition Time Penalty**
+  - **Property 23: Engine Condition Time Penalty**
   - **Validates: Requirements 6.5**
 
 - [ ] 10. Implement ship repair system
@@ -180,11 +184,11 @@
   - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.8_
 
 - [ ] 10.1 Write property test for repair transaction execution
-  - **Property 26: Repair Transaction Execution**
+  - **Property 24: Repair Transaction Execution**
   - **Validates: Requirements 7.5**
 
 - [ ] 10.2 Write property test for repair validation
-  - **Property 27: Repair Validation**
+  - **Property 25: Repair Validation**
   - **Validates: Requirements 7.6, 7.7, 7.8**
 
 - [ ] 11. Implement repair UI
@@ -199,11 +203,11 @@
   - _Requirements: 7.1, 7.2, 7.3, 7.9_
 
 - [ ] 11.1 Write property test for repair interface display completeness
-  - **Property 25: Repair Interface Display Completeness**
+  - **Property 26: Repair Interface Display Completeness**
   - **Validates: Requirements 7.2, 7.3, 7.4**
 
 - [ ] 11.2 Write property test for repair all cost calculation
-  - **Property 28: Repair All Cost Calculation**
+  - **Property 27: Repair All Cost Calculation**
   - **Validates: Requirements 7.9**
 
 - [ ] 12. Implement ship condition warnings
@@ -215,7 +219,7 @@
   - _Requirements: 8.1, 8.2, 8.3_
 
 - [ ] 12.1 Write property test for ship condition warning thresholds
-  - **Property 29: Ship Condition Warning Thresholds**
+  - **Property 28: Ship Condition Warning Thresholds**
   - **Validates: Requirements 8.1, 8.2, 8.3**
 
 - [ ] 13. Implement ship condition HUD display
@@ -227,15 +231,15 @@
   - _Requirements: 8.4, 8.5, 8.6_
 
 - [ ] 13.1 Write property test for HUD condition bar display
-  - **Property 30: HUD Condition Bar Display**
+  - **Property 29: HUD Condition Bar Display**
   - **Validates: Requirements 8.4**
 
 - [ ] 13.2 Write property test for condition bar reactivity
-  - **Property 31: Condition Bar Reactivity**
+  - **Property 30: Condition Bar Reactivity**
   - **Validates: Requirements 8.5**
 
 - [ ] 13.3 Write property test for condition bar visual distinction
-  - **Property 32: Condition Bar Visual Distinction**
+  - **Property 31: Condition Bar Visual Distinction**
   - **Validates: Requirements 8.6**
 
 - [ ] 14. Extend cargo stack structure with purchase metadata
@@ -246,7 +250,7 @@
   - _Requirements: 9.1_
 
 - [ ] 14.1 Write property test for cargo purchase metadata storage
-  - **Property 33: Cargo Purchase Metadata Storage**
+  - **Property 32: Cargo Purchase Metadata Storage**
   - **Validates: Requirements 9.1**
 
 - [ ] 15. Implement cargo display with purchase context
@@ -257,7 +261,7 @@
   - _Requirements: 9.2, 9.3, 9.4_
 
 - [ ] 15.1 Write property test for cargo display with purchase context
-  - **Property 34: Cargo Display with Purchase Context**
+  - **Property 33: Cargo Display with Purchase Context**
   - **Validates: Requirements 9.2, 9.3, 9.4**
 
 - [ ] 16. Implement profit calculation with context
@@ -268,7 +272,7 @@
   - _Requirements: 9.5, 9.6, 9.7_
 
 - [ ] 16.1 Write property test for profit calculation and display
-  - **Property 35: Profit Calculation and Display**
+  - **Property 34: Profit Calculation and Display**
   - **Validates: Requirements 9.5, 9.6, 9.7**
 
 - [ ] 17. Extend save/load system for Phase 2 data
