@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
+import { TradingSystem } from '../../js/game-trading.js';
 import { BASE_PRICES } from '../../js/game-constants.js';
 
 // Create minimal test star data
@@ -91,10 +92,17 @@ describe('Price Knowledge - Dock Price Update (Property Tests)', () => {
                 // Get the system
                 const system = starData.find(s => s.id === systemId);
                 
-                // Calculate expected prices
+                // Calculate expected prices using dynamic pricing
+                const currentDay = gameState.getState().player.daysElapsed;
+                const activeEvents = gameState.getState().world.activeEvents || [];
                 const expectedPrices = {};
                 for (const goodType of Object.keys(BASE_PRICES)) {
-                    expectedPrices[goodType] = gameState.calculateGoodPrice(goodType, system.type);
+                    expectedPrices[goodType] = TradingSystem.calculatePrice(
+                        goodType,
+                        system,
+                        currentDay,
+                        activeEvents
+                    );
                 }
                 
                 // Dock

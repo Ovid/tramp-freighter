@@ -50,14 +50,16 @@ export class GameStateManager {
      * Initialize a new game with default values
      */
     initNewGame() {
-        // Get Sol's grain price for initial cargo
+        // Get Sol's grain price for initial cargo using dynamic pricing
         const solSystem = this.starData.find(s => s.id === SOL_SYSTEM_ID);
-        const solGrainPrice = this.calculateGoodPrice('grain', solSystem.type);
+        const currentDay = 0; // Game starts at day 0
+        const activeEvents = []; // No events at game start
+        const solGrainPrice = TradingSystem.calculatePrice('grain', solSystem, currentDay, activeEvents);
         
         // Calculate all Sol prices for price knowledge initialization
         const solPrices = {};
         for (const goodType of Object.keys(BASE_PRICES)) {
-            solPrices[goodType] = this.calculateGoodPrice(goodType, solSystem.type);
+            solPrices[goodType] = TradingSystem.calculatePrice(goodType, solSystem, currentDay, activeEvents);
         }
         
         this.state = {
@@ -697,10 +699,18 @@ export class GameStateManager {
         const currentSystem = this.starData.find(s => s.id === currentSystemId);
         
         if (currentSystem) {
-            // Calculate current prices for all commodities
+            // Calculate current prices for all commodities using dynamic pricing
+            const currentDay = this.state.player.daysElapsed;
+            const activeEvents = this.state.world.activeEvents || [];
             const currentPrices = {};
+            
             for (const goodType of Object.keys(BASE_PRICES)) {
-                currentPrices[goodType] = this.calculateGoodPrice(goodType, currentSystem.type);
+                currentPrices[goodType] = TradingSystem.calculatePrice(
+                    goodType,
+                    currentSystem,
+                    currentDay,
+                    activeEvents
+                );
             }
             
             // Update price knowledge (resets lastVisit to 0)
@@ -815,9 +825,17 @@ export class GameStateManager {
                 const currentSystem = this.starData.find(s => s.id === currentSystemId);
                 
                 if (currentSystem) {
+                    const currentDay = this.state.player.daysElapsed;
+                    const activeEvents = this.state.world.activeEvents || [];
                     const currentPrices = {};
+                    
                     for (const goodType of Object.keys(BASE_PRICES)) {
-                        currentPrices[goodType] = this.calculateGoodPrice(goodType, currentSystem.type);
+                        currentPrices[goodType] = TradingSystem.calculatePrice(
+                            goodType,
+                            currentSystem,
+                            currentDay,
+                            activeEvents
+                        );
                     }
                     this.state.world.priceKnowledge[currentSystemId] = {
                         lastVisit: 0,
