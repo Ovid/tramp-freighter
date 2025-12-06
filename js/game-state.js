@@ -35,7 +35,8 @@ export class GameStateManager {
             cargoChanged: [],
             locationChanged: [],
             timeChanged: [],
-            priceKnowledgeChanged: []
+            priceKnowledgeChanged: [],
+            activeEventsChanged: []
         };
         
         // Initialize with null state (will be set by initNewGame or loadGame)
@@ -85,7 +86,8 @@ export class GameStateManager {
                         lastVisit: 0,
                         prices: solPrices
                     }
-                }
+                },
+                activeEvents: []
             },
             meta: {
                 version: GAME_VERSION,
@@ -375,6 +377,46 @@ export class GameStateManager {
         }
         
         this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    }
+    
+    // ========================================================================
+    // ECONOMIC EVENTS SYSTEM
+    // ========================================================================
+    
+    /**
+     * Get active events array
+     */
+    getActiveEvents() {
+        return this.state?.world.activeEvents || [];
+    }
+    
+    /**
+     * Update active events (typically called on day change)
+     * 
+     * This method should be called by external event system logic
+     * 
+     * @param {Array} newEvents - Updated events array
+     */
+    updateActiveEvents(newEvents) {
+        if (!this.state) return;
+        
+        if (!this.state.world.activeEvents) {
+            this.state.world.activeEvents = [];
+        }
+        
+        this.state.world.activeEvents = newEvents;
+        this.emit('activeEventsChanged', newEvents);
+    }
+    
+    /**
+     * Get active event for a specific system
+     * 
+     * @param {number} systemId - System identifier
+     * @returns {Object|null} Active event or null
+     */
+    getActiveEventForSystem(systemId) {
+        const activeEvents = this.getActiveEvents();
+        return activeEvents.find(event => event.systemId === systemId) || null;
     }
     
     // ========================================================================
@@ -784,6 +826,11 @@ export class GameStateManager {
                 }
             }
             
+            // Initialize activeEvents if missing (backward compatibility)
+            if (!this.state.world.activeEvents) {
+                this.state.world.activeEvents = [];
+            }
+            
             if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
                 console.log('Game loaded successfully');
             }
@@ -796,6 +843,7 @@ export class GameStateManager {
             this.emit('locationChanged', this.state.player.currentSystem);
             this.emit('timeChanged', this.state.player.daysElapsed);
             this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+            this.emit('activeEventsChanged', this.state.world.activeEvents);
             
             return this.state;
         } catch (error) {
@@ -895,6 +943,13 @@ export class GameStateManager {
                     typeof knowledge.prices !== 'object') {
                     return false;
                 }
+            }
+        }
+        
+        // Check activeEvents structure (optional for backward compatibility)
+        if (state.world.activeEvents !== undefined) {
+            if (!Array.isArray(state.world.activeEvents)) {
+                return false;
             }
         }
         

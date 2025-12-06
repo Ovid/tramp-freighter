@@ -70,7 +70,7 @@
   - Emit priceKnowledgeChanged event to update UI
   - _Requirements: 2.1_
 
-- [ ] 4. Implement economic events system
+- [x] 4. Implement economic events system
   - Create EconomicEventsSystem class with EVENT_TYPES definitions
   - Define event types: mining_strike, medical_emergency, festival, supply_glut
   - Implement updateEvents() to evaluate event triggers each day based on chance percentages
@@ -81,19 +81,19 @@
   - Apply event modifiers in price calculation
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.7, 4.8, 4.9, 4.10, 4.11_
 
-- [ ] 4.1 Write property test for event trigger evaluation
+- [x] 4.1 Write property test for event trigger evaluation
   - **Property 10: Event Trigger Evaluation**
   - **Validates: Requirements 4.1, 4.2**
 
-- [ ] 4.2 Write property test for event creation completeness
+- [x] 4.2 Write property test for event creation completeness
   - **Property 11: Event Creation Completeness**
   - **Validates: Requirements 4.3**
 
-- [ ] 4.3 Write property test for event modifier application
+- [x] 4.3 Write property test for event modifier application
   - **Property 12: Event Modifier Application**
   - **Validates: Requirements 4.4, 4.7**
 
-- [ ] 4.4 Write property test for event expiration cleanup
+- [x] 4.4 Write property test for event expiration cleanup
   - **Property 13: Event Expiration Cleanup**
   - **Validates: Requirements 4.5**
 

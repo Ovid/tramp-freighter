@@ -93,7 +93,7 @@ describe('Property: Price Calculation with All Modifiers', () => {
                 fc.integer({ min: 0, max: 10 }),
                 fc.integer({ min: 0, max: 116 }),
                 fc.integer({ min: 0, max: 1000 }),
-                fc.float({ min: 0.5, max: 2.0 }),
+                fc.float({ min: 0.5, max: 2.0, noNaN: true }),
                 (goodType, spectralClass, stationCount, systemId, currentDay, eventMultiplier) => {
                     const system = {
                         id: systemId,
