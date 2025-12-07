@@ -165,6 +165,8 @@ export class InputLockManager {
  *
  * NOTE: This function creates a canvas element and should only be called
  * during initialization, never in animation loops or hot paths.
+ * Canvas element is not added to DOM and will be garbage collected
+ * when the CanvasTexture is disposed via the dispose() method.
  *
  * @returns {THREE.CanvasTexture} Texture for ship indicator
  */
@@ -296,21 +298,17 @@ export class JumpAnimationSystem {
   calculateSideViewPosition(originPos, destPos, distance) {
     const THREE = window.THREE;
 
-    // Reuse temp vectors for intermediate calculations
-    // Calculate midpoint between stars (camera will look at this point)
+    // Position camera to look at midpoint for balanced framing of both stars
     this._tempVec1.addVectors(originPos, destPos).multiplyScalar(0.5);
 
-    // Calculate direction vector from origin to destination
+    // Need normalized direction to calculate perpendicular vector via cross product
     this._tempVec2.subVectors(destPos, originPos).normalize();
 
-    // Calculate perpendicular vector using cross product with up vector
-    // This gives us a direction perpendicular to the jump path
+    // Cross product with up vector gives perpendicular direction for side view
     this._tempVec3.set(0, 1, 0).crossVectors(this._tempVec2, this._tempVec3);
 
-    // Handle edge case: if jump is perfectly vertical, use different reference vector
-    // When jumpDirection is parallel to up vector, cross product is zero
-    if (this._tempVec3.lengthSq() < 0.0001) {
-      // Use forward vector instead of up vector
+    // Parallel vectors produce zero cross product - use forward vector as fallback
+    if (this._tempVec3.lengthSq() < ANIMATION_CONFIG.VECTOR_EPSILON) {
       this._tempVec3.set(0, 0, 1).crossVectors(this._tempVec2, this._tempVec3);
     }
 
@@ -340,6 +338,35 @@ export class JumpAnimationSystem {
   }
 
   /**
+   * Store current camera state for later restoration
+   *
+   * Should be called once at the start of a jump animation sequence.
+   * Captures the camera position and look-at target before any transitions.
+   */
+  _storeCameraState() {
+    const THREE = window.THREE;
+    this.originalCameraState = {
+      position: new THREE.Vector3().copy(this.camera.position),
+      target: new THREE.Vector3().copy(this.controls.target),
+    };
+  }
+
+  /**
+   * Restore camera to original state
+   *
+   * Should be called once at the end of a jump animation sequence.
+   * Returns the camera to its position before the animation started.
+   */
+  _restoreCameraState() {
+    if (this.originalCameraState) {
+      this.camera.position.copy(this.originalCameraState.position);
+      this.controls.target.copy(this.originalCameraState.target);
+      this.controls.update();
+      this.originalCameraState = null;
+    }
+  }
+
+  /**
    * Animate camera transition with easing
    *
    * Smoothly transitions the camera from its current position to a target position
@@ -355,14 +382,9 @@ export class JumpAnimationSystem {
    */
   animateCameraTransition(targetPosition, targetLookAt, duration) {
     return new Promise((resolve) => {
-      // Store original camera state for restoration (only if not already stored)
-      // Supports multiple sequential camera transitions before final restoration
+      // Store original camera state if not already stored (for restoration after animation sequence)
       if (!this.originalCameraState) {
-        const THREE = window.THREE;
-        this.originalCameraState = {
-          position: new THREE.Vector3().copy(this.camera.position),
-          target: new THREE.Vector3().copy(this.controls.target),
-        };
+        this._storeCameraState();
       }
 
       // Store start state for interpolation
@@ -376,7 +398,7 @@ export class JumpAnimationSystem {
 
       const startTime = performance.now();
 
-      const animate = () => {
+      const animateCameraFrame = () => {
         const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
         const progress = Math.min(elapsed / duration, 1.0);
 
@@ -396,14 +418,14 @@ export class JumpAnimationSystem {
 
         // Continue animation or resolve
         if (progress < 1.0) {
-          requestAnimationFrame(animate);
+          requestAnimationFrame(animateCameraFrame);
         } else {
           resolve();
         }
       };
 
       // Start animation
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateCameraFrame);
     });
   }
 
@@ -427,7 +449,8 @@ export class JumpAnimationSystem {
   animateShipTravel(originPos, destPos, distance) {
     return new Promise((resolve) => {
       // Calculate travel duration based on distance with bounds
-      const duration = AnimationTimingCalculator.calculateTravelDuration(distance);
+      const duration =
+        AnimationTimingCalculator.calculateTravelDuration(distance);
 
       // Position ship indicator at origin star
       this.shipIndicator.position.copy(originPos);
@@ -440,7 +463,7 @@ export class JumpAnimationSystem {
 
       const startTime = performance.now();
 
-      const animate = () => {
+      const animateShipFrame = () => {
         const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
         const progress = Math.min(elapsed / duration, 1.0);
 
@@ -451,7 +474,7 @@ export class JumpAnimationSystem {
 
         // Continue animation or resolve
         if (progress < 1.0) {
-          requestAnimationFrame(animate);
+          requestAnimationFrame(animateShipFrame);
         } else {
           // Hide ship indicator when travel completes
           this.shipIndicator.visible = false;
@@ -460,7 +483,7 @@ export class JumpAnimationSystem {
       };
 
       // Start animation
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateShipFrame);
     });
   }
 

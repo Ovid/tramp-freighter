@@ -335,6 +335,9 @@ export const ANIMATION_CONFIG = {
   SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5, // Distance from midpoint as multiple of star separation
   MIN_SIDE_VIEW_DISTANCE: 100, // Minimum camera distance to prevent clipping
 
+  // Floating-point comparison epsilon
+  VECTOR_EPSILON: 0.0001, // Threshold for detecting parallel vectors in cross product
+
   // Animation timeout for error recovery
   ANIMATION_TIMEOUT: 10000, // milliseconds - force completion if animation hangs
 };
