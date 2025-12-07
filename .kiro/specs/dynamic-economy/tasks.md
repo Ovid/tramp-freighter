@@ -138,7 +138,7 @@ Yes# Implementation Plan
   - **Property 19: Intelligence Purchase Validation**
   - **Validates: Requirements 5.9**
 
-- [ ] 7. Implement information broker UI
+- [x] 7. Implement information broker UI
   - Add "Info Broker" option to station menu
   - Create information broker interface panel
   - List all systems with intelligence costs and last visit information

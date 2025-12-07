@@ -1,4 +1,4 @@
-import { calculateDistanceFromSol } from './game-constants.js';
+import { calculateDistanceFromSol, INTELLIGENCE_PRICES } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
 /**
@@ -59,6 +59,15 @@ export class UIManager {
             refuelBackBtn: document.getElementById('refuel-back-btn'),
             refuelMaxBtn: document.getElementById('refuel-max-btn'),
             refuelValidationMessage: document.getElementById('refuel-validation-message'),
+            infoBrokerBtn: document.getElementById('info-broker-btn'),
+            infoBrokerPanel: document.getElementById('info-broker-panel'),
+            infoBrokerSystemName: document.getElementById('info-broker-system-name'),
+            infoBrokerCloseBtn: document.getElementById('info-broker-close-btn'),
+            infoBrokerBackBtn: document.getElementById('info-broker-back-btn'),
+            buyRumorBtn: document.getElementById('buy-rumor-btn'),
+            rumorText: document.getElementById('rumor-text'),
+            intelligenceList: document.getElementById('intelligence-list'),
+            infoBrokerValidationMessage: document.getElementById('info-broker-validation-message'),
             notificationArea: document.getElementById('notification-area'),
             eventModalOverlay: document.getElementById('event-modal-overlay'),
             eventModalTitle: document.getElementById('event-modal-title'),
@@ -227,6 +236,31 @@ export class UIManager {
         if (this.elements.refuelConfirmBtn) {
             this.elements.refuelConfirmBtn.addEventListener('click', () => {
                 this.handleRefuel();
+            });
+        }
+        
+        if (this.elements.infoBrokerBtn) {
+            this.elements.infoBrokerBtn.addEventListener('click', () => {
+                this.showInfoBrokerPanel();
+            });
+        }
+        
+        if (this.elements.infoBrokerCloseBtn) {
+            this.elements.infoBrokerCloseBtn.addEventListener('click', () => {
+                this.hideInfoBrokerPanel();
+            });
+        }
+        
+        if (this.elements.infoBrokerBackBtn) {
+            this.elements.infoBrokerBackBtn.addEventListener('click', () => {
+                this.hideInfoBrokerPanel();
+                this.showStationInterface();
+            });
+        }
+        
+        if (this.elements.buyRumorBtn) {
+            this.elements.buyRumorBtn.addEventListener('click', () => {
+                this.handleBuyRumor();
             });
         }
     }
@@ -761,5 +795,181 @@ export class UIManager {
         
         // Refresh the refuel panel to show updated state
         this.showRefuelPanel();
+    }
+    
+    showInfoBrokerPanel() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const currentSystemId = state.player.currentSystem;
+        const system = this.starData.find(s => s.id === currentSystemId);
+        
+        if (!system) return;
+        
+        this.elements.infoBrokerSystemName.textContent = system.name;
+        
+        // Clear previous rumor
+        this.elements.rumorText.textContent = '';
+        this.elements.rumorText.classList.remove('visible');
+        
+        // Clear validation message
+        this.elements.infoBrokerValidationMessage.textContent = '';
+        this.elements.infoBrokerValidationMessage.className = 'validation-message';
+        
+        // Update rumor button state
+        this.updateRumorButton();
+        
+        // Render intelligence list
+        this.renderIntelligenceList();
+        
+        this.hideStationInterface();
+        
+        this.elements.infoBrokerPanel.classList.add('visible');
+    }
+    
+    hideInfoBrokerPanel() {
+        this.elements.infoBrokerPanel.classList.remove('visible');
+    }
+    
+    updateRumorButton() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const credits = state.player.credits;
+        const rumorCost = INTELLIGENCE_PRICES.RUMOR;
+        
+        this.elements.buyRumorBtn.disabled = credits < rumorCost;
+    }
+    
+    handleBuyRumor() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        const credits = state.player.credits;
+        const rumorCost = INTELLIGENCE_PRICES.RUMOR;
+        
+        // Validate purchase
+        if (credits < rumorCost) {
+            this.elements.infoBrokerValidationMessage.textContent = 'Insufficient credits for rumor';
+            this.elements.infoBrokerValidationMessage.className = 'validation-message error';
+            return;
+        }
+        
+        // Deduct credits
+        this.gameStateManager.updateCredits(credits - rumorCost);
+        
+        // Generate and display rumor
+        const rumor = this.gameStateManager.generateRumor();
+        this.elements.rumorText.textContent = rumor;
+        this.elements.rumorText.classList.add('visible');
+        
+        // Clear validation message
+        this.elements.infoBrokerValidationMessage.textContent = '';
+        this.elements.infoBrokerValidationMessage.className = 'validation-message';
+        
+        // Update button state
+        this.updateRumorButton();
+        
+        // Refresh intelligence list (credits changed)
+        this.renderIntelligenceList();
+    }
+    
+    renderIntelligenceList() {
+        const state = this.gameStateManager.getState();
+        if (!state) return;
+        
+        this.elements.intelligenceList.innerHTML = '';
+        
+        const priceKnowledge = state.world.priceKnowledge || {};
+        const credits = state.player.credits;
+        
+        // Get all systems with their intelligence costs
+        const intelligenceOptions = this.gameStateManager.listAvailableIntelligence();
+        
+        // Sort by cost (never visited first, then stale, then recent)
+        intelligenceOptions.sort((a, b) => b.cost - a.cost);
+        
+        intelligenceOptions.forEach(option => {
+            const item = this.createIntelligenceItem(option, credits);
+            this.elements.intelligenceList.appendChild(item);
+        });
+    }
+    
+    createIntelligenceItem(option, credits) {
+        const item = document.createElement('div');
+        item.className = 'intelligence-item';
+        
+        const info = document.createElement('div');
+        info.className = 'intelligence-info';
+        
+        const systemName = document.createElement('div');
+        systemName.className = 'intelligence-system-name';
+        systemName.textContent = option.systemName;
+        
+        const visitInfo = document.createElement('div');
+        visitInfo.className = 'intelligence-visit-info';
+        
+        if (option.lastVisit === null) {
+            visitInfo.textContent = 'Never visited';
+        } else if (option.lastVisit === 0) {
+            visitInfo.textContent = 'Current prices';
+        } else if (option.lastVisit === 1) {
+            visitInfo.textContent = 'Last visited 1 day ago';
+        } else {
+            visitInfo.textContent = `Last visited ${option.lastVisit} days ago`;
+        }
+        
+        info.appendChild(systemName);
+        info.appendChild(visitInfo);
+        
+        const actions = document.createElement('div');
+        actions.className = 'intelligence-actions';
+        
+        const cost = document.createElement('div');
+        cost.className = 'intelligence-cost';
+        cost.textContent = `₡${option.cost}`;
+        
+        const buyBtn = document.createElement('button');
+        buyBtn.className = 'info-broker-btn';
+        buyBtn.textContent = 'Purchase';
+        buyBtn.disabled = credits < option.cost || option.lastVisit === 0;
+        
+        if (option.lastVisit === 0) {
+            buyBtn.textContent = 'Current';
+        }
+        
+        buyBtn.addEventListener('click', () => this.handlePurchaseIntelligence(option.systemId));
+        
+        actions.appendChild(cost);
+        actions.appendChild(buyBtn);
+        
+        item.appendChild(info);
+        item.appendChild(actions);
+        
+        return item;
+    }
+    
+    handlePurchaseIntelligence(systemId) {
+        const result = this.gameStateManager.purchaseIntelligence(systemId);
+        
+        if (!result.success) {
+            this.elements.infoBrokerValidationMessage.textContent = result.reason;
+            this.elements.infoBrokerValidationMessage.className = 'validation-message error';
+            return;
+        }
+        
+        // Clear validation message
+        this.elements.infoBrokerValidationMessage.textContent = '';
+        this.elements.infoBrokerValidationMessage.className = 'validation-message';
+        
+        // Show success notification
+        const system = this.starData.find(s => s.id === systemId);
+        if (system) {
+            this.showError(`Intelligence purchased for ${system.name}`, 2000);
+        }
+        
+        // Refresh the panel to show updated state
+        this.updateRumorButton();
+        this.renderIntelligenceList();
     }
 }
