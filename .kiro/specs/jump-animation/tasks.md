@@ -1,17 +1,17 @@
 # Implementation Plan
 
-- [ ] 1. Set up animation infrastructure and timing utilities
+- [x] 1. Set up animation infrastructure and timing utilities
   - Create `js/game-animation.js` file with core animation classes
   - Implement `AnimationTimingCalculator` class with duration calculation methods
   - Implement `EasingFunctions` class with easeInOutCubic and linear functions
   - Add animation configuration constants to `game-constants.js`
   - _Requirements: 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 1.1 Write property test for travel duration scaling
+- [x] 1.1 Write property test for travel duration scaling
   - **Property 6: Travel duration scaling with bounds**
   - **Validates: Requirements 3.1, 3.2, 3.3**
 
-- [ ] 1.2 Write property test for total animation duration bounds
+- [x] 1.2 Write property test for total animation duration bounds
   - **Property 7: Total animation duration bounds**
   - **Validates: Requirements 6.1, 6.4**
 

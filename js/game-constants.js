@@ -229,3 +229,34 @@ export const NOTIFICATION_CONFIG = {
     DEFAULT_ERROR_DURATION: 3000,    // milliseconds
     DEFAULT_SUCCESS_DURATION: 2000   // milliseconds
 };
+
+/**
+ * Jump animation configuration
+ * 
+ * Controls timing and visual properties for the jump animation sequence.
+ * Durations are calibrated to provide excitement without tedium.
+ */
+export const ANIMATION_CONFIG = {
+    // Zoom transition durations
+    ZOOM_DURATION: 1.0,  // seconds - fixed duration for camera transitions
+    
+    // Travel duration range
+    MIN_TRAVEL_DURATION: 1.0,  // seconds - minimum for short jumps to ensure visibility
+    MAX_TRAVEL_DURATION: 3.0,  // seconds - maximum for long jumps to prevent tedium
+    
+    // Distance scaling for travel duration
+    MIN_DISTANCE: 0,      // light years - minimum jump distance
+    MAX_DISTANCE: 20,     // light years - maximum distance in Sol Sector
+    
+    // Ship indicator visual properties
+    SHIP_INDICATOR_SIZE: 8,
+    SHIP_INDICATOR_COLOR: 0xFF0000,  // Red
+    SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
+    
+    // Camera positioning for side view
+    SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5,  // Distance from midpoint as multiple of star separation
+    MIN_SIDE_VIEW_DISTANCE: 100,  // Minimum camera distance to prevent clipping
+    
+    // Animation timeout for error recovery
+    ANIMATION_TIMEOUT: 10000  // milliseconds - force completion if animation hangs
+};
