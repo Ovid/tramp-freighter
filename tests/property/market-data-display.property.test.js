@@ -19,46 +19,13 @@ describe('Property: Market Data Display', () => {
     let uiManager;
     
     beforeEach(() => {
-        // Create a minimal DOM for testing
+        // Create minimal DOM for testing market data display
+        // UIManager caches all elements but handles null gracefully
         dom = new JSDOM(`
             <!DOCTYPE html>
             <html>
             <body>
-                <div id="game-hud" class="game-hud">
-                    <div id="hud-credits">0</div>
-                    <div id="hud-debt">0</div>
-                    <div id="hud-days">0</div>
-                    <div id="fuel-bar"></div>
-                    <div id="hud-fuel-text">100%</div>
-                    <div id="hud-cargo">0/50</div>
-                    <div id="hud-system">Sol</div>
-                    <div id="hud-distance">0.0 LY</div>
-                </div>
-                <div id="station-interface">
-                    <div id="station-name"></div>
-                    <div id="station-system-name"></div>
-                    <div id="station-distance"></div>
-                    <button id="station-close-btn"></button>
-                    <button id="trade-btn"></button>
-                    <button id="refuel-btn"></button>
-                    <button id="info-broker-btn"></button>
-                    <button id="undock-btn"></button>
-                </div>
-                <div id="info-broker-panel">
-                    <div id="info-broker-system-name"></div>
-                    <button id="info-broker-close-btn"></button>
-                    <button id="info-broker-back-btn"></button>
-                    <button id="buy-rumor-btn"></button>
-                    <div id="rumor-text"></div>
-                    <div id="intelligence-list"></div>
-                    <div id="info-broker-validation-message"></div>
-                    <button id="purchase-tab" class="info-broker-tab active"></button>
-                    <button id="market-data-tab" class="info-broker-tab"></button>
-                    <div id="purchase-intel-content" class="tab-content active"></div>
-                    <div id="market-data-content" class="tab-content"></div>
-                    <div id="market-data-list"></div>
-                </div>
-                <div id="notification-area"></div>
+                <div id="market-data-list"></div>
             </body>
             </html>
         `);

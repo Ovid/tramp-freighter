@@ -12,6 +12,14 @@ export const SOL_SYSTEM_ID = 0;
 export const ALPHA_CENTAURI_SYSTEM_ID = 1;
 
 /**
+ * List of all tradeable commodity types
+ * 
+ * Centralized list ensures consistency across trading, UI, and testing.
+ * Order matters for display purposes (basic goods → advanced goods).
+ */
+export const COMMODITY_TYPES = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
+
+/**
  * Base commodity prices in credits (before spectral modifiers)
  */
 export const BASE_PRICES = {

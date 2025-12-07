@@ -1,4 +1,4 @@
-import { calculateDistanceFromSol, INTELLIGENCE_PRICES, INTELLIGENCE_RECENT_THRESHOLD, NOTIFICATION_CONFIG } from './game-constants.js';
+import { calculateDistanceFromSol, INTELLIGENCE_PRICES, INTELLIGENCE_RECENT_THRESHOLD, NOTIFICATION_CONFIG, COMMODITY_TYPES } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
 /**
@@ -14,7 +14,7 @@ export class UIManager {
         this.starData = gameStateManager.starData;
         
         // List of all tradeable goods
-        this.goodsList = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
+        this.goodsList = COMMODITY_TYPES;
         
         // Notification queue for sequential display
         this.notificationQueue = [];
@@ -625,6 +625,29 @@ export class UIManager {
     }
     
     /**
+     * Format staleness information for price knowledge display
+     * 
+     * Converts lastVisit days into human-readable text with appropriate CSS class.
+     * Centralizes staleness display logic to ensure consistency across UI.
+     * 
+     * @param {number} lastVisit - Days since last visit (0 = current)
+     * @returns {Object} { text: string, cssClass: string }
+     */
+    formatStaleness(lastVisit) {
+        if (lastVisit === 0) {
+            return { text: 'Current', cssClass: '' };
+        } else if (lastVisit === 1) {
+            return { text: '1 day old', cssClass: '' };
+        } else if (lastVisit <= 10) {
+            return { text: `${lastVisit} days old`, cssClass: '' };
+        } else if (lastVisit <= 30) {
+            return { text: `${lastVisit} days old`, cssClass: 'stale' };
+        } else {
+            return { text: `${lastVisit} days old`, cssClass: 'very-stale' };
+        }
+    }
+    
+    /**
      * Show a notification with auto-dismiss
      * Messages are queued to prevent overlap
      * 
@@ -883,7 +906,6 @@ export class UIManager {
     renderMarketData() {
         const state = this.gameStateManager.getState();
         const priceKnowledge = state.world.priceKnowledge || {};
-        const currentDay = state.player.daysElapsed;
         
         this.elements.marketDataList.replaceChildren();
         
@@ -910,12 +932,12 @@ export class UIManager {
             if (!system) return;
             
             const knowledge = priceKnowledge[systemId];
-            const marketDataItem = this.createMarketDataItem(system, knowledge, currentDay);
+            const marketDataItem = this.createMarketDataItem(system, knowledge);
             this.elements.marketDataList.appendChild(marketDataItem);
         });
     }
     
-    createMarketDataItem(system, knowledge, currentDay) {
+    createMarketDataItem(system, knowledge) {
         const container = document.createElement('div');
         container.className = 'market-data-system';
         
@@ -930,19 +952,10 @@ export class UIManager {
         const staleness = document.createElement('div');
         staleness.className = 'market-data-staleness';
         
-        const daysSinceUpdate = knowledge.lastVisit;
-        if (daysSinceUpdate === 0) {
-            staleness.textContent = 'Current';
-        } else if (daysSinceUpdate === 1) {
-            staleness.textContent = '1 day old';
-        } else if (daysSinceUpdate <= 10) {
-            staleness.textContent = `${daysSinceUpdate} days old`;
-        } else if (daysSinceUpdate <= 30) {
-            staleness.textContent = `${daysSinceUpdate} days old`;
-            staleness.classList.add('stale');
-        } else {
-            staleness.textContent = `${daysSinceUpdate} days old`;
-            staleness.classList.add('very-stale');
+        const stalenessInfo = this.formatStaleness(knowledge.lastVisit);
+        staleness.textContent = stalenessInfo.text;
+        if (stalenessInfo.cssClass) {
+            staleness.classList.add(stalenessInfo.cssClass);
         }
         
         header.appendChild(systemName);
@@ -952,8 +965,7 @@ export class UIManager {
         const pricesGrid = document.createElement('div');
         pricesGrid.className = 'market-data-prices';
         
-        const commodities = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
-        commodities.forEach(commodity => {
+        COMMODITY_TYPES.forEach(commodity => {
             const priceItem = document.createElement('div');
             priceItem.className = 'market-data-price-item';
             
