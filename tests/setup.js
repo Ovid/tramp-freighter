@@ -30,3 +30,33 @@ global.localStorage = new LocalStorageMock();
 beforeEach(() => {
   global.localStorage.clear();
 });
+
+// Mock canvas for tests that create textures
+class CanvasRenderingContext2DMock {
+  constructor() {
+    this.fillStyle = '';
+    this.shadowColor = '';
+    this.shadowBlur = 0;
+  }
+  
+  createRadialGradient() {
+    return {
+      addColorStop: () => {}
+    };
+  }
+  
+  fillRect() {}
+  measureText() {
+    return { width: 100 };
+  }
+}
+
+// Override HTMLCanvasElement.prototype.getContext
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = function(contextType) {
+    if (contextType === '2d') {
+      return new CanvasRenderingContext2DMock();
+    }
+    return null;
+  };
+}

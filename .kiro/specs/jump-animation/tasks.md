@@ -27,7 +27,7 @@
   - **Property 9: Graceful error handling (input lock aspect)**
   - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
 
-- [ ] 3. Create ship indicator sprite system
+- [x] 3. Create ship indicator sprite system
   - Implement `createShipIndicatorSprite()` function to create glowing red sprite
   - Use same texture creation pattern as star sprites for consistency
   - Configure sprite with red color (0xFF0000), additive blending, and appropriate size
@@ -37,7 +37,7 @@
   - Verify ship indicator has sufficient contrast against starmap background in various viewing angles
   - _Requirements: 1.2, 3.5, 4.1, 4.2_
 
-- [ ] 3.1 Write property test for ship indicator visual consistency
+- [x] 3.1 Write property test for ship indicator visual consistency
   - **Property 5: Ship indicator visual consistency**
   - **Validates: Requirements 1.2, 1.3, 3.4, 3.5, 4.1**
 

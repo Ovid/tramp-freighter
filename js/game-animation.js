@@ -146,3 +146,129 @@ export class InputLockManager {
         return this.isLocked;
     }
 }
+
+/**
+ * Create a glowing texture for the ship indicator sprite
+ * 
+ * Uses the same pattern as star sprites for visual consistency.
+ * Creates a radial gradient with glow effect.
+ * 
+ * @returns {THREE.CanvasTexture} Texture for ship indicator
+ */
+function createShipIndicatorTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    
+    // Create radial gradient for glow effect (same pattern as star sprites)
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    
+    // Import THREE dynamically to avoid circular dependencies
+    const THREE = window.THREE;
+    return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Create ship indicator sprite
+ * 
+ * Creates a glowing red sprite to represent the player's ship during jump animations.
+ * Uses the same texture creation pattern as star sprites for visual consistency.
+ * Configured with red color, additive blending, and appropriate size.
+ * 
+ * @returns {THREE.Sprite} Ship indicator sprite
+ */
+export function createShipIndicatorSprite() {
+    // Import THREE dynamically to avoid circular dependencies
+    const THREE = window.THREE;
+    
+    // Create texture using same pattern as star sprites
+    const texture = createShipIndicatorTexture();
+    
+    // Create sprite material with red color and additive blending
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        color: ANIMATION_CONFIG.SHIP_INDICATOR_COLOR,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+    });
+    
+    // Create sprite
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(
+        ANIMATION_CONFIG.SHIP_INDICATOR_SIZE,
+        ANIMATION_CONFIG.SHIP_INDICATOR_SIZE,
+        1
+    );
+    
+    // Initially hidden until animation begins
+    sprite.visible = false;
+    
+    return sprite;
+}
+
+/**
+ * Jump animation system
+ * 
+ * Orchestrates the complete jump animation sequence including camera transitions,
+ * ship indicator movement, and input locking.
+ */
+export class JumpAnimationSystem {
+    /**
+     * Create jump animation system
+     * 
+     * @param {THREE.Scene} scene - Three.js scene
+     * @param {THREE.Camera} camera - Three.js camera
+     * @param {Object} controls - Three.js OrbitControls instance
+     * @param {Array} starData - Array of star system data
+     */
+    constructor(scene, camera, controls, starData) {
+        this.scene = scene;
+        this.camera = camera;
+        this.controls = controls;
+        this.starData = starData;
+        this.isAnimating = false;
+        
+        // Create ship indicator sprite (reused across all jumps)
+        this.shipIndicator = createShipIndicatorSprite();
+        this.scene.add(this.shipIndicator);
+        
+        // Create input lock manager
+        this.inputLockManager = new InputLockManager(controls);
+        
+        // Store original camera state for restoration
+        this.originalCameraState = null;
+    }
+    
+    /**
+     * Dispose of animation system resources
+     * 
+     * Properly disposes of sprite material and geometry to prevent GPU memory leaks.
+     * Should be called when the animation system is no longer needed.
+     */
+    dispose() {
+        if (this.shipIndicator) {
+            // Dispose material and texture
+            if (this.shipIndicator.material) {
+                if (this.shipIndicator.material.map) {
+                    this.shipIndicator.material.map.dispose();
+                }
+                this.shipIndicator.material.dispose();
+            }
+            
+            // Remove from scene
+            this.scene.remove(this.shipIndicator);
+            this.shipIndicator = null;
+        }
+    }
+}
