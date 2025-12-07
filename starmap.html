@@ -229,27 +229,49 @@
         <button class="close-btn" id="info-broker-close-btn">×</button>
         <h2>Information Broker - <span id="info-broker-system-name">Sol</span></h2>
         
+        <!-- Tab Navigation -->
+        <div class="info-broker-tabs">
+            <button class="info-broker-tab active" id="purchase-tab">Purchase Intel</button>
+            <button class="info-broker-tab" id="market-data-tab">Market Data</button>
+        </div>
+        
         <div class="info-broker-content">
-            <!-- Market Rumor Section -->
-            <div class="info-broker-section">
-                <h3>Market Rumors</h3>
-                <div class="rumor-container">
-                    <p class="rumor-description">Get a hint about current market conditions across the sector.</p>
-                    <div class="rumor-actions">
-                        <button class="info-broker-btn" id="buy-rumor-btn">Buy Rumor (₡25)</button>
+            <!-- Purchase Intel Tab -->
+            <div id="purchase-intel-content" class="tab-content active">
+                <!-- Market Rumor Section -->
+                <div class="info-broker-section">
+                    <h3>Market Rumors</h3>
+                    <div class="rumor-container">
+                        <p class="rumor-description">Get a hint about current market conditions across the sector.</p>
+                        <div class="rumor-actions">
+                            <button class="info-broker-btn" id="buy-rumor-btn">Buy Rumor (₡25)</button>
+                        </div>
+                        <div id="rumor-text" class="rumor-text"></div>
                     </div>
-                    <div id="rumor-text" class="rumor-text"></div>
+                </div>
+                
+                <!-- System Intelligence Section -->
+                <div class="info-broker-section">
+                    <h3>System Intelligence</h3>
+                    <div class="intelligence-description">
+                        <p>Purchase current market prices for systems you haven't visited recently.</p>
+                    </div>
+                    <div id="intelligence-list" class="intelligence-list">
+                        <!-- Dynamically populated with system intelligence options -->
+                    </div>
                 </div>
             </div>
             
-            <!-- System Intelligence Section -->
-            <div class="info-broker-section">
-                <h3>System Intelligence</h3>
-                <div class="intelligence-description">
-                    <p>Purchase current market prices for systems you haven't visited recently.</p>
-                </div>
-                <div id="intelligence-list" class="intelligence-list">
-                    <!-- Dynamically populated with system intelligence options -->
+            <!-- Market Data Tab -->
+            <div id="market-data-content" class="tab-content">
+                <div class="info-broker-section">
+                    <h3>Known Market Prices</h3>
+                    <div class="market-data-description">
+                        <p>View commodity prices for systems you've visited or purchased intelligence for.</p>
+                    </div>
+                    <div id="market-data-list" class="market-data-list">
+                        <!-- Dynamically populated with known market data -->
+                    </div>
                 </div>
             </div>
             

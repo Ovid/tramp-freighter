@@ -1054,6 +1054,132 @@ canvas {
     border-top: 1px solid rgba(0, 255, 136, 0.3);
 }
 
+/* Info Broker Tabs */
+.info-broker-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.info-broker-tab {
+    flex: 1;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: rgba(0, 255, 136, 0.7);
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.info-broker-tab:hover {
+    color: #00FF88;
+    background-color: rgba(0, 255, 136, 0.1);
+}
+
+.info-broker-tab.active {
+    color: #00FF88;
+    border-bottom-color: #00FF88;
+    background-color: rgba(0, 255, 136, 0.1);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Market Data Display */
+.market-data-description {
+    margin-bottom: 15px;
+}
+
+.market-data-description p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.market-data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.market-data-system {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 5px;
+    padding: 12px;
+}
+
+.market-data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.market-data-system-name {
+    color: #00FF88;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.market-data-staleness {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.market-data-staleness.stale {
+    color: #FFD700;
+}
+
+.market-data-staleness.very-stale {
+    color: #FF6B6B;
+}
+
+.market-data-prices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.market-data-price-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    background-color: rgba(0, 255, 136, 0.05);
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.market-data-commodity {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.market-data-price {
+    color: #00FF88;
+    font-weight: bold;
+}
+
+.market-data-empty {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 40px 20px;
+    font-style: italic;
+}
+
 /* Notification Styling */
 #notification-area {
     position: absolute;

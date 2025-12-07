@@ -68,6 +68,11 @@ export class UIManager {
             rumorText: document.getElementById('rumor-text'),
             intelligenceList: document.getElementById('intelligence-list'),
             infoBrokerValidationMessage: document.getElementById('info-broker-validation-message'),
+            purchaseTab: document.getElementById('purchase-tab'),
+            marketDataTab: document.getElementById('market-data-tab'),
+            purchaseIntelContent: document.getElementById('purchase-intel-content'),
+            marketDataContent: document.getElementById('market-data-content'),
+            marketDataList: document.getElementById('market-data-list'),
             notificationArea: document.getElementById('notification-area'),
             eventModalOverlay: document.getElementById('event-modal-overlay'),
             eventModalTitle: document.getElementById('event-modal-title'),
@@ -261,6 +266,18 @@ export class UIManager {
         if (this.elements.buyRumorBtn) {
             this.elements.buyRumorBtn.addEventListener('click', () => {
                 this.handleBuyRumor();
+            });
+        }
+        
+        if (this.elements.purchaseTab) {
+            this.elements.purchaseTab.addEventListener('click', () => {
+                this.showPurchaseTab();
+            });
+        }
+        
+        if (this.elements.marketDataTab) {
+            this.elements.marketDataTab.addEventListener('click', () => {
+                this.showMarketDataTab();
             });
         }
     }
@@ -832,6 +849,9 @@ export class UIManager {
         this.elements.infoBrokerValidationMessage.textContent = '';
         this.elements.infoBrokerValidationMessage.className = 'validation-message';
         
+        // Show purchase tab by default
+        this.showPurchaseTab();
+        
         // Update rumor button state
         this.updateRumorButton();
         
@@ -841,6 +861,119 @@ export class UIManager {
         this.hideStationInterface();
         
         this.elements.infoBrokerPanel.classList.add('visible');
+    }
+    
+    showPurchaseTab() {
+        this.elements.purchaseTab.classList.add('active');
+        this.elements.marketDataTab.classList.remove('active');
+        this.elements.purchaseIntelContent.classList.add('active');
+        this.elements.marketDataContent.classList.remove('active');
+    }
+    
+    showMarketDataTab() {
+        this.elements.purchaseTab.classList.remove('active');
+        this.elements.marketDataTab.classList.add('active');
+        this.elements.purchaseIntelContent.classList.remove('active');
+        this.elements.marketDataContent.classList.add('active');
+        
+        // Render market data when tab is shown
+        this.renderMarketData();
+    }
+    
+    renderMarketData() {
+        const state = this.gameStateManager.getState();
+        const priceKnowledge = state.world.priceKnowledge || {};
+        const currentDay = state.player.daysElapsed;
+        
+        this.elements.marketDataList.replaceChildren();
+        
+        // Get all systems with known prices
+        const knownSystems = Object.keys(priceKnowledge).map(Number);
+        
+        if (knownSystems.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'market-data-empty';
+            emptyMsg.textContent = 'No market data available. Purchase intelligence or visit systems to gather price information.';
+            this.elements.marketDataList.appendChild(emptyMsg);
+            return;
+        }
+        
+        // Sort by staleness (current first, then recent, then stale)
+        knownSystems.sort((a, b) => {
+            const aLastVisit = priceKnowledge[a].lastVisit;
+            const bLastVisit = priceKnowledge[b].lastVisit;
+            return aLastVisit - bLastVisit;
+        });
+        
+        knownSystems.forEach(systemId => {
+            const system = this.starData.find(s => s.id === systemId);
+            if (!system) return;
+            
+            const knowledge = priceKnowledge[systemId];
+            const marketDataItem = this.createMarketDataItem(system, knowledge, currentDay);
+            this.elements.marketDataList.appendChild(marketDataItem);
+        });
+    }
+    
+    createMarketDataItem(system, knowledge, currentDay) {
+        const container = document.createElement('div');
+        container.className = 'market-data-system';
+        
+        // Header with system name and staleness
+        const header = document.createElement('div');
+        header.className = 'market-data-header';
+        
+        const systemName = document.createElement('div');
+        systemName.className = 'market-data-system-name';
+        systemName.textContent = system.name;
+        
+        const staleness = document.createElement('div');
+        staleness.className = 'market-data-staleness';
+        
+        const daysSinceUpdate = knowledge.lastVisit;
+        if (daysSinceUpdate === 0) {
+            staleness.textContent = 'Current';
+        } else if (daysSinceUpdate === 1) {
+            staleness.textContent = '1 day old';
+        } else if (daysSinceUpdate <= 10) {
+            staleness.textContent = `${daysSinceUpdate} days old`;
+        } else if (daysSinceUpdate <= 30) {
+            staleness.textContent = `${daysSinceUpdate} days old`;
+            staleness.classList.add('stale');
+        } else {
+            staleness.textContent = `${daysSinceUpdate} days old`;
+            staleness.classList.add('very-stale');
+        }
+        
+        header.appendChild(systemName);
+        header.appendChild(staleness);
+        
+        // Prices grid
+        const pricesGrid = document.createElement('div');
+        pricesGrid.className = 'market-data-prices';
+        
+        const commodities = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
+        commodities.forEach(commodity => {
+            const priceItem = document.createElement('div');
+            priceItem.className = 'market-data-price-item';
+            
+            const commodityName = document.createElement('span');
+            commodityName.className = 'market-data-commodity';
+            commodityName.textContent = this.capitalizeFirst(commodity);
+            
+            const price = document.createElement('span');
+            price.className = 'market-data-price';
+            price.textContent = `₡${knowledge.prices[commodity]}`;
+            
+            priceItem.appendChild(commodityName);
+            priceItem.appendChild(price);
+            pricesGrid.appendChild(priceItem);
+        });
+        
+        container.appendChild(header);
+        container.appendChild(pricesGrid);
+        
+        return container;
     }
     
     hideInfoBrokerPanel() {
