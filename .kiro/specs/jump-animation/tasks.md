@@ -32,6 +32,8 @@
   - Use same texture creation pattern as star sprites for consistency
   - Configure sprite with red color (0xFF0000), additive blending, and appropriate size
   - Implement sprite positioning and visibility management
+  - Implement `dispose()` method in JumpAnimationSystem to properly dispose sprite material and geometry when animation system is destroyed
+  - Ensure sprite is reused across jumps (created once, repositioned) to avoid repeated GPU allocations
   - Verify ship indicator has sufficient contrast against starmap background in various viewing angles
   - _Requirements: 1.2, 3.5, 4.1, 4.2_
 
@@ -58,6 +60,7 @@
   - Use requestAnimationFrame for smooth 60fps animation
   - Apply easeInOutCubic easing to camera position interpolation
   - Apply easeInOutCubic easing to camera look-at interpolation
+  - **CRITICAL: Declare temp Vector3 objects ONCE outside the animation loop, reuse via .copy() and .lerp() - NEVER call .clone() or new Vector3() inside requestAnimationFrame**
   - Return Promise that resolves when transition completes
   - _Requirements: 2.1, 2.2, 2.5_
 
@@ -71,6 +74,7 @@
   - Make ship indicator visible
   - Use requestAnimationFrame for smooth animation
   - Apply linear interpolation for ship movement (constant velocity)
+  - **CRITICAL: Declare temp Vector3 objects ONCE outside the animation loop, reuse via .copy() and .lerp() - NEVER call .clone() or new Vector3() inside requestAnimationFrame**
   - Calculate travel duration based on distance with min/max bounds
   - Return Promise that resolves when travel completes
   - _Requirements: 1.3, 3.1, 3.2, 3.3, 3.4_

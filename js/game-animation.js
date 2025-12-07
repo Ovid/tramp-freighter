@@ -27,13 +27,12 @@ export class AnimationTimingCalculator {
     static calculateTravelDuration(distance) {
         const { MIN_TRAVEL_DURATION, MAX_TRAVEL_DURATION, MIN_DISTANCE, MAX_DISTANCE } = ANIMATION_CONFIG;
         
-        // Clamp distance to valid range
+        // Clamp to prevent negative durations and ensure animations don't exceed tedium threshold
         const clampedDistance = Math.max(MIN_DISTANCE, Math.min(distance, MAX_DISTANCE));
         
-        // Linear interpolation: t = 0 at MIN_DISTANCE, t = 1 at MAX_DISTANCE
+        // Linear scaling creates natural feel where longer jumps take proportionally longer
         const t = (clampedDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
         
-        // Interpolate between min and max durations
         return MIN_TRAVEL_DURATION + (MAX_TRAVEL_DURATION - MIN_TRAVEL_DURATION) * t;
     }
     
@@ -89,19 +88,6 @@ export class EasingFunctions {
         return t < 0.5
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
-    
-    /**
-     * Linear interpolation (no easing)
-     * 
-     * Returns the input value unchanged, creating constant-velocity movement.
-     * Used for ship indicator travel to simulate steady space flight.
-     * 
-     * @param {number} t - Progress value between 0 and 1
-     * @returns {number} Same value (linear)
-     */
-    static linear(t) {
-        return t;
     }
 }
 

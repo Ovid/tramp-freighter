@@ -12,13 +12,18 @@ describe('AnimationTimingCalculator - Property Tests', () => {
     // ========================================================================
     
     it('Property 6: For any jump distance, travel duration should scale linearly with distance but be clamped to [1, 3] seconds', () => {
-        // Generator for distances covering the full range and beyond
-        const distanceGenerator = fc.float({ 
-            min: -5,  // Test negative distances (edge case)
-            max: 30,  // Test beyond max distance
-            noNaN: true,
-            noDefaultInfinity: true
-        });
+        // Combines explicit boundary values with random values for comprehensive testing
+        const distanceGenerator = fc.oneof(
+            // Explicit boundary values to ensure critical points are always tested
+            fc.constantFrom(-5, 0, ANIMATION_CONFIG.MIN_DISTANCE, ANIMATION_CONFIG.MAX_DISTANCE, 30),
+            // Random values across the full range
+            fc.float({ 
+                min: -5,  // Test negative distances (edge case)
+                max: 30,  // Test beyond max distance
+                noNaN: true,
+                noDefaultInfinity: true
+            })
+        );
         
         fc.assert(
             fc.property(distanceGenerator, (distance) => {
@@ -72,13 +77,18 @@ describe('AnimationTimingCalculator - Property Tests', () => {
     // ========================================================================
     
     it('Property 7: For any jump, total animation duration should be between 3 and 5 seconds', () => {
-        // Generator for distances covering the full range
-        const distanceGenerator = fc.float({ 
-            min: 0,
-            max: 25,  // Test beyond max distance
-            noNaN: true,
-            noDefaultInfinity: true
-        });
+        // Combines explicit boundary values with random values for comprehensive testing
+        const distanceGenerator = fc.oneof(
+            // Explicit boundary values to ensure critical points are always tested
+            fc.constantFrom(0, ANIMATION_CONFIG.MIN_DISTANCE, ANIMATION_CONFIG.MAX_DISTANCE, 25),
+            // Random values across the full range
+            fc.float({ 
+                min: 0,
+                max: 25,  // Test beyond max distance
+                noNaN: true,
+                noDefaultInfinity: true
+            })
+        );
         
         fc.assert(
             fc.property(distanceGenerator, (distance) => {

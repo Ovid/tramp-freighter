@@ -203,17 +203,10 @@ class EasingFunctions {
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
-    
-    /**
-     * Linear interpolation (no easing)
-     * @param {number} t - Progress value between 0 and 1
-     * @returns {number} Same value (linear)
-     */
-    static linear(t) {
-        return t;
-    }
 }
 ```
+
+**Note:** Ship movement uses direct linear interpolation (no easing function needed). Simply use the progress value `t` directly in lerp calculations.
 
 ## Data Models
 
@@ -252,8 +245,8 @@ const ANIMATION_CONFIG = {
     MIN_SIDE_VIEW_DISTANCE: 100,  // Minimum camera distance
     
     // Easing functions
-    CAMERA_EASING: 'easeInOutCubic',
-    SHIP_EASING: 'linear'
+    CAMERA_EASING: 'easeInOutCubic'
+    // Ship movement uses direct linear interpolation (no easing function needed)
 };
 ```
 
