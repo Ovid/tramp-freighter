@@ -122,8 +122,8 @@ describe('Quick Access Buttons Integration', () => {
       gameStateManager.updateLocation(sol.id);
       uiManager.updateLocation(sol.id);
 
-      let tradeBtn = document.getElementById('quick-station-btn');
-      let travelBtn = document.getElementById('quick-system-info-btn');
+      const tradeBtn = document.getElementById('quick-station-btn');
+      const travelBtn = document.getElementById('quick-system-info-btn');
       expect(tradeBtn.disabled).toBe(false);
       expect(travelBtn.disabled).toBe(false);
 
@@ -133,8 +133,7 @@ describe('Quick Access Buttons Integration', () => {
       gameStateManager.updateLocation(mockSystemWithoutStation.id);
       uiManager.updateLocation(mockSystemWithoutStation.id);
 
-      tradeBtn = document.getElementById('quick-station-btn');
-      travelBtn = document.getElementById('quick-system-info-btn');
+      // Button references are still valid, no need to re-query
       expect(tradeBtn.disabled).toBe(false);
       expect(travelBtn.disabled).toBe(false);
     });

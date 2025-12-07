@@ -45,12 +45,21 @@ describe('Quick Access Buttons', () => {
       expect(uiManager.elements.quickStationBtn).toBeTruthy();
     });
 
-    it('should set up event handlers for quick access buttons', () => {
-      const tradeBtn = document.getElementById('quick-system-info-btn');
-      const stationBtn = document.getElementById('quick-station-btn');
+    it('should attach click handlers to quick access buttons', () => {
+      const showSystemInfoSpy = vi.spyOn(uiManager, 'showSystemInfoPanel');
+      const openStationSpy = vi.spyOn(uiManager, 'openStationOrShowError');
 
-      expect(tradeBtn).toBeTruthy();
-      expect(stationBtn).toBeTruthy();
+      const travelBtn = document.getElementById('quick-system-info-btn');
+      const tradeBtn = document.getElementById('quick-station-btn');
+
+      travelBtn.click();
+      expect(showSystemInfoSpy).toHaveBeenCalledTimes(1);
+
+      tradeBtn.click();
+      expect(openStationSpy).toHaveBeenCalledTimes(1);
+
+      showSystemInfoSpy.mockRestore();
+      openStationSpy.mockRestore();
     });
   });
 
@@ -102,7 +111,7 @@ describe('Quick Access Buttons', () => {
       gameStateManager.updateLocation(sol.id);
       uiManager.updateLocation(sol.id);
 
-      let tradeBtn = document.getElementById('quick-station-btn');
+      const tradeBtn = document.getElementById('quick-station-btn');
       expect(tradeBtn.disabled).toBe(false);
 
       // Move to a mock system without station
@@ -111,7 +120,7 @@ describe('Quick Access Buttons', () => {
       gameStateManager.updateLocation(mockSystemWithoutStation.id);
       uiManager.updateLocation(mockSystemWithoutStation.id);
 
-      tradeBtn = document.getElementById('quick-station-btn');
+      // Button reference is still valid, no need to re-query
       expect(tradeBtn.disabled).toBe(false);
     });
   });

@@ -355,35 +355,15 @@ export class UIManager {
   setupQuickAccessHandlers() {
     if (this.elements.quickSystemInfoBtn) {
       this.elements.quickSystemInfoBtn.addEventListener('click', () => {
-        this.handleTravelButtonClick();
+        this.showSystemInfoPanel();
       });
     }
 
     if (this.elements.quickStationBtn) {
       this.elements.quickStationBtn.addEventListener('click', () => {
-        this.handleTradeButtonClick();
+        this.openStationOrShowError();
       });
     }
-  }
-
-  handleTravelButtonClick() {
-    this.showSystemInfoPanel();
-  }
-
-  handleTradeButtonClick() {
-    const state = this.gameStateManager.getState();
-    if (!state) return;
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    // Check if system has a station
-    if (!system || system.st === 0) {
-      this.showError('No station at current system');
-      return;
-    }
-
-    this.showStationInterface();
   }
 
   showSystemInfoPanel() {
@@ -399,20 +379,28 @@ export class UIManager {
     }
   }
 
-  updateQuickAccessButtons() {
+  openStationOrShowError() {
     const state = this.gameStateManager.getState();
     if (!state) return;
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
-    // Travel button is always enabled
+    // Check if system has a station
+    if (!system || system.st === 0) {
+      this.showError('No station at current system');
+      return;
+    }
+
+    this.showStationInterface();
+  }
+
+  updateQuickAccessButtons() {
+    // Both buttons remain enabled to provide immediate feedback on click
     if (this.elements.quickSystemInfoBtn) {
       this.elements.quickSystemInfoBtn.disabled = false;
     }
 
-    // Trade button is always clickable, but shows error if no station
-    // This allows users to get feedback about why they can't trade
     if (this.elements.quickStationBtn) {
       this.elements.quickStationBtn.disabled = false;
     }
