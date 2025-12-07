@@ -96,7 +96,6 @@ describe('Property: Market Rumor Generation', () => {
                 (starData, currentDay) => {
                     // Create an active event for a random system
                     const eventSystemId = Math.floor(Math.random() * starData.length);
-                    const eventSystem = starData[eventSystemId];
                     
                     const gameState = {
                         player: {

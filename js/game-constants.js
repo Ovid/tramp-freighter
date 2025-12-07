@@ -78,6 +78,31 @@ export const DAILY_FLUCTUATION = {
 };
 
 /**
+ * Information Broker pricing tiers
+ * 
+ * The information broker sells market intelligence based on how recently
+ * the player visited a system. Pricing reflects information freshness:
+ * - Recent visits: Data is mostly current, low cost
+ * - Never visited: Complete unknown, highest cost
+ * - Stale visits: Outdated data, moderate cost
+ * - Rumors: Vague hints, cheapest option
+ */
+export const INTELLIGENCE_PRICES = {
+    RECENT_VISIT: 50,      // System visited within RECENT_THRESHOLD days
+    NEVER_VISITED: 100,    // System never visited
+    STALE_VISIT: 75,       // System visited more than RECENT_THRESHOLD days ago
+    RUMOR: 25              // Market rumor/hint
+};
+
+/**
+ * Time threshold for considering intelligence "recent"
+ * 
+ * Price knowledge older than this many days is considered stale
+ * and costs more to refresh via the information broker.
+ */
+export const INTELLIGENCE_RECENT_THRESHOLD = 30;
+
+/**
  * Fuel pricing configuration by system distance from Sol
  * 
  * Pricing tiers reflect supply chain logistics:

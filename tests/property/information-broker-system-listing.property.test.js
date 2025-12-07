@@ -24,7 +24,7 @@ describe('Property: Information Broker System Listing', () => {
                         st: fc.integer({ min: 0, max: 5 })
                     }),
                     { minLength: 1, maxLength: 20 }
-                ).map((systems, idx) => systems.map((s, i) => ({ ...s, id: i }))),
+                ).map((systems) => systems.map((s, i) => ({ ...s, id: i }))),
                 // Generate random price knowledge
                 fc.dictionary(
                     fc.integer({ min: 0, max: 116 }).map(String),

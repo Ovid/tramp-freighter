@@ -1,20 +1,6 @@
-import { BASE_PRICES } from './game-constants.js';
+import { BASE_PRICES, INTELLIGENCE_PRICES, INTELLIGENCE_RECENT_THRESHOLD } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
-
-/**
- * Information Broker pricing constants
- * 
- * The information broker sells market intelligence to players, allowing them
- * to make informed trading decisions without visiting every system.
- */
-const PRICES = {
-    RECENT_VISIT: 50,      // System visited within RECENT_THRESHOLD days
-    NEVER_VISITED: 100,    // System never visited
-    STALE_VISIT: 75,       // System visited more than RECENT_THRESHOLD days ago
-    RUMOR: 25              // Market rumor/hint
-};
-
-const RECENT_THRESHOLD = 30;  // Days to consider a visit "recent"
+import { SeededRandom } from './seeded-random.js';
 
 /**
  * InformationBroker - Handles market intelligence purchases and rumor generation
@@ -36,16 +22,16 @@ export class InformationBroker {
         
         // Never visited
         if (!knowledge) {
-            return PRICES.NEVER_VISITED;
+            return INTELLIGENCE_PRICES.NEVER_VISITED;
         }
         
         // Recently visited (within threshold)
-        if (knowledge.lastVisit <= RECENT_THRESHOLD) {
-            return PRICES.RECENT_VISIT;
+        if (knowledge.lastVisit <= INTELLIGENCE_RECENT_THRESHOLD) {
+            return INTELLIGENCE_PRICES.RECENT_VISIT;
         }
         
         // Stale visit (beyond threshold)
-        return PRICES.STALE_VISIT;
+        return INTELLIGENCE_PRICES.STALE_VISIT;
     }
     
     /**
@@ -95,10 +81,6 @@ export class InformationBroker {
         gameState.player.credits -= cost;
         
         // Update price knowledge
-        if (!gameState.world.priceKnowledge) {
-            gameState.world.priceKnowledge = {};
-        }
-        
         gameState.world.priceKnowledge[systemId] = {
             lastVisit: 0,  // Intelligence is "current"
             prices: currentPrices
@@ -110,7 +92,9 @@ export class InformationBroker {
     /**
      * Generate a market rumor with hints about prices or events
      * 
-     * Provides vague but useful information about market conditions in a random system.
+     * Uses seeded random based on current day for deterministic behavior.
+     * This ensures rumors are consistent for the same game state, making
+     * testing reliable while still providing variety across different days.
      * 
      * @param {Object} gameState - Current game state
      * @param {Array} starData - Star system data
@@ -120,9 +104,14 @@ export class InformationBroker {
         const currentDay = gameState.player.daysElapsed;
         const activeEvents = gameState.world.activeEvents || [];
         
+        // Use seeded random for deterministic rumor generation
+        const seed = `rumor_${currentDay}`;
+        const rng = new SeededRandom(seed);
+        
         // If there are active events, 50% chance to hint about one
-        if (activeEvents.length > 0 && Math.random() < 0.5) {
-            const event = activeEvents[Math.floor(Math.random() * activeEvents.length)];
+        if (activeEvents.length > 0 && rng.next() < 0.5) {
+            const eventIndex = Math.floor(rng.next() * activeEvents.length);
+            const event = activeEvents[eventIndex];
             const system = starData.find(s => s.id === event.systemId);
             
             if (system) {
@@ -141,7 +130,8 @@ export class InformationBroker {
         
         // Otherwise, hint about a good price somewhere
         const commodities = Object.keys(BASE_PRICES);
-        const randomGood = commodities[Math.floor(Math.random() * commodities.length)];
+        const commodityIndex = Math.floor(rng.next() * commodities.length);
+        const randomGood = commodities[commodityIndex];
         
         // Find a system with a good price for this commodity
         let bestSystem = null;
@@ -206,5 +196,5 @@ export class InformationBroker {
     }
 }
 
-// Export constants for testing
-export { PRICES, RECENT_THRESHOLD };
+// Re-export constants for testing convenience
+export { INTELLIGENCE_PRICES as PRICES, INTELLIGENCE_RECENT_THRESHOLD as RECENT_THRESHOLD };
