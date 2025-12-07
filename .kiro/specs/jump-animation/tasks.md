@@ -119,7 +119,7 @@
   - Log errors to console for debugging
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [x] 9.1 Write property test for graceful error handling
+- [ ] 9.1 Write property test for graceful error handling
   - **Property 9: Graceful error handling**
   - **Validates: Requirements 7.1, 7.2, 7.3**
   - **PBT Status: passed** - All error handling scenarios validated

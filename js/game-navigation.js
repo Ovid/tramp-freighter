@@ -1,3 +1,5 @@
+'use strict';
+
 import { LY_PER_UNIT } from './game-constants.js';
 
 /**

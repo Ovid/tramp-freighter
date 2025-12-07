@@ -97,10 +97,18 @@ describe('Property 9: Graceful error handling', () => {
     });
 
     it('should still perform full animation sequence for very close stars', async () => {
-      // Mock requestAnimationFrame to execute immediately
+      // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
+      const originalPerformanceNow = performance.now;
+      
+      let mockTime = 0;
+      performance.now = () => {
+        mockTime += 100; // Advance 100ms per frame to complete animations quickly
+        return mockTime;
+      };
+      
       global.requestAnimationFrame = (cb) => {
-        setTimeout(cb, 0);
+        cb();
         return 1;
       };
 
@@ -115,6 +123,7 @@ describe('Property 9: Graceful error handling', () => {
         expect(animationSystem.inputLockManager.isInputLocked()).toBe(false);
       } finally {
         global.requestAnimationFrame = originalRAF;
+        performance.now = originalPerformanceNow;
       }
     });
   });
@@ -137,10 +146,18 @@ describe('Property 9: Graceful error handling', () => {
     });
 
     it('should complete animation in reasonable time for very distant stars', async () => {
-      // Mock requestAnimationFrame to execute immediately
+      // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
+      const originalPerformanceNow = performance.now;
+      
+      let mockTime = 0;
+      performance.now = () => {
+        mockTime += 100; // Advance 100ms per frame to complete animations quickly
+        return mockTime;
+      };
+      
       global.requestAnimationFrame = (cb) => {
-        setTimeout(cb, 0);
+        cb();
         return 1;
       };
 
@@ -155,20 +172,29 @@ describe('Property 9: Graceful error handling', () => {
         expect(animationSystem.inputLockManager.isInputLocked()).toBe(false);
       } finally {
         global.requestAnimationFrame = originalRAF;
+        performance.now = originalPerformanceNow;
       }
-    }, 10000); // Increase timeout to 10 seconds for this test
+    });
   });
 
   describe('Requirement 7.3: Errors restore controls and camera state', () => {
     it('should unlock controls even if animation throws error', async () => {
-      // Mock requestAnimationFrame to execute immediately
+      // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
+      const originalPerformanceNow = performance.now;
+      
+      let mockTime = 0;
+      performance.now = () => {
+        mockTime += 100; // Advance 100ms per frame
+        return mockTime;
+      };
+      
       global.requestAnimationFrame = (cb) => {
-        setTimeout(cb, 0);
+        cb();
         return 1;
       };
 
-      // Mock console.error to suppress expected error output
+      // Mock console.error to capture expected error output
       const originalConsoleError = console.error;
       const errorMessages = [];
       console.error = (...args) => {
@@ -189,22 +215,35 @@ describe('Property 9: Graceful error handling', () => {
         // Animation flag should be reset
         expect(animationSystem.isAnimating).toBe(false);
       } finally {
+        // Always restore mocks
         global.requestAnimationFrame = originalRAF;
+        performance.now = originalPerformanceNow;
         console.error = originalConsoleError;
       }
     });
 
     it('should hide ship indicator if error occurs during animation', async () => {
-      // Mock requestAnimationFrame to execute immediately
+      // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
+      const originalPerformanceNow = performance.now;
+      
+      let mockTime = 0;
+      performance.now = () => {
+        mockTime += 100; // Advance 100ms per frame
+        return mockTime;
+      };
+      
       global.requestAnimationFrame = (cb) => {
-        setTimeout(cb, 0);
+        cb();
         return 1;
       };
 
-      // Mock console.error to suppress expected error output
+      // Mock console.error to capture expected error output
       const originalConsoleError = console.error;
-      console.error = vi.fn();
+      const errorMessages = [];
+      console.error = (...args) => {
+        errorMessages.push(args);
+      };
 
       try {
         // Make ship indicator visible
@@ -213,10 +252,15 @@ describe('Property 9: Graceful error handling', () => {
         // Force an error
         await animationSystem.playJumpAnimation(999, 1000);
 
+        // Should have logged error
+        expect(errorMessages.length).toBeGreaterThan(0);
+
         // Ship indicator should be hidden
         expect(animationSystem.shipIndicator.visible).toBe(false);
       } finally {
+        // Always restore mocks
         global.requestAnimationFrame = originalRAF;
+        performance.now = originalPerformanceNow;
         console.error = originalConsoleError;
       }
     });
@@ -258,16 +302,27 @@ describe('Property 9: Graceful error handling', () => {
     });
 
     it('should restore camera state after error', async () => {
-      // Mock requestAnimationFrame to execute immediately
+      // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
+      const originalPerformanceNow = performance.now;
+      
+      let mockTime = 0;
+      performance.now = () => {
+        mockTime += 100; // Advance 100ms per frame
+        return mockTime;
+      };
+      
       global.requestAnimationFrame = (cb) => {
-        setTimeout(cb, 0);
+        cb();
         return 1;
       };
 
-      // Mock console.error to suppress expected error output
+      // Mock console.error to capture expected error output
       const originalConsoleError = console.error;
-      console.error = vi.fn();
+      const errorMessages = [];
+      console.error = (...args) => {
+        errorMessages.push(args);
+      };
 
       try {
         // Store original camera state
@@ -281,11 +336,16 @@ describe('Property 9: Graceful error handling', () => {
         // Force an error during animation
         await animationSystem.playJumpAnimation(999, 1000);
 
+        // Should have logged error
+        expect(errorMessages.length).toBeGreaterThan(0);
+
         // Camera state restoration is attempted (verified by no crash)
         // originalCameraState should be null after cleanup
         expect(animationSystem.originalCameraState).toBeNull();
       } finally {
+        // Always restore mocks
         global.requestAnimationFrame = originalRAF;
+        performance.now = originalPerformanceNow;
         console.error = originalConsoleError;
       }
     });

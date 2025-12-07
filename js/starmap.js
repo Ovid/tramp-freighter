@@ -1,3 +1,5 @@
+'use strict';
+
 // Import Three.js and OrbitControls as ES modules
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -1390,6 +1392,7 @@ let _clickableObjects = [];
 let sharedStarTexture = null;
 const starMaterials = new Map(); // Cache materials by color hex value
 let sharedReticleTexture = null; // Reused for all selection rings
+let sharedReticleMaterial = null; // Cached material for all selection rings
 
 // Sector boundary
 let sectorBoundary = null;
@@ -1590,6 +1593,11 @@ function disposeStarSystems() {
     sharedReticleTexture = null;
   }
 
+  if (sharedReticleMaterial) {
+    sharedReticleMaterial.dispose();
+    sharedReticleMaterial = null;
+  }
+
   stars.length = 0;
   _clickableObjects.length = 0;
 }
@@ -1778,18 +1786,21 @@ function createSelectionRing() {
     sharedReticleTexture = createTargetingReticleTexture();
   }
 
-  // Create material with additive blending for glow effect
-  const reticleMaterial = new THREE.MeshBasicMaterial({
-    map: sharedReticleTexture,
-    transparent: true,
-    opacity: 1.0,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-  });
+  // Material creation is expensive; cache and reuse across all selection rings
+  // Reduces 117 materials down to 1 shared material (same pattern as star sprites)
+  if (!sharedReticleMaterial) {
+    sharedReticleMaterial = new THREE.MeshBasicMaterial({
+      map: sharedReticleTexture,
+      transparent: true,
+      opacity: 1.0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+  }
 
-  // Create mesh
-  const reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
+  // Create mesh with shared material
+  const reticle = new THREE.Mesh(reticleGeometry, sharedReticleMaterial);
 
   return reticle;
 }

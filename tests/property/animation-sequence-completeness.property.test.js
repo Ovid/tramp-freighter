@@ -200,7 +200,7 @@ describe('Animation Sequence Completeness - Property Tests', () => {
   it('Property 2 (Error Handling): Animation gracefully handles invalid system IDs', async () => {
     const initialEnabled = controls.enabled;
 
-    // Mock console.error to suppress expected error messages during test
+    // Mock console.error to capture expected error messages
     const originalConsoleError = console.error;
     const errorMessages = [];
     console.error = (...args) => {
@@ -240,7 +240,7 @@ describe('Animation Sequence Completeness - Property Tests', () => {
       expect(errorMessages.length).toBeGreaterThan(0);
       expect(errorMessages[0][0]).toContain('Jump animation error');
     } finally {
-      // Restore console.error
+      // Always restore console.error
       console.error = originalConsoleError;
     }
   });

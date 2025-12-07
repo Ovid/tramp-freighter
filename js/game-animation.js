@@ -290,6 +290,12 @@ export class JumpAnimationSystem {
    * Uses cross product with up vector to find perpendicular direction.
    * Applies minimum distance constraint to prevent camera clipping for very close stars.
    *
+   * PERFORMANCE NOTE: This method allocates new Vector3 objects in the return value.
+   * This is acceptable because it's called ONCE per jump (not per animation frame).
+   * The allocation happens outside the requestAnimationFrame loop, so it doesn't
+   * impact frame rate. Methods called inside requestAnimationFrame (like
+   * animateCameraTransition and animateShipTravel) must reuse pre-allocated vectors.
+   *
    * @param {THREE.Vector3} originPos - Origin star position
    * @param {THREE.Vector3} destPos - Destination star position
    * @param {number} distance - Distance between stars
@@ -330,7 +336,7 @@ export class JumpAnimationSystem {
       .addScaledVector(this._tempVec3, cameraDistance);
 
     // Return new Vector3 objects to avoid external mutation of internal state
-    // This method is called once per jump (not per frame), so allocation is acceptable
+    // Allocation is acceptable here: called once per jump, not per animation frame
     return {
       position: new THREE.Vector3().copy(this._tempVec4),
       lookAt: new THREE.Vector3().copy(this._tempVec1),
@@ -373,7 +379,10 @@ export class JumpAnimationSystem {
    * and look-at point using easeInOutCubic easing for a polished, cinematic feel.
    *
    * Uses requestAnimationFrame for smooth 60fps animation without blocking the main thread.
-   * Reuses pre-allocated Vector3 objects to avoid allocations in the animation loop.
+   *
+   * PERFORMANCE CRITICAL: This method runs inside requestAnimationFrame (60fps).
+   * All Vector3 objects are pre-allocated and reused via this._tempVec1-4 to avoid
+   * garbage collection pressure. NEVER allocate objects inside this animation loop.
    *
    * @param {THREE.Vector3} targetPosition - Target camera position
    * @param {THREE.Vector3} targetLookAt - Target camera look-at point
@@ -434,7 +443,9 @@ export class JumpAnimationSystem {
    * Travel duration is calculated based on distance with min/max bounds to ensure
    * short jumps are visible and long jumps don't feel tedious.
    *
-   * Reuses pre-allocated Vector3 objects to avoid allocations in the animation loop.
+   * PERFORMANCE CRITICAL: This method runs inside requestAnimationFrame (60fps).
+   * All Vector3 objects are pre-allocated and reused via this._tempVec1 to avoid
+   * garbage collection pressure. NEVER allocate objects inside this animation loop.
    *
    * @param {THREE.Vector3} originPos - Origin star position
    * @param {THREE.Vector3} destPos - Destination star position
