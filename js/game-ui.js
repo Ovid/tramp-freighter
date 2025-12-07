@@ -37,6 +37,9 @@ export class UIManager {
       cargo: document.getElementById('hud-cargo'),
       system: document.getElementById('hud-system'),
       distance: document.getElementById('hud-distance'),
+      quickSystemInfoBtn: document.getElementById('quick-system-info-btn'),
+      quickStationBtn: document.getElementById('quick-station-btn'),
+      systemInfoPanel: document.getElementById('hud'),
       stationInterface: document.getElementById('station-interface'),
       stationName: document.getElementById('station-name'),
       stationSystemName: document.getElementById('station-system-name'),
@@ -96,6 +99,7 @@ export class UIManager {
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
     this.setupEventModalHandlers();
+    this.setupQuickAccessHandlers();
   }
 
   subscribeToStateChanges() {
@@ -142,6 +146,7 @@ export class UIManager {
     this.updateFuel(state.ship.fuel);
     this.updateCargo();
     this.updateLocation(state.player.currentSystem);
+    this.updateQuickAccessButtons();
   }
 
   updateCredits(credits) {
@@ -177,6 +182,9 @@ export class UIManager {
 
     const distance = calculateDistanceFromSol(system);
     this.elements.distance.textContent = `${distance.toFixed(1)} LY`;
+
+    // Update quick access button states
+    this.updateQuickAccessButtons();
   }
 
   setupStationInterfaceHandlers() {
@@ -342,6 +350,72 @@ export class UIManager {
         this.hideEventNotification();
       }
     });
+  }
+
+  setupQuickAccessHandlers() {
+    if (this.elements.quickSystemInfoBtn) {
+      this.elements.quickSystemInfoBtn.addEventListener('click', () => {
+        this.handleTravelButtonClick();
+      });
+    }
+
+    if (this.elements.quickStationBtn) {
+      this.elements.quickStationBtn.addEventListener('click', () => {
+        this.handleTradeButtonClick();
+      });
+    }
+  }
+
+  handleTravelButtonClick() {
+    this.showSystemInfoPanel();
+  }
+
+  handleTradeButtonClick() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const currentSystemId = state.player.currentSystem;
+    const system = this.starData.find((s) => s.id === currentSystemId);
+
+    // Check if system has a station
+    if (!system || system.st === 0) {
+      this.showError('No station at current system');
+      return;
+    }
+
+    this.showStationInterface();
+  }
+
+  showSystemInfoPanel() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const currentSystemId = state.player.currentSystem;
+
+    // Call the global selectStarById function with openStation=false
+    // This opens only the system info panel, not the station interface
+    if (window.selectStarById) {
+      window.selectStarById(currentSystemId, false);
+    }
+  }
+
+  updateQuickAccessButtons() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const currentSystemId = state.player.currentSystem;
+    const system = this.starData.find((s) => s.id === currentSystemId);
+
+    // Travel button is always enabled
+    if (this.elements.quickSystemInfoBtn) {
+      this.elements.quickSystemInfoBtn.disabled = false;
+    }
+
+    // Trade button is always clickable, but shows error if no station
+    // This allows users to get feedback about why they can't trade
+    if (this.elements.quickStationBtn) {
+      this.elements.quickStationBtn.disabled = false;
+    }
   }
 
   /**

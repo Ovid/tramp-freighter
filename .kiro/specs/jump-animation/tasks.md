@@ -137,5 +137,5 @@
   - Test that UI updates are visible during animation playback
   - _Requirements: 8.5_
 
-- [ ] 12. Checkpoint - Ensure all tests pass
+- [x] 12. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.

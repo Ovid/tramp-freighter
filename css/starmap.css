@@ -73,6 +73,46 @@ canvas {
   text-align: right;
 }
 
+/* Quick Access Buttons */
+.hud-quick-access {
+  margin-top: 10px;
+}
+
+.hud-quick-access-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.hud-quick-access-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-access-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-access-btn:hover:not(:disabled) {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.quick-access-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Fuel Bar Styling */
 .fuel-bar-container {
   position: relative;

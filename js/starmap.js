@@ -2575,7 +2575,7 @@ function hideJumpTooltip() {
   _lastHoveredStarId = null;
 }
 
-function selectStar(star) {
+function selectStar(star, openStation = true) {
   if (selectedStar) {
     deselectStar();
   }
@@ -2607,7 +2607,7 @@ function selectStar(star) {
   showHUD();
 
   // Check if this is the current system and show station interface
-  if (uiManager && gameStateManager) {
+  if (openStation && uiManager && gameStateManager) {
     uiManager.handleSystemClick(star.data.id);
   }
 }
@@ -2795,6 +2795,22 @@ function deselectStar() {
   hideHUD();
   selectedStar = null;
 }
+
+/**
+ * Select a star by its system ID
+ * Used by quick access buttons to reopen system info panel
+ * @param {number} systemId - The system ID to select
+ * @param {boolean} openStation - Whether to also open station interface if at current system
+ */
+function selectStarById(systemId, openStation = true) {
+  const star = stars.find((s) => s.data.id === systemId);
+  if (star) {
+    selectStar(star, openStation);
+  }
+}
+
+// Expose to global scope for UI manager
+window.selectStarById = selectStarById;
 
 function updateHUD(star) {
   document.getElementById('hud-name').textContent = star.data.name;
