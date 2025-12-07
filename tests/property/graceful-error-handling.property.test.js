@@ -132,8 +132,11 @@ describe('Property 9: Graceful error handling', () => {
     it('should use maximum duration for very distant stars', () => {
       fc.assert(
         fc.property(
-          fc.double({ min: 20.01, max: 100 }), // Very distant stars (beyond MAX_DISTANCE)
+          fc.double({ min: 20.01, max: 100, noNaN: true }), // Very distant stars (beyond MAX_DISTANCE)
           (distance) => {
+            // Skip invalid distances
+            fc.pre(Number.isFinite(distance) && distance > 0);
+
             const duration =
               AnimationTimingCalculator.calculateTravelDuration(distance);
 

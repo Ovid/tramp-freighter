@@ -494,11 +494,36 @@ export class JumpAnimationSystem {
   }
 
   /**
+   * Clean up animation state and restore controls
+   *
+   * Restores camera position, hides ship indicator, and unlocks controls.
+   * Called on error or timeout to ensure the game remains in a valid state.
+   */
+  _cleanup() {
+    // Restore camera to original position
+    this._restoreCameraState();
+
+    // Hide ship indicator if visible
+    if (this.shipIndicator) {
+      this.shipIndicator.visible = false;
+    }
+
+    // Unlock controls
+    this.inputLockManager.unlock();
+
+    // Reset animation flag
+    this.isAnimating = false;
+  }
+
+  /**
    * Play the complete jump animation sequence
    *
    * Orchestrates the full animation: lock input → zoom to side view → animate ship travel →
    * zoom back to original view → unlock input. Ensures controls are always restored even
    * if errors occur during animation.
+   *
+   * Includes timeout mechanism to force completion if animation hangs.
+   * Handles edge cases like very close stars (< 1 LY) and very distant stars (> 15 LY).
    *
    * Game state (fuel, location, time) should already be updated before calling this method.
    * This ensures progress is saved even if the animation is interrupted.
@@ -515,6 +540,16 @@ export class JumpAnimationSystem {
     }
 
     this.isAnimating = true;
+
+    // Set up timeout to force completion if animation hangs
+    const timeoutId = setTimeout(() => {
+      console.error(
+        'Animation timeout: forcing completion after',
+        ANIMATION_CONFIG.ANIMATION_TIMEOUT,
+        'ms'
+      );
+      this._cleanup();
+    }, ANIMATION_CONFIG.ANIMATION_TIMEOUT);
 
     try {
       // Find star systems in data
@@ -552,47 +587,68 @@ export class JumpAnimationSystem {
       this.inputLockManager.lock();
 
       // Phase 1: Zoom in to side view
-      const sideView = this.calculateSideViewPosition(
-        originPos,
-        destPos,
-        distance
-      );
-      const zoomDuration = AnimationTimingCalculator.calculateZoomDuration();
-      await this.animateCameraTransition(
-        sideView.position,
-        sideView.lookAt,
-        zoomDuration
-      );
-
-      // Phase 2: Animate ship travel from origin to destination
-      await this.animateShipTravel(originPos, destPos, distance);
-
-      // Phase 3: Zoom out back to original view
-      if (this.originalCameraState) {
+      try {
+        const sideView = this.calculateSideViewPosition(
+          originPos,
+          destPos,
+          distance
+        );
+        const zoomDuration = AnimationTimingCalculator.calculateZoomDuration();
         await this.animateCameraTransition(
-          this.originalCameraState.position,
-          this.originalCameraState.target,
+          sideView.position,
+          sideView.lookAt,
           zoomDuration
         );
+      } catch (error) {
+        console.error('Error during zoom-in phase:', error);
+        throw error;
+      }
+
+      // Phase 2: Animate ship travel from origin to destination
+      try {
+        await this.animateShipTravel(originPos, destPos, distance);
+      } catch (error) {
+        console.error('Error during ship travel phase:', error);
+        throw error;
+      }
+
+      // Phase 3: Zoom out back to original view
+      try {
+        if (this.originalCameraState) {
+          const zoomDuration =
+            AnimationTimingCalculator.calculateZoomDuration();
+          await this.animateCameraTransition(
+            this.originalCameraState.position,
+            this.originalCameraState.target,
+            zoomDuration
+          );
+        }
+      } catch (error) {
+        console.error('Error during zoom-out phase:', error);
+        throw error;
       }
 
       // Restore camera state
       this._restoreCameraState();
+
+      // Clear timeout since animation completed successfully
+      clearTimeout(timeoutId);
     } catch (error) {
       // Log error for debugging
       console.error('Jump animation error:', error);
 
-      // Attempt to restore camera state
-      this._restoreCameraState();
+      // Clean up animation state
+      this._cleanup();
 
-      // Hide ship indicator if visible
-      if (this.shipIndicator) {
-        this.shipIndicator.visible = false;
-      }
+      // Clear timeout
+      clearTimeout(timeoutId);
     } finally {
-      // Always unlock controls, even if animation fails
+      // Always unlock controls and reset state, even if animation fails
       this.inputLockManager.unlock();
       this.isAnimating = false;
+
+      // Clear timeout in case it wasn't cleared above
+      clearTimeout(timeoutId);
     }
   }
 
