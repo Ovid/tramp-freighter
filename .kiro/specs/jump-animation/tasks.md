@@ -68,7 +68,7 @@
   - **Property 3: Camera transition smoothness**
   - **Validates: Requirements 2.1, 2.2**
 
-- [ ] 6. Implement ship travel animation
+- [x] 6. Implement ship travel animation
   - Create `animateShipTravel()` method in `JumpAnimationSystem`
   - Position ship indicator at origin star
   - Make ship indicator visible

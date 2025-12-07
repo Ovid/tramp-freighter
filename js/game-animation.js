@@ -408,6 +408,63 @@ export class JumpAnimationSystem {
   }
 
   /**
+   * Animate ship indicator traveling between stars
+   *
+   * Displays the ship indicator at the origin star and animates it traveling
+   * to the destination star using linear interpolation (constant velocity).
+   * Uses requestAnimationFrame for smooth 60fps animation.
+   *
+   * Travel duration is calculated based on distance with min/max bounds to ensure
+   * short jumps are visible and long jumps don't feel tedious.
+   *
+   * Reuses pre-allocated Vector3 objects to avoid allocations in the animation loop.
+   *
+   * @param {THREE.Vector3} originPos - Origin star position
+   * @param {THREE.Vector3} destPos - Destination star position
+   * @param {number} distance - Distance between stars in light years
+   * @returns {Promise<void>} Resolves when travel animation completes
+   */
+  animateShipTravel(originPos, destPos, distance) {
+    return new Promise((resolve) => {
+      // Calculate travel duration based on distance with bounds
+      const duration = AnimationTimingCalculator.calculateTravelDuration(distance);
+
+      // Position ship indicator at origin star
+      this.shipIndicator.position.copy(originPos);
+
+      // Make ship indicator visible
+      this.shipIndicator.visible = true;
+
+      // Reuse temp vector for interpolated position (avoid allocations in loop)
+      const currentPosition = this._tempVec1;
+
+      const startTime = performance.now();
+
+      const animate = () => {
+        const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
+        const progress = Math.min(elapsed / duration, 1.0);
+
+        // Apply linear interpolation for constant velocity ship movement
+        // No easing function - ship travels at constant speed
+        currentPosition.copy(originPos).lerp(destPos, progress);
+        this.shipIndicator.position.copy(currentPosition);
+
+        // Continue animation or resolve
+        if (progress < 1.0) {
+          requestAnimationFrame(animate);
+        } else {
+          // Hide ship indicator when travel completes
+          this.shipIndicator.visible = false;
+          resolve();
+        }
+      };
+
+      // Start animation
+      requestAnimationFrame(animate);
+    });
+  }
+
+  /**
    * Dispose of animation system resources
    *
    * Properly disposes of sprite material and geometry to prevent GPU memory leaks.
