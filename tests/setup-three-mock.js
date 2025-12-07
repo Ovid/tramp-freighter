@@ -171,16 +171,7 @@ export function setupThreeMock() {
           },
         };
         this.visible = true;
-        this.position = {
-          x: 0,
-          y: 0,
-          z: 0,
-          set(x, y, z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-          },
-        };
+        this.position = new window.THREE.Vector3(0, 0, 0);
       }
     },
 

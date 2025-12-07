@@ -79,7 +79,7 @@
   - Return Promise that resolves when travel completes
   - _Requirements: 1.3, 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 7. Implement complete jump animation sequence
+- [x] 7. Implement complete jump animation sequence
   - Create `JumpAnimationSystem` class with constructor
   - Implement `playJumpAnimation()` method to orchestrate full sequence
   - Lock input controls at animation start
@@ -90,11 +90,11 @@
   - Add error handling with try-catch to ensure controls always unlock
   - _Requirements: 1.1, 1.4, 1.5, 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 7.1 Write property test for animation sequence completeness
+- [x] 7.1 Write property test for animation sequence completeness
   - **Property 2: Animation sequence completeness**
   - **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5, 5.1, 5.2, 5.3, 5.4**
 
-- [ ] 7.2 Write property test for visual style preservation
+- [x] 7.2 Write property test for visual style preservation
   - **Property 8: Visual style preservation**
   - **Validates: Requirements 4.3, 4.4**
 

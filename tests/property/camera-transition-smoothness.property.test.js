@@ -152,8 +152,8 @@ describe('Camera Transition Smoothness - Property Tests', () => {
     );
   });
 
-  // Test that animateCameraTransition stores original camera state
-  it('animateCameraTransition should store original camera state for restoration', async () => {
+  // Test that animateCameraTransition transitions camera to target position
+  it('animateCameraTransition should transition camera to target position and look-at', async () => {
     const THREE = window.THREE;
 
     // Set initial camera state
@@ -191,20 +191,15 @@ describe('Camera Transition Smoothness - Property Tests', () => {
     // Restore RAF
     global.requestAnimationFrame = originalRAF;
 
-    // Property: Original camera state should be stored
-    expect(animationSystem.originalCameraState).toBeDefined();
-    expect(animationSystem.originalCameraState.position.x).toBe(
-      initialPosition.x
-    );
-    expect(animationSystem.originalCameraState.position.y).toBe(
-      initialPosition.y
-    );
-    expect(animationSystem.originalCameraState.position.z).toBe(
-      initialPosition.z
-    );
-    expect(animationSystem.originalCameraState.target.x).toBe(initialTarget.x);
-    expect(animationSystem.originalCameraState.target.y).toBe(initialTarget.y);
-    expect(animationSystem.originalCameraState.target.z).toBe(initialTarget.z);
+    // Property: Camera should have moved to target position
+    expect(camera.position.x).toBeCloseTo(targetPosition.x, 1);
+    expect(camera.position.y).toBeCloseTo(targetPosition.y, 1);
+    expect(camera.position.z).toBeCloseTo(targetPosition.z, 1);
+
+    // Property: Controls target should have moved to target look-at
+    expect(controls.target.x).toBeCloseTo(targetLookAt.x, 1);
+    expect(controls.target.y).toBeCloseTo(targetLookAt.y, 1);
+    expect(controls.target.z).toBeCloseTo(targetLookAt.z, 1);
   });
 
   // Additional test: Verify easing function behavior

@@ -473,6 +473,74 @@ function getCurrentPrice(gameState) {
 }
 ```
 
+### Clean Test Output
+
+**CRITICAL: Tests MUST produce clean output with no stderr messages**
+
+Tests should not pollute the console with error messages, warnings, or debug output. This makes it difficult to identify real issues and creates noise in CI/CD pipelines.
+
+**Guidelines:**
+
+1. **Mock console methods when testing error handling**
+2. **Capture and verify expected errors instead of letting them print**
+3. **Restore mocked console methods in finally blocks**
+4. **Use test assertions to verify error behavior**
+
+```javascript
+// BAD - Lets errors print to stderr during test
+it('should handle invalid input', async () => {
+  await functionThatLogsErrors(invalidInput); // Prints to stderr
+  expect(result).toBe(expectedValue);
+});
+
+// GOOD - Captures errors and verifies them
+it('should handle invalid input', async () => {
+  // Mock console.error to capture expected errors
+  const originalConsoleError = console.error;
+  const errorMessages = [];
+  console.error = (...args) => {
+    errorMessages.push(args);
+  };
+
+  try {
+    await functionThatLogsErrors(invalidInput);
+
+    // Verify the error was logged
+    expect(errorMessages.length).toBeGreaterThan(0);
+    expect(errorMessages[0][0]).toContain('Expected error message');
+
+    // Verify the function handled the error correctly
+    expect(result).toBe(expectedValue);
+  } finally {
+    // Always restore console.error
+    console.error = originalConsoleError;
+  }
+});
+```
+
+**When to mock console methods:**
+
+- Testing error handling that logs to console.error
+- Testing warning messages that log to console.warn
+- Testing debug output that logs to console.log
+- Any test that intentionally triggers errors or warnings
+
+**Benefits of clean test output:**
+
+- Easy to spot real failures in test runs
+- Clean CI/CD logs
+- Professional test reports
+- Easier debugging when tests fail
+- No confusion about whether errors are expected or actual failures
+
+**Test output checklist:**
+
+- [ ] No stderr messages during test runs
+- [ ] No console.error output (unless explicitly testing console output)
+- [ ] No console.warn output
+- [ ] No console.log debug statements left in tests
+- [ ] Expected errors are captured and verified, not printed
+
 ## Browser Compatibility
 
 ### Use Standard APIs

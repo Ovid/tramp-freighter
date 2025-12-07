@@ -382,11 +382,6 @@ export class JumpAnimationSystem {
    */
   animateCameraTransition(targetPosition, targetLookAt, duration) {
     return new Promise((resolve) => {
-      // Store original camera state if not already stored (for restoration after animation sequence)
-      if (!this.originalCameraState) {
-        this._storeCameraState();
-      }
-
       // Store start state for interpolation
       // Reuse temp vectors to avoid allocations
       const startPosition = this._tempVec1.copy(this.camera.position);
@@ -485,6 +480,109 @@ export class JumpAnimationSystem {
       // Start animation
       requestAnimationFrame(animateShipFrame);
     });
+  }
+
+  /**
+   * Play the complete jump animation sequence
+   *
+   * Orchestrates the full animation: lock input → zoom to side view → animate ship travel →
+   * zoom back to original view → unlock input. Ensures controls are always restored even
+   * if errors occur during animation.
+   *
+   * Game state (fuel, location, time) should already be updated before calling this method.
+   * This ensures progress is saved even if the animation is interrupted.
+   *
+   * @param {number} originSystemId - Origin star system ID
+   * @param {number} destinationSystemId - Destination star system ID
+   * @returns {Promise<void>} Resolves when animation completes
+   */
+  async playJumpAnimation(originSystemId, destinationSystemId) {
+    // Prevent overlapping animations
+    if (this.isAnimating) {
+      console.warn('Animation already in progress, ignoring request');
+      return;
+    }
+
+    this.isAnimating = true;
+
+    try {
+      // Find star systems in data
+      const originSystem = this.starData.find((s) => s.id === originSystemId);
+      const destinationSystem = this.starData.find(
+        (s) => s.id === destinationSystemId
+      );
+
+      if (!originSystem || !destinationSystem) {
+        throw new Error(
+          `Invalid system IDs: origin=${originSystemId}, destination=${destinationSystemId}`
+        );
+      }
+
+      // Get star positions
+      const THREE = window.THREE;
+      const originPos = new THREE.Vector3(
+        originSystem.x,
+        originSystem.y,
+        originSystem.z
+      );
+      const destPos = new THREE.Vector3(
+        destinationSystem.x,
+        destinationSystem.y,
+        destinationSystem.z
+      );
+
+      // Calculate distance for timing
+      const distance = originPos.distanceTo(destPos);
+
+      // Store original camera state before any transitions
+      this._storeCameraState();
+
+      // Lock input controls to prevent interaction during animation
+      this.inputLockManager.lock();
+
+      // Phase 1: Zoom in to side view
+      const sideView = this.calculateSideViewPosition(
+        originPos,
+        destPos,
+        distance
+      );
+      const zoomDuration = AnimationTimingCalculator.calculateZoomDuration();
+      await this.animateCameraTransition(
+        sideView.position,
+        sideView.lookAt,
+        zoomDuration
+      );
+
+      // Phase 2: Animate ship travel from origin to destination
+      await this.animateShipTravel(originPos, destPos, distance);
+
+      // Phase 3: Zoom out back to original view
+      if (this.originalCameraState) {
+        await this.animateCameraTransition(
+          this.originalCameraState.position,
+          this.originalCameraState.target,
+          zoomDuration
+        );
+      }
+
+      // Restore camera state
+      this._restoreCameraState();
+    } catch (error) {
+      // Log error for debugging
+      console.error('Jump animation error:', error);
+
+      // Attempt to restore camera state
+      this._restoreCameraState();
+
+      // Hide ship indicator if visible
+      if (this.shipIndicator) {
+        this.shipIndicator.visible = false;
+      }
+    } finally {
+      // Always unlock controls, even if animation fails
+      this.inputLockManager.unlock();
+      this.isAnimating = false;
+    }
   }
 
   /**
