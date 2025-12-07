@@ -259,6 +259,64 @@ export class JumpAnimationSystem {
     }
     
     /**
+     * Calculate side view camera position perpendicular to jump path
+     * 
+     * Positions the camera to provide a cinematic side view of both stars.
+     * The camera is placed perpendicular to the line between origin and destination,
+     * at a distance that frames both stars comfortably in view.
+     * 
+     * Uses cross product with up vector to find perpendicular direction.
+     * Applies minimum distance constraint to prevent camera clipping for very close stars.
+     * 
+     * @param {THREE.Vector3} originPos - Origin star position
+     * @param {THREE.Vector3} destPos - Destination star position
+     * @param {number} distance - Distance between stars
+     * @returns {Object} { position: THREE.Vector3, lookAt: THREE.Vector3 }
+     */
+    calculateSideViewPosition(originPos, destPos, distance) {
+        const THREE = window.THREE;
+        
+        // Calculate midpoint between stars (camera will look at this point)
+        const midpoint = new THREE.Vector3();
+        midpoint.addVectors(originPos, destPos).multiplyScalar(0.5);
+        
+        // Calculate direction vector from origin to destination
+        const jumpDirection = new THREE.Vector3();
+        jumpDirection.subVectors(destPos, originPos).normalize();
+        
+        // Calculate perpendicular vector using cross product with up vector
+        // This gives us a direction perpendicular to the jump path
+        const up = new THREE.Vector3(0, 1, 0);
+        const perpendicular = new THREE.Vector3();
+        perpendicular.crossVectors(jumpDirection, up);
+        
+        // Handle edge case: if jump is perfectly vertical, use different reference vector
+        // When jumpDirection is parallel to up vector, cross product is zero
+        if (perpendicular.lengthSq() < 0.0001) {
+            // Use forward vector instead of up vector
+            const forward = new THREE.Vector3(0, 0, 1);
+            perpendicular.crossVectors(jumpDirection, forward);
+        }
+        
+        perpendicular.normalize();
+        
+        // Calculate camera distance from midpoint
+        // Use multiplier to ensure both stars are comfortably in view
+        // Apply minimum distance constraint for very close stars
+        const baseDistance = distance * ANIMATION_CONFIG.SIDE_VIEW_DISTANCE_MULTIPLIER;
+        const cameraDistance = Math.max(baseDistance, ANIMATION_CONFIG.MIN_SIDE_VIEW_DISTANCE);
+        
+        // Position camera perpendicular to jump path at calculated distance
+        const cameraPosition = new THREE.Vector3();
+        cameraPosition.copy(midpoint).addScaledVector(perpendicular, cameraDistance);
+        
+        return {
+            position: cameraPosition,
+            lookAt: midpoint
+        };
+    }
+    
+    /**
      * Dispose of animation system resources
      * 
      * Properly disposes of sprite material and geometry to prevent GPU memory leaks.
