@@ -311,11 +311,11 @@ const ANIMATION_CONFIG = {
 
 ### Property 7: Total animation duration bounds
 
-*For any* jump, the total animation duration (zoom-in + travel + zoom-out) SHALL be between 2 and 6 seconds, ensuring appropriate pacing without tedium.
+*For any* jump, the total animation duration (zoom-in + travel + zoom-out) SHALL be between 3 and 5 seconds, ensuring appropriate pacing without tedium.
 
-**Reasoning**: This property ensures the complete animation experience is neither too fast (disorienting) nor too slow (boring). The 2-6 second range provides enough time for the player to appreciate the journey while maintaining good game pacing.
+**Reasoning**: This property ensures the complete animation experience is neither too fast (disorienting) nor too slow (boring). The 3-5 second range (1.0s zoom-in + 1-3s travel + 1.0s zoom-out) provides enough time for the player to appreciate the journey while maintaining good game pacing.
 
-**Validates: Requirements 6.1, 6.4**
+**Validates: Requirements 6.1, 6.2, 6.4**
 
 ### Property 8: Visual style preservation
 
@@ -331,7 +331,7 @@ const ANIMATION_CONFIG = {
 
 **Reasoning**: This property ensures robustness. Even when things go wrong, the player should never be left with a broken game state or locked controls. By testing error scenarios and verifying recovery, we ensure the game remains playable even when animations fail.
 
-**Validates: Requirements 7.1, 7.2, 7.4**
+**Validates: Requirements 7.1, 7.2, 7.3**
 
 ## Error Handling
 

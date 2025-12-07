@@ -83,9 +83,9 @@ The Jump Animation feature enhances the player experience during interstellar tr
 #### Acceptance Criteria
 
 1. WHEN the Animation System calculates total animation duration THEN the Animation System SHALL include zoom-in time, travel time, and zoom-out time
-2. WHEN the Animation System performs zoom transitions THEN the Animation System SHALL use a duration between 0.5 and 1.5 seconds per zoom
+2. WHEN the Animation System performs zoom transitions THEN the Animation System SHALL use a fixed duration of 1.0 seconds per zoom
 3. WHEN the Animation System animates ship travel THEN the Animation System SHALL use a duration between 1 and 3 seconds based on distance
-4. WHEN the total animation duration is calculated THEN the Animation System SHALL ensure the complete animation takes between 2 and 6 seconds
+4. WHEN the total animation duration is calculated THEN the Animation System SHALL ensure the complete animation takes between 3 and 5 seconds
 
 ### Requirement 7
 
@@ -95,8 +95,7 @@ The Jump Animation feature enhances the player experience during interstellar tr
 
 1. WHEN the origin and destination stars are very close together THEN the Animation System SHALL still perform a visible animation with minimum durations
 2. WHEN the origin and destination stars are at maximum distance THEN the Animation System SHALL cap the animation duration to prevent excessive wait times
-3. WHEN the camera cannot find a clear side view angle THEN the Animation System SHALL choose an alternative angle that frames both stars
-4. WHEN the animation is interrupted by an error THEN the Animation System SHALL gracefully complete the animation and restore normal controls
+3. WHEN the animation is interrupted by an error THEN the Animation System SHALL gracefully complete the animation and restore normal controls
 
 ### Requirement 8
 

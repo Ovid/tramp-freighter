@@ -32,6 +32,7 @@
   - Use same texture creation pattern as star sprites for consistency
   - Configure sprite with red color (0xFF0000), additive blending, and appropriate size
   - Implement sprite positioning and visibility management
+  - Verify ship indicator has sufficient contrast against starmap background in various viewing angles
   - _Requirements: 1.2, 3.5, 4.1, 4.2_
 
 - [ ] 3.1 Write property test for ship indicator visual consistency
@@ -112,11 +113,11 @@
   - Handle very distant stars (> 15 LY) with maximum durations
   - Add timeout mechanism (10 seconds) to force completion if animation hangs
   - Log errors to console for debugging
-  - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - _Requirements: 7.1, 7.2, 7.3_
 
 - [ ] 9.1 Write property test for graceful error handling
   - **Property 9: Graceful error handling**
-  - **Validates: Requirements 7.1, 7.2, 7.4**
+  - **Validates: Requirements 7.1, 7.2, 7.3**
 
 - [ ] 10. Initialize animation system in starmap
   - Create `JumpAnimationSystem` instance in `starmap.js` initialization
