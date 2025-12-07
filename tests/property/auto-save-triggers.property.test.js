@@ -34,12 +34,12 @@ describe('Property 34: Auto-Save Triggers', () => {
    * For any game operation that modifies state (jump, trade, refuel, dock, undock),
    * the system should automatically trigger a save operation.
    */
-  it('should auto-save after jump completion', () => {
-    fc.assert(
-      fc.property(
+  it('should auto-save after jump completion', async () => {
+    await fc.assert(
+      fc.asyncProperty(
         // Generate a valid wormhole connection
         fc.constantFrom(...TEST_WORMHOLE_DATA),
-        (connection) => {
+        async (connection) => {
           const [systemId1, systemId2] = connection;
 
           resetSaveState();
@@ -52,7 +52,10 @@ describe('Property 34: Auto-Save Triggers', () => {
           expect(localStorage.getItem('trampFreighterSave')).toBe(null);
 
           // Execute jump
-          const result = navSystem.executeJump(gameStateManager, systemId2);
+          const result = await navSystem.executeJump(
+            gameStateManager,
+            systemId2
+          );
 
           // Should succeed
           expect(result.success).toBe(true);

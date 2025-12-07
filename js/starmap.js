@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameStateManager } from './game-state.js';
 import { NavigationSystem } from './game-navigation.js';
 import { UIManager } from './game-ui.js';
+import { JumpAnimationSystem } from './game-animation.js';
 import {
   SPECTRAL_COLORS,
   VISUAL_CONFIG,
@@ -1375,6 +1376,12 @@ let ambientLight, directionalLight;
 
 // Runtime star objects storage
 let stars = [];
+
+// Game systems
+let gameStateManager = null;
+let navigationSystem = null;
+let uiManager = null;
+let jumpAnimationSystem = null;
 
 // Cached array of clickable objects to avoid allocation on every click
 let _clickableObjects = [];
@@ -2932,11 +2939,6 @@ window.zoomOut = zoomOut;
 window.toggleRotation = toggleRotation;
 window.deselectStar = deselectStar;
 
-// Global game state manager, navigation system, and UI manager instances
-let gameStateManager = null;
-let navigationSystem = null;
-let uiManager = null;
-
 // Frame counter for throttling expensive operations
 let _frameCount = 0;
 const LABEL_UPDATE_INTERVAL = 3; // Update labels every 3 frames (~20fps)
@@ -3018,6 +3020,14 @@ function startGame(isNewGame) {
   // Initialize UI manager
   uiManager = new UIManager(gameStateManager);
 
+  // Initialize jump animation system
+  jumpAnimationSystem = new JumpAnimationSystem(
+    scene,
+    camera,
+    controls,
+    STAR_DATA
+  );
+
   // Load or create game state
   if (isNewGame) {
     gameStateManager.initNewGame();
@@ -3052,8 +3062,11 @@ function startGame(isNewGame) {
   // Make game state manager and UI manager available globally for debugging
   window.gameStateManager = gameStateManager;
   window.uiManager = uiManager;
+  window.jumpAnimationSystem = jumpAnimationSystem;
 
-  console.log('Game state manager and UI manager initialized');
+  console.log(
+    'Game state manager, UI manager, and animation system initialized'
+  );
 
   // Select current system on initialization
   const currentSystemId = gameStateManager.getPlayer().currentSystem;
@@ -3087,18 +3100,21 @@ function setupJumpAndDockHandlers(navigationSystem) {
   const dockBtn = document.getElementById('dock-btn');
 
   if (jumpBtn) {
-    jumpBtn.addEventListener('click', () => {
+    jumpBtn.addEventListener('click', async () => {
       if (!selectedStar || !gameStateManager) return;
 
       const targetSystemId = selectedStar.data.id;
       const targetSystemName = selectedStar.data.name;
-      const result = navigationSystem.executeJump(
+
+      // Execute jump with animation system
+      const result = await navigationSystem.executeJump(
         gameStateManager,
-        targetSystemId
+        targetSystemId,
+        jumpAnimationSystem
       );
 
       if (result.success) {
-        // Jump successful - show success message before deselecting
+        // Jump successful - show success message after animation completes
         uiManager.showError(`Jumped to ${targetSystemName}`, 2000);
 
         // Deselect star and update UI

@@ -47,7 +47,7 @@ describe('Navigation UX Integration', () => {
     delete global.document;
   });
 
-  it('should complete full navigation workflow from current system', () => {
+  it('should complete full navigation workflow from current system', async () => {
     // Step 1: Get current system
     const currentSystemId = gameStateManager.getPlayer().currentSystem;
     const currentStar = TEST_STAR_DATA.find((s) => s.id === currentSystemId);
@@ -103,7 +103,10 @@ describe('Navigation UX Integration', () => {
 
     // Step 6: Execute jump
     const initialDays = gameStateManager.getPlayer().daysElapsed;
-    const result = navSystem.executeJump(gameStateManager, targetSystemId);
+    const result = await navSystem.executeJump(
+      gameStateManager,
+      targetSystemId
+    );
 
     expect(result.success).toBe(true);
     expect(result.error).toBeNull();
@@ -118,7 +121,7 @@ describe('Navigation UX Integration', () => {
     expect(newDays).toBe(initialDays + validation.jumpTime);
   });
 
-  it('should prevent jump when insufficient fuel', () => {
+  it('should prevent jump when insufficient fuel', async () => {
     const currentSystemId = gameStateManager.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
@@ -154,7 +157,10 @@ describe('Navigation UX Integration', () => {
       expect(validation.error).toContain('Insufficient fuel');
 
       // Attempt jump should fail
-      const result = navSystem.executeJump(gameStateManager, unreachableSystem);
+      const result = await navSystem.executeJump(
+        gameStateManager,
+        unreachableSystem
+      );
       expect(result.success).toBe(false);
 
       // Location should not change

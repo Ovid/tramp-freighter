@@ -177,13 +177,14 @@ export class NavigationSystem {
   }
 
   /**
-   * Execute a jump (updates game state)
+   * Execute a jump (updates game state and triggers animation)
    *
    * @param {Object} gameStateManager - GameStateManager instance
    * @param {number} targetSystemId - Target system ID
-   * @returns {Object} { success: boolean, error: string|null }
+   * @param {Object} animationSystem - Optional JumpAnimationSystem instance
+   * @returns {Promise<Object>} { success: boolean, error: string|null }
    */
-  executeJump(gameStateManager, targetSystemId) {
+  async executeJump(gameStateManager, targetSystemId, animationSystem = null) {
     const state = gameStateManager.getState();
 
     if (!state) {
@@ -204,13 +205,19 @@ export class NavigationSystem {
       return { success: false, error: validation.error };
     }
 
-    // Execute jump: update fuel, time, and location
+    // Execute jump: update fuel, time, and location BEFORE animation
+    // This ensures progress is saved even if animation is interrupted
     gameStateManager.updateFuel(currentFuel - validation.fuelCost);
     gameStateManager.updateTime(state.player.daysElapsed + validation.jumpTime);
     gameStateManager.updateLocation(targetSystemId);
 
-    // Auto-save after jump
+    // Auto-save after jump (before animation)
     gameStateManager.saveGame();
+
+    // Play animation if animation system is provided
+    if (animationSystem) {
+      await animationSystem.playJumpAnimation(currentSystemId, targetSystemId);
+    }
 
     return { success: true, error: null };
   }

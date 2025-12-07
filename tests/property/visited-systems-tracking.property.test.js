@@ -25,12 +25,12 @@ describe('Property 12: Visited Systems Tracking', () => {
    * For any jump to a previously unvisited system, that system's ID should be added
    * to the visited systems list.
    */
-  it('should add unvisited systems to visited list after jump', () => {
-    fc.assert(
-      fc.property(
+  it('should add unvisited systems to visited list after jump', async () => {
+    await fc.assert(
+      fc.asyncProperty(
         // Generate a valid wormhole connection
         fc.constantFrom(...TEST_WORMHOLE_DATA),
-        (connection) => {
+        async (connection) => {
           const [systemId1, systemId2] = connection;
 
           // Set up game state at first system
@@ -45,7 +45,10 @@ describe('Property 12: Visited Systems Tracking', () => {
           expect(gameStateManager.isSystemVisited(systemId2)).toBe(false);
 
           // Execute jump
-          const result = navSystem.executeJump(gameStateManager, systemId2);
+          const result = await navSystem.executeJump(
+            gameStateManager,
+            systemId2
+          );
 
           // Should succeed
           expect(result.success).toBe(true);
@@ -66,12 +69,12 @@ describe('Property 12: Visited Systems Tracking', () => {
     );
   });
 
-  it('should not duplicate systems in visited list', () => {
-    fc.assert(
-      fc.property(
+  it('should not duplicate systems in visited list', async () => {
+    await fc.assert(
+      fc.asyncProperty(
         // Generate a valid wormhole connection
         fc.constantFrom(...TEST_WORMHOLE_DATA),
-        (connection) => {
+        async (connection) => {
           const [systemId1, systemId2] = connection;
 
           // Set up game state
@@ -79,7 +82,7 @@ describe('Property 12: Visited Systems Tracking', () => {
           gameStateManager.updateFuel(100);
 
           // Make first jump to systemId2
-          navSystem.executeJump(gameStateManager, systemId2);
+          await navSystem.executeJump(gameStateManager, systemId2);
 
           const visitedAfterFirstJump = [
             ...gameStateManager.getState().world.visitedSystems,
@@ -87,7 +90,7 @@ describe('Property 12: Visited Systems Tracking', () => {
 
           // Make return jump to systemId1 (already visited)
           gameStateManager.updateFuel(100); // Refuel
-          navSystem.executeJump(gameStateManager, systemId1);
+          await navSystem.executeJump(gameStateManager, systemId1);
 
           const visitedAfterSecondJump =
             gameStateManager.getState().world.visitedSystems;
@@ -112,7 +115,7 @@ describe('Property 12: Visited Systems Tracking', () => {
     );
   });
 
-  it('should track multiple unique systems across a journey', () => {
+  it('should track multiple unique systems across a journey', async () => {
     // Create a journey through multiple connected systems
     // Sol (0) -> Alpha Centauri (1) -> Epsilon Eridani (13)
 
@@ -124,7 +127,7 @@ describe('Property 12: Visited Systems Tracking', () => {
     expect(gameStateManager.getState().world.visitedSystems).toEqual([0]);
 
     // Jump to Alpha Centauri
-    navSystem.executeJump(gameStateManager, 1);
+    await navSystem.executeJump(gameStateManager, 1);
 
     // Should have Sol and Alpha Centauri
     let visited = gameStateManager.getState().world.visitedSystems;
@@ -134,7 +137,7 @@ describe('Property 12: Visited Systems Tracking', () => {
 
     // Jump to Epsilon Eridani
     gameStateManager.updateFuel(100);
-    navSystem.executeJump(gameStateManager, 13);
+    await navSystem.executeJump(gameStateManager, 13);
 
     // Should have all three systems
     visited = gameStateManager.getState().world.visitedSystems;
@@ -144,13 +147,13 @@ describe('Property 12: Visited Systems Tracking', () => {
     expect(visited.length).toBe(3);
   });
 
-  it('should preserve visited systems list when jump fails', () => {
-    fc.assert(
-      fc.property(
+  it('should preserve visited systems list when jump fails', async () => {
+    await fc.assert(
+      fc.asyncProperty(
         // Generate two random system IDs (may not be connected)
         fc.constantFrom(...TEST_STAR_DATA.map((s) => s.id)),
         fc.constantFrom(...TEST_STAR_DATA.map((s) => s.id)),
-        (systemId1, systemId2) => {
+        async (systemId1, systemId2) => {
           // Skip if same system
           if (systemId1 === systemId2) return true;
 
@@ -163,7 +166,10 @@ describe('Property 12: Visited Systems Tracking', () => {
           ];
 
           // Attempt jump (may fail)
-          const result = navSystem.executeJump(gameStateManager, systemId2);
+          const result = await navSystem.executeJump(
+            gameStateManager,
+            systemId2
+          );
 
           if (!result.success) {
             // If jump failed, visited list should be unchanged

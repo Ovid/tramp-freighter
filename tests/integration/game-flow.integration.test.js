@@ -93,7 +93,10 @@ describe('Complete Game Flow Integration Tests', () => {
       expect(initialState.ship.cargo.length).toBe(1); // Initial grain
 
       // Step 2: Execute a jump to Alpha Centauri (system 1)
-      const jumpResult = navigationSystem.executeJump(gameStateManager, 1);
+      const jumpResult = await navigationSystem.executeJump(
+        gameStateManager,
+        1
+      );
 
       expect(jumpResult.success).toBe(true);
       expect(gameStateManager.state.player.currentSystem).toBe(1);
@@ -200,13 +203,13 @@ describe('Complete Game Flow Integration Tests', () => {
       );
     });
 
-    it('should verify profit from trading cycle', () => {
+    it('should verify profit from trading cycle', async () => {
       // Initialize new game
       gameStateManager.initNewGame();
       const initialCredits = gameStateManager.state.player.credits;
 
       // Jump to a system with better grain prices
-      navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(gameStateManager, 1);
 
       // Sell initial grain
       const currentSystem = STAR_DATA.find((s) => s.id === 1);
@@ -232,11 +235,14 @@ describe('Complete Game Flow Integration Tests', () => {
   });
 
   describe('Error Scenario Integration Tests', () => {
-    it('should handle invalid jump attempts correctly', () => {
+    it('should handle invalid jump attempts correctly', async () => {
       gameStateManager.initNewGame();
 
       // Attempt to jump to a non-connected system
-      const jumpResult = navigationSystem.executeJump(gameStateManager, 50);
+      const jumpResult = await navigationSystem.executeJump(
+        gameStateManager,
+        50
+      );
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('No wormhole connection');
@@ -247,14 +253,17 @@ describe('Complete Game Flow Integration Tests', () => {
       expect(gameStateManager.state.player.daysElapsed).toBe(0);
     });
 
-    it('should handle insufficient fuel for jump', () => {
+    it('should handle insufficient fuel for jump', async () => {
       gameStateManager.initNewGame();
 
       // Reduce fuel to insufficient level
       gameStateManager.updateFuel(5);
 
       // Attempt to jump (requires more than 5% fuel)
-      const jumpResult = navigationSystem.executeJump(gameStateManager, 1);
+      const jumpResult = await navigationSystem.executeJump(
+        gameStateManager,
+        1
+      );
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('Insufficient fuel');
@@ -407,7 +416,7 @@ describe('Complete Game Flow Integration Tests', () => {
       expect(document.getElementById('hud-cargo').textContent).toBe('20/50');
     });
 
-    it('should update HUD location when jumping', () => {
+    it('should update HUD location when jumping', async () => {
       gameStateManager.initNewGame();
 
       // Initial location: Sol
@@ -417,7 +426,7 @@ describe('Complete Game Flow Integration Tests', () => {
       );
 
       // Jump to Alpha Centauri
-      navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(gameStateManager, 1);
 
       expect(document.getElementById('hud-system').textContent).toBe(
         'Alpha Centauri A'
@@ -429,14 +438,14 @@ describe('Complete Game Flow Integration Tests', () => {
   });
 
   describe('Auto-Save Integration Tests', () => {
-    it('should auto-save after jump', () => {
+    it('should auto-save after jump', async () => {
       gameStateManager.initNewGame();
 
       // Clear any existing save
       localStorage.clear();
 
       // Execute jump
-      navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(gameStateManager, 1);
 
       // Verify save exists
       const saveData = localStorage.getItem('trampFreighterSave');
@@ -529,7 +538,7 @@ describe('Complete Game Flow Integration Tests', () => {
   });
 
   describe('Multi-System Trading Integration', () => {
-    it('should complete a profitable multi-system trading route', () => {
+    it('should complete a profitable multi-system trading route', async () => {
       gameStateManager.initNewGame();
       const initialCredits = gameStateManager.state.player.credits;
 
@@ -555,7 +564,7 @@ describe('Complete Game Flow Integration Tests', () => {
       gameStateManager.buyGood('ore', 20, solOrePrice);
 
       // Step 3: Jump to Alpha Centauri
-      navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(gameStateManager, 1);
 
       // Step 4: Sell ore at Alpha Centauri
       const alphaSystem = STAR_DATA.find((s) => s.id === 1);
@@ -579,7 +588,7 @@ describe('Complete Game Flow Integration Tests', () => {
       gameStateManager.buyGood('grain', 20, alphaGrainPrice);
 
       // Step 6: Jump back to Sol
-      navigationSystem.executeJump(gameStateManager, 0);
+      await navigationSystem.executeJump(gameStateManager, 0);
 
       // Step 7: Sell grain at Sol
       gameStateManager.sellGood(0, 20, solGrainPrice);
