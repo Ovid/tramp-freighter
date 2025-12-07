@@ -252,6 +252,7 @@ export const ANIMATION_CONFIG = {
     SHIP_INDICATOR_SIZE: 8,
     SHIP_INDICATOR_COLOR: 0xFF0000,  // Red
     SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
+    SHIP_INDICATOR_TEXTURE_SIZE: 64,  // Canvas texture dimensions (matches star sprites)
     
     // Camera positioning for side view
     SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5,  // Distance from midpoint as multiple of star separation

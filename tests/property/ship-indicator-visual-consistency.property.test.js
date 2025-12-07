@@ -45,9 +45,27 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
                 Sprite: class {
                     constructor(material) {
                         this.material = material;
-                        this.scale = { x: 1, y: 1, z: 1, set: function(x, y, z) { this.x = x; this.y = y; this.z = z; } };
+                        this.scale = { 
+                            x: 1, 
+                            y: 1, 
+                            z: 1, 
+                            set(x, y, z) { 
+                                this.x = x; 
+                                this.y = y; 
+                                this.z = z; 
+                            } 
+                        };
                         this.visible = true;
-                        this.position = { x: 0, y: 0, z: 0, set: function(x, y, z) { this.x = x; this.y = y; this.z = z; } };
+                        this.position = { 
+                            x: 0, 
+                            y: 0, 
+                            z: 0, 
+                            set(x, y, z) { 
+                                this.x = x; 
+                                this.y = y; 
+                                this.z = z; 
+                            } 
+                        };
                     }
                 },
                 AdditiveBlending: 2
@@ -71,8 +89,11 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
     it('Property 5: Ship indicator maintains consistent visual properties', () => {
         fc.assert(
             fc.property(
-                // Generate random number of sprite creations to test consistency
-                fc.integer({ min: 1, max: 10 }),
+                // Combine explicit boundary values with random values for comprehensive testing
+                fc.oneof(
+                    fc.constantFrom(1, 2, 10),  // Explicit boundaries: single sprite (actual use case), pair, maximum
+                    fc.integer({ min: 1, max: 10 })  // Random values
+                ),
                 (numCreations) => {
                     const sprites = [];
                     
@@ -83,45 +104,45 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
                         createdSprites.push(sprite);
                     }
                     
-                    // Property 1: All sprites should have consistent color (red)
+                    // Invariant 1: All sprites should have consistent color (red)
                     sprites.forEach(sprite => {
                         expect(sprite.material.color).toBe(ANIMATION_CONFIG.SHIP_INDICATOR_COLOR);
                     });
                     
-                    // Property 2: All sprites should have consistent size
+                    // Invariant 2: All sprites should have consistent size
                     sprites.forEach(sprite => {
                         expect(sprite.scale.x).toBe(ANIMATION_CONFIG.SHIP_INDICATOR_SIZE);
                         expect(sprite.scale.y).toBe(ANIMATION_CONFIG.SHIP_INDICATOR_SIZE);
                         expect(sprite.scale.z).toBe(1);
                     });
                     
-                    // Property 3: All sprites should use additive blending for glow effect
+                    // Invariant 3: All sprites should use additive blending for glow effect
                     sprites.forEach(sprite => {
                         expect(sprite.material.blending).toBe(window.THREE.AdditiveBlending);
                     });
                     
-                    // Property 4: All sprites should be transparent
+                    // Invariant 4: All sprites should be transparent
                     sprites.forEach(sprite => {
                         expect(sprite.material.transparent).toBe(true);
                     });
                     
-                    // Property 5: All sprites should not write to depth buffer
+                    // Invariant 5: All sprites should not write to depth buffer
                     sprites.forEach(sprite => {
                         expect(sprite.material.depthWrite).toBe(false);
                     });
                     
-                    // Property 6: All sprites should have size attenuation enabled
+                    // Invariant 6: All sprites should have size attenuation enabled
                     sprites.forEach(sprite => {
                         expect(sprite.material.sizeAttenuation).toBe(true);
                     });
                     
-                    // Property 7: All sprites should have a texture map
+                    // Invariant 7: All sprites should have a texture map
                     sprites.forEach(sprite => {
                         expect(sprite.material.map).toBeDefined();
                         expect(sprite.material.map).not.toBeNull();
                     });
                     
-                    // Property 8: All sprites should initially be hidden
+                    // Invariant 8: All sprites should initially be hidden
                     sprites.forEach(sprite => {
                         expect(sprite.visible).toBe(false);
                     });
@@ -131,7 +152,7 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
         );
     });
     
-    it('Property 5.1: Ship indicator texture has proper glow gradient', () => {
+    it('Ship indicator texture has proper glow gradient', () => {
         fc.assert(
             fc.property(
                 fc.constant(true),
@@ -145,9 +166,9 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
                     
                     const canvas = sprite.material.map.image;
                     
-                    // Property: Texture should be 64x64 (same as star sprites)
-                    expect(canvas.width).toBe(64);
-                    expect(canvas.height).toBe(64);
+                    // Property: Texture dimensions should match configuration
+                    expect(canvas.width).toBe(ANIMATION_CONFIG.SHIP_INDICATOR_TEXTURE_SIZE);
+                    expect(canvas.height).toBe(ANIMATION_CONFIG.SHIP_INDICATOR_TEXTURE_SIZE);
                     
                     // Property: Canvas should be a valid canvas element
                     expect(canvas.tagName).toBe('CANVAS');
@@ -161,7 +182,7 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
         );
     });
     
-    it('Property 5.2: Ship indicator maintains visual properties after position changes', () => {
+    it('Ship indicator maintains visual properties after position changes', () => {
         fc.assert(
             fc.property(
                 // Generate random positions
@@ -212,7 +233,7 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
         );
     });
     
-    it('Property 5.3: Ship indicator has sufficient contrast (red color)', () => {
+    it('Ship indicator has sufficient contrast (red color)', () => {
         fc.assert(
             fc.property(
                 fc.constant(true),

@@ -103,9 +103,8 @@ Manages disabling and re-enabling player input during animations.
 
 ```javascript
 class InputLockManager {
-    constructor(controls, raycaster) {
+    constructor(controls) {
         this.controls = controls;
-        this.raycaster = raycaster;
         this.isLocked = false;
         this.originalControlsEnabled = null;
     }
