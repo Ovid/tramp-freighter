@@ -332,6 +332,7 @@ export class JumpAnimationSystem {
       .addScaledVector(this._tempVec3, cameraDistance);
 
     // Return new Vector3 objects to avoid external mutation of internal state
+    // This method is called once per jump (not per frame), so allocation is acceptable
     return {
       position: new THREE.Vector3().copy(this._tempVec4),
       lookAt: new THREE.Vector3().copy(this._tempVec1),
@@ -355,6 +356,7 @@ export class JumpAnimationSystem {
   animateCameraTransition(targetPosition, targetLookAt, duration) {
     return new Promise((resolve) => {
       // Store original camera state for restoration (only if not already stored)
+      // Supports multiple sequential camera transitions before final restoration
       if (!this.originalCameraState) {
         const THREE = window.THREE;
         this.originalCameraState = {

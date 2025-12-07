@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import { createShipIndicatorSprite } from '../../js/game-animation.js';
 import { ANIMATION_CONFIG } from '../../js/game-constants.js';
+import { setupThreeMock } from '../setup-three-mock.js';
 
 /**
  * Property test for ship indicator visual consistency
@@ -21,56 +22,7 @@ describe('Ship Indicator Visual Consistency - Property Tests', () => {
   let createdSprites = [];
 
   beforeEach(() => {
-    // Set up THREE.js mock if not already available
-    if (!window.THREE) {
-      // Create minimal THREE.js mock for testing
-      window.THREE = {
-        CanvasTexture: class {
-          constructor(canvas) {
-            this.image = canvas;
-          }
-          dispose() {}
-        },
-        SpriteMaterial: class {
-          constructor(params) {
-            this.map = params.map;
-            this.color = params.color;
-            this.transparent = params.transparent;
-            this.blending = params.blending;
-            this.depthWrite = params.depthWrite;
-            this.sizeAttenuation = params.sizeAttenuation;
-          }
-          dispose() {}
-        },
-        Sprite: class {
-          constructor(material) {
-            this.material = material;
-            this.scale = {
-              x: 1,
-              y: 1,
-              z: 1,
-              set(x, y, z) {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-              },
-            };
-            this.visible = true;
-            this.position = {
-              x: 0,
-              y: 0,
-              z: 0,
-              set(x, y, z) {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-              },
-            };
-          }
-        },
-        AdditiveBlending: 2,
-      };
-    }
+    setupThreeMock();
   });
 
   afterEach(() => {
