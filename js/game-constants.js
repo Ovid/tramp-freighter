@@ -209,3 +209,15 @@ export const LABEL_CONFIG = {
     nearDistance: 100,
     farDistance: 500
 };
+
+/**
+ * UI notification configuration
+ * 
+ * Controls timing for notification display and animations.
+ * Fade duration must match CSS animation timing for smooth transitions.
+ */
+export const NOTIFICATION_CONFIG = {
+    FADE_DURATION: 300,        // milliseconds - must match CSS animation
+    DEFAULT_ERROR_DURATION: 3000,    // milliseconds
+    DEFAULT_SUCCESS_DURATION: 2000   // milliseconds
+};

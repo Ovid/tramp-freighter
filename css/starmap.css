@@ -1054,7 +1054,7 @@ canvas {
     border-top: 1px solid rgba(0, 255, 136, 0.3);
 }
 
-/* Error Notification Styling */
+/* Notification Styling */
 #notification-area {
     position: absolute;
     top: 50%;
@@ -1066,8 +1066,6 @@ canvas {
 }
 
 .notification {
-    background-color: rgba(255, 0, 0, 0.95);
-    border: 2px solid #FF6B6B;
     border-radius: 5px;
     padding: 15px 20px;
     margin-bottom: 10px;
@@ -1078,6 +1076,22 @@ canvas {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.3s ease-out;
     pointer-events: auto;
+}
+
+.notification-error {
+    background-color: rgba(255, 0, 0, 0.95);
+    border: 2px solid #FF6B6B;
+}
+
+.notification-success {
+    background-color: rgba(0, 255, 136, 0.95);
+    border: 2px solid #00FF88;
+    color: #000000;
+}
+
+.notification-info {
+    background-color: rgba(0, 136, 255, 0.95);
+    border: 2px solid #0088FF;
 }
 
 .notification.fade-out {

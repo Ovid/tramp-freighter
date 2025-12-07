@@ -1,4 +1,4 @@
-import { calculateDistanceFromSol, INTELLIGENCE_PRICES } from './game-constants.js';
+import { calculateDistanceFromSol, INTELLIGENCE_PRICES, INTELLIGENCE_RECENT_THRESHOLD, NOTIFICATION_CONFIG } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
 /**
@@ -404,7 +404,7 @@ export class UIManager {
         const state = this.gameStateManager.getState();
         if (!state) return;
         
-        this.elements.marketGoods.innerHTML = '';
+        this.elements.marketGoods.replaceChildren();
         
         const currentDay = state.player.daysElapsed;
         const activeEvents = state.world.activeEvents || [];
@@ -505,7 +505,7 @@ export class UIManager {
         const state = this.gameStateManager.getState();
         if (!state) return;
         
-        this.elements.cargoStacks.innerHTML = '';
+        this.elements.cargoStacks.replaceChildren();
         
         const cargo = state.ship.cargo;
         
@@ -608,15 +608,33 @@ export class UIManager {
     }
     
     /**
-     * Show an error notification with auto-dismiss
+     * Show a notification with auto-dismiss
      * Messages are queued to prevent overlap
+     * 
+     * @param {string} message - Notification message
+     * @param {number} duration - Display duration in milliseconds
+     * @param {string} type - Notification type: 'error', 'success', 'info'
      */
-    showError(message, duration = 3000) {
-        this.notificationQueue.push({ message, duration });
+    showNotification(message, duration = NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION, type = 'error') {
+        this.notificationQueue.push({ message, duration, type });
         
         if (!this.isShowingNotification) {
             this.processNotificationQueue();
         }
+    }
+    
+    /**
+     * Show an error notification (convenience method)
+     */
+    showError(message, duration = NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION) {
+        this.showNotification(message, duration, 'error');
+    }
+    
+    /**
+     * Show a success notification (convenience method)
+     */
+    showSuccess(message, duration = NOTIFICATION_CONFIG.DEFAULT_SUCCESS_DURATION) {
+        this.showNotification(message, duration, 'success');
     }
     
     /**
@@ -630,11 +648,11 @@ export class UIManager {
         }
         
         this.isShowingNotification = true;
-        const { message, duration } = this.notificationQueue.shift();
+        const { message, duration, type } = this.notificationQueue.shift();
         
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = 'notification';
+        notification.className = `notification notification-${type}`;
         notification.textContent = message;
         
         // Add to notification area
@@ -653,7 +671,7 @@ export class UIManager {
                 
                 // Process next notification in queue
                 this.processNotificationQueue();
-            }, 300); // Match animation duration
+            }, NOTIFICATION_CONFIG.FADE_DURATION);
         }, duration);
     }
     
@@ -665,7 +683,7 @@ export class UIManager {
         this.isShowingNotification = false;
         
         if (this.elements.notificationArea) {
-            this.elements.notificationArea.innerHTML = '';
+            this.elements.notificationArea.replaceChildren();
         }
     }
     
@@ -799,8 +817,6 @@ export class UIManager {
     
     showInfoBrokerPanel() {
         const state = this.gameStateManager.getState();
-        if (!state) return;
-        
         const currentSystemId = state.player.currentSystem;
         const system = this.starData.find(s => s.id === currentSystemId);
         
@@ -833,8 +849,6 @@ export class UIManager {
     
     updateRumorButton() {
         const state = this.gameStateManager.getState();
-        if (!state) return;
-        
         const credits = state.player.credits;
         const rumorCost = INTELLIGENCE_PRICES.RUMOR;
         
@@ -843,8 +857,6 @@ export class UIManager {
     
     handleBuyRumor() {
         const state = this.gameStateManager.getState();
-        if (!state) return;
-        
         const credits = state.player.credits;
         const rumorCost = INTELLIGENCE_PRICES.RUMOR;
         
@@ -876,9 +888,8 @@ export class UIManager {
     
     renderIntelligenceList() {
         const state = this.gameStateManager.getState();
-        if (!state) return;
         
-        this.elements.intelligenceList.innerHTML = '';
+        this.elements.intelligenceList.replaceChildren();
         
         const priceKnowledge = state.world.priceKnowledge || {};
         const credits = state.player.credits;
@@ -886,8 +897,16 @@ export class UIManager {
         // Get all systems with their intelligence costs
         const intelligenceOptions = this.gameStateManager.listAvailableIntelligence();
         
-        // Sort by cost (never visited first, then stale, then recent)
-        intelligenceOptions.sort((a, b) => b.cost - a.cost);
+        // Sort by information freshness: never visited → stale → recent → current
+        // This prioritizes systems where intelligence is most valuable
+        const getIntelligencePriority = (option) => {
+            if (option.lastVisit === null) return 0;  // Never visited - highest priority
+            if (option.lastVisit === 0) return 3;     // Current - lowest priority (already have data)
+            if (option.lastVisit > INTELLIGENCE_RECENT_THRESHOLD) return 1;  // Stale
+            return 2;  // Recent
+        };
+        
+        intelligenceOptions.sort((a, b) => getIntelligencePriority(a) - getIntelligencePriority(b));
         
         intelligenceOptions.forEach(option => {
             const item = this.createIntelligenceItem(option, credits);
@@ -965,7 +984,7 @@ export class UIManager {
         // Show success notification
         const system = this.starData.find(s => s.id === systemId);
         if (system) {
-            this.showError(`Intelligence purchased for ${system.name}`, 2000);
+            this.showSuccess(`Intelligence purchased for ${system.name}`);
         }
         
         // Refresh the panel to show updated state
