@@ -755,7 +755,7 @@ Correctness Properties
 
 ### Property 5: Daily Fluctuation Range
 
-*For any* system, commodity, and day, the daily fluctuation multiplier should be between 0.70 and 1.30 inclusive.
+*For any* system, commodity, and day, the daily fluctuation multiplier should be between 0.50 and 1.50 inclusive.
 
 **Validates: Requirements 2.7**
 

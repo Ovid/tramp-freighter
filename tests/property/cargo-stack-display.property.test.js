@@ -96,8 +96,10 @@ describe('Property 16: Cargo Stack Display', () => {
                         const stackElement = renderedStacks[index];
                         const stackHTML = stackElement.innerHTML;
                         
-                        // Calculate expected values
-                        const currentPrice = TradingSystem.calculatePrice(stack.good, system.type);
+                        // Calculate expected values (using Phase 2 API with currentDay)
+                        const currentDay = state.player.daysElapsed;
+                        const activeEvents = state.world.activeEvents || [];
+                        const currentPrice = TradingSystem.calculatePrice(stack.good, system, currentDay, activeEvents);
                         const profitMargin = currentPrice - stack.purchasePrice;
                         
                         // Verify station price is displayed
@@ -171,8 +173,10 @@ describe('Property 16: Cargo Stack Display', () => {
                     
                     const system = mockStarData.find(s => s.id === systemId);
                     
-                    // Calculate expected profit margin
-                    const currentPrice = TradingSystem.calculatePrice(stack.good, system.type);
+                    // Calculate expected profit margin (using Phase 2 API with currentDay)
+                    const currentDay = state.player.daysElapsed;
+                    const activeEvents = state.world.activeEvents || [];
+                    const currentPrice = TradingSystem.calculatePrice(stack.good, system, currentDay, activeEvents);
                     const expectedProfitMargin = currentPrice - stack.purchasePrice;
                     
                     // Render cargo stacks

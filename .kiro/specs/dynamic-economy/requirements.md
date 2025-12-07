@@ -47,7 +47,7 @@ This specification defines the Dynamic Economy system for Tramp Freighter Blues,
 4. WHEN calculating the station count modifier THEN the Game System SHALL use the formula 1.0 plus station count multiplied by 0.05
 5. WHEN generating a seed for daily fluctuation THEN the Game System SHALL combine system identifier, commodity name, and current day number
 6. WHEN using the same seed value for price calculation THEN the Game System SHALL produce identical price results
-7. WHEN the daily fluctuation is calculated THEN the Game System SHALL vary prices by ±30% from the baseline using a multiplier between 0.70 and 1.30
+7. WHEN the daily fluctuation is calculated THEN the Game System SHALL vary prices by ±50% from the baseline using a multiplier between 0.50 and 1.50
 8. WHEN calculating the final price THEN the Game System SHALL multiply all modifiers together with the base price
 9. WHEN calculating the final price THEN the Game System SHALL round the result to the nearest integer credit value
 

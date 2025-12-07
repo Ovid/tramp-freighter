@@ -301,8 +301,11 @@ export class UIManager {
         
         this.elements.marketGoods.innerHTML = '';
         
+        const currentDay = state.player.daysElapsed;
+        const activeEvents = state.world.activeEvents || [];
+        
         this.goodsList.forEach(goodType => {
-            const price = TradingSystem.calculatePrice(goodType, system.type);
+            const price = TradingSystem.calculatePrice(goodType, system, currentDay, activeEvents);
             const goodItem = this.createGoodItem(goodType, price);
             this.elements.marketGoods.appendChild(goodItem);
         });
@@ -416,7 +419,11 @@ export class UIManager {
     }
     
     createCargoStackItem(stack, stackIndex, system) {
-        const currentPrice = TradingSystem.calculatePrice(stack.good, system.type);
+        const state = this.gameStateManager.getState();
+        const currentDay = state.player.daysElapsed;
+        const activeEvents = state.world.activeEvents || [];
+        
+        const currentPrice = TradingSystem.calculatePrice(stack.good, system, currentDay, activeEvents);
         const profitMargin = currentPrice - stack.purchasePrice;
         const profitPercentage = ((profitMargin / stack.purchasePrice) * 100).toFixed(1);
         
