@@ -15,7 +15,7 @@
   - **Property 7: Total animation duration bounds**
   - **Validates: Requirements 6.1, 6.4**
 
-- [ ] 2. Implement input lock manager
+- [x] 2. Implement input lock manager
   - Create `InputLockManager` class in `game-animation.js`
   - Implement `lock()` method to disable OrbitControls and click handlers
   - Implement `unlock()` method to restore controls
@@ -23,7 +23,7 @@
   - Store original control states for restoration
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 2.1 Write property test for input lock round-trip
+- [x] 2.1 Write property test for input lock round-trip
   - **Property 9: Graceful error handling (input lock aspect)**
   - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
 
