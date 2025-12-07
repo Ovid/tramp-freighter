@@ -59,11 +59,17 @@ export class UIManager {
             refuelBackBtn: document.getElementById('refuel-back-btn'),
             refuelMaxBtn: document.getElementById('refuel-max-btn'),
             refuelValidationMessage: document.getElementById('refuel-validation-message'),
-            notificationArea: document.getElementById('notification-area')
+            notificationArea: document.getElementById('notification-area'),
+            eventModalOverlay: document.getElementById('event-modal-overlay'),
+            eventModalTitle: document.getElementById('event-modal-title'),
+            eventModalDescription: document.getElementById('event-modal-description'),
+            eventModalDuration: document.getElementById('event-modal-duration'),
+            eventModalDismiss: document.getElementById('event-modal-dismiss')
         };
         
         this.subscribeToStateChanges();
         this.setupStationInterfaceHandlers();
+        this.setupEventModalHandlers();
     }
     
     subscribeToStateChanges() {
@@ -241,10 +247,75 @@ export class UIManager {
         this.elements.stationDistance.textContent = `${distance.toFixed(1)} LY`;
         
         this.elements.stationInterface.classList.add('visible');
+        
+        // Check for active event at this system and show notification
+        const activeEvent = this.gameStateManager.getActiveEventForSystem(currentSystemId);
+        if (activeEvent) {
+            this.showEventNotification(activeEvent);
+        }
     }
     
     hideStationInterface() {
         this.elements.stationInterface.classList.remove('visible');
+    }
+    
+    setupEventModalHandlers() {
+        if (this.elements.eventModalDismiss) {
+            this.elements.eventModalDismiss.addEventListener('click', () => {
+                this.hideEventNotification();
+            });
+        }
+        
+        // Handle escape key to dismiss event notification
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.elements.eventModalOverlay && 
+                !this.elements.eventModalOverlay.classList.contains('hidden')) {
+                this.hideEventNotification();
+            }
+        });
+    }
+    
+    /**
+     * Show event notification modal when docking at a system with an active event
+     * @param {Object} event - The active event object
+     */
+    showEventNotification(event) {
+        if (!event || !this.elements.eventModalOverlay) {
+            return;
+        }
+        
+        // Get event type definition
+        const eventType = this.gameStateManager.getEventType(event.type);
+        if (!eventType) {
+            return;
+        }
+        
+        // Calculate remaining duration
+        const state = this.gameStateManager.getState();
+        const currentDay = state?.player?.daysElapsed || 0;
+        const remainingDays = event.endDay - currentDay;
+        
+        // Set modal content
+        this.elements.eventModalTitle.textContent = eventType.name;
+        this.elements.eventModalDescription.textContent = eventType.description;
+        this.elements.eventModalDuration.textContent = `Expected duration: ${remainingDays} day${remainingDays !== 1 ? 's' : ''} remaining`;
+        
+        // Show modal
+        this.elements.eventModalOverlay.classList.remove('hidden');
+        
+        // Focus dismiss button
+        if (this.elements.eventModalDismiss) {
+            this.elements.eventModalDismiss.focus();
+        }
+    }
+    
+    /**
+     * Hide event notification modal
+     */
+    hideEventNotification() {
+        if (this.elements.eventModalOverlay) {
+            this.elements.eventModalOverlay.classList.add('hidden');
+        }
     }
     
     handleSystemClick(systemId) {

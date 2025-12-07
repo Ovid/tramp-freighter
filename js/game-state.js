@@ -7,6 +7,7 @@ import {
     SAVE_KEY
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
+import { EconomicEventsSystem } from './game-events.js';
 
 // Save debouncing prevents excessive localStorage writes (max 1 save per second)
 const SAVE_DEBOUNCE_MS = 1000;
@@ -275,15 +276,24 @@ export class GameStateManager {
         const oldDays = this.state.player.daysElapsed;
         this.state.player.daysElapsed = newDays;
         
-        // When days advance, update price knowledge
+        // When days advance, update price knowledge and events
         if (newDays > oldDays) {
             const daysPassed = newDays - oldDays;
             
             // Increment staleness for all systems
             this.incrementPriceKnowledgeStaleness(daysPassed);
             
+            // Update economic events (trigger new events, remove expired ones)
+            this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
+                this.state,
+                this.starData
+            );
+            
             // Recalculate prices with new day number (for daily fluctuations)
             this.recalculatePricesForKnownSystems();
+            
+            // Emit event changes
+            this.emit('activeEventsChanged', this.state.world.activeEvents);
         }
         
         this.emit('timeChanged', newDays);
@@ -404,6 +414,15 @@ export class GameStateManager {
     getActiveEventForSystem(systemId) {
         const activeEvents = this.getActiveEvents();
         return activeEvents.find(event => event.systemId === systemId) || null;
+    }
+    
+    /**
+     * Get event type definition by event type key
+     * @param {string} eventTypeKey - Event type identifier
+     * @returns {Object|null} Event type definition or null
+     */
+    getEventType(eventTypeKey) {
+        return EconomicEventsSystem.EVENT_TYPES[eventTypeKey] || null;
     }
     
     // ========================================================================
