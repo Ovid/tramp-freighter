@@ -9,18 +9,18 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
+import { SOL_SYSTEM_ID } from '../../js/game-constants.js';
 
 describe('Property: Prices Change Visibly Over Time', () => {
     const commodities = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'];
     
-    it('should produce different prices on consecutive days for the same system and commodity', () => {
+    it('should produce valid positive integer prices for any system, commodity, and day', () => {
         fc.assert(
             fc.property(
                 fc.integer({ min: 0, max: 116 }),
                 fc.constantFrom(...commodities),
                 fc.integer({ min: 0, max: 9999 }),
                 (systemId, goodType, startDay) => {
-                    // Create a mock system with typical properties
                     const system = {
                         id: systemId,
                         type: 'G5',  // Sol-like star
@@ -30,12 +30,15 @@ describe('Property: Prices Change Visibly Over Time', () => {
                     const priceDay1 = TradingSystem.calculatePrice(goodType, system, startDay, []);
                     const priceDay2 = TradingSystem.calculatePrice(goodType, system, startDay + 1, []);
                     
-                    // Prices should be different on different days (with very high probability)
-                    // We can't guarantee 100% difference due to rounding, but it should be rare
+                    // Verify type and range constraints
                     expect(typeof priceDay1).toBe('number');
                     expect(typeof priceDay2).toBe('number');
+                    expect(Number.isInteger(priceDay1)).toBe(true);
+                    expect(Number.isInteger(priceDay2)).toBe(true);
                     expect(priceDay1).toBeGreaterThan(0);
                     expect(priceDay2).toBeGreaterThan(0);
+                    expect(priceDay1).toBeLessThan(1000);
+                    expect(priceDay2).toBeLessThan(1000);
                 }
             ),
             { numRuns: 100 }
@@ -149,20 +152,21 @@ describe('Property: Prices Change Visibly Over Time', () => {
     });
     
     it('should show that most consecutive days have different prices after rounding', () => {
-        // Sample 100 random system/commodity/day combinations
+        // Generate 100 deterministic test cases
+        const testCases = fc.sample(
+            fc.record({
+                systemId: fc.integer({ min: 0, max: 116 }),
+                goodType: fc.constantFrom(...commodities),
+                day: fc.integer({ min: 0, max: 9999 })
+            }),
+            100
+        );
+        
         let sameCount = 0;
         let differentCount = 0;
         
-        for (let i = 0; i < 100; i++) {
-            const systemId = Math.floor(Math.random() * 117);
-            const goodType = commodities[Math.floor(Math.random() * commodities.length)];
-            const day = Math.floor(Math.random() * 10000);
-            
-            const system = {
-                id: systemId,
-                type: 'G5',
-                st: 1
-            };
+        testCases.forEach(({ systemId, goodType, day }) => {
+            const system = { id: systemId, type: 'G5', st: 1 };
             
             const priceDay1 = TradingSystem.calculatePrice(goodType, system, day, []);
             const priceDay2 = TradingSystem.calculatePrice(goodType, system, day + 1, []);
@@ -172,20 +176,19 @@ describe('Property: Prices Change Visibly Over Time', () => {
             } else {
                 differentCount++;
             }
-        }
+        });
         
         // At least 50% of consecutive days should have different prices
-        // (With ±30% range, some prices may round to the same value, so we're conservative)
+        // (With ±50% range, most prices should differ after rounding)
         expect(differentCount).toBeGreaterThan(sameCount);
         expect(differentCount / 100).toBeGreaterThan(0.5);
     });
     
     it('should demonstrate that price changes are visible for all commodity types', () => {
-        const systemId = 0; // Sol
         const startDay = 100;
         
         const system = {
-            id: systemId,
+            id: SOL_SYSTEM_ID,
             type: 'G2',
             st: 1
         };
