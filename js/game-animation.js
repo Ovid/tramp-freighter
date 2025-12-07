@@ -180,7 +180,6 @@ function createShipIndicatorCanvasTexture() {
     context2d.fillStyle = gradient;
     context2d.fillRect(0, 0, size, size);
     
-    // Import THREE dynamically to avoid circular dependencies
     const THREE = window.THREE;
     return new THREE.CanvasTexture(canvas);
 }
@@ -195,7 +194,6 @@ function createShipIndicatorCanvasTexture() {
  * @returns {THREE.Sprite} Ship indicator sprite
  */
 export function createShipIndicatorSprite() {
-    // Import THREE dynamically to avoid circular dependencies
     const THREE = window.THREE;
     
     // Create texture using same pattern as star sprites
@@ -256,6 +254,13 @@ export class JumpAnimationSystem {
         
         // Store original camera state for restoration
         this.originalCameraState = null;
+        
+        // Reusable Vector3 objects for calculations to avoid allocations in hot paths
+        const THREE = window.THREE;
+        this._tempVec1 = new THREE.Vector3();
+        this._tempVec2 = new THREE.Vector3();
+        this._tempVec3 = new THREE.Vector3();
+        this._tempVec4 = new THREE.Vector3();
     }
     
     /**
@@ -276,29 +281,25 @@ export class JumpAnimationSystem {
     calculateSideViewPosition(originPos, destPos, distance) {
         const THREE = window.THREE;
         
+        // Reuse temp vectors for intermediate calculations
         // Calculate midpoint between stars (camera will look at this point)
-        const midpoint = new THREE.Vector3();
-        midpoint.addVectors(originPos, destPos).multiplyScalar(0.5);
+        this._tempVec1.addVectors(originPos, destPos).multiplyScalar(0.5);
         
         // Calculate direction vector from origin to destination
-        const jumpDirection = new THREE.Vector3();
-        jumpDirection.subVectors(destPos, originPos).normalize();
+        this._tempVec2.subVectors(destPos, originPos).normalize();
         
         // Calculate perpendicular vector using cross product with up vector
         // This gives us a direction perpendicular to the jump path
-        const up = new THREE.Vector3(0, 1, 0);
-        const perpendicular = new THREE.Vector3();
-        perpendicular.crossVectors(jumpDirection, up);
+        this._tempVec3.set(0, 1, 0).crossVectors(this._tempVec2, this._tempVec3);
         
         // Handle edge case: if jump is perfectly vertical, use different reference vector
         // When jumpDirection is parallel to up vector, cross product is zero
-        if (perpendicular.lengthSq() < 0.0001) {
+        if (this._tempVec3.lengthSq() < 0.0001) {
             // Use forward vector instead of up vector
-            const forward = new THREE.Vector3(0, 0, 1);
-            perpendicular.crossVectors(jumpDirection, forward);
+            this._tempVec3.set(0, 0, 1).crossVectors(this._tempVec2, this._tempVec3);
         }
         
-        perpendicular.normalize();
+        this._tempVec3.normalize();
         
         // Calculate camera distance from midpoint
         // Use multiplier to ensure both stars are comfortably in view
@@ -307,12 +308,12 @@ export class JumpAnimationSystem {
         const cameraDistance = Math.max(baseDistance, ANIMATION_CONFIG.MIN_SIDE_VIEW_DISTANCE);
         
         // Position camera perpendicular to jump path at calculated distance
-        const cameraPosition = new THREE.Vector3();
-        cameraPosition.copy(midpoint).addScaledVector(perpendicular, cameraDistance);
+        this._tempVec4.copy(this._tempVec1).addScaledVector(this._tempVec3, cameraDistance);
         
+        // Return new Vector3 objects to avoid external mutation of internal state
         return {
-            position: cameraPosition,
-            lookAt: midpoint
+            position: new THREE.Vector3().copy(this._tempVec4),
+            lookAt: new THREE.Vector3().copy(this._tempVec1)
         };
     }
     

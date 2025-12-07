@@ -233,7 +233,8 @@ describe('Side View Positioning - Property Tests', () => {
                     
                     // Property 4: Camera distance should respect minimum distance constraint
                     const cameraDistance = result.position.distanceTo(result.lookAt);
-                    expect(cameraDistance).toBeGreaterThanOrEqual(ANIMATION_CONFIG.MIN_SIDE_VIEW_DISTANCE);
+                    // Use small epsilon for floating-point tolerance
+                    expect(cameraDistance).toBeGreaterThanOrEqual(ANIMATION_CONFIG.MIN_SIDE_VIEW_DISTANCE - 0.01);
                     
                     // Property 5: Camera distance should scale with star separation
                     // For distances above minimum, should use multiplier
