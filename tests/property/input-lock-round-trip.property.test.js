@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { InputLockManager } from '../../js/game-animation.js';
 
@@ -34,15 +34,10 @@ describe('InputLockManager - Property Tests', () => {
                     // Create input lock manager
                     const lockManager = new InputLockManager(mockControls);
                     
-                    // Track lock/unlock calls
-                    let lockCount = 0;
-                    let unlockCount = 0;
-                    
                     // Execute operation sequence
                     for (const operation of operations) {
                         if (operation === 'lock') {
                             lockManager.lock();
-                            lockCount++;
                             
                             // Property 1: Controls should be disabled when locked
                             expect(mockControls.enabled).toBe(false);
@@ -51,7 +46,6 @@ describe('InputLockManager - Property Tests', () => {
                             expect(lockManager.isInputLocked()).toBe(true);
                         } else if (operation === 'unlock') {
                             lockManager.unlock();
-                            unlockCount++;
                             
                             // Property 3: isInputLocked should return false after unlock
                             expect(lockManager.isInputLocked()).toBe(false);
@@ -68,11 +62,8 @@ describe('InputLockManager - Property Tests', () => {
                     // Property 5: Final state should be unlocked (graceful recovery)
                     expect(lockManager.isInputLocked()).toBe(false);
                     
-                    // Property 6: Controls should be restored to original state after final unlock
-                    // If we had at least one lock operation, controls should be restored
-                    if (lockCount > 0 && unlockCount > 0) {
-                        expect(mockControls.enabled).toBe(initialEnabled);
-                    }
+                    // Property 6: Controls should be restored to original state
+                    expect(mockControls.enabled).toBe(initialEnabled);
                 }
             ),
             { numRuns: 100 }
@@ -171,9 +162,6 @@ describe('InputLockManager - Property Tests', () => {
                     // Create input lock manager
                     const lockManager = new InputLockManager(mockControls);
                     
-                    // Store original state
-                    const originalEnabled = mockControls.enabled;
-                    
                     // Lock
                     lockManager.lock();
                     expect(mockControls.enabled).toBe(false);
@@ -183,7 +171,7 @@ describe('InputLockManager - Property Tests', () => {
                     lockManager.unlock();
                     
                     // Property: Round trip should restore original state
-                    expect(mockControls.enabled).toBe(originalEnabled);
+                    expect(mockControls.enabled).toBe(initialEnabled);
                     expect(lockManager.isInputLocked()).toBe(false);
                 }
             ),
