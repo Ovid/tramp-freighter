@@ -108,7 +108,7 @@ Yes# Implementation Plan
   - **Property 14: Event Notification Display**
   - **Validates: Requirements 4.6**
 
-- [ ] 6. Implement information broker system
+- [x] 6. Implement information broker system
   - Create InformationBroker class with pricing constants
   - Define PRICES: RECENT_VISIT = 50, NEVER_VISITED = 100, STALE_VISIT = 75, RUMOR = 25
   - Define RECENT_THRESHOLD = 30 days
@@ -118,23 +118,23 @@ Yes# Implementation Plan
   - Implement validatePurchase() to check sufficient credits
   - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9_
 
-- [ ] 6.1 Write property test for information broker system listing
+- [x] 6.1 Write property test for information broker system listing
   - **Property 15: Information Broker System Listing**
   - **Validates: Requirements 5.2**
 
-- [ ] 6.2 Write property test for intelligence purchase transaction
+- [x] 6.2 Write property test for intelligence purchase transaction
   - **Property 16: Intelligence Purchase Transaction**
   - **Validates: Requirements 5.3**
 
-- [ ] 6.3 Write property test for intelligence cost calculation
+- [x] 6.3 Write property test for intelligence cost calculation
   - **Property 17: Intelligence Cost Calculation**
   - **Validates: Requirements 5.4, 5.5, 5.6**
 
-- [ ] 6.4 Write property test for market rumor generation
+- [x] 6.4 Write property test for market rumor generation
   - **Property 18: Market Rumor Generation**
   - **Validates: Requirements 5.7, 5.8**
 
-- [ ] 6.5 Write property test for intelligence purchase validation
+- [x] 6.5 Write property test for intelligence purchase validation
   - **Property 19: Intelligence Purchase Validation**
   - **Validates: Requirements 5.9**
 

@@ -8,6 +8,7 @@ import {
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
+import { InformationBroker } from './game-information-broker.js';
 
 // Save debouncing prevents excessive localStorage writes (max 1 save per second)
 const SAVE_DEBOUNCE_MS = 1000;
@@ -423,6 +424,73 @@ export class GameStateManager {
      */
     getEventType(eventTypeKey) {
         return EconomicEventsSystem.EVENT_TYPES[eventTypeKey] || null;
+    }
+    
+    // ========================================================================
+    // INFORMATION BROKER SYSTEM
+    // ========================================================================
+    
+    /**
+     * Get intelligence cost for a system
+     * 
+     * @param {number} systemId - Target system ID
+     * @returns {number} Cost in credits
+     */
+    getIntelligenceCost(systemId) {
+        const priceKnowledge = this.getPriceKnowledge();
+        return InformationBroker.getIntelligenceCost(systemId, priceKnowledge);
+    }
+    
+    /**
+     * Purchase market intelligence for a system
+     * 
+     * @param {number} systemId - Target system ID
+     * @returns {Object} { success: boolean, reason: string }
+     */
+    purchaseIntelligence(systemId) {
+        if (!this.state) {
+            return { success: false, reason: 'No game state' };
+        }
+        
+        const result = InformationBroker.purchaseIntelligence(
+            this.state,
+            systemId,
+            this.starData
+        );
+        
+        if (result.success) {
+            // Emit state change events
+            this.emit('creditsChanged', this.state.player.credits);
+            this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+            
+            // Persist immediately - intelligence purchase modifies credits and price knowledge
+            this.saveGame();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Generate a market rumor
+     * 
+     * @returns {string} Rumor text
+     */
+    generateRumor() {
+        if (!this.state) {
+            return 'No rumors available.';
+        }
+        
+        return InformationBroker.generateRumor(this.state, this.starData);
+    }
+    
+    /**
+     * Get list of all systems with intelligence costs
+     * 
+     * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
+     */
+    listAvailableIntelligence() {
+        const priceKnowledge = this.getPriceKnowledge();
+        return InformationBroker.listAvailableIntelligence(priceKnowledge, this.starData);
     }
     
     // ========================================================================

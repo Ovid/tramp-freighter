@@ -4,6 +4,8 @@
     system, the more the prices drop or rise based on your individual
     activity, before slowly returning to baseline? That forces players to look
     for other places to buy/sell.
+
+* Multi-route jumps?
 * Needs a tutorial.
 * Some kind of "Achievement" system (visited all stars, for example)
 * Is there any reason to keep the old calculateGoodPrice() function now that
