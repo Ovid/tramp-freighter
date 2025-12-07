@@ -339,6 +339,73 @@ export class JumpAnimationSystem {
   }
 
   /**
+   * Animate camera transition with easing
+   *
+   * Smoothly transitions the camera from its current position to a target position
+   * and look-at point using easeInOutCubic easing for a polished, cinematic feel.
+   *
+   * Uses requestAnimationFrame for smooth 60fps animation without blocking the main thread.
+   * Reuses pre-allocated Vector3 objects to avoid allocations in the animation loop.
+   *
+   * @param {THREE.Vector3} targetPosition - Target camera position
+   * @param {THREE.Vector3} targetLookAt - Target camera look-at point
+   * @param {number} duration - Animation duration in seconds
+   * @returns {Promise<void>} Resolves when transition completes
+   */
+  animateCameraTransition(targetPosition, targetLookAt, duration) {
+    return new Promise((resolve) => {
+      // Store original camera state for restoration (only if not already stored)
+      if (!this.originalCameraState) {
+        const THREE = window.THREE;
+        this.originalCameraState = {
+          position: new THREE.Vector3().copy(this.camera.position),
+          target: new THREE.Vector3().copy(this.controls.target),
+        };
+      }
+
+      // Store start state for interpolation
+      // Reuse temp vectors to avoid allocations
+      const startPosition = this._tempVec1.copy(this.camera.position);
+      const startLookAt = this._tempVec2.copy(this.controls.target);
+
+      // Pre-allocate vectors for interpolation (reused each frame)
+      const currentPosition = this._tempVec3;
+      const currentLookAt = this._tempVec4;
+
+      const startTime = performance.now();
+
+      const animate = () => {
+        const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
+        const progress = Math.min(elapsed / duration, 1.0);
+
+        // Apply easing function for smooth acceleration/deceleration
+        const easedProgress = EasingFunctions.easeInOutCubic(progress);
+
+        // Interpolate camera position using reusable vectors
+        currentPosition.copy(startPosition).lerp(targetPosition, easedProgress);
+        this.camera.position.copy(currentPosition);
+
+        // Interpolate camera look-at target using reusable vectors
+        currentLookAt.copy(startLookAt).lerp(targetLookAt, easedProgress);
+        this.controls.target.copy(currentLookAt);
+
+        // Update controls to apply new target
+        this.controls.update();
+
+        // Continue animation or resolve
+        if (progress < 1.0) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+
+      // Start animation
+      requestAnimationFrame(animate);
+    });
+  }
+
+  /**
    * Dispose of animation system resources
    *
    * Properly disposes of sprite material and geometry to prevent GPU memory leaks.

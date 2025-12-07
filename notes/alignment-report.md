@@ -396,6 +396,7 @@ All metrics from source present in Spec 08 ✓
    ```
 
 2. **Add Station Generation to Spec 08**
+
    ```markdown
    ### Station Personality System
 

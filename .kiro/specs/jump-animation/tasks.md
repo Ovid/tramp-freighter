@@ -54,7 +54,7 @@
   - **Property 4: Side view positioning correctness**
   - **Validates: Requirements 2.3, 2.4**
 
-- [ ] 5. Implement camera transition animation
+- [x] 5. Implement camera transition animation
   - Create `animateCameraTransition()` method in `JumpAnimationSystem`
   - Store original camera position and target for restoration
   - Use requestAnimationFrame for smooth 60fps animation
@@ -64,7 +64,7 @@
   - Return Promise that resolves when transition completes
   - _Requirements: 2.1, 2.2, 2.5_
 
-- [ ] 5.1 Write property test for camera transition smoothness
+- [x] 5.1 Write property test for camera transition smoothness
   - **Property 3: Camera transition smoothness**
   - **Validates: Requirements 2.1, 2.2**
 
