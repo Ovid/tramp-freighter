@@ -16,7 +16,7 @@
   - Add ambient and directional lighting
   - _Requirements: 1.4, 8.1_
 
-- [ ]* 2.1 Write property test for camera initialization
+- [ ]\* 2.1 Write property test for camera initialization
   - **Property: Camera initialization sets correct position**
   - **Validates: Requirements 1.4**
 
@@ -34,23 +34,23 @@
   - Store runtime star objects with data and Three.js objects
   - _Requirements: 8.5, 10.1, 10.2, 9.4_
 
-- [ ]* 3.1 Write property test for spectral class color mapping
+- [ ]\* 3.1 Write property test for spectral class color mapping
   - **Property 27: Stars are color-coded by spectral class**
   - **Validates: Requirements 8.5**
 
-- [ ]* 3.2 Write property test for star positioning
+- [ ]\* 3.2 Write property test for star positioning
   - **Property 30: Star positions match coordinates**
   - **Validates: Requirements 10.2**
 
-- [ ]* 3.3 Write property test for star data parsing
+- [ ]\* 3.3 Write property test for star data parsing
   - **Property 29: Star data is parsed correctly**
   - **Validates: Requirements 10.1**
 
-- [ ]* 3.4 Write property test for star count
+- [ ]\* 3.4 Write property test for star count
   - **Property 28: All 117 stars are rendered**
   - **Validates: Requirements 9.4**
 
-- [ ]* 3.5 Write property test for star pulsing animation
+- [ ]\* 3.5 Write property test for star pulsing animation
   - **Property 26: Star sprites pulse over time**
   - **Validates: Requirements 8.2**
 
@@ -62,11 +62,11 @@
   - Add label update logic to animation loop
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ]* 4.1 Write property test for label scaling continuity
+- [ ]\* 4.1 Write property test for label scaling continuity
   - **Property 20: Label scaling is continuous**
   - **Validates: Requirements 5.4**
 
-- [ ]* 4.2 Write property test for label updates on camera movement
+- [ ]\* 4.2 Write property test for label updates on camera movement
   - **Property 19: Camera movement updates all labels**
   - **Validates: Requirements 5.3**
 
@@ -78,23 +78,23 @@
   - Add all connection lines to scene
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 10.4_
 
-- [ ]* 5.1 Write property test for wormhole rendering completeness
+- [ ]\* 5.1 Write property test for wormhole rendering completeness
   - **Property 21: All wormhole connections are rendered**
   - **Validates: Requirements 6.1**
 
-- [ ]* 5.2 Write property test for reachable connection colors
+- [ ]\* 5.2 Write property test for reachable connection colors
   - **Property 22: Reachable connections are bright blue**
   - **Validates: Requirements 6.2**
 
-- [ ]* 5.3 Write property test for unreachable connection colors
+- [ ]\* 5.3 Write property test for unreachable connection colors
   - **Property 23: Unreachable connections are dull red**
   - **Validates: Requirements 6.3**
 
-- [ ]* 5.4 Write property test for connection data matching
+- [ ]\* 5.4 Write property test for connection data matching
   - **Property 24: Wormhole connections match data**
   - **Validates: Requirements 6.4**
 
-- [ ]* 5.5 Write property test for wormhole data structure validation
+- [ ]\* 5.5 Write property test for wormhole data structure validation
   - **Property 32: Wormhole data structure is valid**
   - **Validates: Requirements 10.4**
 
@@ -105,7 +105,7 @@
   - Implement toggle function for boundary visibility
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ]* 6.1 Write property test for boundary toggle
+- [ ]\* 6.1 Write property test for boundary toggle
   - **Property 25: Boundary visibility toggles correctly**
   - **Validates: Requirements 7.4**
 
@@ -118,15 +118,15 @@
   - Enable damping for smooth movement
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ]* 7.1 Write property test for camera rotation
+- [ ]\* 7.1 Write property test for camera rotation
   - **Property 1: Camera rotation changes orientation**
   - **Validates: Requirements 1.1**
 
-- [ ]* 7.2 Write property test for camera panning
+- [ ]\* 7.2 Write property test for camera panning
   - **Property 2: Camera panning changes position laterally**
   - **Validates: Requirements 1.2**
 
-- [ ]* 7.3 Write property test for camera dolly
+- [ ]\* 7.3 Write property test for camera dolly
   - **Property 3: Scroll wheel changes camera distance**
   - **Validates: Requirements 1.3**
 
@@ -137,7 +137,7 @@
   - Create toggle function for rotation state
   - _Requirements: 2.4, 2.6_
 
-- [ ]* 8.1 Write property test for rotation toggle
+- [ ]\* 8.1 Write property test for rotation toggle
   - **Property 6: Toggle Rotation button flips rotation state**
   - **Validates: Requirements 2.4**
 
@@ -150,15 +150,15 @@
   - Stack buttons vertically with spacing
   - _Requirements: 2.1, 2.2, 2.3, 2.5_
 
-- [ ]* 9.1 Write property test for Zoom In button
+- [ ]\* 9.1 Write property test for Zoom In button
   - **Property 4: Zoom In button decreases camera distance**
   - **Validates: Requirements 2.2**
 
-- [ ]* 9.2 Write property test for Zoom Out button
+- [ ]\* 9.2 Write property test for Zoom Out button
   - **Property 5: Zoom Out button increases camera distance**
   - **Validates: Requirements 2.3**
 
-- [ ]* 9.3 Write property test for button active styling
+- [ ]\* 9.3 Write property test for button active styling
   - **Property 7: Active buttons have correct styling**
   - **Validates: Requirements 2.5**
 
@@ -170,15 +170,15 @@
   - Handle empty space clicks (deselect if selected, no-op if not)
   - _Requirements: 3.1, 3.2, 3.4, 3.5_
 
-- [ ]* 10.1 Write property test for sprite selection
+- [ ]\* 10.1 Write property test for sprite selection
   - **Property 8: Clicking star sprite selects that star**
   - **Validates: Requirements 3.1**
 
-- [ ]* 10.2 Write property test for label selection
+- [ ]\* 10.2 Write property test for label selection
   - **Property 9: Clicking star label selects that star**
   - **Validates: Requirements 3.2**
 
-- [ ]* 10.3 Write property test for deselection
+- [ ]\* 10.3 Write property test for deselection
   - **Property 11: Clicking empty space when selected deselects**
   - **Validates: Requirements 3.5**
 
@@ -191,7 +191,7 @@
   - Restore original star color on deselection
   - _Requirements: 3.3_
 
-- [ ]* 11.1 Write property test for selection visual feedback
+- [ ]\* 11.1 Write property test for selection visual feedback
   - **Property 10: Selected star shows visual feedback**
   - **Validates: Requirements 3.3**
 
@@ -203,11 +203,11 @@
   - Initially hide HUD
   - _Requirements: 4.1, 4.7_
 
-- [ ]* 12.1 Write property test for HUD positioning and styling
+- [ ]\* 12.1 Write property test for HUD positioning and styling
   - **Property 12: HUD displays correct positioning and styling**
   - **Validates: Requirements 4.1**
 
-- [ ]* 12.2 Write property test for close button
+- [ ]\* 12.2 Write property test for close button
   - **Property 18: Close button deselects and hides HUD**
   - **Validates: Requirements 4.7**
 
@@ -221,27 +221,27 @@
   - Call update function when star is selected
   - _Requirements: 4.2, 4.3, 4.4, 4.5, 4.6, 10.3_
 
-- [ ]* 13.1 Write property test for HUD star name display
+- [ ]\* 13.1 Write property test for HUD star name display
   - **Property 13: HUD displays correct star name**
   - **Validates: Requirements 4.2**
 
-- [ ]* 13.2 Write property test for HUD coordinates display
+- [ ]\* 13.2 Write property test for HUD coordinates display
   - **Property 14: HUD displays correct coordinates**
   - **Validates: Requirements 4.3**
 
-- [ ]* 13.3 Write property test for HUD spectral class display
+- [ ]\* 13.3 Write property test for HUD spectral class display
   - **Property 15: HUD displays correct spectral class**
   - **Validates: Requirements 4.4**
 
-- [ ]* 13.4 Write property test for HUD wormhole count display
+- [ ]\* 13.4 Write property test for HUD wormhole count display
   - **Property 16: HUD displays correct wormhole count**
   - **Validates: Requirements 4.5**
 
-- [ ]* 13.5 Write property test for HUD reachability display
+- [ ]\* 13.5 Write property test for HUD reachability display
   - **Property 17: HUD displays correct reachability status**
   - **Validates: Requirements 4.6**
 
-- [ ]* 13.6 Write property test for reachability boolean interpretation
+- [ ]\* 13.6 Write property test for reachability boolean interpretation
   - **Property 31: Reachability is interpreted as boolean**
   - **Validates: Requirements 10.3**
 

@@ -10,7 +10,6 @@
     - Event types: 'creditsChanged', 'debtChanged', 'fuelChanged', 'cargoChanged', 'locationChanged', 'timeChanged'
   - _Requirements: 1.4, 1.5, 2.8_
 
-
 - [x] 1.1 Write property test for save/load round trip and new game initialization
   - **Property 0: New game initialization creates correct default state**
   - **Validates: Requirements 1.4, 1.5**
@@ -303,4 +302,3 @@
 
 - [x] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
-

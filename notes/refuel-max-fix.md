@@ -1,9 +1,11 @@
 # Refuel Max Button Fix
 
 ## Problem
+
 When clicking the "Max" button in the refuel panel with fractional fuel values (e.g., 57.1%), the refuel would fail silently. The button would be disabled and clicking "Confirm Refuel" would do nothing.
 
 ## Root Cause
+
 Floating point precision issue in the max calculation:
 
 1. **Actual fuel**: 57.1%
@@ -18,6 +20,7 @@ The mismatch between using rounded fuel for calculation but actual fuel for vali
 ### Code Changes
 
 **js/game-ui.js - `setRefuelAmountToMax()`:**
+
 ```javascript
 // Before:
 const currentFuel = Math.round(state.ship.fuel);
@@ -29,6 +32,7 @@ const maxCapacity = Math.floor(100 - currentFuel); // Floor to be safe
 ```
 
 **js/game-state.js - `validateRefuel()`:**
+
 ```javascript
 // Before:
 if (currentFuel + amount > 100) {
@@ -44,6 +48,7 @@ if (currentFuel + amount > 100.01) { // Small epsilon for floating point
 3. **Add epsilon to validation**: Handles floating point precision (0.01% tolerance)
 
 ### Example
+
 With 57.1% fuel and 441 credits at Sol (2 cr/% fuel price):
 
 - Max capacity: `Math.floor(100 - 57.1)` = 42%
@@ -100,11 +105,13 @@ Added comprehensive test file: `tests/property/refuel-max-calculation.property.t
 ## User Impact
 
 **Before:**
+
 - Click "Max" with fractional fuel → Button disabled
 - No error message
 - Confusing user experience
 
 **After:**
+
 - Click "Max" with fractional fuel → Correct amount calculated
 - Button enabled
 - Refuel works as expected

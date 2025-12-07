@@ -9,12 +9,13 @@ inclusion: always
 **REQUIRED: All JavaScript files MUST begin with `"use strict";`**
 
 ```javascript
-"use strict";
+'use strict';
 
 // Module code follows...
 ```
 
 This enables strict mode which:
+
 - Catches common coding mistakes and throws exceptions
 - Prevents use of problematic language features
 - Makes code run faster by enabling optimizations
@@ -29,25 +30,26 @@ This enables strict mode which:
 ```javascript
 // BAD - Creates new object on every iteration
 for (let i = 0; i < 1000; i++) {
-    const point = { x: i, y: i * 2 };
-    processPoint(point);
+  const point = { x: i, y: i * 2 };
+  processPoint(point);
 }
 
 // GOOD - Reuse object
 const point = { x: 0, y: 0 };
 for (let i = 0; i < 1000; i++) {
-    point.x = i;
-    point.y = i * 2;
-    processPoint(point);
+  point.x = i;
+  point.y = i * 2;
+  processPoint(point);
 }
 
 // GOOD - Use primitives when possible
 for (let i = 0; i < 1000; i++) {
-    processPoint(i, i * 2);
+  processPoint(i, i * 2);
 }
 ```
 
 Hot loops include:
+
 - Animation frames (requestAnimationFrame callbacks)
 - Event handlers that fire frequently (mousemove, scroll, resize)
 - Rendering loops
@@ -60,17 +62,17 @@ Hot loops include:
 ```javascript
 // BAD - Creates intermediate arrays
 const result = array
-    .map(x => x * 2)
-    .filter(x => x > 10)
-    .map(x => x.toString());
+  .map((x) => x * 2)
+  .filter((x) => x > 10)
+  .map((x) => x.toString());
 
 // GOOD - Single pass when performance matters
 const result = [];
 for (let i = 0; i < array.length; i++) {
-    const doubled = array[i] * 2;
-    if (doubled > 10) {
-        result.push(doubled.toString());
-    }
+  const doubled = array[i] * 2;
+  if (doubled > 10) {
+    result.push(doubled.toString());
+  }
 }
 ```
 
@@ -83,18 +85,18 @@ for (let i = 0; i < array.length; i++) {
 ```javascript
 // BAD - Creates new function on every call
 function processItems(items) {
-    items.forEach(function(item) {
-        // process item
-    });
+  items.forEach(function (item) {
+    // process item
+  });
 }
 
 // GOOD - Function declared once
 function processItem(item) {
-    // process item
+  // process item
 }
 
 function processItems(items) {
-    items.forEach(processItem);
+  items.forEach(processItem);
 }
 ```
 
@@ -105,13 +107,13 @@ function processItems(items) {
 ```javascript
 // BAD - Queries DOM on every iteration
 for (let i = 0; i < 100; i++) {
-    document.getElementById('status').textContent = i;
+  document.getElementById('status').textContent = i;
 }
 
 // GOOD - Cache the element
 const statusElement = document.getElementById('status');
 for (let i = 0; i < 100; i++) {
-    statusElement.textContent = i;
+  statusElement.textContent = i;
 }
 ```
 
@@ -119,9 +121,9 @@ for (let i = 0; i < 100; i++) {
 
 ```javascript
 const ui = {
-    status: document.getElementById('status'),
-    credits: document.getElementById('credits'),
-    fuel: document.getElementById('fuel')
+  status: document.getElementById('status'),
+  credits: document.getElementById('credits'),
+  fuel: document.getElementById('fuel'),
 };
 
 // Later use cached references
@@ -136,25 +138,25 @@ ui.credits.textContent = player.credits;
 **Use revealing module pattern for encapsulation**
 
 ```javascript
-"use strict";
+'use strict';
 
-const GameModule = (function() {
-    // Private variables
-    let privateState = 0;
-    
-    // Private functions
-    function privateHelper() {
-        return privateState * 2;
-    }
-    
-    // Public API
-    return {
-        publicMethod: function() {
-            return privateHelper();
-        },
-        
-        publicProperty: 42
-    };
+const GameModule = (function () {
+  // Private variables
+  let privateState = 0;
+
+  // Private functions
+  function privateHelper() {
+    return privateState * 2;
+  }
+
+  // Public API
+  return {
+    publicMethod: function () {
+      return privateHelper();
+    },
+
+    publicProperty: 42,
+  };
 })();
 ```
 
@@ -170,11 +172,11 @@ let currentSystem = 'Sol';
 
 // GOOD - Single namespace
 const Game = {
-    player: {
-        credits: 0,
-        fuel: 100,
-        currentSystem: 'Sol'
-    }
+  player: {
+    credits: 0,
+    fuel: 100,
+    currentSystem: 'Sol',
+  },
 };
 ```
 
@@ -191,7 +193,7 @@ const config = { speed: 10 };
 let currentFuel = 50;
 
 // BAD - Never use var
-var oldStyle = "no";
+var oldStyle = 'no';
 ```
 
 ### Declare Variables at Appropriate Scope
@@ -200,13 +202,13 @@ var oldStyle = "no";
 // BAD - Unnecessarily wide scope
 let result;
 if (condition) {
-    result = calculateValue();
+  result = calculateValue();
 }
 
 // GOOD - Narrow scope
 if (condition) {
-    const result = calculateValue();
-    useResult(result);
+  const result = calculateValue();
+  useResult(result);
 }
 ```
 
@@ -219,27 +221,27 @@ if (condition) {
 ```javascript
 // BAD - Does too much
 function updateGameState(player, system, time) {
-    player.fuel -= calculateFuelCost(system);
-    player.credits += calculateProfit(system);
-    player.location = system;
-    updateUI(player);
-    saveGame(player);
-    logAnalytics(player, system);
+  player.fuel -= calculateFuelCost(system);
+  player.credits += calculateProfit(system);
+  player.location = system;
+  updateUI(player);
+  saveGame(player);
+  logAnalytics(player, system);
 }
 
 // GOOD - Separated concerns
 function consumeFuel(player, system) {
-    player.fuel -= calculateFuelCost(system);
+  player.fuel -= calculateFuelCost(system);
 }
 
 function updatePlayerLocation(player, system) {
-    player.location = system;
+  player.location = system;
 }
 
 function processJump(player, system) {
-    consumeFuel(player, system);
-    updatePlayerLocation(player, system);
-    return player;
+  consumeFuel(player, system);
+  updatePlayerLocation(player, system);
+  return player;
 }
 ```
 
@@ -250,12 +252,12 @@ function processJump(player, system) {
 ```javascript
 // GOOD - Pure function
 function calculatePrice(basePrice, modifier) {
-    return Math.round(basePrice * modifier);
+  return Math.round(basePrice * modifier);
 }
 
 // ACCEPTABLE - Side effects clearly named
 function applyPriceModifier(priceData, modifier) {
-    priceData.current = Math.round(priceData.base * modifier);
+  priceData.current = Math.round(priceData.base * modifier);
 }
 ```
 
@@ -266,25 +268,25 @@ function applyPriceModifier(priceData, modifier) {
 ```javascript
 // BAD - Deep nesting
 function processTransaction(player, amount) {
-    if (player) {
-        if (amount > 0) {
-            if (player.credits >= amount) {
-                player.credits -= amount;
-                return true;
-            }
-        }
+  if (player) {
+    if (amount > 0) {
+      if (player.credits >= amount) {
+        player.credits -= amount;
+        return true;
+      }
     }
-    return false;
+  }
+  return false;
 }
 
 // GOOD - Early returns
 function processTransaction(player, amount) {
-    if (!player) return false;
-    if (amount <= 0) return false;
-    if (player.credits < amount) return false;
-    
-    player.credits -= amount;
-    return true;
+  if (!player) return false;
+  if (amount <= 0) return false;
+  if (player.credits < amount) return false;
+
+  player.credits -= amount;
+  return true;
 }
 ```
 
@@ -296,15 +298,15 @@ function processTransaction(player, amount) {
 
 ```javascript
 function calculateDistance(system1, system2) {
-    if (!system1 || !system2) {
-        throw new Error('Both systems required for distance calculation');
-    }
-    
-    const dx = system1.x - system2.x;
-    const dy = system1.y - system2.y;
-    const dz = system1.z - system2.z;
-    
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  if (!system1 || !system2) {
+    throw new Error('Both systems required for distance calculation');
+  }
+
+  const dx = system1.x - system2.x;
+  const dy = system1.y - system2.y;
+  const dz = system1.z - system2.z;
+
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 ```
 
@@ -314,12 +316,12 @@ function calculateDistance(system1, system2) {
 
 ```javascript
 function getAveragePrice(prices) {
-    if (!prices || prices.length === 0) {
-        return 0;
-    }
-    
-    const sum = prices.reduce((acc, price) => acc + price, 0);
-    return sum / prices.length;
+  if (!prices || prices.length === 0) {
+    return 0;
+  }
+
+  const sum = prices.reduce((acc, price) => acc + price, 0);
+  return sum / prices.length;
 }
 ```
 
@@ -356,15 +358,15 @@ let calculateFuelCost = (distance, efficiency) => distance * efficiency;
 /**
  * Calculates the fuel cost for jumping between two systems.
  * Uses Euclidean distance scaled by ship efficiency.
- * 
+ *
  * @param {Object} fromSystem - Origin system with x, y, z coordinates
  * @param {Object} toSystem - Destination system with x, y, z coordinates
  * @param {number} shipEfficiency - Ship's fuel efficiency multiplier
  * @returns {number} Fuel units required for the jump
  */
 function calculateJumpCost(fromSystem, toSystem, shipEfficiency) {
-    const distance = calculateDistance(fromSystem, toSystem);
-    return distance * shipEfficiency;
+  const distance = calculateDistance(fromSystem, toSystem);
+  return distance * shipEfficiency;
 }
 ```
 
@@ -405,15 +407,15 @@ const finalPrice = Math.floor(basePrice * modifier);
 
 ```javascript
 function loadGameState(savedData) {
-    if (typeof savedData !== 'object' || savedData === null) {
-        throw new Error('Invalid save data: expected object');
-    }
-    
-    if (typeof savedData.player?.credits !== 'number') {
-        throw new Error('Invalid save data: player.credits must be a number');
-    }
-    
-    // Continue validation...
+  if (typeof savedData !== 'object' || savedData === null) {
+    throw new Error('Invalid save data: expected object');
+  }
+
+  if (typeof savedData.player?.credits !== 'number') {
+    throw new Error('Invalid save data: player.credits must be a number');
+  }
+
+  // Continue validation...
 }
 ```
 
@@ -421,12 +423,20 @@ function loadGameState(savedData) {
 
 ```javascript
 // BAD - Implicit coercion can cause bugs
-if (value) { /* ... */ }  // Fails for 0, "", false
+if (value) {
+  /* ... */
+} // Fails for 0, "", false
 
 // GOOD - Explicit checks
-if (value !== null && value !== undefined) { /* ... */ }
-if (typeof value === 'number') { /* ... */ }
-if (Array.isArray(value)) { /* ... */ }
+if (value !== null && value !== undefined) {
+  /* ... */
+}
+if (typeof value === 'number') {
+  /* ... */
+}
+if (Array.isArray(value)) {
+  /* ... */
+}
 ```
 
 ## Testing Considerations
@@ -438,14 +448,14 @@ if (Array.isArray(value)) { /* ... */ }
 ```javascript
 // GOOD - Pure calculation, easy to test
 function calculateProfit(buyPrice, sellPrice, quantity) {
-    return (sellPrice - buyPrice) * quantity;
+  return (sellPrice - buyPrice) * quantity;
 }
 
 // GOOD - Side effects isolated
 function executeTransaction(player, profit) {
-    player.credits += profit;
-    saveGame(player);
-    updateUI(player);
+  player.credits += profit;
+  saveGame(player);
+  updateUI(player);
 }
 ```
 
@@ -454,12 +464,12 @@ function executeTransaction(player, profit) {
 ```javascript
 // BAD - Hidden global dependency
 function getCurrentPrice() {
-    return globalGameState.prices[globalGameState.currentSystem];
+  return globalGameState.prices[globalGameState.currentSystem];
 }
 
 // GOOD - Explicit dependencies
 function getCurrentPrice(gameState) {
-    return gameState.prices[gameState.currentSystem];
+  return gameState.prices[gameState.currentSystem];
 }
 ```
 
@@ -476,6 +486,7 @@ function getCurrentPrice(gameState) {
 ### Polyfills Not Required
 
 **Modern browser targets mean we can use:**
+
 - `const` and `let`
 - Arrow functions
 - Template literals
@@ -493,13 +504,13 @@ function getCurrentPrice(gameState) {
 
 ```javascript
 function loadPlayerName(savedName) {
-    // Sanitize to prevent XSS if displayed in HTML
-    const sanitized = savedName
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .substring(0, 50);  // Limit length
-    
-    return sanitized;
+  // Sanitize to prevent XSS if displayed in HTML
+  const sanitized = savedName
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .substring(0, 50); // Limit length
+
+  return sanitized;
 }
 ```
 
@@ -525,23 +536,23 @@ const result = JSON.parse(userInput);
 const SAVE_VERSION = 2;
 
 function saveGame(gameState) {
-    const saveData = {
-        version: SAVE_VERSION,
-        timestamp: Date.now(),
-        state: gameState
-    };
-    
-    localStorage.setItem('tramp-freighter-save', JSON.stringify(saveData));
+  const saveData = {
+    version: SAVE_VERSION,
+    timestamp: Date.now(),
+    state: gameState,
+  };
+
+  localStorage.setItem('tramp-freighter-save', JSON.stringify(saveData));
 }
 
 function loadGame() {
-    const saved = JSON.parse(localStorage.getItem('tramp-freighter-save'));
-    
-    if (saved.version !== SAVE_VERSION) {
-        return migrateOldSave(saved);
-    }
-    
-    return saved.state;
+  const saved = JSON.parse(localStorage.getItem('tramp-freighter-save'));
+
+  if (saved.version !== SAVE_VERSION) {
+    return migrateOldSave(saved);
+  }
+
+  return saved.state;
 }
 ```
 
@@ -551,15 +562,15 @@ function loadGame() {
 
 ```javascript
 function saveGame(gameState) {
-    try {
-        const saveData = JSON.stringify(gameState);
-        localStorage.setItem('game-save', saveData);
-        return true;
-    } catch (e) {
-        console.error('Save failed:', e);
-        showErrorMessage('Unable to save game. Storage may be full.');
-        return false;
-    }
+  try {
+    const saveData = JSON.stringify(gameState);
+    localStorage.setItem('game-save', saveData);
+    return true;
+  } catch (e) {
+    console.error('Save failed:', e);
+    showErrorMessage('Unable to save game. Storage may be full.');
+    return false;
+  }
 }
 ```
 
@@ -596,6 +607,7 @@ console.timeEnd('expensive-operation');
 ```
 
 **Optimization priorities:**
+
 1. Fix algorithmic inefficiencies (O(n²) → O(n))
 2. Reduce object allocation in hot paths
 3. Cache expensive calculations

@@ -7,7 +7,9 @@
     "dev": "npx http-server -p 8080 -c-1",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
   },
   "devDependencies": {
     "@testing-library/dom": "^9.3.0",

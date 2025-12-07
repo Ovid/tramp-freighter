@@ -73,6 +73,7 @@ The application follows a modular architecture within a single file:
 ### Data Structures
 
 #### Star System Object
+
 ```javascript
 {
   id: number,        // Unique identifier (0-116)
@@ -88,11 +89,13 @@ The application follows a modular architecture within a single file:
 ```
 
 #### Wormhole Connection
+
 ```javascript
-[id1, id2]  // Array of two star system IDs
+[id1, id2]; // Array of two star system IDs
 ```
 
 #### Runtime Star Object
+
 ```javascript
 {
   data: StarSystemObject,     // Original data
@@ -106,32 +109,38 @@ The application follows a modular architecture within a single file:
 ### Core Interfaces
 
 #### Scene Manager
+
 - `initScene()`: Create scene, camera, renderer, lights
 - `setupSectorBoundary()`: Create wireframe sphere
 - `toggleBoundary()`: Show/hide sector boundary
 
 #### Star System Manager
+
 - `createStarSystems(data)`: Generate sprites and labels for all stars
 - `getStarColor(spectralClass)`: Map spectral class to color
 - `updateStarPulse(time)`: Animate pulsing effect
 - `createSelectionRing(star)`: Create ring for selected star
 
 #### Wormhole Renderer
+
 - `createWormholeLines(connections, stars)`: Draw all connection lines
 - `getConnectionColor(star1, star2)`: Determine line color based on reachability
 
 #### Camera Controller
+
 - `setupOrbitControls()`: Configure mouse controls (orbit, pan, dolly)
 - `setAutoRotation(enabled)`: Toggle automatic rotation
 - `updateAutoRotation()`: Apply rotation in animation loop
 
 #### Selection Manager
+
 - `setupRaycaster()`: Initialize raycasting for click detection
 - `handleClick(event)`: Process mouse clicks
 - `selectStar(star)`: Update selection state and visuals
 - `deselectStar()`: Clear selection
 
 #### HUD Manager
+
 - `createHUD()`: Build HUD panel DOM structure
 - `updateHUD(star)`: Populate panel with star data
 - `showHUD()`: Display panel
@@ -139,6 +148,7 @@ The application follows a modular architecture within a single file:
 - `createCloseButton()`: Add close button to panel
 
 #### Label Manager
+
 - `createLabel(text)`: Generate text sprite
 - `updateLabelScale(camera)`: Adjust size/opacity based on distance
 - `calculateLabelProperties(distance)`: Compute font size and opacity
@@ -146,12 +156,14 @@ The application follows a modular architecture within a single file:
 ### Event Handling
 
 #### Mouse Events
+
 - **Left Click**: Select star or deselect (empty space)
 - **Left Drag**: Orbit camera around center
 - **Right Drag**: Pan camera laterally
 - **Scroll Wheel**: Dolly camera (zoom in/out)
 
 #### Button Events
+
 - **Zoom In**: Dolly camera closer (decrease distance)
 - **Zoom Out**: Dolly camera farther (increase distance)
 - **Toggle Rotation**: Enable/disable auto-rotation
@@ -165,16 +177,16 @@ The system uses scientifically accurate color coding based on stellar classifica
 
 ```javascript
 const SPECTRAL_COLORS = {
-  'O': 0x9BB0FF,  // Blue (hottest)
-  'B': 0xAABFFF,  // Blue-white
-  'A': 0xCAD7FF,  // White
-  'F': 0xF8F7FF,  // Yellow-white
-  'G': 0xFFF4EA,  // Yellow (like Sol)
-  'K': 0xFFD2A1,  // Orange
-  'M': 0xFFCC6F,  // Red-orange (coolest)
-  'L': 0xFF6B6B,  // Brown dwarf (red)
-  'T': 0xCC5555,  // Brown dwarf (darker red)
-  'D': 0xFFFFFF   // White dwarf (white)
+  O: 0x9bb0ff, // Blue (hottest)
+  B: 0xaabfff, // Blue-white
+  A: 0xcad7ff, // White
+  F: 0xf8f7ff, // Yellow-white
+  G: 0xfff4ea, // Yellow (like Sol)
+  K: 0xffd2a1, // Orange
+  M: 0xffcc6f, // Red-orange (coolest)
+  L: 0xff6b6b, // Brown dwarf (red)
+  T: 0xcc5555, // Brown dwarf (darker red)
+  D: 0xffffff, // White dwarf (white)
 };
 ```
 
@@ -188,8 +200,8 @@ const CAMERA_CONFIG = {
   fov: 60,
   near: 1,
   far: 10000,
-  target: { x: 0, y: 0, z: 0 },  // Sol position
-  autoRotationSpeed: 0.2  // degrees per frame
+  target: { x: 0, y: 0, z: 0 }, // Sol position
+  autoRotationSpeed: 0.2, // degrees per frame
 };
 ```
 
@@ -203,7 +215,7 @@ const CONTROLS_CONFIG = {
   panSpeed: 1.0,
   rotateSpeed: 1.0,
   minDistance: 50,
-  maxDistance: 2000
+  maxDistance: 2000,
 };
 ```
 
@@ -211,12 +223,12 @@ const CONTROLS_CONFIG = {
 
 ```javascript
 const LABEL_CONFIG = {
-  maxFontSize: 18,      // pixels
-  minFontSize: 8,       // pixels
+  maxFontSize: 18, // pixels
+  minFontSize: 8, // pixels
   maxOpacity: 1.0,
   minOpacity: 0.1,
-  nearDistance: 100,    // full size/opacity
-  farDistance: 500      // minimum opacity
+  nearDistance: 100, // full size/opacity
+  farDistance: 500, // minimum opacity
 };
 ```
 
@@ -224,18 +236,18 @@ const LABEL_CONFIG = {
 
 ```javascript
 const VISUAL_CONFIG = {
-  starSize: 20,                    // sprite size
-  pulseAmplitude: 0.15,            // 15% size variation
-  pulseSpeed: 2.0,                 // radians per second
-  selectionRingSize: 30,           // ring radius
+  starSize: 20, // sprite size
+  pulseAmplitude: 0.15, // 15% size variation
+  pulseSpeed: 2.0, // radians per second
+  selectionRingSize: 30, // ring radius
   selectionRingPulseSpeed: 3.0,
   wormholeLineWidth: 2,
-  reachableColor: 0x00CCFF,        // bright blue
-  unreachableColor: 0x884444,      // dull red
-  selectionColor: 0xFFFF00,        // bright yellow
-  sectorBoundaryColor: 0x444444,   // dark gray
+  reachableColor: 0x00ccff, // bright blue
+  unreachableColor: 0x884444, // dull red
+  selectionColor: 0xffff00, // bright yellow
+  sectorBoundaryColor: 0x444444, // dark gray
   sectorBoundaryRadius: 300,
-  backgroundColor: 0x000000        // black
+  backgroundColor: 0x000000, // black
 };
 ```
 
@@ -252,7 +264,7 @@ const HUD_CONFIG = {
   borderWidth: 2,
   textColor: '#FFFFFF',
   fontSize: 14,
-  lineHeight: 1.6
+  lineHeight: 1.6,
 };
 ```
 
@@ -270,173 +282,172 @@ const BUTTON_CONFIG = {
   textColor: '#FFFFFF',
   activeTextColor: '#000000',
   fontSize: 14,
-  borderRadius: 5
+  borderRadius: 5,
 };
 ```
 
-
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Camera rotation changes orientation
 
-*For any* initial camera orientation and left-mouse drag gesture, the camera orientation should change while maintaining the same distance from the center point.
+_For any_ initial camera orientation and left-mouse drag gesture, the camera orientation should change while maintaining the same distance from the center point.
 **Validates: Requirements 1.1**
 
 ### Property 2: Camera panning changes position laterally
 
-*For any* initial camera position and right-mouse drag gesture, the camera position should change without altering the camera's orientation or distance from target.
+_For any_ initial camera position and right-mouse drag gesture, the camera position should change without altering the camera's orientation or distance from target.
 **Validates: Requirements 1.2**
 
 ### Property 3: Scroll wheel changes camera distance
 
-*For any* initial camera position and scroll amount, the camera distance from the center should change proportionally to the scroll amount with sensitivity 150.
+_For any_ initial camera position and scroll amount, the camera distance from the center should change proportionally to the scroll amount with sensitivity 150.
 **Validates: Requirements 1.3**
 
 ### Property 4: Zoom In button decreases camera distance
 
-*For any* camera state, clicking the "Zoom In" button should decrease the distance between the camera and the scene center.
+_For any_ camera state, clicking the "Zoom In" button should decrease the distance between the camera and the scene center.
 **Validates: Requirements 2.2**
 
 ### Property 5: Zoom Out button increases camera distance
 
-*For any* camera state, clicking the "Zoom Out" button should increase the distance between the camera and the scene center.
+_For any_ camera state, clicking the "Zoom Out" button should increase the distance between the camera and the scene center.
 **Validates: Requirements 2.3**
 
 ### Property 6: Toggle Rotation button flips rotation state
 
-*For any* rotation state (enabled or disabled), clicking the "Toggle Rotation" button should flip the state to its opposite.
+_For any_ rotation state (enabled or disabled), clicking the "Toggle Rotation" button should flip the state to its opposite.
 **Validates: Requirements 2.4**
 
 ### Property 7: Active buttons have correct styling
 
-*For any* button in active state, the button should display black text on a bright green background.
+_For any_ button in active state, the button should display black text on a bright green background.
 **Validates: Requirements 2.5**
 
 ### Property 8: Clicking star sprite selects that star
 
-*For any* star system, clicking on its sprite should select that star and display its information in the HUD.
+_For any_ star system, clicking on its sprite should select that star and display its information in the HUD.
 **Validates: Requirements 3.1**
 
 ### Property 9: Clicking star label selects that star
 
-*For any* star system, clicking on its label should select that star and display its information in the HUD.
+_For any_ star system, clicking on its label should select that star and display its information in the HUD.
 **Validates: Requirements 3.2**
 
 ### Property 10: Selected star shows visual feedback
 
-*For any* selected star system, the star sprite should change to bright yellow or white and display a pulsing ring.
+_For any_ selected star system, the star sprite should change to bright yellow or white and display a pulsing ring.
 **Validates: Requirements 3.3**
 
 ### Property 11: Clicking empty space when selected deselects
 
-*For any* selected star system, clicking on empty space should deselect the star and hide the HUD panel.
+_For any_ selected star system, clicking on empty space should deselect the star and hide the HUD panel.
 **Validates: Requirements 3.5**
 
 ### Property 12: HUD displays correct positioning and styling
 
-*For any* selected star system, the HUD panel should appear in the top-right corner with semi-transparent dark background and neon green borders.
+_For any_ selected star system, the HUD panel should appear in the top-right corner with semi-transparent dark background and neon green borders.
 **Validates: Requirements 4.1**
 
 ### Property 13: HUD displays correct star name
 
-*For any* selected star system, the HUD panel should display the exact name from the star's data.
+_For any_ selected star system, the HUD panel should display the exact name from the star's data.
 **Validates: Requirements 4.2**
 
 ### Property 14: HUD displays correct coordinates
 
-*For any* selected star system, the HUD panel should display the exact x, y, z coordinates from the star's data.
+_For any_ selected star system, the HUD panel should display the exact x, y, z coordinates from the star's data.
 **Validates: Requirements 4.3**
 
 ### Property 15: HUD displays correct spectral class
 
-*For any* selected star system, the HUD panel should display the exact spectral class from the star's data.
+_For any_ selected star system, the HUD panel should display the exact spectral class from the star's data.
 **Validates: Requirements 4.4**
 
 ### Property 16: HUD displays correct wormhole count
 
-*For any* selected star system, the HUD panel should display the exact wormhole connection count from the star's data.
+_For any_ selected star system, the HUD panel should display the exact wormhole connection count from the star's data.
 **Validates: Requirements 4.5**
 
 ### Property 17: HUD displays correct reachability status
 
-*For any* selected star system, the HUD panel should display "Reachable" when r=1 and "Unreachable" when r=0.
+_For any_ selected star system, the HUD panel should display "Reachable" when r=1 and "Unreachable" when r=0.
 **Validates: Requirements 4.6**
 
 ### Property 18: Close button deselects and hides HUD
 
-*For any* displayed HUD panel, clicking the close button should deselect the star and hide the HUD.
+_For any_ displayed HUD panel, clicking the close button should deselect the star and hide the HUD.
 **Validates: Requirements 4.7**
 
 ### Property 19: Camera movement updates all labels
 
-*For any* camera movement, all star labels should have their size and opacity recalculated based on new distances.
+_For any_ camera movement, all star labels should have their size and opacity recalculated based on new distances.
 **Validates: Requirements 5.3**
 
 ### Property 20: Label scaling is continuous
 
-*For any* distance value, the label scaling function should produce a continuous value between minimum and maximum without discontinuities.
+_For any_ distance value, the label scaling function should produce a continuous value between minimum and maximum without discontinuities.
 **Validates: Requirements 5.4**
 
 ### Property 21: All wormhole connections are rendered
 
-*For any* wormhole connection in the data, a corresponding line should be rendered in the scene.
+_For any_ wormhole connection in the data, a corresponding line should be rendered in the scene.
 **Validates: Requirements 6.1**
 
 ### Property 22: Reachable connections are bright blue
 
-*For any* wormhole connection where both systems have r=1, the connection line should be rendered in bright blue color.
+_For any_ wormhole connection where both systems have r=1, the connection line should be rendered in bright blue color.
 **Validates: Requirements 6.2**
 
 ### Property 23: Unreachable connections are dull red
 
-*For any* wormhole connection where at least one system has r=0, the connection line should be rendered in dull red color.
+_For any_ wormhole connection where at least one system has r=0, the connection line should be rendered in dull red color.
 **Validates: Requirements 6.3**
 
 ### Property 24: Wormhole connections match data
 
-*For any* wormhole connection [id1, id2] in the data, there should be a line connecting the star with id1 to the star with id2.
+_For any_ wormhole connection [id1, id2] in the data, there should be a line connecting the star with id1 to the star with id2.
 **Validates: Requirements 6.4**
 
 ### Property 25: Boundary visibility toggles correctly
 
-*For any* boundary visibility state, toggling should flip the visibility to its opposite state.
+_For any_ boundary visibility state, toggling should flip the visibility to its opposite state.
 **Validates: Requirements 7.4**
 
 ### Property 26: Star sprites pulse over time
 
-*For any* star sprite, its size should oscillate sinusoidally over time with the configured amplitude and speed.
+_For any_ star sprite, its size should oscillate sinusoidally over time with the configured amplitude and speed.
 **Validates: Requirements 8.2**
 
 ### Property 27: Stars are color-coded by spectral class
 
-*For any* star system, the sprite color should match the color mapping for its spectral class (first character of type field).
+_For any_ star system, the sprite color should match the color mapping for its spectral class (first character of type field).
 **Validates: Requirements 8.5**
 
 ### Property 28: All 117 stars are rendered
 
-*For any* complete initialization, exactly 117 star sprites should be rendered in the scene.
+_For any_ complete initialization, exactly 117 star sprites should be rendered in the scene.
 **Validates: Requirements 9.4**
 
 ### Property 29: Star data is parsed correctly
 
-*For any* star object in the data, all properties (id, x, y, z, name, type, wh, st, r) should be accessible after parsing.
+_For any_ star object in the data, all properties (id, x, y, z, name, type, wh, st, r) should be accessible after parsing.
 **Validates: Requirements 10.1**
 
 ### Property 30: Star positions match coordinates
 
-*For any* star system, the sprite's 3D position should exactly match the x, y, z coordinates from the data.
+_For any_ star system, the sprite's 3D position should exactly match the x, y, z coordinates from the data.
 **Validates: Requirements 10.2**
 
 ### Property 31: Reachability is interpreted as boolean
 
-*For any* star system, when r=1 the system should be treated as reachable, and when r=0 it should be treated as unreachable.
+_For any_ star system, when r=1 the system should be treated as reachable, and when r=0 it should be treated as unreachable.
 **Validates: Requirements 10.3**
 
 ### Property 32: Wormhole data structure is valid
 
-*For any* wormhole connection in the data, it should be a two-element array where both elements are valid star system IDs.
+_For any_ wormhole connection in the data, it should be a two-element array where both elements are valid star system IDs.
 **Validates: Requirements 10.4**
 
 ## Error Handling
@@ -517,6 +528,7 @@ The application will use **fast-check** (JavaScript property-based testing libra
 Property-based tests will be tagged with comments explicitly referencing the correctness property from this design document using the format: `**Feature: sol-sector-starmap, Property {number}: {property_text}**`
 
 Each correctness property listed above will be implemented as a single property-based test that:
+
 1. Generates random valid inputs (star data, camera positions, user interactions)
 2. Executes the relevant system behavior
 3. Verifies the property holds true
@@ -581,6 +593,7 @@ Tests will use both the full 117-star dataset and smaller synthetic datasets:
 ### Browser Compatibility
 
 Target modern browsers with WebGL support:
+
 - Chrome 90+
 - Firefox 88+
 - Safari 14+
@@ -589,6 +602,7 @@ Target modern browsers with WebGL support:
 ### CDN Selection
 
 Use a reliable CDN for Three.js:
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
 ```
@@ -596,6 +610,7 @@ Use a reliable CDN for Three.js:
 ### File Size Considerations
 
 The single HTML file will contain:
+
 - ~50KB of star and wormhole data (JSON)
 - ~30-40KB of application code
 - ~5KB of CSS
@@ -612,6 +627,7 @@ This is small enough for email attachment and fast loading.
 ### Future Enhancements
 
 Potential features for future versions:
+
 - Search functionality to find specific stars
 - Filter by reachability or spectral class
 - Path finding between systems via wormholes

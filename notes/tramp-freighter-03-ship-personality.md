@@ -36,80 +36,80 @@ Each ship starts with 2-3 randomly assigned quirks that are permanent.
 ```javascript
 const SHIP_QUIRKS = {
   sticky_seal: {
-    name: "Sticky Cargo Seal",
-    description: "The main cargo hatch sticks. Every. Single. Time.",
+    name: 'Sticky Cargo Seal',
+    description: 'The main cargo hatch sticks. Every. Single. Time.',
     effects: {
-      loadingTime: 1.1,  // +10% slower
-      theftRisk: 0.95    // -5% theft risk
+      loadingTime: 1.1, // +10% slower
+      theftRisk: 0.95, // -5% theft risk
     },
-    flavor: "You've learned to kick it in just the right spot."
+    flavor: "You've learned to kick it in just the right spot.",
   },
-  
+
   hot_thruster: {
-    name: "Hot Thruster",
-    description: "Port thruster runs hot. Burns extra fuel but responsive.",
+    name: 'Hot Thruster',
+    description: 'Port thruster runs hot. Burns extra fuel but responsive.',
     effects: {
-      fuelEfficiency: 0.95,  // -5% efficiency
-      escapeChance: 1.1      // +10% escape (future combat)
+      fuelEfficiency: 0.95, // -5% efficiency
+      escapeChance: 1.1, // +10% escape (future combat)
     },
-    flavor: "The engineers say it's 'within tolerances.' Barely."
+    flavor: "The engineers say it's 'within tolerances.' Barely.",
   },
-  
+
   sensitive_sensors: {
-    name: "Sensitive Sensors",
-    description: "Sensor array picks up everything. Including false positives.",
+    name: 'Sensitive Sensors',
+    description: 'Sensor array picks up everything. Including false positives.',
     effects: {
-      salvageDetection: 1.15,  // +15% salvage finds
-      falseAlarms: 1.1         // +10% false alarms
+      salvageDetection: 1.15, // +15% salvage finds
+      falseAlarms: 1.1, // +10% false alarms
     },
-    flavor: "You've learned to tell the difference. Mostly."
+    flavor: "You've learned to tell the difference. Mostly.",
   },
-  
+
   cramped_quarters: {
-    name: "Cramped Quarters",
-    description: "Living space is... cozy. Very cozy.",
+    name: 'Cramped Quarters',
+    description: 'Living space is... cozy. Very cozy.',
     effects: {
-      maxCrew: -1,              // -1 crew slot (future)
-      lifeSupportDrain: 0.9     // -10% drain
+      maxCrew: -1, // -1 crew slot (future)
+      lifeSupportDrain: 0.9, // -10% drain
     },
-    flavor: "At least you don't have to share."
+    flavor: "At least you don't have to share.",
   },
-  
+
   lucky_ship: {
-    name: "Lucky Ship",
-    description: "This ship has a history of beating the odds.",
+    name: 'Lucky Ship',
+    description: 'This ship has a history of beating the odds.',
     effects: {
-      negateEventChance: 0.05   // 5% to negate bad events
+      negateEventChance: 0.05, // 5% to negate bad events
     },
-    flavor: "Knock on hull plating."
+    flavor: 'Knock on hull plating.',
   },
-  
+
   fuel_sipper: {
-    name: "Fuel Sipper",
-    description: "Efficient drive core. Previous owner was meticulous.",
+    name: 'Fuel Sipper',
+    description: 'Efficient drive core. Previous owner was meticulous.',
     effects: {
-      fuelConsumption: 0.85     // -15% fuel use
+      fuelConsumption: 0.85, // -15% fuel use
     },
-    flavor: "One of the few things that actually works better than spec."
+    flavor: 'One of the few things that actually works better than spec.',
   },
-  
+
   leaky_seals: {
-    name: "Leaky Seals",
+    name: 'Leaky Seals',
     description: "Hull seals aren't quite right. Slow degradation.",
     effects: {
-      hullDegradation: 1.5      // +50% hull damage per jump
+      hullDegradation: 1.5, // +50% hull damage per jump
     },
-    flavor: "You can hear the whistle when you're in the cargo bay."
+    flavor: "You can hear the whistle when you're in the cargo bay.",
   },
-  
+
   smooth_talker: {
     name: "Smooth Talker's Ride",
-    description: "Previous owner had a reputation. It rubs off.",
+    description: 'Previous owner had a reputation. It rubs off.',
     effects: {
-      npcRepGain: 1.05          // +5% relationship gains
+      npcRepGain: 1.05, // +5% relationship gains
     },
-    flavor: "People remember this ship. Usually fondly."
-  }
+    flavor: 'People remember this ship. Usually fondly.',
+  },
 };
 ```
 
@@ -118,8 +118,8 @@ const SHIP_QUIRKS = {
 ```javascript
 function assignQuirks() {
   const quirkKeys = Object.keys(SHIP_QUIRKS);
-  const count = Math.random() < 0.5 ? 2 : 3;  // 50% chance of 2 or 3
-  
+  const count = Math.random() < 0.5 ? 2 : 3; // 50% chance of 2 or 3
+
   const assigned = [];
   while (assigned.length < count) {
     const quirk = quirkKeys[Math.floor(Math.random() * quirkKeys.length)];
@@ -127,7 +127,7 @@ function assignQuirks() {
       assigned.push(quirk);
     }
   }
-  
+
   return assigned;
 }
 
@@ -175,86 +175,86 @@ Show in ship status screen:
 ```javascript
 const SHIP_UPGRADES = {
   extended_tank: {
-    name: "Extended Fuel Tank",
+    name: 'Extended Fuel Tank',
     cost: 3000,
-    description: "Increases fuel capacity by 50%",
+    description: 'Increases fuel capacity by 50%',
     effects: {
-      fuelCapacity: 150,  // Up from 100
-      combatVulnerability: 1.05  // +5% damage taken
+      fuelCapacity: 150, // Up from 100
+      combatVulnerability: 1.05, // +5% damage taken
     },
-    tradeoff: "Larger tank is more vulnerable to weapons fire.",
-    requirements: {}
+    tradeoff: 'Larger tank is more vulnerable to weapons fire.',
+    requirements: {},
   },
-  
+
   reinforced_hull: {
-    name: "Reinforced Hull Plating",
+    name: 'Reinforced Hull Plating',
     cost: 5000,
-    description: "Reduces hull degradation by 50%",
+    description: 'Reduces hull degradation by 50%',
     effects: {
       hullDegradation: 0.5,
-      cargoCapacity: -5  // Lose 5 cargo space
+      cargoCapacity: -5, // Lose 5 cargo space
     },
-    tradeoff: "Extra plating takes up cargo space.",
-    requirements: {}
+    tradeoff: 'Extra plating takes up cargo space.',
+    requirements: {},
   },
-  
+
   efficient_drive: {
-    name: "Efficient Drive System",
+    name: 'Efficient Drive System',
     cost: 4000,
-    description: "Reduces fuel consumption by 20%",
+    description: 'Reduces fuel consumption by 20%',
     effects: {
       fuelConsumption: 0.8,
-      escapeChance: 0.95  // -5% escape chance
+      escapeChance: 0.95, // -5% escape chance
     },
-    tradeoff: "Optimized for efficiency, not speed.",
-    requirements: {}
+    tradeoff: 'Optimized for efficiency, not speed.',
+    requirements: {},
   },
-  
+
   expanded_hold: {
-    name: "Expanded Cargo Hold",
+    name: 'Expanded Cargo Hold',
     cost: 6000,
-    description: "Increases cargo capacity by 50%",
+    description: 'Increases cargo capacity by 50%',
     effects: {
-      cargoCapacity: 75,  // Up from 50
-      maneuverability: 0.9  // -10% maneuverability
+      cargoCapacity: 75, // Up from 50
+      maneuverability: 0.9, // -10% maneuverability
     },
-    tradeoff: "Heavier ship is less maneuverable.",
-    requirements: {}
+    tradeoff: 'Heavier ship is less maneuverable.',
+    requirements: {},
   },
-  
+
   smuggler_panels: {
     name: "Smuggler's Panels",
     cost: 4500,
-    description: "Hidden cargo compartment (10 units)",
+    description: 'Hidden cargo compartment (10 units)',
     effects: {
-      hiddenCargoCapacity: 10
+      hiddenCargoCapacity: 10,
     },
-    tradeoff: "If discovered, reputation loss with authorities.",
-    requirements: {}
+    tradeoff: 'If discovered, reputation loss with authorities.',
+    requirements: {},
   },
-  
+
   advanced_sensors: {
-    name: "Advanced Sensor Array",
+    name: 'Advanced Sensor Array',
     cost: 3500,
-    description: "See economic events one jump ahead",
+    description: 'See economic events one jump ahead',
     effects: {
-      eventVisibility: 1  // Can see events in connected systems
+      eventVisibility: 1, // Can see events in connected systems
     },
-    tradeoff: "None",
-    requirements: {}
+    tradeoff: 'None',
+    requirements: {},
   },
-  
+
   medical_bay: {
-    name: "Medical Bay",
+    name: 'Medical Bay',
     cost: 2500,
-    description: "Slower life support degradation",
+    description: 'Slower life support degradation',
     effects: {
-      lifeSupportDrain: 0.7,  // -30% drain
-      cargoCapacity: -5
+      lifeSupportDrain: 0.7, // -30% drain
+      cargoCapacity: -5,
     },
-    tradeoff: "Takes up cargo space.",
-    requirements: {}
-  }
+    tradeoff: 'Takes up cargo space.',
+    requirements: {},
+  },
 };
 ```
 
@@ -326,8 +326,8 @@ Add to station menu:
 ### Hidden Cargo
 
 ```javascript
-gameState.ship.hiddenCargo = [];  // Separate from regular cargo
-gameState.ship.hiddenCargoCapacity = 0;  // 0 unless upgrade purchased
+gameState.ship.hiddenCargo = []; // Separate from regular cargo
+gameState.ship.hiddenCargoCapacity = 0; // 0 unless upgrade purchased
 ```
 
 ### Trade Interface with Hidden Cargo
@@ -357,6 +357,7 @@ gameState.ship.hiddenCargoCapacity = 0;  // 0 unless upgrade purchased
 ```
 
 Hidden cargo:
+
 - Not visible during inspections (unless discovered)
 - Can store any goods, but typically used for restricted items
 - 10% chance of discovery during inspection
@@ -399,13 +400,13 @@ Default to "Serendipity" if player doesn't choose.
 ```javascript
 gameState.ship.cargo = [
   {
-    good: "grain",
+    good: 'grain',
     qty: 20,
     buyPrice: 24,
-    buySystem: 0,  // Sol
-    buySystemName: "Sol",
-    buyDate: 5  // Days ago
-  }
+    buySystem: 0, // Sol
+    buySystemName: 'Sol',
+    buyDate: 5, // Days ago
+  },
 ];
 ```
 
@@ -448,29 +449,29 @@ Add to station menu or HUD:
 
 ```javascript
 function calculateFuelCost(distance) {
-  let baseCost = 10 + (distance * 2);
-  
+  let baseCost = 10 + distance * 2;
+
   // Apply quirks
-  gameState.ship.quirks.forEach(quirkId => {
+  gameState.ship.quirks.forEach((quirkId) => {
     const quirk = SHIP_QUIRKS[quirkId];
     if (quirk.effects.fuelConsumption) {
       baseCost *= quirk.effects.fuelConsumption;
     }
   });
-  
+
   // Apply upgrades
-  gameState.ship.upgrades.forEach(upgradeId => {
+  gameState.ship.upgrades.forEach((upgradeId) => {
     const upgrade = SHIP_UPGRADES[upgradeId];
     if (upgrade.effects.fuelConsumption) {
       baseCost *= upgrade.effects.fuelConsumption;
     }
   });
-  
+
   // Apply engine condition
   if (gameState.ship.engine < 60) {
     baseCost *= 1.2;
   }
-  
+
   return Math.round(baseCost);
 }
 ```
@@ -501,6 +502,7 @@ Similar logic for hull degradation, life support drain, etc.
 ## Success Criteria
 
 Player can:
+
 1. See their ship's unique personality through quirks
 2. Make meaningful upgrade choices with tradeoffs
 3. Expand cargo capacity for larger hauls

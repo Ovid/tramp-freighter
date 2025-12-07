@@ -20,6 +20,7 @@ inclusion: always
 ## Key Technical Components
 
 ### Game Constants (Centralized Data)
+
 - `game-constants.js` - Single source of truth for all static game data
 - Commodity base prices and spectral modifiers
 - Spectral class color mappings for visualization
@@ -28,6 +29,7 @@ inclusion: always
 - All modules import from this file rather than defining constants locally
 
 **CRITICAL RULE: ALL numeric constants, configuration values, and magic numbers MUST be defined in `game-constants.js`**
+
 - Never hard-code numeric values directly in implementation files
 - If you find yourself typing a number that isn't 0, 1, or an obvious array index, it belongs in game-constants.js
 - This includes: percentages, multipliers, ranges, thresholds, prices, distances, timeouts, etc.
@@ -36,6 +38,7 @@ inclusion: always
 - This ensures all tunable values are in one place and prevents inconsistencies
 
 ### Starmap (Existing)
+
 - Three.js scene management
 - Camera controls (orbit, pan, zoom/dolly)
 - Material system for visual effects (glow, volumetric fog)
@@ -44,6 +47,7 @@ inclusion: always
 - EdgesGeometry for wireframe boundaries
 
 ### Game Systems (To Be Implemented)
+
 - Game state management (player, ship, world)
 - Trading system with price calculation
 - Navigation system with fuel/distance calculations
@@ -55,6 +59,7 @@ inclusion: always
 ## Data Structures
 
 ### Star Systems (Existing)
+
 - `id`: integer identifier
 - `x, y, z`: coordinates (light years × 10 scale)
 - `name`: string
@@ -66,6 +71,7 @@ inclusion: always
 Wormhole connections stored as array of ID pairs.
 
 ### Game State (To Be Implemented)
+
 ```javascript
 {
   player: { credits, debt, currentSystem, daysElapsed },
@@ -79,6 +85,7 @@ Wormhole connections stored as array of ID pairs.
 ## File Organization
 
 ### Phase 1 (Core Loop)
+
 - `starmap.html` (existing, to be enhanced)
 - `game-constants.js` - Centralized game data (prices, modifiers, colors, version)
 - `game-state.js` - State management and initialization
@@ -88,6 +95,7 @@ Wormhole connections stored as array of ID pairs.
 - `game-save.js` - localStorage persistence
 
 ### Future Phases
+
 - `game-events.js` - Event system
 - `game-npcs.js` - NPC and relationship system
 - `game-combat.js` - Tactical combat choices
@@ -114,6 +122,7 @@ Wormhole connections stored as array of ID pairs.
 - **No additional dependencies** - Vanilla JS for game logic to minimize complexity
 
 ## Comments and Documentation
+
 - If comments are used, they MUST explain WHY the code behaves the way it does, not just what it does.
 - Comments MUST not be used to describe the code's structure unless the structure is unclear.
 - All public functions or data must have documentation or comments

@@ -39,61 +39,61 @@ Primary component responsible for orchestrating the jump animation sequence.
 
 ```javascript
 class JumpAnimationSystem {
-    constructor(scene, camera, controls, starData) {
-        this.scene = scene;
-        this.camera = camera;
-        this.controls = controls;
-        this.starData = starData;
-        this.isAnimating = false;
-        this.shipIndicator = null;
-        this.originalCameraState = null;
-    }
-    
-    /**
-     * Play the complete jump animation sequence
-     * @param {number} originSystemId - Origin star system ID
-     * @param {number} destinationSystemId - Destination star system ID
-     * @returns {Promise<void>} - Resolves when animation completes
-     */
-    async playJumpAnimation(originSystemId, destinationSystemId) {}
-    
-    /**
-     * Calculate side view camera position perpendicular to jump path
-     * @param {Vector3} originPos - Origin star position
-     * @param {Vector3} destPos - Destination star position
-     * @param {number} distance - Distance between stars
-     * @returns {Object} { position: Vector3, lookAt: Vector3 }
-     */
-    calculateSideViewPosition(originPos, destPos, distance) {}
-    
-    /**
-     * Animate camera transition with easing
-     * @param {Vector3} targetPosition - Target camera position
-     * @param {Vector3} targetLookAt - Target camera look-at point
-     * @param {number} duration - Animation duration in seconds
-     * @returns {Promise<void>}
-     */
-    async animateCameraTransition(targetPosition, targetLookAt, duration) {}
-    
-    /**
-     * Animate ship indicator traveling between stars
-     * @param {Vector3} originPos - Origin star position
-     * @param {Vector3} destPos - Destination star position
-     * @param {number} duration - Travel duration in seconds
-     * @returns {Promise<void>}
-     */
-    async animateShipTravel(originPos, destPos, duration) {}
-    
-    /**
-     * Create or retrieve ship indicator sprite
-     * @returns {THREE.Sprite} Ship indicator sprite
-     */
-    getShipIndicator() {}
-    
-    /**
-     * Clean up animation resources
-     */
-    cleanup() {}
+  constructor(scene, camera, controls, starData) {
+    this.scene = scene;
+    this.camera = camera;
+    this.controls = controls;
+    this.starData = starData;
+    this.isAnimating = false;
+    this.shipIndicator = null;
+    this.originalCameraState = null;
+  }
+
+  /**
+   * Play the complete jump animation sequence
+   * @param {number} originSystemId - Origin star system ID
+   * @param {number} destinationSystemId - Destination star system ID
+   * @returns {Promise<void>} - Resolves when animation completes
+   */
+  async playJumpAnimation(originSystemId, destinationSystemId) {}
+
+  /**
+   * Calculate side view camera position perpendicular to jump path
+   * @param {Vector3} originPos - Origin star position
+   * @param {Vector3} destPos - Destination star position
+   * @param {number} distance - Distance between stars
+   * @returns {Object} { position: Vector3, lookAt: Vector3 }
+   */
+  calculateSideViewPosition(originPos, destPos, distance) {}
+
+  /**
+   * Animate camera transition with easing
+   * @param {Vector3} targetPosition - Target camera position
+   * @param {Vector3} targetLookAt - Target camera look-at point
+   * @param {number} duration - Animation duration in seconds
+   * @returns {Promise<void>}
+   */
+  async animateCameraTransition(targetPosition, targetLookAt, duration) {}
+
+  /**
+   * Animate ship indicator traveling between stars
+   * @param {Vector3} originPos - Origin star position
+   * @param {Vector3} destPos - Destination star position
+   * @param {number} duration - Travel duration in seconds
+   * @returns {Promise<void>}
+   */
+  async animateShipTravel(originPos, destPos, duration) {}
+
+  /**
+   * Create or retrieve ship indicator sprite
+   * @returns {THREE.Sprite} Ship indicator sprite
+   */
+  getShipIndicator() {}
+
+  /**
+   * Clean up animation resources
+   */
+  cleanup() {}
 }
 ```
 
@@ -103,40 +103,40 @@ Manages disabling and re-enabling player input during animations.
 
 ```javascript
 class InputLockManager {
-    constructor(controls) {
-        this.controls = controls;
-        this.isLocked = false;
-        this.originalControlsEnabled = null;
-    }
-    
-    /**
-     * Disable all player input controls
-     */
-    lock() {
-        this.isLocked = true;
-        this.originalControlsEnabled = this.controls.enabled;
-        this.controls.enabled = false;
-        // Disable click handlers
-        // Disable UI buttons
-    }
-    
-    /**
-     * Re-enable all player input controls
-     */
-    unlock() {
-        this.isLocked = false;
-        this.controls.enabled = this.originalControlsEnabled;
-        // Re-enable click handlers
-        // Re-enable UI buttons
-    }
-    
-    /**
-     * Check if input is currently locked
-     * @returns {boolean}
-     */
-    isInputLocked() {
-        return this.isLocked;
-    }
+  constructor(controls) {
+    this.controls = controls;
+    this.isLocked = false;
+    this.originalControlsEnabled = null;
+  }
+
+  /**
+   * Disable all player input controls
+   */
+  lock() {
+    this.isLocked = true;
+    this.originalControlsEnabled = this.controls.enabled;
+    this.controls.enabled = false;
+    // Disable click handlers
+    // Disable UI buttons
+  }
+
+  /**
+   * Re-enable all player input controls
+   */
+  unlock() {
+    this.isLocked = false;
+    this.controls.enabled = this.originalControlsEnabled;
+    // Re-enable click handlers
+    // Re-enable UI buttons
+  }
+
+  /**
+   * Check if input is currently locked
+   * @returns {boolean}
+   */
+  isInputLocked() {
+    return this.isLocked;
+  }
 }
 ```
 
@@ -146,43 +146,43 @@ Calculates appropriate animation durations based on distance and configuration.
 
 ```javascript
 class AnimationTimingCalculator {
-    /**
-     * Calculate travel duration based on distance
-     * @param {number} distance - Distance in light years
-     * @returns {number} Duration in seconds
-     */
-    static calculateTravelDuration(distance) {
-        // Linear interpolation between min and max durations
-        // Short jumps: 1 second minimum
-        // Long jumps: 3 seconds maximum
-        const minDuration = 1.0;
-        const maxDuration = 3.0;
-        const minDistance = 0;
-        const maxDistance = 20; // Max distance in Sol Sector
-        
-        const t = Math.min(distance / maxDistance, 1.0);
-        return minDuration + (maxDuration - minDuration) * t;
-    }
-    
-    /**
-     * Calculate zoom transition duration
-     * @returns {number} Duration in seconds
-     */
-    static calculateZoomDuration() {
-        return 1.0; // Fixed 1 second for zoom transitions
-    }
-    
-    /**
-     * Calculate total animation duration
-     * @param {number} distance - Distance in light years
-     * @returns {number} Total duration in seconds
-     */
-    static calculateTotalDuration(distance) {
-        const zoomIn = this.calculateZoomDuration();
-        const travel = this.calculateTravelDuration(distance);
-        const zoomOut = this.calculateZoomDuration();
-        return zoomIn + travel + zoomOut;
-    }
+  /**
+   * Calculate travel duration based on distance
+   * @param {number} distance - Distance in light years
+   * @returns {number} Duration in seconds
+   */
+  static calculateTravelDuration(distance) {
+    // Linear interpolation between min and max durations
+    // Short jumps: 1 second minimum
+    // Long jumps: 3 seconds maximum
+    const minDuration = 1.0;
+    const maxDuration = 3.0;
+    const minDistance = 0;
+    const maxDistance = 20; // Max distance in Sol Sector
+
+    const t = Math.min(distance / maxDistance, 1.0);
+    return minDuration + (maxDuration - minDuration) * t;
+  }
+
+  /**
+   * Calculate zoom transition duration
+   * @returns {number} Duration in seconds
+   */
+  static calculateZoomDuration() {
+    return 1.0; // Fixed 1 second for zoom transitions
+  }
+
+  /**
+   * Calculate total animation duration
+   * @param {number} distance - Distance in light years
+   * @returns {number} Total duration in seconds
+   */
+  static calculateTotalDuration(distance) {
+    const zoomIn = this.calculateZoomDuration();
+    const travel = this.calculateTravelDuration(distance);
+    const zoomOut = this.calculateZoomDuration();
+    return zoomIn + travel + zoomOut;
+  }
 }
 ```
 
@@ -192,16 +192,14 @@ Provides smooth easing functions for camera transitions.
 
 ```javascript
 class EasingFunctions {
-    /**
-     * Ease-in-out cubic easing for smooth acceleration and deceleration
-     * @param {number} t - Progress value between 0 and 1
-     * @returns {number} Eased value between 0 and 1
-     */
-    static easeInOutCubic(t) {
-        return t < 0.5
-            ? 4 * t * t * t
-            : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
+  /**
+   * Ease-in-out cubic easing for smooth acceleration and deceleration
+   * @param {number} t - Progress value between 0 and 1
+   * @returns {number} Eased value between 0 and 1
+   */
+  static easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
 }
 ```
 
@@ -227,35 +225,35 @@ Configuration constants for animation timing and visual properties.
 
 ```javascript
 const ANIMATION_CONFIG = {
-    // Zoom transition durations
-    ZOOM_DURATION: 1.0,  // seconds
-    
-    // Travel duration range
-    MIN_TRAVEL_DURATION: 1.0,  // seconds
-    MAX_TRAVEL_DURATION: 3.0,  // seconds
-    
-    // Ship indicator properties
-    SHIP_INDICATOR_SIZE: 8,
-    SHIP_INDICATOR_COLOR: 0xFF0000,  // Red
-    SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
-    
-    // Camera positioning
-    SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5,  // Distance from midpoint as multiple of star separation
-    MIN_SIDE_VIEW_DISTANCE: 100,  // Minimum camera distance
-    
-    // Easing functions
-    CAMERA_EASING: 'easeInOutCubic'
-    // Ship movement uses direct linear interpolation (no easing function needed)
+  // Zoom transition durations
+  ZOOM_DURATION: 1.0, // seconds
+
+  // Travel duration range
+  MIN_TRAVEL_DURATION: 1.0, // seconds
+  MAX_TRAVEL_DURATION: 3.0, // seconds
+
+  // Ship indicator properties
+  SHIP_INDICATOR_SIZE: 8,
+  SHIP_INDICATOR_COLOR: 0xff0000, // Red
+  SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
+
+  // Camera positioning
+  SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5, // Distance from midpoint as multiple of star separation
+  MIN_SIDE_VIEW_DISTANCE: 100, // Minimum camera distance
+
+  // Easing functions
+  CAMERA_EASING: 'easeInOutCubic',
+  // Ship movement uses direct linear interpolation (no easing function needed)
 };
 ```
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: State-before-animation consistency
 
-*For any* valid jump, the game state (fuel, location, time) SHALL be updated and auto-saved before the animation begins, and the HUD SHALL display the updated values during animation, ensuring no progress is lost if the animation is interrupted.
+_For any_ valid jump, the game state (fuel, location, time) SHALL be updated and auto-saved before the animation begins, and the HUD SHALL display the updated values during animation, ensuring no progress is lost if the animation is interrupted.
 
 **Reasoning**: This property combines state update, auto-save, and HUD reactivity into one comprehensive property. The key insight is that all these behaviors are part of ensuring the player's progress is preserved before any visual feedback occurs. By testing that state updates happen before animation callbacks are invoked, and that the HUD reflects the new state, we verify the entire state-first approach.
 
@@ -263,7 +261,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 2: Animation sequence completeness
 
-*For any* jump animation, the complete sequence SHALL execute in order (zoom-in → ship indicator appears at origin → ship travels to destination → zoom-out), and all player input controls SHALL be disabled throughout the entire sequence and re-enabled upon completion.
+_For any_ jump animation, the complete sequence SHALL execute in order (zoom-in → ship indicator appears at origin → ship travels to destination → zoom-out), and all player input controls SHALL be disabled throughout the entire sequence and re-enabled upon completion.
 
 **Reasoning**: This property combines the animation sequence order with input locking into one comprehensive property. The animation sequence and input locking are intrinsically linked - we want to ensure that the entire animation plays without interruption from user input. Testing that the sequence completes in order while controls remain disabled verifies both the animation flow and the input protection mechanism.
 
@@ -271,7 +269,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 3: Camera transition smoothness
 
-*For any* camera transition (zoom-in or zoom-out), the position and rotation changes SHALL use smooth easing functions (not instant teleportation or linear movement), creating a polished visual experience.
+_For any_ camera transition (zoom-in or zoom-out), the position and rotation changes SHALL use smooth easing functions (not instant teleportation or linear movement), creating a polished visual experience.
 
 **Reasoning**: This property ensures that camera movements feel cinematic rather than mechanical. By verifying that easing functions are applied to both position and rotation, we ensure the camera transitions are smooth and professional-looking.
 
@@ -279,7 +277,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 4: Side view positioning correctness
 
-*For any* pair of origin and destination stars, the side view camera position SHALL be perpendicular to the line between them (verified by dot product ≈ 0) and SHALL be positioned at a distance that frames both stars comfortably in view.
+_For any_ pair of origin and destination stars, the side view camera position SHALL be perpendicular to the line between them (verified by dot product ≈ 0) and SHALL be positioned at a distance that frames both stars comfortably in view.
 
 **Reasoning**: This property tests the geometric correctness of the side view calculation. The perpendicular constraint ensures the player sees both stars from the side (not from along the jump path), and the distance constraint ensures both stars are visible in the frame.
 
@@ -287,7 +285,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 5: Ship indicator visual consistency
 
-*For any* jump animation, the ship indicator SHALL maintain consistent visual properties (glowing red color, appropriate size, additive blending) throughout its travel from origin to destination, and SHALL use linear interpolation for its movement.
+_For any_ jump animation, the ship indicator SHALL maintain consistent visual properties (glowing red color, appropriate size, additive blending) throughout its travel from origin to destination, and SHALL use linear interpolation for its movement.
 
 **Reasoning**: This property ensures the ship indicator remains visually consistent and moves smoothly. The linear interpolation for movement (as opposed to eased movement) creates a constant-velocity feel that's appropriate for a ship traveling through space.
 
@@ -295,7 +293,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 6: Travel duration scaling with bounds
 
-*For any* jump distance, the ship travel duration SHALL scale linearly with distance but SHALL be clamped to a minimum of 1 second (for short jumps) and a maximum of 3 seconds (for long jumps) to ensure visibility and prevent tedium.
+_For any_ jump distance, the ship travel duration SHALL scale linearly with distance but SHALL be clamped to a minimum of 1 second (for short jumps) and a maximum of 3 seconds (for long jumps) to ensure visibility and prevent tedium.
 
 **Reasoning**: This property ensures that animation timing feels appropriate for all jump distances. Short jumps need a minimum duration to be visible, while long jumps need a maximum duration to prevent player boredom. The linear scaling between these bounds creates a natural feel where longer jumps take longer, but not excessively so.
 
@@ -303,7 +301,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 7: Total animation duration bounds
 
-*For any* jump, the total animation duration (zoom-in + travel + zoom-out) SHALL be between 3 and 5 seconds, ensuring appropriate pacing without tedium.
+_For any_ jump, the total animation duration (zoom-in + travel + zoom-out) SHALL be between 3 and 5 seconds, ensuring appropriate pacing without tedium.
 
 **Reasoning**: This property ensures the complete animation experience is neither too fast (disorienting) nor too slow (boring). The 3-5 second range (1.0s zoom-in + 1-3s travel + 1.0s zoom-out) provides enough time for the player to appreciate the journey while maintaining good game pacing.
 
@@ -311,7 +309,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 8: Visual style preservation
 
-*For any* jump animation, the starmap's existing visual elements (star sprites, wormhole connections, lighting, materials) SHALL remain unchanged and visible throughout the animation.
+_For any_ jump animation, the starmap's existing visual elements (star sprites, wormhole connections, lighting, materials) SHALL remain unchanged and visible throughout the animation.
 
 **Reasoning**: This property ensures the animation integrates seamlessly with the existing starmap rather than disrupting it. By verifying that scene objects remain unchanged, we ensure the animation feels like a natural part of the game world.
 
@@ -319,7 +317,7 @@ const ANIMATION_CONFIG = {
 
 ### Property 9: Graceful error handling
 
-*For any* animation error or edge case (very close stars, very distant stars, runtime exceptions), the animation system SHALL handle gracefully by restoring camera position, unlocking controls, and leaving the game in a valid state.
+_For any_ animation error or edge case (very close stars, very distant stars, runtime exceptions), the animation system SHALL handle gracefully by restoring camera position, unlocking controls, and leaving the game in a valid state.
 
 **Reasoning**: This property ensures robustness. Even when things go wrong, the player should never be left with a broken game state or locked controls. By testing error scenarios and verifying recovery, we ensure the game remains playable even when animations fail.
 
@@ -332,6 +330,7 @@ const ANIMATION_CONFIG = {
 **Scenario**: Invalid system IDs, missing star data, or scene not initialized
 
 **Handling**:
+
 - Log error to console
 - Skip animation entirely
 - Ensure game state remains valid (already updated)
@@ -343,6 +342,7 @@ const ANIMATION_CONFIG = {
 **Scenario**: Three.js errors, camera positioning failures, or unexpected exceptions during animation
 
 **Handling**:
+
 - Catch errors in try-catch blocks
 - Log error details to console
 - Immediately restore camera to original position
@@ -355,6 +355,7 @@ const ANIMATION_CONFIG = {
 **Scenario**: User switches tabs during animation, causing requestAnimationFrame to pause
 
 **Handling**:
+
 - Animation will pause automatically (requestAnimationFrame behavior)
 - When tab regains focus, animation resumes from current state
 - No special handling needed - animation will complete normally
@@ -365,6 +366,7 @@ const ANIMATION_CONFIG = {
 **Scenario**: Origin and destination stars are very close together (< 1 LY)
 
 **Handling**:
+
 - Use minimum travel duration (1 second)
 - Calculate side view position with minimum distance constraint
 - Ensure camera doesn't clip through stars
@@ -375,6 +377,7 @@ const ANIMATION_CONFIG = {
 **Scenario**: Origin and destination stars are at maximum distance (> 15 LY)
 
 **Handling**:
+
 - Cap travel duration at maximum (3 seconds)
 - Calculate side view position to frame both stars
 - May need to zoom out further to fit both stars in view

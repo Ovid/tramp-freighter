@@ -38,13 +38,13 @@ class CanvasRenderingContext2DMock {
     this.shadowColor = '';
     this.shadowBlur = 0;
   }
-  
+
   createRadialGradient() {
     return {
-      addColorStop: () => {}
+      addColorStop: () => {},
     };
   }
-  
+
   fillRect() {}
   measureText() {
     return { width: 100 };
@@ -53,7 +53,7 @@ class CanvasRenderingContext2DMock {
 
 // Override HTMLCanvasElement.prototype.getContext
 if (typeof HTMLCanvasElement !== 'undefined') {
-  HTMLCanvasElement.prototype.getContext = function(contextType) {
+  HTMLCanvasElement.prototype.getContext = function (contextType) {
     if (contextType === '2d') {
       return new CanvasRenderingContext2DMock();
     }

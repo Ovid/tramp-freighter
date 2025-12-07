@@ -36,30 +36,30 @@ Add tension and risk through pirates, inspections, mechanical failures, and tact
 const DANGER_ZONES = {
   safe: {
     pirateChance: 0.05,
-    inspectionChance: 0.10,
-    systems: [0, 1, 4]  // Sol, Alpha Centauri, Barnard's
+    inspectionChance: 0.1,
+    systems: [0, 1, 4], // Sol, Alpha Centauri, Barnard's
   },
   contested: {
-    pirateChance: 0.20,
+    pirateChance: 0.2,
     inspectionChance: 0.15,
-    systems: [7, 10]  // Sirius, Epsilon Eridani
+    systems: [7, 10], // Sirius, Epsilon Eridani
   },
   dangerous: {
     pirateChance: 0.35,
     inspectionChance: 0.05,
-    systems: []  // Outer Reach systems (distance > 15 LY)
-  }
+    systems: [], // Outer Reach systems (distance > 15 LY)
+  },
 };
 
 function getDangerLevel(systemId) {
-  const system = STAR_DATA.find(s => s.id === systemId);
+  const system = STAR_DATA.find((s) => s.id === systemId);
   const distance = getDistanceFromSol(system);
-  
-  if (DANGER_ZONES.safe.systems.includes(systemId)) return "safe";
-  if (DANGER_ZONES.contested.systems.includes(systemId)) return "contested";
-  if (distance > 15) return "dangerous";
-  
-  return "safe";
+
+  if (DANGER_ZONES.safe.systems.includes(systemId)) return 'safe';
+  if (DANGER_ZONES.contested.systems.includes(systemId)) return 'contested';
+  if (distance > 15) return 'dangerous';
+
+  return 'safe';
 }
 ```
 
@@ -92,23 +92,23 @@ Before jumping to dangerous systems:
 function checkForPirateEncounter(fromSystem, toSystem) {
   const dangerLevel = getDangerLevel(toSystem);
   const baseChance = DANGER_ZONES[dangerLevel].pirateChance;
-  
+
   // Modifiers
   let chance = baseChance;
-  
+
   // Carrying valuable cargo increases risk
   const cargoValue = calculateCargoValue();
   if (cargoValue > 5000) chance *= 1.2;
   if (cargoValue > 10000) chance *= 1.5;
-  
+
   // Ship condition affects detection
-  if (gameState.ship.engine < 50) chance *= 1.1;  // Slow ship
-  
+  if (gameState.ship.engine < 50) chance *= 1.1; // Slow ship
+
   // Advanced sensors reduce risk
   if (gameState.ship.upgrades.includes('advanced_sensors')) {
     chance *= 0.8;
   }
-  
+
   return Math.random() < chance;
 }
 ```
@@ -184,37 +184,37 @@ function resolveCombat(choice, enemyStrength) {
     evasive: {
       successChance: 0.7,
       success: { fuel: -15, engine: -5, escaped: true },
-      failure: { hull: -20, continue: true }
+      failure: { hull: -20, continue: true },
     },
     returnFire: {
       successChance: 0.45,
       success: { hull: -10, escaped: true, salvage: true },
-      failure: { hull: -30, cargo: -100, credits: -500 }
+      failure: { hull: -30, cargo: -100, credits: -500 },
     },
     dumpCargo: {
       successChance: 1.0,
-      success: { cargo: -50, fuel: -10, escaped: true }
+      success: { cargo: -50, fuel: -10, escaped: true },
     },
     distress: {
       successChance: 0.3,
       success: { escaped: true, repGain: 5 },
-      failure: { hull: -25, continue: true }
-    }
+      failure: { hull: -25, continue: true },
+    },
   };
-  
+
   // Apply modifiers
   if (choice === 'evasive' && gameState.ship.engine > 80) {
     results.evasive.successChance += 0.15;
   }
-  
+
   if (choice === 'evasive' && gameState.ship.quirks.includes('hot_thruster')) {
-    results.evasive.successChance += 0.10;
+    results.evasive.successChance += 0.1;
   }
-  
+
   // Roll
   const roll = Math.random();
   const outcome = roll < results[choice].successChance ? 'success' : 'failure';
-  
+
   return applyOutcome(results[choice][outcome]);
 }
 ```
@@ -266,18 +266,19 @@ function resolveCombat(choice, enemyStrength) {
 function checkForInspection(systemId) {
   const dangerLevel = getDangerLevel(systemId);
   let chance = DANGER_ZONES[dangerLevel].inspectionChance;
-  
+
   // Carrying restricted goods increases chance
   const restrictedCount = countRestrictedGoods();
   if (restrictedCount > 0) {
-    chance *= (1 + restrictedCount * 0.1);
+    chance *= 1 + restrictedCount * 0.1;
   }
-  
+
   // Core systems inspect more
-  if ([0, 1].includes(systemId)) {  // Sol, Alpha Centauri
+  if ([0, 1].includes(systemId)) {
+    // Sol, Alpha Centauri
     chance *= 2;
   }
-  
+
   return Math.random() < chance;
 }
 ```
@@ -319,33 +320,33 @@ function resolveInspection(choice, hasRestricted, hasHidden) {
       gameState.player.credits -= 1000;
       // Reputation loss
       modifyFactionRep('authorities', -10);
-      return "Restricted goods confiscated. Fine: ₡1,000.";
+      return 'Restricted goods confiscated. Fine: ₡1,000.';
     }
-    
-    if (hasHidden && Math.random() < 0.10) {
+
+    if (hasHidden && Math.random() < 0.1) {
       // Discovered hidden cargo
       confiscateHiddenGoods();
       gameState.player.credits -= 2000;
       modifyFactionRep('authorities', -20);
-      return "Hidden compartment discovered! Fine: ₡2,000.";
+      return 'Hidden compartment discovered! Fine: ₡2,000.';
     }
-    
+
     return "Inspection complete. You're free to go.";
   }
-  
+
   if (choice === 'bribe') {
-    const success = Math.random() < 0.60;
+    const success = Math.random() < 0.6;
     if (success) {
       gameState.player.credits -= 500;
-      return "The inspector pockets the credits and waves you through.";
+      return 'The inspector pockets the credits and waves you through.';
     } else {
       gameState.player.credits -= 500;
       confiscateRestrictedGoods();
       gameState.player.credits -= 1500;
-      return "Bribery attempt failed. Additional fine: ₡1,500.";
+      return 'Bribery attempt failed. Additional fine: ₡1,500.';
     }
   }
-  
+
   if (choice === 'run') {
     // Triggers combat encounter with patrol
     return triggerPatrolCombat();
@@ -362,22 +363,22 @@ function resolveInspection(choice, hasRestricted, hasHidden) {
 ```javascript
 function checkForMechanicalFailure() {
   const failures = [];
-  
+
   // Hull breach
-  if (gameState.ship.hull < 50 && Math.random() < 0.10) {
+  if (gameState.ship.hull < 50 && Math.random() < 0.1) {
     failures.push('hull_breach');
   }
-  
+
   // Engine failure
   if (gameState.ship.engine < 30 && Math.random() < 0.15) {
     failures.push('engine_failure');
   }
-  
+
   // Life support emergency
   if (gameState.ship.lifeSupport < 30 && Math.random() < 0.05) {
     failures.push('life_support');
   }
-  
+
   return failures;
 }
 ```
@@ -452,20 +453,20 @@ const DISTRESS_OUTCOMES = {
   respond: {
     costs: { days: 2, fuel: -15, lifeSupport: -5 },
     rewards: { rep: 10, credits: 500, karma: 1 },
-    message: "They're grateful. One of them presses credits into your hand."
+    message: "They're grateful. One of them presses credits into your hand.",
   },
-  
+
   ignore: {
     costs: {},
     rewards: { karma: -1 },
-    message: "You try not to think about it."
+    message: 'You try not to think about it.',
   },
-  
+
   loot: {
     costs: { days: 1 },
-    rewards: { cargo: "random", karma: -3, rep: -15 },
-    message: "You find salvage. It doesn't feel good."
-  }
+    rewards: { cargo: 'random', karma: -3, rep: -15 },
+    message: "You find salvage. It doesn't feel good.",
+  },
 };
 ```
 
@@ -477,14 +478,15 @@ const DISTRESS_OUTCOMES = {
 
 ```javascript
 gameState.factions = {
-  authorities: 0,  // Customs, patrols
-  traders: 0,      // Merchant guilds
-  outlaws: 0,      // Pirates, smugglers
-  civilians: 0     // General populace
+  authorities: 0, // Customs, patrols
+  traders: 0, // Merchant guilds
+  outlaws: 0, // Pirates, smugglers
+  civilians: 0, // General populace
 };
 ```
 
 Faction rep affects:
+
 - Inspection frequency
 - Pirate aggression
 - NPC attitudes
@@ -493,10 +495,11 @@ Faction rep affects:
 ### Karma System
 
 ```javascript
-gameState.player.karma = 0;  // -100 to +100
+gameState.player.karma = 0; // -100 to +100
 ```
 
 Karma affects:
+
 - Random event outcomes
 - NPC first impressions
 - Ending epilogue
@@ -522,6 +525,7 @@ Karma affects:
 ## Success Criteria
 
 Player can:
+
 1. Face meaningful danger during jumps
 2. Make tactical choices in combat
 3. Negotiate or fight their way out
