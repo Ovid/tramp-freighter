@@ -436,7 +436,9 @@ export class UIManager {
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
-    if (!system) return;
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+    }
 
     this.elements.stationName.textContent = `${system.name} Station`;
     this.elements.stationSystemName.textContent = system.name;
@@ -595,7 +597,9 @@ export class UIManager {
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
-    if (!system) return;
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+    }
 
     this.elements.tradeSystemName.textContent = system.name;
 
@@ -744,6 +748,11 @@ export class UIManager {
     const system = this.starData.find(
       (s) => s.id === state.player.currentSystem
     );
+    
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+    }
+    
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
@@ -801,27 +810,27 @@ export class UIManager {
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
     
-    // Build details text with purchase context
+    // Build details text - start with quantity and purchase price
     let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
     
-    // Add purchase system name if available
-    if (stack.purchaseSystem !== undefined && stack.purchaseSystem !== null) {
+    // Add purchase context if available (Phase 2 feature)
+    if (stack.purchaseSystem !== undefined && stack.purchaseDay !== undefined) {
       const purchaseSystem = this.starData.find((s) => s.id === stack.purchaseSystem);
-      if (purchaseSystem) {
-        detailsText += ` in ${purchaseSystem.name}`;
+      if (!purchaseSystem) {
+        throw new Error(`Invalid cargo stack: purchase system ID ${stack.purchaseSystem} not found in star data`);
       }
-    }
-    
-    // Add days since purchase if available
-    if (stack.purchaseDay !== undefined && stack.purchaseDay !== null) {
+
       const daysSincePurchase = currentDay - stack.purchaseDay;
+      let ageText;
       if (daysSincePurchase === 0) {
-        detailsText += ` (today)`;
+        ageText = 'today';
       } else if (daysSincePurchase === 1) {
-        detailsText += ` (1 day ago)`;
+        ageText = '1 day ago';
       } else {
-        detailsText += ` (${daysSincePurchase} days ago)`;
+        ageText = `${daysSincePurchase} days ago`;
       }
+      
+      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
     }
     
     stackDetails.textContent = detailsText;
@@ -888,6 +897,11 @@ export class UIManager {
     const system = this.starData.find(
       (s) => s.id === state.player.currentSystem
     );
+    
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+    }
+    
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
@@ -1048,7 +1062,9 @@ export class UIManager {
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
-    if (!system) return;
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+    }
 
     this.elements.refuelSystemName.textContent = system.name;
 
@@ -1474,7 +1490,9 @@ export class UIManager {
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
-    if (!system) return;
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+    }
 
     this.elements.repairSystemName.textContent = system.name;
 
