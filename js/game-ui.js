@@ -34,6 +34,12 @@ export class UIManager {
       days: document.getElementById('hud-days'),
       fuelBar: document.getElementById('fuel-bar'),
       fuelText: document.getElementById('hud-fuel-text'),
+      hullBar: document.getElementById('hull-bar'),
+      hullText: document.getElementById('hud-hull-text'),
+      engineBar: document.getElementById('engine-bar'),
+      engineText: document.getElementById('hud-engine-text'),
+      lifeSupportBar: document.getElementById('life-support-bar'),
+      lifeSupportText: document.getElementById('hud-life-support-text'),
       cargo: document.getElementById('hud-cargo'),
       system: document.getElementById('hud-system'),
       distance: document.getElementById('hud-distance'),
@@ -148,6 +154,10 @@ export class UIManager {
     this.gameStateManager.subscribe('conditionWarning', (warning) => {
       this.showConditionWarning(warning);
     });
+
+    this.gameStateManager.subscribe('shipConditionChanged', (condition) => {
+      this.updateShipCondition(condition);
+    });
   }
 
   showHUD() {
@@ -166,6 +176,7 @@ export class UIManager {
     this.updateDebt(state.player.debt);
     this.updateDays(state.player.daysElapsed);
     this.updateFuel(state.ship.fuel);
+    this.updateShipCondition(this.gameStateManager.getShipCondition());
     this.updateCargo();
     this.updateLocation(state.player.currentSystem);
     this.updateQuickAccessButtons();
@@ -186,6 +197,34 @@ export class UIManager {
   updateFuel(fuel) {
     this.elements.fuelBar.style.width = `${fuel}%`;
     this.elements.fuelText.textContent = `${Math.round(fuel)}%`;
+  }
+
+  /**
+   * Update ship condition bars in HUD
+   * Updates visual width and percentage text for hull, engine, and life support
+   *
+   * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
+   */
+  updateShipCondition(condition) {
+    if (!condition) return;
+
+    // Update hull
+    if (this.elements.hullBar && this.elements.hullText) {
+      this.elements.hullBar.style.width = `${condition.hull}%`;
+      this.elements.hullText.textContent = `${Math.round(condition.hull)}%`;
+    }
+
+    // Update engine
+    if (this.elements.engineBar && this.elements.engineText) {
+      this.elements.engineBar.style.width = `${condition.engine}%`;
+      this.elements.engineText.textContent = `${Math.round(condition.engine)}%`;
+    }
+
+    // Update life support
+    if (this.elements.lifeSupportBar && this.elements.lifeSupportText) {
+      this.elements.lifeSupportBar.style.width = `${condition.lifeSupport}%`;
+      this.elements.lifeSupportText.textContent = `${Math.round(condition.lifeSupport)}%`;
+    }
   }
 
   updateCargo() {

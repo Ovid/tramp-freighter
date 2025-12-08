@@ -113,27 +113,25 @@ canvas {
   cursor: not-allowed;
 }
 
-/* Fuel Bar Styling */
-.fuel-bar-container {
+/* Condition Bar Styling (Fuel, Hull, Engine, Life Support) */
+.condition-bar-container {
   position: relative;
   width: 150px;
   height: 20px;
   background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid #00ff88;
   border-radius: 3px;
   overflow: hidden;
 }
 
-.fuel-bar {
+.condition-bar {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #00ff88;
   transition: width 0.3s ease;
 }
 
-.fuel-text {
+.condition-text {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -143,6 +141,39 @@ canvas {
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   z-index: 1;
+}
+
+/* Distinct visual styling for each condition type */
+.fuel-bar-container {
+  border: 1px solid #00ff88;
+}
+
+.fuel-bar {
+  background-color: #00ff88;
+}
+
+.hull-bar-container {
+  border: 1px solid #4a9eff;
+}
+
+.hull-bar {
+  background-color: #4a9eff;
+}
+
+.engine-bar-container {
+  border: 1px solid #ffaa00;
+}
+
+.engine-bar {
+  background-color: #ffaa00;
+}
+
+.life-support-bar-container {
+  border: 1px solid #ff4a9e;
+}
+
+.life-support-bar {
+  background-color: #ff4a9e;
 }
 
 /* HUD Panel Styling */
