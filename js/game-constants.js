@@ -241,6 +241,28 @@ export function calculateDistanceFromSol(system) {
 }
 
 /**
+ * Ship condition degradation rates
+ *
+ * Degradation occurs during jumps to simulate wear and tear from wormhole transit.
+ * Rates are calibrated to create meaningful maintenance costs without being punishing.
+ */
+export const SHIP_DEGRADATION = {
+  HULL_PER_JUMP: 2, // Percentage points lost per jump
+  ENGINE_PER_JUMP: 1, // Percentage points lost per jump
+  LIFE_SUPPORT_PER_DAY: 0.5, // Percentage points lost per day traveled
+};
+
+/**
+ * Ship condition bounds
+ *
+ * All condition values are clamped to this range to prevent invalid states.
+ */
+export const SHIP_CONDITION_BOUNDS = {
+  MIN: 0,
+  MAX: 100,
+};
+
+/**
  * Game version for save compatibility
  */
 export const GAME_VERSION = '1.0.0';

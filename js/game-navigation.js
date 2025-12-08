@@ -1,6 +1,10 @@
 'use strict';
 
-import { LY_PER_UNIT } from './game-constants.js';
+import {
+  LY_PER_UNIT,
+  SHIP_DEGRADATION,
+  SHIP_CONDITION_BOUNDS,
+} from './game-constants.js';
 
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
@@ -74,6 +78,54 @@ export class NavigationSystem {
    */
   calculateFuelCost(distance) {
     return 10 + distance * 2;
+  }
+
+  // ========================================================================
+  // SHIP CONDITION DEGRADATION
+  // ========================================================================
+
+  /**
+   * Apply ship degradation from a jump
+   *
+   * Degradation rates:
+   * - Hull: -2% per jump (space debris, micro-meteorites)
+   * - Engine: -1% per jump (wear from wormhole transit)
+   * - Life Support: -0.5% per day traveled (consumables, filter degradation)
+   *
+   * All values are clamped to [0, 100] range.
+   *
+   * @param {Object} ship - Ship state with hull, engine, lifeSupport fields
+   * @param {number} jumpDays - Jump duration in days
+   * @returns {Object} Updated ship state with degraded condition values
+   */
+  static applyJumpDegradation(ship, jumpDays) {
+    // Calculate degradation amounts
+    const hullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
+    const engineDegradation = SHIP_DEGRADATION.ENGINE_PER_JUMP;
+    const lifeSupportDegradation = SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
+
+    // Apply degradation and clamp to valid range
+    const newHull = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.hull - hullDegradation)
+    );
+
+    const newEngine = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.engine - engineDegradation)
+    );
+
+    const newLifeSupport = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.lifeSupport - lifeSupportDegradation)
+    );
+
+    return {
+      ...ship,
+      hull: newHull,
+      engine: newEngine,
+      lifeSupport: newLifeSupport,
+    };
   }
 
   // ========================================================================
@@ -213,6 +265,17 @@ export class NavigationSystem {
     gameStateManager.updateFuel(currentFuel - validation.fuelCost);
     gameStateManager.updateTime(state.player.daysElapsed + validation.jumpTime);
     gameStateManager.updateLocation(targetSystemId);
+
+    // Apply ship condition degradation from jump
+    const degradedShip = NavigationSystem.applyJumpDegradation(
+      state.ship,
+      validation.jumpTime
+    );
+    gameStateManager.updateShipCondition(
+      degradedShip.hull,
+      degradedShip.engine,
+      degradedShip.lifeSupport
+    );
 
     // Auto-save after jump (before animation)
     gameStateManager.saveGame();

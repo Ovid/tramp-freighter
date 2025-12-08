@@ -38,6 +38,7 @@ export class GameStateManager {
       timeChanged: [],
       priceKnowledgeChanged: [],
       activeEventsChanged: [],
+      shipConditionChanged: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -92,6 +93,9 @@ export class GameStateManager {
       ship: {
         name: 'Serendipity',
         fuel: 100,
+        hull: 100,
+        engine: 100,
+        lifeSupport: 100,
         cargoCapacity: 50,
         cargo: [
           {
@@ -127,6 +131,11 @@ export class GameStateManager {
     this.emit('locationChanged', this.state.player.currentSystem);
     this.emit('timeChanged', this.state.player.daysElapsed);
     this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    this.emit('shipConditionChanged', {
+      hull: this.state.ship.hull,
+      engine: this.state.ship.engine,
+      lifeSupport: this.state.ship.lifeSupport,
+    });
 
     return this.state;
   }
@@ -137,7 +146,7 @@ export class GameStateManager {
 
   /**
    * Subscribe to state change events
-   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged
+   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged
    * @param {function} callback - Function to call when event occurs
    */
   subscribe(eventType, callback) {
@@ -209,6 +218,20 @@ export class GameStateManager {
 
   isSystemVisited(systemId) {
     return this.state?.world.visitedSystems.includes(systemId);
+  }
+
+  /**
+   * Get ship condition values
+   * @returns {Object} { hull, engine, lifeSupport } or null if no state
+   */
+  getShipCondition() {
+    if (!this.state?.ship) return null;
+
+    return {
+      hull: this.state.ship.hull,
+      engine: this.state.ship.engine,
+      lifeSupport: this.state.ship.lifeSupport,
+    };
   }
 
   /**
@@ -310,6 +333,30 @@ export class GameStateManager {
     }
 
     this.emit('timeChanged', newDays);
+  }
+
+  /**
+   * Update ship condition values
+   *
+   * All values are clamped to [0, 100] range to prevent invalid states.
+   *
+   * @param {number} hull - Hull integrity percentage
+   * @param {number} engine - Engine condition percentage
+   * @param {number} lifeSupport - Life support condition percentage
+   */
+  updateShipCondition(hull, engine, lifeSupport) {
+    if (!this.state) return;
+
+    // Clamp all values to valid range [0, 100]
+    this.state.ship.hull = Math.max(0, Math.min(100, hull));
+    this.state.ship.engine = Math.max(0, Math.min(100, engine));
+    this.state.ship.lifeSupport = Math.max(0, Math.min(100, lifeSupport));
+
+    this.emit('shipConditionChanged', {
+      hull: this.state.ship.hull,
+      engine: this.state.ship.engine,
+      lifeSupport: this.state.ship.lifeSupport,
+    });
   }
 
   /**
@@ -938,6 +985,17 @@ export class GameStateManager {
         this.state.world.activeEvents = [];
       }
 
+      // Initialize ship condition if missing (backward compatibility)
+      if (this.state.ship.hull === undefined) {
+        this.state.ship.hull = 100;
+      }
+      if (this.state.ship.engine === undefined) {
+        this.state.ship.engine = 100;
+      }
+      if (this.state.ship.lifeSupport === undefined) {
+        this.state.ship.lifeSupport = 100;
+      }
+
       this._logIfNotTest('Game loaded successfully');
 
       // Emit all state events to update UI
@@ -949,6 +1007,11 @@ export class GameStateManager {
       this.emit('timeChanged', this.state.player.daysElapsed);
       this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
       this.emit('activeEventsChanged', this.state.world.activeEvents);
+      this.emit('shipConditionChanged', {
+        hull: this.state.ship.hull,
+        engine: this.state.ship.engine,
+        lifeSupport: this.state.ship.lifeSupport,
+      });
 
       return this.state;
     } catch (error) {
@@ -1017,6 +1080,17 @@ export class GameStateManager {
       typeof state.ship.cargoCapacity !== 'number' ||
       !Array.isArray(state.ship.cargo)
     ) {
+      return false;
+    }
+
+    // Check ship condition fields (optional for backward compatibility)
+    if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
+      return false;
+    }
+    if (state.ship.engine !== undefined && typeof state.ship.engine !== 'number') {
+      return false;
+    }
+    if (state.ship.lifeSupport !== undefined && typeof state.ship.lifeSupport !== 'number') {
       return false;
     }
 

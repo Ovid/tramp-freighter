@@ -147,18 +147,18 @@ Yes# Implementation Plan
   - Display validation messages for insufficient credits
   - _Requirements: 5.1, 5.2_
 
-- [ ] 8. Implement ship condition degradation system
+- [x] 8. Implement ship condition degradation system
   - Add hull, engine, lifeSupport fields to ship state (default 100)
   - Implement applyJumpDegradation() in NavigationSystem
   - Apply degradation on jump: hull -2%, engine -1%, lifeSupport -(0.5% × jumpDays)
   - Clamp all condition values to [0, 100] range
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 8.1 Write property test for jump degradation application
+- [x] 8.1 Write property test for jump degradation application
   - **Property 20: Jump Degradation Application**
   - **Validates: Requirements 6.1**
 
-- [ ] 8.2 Write property test for ship condition clamping
+- [x] 8.2 Write property test for ship condition clamping
   - **Property 21: Ship Condition Clamping**
   - **Validates: Requirements 6.2, 6.3**
 
