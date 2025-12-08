@@ -1059,7 +1059,9 @@ export class UIManager {
 
   showRefuelPanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showRefuelPanel');
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -1094,7 +1096,9 @@ export class UIManager {
 
   updateRefuelCost() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in updateRefuelCost');
+    }
 
     const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
     const currentSystemId = state.player.currentSystem;
@@ -1139,7 +1143,9 @@ export class UIManager {
     if (!this.elements.refuelAmountInput) return;
 
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in setRefuelAmount');
+    }
 
     const currentFuel = Math.round(state.ship.fuel);
     const maxAmount = SHIP_CONDITION_BOUNDS.MAX - currentFuel;
@@ -1151,7 +1157,9 @@ export class UIManager {
 
   setRefuelAmountToMax() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in setRefuelAmountToMax');
+    }
 
     const currentFuel = state.ship.fuel;
     const credits = state.player.credits;
@@ -1487,7 +1495,9 @@ export class UIManager {
 
   showRepairPanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showRepairPanel');
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -1548,7 +1558,9 @@ export class UIManager {
    */
   updateRepairConditionDisplay() {
     const condition = this.gameStateManager.getShipCondition();
-    if (!condition) return;
+    if (!condition) {
+      throw new Error('Invalid game state: ship condition is null in updateRepairConditionDisplay');
+    }
 
     this.updateConditionDisplay('repair', 'hull', condition.hull);
     this.updateConditionDisplay('repair', 'engine', condition.engine);
@@ -1564,7 +1576,9 @@ export class UIManager {
    */
   updateRepairButtons() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in updateRepairButtons');
+    }
 
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
@@ -1621,7 +1635,9 @@ export class UIManager {
    */
   calculateRepairAllCost() {
     const condition = this.gameStateManager.getShipCondition();
-    if (!condition) return 0;
+    if (!condition) {
+      throw new Error('Invalid game state: ship condition is null in calculateRepairAllCost');
+    }
 
     let totalCost = 0;
 
@@ -1648,7 +1664,9 @@ export class UIManager {
 
   handleRepair(systemType, amountStr) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in handleRepair');
+    }
 
     const condition = this.gameStateManager.getShipCondition();
     const currentCondition = this.getSystemCondition(condition, systemType);
