@@ -18,11 +18,13 @@ Minor recommendations for enhancement are noted below.
 ## Section-by-Section Analysis
 
 ### ✅ 1. Executive Summary & Design Pillars
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 00 (Index), implicitly throughout all specs  
 **Status:** Aligned
 
 The four design pillars are consistently reflected:
+
 - "You Know These People" → Spec 04 (NPCs)
 - "Every Credit Counts" → Specs 01-02 (Economy)
 - "Your Ship, Your Story" → Spec 03 (Ship Personality)
@@ -31,11 +33,13 @@ The four design pillars are consistently reflected:
 ---
 
 ### ✅ 2. Win Condition: The Pavonis Run
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 07 (Endgame)  
 **Status:** Aligned
 
 All victory requirements captured:
+
 - Debt payoff ✓
 - 25,000 credits savings ✓
 - Tanaka reputation (Trusted) ✓
@@ -48,6 +52,7 @@ All victory requirements captured:
 ### ✅ 3. Core Systems
 
 #### 3.1 Time & Sessions
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 01 (Core Loop)  
 **Status:** Aligned
@@ -58,6 +63,7 @@ All victory requirements captured:
 - Session flexibility ✓
 
 #### 3.2 Navigation & Distance
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 01 (Core Loop)  
 **Status:** Aligned
@@ -69,52 +75,62 @@ All victory requirements captured:
 - Range Extender (endgame) ✓ (Spec 07)
 
 #### 3.3 Economy
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Specs 01-02  
 **Status:** Aligned
 
 **Spec 01 (Fixed prices):**
+
 - Base goods ✓
 - Spectral class modifiers ✓
 
 **Spec 02 (Dynamic):**
+
 - Daily fluctuation (±15%) ✓
 - Event modifiers ✓
 - Price discovery ✓
 - Information brokers ✓
 
 **Goods Categories:** All four categories present
+
 - Bulk Commodities ✓
 - Manufactured Goods ✓
 - Luxury Items ✓
 - Restricted Goods ✓
 
 #### 3.4 Ship Systems
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Specs 02-03  
 **Status:** Aligned
 
 **Core Stats (Spec 02):**
+
 - Fuel ✓
 - Hull Integrity ✓
 - Engine Condition ✓
 - Life Support ✓
 
 **Degradation (Spec 02):**
+
 - Per-jump degradation ✓
 - Condition effects ✓
 
 **Quirks (Spec 03):**
+
 - All 8 quirks from source present ✓
 - Random assignment (2-3) ✓
 - Permanent nature ✓
 
 **Upgrades (Spec 03):**
+
 - All 8 upgrades from source present ✓
 - Tradeoff system ✓
 - Range Extender (Spec 07) ✓
 
 #### 3.5 Finances
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 01  
 **Status:** Aligned
@@ -127,34 +143,41 @@ All victory requirements captured:
 ---
 
 ### ✅ 4. Danger Systems
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 05  
 **Status:** Aligned
 
 #### 4.1 Threat Types
+
 - Pirates (with hotspots) ✓
 - Inspections ✓
 - Mechanical failures ✓
 - Distress calls ✓
 
 #### 4.2 Tactical Combat
+
 - Detection phase ✓
 - Resolution choices ✓
 - Combat modifiers ✓
 - Negotiation system ✓
 
 #### 4.3 Consequences
+
 - All outcome types covered ✓
 
 ---
 
 ### ✅ 5. Civilization & Culture
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 04 (NPCs), Spec 08 (Polish)  
 **Status:** Aligned
 
 #### 5.1 Cultural Regions
+
 **Source lists 5 regions:**
+
 1. Sol Sphere ✓
 2. Centauri Cluster ✓
 3. Sirius Compact ✓
@@ -164,11 +187,13 @@ All victory requirements captured:
 **Implementation:** Implicitly through NPC placement and economic modifiers
 
 #### 5.2 Station Character
+
 **Source:** Station templates based on `st` count  
 **Breakdown:** Not explicitly detailed in breakdown specs  
 **Recommendation:** ⚠️ Add station personality generation to Spec 08 (Polish)
 
 #### 5.3 NPCs
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 04  
 **Status:** Aligned
@@ -176,6 +201,7 @@ All victory requirements captured:
 **NPC Structure:** Matches source schema exactly ✓
 
 **Key NPCs from Source:**
+
 1. Yuki Tanaka ✓ (Spec 07)
 2. Marcus Cole ✓ (Spec 04)
 3. "Whisper" ✓ (Spec 04)
@@ -190,22 +216,26 @@ All victory requirements captured:
 ---
 
 ### ✅ 6. Content Architecture
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 06  
 **Status:** Aligned
 
 #### 6.1 Event System
+
 - Event structure matches source ✓
 - All event types covered ✓
 - Effect types comprehensive ✓
 
 #### 6.2-6.4 Content Files & Guidelines
+
 - File structure matches ✓
 - Writing guidelines implicit ✓
 
 ---
 
 ### ✅ 7. Persistence & Save System
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 01  
 **Status:** Aligned
@@ -218,21 +248,25 @@ All victory requirements captured:
 ---
 
 ### ✅ 8. UI Integration
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Specs 01-06  
 **Status:** Aligned
 
 #### 8.1 HUD Extensions
+
 - Player status ✓
 - Ship status ✓
 - Cargo summary ✓
 
 #### 8.2 New UI Panels
+
 - Station interface ✓
 - Trade interface ✓
 - Event/dialogue panel ✓
 
 #### 8.3 Starmap Enhancements
+
 - Current location indicator ✓
 - Wormhole line colors ✓
 - Distance labels ✓
@@ -241,6 +275,7 @@ All victory requirements captured:
 ---
 
 ### ✅ 9. Game Balance
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 08  
 **Status:** Aligned
@@ -252,6 +287,7 @@ All victory requirements captured:
 ---
 
 ### ✅ 10. Technical Requirements
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 08  
 **Status:** Aligned
@@ -263,11 +299,13 @@ All victory requirements captured:
 ---
 
 ### ✅ 11. Development Phases
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 00 (Index)  
 **Status:** Aligned
 
 Source lists 6 phases, breakdown has 8 specs:
+
 - Source Phase 1 (Core Loop) → Spec 01 ✓
 - Source Phase 2 (Ship & Economy) → Specs 02-03 ✓
 - Source Phase 3 (NPCs & Events) → Spec 04 ✓
@@ -281,6 +319,7 @@ Source lists 6 phases, breakdown has 8 specs:
 ---
 
 ### ✅ 12. Success Metrics
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 08  
 **Status:** Aligned
@@ -292,6 +331,7 @@ All metrics from source present in Spec 08 ✓
 ### ✅ Appendices
 
 #### Appendix A: Distance Reference
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 01  
 **Status:** Aligned
@@ -300,6 +340,7 @@ All metrics from source present in Spec 08 ✓
 - Display format ✓
 
 #### Appendix B: Content Templates
+
 **Source Coverage:** Complete  
 **Breakdown Location:** Spec 06  
 **Status:** Aligned
@@ -345,16 +386,20 @@ All metrics from source present in Spec 08 ✓
 ### High Priority
 
 1. **Add Mei-Lin Park to Spec 08**
+
    ```markdown
    **11. Mei-Lin Park (L 789-6 A)**
+
    - Role: Smuggler Queen
    - Personality: High risk, high reward
    - Benefits: Restricted goods missions, smuggling tips
    ```
 
 2. **Add Station Generation to Spec 08**
+
    ```markdown
    ### Station Personality System
+
    - Generate station names based on templates
    - Assign atmosphere (industrial, bustling, frontier)
    - Determine common NPCs

@@ -37,23 +37,21 @@ const gameState = {
   player: {
     credits: 500,
     debt: 10000,
-    currentSystem: 0,  // Sol
-    daysElapsed: 0
+    currentSystem: 0, // Sol
+    daysElapsed: 0,
   },
-  
+
   ship: {
-    name: "Serendipity",
-    fuel: 100,  // Percentage
+    name: 'Serendipity',
+    fuel: 100, // Percentage
     cargoCapacity: 50,
-    cargo: [
-      { good: "grain", qty: 20 }
-    ]
+    cargo: [{ good: 'grain', qty: 20 }],
   },
-  
+
   world: {
-    visitedSystems: [0],  // Track for price discovery
-    currentDate: "2187-03-15"
-  }
+    visitedSystems: [0], // Track for price discovery
+    currentDate: '2187-03-15',
+  },
 };
 ```
 
@@ -81,9 +79,9 @@ function getJumpTime(distance) {
 }
 
 function getJumpFuelCost(distance) {
-  const baseCost = 10;  // Base 10%
-  const perLY = 2;      // 2% per light-year
-  return Math.round(baseCost + (distance * perLY));
+  const baseCost = 10; // Base 10%
+  const perLY = 2; // 2% per light-year
+  return Math.round(baseCost + distance * perLY);
 }
 ```
 
@@ -103,12 +101,16 @@ function getJumpFuelCost(distance) {
 
 ```javascript
 const GOODS = {
-  grain: { name: "Grain", basePrice: 30, category: "bulk" },
-  ore: { name: "Ore", basePrice: 25, category: "bulk" },
-  tritium: { name: "Tritium", basePrice: 45, category: "bulk" },
-  parts: { name: "Parts", basePrice: 180, category: "manufactured" },
-  medicine: { name: "Medicine", basePrice: 200, category: "manufactured" },
-  electronics: { name: "Electronics", basePrice: 250, category: "manufactured" }
+  grain: { name: 'Grain', basePrice: 30, category: 'bulk' },
+  ore: { name: 'Ore', basePrice: 25, category: 'bulk' },
+  tritium: { name: 'Tritium', basePrice: 45, category: 'bulk' },
+  parts: { name: 'Parts', basePrice: 180, category: 'manufactured' },
+  medicine: { name: 'Medicine', basePrice: 200, category: 'manufactured' },
+  electronics: {
+    name: 'Electronics',
+    basePrice: 250,
+    category: 'manufactured',
+  },
 };
 ```
 
@@ -119,15 +121,50 @@ Each system has fixed price modifiers based on spectral class:
 ```javascript
 const PRICE_MODIFIERS = {
   // Spectral class determines production capability
-  "G": { grain: 0.8, ore: 1.0, tritium: 1.0, parts: 1.1, medicine: 1.0, electronics: 1.2 },
-  "K": { grain: 1.2, ore: 0.9, tritium: 0.8, parts: 1.0, medicine: 1.1, electronics: 1.1 },
-  "M": { grain: 1.5, ore: 0.7, tritium: 0.7, parts: 1.2, medicine: 1.3, electronics: 1.3 },
-  "A": { grain: 1.0, ore: 1.2, tritium: 1.1, parts: 0.9, medicine: 1.0, electronics: 0.9 },
-  "F": { grain: 0.9, ore: 1.1, tritium: 1.0, parts: 1.0, medicine: 0.9, electronics: 1.0 }
+  G: {
+    grain: 0.8,
+    ore: 1.0,
+    tritium: 1.0,
+    parts: 1.1,
+    medicine: 1.0,
+    electronics: 1.2,
+  },
+  K: {
+    grain: 1.2,
+    ore: 0.9,
+    tritium: 0.8,
+    parts: 1.0,
+    medicine: 1.1,
+    electronics: 1.1,
+  },
+  M: {
+    grain: 1.5,
+    ore: 0.7,
+    tritium: 0.7,
+    parts: 1.2,
+    medicine: 1.3,
+    electronics: 1.3,
+  },
+  A: {
+    grain: 1.0,
+    ore: 1.2,
+    tritium: 1.1,
+    parts: 0.9,
+    medicine: 1.0,
+    electronics: 0.9,
+  },
+  F: {
+    grain: 0.9,
+    ore: 1.1,
+    tritium: 1.0,
+    parts: 1.0,
+    medicine: 0.9,
+    electronics: 1.0,
+  },
 };
 
 function getPrice(good, system) {
-  const spectralClass = system.type[0];  // First letter
+  const spectralClass = system.type[0]; // First letter
   const modifier = PRICE_MODIFIERS[spectralClass]?.[good] || 1.0;
   return Math.round(GOODS[good].basePrice * modifier);
 }
@@ -180,39 +217,41 @@ Modify existing starmap to show:
 
 ```javascript
 function executeJump(targetSystemId) {
-  const currentStar = STAR_DATA.find(s => s.id === gameState.player.currentSystem);
-  const targetStar = STAR_DATA.find(s => s.id === targetSystemId);
-  
+  const currentStar = STAR_DATA.find(
+    (s) => s.id === gameState.player.currentSystem
+  );
+  const targetStar = STAR_DATA.find((s) => s.id === targetSystemId);
+
   // Validate wormhole connection
   if (!isConnected(currentStar.id, targetStar.id)) {
-    showMessage("No wormhole connection to that system.");
+    showMessage('No wormhole connection to that system.');
     return;
   }
-  
+
   // Calculate costs
   const distance = getDistanceBetween(currentStar, targetStar);
   const fuelCost = getJumpFuelCost(distance);
   const jumpTime = getJumpTime(distance);
-  
+
   // Check fuel
   if (gameState.ship.fuel < fuelCost) {
-    showMessage("Insufficient fuel for jump.");
+    showMessage('Insufficient fuel for jump.');
     return;
   }
-  
+
   // Execute jump
   gameState.ship.fuel -= fuelCost;
   gameState.player.daysElapsed += jumpTime;
   gameState.player.currentSystem = targetSystemId;
-  
+
   // Track visited
   if (!gameState.world.visitedSystems.includes(targetSystemId)) {
     gameState.world.visitedSystems.push(targetSystemId);
   }
-  
+
   // Auto-save
   saveGame();
-  
+
   // Show arrival
   showArrivalScreen(targetStar);
 }
@@ -241,7 +280,7 @@ function executeJump(targetSystemId) {
       <span id="hud-day">1</span>
     </div>
   </div>
-  
+
   <!-- Ship Status -->
   <div id="ship-status">
     <div class="stat-bar">
@@ -252,13 +291,13 @@ function executeJump(targetSystemId) {
       <span class="value">100%</span>
     </div>
   </div>
-  
+
   <!-- Cargo Summary -->
   <div id="cargo-summary">
     <span class="label">Cargo:</span>
     <span id="hud-cargo">20/50</span>
   </div>
-  
+
   <!-- Current Location -->
   <div id="location-info">
     <div class="location-name" id="current-system">Sol</div>
@@ -311,6 +350,7 @@ When player clicks on their current system (or presses 'D' for dock):
 ```
 
 Fuel prices vary by system:
+
 - Core systems (Sol, Alpha Centauri): ₡2/1%
 - Mid-range systems: ₡3/1%
 - Outer systems: ₡4/1%
@@ -322,13 +362,13 @@ Fuel prices vary by system:
 ### Storage
 
 ```javascript
-const SAVE_KEY = "trampFreighter_save";
+const SAVE_KEY = 'trampFreighter_save';
 
 function saveGame() {
   const saveData = {
     version: 1,
     timestamp: Date.now(),
-    ...gameState
+    ...gameState,
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 }
@@ -349,17 +389,17 @@ function newGame() {
     credits: 500,
     debt: 10000,
     currentSystem: 0,
-    daysElapsed: 0
+    daysElapsed: 0,
   };
   gameState.ship = {
-    name: "Serendipity",
+    name: 'Serendipity',
     fuel: 100,
     cargoCapacity: 50,
-    cargo: [{ good: "grain", qty: 20 }]
+    cargo: [{ good: 'grain', qty: 20 }],
   };
   gameState.world = {
     visitedSystems: [0],
-    currentDate: "2187-03-15"
+    currentDate: '2187-03-15',
   };
   saveGame();
 }
@@ -408,12 +448,12 @@ function newGame() {
 
 With fixed prices, these routes are always profitable:
 
-| Route | Buy at A | Sell at B | Margin |
-|-------|----------|-----------|--------|
-| Sol → Barnard's Star | Grain (₡24) | Grain (₡45) | +87% |
-| Barnard's → Sol | Ore (₡18) | Ore (₡25) | +39% |
-| Sol → Sirius A | Electronics (₡300) | Electronics (₡225) | -25% (bad!) |
-| Sirius A → Sol | Parts (₡162) | Parts (₡198) | +22% |
+| Route                | Buy at A           | Sell at B          | Margin      |
+| -------------------- | ------------------ | ------------------ | ----------- |
+| Sol → Barnard's Star | Grain (₡24)        | Grain (₡45)        | +87%        |
+| Barnard's → Sol      | Ore (₡18)          | Ore (₡25)          | +39%        |
+| Sol → Sirius A       | Electronics (₡300) | Electronics (₡225) | -25% (bad!) |
+| Sirius A → Sol       | Parts (₡162)       | Parts (₡198)       | +22%        |
 
 This ensures players can always make progress with basic knowledge.
 
@@ -466,6 +506,7 @@ starmap.html (existing)
 ## Success Criteria
 
 Player can:
+
 1. Navigate the starmap using wormhole connections
 2. Buy goods at one station, sell at another for profit
 3. Manage fuel consumption and refueling

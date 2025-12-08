@@ -1,9 +1,11 @@
 # Refuel Validation Feedback
 
 ## Problem
+
 When refueling was not possible (insufficient credits, exceeding capacity, etc.), the "Confirm Refuel" button would be disabled with no explanation, leaving users confused about why they couldn't refuel.
 
 ## Solution
+
 Added inline validation messages in the refuel panel that dynamically update to explain why refueling isn't possible.
 
 ## Implementation
@@ -11,10 +13,12 @@ Added inline validation messages in the refuel panel that dynamically update to 
 ### UI Changes
 
 **HTML (starmap.html):**
+
 - Added `<div id="refuel-validation-message">` element below the cost display
 - Positioned between cost and action buttons for visibility
 
 **CSS (starmap.css):**
+
 - Added three message states:
   - `.error` - Red background/border for validation errors
   - `.warning` - Yellow background/border for warnings
@@ -22,6 +26,7 @@ Added inline validation messages in the refuel panel that dynamically update to 
 - Messages are hidden by default, shown only when needed
 
 **JavaScript (game-ui.js):**
+
 - Updated `updateRefuelCost()` to display validation messages
 - Messages update in real-time as user changes refuel amount
 - Clear, specific error messages for each failure case
@@ -29,13 +34,16 @@ Added inline validation messages in the refuel panel that dynamically update to 
 ### Message Types
 
 **Error Messages (Red):**
+
 - "Insufficient credits for refuel" - When cost exceeds available credits
 - "Cannot refuel beyond 100% capacity" - When amount would exceed tank capacity
 
 **Info Messages (Green):**
+
 - "Enter an amount to refuel" - When amount is 0 or empty
 
 **No Message:**
+
 - When refuel is valid, message is hidden and button is enabled
 
 ### User Experience Flow
@@ -50,6 +58,7 @@ Added inline validation messages in the refuel panel that dynamically update to 
 ### Example Scenarios
 
 **Scenario 1: Insufficient Credits**
+
 - Current fuel: 50%
 - Credits: 10 cr
 - User enters: 20% (would cost 40 cr)
@@ -57,12 +66,14 @@ Added inline validation messages in the refuel panel that dynamically update to 
 - Button: Disabled
 
 **Scenario 2: Exceeding Capacity**
+
 - Current fuel: 95%
 - User enters: 10% (would result in 105%)
 - Message: "Cannot refuel beyond 100% capacity" (red)
 - Button: Disabled
 
 **Scenario 3: Valid Refuel**
+
 - Current fuel: 50%
 - Credits: 1000 cr
 - User enters: 20%
@@ -70,6 +81,7 @@ Added inline validation messages in the refuel panel that dynamically update to 
 - Button: Enabled
 
 **Scenario 4: Zero Amount**
+
 - User enters: 0%
 - Message: "Enter an amount to refuel" (green)
 - Button: Disabled
@@ -99,11 +111,13 @@ Added comprehensive test file: `tests/property/refuel-validation-messages.proper
 ## Benefits
 
 **Before:**
+
 - Button disabled with no explanation
 - Users confused about why refueling failed
 - Had to guess what was wrong
 
 **After:**
+
 - Clear, specific error messages
 - Real-time feedback as user types
 - Users understand exactly what's preventing refuel
@@ -112,11 +126,13 @@ Added comprehensive test file: `tests/property/refuel-validation-messages.proper
 ## Technical Details
 
 ### Validation Message Element
+
 ```html
 <div id="refuel-validation-message" class="refuel-validation-message"></div>
 ```
 
 ### CSS Classes
+
 ```css
 .refuel-validation-message.error   /* Red - validation errors */
 .refuel-validation-message.warning /* Yellow - warnings */
@@ -124,6 +140,7 @@ Added comprehensive test file: `tests/property/refuel-validation-messages.proper
 ```
 
 ### Update Logic
+
 ```javascript
 if (amount <= 0) {
     message = 'Enter an amount to refuel';
@@ -147,6 +164,7 @@ if (amount <= 0) {
 ## Future Enhancements
 
 Potential improvements for future phases:
+
 - Warning messages for low credits (e.g., "Only enough for X%")
 - Suggestions (e.g., "Try 42% instead of 43%")
 - Tooltip explanations for fuel pricing

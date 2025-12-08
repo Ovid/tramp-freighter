@@ -33,28 +33,29 @@ The main quest line that leads to victory: building a relationship with Yuki Tan
 
 ```javascript
 const tanaka_barnards = {
-  id: "tanaka_barnards",
-  name: "Yuki Tanaka",
-  role: "Engineer",
-  system: 4,  // Barnard's Star
-  station: "Bore Station 7",
-  
+  id: 'tanaka_barnards',
+  name: 'Yuki Tanaka',
+  role: 'Engineer',
+  system: 4, // Barnard's Star
+  station: 'Bore Station 7',
+
   personality: {
-    trust: 0.2,      // Very slow to trust
-    greed: 0.1,      // Not motivated by money
-    loyalty: 0.9,    // Extremely loyal once earned
-    morality: 0.8    // Strong ethics
+    trust: 0.2, // Very slow to trust
+    greed: 0.1, // Not motivated by money
+    loyalty: 0.9, // Extremely loyal once earned
+    morality: 0.8, // Strong ethics
   },
-  
+
   speechStyle: {
-    greeting: "formal",
-    vocabulary: "technical",
-    quirk: "Precise, measured speech. Never wastes words."
+    greeting: 'formal',
+    vocabulary: 'technical',
+    quirk: 'Precise, measured speech. Never wastes words.',
   },
-  
-  description: "Brilliant engineer in her 40s. Working on experimental drive technology. Has her own reasons for wanting to reach Delta Pavonis.",
-  
-  arc: "Tanaka is developing a Range Extender that can make one-way jumps to systems without wormhole connections. She needs help testing it and gathering rare components. She wants to reach Delta Pavonis to find her sister, who went there 10 years ago and hasn't been heard from since."
+
+  description:
+    'Brilliant engineer in her 40s. Working on experimental drive technology. Has her own reasons for wanting to reach Delta Pavonis.',
+
+  arc: "Tanaka is developing a Range Extender that can make one-way jumps to systems without wormhole connections. She needs help testing it and gathering rare components. She wants to reach Delta Pavonis to find her sister, who went there 10 years ago and hasn't been heard from since.",
 };
 ```
 
@@ -91,17 +92,20 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 ### Mission 1: Field Test
 
 **Requirements:**
+
 - Reputation with Tanaka: 10+
 - Ship engine condition: 80%+
 
 **Objective:** Install prototype sensor package, make 3 jumps, return data
 
 **Dialogue:**
+
 ```
 "I need field data. Real-world stress tests. Your ship is perfect — old enough to show wear patterns, new enough to survive the test. Install this sensor package. Make three jumps. Any routes. Bring me the data."
 ```
 
 **Rewards:**
+
 - ₡1,000
 - +15 rep with Tanaka
 - Free engine tune-up (restore to 100%)
@@ -111,17 +115,20 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 ### Mission 2: Rare Materials
 
 **Requirements:**
+
 - Mission 1 complete
 - Reputation with Tanaka: 30+
 
 **Objective:** Acquire 5 units of "Exotic Materials" from outer systems (distance > 15 LY)
 
 **Dialogue:**
+
 ```
 "The Range Extender needs exotic matter. Rare isotopes. You'll find them in the outer systems — places most traders don't go. Five units. I'll pay market rate plus twenty percent."
 ```
 
 **Rewards:**
+
 - ₡3,000
 - +15 rep with Tanaka
 - Unlock: Advanced Sensors upgrade (if not already purchased)
@@ -131,6 +138,7 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 ### Mission 3: The Prototype
 
 **Requirements:**
+
 - Mission 2 complete
 - Reputation with Tanaka: 50+
 - Ship hull: 70%+, engine: 80%+
@@ -138,17 +146,20 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 **Objective:** Test prototype Range Extender on a short jump (to a nearby unreachable system)
 
 **Dialogue:**
+
 ```
 "It's ready. The prototype. I need to test it. Short jump — just to Proxima Centauri. It's only 5.87 light-years from Sol, but no wormhole connection. If this works... everything changes."
 ```
 
 **The Test:**
+
 - Jump to Proxima Centauri (unreachable system)
 - One-way jump (can't return via Range Extender)
 - Must use wormhole network to get back
 - Collect data at Proxima
 
 **Rewards:**
+
 - ₡2,000
 - +20 rep with Tanaka
 - Tanaka shares her true goal: reaching Delta Pavonis
@@ -158,12 +169,14 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 ### Mission 4: Personal Request
 
 **Requirements:**
+
 - Mission 3 complete
 - Reputation with Tanaka: 70+
 
 **Objective:** Deliver a message to an NPC at a distant station
 
 **Dialogue:**
+
 ```
 "I need a favor. Personal, not professional. There's someone at Epsilon Eridani. Old friend. Give them this message. Tell them... tell them I'm going to find her."
 ```
@@ -172,6 +185,7 @@ First encounter at Barnard's Star (after player has visited 5+ systems):
 Reveals Tanaka's backstory — her sister went to Delta Pavonis 10 years ago as part of a colony mission. Communications stopped after 2 years. Tanaka has been working on the Range Extender ever since.
 
 **Rewards:**
+
 - No credits (personal favor)
 - +20 rep with Tanaka
 - Tanaka offers to help you reach Delta Pavonis
@@ -181,6 +195,7 @@ Reveals Tanaka's backstory — her sister went to Delta Pavonis 10 years ago as 
 ### Mission 5: Final Preparations
 
 **Requirements:**
+
 - Mission 4 complete
 - Reputation with Tanaka: 90+ (Trusted)
 - Player debt: 0
@@ -189,17 +204,20 @@ Reveals Tanaka's backstory — her sister went to Delta Pavonis 10 years ago as 
 **Objective:** Gather final components and prepare for The Pavonis Run
 
 **Dialogue:**
+
 ```
 "You've helped me more than you know. The Range Extender is ready. I can install it on your ship. But this is it — the real thing. Delta Pavonis. 27.88 light-years. One way. Are you ready?"
 ```
 
 **Requirements Check:**
+
 - Debt paid off: ✓
 - 25,000 credits saved: ✓
 - Ship condition: Hull 80%+, Engine 90%+
 - Tanaka reputation: Trusted
 
 **Rewards:**
+
 - Range Extender installed (permanent upgrade)
 - Unlock: The Pavonis Run
 
@@ -305,28 +323,29 @@ You made it.
 ```javascript
 const epilogueData = {
   // Relationships
-  trustedNPCs: gameState.npcs.filter(n => n.rep >= 60).length,
-  familyNPCs: gameState.npcs.filter(n => n.rep >= 90).length,
-  
+  trustedNPCs: gameState.npcs.filter((n) => n.rep >= 60).length,
+  familyNPCs: gameState.npcs.filter((n) => n.rep >= 90).length,
+
   // Morality
   karma: gameState.player.karma,
   smugglingRuns: gameState.stats.smugglingRuns,
   charitableActs: gameState.stats.charitableActs,
-  
+
   // Financial
   finalCredits: gameState.player.credits,
   totalEarned: gameState.stats.creditsEarned,
-  
+
   // Combat
   combatVictories: gameState.stats.combatVictories,
   combatSurrenders: gameState.stats.combatSurrenders,
-  
+
   // Missions
   missionsCompleted: gameState.missions.completed.length,
   missionsFailed: gameState.missions.failed.length,
-  
+
   // Key choices
-  helpedOkonkwo: gameState.npcs.okonkwo_ross154?.flags.includes('mission_complete'),
+  helpedOkonkwo:
+    gameState.npcs.okonkwo_ross154?.flags.includes('mission_complete'),
   betrayedAnyone: gameState.player.flags.includes('betrayal'),
   // ... etc
 };
@@ -365,6 +384,7 @@ const epilogueData = {
 ### Epilogue Variations
 
 **High Karma, Many Friends:**
+
 ```
 "Word spreads fast, even 27 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. Chen sends messages. Okonkwo prays for you. Vasquez tells stories about you to young captains.
 
@@ -372,6 +392,7 @@ You're not forgotten."
 ```
 
 **Low Karma, Few Friends:**
+
 ```
 "You made it. That's what matters. The network moves on without you. Ships dock and undock. Traders come and go. Your name fades.
 
@@ -379,6 +400,7 @@ But you're here. You're free. That's enough."
 ```
 
 **Smuggler Path:**
+
 ```
 "The authorities are probably glad you're gone. One less problem. But in the outer stations, in the dark corners, they remember. The trader who took the risks no one else would. Who got the job done, no matter what.
 
@@ -426,6 +448,7 @@ Add to STAR_DATA (currently unreachable):
 ## Success Criteria
 
 Player can:
+
 1. Build relationship with Tanaka through missions
 2. Learn her backstory and motivations
 3. Work toward clear victory conditions

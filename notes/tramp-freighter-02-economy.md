@@ -35,20 +35,24 @@ Transform the fixed-price trading system into a living economy with price fluctu
 ```javascript
 function calculatePrice(good, system, gameState) {
   const basePrice = GOODS[good].basePrice;
-  
+
   // Production modifier (spectral class)
   const spectralClass = system.type[0];
   const productionMod = PRICE_MODIFIERS[spectralClass]?.[good] || 1.0;
-  
+
   // Station count modifier (more stations = more demand)
-  const stationMod = 1.0 + (system.st * 0.05);
-  
+  const stationMod = 1.0 + system.st * 0.05;
+
   // Daily fluctuation (±15% random walk)
-  const dailyMod = getDailyFluctuation(system.id, good, gameState.player.daysElapsed);
-  
+  const dailyMod = getDailyFluctuation(
+    system.id,
+    good,
+    gameState.player.daysElapsed
+  );
+
   // Event modifier (temporary)
   const eventMod = getEventModifier(system.id, good, gameState);
-  
+
   let price = basePrice * productionMod * stationMod * dailyMod * eventMod;
   return Math.round(price);
 }
@@ -61,19 +65,19 @@ function calculatePrice(good, system, gameState) {
 function getDailyFluctuation(systemId, good, currentDay) {
   const seed = `${systemId}_${good}_${currentDay}`;
   const rng = seededRandom(seed);
-  
+
   // ±15% from baseline
-  return 0.85 + (rng() * 0.3);
+  return 0.85 + rng() * 0.3;
 }
 
 // Simple seeded RNG
 function seededRandom(seed) {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
-    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
     hash = hash & hash;
   }
-  return function() {
+  return function () {
     hash = (hash * 9301 + 49297) % 233280;
     return hash / 233280;
   };
@@ -88,19 +92,23 @@ function seededRandom(seed) {
 
 ```javascript
 gameState.world.priceKnowledge = {
-  0: {  // Sol
-    lastVisit: 5,  // Days ago
+  0: {
+    // Sol
+    lastVisit: 5, // Days ago
     prices: {
       grain: 24,
       ore: 25,
-      tritium: 45
+      tritium: 45,
       // ... etc
-    }
+    },
   },
-  4: {  // Barnard's Star
-    lastVisit: 0,  // Currently here
-    prices: { /* ... */ }
-  }
+  4: {
+    // Barnard's Star
+    lastVisit: 0, // Currently here
+    prices: {
+      /* ... */
+    },
+  },
   // Systems never visited have no entry
 };
 ```
@@ -138,52 +146,52 @@ Show where/when cargo was purchased for player reference.
 ```javascript
 const ECONOMIC_EVENTS = {
   mining_strike: {
-    name: "Mining Strike",
-    description: "Workers demand better conditions",
-    duration: [5, 10],  // Days
+    name: 'Mining Strike',
+    description: 'Workers demand better conditions',
+    duration: [5, 10], // Days
     effects: {
       ore: 1.5,
-      tritium: 1.3
+      tritium: 1.3,
     },
-    targetSystems: ["mining"],  // Systems with ore production
-    chance: 0.05  // 5% per day per eligible system
+    targetSystems: ['mining'], // Systems with ore production
+    chance: 0.05, // 5% per day per eligible system
   },
-  
+
   medical_emergency: {
-    name: "Medical Emergency",
-    description: "Outbreak requires urgent supplies",
+    name: 'Medical Emergency',
+    description: 'Outbreak requires urgent supplies',
     duration: [3, 5],
     effects: {
       medicine: 2.0,
       grain: 0.9,
-      ore: 0.9
+      ore: 0.9,
     },
-    targetSystems: ["any"],
-    chance: 0.03
+    targetSystems: ['any'],
+    chance: 0.03,
   },
-  
+
   festival: {
-    name: "Cultural Festival",
-    description: "Celebration drives luxury demand",
+    name: 'Cultural Festival',
+    description: 'Celebration drives luxury demand',
     duration: [2, 4],
     effects: {
       electronics: 1.75,
-      grain: 1.2
+      grain: 1.2,
     },
-    targetSystems: ["core"],  // Sol Sphere systems
-    chance: 0.04
+    targetSystems: ['core'], // Sol Sphere systems
+    chance: 0.04,
   },
-  
+
   supply_glut: {
-    name: "Supply Glut",
-    description: "Oversupply crashes prices",
+    name: 'Supply Glut',
+    description: 'Oversupply crashes prices',
     duration: [3, 7],
     effects: {
       // Random good at -40%
     },
-    targetSystems: ["any"],
-    chance: 0.06
-  }
+    targetSystems: ['any'],
+    chance: 0.06,
+  },
 };
 ```
 
@@ -192,23 +200,23 @@ const ECONOMIC_EVENTS = {
 ```javascript
 gameState.world.activeEvents = [
   {
-    id: "mining_strike_wolf359",
-    type: "mining_strike",
-    systemId: 2,  // Wolf 359
+    id: 'mining_strike_wolf359',
+    type: 'mining_strike',
+    systemId: 2, // Wolf 359
     startDay: 10,
     endDay: 17,
-    effects: { ore: 1.5, tritium: 1.3 }
-  }
+    effects: { ore: 1.5, tritium: 1.3 },
+  },
 ];
 
 function updateEvents(currentDay) {
   // Remove expired events
   gameState.world.activeEvents = gameState.world.activeEvents.filter(
-    e => e.endDay >= currentDay
+    (e) => e.endDay >= currentDay
   );
-  
+
   // Check for new events
-  STAR_DATA.forEach(system => {
+  STAR_DATA.forEach((system) => {
     Object.entries(ECONOMIC_EVENTS).forEach(([key, event]) => {
       if (Math.random() < event.chance) {
         if (isEligibleForEvent(system, event)) {
@@ -272,12 +280,14 @@ Add to station menu:
 ```
 
 Prices for intel:
+
 - Recently visited system: ₡50
 - Never visited system: ₡100
 - Long-ago visited: ₡75
 - Random rumor: ₡25
 
 Rumors provide hints like:
+
 - "Ore is cheap at Wolf 359 right now"
 - "Medical emergency at Ross 154 — medicine prices through the roof"
 - "Avoid Sirius A, everything's expensive there"
@@ -290,13 +300,13 @@ Rumors provide hints like:
 
 ```javascript
 gameState.ship = {
-  name: "Serendipity",
+  name: 'Serendipity',
   fuel: 100,
   hull: 100,
   engine: 100,
   lifeSupport: 100,
   cargoCapacity: 50,
-  cargo: []
+  cargo: [],
 };
 ```
 
@@ -304,10 +314,10 @@ gameState.ship = {
 
 ```javascript
 function applyJumpDegradation() {
-  gameState.ship.hull -= 2;  // Space debris
-  gameState.ship.engine -= 1;  // Wear and tear
-  gameState.ship.lifeSupport -= 0.5 * jumpDays;  // Per day
-  
+  gameState.ship.hull -= 2; // Space debris
+  gameState.ship.engine -= 1; // Wear and tear
+  gameState.ship.lifeSupport -= 0.5 * jumpDays; // Per day
+
   // Clamp to 0-100
   gameState.ship.hull = Math.max(0, gameState.ship.hull);
   gameState.ship.engine = Math.max(0, gameState.ship.engine);
@@ -319,24 +329,24 @@ function applyJumpDegradation() {
 
 ```javascript
 function getJumpFuelCost(distance) {
-  let baseCost = 10 + (distance * 2);
-  
+  let baseCost = 10 + distance * 2;
+
   // Engine condition affects efficiency
   if (gameState.ship.engine < 60) {
-    baseCost *= 1.2;  // +20% fuel consumption
+    baseCost *= 1.2; // +20% fuel consumption
   }
-  
+
   return Math.round(baseCost);
 }
 
 function getJumpTime(distance) {
   let baseTime = Math.max(1, Math.ceil(distance * 0.5));
-  
+
   // Engine condition affects speed
   if (gameState.ship.engine < 60) {
-    baseTime += 1;  // Extra day
+    baseTime += 1; // Extra day
   }
-  
+
   return baseTime;
 }
 ```
@@ -346,10 +356,10 @@ function getJumpTime(distance) {
 ```
 ⚠ WARNING: Hull integrity at 45%
   Risk of cargo loss during jumps.
-  
+
 ⚠ WARNING: Engine condition at 28%
   Jump failure risk. Recommend immediate repairs.
-  
+
 ⚠ WARNING: Life support at 15%
   Critical condition. Seek repairs urgently.
 ```
@@ -408,7 +418,7 @@ Add to station menu:
     </div>
     <span class="value">65%</span>
   </div>
-  
+
   <div class="stat-bar">
     <span class="label">Hull</span>
     <div class="bar">
@@ -416,7 +426,7 @@ Add to station menu:
     </div>
     <span class="value">78%</span>
   </div>
-  
+
   <div class="stat-bar">
     <span class="label">Engine</span>
     <div class="bar">
@@ -424,7 +434,7 @@ Add to station menu:
     </div>
     <span class="value">84%</span>
   </div>
-  
+
   <div class="stat-bar">
     <span class="label">Life Support</span>
     <div class="bar">
@@ -459,6 +469,7 @@ Add to station menu:
 ## Success Criteria
 
 Player can:
+
 1. Observe price changes over time
 2. Make informed trading decisions based on price history
 3. Purchase market intelligence

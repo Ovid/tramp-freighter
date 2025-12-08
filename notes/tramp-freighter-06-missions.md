@@ -34,58 +34,58 @@ Add structured content through missions, narrative events, and the main quest li
 ```javascript
 const MISSION_TYPES = {
   delivery: {
-    name: "Cargo Delivery",
-    description: "Transport goods to a destination",
+    name: 'Cargo Delivery',
+    description: 'Transport goods to a destination',
     structure: {
-      cargo: "specific good",
-      quantity: "number",
-      destination: "system ID",
-      deadline: "days",
-      reward: "credits"
-    }
+      cargo: 'specific good',
+      quantity: 'number',
+      destination: 'system ID',
+      deadline: 'days',
+      reward: 'credits',
+    },
   },
-  
+
   fetch: {
-    name: "Procurement",
-    description: "Acquire specific goods and return",
+    name: 'Procurement',
+    description: 'Acquire specific goods and return',
     structure: {
-      cargo: "specific good",
-      quantity: "number",
-      source: "system ID (optional)",
-      deadline: "days",
-      reward: "credits"
-    }
+      cargo: 'specific good',
+      quantity: 'number',
+      source: 'system ID (optional)',
+      deadline: 'days',
+      reward: 'credits',
+    },
   },
-  
+
   passenger: {
-    name: "Passenger Transport",
-    description: "Transport an NPC to a destination",
+    name: 'Passenger Transport',
+    description: 'Transport an NPC to a destination',
     structure: {
-      passenger: "NPC ID or generated passenger",
-      destination: "system ID",
-      deadline: "days",
-      reward: "credits",
-      cargoSpace: "occupied slots (typically 1-3)"
-    }
+      passenger: 'NPC ID or generated passenger',
+      destination: 'system ID',
+      deadline: 'days',
+      reward: 'credits',
+      cargoSpace: 'occupied slots (typically 1-3)',
+    },
   },
-  
+
   intel: {
-    name: "Information Gathering",
-    description: "Visit systems and report back",
+    name: 'Information Gathering',
+    description: 'Visit systems and report back',
     structure: {
-      targets: ["system IDs"],
-      deadline: "days",
-      reward: "credits"
-    }
+      targets: ['system IDs'],
+      deadline: 'days',
+      reward: 'credits',
+    },
   },
-  
+
   special: {
-    name: "Special Mission",
-    description: "Unique story mission",
+    name: 'Special Mission',
+    description: 'Unique story mission',
     structure: {
-      custom: "varies"
-    }
-  }
+      custom: 'varies',
+    },
+  },
 };
 ```
 
@@ -93,46 +93,47 @@ const MISSION_TYPES = {
 
 ```javascript
 const MISSION_SCHEMA = {
-  id: "delivery_001",
-  type: "delivery",
-  title: "Medical Supplies to Ross 154",
-  description: "Father Okonkwo needs medicine urgently. Outbreak at the station.",
-  
-  giver: "okonkwo_ross154",  // NPC ID
-  giverSystem: 11,  // Ross 154
-  
+  id: 'delivery_001',
+  type: 'delivery',
+  title: 'Medical Supplies to Ross 154',
+  description:
+    'Father Okonkwo needs medicine urgently. Outbreak at the station.',
+
+  giver: 'okonkwo_ross154', // NPC ID
+  giverSystem: 11, // Ross 154
+
   requirements: {
-    cargo: "medicine",
+    cargo: 'medicine',
     quantity: 10,
     destination: 11,
-    deadline: 7  // Days from acceptance
+    deadline: 7, // Days from acceptance
   },
-  
+
   rewards: {
     credits: 1500,
     rep: { okonkwo_ross154: 10 },
     faction: { civilians: 5 },
-    karma: 2
+    karma: 2,
   },
-  
+
   penalties: {
     failure: {
       rep: { okonkwo_ross154: -5 },
-      karma: -1
-    }
+      karma: -1,
+    },
   },
-  
+
   conditions: {
-    minRep: 10,  // With Okonkwo
-    notFlag: "okonkwo_mission_1_complete"
+    minRep: 10, // With Okonkwo
+    notFlag: 'okonkwo_mission_1_complete',
   },
-  
+
   dialogue: {
-    offer: "mission_okonkwo_1_offer",
-    accept: "mission_okonkwo_1_accept",
-    complete: "mission_okonkwo_1_complete",
-    fail: "mission_okonkwo_1_fail"
-  }
+    offer: 'mission_okonkwo_1_offer',
+    accept: 'mission_okonkwo_1_accept',
+    complete: 'mission_okonkwo_1_complete',
+    fail: 'mission_okonkwo_1_fail',
+  },
 };
 ```
 
@@ -147,21 +148,22 @@ When talking to NPCs, check for available missions:
 ```javascript
 function getAvailableMissions(npcId) {
   const npcState = gameState.npcs[npcId];
-  const missions = MISSIONS.filter(m => {
+  const missions = MISSIONS.filter((m) => {
     // Check if NPC gives this mission
     if (m.giver !== npcId) return false;
-    
+
     // Check conditions
     if (m.conditions.minRep && npcState.rep < m.conditions.minRep) return false;
-    if (m.conditions.notFlag && npcState.flags.includes(m.conditions.notFlag)) return false;
-    
+    if (m.conditions.notFlag && npcState.flags.includes(m.conditions.notFlag))
+      return false;
+
     // Check if already active or completed
-    if (gameState.missions.active.find(am => am.id === m.id)) return false;
+    if (gameState.missions.active.find((am) => am.id === m.id)) return false;
     if (gameState.missions.completed.includes(m.id)) return false;
-    
+
     return true;
   });
-  
+
   return missions;
 }
 ```
@@ -198,12 +200,8 @@ function getAvailableMissions(npcId) {
 <div id="active-missions">
   <div class="mission-item">
     <div class="mission-title">Medical Supplies to Ross 154</div>
-    <div class="mission-progress">
-      Medicine: 10/10 ✓
-    </div>
-    <div class="mission-deadline">
-      Deadline: 5 days remaining
-    </div>
+    <div class="mission-progress">Medicine: 10/10 ✓</div>
+    <div class="mission-deadline">Deadline: 5 days remaining</div>
   </div>
 </div>
 ```
@@ -241,75 +239,75 @@ When docking at destination with requirements met:
 
 ```javascript
 const EVENT_SCHEMA = {
-  id: "dock_barnards_first",
-  type: "dock",  // dock, jump, time, condition
-  
+  id: 'dock_barnards_first',
+  type: 'dock', // dock, jump, time, condition
+
   trigger: {
-    system: 4,  // Barnard's Star (null for any)
-    condition: "first_visit",
-    chance: 1.0  // 100% if conditions met
+    system: 4, // Barnard's Star (null for any)
+    condition: 'first_visit',
+    chance: 1.0, // 100% if conditions met
   },
-  
-  once: true,  // Only fires once
-  cooldown: 0,  // Days before can fire again
-  priority: 10,  // Higher = checked first
-  
+
+  once: true, // Only fires once
+  cooldown: 0, // Days before can fire again
+  priority: 10, // Higher = checked first
+
   content: {
     text: [
-      "The docking clamps engage with a shudder.",
+      'The docking clamps engage with a shudder.',
       "Barnard's Station is smaller than you expected — a retrofitted mining platform.",
-      "A dock worker waves you toward Bay 3. Her jumpsuit says 'CHEN' in faded stencil."
+      "A dock worker waves you toward Bay 3. Her jumpsuit says 'CHEN' in faded stencil.",
     ],
-    
-    speaker: null,  // Narration
-    mood: "neutral",
-    
+
+    speaker: null, // Narration
+    mood: 'neutral',
+
     choices: [
       {
-        text: "Wave back and head to the trading post.",
+        text: 'Wave back and head to the trading post.',
         next: null,
-        effects: []
+        effects: [],
       },
       {
-        text: "Stop to introduce yourself.",
-        next: "meet_chen",
-        effects: [
-          { type: "npc_rep", target: "chen_barnards", value: 1 }
-        ]
+        text: 'Stop to introduce yourself.',
+        next: 'meet_chen',
+        effects: [{ type: 'npc_rep', target: 'chen_barnards', value: 1 }],
       },
       {
-        text: "Ignore her and check your cargo manifest.",
+        text: 'Ignore her and check your cargo manifest.',
         next: null,
-        effects: [
-          { type: "npc_rep", target: "chen_barnards", value: -1 }
-        ]
-      }
-    ]
-  }
+        effects: [{ type: 'npc_rep', target: 'chen_barnards', value: -1 }],
+      },
+    ],
+  },
 };
 ```
 
 ### Event Types
 
 **Dock Events:** Trigger when arriving at a station
+
 - First visit narration
 - NPC encounters
 - Station-specific events
 - Economic news
 
 **Jump Events:** Trigger during wormhole transit
+
 - Pirate encounters (already implemented)
 - Distress calls (already implemented)
 - Anomalies and discoveries
 - Random encounters
 
 **Time Events:** Trigger on specific days
+
 - Debt reminders
 - Story beats
 - Festival announcements
 - NPC check-ins
 
 **Condition Events:** Trigger based on game state
+
 - Low fuel warnings
 - Hull breach alerts
 - Debt collection
@@ -327,7 +325,7 @@ const EVENT_SCHEMA = {
   type: "dock",
   trigger: { system: 0, condition: "first_visit" },
   once: true,
-  
+
   content: {
     text: [
       "Sol Station. The heart of human civilization.",
@@ -350,7 +348,7 @@ const EVENT_SCHEMA = {
   trigger: { system: null, condition: null, chance: 0.05 },
   once: false,
   cooldown: 5,
-  
+
   content: {
     text: [
       "Your sensors ping. Debris field ahead.",
@@ -376,7 +374,7 @@ const EVENT_SCHEMA = {
 {
   id: "salvage_result",
   type: "event",
-  
+
   content: {
     text: [
       "You crack the seal. Inside: 5 units of Parts.",
@@ -404,7 +402,7 @@ const EVENT_SCHEMA = {
   trigger: { day: 30, condition: "debt > 8000" },
   once: false,
   cooldown: 10,
-  
+
   content: {
     text: [
       "A message from Marcus Cole.",
@@ -426,59 +424,65 @@ const EVENT_SCHEMA = {
 ```javascript
 const PASSENGER_TYPES = {
   refugee: {
-    urgency: "high",
-    payment: "low",
+    urgency: 'high',
+    payment: 'low',
     cargoSpace: 1,
-    dialogue: ["Please, I need to get away from here.", "Thank you for helping me."],
-    satisfaction: { speed: 0.8, comfort: 0.2 }
+    dialogue: [
+      'Please, I need to get away from here.',
+      'Thank you for helping me.',
+    ],
+    satisfaction: { speed: 0.8, comfort: 0.2 },
   },
-  
+
   business: {
-    urgency: "medium",
-    payment: "medium",
+    urgency: 'medium',
+    payment: 'medium',
     cargoSpace: 2,
-    dialogue: ["Time is money.", "I expect professional service."],
-    satisfaction: { speed: 0.6, comfort: 0.4 }
+    dialogue: ['Time is money.', 'I expect professional service.'],
+    satisfaction: { speed: 0.6, comfort: 0.4 },
   },
-  
+
   wealthy: {
-    urgency: "low",
-    payment: "high",
+    urgency: 'low',
+    payment: 'high',
     cargoSpace: 3,
-    dialogue: ["I trust the accommodations are adequate?", "Money is no object."],
-    satisfaction: { speed: 0.3, comfort: 0.7 }
+    dialogue: [
+      'I trust the accommodations are adequate?',
+      'Money is no object.',
+    ],
+    satisfaction: { speed: 0.3, comfort: 0.7 },
   },
-  
+
   scientist: {
-    urgency: "medium",
-    payment: "medium",
+    urgency: 'medium',
+    payment: 'medium',
     cargoSpace: 2,
-    dialogue: ["Fascinating ship you have.", "I'm studying stellar phenomena."],
-    satisfaction: { speed: 0.5, comfort: 0.3, safety: 0.2 }
+    dialogue: ['Fascinating ship you have.', "I'm studying stellar phenomena."],
+    satisfaction: { speed: 0.5, comfort: 0.3, safety: 0.2 },
   },
-  
+
   family: {
-    urgency: "low",
-    payment: "low",
+    urgency: 'low',
+    payment: 'low',
     cargoSpace: 3,
-    dialogue: ["Are we there yet?", "The children are excited."],
-    satisfaction: { speed: 0.4, comfort: 0.4, safety: 0.2 }
-  }
+    dialogue: ['Are we there yet?', 'The children are excited.'],
+    satisfaction: { speed: 0.4, comfort: 0.4, safety: 0.2 },
+  },
 };
 
 function generatePassenger() {
   const types = Object.keys(PASSENGER_TYPES);
   const type = types[Math.floor(Math.random() * types.length)];
   const template = PASSENGER_TYPES[type];
-  
+
   return {
     id: `passenger_${Date.now()}`,
     name: generatePersonName(),
     type: type,
     cargoSpace: template.cargoSpace,
     dialogue: template.dialogue,
-    satisfaction: 50,  // 0-100
-    satisfactionWeights: template.satisfaction
+    satisfaction: 50, // 0-100
+    satisfactionWeights: template.satisfaction,
   };
 }
 ```
@@ -486,6 +490,7 @@ function generatePassenger() {
 ### Passenger Mission Flow
 
 **Offering:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  PASSENGER BOARD — Sol Station                          │
@@ -514,7 +519,7 @@ Passengers can trigger events during jumps:
   id: "passenger_complaint_comfort",
   type: "jump",
   trigger: { condition: "has_passenger", chance: 0.15 },
-  
+
   content: {
     text: [
       "Your passenger complains about the cramped quarters.",
@@ -550,22 +555,22 @@ Passengers can trigger events during jumps:
 ```javascript
 function updatePassengerSatisfaction(passenger, event) {
   const weights = passenger.satisfactionWeights;
-  
+
   // Speed: Affected by delays
   if (event === 'delay') {
     passenger.satisfaction -= 10 * weights.speed;
   }
-  
+
   // Comfort: Affected by ship condition
   if (gameState.ship.lifeSupport < 50) {
     passenger.satisfaction -= 5 * weights.comfort;
   }
-  
+
   // Safety: Affected by combat
   if (event === 'combat') {
     passenger.satisfaction -= 15 * weights.safety;
   }
-  
+
   // Clamp 0-100
   passenger.satisfaction = Math.max(0, Math.min(100, passenger.satisfaction));
 }
@@ -599,20 +604,24 @@ function updatePassengerSatisfaction(passenger, event) {
 ```javascript
 function calculatePassengerPayment(mission, passenger) {
   const basePayment = mission.rewards.credits;
-  
+
   // Satisfaction bonus/penalty
   let multiplier = 1.0;
-  if (passenger.satisfaction >= 80) multiplier = 1.3;      // Very satisfied
-  else if (passenger.satisfaction >= 60) multiplier = 1.15; // Satisfied
-  else if (passenger.satisfaction >= 40) multiplier = 1.0;  // Neutral
-  else if (passenger.satisfaction >= 20) multiplier = 0.7;  // Dissatisfied
-  else multiplier = 0.5;                                    // Very dissatisfied
-  
+  if (passenger.satisfaction >= 80)
+    multiplier = 1.3; // Very satisfied
+  else if (passenger.satisfaction >= 60)
+    multiplier = 1.15; // Satisfied
+  else if (passenger.satisfaction >= 40)
+    multiplier = 1.0; // Neutral
+  else if (passenger.satisfaction >= 20)
+    multiplier = 0.7; // Dissatisfied
+  else multiplier = 0.5; // Very dissatisfied
+
   // On-time bonus
   if (gameState.player.daysElapsed <= mission.deadline) {
     multiplier += 0.1;
   }
-  
+
   return Math.round(basePayment * multiplier);
 }
 ```
@@ -623,11 +632,11 @@ function calculatePassengerPayment(mission, passenger) {
 function completePassengerMission(mission, passenger) {
   const payment = calculatePassengerPayment(mission, passenger);
   gameState.player.credits += payment;
-  
+
   // Reputation with passenger type
   if (passenger.satisfaction >= 60) {
     modifyFactionRep('civilians', 5);
-    
+
     // Chance of repeat business
     if (passenger.satisfaction >= 80 && Math.random() < 0.3) {
       // Generate follow-up mission
@@ -642,12 +651,13 @@ function completePassengerMission(mission, passenger) {
 ### Passenger-Specific Events
 
 **Wealthy Passenger:**
+
 ```javascript
 {
   id: "wealthy_passenger_tip",
   type: "dock",
   trigger: { condition: "has_wealthy_passenger", satisfaction: ">= 70" },
-  
+
   content: {
     text: [
       "Your wealthy passenger is impressed with your service.",
@@ -662,12 +672,13 @@ function completePassengerMission(mission, passenger) {
 ```
 
 **Family Passenger:**
+
 ```javascript
 {
   id: "family_passenger_children",
   type: "jump",
   trigger: { condition: "has_family_passenger", chance: 0.2 },
-  
+
   content: {
     text: [
       "The children are getting restless.",
@@ -685,16 +696,19 @@ function completePassengerMission(mission, passenger) {
 ### Integration with Existing Systems
 
 **Cargo Space:**
+
 - Passengers occupy cargo space
 - Cannot be jettisoned (obviously)
 - Shown separately in cargo manifest
 
 **Combat:**
+
 - Passengers react to combat
 - High satisfaction loss if combat occurs
 - Some passengers (military, smugglers) may be less affected
 
 **Ship Condition:**
+
 - Low life support affects passenger comfort
 - Hull damage frightens passengers
 - Clean, well-maintained ship improves satisfaction
@@ -709,29 +723,34 @@ function completePassengerMission(mission, passenger) {
 function generateCargoRun() {
   const fromSystem = gameState.player.currentSystem;
   const toSystem = getRandomConnectedSystem(fromSystem);
-  
-  const goods = ["grain", "ore", "tritium", "parts"];
+
+  const goods = ['grain', 'ore', 'tritium', 'parts'];
   const good = goods[Math.floor(Math.random() * goods.length)];
   const qty = 10 + Math.floor(Math.random() * 20);
-  
+
   const distance = getDistanceBetween(
-    STAR_DATA.find(s => s.id === fromSystem),
-    STAR_DATA.find(s => s.id === toSystem)
+    STAR_DATA.find((s) => s.id === fromSystem),
+    STAR_DATA.find((s) => s.id === toSystem)
   );
-  
-  const deadline = Math.ceil(distance * 2) + 3;  // Generous deadline
-  const reward = Math.round(qty * GOODS[good].basePrice * 0.3);  // 30% markup
-  
+
+  const deadline = Math.ceil(distance * 2) + 3; // Generous deadline
+  const reward = Math.round(qty * GOODS[good].basePrice * 0.3); // 30% markup
+
   return {
     id: `cargo_run_${Date.now()}`,
-    type: "delivery",
-    title: `Cargo Run: ${good} to ${STAR_DATA.find(s => s.id === toSystem).name}`,
+    type: 'delivery',
+    title: `Cargo Run: ${good} to ${STAR_DATA.find((s) => s.id === toSystem).name}`,
     description: `Standard delivery contract.`,
-    giver: "station_master",
+    giver: 'station_master',
     giverSystem: fromSystem,
-    requirements: { cargo: good, quantity: qty, destination: toSystem, deadline },
+    requirements: {
+      cargo: good,
+      quantity: qty,
+      destination: toSystem,
+      deadline,
+    },
     rewards: { credits: reward },
-    penalties: { failure: { rep: { station_master: -2 } } }
+    penalties: { failure: { rep: { station_master: -2 } } },
   };
 }
 ```
@@ -773,33 +792,34 @@ Add to station menu:
 
 ```javascript
 function checkEvents(eventType, context = {}) {
-  const eligibleEvents = EVENTS.filter(e => {
+  const eligibleEvents = EVENTS.filter((e) => {
     // Type match
     if (e.type !== eventType) return false;
-    
+
     // Already fired (if once)
     if (e.once && gameState.events.fired.includes(e.id)) return false;
-    
+
     // Cooldown
     if (e.cooldown && gameState.events.cooldowns[e.id]) {
       if (gameState.player.daysElapsed < gameState.events.cooldowns[e.id]) {
         return false;
       }
     }
-    
+
     // Trigger conditions
     if (e.trigger.system && e.trigger.system !== context.system) return false;
-    if (e.trigger.condition && !evaluateCondition(e.trigger.condition, context)) return false;
-    
+    if (e.trigger.condition && !evaluateCondition(e.trigger.condition, context))
+      return false;
+
     // Chance
     if (Math.random() > e.trigger.chance) return false;
-    
+
     return true;
   });
-  
+
   // Sort by priority
   eligibleEvents.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-  
+
   // Return highest priority event
   return eligibleEvents[0] || null;
 }
@@ -810,15 +830,17 @@ function checkEvents(eventType, context = {}) {
 ```javascript
 function showEvent(event) {
   const content = event.content;
-  
+
   // Render text
-  const textHtml = content.text.map(p => `<p>${p}</p>`).join('');
-  
+  const textHtml = content.text.map((p) => `<p>${p}</p>`).join('');
+
   // Render choices
-  const choicesHtml = content.choices.map((choice, i) => {
-    return `<button onclick="selectEventChoice('${event.id}', ${i})">${choice.text}</button>`;
-  }).join('');
-  
+  const choicesHtml = content.choices
+    .map((choice, i) => {
+      return `<button onclick="selectEventChoice('${event.id}', ${i})">${choice.text}</button>`;
+    })
+    .join('');
+
   // Show modal
   showModal(`
     <div class="event-modal">
@@ -854,6 +876,7 @@ function showEvent(event) {
 ## Success Criteria
 
 Player can:
+
 1. Accept and complete missions for rewards
 2. Experience narrative events that add flavor
 3. Make choices that affect the story

@@ -7,6 +7,7 @@ The starmap distance calculations were incorrect. The code assumed coordinates w
 ## Root Cause
 
 The original implementation used:
+
 ```javascript
 distance = Math.sqrt(x² + y² + z²) / 10
 ```
@@ -16,10 +17,12 @@ This systematically overestimated distances by approximately 40% (factor of ~1.3
 ## Analysis
 
 By comparing known star distances with their coordinate radii:
+
 - Alpha Centauri A: Real distance 4.37 LY, old calculation gave ~6.1 LY
 - Wolf 1481 (farthest): Real distance 20 LY, old calculation gave ~27.9 LY
 
 The catalog includes stars out to 20 light-years from Sol. Wolf 1481 has a radius of ~279.319 map units, giving us:
+
 ```
 LY_PER_UNIT = 20 / 279.319 ≈ 0.0716027
 ```
@@ -27,11 +30,13 @@ LY_PER_UNIT = 20 / 279.319 ≈ 0.0716027
 ## Solution
 
 ### 1. Added LY_PER_UNIT constant to game-constants.js
+
 ```javascript
 export const LY_PER_UNIT = 20 / 279.3190870671033;
 ```
 
 ### 2. Updated distance calculations to use correct formula
+
 ```javascript
 // Old (incorrect)
 distance = Math.sqrt(x² + y² + z²) / 10
@@ -41,6 +46,7 @@ distance = Math.hypot(x, y, z) * LY_PER_UNIT
 ```
 
 ### 3. Updated all distance calculation locations
+
 - `game-constants.js`: `calculateDistanceFromSol()`
 - `game-navigation.js`: `calculateDistanceFromSol()` and `calculateDistanceBetween()`
 - `starmap.js`: Wormhole distance precomputation
@@ -48,12 +54,14 @@ distance = Math.hypot(x, y, z) * LY_PER_UNIT
 ## Impact
 
 ### Gameplay Changes
+
 - **Jump fuel costs**: Reduced by ~30% (distances are shorter)
 - **Jump times**: Reduced proportionally
 - **Navigation range**: More systems reachable with same fuel
 - **Fuel economy**: Players have more fuel remaining after jumps
 
 ### Example: Sol to Alpha Centauri
+
 - Old distance: ~6.1 LY
 - New distance: ~4.37 LY (correct)
 - Old fuel cost: ~22%
@@ -62,6 +70,7 @@ distance = Math.hypot(x, y, z) * LY_PER_UNIT
 ## Testing
 
 Created comprehensive test suite in `tests/unit/distance-calculations.test.js`:
+
 - Verifies LY_PER_UNIT constant value
 - Tests known star distances (Alpha Centauri, Barnard's Star, Wolf 1481, etc.)
 - Confirms all stars are within 20 LY radius
@@ -82,6 +91,7 @@ Updated property tests in `tests/property/distance-calculations.property.test.js
 ## Verification
 
 All tests pass (218/219 - one unrelated flaky test):
+
 - ✓ Distance calculations match real-world star distances
 - ✓ All stars within 20 LY catalog bounds
 - ✓ Consistent across all modules

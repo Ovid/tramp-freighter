@@ -11,6 +11,7 @@
 The original `tramp-freighter.md` spec was too large to implement in one go. This index breaks it down into 8 sequential specs that build on each other, allowing incremental development.
 
 Each spec is:
+
 - **Self-contained:** Can be implemented independently
 - **Testable:** Has clear success criteria
 - **Incremental:** Builds on previous specs
@@ -21,10 +22,12 @@ Each spec is:
 ## Spec Breakdown
 
 ### [Spec 01: Core Loop](tramp-freighter-01-core-loop.md)
+
 **Foundation:** Sol Sector Starmap v1.1  
 **Focus:** MVP gameplay loop
 
 **Implements:**
+
 - Navigation between wormhole-connected systems
 - Basic trading (fixed prices)
 - Fuel consumption and refueling
@@ -39,10 +42,12 @@ Each spec is:
 ---
 
 ### [Spec 02: Dynamic Economy](tramp-freighter-02-economy.md)
+
 **Foundation:** Spec 01  
 **Focus:** Living economy
 
 **Implements:**
+
 - Dynamic prices with daily fluctuation
 - Price discovery (only see visited systems)
 - Economic events (strikes, emergencies, festivals)
@@ -57,10 +62,12 @@ Each spec is:
 ---
 
 ### [Spec 03: Ship Personality](tramp-freighter-03-ship-personality.md)
+
 **Foundation:** Spec 02  
 **Focus:** Ship character and customization
 
 **Implements:**
+
 - Ship quirks (random personality traits)
 - Upgrade system with tradeoffs
 - Smuggler's panels (hidden cargo)
@@ -74,10 +81,12 @@ Each spec is:
 ---
 
 ### [Spec 04: NPCs & Relationships](tramp-freighter-04-npcs.md)
+
 **Foundation:** Spec 03  
 **Focus:** "You Know These People"
 
 **Implements:**
+
 - NPC system with persistent relationships
 - Relationship tiers with benefits
 - Dialogue system with branching choices
@@ -91,10 +100,12 @@ Each spec is:
 ---
 
 ### [Spec 05: Danger & Combat](tramp-freighter-05-danger.md)
+
 **Foundation:** Spec 04  
 **Focus:** Risk and tension
 
 **Implements:**
+
 - Pirate encounters with tactical choices
 - Customs inspections
 - Mechanical failures
@@ -109,10 +120,12 @@ Each spec is:
 ---
 
 ### [Spec 06: Missions & Events](tramp-freighter-06-missions.md)
+
 **Foundation:** Spec 05  
 **Focus:** Structured content
 
 **Implements:**
+
 - Mission system (delivery, fetch, passenger, intel)
 - Narrative event framework
 - Dock events and jump events
@@ -127,10 +140,12 @@ Each spec is:
 ---
 
 ### [Spec 07: The Tanaka Sequence & Endgame](tramp-freighter-07-endgame.md)
+
 **Foundation:** Spec 06  
 **Focus:** Main quest and victory
 
 **Implements:**
+
 - Yuki Tanaka NPC with deep questline
 - The Tanaka Sequence (5 missions)
 - Range Extender unlock
@@ -145,10 +160,12 @@ Each spec is:
 ---
 
 ### [Spec 08: Polish & Content](tramp-freighter-08-polish.md)
+
 **Foundation:** Spec 07  
 **Focus:** Final polish and deployment
 
 **Implements:**
+
 - Balance tuning
 - Expanded NPC roster (15+ total)
 - 50+ events
@@ -168,6 +185,7 @@ Each spec is:
 **Sequential Development:** 17-24 weeks (4-6 months)
 
 **With Parallel Work:**
+
 - Core systems (Specs 1-3): 5-7 weeks
 - Content (Specs 4-6): 8-11 weeks (can overlap with polish)
 - Endgame & Polish (Specs 7-8): 4-6 weeks
@@ -250,6 +268,7 @@ Each spec is:
 ### Integration with Existing Starmap
 
 The game builds on `starmap.html`:
+
 - Keep existing Three.js starmap rendering
 - Add game state overlay
 - Extend click handlers for game interactions
@@ -283,6 +302,7 @@ This keeps content separate from code for easier editing.
 ### Per-Spec Testing
 
 Each spec includes:
+
 - Feature checklist
 - Success criteria
 - Manual test cases
@@ -290,6 +310,7 @@ Each spec includes:
 ### Integration Testing
 
 After each spec:
+
 - Verify previous specs still work
 - Check save/load compatibility
 - Performance regression testing
@@ -297,6 +318,7 @@ After each spec:
 ### Playtesting
 
 Key milestones:
+
 - After Spec 3: Economy balance
 - After Spec 5: Difficulty tuning
 - After Spec 7: Full playthrough
@@ -309,6 +331,7 @@ Key milestones:
 ### Static Hosting
 
 Game is designed for static hosting:
+
 - No server required
 - All data in localStorage
 - Single-page application
@@ -363,6 +386,7 @@ Game is designed for static hosting:
 Refer to individual spec files for detailed implementation guidance.
 
 Each spec is self-contained and includes:
+
 - Clear goals
 - Technical details
 - UI mockups
