@@ -1156,42 +1156,14 @@ export class GameStateManager {
 
       this.state = loadedState;
 
-      // Initialize priceKnowledge if missing (backward compatibility)
+      // Initialize missing fields for states that pass validation but lack new features
+      // This allows loading saves from earlier development versions during testing
       if (!this.state.world.priceKnowledge) {
         this.state.world.priceKnowledge = {};
-
-        // Record current system's prices
-        const currentSystemId = this.state.player.currentSystem;
-        const currentSystem = this.starData.find(
-          (s) => s.id === currentSystemId
-        );
-
-        if (currentSystem) {
-          const currentDay = this.state.player.daysElapsed;
-          const activeEvents = this.state.world.activeEvents || [];
-          const currentPrices = {};
-
-          for (const goodType of Object.keys(BASE_PRICES)) {
-            currentPrices[goodType] = TradingSystem.calculatePrice(
-              goodType,
-              currentSystem,
-              currentDay,
-              activeEvents
-            );
-          }
-          this.state.world.priceKnowledge[currentSystemId] = {
-            lastVisit: 0,
-            prices: currentPrices,
-          };
-        }
       }
-
-      // Initialize activeEvents if missing (backward compatibility)
       if (!this.state.world.activeEvents) {
         this.state.world.activeEvents = [];
       }
-
-      // Initialize ship condition if missing (backward compatibility)
       if (this.state.ship.hull === undefined) {
         this.state.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
       }
@@ -1201,8 +1173,6 @@ export class GameStateManager {
       if (this.state.ship.lifeSupport === undefined) {
         this.state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
       }
-
-      // Initialize cargo purchase metadata if missing (backward compatibility)
       if (this.state.ship.cargo && Array.isArray(this.state.ship.cargo)) {
         this.state.ship.cargo.forEach((stack) => {
           if (stack.purchaseSystem === undefined) {
@@ -1307,10 +1277,7 @@ export class GameStateManager {
       return false;
     }
 
-    // Check ship condition fields (optional for backward compatibility)
-    // These fields are added by backward compatibility logic in loadGame() if missing.
-    // Validation runs BEFORE backward compatibility, so fields may be undefined here.
-    // If present, they must be numbers. If absent, they'll be initialized to maximum condition.
+    // Check ship condition fields (optional - will be initialized if missing)
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
     }
@@ -1331,7 +1298,7 @@ export class GameStateManager {
         return false;
       }
 
-      // Check purchase metadata fields (optional for backward compatibility)
+      // Purchase metadata is optional - will be initialized if missing
       if (stack.purchaseSystem !== undefined && typeof stack.purchaseSystem !== 'number') {
         return false;
       }
@@ -1345,7 +1312,7 @@ export class GameStateManager {
       return false;
     }
 
-    // Check priceKnowledge structure (optional for backward compatibility)
+    // priceKnowledge and activeEvents are optional - will be initialized if missing
     if (state.world.priceKnowledge !== undefined) {
       if (typeof state.world.priceKnowledge !== 'object') {
         return false;
@@ -1364,7 +1331,6 @@ export class GameStateManager {
       }
     }
 
-    // Check activeEvents structure (optional for backward compatibility)
     if (state.world.activeEvents !== undefined) {
       if (!Array.isArray(state.world.activeEvents)) {
         return false;

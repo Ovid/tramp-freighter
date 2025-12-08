@@ -125,6 +125,22 @@ export class UIManager {
     this.setupStationInterfaceHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
+
+    // Validate critical DOM elements were cached (skip in test environment)
+    const isTestEnvironment =
+      typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+    if (!isTestEnvironment) {
+      if (this.cachedRepairButtons.length === 0) {
+        throw new Error(
+          'Repair buttons not found in DOM - check HTML structure'
+        );
+      }
+      if (this.cachedRefuelPresetButtons.length === 0) {
+        throw new Error(
+          'Refuel preset buttons not found in DOM - check HTML structure'
+        );
+      }
+    }
   }
 
   subscribeToStateChanges() {
@@ -877,6 +893,15 @@ export class UIManager {
     this.renderCargoStacks(system);
   }
 
+  /**
+   * Capitalize first letter of a string for display purposes
+   * 
+   * Used consistently across UI for commodity names, system types, and labels
+   * to ensure uniform presentation. Centralizes formatting logic.
+   * 
+   * @param {string} str - String to capitalize
+   * @returns {string} String with first letter capitalized
+   */
   capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
@@ -1496,23 +1521,27 @@ export class UIManager {
   }
 
   /**
-   * Update a single system's condition display in repair panel
-   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
-   * @param {number} conditionValue - Condition percentage (0-100)
+   * Update all ship condition displays in repair panel
+   * 
+   * Refreshes the visual representation of hull, engine, and life support
+   * condition in the repair interface. Called when panel opens or after repairs.
    */
-  updateSystemConditionDisplay(systemType, conditionValue) {
-    this.updateConditionDisplay('repair', systemType, conditionValue);
-  }
-
   updateRepairConditionDisplay() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) return;
 
-    this.updateSystemConditionDisplay('hull', condition.hull);
-    this.updateSystemConditionDisplay('engine', condition.engine);
-    this.updateSystemConditionDisplay('lifeSupport', condition.lifeSupport);
+    this.updateConditionDisplay('repair', 'hull', condition.hull);
+    this.updateConditionDisplay('repair', 'engine', condition.engine);
+    this.updateConditionDisplay('repair', 'lifeSupport', condition.lifeSupport);
   }
 
+  /**
+   * Update repair button states and costs based on current ship condition
+   * 
+   * Recalculates repair costs for all buttons and updates their text/disabled state.
+   * Buttons are disabled when system is at max, player lacks credits, or repair
+   * would exceed maximum condition. Called when repair panel opens or after repairs.
+   */
   updateRepairButtons() {
     const state = this.gameStateManager.getState();
     if (!state) return;
@@ -1562,6 +1591,14 @@ export class UIManager {
     this.elements.repairAllBtn.disabled = allAtMax || credits < totalCost || totalCost === 0;
   }
 
+  /**
+   * Calculate total cost to repair all ship systems to maximum condition
+   * 
+   * Sums the repair costs for hull, engine, and life support to reach 100%.
+   * Used to display cost on "Repair All" button and validate transaction.
+   * 
+   * @returns {number} Total repair cost in credits
+   */
   calculateRepairAllCost() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) return 0;
