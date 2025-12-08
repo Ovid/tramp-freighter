@@ -399,6 +399,10 @@ const finalPrice = Math.floor(basePrice * modifier);
 // Consider spatial partitioning or caching results
 ```
 
+### Spec References
+
+**Any references to properties or requirements in docs must also include the spec name. Otherwise, we don't know which spec provides the property**
+
 ## Type Safety (Runtime Checks)
 
 ### Defensive Programming

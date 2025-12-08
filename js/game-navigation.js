@@ -83,9 +83,9 @@ export class NavigationSystem {
 
   /**
    * Calculate fuel cost with engine condition penalty
-   * Formula: baseCost × (engineCondition < 60% ? 1.2 : 1.0)
    *
-   * When engine condition falls below 60%, fuel consumption increases by 20%
+   * When engine condition falls below ENGINE_CONDITION_PENALTIES.THRESHOLD,
+   * fuel consumption increases by ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER
    * due to reduced propulsion efficiency.
    *
    * @param {number} distance - Distance in light years
@@ -104,9 +104,9 @@ export class NavigationSystem {
 
   /**
    * Calculate jump time with engine condition penalty
-   * Formula: baseTime + (engineCondition < 60% ? 1 : 0)
    *
-   * When engine condition falls below 60%, jump time increases by 1 day
+   * When engine condition falls below ENGINE_CONDITION_PENALTIES.THRESHOLD,
+   * jump time increases by ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS
    * due to slower wormhole transit.
    *
    * @param {number} distance - Distance in light years
@@ -130,12 +130,17 @@ export class NavigationSystem {
   /**
    * Apply ship degradation from a jump
    *
-   * Degradation rates:
-   * - Hull: -2% per jump (space debris, micro-meteorites)
-   * - Engine: -1% per jump (wear from wormhole transit)
-   * - Life Support: -0.5% per day traveled (consumables, filter degradation)
+   * Formula:
+   * - Hull: current - SHIP_DEGRADATION.HULL_PER_JUMP
+   * - Engine: current - SHIP_DEGRADATION.ENGINE_PER_JUMP
+   * - Life Support: current - (SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY × jumpDays)
+   * All values clamped to [SHIP_CONDITION_BOUNDS.MIN, SHIP_CONDITION_BOUNDS.MAX]
    *
-   * All values are clamped to [0, 100] range.
+   * Degradation rates reflect wear from wormhole transit:
+   * - Hull: Space debris and micro-meteorites
+   * - Engine: Stress from wormhole field interaction
+   * - Life Support: Consumables and filter degradation over time
+   *
    * Mutates the ship object in place for performance.
    *
    * @param {Object} ship - Ship state with hull, engine, lifeSupport fields

@@ -244,7 +244,10 @@ export function calculateDistanceFromSol(system) {
  * Ship condition degradation rates
  *
  * Degradation occurs during jumps to simulate wear and tear from wormhole transit.
- * Rates are calibrated to create meaningful maintenance costs without being punishing.
+ * Rates are calibrated to create meaningful maintenance costs without being punishing:
+ * - Hull degrades fastest (structural stress from transit)
+ * - Engine degrades moderately (propulsion system wear)
+ * - Life support degrades slowly over time (consumables depletion)
  */
 export const SHIP_DEGRADATION = {
   HULL_PER_JUMP: 2, // Percentage points lost per jump
@@ -268,6 +271,11 @@ export const SHIP_CONDITION_BOUNDS = {
  * When engine condition falls below the threshold, performance degrades:
  * - Fuel consumption increases (less efficient propulsion)
  * - Jump time increases (slower wormhole transit)
+ *
+ * Threshold set at 60% to create a meaningful "yellow zone" where players
+ * must decide between continuing with penalties or spending credits on repairs.
+ * Penalties (20% fuel increase, +1 day travel time) are calibrated to be
+ * noticeable but not crippling.
  */
 export const ENGINE_CONDITION_PENALTIES = {
   THRESHOLD: 60, // Percentage below which penalties apply

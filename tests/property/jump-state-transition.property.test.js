@@ -1,6 +1,13 @@
 /**
  * Property-Based Tests for Jump State Transition
- * Feature: tramp-freighter-core-loop
+ *
+ * Feature: tramp-freighter-core-loop, Property 11: Jump State Transition
+ * Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5
+ *
+ * Property: For any valid jump from system A to system B with distance D,
+ * executing the jump should decrease fuel by the calculated fuel cost
+ * (accounting for engine condition), increase days elapsed by the calculated
+ * jump time (accounting for engine condition), and update current system to B.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
