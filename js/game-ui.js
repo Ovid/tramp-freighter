@@ -333,6 +333,10 @@ export class UIManager {
     this.elements.stationInterface.classList.remove('visible');
   }
 
+  isStationVisible() {
+    return this.elements.stationInterface.classList.contains('visible');
+  }
+
   setupEventModalHandlers() {
     if (this.elements.eventModalDismiss) {
       this.elements.eventModalDismiss.addEventListener('click', () => {
@@ -494,6 +498,18 @@ export class UIManager {
 
   hideTradePanel() {
     this.elements.tradePanel.classList.remove('visible');
+  }
+
+  isTradeVisible() {
+    return this.elements.tradePanel.classList.contains('visible');
+  }
+
+  isRefuelVisible() {
+    return this.elements.refuelPanel.classList.contains('visible');
+  }
+
+  isInfoBrokerVisible() {
+    return this.elements.infoBrokerPanel.classList.contains('visible');
   }
 
   renderMarketGoods(system) {

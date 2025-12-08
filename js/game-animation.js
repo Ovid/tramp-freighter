@@ -530,9 +530,10 @@ export class JumpAnimationSystem {
    *
    * @param {number} originSystemId - Origin star system ID
    * @param {number} destinationSystemId - Destination star system ID
+   * @param {Object} uiManager - Optional UI manager to hide/show station interface during animation
    * @returns {Promise<void>} Resolves when animation completes
    */
-  async playJumpAnimation(originSystemId, destinationSystemId) {
+  async playJumpAnimation(originSystemId, destinationSystemId, uiManager = null) {
     // Prevent overlapping animations
     if (this.isAnimating) {
       console.warn('Animation already in progress, ignoring request');
@@ -540,6 +541,38 @@ export class JumpAnimationSystem {
     }
 
     this.isAnimating = true;
+
+    // Hide all visible panels (store state for restoration)
+    let stationWasVisible = false;
+    let tradeWasVisible = false;
+    let refuelWasVisible = false;
+    let infoBrokerWasVisible = false;
+
+    if (uiManager) {
+      // Check and hide station interface
+      if (uiManager.isStationVisible && uiManager.isStationVisible()) {
+        stationWasVisible = true;
+        uiManager.hideStationInterface();
+      }
+
+      // Check and hide trade panel
+      if (uiManager.isTradeVisible && uiManager.isTradeVisible()) {
+        tradeWasVisible = true;
+        uiManager.hideTradePanel();
+      }
+
+      // Check and hide refuel panel
+      if (uiManager.isRefuelVisible && uiManager.isRefuelVisible()) {
+        refuelWasVisible = true;
+        uiManager.hideRefuelPanel();
+      }
+
+      // Check and hide info broker panel
+      if (uiManager.isInfoBrokerVisible && uiManager.isInfoBrokerVisible()) {
+        infoBrokerWasVisible = true;
+        uiManager.hideInfoBrokerPanel();
+      }
+    }
 
     // Set up timeout to force completion if animation hangs
     const timeoutId = setTimeout(() => {
@@ -549,6 +582,13 @@ export class JumpAnimationSystem {
         'ms'
       );
       this._cleanup();
+      // Restore all panels that were visible
+      if (uiManager) {
+        if (stationWasVisible) uiManager.showStationInterface();
+        if (tradeWasVisible) uiManager.showTradePanel();
+        if (refuelWasVisible) uiManager.showRefuelPanel();
+        if (infoBrokerWasVisible) uiManager.showInfoBrokerPanel();
+      }
     }, ANIMATION_CONFIG.ANIMATION_TIMEOUT);
 
     try {
@@ -633,6 +673,14 @@ export class JumpAnimationSystem {
 
       // Clear timeout since animation completed successfully
       clearTimeout(timeoutId);
+
+      // Restore all panels that were visible before animation
+      if (uiManager) {
+        if (stationWasVisible) uiManager.showStationInterface();
+        if (tradeWasVisible) uiManager.showTradePanel();
+        if (refuelWasVisible) uiManager.showRefuelPanel();
+        if (infoBrokerWasVisible) uiManager.showInfoBrokerPanel();
+      }
     } catch (error) {
       // Log error for debugging
       console.error('Jump animation error:', error);
@@ -642,6 +690,14 @@ export class JumpAnimationSystem {
 
       // Clear timeout
       clearTimeout(timeoutId);
+
+      // Restore all panels even on error
+      if (uiManager) {
+        if (stationWasVisible) uiManager.showStationInterface();
+        if (tradeWasVisible) uiManager.showTradePanel();
+        if (refuelWasVisible) uiManager.showRefuelPanel();
+        if (infoBrokerWasVisible) uiManager.showInfoBrokerPanel();
+      }
     } finally {
       // Always unlock controls and reset state, even if animation fails
       this.inputLockManager.unlock();

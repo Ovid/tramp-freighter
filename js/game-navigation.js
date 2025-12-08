@@ -184,9 +184,10 @@ export class NavigationSystem {
    * @param {Object} gameStateManager - GameStateManager instance
    * @param {number} targetSystemId - Target system ID
    * @param {Object} animationSystem - Optional JumpAnimationSystem instance
+   * @param {Object} uiManager - Optional UIManager instance for hiding/showing panels during animation
    * @returns {Promise<Object>} { success: boolean, error: string|null }
    */
-  async executeJump(gameStateManager, targetSystemId, animationSystem = null) {
+  async executeJump(gameStateManager, targetSystemId, animationSystem = null, uiManager = null) {
     const state = gameStateManager.getState();
 
     if (!state) {
@@ -218,7 +219,7 @@ export class NavigationSystem {
 
     // Play animation if animation system is provided
     if (animationSystem) {
-      await animationSystem.playJumpAnimation(currentSystemId, targetSystemId);
+      await animationSystem.playJumpAnimation(currentSystemId, targetSystemId, uiManager);
     }
 
     return { success: true, error: null };

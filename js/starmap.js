@@ -3133,11 +3133,12 @@ function setupJumpAndDockHandlers(navigationSystem) {
       const targetSystemId = selectedStar.data.id;
       const targetSystemName = selectedStar.data.name;
 
-      // Execute jump with animation system
+      // Execute jump with animation system and UI manager
       const result = await navigationSystem.executeJump(
         gameStateManager,
         targetSystemId,
-        jumpAnimationSystem
+        jumpAnimationSystem,
+        uiManager
       );
 
       if (result.success) {
