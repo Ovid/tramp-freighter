@@ -253,14 +253,14 @@
   - **Property 32: Cargo Purchase Metadata Storage**
   - **Validates: Requirements 9.1**
 
-- [ ] 15. Implement cargo display with purchase context
+- [x] 15. Implement cargo display with purchase context
   - Display purchase price for each cargo stack
   - Display system name where cargo was purchased
   - Calculate and display days since purchase (currentDay - purchaseDay)
   - Update trade interface to show all purchase context
   - _Requirements: 9.2, 9.3, 9.4_
 
-- [ ] 15.1 Write property test for cargo display with purchase context
+- [x] 15.1 Write property test for cargo display with purchase context
   - **Property 33: Cargo Display with Purchase Context**
   - **Validates: Requirements 9.2, 9.3, 9.4**
 

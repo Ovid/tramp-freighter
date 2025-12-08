@@ -784,7 +784,31 @@ export class UIManager {
 
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
-    stackDetails.textContent = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
+    
+    // Build details text with purchase context
+    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
+    
+    // Add purchase system name if available
+    if (stack.purchaseSystem !== undefined && stack.purchaseSystem !== null) {
+      const purchaseSystem = this.starData.find((s) => s.id === stack.purchaseSystem);
+      if (purchaseSystem) {
+        detailsText += ` in ${purchaseSystem.name}`;
+      }
+    }
+    
+    // Add days since purchase if available
+    if (stack.purchaseDay !== undefined && stack.purchaseDay !== null) {
+      const daysSincePurchase = currentDay - stack.purchaseDay;
+      if (daysSincePurchase === 0) {
+        detailsText += ` (today)`;
+      } else if (daysSincePurchase === 1) {
+        detailsText += ` (1 day ago)`;
+      } else {
+        detailsText += ` (${daysSincePurchase} days ago)`;
+      }
+    }
+    
+    stackDetails.textContent = detailsText;
 
     const stackProfit = document.createElement('div');
     stackProfit.className = 'stack-profit';
