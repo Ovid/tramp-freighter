@@ -3,6 +3,8 @@ import {
   BASE_PRICES,
   SPECTRAL_MODIFIERS,
   DAILY_FLUCTUATION,
+  ECONOMY_CONFIG,
+  calculateDistanceFromSol,
 } from './game-constants.js';
 
 /**
@@ -91,6 +93,34 @@ export class TradingSystem {
     }
 
     return activeEvent.modifiers[goodType] || 1.0;
+  }
+
+  /**
+   * Calculate technology level for a system based on distance from Sol
+   *
+   * Technology level represents the technological advancement of a system,
+   * with Sol (distance 0) having the highest tech level (10.0) and frontier
+   * systems at 21+ light years having the lowest tech level (1.0).
+   *
+   * Formula: TL = 10.0 - (9.0 × min(distance, 21) / 21)
+   *
+   * This creates a linear gradient where:
+   * - Sol (0 LY): TL = 10.0
+   * - Barnard's Star (~6 LY): TL ≈ 7.4
+   * - Frontier (21+ LY): TL = 1.0
+   *
+   * @param {Object} system - Star system with x, y, z coordinates
+   * @returns {number} Technology level between 1.0 and 10.0
+   */
+  static calculateTechLevel(system) {
+    const distance = calculateDistanceFromSol(system);
+    const clampedDistance = Math.min(distance, ECONOMY_CONFIG.MAX_COORD_DISTANCE);
+    const techLevel =
+      ECONOMY_CONFIG.MAX_TECH_LEVEL -
+      ((ECONOMY_CONFIG.MAX_TECH_LEVEL - ECONOMY_CONFIG.MIN_TECH_LEVEL) *
+        clampedDistance) /
+        ECONOMY_CONFIG.MAX_COORD_DISTANCE;
+    return techLevel;
   }
 
   static calculateCargoUsed(cargo) {

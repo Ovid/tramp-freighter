@@ -316,6 +316,105 @@ export const SHIP_CONDITION_WARNING_THRESHOLDS = {
 export const FUEL_CAPACITY_EPSILON = 0.01;
 
 /**
+ * Deterministic Economy Configuration
+ *
+ * Centralized configuration for the deterministic economy system.
+ * Prices are determined by three factors:
+ * 1. Technology Level Gradient: Static price differentials based on distance from Sol
+ * 2. Temporal Drift: Smooth sine-wave price oscillations over time
+ * 3. Local Market Saturation: Player-driven supply/demand impacts that decay over time
+ *
+ * This replaces the random price fluctuation model with a predictable, simulation-based economy.
+ */
+export const ECONOMY_CONFIG = {
+  /**
+   * Maximum coordinate distance for technology level calculation
+   * Systems at or beyond this distance have minimum tech level (1.0)
+   * Calibrated for Sol Sector map (<21 LY radius)
+   */
+  MAX_COORD_DISTANCE: 21,
+
+  /**
+   * Technology level bounds
+   * MAX: Sol and core systems (highest tech)
+   * MIN: Frontier systems at 21+ LY (lowest tech)
+   */
+  MAX_TECH_LEVEL: 10.0,
+  MIN_TECH_LEVEL: 1.0,
+
+  /**
+   * Market capacity for local supply/demand effects
+   * Number of units that can be traded before prices approach extreme values
+   * Higher values = more trading needed to significantly impact prices
+   */
+  MARKET_CAPACITY: 1000,
+
+  /**
+   * Daily market recovery factor
+   * Market conditions decay by 10% per day (multiply by 0.90)
+   * Allows markets to recover from player-induced surpluses/deficits
+   */
+  DAILY_RECOVERY_FACTOR: 0.9,
+
+  /**
+   * Temporal wave period in days
+   * Price oscillations complete a full cycle every 30 days
+   * Creates predictable long-term price trends
+   */
+  TEMPORAL_WAVE_PERIOD: 30,
+
+  /**
+   * Temporal wave amplitude
+   * Prices vary by ±15% from baseline due to temporal drift
+   * Range: 0.85 to 1.15 multiplier
+   */
+  TEMPORAL_AMPLITUDE: 0.15,
+
+  /**
+   * Technology modifier intensity
+   * Controls how strongly tech level affects prices
+   * Formula: 1.0 + (bias × (5.0 - TL) × TECH_MODIFIER_INTENSITY)
+   */
+  TECH_MODIFIER_INTENSITY: 0.08,
+
+  /**
+   * Local modifier bounds
+   * Prevents negative prices or infinite costs from extreme market saturation
+   * MIN: 0.25 (prices can't go below 25% of baseline)
+   * MAX: 2.0 (prices can't go above 200% of baseline)
+   */
+  LOCAL_MODIFIER_MIN: 0.25,
+  LOCAL_MODIFIER_MAX: 2.0,
+
+  /**
+   * Market condition pruning threshold
+   * Entries with absolute value below this are removed to optimize save file size
+   * Set to 1.0 to prune insignificant market impacts
+   */
+  MARKET_CONDITION_PRUNE_THRESHOLD: 1.0,
+
+  /**
+   * Technology biases by commodity type
+   *
+   * Determines whether commodities are cheaper at high-tech or low-tech systems:
+   * - Negative bias: Cheaper at low-tech systems (raw materials, agriculture)
+   * - Positive bias: Cheaper at high-tech systems (manufactured goods, advanced tech)
+   *
+   * Biases create intuitive trade routes:
+   * - Buy grain/ore at frontier, sell at core
+   * - Buy electronics/medicine at core, sell at frontier
+   */
+  TECH_BIASES: {
+    grain: -0.6, // Agricultural product, cheaper at low-tech systems
+    ore: -0.8, // Raw material, cheaper at low-tech mining systems
+    tritium: -0.3, // Fuel, moderately cheaper at low-tech systems
+    parts: 0.5, // Manufactured goods, cheaper at high-tech systems
+    medicine: 0.7, // Advanced medical supplies, cheaper at high-tech systems
+    electronics: 1.0, // High-tech goods, significantly cheaper at high-tech systems
+  },
+};
+
+/**
  * Game version for save compatibility
  */
 export const GAME_VERSION = '2.0.0';

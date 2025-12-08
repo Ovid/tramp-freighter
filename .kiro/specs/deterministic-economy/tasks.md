@@ -1,6 +1,6 @@
 # Implementation Plan: Deterministic Economy
 
-- [ ] 1. Add ECONOMY_CONFIG to game-constants.js
+- [x] 1. Add ECONOMY_CONFIG to game-constants.js
   - Create centralized configuration object with all economy parameters
   - Include MAX_COORD_DISTANCE, tech level bounds, market capacity, recovery factor
   - Include temporal wave period and amplitude
@@ -9,7 +9,7 @@
   - Include TECH_BIASES object with values for all six commodities
   - _Requirements: 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8_
 
-- [ ] 1.1 Write unit tests for ECONOMY_CONFIG constants
+- [x] 1.1 Write unit tests for ECONOMY_CONFIG constants
   - **Property 20: MAX_COORD_DISTANCE constant is 21**
   - **Property 21: MAX_TECH_LEVEL constant is 10.0**
   - **Property 22: MIN_TECH_LEVEL constant is 1.0**
@@ -19,19 +19,19 @@
   - **Property 26: TECH_BIASES constants are correct**
   - **Validates: Requirements 7.2-7.8**
 
-- [ ] 2. Implement technology level calculation in game-trading.js
+- [x] 2. Implement technology level calculation in game-trading.js
   - Add calculateTechLevel(system) static method to TradingSystem
   - Use existing calculateDistanceFromSol() helper
   - Apply formula: TL = 10.0 - (9.0 × min(distance, 21) / 21)
   - Return technology level between 1.0 and 10.0
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 2.1 Write unit tests for tech level edge cases
+- [x] 2.1 Write unit tests for tech level edge cases
   - **Property 2: Sol has maximum technology level**
   - **Property 3: Systems at 21+ LY have minimum technology level**
   - **Validates: Requirements 1.3, 1.4**
 
-- [ ] 2.2 Write property test for tech level formula
+- [x] 2.2 Write property test for tech level formula
   - **Property 1: Technology level formula correctness**
   - **Property 4: Technology level interpolation**
   - **Validates: Requirements 1.2, 1.5**
