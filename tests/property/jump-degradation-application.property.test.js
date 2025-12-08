@@ -13,6 +13,13 @@ import { SHIP_DEGRADATION } from '../../js/game-constants.js';
  * hull -2%, engine -1%, life support -(0.5% × D).
  */
 describe('Property 20: Jump Degradation Application', () => {
+  it('should use documented degradation rates from requirements', () => {
+    // Requirement 6.1 specifies exact degradation rates
+    expect(SHIP_DEGRADATION.HULL_PER_JUMP).toBe(2);
+    expect(SHIP_DEGRADATION.ENGINE_PER_JUMP).toBe(1);
+    expect(SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY).toBe(0.5);
+  });
+
   it('should apply correct degradation rates for any jump duration', () => {
     fc.assert(
       fc.property(
@@ -24,9 +31,14 @@ describe('Property 20: Jump Degradation Application', () => {
         }),
         // Generate jump duration (1-10 days is realistic range)
         fc.integer({ min: 1, max: 10 }),
-        (ship, jumpDays) => {
-          // Apply degradation
-          const degradedShip = NavigationSystem.applyJumpDegradation(ship, jumpDays);
+        (shipTemplate, jumpDays) => {
+          // Store original values before mutation
+          const originalHull = shipTemplate.hull;
+          const originalEngine = shipTemplate.engine;
+          const originalLifeSupport = shipTemplate.lifeSupport;
+
+          // Apply degradation (mutates ship object)
+          const degradedShip = NavigationSystem.applyJumpDegradation(shipTemplate, jumpDays);
 
           // Calculate expected degradation amounts
           const expectedHullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
@@ -34,9 +46,9 @@ describe('Property 20: Jump Degradation Application', () => {
           const expectedLifeSupportDegradation = SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
 
           // Calculate expected values (before clamping)
-          const expectedHull = ship.hull - expectedHullDegradation;
-          const expectedEngine = ship.engine - expectedEngineDegradation;
-          const expectedLifeSupport = ship.lifeSupport - expectedLifeSupportDegradation;
+          const expectedHull = originalHull - expectedHullDegradation;
+          const expectedEngine = originalEngine - expectedEngineDegradation;
+          const expectedLifeSupport = originalLifeSupport - expectedLifeSupportDegradation;
 
           // Verify degradation was applied correctly (accounting for clamping)
           // If expected value is within bounds, it should match exactly
@@ -78,25 +90,39 @@ describe('Property 20: Jump Degradation Application', () => {
     );
   });
 
-  it('should preserve other ship properties', () => {
+  it('should preserve other ship properties while modifying condition', () => {
     fc.assert(
       fc.property(
         fc.record({
+          hull: fc.integer({ min: 10, max: 100 }), // Start above degradation amount
+          engine: fc.integer({ min: 10, max: 100 }),
+          lifeSupport: fc.integer({ min: 10, max: 100 }),
           name: fc.string(),
           fuel: fc.integer({ min: 0, max: 100 }),
-          hull: fc.integer({ min: 0, max: 100 }),
-          engine: fc.integer({ min: 0, max: 100 }),
-          lifeSupport: fc.integer({ min: 0, max: 100 }),
           cargoCapacity: fc.integer({ min: 10, max: 100 }),
         }),
-        fc.integer({ min: 1, max: 10 }),
-        (ship, jumpDays) => {
-          const degradedShip = NavigationSystem.applyJumpDegradation(ship, jumpDays);
+        fc.integer({ min: 1, max: 3 }), // Small jump to avoid hitting floor
+        (shipTemplate, jumpDays) => {
+          // Store original values before mutation
+          const originalHull = shipTemplate.hull;
+          const originalEngine = shipTemplate.engine;
+          const originalLifeSupport = shipTemplate.lifeSupport;
+          const originalName = shipTemplate.name;
+          const originalFuel = shipTemplate.fuel;
+          const originalCargoCapacity = shipTemplate.cargoCapacity;
 
-          // Verify other properties are preserved
-          expect(degradedShip.name).toBe(ship.name);
-          expect(degradedShip.fuel).toBe(ship.fuel);
-          expect(degradedShip.cargoCapacity).toBe(ship.cargoCapacity);
+          // Apply degradation (mutates ship object)
+          const degradedShip = NavigationSystem.applyJumpDegradation(shipTemplate, jumpDays);
+
+          // Verify condition properties were actually degraded
+          expect(degradedShip.hull).toBeLessThan(originalHull);
+          expect(degradedShip.engine).toBeLessThan(originalEngine);
+          expect(degradedShip.lifeSupport).toBeLessThan(originalLifeSupport);
+
+          // Verify other properties are preserved unchanged
+          expect(degradedShip.name).toBe(originalName);
+          expect(degradedShip.fuel).toBe(originalFuel);
+          expect(degradedShip.cargoCapacity).toBe(originalCargoCapacity);
         }
       ),
       { numRuns: 100 }

@@ -93,10 +93,11 @@ export class NavigationSystem {
    * - Life Support: -0.5% per day traveled (consumables, filter degradation)
    *
    * All values are clamped to [0, 100] range.
+   * Mutates the ship object in place for performance.
    *
    * @param {Object} ship - Ship state with hull, engine, lifeSupport fields
    * @param {number} jumpDays - Jump duration in days
-   * @returns {Object} Updated ship state with degraded condition values
+   * @returns {Object} The same ship object with updated condition values
    */
   static applyJumpDegradation(ship, jumpDays) {
     // Calculate degradation amounts
@@ -105,27 +106,22 @@ export class NavigationSystem {
     const lifeSupportDegradation = SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
 
     // Apply degradation and clamp to valid range
-    const newHull = Math.max(
+    ship.hull = Math.max(
       SHIP_CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.hull - hullDegradation)
     );
 
-    const newEngine = Math.max(
+    ship.engine = Math.max(
       SHIP_CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.engine - engineDegradation)
     );
 
-    const newLifeSupport = Math.max(
+    ship.lifeSupport = Math.max(
       SHIP_CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.lifeSupport - lifeSupportDegradation)
     );
 
-    return {
-      ...ship,
-      hull: newHull,
-      engine: newEngine,
-      lifeSupport: newLifeSupport,
-    };
+    return ship;
   }
 
   // ========================================================================

@@ -263,6 +263,14 @@ export const SHIP_CONDITION_BOUNDS = {
 };
 
 /**
+ * Floating-point epsilon for fuel capacity checks
+ *
+ * Allows for minor floating-point arithmetic errors when validating
+ * refuel amounts against the 100% capacity limit.
+ */
+export const FUEL_CAPACITY_EPSILON = 0.01;
+
+/**
  * Game version for save compatibility
  */
 export const GAME_VERSION = '1.0.0';

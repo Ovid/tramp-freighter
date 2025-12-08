@@ -5,6 +5,7 @@ import {
   SOL_SYSTEM_ID,
   GAME_VERSION,
   SAVE_KEY,
+  FUEL_CAPACITY_EPSILON,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -755,8 +756,8 @@ export class GameStateManager {
     const totalCost = amount * pricePerPercent;
 
     // Check capacity constraint
-    // Use small epsilon for floating point comparison
-    if (currentFuel + amount > 100.01) {
+    // Use epsilon for floating point comparison
+    if (currentFuel + amount > 100 + FUEL_CAPACITY_EPSILON) {
       return {
         valid: false,
         reason: 'Cannot refuel beyond 100% capacity',
@@ -1084,6 +1085,9 @@ export class GameStateManager {
     }
 
     // Check ship condition fields (optional for backward compatibility)
+    // These fields are added by backward compatibility logic in loadGame() if missing.
+    // Validation runs BEFORE backward compatibility, so fields may be undefined here.
+    // If present, they must be numbers. If absent, they'll be initialized to 100.
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
     }
