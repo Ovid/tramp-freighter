@@ -264,14 +264,14 @@
   - **Property 33: Cargo Display with Purchase Context**
   - **Validates: Requirements 9.2, 9.3, 9.4**
 
-- [ ] 16. Implement profit calculation with context
+- [x] 16. Implement profit calculation with context
   - Calculate profit amount: salePrice - purchasePrice
   - Calculate profit percentage: (profit / purchasePrice) × 100
   - Display profit amount and percentage when cargo is selected for sale
   - Update sellGood() to show profit calculations
   - _Requirements: 9.5, 9.6, 9.7_
 
-- [ ] 16.1 Write property test for profit calculation and display
+- [x] 16.1 Write property test for profit calculation and display
   - **Property 34: Profit Calculation and Display**
   - **Validates: Requirements 9.5, 9.6, 9.7**
 
