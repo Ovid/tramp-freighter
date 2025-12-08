@@ -102,6 +102,8 @@ export class GameStateManager {
             good: 'grain',
             qty: 20,
             purchasePrice: solGrainPrice,
+            purchaseSystem: SOL_SYSTEM_ID,
+            purchaseDay: 0,
           },
         ],
       },
@@ -636,11 +638,17 @@ export class GameStateManager {
     const totalCost = quantity * price;
     this.updateCredits(credits - totalCost);
 
+    // Pass current system and day for purchase metadata
+    const currentSystemId = this.state.player.currentSystem;
+    const currentDay = this.state.player.daysElapsed;
+
     const newCargo = this.addCargoStack(
       this.state.ship.cargo,
       goodType,
       quantity,
-      price
+      price,
+      currentSystemId,
+      currentDay
     );
     this.updateCargo(newCargo);
 
@@ -674,9 +682,16 @@ export class GameStateManager {
    * Add a cargo stack for a purchase
    *
    * Delegates to TradingSystem for consolidation logic
+   *
+   * @param {Array} cargo - Current cargo array
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity to add
+   * @param {number} price - Purchase price per unit
+   * @param {number} systemId - System ID where purchased (optional)
+   * @param {number} day - Game day when purchased (optional)
    */
-  addCargoStack(cargo, goodType, quantity, price) {
-    return TradingSystem.addCargoStack(cargo, goodType, quantity, price);
+  addCargoStack(cargo, goodType, quantity, price, systemId = null, day = null) {
+    return TradingSystem.addCargoStack(cargo, goodType, quantity, price, systemId, day);
   }
 
   /**
@@ -1315,6 +1330,14 @@ export class GameStateManager {
         typeof stack.qty !== 'number' ||
         typeof stack.purchasePrice !== 'number'
       ) {
+        return false;
+      }
+
+      // Check purchase metadata fields (optional for backward compatibility)
+      if (stack.purchaseSystem !== undefined && typeof stack.purchaseSystem !== 'number') {
+        return false;
+      }
+      if (stack.purchaseDay !== undefined && typeof stack.purchaseDay !== 'number') {
         return false;
       }
     }

@@ -242,14 +242,14 @@
   - **Property 31: Condition Bar Visual Distinction**
   - **Validates: Requirements 8.6**
 
-- [ ] 14. Extend cargo stack structure with purchase metadata
+- [x] 14. Extend cargo stack structure with purchase metadata
   - Add purchaseSystem field to cargo stack structure
   - Add purchaseDay field to cargo stack structure
   - Update addCargoStack() to accept and store systemId and day parameters
   - Update buyGood() to pass current system and day to addCargoStack()
   - _Requirements: 9.1_
 
-- [ ] 14.1 Write property test for cargo purchase metadata storage
+- [x] 14.1 Write property test for cargo purchase metadata storage
   - **Property 32: Cargo Purchase Metadata Storage**
   - **Validates: Requirements 9.1**
 
