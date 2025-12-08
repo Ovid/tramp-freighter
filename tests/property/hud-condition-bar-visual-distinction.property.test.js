@@ -57,13 +57,8 @@ describe('Property: Condition Bar Visual Distinction', () => {
   it('should have distinct CSS classes for each condition type', () => {
     fc.assert(
       fc.property(
-        fc.record({
-          fuel: fc.integer({ min: 0, max: 100 }),
-          hull: fc.integer({ min: 0, max: 100 }),
-          engine: fc.integer({ min: 0, max: 100 }),
-          lifeSupport: fc.integer({ min: 0, max: 100 }),
-        }),
-        (condition) => {
+        fc.constant({}), // Static DOM structure test - no random values needed
+        () => {
           // Get all condition bars and containers
           const fuelBar = document.getElementById('fuel-bar');
           const fuelContainer = document.querySelector('.fuel-bar-container');
@@ -173,13 +168,8 @@ describe('Property: Condition Bar Visual Distinction', () => {
     // regardless of their values
     fc.assert(
       fc.property(
-        fc.record({
-          fuel: fc.integer({ min: 0, max: 100 }),
-          hull: fc.integer({ min: 0, max: 100 }),
-          engine: fc.integer({ min: 0, max: 100 }),
-          lifeSupport: fc.integer({ min: 0, max: 100 }),
-        }),
-        (condition) => {
+        fc.constant({}), // Static DOM structure test - no random values needed
+        () => {
           // Count how many distinct condition bar types exist
           const fuelBar = document.querySelector('.fuel-bar');
           const hullBar = document.querySelector('.hull-bar');

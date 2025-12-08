@@ -4,6 +4,7 @@ import {
   INTELLIGENCE_RECENT_THRESHOLD,
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
+  SHIP_CONDITION_BOUNDS,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
@@ -200,6 +201,31 @@ export class UIManager {
   }
 
   /**
+   * Update a condition bar and text display
+   * 
+   * Centralizes condition display logic to avoid duplication between HUD and repair panel.
+   * Handles different element naming conventions (hudHullText vs repairHullPercent).
+   *
+   * @param {string} prefix - Element prefix ('' for HUD, 'repair' for repair panel)
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} conditionValue - Condition percentage (0-100)
+   */
+  updateConditionDisplay(prefix, systemType, conditionValue) {
+    const capitalizedType = this.capitalizeFirst(systemType);
+    const barElement = this.elements[`${prefix}${capitalizedType}Bar`];
+    // HUD uses 'Text' suffix, repair panel uses 'Percent' suffix
+    const textElement = this.elements[`${prefix}${capitalizedType}Text`] || 
+                        this.elements[`${prefix}${capitalizedType}Percent`];
+
+    if (barElement) {
+      barElement.style.width = `${conditionValue}%`;
+    }
+    if (textElement) {
+      textElement.textContent = `${Math.round(conditionValue)}%`;
+    }
+  }
+
+  /**
    * Update ship condition bars in HUD
    * Updates visual width and percentage text for hull, engine, and life support
    *
@@ -208,23 +234,9 @@ export class UIManager {
   updateShipCondition(condition) {
     if (!condition) return;
 
-    // Update hull
-    if (this.elements.hullBar && this.elements.hullText) {
-      this.elements.hullBar.style.width = `${condition.hull}%`;
-      this.elements.hullText.textContent = `${Math.round(condition.hull)}%`;
-    }
-
-    // Update engine
-    if (this.elements.engineBar && this.elements.engineText) {
-      this.elements.engineBar.style.width = `${condition.engine}%`;
-      this.elements.engineText.textContent = `${Math.round(condition.engine)}%`;
-    }
-
-    // Update life support
-    if (this.elements.lifeSupportBar && this.elements.lifeSupportText) {
-      this.elements.lifeSupportBar.style.width = `${condition.lifeSupport}%`;
-      this.elements.lifeSupportText.textContent = `${Math.round(condition.lifeSupport)}%`;
-    }
+    this.updateConditionDisplay('', 'hull', condition.hull);
+    this.updateConditionDisplay('', 'engine', condition.engine);
+    this.updateConditionDisplay('', 'lifeSupport', condition.lifeSupport);
   }
 
   updateCargo() {
@@ -997,10 +1009,10 @@ export class UIManager {
     const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
     this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
 
-    const defaultAmount = Math.min(10, 100 - Math.round(currentFuel));
+    const defaultAmount = Math.min(10, SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel));
     this.elements.refuelAmountInput.value =
       defaultAmount > 0 ? defaultAmount : 0;
-    this.elements.refuelAmountInput.max = 100 - Math.round(currentFuel);
+    this.elements.refuelAmountInput.max = SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel);
 
     this.updateRefuelCost();
 
@@ -1063,7 +1075,7 @@ export class UIManager {
     if (!state) return;
 
     const currentFuel = Math.round(state.ship.fuel);
-    const maxAmount = 100 - currentFuel;
+    const maxAmount = SHIP_CONDITION_BOUNDS.MAX - currentFuel;
     const actualAmount = Math.min(amount, maxAmount);
 
     this.elements.refuelAmountInput.value = actualAmount > 0 ? actualAmount : 0;
@@ -1082,8 +1094,8 @@ export class UIManager {
     // Calculate max affordable amount
     const maxAffordable = Math.floor(credits / fuelPrice);
 
-    // Calculate max capacity amount (use ceiling to avoid exceeding 100%)
-    const maxCapacity = Math.floor(100 - currentFuel);
+    // Calculate max capacity amount
+    const maxCapacity = Math.floor(SHIP_CONDITION_BOUNDS.MAX - currentFuel);
 
     // Use the smaller of the two
     const maxAmount = Math.min(maxAffordable, maxCapacity);
@@ -1460,23 +1472,12 @@ export class UIManager {
   }
 
   /**
-   * Update a single system's condition display (percent text and progress bar)
+   * Update a single system's condition display in repair panel
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} conditionValue - Condition percentage (0-100)
    */
   updateSystemConditionDisplay(systemType, conditionValue) {
-    // Build element keys dynamically based on system type
-    // e.g., 'hull' -> 'repairHullPercent', 'repairHullBar'
-    const capitalizedType = this.capitalizeFirst(systemType);
-    const percentElement = this.elements[`repair${capitalizedType}Percent`];
-    const barElement = this.elements[`repair${capitalizedType}Bar`];
-
-    if (percentElement) {
-      percentElement.textContent = `${Math.round(conditionValue)}%`;
-    }
-    if (barElement) {
-      barElement.style.width = `${conditionValue}%`;
-    }
+    this.updateConditionDisplay('repair', systemType, conditionValue);
   }
 
   updateRepairConditionDisplay() {
@@ -1495,11 +1496,7 @@ export class UIManager {
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
 
-    // Repair buttons must be initialized during construction
-    if (!this.cachedRepairButtons) {
-      throw new Error('Repair buttons not initialized - setupStationInterfaceHandlers() must be called in constructor');
-    }
-    
+    // cachedRepairButtons is guaranteed to exist - set in constructor via setupStationInterfaceHandlers()
     this.cachedRepairButtons.forEach((btn) => {
       const systemType = btn.getAttribute('data-system');
       const amountStr = btn.getAttribute('data-amount');
@@ -1510,7 +1507,7 @@ export class UIManager {
 
       if (amountStr === 'full') {
         // Full repair
-        amount = 100 - currentCondition;
+        amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
         cost = this.gameStateManager.getRepairCost(systemType, amount, currentCondition);
         btn.textContent = `Full (₡${cost})`;
       } else {
@@ -1524,8 +1521,8 @@ export class UIManager {
       // - Already at max condition
       // - Not enough credits
       // - Would exceed max condition
-      const wouldExceedMax = currentCondition + amount > 100;
-      const atMax = currentCondition >= 100;
+      const wouldExceedMax = currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX;
+      const atMax = currentCondition >= SHIP_CONDITION_BOUNDS.MAX;
       const notEnoughCredits = credits < cost;
 
       btn.disabled = atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
@@ -1535,7 +1532,9 @@ export class UIManager {
     const totalCost = this.calculateRepairAllCost();
     this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
 
-    const allAtMax = condition.hull >= 100 && condition.engine >= 100 && condition.lifeSupport >= 100;
+    const allAtMax = condition.hull >= SHIP_CONDITION_BOUNDS.MAX && 
+                     condition.engine >= SHIP_CONDITION_BOUNDS.MAX && 
+                     condition.lifeSupport >= SHIP_CONDITION_BOUNDS.MAX;
     this.elements.repairAllBtn.disabled = allAtMax || credits < totalCost || totalCost === 0;
   }
 
@@ -1546,19 +1545,19 @@ export class UIManager {
     let totalCost = 0;
 
     // Hull
-    const hullAmount = 100 - condition.hull;
+    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost('hull', hullAmount, condition.hull);
     }
 
     // Engine
-    const engineAmount = 100 - condition.engine;
+    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost('engine', engineAmount, condition.engine);
     }
 
     // Life Support
-    const lifeSupportAmount = 100 - condition.lifeSupport;
+    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost('lifeSupport', lifeSupportAmount, condition.lifeSupport);
     }
@@ -1575,7 +1574,7 @@ export class UIManager {
 
     let amount = 0;
     if (amountStr === 'full') {
-      amount = 100 - currentCondition;
+      amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
     } else {
       amount = parseInt(amountStr);
     }
@@ -1621,7 +1620,7 @@ export class UIManager {
     let failedRepairs = [];
 
     // Repair hull
-    const hullAmount = 100 - condition.hull;
+    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
       const result = this.gameStateManager.repairShipSystem('hull', hullAmount);
       if (result.success) {
@@ -1632,7 +1631,7 @@ export class UIManager {
     }
 
     // Repair engine
-    const engineAmount = 100 - condition.engine;
+    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
       const result = this.gameStateManager.repairShipSystem('engine', engineAmount);
       if (result.success) {
@@ -1643,7 +1642,7 @@ export class UIManager {
     }
 
     // Repair life support
-    const lifeSupportAmount = 100 - condition.lifeSupport;
+    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
       const result = this.gameStateManager.repairShipSystem('lifeSupport', lifeSupportAmount);
       if (result.success) {
