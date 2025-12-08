@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Property-Based Tests for Cargo Purchase Metadata Storage
  * Feature: dynamic-economy, Property 32: Cargo Purchase Metadata Storage
@@ -152,6 +154,10 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
             // Metadata should be from the FIRST purchase (stack creation)
             expect(cargo[0].purchaseSystem).toBe(firstPurchaseSystem);
             expect(cargo[0].purchaseDay).toBe(firstPurchaseDay);
+
+            // Verify second purchase metadata was NOT used
+            expect(cargo[0].purchaseSystem).not.toBe(newSystemId);
+            expect(cargo[0].purchaseDay).not.toBe(newDay);
           }
         }
       ),

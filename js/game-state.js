@@ -642,7 +642,7 @@ export class GameStateManager {
     const currentSystemId = this.state.player.currentSystem;
     const currentDay = this.state.player.daysElapsed;
 
-    const newCargo = this.addCargoStack(
+    const newCargo = TradingSystem.addCargoStack(
       this.state.ship.cargo,
       goodType,
       quantity,
@@ -678,21 +678,7 @@ export class GameStateManager {
     return { valid: true };
   }
 
-  /**
-   * Add a cargo stack for a purchase
-   *
-   * Delegates to TradingSystem for consolidation logic
-   *
-   * @param {Array} cargo - Current cargo array
-   * @param {string} goodType - Commodity type
-   * @param {number} quantity - Quantity to add
-   * @param {number} price - Purchase price per unit
-   * @param {number} systemId - System ID where purchased (optional)
-   * @param {number} day - Game day when purchased (optional)
-   */
-  addCargoStack(cargo, goodType, quantity, price, systemId = null, day = null) {
-    return TradingSystem.addCargoStack(cargo, goodType, quantity, price, systemId, day);
-  }
+
 
   /**
    * Execute a sale transaction from a specific cargo stack
@@ -1214,6 +1200,18 @@ export class GameStateManager {
       }
       if (this.state.ship.lifeSupport === undefined) {
         this.state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
+      }
+
+      // Initialize cargo purchase metadata if missing (backward compatibility)
+      if (this.state.ship.cargo && Array.isArray(this.state.ship.cargo)) {
+        this.state.ship.cargo.forEach((stack) => {
+          if (stack.purchaseSystem === undefined) {
+            stack.purchaseSystem = this.state.player.currentSystem;
+          }
+          if (stack.purchaseDay === undefined) {
+            stack.purchaseDay = 0;
+          }
+        });
       }
 
       if (!this.isTestEnvironment) {
