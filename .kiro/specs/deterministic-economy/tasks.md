@@ -5,6 +5,7 @@
   - Include MAX_COORD_DISTANCE, tech level bounds, market capacity, recovery factor
   - Include temporal wave period and amplitude
   - Include tech modifier intensity and local modifier bounds
+  - Include market condition prune threshold
   - Include TECH_BIASES object with values for all six commodities
   - _Requirements: 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8_
 
@@ -66,6 +67,7 @@
 
 - [ ] 5. Add marketConditions to game state in game-state.js
   - Add marketConditions: {} to world object in initNewGame()
+  - Update initNewGame() function to include this initialization
   - Structure: { [systemId]: { [goodType]: netQuantity } }
   - Initialize as empty object (sparse storage)
   - _Requirements: 9.1, 9.3, 9.4, 9.5_
@@ -90,11 +92,11 @@
 
 - [ ] 8. Implement local modifier calculation in game-trading.js
   - Add getLocalModifier(systemId, goodType, marketConditions) static method
-  - Retrieve surplus/deficit from marketConditions (default 0 if missing)
+  - Retrieve surplus/deficit directly from marketConditions using optional chaining (default 0 if missing)
   - Apply formula: 1.0 - (surplus / MARKET_CAPACITY)
   - Clamp result between LOCAL_MODIFIER_MIN and LOCAL_MODIFIER_MAX (0.25 to 2.0)
   - Return local modifier multiplier
-  - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7_
+  - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7, 9.6_
 
 - [ ] 8.1 Write property tests for local modifier
   - **Property 12: Local modifier formula correctness**
@@ -158,14 +160,7 @@
   - **Property 31: Empty system entries are removed**
   - **Validates: Requirements 9.2, 9.3, 9.4, 9.5, 9.7**
 
-- [ ] 13. Add getMarketCondition() helper in game-state.js
-  - Add getMarketCondition(systemId, goodType) method
-  - Return surplus/deficit value for a commodity at a system
-  - Return 0 if no entry exists (sparse storage)
-  - Used by TradingSystem.getLocalModifier()
-  - _Requirements: 9.6_
-
-- [ ] 14. Remove legacy economy code
+- [ ] 13. Remove legacy economy code
   - Remove getDailyFluctuation() from game-trading.js if not used elsewhere
   - Remove getStationCountModifier() from game-trading.js if not used elsewhere
   - Remove DAILY_FLUCTUATION constants from game-constants.js if not used elsewhere
@@ -173,43 +168,42 @@
   - Keep SPECTRAL_COLORS for starmap visualization
   - _Requirements: 11.1, 11.2, 11.3_
 
-- [ ] 14.1 Write property tests for legacy system removal
+- [ ] 13.1 Write property tests for legacy system removal
   - **Property 34: Station count does not affect prices**
   - **Property 35: Spectral class does not affect prices**
   - **Validates: Requirements 11.2, 11.3**
 
-- [ ] 15. Checkpoint - Ensure all tests pass
+- [ ] 14. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Test Sol-Barnard trade route profitability
+- [ ] 15. Test Sol-Barnard trade route profitability
   - Verify electronics are cheaper at Sol (high tech) than Barnard's
   - Verify ore is cheaper at Barnard's (lower tech) than Sol
   - Verify profit margin exists even with unfavorable temporal modifiers
   - Test with various temporal phase combinations
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 16.1 Write property test for Sol-Barnard profitability
+- [ ] 15.1 Write property test for Sol-Barnard profitability
   - **Property 19: Sol-Barnard route baseline profitability**
   - **Validates: Requirements 6.3, 6.4, 6.5**
 
-- [ ] 17. Implement save game migration
+- [ ] 16. Implement save game migration
   - Check for marketConditions in loaded save data
   - Add empty marketConditions object if missing (backward compatibility)
   - Increment GAME_VERSION constant to indicate economy change
   - Test loading old saves without marketConditions
-  - _Requirements: 9.1_
 
-- [ ] 17.1 Write integration test for time advancement
+- [ ] 16.1 Write integration test for time advancement
   - **Property 32: Time advancement triggers price recalculation**
   - **Validates: Requirements 10.1, 10.2**
 
-- [ ] 17.2 Write integration test for market recovery
+- [ ] 16.2 Write integration test for market recovery
   - **Property 33: Prices reflect market recovery**
   - **Validates: Requirements 10.3, 10.4**
 
-- [ ] 17.3 Write integration test for economic events
+- [ ] 16.3 Write integration test for economic events
   - **Property 36: Economic events still modify prices**
   - **Validates: Requirements 11.4, 11.5**
 
-- [ ] 18. Final checkpoint - Ensure all tests pass
+- [ ] 17. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
