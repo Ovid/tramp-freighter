@@ -284,6 +284,14 @@ export const ENGINE_CONDITION_PENALTIES = {
 };
 
 /**
+ * Ship repair cost per percentage point restored
+ *
+ * Repair costs are linear: ₡5 per 1% restored for any ship system.
+ * Example: Repairing hull from 78% to 100% costs ₡110 (22% × ₡5)
+ */
+export const REPAIR_COST_PER_PERCENT = 5;
+
+/**
  * Floating-point epsilon for fuel capacity checks
  *
  * Allows for minor floating-point arithmetic errors when validating

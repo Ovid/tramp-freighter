@@ -176,18 +176,18 @@
   - **Property 23: Engine Condition Time Penalty**
   - **Validates: Requirements 6.5**
 
-- [ ] 10. Implement ship repair system
+- [x] 10. Implement ship repair system
   - Implement getRepairCost() to calculate cost at ₡5 per 1% restored
   - Implement validateRepair() to check credits, current condition, and prevent over-repair
   - Implement repairShipSystem() to deduct credits and increase condition
   - Add repair methods to GameStateManager
   - _Requirements: 7.4, 7.5, 7.6, 7.7, 7.8_
 
-- [ ] 10.1 Write property test for repair transaction execution
+- [x] 10.1 Write property test for repair transaction execution
   - **Property 24: Repair Transaction Execution**
   - **Validates: Requirements 7.5**
 
-- [ ] 10.2 Write property test for repair validation
+- [x] 10.2 Write property test for repair validation
   - **Property 25: Repair Validation**
   - **Validates: Requirements 7.6, 7.7, 7.8**
 

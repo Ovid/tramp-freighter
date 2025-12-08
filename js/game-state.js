@@ -6,6 +6,8 @@ import {
   GAME_VERSION,
   SAVE_KEY,
   FUEL_CAPACITY_EPSILON,
+  REPAIR_COST_PER_PERCENT,
+  SHIP_CONDITION_BOUNDS,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -821,6 +823,145 @@ export class GameStateManager {
     this.updateFuel(currentFuel + amount);
 
     // Persist immediately - refuel modifies credits and fuel
+    this.saveGame();
+
+    return { success: true, reason: null };
+  }
+
+  // ========================================================================
+  // SHIP REPAIR SYSTEM
+  // ========================================================================
+
+  /**
+   * Calculate repair cost for a ship system
+   *
+   * Cost is ₡5 per 1% restored. If system is already at 100%, cost is 0.
+   *
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} amount - Percentage points to restore
+   * @param {number} currentCondition - Current condition percentage
+   * @returns {number} Cost in credits
+   */
+  getRepairCost(systemType, amount, currentCondition) {
+    // If already at max, no cost
+    if (currentCondition >= SHIP_CONDITION_BOUNDS.MAX) {
+      return 0;
+    }
+
+    // Calculate cost at ₡5 per 1%
+    return amount * REPAIR_COST_PER_PERCENT;
+  }
+
+  /**
+   * Validate repair transaction
+   *
+   * Validation order matters for user experience:
+   * 1. Check for positive amount (basic input validation)
+   * 2. Check if system already at max (no repair needed)
+   * 3. Check credits (player can fix by earning money)
+   * 4. Check if would exceed max (player can fix by reducing amount)
+   *
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} amount - Percentage points to restore
+   * @param {number} cost - Repair cost in credits
+   * @param {number} credits - Player's current credits
+   * @param {number} currentCondition - Current condition percentage
+   * @returns {Object} { valid: boolean, reason: string }
+   */
+  validateRepair(systemType, amount, cost, credits, currentCondition) {
+    // Check for valid amount first (basic input validation)
+    if (amount <= 0) {
+      return {
+        valid: false,
+        reason: 'Repair amount must be positive',
+      };
+    }
+
+    // Check if system is already at 100%
+    if (currentCondition >= SHIP_CONDITION_BOUNDS.MAX) {
+      return {
+        valid: false,
+        reason: 'System already at maximum condition',
+      };
+    }
+
+    // Check credit constraint before checking if would exceed
+    // This provides better UX: player knows they need money first
+    if (cost > credits) {
+      return {
+        valid: false,
+        reason: 'Insufficient credits for repair',
+      };
+    }
+
+    // Check if repair would exceed 100%
+    if (currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX) {
+      return {
+        valid: false,
+        reason: 'Repair would exceed maximum condition',
+      };
+    }
+
+    return {
+      valid: true,
+      reason: null,
+    };
+  }
+
+  /**
+   * Execute repair transaction for a ship system
+   *
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} amount - Percentage points to restore
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  repairShipSystem(systemType, amount) {
+    if (!this.state) {
+      return { success: false, reason: 'No game state' };
+    }
+
+    // Validate system type
+    const validSystems = ['hull', 'engine', 'lifeSupport'];
+    if (!validSystems.includes(systemType)) {
+      return { success: false, reason: 'Invalid system type' };
+    }
+
+    const currentCondition = this.state.ship[systemType];
+    const credits = this.state.player.credits;
+    const cost = this.getRepairCost(systemType, amount, currentCondition);
+
+    const validation = this.validateRepair(
+      systemType,
+      amount,
+      cost,
+      credits,
+      currentCondition
+    );
+
+    if (!validation.valid) {
+      return { success: false, reason: validation.reason };
+    }
+
+    // Deduct credits
+    this.updateCredits(credits - cost);
+
+    // Increase condition (clamped by updateShipCondition)
+    const newHull =
+      systemType === 'hull'
+        ? currentCondition + amount
+        : this.state.ship.hull;
+    const newEngine =
+      systemType === 'engine'
+        ? currentCondition + amount
+        : this.state.ship.engine;
+    const newLifeSupport =
+      systemType === 'lifeSupport'
+        ? currentCondition + amount
+        : this.state.ship.lifeSupport;
+
+    this.updateShipCondition(newHull, newEngine, newLifeSupport);
+
+    // Persist immediately - repair modifies credits and ship condition
     this.saveGame();
 
     return { success: true, reason: null };
