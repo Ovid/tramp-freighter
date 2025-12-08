@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Game Constants - Centralized game data and configuration
  *
