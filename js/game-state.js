@@ -1125,6 +1125,8 @@ export class GameStateManager {
 
   /**
    * Load game state from localStorage
+   *
+   * Supports migration from v1.0.0 to v2.0.0
    */
   loadGame() {
     try {
@@ -1138,13 +1140,18 @@ export class GameStateManager {
         return null;
       }
 
-      const loadedState = JSON.parse(saveData);
+      let loadedState = JSON.parse(saveData);
 
       if (!this.isVersionCompatible(loadedState.meta?.version)) {
         if (!this.isTestEnvironment) {
           console.log('Save version incompatible, starting new game');
         }
         return null;
+      }
+
+      // Migrate from v1.0.0 to v2.0.0 if needed
+      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.0.0') {
+        loadedState = this.migrateFromV1ToV2(loadedState);
       }
 
       if (!this.validateStateStructure(loadedState)) {
@@ -1154,35 +1161,58 @@ export class GameStateManager {
         return null;
       }
 
-      this.state = loadedState;
-
-      // Initialize missing fields for states that pass validation but lack new features
-      // This allows loading saves from earlier development versions during testing
-      if (!this.state.world.priceKnowledge) {
-        this.state.world.priceKnowledge = {};
+      // Add defaults for missing Phase 2 fields (handles partial v2.0.0 saves)
+      // This allows loading saves that pass validation but lack some optional fields
+      if (loadedState.ship.hull === undefined) {
+        loadedState.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
       }
-      if (!this.state.world.activeEvents) {
-        this.state.world.activeEvents = [];
+      if (loadedState.ship.engine === undefined) {
+        loadedState.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
       }
-      if (this.state.ship.hull === undefined) {
-        this.state.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
+      if (loadedState.ship.lifeSupport === undefined) {
+        loadedState.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
       }
-      if (this.state.ship.engine === undefined) {
-        this.state.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
-      }
-      if (this.state.ship.lifeSupport === undefined) {
-        this.state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
-      }
-      if (this.state.ship.cargo && Array.isArray(this.state.ship.cargo)) {
-        this.state.ship.cargo.forEach((stack) => {
+      if (loadedState.ship.cargo && Array.isArray(loadedState.ship.cargo)) {
+        loadedState.ship.cargo.forEach((stack) => {
           if (stack.purchaseSystem === undefined) {
-            stack.purchaseSystem = this.state.player.currentSystem;
+            stack.purchaseSystem = loadedState.player.currentSystem;
           }
           if (stack.purchaseDay === undefined) {
             stack.purchaseDay = 0;
           }
         });
       }
+      if (!loadedState.world.priceKnowledge) {
+        loadedState.world.priceKnowledge = {};
+
+        // Initialize with current system's prices
+        const currentSystemId = loadedState.player.currentSystem;
+        const currentSystem = this.starData.find((s) => s.id === currentSystemId);
+
+        if (currentSystem) {
+          const currentDay = loadedState.player.daysElapsed;
+          const currentPrices = {};
+
+          for (const goodType of Object.keys(BASE_PRICES)) {
+            currentPrices[goodType] = TradingSystem.calculatePrice(
+              goodType,
+              currentSystem,
+              currentDay,
+              [] // No events if missing
+            );
+          }
+
+          loadedState.world.priceKnowledge[currentSystemId] = {
+            lastVisit: 0,
+            prices: currentPrices,
+          };
+        }
+      }
+      if (!loadedState.world.activeEvents) {
+        loadedState.world.activeEvents = [];
+      }
+
+      this.state = loadedState;
 
       if (!this.isTestEnvironment) {
         console.log('Game loaded successfully');
@@ -1240,13 +1270,104 @@ export class GameStateManager {
 
   /**
    * Check if save version is compatible with current version
+   *
+   * Supports migration from v1.0.0 to v2.0.0
    */
   isVersionCompatible(saveVersion) {
     if (!saveVersion) return false;
 
-    // For now, only exact version match is compatible
-    // Future versions may implement migration logic
-    return saveVersion === GAME_VERSION;
+    // Exact version match
+    if (saveVersion === GAME_VERSION) return true;
+
+    // Support migration from v1.0.0 to v2.0.0
+    if (saveVersion === '1.0.0' && GAME_VERSION === '2.0.0') return true;
+
+    return false;
+  }
+
+  /**
+   * Migrate save data from v1.0.0 to v2.0.0
+   *
+   * Adds Phase 2 features:
+   * - Ship condition (hull, engine, lifeSupport)
+   * - Cargo purchase metadata (purchaseSystem, purchaseDay)
+   * - Price knowledge database
+   * - Active events array
+   *
+   * @param {Object} state - v1.0.0 save state
+   * @returns {Object} Migrated v2.0.0 state
+   */
+  migrateFromV1ToV2(state) {
+    if (!this.isTestEnvironment) {
+      console.log('Migrating save from v1.0.0 to v2.0.0');
+    }
+
+    // Add ship condition fields (default to maximum)
+    if (state.ship.hull === undefined) {
+      state.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
+    }
+    if (state.ship.engine === undefined) {
+      state.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
+    }
+    if (state.ship.lifeSupport === undefined) {
+      state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
+    }
+
+    // Add cargo purchase metadata
+    if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
+      state.ship.cargo.forEach((stack) => {
+        if (stack.purchaseSystem === undefined) {
+          // Default to current system (best guess)
+          stack.purchaseSystem = state.player.currentSystem;
+        }
+        if (stack.purchaseDay === undefined) {
+          // Default to day 0 (unknown purchase time)
+          stack.purchaseDay = 0;
+        }
+      });
+    }
+
+    // Add price knowledge database
+    if (!state.world.priceKnowledge) {
+      state.world.priceKnowledge = {};
+
+      // Initialize with current system's prices
+      const currentSystemId = state.player.currentSystem;
+      const currentSystem = this.starData.find((s) => s.id === currentSystemId);
+
+      if (currentSystem) {
+        const currentDay = state.player.daysElapsed;
+        const currentPrices = {};
+
+        for (const goodType of Object.keys(BASE_PRICES)) {
+          currentPrices[goodType] = TradingSystem.calculatePrice(
+            goodType,
+            currentSystem,
+            currentDay,
+            [] // No events in v1.0.0
+          );
+        }
+
+        state.world.priceKnowledge[currentSystemId] = {
+          lastVisit: 0,
+          prices: currentPrices,
+        };
+      }
+    }
+
+    // Add active events array
+    if (!state.world.activeEvents) {
+      state.world.activeEvents = [];
+    }
+
+    // Update version
+    state.meta.version = GAME_VERSION;
+
+    if (!this.isTestEnvironment) {
+      console.log('Migration complete');
+    }
+
+    return state;
   }
 
   /**

@@ -275,7 +275,7 @@
   - **Property 34: Profit Calculation and Display**
   - **Validates: Requirements 9.5, 9.6, 9.7**
 
-- [ ] 17. Extend save/load system for Phase 2 data
+- [x] 17. Extend save/load system for Phase 2 data
   - Update save version to '2.0.0'
   - Extend save schema to include ship condition (hull, engine, lifeSupport)
   - Extend save schema to include cargo metadata (purchaseSystem, purchaseDay)
@@ -286,7 +286,7 @@
   - Validate extended state structure
   - _Requirements: All (persistence)_
 
-- [ ] 17.1 Write unit tests for save/load migration
+- [x] 17.1 Write unit tests for save/load migration
   - Test v1.0.0 save loads and migrates correctly
   - Test v2.0.0 save loads without migration
   - Test missing Phase 2 data gets defaults

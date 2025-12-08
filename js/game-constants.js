@@ -318,7 +318,7 @@ export const FUEL_CAPACITY_EPSILON = 0.01;
 /**
  * Game version for save compatibility
  */
-export const GAME_VERSION = '1.0.0';
+export const GAME_VERSION = '2.0.0';
 
 /**
  * localStorage key for save data

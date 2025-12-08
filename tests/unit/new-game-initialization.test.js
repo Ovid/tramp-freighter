@@ -50,7 +50,7 @@ describe('Property 0: New Game Initialization', () => {
     expect(state.world.visitedSystems).toEqual([0]);
 
     // Verify meta
-    expect(state.meta.version).toBe('1.0.0');
+    expect(state.meta.version).toBe('2.0.0');
     expect(state.meta.timestamp).toBeTypeOf('number');
     expect(state.meta.timestamp).toBeGreaterThan(0);
   });
