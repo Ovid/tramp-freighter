@@ -160,9 +160,6 @@ describe('Camera Transition Smoothness - Property Tests', () => {
     camera.position.set(100, 200, 300);
     controls.target.set(0, 0, 0);
 
-    const initialPosition = new THREE.Vector3().copy(camera.position);
-    const initialTarget = new THREE.Vector3().copy(controls.target);
-
     // Mock requestAnimationFrame to complete animation immediately
     const originalRAF = global.requestAnimationFrame;
     let frameCount = 0;

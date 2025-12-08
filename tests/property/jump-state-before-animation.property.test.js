@@ -1,6 +1,6 @@
 'use strict';
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
@@ -85,8 +85,6 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         // Get initial state
         const initialFuel = gameStateManager.getState().ship.fuel;
         const initialTime = gameStateManager.getState().player.daysElapsed;
-        const initialLocation =
-          gameStateManager.getState().player.currentSystem;
 
         // Calculate expected changes
         const originStar = TEST_STAR_DATA.find((s) => s.id === originId);
@@ -105,7 +103,7 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         // Mock animation to track when it starts
         const originalPlayAnimation =
           animationSystem.playJumpAnimation.bind(animationSystem);
-        animationSystem.playJumpAnimation = async (origin, dest) => {
+        animationSystem.playJumpAnimation = async () => {
           animationStarted = true;
 
           // Check if state was already updated when animation starts
@@ -196,7 +194,7 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         // Mock animation to track when it starts
         const originalPlayAnimation =
           animationSystem.playJumpAnimation.bind(animationSystem);
-        animationSystem.playJumpAnimation = async (origin, dest) => {
+        animationSystem.playJumpAnimation = async () => {
           animationStarted = true;
           return Promise.resolve();
         };
@@ -244,7 +242,7 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
     // Mock animation to simulate interruption (throw error)
     const originalPlayAnimation =
       animationSystem.playJumpAnimation.bind(animationSystem);
-    animationSystem.playJumpAnimation = async (origin, dest) => {
+    animationSystem.playJumpAnimation = async () => {
       // Simulate animation error
       throw new Error('Animation interrupted');
     };

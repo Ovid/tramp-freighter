@@ -86,7 +86,6 @@ describe('Navigation UX Integration', () => {
     // Step 4: Select first connected system
     const firstItem = items[0];
     const targetSystemId = parseInt(firstItem.dataset.systemId);
-    const targetStar = TEST_STAR_DATA.find((s) => s.id === targetSystemId);
 
     // Step 5: Validate jump
     const initialFuel = gameStateManager.getShip().fuel;

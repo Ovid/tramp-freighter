@@ -161,7 +161,7 @@ describe('Refuel Price Display Properties', () => {
         { fuel: 99.9, description: 'near full' },
       ];
 
-      testCases.forEach(({ fuel, description }) => {
+      testCases.forEach(({ fuel }) => {
         gameStateManager.updateFuel(fuel);
         uiManager.showRefuelPanel();
 

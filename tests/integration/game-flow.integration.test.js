@@ -18,7 +18,7 @@ import {
 describe('Complete Game Flow Integration Tests', () => {
   let gameStateManager;
   let navigationSystem;
-  let uiManager;
+  let uiManager; // eslint-disable-line no-unused-vars
 
   beforeEach(() => {
     // Clear localStorage before each test
@@ -71,6 +71,8 @@ describe('Complete Game Flow Integration Tests', () => {
             <div id="notification-area"></div>
         `;
 
+    // UIManager is created for DOM initialization side effects
+     
     uiManager = new UIManager(gameStateManager);
   });
 
@@ -104,7 +106,6 @@ describe('Complete Game Flow Integration Tests', () => {
       expect(gameStateManager.state.player.daysElapsed).toBeGreaterThan(0);
 
       const fuelAfterJump = gameStateManager.state.ship.fuel;
-      const daysAfterJump = gameStateManager.state.player.daysElapsed;
 
       // Step 3: Sell initial grain cargo at Alpha Centauri
       const currentSystem = STAR_DATA.find((s) => s.id === 1);
@@ -540,7 +541,6 @@ describe('Complete Game Flow Integration Tests', () => {
   describe('Multi-System Trading Integration', () => {
     it('should complete a profitable multi-system trading route', async () => {
       gameStateManager.initNewGame();
-      const initialCredits = gameStateManager.state.player.credits;
 
       // Step 1: Sell initial grain at Sol
       const solSystem = STAR_DATA.find((s) => s.id === 0);

@@ -55,7 +55,16 @@ export class GameStateManager {
    * Suppress console noise during test runs
    */
   _logIfNotTest(message, ...args) {
-    if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+    // Check if we're in a test environment
+     
+    const isTest =
+      typeof process !== 'undefined' &&
+      // eslint-disable-next-line no-undef
+      process.env &&
+      // eslint-disable-next-line no-undef
+      process.env.NODE_ENV === 'test';
+
+    if (!isTest) {
       console.log(message, ...args);
     }
   }

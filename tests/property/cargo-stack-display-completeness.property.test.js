@@ -290,7 +290,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
             cargoStacksContainer.querySelectorAll('.cargo-stack');
 
           // Verify each stack has sell buttons
-          renderedStacks.forEach((stackElement, index) => {
+          renderedStacks.forEach((stackElement) => {
             const sellButtons = stackElement.querySelectorAll('.sell-btn');
 
             // Should have at least 2 sell buttons (Sell 1, Sell All)

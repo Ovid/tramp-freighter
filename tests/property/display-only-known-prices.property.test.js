@@ -48,9 +48,6 @@ describe('Price Knowledge - Display Only Known Prices (Property Tests)', () => {
           gameState.dock();
         }
 
-        // Get price knowledge
-        const priceKnowledge = gameState.getPriceKnowledge();
-
         // Sol (0) is always visited at start, so include it
         const allVisitedSystems = [0, ...visitedSystems];
 

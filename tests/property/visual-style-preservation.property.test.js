@@ -75,7 +75,7 @@ describe('Visual Style Preservation - Property Tests', () => {
       .filter(([origin, dest]) => origin !== dest);
 
     fc.assert(
-      fc.property(systemPairGenerator, ([originId, destId]) => {
+      fc.property(systemPairGenerator, () => {
         // Property 1: Scene should contain existing objects before animation
         const initialChildCount = scene.children.length;
         expect(initialChildCount).toBeGreaterThan(0);
@@ -153,8 +153,6 @@ describe('Visual Style Preservation - Property Tests', () => {
   });
 
   it('Property 8: Animation does not modify camera properties permanently', () => {
-    const THREE = window.THREE;
-
     // Store initial camera properties
     const initialFov = camera.fov;
     const initialAspect = camera.aspect;

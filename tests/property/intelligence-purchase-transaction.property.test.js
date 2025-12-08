@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { InformationBroker, PRICES } from '../../js/game-information-broker.js';
+import { InformationBroker } from '../../js/game-information-broker.js';
 import { BASE_PRICES } from '../../js/game-constants.js';
 
 describe('Property: Intelligence Purchase Transaction', () => {
@@ -57,7 +57,6 @@ describe('Property: Intelligence Purchase Transaction', () => {
         (gameState, starData, systemIndex) => {
           // Ensure systemIndex is valid
           const targetSystemId = systemIndex % starData.length;
-          const targetSystem = starData[targetSystemId];
 
           // Calculate expected cost
           const initialCredits = gameState.player.credits;

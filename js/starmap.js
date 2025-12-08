@@ -1556,7 +1556,9 @@ function updateLabelScale() {
 /**
  * THREE.js requires explicit disposal of geometries, materials, and textures
  * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
+ * Currently unused but kept for future cleanup needs.
  */
+// eslint-disable-next-line no-unused-vars
 function disposeStarSystems() {
   stars.forEach((star) => {
     if (star.sprite) {
@@ -1868,7 +1870,9 @@ const wormholeConnections = [];
 /**
  * THREE.js requires explicit disposal of geometries, materials, and textures
  * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
+ * Currently unused but kept for future cleanup needs.
  */
+// eslint-disable-next-line no-unused-vars
 function disposeWormholeLines() {
   wormholeConnections.length = 0;
   wormholeLines.forEach((line) => {
@@ -2134,7 +2138,9 @@ function createBackgroundStarTexture() {
 /**
  * THREE.js requires explicit disposal of geometries, materials, and textures
  * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
+ * Currently unused but kept for future cleanup needs.
  */
+// eslint-disable-next-line no-unused-vars
 function disposeStarfield() {
   if (starfield) {
     if (starfield.geometry) starfield.geometry.dispose();
@@ -2239,7 +2245,9 @@ function createStarfield() {
 /**
  * THREE.js requires explicit disposal of geometries, materials, and textures
  * to prevent GPU memory leaks. WebGL doesn't garbage collect GPU resources automatically.
+ * Currently unused but kept for future cleanup needs.
  */
+// eslint-disable-next-line no-unused-vars
 function disposeSectorBoundary() {
   if (sectorBoundary) {
     if (sectorBoundary.geometry) sectorBoundary.geometry.dispose();

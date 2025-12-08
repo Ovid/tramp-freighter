@@ -59,9 +59,7 @@ describe('Property: Event Trigger Evaluation', () => {
             }),
             { minLength: 1, maxLength: 20 }
           )
-          .map((systems, index) =>
-            systems.map((system, i) => ({ ...system, id: i }))
-          ),
+          .map((systems) => systems.map((system, i) => ({ ...system, id: i }))),
         (gameState, starData) => {
           // Update events for the current day
           const updatedEvents = EconomicEventsSystem.updateEvents(

@@ -328,9 +328,6 @@ describe('Property 9: Graceful error handling', () => {
       };
 
       try {
-        // Store original camera state
-        const originalPosition = { ...mockCamera.position };
-
         // Modify camera position to simulate animation in progress
         mockCamera.position.x = 100;
         mockCamera.position.y = 100;

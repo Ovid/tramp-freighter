@@ -16,8 +16,9 @@ export default [
   // 2. Base Javascript Recommended Rules
   js.configs.recommended,
 
-  // 3. Your Custom Configuration
+  // 3. Your Custom Configuration for source files
   {
+    files: ['js/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -32,6 +33,34 @@ export default [
     },
   },
 
-  // 4. Prettier Config (MUST be last)
+  // 4. Test files configuration
+  {
+    files: ['tests/**/*.js', 'vitest.config.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+        ...globals.node,
+        // Vitest globals
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+        test: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-console': 'off',
+    },
+  },
+
+  // 5. Prettier Config (MUST be last)
   eslintConfigPrettier,
 ];

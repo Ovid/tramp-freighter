@@ -1174,7 +1174,6 @@ export class UIManager {
 
     this.elements.intelligenceList.replaceChildren();
 
-    const priceKnowledge = state.world.priceKnowledge || {};
     const credits = state.player.credits;
 
     // Get all systems with their intelligence costs

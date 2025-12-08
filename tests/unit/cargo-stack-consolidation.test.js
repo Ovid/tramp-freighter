@@ -5,7 +5,7 @@
  * while buying at different prices creates separate stacks.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { TradingSystem } from '../../js/game-trading.js';
 
 describe('Cargo Stack Consolidation', () => {

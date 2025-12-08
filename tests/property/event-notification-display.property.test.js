@@ -111,7 +111,7 @@ describe('Property: Event Notification Display', () => {
         fc.integer({ min: 0, max: 100 }),
         // Generate random remaining days
         fc.integer({ min: 1, max: 10 }),
-        (eventTypeKey, systemId, currentDay, remainingDays) => {
+        (eventTypeKey, systemId, currentDay) => {
           // Create an active event
           const event = EconomicEventsSystem.createEvent(
             eventTypeKey,

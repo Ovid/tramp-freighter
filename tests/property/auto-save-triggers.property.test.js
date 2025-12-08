@@ -3,7 +3,7 @@
  * Feature: tramp-freighter-core-loop
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { NavigationSystem } from '../../js/game-navigation.js';
 import { GameStateManager } from '../../js/game-state.js';

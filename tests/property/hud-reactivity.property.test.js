@@ -3,7 +3,7 @@
  * Feature: tramp-freighter-core-loop, Property 3: HUD Reactivity
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
@@ -14,7 +14,7 @@ describe('Property 3: HUD Reactivity', () => {
   let dom;
   let document;
   let gameStateManager;
-  let uiManager;
+  let uiManager; // eslint-disable-line no-unused-vars
 
   beforeEach(() => {
     // Create a DOM environment for testing
@@ -94,6 +94,8 @@ describe('Property 3: HUD Reactivity', () => {
     gameStateManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     gameStateManager.lastSaveTime = 0; // Reset debounce timer
     gameStateManager.initNewGame();
+    // UIManager is created for DOM initialization side effects
+     
     uiManager = new UIManager(gameStateManager);
   });
 
