@@ -88,6 +88,19 @@ export class UIManager {
       purchaseIntelContent: document.getElementById('purchase-intel-content'),
       marketDataContent: document.getElementById('market-data-content'),
       marketDataList: document.getElementById('market-data-list'),
+      repairsBtn: document.getElementById('repairs-btn'),
+      repairPanel: document.getElementById('repair-panel'),
+      repairSystemName: document.getElementById('repair-system-name'),
+      repairCloseBtn: document.getElementById('repair-close-btn'),
+      repairBackBtn: document.getElementById('repair-back-btn'),
+      repairHullPercent: document.getElementById('repair-hull-percent'),
+      repairHullBar: document.getElementById('repair-hull-bar'),
+      repairEnginePercent: document.getElementById('repair-engine-percent'),
+      repairEngineBar: document.getElementById('repair-engine-bar'),
+      repairLifeSupportPercent: document.getElementById('repair-life-support-percent'),
+      repairLifeSupportBar: document.getElementById('repair-life-support-bar'),
+      repairAllBtn: document.getElementById('repair-all-btn'),
+      repairValidationMessage: document.getElementById('repair-validation-message'),
       notificationArea: document.getElementById('notification-area'),
       eventModalOverlay: document.getElementById('event-modal-overlay'),
       eventModalTitle: document.getElementById('event-modal-title'),
@@ -300,6 +313,41 @@ export class UIManager {
     if (this.elements.marketDataTab) {
       this.elements.marketDataTab.addEventListener('click', () => {
         this.showMarketDataTab();
+      });
+    }
+
+    if (this.elements.repairsBtn) {
+      this.elements.repairsBtn.addEventListener('click', () => {
+        this.showRepairPanel();
+      });
+    }
+
+    if (this.elements.repairCloseBtn) {
+      this.elements.repairCloseBtn.addEventListener('click', () => {
+        this.hideRepairPanel();
+      });
+    }
+
+    if (this.elements.repairBackBtn) {
+      this.elements.repairBackBtn.addEventListener('click', () => {
+        this.hideRepairPanel();
+        this.showStationInterface();
+      });
+    }
+
+    // Setup repair button handlers
+    const repairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
+    repairButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const systemType = btn.getAttribute('data-system');
+        const amount = btn.getAttribute('data-amount');
+        this.handleRepair(systemType, amount);
+      });
+    });
+
+    if (this.elements.repairAllBtn) {
+      this.elements.repairAllBtn.addEventListener('click', () => {
+        this.handleRepairAll();
       });
     }
   }
@@ -1278,5 +1326,237 @@ export class UIManager {
     // Refresh the panel to show updated state
     this.updateRumorButton();
     this.renderIntelligenceList();
+  }
+
+  // ========================================================================
+  // REPAIR PANEL
+  // ========================================================================
+
+  showRepairPanel() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const currentSystemId = state.player.currentSystem;
+    const system = this.starData.find((s) => s.id === currentSystemId);
+
+    if (!system) return;
+
+    this.elements.repairSystemName.textContent = system.name;
+
+    // Update condition displays
+    this.updateRepairConditionDisplay();
+
+    // Update repair button states and costs
+    this.updateRepairButtons();
+
+    // Clear validation message
+    this.elements.repairValidationMessage.textContent = '';
+    this.elements.repairValidationMessage.className = 'validation-message';
+
+    this.hideStationInterface();
+
+    this.elements.repairPanel.classList.add('visible');
+  }
+
+  hideRepairPanel() {
+    this.elements.repairPanel.classList.remove('visible');
+  }
+
+  isRepairVisible() {
+    return this.elements.repairPanel.classList.contains('visible');
+  }
+
+  updateRepairConditionDisplay() {
+    const condition = this.gameStateManager.getShipCondition();
+    if (!condition) return;
+
+    // Update hull
+    this.elements.repairHullPercent.textContent = `${Math.round(condition.hull)}%`;
+    this.elements.repairHullBar.style.width = `${condition.hull}%`;
+
+    // Update engine
+    this.elements.repairEnginePercent.textContent = `${Math.round(condition.engine)}%`;
+    this.elements.repairEngineBar.style.width = `${condition.engine}%`;
+
+    // Update life support
+    this.elements.repairLifeSupportPercent.textContent = `${Math.round(condition.lifeSupport)}%`;
+    this.elements.repairLifeSupportBar.style.width = `${condition.lifeSupport}%`;
+  }
+
+  updateRepairButtons() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const condition = this.gameStateManager.getShipCondition();
+    const credits = state.player.credits;
+
+    // Update individual repair buttons
+    const repairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
+    repairButtons.forEach((btn) => {
+      const systemType = btn.getAttribute('data-system');
+      const amountStr = btn.getAttribute('data-amount');
+
+      let currentCondition = 0;
+      if (systemType === 'hull') currentCondition = condition.hull;
+      else if (systemType === 'engine') currentCondition = condition.engine;
+      else if (systemType === 'lifeSupport') currentCondition = condition.lifeSupport;
+
+      let amount = 0;
+      let cost = 0;
+
+      if (amountStr === 'full') {
+        // Full repair
+        amount = 100 - currentCondition;
+        cost = this.gameStateManager.getRepairCost(systemType, amount, currentCondition);
+        btn.textContent = `Full (₡${cost})`;
+      } else {
+        // Fixed amount repair
+        amount = parseInt(amountStr);
+        cost = this.gameStateManager.getRepairCost(systemType, amount, currentCondition);
+        btn.textContent = `+${amount}% (₡${cost})`;
+      }
+
+      // Disable button if:
+      // - Already at max condition
+      // - Not enough credits
+      // - Would exceed max condition
+      const wouldExceedMax = currentCondition + amount > 100;
+      const atMax = currentCondition >= 100;
+      const notEnoughCredits = credits < cost;
+
+      btn.disabled = atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
+    });
+
+    // Update repair all button
+    const totalCost = this.calculateRepairAllCost();
+    this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
+
+    const allAtMax = condition.hull >= 100 && condition.engine >= 100 && condition.lifeSupport >= 100;
+    this.elements.repairAllBtn.disabled = allAtMax || credits < totalCost || totalCost === 0;
+  }
+
+  calculateRepairAllCost() {
+    const condition = this.gameStateManager.getShipCondition();
+    if (!condition) return 0;
+
+    let totalCost = 0;
+
+    // Hull
+    const hullAmount = 100 - condition.hull;
+    if (hullAmount > 0) {
+      totalCost += this.gameStateManager.getRepairCost('hull', hullAmount, condition.hull);
+    }
+
+    // Engine
+    const engineAmount = 100 - condition.engine;
+    if (engineAmount > 0) {
+      totalCost += this.gameStateManager.getRepairCost('engine', engineAmount, condition.engine);
+    }
+
+    // Life Support
+    const lifeSupportAmount = 100 - condition.lifeSupport;
+    if (lifeSupportAmount > 0) {
+      totalCost += this.gameStateManager.getRepairCost('lifeSupport', lifeSupportAmount, condition.lifeSupport);
+    }
+
+    return totalCost;
+  }
+
+  handleRepair(systemType, amountStr) {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const condition = this.gameStateManager.getShipCondition();
+    let currentCondition = 0;
+
+    if (systemType === 'hull') currentCondition = condition.hull;
+    else if (systemType === 'engine') currentCondition = condition.engine;
+    else if (systemType === 'lifeSupport') currentCondition = condition.lifeSupport;
+
+    let amount = 0;
+    if (amountStr === 'full') {
+      amount = 100 - currentCondition;
+    } else {
+      amount = parseInt(amountStr);
+    }
+
+    // Execute repair
+    const repairOutcome = this.gameStateManager.repairShipSystem(systemType, amount);
+
+    if (!repairOutcome.success) {
+      this.elements.repairValidationMessage.textContent = `Repair failed: ${repairOutcome.reason}`;
+      this.elements.repairValidationMessage.className = 'validation-message error';
+      return;
+    }
+
+    // Clear validation message
+    this.elements.repairValidationMessage.textContent = '';
+    this.elements.repairValidationMessage.className = 'validation-message';
+
+    // Show success notification
+    const systemName = systemType === 'lifeSupport' ? 'Life Support' : this.capitalizeFirst(systemType);
+    this.showSuccess(`${systemName} repaired`);
+
+    // Refresh the repair panel to show updated state
+    this.updateRepairConditionDisplay();
+    this.updateRepairButtons();
+  }
+
+  handleRepairAll() {
+    const condition = this.gameStateManager.getShipCondition();
+    if (!condition) return;
+
+    let repairCount = 0;
+    let failedRepairs = [];
+
+    // Repair hull
+    const hullAmount = 100 - condition.hull;
+    if (hullAmount > 0) {
+      const result = this.gameStateManager.repairShipSystem('hull', hullAmount);
+      if (result.success) {
+        repairCount++;
+      } else {
+        failedRepairs.push(`Hull: ${result.reason}`);
+      }
+    }
+
+    // Repair engine
+    const engineAmount = 100 - condition.engine;
+    if (engineAmount > 0) {
+      const result = this.gameStateManager.repairShipSystem('engine', engineAmount);
+      if (result.success) {
+        repairCount++;
+      } else {
+        failedRepairs.push(`Engine: ${result.reason}`);
+      }
+    }
+
+    // Repair life support
+    const lifeSupportAmount = 100 - condition.lifeSupport;
+    if (lifeSupportAmount > 0) {
+      const result = this.gameStateManager.repairShipSystem('lifeSupport', lifeSupportAmount);
+      if (result.success) {
+        repairCount++;
+      } else {
+        failedRepairs.push(`Life Support: ${result.reason}`);
+      }
+    }
+
+    // Show results
+    if (failedRepairs.length > 0) {
+      this.elements.repairValidationMessage.textContent = `Some repairs failed: ${failedRepairs.join(', ')}`;
+      this.elements.repairValidationMessage.className = 'validation-message error';
+    } else if (repairCount > 0) {
+      this.elements.repairValidationMessage.textContent = '';
+      this.elements.repairValidationMessage.className = 'validation-message';
+      this.showSuccess(`All systems repaired to full`);
+    } else {
+      this.elements.repairValidationMessage.textContent = 'All systems already at maximum condition';
+      this.elements.repairValidationMessage.className = 'validation-message info';
+    }
+
+    // Refresh the repair panel to show updated state
+    this.updateRepairConditionDisplay();
+    this.updateRepairButtons();
   }
 }

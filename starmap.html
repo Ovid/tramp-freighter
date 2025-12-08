@@ -142,6 +142,7 @@
       <div class="station-actions">
         <button class="station-btn" id="trade-btn">Trade</button>
         <button class="station-btn" id="refuel-btn">Refuel</button>
+        <button class="station-btn" id="repairs-btn">Repairs</button>
         <button class="station-btn" id="info-broker-btn">Info Broker</button>
         <button class="station-btn" id="undock-btn">Undock</button>
       </div>
@@ -246,6 +247,108 @@
           Confirm Refuel
         </button>
         <button class="station-btn secondary" id="refuel-back-btn">
+          Back to Station
+        </button>
+      </div>
+    </div>
+
+    <!-- Repair Panel -->
+    <div id="repair-panel">
+      <button class="close-btn" id="repair-close-btn">×</button>
+      <h2>Repairs - <span id="repair-system-name">Sol</span></h2>
+
+      <div class="repair-content">
+        <!-- Ship Condition Status Section -->
+        <div class="repair-section">
+          <h3>Ship Condition</h3>
+          <div class="condition-status">
+            <!-- Hull Condition -->
+            <div class="condition-item">
+              <div class="condition-header">
+                <span class="condition-label">Hull Integrity:</span>
+                <span id="repair-hull-percent" class="condition-value">100%</span>
+              </div>
+              <div class="condition-bar-container">
+                <div id="repair-hull-bar" class="condition-bar hull-bar"></div>
+              </div>
+            </div>
+
+            <!-- Engine Condition -->
+            <div class="condition-item">
+              <div class="condition-header">
+                <span class="condition-label">Engine:</span>
+                <span id="repair-engine-percent" class="condition-value">100%</span>
+              </div>
+              <div class="condition-bar-container">
+                <div id="repair-engine-bar" class="condition-bar engine-bar"></div>
+              </div>
+            </div>
+
+            <!-- Life Support Condition -->
+            <div class="condition-item">
+              <div class="condition-header">
+                <span class="condition-label">Life Support:</span>
+                <span id="repair-life-support-percent" class="condition-value">100%</span>
+              </div>
+              <div class="condition-bar-container">
+                <div id="repair-life-support-bar" class="condition-bar life-support-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repair Options Section -->
+        <div class="repair-section">
+          <h3>Repair Options</h3>
+          <div class="repair-options">
+            <!-- Hull Repairs -->
+            <div class="repair-system-group">
+              <h4>Hull Integrity</h4>
+              <div class="repair-buttons">
+                <button class="repair-btn" data-system="hull" data-amount="10">+10% (₡50)</button>
+                <button class="repair-btn" data-system="hull" data-amount="25">+25% (₡125)</button>
+                <button class="repair-btn" data-system="hull" data-amount="50">+50% (₡250)</button>
+                <button class="repair-btn" data-system="hull" data-amount="full">Full (₡0)</button>
+              </div>
+            </div>
+
+            <!-- Engine Repairs -->
+            <div class="repair-system-group">
+              <h4>Engine</h4>
+              <div class="repair-buttons">
+                <button class="repair-btn" data-system="engine" data-amount="10">+10% (₡50)</button>
+                <button class="repair-btn" data-system="engine" data-amount="25">+25% (₡125)</button>
+                <button class="repair-btn" data-system="engine" data-amount="50">+50% (₡250)</button>
+                <button class="repair-btn" data-system="engine" data-amount="full">Full (₡0)</button>
+              </div>
+            </div>
+
+            <!-- Life Support Repairs -->
+            <div class="repair-system-group">
+              <h4>Life Support</h4>
+              <div class="repair-buttons">
+                <button class="repair-btn" data-system="lifeSupport" data-amount="10">+10% (₡50)</button>
+                <button class="repair-btn" data-system="lifeSupport" data-amount="25">+25% (₡125)</button>
+                <button class="repair-btn" data-system="lifeSupport" data-amount="50">+50% (₡250)</button>
+                <button class="repair-btn" data-system="lifeSupport" data-amount="full">Full (₡0)</button>
+              </div>
+            </div>
+
+            <!-- Repair All Option -->
+            <div class="repair-all-section">
+              <button class="repair-all-btn" id="repair-all-btn">
+                Repair All to Full (₡0)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Message -->
+        <div id="repair-validation-message" class="validation-message"></div>
+      </div>
+
+      <div class="repair-actions">
+        <button class="station-btn secondary" id="repair-back-btn">
           Back to Station
         </button>
       </div>

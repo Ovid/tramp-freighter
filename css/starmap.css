@@ -1498,3 +1498,226 @@ canvas {
   margin: 0;
   font-style: italic;
 }
+
+/* Repair Panel Styling */
+#repair-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+#repair-panel.visible {
+  display: block;
+}
+
+#repair-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 20px;
+  text-align: center;
+}
+
+#repair-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+}
+
+#repair-panel h4 {
+  margin-bottom: 8px;
+  color: #00ff88;
+  font-size: 14px;
+}
+
+#repair-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#repair-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.repair-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.repair-section {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.condition-status {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.condition-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.condition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.condition-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.condition-value {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.condition-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.condition-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.hull-bar {
+  background: linear-gradient(90deg, #4a90e2, #00bfff);
+}
+
+.engine-bar {
+  background: linear-gradient(90deg, #ff6b6b, #ff4444);
+}
+
+.life-support-bar {
+  background: linear-gradient(90deg, #00ff88, #00cc66);
+}
+
+.repair-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.repair-system-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.repair-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.repair-btn {
+  padding: 10px 12px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.repair-btn:hover:not(:disabled) {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.repair-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.repair-all-section {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.repair-all-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #00ff88;
+  color: #000000;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.repair-all-btn:hover:not(:disabled) {
+  background-color: #00cc66;
+  border-color: #00cc66;
+  transform: scale(1.02);
+}
+
+.repair-all-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #222222;
+  color: rgba(0, 255, 136, 0.5);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.repair-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.repair-actions .station-btn.secondary {
+  background-color: transparent;
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+.repair-actions .station-btn.secondary:hover {
+  background-color: rgba(0, 255, 136, 0.2);
+  color: #ffffff;
+}

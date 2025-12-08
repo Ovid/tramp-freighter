@@ -191,7 +191,7 @@
   - **Property 25: Repair Validation**
   - **Validates: Requirements 7.6, 7.7, 7.8**
 
-- [ ] 11. Implement repair UI
+- [x] 11. Implement repair UI
   - Add "Repairs" option to station menu
   - Create repair interface panel
   - Display current condition percentages with visual progress bars
@@ -202,11 +202,11 @@
   - Display validation messages for insufficient credits or invalid repairs
   - _Requirements: 7.1, 7.2, 7.3, 7.9_
 
-- [ ] 11.1 Write property test for repair interface display completeness
+- [x] 11.1 Write property test for repair interface display completeness
   - **Property 26: Repair Interface Display Completeness**
   - **Validates: Requirements 7.2, 7.3, 7.4**
 
-- [ ] 11.2 Write property test for repair all cost calculation
+- [x] 11.2 Write property test for repair all cost calculation
   - **Property 27: Repair All Cost Calculation**
   - **Validates: Requirements 7.9**
 
