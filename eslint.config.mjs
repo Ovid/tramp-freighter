@@ -25,6 +25,8 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.es2021,
+        // Allow process for test environment detection
+        process: 'readonly',
       },
     },
     rules: {

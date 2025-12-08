@@ -607,10 +607,10 @@ export class UIManager {
   }
 
   handleBuy(goodType, quantity, price) {
-    const result = this.gameStateManager.buyGood(goodType, quantity, price);
+    const purchaseOutcome = this.gameStateManager.buyGood(goodType, quantity, price);
 
-    if (!result.success) {
-      this.showError(`Purchase failed: ${result.reason}`);
+    if (!purchaseOutcome.success) {
+      this.showError(`Purchase failed: ${purchaseOutcome.reason}`);
       return;
     }
 
@@ -723,14 +723,14 @@ export class UIManager {
   }
 
   handleSell(stackIndex, quantity, salePrice) {
-    const result = this.gameStateManager.sellGood(
+    const saleOutcome = this.gameStateManager.sellGood(
       stackIndex,
       quantity,
       salePrice
     );
 
-    if (!result.success) {
-      this.showError(`Sale failed: ${result.reason}`);
+    if (!saleOutcome.success) {
+      this.showError(`Sale failed: ${saleOutcome.reason}`);
       return;
     }
 
@@ -979,10 +979,10 @@ export class UIManager {
       return;
     }
 
-    const result = this.gameStateManager.refuel(amount);
+    const refuelOutcome = this.gameStateManager.refuel(amount);
 
-    if (!result.success) {
-      this.showError(`Refuel failed: ${result.reason}`);
+    if (!refuelOutcome.success) {
+      this.showError(`Refuel failed: ${refuelOutcome.reason}`);
       return;
     }
 
@@ -1256,10 +1256,10 @@ export class UIManager {
   }
 
   handlePurchaseIntelligence(systemId) {
-    const result = this.gameStateManager.purchaseIntelligence(systemId);
+    const intelligenceOutcome = this.gameStateManager.purchaseIntelligence(systemId);
 
-    if (!result.success) {
-      this.elements.infoBrokerValidationMessage.textContent = result.reason;
+    if (!intelligenceOutcome.success) {
+      this.elements.infoBrokerValidationMessage.textContent = intelligenceOutcome.reason;
       this.elements.infoBrokerValidationMessage.className =
         'validation-message error';
       return;

@@ -31,6 +31,10 @@ export class GameStateManager {
     this.starData = starData;
     this.wormholeData = wormholeData;
 
+    // Check once during initialization to suppress console noise during test runs
+    this.isTestEnvironment =
+      typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+
     // Supports multiple UI components subscribing to same state changes
     this.subscribers = {
       creditsChanged: [],
@@ -49,24 +53,6 @@ export class GameStateManager {
 
     // Track last save time for debouncing
     this.lastSaveTime = 0;
-  }
-
-  /**
-   * Suppress console noise during test runs
-   */
-  _logIfNotTest(message, ...args) {
-    // Check if we're in a test environment
-     
-    const isTest =
-      typeof process !== 'undefined' &&
-      // eslint-disable-next-line no-undef
-      process.env &&
-      // eslint-disable-next-line no-undef
-      process.env.NODE_ENV === 'test';
-
-    if (!isTest) {
-      console.log(message, ...args);
-    }
   }
 
   /**
@@ -104,10 +90,10 @@ export class GameStateManager {
       },
       ship: {
         name: 'Serendipity',
-        fuel: 100,
-        hull: 100,
-        engine: 100,
-        lifeSupport: 100,
+        fuel: SHIP_CONDITION_BOUNDS.MAX,
+        hull: SHIP_CONDITION_BOUNDS.MAX,
+        engine: SHIP_CONDITION_BOUNDS.MAX,
+        lifeSupport: SHIP_CONDITION_BOUNDS.MAX,
         cargoCapacity: 50,
         cargo: [
           {
@@ -133,7 +119,9 @@ export class GameStateManager {
       },
     };
 
-    this._logIfNotTest('New game initialized:', this.state);
+    if (!this.isTestEnvironment) {
+      console.log('New game initialized:', this.state);
+    }
 
     // Emit all initial state events
     this.emit('creditsChanged', this.state.player.credits);
@@ -168,9 +156,11 @@ export class GameStateManager {
     }
 
     this.subscribers[eventType].push(callback);
-    this._logIfNotTest(
-      `Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`
-    );
+    if (!this.isTestEnvironment) {
+      console.log(
+        `Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`
+      );
+    }
   }
 
   unsubscribe(eventType, callback) {
@@ -272,25 +262,22 @@ export class GameStateManager {
   // ========================================================================
 
   updateCredits(newCredits) {
-    if (!this.state) return;
-
     this.state.player.credits = newCredits;
     this.emit('creditsChanged', newCredits);
   }
 
   updateDebt(newDebt) {
-    if (!this.state) return;
-
     this.state.player.debt = newDebt;
     this.emit('debtChanged', newDebt);
   }
 
   updateFuel(newFuel) {
-    if (!this.state) return;
-
-    if (newFuel < 0 || newFuel > 100) {
+    if (
+      newFuel < SHIP_CONDITION_BOUNDS.MIN ||
+      newFuel > SHIP_CONDITION_BOUNDS.MAX
+    ) {
       throw new Error(
-        `Invalid fuel value: ${newFuel}. Fuel must be between 0 and 100.`
+        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${SHIP_CONDITION_BOUNDS.MAX}.`
       );
     }
 
@@ -299,15 +286,11 @@ export class GameStateManager {
   }
 
   updateCargo(newCargo) {
-    if (!this.state) return;
-
     this.state.ship.cargo = newCargo;
     this.emit('cargoChanged', newCargo);
   }
 
   updateLocation(newSystemId) {
-    if (!this.state) return;
-
     this.state.player.currentSystem = newSystemId;
 
     // Track exploration progress for future features (price discovery, missions)
@@ -319,8 +302,6 @@ export class GameStateManager {
   }
 
   updateTime(newDays) {
-    if (!this.state) return;
-
     const oldDays = this.state.player.daysElapsed;
     this.state.player.daysElapsed = newDays;
 
@@ -350,19 +331,26 @@ export class GameStateManager {
   /**
    * Update ship condition values
    *
-   * All values are clamped to [0, 100] range to prevent invalid states.
+   * All values are clamped to valid range to prevent invalid states.
    *
    * @param {number} hull - Hull integrity percentage
    * @param {number} engine - Engine condition percentage
    * @param {number} lifeSupport - Life support condition percentage
    */
   updateShipCondition(hull, engine, lifeSupport) {
-    if (!this.state) return;
-
-    // Clamp all values to valid range [0, 100]
-    this.state.ship.hull = Math.max(0, Math.min(100, hull));
-    this.state.ship.engine = Math.max(0, Math.min(100, engine));
-    this.state.ship.lifeSupport = Math.max(0, Math.min(100, lifeSupport));
+    // Clamp all values to valid range
+    this.state.ship.hull = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, hull)
+    );
+    this.state.ship.engine = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, engine)
+    );
+    this.state.ship.lifeSupport = Math.max(
+      SHIP_CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONDITION_BOUNDS.MAX, lifeSupport)
+    );
 
     this.emit('shipConditionChanged', {
       hull: this.state.ship.hull,
@@ -379,8 +367,6 @@ export class GameStateManager {
    * @param {number} lastVisit - Days since last visit (0 = current)
    */
   updatePriceKnowledge(systemId, prices, lastVisit = 0) {
-    if (!this.state) return;
-
     if (!this.state.world.priceKnowledge) {
       this.state.world.priceKnowledge = {};
     }
@@ -467,8 +453,6 @@ export class GameStateManager {
    * @param {Array} newEvents - Updated events array
    */
   updateActiveEvents(newEvents) {
-    if (!this.state) return;
-
     if (!this.state.world.activeEvents) {
       this.state.world.activeEvents = [];
     }
@@ -768,10 +752,13 @@ export class GameStateManager {
 
     // Check capacity constraint
     // Use epsilon for floating point comparison
-    if (currentFuel + amount > 100 + FUEL_CAPACITY_EPSILON) {
+    if (
+      currentFuel + amount >
+      SHIP_CONDITION_BOUNDS.MAX + FUEL_CAPACITY_EPSILON
+    ) {
       return {
         valid: false,
-        reason: 'Cannot refuel beyond 100% capacity',
+        reason: `Cannot refuel beyond ${SHIP_CONDITION_BOUNDS.MAX}% capacity`,
         cost: totalCost,
       };
     }
@@ -844,7 +831,7 @@ export class GameStateManager {
   /**
    * Calculate repair cost for a ship system
    *
-   * Cost is ₡5 per 1% restored. If system is already at 100%, cost is 0.
+   * Cost is ₡5 per 1% restored. If system is already at maximum condition, cost is 0.
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} amount - Percentage points to restore
@@ -886,7 +873,7 @@ export class GameStateManager {
       };
     }
 
-    // Check if system is already at 100%
+    // Check if system is already at maximum condition
     if (currentCondition >= SHIP_CONDITION_BOUNDS.MAX) {
       return {
         valid: false,
@@ -903,7 +890,7 @@ export class GameStateManager {
       };
     }
 
-    // Check if repair would exceed 100%
+    // Check if repair would exceed maximum condition
     if (currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX) {
       return {
         valid: false,
@@ -1056,7 +1043,9 @@ export class GameStateManager {
     // Debounce: skip save if less than 1 second since last save
     const now = Date.now();
     if (now - this.lastSaveTime < SAVE_DEBOUNCE_MS) {
-      this._logIfNotTest('Save debounced (too soon since last save)');
+      if (!this.isTestEnvironment) {
+        console.log('Save debounced (too soon since last save)');
+      }
       return false;
     }
 
@@ -1066,7 +1055,9 @@ export class GameStateManager {
       localStorage.setItem(SAVE_KEY, saveData);
 
       this.lastSaveTime = now;
-      this._logIfNotTest('Game saved successfully');
+      if (!this.isTestEnvironment) {
+        console.log('Game saved successfully');
+      }
       return true;
     } catch (error) {
       console.error('Failed to save game:', error);
@@ -1083,19 +1074,25 @@ export class GameStateManager {
       const saveData = localStorage.getItem(SAVE_KEY);
 
       if (!saveData) {
-        this._logIfNotTest('No saved game found');
+        if (!this.isTestEnvironment) {
+          console.log('No saved game found');
+        }
         return null;
       }
 
       const loadedState = JSON.parse(saveData);
 
       if (!this.isVersionCompatible(loadedState.meta?.version)) {
-        this._logIfNotTest('Save version incompatible, starting new game');
+        if (!this.isTestEnvironment) {
+          console.log('Save version incompatible, starting new game');
+        }
         return null;
       }
 
       if (!this.validateStateStructure(loadedState)) {
-        this._logIfNotTest('Save data corrupted, starting new game');
+        if (!this.isTestEnvironment) {
+          console.log('Save data corrupted, starting new game');
+        }
         return null;
       }
 
@@ -1138,16 +1135,18 @@ export class GameStateManager {
 
       // Initialize ship condition if missing (backward compatibility)
       if (this.state.ship.hull === undefined) {
-        this.state.ship.hull = 100;
+        this.state.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
       }
       if (this.state.ship.engine === undefined) {
-        this.state.ship.engine = 100;
+        this.state.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
       }
       if (this.state.ship.lifeSupport === undefined) {
-        this.state.ship.lifeSupport = 100;
+        this.state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
       }
 
-      this._logIfNotTest('Game loaded successfully');
+      if (!this.isTestEnvironment) {
+        console.log('Game loaded successfully');
+      }
 
       // Emit all state events to update UI
       this.emit('creditsChanged', this.state.player.credits);
@@ -1166,7 +1165,9 @@ export class GameStateManager {
 
       return this.state;
     } catch (error) {
-      this._logIfNotTest('Failed to load game:', error);
+      if (!this.isTestEnvironment) {
+        console.log('Failed to load game:', error);
+      }
       return null;
     }
   }
@@ -1187,7 +1188,9 @@ export class GameStateManager {
   clearSave() {
     try {
       localStorage.removeItem(SAVE_KEY);
-      this._logIfNotTest('Save data cleared');
+      if (!this.isTestEnvironment) {
+        console.log('Save data cleared');
+      }
       return true;
     } catch (error) {
       console.error('Failed to clear save:', error);
@@ -1237,7 +1240,7 @@ export class GameStateManager {
     // Check ship condition fields (optional for backward compatibility)
     // These fields are added by backward compatibility logic in loadGame() if missing.
     // Validation runs BEFORE backward compatibility, so fields may be undefined here.
-    // If present, they must be numbers. If absent, they'll be initialized to 100.
+    // If present, they must be numbers. If absent, they'll be initialized to maximum condition.
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
     }
