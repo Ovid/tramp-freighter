@@ -1366,21 +1366,52 @@ export class UIManager {
     return this.elements.repairPanel.classList.contains('visible');
   }
 
+  /**
+   * Get current condition value for a specific ship system
+   * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @returns {number} Current condition percentage
+   */
+  getSystemCondition(condition, systemType) {
+    switch (systemType) {
+      case 'hull':
+        return condition.hull;
+      case 'engine':
+        return condition.engine;
+      case 'lifeSupport':
+        return condition.lifeSupport;
+      default:
+        return 0;
+    }
+  }
+
+  /**
+   * Update a single system's condition display (percent text and progress bar)
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} conditionValue - Condition percentage (0-100)
+   */
+  updateSystemConditionDisplay(systemType, conditionValue) {
+    // Build element keys dynamically based on system type
+    // e.g., 'hull' -> 'repairHullPercent', 'repairHullBar'
+    const capitalizedType = this.capitalizeFirst(systemType);
+    const percentElement = this.elements[`repair${capitalizedType}Percent`];
+    const barElement = this.elements[`repair${capitalizedType}Bar`];
+
+    if (percentElement) {
+      percentElement.textContent = `${Math.round(conditionValue)}%`;
+    }
+    if (barElement) {
+      barElement.style.width = `${conditionValue}%`;
+    }
+  }
+
   updateRepairConditionDisplay() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) return;
 
-    // Update hull
-    this.elements.repairHullPercent.textContent = `${Math.round(condition.hull)}%`;
-    this.elements.repairHullBar.style.width = `${condition.hull}%`;
-
-    // Update engine
-    this.elements.repairEnginePercent.textContent = `${Math.round(condition.engine)}%`;
-    this.elements.repairEngineBar.style.width = `${condition.engine}%`;
-
-    // Update life support
-    this.elements.repairLifeSupportPercent.textContent = `${Math.round(condition.lifeSupport)}%`;
-    this.elements.repairLifeSupportBar.style.width = `${condition.lifeSupport}%`;
+    this.updateSystemConditionDisplay('hull', condition.hull);
+    this.updateSystemConditionDisplay('engine', condition.engine);
+    this.updateSystemConditionDisplay('lifeSupport', condition.lifeSupport);
   }
 
   updateRepairButtons() {
@@ -1395,11 +1426,7 @@ export class UIManager {
     repairButtons.forEach((btn) => {
       const systemType = btn.getAttribute('data-system');
       const amountStr = btn.getAttribute('data-amount');
-
-      let currentCondition = 0;
-      if (systemType === 'hull') currentCondition = condition.hull;
-      else if (systemType === 'engine') currentCondition = condition.engine;
-      else if (systemType === 'lifeSupport') currentCondition = condition.lifeSupport;
+      const currentCondition = this.getSystemCondition(condition, systemType);
 
       let amount = 0;
       let cost = 0;
@@ -1467,11 +1494,7 @@ export class UIManager {
     if (!state) return;
 
     const condition = this.gameStateManager.getShipCondition();
-    let currentCondition = 0;
-
-    if (systemType === 'hull') currentCondition = condition.hull;
-    else if (systemType === 'engine') currentCondition = condition.engine;
-    else if (systemType === 'lifeSupport') currentCondition = condition.lifeSupport;
+    const currentCondition = this.getSystemCondition(condition, systemType);
 
     let amount = 0;
     if (amountStr === 'full') {
@@ -1505,6 +1528,17 @@ export class UIManager {
   handleRepairAll() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) return;
+
+    const state = this.gameStateManager.getState();
+    const totalCost = this.calculateRepairAllCost();
+
+    // Pre-validate total cost before executing any repairs
+    // This prevents partial repairs if player doesn't have enough credits for all systems
+    if (state.player.credits < totalCost) {
+      this.elements.repairValidationMessage.textContent = 'Insufficient credits for full repair';
+      this.elements.repairValidationMessage.className = 'validation-message error';
+      return;
+    }
 
     let repairCount = 0;
     let failedRepairs = [];
