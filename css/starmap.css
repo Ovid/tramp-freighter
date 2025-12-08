@@ -114,13 +114,24 @@ canvas {
 }
 
 /* Condition Bar Styling (Fuel, Hull, Engine, Life Support) */
+/* Used in both HUD and Repair Panel */
 .condition-bar-container {
   position: relative;
-  width: 150px;
   height: 20px;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 3px;
   overflow: hidden;
+}
+
+/* HUD-specific: fixed width */
+.hud-row .condition-bar-container {
+  width: 150px;
+}
+
+/* Repair panel-specific: full width */
+.repair-section .condition-bar-container {
+  width: 100%;
+  border: 1px solid rgba(0, 255, 136, 0.3);
 }
 
 .condition-bar {
@@ -143,7 +154,7 @@ canvas {
   z-index: 1;
 }
 
-/* Distinct visual styling for each condition type */
+/* Distinct visual styling for each condition type in HUD */
 .fuel-bar-container {
   border: 1px solid #00ff88;
 }
@@ -160,6 +171,11 @@ canvas {
   background-color: #4a9eff;
 }
 
+/* Repair panel uses gradient backgrounds */
+.repair-section .hull-bar {
+  background: linear-gradient(90deg, #4a90e2, #00bfff);
+}
+
 .engine-bar-container {
   border: 1px solid #ffaa00;
 }
@@ -168,12 +184,22 @@ canvas {
   background-color: #ffaa00;
 }
 
+/* Repair panel uses gradient backgrounds */
+.repair-section .engine-bar {
+  background: linear-gradient(90deg, #ff6b6b, #ff4444);
+}
+
 .life-support-bar-container {
   border: 1px solid #ff4a9e;
 }
 
 .life-support-bar {
   background-color: #ff4a9e;
+}
+
+/* Repair panel uses gradient backgrounds */
+.repair-section .life-support-bar {
+  background: linear-gradient(90deg, #00ff88, #00cc66);
 }
 
 /* HUD Panel Styling */
@@ -1634,31 +1660,7 @@ canvas {
   font-size: 13px;
 }
 
-.condition-bar-container {
-  width: 100%;
-  height: 20px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 255, 136, 0.3);
-  border-radius: 3px;
-  overflow: hidden;
-}
 
-.condition-bar {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.hull-bar {
-  background: linear-gradient(90deg, #4a90e2, #00bfff);
-}
-
-.engine-bar {
-  background: linear-gradient(90deg, #ff6b6b, #ff4444);
-}
-
-.life-support-bar {
-  background: linear-gradient(90deg, #00ff88, #00cc66);
-}
 
 .repair-options {
   display: flex;
