@@ -40,16 +40,20 @@ describe('Property 11: Jump State Transition', () => {
           const star2 = TEST_STAR_DATA.find((s) => s.id === systemId2);
 
           const distance = navSystem.calculateDistanceBetween(star1, star2);
-          const expectedFuelCost = navSystem.calculateFuelCost(distance);
-          const expectedJumpTime = navSystem.calculateJumpTime(distance);
 
           // Set up game state with sufficient fuel
           gameStateManager.updateLocation(systemId1);
           gameStateManager.updateFuel(100); // Full fuel
           gameStateManager.updateTime(0); // Reset time
 
-          const initialFuel = gameStateManager.getState().ship.fuel;
-          const initialTime = gameStateManager.getState().player.daysElapsed;
+          const initialState = gameStateManager.getState();
+          const initialFuel = initialState.ship.fuel;
+          const initialTime = initialState.player.daysElapsed;
+          const initialEngineCondition = initialState.ship.engine;
+
+          // Calculate expected values using initial engine condition
+          const expectedFuelCost = navSystem.calculateFuelCostWithCondition(distance, initialEngineCondition);
+          const expectedJumpTime = navSystem.calculateJumpTimeWithCondition(distance, initialEngineCondition);
 
           // Execute jump
           const result = await navSystem.executeJump(

@@ -162,17 +162,17 @@
   - **Property 21: Ship Condition Clamping**
   - **Validates: Requirements 6.2, 6.3**
 
-- [ ] 9. Implement engine condition penalties
+- [x] 9. Implement engine condition penalties
   - Extend calculateFuelCostWithCondition() to apply +20% penalty when engine < 60%
   - Extend calculateJumpTimeWithCondition() to add +1 day penalty when engine < 60%
   - Update executeJump() to use condition-aware calculations
   - _Requirements: 6.4, 6.5_
 
-- [ ] 9.1 Write property test for engine condition fuel penalty
+- [x] 9.1 Write property test for engine condition fuel penalty
   - **Property 22: Engine Condition Fuel Penalty**
   - **Validates: Requirements 6.4**
 
-- [ ] 9.2 Write property test for engine condition time penalty
+- [x] 9.2 Write property test for engine condition time penalty
   - **Property 23: Engine Condition Time Penalty**
   - **Validates: Requirements 6.5**
 

@@ -4,6 +4,7 @@ import {
   LY_PER_UNIT,
   SHIP_DEGRADATION,
   SHIP_CONDITION_BOUNDS,
+  ENGINE_CONDITION_PENALTIES,
 } from './game-constants.js';
 
 /**
@@ -78,6 +79,48 @@ export class NavigationSystem {
    */
   calculateFuelCost(distance) {
     return 10 + distance * 2;
+  }
+
+  /**
+   * Calculate fuel cost with engine condition penalty
+   * Formula: baseCost × (engineCondition < 60% ? 1.2 : 1.0)
+   *
+   * When engine condition falls below 60%, fuel consumption increases by 20%
+   * due to reduced propulsion efficiency.
+   *
+   * @param {number} distance - Distance in light years
+   * @param {number} engineCondition - Engine condition percentage (0-100)
+   * @returns {number} Fuel cost as percentage
+   */
+  calculateFuelCostWithCondition(distance, engineCondition) {
+    const baseCost = this.calculateFuelCost(distance);
+
+    if (engineCondition < ENGINE_CONDITION_PENALTIES.THRESHOLD) {
+      return baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
+    }
+
+    return baseCost;
+  }
+
+  /**
+   * Calculate jump time with engine condition penalty
+   * Formula: baseTime + (engineCondition < 60% ? 1 : 0)
+   *
+   * When engine condition falls below 60%, jump time increases by 1 day
+   * due to slower wormhole transit.
+   *
+   * @param {number} distance - Distance in light years
+   * @param {number} engineCondition - Engine condition percentage (0-100)
+   * @returns {number} Jump time in days
+   */
+  calculateJumpTimeWithCondition(distance, engineCondition) {
+    const baseTime = this.calculateJumpTime(distance);
+
+    if (engineCondition < ENGINE_CONDITION_PENALTIES.THRESHOLD) {
+      return baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
+    }
+
+    return baseTime;
   }
 
   // ========================================================================
@@ -173,9 +216,10 @@ export class NavigationSystem {
    * @param {number} currentSystemId - Current system ID
    * @param {number} targetSystemId - Target system ID
    * @param {number} currentFuel - Current fuel percentage
+   * @param {number} engineCondition - Engine condition percentage (0-100), optional for backward compatibility
    * @returns {Object} { valid: boolean, error: string|null, fuelCost: number, distance: number, jumpTime: number }
    */
-  validateJump(currentSystemId, targetSystemId, currentFuel) {
+  validateJump(currentSystemId, targetSystemId, currentFuel, engineCondition = 100) {
     // Check wormhole connection
     if (!this.areSystemsConnected(currentSystemId, targetSystemId)) {
       return {
@@ -201,10 +245,10 @@ export class NavigationSystem {
       };
     }
 
-    // Calculate jump parameters
+    // Calculate jump parameters with engine condition
     const distance = this.calculateDistanceBetween(currentStar, targetStar);
-    const fuelCost = this.calculateFuelCost(distance);
-    const jumpTime = this.calculateJumpTime(distance);
+    const fuelCost = this.calculateFuelCostWithCondition(distance, engineCondition);
+    const jumpTime = this.calculateJumpTimeWithCondition(distance, engineCondition);
 
     // Check fuel availability
     if (currentFuel < fuelCost) {
@@ -244,12 +288,14 @@ export class NavigationSystem {
 
     const currentSystemId = state.player.currentSystem;
     const currentFuel = state.ship.fuel;
+    const engineCondition = state.ship.engine;
 
-    // Validate jump
+    // Validate jump with engine condition
     const validation = this.validateJump(
       currentSystemId,
       targetSystemId,
-      currentFuel
+      currentFuel,
+      engineCondition
     );
 
     if (!validation.valid) {

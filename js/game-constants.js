@@ -263,6 +263,19 @@ export const SHIP_CONDITION_BOUNDS = {
 };
 
 /**
+ * Engine condition performance penalties
+ *
+ * When engine condition falls below the threshold, performance degrades:
+ * - Fuel consumption increases (less efficient propulsion)
+ * - Jump time increases (slower wormhole transit)
+ */
+export const ENGINE_CONDITION_PENALTIES = {
+  THRESHOLD: 60, // Percentage below which penalties apply
+  FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption
+  TIME_PENALTY_DAYS: 1, // Additional day added to jump time
+};
+
+/**
  * Floating-point epsilon for fuel capacity checks
  *
  * Allows for minor floating-point arithmetic errors when validating
