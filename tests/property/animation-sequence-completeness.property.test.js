@@ -69,7 +69,7 @@ describe('Animation Sequence Completeness - Property Tests', () => {
       .filter(([origin, dest]) => origin !== dest);
 
     fc.assert(
-      fc.property(systemPairGenerator, ([originId, destId]) => {
+      fc.property(systemPairGenerator, () => {
         // Property 1: playJumpAnimation method should exist
         expect(animationSystem.playJumpAnimation).toBeDefined();
         expect(typeof animationSystem.playJumpAnimation).toBe('function');
@@ -306,8 +306,6 @@ describe('Animation Sequence Completeness - Property Tests', () => {
   });
 
   it('Property 2 (State Consistency): Camera state is properly managed throughout animation', async () => {
-    const THREE = window.THREE;
-
     // Mock animation methods
     const cameraTransitionSpy = vi
       .spyOn(animationSystem, 'animateCameraTransition')
@@ -315,10 +313,6 @@ describe('Animation Sequence Completeness - Property Tests', () => {
     const shipTravelSpy = vi
       .spyOn(animationSystem, 'animateShipTravel')
       .mockResolvedValue(undefined);
-
-    // Store initial state
-    const initialCameraPos = new THREE.Vector3().copy(camera.position);
-    const initialControlsTarget = new THREE.Vector3().copy(controls.target);
 
     // Property: Before animation, originalCameraState should be null
     expect(animationSystem.originalCameraState).toBeNull();

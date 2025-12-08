@@ -217,9 +217,48 @@ export class NavigationSystem {
     // Auto-save after jump (before animation)
     gameStateManager.saveGame();
 
+    // Hide UI panels before animation if UI manager is provided
+    let stationWasVisible = false;
+    let tradeWasVisible = false;
+    let refuelWasVisible = false;
+    let infoBrokerWasVisible = false;
+
+    if (uiManager && animationSystem) {
+      // Store panel visibility state
+      if (uiManager.isStationVisible && uiManager.isStationVisible()) {
+        stationWasVisible = true;
+        uiManager.hideStationInterface();
+      }
+
+      if (uiManager.isTradeVisible && uiManager.isTradeVisible()) {
+        tradeWasVisible = true;
+        uiManager.hideTradePanel();
+      }
+
+      if (uiManager.isRefuelVisible && uiManager.isRefuelVisible()) {
+        refuelWasVisible = true;
+        uiManager.hideRefuelPanel();
+      }
+
+      if (uiManager.isInfoBrokerVisible && uiManager.isInfoBrokerVisible()) {
+        infoBrokerWasVisible = true;
+        uiManager.hideInfoBrokerPanel();
+      }
+    }
+
     // Play animation if animation system is provided
     if (animationSystem) {
-      await animationSystem.playJumpAnimation(currentSystemId, targetSystemId, uiManager);
+      try {
+        await animationSystem.playJumpAnimation(currentSystemId, targetSystemId);
+      } finally {
+        // Restore UI panels after animation completes (or fails)
+        if (uiManager) {
+          if (stationWasVisible) uiManager.showStationInterface();
+          if (tradeWasVisible) uiManager.showTradePanel();
+          if (refuelWasVisible) uiManager.showRefuelPanel();
+          if (infoBrokerWasVisible) uiManager.showInfoBrokerPanel();
+        }
+      }
     }
 
     return { success: true, error: null };
