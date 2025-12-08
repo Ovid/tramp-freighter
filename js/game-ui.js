@@ -228,9 +228,11 @@ export class UIManager {
    */
   updateConditionDisplay(prefix, systemType, conditionValue) {
     const capitalizedType = this.capitalizeFirst(systemType);
-    const barElement = this.elements[`${prefix}${capitalizedType}Bar`];
+    // For HUD (empty prefix), use lowercase first letter; for repair panel, use capitalized
+    const typeKey = prefix ? capitalizedType : systemType;
+    const barElement = this.elements[`${prefix}${typeKey}Bar`];
     // HUD uses 'Text' suffix, repair panel uses 'Percent' suffix
-    const textElement = this.elements[`${prefix}${capitalizedType}Text`] || 
+    const textElement = this.elements[`${prefix}${typeKey}Text`] || 
                         this.elements[`${prefix}${capitalizedType}Percent`];
 
     if (barElement) {
