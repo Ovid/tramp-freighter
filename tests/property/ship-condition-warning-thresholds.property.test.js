@@ -3,7 +3,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_CONDITION_WARNING_THRESHOLDS } from '../../js/game-constants.js';
 
 /**
  * Property-Based Tests for Ship Condition Warning Thresholds

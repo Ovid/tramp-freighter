@@ -109,6 +109,11 @@ export class UIManager {
       eventModalDismiss: document.getElementById('event-modal-dismiss'),
     };
 
+    // Cache repair buttons to avoid repeated DOM queries
+    this.cachedRepairButtons = null;
+    // Cache refuel preset buttons for consistency
+    this.cachedRefuelPresetButtons = null;
+
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
     this.setupEventModalHandlers();
@@ -261,10 +266,11 @@ export class UIManager {
       });
     }
 
-    const presetButtons = document.querySelectorAll(
+    // Cache refuel preset buttons to avoid repeated DOM queries
+    this.cachedRefuelPresetButtons = document.querySelectorAll(
       '.refuel-preset-btn[data-amount]'
     );
-    presetButtons.forEach((btn) => {
+    this.cachedRefuelPresetButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const amount = parseInt(btn.getAttribute('data-amount'));
         this.setRefuelAmount(amount);
@@ -339,9 +345,9 @@ export class UIManager {
       });
     }
 
-    // Setup repair button handlers
-    const repairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
-    repairButtons.forEach((btn) => {
+    // Setup repair button handlers and cache the buttons
+    this.cachedRepairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
+    this.cachedRepairButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const systemType = btn.getAttribute('data-system');
         const amount = btn.getAttribute('data-amount');
@@ -1450,9 +1456,12 @@ export class UIManager {
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
 
-    // Update individual repair buttons
-    const repairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
-    repairButtons.forEach((btn) => {
+    // Repair buttons must be initialized during construction
+    if (!this.cachedRepairButtons) {
+      throw new Error('Repair buttons not initialized - setupStationInterfaceHandlers() must be called in constructor');
+    }
+    
+    this.cachedRepairButtons.forEach((btn) => {
       const systemType = btn.getAttribute('data-system');
       const amountStr = btn.getAttribute('data-amount');
       const currentCondition = this.getSystemCondition(condition, systemType);

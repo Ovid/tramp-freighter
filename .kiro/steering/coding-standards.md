@@ -325,6 +325,70 @@ function getAveragePrice(prices) {
 }
 ```
 
+### Avoid Defensive Null Checks for Guaranteed-to-Exist Variables
+
+**CRITICAL: Do not add defensive null checks for variables that should always exist after initialization**
+
+This is a common LLM-ism that adds unnecessary defensive programming for variables that are guaranteed to exist by design.
+
+```javascript
+// BAD - Defensive check for variable that should always exist
+class UIManager {
+  constructor() {
+    this.cachedButtons = document.querySelectorAll('.btn');
+  }
+
+  updateButtons() {
+    // Silent failure hides initialization bugs
+    if (!this.cachedButtons) return;
+    
+    this.cachedButtons.forEach(btn => updateButton(btn));
+  }
+}
+
+// GOOD - Fail loudly if initialization failed
+class UIManager {
+  constructor() {
+    this.cachedButtons = document.querySelectorAll('.btn');
+  }
+
+  updateButtons() {
+    // Throw error to expose initialization bugs immediately
+    if (!this.cachedButtons) {
+      throw new Error('Buttons not initialized - constructor must cache DOM elements');
+    }
+    
+    this.cachedButtons.forEach(btn => updateButton(btn));
+  }
+}
+
+// BEST - No check needed if guaranteed by design
+class UIManager {
+  constructor() {
+    this.cachedButtons = document.querySelectorAll('.btn');
+    if (this.cachedButtons.length === 0) {
+      throw new Error('No buttons found in DOM');
+    }
+  }
+
+  updateButtons() {
+    // No check needed - constructor guarantees cachedButtons exists
+    this.cachedButtons.forEach(btn => updateButton(btn));
+  }
+}
+```
+
+**When to use defensive checks:**
+- External data (user input, API responses, localStorage)
+- Optional parameters
+- Data from untrusted sources
+
+**When NOT to use defensive checks:**
+- Variables initialized in constructor
+- Required parameters (use validation instead)
+- Internal state that should always be valid
+- Variables set by initialization methods called in constructor
+
 ## Naming Conventions
 
 ### Clear, Descriptive Names
