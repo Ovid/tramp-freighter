@@ -294,6 +294,20 @@ export const ENGINE_CONDITION_PENALTIES = {
 export const REPAIR_COST_PER_PERCENT = 5;
 
 /**
+ * Ship condition warning thresholds
+ *
+ * Warnings are displayed when ship systems fall below these thresholds:
+ * - Hull < 50%: Risk of cargo loss during jumps
+ * - Engine < 30%: Jump failure risk - immediate repairs recommended
+ * - Life Support < 20%: Critical condition - urgent repairs required
+ */
+export const SHIP_CONDITION_WARNING_THRESHOLDS = {
+  HULL: 50,
+  ENGINE: 30,
+  LIFE_SUPPORT: 20,
+};
+
+/**
  * Floating-point epsilon for fuel capacity checks
  *
  * Allows for minor floating-point arithmetic errors when validating

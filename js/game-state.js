@@ -8,6 +8,7 @@ import {
   FUEL_CAPACITY_EPSILON,
   REPAIR_COST_PER_PERCENT,
   SHIP_CONDITION_BOUNDS,
+  SHIP_CONDITION_WARNING_THRESHOLDS,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -46,6 +47,7 @@ export class GameStateManager {
       priceKnowledgeChanged: [],
       activeEventsChanged: [],
       shipConditionChanged: [],
+      conditionWarning: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -146,7 +148,7 @@ export class GameStateManager {
 
   /**
    * Subscribe to state change events
-   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged
+   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged, conditionWarning
    * @param {function} callback - Function to call when event occurs
    */
   subscribe(eventType, callback) {
@@ -234,6 +236,52 @@ export class GameStateManager {
       engine: this.state.ship.engine,
       lifeSupport: this.state.ship.lifeSupport,
     };
+  }
+
+  /**
+   * Check ship condition and return warnings for systems below thresholds
+   *
+   * Evaluates current ship condition against warning thresholds and returns
+   * an array of warning objects for systems that need attention.
+   *
+   * @returns {Array} Array of warning objects: { system: string, message: string, severity: string }
+   */
+  checkConditionWarnings() {
+    const condition = this.getShipCondition();
+    if (!condition) return [];
+
+    const warnings = [];
+
+    // Hull warning: < 50%
+    if (condition.hull < SHIP_CONDITION_WARNING_THRESHOLDS.HULL) {
+      warnings.push({
+        system: 'hull',
+        message: 'Risk of cargo loss during jumps',
+        severity: 'warning',
+      });
+    }
+
+    // Engine warning: < 30%
+    if (condition.engine < SHIP_CONDITION_WARNING_THRESHOLDS.ENGINE) {
+      warnings.push({
+        system: 'engine',
+        message: 'Jump failure risk - immediate repairs recommended',
+        severity: 'warning',
+      });
+    }
+
+    // Life support critical warning: < 20%
+    if (
+      condition.lifeSupport < SHIP_CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
+    ) {
+      warnings.push({
+        system: 'lifeSupport',
+        message: 'Critical condition - urgent repairs required',
+        severity: 'critical',
+      });
+    }
+
+    return warnings;
   }
 
   /**
@@ -332,6 +380,7 @@ export class GameStateManager {
    * Update ship condition values
    *
    * All values are clamped to valid range to prevent invalid states.
+   * Checks for condition warnings and emits them if thresholds are crossed.
    *
    * @param {number} hull - Hull integrity percentage
    * @param {number} engine - Engine condition percentage
@@ -357,6 +406,14 @@ export class GameStateManager {
       engine: this.state.ship.engine,
       lifeSupport: this.state.ship.lifeSupport,
     });
+
+    // Check for warnings and emit them
+    const warnings = this.checkConditionWarnings();
+    if (warnings.length > 0) {
+      warnings.forEach((warning) => {
+        this.emit('conditionWarning', warning);
+      });
+    }
   }
 
   /**

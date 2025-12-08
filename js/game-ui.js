@@ -139,6 +139,10 @@ export class UIManager {
     this.gameStateManager.subscribe('locationChanged', (systemId) => {
       this.updateLocation(systemId);
     });
+
+    this.gameStateManager.subscribe('conditionWarning', (warning) => {
+      this.showConditionWarning(warning);
+    });
   }
 
   showHUD() {
@@ -904,6 +908,31 @@ export class UIManager {
     if (this.elements.notificationArea) {
       this.elements.notificationArea.replaceChildren();
     }
+  }
+
+  /**
+   * Show a ship condition warning notification
+   *
+   * Displays warnings when ship systems fall below critical thresholds.
+   * Uses longer duration for critical warnings to ensure player sees them.
+   *
+   * @param {Object} warning - Warning object with system, message, and severity
+   */
+  showConditionWarning(warning) {
+    const systemName =
+      warning.system === 'lifeSupport'
+        ? 'Life Support'
+        : this.capitalizeFirst(warning.system);
+
+    const message = `${systemName}: ${warning.message}`;
+
+    // Use longer duration for critical warnings
+    const duration =
+      warning.severity === 'critical'
+        ? NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION * 2
+        : NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION;
+
+    this.showNotification(message, duration, 'error');
   }
 
   showRefuelPanel() {

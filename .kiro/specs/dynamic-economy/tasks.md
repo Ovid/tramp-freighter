@@ -210,7 +210,7 @@
   - **Property 27: Repair All Cost Calculation**
   - **Validates: Requirements 7.9**
 
-- [ ] 12. Implement ship condition warnings
+- [x] 12. Implement ship condition warnings
   - Implement checkConditionWarnings() to evaluate thresholds
   - Display warning when hull < 50%: "Risk of cargo loss during jumps"
   - Display warning when engine < 30%: "Jump failure risk - immediate repairs recommended"
@@ -218,7 +218,7 @@
   - Trigger warnings on condition changes
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 12.1 Write property test for ship condition warning thresholds
+- [x] 12.1 Write property test for ship condition warning thresholds
   - **Property 28: Ship Condition Warning Thresholds**
   - **Validates: Requirements 8.1, 8.2, 8.3**
 
