@@ -741,7 +741,9 @@ export class GameStateManager {
    */
   purchaseIntelligence(systemId) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: purchaseIntelligence called before game initialization'
+      );
     }
 
     const result = InformationBroker.purchaseIntelligence(
@@ -769,7 +771,9 @@ export class GameStateManager {
    */
   generateRumor() {
     if (!this.state) {
-      return 'No rumors available.';
+      throw new Error(
+        'Invalid state: generateRumor called before game initialization'
+      );
     }
 
     return InformationBroker.generateRumor(this.state, this.starData);
@@ -800,7 +804,9 @@ export class GameStateManager {
    */
   buyGood(goodType, quantity, price) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: buyGood called before game initialization'
+      );
     }
 
     const credits = this.state.player.credits;
@@ -868,7 +874,9 @@ export class GameStateManager {
    */
   sellGood(stackIndex, quantity, salePrice) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: sellGood called before game initialization'
+      );
     }
 
     const cargo = this.state.ship.cargo;
@@ -1042,7 +1050,9 @@ export class GameStateManager {
    */
   refuel(amount) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: refuel called before game initialization'
+      );
     }
 
     const currentFuel = this.state.ship.fuel;
@@ -1159,7 +1169,9 @@ export class GameStateManager {
    */
   repairShipSystem(systemType, amount) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: repairShipSystem called before game initialization'
+      );
     }
 
     // Validate system type
@@ -1220,7 +1232,7 @@ export class GameStateManager {
    */
   dock() {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error('Invalid state: dock called before game initialization');
     }
 
     const currentSystemId = this.state.player.currentSystem;
@@ -1273,7 +1285,9 @@ export class GameStateManager {
    */
   undock() {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: undock called before game initialization'
+      );
     }
 
     // Persist state transition - prevents loss if player closes browser while undocked
