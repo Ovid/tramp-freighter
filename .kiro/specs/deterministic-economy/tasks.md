@@ -125,7 +125,7 @@
   - Existing price recalculation will use updated market conditions
   - _Requirements: 5.1, 5.5, 10.1, 10.3_
 
-- [ ] 11. Update calculatePrice() to use deterministic modifiers
+- [x] 11. Update calculatePrice() to use deterministic modifiers
   - Add marketConditions parameter to calculatePrice() signature
   - Remove spectral class modifier calculation
   - Remove station count modifier calculation
@@ -139,11 +139,11 @@
   - Round to nearest integer
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 11.1 Write unit test for neutral modifiers
+- [x] 11.1 Write unit test for neutral modifiers
   - **Property 28: Price with all modifiers at 1.0 equals base price**
   - **Validates: Requirements 8.6**
 
-- [ ] 11.2 Write property test for complete price formula
+- [x] 11.2 Write property test for complete price formula
   - **Property 27: Complete price formula**
   - **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
 

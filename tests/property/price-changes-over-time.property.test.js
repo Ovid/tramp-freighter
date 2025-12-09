@@ -11,7 +11,10 @@ import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
 import { SOL_SYSTEM_ID } from '../../js/game-constants.js';
 
-describe('Property: Prices Change Visibly Over Time', () => {
+// DEPRECATED: This test is for the old dynamic-economy system
+// The deterministic-economy system has replaced this functionality
+// See: .kiro/specs/deterministic-economy for the new system
+describe.skip('Property: Prices Change Visibly Over Time', () => {
   const commodities = [
     'grain',
     'ore',

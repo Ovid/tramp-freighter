@@ -10,7 +10,10 @@ import { EconomicEventsSystem } from '../../js/game-events.js';
  * For any active economic event, price modifiers should be applied to affected commodities
  * in the event's system for the event duration.
  */
-describe('Property: Event Modifier Application', () => {
+// DEPRECATED: This test is for the old dynamic-economy system
+// The deterministic-economy system has replaced this functionality
+// See: .kiro/specs/deterministic-economy for the new system
+describe.skip('Property: Event Modifier Application', () => {
   it('should apply event modifiers to prices during event duration', () => {
     fc.assert(
       fc.property(

@@ -14,42 +14,44 @@ import {
  */
 export class TradingSystem {
   /**
-   * Calculate price with all modifiers (production, station count, daily fluctuation, events)
+   * Calculate price with deterministic modifiers (tech, temporal, local, events)
    *
-   * Phase 1/2 backward compatibility: accepts either spectral class string or full system object
+   * Applies the complete deterministic economy formula:
+   * P_final = round(P_base × M_tech × M_temporal × M_local × M_event)
+   *
+   * This replaces the old random-based system with predictable, simulation-based pricing.
+   *
+   * @param {string} goodType - Commodity type
+   * @param {Object} system - Star system with coordinates and ID
+   * @param {number} currentDay - Current game day for temporal modifier
+   * @param {Array} activeEvents - Active economic events
+   * @param {Object} marketConditions - Market saturation data: { [systemId]: { [goodType]: netQuantity } }
+   * @returns {number} Final price in credits (rounded integer)
    */
   static calculatePrice(
     goodType,
-    systemOrSpectralClass,
+    system,
     currentDay = 0,
-    activeEvents = []
+    activeEvents = [],
+    marketConditions = {}
   ) {
     const basePrice = BASE_PRICES[goodType];
     if (basePrice === undefined) {
       throw new Error(`Unknown good type: ${goodType}`);
     }
 
-    const isPhase1 = typeof systemOrSpectralClass === 'string';
-
-    if (isPhase1) {
-      const spectralClass = systemOrSpectralClass;
-      const productionMod = TradingSystem.getProductionModifier(
-        goodType,
-        spectralClass
-      );
-      return Math.round(basePrice * productionMod);
+    if (!system || typeof system !== 'object') {
+      throw new Error('System object required for price calculation');
     }
 
-    const system = systemOrSpectralClass;
-    const productionMod = TradingSystem.getProductionModifier(
-      goodType,
-      system.type
-    );
-    const stationMod = TradingSystem.getStationCountModifier(system.st || 0);
-    const dailyMod = TradingSystem.getDailyFluctuation(
+    // Calculate all modifiers
+    const techLevel = TradingSystem.calculateTechLevel(system);
+    const techMod = TradingSystem.getTechModifier(goodType, techLevel);
+    const temporalMod = TradingSystem.getTemporalModifier(system.id, currentDay);
+    const localMod = TradingSystem.getLocalModifier(
       system.id,
       goodType,
-      currentDay
+      marketConditions
     );
     const eventMod = TradingSystem.getEventModifier(
       system.id,
@@ -57,7 +59,8 @@ export class TradingSystem {
       activeEvents
     );
 
-    const price = basePrice * productionMod * stationMod * dailyMod * eventMod;
+    // Apply complete formula
+    const price = basePrice * techMod * temporalMod * localMod * eventMod;
     return Math.round(price);
   }
 
