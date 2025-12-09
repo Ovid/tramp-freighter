@@ -10,8 +10,9 @@
     "test:coverage": "vitest --coverage",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "lint": "eslint .", 
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "clean": "npm run lint:fix && npm run format:write"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

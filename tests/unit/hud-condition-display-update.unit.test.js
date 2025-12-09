@@ -6,7 +6,7 @@ import { GameStateManager } from '../../js/game-state.js';
 
 /**
  * Unit tests for HUD condition bar display updates
- * 
+ *
  * Verifies that the UIManager correctly updates HUD condition bars
  * when ship condition changes, including:
  * - Bar width reflects condition percentage
@@ -59,12 +59,20 @@ describe('Unit: HUD Condition Display Update', () => {
       { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G', wh: 1, st: 1, r: 1 },
     ];
     gameStateManager = new GameStateManager(starData);
-    
+
     // Mock the UIManager methods that aren't relevant to this test
-    vi.spyOn(UIManager.prototype, 'setupStationInterfaceHandlers').mockImplementation(() => {});
-    vi.spyOn(UIManager.prototype, 'setupEventModalHandlers').mockImplementation(() => {});
-    vi.spyOn(UIManager.prototype, 'setupQuickAccessHandlers').mockImplementation(() => {});
-    
+    vi.spyOn(
+      UIManager.prototype,
+      'setupStationInterfaceHandlers'
+    ).mockImplementation(() => {});
+    vi.spyOn(UIManager.prototype, 'setupEventModalHandlers').mockImplementation(
+      () => {}
+    );
+    vi.spyOn(
+      UIManager.prototype,
+      'setupQuickAccessHandlers'
+    ).mockImplementation(() => {});
+
     uiManager = new UIManager(gameStateManager);
   });
 

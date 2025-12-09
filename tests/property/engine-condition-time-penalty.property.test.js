@@ -37,7 +37,10 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
         // Generate engine condition below threshold
         fc.integer({ min: 0, max: 59 }),
         (distance, engineCondition) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           // Calculate base jump time (without condition penalty)
           const baseTime = navSystem.calculateJumpTime(distance);
@@ -49,7 +52,8 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
           );
 
           // Expected time with +1 day penalty
-          const expectedTime = baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
+          const expectedTime =
+            baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
 
           // Verify penalty is applied
           expect(timeWithPenalty).toBe(expectedTime);
@@ -68,7 +72,10 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
         // Generate engine condition at or above threshold
         fc.integer({ min: 60, max: 100 }),
         (distance, engineCondition) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           // Calculate base jump time (without condition penalty)
           const baseTime = navSystem.calculateJumpTime(distance);
@@ -92,11 +99,18 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
       fc.property(
         fc.float({ min: Math.fround(0.1), max: Math.fround(20), noNaN: true }),
         (distance) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           const baseTime = navSystem.calculateJumpTime(distance);
-          const timeAt59 = navSystem.calculateJumpTimeWithCondition(distance, 59);
-          const expectedTime = baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
+          const timeAt59 = navSystem.calculateJumpTimeWithCondition(
+            distance,
+            59
+          );
+          const expectedTime =
+            baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
 
           expect(timeAt59).toBe(expectedTime);
         }
@@ -110,10 +124,16 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
       fc.property(
         fc.float({ min: Math.fround(0.1), max: Math.fround(20), noNaN: true }),
         (distance) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           const baseTime = navSystem.calculateJumpTime(distance);
-          const timeAt60 = navSystem.calculateJumpTimeWithCondition(distance, 60);
+          const timeAt60 = navSystem.calculateJumpTimeWithCondition(
+            distance,
+            60
+          );
 
           expect(timeAt60).toBe(baseTime);
         }
@@ -129,7 +149,10 @@ describe('Engine Condition Time Penalty - Property Tests', () => {
         fc.float({ min: Math.fround(0.1), max: Math.fround(1), noNaN: true }),
         fc.integer({ min: 0, max: 59 }),
         (distance, engineCondition) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           const timeWithPenalty = navSystem.calculateJumpTimeWithCondition(
             distance,

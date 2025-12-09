@@ -331,6 +331,10 @@ function getAveragePrice(prices) {
 
 This is a common LLM-ism that adds unnecessary defensive programming for variables that are guaranteed to exist by design.
 
+**ANTI-PATTERN: Optional chaining (?.) and nullish coalescing (??) for required properties**
+
+Using `?.` or `??` on properties that MUST exist after initialization is a code smell. It silently hides bugs instead of exposing them during development.
+
 ```javascript
 // BAD - Defensive check for variable that should always exist
 class UIManager {
@@ -341,8 +345,19 @@ class UIManager {
   updateButtons() {
     // Silent failure hides initialization bugs
     if (!this.cachedButtons) return;
-    
-    this.cachedButtons.forEach(btn => updateButton(btn));
+
+    this.cachedButtons.forEach((btn) => updateButton(btn));
+  }
+}
+
+// BAD - Optional chaining for required property
+class GameStateManager {
+  getPlayer() {
+    return this.state?.player; // Silently returns undefined if state is null
+  }
+
+  getCredits() {
+    return this.state?.player?.credits ?? 0; // Returns 0 instead of exposing bug
   }
 }
 
@@ -355,10 +370,12 @@ class UIManager {
   updateButtons() {
     // Throw error to expose initialization bugs immediately
     if (!this.cachedButtons) {
-      throw new Error('Buttons not initialized - constructor must cache DOM elements');
+      throw new Error(
+        'Buttons not initialized - constructor must cache DOM elements'
+      );
     }
-    
-    this.cachedButtons.forEach(btn => updateButton(btn));
+
+    this.cachedButtons.forEach((btn) => updateButton(btn));
   }
 }
 
@@ -373,17 +390,40 @@ class UIManager {
 
   updateButtons() {
     // No check needed - constructor guarantees cachedButtons exists
-    this.cachedButtons.forEach(btn => updateButton(btn));
+    this.cachedButtons.forEach((btn) => updateButton(btn));
+  }
+}
+
+// GOOD - Fail loudly for required properties
+class GameStateManager {
+  getPlayer() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getPlayer called before game initialization'
+      );
+    }
+    return this.state.player; // No optional chaining - state MUST exist
+  }
+
+  getCredits() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getCredits called before game initialization'
+      );
+    }
+    return this.state.player.credits; // Throws if player or credits missing
   }
 }
 ```
 
 **When to use defensive checks:**
+
 - External data (user input, API responses, localStorage)
 - Optional parameters
 - Data from untrusted sources
 
 **When NOT to use defensive checks:**
+
 - Variables initialized in constructor
 - Required parameters (use validation instead)
 - Internal state that should always be valid
@@ -399,54 +439,65 @@ Silent failures or defensive returns hide critical bugs. If internal state is in
 // BAD - Silent failure hides corrupted state
 function refreshTradePanel() {
   const state = gameStateManager.getState();
-  const system = starData.find(s => s.id === state.player.currentSystem);
-  
+  const system = starData.find((s) => s.id === state.player.currentSystem);
+
   if (!system) return; // Silently fails - bug goes unnoticed
-  
+
   renderMarketGoods(system);
 }
 
 // GOOD - Fail loudly to expose state corruption
 function refreshTradePanel() {
   const state = gameStateManager.getState();
-  const system = starData.find(s => s.id === state.player.currentSystem);
-  
+  const system = starData.find((s) => s.id === state.player.currentSystem);
+
   if (!system) {
-    throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+    throw new Error(
+      `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+    );
   }
-  
+
   renderMarketGoods(system);
 }
 ```
 
 **When to throw exceptions:**
+
 - Internal state is corrupted (invalid IDs, missing required data)
 - Invariants are violated (array index out of bounds when size was checked)
 - Required data structures are malformed
 - "Impossible" code paths are reached (unreachable switch cases)
 
 **Benefits:**
+
 - Bugs are discovered immediately during development
 - Stack traces point to the exact location of state corruption
 - Prevents cascading failures from invalid state
 - Makes debugging significantly easier
 
 **Example - Invalid System ID:**
+
 ```javascript
 // Player's current system should always be valid
-const currentSystem = starData.find(s => s.id === state.player.currentSystem);
+const currentSystem = starData.find((s) => s.id === state.player.currentSystem);
 if (!currentSystem) {
-  throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+  throw new Error(
+    `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+  );
 }
 ```
 
 **Example - Unreachable Code Path:**
+
 ```javascript
 function getSystemType(system) {
   switch (system.type) {
-    case 'G': return 'Yellow Dwarf';
-    case 'M': return 'Red Dwarf';
-    case 'K': return 'Orange Dwarf';
+    case 'G':
+      return 'Yellow Dwarf';
+    case 'M':
+      return 'Red Dwarf';
+    case 'K':
+      return 'Orange Dwarf';
     default:
       throw new Error(`Unknown spectral type: ${system.type}`);
   }

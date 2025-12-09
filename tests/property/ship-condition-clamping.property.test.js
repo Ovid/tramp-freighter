@@ -25,15 +25,30 @@ describe('Property 21: Ship Condition Clamping', () => {
         }),
         fc.integer({ min: 1, max: 10 }),
         (ship, jumpDays) => {
-          const degradedShip = NavigationSystem.applyJumpDegradation(ship, jumpDays);
+          const degradedShip = NavigationSystem.applyJumpDegradation(
+            ship,
+            jumpDays
+          );
 
           // Verify all values are clamped to [0, 100]
-          expect(degradedShip.hull).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
-          expect(degradedShip.hull).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
-          expect(degradedShip.engine).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
-          expect(degradedShip.engine).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
-          expect(degradedShip.lifeSupport).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
-          expect(degradedShip.lifeSupport).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
+          expect(degradedShip.hull).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
+          expect(degradedShip.hull).toBeLessThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MAX
+          );
+          expect(degradedShip.engine).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
+          expect(degradedShip.engine).toBeLessThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MAX
+          );
+          expect(degradedShip.lifeSupport).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
+          expect(degradedShip.lifeSupport).toBeLessThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MAX
+          );
         }
       ),
       { numRuns: 100 }
@@ -42,7 +57,9 @@ describe('Property 21: Ship Condition Clamping', () => {
 
   it('should clamp all condition values to [0, 100] range in updateShipCondition', () => {
     // Create a minimal game state manager for testing
-    const starData = [{ id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 }];
+    const starData = [
+      { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 },
+    ];
     const wormholeData = [];
     const gameStateManager = new GameStateManager(starData, wormholeData);
     gameStateManager.initNewGame();
@@ -61,12 +78,22 @@ describe('Property 21: Ship Condition Clamping', () => {
           const condition = gameStateManager.getShipCondition();
 
           // Verify all values are clamped to [0, 100]
-          expect(condition.hull).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
+          expect(condition.hull).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
           expect(condition.hull).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
-          expect(condition.engine).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
-          expect(condition.engine).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
-          expect(condition.lifeSupport).toBeGreaterThanOrEqual(SHIP_CONDITION_BOUNDS.MIN);
-          expect(condition.lifeSupport).toBeLessThanOrEqual(SHIP_CONDITION_BOUNDS.MAX);
+          expect(condition.engine).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
+          expect(condition.engine).toBeLessThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MAX
+          );
+          expect(condition.lifeSupport).toBeGreaterThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MIN
+          );
+          expect(condition.lifeSupport).toBeLessThanOrEqual(
+            SHIP_CONDITION_BOUNDS.MAX
+          );
 
           // Verify clamping behavior
           if (hull < SHIP_CONDITION_BOUNDS.MIN) {
@@ -108,7 +135,10 @@ describe('Property 21: Ship Condition Clamping', () => {
         }),
         fc.integer({ min: 5, max: 20 }), // Large jump duration
         (ship, jumpDays) => {
-          const degradedShip = NavigationSystem.applyJumpDegradation(ship, jumpDays);
+          const degradedShip = NavigationSystem.applyJumpDegradation(
+            ship,
+            jumpDays
+          );
 
           // Verify no negative values
           expect(degradedShip.hull).toBeGreaterThanOrEqual(0);
@@ -130,7 +160,10 @@ describe('Property 21: Ship Condition Clamping', () => {
         }),
         fc.integer({ min: 1, max: 3 }), // Small degradation
         (ship, jumpDays) => {
-          const degradedShip = NavigationSystem.applyJumpDegradation(ship, jumpDays);
+          const degradedShip = NavigationSystem.applyJumpDegradation(
+            ship,
+            jumpDays
+          );
 
           // Verify no values above 100
           expect(degradedShip.hull).toBeLessThanOrEqual(100);

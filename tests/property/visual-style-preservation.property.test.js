@@ -108,25 +108,28 @@ describe('Visual Style Preservation - Property Tests', () => {
 
   it('Property 8: Animation system does not remove existing scene objects', () => {
     // Property 1: Count initial scene objects (before animation system was created)
-    // Note: Ship indicator is already in scene from beforeEach
+    // Note: Ship indicator and reticle are already in scene from beforeEach
     const initialCount = scene.children.length;
     const shipIndicator = animationSystem.shipIndicator;
+    const shipReticle = animationSystem.shipReticle;
 
-    // Property 2: Ship indicator should be in scene
+    // Property 2: Ship indicator and reticle should be in scene
     expect(scene.children).toContain(shipIndicator);
+    expect(scene.children).toContain(shipReticle);
 
-    // Property 3: Store non-ship-indicator objects
+    // Property 3: Store non-animation objects
     const originalObjects = scene.children.filter(
-      (obj) => obj !== shipIndicator
+      (obj) => obj !== shipIndicator && obj !== shipReticle
     );
-    expect(originalObjects.length).toBe(initialCount - 1);
+    expect(originalObjects.length).toBe(initialCount - 2);
 
-    // Property 4: Disposing animation system should only remove ship indicator
+    // Property 4: Disposing animation system should only remove ship indicator and reticle
     animationSystem.dispose();
-    expect(scene.children.length).toBe(initialCount - 1);
+    expect(scene.children.length).toBe(initialCount - 2);
 
-    // Property 5: Ship indicator should be removed
+    // Property 5: Ship indicator and reticle should be removed
     expect(scene.children).not.toContain(shipIndicator);
+    expect(scene.children).not.toContain(shipReticle);
 
     // Property 6: Original objects should still be in scene after disposal
     originalObjects.forEach((obj) => {

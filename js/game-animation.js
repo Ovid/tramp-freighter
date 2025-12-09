@@ -241,6 +241,50 @@ export function createShipIndicatorSprite() {
 }
 
 /**
+ * Create reticle for ship indicator
+ *
+ * Creates a circular reticle around the ship indicator to improve visibility.
+ * Uses a LineLoop with manually created circle vertices for a simple ring.
+ * Configured with cyan color for contrast against the red ship indicator.
+ *
+ * @returns {THREE.LineLoop} Reticle line object
+ */
+export function createShipReticle() {
+  const THREE = window.THREE;
+
+  // Create circle vertices manually
+  const vertices = [];
+  const segments = ANIMATION_CONFIG.RETICLE_SEGMENTS;
+  const radius = ANIMATION_CONFIG.RETICLE_SIZE;
+
+  for (let i = 0; i < segments; i++) {
+    const angle = (i / segments) * Math.PI * 2;
+    vertices.push(
+      new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
+    );
+  }
+
+  // Create line geometry from vertices
+  const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+
+  // Create line material with cyan color
+  const material = new THREE.LineBasicMaterial({
+    color: ANIMATION_CONFIG.RETICLE_COLOR,
+    transparent: true,
+    opacity: 0.8,
+    linewidth: ANIMATION_CONFIG.RETICLE_LINE_WIDTH,
+  });
+
+  // Create line loop (automatically closes the circle)
+  const reticle = new THREE.LineLoop(geometry, material);
+
+  // Initially hidden until animation begins
+  reticle.visible = false;
+
+  return reticle;
+}
+
+/**
  * Jump animation system
  *
  * Orchestrates the complete jump animation sequence including camera transitions,
@@ -265,6 +309,10 @@ export class JumpAnimationSystem {
     // Create ship indicator sprite (reused across all jumps)
     this.shipIndicator = createShipIndicatorSprite();
     this.scene.add(this.shipIndicator);
+
+    // Create reticle for ship indicator
+    this.shipReticle = createShipReticle();
+    this.scene.add(this.shipReticle);
 
     // Create input lock manager
     this.inputLockManager = new InputLockManager(controls);
@@ -461,8 +509,12 @@ export class JumpAnimationSystem {
       // Position ship indicator at origin star
       this.shipIndicator.position.copy(originPos);
 
-      // Make ship indicator visible
+      // Position reticle at origin star
+      this.shipReticle.position.copy(originPos);
+
+      // Make ship indicator and reticle visible
       this.shipIndicator.visible = true;
+      this.shipReticle.visible = true;
 
       // Reuse temp vector for interpolated position (avoid allocations in loop)
       const currentPosition = this._tempVec1;
@@ -477,13 +529,18 @@ export class JumpAnimationSystem {
         // No easing function - ship travels at constant speed
         currentPosition.copy(originPos).lerp(destPos, progress);
         this.shipIndicator.position.copy(currentPosition);
+        this.shipReticle.position.copy(currentPosition);
+
+        // Orient reticle to face camera for consistent appearance
+        this.shipReticle.lookAt(this.camera.position);
 
         // Continue animation or resolve
         if (progress < 1.0) {
           requestAnimationFrame(animateShipFrame);
         } else {
-          // Hide ship indicator when travel completes
+          // Hide ship indicator and reticle when travel completes
           this.shipIndicator.visible = false;
+          this.shipReticle.visible = false;
           resolve();
         }
       };
@@ -506,6 +563,11 @@ export class JumpAnimationSystem {
     // Hide ship indicator if visible
     if (this.shipIndicator) {
       this.shipIndicator.visible = false;
+    }
+
+    // Hide reticle if visible
+    if (this.shipReticle) {
+      this.shipReticle.visible = false;
     }
 
     // Unlock controls
@@ -671,6 +733,20 @@ export class JumpAnimationSystem {
       // Remove from scene
       this.scene.remove(this.shipIndicator);
       this.shipIndicator = null;
+    }
+
+    if (this.shipReticle) {
+      // Dispose geometry and material
+      if (this.shipReticle.geometry) {
+        this.shipReticle.geometry.dispose();
+      }
+      if (this.shipReticle.material) {
+        this.shipReticle.material.dispose();
+      }
+
+      // Remove from scene
+      this.scene.remove(this.shipReticle);
+      this.shipReticle = null;
     }
   }
 }

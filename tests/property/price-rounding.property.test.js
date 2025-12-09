@@ -8,7 +8,10 @@ import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
 import { BASE_PRICES } from '../../js/game-constants.js';
 
-describe('Property: Price Rounding', () => {
+// DEPRECATED: This test is for the old dynamic-economy system
+// The deterministic-economy system has replaced this functionality
+// See: .kiro/specs/deterministic-economy for the new system
+describe.skip('Property: Price Rounding', () => {
   const commodities = [
     'grain',
     'ore',

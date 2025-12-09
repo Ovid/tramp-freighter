@@ -7,9 +7,10 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { InformationBroker } from '../../js/game-information-broker.js';
+import { NavigationSystem } from '../../js/game-navigation.js';
 
 describe('Property: Information Broker System Listing', () => {
-  it('should list all systems with their intelligence costs and last visit information', () => {
+  it('should list only connected systems with their intelligence costs and last visit information', () => {
     fc.assert(
       fc.property(
         // Generate random star data with unique IDs
@@ -23,7 +24,7 @@ describe('Property: Information Broker System Listing', () => {
               z: fc.float({ min: -300, max: 300 }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
-            { minLength: 1, maxLength: 20 }
+            { minLength: 3, maxLength: 20 }
           )
           .map((systems) => systems.map((s, i) => ({ ...s, id: i }))),
         // Generate random price knowledge
@@ -42,13 +43,28 @@ describe('Property: Information Broker System Listing', () => {
           })
         ),
         (starData, priceKnowledge) => {
+          // Create wormhole connections: connect first system to some others
+          const currentSystemId = starData[0].id;
+          const wormholeData = [];
+
+          // Connect current system to half of the other systems
+          for (let i = 1; i < starData.length; i += 2) {
+            wormholeData.push([currentSystemId, starData[i].id]);
+          }
+
+          const navigationSystem = new NavigationSystem(starData, wormholeData);
+
           const listing = InformationBroker.listAvailableIntelligence(
             priceKnowledge,
-            starData
+            starData,
+            currentSystemId,
+            navigationSystem
           );
 
-          // Should return an entry for every system
-          expect(listing.length).toBe(starData.length);
+          // Should only return connected systems
+          const connectedIds =
+            navigationSystem.getConnectedSystems(currentSystemId);
+          expect(listing.length).toBe(connectedIds.length);
 
           // Each entry should have required fields
           for (const entry of listing) {
@@ -57,7 +73,9 @@ describe('Property: Information Broker System Listing', () => {
             expect(entry).toHaveProperty('cost');
             expect(entry).toHaveProperty('lastVisit');
 
-            // Verify the entry corresponds to a system in starData
+            // Verify the entry corresponds to a connected system
+            expect(connectedIds).toContain(entry.systemId);
+
             const system = starData.find((s) => s.id === entry.systemId);
             expect(system).toBeDefined();
             expect(entry.systemName).toBe(system.name);
@@ -81,7 +99,16 @@ describe('Property: Information Broker System Listing', () => {
   it('should include cost information based on visit history', () => {
     fc.assert(
       fc.property(
-        // Generate a single system
+        // Generate two systems
+        fc.record({
+          id: fc.integer({ min: 0, max: 116 }),
+          name: fc.string({ minLength: 1, maxLength: 20 }),
+          type: fc.constantFrom('G2V', 'K5V', 'M3V'),
+          x: fc.float({ min: -300, max: 300 }),
+          y: fc.float({ min: -300, max: 300 }),
+          z: fc.float({ min: -300, max: 300 }),
+          st: fc.integer({ min: 0, max: 5 }),
+        }),
         fc.record({
           id: fc.integer({ min: 0, max: 116 }),
           name: fc.string({ minLength: 1, maxLength: 20 }),
@@ -93,10 +120,18 @@ describe('Property: Information Broker System Listing', () => {
         }),
         // Generate price knowledge with lastVisit
         fc.integer({ min: 0, max: 100 }),
-        (system, lastVisit) => {
-          const starData = [system];
+        (currentSystem, targetSystem, lastVisit) => {
+          // Ensure different IDs
+          if (currentSystem.id === targetSystem.id) {
+            targetSystem.id = (currentSystem.id + 1) % 117;
+          }
+
+          const starData = [currentSystem, targetSystem];
+          const wormholeData = [[currentSystem.id, targetSystem.id]];
+          const navigationSystem = new NavigationSystem(starData, wormholeData);
+
           const priceKnowledge = {
-            [system.id]: {
+            [targetSystem.id]: {
               lastVisit: lastVisit,
               prices: {
                 grain: 10,
@@ -111,7 +146,9 @@ describe('Property: Information Broker System Listing', () => {
 
           const listing = InformationBroker.listAvailableIntelligence(
             priceKnowledge,
-            starData
+            starData,
+            currentSystem.id,
+            navigationSystem
           );
 
           expect(listing.length).toBe(1);
@@ -119,7 +156,7 @@ describe('Property: Information Broker System Listing', () => {
 
           // Cost should match what getIntelligenceCost returns
           const expectedCost = InformationBroker.getIntelligenceCost(
-            system.id,
+            targetSystem.id,
             priceKnowledge
           );
           expect(entry.cost).toBe(expectedCost);
@@ -146,19 +183,35 @@ describe('Property: Information Broker System Listing', () => {
             z: fc.float({ min: -300, max: 300 }),
             st: fc.integer({ min: 0, max: 5 }),
           }),
-          { minLength: 1, maxLength: 10 }
+          { minLength: 2, maxLength: 10 }
         ),
         (starData) => {
+          // Ensure unique IDs
+          starData.forEach((s, i) => {
+            s.id = i;
+          });
+
           // Empty price knowledge
           const priceKnowledge = {};
 
+          // Create wormhole connections from first system to all others
+          const currentSystemId = starData[0].id;
+          const wormholeData = [];
+          for (let i = 1; i < starData.length; i++) {
+            wormholeData.push([currentSystemId, starData[i].id]);
+          }
+
+          const navigationSystem = new NavigationSystem(starData, wormholeData);
+
           const listing = InformationBroker.listAvailableIntelligence(
             priceKnowledge,
-            starData
+            starData,
+            currentSystemId,
+            navigationSystem
           );
 
-          // Should still list all systems
-          expect(listing.length).toBe(starData.length);
+          // Should list all connected systems (all except current)
+          expect(listing.length).toBe(starData.length - 1);
 
           // All systems should have null lastVisit
           for (const entry of listing) {

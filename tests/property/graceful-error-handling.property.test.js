@@ -100,13 +100,13 @@ describe('Property 9: Graceful error handling', () => {
       // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
       const originalPerformanceNow = performance.now;
-      
+
       let mockTime = 0;
       performance.now = () => {
         mockTime += 100; // Advance 100ms per frame to complete animations quickly
         return mockTime;
       };
-      
+
       global.requestAnimationFrame = (cb) => {
         cb();
         return 1;
@@ -152,13 +152,13 @@ describe('Property 9: Graceful error handling', () => {
       // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
       const originalPerformanceNow = performance.now;
-      
+
       let mockTime = 0;
       performance.now = () => {
         mockTime += 100; // Advance 100ms per frame to complete animations quickly
         return mockTime;
       };
-      
+
       global.requestAnimationFrame = (cb) => {
         cb();
         return 1;
@@ -185,13 +185,13 @@ describe('Property 9: Graceful error handling', () => {
       // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
       const originalPerformanceNow = performance.now;
-      
+
       let mockTime = 0;
       performance.now = () => {
         mockTime += 100; // Advance 100ms per frame
         return mockTime;
       };
-      
+
       global.requestAnimationFrame = (cb) => {
         cb();
         return 1;
@@ -229,13 +229,13 @@ describe('Property 9: Graceful error handling', () => {
       // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
       const originalPerformanceNow = performance.now;
-      
+
       let mockTime = 0;
       performance.now = () => {
         mockTime += 100; // Advance 100ms per frame
         return mockTime;
       };
-      
+
       global.requestAnimationFrame = (cb) => {
         cb();
         return 1;
@@ -308,13 +308,13 @@ describe('Property 9: Graceful error handling', () => {
       // Mock requestAnimationFrame and performance.now() for fast synchronous execution
       const originalRAF = global.requestAnimationFrame;
       const originalPerformanceNow = performance.now;
-      
+
       let mockTime = 0;
       performance.now = () => {
         mockTime += 100; // Advance 100ms per frame
         return mockTime;
       };
-      
+
       global.requestAnimationFrame = (cb) => {
         cb();
         return 1;

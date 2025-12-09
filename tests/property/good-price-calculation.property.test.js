@@ -8,7 +8,10 @@ import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
 import { BASE_PRICES, SPECTRAL_MODIFIERS } from '../../js/game-constants.js';
 
-describe('Property 15: Good Price Calculation', () => {
+// DEPRECATED: This test is for the old dynamic-economy system with spectral modifiers
+// The deterministic-economy system has replaced this functionality
+// See: .kiro/specs/deterministic-economy for the new system
+describe.skip('Property 15: Good Price Calculation', () => {
   /**
    * Property: For any good type and spectral class, the calculated price
    * should equal the base price multiplied by the spectral class modifier

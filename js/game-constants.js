@@ -41,98 +41,6 @@ export const BASE_PRICES = {
 };
 
 /**
- * Spectral class economic modifiers by commodity type
- *
- * Each spectral class has different resource availability and demand patterns.
- * Multipliers are applied to base prices to create price variation across systems.
- *
- * Example: Grain at G-class star = 10 × 0.8 = 8 credits
- *          Grain at M-class star = 10 × 1.2 = 12 credits
- */
-export const SPECTRAL_MODIFIERS = {
-  G: {
-    grain: 0.8,
-    ore: 1.0,
-    tritium: 1.2,
-    parts: 1.0,
-    medicine: 1.0,
-    electronics: 1.0,
-  },
-  K: {
-    grain: 1.0,
-    ore: 0.9,
-    tritium: 1.1,
-    parts: 1.0,
-    medicine: 1.0,
-    electronics: 1.0,
-  },
-  M: {
-    grain: 1.2,
-    ore: 0.8,
-    tritium: 1.0,
-    parts: 1.1,
-    medicine: 1.0,
-    electronics: 1.0,
-  },
-  A: {
-    grain: 0.9,
-    ore: 1.1,
-    tritium: 1.3,
-    parts: 1.2,
-    medicine: 1.1,
-    electronics: 1.2,
-  },
-  F: {
-    grain: 0.85,
-    ore: 1.05,
-    tritium: 1.25,
-    parts: 1.1,
-    medicine: 1.05,
-    electronics: 1.1,
-  },
-  O: {
-    grain: 1.0,
-    ore: 1.2,
-    tritium: 1.5,
-    parts: 1.3,
-    medicine: 1.2,
-    electronics: 1.3,
-  },
-  B: {
-    grain: 0.95,
-    ore: 1.15,
-    tritium: 1.4,
-    parts: 1.25,
-    medicine: 1.15,
-    electronics: 1.25,
-  },
-  L: {
-    grain: 1.3,
-    ore: 0.7,
-    tritium: 0.9,
-    parts: 1.2,
-    medicine: 0.9,
-    electronics: 0.8,
-  },
-  T: {
-    grain: 1.4,
-    ore: 0.6,
-    tritium: 0.8,
-    parts: 1.3,
-    medicine: 0.8,
-    electronics: 0.7,
-  },
-  D: {
-    grain: 1.0,
-    ore: 1.0,
-    tritium: 1.0,
-    parts: 1.0,
-    medicine: 1.0,
-    electronics: 1.0,
-  },
-};
-
-/**
  * Spectral class color mapping for star visualization
  * Colors represent actual stellar temperatures (blue = hot, red = cool)
  */
@@ -147,21 +55,6 @@ export const SPECTRAL_COLORS = {
   L: 0xff6b6b, // Brown dwarf (red)
   T: 0xcc5555, // Brown dwarf (darker red)
   D: 0xffffff, // White dwarf (white)
-};
-
-/**
- * Daily price fluctuation range for dynamic economy
- *
- * Uses ±30% range (0.70 to 1.30) to ensure price changes are visible
- * after integer rounding, making the dynamic economy feel responsive.
- *
- * MIN: 0.70 (30% below base price)
- * MAX: 1.30 (30% above base price)
- * RANGE: 0.60 (MAX - MIN)
- */
-export const DAILY_FLUCTUATION = {
-  MIN: 0.7,
-  RANGE: 0.6,
 };
 
 /**
@@ -188,6 +81,31 @@ export const INTELLIGENCE_PRICES = {
  * and costs more to refresh via the information broker.
  */
 export const INTELLIGENCE_RECENT_THRESHOLD = 30;
+
+/**
+ * Intelligence reliability configuration
+ *
+ * The information broker's data is not always accurate. Sometimes prices
+ * are manipulated to show false profit opportunities, reflecting the
+ * unreliable nature of black market intelligence.
+ */
+export const INTELLIGENCE_RELIABILITY = {
+  // Probability that a commodity price will be manipulated (0.0 to 1.0)
+  MANIPULATION_CHANCE: 0.1,
+
+  // Multiplier range for manipulated prices (makes them appear more profitable)
+  // Lower multiplier = appears cheaper to buy (false buying opportunity)
+  MIN_MANIPULATION_MULTIPLIER: 0.7,
+  MAX_MANIPULATION_MULTIPLIER: 0.85,
+};
+
+/**
+ * Maximum age for purchased intelligence data
+ *
+ * Market data older than this many days is automatically deleted
+ * to prevent stale information from cluttering the player's knowledge base.
+ */
+export const INTELLIGENCE_MAX_AGE = 100;
 
 /**
  * Fuel pricing configuration by system distance from Sol
@@ -316,9 +234,70 @@ export const SHIP_CONDITION_WARNING_THRESHOLDS = {
 export const FUEL_CAPACITY_EPSILON = 0.01;
 
 /**
- * Game version for save compatibility
+ * Deterministic Economy Configuration
+ *
+ * Centralized configuration for the deterministic economy system.
+ * Prices are determined by three factors:
+ * 1. Technology Level Gradient: Static price differentials based on distance from Sol
+ * 2. Temporal Drift: Smooth sine-wave price oscillations over time
+ * 3. Local Market Saturation: Player-driven supply/demand impacts that decay over time
+ *
+ * This replaces the random price fluctuation model with a predictable, simulation-based economy.
  */
-export const GAME_VERSION = '2.0.0';
+export const ECONOMY_CONFIG = {
+  MAX_COORD_DISTANCE: 21, // Calibrated for Sol Sector map (<21 LY radius)
+
+  MAX_TECH_LEVEL: 10.0, // Sol and core systems
+  MIN_TECH_LEVEL: 1.0, // Frontier systems at 21+ LY
+
+  MARKET_CAPACITY: 1000, // Units traded before extreme price impact
+
+  DAILY_RECOVERY_FACTOR: 0.9, // Market conditions decay 10% per day
+
+  TEMPORAL_WAVE_PERIOD: 30, // Price oscillation cycle in days
+  TEMPORAL_AMPLITUDE: 0.15, // ±15% price variation (0.85 to 1.15 multiplier)
+  TEMPORAL_PHASE_OFFSET: 0.15, // System ID phase offset for temporal waves
+
+  TECH_LEVEL_MIDPOINT: 5.0, // Neutral point where tech modifiers equal 1.0
+  TECH_MODIFIER_INTENSITY: 0.08, // Controls tech level price impact strength
+
+  LOCAL_MODIFIER_MIN: 0.25, // Prevents prices below 25% of baseline
+  LOCAL_MODIFIER_MAX: 2.0, // Prevents prices above 200% of baseline
+
+  MARKET_CONDITION_PRUNE_THRESHOLD: 1.0, // Remove insignificant market impacts
+
+  // Technology biases: negative = cheaper at low-tech, positive = cheaper at high-tech
+  // Creates intuitive trade routes (buy grain/ore at frontier, electronics/medicine at core)
+  TECH_BIASES: {
+    grain: -0.6, // Agricultural product
+    ore: -0.8, // Raw material
+    tritium: -0.3, // Fuel
+    parts: 0.5, // Manufactured goods
+    medicine: 0.7, // Advanced medical supplies
+    electronics: 1.0, // High-tech goods
+  },
+};
+
+/**
+ * New game initialization values
+ */
+export const NEW_GAME_DEFAULTS = {
+  STARTING_CREDITS: 500,
+  STARTING_DEBT: 10000,
+  STARTING_CARGO_CAPACITY: 50,
+  STARTING_GRAIN_QUANTITY: 20,
+  STARTING_SHIP_NAME: 'Serendipity',
+};
+
+/**
+ * Game version for save compatibility
+ *
+ * Version history:
+ * - 1.0.0: Initial release with basic trading
+ * - 2.0.0: Added ship condition, price knowledge, events
+ * - 2.1.0: Deterministic economy with market conditions
+ */
+export const GAME_VERSION = '2.1.0';
 
 /**
  * localStorage key for save data
@@ -405,6 +384,12 @@ export const ANIMATION_CONFIG = {
   SHIP_INDICATOR_COLOR: 0xff0000, // Red
   SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
   SHIP_INDICATOR_TEXTURE_SIZE: 64, // Canvas texture dimensions (matches star sprites)
+
+  // Reticle visual properties
+  RETICLE_SIZE: 15, // Radius of reticle circle
+  RETICLE_COLOR: 0x00ffff, // Cyan for contrast against red ship
+  RETICLE_SEGMENTS: 32, // Number of segments in reticle circle
+  RETICLE_LINE_WIDTH: 2, // Line width for reticle
 
   // Camera positioning for side view
   SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5, // Distance from midpoint as multiple of star separation

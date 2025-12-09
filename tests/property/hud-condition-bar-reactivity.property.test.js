@@ -71,7 +71,9 @@ describe('Property: Condition Bar Reactivity', () => {
           const engineBar = document.getElementById('engine-bar');
           const engineText = document.getElementById('hud-engine-text');
           const lifeSupportBar = document.getElementById('life-support-bar');
-          const lifeSupportText = document.getElementById('hud-life-support-text');
+          const lifeSupportText = document.getElementById(
+            'hud-life-support-text'
+          );
 
           // Set initial condition
           hullBar.style.width = `${conditions.initialHull}%`;
@@ -83,11 +85,19 @@ describe('Property: Condition Bar Reactivity', () => {
 
           // Verify initial state
           expect(hullBar.style.width).toBe(`${conditions.initialHull}%`);
-          expect(hullText.textContent).toBe(`${Math.round(conditions.initialHull)}%`);
+          expect(hullText.textContent).toBe(
+            `${Math.round(conditions.initialHull)}%`
+          );
           expect(engineBar.style.width).toBe(`${conditions.initialEngine}%`);
-          expect(engineText.textContent).toBe(`${Math.round(conditions.initialEngine)}%`);
-          expect(lifeSupportBar.style.width).toBe(`${conditions.initialLifeSupport}%`);
-          expect(lifeSupportText.textContent).toBe(`${Math.round(conditions.initialLifeSupport)}%`);
+          expect(engineText.textContent).toBe(
+            `${Math.round(conditions.initialEngine)}%`
+          );
+          expect(lifeSupportBar.style.width).toBe(
+            `${conditions.initialLifeSupport}%`
+          );
+          expect(lifeSupportText.textContent).toBe(
+            `${Math.round(conditions.initialLifeSupport)}%`
+          );
 
           // Simulate condition change
           hullBar.style.width = `${conditions.newHull}%`;
@@ -99,11 +109,19 @@ describe('Property: Condition Bar Reactivity', () => {
 
           // Verify bars updated to reflect new condition
           expect(hullBar.style.width).toBe(`${conditions.newHull}%`);
-          expect(hullText.textContent).toBe(`${Math.round(conditions.newHull)}%`);
+          expect(hullText.textContent).toBe(
+            `${Math.round(conditions.newHull)}%`
+          );
           expect(engineBar.style.width).toBe(`${conditions.newEngine}%`);
-          expect(engineText.textContent).toBe(`${Math.round(conditions.newEngine)}%`);
-          expect(lifeSupportBar.style.width).toBe(`${conditions.newLifeSupport}%`);
-          expect(lifeSupportText.textContent).toBe(`${Math.round(conditions.newLifeSupport)}%`);
+          expect(engineText.textContent).toBe(
+            `${Math.round(conditions.newEngine)}%`
+          );
+          expect(lifeSupportBar.style.width).toBe(
+            `${conditions.newLifeSupport}%`
+          );
+          expect(lifeSupportText.textContent).toBe(
+            `${Math.round(conditions.newLifeSupport)}%`
+          );
         }
       ),
       { numRuns: 100 }
@@ -126,7 +144,9 @@ describe('Property: Condition Bar Reactivity', () => {
           const engineBar = document.getElementById('engine-bar');
           const engineText = document.getElementById('hud-engine-text');
           const lifeSupportBar = document.getElementById('life-support-bar');
-          const lifeSupportText = document.getElementById('hud-life-support-text');
+          const lifeSupportText = document.getElementById(
+            'hud-life-support-text'
+          );
 
           // Set initial condition for all systems
           hullBar.style.width = `${initialCondition.hull}%`;
@@ -168,7 +188,9 @@ describe('Property: Condition Bar Reactivity', () => {
             expect(lifeSupportBar.style.width).toBe(`${initialLifeSupport}%`);
           } else if (systemToChange === 'lifeSupport') {
             expect(lifeSupportBar.style.width).toBe(`${newValue}%`);
-            expect(lifeSupportText.textContent).toBe(`${Math.round(newValue)}%`);
+            expect(lifeSupportText.textContent).toBe(
+              `${Math.round(newValue)}%`
+            );
             // Other systems should remain unchanged
             expect(hullBar.style.width).toBe(`${initialHull}%`);
             expect(engineBar.style.width).toBe(`${initialEngine}%`);

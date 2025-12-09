@@ -1,5 +1,5 @@
 import {
-  BASE_PRICES,
+  COMMODITY_TYPES,
   FUEL_PRICING,
   calculateDistanceFromSol,
   SOL_SYSTEM_ID,
@@ -9,6 +9,8 @@ import {
   REPAIR_COST_PER_PERCENT,
   SHIP_CONDITION_BOUNDS,
   SHIP_CONDITION_WARNING_THRESHOLDS,
+  NEW_GAME_DEFAULTS,
+  ECONOMY_CONFIG,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -28,9 +30,10 @@ const SAVE_DEBOUNCE_MS = 1000;
  * - Support multiple subscribers per event type
  */
 export class GameStateManager {
-  constructor(starData, wormholeData) {
+  constructor(starData, wormholeData, navigationSystem = null) {
     this.starData = starData;
     this.wormholeData = wormholeData;
+    this.navigationSystem = navigationSystem;
 
     // Check once during initialization to suppress console noise during test runs
     this.isTestEnvironment =
@@ -65,42 +68,45 @@ export class GameStateManager {
     const solSystem = this.starData.find((s) => s.id === SOL_SYSTEM_ID);
     const currentDay = 0; // Game starts at day 0
     const activeEvents = []; // No events at game start
+    const marketConditions = {}; // No market conditions at game start
     const solGrainPrice = TradingSystem.calculatePrice(
       'grain',
       solSystem,
       currentDay,
-      activeEvents
+      activeEvents,
+      marketConditions
     );
 
     // Calculate all Sol prices for price knowledge initialization
     const solPrices = {};
-    for (const goodType of Object.keys(BASE_PRICES)) {
+    for (const goodType of COMMODITY_TYPES) {
       solPrices[goodType] = TradingSystem.calculatePrice(
         goodType,
         solSystem,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
     }
 
     this.state = {
       player: {
-        credits: 500,
-        debt: 10000,
+        credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
+        debt: NEW_GAME_DEFAULTS.STARTING_DEBT,
         currentSystem: SOL_SYSTEM_ID,
         daysElapsed: 0,
       },
       ship: {
-        name: 'Serendipity',
+        name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
         fuel: SHIP_CONDITION_BOUNDS.MAX,
         hull: SHIP_CONDITION_BOUNDS.MAX,
         engine: SHIP_CONDITION_BOUNDS.MAX,
         lifeSupport: SHIP_CONDITION_BOUNDS.MAX,
-        cargoCapacity: 50,
+        cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
         cargo: [
           {
             good: 'grain',
-            qty: 20,
+            qty: NEW_GAME_DEFAULTS.STARTING_GRAIN_QUANTITY,
             purchasePrice: solGrainPrice,
             purchaseSystem: SOL_SYSTEM_ID,
             purchaseDay: 0,
@@ -116,6 +122,7 @@ export class GameStateManager {
           },
         },
         activeEvents: [],
+        marketConditions: {},
       },
       meta: {
         version: GAME_VERSION,
@@ -201,37 +208,79 @@ export class GameStateManager {
   }
 
   getPlayer() {
-    return this.state?.player;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getPlayer called before game initialization'
+      );
+    }
+    return this.state.player;
   }
 
   getShip() {
-    return this.state?.ship;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getShip called before game initialization'
+      );
+    }
+    return this.state.ship;
   }
 
   getCurrentSystem() {
-    const systemId = this.state?.player.currentSystem;
-    return this.starData.find((s) => s.id === systemId);
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getCurrentSystem called before game initialization'
+      );
+    }
+
+    const systemId = this.state.player.currentSystem;
+    const system = this.starData.find((s) => s.id === systemId);
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${systemId} not found in star data`
+      );
+    }
+
+    return system;
   }
 
   getCargoUsed() {
-    if (!this.state?.ship.cargo) return 0;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getCargoUsed called before game initialization'
+      );
+    }
     return this.state.ship.cargo.reduce((total, stack) => total + stack.qty, 0);
   }
 
   getCargoRemaining() {
-    return this.state?.ship.cargoCapacity - this.getCargoUsed();
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getCargoRemaining called before game initialization'
+      );
+    }
+    return this.state.ship.cargoCapacity - this.getCargoUsed();
   }
 
   isSystemVisited(systemId) {
-    return this.state?.world.visitedSystems.includes(systemId);
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: isSystemVisited called before game initialization'
+      );
+    }
+    return this.state.world.visitedSystems.includes(systemId);
   }
 
   /**
    * Get ship condition values
-   * @returns {Object} { hull, engine, lifeSupport } or null if no state
+   * @returns {Object} { hull, engine, lifeSupport }
    */
   getShipCondition() {
-    if (!this.state?.ship) return null;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getShipCondition called before game initialization'
+      );
+    }
 
     return {
       hull: this.state.ship.hull,
@@ -254,7 +303,7 @@ export class GameStateManager {
 
     const warnings = [];
 
-    // Hull warning: < 50%
+    // Hull integrity affects cargo safety during jumps
     if (condition.hull < SHIP_CONDITION_WARNING_THRESHOLDS.HULL) {
       warnings.push({
         system: 'hull',
@@ -263,7 +312,7 @@ export class GameStateManager {
       });
     }
 
-    // Engine warning: < 30%
+    // Engine degradation increases fuel consumption and travel time
     if (condition.engine < SHIP_CONDITION_WARNING_THRESHOLDS.ENGINE) {
       warnings.push({
         system: 'engine',
@@ -272,7 +321,7 @@ export class GameStateManager {
       });
     }
 
-    // Life support critical warning: < 20%
+    // Life support failure is catastrophic
     if (
       condition.lifeSupport < SHIP_CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
     ) {
@@ -290,21 +339,36 @@ export class GameStateManager {
    * Get price knowledge database
    */
   getPriceKnowledge() {
-    return this.state?.world.priceKnowledge || {};
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getPriceKnowledge called before game initialization'
+      );
+    }
+    return this.state.world.priceKnowledge || {};
   }
 
   /**
    * Get known prices for a specific system
    */
   getKnownPrices(systemId) {
-    return this.state?.world.priceKnowledge?.[systemId]?.prices || null;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getKnownPrices called before game initialization'
+      );
+    }
+    return this.state.world.priceKnowledge?.[systemId]?.prices || null;
   }
 
   /**
    * Check if player has price knowledge for a system
    */
   hasVisitedSystem(systemId) {
-    return this.state?.world.priceKnowledge?.[systemId] !== undefined;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: hasVisitedSystem called before game initialization'
+      );
+    }
+    return this.state.world.priceKnowledge?.[systemId] !== undefined;
   }
 
   // ========================================================================
@@ -361,6 +425,12 @@ export class GameStateManager {
 
       // Increment staleness for all systems
       this.incrementPriceKnowledgeStaleness(daysPassed);
+
+      // Clean up old intelligence data
+      InformationBroker.cleanupOldIntelligence(this.state.world.priceKnowledge);
+
+      // Apply market recovery (decay surplus/deficit over time)
+      this.applyMarketRecovery(daysPassed);
 
       // Update economic events (trigger new events, remove expired ones)
       this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
@@ -419,6 +489,94 @@ export class GameStateManager {
   }
 
   /**
+   * Update market conditions for a system and commodity
+   *
+   * Tracks player trading activity to create local supply/demand effects.
+   * Positive quantityDelta = surplus (player sold), negative = deficit (player bought).
+   *
+   * Uses sparse storage: system and commodity entries are created on-demand during first trade.
+   * This keeps save files small by only tracking systems/commodities with active trading history.
+   *
+   * Feature: deterministic-economy, Requirements 4.1, 4.2, 9.2
+   *
+   * @param {number} systemId - System ID
+   * @param {string} goodType - Commodity type
+   * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
+   */
+  updateMarketConditions(systemId, goodType, quantityDelta) {
+    if (!this.state.world.marketConditions) {
+      this.state.world.marketConditions = {};
+    }
+
+    // Create system entry if first trade at that system
+    if (!this.state.world.marketConditions[systemId]) {
+      this.state.world.marketConditions[systemId] = {};
+    }
+
+    // Create commodity entry if first trade of that commodity
+    if (this.state.world.marketConditions[systemId][goodType] === undefined) {
+      this.state.world.marketConditions[systemId][goodType] = 0;
+    }
+
+    // Add quantityDelta to existing value
+    this.state.world.marketConditions[systemId][goodType] += quantityDelta;
+  }
+
+  /**
+   * Apply market recovery to all market conditions
+   *
+   * Markets naturally recover toward equilibrium over time. Each day, surplus and deficit
+   * values decay by 10% (multiply by 0.90). Insignificant values (abs < 1.0) are pruned
+   * to keep save files small.
+   *
+   * Feature: deterministic-economy, Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+   *
+   * @param {number} daysPassed - Number of days elapsed
+   */
+  applyMarketRecovery(daysPassed) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: applyMarketRecovery called before game initialization'
+      );
+    }
+
+    if (!this.state.world.marketConditions) {
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
+    }
+
+    const recoveryFactor = Math.pow(
+      ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR,
+      daysPassed
+    );
+
+    // Iterate over all systems
+    for (const systemId in this.state.world.marketConditions) {
+      const systemConditions = this.state.world.marketConditions[systemId];
+
+      // Iterate over all commodities in this system
+      for (const goodType in systemConditions) {
+        // Apply exponential decay
+        systemConditions[goodType] *= recoveryFactor;
+
+        // Prune insignificant entries
+        if (
+          Math.abs(systemConditions[goodType]) <
+          ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD
+        ) {
+          delete systemConditions[goodType];
+        }
+      }
+
+      // Remove empty system entries
+      if (Object.keys(systemConditions).length === 0) {
+        delete this.state.world.marketConditions[systemId];
+      }
+    }
+  }
+
+  /**
    * Update price knowledge for a system
    *
    * @param {number} systemId - System ID
@@ -462,10 +620,24 @@ export class GameStateManager {
    * fluctuations and active event modifiers.
    */
   recalculatePricesForKnownSystems() {
-    if (!this.state?.world.priceKnowledge) return;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: recalculatePricesForKnownSystems called before game initialization'
+      );
+    }
+    if (!this.state.world.priceKnowledge) return;
 
     const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents || [];
+    const activeEvents = this.state.world.activeEvents;
+    if (!activeEvents) {
+      throw new Error('Invalid state: activeEvents missing from world state');
+    }
+    const marketConditions = this.state.world.marketConditions;
+    if (!marketConditions) {
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
+    }
 
     // Recalculate prices for each system in price knowledge
     for (const systemIdStr in this.state.world.priceKnowledge) {
@@ -476,12 +648,13 @@ export class GameStateManager {
         const newPrices = {};
 
         // Calculate new prices for all commodities
-        for (const goodType of Object.keys(BASE_PRICES)) {
+        for (const goodType of COMMODITY_TYPES) {
           newPrices[goodType] = TradingSystem.calculatePrice(
             goodType,
             system,
             currentDay,
-            activeEvents
+            activeEvents,
+            marketConditions
           );
         }
 
@@ -501,7 +674,12 @@ export class GameStateManager {
    * Get active events array
    */
   getActiveEvents() {
-    return this.state?.world.activeEvents || [];
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getActiveEvents called before game initialization'
+      );
+    }
+    return this.state.world.activeEvents || [];
   }
 
   /**
@@ -563,7 +741,9 @@ export class GameStateManager {
    */
   purchaseIntelligence(systemId) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: purchaseIntelligence called before game initialization'
+      );
     }
 
     const result = InformationBroker.purchaseIntelligence(
@@ -591,22 +771,27 @@ export class GameStateManager {
    */
   generateRumor() {
     if (!this.state) {
-      return 'No rumors available.';
+      throw new Error(
+        'Invalid state: generateRumor called before game initialization'
+      );
     }
 
     return InformationBroker.generateRumor(this.state, this.starData);
   }
 
   /**
-   * Get list of all systems with intelligence costs
+   * Get list of systems connected to current system with intelligence costs
    *
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
    */
   listAvailableIntelligence() {
     const priceKnowledge = this.getPriceKnowledge();
+    const currentSystemId = this.state.player.currentSystem;
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,
-      this.starData
+      this.starData,
+      currentSystemId,
+      this.navigationSystem
     );
   }
 
@@ -619,7 +804,9 @@ export class GameStateManager {
    */
   buyGood(goodType, quantity, price) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: buyGood called before game initialization'
+      );
     }
 
     const credits = this.state.player.credits;
@@ -652,6 +839,10 @@ export class GameStateManager {
     );
     this.updateCargo(newCargo);
 
+    // Update market conditions: negative quantity creates deficit (raises prices)
+    // Feature: deterministic-economy, Requirements 4.1, 4.2
+    this.updateMarketConditions(currentSystemId, goodType, -quantity);
+
     // Persist immediately - trade transactions modify credits and cargo
     this.saveGame();
 
@@ -678,14 +869,14 @@ export class GameStateManager {
     return { valid: true };
   }
 
-
-
   /**
    * Execute a sale transaction from a specific cargo stack
    */
   sellGood(stackIndex, quantity, salePrice) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: sellGood called before game initialization'
+      );
     }
 
     const cargo = this.state.ship.cargo;
@@ -704,6 +895,11 @@ export class GameStateManager {
 
     const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
     this.updateCargo(newCargo);
+
+    // Update market conditions: positive quantity creates surplus (lowers prices)
+    // Feature: deterministic-economy, Requirements 4.1, 4.2
+    const currentSystemId = this.state.player.currentSystem;
+    this.updateMarketConditions(currentSystemId, stack.good, quantity);
 
     // Persist immediately - trade transactions modify credits and cargo
     this.saveGame();
@@ -854,7 +1050,9 @@ export class GameStateManager {
    */
   refuel(amount) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: refuel called before game initialization'
+      );
     }
 
     const currentFuel = this.state.ship.fuel;
@@ -971,7 +1169,9 @@ export class GameStateManager {
    */
   repairShipSystem(systemType, amount) {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: repairShipSystem called before game initialization'
+      );
     }
 
     // Validate system type
@@ -1001,9 +1201,7 @@ export class GameStateManager {
 
     // Increase condition (clamped by updateShipCondition)
     const newHull =
-      systemType === 'hull'
-        ? currentCondition + amount
-        : this.state.ship.hull;
+      systemType === 'hull' ? currentCondition + amount : this.state.ship.hull;
     const newEngine =
       systemType === 'engine'
         ? currentCondition + amount
@@ -1034,30 +1232,44 @@ export class GameStateManager {
    */
   dock() {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error('Invalid state: dock called before game initialization');
     }
 
     const currentSystemId = this.state.player.currentSystem;
     const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
-    if (currentSystem) {
-      // Calculate current prices for all commodities using dynamic pricing
-      const currentDay = this.state.player.daysElapsed;
-      const activeEvents = this.state.world.activeEvents || [];
-      const currentPrices = {};
-
-      for (const goodType of Object.keys(BASE_PRICES)) {
-        currentPrices[goodType] = TradingSystem.calculatePrice(
-          goodType,
-          currentSystem,
-          currentDay,
-          activeEvents
-        );
-      }
-
-      // Update price knowledge (resets lastVisit to 0)
-      this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
+    if (!currentSystem) {
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
+
+    // Calculate current prices for all commodities using dynamic pricing
+    const currentDay = this.state.player.daysElapsed;
+    const activeEvents = this.state.world.activeEvents;
+    if (!activeEvents) {
+      throw new Error('Invalid state: activeEvents missing from world state');
+    }
+    const marketConditions = this.state.world.marketConditions;
+    if (!marketConditions) {
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
+    }
+    const currentPrices = {};
+
+    for (const goodType of COMMODITY_TYPES) {
+      currentPrices[goodType] = TradingSystem.calculatePrice(
+        goodType,
+        currentSystem,
+        currentDay,
+        activeEvents,
+        marketConditions
+      );
+    }
+
+    // Update price knowledge (resets lastVisit to 0)
+    this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
 
     // Persist state transition - prevents loss if player closes browser while docked
     this.saveGame();
@@ -1073,7 +1285,9 @@ export class GameStateManager {
    */
   undock() {
     if (!this.state) {
-      return { success: false, reason: 'No game state' };
+      throw new Error(
+        'Invalid state: undock called before game initialization'
+      );
     }
 
     // Persist state transition - prevents loss if player closes browser while undocked
@@ -1150,8 +1364,13 @@ export class GameStateManager {
       }
 
       // Migrate from v1.0.0 to v2.0.0 if needed
-      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.0.0') {
+      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.1.0') {
         loadedState = this.migrateFromV1ToV2(loadedState);
+      }
+
+      // Migrate from v2.0.0 to v2.1.0 if needed
+      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '2.1.0') {
+        loadedState = this.migrateFromV2ToV2_1(loadedState);
       }
 
       if (!this.validateStateStructure(loadedState)) {
@@ -1187,29 +1406,40 @@ export class GameStateManager {
 
         // Initialize with current system's prices
         const currentSystemId = loadedState.player.currentSystem;
-        const currentSystem = this.starData.find((s) => s.id === currentSystemId);
+        const currentSystem = this.starData.find(
+          (s) => s.id === currentSystemId
+        );
 
-        if (currentSystem) {
-          const currentDay = loadedState.player.daysElapsed;
-          const currentPrices = {};
-
-          for (const goodType of Object.keys(BASE_PRICES)) {
-            currentPrices[goodType] = TradingSystem.calculatePrice(
-              goodType,
-              currentSystem,
-              currentDay,
-              [] // No events if missing
-            );
-          }
-
-          loadedState.world.priceKnowledge[currentSystemId] = {
-            lastVisit: 0,
-            prices: currentPrices,
-          };
+        if (!currentSystem) {
+          throw new Error(
+            `Load failed: current system ID ${currentSystemId} not found in star data`
+          );
         }
+
+        const currentDay = loadedState.player.daysElapsed;
+        const marketConditions = {}; // No market conditions if missing
+        const currentPrices = {};
+
+        for (const goodType of COMMODITY_TYPES) {
+          currentPrices[goodType] = TradingSystem.calculatePrice(
+            goodType,
+            currentSystem,
+            currentDay,
+            [], // No events if missing
+            marketConditions
+          );
+        }
+
+        loadedState.world.priceKnowledge[currentSystemId] = {
+          lastVisit: 0,
+          prices: currentPrices,
+        };
       }
       if (!loadedState.world.activeEvents) {
         loadedState.world.activeEvents = [];
+      }
+      if (!loadedState.world.marketConditions) {
+        loadedState.world.marketConditions = {};
       }
 
       this.state = loadedState;
@@ -1271,7 +1501,7 @@ export class GameStateManager {
   /**
    * Check if save version is compatible with current version
    *
-   * Supports migration from v1.0.0 to v2.0.0
+   * Supports migration from v1.0.0 to v2.1.0
    */
   isVersionCompatible(saveVersion) {
     if (!saveVersion) return false;
@@ -1279,27 +1509,31 @@ export class GameStateManager {
     // Exact version match
     if (saveVersion === GAME_VERSION) return true;
 
-    // Support migration from v1.0.0 to v2.0.0
-    if (saveVersion === '1.0.0' && GAME_VERSION === '2.0.0') return true;
+    // Support migration from v1.0.0 to v2.1.0
+    if (saveVersion === '1.0.0' && GAME_VERSION === '2.1.0') return true;
+
+    // Support migration from v2.0.0 to v2.1.0
+    if (saveVersion === '2.0.0' && GAME_VERSION === '2.1.0') return true;
 
     return false;
   }
 
   /**
-   * Migrate save data from v1.0.0 to v2.0.0
+   * Migrate save data from v1.0.0 to v2.1.0
    *
    * Adds Phase 2 features:
    * - Ship condition (hull, engine, lifeSupport)
    * - Cargo purchase metadata (purchaseSystem, purchaseDay)
    * - Price knowledge database
    * - Active events array
+   * - Market conditions (deterministic economy)
    *
    * @param {Object} state - v1.0.0 save state
-   * @returns {Object} Migrated v2.0.0 state
+   * @returns {Object} Migrated v2.1.0 state
    */
   migrateFromV1ToV2(state) {
     if (!this.isTestEnvironment) {
-      console.log('Migrating save from v1.0.0 to v2.0.0');
+      console.log('Migrating save from v1.0.0 to v2.1.0');
     }
 
     // Add ship condition fields (default to maximum)
@@ -1335,29 +1569,69 @@ export class GameStateManager {
       const currentSystemId = state.player.currentSystem;
       const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
-      if (currentSystem) {
-        const currentDay = state.player.daysElapsed;
-        const currentPrices = {};
-
-        for (const goodType of Object.keys(BASE_PRICES)) {
-          currentPrices[goodType] = TradingSystem.calculatePrice(
-            goodType,
-            currentSystem,
-            currentDay,
-            [] // No events in v1.0.0
-          );
-        }
-
-        state.world.priceKnowledge[currentSystemId] = {
-          lastVisit: 0,
-          prices: currentPrices,
-        };
+      if (!currentSystem) {
+        throw new Error(
+          `Migration failed: current system ID ${currentSystemId} not found in star data`
+        );
       }
+
+      const currentDay = state.player.daysElapsed;
+      const marketConditions = {}; // No market conditions in v1.0.0
+      const currentPrices = {};
+
+      for (const goodType of COMMODITY_TYPES) {
+        currentPrices[goodType] = TradingSystem.calculatePrice(
+          goodType,
+          currentSystem,
+          currentDay,
+          [], // No events in v1.0.0
+          marketConditions
+        );
+      }
+
+      state.world.priceKnowledge[currentSystemId] = {
+        lastVisit: 0,
+        prices: currentPrices,
+      };
     }
 
     // Add active events array
     if (!state.world.activeEvents) {
       state.world.activeEvents = [];
+    }
+
+    // Add market conditions (deterministic economy)
+    if (!state.world.marketConditions) {
+      state.world.marketConditions = {};
+    }
+
+    // Update version
+    state.meta.version = GAME_VERSION;
+
+    if (!this.isTestEnvironment) {
+      console.log('Migration complete');
+    }
+
+    return state;
+  }
+
+  /**
+   * Migrate save data from v2.0.0 to v2.1.0
+   *
+   * Adds deterministic economy features:
+   * - Market conditions tracking for local supply/demand effects
+   *
+   * @param {Object} state - v2.0.0 save state
+   * @returns {Object} Migrated v2.1.0 state
+   */
+  migrateFromV2ToV2_1(state) {
+    if (!this.isTestEnvironment) {
+      console.log('Migrating save from v2.0.0 to v2.1.0');
+    }
+
+    // Add market conditions (empty object for backward compatibility)
+    if (!state.world.marketConditions) {
+      state.world.marketConditions = {};
     }
 
     // Update version
@@ -1402,10 +1676,16 @@ export class GameStateManager {
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
     }
-    if (state.ship.engine !== undefined && typeof state.ship.engine !== 'number') {
+    if (
+      state.ship.engine !== undefined &&
+      typeof state.ship.engine !== 'number'
+    ) {
       return false;
     }
-    if (state.ship.lifeSupport !== undefined && typeof state.ship.lifeSupport !== 'number') {
+    if (
+      state.ship.lifeSupport !== undefined &&
+      typeof state.ship.lifeSupport !== 'number'
+    ) {
       return false;
     }
 
@@ -1420,10 +1700,16 @@ export class GameStateManager {
       }
 
       // Purchase metadata is optional - will be initialized if missing
-      if (stack.purchaseSystem !== undefined && typeof stack.purchaseSystem !== 'number') {
+      if (
+        stack.purchaseSystem !== undefined &&
+        typeof stack.purchaseSystem !== 'number'
+      ) {
         return false;
       }
-      if (stack.purchaseDay !== undefined && typeof stack.purchaseDay !== 'number') {
+      if (
+        stack.purchaseDay !== undefined &&
+        typeof stack.purchaseDay !== 'number'
+      ) {
         return false;
       }
     }

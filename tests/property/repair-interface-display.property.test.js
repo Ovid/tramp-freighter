@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
-import { SHIP_CONDITION_BOUNDS, REPAIR_COST_PER_PERCENT } from '../../js/game-constants.js';
+import {
+  SHIP_CONDITION_BOUNDS,
+  REPAIR_COST_PER_PERCENT,
+} from '../../js/game-constants.js';
 
 // Feature: dynamic-economy, Property 26: Repair Interface Display Completeness
 // Validates: Requirements 7.2, 7.3, 7.4
@@ -17,7 +20,17 @@ describe('Property: Repair Interface Display Completeness', () => {
     // Minimal star data for testing
     starData = [
       { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2', wh: 3, st: 1, r: 1 },
-      { id: 1, name: 'Alpha Centauri', x: 43, y: 0, z: 0, type: 'G2', wh: 1, st: 1, r: 1 },
+      {
+        id: 1,
+        name: 'Alpha Centauri',
+        x: 43,
+        y: 0,
+        z: 0,
+        type: 'G2',
+        wh: 1,
+        st: 1,
+        r: 1,
+      },
     ];
 
     wormholeData = [[0, 1]];
@@ -56,16 +69,29 @@ describe('Property: Repair Interface Display Completeness', () => {
     fc.assert(
       fc.property(
         fc.record({
-          hull: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
-          engine: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
-          lifeSupport: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
+          hull: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
+          engine: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
+          lifeSupport: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
         }),
         (condition) => {
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
 
           // Set ship condition
-          gameStateManager.updateShipCondition(condition.hull, condition.engine, condition.lifeSupport);
+          gameStateManager.updateShipCondition(
+            condition.hull,
+            condition.engine,
+            condition.lifeSupport
+          );
 
           const uiManager = new UIManager(gameStateManager);
           uiManager.updateRepairConditionDisplay();
@@ -73,19 +99,31 @@ describe('Property: Repair Interface Display Completeness', () => {
           // Verify hull display
           const hullPercent = document.getElementById('repair-hull-percent');
           const hullBar = document.getElementById('repair-hull-bar');
-          expect(hullPercent.textContent).toBe(`${Math.round(condition.hull)}%`);
+          expect(hullPercent.textContent).toBe(
+            `${Math.round(condition.hull)}%`
+          );
           expect(hullBar.style.width).toBe(`${condition.hull}%`);
 
           // Verify engine display
-          const enginePercent = document.getElementById('repair-engine-percent');
+          const enginePercent = document.getElementById(
+            'repair-engine-percent'
+          );
           const engineBar = document.getElementById('repair-engine-bar');
-          expect(enginePercent.textContent).toBe(`${Math.round(condition.engine)}%`);
+          expect(enginePercent.textContent).toBe(
+            `${Math.round(condition.engine)}%`
+          );
           expect(engineBar.style.width).toBe(`${condition.engine}%`);
 
           // Verify life support display
-          const lifeSupportPercent = document.getElementById('repair-life-support-percent');
-          const lifeSupportBar = document.getElementById('repair-life-support-bar');
-          expect(lifeSupportPercent.textContent).toBe(`${Math.round(condition.lifeSupport)}%`);
+          const lifeSupportPercent = document.getElementById(
+            'repair-life-support-percent'
+          );
+          const lifeSupportBar = document.getElementById(
+            'repair-life-support-bar'
+          );
+          expect(lifeSupportPercent.textContent).toBe(
+            `${Math.round(condition.lifeSupport)}%`
+          );
           expect(lifeSupportBar.style.width).toBe(`${condition.lifeSupport}%`);
         }
       ),
@@ -97,16 +135,29 @@ describe('Property: Repair Interface Display Completeness', () => {
     fc.assert(
       fc.property(
         fc.record({
-          hull: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
-          engine: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
-          lifeSupport: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX }),
+          hull: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
+          engine: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
+          lifeSupport: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX,
+          }),
         }),
         (condition) => {
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
 
           // Set ship condition
-          gameStateManager.updateShipCondition(condition.hull, condition.engine, condition.lifeSupport);
+          gameStateManager.updateShipCondition(
+            condition.hull,
+            condition.engine,
+            condition.lifeSupport
+          );
 
           const uiManager = new UIManager(gameStateManager);
           uiManager.updateRepairButtons();
@@ -133,16 +184,29 @@ describe('Property: Repair Interface Display Completeness', () => {
     fc.assert(
       fc.property(
         fc.record({
-          hull: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX - 50 }),
-          engine: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX - 50 }),
-          lifeSupport: fc.integer({ min: SHIP_CONDITION_BOUNDS.MIN, max: SHIP_CONDITION_BOUNDS.MAX - 50 }),
+          hull: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+          }),
+          engine: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+          }),
+          lifeSupport: fc.integer({
+            min: SHIP_CONDITION_BOUNDS.MIN,
+            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+          }),
         }),
         (condition) => {
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
 
           // Set ship condition
-          gameStateManager.updateShipCondition(condition.hull, condition.engine, condition.lifeSupport);
+          gameStateManager.updateShipCondition(
+            condition.hull,
+            condition.engine,
+            condition.lifeSupport
+          );
 
           const uiManager = new UIManager(gameStateManager);
           uiManager.updateRepairButtons();
@@ -190,10 +254,15 @@ describe('Property: Repair Interface Display Completeness', () => {
           const condition = {
             hull: systemAtMax === 'hull' ? SHIP_CONDITION_BOUNDS.MAX : 50,
             engine: systemAtMax === 'engine' ? SHIP_CONDITION_BOUNDS.MAX : 50,
-            lifeSupport: systemAtMax === 'lifeSupport' ? SHIP_CONDITION_BOUNDS.MAX : 50,
+            lifeSupport:
+              systemAtMax === 'lifeSupport' ? SHIP_CONDITION_BOUNDS.MAX : 50,
           };
 
-          gameStateManager.updateShipCondition(condition.hull, condition.engine, condition.lifeSupport);
+          gameStateManager.updateShipCondition(
+            condition.hull,
+            condition.engine,
+            condition.lifeSupport
+          );
 
           const uiManager = new UIManager(gameStateManager);
           uiManager.updateRepairButtons();

@@ -3,7 +3,10 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { REPAIR_COST_PER_PERCENT, SHIP_CONDITION_BOUNDS } from '../../js/game-constants.js';
+import {
+  REPAIR_COST_PER_PERCENT,
+  SHIP_CONDITION_BOUNDS,
+} from '../../js/game-constants.js';
 
 /**
  * Feature: dynamic-economy, Property 24: Repair Transaction Execution
@@ -27,7 +30,9 @@ describe('Property 24: Repair Transaction Execution', () => {
         fc.integer({ min: 100, max: 1000 }),
         (systemType, currentCondition, repairAmount, initialCredits) => {
           // Create game state manager
-          const starData = [{ id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 }];
+          const starData = [
+            { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 },
+          ];
           const wormholeData = [];
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
@@ -35,16 +40,25 @@ describe('Property 24: Repair Transaction Execution', () => {
           // Set up initial state
           gameStateManager.updateCredits(initialCredits);
           gameStateManager.updateShipCondition(
-            systemType === 'hull' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'engine' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'lifeSupport' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX
+            systemType === 'hull'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'engine'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'lifeSupport'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX
           );
 
           // Calculate expected cost
           const expectedCost = repairAmount * REPAIR_COST_PER_PERCENT;
 
           // Execute repair
-          const result = gameStateManager.repairShipSystem(systemType, repairAmount);
+          const result = gameStateManager.repairShipSystem(
+            systemType,
+            repairAmount
+          );
 
           // Verify transaction succeeded
           expect(result.success).toBe(true);
@@ -55,7 +69,9 @@ describe('Property 24: Repair Transaction Execution', () => {
 
           // Verify condition increased by amount
           const finalCondition = gameStateManager.getShipCondition();
-          expect(finalCondition[systemType]).toBe(currentCondition + repairAmount);
+          expect(finalCondition[systemType]).toBe(
+            currentCondition + repairAmount
+          );
         }
       ),
       { numRuns: 100 }
@@ -69,7 +85,9 @@ describe('Property 24: Repair Transaction Execution', () => {
         fc.integer({ min: 50, max: 99 }),
         (systemType, currentCondition) => {
           // Create game state manager
-          const starData = [{ id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 }];
+          const starData = [
+            { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 },
+          ];
           const wormholeData = [];
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
@@ -79,15 +97,24 @@ describe('Property 24: Repair Transaction Execution', () => {
           const requiredCredits = repairAmount * REPAIR_COST_PER_PERCENT;
           gameStateManager.updateCredits(requiredCredits + 100);
           gameStateManager.updateShipCondition(
-            systemType === 'hull' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'engine' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'lifeSupport' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX
+            systemType === 'hull'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'engine'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'lifeSupport'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX
           );
 
           const initialCredits = gameStateManager.getPlayer().credits;
 
           // Execute repair to full
-          const result = gameStateManager.repairShipSystem(systemType, repairAmount);
+          const result = gameStateManager.repairShipSystem(
+            systemType,
+            repairAmount
+          );
 
           // Verify transaction succeeded
           expect(result.success).toBe(true);
@@ -112,7 +139,9 @@ describe('Property 24: Repair Transaction Execution', () => {
         fc.integer({ min: 1, max: 50 }),
         (systemType, repairAmount) => {
           // Create game state manager
-          const starData = [{ id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 }];
+          const starData = [
+            { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 },
+          ];
           const wormholeData = [];
           const gameStateManager = new GameStateManager(starData, wormholeData);
           gameStateManager.initNewGame();
@@ -122,15 +151,24 @@ describe('Property 24: Repair Transaction Execution', () => {
           const expectedCost = repairAmount * REPAIR_COST_PER_PERCENT;
           gameStateManager.updateCredits(expectedCost + 100);
           gameStateManager.updateShipCondition(
-            systemType === 'hull' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'engine' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX,
-            systemType === 'lifeSupport' ? currentCondition : SHIP_CONDITION_BOUNDS.MAX
+            systemType === 'hull'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'engine'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX,
+            systemType === 'lifeSupport'
+              ? currentCondition
+              : SHIP_CONDITION_BOUNDS.MAX
           );
 
           const initialCredits = gameStateManager.getPlayer().credits;
 
           // Execute repair
-          const result = gameStateManager.repairShipSystem(systemType, repairAmount);
+          const result = gameStateManager.repairShipSystem(
+            systemType,
+            repairAmount
+          );
 
           // Verify transaction succeeded
           expect(result.success).toBe(true);

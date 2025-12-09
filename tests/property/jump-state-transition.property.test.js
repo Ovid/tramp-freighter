@@ -59,8 +59,14 @@ describe('Property 11: Jump State Transition', () => {
           const initialEngineCondition = initialState.ship.engine;
 
           // Calculate expected values using initial engine condition
-          const expectedFuelCost = navSystem.calculateFuelCostWithCondition(distance, initialEngineCondition);
-          const expectedJumpTime = navSystem.calculateJumpTimeWithCondition(distance, initialEngineCondition);
+          const expectedFuelCost = navSystem.calculateFuelCostWithCondition(
+            distance,
+            initialEngineCondition
+          );
+          const expectedJumpTime = navSystem.calculateJumpTimeWithCondition(
+            distance,
+            initialEngineCondition
+          );
 
           // Execute jump
           const result = await navSystem.executeJump(

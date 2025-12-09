@@ -151,7 +151,8 @@ export class NavigationSystem {
     // Calculate degradation amounts
     const hullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
     const engineDegradation = SHIP_DEGRADATION.ENGINE_PER_JUMP;
-    const lifeSupportDegradation = SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
+    const lifeSupportDegradation =
+      SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
 
     // Apply degradation and clamp to valid range
     ship.hull = Math.max(
@@ -166,7 +167,10 @@ export class NavigationSystem {
 
     ship.lifeSupport = Math.max(
       SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.lifeSupport - lifeSupportDegradation)
+      Math.min(
+        SHIP_CONDITION_BOUNDS.MAX,
+        ship.lifeSupport - lifeSupportDegradation
+      )
     );
 
     return ship;
@@ -224,7 +228,12 @@ export class NavigationSystem {
    * @param {number} engineCondition - Engine condition percentage (0-100), optional for backward compatibility
    * @returns {Object} { valid: boolean, error: string|null, fuelCost: number, distance: number, jumpTime: number }
    */
-  validateJump(currentSystemId, targetSystemId, currentFuel, engineCondition = 100) {
+  validateJump(
+    currentSystemId,
+    targetSystemId,
+    currentFuel,
+    engineCondition = 100
+  ) {
     // Check wormhole connection
     if (!this.areSystemsConnected(currentSystemId, targetSystemId)) {
       return {
@@ -252,8 +261,14 @@ export class NavigationSystem {
 
     // Calculate jump parameters with engine condition
     const distance = this.calculateDistanceBetween(currentStar, targetStar);
-    const fuelCost = this.calculateFuelCostWithCondition(distance, engineCondition);
-    const jumpTime = this.calculateJumpTimeWithCondition(distance, engineCondition);
+    const fuelCost = this.calculateFuelCostWithCondition(
+      distance,
+      engineCondition
+    );
+    const jumpTime = this.calculateJumpTimeWithCondition(
+      distance,
+      engineCondition
+    );
 
     // Check fuel availability
     if (currentFuel < fuelCost) {
@@ -284,7 +299,12 @@ export class NavigationSystem {
    * @param {Object} uiManager - Optional UIManager instance for hiding/showing panels during animation
    * @returns {Promise<Object>} { success: boolean, error: string|null }
    */
-  async executeJump(gameStateManager, targetSystemId, animationSystem = null, uiManager = null) {
+  async executeJump(
+    gameStateManager,
+    targetSystemId,
+    animationSystem = null,
+    uiManager = null
+  ) {
     const state = gameStateManager.getState();
 
     if (!state) {
@@ -359,7 +379,10 @@ export class NavigationSystem {
     // Play animation if animation system is provided
     if (animationSystem) {
       try {
-        await animationSystem.playJumpAnimation(currentSystemId, targetSystemId);
+        await animationSystem.playJumpAnimation(
+          currentSystemId,
+          targetSystemId
+        );
       } finally {
         // Restore UI panels after animation completes (or fails)
         if (uiManager) {

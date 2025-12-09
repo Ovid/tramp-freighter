@@ -175,6 +175,41 @@ export function setupThreeMock() {
       }
     },
 
+    BufferGeometry: class {
+      constructor() {
+        this.attributes = {};
+      }
+      setFromPoints(points) {
+        // Store points for testing
+        this.points = points;
+        return this;
+      }
+      dispose() {}
+    },
+
+    LineBasicMaterial: class {
+      constructor(params) {
+        this.color = params.color;
+        this.transparent = params.transparent;
+        this.opacity = params.opacity;
+        this.linewidth = params.linewidth;
+      }
+      dispose() {}
+    },
+
+    LineLoop: class {
+      constructor(geometry, material) {
+        this.geometry = geometry;
+        this.material = material;
+        this.visible = true;
+        this.position = new window.THREE.Vector3(0, 0, 0);
+      }
+      lookAt(target) {
+        // Mock lookAt - in real Three.js this orients the object
+        this.lookAtTarget = target;
+      }
+    },
+
     AdditiveBlending: 2,
   };
 }
