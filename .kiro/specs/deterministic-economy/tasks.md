@@ -65,7 +65,7 @@
   - **Property 10: Temporal phase differences between systems**
   - **Validates: Requirements 3.2, 3.3, 3.4, 3.5**
 
-- [ ] 5. Add marketConditions to game state in game-state.js
+- [x] 5. Add marketConditions to game state in game-state.js
   - Add marketConditions: {} to world object in initNewGame()
   - Update initNewGame() function to include this initialization
   - Structure: { [systemId]: { [goodType]: netQuantity } }

@@ -118,6 +118,7 @@ export class GameStateManager {
           },
         },
         activeEvents: [],
+        marketConditions: {},
       },
       meta: {
         version: GAME_VERSION,
