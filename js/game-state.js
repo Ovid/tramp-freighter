@@ -426,6 +426,37 @@ export class GameStateManager {
   }
 
   /**
+   * Update market conditions for a system and commodity
+   *
+   * Tracks player trading activity to create local supply/demand effects.
+   * Positive quantityDelta = surplus (player sold), negative = deficit (player bought).
+   *
+   * Feature: deterministic-economy, Requirements 4.1, 4.2, 9.2
+   *
+   * @param {number} systemId - System ID
+   * @param {string} goodType - Commodity type
+   * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
+   */
+  updateMarketConditions(systemId, goodType, quantityDelta) {
+    if (!this.state.world.marketConditions) {
+      this.state.world.marketConditions = {};
+    }
+
+    // Create system entry if first trade at that system
+    if (!this.state.world.marketConditions[systemId]) {
+      this.state.world.marketConditions[systemId] = {};
+    }
+
+    // Create commodity entry if first trade of that commodity
+    if (this.state.world.marketConditions[systemId][goodType] === undefined) {
+      this.state.world.marketConditions[systemId][goodType] = 0;
+    }
+
+    // Add quantityDelta to existing value
+    this.state.world.marketConditions[systemId][goodType] += quantityDelta;
+  }
+
+  /**
    * Update price knowledge for a system
    *
    * @param {number} systemId - System ID

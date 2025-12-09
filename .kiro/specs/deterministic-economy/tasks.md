@@ -72,7 +72,7 @@
   - Initialize as empty object (sparse storage)
   - _Requirements: 9.1, 9.3, 9.4, 9.5_
 
-- [ ] 6. Implement market condition tracking in game-state.js
+- [x] 6. Implement market condition tracking in game-state.js
   - Add updateMarketConditions(systemId, goodType, quantityDelta) method
   - Create system entry if first trade at that system
   - Create commodity entry if first trade of that commodity
