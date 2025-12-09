@@ -104,7 +104,7 @@
   - **Property 14: Local modifier direction matches surplus sign**
   - **Validates: Requirements 4.3, 4.4, 4.6, 4.7**
 
-- [ ] 9. Implement market recovery in game-state.js
+- [x] 9. Implement market recovery in game-state.js
   - Add applyMarketRecovery(daysPassed) method
   - Iterate over all marketConditions entries
   - Multiply each value by DAILY_RECOVERY_FACTOR ^ daysPassed
@@ -112,7 +112,7 @@
   - Remove empty system entries after pruning
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9.1 Write property tests for market recovery
+- [x] 9.1 Write property tests for market recovery
   - **Property 15: Market recovery decay**
   - **Property 16: Market condition pruning**
   - **Property 17: Recovery preserves sign**

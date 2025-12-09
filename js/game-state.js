@@ -10,6 +10,7 @@ import {
   SHIP_CONDITION_BOUNDS,
   SHIP_CONDITION_WARNING_THRESHOLDS,
   NEW_GAME_DEFAULTS,
+  ECONOMY_CONFIG,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -510,6 +511,52 @@ export class GameStateManager {
 
     // Add quantityDelta to existing value
     this.state.world.marketConditions[systemId][goodType] += quantityDelta;
+  }
+
+  /**
+   * Apply market recovery to all market conditions
+   *
+   * Markets naturally recover toward equilibrium over time. Each day, surplus and deficit
+   * values decay by 10% (multiply by 0.90). Insignificant values (abs < 1.0) are pruned
+   * to keep save files small.
+   *
+   * Feature: deterministic-economy, Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+   *
+   * @param {number} daysPassed - Number of days elapsed
+   */
+  applyMarketRecovery(daysPassed) {
+    if (!this.state?.world.marketConditions) {
+      return;
+    }
+
+    const recoveryFactor = Math.pow(
+      ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR,
+      daysPassed
+    );
+
+    // Iterate over all systems
+    for (const systemId in this.state.world.marketConditions) {
+      const systemConditions = this.state.world.marketConditions[systemId];
+
+      // Iterate over all commodities in this system
+      for (const goodType in systemConditions) {
+        // Apply exponential decay
+        systemConditions[goodType] *= recoveryFactor;
+
+        // Prune insignificant entries
+        if (
+          Math.abs(systemConditions[goodType]) <
+          ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD
+        ) {
+          delete systemConditions[goodType];
+        }
+      }
+
+      // Remove empty system entries
+      if (Object.keys(systemConditions).length === 0) {
+        delete this.state.world.marketConditions[systemId];
+      }
+    }
   }
 
   /**
