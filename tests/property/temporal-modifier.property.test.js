@@ -31,7 +31,8 @@ describe('Temporal Modifier (Property Tests)', () => {
         );
 
         const phase =
-          (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET);
+          (2 * Math.PI * currentDay) / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD +
+          systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET;
         const expectedModifier =
           1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase);
 
@@ -82,7 +83,10 @@ describe('Temporal Modifier (Property Tests)', () => {
 
     fc.assert(
       fc.property(systemIdGenerator, dayGenerator, (systemId, currentDay) => {
-        const modifier = TradingSystem.getTemporalModifier(systemId, currentDay);
+        const modifier = TradingSystem.getTemporalModifier(
+          systemId,
+          currentDay
+        );
 
         // Sine wave with amplitude 0.15 produces range [1.0 - 0.15, 1.0 + 0.15] = [0.85, 1.15]
         const minModifier = 1.0 - ECONOMY_CONFIG.TEMPORAL_AMPLITUDE;
@@ -110,14 +114,24 @@ describe('Temporal Modifier (Property Tests)', () => {
     const dayGenerator = fc.integer({ min: 0, max: 1000 });
 
     fc.assert(
-      fc.property(systemPairGenerator, dayGenerator, ([systemId1, systemId2], currentDay) => {
-        const modifier1 = TradingSystem.getTemporalModifier(systemId1, currentDay);
-        const modifier2 = TradingSystem.getTemporalModifier(systemId2, currentDay);
+      fc.property(
+        systemPairGenerator,
+        dayGenerator,
+        ([systemId1, systemId2], currentDay) => {
+          const modifier1 = TradingSystem.getTemporalModifier(
+            systemId1,
+            currentDay
+          );
+          const modifier2 = TradingSystem.getTemporalModifier(
+            systemId2,
+            currentDay
+          );
 
-        // Different systems should have different modifiers due to phase offset
-        // Use a small tolerance to account for floating point, but they should be noticeably different
-        expect(Math.abs(modifier1 - modifier2)).toBeGreaterThan(1e-10);
-      }),
+          // Different systems should have different modifiers due to phase offset
+          // Use a small tolerance to account for floating point, but they should be noticeably different
+          expect(Math.abs(modifier1 - modifier2)).toBeGreaterThan(1e-10);
+        }
+      ),
       { numRuns: 100 }
     );
   });
@@ -137,7 +151,8 @@ describe('Temporal Modifier (Property Tests)', () => {
         // At day 0, phase = 0 + (systemId × TEMPORAL_PHASE_OFFSET)
         // modifier = 1.0 + (TEMPORAL_AMPLITUDE × sin(systemId × TEMPORAL_PHASE_OFFSET))
         const expectedPhase = systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET;
-        const expectedModifier = 1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(expectedPhase);
+        const expectedModifier =
+          1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(expectedPhase);
 
         expect(modifier).toBeCloseTo(expectedModifier, 10);
       }),

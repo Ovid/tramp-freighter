@@ -116,7 +116,10 @@ export class TradingSystem {
    */
   static calculateTechLevel(system) {
     const distance = calculateDistanceFromSol(system);
-    const clampedDistance = Math.min(distance, ECONOMY_CONFIG.MAX_COORD_DISTANCE);
+    const clampedDistance = Math.min(
+      distance,
+      ECONOMY_CONFIG.MAX_COORD_DISTANCE
+    );
     const techLevel =
       ECONOMY_CONFIG.MAX_TECH_LEVEL -
       ((ECONOMY_CONFIG.MAX_TECH_LEVEL - ECONOMY_CONFIG.MIN_TECH_LEVEL) *
@@ -156,7 +159,10 @@ export class TradingSystem {
     }
 
     const modifier =
-      1.0 + bias * (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
+      1.0 +
+      bias *
+        (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) *
+        ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
     return modifier;
   }
 
@@ -187,8 +193,10 @@ export class TradingSystem {
    * @returns {number} Temporal modifier between 0.85 and 1.15
    */
   static getTemporalModifier(systemId, currentDay) {
-    const phase = (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET);
-    const modifier = 1.0 + (ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase));
+    const phase =
+      (2 * Math.PI * currentDay) / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD +
+      systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET;
+    const modifier = 1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase);
     return modifier;
   }
 
@@ -226,7 +234,7 @@ export class TradingSystem {
    */
   static getLocalModifier(systemId, goodType, marketConditions) {
     const surplus = marketConditions?.[systemId]?.[goodType] ?? 0;
-    const modifier = 1.0 - (surplus / ECONOMY_CONFIG.MARKET_CAPACITY);
+    const modifier = 1.0 - surplus / ECONOMY_CONFIG.MARKET_CAPACITY;
     const clampedModifier = Math.max(
       ECONOMY_CONFIG.LOCAL_MODIFIER_MIN,
       Math.min(ECONOMY_CONFIG.LOCAL_MODIFIER_MAX, modifier)

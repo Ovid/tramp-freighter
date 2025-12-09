@@ -37,7 +37,10 @@ describe('Engine Condition Fuel Penalty - Property Tests', () => {
         // Generate engine condition below threshold
         fc.integer({ min: 0, max: 59 }),
         (distance, engineCondition) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           // Calculate base fuel cost (without condition penalty)
           const baseCost = navSystem.calculateFuelCost(distance);
@@ -49,7 +52,8 @@ describe('Engine Condition Fuel Penalty - Property Tests', () => {
           );
 
           // Expected cost with 20% penalty
-          const expectedCost = baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
+          const expectedCost =
+            baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
 
           // Verify penalty is applied
           expect(costWithPenalty).toBeCloseTo(expectedCost, 5);
@@ -68,7 +72,10 @@ describe('Engine Condition Fuel Penalty - Property Tests', () => {
         // Generate engine condition at or above threshold
         fc.integer({ min: 60, max: 100 }),
         (distance, engineCondition) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           // Calculate base fuel cost (without condition penalty)
           const baseCost = navSystem.calculateFuelCost(distance);
@@ -92,11 +99,18 @@ describe('Engine Condition Fuel Penalty - Property Tests', () => {
       fc.property(
         fc.float({ min: Math.fround(0.1), max: Math.fround(20), noNaN: true }),
         (distance) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           const baseCost = navSystem.calculateFuelCost(distance);
-          const costAt59 = navSystem.calculateFuelCostWithCondition(distance, 59);
-          const expectedCost = baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
+          const costAt59 = navSystem.calculateFuelCostWithCondition(
+            distance,
+            59
+          );
+          const expectedCost =
+            baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
 
           expect(costAt59).toBeCloseTo(expectedCost, 5);
         }
@@ -110,10 +124,16 @@ describe('Engine Condition Fuel Penalty - Property Tests', () => {
       fc.property(
         fc.float({ min: Math.fround(0.1), max: Math.fround(20), noNaN: true }),
         (distance) => {
-          const navSystem = new NavigationSystem(mockStarData, mockWormholeData);
+          const navSystem = new NavigationSystem(
+            mockStarData,
+            mockWormholeData
+          );
 
           const baseCost = navSystem.calculateFuelCost(distance);
-          const costAt60 = navSystem.calculateFuelCostWithCondition(distance, 60);
+          const costAt60 = navSystem.calculateFuelCostWithCondition(
+            distance,
+            60
+          );
 
           expect(costAt60).toBeCloseTo(baseCost, 5);
         }

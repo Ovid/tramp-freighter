@@ -117,7 +117,10 @@ describe('Property: Trading updates market conditions bidirectionally', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
-        fc.array(fc.integer({ min: 1, max: 10 }), { minLength: 2, maxLength: 5 }),
+        fc.array(fc.integer({ min: 1, max: 10 }), {
+          minLength: 2,
+          maxLength: 5,
+        }),
         fc.integer({ min: 10, max: 100 }),
         (goodType, quantities, price) => {
           // Reset to fresh state
@@ -129,7 +132,11 @@ describe('Property: Trading updates market conditions bidirectionally', () => {
 
           // Perform multiple buy operations
           for (const quantity of quantities) {
-            const buyResult = gameStateManager.buyGood(goodType, quantity, price);
+            const buyResult = gameStateManager.buyGood(
+              goodType,
+              quantity,
+              price
+            );
             if (!buyResult.success) {
               // Stop if we run out of credits or space
               break;

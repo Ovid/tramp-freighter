@@ -47,6 +47,7 @@ This makes the Information Broker more strategic - players can only purchase int
 ## Testing
 
 All 520 tests pass, including:
+
 - 3 new unit tests for connected systems filtering
 - Updated property tests for system listing
 - Updated integration tests for panel animation

@@ -67,13 +67,18 @@ describe('Intelligence Reliability', () => {
 
     // With 100 purchases and 6 goods each (600 total), we expect roughly 10% manipulation
     // Allow ±50% variance for smaller sample size (5-15% range)
-    const totalPrices = purchasedPrices.length * Object.keys(purchasedPrices[0]).length;
+    const totalPrices =
+      purchasedPrices.length * Object.keys(purchasedPrices[0]).length;
     const manipulationRate = manipulatedCount / totalPrices;
     const expectedRate = 0.1; // INTELLIGENCE_RELIABILITY.MANIPULATION_CHANCE
     const varianceTolerance = 0.5; // 50% variance for smaller sample
 
-    expect(manipulationRate).toBeGreaterThan(expectedRate * (1 - varianceTolerance));
-    expect(manipulationRate).toBeLessThan(expectedRate * (1 + varianceTolerance));
+    expect(manipulationRate).toBeGreaterThan(
+      expectedRate * (1 - varianceTolerance)
+    );
+    expect(manipulationRate).toBeLessThan(
+      expectedRate * (1 + varianceTolerance)
+    );
   });
 
   it('should manipulate prices to be lower than actual (false buying opportunity)', () => {
@@ -111,7 +116,7 @@ describe('Intelligence Reliability', () => {
           foundManipulation = true;
           const ratio = purchasedPrice / actualPrice;
           manipulationRatios.push(ratio);
-          
+
           // Manipulated prices should be noticeably lower (at least 10% discount)
           expect(ratio).toBeLessThan(0.95);
         }
@@ -119,10 +124,11 @@ describe('Intelligence Reliability', () => {
     }
 
     expect(foundManipulation).toBe(true);
-    
+
     // Average manipulation should be around the expected range (0.7 to 0.85)
     // Allow some variance due to rounding (±15% from midpoint of 0.775)
-    const avgRatio = manipulationRatios.reduce((a, b) => a + b, 0) / manipulationRatios.length;
+    const avgRatio =
+      manipulationRatios.reduce((a, b) => a + b, 0) / manipulationRatios.length;
     const expectedMidpoint = 0.775; // (0.7 + 0.85) / 2
     const rangeVariance = 0.15;
     expect(avgRatio).toBeGreaterThan(expectedMidpoint - rangeVariance);
@@ -222,7 +228,12 @@ describe('Intelligence Reliability', () => {
       let accurateCount = 0;
 
       for (const goodType of Object.keys(purchasedData.prices)) {
-        const actualPrice = TradingSystem.calculatePrice(goodType, system, day, []);
+        const actualPrice = TradingSystem.calculatePrice(
+          goodType,
+          system,
+          day,
+          []
+        );
         if (purchasedData.prices[goodType] === actualPrice) {
           accurateCount++;
         }

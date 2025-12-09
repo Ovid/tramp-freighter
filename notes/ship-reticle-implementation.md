@@ -22,6 +22,7 @@ RETICLE_LINE_WIDTH: 2,         // Line width for reticle
 #### New Function: `createShipReticle()`
 
 Creates a circular reticle using Three.js LineLoop:
+
 - Manually generates circle vertices based on RETICLE_SIZE and RETICLE_SEGMENTS
 - Uses LineBasicMaterial with cyan color and 80% opacity
 - Initially hidden until animation begins
@@ -51,6 +52,7 @@ Creates a circular reticle using Three.js LineLoop:
 ### 3. Test Mock (`tests/setup-three-mock.js`)
 
 Added mock implementations for:
+
 - `BufferGeometry` - For creating line geometry
 - `LineBasicMaterial` - For line material properties
 - `LineLoop` - For the reticle object
@@ -58,6 +60,7 @@ Added mock implementations for:
 ### 4. New Test File (`tests/unit/ship-reticle.test.js`)
 
 Added unit tests to verify:
+
 - Reticle creation with correct properties
 - Material properties (color, transparency, opacity, line width)
 - Circle geometry with correct number of segments
@@ -67,6 +70,7 @@ Added unit tests to verify:
 ### 5. Updated Test (`tests/property/visual-style-preservation.property.test.js`)
 
 Updated "Property 8" test to account for both ship indicator and reticle:
+
 - Expects 2 objects added to scene (ship + reticle)
 - Verifies both are removed on dispose
 - Ensures original scene objects remain untouched
@@ -88,6 +92,7 @@ Updated "Property 8" test to account for both ship indicator and reticle:
 ## Testing
 
 All 552 tests pass, including:
+
 - 5 new unit tests for reticle creation
 - 30 animation-related tests
 - Updated visual style preservation test
@@ -95,6 +100,7 @@ All 552 tests pass, including:
 ## Future Enhancements
 
 Potential improvements if needed:
+
 - Animated rotation for visual interest
 - Pulsing opacity effect
 - Different reticle styles (crosshair, brackets, etc.)

@@ -148,7 +148,9 @@ describe('Quick Access Buttons Integration', () => {
       expect(travelBtn.disabled).toBe(false);
 
       // Check at Alpha Centauri A
-      const alphaCentauri = TEST_STAR_DATA.find((s) => s.name === 'Alpha Centauri A');
+      const alphaCentauri = TEST_STAR_DATA.find(
+        (s) => s.name === 'Alpha Centauri A'
+      );
       gameStateManager.updateLocation(alphaCentauri.id);
       uiManager.updateLocation(alphaCentauri.id);
       expect(travelBtn.disabled).toBe(false);

@@ -104,10 +104,14 @@ export class UIManager {
       repairHullBar: document.getElementById('repair-hull-bar'),
       repairEnginePercent: document.getElementById('repair-engine-percent'),
       repairEngineBar: document.getElementById('repair-engine-bar'),
-      repairLifeSupportPercent: document.getElementById('repair-life-support-percent'),
+      repairLifeSupportPercent: document.getElementById(
+        'repair-life-support-percent'
+      ),
       repairLifeSupportBar: document.getElementById('repair-life-support-bar'),
       repairAllBtn: document.getElementById('repair-all-btn'),
-      repairValidationMessage: document.getElementById('repair-validation-message'),
+      repairValidationMessage: document.getElementById(
+        'repair-validation-message'
+      ),
       notificationArea: document.getElementById('notification-area'),
       eventModalOverlay: document.getElementById('event-modal-overlay'),
       eventModalTitle: document.getElementById('event-modal-title'),
@@ -218,7 +222,7 @@ export class UIManager {
 
   /**
    * Update a condition bar and text display
-   * 
+   *
    * Centralizes condition display logic to avoid duplication between HUD and repair panel.
    * Handles different element naming conventions (hudHullText vs repairHullPercent).
    *
@@ -232,8 +236,9 @@ export class UIManager {
     const typeKey = prefix ? capitalizedType : systemType;
     const barElement = this.elements[`${prefix}${typeKey}Bar`];
     // HUD uses 'Text' suffix, repair panel uses 'Percent' suffix
-    const textElement = this.elements[`${prefix}${typeKey}Text`] || 
-                        this.elements[`${prefix}${capitalizedType}Percent`];
+    const textElement =
+      this.elements[`${prefix}${typeKey}Text`] ||
+      this.elements[`${prefix}${capitalizedType}Percent`];
 
     if (barElement) {
       barElement.style.width = `${conditionValue}%`;
@@ -415,7 +420,9 @@ export class UIManager {
     }
 
     // Setup repair button handlers and cache the buttons
-    this.cachedRepairButtons = document.querySelectorAll('.repair-btn[data-system][data-amount]');
+    this.cachedRepairButtons = document.querySelectorAll(
+      '.repair-btn[data-system][data-amount]'
+    );
     this.cachedRepairButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const systemType = btn.getAttribute('data-system');
@@ -439,7 +446,9 @@ export class UIManager {
     const system = this.starData.find((s) => s.id === currentSystemId);
 
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
 
     this.elements.stationName.textContent = `${system.name} Station`;
@@ -600,7 +609,9 @@ export class UIManager {
     const system = this.starData.find((s) => s.id === currentSystemId);
 
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
 
     this.elements.tradeSystemName.textContent = system.name;
@@ -738,7 +749,11 @@ export class UIManager {
   }
 
   handleBuy(goodType, quantity, price) {
-    const purchaseOutcome = this.gameStateManager.buyGood(goodType, quantity, price);
+    const purchaseOutcome = this.gameStateManager.buyGood(
+      goodType,
+      quantity,
+      price
+    );
 
     if (!purchaseOutcome.success) {
       this.showError(`Purchase failed: ${purchaseOutcome.reason}`);
@@ -750,11 +765,13 @@ export class UIManager {
     const system = this.starData.find(
       (s) => s.id === state.player.currentSystem
     );
-    
+
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
     }
-    
+
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
@@ -811,15 +828,19 @@ export class UIManager {
 
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
-    
+
     // Build details text - start with quantity and purchase price
     let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
-    
+
     // Add purchase context if available (Phase 2 feature)
     if (stack.purchaseSystem !== undefined && stack.purchaseDay !== undefined) {
-      const purchaseSystem = this.starData.find((s) => s.id === stack.purchaseSystem);
+      const purchaseSystem = this.starData.find(
+        (s) => s.id === stack.purchaseSystem
+      );
       if (!purchaseSystem) {
-        throw new Error(`Invalid cargo stack: purchase system ID ${stack.purchaseSystem} not found in star data`);
+        throw new Error(
+          `Invalid cargo stack: purchase system ID ${stack.purchaseSystem} not found in star data`
+        );
       }
 
       const daysSincePurchase = currentDay - stack.purchaseDay;
@@ -831,10 +852,10 @@ export class UIManager {
       } else {
         ageText = `${daysSincePurchase} days ago`;
       }
-      
+
       detailsText += ` in ${purchaseSystem.name} (${ageText})`;
     }
-    
+
     stackDetails.textContent = detailsText;
 
     const stackProfit = document.createElement('div');
@@ -899,11 +920,13 @@ export class UIManager {
     const system = this.starData.find(
       (s) => s.id === state.player.currentSystem
     );
-    
+
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${state.player.currentSystem} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
     }
-    
+
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
@@ -911,10 +934,10 @@ export class UIManager {
 
   /**
    * Capitalize first letter of a string for display purposes
-   * 
+   *
    * Used consistently across UI for commodity names, system types, and labels
    * to ensure uniform presentation. Centralizes formatting logic.
-   * 
+   *
    * @param {string} str - String to capitalize
    * @returns {string} String with first letter capitalized
    */
@@ -1067,7 +1090,9 @@ export class UIManager {
     const system = this.starData.find((s) => s.id === currentSystemId);
 
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
 
     this.elements.refuelSystemName.textContent = system.name;
@@ -1078,10 +1103,14 @@ export class UIManager {
     const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
     this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
 
-    const defaultAmount = Math.min(10, SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel));
+    const defaultAmount = Math.min(
+      10,
+      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel)
+    );
     this.elements.refuelAmountInput.value =
       defaultAmount > 0 ? defaultAmount : 0;
-    this.elements.refuelAmountInput.max = SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel);
+    this.elements.refuelAmountInput.max =
+      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel);
 
     this.updateRefuelCost();
 
@@ -1158,7 +1187,9 @@ export class UIManager {
   setRefuelAmountToMax() {
     const state = this.gameStateManager.getState();
     if (!state) {
-      throw new Error('Invalid game state: state is null in setRefuelAmountToMax');
+      throw new Error(
+        'Invalid game state: state is null in setRefuelAmountToMax'
+      );
     }
 
     const currentFuel = state.ship.fuel;
@@ -1465,10 +1496,12 @@ export class UIManager {
   }
 
   handlePurchaseIntelligence(systemId) {
-    const intelligenceOutcome = this.gameStateManager.purchaseIntelligence(systemId);
+    const intelligenceOutcome =
+      this.gameStateManager.purchaseIntelligence(systemId);
 
     if (!intelligenceOutcome.success) {
-      this.elements.infoBrokerValidationMessage.textContent = intelligenceOutcome.reason;
+      this.elements.infoBrokerValidationMessage.textContent =
+        intelligenceOutcome.reason;
       this.elements.infoBrokerValidationMessage.className =
         'validation-message error';
       return;
@@ -1503,7 +1536,9 @@ export class UIManager {
     const system = this.starData.find((s) => s.id === currentSystemId);
 
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
 
     this.elements.repairSystemName.textContent = system.name;
@@ -1552,14 +1587,16 @@ export class UIManager {
 
   /**
    * Update all ship condition displays in repair panel
-   * 
+   *
    * Refreshes the visual representation of hull, engine, and life support
    * condition in the repair interface. Called when panel opens or after repairs.
    */
   updateRepairConditionDisplay() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) {
-      throw new Error('Invalid game state: ship condition is null in updateRepairConditionDisplay');
+      throw new Error(
+        'Invalid game state: ship condition is null in updateRepairConditionDisplay'
+      );
     }
 
     this.updateConditionDisplay('repair', 'hull', condition.hull);
@@ -1569,7 +1606,7 @@ export class UIManager {
 
   /**
    * Update repair button states and costs based on current ship condition
-   * 
+   *
    * Recalculates repair costs for all buttons and updates their text/disabled state.
    * Buttons are disabled when system is at max, player lacks credits, or repair
    * would exceed maximum condition. Called when repair panel opens or after repairs.
@@ -1577,7 +1614,9 @@ export class UIManager {
   updateRepairButtons() {
     const state = this.gameStateManager.getState();
     if (!state) {
-      throw new Error('Invalid game state: state is null in updateRepairButtons');
+      throw new Error(
+        'Invalid game state: state is null in updateRepairButtons'
+      );
     }
 
     const condition = this.gameStateManager.getShipCondition();
@@ -1595,12 +1634,20 @@ export class UIManager {
       if (amountStr === 'full') {
         // Full repair
         amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
-        cost = this.gameStateManager.getRepairCost(systemType, amount, currentCondition);
+        cost = this.gameStateManager.getRepairCost(
+          systemType,
+          amount,
+          currentCondition
+        );
         btn.textContent = `Full (₡${cost})`;
       } else {
         // Fixed amount repair
         amount = parseInt(amountStr);
-        cost = this.gameStateManager.getRepairCost(systemType, amount, currentCondition);
+        cost = this.gameStateManager.getRepairCost(
+          systemType,
+          amount,
+          currentCondition
+        );
         btn.textContent = `+${amount}% (₡${cost})`;
       }
 
@@ -1608,7 +1655,8 @@ export class UIManager {
       // - Already at max condition
       // - Not enough credits
       // - Would exceed max condition
-      const wouldExceedMax = currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX;
+      const wouldExceedMax =
+        currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX;
       const atMax = currentCondition >= SHIP_CONDITION_BOUNDS.MAX;
       const notEnoughCredits = credits < cost;
 
@@ -1619,24 +1667,28 @@ export class UIManager {
     const totalCost = this.calculateRepairAllCost();
     this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
 
-    const allAtMax = condition.hull >= SHIP_CONDITION_BOUNDS.MAX && 
-                     condition.engine >= SHIP_CONDITION_BOUNDS.MAX && 
-                     condition.lifeSupport >= SHIP_CONDITION_BOUNDS.MAX;
-    this.elements.repairAllBtn.disabled = allAtMax || credits < totalCost || totalCost === 0;
+    const allAtMax =
+      condition.hull >= SHIP_CONDITION_BOUNDS.MAX &&
+      condition.engine >= SHIP_CONDITION_BOUNDS.MAX &&
+      condition.lifeSupport >= SHIP_CONDITION_BOUNDS.MAX;
+    this.elements.repairAllBtn.disabled =
+      allAtMax || credits < totalCost || totalCost === 0;
   }
 
   /**
    * Calculate total cost to repair all ship systems to maximum condition
-   * 
+   *
    * Sums the repair costs for hull, engine, and life support to reach 100%.
    * Used to display cost on "Repair All" button and validate transaction.
-   * 
+   *
    * @returns {number} Total repair cost in credits
    */
   calculateRepairAllCost() {
     const condition = this.gameStateManager.getShipCondition();
     if (!condition) {
-      throw new Error('Invalid game state: ship condition is null in calculateRepairAllCost');
+      throw new Error(
+        'Invalid game state: ship condition is null in calculateRepairAllCost'
+      );
     }
 
     let totalCost = 0;
@@ -1644,19 +1696,31 @@ export class UIManager {
     // Hull
     const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost('hull', hullAmount, condition.hull);
+      totalCost += this.gameStateManager.getRepairCost(
+        'hull',
+        hullAmount,
+        condition.hull
+      );
     }
 
     // Engine
     const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost('engine', engineAmount, condition.engine);
+      totalCost += this.gameStateManager.getRepairCost(
+        'engine',
+        engineAmount,
+        condition.engine
+      );
     }
 
     // Life Support
     const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost('lifeSupport', lifeSupportAmount, condition.lifeSupport);
+      totalCost += this.gameStateManager.getRepairCost(
+        'lifeSupport',
+        lifeSupportAmount,
+        condition.lifeSupport
+      );
     }
 
     return totalCost;
@@ -1679,11 +1743,15 @@ export class UIManager {
     }
 
     // Execute repair
-    const repairOutcome = this.gameStateManager.repairShipSystem(systemType, amount);
+    const repairOutcome = this.gameStateManager.repairShipSystem(
+      systemType,
+      amount
+    );
 
     if (!repairOutcome.success) {
       this.elements.repairValidationMessage.textContent = `Repair failed: ${repairOutcome.reason}`;
-      this.elements.repairValidationMessage.className = 'validation-message error';
+      this.elements.repairValidationMessage.className =
+        'validation-message error';
       return;
     }
 
@@ -1692,7 +1760,10 @@ export class UIManager {
     this.elements.repairValidationMessage.className = 'validation-message';
 
     // Show success notification
-    const systemName = systemType === 'lifeSupport' ? 'Life Support' : this.capitalizeFirst(systemType);
+    const systemName =
+      systemType === 'lifeSupport'
+        ? 'Life Support'
+        : this.capitalizeFirst(systemType);
     this.showSuccess(`${systemName} repaired`);
 
     // Refresh the repair panel to show updated state
@@ -1710,8 +1781,10 @@ export class UIManager {
     // Pre-validate total cost before executing any repairs
     // This prevents partial repairs if player doesn't have enough credits for all systems
     if (state.player.credits < totalCost) {
-      this.elements.repairValidationMessage.textContent = 'Insufficient credits for full repair';
-      this.elements.repairValidationMessage.className = 'validation-message error';
+      this.elements.repairValidationMessage.textContent =
+        'Insufficient credits for full repair';
+      this.elements.repairValidationMessage.className =
+        'validation-message error';
       return;
     }
 
@@ -1732,7 +1805,10 @@ export class UIManager {
     // Repair engine
     const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem('engine', engineAmount);
+      const result = this.gameStateManager.repairShipSystem(
+        'engine',
+        engineAmount
+      );
       if (result.success) {
         repairCount++;
       } else {
@@ -1743,7 +1819,10 @@ export class UIManager {
     // Repair life support
     const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem('lifeSupport', lifeSupportAmount);
+      const result = this.gameStateManager.repairShipSystem(
+        'lifeSupport',
+        lifeSupportAmount
+      );
       if (result.success) {
         repairCount++;
       } else {
@@ -1754,14 +1833,17 @@ export class UIManager {
     // Show results
     if (failedRepairs.length > 0) {
       this.elements.repairValidationMessage.textContent = `Some repairs failed: ${failedRepairs.join(', ')}`;
-      this.elements.repairValidationMessage.className = 'validation-message error';
+      this.elements.repairValidationMessage.className =
+        'validation-message error';
     } else if (repairCount > 0) {
       this.elements.repairValidationMessage.textContent = '';
       this.elements.repairValidationMessage.className = 'validation-message';
       this.showSuccess(`All systems repaired to full`);
     } else {
-      this.elements.repairValidationMessage.textContent = 'All systems already at maximum condition';
-      this.elements.repairValidationMessage.className = 'validation-message info';
+      this.elements.repairValidationMessage.textContent =
+        'All systems already at maximum condition';
+      this.elements.repairValidationMessage.className =
+        'validation-message info';
     }
 
     // Refresh the repair panel to show updated state

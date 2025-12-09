@@ -38,7 +38,10 @@ describe('Tech Modifier Formula (Property Tests)', () => {
 
           const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
           const expectedModifier =
-            1.0 + bias * (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
+            1.0 +
+            bias *
+              (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) *
+              ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
 
           // Floating point tolerance of 10 decimal places
           expect(calculatedModifier).toBeCloseTo(expectedModifier, 10);
@@ -58,7 +61,10 @@ describe('Tech Modifier Formula (Property Tests)', () => {
 
     fc.assert(
       fc.property(commodityGenerator, (goodType) => {
-        const modifier = TradingSystem.getTechModifier(goodType, ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT);
+        const modifier = TradingSystem.getTechModifier(
+          goodType,
+          ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT
+        );
 
         // At midpoint, the formula becomes: 1.0 + (bias × (midpoint - midpoint) × intensity) = 1.0
         expect(modifier).toBeCloseTo(1.0, 10);
@@ -85,13 +91,17 @@ describe('Tech Modifier Formula (Property Tests)', () => {
     });
 
     fc.assert(
-      fc.property(commodityGenerator, lowTechGenerator, (goodType, techLevel) => {
-        const modifier = TradingSystem.getTechModifier(goodType, techLevel);
+      fc.property(
+        commodityGenerator,
+        lowTechGenerator,
+        (goodType, techLevel) => {
+          const modifier = TradingSystem.getTechModifier(goodType, techLevel);
 
-        // Negative bias at low tech (TL < 5) should produce modifier < 1.0
-        // This makes the commodity cheaper at low-tech systems
-        expect(modifier).toBeLessThan(1.0);
-      }),
+          // Negative bias at low tech (TL < 5) should produce modifier < 1.0
+          // This makes the commodity cheaper at low-tech systems
+          expect(modifier).toBeLessThan(1.0);
+        }
+      ),
       { numRuns: 100 }
     );
   });
@@ -114,13 +124,17 @@ describe('Tech Modifier Formula (Property Tests)', () => {
     });
 
     fc.assert(
-      fc.property(commodityGenerator, highTechGenerator, (goodType, techLevel) => {
-        const modifier = TradingSystem.getTechModifier(goodType, techLevel);
+      fc.property(
+        commodityGenerator,
+        highTechGenerator,
+        (goodType, techLevel) => {
+          const modifier = TradingSystem.getTechModifier(goodType, techLevel);
 
-        // Positive bias at high tech (TL > 5) should produce modifier < 1.0
-        // This makes the commodity cheaper at high-tech systems
-        expect(modifier).toBeLessThan(1.0);
-      }),
+          // Positive bias at high tech (TL > 5) should produce modifier < 1.0
+          // This makes the commodity cheaper at high-tech systems
+          expect(modifier).toBeLessThan(1.0);
+        }
+      ),
       { numRuns: 100 }
     );
   });

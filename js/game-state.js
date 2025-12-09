@@ -205,50 +205,64 @@ export class GameStateManager {
 
   getPlayer() {
     if (!this.state) {
-      throw new Error('Invalid state: getPlayer called before game initialization');
+      throw new Error(
+        'Invalid state: getPlayer called before game initialization'
+      );
     }
     return this.state.player;
   }
 
   getShip() {
     if (!this.state) {
-      throw new Error('Invalid state: getShip called before game initialization');
+      throw new Error(
+        'Invalid state: getShip called before game initialization'
+      );
     }
     return this.state.ship;
   }
 
   getCurrentSystem() {
     if (!this.state) {
-      throw new Error('Invalid state: getCurrentSystem called before game initialization');
+      throw new Error(
+        'Invalid state: getCurrentSystem called before game initialization'
+      );
     }
-    
+
     const systemId = this.state.player.currentSystem;
     const system = this.starData.find((s) => s.id === systemId);
-    
+
     if (!system) {
-      throw new Error(`Invalid game state: current system ID ${systemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${systemId} not found in star data`
+      );
     }
-    
+
     return system;
   }
 
   getCargoUsed() {
     if (!this.state) {
-      throw new Error('Invalid state: getCargoUsed called before game initialization');
+      throw new Error(
+        'Invalid state: getCargoUsed called before game initialization'
+      );
     }
     return this.state.ship.cargo.reduce((total, stack) => total + stack.qty, 0);
   }
 
   getCargoRemaining() {
     if (!this.state) {
-      throw new Error('Invalid state: getCargoRemaining called before game initialization');
+      throw new Error(
+        'Invalid state: getCargoRemaining called before game initialization'
+      );
     }
     return this.state.ship.cargoCapacity - this.getCargoUsed();
   }
 
   isSystemVisited(systemId) {
     if (!this.state) {
-      throw new Error('Invalid state: isSystemVisited called before game initialization');
+      throw new Error(
+        'Invalid state: isSystemVisited called before game initialization'
+      );
     }
     return this.state.world.visitedSystems.includes(systemId);
   }
@@ -259,7 +273,9 @@ export class GameStateManager {
    */
   getShipCondition() {
     if (!this.state) {
-      throw new Error('Invalid state: getShipCondition called before game initialization');
+      throw new Error(
+        'Invalid state: getShipCondition called before game initialization'
+      );
     }
 
     return {
@@ -320,7 +336,9 @@ export class GameStateManager {
    */
   getPriceKnowledge() {
     if (!this.state) {
-      throw new Error('Invalid state: getPriceKnowledge called before game initialization');
+      throw new Error(
+        'Invalid state: getPriceKnowledge called before game initialization'
+      );
     }
     return this.state.world.priceKnowledge || {};
   }
@@ -330,7 +348,9 @@ export class GameStateManager {
    */
   getKnownPrices(systemId) {
     if (!this.state) {
-      throw new Error('Invalid state: getKnownPrices called before game initialization');
+      throw new Error(
+        'Invalid state: getKnownPrices called before game initialization'
+      );
     }
     return this.state.world.priceKnowledge?.[systemId]?.prices || null;
   }
@@ -340,7 +360,9 @@ export class GameStateManager {
    */
   hasVisitedSystem(systemId) {
     if (!this.state) {
-      throw new Error('Invalid state: hasVisitedSystem called before game initialization');
+      throw new Error(
+        'Invalid state: hasVisitedSystem called before game initialization'
+      );
     }
     return this.state.world.priceKnowledge?.[systemId] !== undefined;
   }
@@ -401,9 +423,7 @@ export class GameStateManager {
       this.incrementPriceKnowledgeStaleness(daysPassed);
 
       // Clean up old intelligence data
-      InformationBroker.cleanupOldIntelligence(
-        this.state.world.priceKnowledge
-      );
+      InformationBroker.cleanupOldIntelligence(this.state.world.priceKnowledge);
 
       // Update economic events (trigger new events, remove expired ones)
       this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
@@ -576,7 +596,9 @@ export class GameStateManager {
    */
   getActiveEvents() {
     if (!this.state) {
-      throw new Error('Invalid state: getActiveEvents called before game initialization');
+      throw new Error(
+        'Invalid state: getActiveEvents called before game initialization'
+      );
     }
     return this.state.world.activeEvents || [];
   }
@@ -761,8 +783,6 @@ export class GameStateManager {
 
     return { valid: true };
   }
-
-
 
   /**
    * Execute a sale transaction from a specific cargo stack
@@ -1090,9 +1110,7 @@ export class GameStateManager {
 
     // Increase condition (clamped by updateShipCondition)
     const newHull =
-      systemType === 'hull'
-        ? currentCondition + amount
-        : this.state.ship.hull;
+      systemType === 'hull' ? currentCondition + amount : this.state.ship.hull;
     const newEngine =
       systemType === 'engine'
         ? currentCondition + amount
@@ -1130,7 +1148,9 @@ export class GameStateManager {
     const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
     if (!currentSystem) {
-      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
     }
 
     // Calculate current prices for all commodities using dynamic pricing
@@ -1278,10 +1298,14 @@ export class GameStateManager {
 
         // Initialize with current system's prices
         const currentSystemId = loadedState.player.currentSystem;
-        const currentSystem = this.starData.find((s) => s.id === currentSystemId);
+        const currentSystem = this.starData.find(
+          (s) => s.id === currentSystemId
+        );
 
         if (!currentSystem) {
-          throw new Error(`Load failed: current system ID ${currentSystemId} not found in star data`);
+          throw new Error(
+            `Load failed: current system ID ${currentSystemId} not found in star data`
+          );
         }
 
         const currentDay = loadedState.player.daysElapsed;
@@ -1429,7 +1453,9 @@ export class GameStateManager {
       const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
       if (!currentSystem) {
-        throw new Error(`Migration failed: current system ID ${currentSystemId} not found in star data`);
+        throw new Error(
+          `Migration failed: current system ID ${currentSystemId} not found in star data`
+        );
       }
 
       const currentDay = state.player.daysElapsed;
@@ -1497,10 +1523,16 @@ export class GameStateManager {
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
     }
-    if (state.ship.engine !== undefined && typeof state.ship.engine !== 'number') {
+    if (
+      state.ship.engine !== undefined &&
+      typeof state.ship.engine !== 'number'
+    ) {
       return false;
     }
-    if (state.ship.lifeSupport !== undefined && typeof state.ship.lifeSupport !== 'number') {
+    if (
+      state.ship.lifeSupport !== undefined &&
+      typeof state.ship.lifeSupport !== 'number'
+    ) {
       return false;
     }
 
@@ -1515,10 +1547,16 @@ export class GameStateManager {
       }
 
       // Purchase metadata is optional - will be initialized if missing
-      if (stack.purchaseSystem !== undefined && typeof stack.purchaseSystem !== 'number') {
+      if (
+        stack.purchaseSystem !== undefined &&
+        typeof stack.purchaseSystem !== 'number'
+      ) {
         return false;
       }
-      if (stack.purchaseDay !== undefined && typeof stack.purchaseDay !== 'number') {
+      if (
+        stack.purchaseDay !== undefined &&
+        typeof stack.purchaseDay !== 'number'
+      ) {
         return false;
       }
     }

@@ -23,4 +23,3 @@
   system, the more the prices drop or rise based on your individual
   activity, before slowly returning to baseline? That forces players to look
   for other places to buy/sell.
-

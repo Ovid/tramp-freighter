@@ -278,7 +278,10 @@ describe('Property 35: Profit Calculation and Display', () => {
 
           // Calculate expected profit and percentage
           const profit = currentPrice - stack.purchasePrice;
-          const expectedPercentage = ((profit / stack.purchasePrice) * 100).toFixed(1);
+          const expectedPercentage = (
+            (profit / stack.purchasePrice) *
+            100
+          ).toFixed(1);
 
           // Verify profit percentage is displayed correctly
           if (profit !== 0) {

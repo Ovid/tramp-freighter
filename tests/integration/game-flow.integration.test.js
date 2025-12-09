@@ -72,7 +72,7 @@ describe('Complete Game Flow Integration Tests', () => {
         `;
 
     // UIManager is created for DOM initialization side effects
-     
+
     uiManager = new UIManager(gameStateManager);
   });
 

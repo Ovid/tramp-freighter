@@ -10,7 +10,7 @@
     "test:coverage": "vitest --coverage",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "lint": "eslint .", 
+    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "clean": "npm run lint:fix && npm run format:write"
   },

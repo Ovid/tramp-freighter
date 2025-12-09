@@ -32,12 +32,12 @@ describe('HUD Animation State Integration', () => {
   beforeEach(() => {
     // Setup Three.js mocks
     setupThreeMock();
-    
+
     // Create mock objects
     mockScene = new window.THREE.Scene();
     mockCamera = new window.THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     mockCamera.position.set(0, 0, 100);
-    
+
     mockControls = {
       enabled: true,
       target: new window.THREE.Vector3(0, 0, 0),
@@ -137,10 +137,12 @@ describe('HUD Animation State Integration', () => {
 
     // Initialize game state
     gameStateManager.initNewGame();
-    
+
     // Mock animation methods to resolve immediately
     // This allows us to test state updates without waiting for actual animations
-    vi.spyOn(animationSystem, 'animateCameraTransition').mockResolvedValue(undefined);
+    vi.spyOn(animationSystem, 'animateCameraTransition').mockResolvedValue(
+      undefined
+    );
     vi.spyOn(animationSystem, 'animateShipTravel').mockResolvedValue(undefined);
   });
 
@@ -164,12 +166,16 @@ describe('HUD Animation State Integration', () => {
     let hudUpdatedDuringAnimation = false;
 
     // Spy on animation system to detect when animation starts
-    const originalPlayAnimation = animationSystem.playJumpAnimation.bind(animationSystem);
+    const originalPlayAnimation =
+      animationSystem.playJumpAnimation.bind(animationSystem);
     animationSystem.playJumpAnimation = async function (originId, destId) {
       // Check if HUD was already updated before animation starts
-      const systemDuringAnimation = document.getElementById('hud-system').textContent;
-      const fuelDuringAnimation = document.getElementById('hud-fuel-text').textContent;
-      const daysDuringAnimation = document.getElementById('hud-days').textContent;
+      const systemDuringAnimation =
+        document.getElementById('hud-system').textContent;
+      const fuelDuringAnimation =
+        document.getElementById('hud-fuel-text').textContent;
+      const daysDuringAnimation =
+        document.getElementById('hud-days').textContent;
 
       if (
         systemDuringAnimation === 'Alpha Centauri' &&
@@ -224,14 +230,16 @@ describe('HUD Animation State Integration', () => {
     // Use a small delay to ensure state updates have propagated
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    const systemDuringAnimation = document.getElementById('hud-system').textContent;
+    const systemDuringAnimation =
+      document.getElementById('hud-system').textContent;
     expect(systemDuringAnimation).toBe('Alpha Centauri');
 
     // Wait for animation to complete
     await jumpPromise;
 
     // Verify location is still correct after animation
-    const systemAfterAnimation = document.getElementById('hud-system').textContent;
+    const systemAfterAnimation =
+      document.getElementById('hud-system').textContent;
     expect(systemAfterAnimation).toBe('Alpha Centauri');
   });
 
@@ -248,7 +256,8 @@ describe('HUD Animation State Integration', () => {
     // Check HUD immediately (should be updated before animation starts)
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    const fuelTextDuringAnimation = document.getElementById('hud-fuel-text').textContent;
+    const fuelTextDuringAnimation =
+      document.getElementById('hud-fuel-text').textContent;
     const fuelValueDuringAnimation = parseFloat(fuelTextDuringAnimation);
 
     expect(fuelValueDuringAnimation).toBeLessThan(initialFuel);
@@ -257,7 +266,8 @@ describe('HUD Animation State Integration', () => {
     await jumpPromise;
 
     // Verify fuel is still correct after animation
-    const fuelTextAfterAnimation = document.getElementById('hud-fuel-text').textContent;
+    const fuelTextAfterAnimation =
+      document.getElementById('hud-fuel-text').textContent;
     const fuelValueAfterAnimation = parseFloat(fuelTextAfterAnimation);
 
     expect(fuelValueAfterAnimation).toBeLessThan(initialFuel);

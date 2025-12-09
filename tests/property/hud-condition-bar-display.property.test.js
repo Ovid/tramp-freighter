@@ -72,7 +72,9 @@ describe('Property: HUD Condition Bar Display', () => {
           const engineBar = document.getElementById('engine-bar');
           const engineText = document.getElementById('hud-engine-text');
           const lifeSupportBar = document.getElementById('life-support-bar');
-          const lifeSupportText = document.getElementById('hud-life-support-text');
+          const lifeSupportText = document.getElementById(
+            'hud-life-support-text'
+          );
 
           // Simulate UI update
           fuelBar.style.width = `${condition.fuel}%`;
@@ -96,7 +98,9 @@ describe('Property: HUD Condition Bar Display', () => {
 
           // Verify labels exist
           const labels = container.querySelectorAll('.hud-label');
-          const labelTexts = Array.from(labels).map((label) => label.textContent);
+          const labelTexts = Array.from(labels).map(
+            (label) => label.textContent
+          );
           expect(labelTexts).toContain('Fuel:');
           expect(labelTexts).toContain('Hull:');
           expect(labelTexts).toContain('Engine:');
@@ -105,8 +109,12 @@ describe('Property: HUD Condition Bar Display', () => {
           // Verify percentage values are displayed correctly
           expect(fuelText.textContent).toBe(`${Math.round(condition.fuel)}%`);
           expect(hullText.textContent).toBe(`${Math.round(condition.hull)}%`);
-          expect(engineText.textContent).toBe(`${Math.round(condition.engine)}%`);
-          expect(lifeSupportText.textContent).toBe(`${Math.round(condition.lifeSupport)}%`);
+          expect(engineText.textContent).toBe(
+            `${Math.round(condition.engine)}%`
+          );
+          expect(lifeSupportText.textContent).toBe(
+            `${Math.round(condition.lifeSupport)}%`
+          );
 
           // Verify bar widths match condition values
           expect(fuelBar.style.width).toBe(`${condition.fuel}%`);

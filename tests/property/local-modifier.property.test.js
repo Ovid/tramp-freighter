@@ -43,7 +43,8 @@ describe('Local Modifier (Property Tests)', () => {
             marketConditions
           );
 
-          const expectedModifier = 1.0 - surplus / ECONOMY_CONFIG.MARKET_CAPACITY;
+          const expectedModifier =
+            1.0 - surplus / ECONOMY_CONFIG.MARKET_CAPACITY;
 
           // Since we're testing within non-clamping range, the calculated modifier
           // should match the formula exactly

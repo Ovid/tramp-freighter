@@ -16,19 +16,24 @@ describe('Property: Intelligence Manipulation Rate', () => {
     fc.assert(
       fc.property(
         // Generate random star systems with unique IDs
-        fc.array(
-          fc.record({
-            name: fc.string({ minLength: 1, maxLength: 20 }),
-            type: fc.constantFrom('G2V', 'K5V', 'M3V', 'A1V', 'F7V'),
-            x: fc.float({ min: -300, max: 300 }),
-            y: fc.float({ min: -300, max: 300 }),
-            z: fc.float({ min: -300, max: 300 }),
-            st: fc.integer({ min: 0, max: 5 }),
-          }),
-          { minLength: 10, maxLength: 15 }
-        ).map((systems) => systems.map((s, i) => ({ ...s, id: i }))),
+        fc
+          .array(
+            fc.record({
+              name: fc.string({ minLength: 1, maxLength: 20 }),
+              type: fc.constantFrom('G2V', 'K5V', 'M3V', 'A1V', 'F7V'),
+              x: fc.float({ min: -300, max: 300 }),
+              y: fc.float({ min: -300, max: 300 }),
+              z: fc.float({ min: -300, max: 300 }),
+              st: fc.integer({ min: 0, max: 5 }),
+            }),
+            { minLength: 10, maxLength: 15 }
+          )
+          .map((systems) => systems.map((s, i) => ({ ...s, id: i }))),
         // Generate random days
-        fc.array(fc.integer({ min: 0, max: 365 }), { minLength: 20, maxLength: 30 }),
+        fc.array(fc.integer({ min: 0, max: 365 }), {
+          minLength: 20,
+          maxLength: 30,
+        }),
         (starData, days) => {
           let totalPrices = 0;
           let manipulatedPrices = 0;
@@ -42,8 +47,13 @@ describe('Property: Intelligence Manipulation Rate', () => {
               };
 
               // Purchase intelligence
-              InformationBroker.purchaseIntelligence(gameState, system.id, starData);
-              const purchasedPrices = gameState.world.priceKnowledge[system.id].prices;
+              InformationBroker.purchaseIntelligence(
+                gameState,
+                system.id,
+                starData
+              );
+              const purchasedPrices =
+                gameState.world.priceKnowledge[system.id].prices;
 
               // Compare with actual prices
               for (const goodType of Object.keys(purchasedPrices)) {
@@ -67,8 +77,12 @@ describe('Property: Intelligence Manipulation Rate', () => {
           const manipulationRate = manipulatedPrices / totalPrices;
           const expectedRate = 0.1; // INTELLIGENCE_RELIABILITY.MANIPULATION_CHANCE
           const varianceTolerance = 0.3; // 30% variance
-          expect(manipulationRate).toBeGreaterThan(expectedRate * (1 - varianceTolerance));
-          expect(manipulationRate).toBeLessThan(expectedRate * (1 + varianceTolerance));
+          expect(manipulationRate).toBeGreaterThan(
+            expectedRate * (1 - varianceTolerance)
+          );
+          expect(manipulationRate).toBeLessThan(
+            expectedRate * (1 + varianceTolerance)
+          );
         }
       ),
       { numRuns: 10 } // Fewer runs since each run tests many combinations
@@ -94,12 +108,20 @@ describe('Property: Intelligence Manipulation Rate', () => {
             world: { priceKnowledge: {}, activeEvents: [] },
           };
 
-          InformationBroker.purchaseIntelligence(gameState, system.id, [system]);
-          const purchasedPrices = gameState.world.priceKnowledge[system.id].prices;
+          InformationBroker.purchaseIntelligence(gameState, system.id, [
+            system,
+          ]);
+          const purchasedPrices =
+            gameState.world.priceKnowledge[system.id].prices;
 
           // Check each commodity
           for (const goodType of Object.keys(purchasedPrices)) {
-            const actualPrice = TradingSystem.calculatePrice(goodType, system, day, []);
+            const actualPrice = TradingSystem.calculatePrice(
+              goodType,
+              system,
+              day,
+              []
+            );
             const purchasedPrice = purchasedPrices[goodType];
 
             // If manipulated, must be lower
@@ -138,8 +160,12 @@ describe('Property: Intelligence Manipulation Rate', () => {
             world: { priceKnowledge: {}, activeEvents: [] },
           };
 
-          InformationBroker.purchaseIntelligence(gameState1, system.id, [system]);
-          InformationBroker.purchaseIntelligence(gameState2, system.id, [system]);
+          InformationBroker.purchaseIntelligence(gameState1, system.id, [
+            system,
+          ]);
+          InformationBroker.purchaseIntelligence(gameState2, system.id, [
+            system,
+          ]);
 
           const prices1 = gameState1.world.priceKnowledge[system.id].prices;
           const prices2 = gameState2.world.priceKnowledge[system.id].prices;
@@ -164,7 +190,10 @@ describe('Property: Intelligence Manipulation Rate', () => {
           z: fc.float({ min: -300, max: 300 }),
           st: fc.integer({ min: 0, max: 5 }),
         }),
-        fc.array(fc.integer({ min: 0, max: 365 }), { minLength: 50, maxLength: 100 }),
+        fc.array(fc.integer({ min: 0, max: 365 }), {
+          minLength: 50,
+          maxLength: 100,
+        }),
         (system, days) => {
           const manipulationRatios = [];
 
@@ -174,11 +203,19 @@ describe('Property: Intelligence Manipulation Rate', () => {
               world: { priceKnowledge: {}, activeEvents: [] },
             };
 
-            InformationBroker.purchaseIntelligence(gameState, system.id, [system]);
-            const purchasedPrices = gameState.world.priceKnowledge[system.id].prices;
+            InformationBroker.purchaseIntelligence(gameState, system.id, [
+              system,
+            ]);
+            const purchasedPrices =
+              gameState.world.priceKnowledge[system.id].prices;
 
             for (const goodType of Object.keys(purchasedPrices)) {
-              const actualPrice = TradingSystem.calculatePrice(goodType, system, day, []);
+              const actualPrice = TradingSystem.calculatePrice(
+                goodType,
+                system,
+                day,
+                []
+              );
               const purchasedPrice = purchasedPrices[goodType];
 
               if (purchasedPrice < actualPrice) {
@@ -190,8 +227,10 @@ describe('Property: Intelligence Manipulation Rate', () => {
 
           // If we found manipulations, check they're in expected range
           if (manipulationRatios.length > 0) {
-            const avgRatio = manipulationRatios.reduce((a, b) => a + b, 0) / manipulationRatios.length;
-            
+            const avgRatio =
+              manipulationRatios.reduce((a, b) => a + b, 0) /
+              manipulationRatios.length;
+
             // Average should be roughly in the middle of the range (0.7 to 0.85)
             // Allow some variance due to rounding (±15% from midpoint of 0.775)
             const expectedMidpoint = 0.775; // (0.7 + 0.85) / 2

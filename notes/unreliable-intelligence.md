@@ -11,15 +11,17 @@ The Information Broker now provides unreliable intelligence data, reflecting the
 **Behavior**: When purchasing intelligence, each commodity price has a 10% chance of being manipulated to show a false profit opportunity.
 
 **Implementation**:
+
 - Uses seeded random based on `systemId` and `currentDay` for deterministic behavior
 - Manipulated prices are multiplied by a factor between 0.7 and 0.85
 - This makes them appear cheaper than actual prices, creating false buying opportunities
 - Players who act on this intelligence will find the actual prices are higher when they arrive
 
 **Constants** (in `game-constants.js`):
+
 ```javascript
 export const INTELLIGENCE_RELIABILITY = {
-  MANIPULATION_CHANCE: 0.1,  // 10% chance per commodity
+  MANIPULATION_CHANCE: 0.1, // 10% chance per commodity
   MIN_MANIPULATION_MULTIPLIER: 0.7,
   MAX_MANIPULATION_MULTIPLIER: 0.85,
 };
@@ -32,11 +34,13 @@ export const INTELLIGENCE_RELIABILITY = {
 **Behavior**: Market data older than 100 days is automatically deleted when time advances.
 
 **Implementation**:
+
 - `InformationBroker.cleanupOldIntelligence()` removes systems where `lastVisit > 100`
 - Called automatically in `GameStateManager.updateTime()` when days advance
 - Prevents stale information from cluttering the player's knowledge base
 
 **Constant** (in `game-constants.js`):
+
 ```javascript
 export const INTELLIGENCE_MAX_AGE = 100;
 ```
@@ -44,6 +48,7 @@ export const INTELLIGENCE_MAX_AGE = 100;
 ## Files Modified
 
 ### Core Implementation
+
 - `js/game-constants.js` - Added `INTELLIGENCE_RELIABILITY` and `INTELLIGENCE_MAX_AGE` constants
 - `js/game-information-broker.js`:
   - Updated `purchaseIntelligence()` to add price manipulation
@@ -51,6 +56,7 @@ export const INTELLIGENCE_MAX_AGE = 100;
 - `js/game-state.js` - Integrated cleanup into `updateTime()` method
 
 ### Tests
+
 - `tests/unit/intelligence-reliability.test.js` - New test file (6 tests)
   - Verifies ~10% manipulation rate
   - Confirms manipulated prices are lower than actual
@@ -65,16 +71,19 @@ export const INTELLIGENCE_MAX_AGE = 100;
 ### Strategic Considerations
 
 **Risk vs Reward**:
+
 - Intelligence is cheaper than traveling to check prices yourself
 - But 10% of the time, the data will mislead you
 - Players must decide: trust the intel or verify in person?
 
 **False Profit Opportunities**:
+
 - Manipulated prices appear 15-30% cheaper than actual
 - This can make a system look very profitable when it's not
 - Experienced players will learn to be skeptical of "too good to be true" deals
 
 **Data Freshness**:
+
 - Old data (>100 days) is automatically removed
 - Encourages players to keep intelligence current
 - Reduces clutter in the market data interface
@@ -91,6 +100,7 @@ export const INTELLIGENCE_MAX_AGE = 100;
 ## Testing
 
 All 535 tests pass, including:
+
 - 6 new tests for intelligence reliability
 - 9 new tests for data cleanup
 - All existing tests continue to pass
@@ -100,6 +110,7 @@ The implementation is fully deterministic and well-tested.
 ## Future Enhancements
 
 Potential improvements:
+
 - Add a "reliability rating" for the information broker that improves over time
 - Allow players to "verify" intelligence by visiting systems, building trust
 - Add different tiers of intelligence with varying reliability

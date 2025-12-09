@@ -25,7 +25,9 @@ describe('Ship Reticle', () => {
     expect(reticle.material.color).toBe(ANIMATION_CONFIG.RETICLE_COLOR);
     expect(reticle.material.transparent).toBe(true);
     expect(reticle.material.opacity).toBe(0.8);
-    expect(reticle.material.linewidth).toBe(ANIMATION_CONFIG.RETICLE_LINE_WIDTH);
+    expect(reticle.material.linewidth).toBe(
+      ANIMATION_CONFIG.RETICLE_LINE_WIDTH
+    );
   });
 
   it('should create circle with correct number of segments', () => {
@@ -33,7 +35,9 @@ describe('Ship Reticle', () => {
 
     // Check that geometry has points
     expect(reticle.geometry.points).toBeDefined();
-    expect(reticle.geometry.points.length).toBe(ANIMATION_CONFIG.RETICLE_SEGMENTS);
+    expect(reticle.geometry.points.length).toBe(
+      ANIMATION_CONFIG.RETICLE_SEGMENTS
+    );
   });
 
   it('should create circle with correct radius', () => {
@@ -41,8 +45,8 @@ describe('Ship Reticle', () => {
 
     // Check that all points are at the correct radius
     const expectedRadius = ANIMATION_CONFIG.RETICLE_SIZE;
-    
-    reticle.geometry.points.forEach(point => {
+
+    reticle.geometry.points.forEach((point) => {
       const distance = Math.sqrt(point.x * point.x + point.y * point.y);
       expect(distance).toBeCloseTo(expectedRadius, 5);
     });

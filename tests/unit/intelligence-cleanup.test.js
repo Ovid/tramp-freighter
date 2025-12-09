@@ -44,9 +44,8 @@ describe('Intelligence Cleanup', () => {
         },
       };
 
-      const cleanedCount = InformationBroker.cleanupOldIntelligence(
-        priceKnowledge
-      );
+      const cleanedCount =
+        InformationBroker.cleanupOldIntelligence(priceKnowledge);
 
       // System 3 should be removed (lastVisit = 150 > 100)
       expect(cleanedCount).toBe(1);
@@ -71,9 +70,8 @@ describe('Intelligence Cleanup', () => {
         },
       };
 
-      const cleanedCount = InformationBroker.cleanupOldIntelligence(
-        priceKnowledge
-      );
+      const cleanedCount =
+        InformationBroker.cleanupOldIntelligence(priceKnowledge);
 
       // All data is within 100 days
       expect(cleanedCount).toBe(0);
@@ -92,9 +90,8 @@ describe('Intelligence Cleanup', () => {
         },
       };
 
-      const cleanedCount = InformationBroker.cleanupOldIntelligence(
-        priceKnowledge
-      );
+      const cleanedCount =
+        InformationBroker.cleanupOldIntelligence(priceKnowledge);
 
       // System 2 should be removed (lastVisit = 101 > 100)
       // System 1 should NOT be removed (lastVisit = 100, not > 100)
@@ -106,9 +103,8 @@ describe('Intelligence Cleanup', () => {
     it('should handle empty price knowledge', () => {
       const priceKnowledge = {};
 
-      const cleanedCount = InformationBroker.cleanupOldIntelligence(
-        priceKnowledge
-      );
+      const cleanedCount =
+        InformationBroker.cleanupOldIntelligence(priceKnowledge);
 
       expect(cleanedCount).toBe(0);
       expect(Object.keys(priceKnowledge).length).toBe(0);
@@ -119,12 +115,11 @@ describe('Intelligence Cleanup', () => {
         1: { lastVisit: 150, prices: {} }, // Too old
         2: { lastVisit: 120, prices: {} }, // Too old
         3: { lastVisit: 110, prices: {} }, // Too old
-        4: { lastVisit: 50, prices: {} },  // OK
+        4: { lastVisit: 50, prices: {} }, // OK
       };
 
-      const cleanedCount = InformationBroker.cleanupOldIntelligence(
-        priceKnowledge
-      );
+      const cleanedCount =
+        InformationBroker.cleanupOldIntelligence(priceKnowledge);
 
       // Systems 1, 2, 3 should be removed (lastVisit > 100)
       expect(cleanedCount).toBe(3);
@@ -141,7 +136,11 @@ describe('Intelligence Cleanup', () => {
 
     beforeEach(() => {
       navigationSystem = new NavigationSystem(starData, wormholeData);
-      gameStateManager = new GameStateManager(starData, wormholeData, navigationSystem);
+      gameStateManager = new GameStateManager(
+        starData,
+        wormholeData,
+        navigationSystem
+      );
       gameStateManager.initNewGame();
     });
 
@@ -214,8 +213,8 @@ describe('Intelligence Cleanup', () => {
 
       // Add price knowledge with different ages
       state.world.priceKnowledge = {
-        1: { lastVisit: 90, prices: { grain: 10 } },  // Will become 110 after 20 days
-        2: { lastVisit: 80, prices: { grain: 12 } },  // Will become 100 after 20 days
+        1: { lastVisit: 90, prices: { grain: 10 } }, // Will become 110 after 20 days
+        2: { lastVisit: 80, prices: { grain: 12 } }, // Will become 100 after 20 days
       };
 
       // Advance time by 20 days

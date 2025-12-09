@@ -95,7 +95,7 @@ describe('Property 3: HUD Reactivity', () => {
     gameStateManager.lastSaveTime = 0; // Reset debounce timer
     gameStateManager.initNewGame();
     // UIManager is created for DOM initialization side effects
-     
+
     uiManager = new UIManager(gameStateManager);
   });
 

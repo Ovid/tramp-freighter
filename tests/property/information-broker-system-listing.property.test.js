@@ -46,7 +46,7 @@ describe('Property: Information Broker System Listing', () => {
           // Create wormhole connections: connect first system to some others
           const currentSystemId = starData[0].id;
           const wormholeData = [];
-          
+
           // Connect current system to half of the other systems
           for (let i = 1; i < starData.length; i += 2) {
             wormholeData.push([currentSystemId, starData[i].id]);
@@ -62,7 +62,8 @@ describe('Property: Information Broker System Listing', () => {
           );
 
           // Should only return connected systems
-          const connectedIds = navigationSystem.getConnectedSystems(currentSystemId);
+          const connectedIds =
+            navigationSystem.getConnectedSystems(currentSystemId);
           expect(listing.length).toBe(connectedIds.length);
 
           // Each entry should have required fields
@@ -74,7 +75,7 @@ describe('Property: Information Broker System Listing', () => {
 
             // Verify the entry corresponds to a connected system
             expect(connectedIds).toContain(entry.systemId);
-            
+
             const system = starData.find((s) => s.id === entry.systemId);
             expect(system).toBeDefined();
             expect(entry.systemName).toBe(system.name);

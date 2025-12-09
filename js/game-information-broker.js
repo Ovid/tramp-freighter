@@ -179,7 +179,8 @@ export class InformationBroker {
         };
 
         const description =
-          eventDescriptions[marketDisruption.type] || 'unusual market conditions';
+          eventDescriptions[marketDisruption.type] ||
+          'unusual market conditions';
         return `I heard ${system.name} is experiencing ${description}. Might be worth checking out.`;
       }
     }
@@ -243,9 +244,15 @@ export class InformationBroker {
    * @param {Object} navigationSystem - NavigationSystem instance for checking connections
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
    */
-  static listAvailableIntelligence(priceKnowledge, starData, currentSystemId, navigationSystem) {
+  static listAvailableIntelligence(
+    priceKnowledge,
+    starData,
+    currentSystemId,
+    navigationSystem
+  ) {
     // Get systems connected to current system
-    const connectedSystemIds = navigationSystem.getConnectedSystems(currentSystemId);
+    const connectedSystemIds =
+      navigationSystem.getConnectedSystems(currentSystemId);
 
     // Filter to only connected systems and map to intelligence data
     return starData

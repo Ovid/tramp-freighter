@@ -117,11 +117,11 @@ describe('Panel Animation Hide Integration', () => {
 
     // Initialize game state
     gameStateManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    
+
     // Initialize navigation system
     navigationSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     gameStateManager.navigationSystem = navigationSystem;
-    
+
     gameStateManager.initNewGame();
 
     // Initialize UI manager

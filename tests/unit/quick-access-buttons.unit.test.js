@@ -193,7 +193,9 @@ describe('Quick Access Buttons', () => {
     });
 
     it('should open station interface at current system', () => {
-      const alphaCentauri = TEST_STAR_DATA.find((s) => s.name === 'Alpha Centauri A');
+      const alphaCentauri = TEST_STAR_DATA.find(
+        (s) => s.name === 'Alpha Centauri A'
+      );
       gameStateManager.updateLocation(alphaCentauri.id);
 
       const stationInterface = document.getElementById('station-interface');
@@ -205,7 +207,10 @@ describe('Quick Access Buttons', () => {
 
   describe('Button State Updates', () => {
     it('should update button states when updateHUD is called', () => {
-      const updateQuickAccessSpy = vi.spyOn(uiManager, 'updateQuickAccessButtons');
+      const updateQuickAccessSpy = vi.spyOn(
+        uiManager,
+        'updateQuickAccessButtons'
+      );
 
       uiManager.updateHUD();
 
@@ -213,9 +218,14 @@ describe('Quick Access Buttons', () => {
     });
 
     it('should update button states when location changes', () => {
-      const updateQuickAccessSpy = vi.spyOn(uiManager, 'updateQuickAccessButtons');
+      const updateQuickAccessSpy = vi.spyOn(
+        uiManager,
+        'updateQuickAccessButtons'
+      );
 
-      const alphaCentauri = TEST_STAR_DATA.find((s) => s.name === 'Alpha Centauri A');
+      const alphaCentauri = TEST_STAR_DATA.find(
+        (s) => s.name === 'Alpha Centauri A'
+      );
       uiManager.updateLocation(alphaCentauri.id);
 
       expect(updateQuickAccessSpy).toHaveBeenCalled();

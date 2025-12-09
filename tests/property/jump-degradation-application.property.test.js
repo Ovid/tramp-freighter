@@ -38,17 +38,22 @@ describe('Property 20: Jump Degradation Application', () => {
           const originalLifeSupport = shipTemplate.lifeSupport;
 
           // Apply degradation (mutates ship object)
-          const degradedShip = NavigationSystem.applyJumpDegradation(shipTemplate, jumpDays);
+          const degradedShip = NavigationSystem.applyJumpDegradation(
+            shipTemplate,
+            jumpDays
+          );
 
           // Calculate expected degradation amounts
           const expectedHullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
           const expectedEngineDegradation = SHIP_DEGRADATION.ENGINE_PER_JUMP;
-          const expectedLifeSupportDegradation = SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
+          const expectedLifeSupportDegradation =
+            SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
 
           // Calculate expected values (before clamping)
           const expectedHull = originalHull - expectedHullDegradation;
           const expectedEngine = originalEngine - expectedEngineDegradation;
-          const expectedLifeSupport = originalLifeSupport - expectedLifeSupportDegradation;
+          const expectedLifeSupport =
+            originalLifeSupport - expectedLifeSupportDegradation;
 
           // Verify degradation was applied correctly (accounting for clamping)
           // If expected value is within bounds, it should match exactly
@@ -112,7 +117,10 @@ describe('Property 20: Jump Degradation Application', () => {
           const originalCargoCapacity = shipTemplate.cargoCapacity;
 
           // Apply degradation (mutates ship object)
-          const degradedShip = NavigationSystem.applyJumpDegradation(shipTemplate, jumpDays);
+          const degradedShip = NavigationSystem.applyJumpDegradation(
+            shipTemplate,
+            jumpDays
+          );
 
           // Verify condition properties were actually degraded
           expect(degradedShip.hull).toBeLessThan(originalHull);

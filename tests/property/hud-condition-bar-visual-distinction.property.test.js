@@ -65,9 +65,13 @@ describe('Property: Condition Bar Visual Distinction', () => {
           const hullBar = document.getElementById('hull-bar');
           const hullContainer = document.querySelector('.hull-bar-container');
           const engineBar = document.getElementById('engine-bar');
-          const engineContainer = document.querySelector('.engine-bar-container');
+          const engineContainer = document.querySelector(
+            '.engine-bar-container'
+          );
           const lifeSupportBar = document.getElementById('life-support-bar');
-          const lifeSupportContainer = document.querySelector('.life-support-bar-container');
+          const lifeSupportContainer = document.querySelector(
+            '.life-support-bar-container'
+          );
 
           // Verify each bar has the base condition-bar class
           expect(fuelBar.classList.contains('condition-bar')).toBe(true);
@@ -79,19 +83,39 @@ describe('Property: Condition Bar Visual Distinction', () => {
           expect(fuelBar.classList.contains('fuel-bar')).toBe(true);
           expect(hullBar.classList.contains('hull-bar')).toBe(true);
           expect(engineBar.classList.contains('engine-bar')).toBe(true);
-          expect(lifeSupportBar.classList.contains('life-support-bar')).toBe(true);
+          expect(lifeSupportBar.classList.contains('life-support-bar')).toBe(
+            true
+          );
 
           // Verify each container has the base condition-bar-container class
-          expect(fuelContainer.classList.contains('condition-bar-container')).toBe(true);
-          expect(hullContainer.classList.contains('condition-bar-container')).toBe(true);
-          expect(engineContainer.classList.contains('condition-bar-container')).toBe(true);
-          expect(lifeSupportContainer.classList.contains('condition-bar-container')).toBe(true);
+          expect(
+            fuelContainer.classList.contains('condition-bar-container')
+          ).toBe(true);
+          expect(
+            hullContainer.classList.contains('condition-bar-container')
+          ).toBe(true);
+          expect(
+            engineContainer.classList.contains('condition-bar-container')
+          ).toBe(true);
+          expect(
+            lifeSupportContainer.classList.contains('condition-bar-container')
+          ).toBe(true);
 
           // Verify each container has a distinct type-specific class
-          expect(fuelContainer.classList.contains('fuel-bar-container')).toBe(true);
-          expect(hullContainer.classList.contains('hull-bar-container')).toBe(true);
-          expect(engineContainer.classList.contains('engine-bar-container')).toBe(true);
-          expect(lifeSupportContainer.classList.contains('life-support-bar-container')).toBe(true);
+          expect(fuelContainer.classList.contains('fuel-bar-container')).toBe(
+            true
+          );
+          expect(hullContainer.classList.contains('hull-bar-container')).toBe(
+            true
+          );
+          expect(
+            engineContainer.classList.contains('engine-bar-container')
+          ).toBe(true);
+          expect(
+            lifeSupportContainer.classList.contains(
+              'life-support-bar-container'
+            )
+          ).toBe(true);
 
           // Verify no bar has another bar's type-specific class (mutual exclusivity)
           expect(fuelBar.classList.contains('hull-bar')).toBe(false);
@@ -140,11 +164,18 @@ describe('Property: Condition Bar Visual Distinction', () => {
           expect(fuelBar.classList.contains('fuel-bar')).toBe(true);
           expect(hullBar.classList.contains('hull-bar')).toBe(true);
           expect(engineBar.classList.contains('engine-bar')).toBe(true);
-          expect(lifeSupportBar.classList.contains('life-support-bar')).toBe(true);
+          expect(lifeSupportBar.classList.contains('life-support-bar')).toBe(
+            true
+          );
 
           // Verify classes remain mutually exclusive
           const allBars = [fuelBar, hullBar, engineBar, lifeSupportBar];
-          const typeClasses = ['fuel-bar', 'hull-bar', 'engine-bar', 'life-support-bar'];
+          const typeClasses = [
+            'fuel-bar',
+            'hull-bar',
+            'engine-bar',
+            'life-support-bar',
+          ];
 
           allBars.forEach((bar, barIndex) => {
             typeClasses.forEach((typeClass, classIndex) => {

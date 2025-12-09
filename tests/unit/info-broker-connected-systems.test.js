@@ -24,7 +24,11 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(starData, wormholeData, navigationSystem);
+    const gameStateManager = new GameStateManager(
+      starData,
+      wormholeData,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     // Get available intelligence
@@ -32,8 +36,8 @@ describe('Information Broker - Connected Systems Filter', () => {
 
     // Should only show connected systems (Alpha Centauri and Barnard)
     expect(available.length).toBe(2);
-    
-    const systemNames = available.map(opt => opt.systemName);
+
+    const systemNames = available.map((opt) => opt.systemName);
     expect(systemNames).toContain('Alpha Centauri');
     expect(systemNames).toContain('Barnard');
     expect(systemNames).not.toContain('Wolf 359');
@@ -57,13 +61,17 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(starData, wormholeData, navigationSystem);
+    const gameStateManager = new GameStateManager(
+      starData,
+      wormholeData,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     // At Sol: should see Alpha Centauri and Barnard
     let available = gameStateManager.listAvailableIntelligence();
     expect(available.length).toBe(2);
-    let systemNames = available.map(opt => opt.systemName);
+    let systemNames = available.map((opt) => opt.systemName);
     expect(systemNames).toContain('Alpha Centauri');
     expect(systemNames).toContain('Barnard');
 
@@ -73,7 +81,7 @@ describe('Information Broker - Connected Systems Filter', () => {
     // At Alpha Centauri: should see Sol and Wolf 359
     available = gameStateManager.listAvailableIntelligence();
     expect(available.length).toBe(2);
-    systemNames = available.map(opt => opt.systemName);
+    systemNames = available.map((opt) => opt.systemName);
     expect(systemNames).toContain('Sol');
     expect(systemNames).toContain('Wolf 359');
     expect(systemNames).not.toContain('Barnard'); // Not connected to Alpha Centauri
@@ -89,7 +97,11 @@ describe('Information Broker - Connected Systems Filter', () => {
     const wormholeData = [];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(starData, wormholeData, navigationSystem);
+    const gameStateManager = new GameStateManager(
+      starData,
+      wormholeData,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     const available = gameStateManager.listAvailableIntelligence();
