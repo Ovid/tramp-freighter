@@ -82,13 +82,15 @@ export class InformationBroker {
     // Seed includes system ID and day to ensure consistency
     const seed = `intel_${systemId}_${currentDay}`;
     const rng = new SeededRandom(seed);
+    const marketConditions = gameState.world.marketConditions || {};
 
     for (const goodType of COMMODITY_TYPES) {
       let price = TradingSystem.calculatePrice(
         goodType,
         system,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
 
       // Sometimes the intelligence is unreliable - prices are manipulated
@@ -188,6 +190,7 @@ export class InformationBroker {
     // Otherwise, hint about a good price somewhere
     const rumorCommodityIndex = Math.floor(rng.next() * COMMODITY_TYPES.length);
     const rumorCommodity = COMMODITY_TYPES[rumorCommodityIndex];
+    const marketConditions = gameState.world.marketConditions || {};
 
     // Find a system with a good price for this commodity
     let bestSystem = null;
@@ -198,7 +201,8 @@ export class InformationBroker {
         rumorCommodity,
         system,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
       if (price < bestPrice) {
         bestPrice = price;

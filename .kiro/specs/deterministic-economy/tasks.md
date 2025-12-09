@@ -147,14 +147,14 @@
   - **Property 27: Complete price formula**
   - **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
 
-- [ ] 12. Update all calculatePrice() call sites
+- [x] 12. Update all calculatePrice() call sites
   - Pass marketConditions from game state to calculatePrice()
   - Update calls in recalculatePricesForKnownSystems()
   - Update calls in dock()
   - Update calls in UI refresh functions
   - _Requirements: 10.2, 10.4_
 
-- [ ] 12.1 Write property tests for data structure
+- [x] 12.1 Write property tests for data structure
   - **Property 29: First trade creates market condition entry**
   - **Property 30: Market conditions data structure**
   - **Property 31: Empty system entries are removed**

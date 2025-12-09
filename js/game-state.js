@@ -68,11 +68,13 @@ export class GameStateManager {
     const solSystem = this.starData.find((s) => s.id === SOL_SYSTEM_ID);
     const currentDay = 0; // Game starts at day 0
     const activeEvents = []; // No events at game start
+    const marketConditions = {}; // No market conditions at game start
     const solGrainPrice = TradingSystem.calculatePrice(
       'grain',
       solSystem,
       currentDay,
-      activeEvents
+      activeEvents,
+      marketConditions
     );
 
     // Calculate all Sol prices for price knowledge initialization
@@ -82,7 +84,8 @@ export class GameStateManager {
         goodType,
         solSystem,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
     }
 
@@ -621,6 +624,7 @@ export class GameStateManager {
 
     const currentDay = this.state.player.daysElapsed;
     const activeEvents = this.state.world.activeEvents || [];
+    const marketConditions = this.state.world.marketConditions || {};
 
     // Recalculate prices for each system in price knowledge
     for (const systemIdStr in this.state.world.priceKnowledge) {
@@ -636,7 +640,8 @@ export class GameStateManager {
             goodType,
             system,
             currentDay,
-            activeEvents
+            activeEvents,
+            marketConditions
           );
         }
 
@@ -1217,6 +1222,7 @@ export class GameStateManager {
     // Calculate current prices for all commodities using dynamic pricing
     const currentDay = this.state.player.daysElapsed;
     const activeEvents = this.state.world.activeEvents || [];
+    const marketConditions = this.state.world.marketConditions || {};
     const currentPrices = {};
 
     for (const goodType of COMMODITY_TYPES) {
@@ -1224,7 +1230,8 @@ export class GameStateManager {
         goodType,
         currentSystem,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
     }
 
@@ -1370,6 +1377,7 @@ export class GameStateManager {
         }
 
         const currentDay = loadedState.player.daysElapsed;
+        const marketConditions = {}; // No market conditions if missing
         const currentPrices = {};
 
         for (const goodType of COMMODITY_TYPES) {
@@ -1377,7 +1385,8 @@ export class GameStateManager {
             goodType,
             currentSystem,
             currentDay,
-            [] // No events if missing
+            [], // No events if missing
+            marketConditions
           );
         }
 
@@ -1520,6 +1529,7 @@ export class GameStateManager {
       }
 
       const currentDay = state.player.daysElapsed;
+      const marketConditions = {}; // No market conditions in v1.0.0
       const currentPrices = {};
 
       for (const goodType of COMMODITY_TYPES) {
@@ -1527,7 +1537,8 @@ export class GameStateManager {
           goodType,
           currentSystem,
           currentDay,
-          [] // No events in v1.0.0
+          [], // No events in v1.0.0
+          marketConditions
         );
       }
 

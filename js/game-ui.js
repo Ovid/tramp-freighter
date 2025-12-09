@@ -662,13 +662,15 @@ export class UIManager {
 
     const currentDay = state.player.daysElapsed;
     const activeEvents = state.world.activeEvents || [];
+    const marketConditions = state.world.marketConditions || {};
 
     this.goodsList.forEach((goodType) => {
       const price = TradingSystem.calculatePrice(
         goodType,
         system,
         currentDay,
-        activeEvents
+        activeEvents,
+        marketConditions
       );
       const goodItem = this.createGoodItem(goodType, price);
       this.elements.marketGoods.appendChild(goodItem);
@@ -803,12 +805,14 @@ export class UIManager {
     const state = this.gameStateManager.getState();
     const currentDay = state.player.daysElapsed;
     const activeEvents = state.world.activeEvents || [];
+    const marketConditions = state.world.marketConditions || {};
 
     const currentPrice = TradingSystem.calculatePrice(
       stack.good,
       system,
       currentDay,
-      activeEvents
+      activeEvents,
+      marketConditions
     );
     const profitMargin = currentPrice - stack.purchasePrice;
     const profitPercentage = (
