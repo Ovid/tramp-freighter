@@ -160,6 +160,38 @@ export class TradingSystem {
     return modifier;
   }
 
+  /**
+   * Calculate temporal modifier for price drift over time
+   *
+   * Temporal modifier creates smooth, predictable price oscillations using a sine wave.
+   * Each system has a unique phase offset based on its ID, creating different price
+   * cycles across the sector. This allows players to observe trends and plan multi-day
+   * trading strategies.
+   *
+   * Formula: modifier = 1.0 + (amplitude × sin(2π × (day / period) + (systemId × 0.15)))
+   *
+   * The sine wave oscillates prices by ±15% (amplitude = 0.15) over a 30-day period.
+   * The 2π multiplier ensures the wave completes exactly one cycle every 30 days.
+   * System ID offset creates phase differences so systems reach peaks/troughs at different times.
+   *
+   * Examples:
+   * - System 0, Day 0: 1.0 + (0.15 × sin(0 + 0)) = 1.0 (neutral)
+   * - System 0, Day 7.5: 1.0 + (0.15 × sin(π/2)) = 1.15 (15% above baseline, peak)
+   * - System 0, Day 15: 1.0 + (0.15 × sin(π)) = 1.0 (neutral, halfway)
+   * - System 0, Day 22.5: 1.0 + (0.15 × sin(3π/2)) = 0.85 (15% below baseline, trough)
+   * - System 0, Day 30: 1.0 + (0.15 × sin(2π)) = 1.0 (neutral, cycle complete)
+   * - System 5, Day 0: 1.0 + (0.15 × sin(0 + 0.75)) ≈ 1.102 (different phase)
+   *
+   * @param {number} systemId - System identifier for phase offset
+   * @param {number} currentDay - Current game day
+   * @returns {number} Temporal modifier between 0.85 and 1.15
+   */
+  static getTemporalModifier(systemId, currentDay) {
+    const phase = (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * 0.15);
+    const modifier = 1.0 + (ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase));
+    return modifier;
+  }
+
   static calculateCargoUsed(cargo) {
     if (!Array.isArray(cargo)) {
       return 0;

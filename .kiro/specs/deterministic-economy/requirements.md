@@ -56,7 +56,7 @@ This specification defines the Deterministic Economy system for Tramp Freighter 
 #### Acceptance Criteria
 
 1. WHEN calculating the temporal modifier THEN the Game System SHALL use a sine wave function based on the current game day
-2. WHEN calculating the temporal modifier THEN the Game System SHALL use the formula 1.0 plus 0.15 times sine of current day divided by wave period plus system identifier times 0.15
+2. WHEN calculating the temporal modifier THEN the Game System SHALL use the formula 1.0 plus 0.15 times sine of 2 pi times current day divided by wave period plus system identifier times 0.15
 3. WHEN calculating the temporal modifier THEN the Game System SHALL use a wave period of 30 days
 4. WHEN calculating the temporal modifier THEN the Game System SHALL add the system identifier to the sine function to create phase differences between systems
 5. WHEN the temporal modifier is calculated THEN the Game System SHALL produce values that vary prices by plus or minus 15 percent from baseline

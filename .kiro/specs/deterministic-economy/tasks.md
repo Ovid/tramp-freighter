@@ -51,14 +51,14 @@
   - **Property 6: Tech modifier formula correctness**
   - **Validates: Requirements 2.7**
 
-- [ ] 4. Implement temporal modifier calculation in game-trading.js
+- [x] 4. Implement temporal modifier calculation in game-trading.js
   - Add getTemporalModifier(systemId, currentDay) static method to TradingSystem
-  - Apply sine wave: 1.0 + (0.15 × sin((day / 30) + (systemId × 0.15)))
+  - Apply sine wave: 1.0 + (0.15 × sin(2π × (day / 30) + (systemId × 0.15)))
   - Use TEMPORAL_WAVE_PERIOD and TEMPORAL_AMPLITUDE from config
   - Return temporal modifier between 0.85 and 1.15
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 4.1 Write property tests for temporal modifier
+- [x] 4.1 Write property tests for temporal modifier
   - **Property 7: Temporal modifier formula correctness**
   - **Property 8: Temporal wave period is 30 days**
   - **Property 9: Temporal modifier range bounds**
