@@ -192,6 +192,48 @@ export class TradingSystem {
     return modifier;
   }
 
+  /**
+   * Calculate local modifier based on market saturation from player trading
+   *
+   * Local modifier creates dynamic price changes based on player buy/sell activity.
+   * When the player sells goods at a system, a surplus is created that lowers prices.
+   * When the player buys goods, a deficit is created that raises prices.
+   * This prevents infinite exploitation of a single trade route and encourages
+   * route rotation.
+   *
+   * Formula: modifier = clamp(1.0 - (surplus / MARKET_CAPACITY), LOCAL_MODIFIER_MIN, LOCAL_MODIFIER_MAX)
+   *
+   * Market conditions are stored as net quantity:
+   * - Positive value = surplus (player sold goods) → prices decrease
+   * - Negative value = deficit (player bought goods) → prices increase
+   * - Zero or missing = no trading history → neutral modifier (1.0)
+   *
+   * The modifier is clamped between 0.25 and 2.0 to prevent negative prices
+   * or infinite costs. At MARKET_CAPACITY (1000 units), the unclamped modifier
+   * would be 0.0 (surplus) or 2.0 (deficit), but clamping ensures reasonable bounds.
+   *
+   * Examples:
+   * - No trading history: modifier = 1.0 (neutral)
+   * - Surplus of 200: modifier = 1.0 - (200 / 1000) = 0.8 (20% cheaper)
+   * - Surplus of 1000: modifier = clamp(1.0 - 1.0, 0.25, 2.0) = 0.25 (75% cheaper, clamped)
+   * - Deficit of 200: modifier = 1.0 - (-200 / 1000) = 1.2 (20% more expensive)
+   * - Deficit of 1000: modifier = clamp(1.0 - (-1.0), 0.25, 2.0) = 2.0 (100% more expensive, clamped)
+   *
+   * @param {number} systemId - System identifier
+   * @param {string} goodType - Commodity type
+   * @param {Object} marketConditions - Market conditions data structure: { [systemId]: { [goodType]: netQuantity } }
+   * @returns {number} Local modifier between 0.25 and 2.0
+   */
+  static getLocalModifier(systemId, goodType, marketConditions) {
+    const surplus = marketConditions?.[systemId]?.[goodType] ?? 0;
+    const modifier = 1.0 - (surplus / ECONOMY_CONFIG.MARKET_CAPACITY);
+    const clampedModifier = Math.max(
+      ECONOMY_CONFIG.LOCAL_MODIFIER_MIN,
+      Math.min(ECONOMY_CONFIG.LOCAL_MODIFIER_MAX, modifier)
+    );
+    return clampedModifier;
+  }
+
   static calculateCargoUsed(cargo) {
     if (!Array.isArray(cargo)) {
       return 0;

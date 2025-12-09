@@ -90,7 +90,7 @@
   - **Property 11: Trading updates market conditions bidirectionally**
   - **Validates: Requirements 4.1, 4.2**
 
-- [ ] 8. Implement local modifier calculation in game-trading.js
+- [x] 8. Implement local modifier calculation in game-trading.js
   - Add getLocalModifier(systemId, goodType, marketConditions) static method
   - Retrieve surplus/deficit directly from marketConditions using optional chaining (default 0 if missing)
   - Apply formula: 1.0 - (surplus / MARKET_CAPACITY)
@@ -98,7 +98,7 @@
   - Return local modifier multiplier
   - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7, 9.6_
 
-- [ ] 8.1 Write property tests for local modifier
+- [x] 8.1 Write property tests for local modifier
   - **Property 12: Local modifier formula correctness**
   - **Property 13: Local modifier clamping**
   - **Property 14: Local modifier direction matches surplus sign**
