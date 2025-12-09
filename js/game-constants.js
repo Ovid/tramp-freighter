@@ -291,8 +291,13 @@ export const NEW_GAME_DEFAULTS = {
 
 /**
  * Game version for save compatibility
+ *
+ * Version history:
+ * - 1.0.0: Initial release with basic trading
+ * - 2.0.0: Added ship condition, price knowledge, events
+ * - 2.1.0: Deterministic economy with market conditions
  */
-export const GAME_VERSION = '2.0.0';
+export const GAME_VERSION = '2.1.0';
 
 /**
  * localStorage key for save data

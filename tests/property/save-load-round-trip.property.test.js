@@ -143,8 +143,8 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
         );
 
         // Verify meta data is preserved
-        // Version may be migrated from 1.0.0 to 2.0.0, so check it's valid
-        expect(loadedState.meta.version).toMatch(/^[12]\.0\.0$/);
+        // Version may be migrated from 1.0.0 to 2.1.0, so check it's valid
+        expect(loadedState.meta.version).toMatch(/^[12]\.[01]\.0$/);
         expect(loadedState.meta.timestamp).toBeTypeOf('number');
         expect(loadedState.meta.timestamp).toBeGreaterThan(0);
       }),

@@ -187,21 +187,21 @@
   - **Property 19: Sol-Barnard route baseline profitability**
   - **Validates: Requirements 6.3, 6.4, 6.5**
 
-- [ ] 16. Implement save game migration
+- [x] 16. Implement save game migration
   - Check for marketConditions in loaded save data
   - Add empty marketConditions object if missing (backward compatibility)
   - Increment GAME_VERSION constant to indicate economy change
   - Test loading old saves without marketConditions
 
-- [ ] 16.1 Write integration test for time advancement
+- [x] 16.1 Write integration test for time advancement
   - **Property 32: Time advancement triggers price recalculation**
   - **Validates: Requirements 10.1, 10.2**
 
-- [ ] 16.2 Write integration test for market recovery
+- [x] 16.2 Write integration test for market recovery
   - **Property 33: Prices reflect market recovery**
   - **Validates: Requirements 10.3, 10.4**
 
-- [ ] 16.3 Write integration test for economic events
+- [x] 16.3 Write integration test for economic events
   - **Property 36: Economic events still modify prices**
   - **Validates: Requirements 11.4, 11.5**
 

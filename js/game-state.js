@@ -1350,8 +1350,13 @@ export class GameStateManager {
       }
 
       // Migrate from v1.0.0 to v2.0.0 if needed
-      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.0.0') {
+      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.1.0') {
         loadedState = this.migrateFromV1ToV2(loadedState);
+      }
+
+      // Migrate from v2.0.0 to v2.1.0 if needed
+      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '2.1.0') {
+        loadedState = this.migrateFromV2ToV2_1(loadedState);
       }
 
       if (!this.validateStateStructure(loadedState)) {
@@ -1419,6 +1424,9 @@ export class GameStateManager {
       if (!loadedState.world.activeEvents) {
         loadedState.world.activeEvents = [];
       }
+      if (!loadedState.world.marketConditions) {
+        loadedState.world.marketConditions = {};
+      }
 
       this.state = loadedState;
 
@@ -1479,7 +1487,7 @@ export class GameStateManager {
   /**
    * Check if save version is compatible with current version
    *
-   * Supports migration from v1.0.0 to v2.0.0
+   * Supports migration from v1.0.0 to v2.1.0
    */
   isVersionCompatible(saveVersion) {
     if (!saveVersion) return false;
@@ -1487,27 +1495,31 @@ export class GameStateManager {
     // Exact version match
     if (saveVersion === GAME_VERSION) return true;
 
-    // Support migration from v1.0.0 to v2.0.0
-    if (saveVersion === '1.0.0' && GAME_VERSION === '2.0.0') return true;
+    // Support migration from v1.0.0 to v2.1.0
+    if (saveVersion === '1.0.0' && GAME_VERSION === '2.1.0') return true;
+
+    // Support migration from v2.0.0 to v2.1.0
+    if (saveVersion === '2.0.0' && GAME_VERSION === '2.1.0') return true;
 
     return false;
   }
 
   /**
-   * Migrate save data from v1.0.0 to v2.0.0
+   * Migrate save data from v1.0.0 to v2.1.0
    *
    * Adds Phase 2 features:
    * - Ship condition (hull, engine, lifeSupport)
    * - Cargo purchase metadata (purchaseSystem, purchaseDay)
    * - Price knowledge database
    * - Active events array
+   * - Market conditions (deterministic economy)
    *
    * @param {Object} state - v1.0.0 save state
-   * @returns {Object} Migrated v2.0.0 state
+   * @returns {Object} Migrated v2.1.0 state
    */
   migrateFromV1ToV2(state) {
     if (!this.isTestEnvironment) {
-      console.log('Migrating save from v1.0.0 to v2.0.0');
+      console.log('Migrating save from v1.0.0 to v2.1.0');
     }
 
     // Add ship condition fields (default to maximum)
@@ -1572,6 +1584,40 @@ export class GameStateManager {
     // Add active events array
     if (!state.world.activeEvents) {
       state.world.activeEvents = [];
+    }
+
+    // Add market conditions (deterministic economy)
+    if (!state.world.marketConditions) {
+      state.world.marketConditions = {};
+    }
+
+    // Update version
+    state.meta.version = GAME_VERSION;
+
+    if (!this.isTestEnvironment) {
+      console.log('Migration complete');
+    }
+
+    return state;
+  }
+
+  /**
+   * Migrate save data from v2.0.0 to v2.1.0
+   *
+   * Adds deterministic economy features:
+   * - Market conditions tracking for local supply/demand effects
+   *
+   * @param {Object} state - v2.0.0 save state
+   * @returns {Object} Migrated v2.1.0 state
+   */
+  migrateFromV2ToV2_1(state) {
+    if (!this.isTestEnvironment) {
+      console.log('Migrating save from v2.0.0 to v2.1.0');
+    }
+
+    // Add market conditions (empty object for backward compatibility)
+    if (!state.world.marketConditions) {
+      state.world.marketConditions = {};
     }
 
     // Update version
