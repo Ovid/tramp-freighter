@@ -125,6 +125,41 @@ export class TradingSystem {
     return techLevel;
   }
 
+  /**
+   * Calculate tech modifier for a commodity based on technology level
+   *
+   * Tech modifier creates price differentials based on a commodity's tech bias
+   * and the system's technology level. Commodities with negative bias (raw materials,
+   * agricultural goods) are cheaper at low-tech systems, while commodities with
+   * positive bias (electronics, medicine) are cheaper at high-tech systems.
+   *
+   * Formula: modifier = 1.0 + (bias × (5.0 - TL) × 0.08)
+   *
+   * At TL 5.0 (midpoint), all modifiers are 1.0 (neutral).
+   * At TL 10.0 (Sol), negative bias commodities are expensive, positive bias are cheap.
+   * At TL 1.0 (frontier), negative bias commodities are cheap, positive bias are expensive.
+   *
+   * Examples:
+   * - Electronics (bias +1.0) at Sol (TL 10.0): 1.0 + (1.0 × (5.0 - 10.0) × 0.08) = 0.6 (40% cheaper)
+   * - Electronics (bias +1.0) at frontier (TL 1.0): 1.0 + (1.0 × (5.0 - 1.0) × 0.08) = 1.32 (32% more expensive)
+   * - Ore (bias -0.8) at Sol (TL 10.0): 1.0 + (-0.8 × (5.0 - 10.0) × 0.08) = 1.32 (32% more expensive)
+   * - Ore (bias -0.8) at frontier (TL 1.0): 1.0 + (-0.8 × (5.0 - 1.0) × 0.08) = 0.744 (25.6% cheaper)
+   *
+   * @param {string} goodType - Commodity type (grain, ore, tritium, parts, medicine, electronics)
+   * @param {number} techLevel - Technology level between 1.0 and 10.0
+   * @returns {number} Tech modifier multiplier
+   */
+  static getTechModifier(goodType, techLevel) {
+    const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
+    if (bias === undefined) {
+      throw new Error(`Unknown good type: ${goodType}`);
+    }
+
+    const modifier =
+      1.0 + bias * (5.0 - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
+    return modifier;
+  }
+
   static calculateCargoUsed(cargo) {
     if (!Array.isArray(cargo)) {
       return 0;

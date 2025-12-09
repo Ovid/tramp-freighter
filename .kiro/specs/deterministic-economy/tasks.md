@@ -36,18 +36,18 @@
   - **Property 4: Technology level interpolation**
   - **Validates: Requirements 1.2, 1.5**
 
-- [ ] 3. Implement tech modifier calculation in game-trading.js
+- [x] 3. Implement tech modifier calculation in game-trading.js
   - Add getTechModifier(goodType, techLevel) static method to TradingSystem
   - Retrieve tech bias from ECONOMY_CONFIG.TECH_BIASES
   - Apply formula: 1.0 + (bias × (5.0 - TL) × 0.08)
   - Return tech modifier multiplier
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 3.1 Write unit test for tech bias constants
+- [x] 3.1 Write unit test for tech bias constants
   - **Property 5: Tech bias constants correctness**
   - **Validates: Requirements 2.1-2.6**
 
-- [ ] 3.2 Write property test for tech modifier formula
+- [x] 3.2 Write property test for tech modifier formula
   - **Property 6: Tech modifier formula correctness**
   - **Validates: Requirements 2.7**
 
