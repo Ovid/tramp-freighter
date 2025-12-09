@@ -1,5 +1,6 @@
 import {
   BASE_PRICES,
+  COMMODITY_TYPES,
   FUEL_PRICING,
   calculateDistanceFromSol,
   SOL_SYSTEM_ID,
@@ -75,7 +76,7 @@ export class GameStateManager {
 
     // Calculate all Sol prices for price knowledge initialization
     const solPrices = {};
-    for (const goodType of Object.keys(BASE_PRICES)) {
+    for (const goodType of COMMODITY_TYPES) {
       solPrices[goodType] = TradingSystem.calculatePrice(
         goodType,
         solSystem,
@@ -482,7 +483,7 @@ export class GameStateManager {
         const newPrices = {};
 
         // Calculate new prices for all commodities
-        for (const goodType of Object.keys(BASE_PRICES)) {
+        for (const goodType of COMMODITY_TYPES) {
           newPrices[goodType] = TradingSystem.calculatePrice(
             goodType,
             system,
@@ -1049,24 +1050,26 @@ export class GameStateManager {
     const currentSystemId = this.state.player.currentSystem;
     const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
-    if (currentSystem) {
-      // Calculate current prices for all commodities using dynamic pricing
-      const currentDay = this.state.player.daysElapsed;
-      const activeEvents = this.state.world.activeEvents || [];
-      const currentPrices = {};
-
-      for (const goodType of Object.keys(BASE_PRICES)) {
-        currentPrices[goodType] = TradingSystem.calculatePrice(
-          goodType,
-          currentSystem,
-          currentDay,
-          activeEvents
-        );
-      }
-
-      // Update price knowledge (resets lastVisit to 0)
-      this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
+    if (!currentSystem) {
+      throw new Error(`Invalid game state: current system ID ${currentSystemId} not found in star data`);
     }
+
+    // Calculate current prices for all commodities using dynamic pricing
+    const currentDay = this.state.player.daysElapsed;
+    const activeEvents = this.state.world.activeEvents || [];
+    const currentPrices = {};
+
+    for (const goodType of COMMODITY_TYPES) {
+      currentPrices[goodType] = TradingSystem.calculatePrice(
+        goodType,
+        currentSystem,
+        currentDay,
+        activeEvents
+      );
+    }
+
+    // Update price knowledge (resets lastVisit to 0)
+    this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
 
     // Persist state transition - prevents loss if player closes browser while docked
     this.saveGame();
@@ -1198,24 +1201,26 @@ export class GameStateManager {
         const currentSystemId = loadedState.player.currentSystem;
         const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
-        if (currentSystem) {
-          const currentDay = loadedState.player.daysElapsed;
-          const currentPrices = {};
-
-          for (const goodType of Object.keys(BASE_PRICES)) {
-            currentPrices[goodType] = TradingSystem.calculatePrice(
-              goodType,
-              currentSystem,
-              currentDay,
-              [] // No events if missing
-            );
-          }
-
-          loadedState.world.priceKnowledge[currentSystemId] = {
-            lastVisit: 0,
-            prices: currentPrices,
-          };
+        if (!currentSystem) {
+          throw new Error(`Load failed: current system ID ${currentSystemId} not found in star data`);
         }
+
+        const currentDay = loadedState.player.daysElapsed;
+        const currentPrices = {};
+
+        for (const goodType of COMMODITY_TYPES) {
+          currentPrices[goodType] = TradingSystem.calculatePrice(
+            goodType,
+            currentSystem,
+            currentDay,
+            [] // No events if missing
+          );
+        }
+
+        loadedState.world.priceKnowledge[currentSystemId] = {
+          lastVisit: 0,
+          prices: currentPrices,
+        };
       }
       if (!loadedState.world.activeEvents) {
         loadedState.world.activeEvents = [];
@@ -1344,24 +1349,26 @@ export class GameStateManager {
       const currentSystemId = state.player.currentSystem;
       const currentSystem = this.starData.find((s) => s.id === currentSystemId);
 
-      if (currentSystem) {
-        const currentDay = state.player.daysElapsed;
-        const currentPrices = {};
-
-        for (const goodType of Object.keys(BASE_PRICES)) {
-          currentPrices[goodType] = TradingSystem.calculatePrice(
-            goodType,
-            currentSystem,
-            currentDay,
-            [] // No events in v1.0.0
-          );
-        }
-
-        state.world.priceKnowledge[currentSystemId] = {
-          lastVisit: 0,
-          prices: currentPrices,
-        };
+      if (!currentSystem) {
+        throw new Error(`Migration failed: current system ID ${currentSystemId} not found in star data`);
       }
+
+      const currentDay = state.player.daysElapsed;
+      const currentPrices = {};
+
+      for (const goodType of COMMODITY_TYPES) {
+        currentPrices[goodType] = TradingSystem.calculatePrice(
+          goodType,
+          currentSystem,
+          currentDay,
+          [] // No events in v1.0.0
+        );
+      }
+
+      state.world.priceKnowledge[currentSystemId] = {
+        lastVisit: 0,
+        prices: currentPrices,
+      };
     }
 
     // Add active events array

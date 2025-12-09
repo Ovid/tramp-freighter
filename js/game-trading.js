@@ -133,9 +133,9 @@ export class TradingSystem {
    * agricultural goods) are cheaper at low-tech systems, while commodities with
    * positive bias (electronics, medicine) are cheaper at high-tech systems.
    *
-   * Formula: modifier = 1.0 + (bias × (5.0 - TL) × 0.08)
+   * Formula: modifier = 1.0 + (bias × (TECH_LEVEL_MIDPOINT - TL) × TECH_MODIFIER_INTENSITY)
    *
-   * At TL 5.0 (midpoint), all modifiers are 1.0 (neutral).
+   * At TL midpoint (5.0), all modifiers are 1.0 (neutral).
    * At TL 10.0 (Sol), negative bias commodities are expensive, positive bias are cheap.
    * At TL 1.0 (frontier), negative bias commodities are cheap, positive bias are expensive.
    *
@@ -156,7 +156,7 @@ export class TradingSystem {
     }
 
     const modifier =
-      1.0 + bias * (5.0 - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
+      1.0 + bias * (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
     return modifier;
   }
 
@@ -187,7 +187,7 @@ export class TradingSystem {
    * @returns {number} Temporal modifier between 0.85 and 1.15
    */
   static getTemporalModifier(systemId, currentDay) {
-    const phase = (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * 0.15);
+    const phase = (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET);
     const modifier = 1.0 + (ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase));
     return modifier;
   }

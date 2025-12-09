@@ -1,5 +1,6 @@
 import {
   BASE_PRICES,
+  COMMODITY_TYPES,
   INTELLIGENCE_PRICES,
   INTELLIGENCE_RECENT_THRESHOLD,
   INTELLIGENCE_RELIABILITY,
@@ -83,7 +84,7 @@ export class InformationBroker {
     const seed = `intel_${systemId}_${currentDay}`;
     const rng = new SeededRandom(seed);
 
-    for (const goodType of Object.keys(BASE_PRICES)) {
+    for (const goodType of COMMODITY_TYPES) {
       let price = TradingSystem.calculatePrice(
         goodType,
         system,
@@ -165,9 +166,9 @@ export class InformationBroker {
 
     // If there are active events, 50% chance to hint about one
     if (activeEvents.length > 0 && rng.next() < 0.5) {
-      const eventIndex = Math.floor(rng.next() * activeEvents.length);
-      const event = activeEvents[eventIndex];
-      const system = starData.find((s) => s.id === event.systemId);
+      const rumorTargetIndex = Math.floor(rng.next() * activeEvents.length);
+      const marketDisruption = activeEvents[rumorTargetIndex];
+      const system = starData.find((s) => s.id === marketDisruption.systemId);
 
       if (system) {
         // Get event type name from the event object or use generic description
@@ -179,15 +180,14 @@ export class InformationBroker {
         };
 
         const description =
-          eventDescriptions[event.type] || 'unusual market conditions';
+          eventDescriptions[marketDisruption.type] || 'unusual market conditions';
         return `I heard ${system.name} is experiencing ${description}. Might be worth checking out.`;
       }
     }
 
     // Otherwise, hint about a good price somewhere
-    const commodities = Object.keys(BASE_PRICES);
-    const commodityIndex = Math.floor(rng.next() * commodities.length);
-    const randomGood = commodities[commodityIndex];
+    const rumorCommodityIndex = Math.floor(rng.next() * COMMODITY_TYPES.length);
+    const rumorCommodity = COMMODITY_TYPES[rumorCommodityIndex];
 
     // Find a system with a good price for this commodity
     let bestSystem = null;
@@ -195,7 +195,7 @@ export class InformationBroker {
 
     for (const system of starData) {
       const price = TradingSystem.calculatePrice(
-        randomGood,
+        rumorCommodity,
         system,
         currentDay,
         activeEvents
@@ -207,7 +207,7 @@ export class InformationBroker {
     }
 
     if (bestSystem) {
-      return `Word on the street is that ${randomGood} prices are pretty good at ${bestSystem.name} right now.`;
+      return `Word on the street is that ${rumorCommodity} prices are pretty good at ${bestSystem.name} right now.`;
     }
 
     // Fallback generic rumor

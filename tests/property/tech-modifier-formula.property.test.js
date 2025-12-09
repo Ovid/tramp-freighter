@@ -38,7 +38,7 @@ describe('Tech Modifier Formula (Property Tests)', () => {
 
           const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
           const expectedModifier =
-            1.0 + bias * (5.0 - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
+            1.0 + bias * (ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT - techLevel) * ECONOMY_CONFIG.TECH_MODIFIER_INTENSITY;
 
           // Floating point tolerance of 10 decimal places
           expect(calculatedModifier).toBeCloseTo(expectedModifier, 10);
@@ -53,14 +53,14 @@ describe('Tech Modifier Formula (Property Tests)', () => {
   // At the midpoint tech level, the modifier should be neutral
   // ========================================================================
 
-  it('Additional: Tech modifier at TL 5.0 should be 1.0 for all commodities', () => {
+  it('Additional: Tech modifier at TL midpoint should be 1.0 for all commodities', () => {
     const commodityGenerator = fc.constantFrom(...COMMODITY_TYPES);
 
     fc.assert(
       fc.property(commodityGenerator, (goodType) => {
-        const modifier = TradingSystem.getTechModifier(goodType, 5.0);
+        const modifier = TradingSystem.getTechModifier(goodType, ECONOMY_CONFIG.TECH_LEVEL_MIDPOINT);
 
-        // At TL 5.0, the formula becomes: 1.0 + (bias × (5.0 - 5.0) × 0.08) = 1.0
+        // At midpoint, the formula becomes: 1.0 + (bias × (midpoint - midpoint) × intensity) = 1.0
         expect(modifier).toBeCloseTo(1.0, 10);
       }),
       { numRuns: 100 }

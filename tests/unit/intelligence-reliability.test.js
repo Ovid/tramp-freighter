@@ -1,9 +1,8 @@
 'use strict';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { InformationBroker } from '../../js/game-information-broker.js';
 import { TradingSystem } from '../../js/game-trading.js';
-import { INTELLIGENCE_RELIABILITY } from '../../js/game-constants.js';
 
 /**
  * Unit tests for unreliable intelligence data
@@ -17,22 +16,6 @@ describe('Intelligence Reliability', () => {
     { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2V', st: 1 },
     { id: 1, name: 'Alpha Centauri', x: 10, y: 0, z: 0, type: 'G2V', st: 1 },
   ];
-
-  let gameState;
-
-  beforeEach(() => {
-    gameState = {
-      player: {
-        credits: 1000,
-        currentSystem: 0,
-        daysElapsed: 50,
-      },
-      world: {
-        priceKnowledge: {},
-        activeEvents: [],
-      },
-    };
-  });
 
   it('should sometimes provide manipulated prices different from actual prices', () => {
     // Purchase intelligence multiple times with different days to get different seeds

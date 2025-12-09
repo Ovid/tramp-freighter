@@ -5,6 +5,7 @@
   activity, before slowly returning to baseline? That forces players to look
   for other places to buy/sell.
 
+* i18n?
 * Economic events should last longer (and not have the popup every time)
 * System info to show tech level?
 * Lots of HTML in tests (<div id ...). Refactor?

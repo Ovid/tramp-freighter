@@ -4,7 +4,6 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { InformationBroker } from '../../js/game-information-broker.js';
 import { TradingSystem } from '../../js/game-trading.js';
-import { INTELLIGENCE_RELIABILITY } from '../../js/game-constants.js';
 
 /**
  * Property-Based Tests for Intelligence Manipulation Rate

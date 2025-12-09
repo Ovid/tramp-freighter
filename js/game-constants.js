@@ -363,7 +363,9 @@ export const ECONOMY_CONFIG = {
 
   TEMPORAL_WAVE_PERIOD: 30, // Price oscillation cycle in days
   TEMPORAL_AMPLITUDE: 0.15, // ±15% price variation (0.85 to 1.15 multiplier)
+  TEMPORAL_PHASE_OFFSET: 0.15, // System ID phase offset for temporal waves
 
+  TECH_LEVEL_MIDPOINT: 5.0, // Neutral point where tech modifiers equal 1.0
   TECH_MODIFIER_INTENSITY: 0.08, // Controls tech level price impact strength
 
   LOCAL_MODIFIER_MIN: 0.25, // Prevents prices below 25% of baseline

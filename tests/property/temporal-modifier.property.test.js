@@ -31,7 +31,7 @@ describe('Temporal Modifier (Property Tests)', () => {
         );
 
         const phase =
-          (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * 0.15);
+          (2 * Math.PI * currentDay / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD) + (systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET);
         const expectedModifier =
           1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(phase);
 
@@ -134,9 +134,9 @@ describe('Temporal Modifier (Property Tests)', () => {
       fc.property(systemIdGenerator, (systemId) => {
         const modifier = TradingSystem.getTemporalModifier(systemId, 0);
 
-        // At day 0, phase = 0 + (systemId × 0.15)
-        // modifier = 1.0 + (0.15 × sin(systemId × 0.15))
-        const expectedPhase = systemId * 0.15;
+        // At day 0, phase = 0 + (systemId × TEMPORAL_PHASE_OFFSET)
+        // modifier = 1.0 + (TEMPORAL_AMPLITUDE × sin(systemId × TEMPORAL_PHASE_OFFSET))
+        const expectedPhase = systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET;
         const expectedModifier = 1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE * Math.sin(expectedPhase);
 
         expect(modifier).toBeCloseTo(expectedModifier, 10);
