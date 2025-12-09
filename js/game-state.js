@@ -363,6 +363,11 @@ export class GameStateManager {
       // Increment staleness for all systems
       this.incrementPriceKnowledgeStaleness(daysPassed);
 
+      // Clean up old intelligence data
+      InformationBroker.cleanupOldIntelligence(
+        this.state.world.priceKnowledge
+      );
+
       // Update economic events (trigger new events, remove expired ones)
       this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
         this.state,

@@ -190,6 +190,31 @@ export const INTELLIGENCE_PRICES = {
 export const INTELLIGENCE_RECENT_THRESHOLD = 30;
 
 /**
+ * Intelligence reliability configuration
+ *
+ * The information broker's data is not always accurate. Sometimes prices
+ * are manipulated to show false profit opportunities, reflecting the
+ * unreliable nature of black market intelligence.
+ */
+export const INTELLIGENCE_RELIABILITY = {
+  // Probability that a commodity price will be manipulated (0.0 to 1.0)
+  MANIPULATION_CHANCE: 0.1,
+  
+  // Multiplier range for manipulated prices (makes them appear more profitable)
+  // Lower multiplier = appears cheaper to buy (false buying opportunity)
+  MIN_MANIPULATION_MULTIPLIER: 0.7,
+  MAX_MANIPULATION_MULTIPLIER: 0.85,
+};
+
+/**
+ * Maximum age for purchased intelligence data
+ *
+ * Market data older than this many days is automatically deleted
+ * to prevent stale information from cluttering the player's knowledge base.
+ */
+export const INTELLIGENCE_MAX_AGE = 100;
+
+/**
  * Fuel pricing configuration by system distance from Sol
  *
  * Pricing tiers reflect supply chain logistics:

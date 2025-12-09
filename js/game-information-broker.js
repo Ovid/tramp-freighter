@@ -2,6 +2,8 @@ import {
   BASE_PRICES,
   INTELLIGENCE_PRICES,
   INTELLIGENCE_RECENT_THRESHOLD,
+  INTELLIGENCE_RELIABILITY,
+  INTELLIGENCE_MAX_AGE,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { SeededRandom } from './seeded-random.js';
@@ -41,6 +43,8 @@ export class InformationBroker {
    * Purchase market intelligence for a system
    *
    * Deducts credits and updates price knowledge with current prices.
+   * Intelligence data is sometimes unreliable - prices may be manipulated
+   * to show false profit opportunities.
    *
    * @param {Object} gameState - Current game state
    * @param {number} systemId - Target system ID
@@ -74,13 +78,31 @@ export class InformationBroker {
     const activeEvents = gameState.world.activeEvents || [];
     const currentPrices = {};
 
+    // Use seeded random for deterministic price manipulation
+    // Seed includes system ID and day to ensure consistency
+    const seed = `intel_${systemId}_${currentDay}`;
+    const rng = new SeededRandom(seed);
+
     for (const goodType of Object.keys(BASE_PRICES)) {
-      currentPrices[goodType] = TradingSystem.calculatePrice(
+      let price = TradingSystem.calculatePrice(
         goodType,
         system,
         currentDay,
         activeEvents
       );
+
+      // Sometimes the intelligence is unreliable - prices are manipulated
+      // to show false profit opportunities
+      if (rng.next() < INTELLIGENCE_RELIABILITY.MANIPULATION_CHANCE) {
+        const manipulationMultiplier =
+          INTELLIGENCE_RELIABILITY.MIN_MANIPULATION_MULTIPLIER +
+          rng.next() *
+            (INTELLIGENCE_RELIABILITY.MAX_MANIPULATION_MULTIPLIER -
+              INTELLIGENCE_RELIABILITY.MIN_MANIPULATION_MULTIPLIER);
+        price = Math.round(price * manipulationMultiplier);
+      }
+
+      currentPrices[goodType] = price;
     }
 
     // Deduct credits
@@ -93,6 +115,33 @@ export class InformationBroker {
     };
 
     return { success: true, reason: null };
+  }
+
+  /**
+   * Clean up old intelligence data
+   *
+   * Removes market data older than INTELLIGENCE_MAX_AGE days to prevent
+   * stale information from cluttering the player's knowledge base.
+   *
+   * lastVisit represents days since last visit and is incremented automatically
+   * as time passes, so we just check if it exceeds the threshold.
+   *
+   * @param {Object} priceKnowledge - Player's price knowledge database
+   * @returns {number} Number of systems cleaned up
+   */
+  static cleanupOldIntelligence(priceKnowledge) {
+    let cleanedCount = 0;
+
+    for (const systemId in priceKnowledge) {
+      const knowledge = priceKnowledge[systemId];
+
+      if (knowledge.lastVisit > INTELLIGENCE_MAX_AGE) {
+        delete priceKnowledge[systemId];
+        cleanedCount++;
+      }
+    }
+
+    return cleanedCount;
   }
 
   /**
