@@ -541,9 +541,9 @@ export class GameStateManager {
     }
 
     if (!this.state.world.marketConditions) {
-      // Initialize if missing (for backward compatibility with old saves)
-      this.state.world.marketConditions = {};
-      return;
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
     }
 
     const recoveryFactor = Math.pow(
@@ -620,11 +620,24 @@ export class GameStateManager {
    * fluctuations and active event modifiers.
    */
   recalculatePricesForKnownSystems() {
-    if (!this.state?.world.priceKnowledge) return;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: recalculatePricesForKnownSystems called before game initialization'
+      );
+    }
+    if (!this.state.world.priceKnowledge) return;
 
     const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents || [];
-    const marketConditions = this.state.world.marketConditions || {};
+    const activeEvents = this.state.world.activeEvents;
+    if (!activeEvents) {
+      throw new Error('Invalid state: activeEvents missing from world state');
+    }
+    const marketConditions = this.state.world.marketConditions;
+    if (!marketConditions) {
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
+    }
 
     // Recalculate prices for each system in price knowledge
     for (const systemIdStr in this.state.world.priceKnowledge) {
@@ -1221,8 +1234,16 @@ export class GameStateManager {
 
     // Calculate current prices for all commodities using dynamic pricing
     const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents || [];
-    const marketConditions = this.state.world.marketConditions || {};
+    const activeEvents = this.state.world.activeEvents;
+    if (!activeEvents) {
+      throw new Error('Invalid state: activeEvents missing from world state');
+    }
+    const marketConditions = this.state.world.marketConditions;
+    if (!marketConditions) {
+      throw new Error(
+        'Invalid state: marketConditions missing from world state'
+      );
+    }
     const currentPrices = {};
 
     for (const goodType of COMMODITY_TYPES) {
