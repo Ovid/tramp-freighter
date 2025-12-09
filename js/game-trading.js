@@ -1,10 +1,7 @@
 'use strict';
 
-import { SeededRandom } from './seeded-random.js';
 import {
   BASE_PRICES,
-  SPECTRAL_MODIFIERS,
-  DAILY_FLUCTUATION,
   ECONOMY_CONFIG,
   calculateDistanceFromSol,
 } from './game-constants.js';
@@ -65,27 +62,6 @@ export class TradingSystem {
     // Apply complete formula
     const price = basePrice * techMod * temporalMod * localMod * eventMod;
     return Math.round(price);
-  }
-
-  static getProductionModifier(goodType, spectralClass) {
-    const spectralLetter = spectralClass.charAt(0).toUpperCase();
-    const modifiers = SPECTRAL_MODIFIERS[spectralLetter];
-    return modifiers?.[goodType] || 1.0;
-  }
-
-  static getStationCountModifier(stationCount) {
-    return 1.0 + stationCount * 0.05;
-  }
-
-  /**
-   * Deterministic daily price fluctuation using seeded random
-   * Seed format ensures same system/good/day always produces same fluctuation
-   */
-  static getDailyFluctuation(systemId, goodType, currentDay) {
-    const seed = `${systemId}_${goodType}_${currentDay}`;
-    const rng = new SeededRandom(seed);
-    const value = rng.next();
-    return DAILY_FLUCTUATION.MIN + value * DAILY_FLUCTUATION.RANGE;
   }
 
   static getEventModifier(systemId, goodType, activeEvents) {

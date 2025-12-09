@@ -160,7 +160,7 @@
   - **Property 31: Empty system entries are removed**
   - **Validates: Requirements 9.2, 9.3, 9.4, 9.5, 9.7**
 
-- [ ] 13. Remove legacy economy code
+- [x] 13. Remove legacy economy code
   - Remove getDailyFluctuation() from game-trading.js if not used elsewhere
   - Remove getStationCountModifier() from game-trading.js if not used elsewhere
   - Remove DAILY_FLUCTUATION constants from game-constants.js if not used elsewhere
@@ -168,7 +168,7 @@
   - Keep SPECTRAL_COLORS for starmap visualization
   - _Requirements: 11.1, 11.2, 11.3_
 
-- [ ] 13.1 Write property tests for legacy system removal
+- [x] 13.1 Write property tests for legacy system removal
   - **Property 34: Station count does not affect prices**
   - **Property 35: Spectral class does not affect prices**
   - **Validates: Requirements 11.2, 11.3**
