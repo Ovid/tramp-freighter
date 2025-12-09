@@ -487,6 +487,12 @@ export const ANIMATION_CONFIG = {
   SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
   SHIP_INDICATOR_TEXTURE_SIZE: 64, // Canvas texture dimensions (matches star sprites)
 
+  // Reticle visual properties
+  RETICLE_SIZE: 15, // Radius of reticle circle
+  RETICLE_COLOR: 0x00ffff, // Cyan for contrast against red ship
+  RETICLE_SEGMENTS: 32, // Number of segments in reticle circle
+  RETICLE_LINE_WIDTH: 2, // Line width for reticle
+
   // Camera positioning for side view
   SIDE_VIEW_DISTANCE_MULTIPLIER: 1.5, // Distance from midpoint as multiple of star separation
   MIN_SIDE_VIEW_DISTANCE: 100, // Minimum camera distance to prevent clipping
