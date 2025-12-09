@@ -187,27 +187,36 @@ export class InformationBroker {
    * Get all systems with their intelligence costs
    *
    * Used for displaying the information broker interface.
+   * Only returns systems connected to the current system via wormholes.
    *
    * @param {Object} priceKnowledge - Player's price knowledge database
    * @param {Array} starData - Star system data
+   * @param {number} currentSystemId - Current system ID
+   * @param {Object} navigationSystem - NavigationSystem instance for checking connections
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
    */
-  static listAvailableIntelligence(priceKnowledge, starData) {
-    return starData.map((system) => {
-      const knowledge = priceKnowledge[system.id];
-      const cost = InformationBroker.getIntelligenceCost(
-        system.id,
-        priceKnowledge
-      );
-      const lastVisit = knowledge ? knowledge.lastVisit : null;
+  static listAvailableIntelligence(priceKnowledge, starData, currentSystemId, navigationSystem) {
+    // Get systems connected to current system
+    const connectedSystemIds = navigationSystem.getConnectedSystems(currentSystemId);
 
-      return {
-        systemId: system.id,
-        systemName: system.name,
-        cost: cost,
-        lastVisit: lastVisit,
-      };
-    });
+    // Filter to only connected systems and map to intelligence data
+    return starData
+      .filter((system) => connectedSystemIds.includes(system.id))
+      .map((system) => {
+        const knowledge = priceKnowledge[system.id];
+        const cost = InformationBroker.getIntelligenceCost(
+          system.id,
+          priceKnowledge
+        );
+        const lastVisit = knowledge ? knowledge.lastVisit : null;
+
+        return {
+          systemId: system.id,
+          systemName: system.name,
+          cost: cost,
+          lastVisit: lastVisit,
+        };
+      });
   }
 }
 

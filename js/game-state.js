@@ -28,9 +28,10 @@ const SAVE_DEBOUNCE_MS = 1000;
  * - Support multiple subscribers per event type
  */
 export class GameStateManager {
-  constructor(starData, wormholeData) {
+  constructor(starData, wormholeData, navigationSystem = null) {
     this.starData = starData;
     this.wormholeData = wormholeData;
+    this.navigationSystem = navigationSystem;
 
     // Check once during initialization to suppress console noise during test runs
     this.isTestEnvironment =
@@ -598,15 +599,18 @@ export class GameStateManager {
   }
 
   /**
-   * Get list of all systems with intelligence costs
+   * Get list of systems connected to current system with intelligence costs
    *
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
    */
   listAvailableIntelligence() {
     const priceKnowledge = this.getPriceKnowledge();
+    const currentSystemId = this.state.player.currentSystem;
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,
-      this.starData
+      this.starData,
+      currentSystemId,
+      this.navigationSystem
     );
   }
 

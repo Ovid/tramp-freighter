@@ -5,6 +5,7 @@
   activity, before slowly returning to baseline? That forces players to look
   for other places to buy/sell.
 
+* Economic events should last longer (and not have the popup every time)
 * Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
 - Needs a tutorial.
