@@ -47,7 +47,10 @@ export class TradingSystem {
     // Calculate all modifiers
     const techLevel = TradingSystem.calculateTechLevel(system);
     const techMod = TradingSystem.getTechModifier(goodType, techLevel);
-    const temporalMod = TradingSystem.getTemporalModifier(system.id, currentDay);
+    const temporalMod = TradingSystem.getTemporalModifier(
+      system.id,
+      currentDay
+    );
     const localMod = TradingSystem.getLocalModifier(
       system.id,
       goodType,
@@ -156,6 +159,17 @@ export class TradingSystem {
    * @returns {number} Tech modifier multiplier
    */
   static getTechModifier(goodType, techLevel) {
+    if (typeof goodType !== 'string' || !goodType) {
+      throw new Error(
+        `Invalid goodType: expected non-empty string, got ${typeof goodType}`
+      );
+    }
+    if (typeof techLevel !== 'number' || isNaN(techLevel)) {
+      throw new Error(
+        `Invalid techLevel: expected valid number, got ${isNaN(techLevel) ? 'NaN' : typeof techLevel}`
+      );
+    }
+
     const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
     if (bias === undefined) {
       throw new Error(`Unknown good type: ${goodType}`);
@@ -196,6 +210,17 @@ export class TradingSystem {
    * @returns {number} Temporal modifier between 0.85 and 1.15
    */
   static getTemporalModifier(systemId, currentDay) {
+    if (typeof systemId !== 'number') {
+      throw new Error(
+        `Invalid systemId: expected number, got ${typeof systemId}`
+      );
+    }
+    if (typeof currentDay !== 'number' || isNaN(currentDay) || currentDay < 0) {
+      throw new Error(
+        `Invalid currentDay: expected non-negative number, got ${isNaN(currentDay) ? 'NaN' : currentDay}`
+      );
+    }
+
     const phase =
       (2 * Math.PI * currentDay) / ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD +
       systemId * ECONOMY_CONFIG.TEMPORAL_PHASE_OFFSET;
@@ -236,6 +261,17 @@ export class TradingSystem {
    * @returns {number} Local modifier between 0.25 and 2.0
    */
   static getLocalModifier(systemId, goodType, marketConditions) {
+    if (typeof systemId !== 'number') {
+      throw new Error(
+        `Invalid systemId: expected number, got ${typeof systemId}`
+      );
+    }
+    if (typeof goodType !== 'string' || !goodType) {
+      throw new Error(
+        `Invalid goodType: expected non-empty string, got ${typeof goodType}`
+      );
+    }
+
     const surplus = marketConditions?.[systemId]?.[goodType] ?? 0;
     const modifier = 1.0 - surplus / ECONOMY_CONFIG.MARKET_CAPACITY;
     const clampedModifier = Math.max(

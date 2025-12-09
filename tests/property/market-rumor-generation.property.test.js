@@ -69,9 +69,9 @@ describe('Property: Market Rumor Generation', () => {
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 20 }),
               type: fc.constantFrom('G2V', 'K5V', 'M3V', 'A1V', 'F7V'),
-              x: fc.float({ min: -300, max: 300 }),
-              y: fc.float({ min: -300, max: 300 }),
-              z: fc.float({ min: -300, max: 300 }),
+              x: fc.float({ min: -300, max: 300, noNaN: true }),
+              y: fc.float({ min: -300, max: 300, noNaN: true }),
+              z: fc.float({ min: -300, max: 300, noNaN: true }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
             { minLength: 1, maxLength: 20 }
@@ -98,9 +98,9 @@ describe('Property: Market Rumor Generation', () => {
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 20 }),
               type: fc.constantFrom('G2V', 'K5V', 'M3V'),
-              x: fc.float({ min: -300, max: 300 }),
-              y: fc.float({ min: -300, max: 300 }),
-              z: fc.float({ min: -300, max: 300 }),
+              x: fc.float({ min: -300, max: 300, noNaN: true }),
+              y: fc.float({ min: -300, max: 300, noNaN: true }),
+              z: fc.float({ min: -300, max: 300, noNaN: true }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
             { minLength: 1, maxLength: 10 }
@@ -169,9 +169,9 @@ describe('Property: Market Rumor Generation', () => {
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 20 }),
               type: fc.constantFrom('G2V', 'K5V', 'M3V'),
-              x: fc.float({ min: -300, max: 300 }),
-              y: fc.float({ min: -300, max: 300 }),
-              z: fc.float({ min: -300, max: 300 }),
+              x: fc.float({ min: -300, max: 300, noNaN: true }),
+              y: fc.float({ min: -300, max: 300, noNaN: true }),
+              z: fc.float({ min: -300, max: 300, noNaN: true }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
             { minLength: 1, maxLength: 10 }
@@ -227,9 +227,9 @@ describe('Property: Market Rumor Generation', () => {
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 20 }),
               type: fc.constantFrom('G2V', 'K5V', 'M3V'),
-              x: fc.float({ min: -300, max: 300 }),
-              y: fc.float({ min: -300, max: 300 }),
-              z: fc.float({ min: -300, max: 300 }),
+              x: fc.float({ min: -300, max: 300, noNaN: true }),
+              y: fc.float({ min: -300, max: 300, noNaN: true }),
+              z: fc.float({ min: -300, max: 300, noNaN: true }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
             { minLength: 1, maxLength: 10 }
@@ -308,9 +308,9 @@ describe('Property: Market Rumor Generation', () => {
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 20 }),
               type: fc.constantFrom('G2V', 'K5V', 'M3V'),
-              x: fc.float({ min: -300, max: 300 }),
-              y: fc.float({ min: -300, max: 300 }),
-              z: fc.float({ min: -300, max: 300 }),
+              x: fc.float({ min: -300, max: 300, noNaN: true }),
+              y: fc.float({ min: -300, max: 300, noNaN: true }),
+              z: fc.float({ min: -300, max: 300, noNaN: true }),
               st: fc.integer({ min: 0, max: 5 }),
             }),
             { minLength: 1, maxLength: 10 }

@@ -222,7 +222,7 @@ export class InformationBroker {
    * @returns {Object} { valid: boolean, reason: string }
    */
   static validatePurchase(cost, credits) {
-    if (cost > credits) {
+    if (credits < cost) {
       return {
         valid: false,
         reason: 'Insufficient credits for intelligence',

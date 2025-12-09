@@ -1,5 +1,6 @@
 - i18n?
 - Economic events should last longer (and not have the popup every time)
+- Dead code check
 - System info to show tech level?
 - Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
