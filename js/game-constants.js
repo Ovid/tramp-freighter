@@ -386,6 +386,17 @@ export const ECONOMY_CONFIG = {
 };
 
 /**
+ * New game initialization values
+ */
+export const NEW_GAME_DEFAULTS = {
+  STARTING_CREDITS: 500,
+  STARTING_DEBT: 10000,
+  STARTING_CARGO_CAPACITY: 50,
+  STARTING_GRAIN_QUANTITY: 20,
+  STARTING_SHIP_NAME: 'Serendipity',
+};
+
+/**
  * Game version for save compatibility
  */
 export const GAME_VERSION = '2.0.0';

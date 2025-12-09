@@ -9,6 +9,7 @@ import {
   REPAIR_COST_PER_PERCENT,
   SHIP_CONDITION_BOUNDS,
   SHIP_CONDITION_WARNING_THRESHOLDS,
+  NEW_GAME_DEFAULTS,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -86,22 +87,22 @@ export class GameStateManager {
 
     this.state = {
       player: {
-        credits: 500,
-        debt: 10000,
+        credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
+        debt: NEW_GAME_DEFAULTS.STARTING_DEBT,
         currentSystem: SOL_SYSTEM_ID,
         daysElapsed: 0,
       },
       ship: {
-        name: 'Serendipity',
+        name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
         fuel: SHIP_CONDITION_BOUNDS.MAX,
         hull: SHIP_CONDITION_BOUNDS.MAX,
         engine: SHIP_CONDITION_BOUNDS.MAX,
         lifeSupport: SHIP_CONDITION_BOUNDS.MAX,
-        cargoCapacity: 50,
+        cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
         cargo: [
           {
             good: 'grain',
-            qty: 20,
+            qty: NEW_GAME_DEFAULTS.STARTING_GRAIN_QUANTITY,
             purchasePrice: solGrainPrice,
             purchaseSystem: SOL_SYSTEM_ID,
             purchaseDay: 0,
@@ -203,37 +204,63 @@ export class GameStateManager {
   }
 
   getPlayer() {
-    return this.state?.player;
+    if (!this.state) {
+      throw new Error('Invalid state: getPlayer called before game initialization');
+    }
+    return this.state.player;
   }
 
   getShip() {
-    return this.state?.ship;
+    if (!this.state) {
+      throw new Error('Invalid state: getShip called before game initialization');
+    }
+    return this.state.ship;
   }
 
   getCurrentSystem() {
-    const systemId = this.state?.player.currentSystem;
-    return this.starData.find((s) => s.id === systemId);
+    if (!this.state) {
+      throw new Error('Invalid state: getCurrentSystem called before game initialization');
+    }
+    
+    const systemId = this.state.player.currentSystem;
+    const system = this.starData.find((s) => s.id === systemId);
+    
+    if (!system) {
+      throw new Error(`Invalid game state: current system ID ${systemId} not found in star data`);
+    }
+    
+    return system;
   }
 
   getCargoUsed() {
-    if (!this.state?.ship.cargo) return 0;
+    if (!this.state) {
+      throw new Error('Invalid state: getCargoUsed called before game initialization');
+    }
     return this.state.ship.cargo.reduce((total, stack) => total + stack.qty, 0);
   }
 
   getCargoRemaining() {
-    return this.state?.ship.cargoCapacity - this.getCargoUsed();
+    if (!this.state) {
+      throw new Error('Invalid state: getCargoRemaining called before game initialization');
+    }
+    return this.state.ship.cargoCapacity - this.getCargoUsed();
   }
 
   isSystemVisited(systemId) {
-    return this.state?.world.visitedSystems.includes(systemId);
+    if (!this.state) {
+      throw new Error('Invalid state: isSystemVisited called before game initialization');
+    }
+    return this.state.world.visitedSystems.includes(systemId);
   }
 
   /**
    * Get ship condition values
-   * @returns {Object} { hull, engine, lifeSupport } or null if no state
+   * @returns {Object} { hull, engine, lifeSupport }
    */
   getShipCondition() {
-    if (!this.state?.ship) return null;
+    if (!this.state) {
+      throw new Error('Invalid state: getShipCondition called before game initialization');
+    }
 
     return {
       hull: this.state.ship.hull,
@@ -256,7 +283,7 @@ export class GameStateManager {
 
     const warnings = [];
 
-    // Hull warning: < 50%
+    // Hull integrity affects cargo safety during jumps
     if (condition.hull < SHIP_CONDITION_WARNING_THRESHOLDS.HULL) {
       warnings.push({
         system: 'hull',
@@ -265,7 +292,7 @@ export class GameStateManager {
       });
     }
 
-    // Engine warning: < 30%
+    // Engine degradation increases fuel consumption and travel time
     if (condition.engine < SHIP_CONDITION_WARNING_THRESHOLDS.ENGINE) {
       warnings.push({
         system: 'engine',
@@ -274,7 +301,7 @@ export class GameStateManager {
       });
     }
 
-    // Life support critical warning: < 20%
+    // Life support failure is catastrophic
     if (
       condition.lifeSupport < SHIP_CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
     ) {
@@ -292,21 +319,30 @@ export class GameStateManager {
    * Get price knowledge database
    */
   getPriceKnowledge() {
-    return this.state?.world.priceKnowledge || {};
+    if (!this.state) {
+      throw new Error('Invalid state: getPriceKnowledge called before game initialization');
+    }
+    return this.state.world.priceKnowledge || {};
   }
 
   /**
    * Get known prices for a specific system
    */
   getKnownPrices(systemId) {
-    return this.state?.world.priceKnowledge?.[systemId]?.prices || null;
+    if (!this.state) {
+      throw new Error('Invalid state: getKnownPrices called before game initialization');
+    }
+    return this.state.world.priceKnowledge?.[systemId]?.prices || null;
   }
 
   /**
    * Check if player has price knowledge for a system
    */
   hasVisitedSystem(systemId) {
-    return this.state?.world.priceKnowledge?.[systemId] !== undefined;
+    if (!this.state) {
+      throw new Error('Invalid state: hasVisitedSystem called before game initialization');
+    }
+    return this.state.world.priceKnowledge?.[systemId] !== undefined;
   }
 
   // ========================================================================
@@ -539,7 +575,10 @@ export class GameStateManager {
    * Get active events array
    */
   getActiveEvents() {
-    return this.state?.world.activeEvents || [];
+    if (!this.state) {
+      throw new Error('Invalid state: getActiveEvents called before game initialization');
+    }
+    return this.state.world.activeEvents || [];
   }
 
   /**
@@ -693,6 +732,10 @@ export class GameStateManager {
     );
     this.updateCargo(newCargo);
 
+    // Update market conditions: negative quantity creates deficit (raises prices)
+    // Feature: deterministic-economy, Requirements 4.1, 4.2
+    this.updateMarketConditions(currentSystemId, goodType, -quantity);
+
     // Persist immediately - trade transactions modify credits and cargo
     this.saveGame();
 
@@ -745,6 +788,11 @@ export class GameStateManager {
 
     const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
     this.updateCargo(newCargo);
+
+    // Update market conditions: positive quantity creates surplus (lowers prices)
+    // Feature: deterministic-economy, Requirements 4.1, 4.2
+    const currentSystemId = this.state.player.currentSystem;
+    this.updateMarketConditions(currentSystemId, stack.good, quantity);
 
     // Persist immediately - trade transactions modify credits and cargo
     this.saveGame();

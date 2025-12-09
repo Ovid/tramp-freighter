@@ -331,6 +331,10 @@ function getAveragePrice(prices) {
 
 This is a common LLM-ism that adds unnecessary defensive programming for variables that are guaranteed to exist by design.
 
+**ANTI-PATTERN: Optional chaining (?.) and nullish coalescing (??) for required properties**
+
+Using `?.` or `??` on properties that MUST exist after initialization is a code smell. It silently hides bugs instead of exposing them during development.
+
 ```javascript
 // BAD - Defensive check for variable that should always exist
 class UIManager {
@@ -343,6 +347,17 @@ class UIManager {
     if (!this.cachedButtons) return;
     
     this.cachedButtons.forEach(btn => updateButton(btn));
+  }
+}
+
+// BAD - Optional chaining for required property
+class GameStateManager {
+  getPlayer() {
+    return this.state?.player; // Silently returns undefined if state is null
+  }
+  
+  getCredits() {
+    return this.state?.player?.credits ?? 0; // Returns 0 instead of exposing bug
   }
 }
 
@@ -374,6 +389,23 @@ class UIManager {
   updateButtons() {
     // No check needed - constructor guarantees cachedButtons exists
     this.cachedButtons.forEach(btn => updateButton(btn));
+  }
+}
+
+// GOOD - Fail loudly for required properties
+class GameStateManager {
+  getPlayer() {
+    if (!this.state) {
+      throw new Error('Invalid state: getPlayer called before game initialization');
+    }
+    return this.state.player; // No optional chaining - state MUST exist
+  }
+  
+  getCredits() {
+    if (!this.state) {
+      throw new Error('Invalid state: getCredits called before game initialization');
+    }
+    return this.state.player.credits; // Throws if player or credits missing
   }
 }
 ```

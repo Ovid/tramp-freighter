@@ -79,14 +79,14 @@
   - Add quantityDelta to existing value (positive for sell, negative for buy)
   - _Requirements: 4.1, 4.2, 9.2_
 
-- [ ] 7. Update buyGood() and sellGood() to track market conditions
+- [x] 7. Update buyGood() and sellGood() to track market conditions
   - Call updateMarketConditions() after updating cargo in buyGood()
   - Pass negative quantity to create deficit (raises prices)
   - Call updateMarketConditions() after updating cargo in sellGood()
   - Pass positive quantity to create surplus (lowers prices)
   - _Requirements: 4.1, 4.2_
 
-- [ ] 7.1 Write property test for market condition updates
+- [x] 7.1 Write property test for market condition updates
   - **Property 11: Trading updates market conditions bidirectionally**
   - **Validates: Requirements 4.1, 4.2**
 
