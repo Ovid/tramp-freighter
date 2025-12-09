@@ -32,7 +32,7 @@ describe('Property: Market recovery', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
-        fc.integer({ min: -2000, max: 2000 }).filter((v) => v !== 0),
+        fc.integer({ min: -2000, max: 2000 }).filter((value) => value !== 0),
         fc.integer({ min: 1, max: 10 }),
         (goodType, initialValue, daysPassed) => {
           // Reset to fresh state
@@ -83,7 +83,9 @@ describe('Property: Market recovery', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
-        fc.float({ min: Math.fround(-0.99), max: Math.fround(0.99) }).filter((v) => v !== 0 && !Number.isNaN(v)),
+        fc
+          .float({ min: Math.fround(-0.99), max: Math.fround(0.99) })
+          .filter((value) => value !== 0 && !Number.isNaN(value)),
         (goodType, smallValue) => {
           // Reset to fresh state
           gameStateManager.initNewGame();
@@ -111,13 +113,20 @@ describe('Property: Market recovery', () => {
     );
   });
 
-  it('Property 16: should keep significant market conditions', () => {
+  /**
+   * Inverse of Property 16: Values above pruning threshold should be kept
+   * 
+   * This test verifies that market conditions with absolute value >= MARKET_CONDITION_PRUNE_THRESHOLD
+   * are NOT pruned during recovery. It complements Property 16 which tests that values below
+   * the threshold ARE pruned.
+   */
+  it('should keep significant market conditions (inverse of Property 16)', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
         fc
           .integer({ min: -2000, max: 2000 })
-          .filter((v) => Math.abs(v) >= 10), // Large enough to survive decay
+          .filter((value) => Math.abs(value) >= 10), // Large enough to survive decay
         fc.integer({ min: 1, max: 3 }), // Few days so value stays significant
         (goodType, largeValue, daysPassed) => {
           // Reset to fresh state
@@ -133,12 +142,12 @@ describe('Property: Market recovery', () => {
           // Apply market recovery
           gameStateManager.applyMarketRecovery(daysPassed);
 
-          // Calculate expected value
+          // Calculate expected value after decay
           const expectedValue =
             largeValue *
             Math.pow(ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR, daysPassed);
 
-          // If expected value is still significant, verify it wasn't pruned
+          // If expected value is still above pruning threshold, verify it wasn't pruned
           if (
             Math.abs(expectedValue) >=
             ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD
@@ -146,7 +155,9 @@ describe('Property: Market recovery', () => {
             const actualValue =
               gameStateManager.state.world.marketConditions[systemId][goodType];
 
+            // Value should still exist (not pruned)
             expect(actualValue).toBeDefined();
+            // Value should match decay formula (Property 15 already tests this, but verify here too)
             expect(actualValue).toBeCloseTo(expectedValue, 5);
           }
         }
@@ -164,7 +175,7 @@ describe('Property: Market recovery', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
-        fc.integer({ min: -2000, max: 2000 }).filter((v) => v !== 0),
+        fc.integer({ min: -2000, max: 2000 }).filter((value) => value !== 0),
         fc.integer({ min: 1, max: 5 }),
         (goodType, initialValue, daysPassed) => {
           // Reset to fresh state
@@ -208,7 +219,7 @@ describe('Property: Market recovery', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
-        fc.integer({ min: -2000, max: 2000 }).filter((v) => v !== 0),
+        fc.integer({ min: -2000, max: 2000 }).filter((value) => value !== 0),
         fc.integer({ min: 2, max: 10 }),
         (goodType, initialValue, totalDays) => {
           // Reset to fresh state for multi-day test

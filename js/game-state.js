@@ -426,6 +426,9 @@ export class GameStateManager {
       // Clean up old intelligence data
       InformationBroker.cleanupOldIntelligence(this.state.world.priceKnowledge);
 
+      // Apply market recovery (decay surplus/deficit over time)
+      this.applyMarketRecovery(daysPassed);
+
       // Update economic events (trigger new events, remove expired ones)
       this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
         this.state,
@@ -488,6 +491,9 @@ export class GameStateManager {
    * Tracks player trading activity to create local supply/demand effects.
    * Positive quantityDelta = surplus (player sold), negative = deficit (player bought).
    *
+   * Uses sparse storage: system and commodity entries are created on-demand during first trade.
+   * This keeps save files small by only tracking systems/commodities with active trading history.
+   *
    * Feature: deterministic-economy, Requirements 4.1, 4.2, 9.2
    *
    * @param {number} systemId - System ID
@@ -525,7 +531,15 @@ export class GameStateManager {
    * @param {number} daysPassed - Number of days elapsed
    */
   applyMarketRecovery(daysPassed) {
-    if (!this.state?.world.marketConditions) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: applyMarketRecovery called before game initialization'
+      );
+    }
+
+    if (!this.state.world.marketConditions) {
+      // Initialize if missing (for backward compatibility with old saves)
+      this.state.world.marketConditions = {};
       return;
     }
 

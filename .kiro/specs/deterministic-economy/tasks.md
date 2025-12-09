@@ -119,7 +119,7 @@
   - **Property 18: Multi-day recovery is exponential**
   - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5**
 
-- [ ] 10. Update updateTime() to apply market recovery
+- [x] 10. Update updateTime() to apply market recovery
   - Calculate daysPassed: newDays - oldDays
   - Call applyMarketRecovery(daysPassed) before updating time
   - Existing price recalculation will use updated market conditions
