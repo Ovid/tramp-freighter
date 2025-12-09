@@ -173,17 +173,17 @@
   - **Property 35: Spectral class does not affect prices**
   - **Validates: Requirements 11.2, 11.3**
 
-- [ ] 14. Checkpoint - Ensure all tests pass
+- [x] 14. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 15. Test Sol-Barnard trade route profitability
+- [x] 15. Test Sol-Barnard trade route profitability
   - Verify electronics are cheaper at Sol (high tech) than Barnard's
   - Verify ore is cheaper at Barnard's (lower tech) than Sol
   - Verify profit margin exists even with unfavorable temporal modifiers
   - Test with various temporal phase combinations
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 15.1 Write property test for Sol-Barnard profitability
+- [x] 15.1 Write property test for Sol-Barnard profitability
   - **Property 19: Sol-Barnard route baseline profitability**
   - **Validates: Requirements 6.3, 6.4, 6.5**
 
