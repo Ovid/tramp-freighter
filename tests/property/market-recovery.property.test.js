@@ -55,9 +55,7 @@ describe('Property: Market recovery', () => {
 
           // Get actual value (may be pruned if below threshold)
           const actualValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // If value was pruned, verify it was below threshold
           if (actualValue === undefined) {
@@ -102,9 +100,7 @@ describe('Property: Market recovery', () => {
 
           // Verify entry was pruned
           const actualValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           expect(actualValue).toBeUndefined();
         }
@@ -115,7 +111,7 @@ describe('Property: Market recovery', () => {
 
   /**
    * Inverse of Property 16: Values above pruning threshold should be kept
-   * 
+   *
    * This test verifies that market conditions with absolute value >= MARKET_CONDITION_PRUNE_THRESHOLD
    * are NOT pruned during recovery. It complements Property 16 which tests that values below
    * the threshold ARE pruned.
@@ -195,9 +191,7 @@ describe('Property: Market recovery', () => {
 
           // Get actual value (may be pruned)
           const actualValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // If not pruned, verify sign is preserved
           if (actualValue !== undefined) {
@@ -236,9 +230,7 @@ describe('Property: Market recovery', () => {
           gameStateManager.applyMarketRecovery(totalDays);
 
           const multiDayValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // Reset and apply recovery one day at a time
           gameStateManager.initNewGame();
@@ -251,15 +243,16 @@ describe('Property: Market recovery', () => {
           }
 
           const singleDayValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // Both approaches should yield the same result
           if (multiDayValue === undefined && singleDayValue === undefined) {
             // Both pruned - this is correct
             expect(true).toBe(true);
-          } else if (multiDayValue !== undefined && singleDayValue !== undefined) {
+          } else if (
+            multiDayValue !== undefined &&
+            singleDayValue !== undefined
+          ) {
             // Both exist - should be equal
             expect(multiDayValue).toBeCloseTo(singleDayValue, 5);
           } else {
@@ -308,9 +301,7 @@ describe('Property: Market recovery', () => {
 
           // Get actual value
           const actualValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // Verify exponential formula
           if (actualValue !== undefined) {
@@ -429,13 +420,14 @@ describe('Property: Market recovery', () => {
 
           // Get actual value
           const actualValue =
-            gameStateManager.state.world.marketConditions[systemId]?.[
-              goodType
-            ];
+            gameStateManager.state.world.marketConditions[systemId]?.[goodType];
 
           // Value should be unchanged (0.90^0 = 1.0)
           // Unless it was below threshold and got pruned
-          if (Math.abs(initialValue) >= ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD) {
+          if (
+            Math.abs(initialValue) >=
+            ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD
+          ) {
             expect(actualValue).toBeCloseTo(initialValue, 5);
           }
         }
