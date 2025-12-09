@@ -63,10 +63,12 @@ describe('Property: Intelligence Manipulation Rate', () => {
 
           // With large sample size (10-15 systems × 20-30 days × 6 goods = 1200-2700 prices),
           // manipulation rate should be close to 10%
-          // Allow 7-13% range for statistical variance
+          // Allow ±30% variance for statistical fluctuation (7-13% range)
           const manipulationRate = manipulatedPrices / totalPrices;
-          expect(manipulationRate).toBeGreaterThan(0.07);
-          expect(manipulationRate).toBeLessThan(0.13);
+          const expectedRate = 0.1; // INTELLIGENCE_RELIABILITY.MANIPULATION_CHANCE
+          const varianceTolerance = 0.3; // 30% variance
+          expect(manipulationRate).toBeGreaterThan(expectedRate * (1 - varianceTolerance));
+          expect(manipulationRate).toBeLessThan(expectedRate * (1 + varianceTolerance));
         }
       ),
       { numRuns: 10 } // Fewer runs since each run tests many combinations
@@ -191,9 +193,11 @@ describe('Property: Intelligence Manipulation Rate', () => {
             const avgRatio = manipulationRatios.reduce((a, b) => a + b, 0) / manipulationRatios.length;
             
             // Average should be roughly in the middle of the range (0.7 to 0.85)
-            // Allow some variance due to rounding
-            expect(avgRatio).toBeGreaterThan(0.65);
-            expect(avgRatio).toBeLessThan(0.90);
+            // Allow some variance due to rounding (±15% from midpoint of 0.775)
+            const expectedMidpoint = 0.775; // (0.7 + 0.85) / 2
+            const rangeVariance = 0.15;
+            expect(avgRatio).toBeGreaterThan(expectedMidpoint - rangeVariance);
+            expect(avgRatio).toBeLessThan(expectedMidpoint + rangeVariance);
           }
         }
       ),

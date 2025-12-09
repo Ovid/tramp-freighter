@@ -1,5 +1,4 @@
 import {
-  BASE_PRICES,
   COMMODITY_TYPES,
   FUEL_PRICING,
   calculateDistanceFromSol,

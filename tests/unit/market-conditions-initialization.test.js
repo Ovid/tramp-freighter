@@ -3,6 +3,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GameStateManager } from '../../js/game-state.js';
 
+/**
+ * Unit Tests for Market Conditions Initialization
+ * Feature: deterministic-economy, Task 5: Add marketConditions to game state
+ *
+ * Verifies that marketConditions is initialized as an empty object (sparse storage)
+ * when a new game is created, as required by the deterministic economy system.
+ */
+
 const TEST_STAR_DATA = [
   { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G', wh: 2, st: 1, r: 1 },
 ];
