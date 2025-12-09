@@ -1,3 +1,5 @@
+'use strict';
+
 import { SeededRandom } from './seeded-random.js';
 import {
   BASE_PRICES,

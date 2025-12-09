@@ -1,13 +1,13 @@
+'use strict';
+
 /**
  * Unit Tests for Technology Level Edge Cases
  * Feature: deterministic-economy, Properties 2-3: Tech level edge cases
  */
 
-'use strict';
-
 import { describe, it, expect } from 'vitest';
 import { TradingSystem } from '../../js/game-trading.js';
-import { ECONOMY_CONFIG } from '../../js/game-constants.js';
+import { ECONOMY_CONFIG, LY_PER_UNIT } from '../../js/game-constants.js';
 
 describe('Technology Level Edge Cases', () => {
   /**
@@ -27,9 +27,7 @@ describe('Technology Level Edge Cases', () => {
    */
   it('Property 3: Systems at 21+ light years should have minimum technology level 1.0', () => {
     // Create a system at exactly 21 LY from Sol
-    // Using LY_PER_UNIT from game-constants.js
     // We need: distance_in_map_units = 21 / LY_PER_UNIT
-    const LY_PER_UNIT = 20 / 279.3190870671033;
     const distance21LY = 21 / LY_PER_UNIT;
     const system21 = {
       id: 999,

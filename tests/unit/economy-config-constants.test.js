@@ -1,9 +1,9 @@
+'use strict';
+
 /**
  * Unit Tests for ECONOMY_CONFIG Constants
  * Feature: deterministic-economy, Properties 20-26: Economy configuration constants
  */
-
-'use strict';
 
 import { describe, it, expect } from 'vitest';
 import { ECONOMY_CONFIG } from '../../js/game-constants.js';

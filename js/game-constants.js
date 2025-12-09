@@ -327,90 +327,34 @@ export const FUEL_CAPACITY_EPSILON = 0.01;
  * This replaces the random price fluctuation model with a predictable, simulation-based economy.
  */
 export const ECONOMY_CONFIG = {
-  /**
-   * Maximum coordinate distance for technology level calculation
-   * Systems at or beyond this distance have minimum tech level (1.0)
-   * Calibrated for Sol Sector map (<21 LY radius)
-   */
-  MAX_COORD_DISTANCE: 21,
+  MAX_COORD_DISTANCE: 21, // Calibrated for Sol Sector map (<21 LY radius)
 
-  /**
-   * Technology level bounds
-   * MAX: Sol and core systems (highest tech)
-   * MIN: Frontier systems at 21+ LY (lowest tech)
-   */
-  MAX_TECH_LEVEL: 10.0,
-  MIN_TECH_LEVEL: 1.0,
+  MAX_TECH_LEVEL: 10.0, // Sol and core systems
+  MIN_TECH_LEVEL: 1.0, // Frontier systems at 21+ LY
 
-  /**
-   * Market capacity for local supply/demand effects
-   * Number of units that can be traded before prices approach extreme values
-   * Higher values = more trading needed to significantly impact prices
-   */
-  MARKET_CAPACITY: 1000,
+  MARKET_CAPACITY: 1000, // Units traded before extreme price impact
 
-  /**
-   * Daily market recovery factor
-   * Market conditions decay by 10% per day (multiply by 0.90)
-   * Allows markets to recover from player-induced surpluses/deficits
-   */
-  DAILY_RECOVERY_FACTOR: 0.9,
+  DAILY_RECOVERY_FACTOR: 0.9, // Market conditions decay 10% per day
 
-  /**
-   * Temporal wave period in days
-   * Price oscillations complete a full cycle every 30 days
-   * Creates predictable long-term price trends
-   */
-  TEMPORAL_WAVE_PERIOD: 30,
+  TEMPORAL_WAVE_PERIOD: 30, // Price oscillation cycle in days
+  TEMPORAL_AMPLITUDE: 0.15, // ±15% price variation (0.85 to 1.15 multiplier)
 
-  /**
-   * Temporal wave amplitude
-   * Prices vary by ±15% from baseline due to temporal drift
-   * Range: 0.85 to 1.15 multiplier
-   */
-  TEMPORAL_AMPLITUDE: 0.15,
+  TECH_MODIFIER_INTENSITY: 0.08, // Controls tech level price impact strength
 
-  /**
-   * Technology modifier intensity
-   * Controls how strongly tech level affects prices
-   * Formula: 1.0 + (bias × (5.0 - TL) × TECH_MODIFIER_INTENSITY)
-   */
-  TECH_MODIFIER_INTENSITY: 0.08,
+  LOCAL_MODIFIER_MIN: 0.25, // Prevents prices below 25% of baseline
+  LOCAL_MODIFIER_MAX: 2.0, // Prevents prices above 200% of baseline
 
-  /**
-   * Local modifier bounds
-   * Prevents negative prices or infinite costs from extreme market saturation
-   * MIN: 0.25 (prices can't go below 25% of baseline)
-   * MAX: 2.0 (prices can't go above 200% of baseline)
-   */
-  LOCAL_MODIFIER_MIN: 0.25,
-  LOCAL_MODIFIER_MAX: 2.0,
+  MARKET_CONDITION_PRUNE_THRESHOLD: 1.0, // Remove insignificant market impacts
 
-  /**
-   * Market condition pruning threshold
-   * Entries with absolute value below this are removed to optimize save file size
-   * Set to 1.0 to prune insignificant market impacts
-   */
-  MARKET_CONDITION_PRUNE_THRESHOLD: 1.0,
-
-  /**
-   * Technology biases by commodity type
-   *
-   * Determines whether commodities are cheaper at high-tech or low-tech systems:
-   * - Negative bias: Cheaper at low-tech systems (raw materials, agriculture)
-   * - Positive bias: Cheaper at high-tech systems (manufactured goods, advanced tech)
-   *
-   * Biases create intuitive trade routes:
-   * - Buy grain/ore at frontier, sell at core
-   * - Buy electronics/medicine at core, sell at frontier
-   */
+  // Technology biases: negative = cheaper at low-tech, positive = cheaper at high-tech
+  // Creates intuitive trade routes (buy grain/ore at frontier, electronics/medicine at core)
   TECH_BIASES: {
-    grain: -0.6, // Agricultural product, cheaper at low-tech systems
-    ore: -0.8, // Raw material, cheaper at low-tech mining systems
-    tritium: -0.3, // Fuel, moderately cheaper at low-tech systems
-    parts: 0.5, // Manufactured goods, cheaper at high-tech systems
-    medicine: 0.7, // Advanced medical supplies, cheaper at high-tech systems
-    electronics: 1.0, // High-tech goods, significantly cheaper at high-tech systems
+    grain: -0.6, // Agricultural product
+    ore: -0.8, // Raw material
+    tritium: -0.3, // Fuel
+    parts: 0.5, // Manufactured goods
+    medicine: 0.7, // Advanced medical supplies
+    electronics: 1.0, // High-tech goods
   },
 };
 

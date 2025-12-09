@@ -1,9 +1,9 @@
+'use strict';
+
 /**
  * Property Tests for Technology Level Formula
  * Feature: deterministic-economy, Properties 1 & 4: Tech level formula and interpolation
  */
-
-'use strict';
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
@@ -31,10 +31,8 @@ describe('Technology Level Formula (Property Tests)', () => {
 
     fc.assert(
       fc.property(starGenerator, (system) => {
-        // Calculate tech level using TradingSystem
         const calculatedTechLevel = TradingSystem.calculateTechLevel(system);
 
-        // Calculate expected tech level using the formula
         const distance = Math.hypot(system.x, system.y, system.z) * LY_PER_UNIT;
         const clampedDistance = Math.min(
           distance,
@@ -46,7 +44,7 @@ describe('Technology Level Formula (Property Tests)', () => {
             clampedDistance) /
             ECONOMY_CONFIG.MAX_COORD_DISTANCE;
 
-        // Verify they match (with small tolerance for floating point)
+        // Floating point tolerance of 10 decimal places
         expect(calculatedTechLevel).toBeCloseTo(expectedTechLevel, 10);
       }),
       { numRuns: 100 }
@@ -60,13 +58,7 @@ describe('Technology Level Formula (Property Tests)', () => {
   // ========================================================================
 
   it('Property 4: For any system between 0 and 21 light years from Sol, tech level should be strictly between 1.0 and 10.0', () => {
-    // Generator for systems within the 0-21 LY range
-    // We need to ensure distance is strictly between 0 and 21 LY
-    // Convert to map units: distance_units = distance_ly / LY_PER_UNIT
-    const maxUnits = 21 / LY_PER_UNIT; // ~292.785 map units
-
-    // Generate coordinates that result in distance between 0.1 and 20.9 LY
-    // to ensure we're strictly between the bounds
+    // Use 0.1-20.9 LY range to ensure strict inequality (not at boundaries)
     const minUnits = Math.fround(0.1 / LY_PER_UNIT);
     const maxUnitsForTest = Math.fround(20.9 / LY_PER_UNIT);
 
@@ -112,13 +104,8 @@ describe('Technology Level Formula (Property Tests)', () => {
       fc.property(starGenerator, (system) => {
         const techLevel = TradingSystem.calculateTechLevel(system);
 
-        // Verify tech level is strictly between 1.0 and 10.0
         expect(techLevel).toBeGreaterThan(ECONOMY_CONFIG.MIN_TECH_LEVEL);
         expect(techLevel).toBeLessThan(ECONOMY_CONFIG.MAX_TECH_LEVEL);
-
-        // Also verify it's within the valid range (inclusive)
-        expect(techLevel).toBeGreaterThanOrEqual(ECONOMY_CONFIG.MIN_TECH_LEVEL);
-        expect(techLevel).toBeLessThanOrEqual(ECONOMY_CONFIG.MAX_TECH_LEVEL);
       }),
       { numRuns: 100 }
     );
