@@ -14,14 +14,15 @@ const mockWormholeData = [];
 describe('Quirk Assignment - Property Tests', () => {
   it('**Feature: ship-personality, Property 1: Quirk Assignment Bounds** - For any new game initialization, the ship should be assigned exactly 2 or 3 quirks, with no duplicates', () => {
     fc.assert(
-      fc.property(fc.double({ min: 0, max: 1 }), (seed) => {
+      fc.property(fc.integer({ min: 0, max: 2147483647 }), (seed) => {
         // Create deterministic RNG from fast-check's generated seed
         // This allows test failures to be reproduced with the same seed
-        let counter = 0;
+        // Using a better LCG with proper parameters to avoid cycles
+        let state = seed;
         const random = () => {
-          // Simple LCG (Linear Congruential Generator) for deterministic randomness
-          counter = (counter * 1103515245 + 12345 + seed * 1000) % 2147483648;
-          return counter / 2147483648;
+          // Numerical Recipes LCG with good statistical properties
+          state = (state * 1664525 + 1013904223) >>> 0;
+          return state / 4294967296;
         };
 
         // Create a new game state manager
