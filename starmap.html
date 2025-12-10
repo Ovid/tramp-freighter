@@ -103,7 +103,7 @@
 
     <!-- System Info Panel (existing) -->
     <div id="hud">
-      <button class="close-btn" onclick="deselectStar()">×</button>
+      <button class="close-btn" id="hud-close-btn">×</button>
       <h2 id="hud-name">System Name</h2>
       <div class="info-row">
         <span class="label">Coordinates:</span>
@@ -619,20 +619,12 @@
 
     <!-- Control Buttons -->
     <div id="controls">
-      <button class="control-btn" onclick="zoomIn()">Zoom In</button>
-      <button class="control-btn" onclick="zoomOut()">Zoom Out</button>
-      <button
-        class="control-btn active"
-        id="rotation-btn"
-        onclick="toggleRotation()"
-      >
+      <button class="control-btn" id="zoom-in-btn">Zoom In</button>
+      <button class="control-btn" id="zoom-out-btn">Zoom Out</button>
+      <button class="control-btn active" id="rotation-btn">
         Toggle Rotation
       </button>
-      <button
-        class="control-btn active"
-        id="boundary-btn"
-        onclick="toggleBoundary()"
-      >
+      <button class="control-btn active" id="boundary-btn">
         Toggle Boundary
       </button>
     </div>

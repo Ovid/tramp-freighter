@@ -3347,6 +3347,19 @@ window.addEventListener('DOMContentLoaded', () => {
     // Initialize menu
     initMenu();
 
+    // Attach event listeners for control buttons
+    const hudCloseBtn = document.getElementById('hud-close-btn');
+    const zoomInBtn = document.getElementById('zoom-in-btn');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+    const rotationBtn = document.getElementById('rotation-btn');
+    const boundaryBtn = document.getElementById('boundary-btn');
+
+    if (hudCloseBtn) hudCloseBtn.addEventListener('click', deselectStar);
+    if (zoomInBtn) zoomInBtn.addEventListener('click', zoomIn);
+    if (zoomOutBtn) zoomOutBtn.addEventListener('click', zoomOut);
+    if (rotationBtn) rotationBtn.addEventListener('click', toggleRotation);
+    if (boundaryBtn) boundaryBtn.addEventListener('click', toggleBoundary);
+
     // Start animation loop
     animate();
   } else {

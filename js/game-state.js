@@ -39,11 +39,11 @@ export function sanitizeShipName(name) {
     return DEFAULT_SHIP_NAME;
   }
 
-  // Remove HTML tags and limit length
+  // Remove HTML tags, limit length, then trim (order matters for edge cases)
   const sanitized = name
     .replace(/<[^>]*>/g, '')
-    .trim()
-    .substring(0, 50);
+    .substring(0, 50)
+    .trim();
 
   return sanitized || DEFAULT_SHIP_NAME;
 }
@@ -478,7 +478,10 @@ export class GameStateManager {
         'Invalid state: getKnownPrices called before game initialization'
       );
     }
-    return this.state.world.priceKnowledge?.[systemId]?.prices || null;
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
+    return this.state.world.priceKnowledge[systemId]?.prices || null;
   }
 
   /**
@@ -490,7 +493,10 @@ export class GameStateManager {
         'Invalid state: hasVisitedSystem called before game initialization'
       );
     }
-    return this.state.world.priceKnowledge?.[systemId] !== undefined;
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
+    return this.state.world.priceKnowledge[systemId] !== undefined;
   }
 
   // ========================================================================
@@ -725,7 +731,14 @@ export class GameStateManager {
    * @param {number} days - Number of days to increment (default 1)
    */
   incrementPriceKnowledgeStaleness(days = 1) {
-    if (!this.state?.world.priceKnowledge) return;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: incrementPriceKnowledgeStaleness called before game initialization'
+      );
+    }
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
 
     for (const systemId in this.state.world.priceKnowledge) {
       this.state.world.priceKnowledge[systemId].lastVisit += days;
@@ -1026,8 +1039,12 @@ export class GameStateManager {
     const currentCredits = this.state.player.credits;
     this.updateCredits(currentCredits + totalRevenue);
 
-    const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
-    this.updateCargo(newCargo);
+    // Remove quantity from stack; remove stack if empty
+    stack.qty -= quantity;
+    if (stack.qty <= 0) {
+      cargo.splice(stackIndex, 1);
+    }
+    this.updateCargo(cargo);
 
     // Update market conditions: positive quantity creates surplus (lowers prices)
     // Feature: deterministic-economy, Requirements 4.1, 4.2
@@ -1067,28 +1084,6 @@ export class GameStateManager {
     }
 
     return { valid: true };
-  }
-
-  /**
-   * Decreases quantity in stack; removes stack if empty
-   *
-   * Mutates the cargo array in place for performance.
-   *
-   * @param {Array} cargo - Cargo array to modify
-   * @param {number} stackIndex - Index of stack to modify
-   * @param {number} quantity - Quantity to remove
-   * @returns {Array} The same cargo array (for chaining)
-   */
-  removeFromCargoStack(cargo, stackIndex, quantity) {
-    const stack = cargo[stackIndex];
-    stack.qty -= quantity;
-
-    // Remove stack if empty
-    if (stack.qty <= 0) {
-      cargo.splice(stackIndex, 1);
-    }
-
-    return cargo;
   }
 
   // ========================================================================
@@ -1509,6 +1504,39 @@ export class GameStateManager {
   // ========================================================================
 
   /**
+   * Add cargo to a cargo array, stacking with existing cargo if possible
+   *
+   * Stacks cargo with matching good type and buyPrice. If no match is found,
+   * creates a new stack. Preserves purchase metadata from the source stack.
+   *
+   * @param {Array} cargoArray - Target cargo array (regular or hidden)
+   * @param {Object} sourceStack - Source cargo stack with metadata
+   * @param {number} qty - Quantity to add
+   * @private
+   */
+  _addToCargoArray(cargoArray, sourceStack, qty) {
+    // Find existing stack with matching good and buyPrice
+    const existingIndex = cargoArray.findIndex(
+      (c) => c.good === sourceStack.good && c.buyPrice === sourceStack.buyPrice
+    );
+
+    if (existingIndex >= 0) {
+      // Stack with existing cargo
+      cargoArray[existingIndex].qty += qty;
+    } else {
+      // Create new stack with metadata from source
+      cargoArray.push({
+        good: sourceStack.good,
+        qty: qty,
+        buyPrice: sourceStack.buyPrice,
+        buySystem: sourceStack.buySystem,
+        buySystemName: sourceStack.buySystemName,
+        buyDate: sourceStack.buyDate,
+      });
+    }
+  }
+
+  /**
    * Move cargo from regular compartment to hidden compartment
    *
    * Validates that Smuggler's Panels is installed, cargo exists with sufficient
@@ -1563,23 +1591,8 @@ export class GameStateManager {
       ship.cargo.splice(cargoIndex, 1);
     }
 
-    // Add to hidden cargo (stack with matching good and buyPrice)
-    const hiddenIndex = ship.hiddenCargo.findIndex(
-      (c) => c.good === good && c.buyPrice === cargoStack.buyPrice
-    );
-
-    if (hiddenIndex >= 0) {
-      ship.hiddenCargo[hiddenIndex].qty += qty;
-    } else {
-      ship.hiddenCargo.push({
-        good: cargoStack.good,
-        qty: qty,
-        buyPrice: cargoStack.buyPrice,
-        buySystem: cargoStack.buySystem,
-        buySystemName: cargoStack.buySystemName,
-        buyDate: cargoStack.buyDate,
-      });
-    }
+    // Add to hidden cargo (stacks with matching good and buyPrice)
+    this._addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
     // Emit cargo change event
     this.updateCargo(ship.cargo);
@@ -1643,23 +1656,8 @@ export class GameStateManager {
       ship.hiddenCargo.splice(hiddenIndex, 1);
     }
 
-    // Add to regular cargo (stack with matching good and buyPrice)
-    const cargoIndex = ship.cargo.findIndex(
-      (c) => c.good === good && c.buyPrice === hiddenStack.buyPrice
-    );
-
-    if (cargoIndex >= 0) {
-      ship.cargo[cargoIndex].qty += qty;
-    } else {
-      ship.cargo.push({
-        good: hiddenStack.good,
-        qty: qty,
-        buyPrice: hiddenStack.buyPrice,
-        buySystem: hiddenStack.buySystem,
-        buySystemName: hiddenStack.buySystemName,
-        buyDate: hiddenStack.buyDate,
-      });
-    }
+    // Add to regular cargo (stacks with matching good and buyPrice)
+    this._addToCargoArray(ship.cargo, hiddenStack, qty);
 
     // Emit cargo change event
     this.updateCargo(ship.cargo);
