@@ -337,6 +337,26 @@ export class GameStateManager {
     return this.state.ship.cargoCapacity - this.getCargoUsed();
   }
 
+  /**
+   * Get current fuel capacity based on installed upgrades
+   *
+   * Fuel capacity is calculated on-demand rather than stored in state
+   * because it's derived from upgrades. Base capacity is 100, Extended
+   * Fuel Tank upgrade increases it to 150.
+   *
+   * @returns {number} Maximum fuel capacity in percentage points
+   */
+  getFuelCapacity() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getFuelCapacity called before game initialization'
+      );
+    }
+
+    const capabilities = this.calculateShipCapabilities();
+    return capabilities.fuelCapacity;
+  }
+
   isSystemVisited(systemId) {
     if (!this.state) {
       throw new Error(
@@ -461,12 +481,11 @@ export class GameStateManager {
   }
 
   updateFuel(newFuel) {
-    if (
-      newFuel < SHIP_CONDITION_BOUNDS.MIN ||
-      newFuel > SHIP_CONDITION_BOUNDS.MAX
-    ) {
+    const maxFuel = this.getFuelCapacity();
+
+    if (newFuel < SHIP_CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
       throw new Error(
-        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${SHIP_CONDITION_BOUNDS.MAX}.`
+        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${maxFuel}.`
       );
     }
 
@@ -1025,6 +1044,18 @@ export class GameStateManager {
 
   /**
    * Decreases quantity in stack; removes stack if empty
+   *
+   * Uses immutable pattern (returns new array/objects) because this is a utility
+   * function called by trading operations that need to validate before committing.
+   * This allows rollback if validation fails after cargo modification.
+   *
+   * Contrast with moveToHiddenCargo/moveToRegularCargo which mutate directly
+   * because they validate before any state changes.
+   *
+   * @param {Array} cargo - Cargo array to modify
+   * @param {number} stackIndex - Index of stack to modify
+   * @param {number} quantity - Quantity to remove
+   * @returns {Array} New cargo array with updated quantities
    */
   removeFromCargoStack(cargo, stackIndex, quantity) {
     const updatedCargo = [...cargo];
@@ -1091,15 +1122,15 @@ export class GameStateManager {
     // Calculate total cost
     const totalCost = amount * pricePerPercent;
 
+    // Get current fuel capacity (accounts for upgrades)
+    const maxFuel = this.getFuelCapacity();
+
     // Check capacity constraint
     // Use epsilon for floating point comparison
-    if (
-      currentFuel + amount >
-      SHIP_CONDITION_BOUNDS.MAX + FUEL_CAPACITY_EPSILON
-    ) {
+    if (currentFuel + amount > maxFuel + FUEL_CAPACITY_EPSILON) {
       return {
         valid: false,
-        reason: `Cannot refuel beyond ${SHIP_CONDITION_BOUNDS.MAX}% capacity`,
+        reason: `Cannot refuel beyond ${maxFuel}% capacity`,
         cost: totalCost,
       };
     }
@@ -1392,9 +1423,9 @@ export class GameStateManager {
     this.state.ship.cargoCapacity = capabilities.cargoCapacity;
     this.state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
 
-    // Note: fuel capacity is not stored in state, it's calculated on-demand
-    // Note: rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
-    // are applied during calculations, not stored
+    // Note: Fuel capacity is calculated on-demand via getFuelCapacity()
+    // Note: Rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
+    // are applied during calculations via calculateShipCapabilities(), not stored
 
     // Persist immediately - upgrade purchase modifies credits and ship state
     this.saveGame();
@@ -1508,21 +1539,28 @@ export class GameStateManager {
       };
     }
 
-    // Transfer cargo
-    cargoStack.qty -= qty;
-    if (cargoStack.qty === 0) {
-      ship.cargo.splice(cargoIndex, 1);
+    // Transfer cargo - create new arrays for immutability
+    const newCargo = [...ship.cargo];
+    const newHiddenCargo = [...ship.hiddenCargo];
+
+    // Remove from regular cargo
+    newCargo[cargoIndex] = { ...cargoStack, qty: cargoStack.qty - qty };
+    if (newCargo[cargoIndex].qty === 0) {
+      newCargo.splice(cargoIndex, 1);
     }
 
     // Add to hidden cargo (stack with matching good and buyPrice)
-    const hiddenIndex = ship.hiddenCargo.findIndex(
+    const hiddenIndex = newHiddenCargo.findIndex(
       (c) => c.good === good && c.buyPrice === cargoStack.buyPrice
     );
 
     if (hiddenIndex >= 0) {
-      ship.hiddenCargo[hiddenIndex].qty += qty;
+      newHiddenCargo[hiddenIndex] = {
+        ...newHiddenCargo[hiddenIndex],
+        qty: newHiddenCargo[hiddenIndex].qty + qty,
+      };
     } else {
-      ship.hiddenCargo.push({
+      newHiddenCargo.push({
         good: cargoStack.good,
         qty: qty,
         buyPrice: cargoStack.buyPrice,
@@ -1532,8 +1570,10 @@ export class GameStateManager {
       });
     }
 
-    // Emit cargo change event
-    this.emit('cargoChanged', ship.cargo);
+    // Update state using standard update methods
+    ship.cargo = newCargo;
+    ship.hiddenCargo = newHiddenCargo;
+    this.updateCargo(newCargo);
 
     // Persist immediately - cargo transfer modifies ship state
     this.saveGame();
@@ -1588,21 +1628,31 @@ export class GameStateManager {
       };
     }
 
-    // Transfer cargo
-    hiddenStack.qty -= qty;
-    if (hiddenStack.qty === 0) {
-      ship.hiddenCargo.splice(hiddenIndex, 1);
+    // Transfer cargo - create new arrays for immutability
+    const newCargo = [...ship.cargo];
+    const newHiddenCargo = [...ship.hiddenCargo];
+
+    // Remove from hidden cargo
+    newHiddenCargo[hiddenIndex] = {
+      ...hiddenStack,
+      qty: hiddenStack.qty - qty,
+    };
+    if (newHiddenCargo[hiddenIndex].qty === 0) {
+      newHiddenCargo.splice(hiddenIndex, 1);
     }
 
     // Add to regular cargo (stack with matching good and buyPrice)
-    const cargoIndex = ship.cargo.findIndex(
+    const cargoIndex = newCargo.findIndex(
       (c) => c.good === good && c.buyPrice === hiddenStack.buyPrice
     );
 
     if (cargoIndex >= 0) {
-      ship.cargo[cargoIndex].qty += qty;
+      newCargo[cargoIndex] = {
+        ...newCargo[cargoIndex],
+        qty: newCargo[cargoIndex].qty + qty,
+      };
     } else {
-      ship.cargo.push({
+      newCargo.push({
         good: hiddenStack.good,
         qty: qty,
         buyPrice: hiddenStack.buyPrice,
@@ -1612,8 +1662,10 @@ export class GameStateManager {
       });
     }
 
-    // Emit cargo change event
-    this.emit('cargoChanged', ship.cargo);
+    // Update state using standard update methods
+    ship.cargo = newCargo;
+    ship.hiddenCargo = newHiddenCargo;
+    this.updateCargo(newCargo);
 
     // Persist immediately - cargo transfer modifies ship state
     this.saveGame();
