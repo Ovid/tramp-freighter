@@ -66,13 +66,14 @@ The system is designed to make each playthrough feel unique through random quirk
 ```javascript
 const SHIP_QUIRKS = {
   quirk_id: {
-    name: string,           // Display name
-    description: string,    // Short description
-    effects: {              // Numeric modifiers
-      [attribute]: number   // Multiplier (0.85 = -15%, 1.15 = +15%)
+    name: string, // Display name
+    description: string, // Short description
+    effects: {
+      // Numeric modifiers
+      [attribute]: number, // Multiplier (0.85 = -15%, 1.15 = +15%)
     },
-    flavor: string         // Flavor text for personality
-  }
+    flavor: string, // Flavor text for personality
+  },
 };
 ```
 
@@ -87,14 +88,14 @@ function assignShipQuirks() {
   const quirkIds = Object.keys(SHIP_QUIRKS);
   const count = Math.random() < 0.5 ? 2 : 3;
   const assigned = [];
-  
+
   while (assigned.length < count) {
     const randomId = quirkIds[Math.floor(Math.random() * quirkIds.length)];
     if (!assigned.includes(randomId)) {
       assigned.push(randomId);
     }
   }
-  
+
   return assigned;
 }
 ```
@@ -111,14 +112,14 @@ function assignShipQuirks() {
  */
 function applyQuirkModifiers(baseValue, attribute, quirks) {
   let modified = baseValue;
-  
+
   for (const quirkId of quirks) {
     const quirk = SHIP_QUIRKS[quirkId];
     if (quirk.effects[attribute]) {
       modified *= quirk.effects[attribute];
     }
   }
-  
+
   return modified;
 }
 ```
@@ -130,14 +131,15 @@ function applyQuirkModifiers(baseValue, attribute, quirks) {
 ```javascript
 const SHIP_UPGRADES = {
   upgrade_id: {
-    name: string,           // Display name
-    cost: number,           // Credit cost
-    description: string,    // What it does
-    effects: {              // Modifications
-      [attribute]: number   // New value or multiplier
+    name: string, // Display name
+    cost: number, // Credit cost
+    description: string, // What it does
+    effects: {
+      // Modifications
+      [attribute]: number, // New value or multiplier
     },
-    tradeoff: string       // Negative consequence description
-  }
+    tradeoff: string, // Negative consequence description
+  },
 };
 ```
 
@@ -152,20 +154,20 @@ const SHIP_UPGRADES = {
  */
 function validateUpgradePurchase(upgradeId, gameState) {
   const upgrade = SHIP_UPGRADES[upgradeId];
-  
+
   // Check if already purchased
   if (gameState.ship.upgrades.includes(upgradeId)) {
     return { valid: false, reason: 'Upgrade already installed' };
   }
-  
+
   // Check credits
   if (gameState.player.credits < upgrade.cost) {
-    return { 
-      valid: false, 
-      reason: `Insufficient credits (need ₡${upgrade.cost})` 
+    return {
+      valid: false,
+      reason: `Insufficient credits (need ₡${upgrade.cost})`,
     };
   }
-  
+
   return { valid: true, reason: '' };
 }
 ```
@@ -187,9 +189,9 @@ function calculateShipCapabilities(ship, upgrades) {
     hullDegradation: 1.0,
     lifeSupportDrain: 1.0,
     hiddenCargoCapacity: 0,
-    eventVisibility: 0
+    eventVisibility: 0,
   };
-  
+
   // Apply upgrade effects
   for (const upgradeId of upgrades) {
     const upgrade = SHIP_UPGRADES[upgradeId];
@@ -203,7 +205,7 @@ function calculateShipCapabilities(ship, upgrades) {
       }
     }
   }
-  
+
   return capabilities;
 }
 ```
@@ -215,13 +217,13 @@ function calculateShipCapabilities(ship, upgrades) {
 ```javascript
 gameState.ship.hiddenCargo = [
   {
-    good: string,        // Commodity type
-    qty: number,         // Quantity
-    buyPrice: number,    // Purchase price per unit
-    buySystem: number,   // System ID
+    good: string, // Commodity type
+    qty: number, // Quantity
+    buyPrice: number, // Purchase price per unit
+    buySystem: number, // System ID
     buySystemName: string,
-    buyDate: number      // Days elapsed at purchase
-  }
+    buyDate: number, // Days elapsed at purchase
+  },
 ];
 ```
 
@@ -237,44 +239,44 @@ gameState.ship.hiddenCargo = [
  */
 function moveToHiddenCargo(good, qty, gameState) {
   const ship = gameState.ship;
-  
+
   // Check if smuggler's panels installed
   if (!ship.upgrades.includes('smuggler_panels')) {
     return { success: false, reason: 'No hidden cargo compartment' };
   }
-  
+
   // Find cargo stack
-  const cargoIndex = ship.cargo.findIndex(c => c.good === good);
+  const cargoIndex = ship.cargo.findIndex((c) => c.good === good);
   if (cargoIndex === -1) {
     return { success: false, reason: 'Cargo not found' };
   }
-  
+
   const cargoStack = ship.cargo[cargoIndex];
   if (cargoStack.qty < qty) {
     return { success: false, reason: 'Insufficient quantity' };
   }
-  
+
   // Check hidden cargo capacity
   const hiddenUsed = ship.hiddenCargo.reduce((sum, c) => sum + c.qty, 0);
   const hiddenAvailable = 10 - hiddenUsed;
   if (qty > hiddenAvailable) {
-    return { 
-      success: false, 
-      reason: `Hidden cargo full (${hiddenAvailable} units available)` 
+    return {
+      success: false,
+      reason: `Hidden cargo full (${hiddenAvailable} units available)`,
     };
   }
-  
+
   // Transfer cargo
   cargoStack.qty -= qty;
   if (cargoStack.qty === 0) {
     ship.cargo.splice(cargoIndex, 1);
   }
-  
+
   // Add to hidden cargo
-  const hiddenIndex = ship.hiddenCargo.findIndex(c => 
-    c.good === good && c.buyPrice === cargoStack.buyPrice
+  const hiddenIndex = ship.hiddenCargo.findIndex(
+    (c) => c.good === good && c.buyPrice === cargoStack.buyPrice
   );
-  
+
   if (hiddenIndex >= 0) {
     ship.hiddenCargo[hiddenIndex].qty += qty;
   } else {
@@ -284,10 +286,10 @@ function moveToHiddenCargo(good, qty, gameState) {
       buyPrice: cargoStack.buyPrice,
       buySystem: cargoStack.buySystem,
       buySystemName: cargoStack.buySystemName,
-      buyDate: cargoStack.buyDate
+      buyDate: cargoStack.buyDate,
     });
   }
-  
+
   return { success: true, reason: '' };
 }
 ```
@@ -306,21 +308,24 @@ function moveToHiddenCargo(good, qty, gameState) {
  */
 function recordCargoPurchase(good, qty, price, gameState) {
   const currentSystem = getCurrentSystem(gameState);
-  
+
   const cargoEntry = {
     good: good,
     qty: qty,
     buyPrice: price,
     buySystem: currentSystem.id,
     buySystemName: currentSystem.name,
-    buyDate: gameState.player.daysElapsed
+    buyDate: gameState.player.daysElapsed,
   };
-  
+
   // Check if we can stack with existing cargo
-  const existingIndex = gameState.ship.cargo.findIndex(c => 
-    c.good === good && c.buyPrice === price && c.buySystem === currentSystem.id
+  const existingIndex = gameState.ship.cargo.findIndex(
+    (c) =>
+      c.good === good &&
+      c.buyPrice === price &&
+      c.buySystem === currentSystem.id
   );
-  
+
   if (existingIndex >= 0) {
     gameState.ship.cargo[existingIndex].qty += qty;
   } else {
@@ -343,13 +348,13 @@ function sanitizeShipName(name) {
   if (!name || name.trim().length === 0) {
     return 'Serendipity';
   }
-  
+
   // Remove HTML tags and limit length
   const sanitized = name
     .replace(/<[^>]*>/g, '')
     .trim()
     .substring(0, 50);
-  
+
   return sanitized || 'Serendipity';
 }
 ```
@@ -365,7 +370,7 @@ const SHIP_NAME_SUGGESTIONS = [
   'Free Spirit',
   "Horizon's Edge",
   'Stardust Runner',
-  'Cosmic Drifter'
+  'Cosmic Drifter',
 ];
 ```
 
@@ -407,75 +412,75 @@ const SHIP_QUIRKS = {
     name: 'Sticky Cargo Seal',
     description: 'The main cargo hatch sticks. Every. Single. Time.',
     effects: {
-      loadingTime: 1.1,      // +10% slower (future use)
-      theftRisk: 0.95        // -5% theft risk (future use)
+      loadingTime: 1.1, // +10% slower (future use)
+      theftRisk: 0.95, // -5% theft risk (future use)
     },
-    flavor: "You've learned to kick it in just the right spot."
+    flavor: "You've learned to kick it in just the right spot.",
   },
-  
+
   hot_thruster: {
     name: 'Hot Thruster',
     description: 'Port thruster runs hot. Burns extra fuel but responsive.',
     effects: {
-      fuelConsumption: 1.05  // +5% fuel use
+      fuelConsumption: 1.05, // +5% fuel use
     },
-    flavor: "The engineers say it's 'within tolerances.' Barely."
+    flavor: "The engineers say it's 'within tolerances.' Barely.",
   },
-  
+
   sensitive_sensors: {
     name: 'Sensitive Sensors',
     description: 'Sensor array picks up everything. Including false positives.',
     effects: {
       salvageDetection: 1.15, // +15% salvage (future use)
-      falseAlarms: 1.1        // +10% false alarms (future use)
+      falseAlarms: 1.1, // +10% false alarms (future use)
     },
-    flavor: "You've learned to tell the difference. Mostly."
+    flavor: "You've learned to tell the difference. Mostly.",
   },
-  
+
   cramped_quarters: {
     name: 'Cramped Quarters',
     description: 'Living space is... cozy. Very cozy.',
     effects: {
-      lifeSupportDrain: 0.9  // -10% drain
+      lifeSupportDrain: 0.9, // -10% drain
     },
-    flavor: "At least you don't have to share."
+    flavor: "At least you don't have to share.",
   },
-  
+
   lucky_ship: {
     name: 'Lucky Ship',
     description: 'This ship has a history of beating the odds.',
     effects: {
-      negateEventChance: 0.05 // 5% to negate bad events (future use)
+      negateEventChance: 0.05, // 5% to negate bad events (future use)
     },
-    flavor: 'Knock on hull plating.'
+    flavor: 'Knock on hull plating.',
   },
-  
+
   fuel_sipper: {
     name: 'Fuel Sipper',
     description: 'Efficient drive core. Previous owner was meticulous.',
     effects: {
-      fuelConsumption: 0.85  // -15% fuel use
+      fuelConsumption: 0.85, // -15% fuel use
     },
-    flavor: 'One of the few things that actually works better than spec.'
+    flavor: 'One of the few things that actually works better than spec.',
   },
-  
+
   leaky_seals: {
     name: 'Leaky Seals',
     description: "Hull seals aren't quite right. Slow degradation.",
     effects: {
-      hullDegradation: 1.5   // +50% hull damage
+      hullDegradation: 1.5, // +50% hull damage
     },
-    flavor: "You can hear the whistle when you're in the cargo bay."
+    flavor: "You can hear the whistle when you're in the cargo bay.",
   },
-  
+
   smooth_talker: {
     name: "Smooth Talker's Ride",
     description: 'Previous owner had a reputation. It rubs off.',
     effects: {
-      npcRepGain: 1.05       // +5% reputation gains (future use)
+      npcRepGain: 1.05, // +5% reputation gains (future use)
     },
-    flavor: 'People remember this ship. Usually fondly.'
-  }
+    flavor: 'People remember this ship. Usually fondly.',
+  },
 };
 ```
 
@@ -488,155 +493,154 @@ const SHIP_UPGRADES = {
     cost: 3000,
     description: 'Increases fuel capacity by 50%',
     effects: {
-      fuelCapacity: 150      // Up from 100
+      fuelCapacity: 150, // Up from 100
     },
-    tradeoff: 'Larger tank is more vulnerable to weapons fire.'
+    tradeoff: 'Larger tank is more vulnerable to weapons fire.',
   },
-  
+
   reinforced_hull: {
     name: 'Reinforced Hull Plating',
     cost: 5000,
     description: 'Reduces hull degradation by 50%',
     effects: {
-      hullDegradation: 0.5,  // Half degradation
-      cargoCapacity: 45      // Down from 50
+      hullDegradation: 0.5, // Half degradation
+      cargoCapacity: 45, // Down from 50
     },
-    tradeoff: 'Extra plating takes up cargo space.'
+    tradeoff: 'Extra plating takes up cargo space.',
   },
-  
+
   efficient_drive: {
     name: 'Efficient Drive System',
     cost: 4000,
     description: 'Reduces fuel consumption by 20%',
     effects: {
-      fuelConsumption: 0.8   // -20% fuel use
+      fuelConsumption: 0.8, // -20% fuel use
     },
-    tradeoff: 'Optimized for efficiency, not speed.'
+    tradeoff: 'Optimized for efficiency, not speed.',
   },
-  
+
   expanded_hold: {
     name: 'Expanded Cargo Hold',
     cost: 6000,
     description: 'Increases cargo capacity by 50%',
     effects: {
-      cargoCapacity: 75      // Up from 50
+      cargoCapacity: 75, // Up from 50
     },
-    tradeoff: 'Heavier ship is less maneuverable.'
+    tradeoff: 'Heavier ship is less maneuverable.',
   },
-  
+
   smuggler_panels: {
     name: "Smuggler's Panels",
     cost: 4500,
     description: 'Hidden cargo compartment (10 units)',
     effects: {
-      hiddenCargoCapacity: 10
+      hiddenCargoCapacity: 10,
     },
-    tradeoff: 'If discovered, reputation loss with authorities.'
+    tradeoff: 'If discovered, reputation loss with authorities.',
   },
-  
+
   advanced_sensors: {
     name: 'Advanced Sensor Array',
     cost: 3500,
     description: 'See economic events one jump ahead',
     effects: {
-      eventVisibility: 1     // Can see events in connected systems
+      eventVisibility: 1, // Can see events in connected systems
     },
-    tradeoff: 'None'
+    tradeoff: 'None',
   },
-  
+
   medical_bay: {
     name: 'Medical Bay',
     cost: 2500,
     description: 'Slower life support degradation',
     effects: {
       lifeSupportDrain: 0.7, // -30% drain
-      cargoCapacity: 45      // Down from 50
+      cargoCapacity: 45, // Down from 50
     },
-    tradeoff: 'Takes up cargo space.'
-  }
+    tradeoff: 'Takes up cargo space.',
+  },
 };
 ```
 
-
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Quirk Assignment Bounds
 
-*For any* new game initialization, the ship should be assigned exactly 2 or 3 quirks, with no duplicates.
+_For any_ new game initialization, the ship should be assigned exactly 2 or 3 quirks, with no duplicates.
 
 **Validates: Requirements 1.1, 1.2**
 
 ### Property 2: Quirk Effect Application
 
-*For any* ship with quirks and any calculation that uses an attribute affected by those quirks, the result should equal the base value multiplied by all relevant quirk modifiers.
+_For any_ ship with quirks and any calculation that uses an attribute affected by those quirks, the result should equal the base value multiplied by all relevant quirk modifiers.
 
 **Validates: Requirements 1.4, 6.1, 6.2, 6.3, 6.4, 6.5**
 
 ### Property 3: Upgrade Purchase Transaction
 
-*For any* valid upgrade purchase (sufficient credits, not already owned), completing the transaction should decrease player credits by the upgrade cost and add the upgrade to the ship's upgrades list.
+_For any_ valid upgrade purchase (sufficient credits, not already owned), completing the transaction should decrease player credits by the upgrade cost and add the upgrade to the ship's upgrades list.
 
 **Validates: Requirements 2.4, 2.5**
 
 ### Property 4: Upgrade Effect Application
 
-*For any* ship with upgrades and any calculation that uses an attribute affected by those upgrades, the result should reflect all upgrade effects applied appropriately (absolute values for capacities, multipliers for rates).
+_For any_ ship with upgrades and any calculation that uses an attribute affected by those upgrades, the result should reflect all upgrade effects applied appropriately (absolute values for capacities, multipliers for rates).
 
 **Validates: Requirements 2.6, 7.9**
 
 ### Property 5: Save/Load Round Trip
 
-*For any* game state containing ship quirks, upgrades, ship name, regular cargo, and hidden cargo, saving then loading should produce an equivalent game state with all ship data preserved.
+_For any_ game state containing ship quirks, upgrades, ship name, regular cargo, and hidden cargo, saving then loading should produce an equivalent game state with all ship data preserved.
 
 **Validates: Requirements 1.5, 2.7, 3.6, 4.5**
 
 ### Property 6: Cargo Purchase Metadata Completeness
 
-*For any* cargo purchase, the recorded cargo entry should contain all required fields: good type, quantity, purchase price, purchase system ID, purchase system name, and purchase date.
+_For any_ cargo purchase, the recorded cargo entry should contain all required fields: good type, quantity, purchase price, purchase system ID, purchase system name, and purchase date.
 
 **Validates: Requirements 5.6**
 
 ### Property 7: Cargo Manifest Value Calculation
 
-*For any* cargo in the manifest, the displayed current value should equal the quantity multiplied by the purchase price.
+_For any_ cargo in the manifest, the displayed current value should equal the quantity multiplied by the purchase price.
 
 **Validates: Requirements 5.3**
 
 ### Property 8: Cargo Manifest Total Calculations
 
-*For any* cargo manifest display, the total capacity usage should equal the sum of all cargo quantities, and the total value should equal the sum of all individual cargo values.
+_For any_ cargo manifest display, the total capacity usage should equal the sum of all cargo quantities, and the total value should equal the sum of all individual cargo values.
 
 **Validates: Requirements 5.4, 5.5**
 
 ### Property 9: UI Display Completeness
 
-*For any* quirk, upgrade, or cargo item displayed in the UI, all required fields for that item type should be present in the rendered output.
+_For any_ quirk, upgrade, or cargo item displayed in the UI, all required fields for that item type should be present in the rendered output.
 
 **Validates: Requirements 1.3, 2.2, 5.2, 8.2, 8.3, 8.4, 9.2**
 
 ### Property 10: Ship Name Sanitization
 
-*For any* ship name input, the sanitized result should have HTML tags removed and be limited to 50 characters, with empty inputs defaulting to "Serendipity".
+_For any_ ship name input, the sanitized result should have HTML tags removed and be limited to 50 characters, with empty inputs defaulting to "Serendipity".
 
 **Validates: Requirements 4.2, 4.3, 10.3, 10.5**
 
 ### Property 11: Upgrade Purchase Validation
 
-*For any* upgrade and game state, the validation should return invalid if the upgrade is already purchased or if the player has insufficient credits.
+_For any_ upgrade and game state, the validation should return invalid if the upgrade is already purchased or if the player has insufficient credits.
 
 **Validates: Requirements 2.5, 8.5**
 
 ### Property 12: Hidden Cargo Transfer Validation
 
-*For any* cargo transfer to hidden compartment, the operation should fail if Smuggler's Panels is not installed, if the cargo doesn't exist, if quantity is insufficient, or if hidden cargo capacity would be exceeded.
+_For any_ cargo transfer to hidden compartment, the operation should fail if Smuggler's Panels is not installed, if the cargo doesn't exist, if quantity is insufficient, or if hidden cargo capacity would be exceeded.
 
 **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
 
 ### Property 13: Multiplicative Modifier Combination
 
-*For any* set of modifiers (quirks or upgrades) affecting the same attribute, applying all modifiers should be equivalent to multiplying the base value by the product of all individual modifiers.
+_For any_ set of modifiers (quirks or upgrades) affecting the same attribute, applying all modifiers should be equivalent to multiplying the base value by the product of all individual modifiers.
 
 **Validates: Requirements 6.4, 7.9**
 
@@ -668,33 +672,35 @@ The system should validate state integrity:
 function loadGameState(savedData) {
   try {
     const parsed = JSON.parse(savedData);
-    
+
     // Validate version
     if (parsed.version !== SAVE_VERSION) {
       return migrateSaveData(parsed);
     }
-    
+
     // Validate ship data
     if (!parsed.ship || !Array.isArray(parsed.ship.quirks)) {
       throw new Error('Invalid save data: missing or malformed ship data');
     }
-    
+
     // Validate quirk IDs
     for (const quirkId of parsed.ship.quirks) {
       if (!SHIP_QUIRKS[quirkId]) {
         console.warn(`Unknown quirk ID: ${quirkId}, removing from save`);
-        parsed.ship.quirks = parsed.ship.quirks.filter(id => id !== quirkId);
+        parsed.ship.quirks = parsed.ship.quirks.filter((id) => id !== quirkId);
       }
     }
-    
+
     // Validate upgrade IDs
     for (const upgradeId of parsed.ship.upgrades) {
       if (!SHIP_UPGRADES[upgradeId]) {
         console.warn(`Unknown upgrade ID: ${upgradeId}, removing from save`);
-        parsed.ship.upgrades = parsed.ship.upgrades.filter(id => id !== upgradeId);
+        parsed.ship.upgrades = parsed.ship.upgrades.filter(
+          (id) => id !== upgradeId
+        );
       }
     }
-    
+
     return parsed;
   } catch (e) {
     console.error('Failed to load save data:', e);
@@ -835,9 +841,9 @@ export default {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['js/**/*.js'],
-      exclude: ['js/vendor/**']
-    }
-  }
+      exclude: ['js/vendor/**'],
+    },
+  },
 };
 ```
 
@@ -849,7 +855,7 @@ import fc from 'fast-check';
 // Minimum 100 iterations per property test
 const propertyTestConfig = {
   numRuns: 100,
-  verbose: true
+  verbose: true,
 };
 
 // Example property test structure
@@ -860,9 +866,11 @@ describe('Property Tests', () => {
         fc.integer(), // Random seed
         (seed) => {
           const quirks = assignShipQuirks(seed);
-          return quirks.length >= 2 && 
-                 quirks.length <= 3 && 
-                 new Set(quirks).size === quirks.length;
+          return (
+            quirks.length >= 2 &&
+            quirks.length <= 3 &&
+            new Set(quirks).size === quirks.length
+          );
         }
       ),
       propertyTestConfig
@@ -876,6 +884,7 @@ describe('Property Tests', () => {
 ### Ship Status Screen
 
 Display quirks with visual hierarchy:
+
 - Section header: "SHIP QUIRKS"
 - Each quirk: icon, name, description, flavor text
 - Use consistent spacing and typography
@@ -884,6 +893,7 @@ Display quirks with visual hierarchy:
 ### Upgrades Interface
 
 Clear information architecture:
+
 - Available upgrades at top with purchase buttons
 - Installed upgrades in separate section below
 - Warning symbols (⚠) for tradeoffs
@@ -893,6 +903,7 @@ Clear information architecture:
 ### Confirmation Dialogs
 
 Follow modal dialog patterns:
+
 - Semi-transparent overlay
 - Centered dialog box
 - Clear action buttons (Confirm/Cancel)
@@ -902,6 +913,7 @@ Follow modal dialog patterns:
 ### Cargo Manifest
 
 Organized information display:
+
 - Ship name in header
 - Capacity bar or fraction
 - Each cargo: name, quantity, purchase details
@@ -912,6 +924,7 @@ Organized information display:
 ### Hidden Cargo Toggle
 
 Subtle but clear:
+
 - Toggle button in trade interface
 - Hidden section visually distinct
 - Clear labels for regular vs hidden
@@ -942,6 +955,7 @@ Subtle but clear:
 ### Additional Quirks
 
 The quirk system is designed to be extensible. Future quirks could include:
+
 - Combat-related effects (when combat is implemented)
 - NPC interaction modifiers
 - Event probability changes
@@ -950,6 +964,7 @@ The quirk system is designed to be extensible. Future quirks could include:
 ### Upgrade Tiers
 
 Future upgrades could have prerequisites:
+
 - Advanced upgrades require basic versions
 - Mutually exclusive upgrade paths
 - Upgrade combinations with synergies
@@ -957,6 +972,7 @@ Future upgrades could have prerequisites:
 ### Hidden Cargo Mechanics
 
 When inspection system is implemented:
+
 - Discovery chance based on inspector skill
 - Consequences for discovery (fines, reputation loss)
 - Contraband goods with higher risk/reward
@@ -964,6 +980,7 @@ When inspection system is implemented:
 ### Ship Customization
 
 Additional personalization options:
+
 - Ship paint schemes
 - Interior decorations
 - Custom ship descriptions
@@ -983,6 +1000,7 @@ Additional personalization options:
 ### New Constants Required
 
 All quirk and upgrade definitions must be added to `game-constants.js`:
+
 - `SHIP_QUIRKS` object
 - `SHIP_UPGRADES` object
 - `SHIP_NAME_SUGGESTIONS` array
@@ -1016,6 +1034,7 @@ Cargo purchased at the same system for the same price should stack. Cargo purcha
 ### Effect Calculation Order
 
 Apply effects in this order:
+
 1. Base value
 2. Quirk modifiers (multiplicative)
 3. Upgrade modifiers (multiplicative)

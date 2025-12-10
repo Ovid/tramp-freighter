@@ -279,6 +279,191 @@ export const ECONOMY_CONFIG = {
 };
 
 /**
+ * Ship quirks - Permanent personality traits assigned at game start
+ *
+ * Each ship receives 2-3 random quirks that provide both benefits and drawbacks.
+ * Quirks create unique ship personalities and affect gameplay mechanics.
+ * Effects are multiplicative modifiers (0.85 = -15%, 1.15 = +15%).
+ */
+export const SHIP_QUIRKS = {
+  sticky_seal: {
+    name: 'Sticky Cargo Seal',
+    description: 'The main cargo hatch sticks. Every. Single. Time.',
+    effects: {
+      loadingTime: 1.1, // +10% slower (future use)
+      theftRisk: 0.95, // -5% theft risk (future use)
+    },
+    flavor: "You've learned to kick it in just the right spot.",
+  },
+
+  hot_thruster: {
+    name: 'Hot Thruster',
+    description: 'Port thruster runs hot. Burns extra fuel but responsive.',
+    effects: {
+      fuelConsumption: 1.05, // +5% fuel use
+    },
+    flavor: "The engineers say it's 'within tolerances.' Barely.",
+  },
+
+  sensitive_sensors: {
+    name: 'Sensitive Sensors',
+    description: 'Sensor array picks up everything. Including false positives.',
+    effects: {
+      salvageDetection: 1.15, // +15% salvage (future use)
+      falseAlarms: 1.1, // +10% false alarms (future use)
+    },
+    flavor: "You've learned to tell the difference. Mostly.",
+  },
+
+  cramped_quarters: {
+    name: 'Cramped Quarters',
+    description: 'Living space is... cozy. Very cozy.',
+    effects: {
+      lifeSupportDrain: 0.9, // -10% drain
+    },
+    flavor: "At least you don't have to share.",
+  },
+
+  lucky_ship: {
+    name: 'Lucky Ship',
+    description: 'This ship has a history of beating the odds.',
+    effects: {
+      negateEventChance: 0.05, // 5% to negate bad events (future use)
+    },
+    flavor: 'Knock on hull plating.',
+  },
+
+  fuel_sipper: {
+    name: 'Fuel Sipper',
+    description: 'Efficient drive core. Previous owner was meticulous.',
+    effects: {
+      fuelConsumption: 0.85, // -15% fuel use
+    },
+    flavor: 'One of the few things that actually works better than spec.',
+  },
+
+  leaky_seals: {
+    name: 'Leaky Seals',
+    description: "Hull seals aren't quite right. Slow degradation.",
+    effects: {
+      hullDegradation: 1.5, // +50% hull damage
+    },
+    flavor: "You can hear the whistle when you're in the cargo bay.",
+  },
+
+  smooth_talker: {
+    name: "Smooth Talker's Ride",
+    description: 'Previous owner had a reputation. It rubs off.',
+    effects: {
+      npcRepGain: 1.05, // +5% reputation gains (future use)
+    },
+    flavor: 'People remember this ship. Usually fondly.',
+  },
+};
+
+/**
+ * Ship upgrades - Purchasable permanent modifications with tradeoffs
+ *
+ * Upgrades provide meaningful benefits but come with explicit costs or drawbacks.
+ * All upgrades are permanent and cannot be removed once purchased.
+ * Effects use absolute values for capacities and multipliers for rates.
+ */
+export const SHIP_UPGRADES = {
+  extended_tank: {
+    name: 'Extended Fuel Tank',
+    cost: 3000,
+    description: 'Increases fuel capacity by 50%',
+    effects: {
+      fuelCapacity: 150, // Up from 100
+    },
+    tradeoff: 'Larger tank is more vulnerable to weapons fire.',
+  },
+
+  reinforced_hull: {
+    name: 'Reinforced Hull Plating',
+    cost: 5000,
+    description: 'Reduces hull degradation by 50%',
+    effects: {
+      hullDegradation: 0.5, // Half degradation
+      cargoCapacity: 45, // Down from 50
+    },
+    tradeoff: 'Extra plating takes up cargo space.',
+  },
+
+  efficient_drive: {
+    name: 'Efficient Drive System',
+    cost: 4000,
+    description: 'Reduces fuel consumption by 20%',
+    effects: {
+      fuelConsumption: 0.8, // -20% fuel use
+    },
+    tradeoff: 'Optimized for efficiency, not speed.',
+  },
+
+  expanded_hold: {
+    name: 'Expanded Cargo Hold',
+    cost: 6000,
+    description: 'Increases cargo capacity by 50%',
+    effects: {
+      cargoCapacity: 75, // Up from 50
+    },
+    tradeoff: 'Heavier ship is less maneuverable.',
+  },
+
+  smuggler_panels: {
+    name: "Smuggler's Panels",
+    cost: 4500,
+    description: 'Hidden cargo compartment (10 units)',
+    effects: {
+      hiddenCargoCapacity: 10,
+    },
+    tradeoff: 'If discovered, reputation loss with authorities.',
+  },
+
+  advanced_sensors: {
+    name: 'Advanced Sensor Array',
+    cost: 3500,
+    description: 'See economic events one jump ahead',
+    effects: {
+      eventVisibility: 1, // Can see events in connected systems
+    },
+    tradeoff: 'None',
+  },
+
+  medical_bay: {
+    name: 'Medical Bay',
+    cost: 2500,
+    description: 'Slower life support degradation',
+    effects: {
+      lifeSupportDrain: 0.7, // -30% drain
+      cargoCapacity: 45, // Down from 50
+    },
+    tradeoff: 'Takes up cargo space.',
+  },
+};
+
+/**
+ * Default ship name used when player doesn't provide a custom name
+ */
+export const DEFAULT_SHIP_NAME = 'Serendipity';
+
+/**
+ * Suggested ship names for player inspiration during game creation
+ *
+ * Names evoke themes of wandering, fortune, and the tramp freighter lifestyle.
+ */
+export const SHIP_NAME_SUGGESTIONS = [
+  'Serendipity',
+  'Lucky Break',
+  'Second Chance',
+  'Wanderer',
+  'Free Spirit',
+  "Horizon's Edge",
+  'Stardust Runner',
+  'Cosmic Drifter',
+];
+
+/**
  * New game initialization values
  */
 export const NEW_GAME_DEFAULTS = {
@@ -286,7 +471,7 @@ export const NEW_GAME_DEFAULTS = {
   STARTING_DEBT: 10000,
   STARTING_CARGO_CAPACITY: 50,
   STARTING_GRAIN_QUANTITY: 20,
-  STARTING_SHIP_NAME: 'Serendipity',
+  STARTING_SHIP_NAME: DEFAULT_SHIP_NAME,
 };
 
 /**

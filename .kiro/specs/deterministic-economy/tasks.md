@@ -205,7 +205,7 @@
   - **Property 36: Economic events still modify prices**
   - **Validates: Requirements 11.4, 11.5**
 
-- [ ]* 16.4 Write integration test for UI price updates during time advancement
+- [ ]\* 16.4 Write integration test for UI price updates during time advancement
   - Verify priceKnowledgeChanged event triggers UI refresh
   - Verify displayed prices match recalculated prices after time advances
   - Test that trade interface updates when player is viewing prices
