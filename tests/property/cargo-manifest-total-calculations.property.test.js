@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Property-Based Tests for Cargo Manifest Total Calculations
- * Feature: ship-personality, Property 8: Cargo Manifest Total Calculations
- * Validates: Requirements 5.4, 5.5
- */
-
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
@@ -103,16 +97,15 @@ describe('Property 8: Cargo Manifest Total Calculations', () => {
   });
 
   /**
-   * Property: Null or undefined cargo should return zero totals
+   * Property: Null or undefined cargo should throw error
    */
-  it('should return zero totals for null or undefined cargo', () => {
-    const totalsNull = TradingSystem.calculateCargoTotals(null);
-    const totalsUndefined = TradingSystem.calculateCargoTotals(undefined);
-
-    expect(totalsNull.totalCapacityUsed).toBe(0);
-    expect(totalsNull.totalValue).toBe(0);
-    expect(totalsUndefined.totalCapacityUsed).toBe(0);
-    expect(totalsUndefined.totalValue).toBe(0);
+  it('should throw error for null or undefined cargo', () => {
+    expect(() => TradingSystem.calculateCargoTotals(null)).toThrow(
+      'Invalid cargo: expected array'
+    );
+    expect(() => TradingSystem.calculateCargoTotals(undefined)).toThrow(
+      'Invalid cargo: expected array'
+    );
   });
 
   /**

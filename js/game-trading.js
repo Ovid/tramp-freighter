@@ -281,13 +281,16 @@ export class TradingSystem {
    */
   static calculateCargoValue(cargoEntry) {
     if (!cargoEntry || typeof cargoEntry !== 'object') {
-      return 0;
+      throw new Error('Invalid cargo entry: expected object');
+    }
+    if (typeof cargoEntry.qty !== 'number') {
+      throw new Error('Invalid cargo entry: qty must be a number');
+    }
+    if (typeof cargoEntry.buyPrice !== 'number') {
+      throw new Error('Invalid cargo entry: buyPrice must be a number');
     }
 
-    const qty = cargoEntry.qty || 0;
-    const buyPrice = cargoEntry.buyPrice || 0;
-
-    return qty * buyPrice;
+    return cargoEntry.qty * cargoEntry.buyPrice;
   }
 
   /**
@@ -305,17 +308,17 @@ export class TradingSystem {
    */
   static calculateCargoTotals(cargo) {
     if (!Array.isArray(cargo)) {
-      return {
-        totalCapacityUsed: 0,
-        totalValue: 0,
-      };
+      throw new Error('Invalid cargo: expected array');
     }
 
     let totalCapacityUsed = 0;
     let totalValue = 0;
 
     for (const stack of cargo) {
-      totalCapacityUsed += stack.qty || 0;
+      if (typeof stack.qty !== 'number') {
+        throw new Error('Invalid cargo stack: qty must be a number');
+      }
+      totalCapacityUsed += stack.qty;
       totalValue += TradingSystem.calculateCargoValue(stack);
     }
 

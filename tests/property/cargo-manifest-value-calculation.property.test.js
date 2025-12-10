@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Property-Based Tests for Cargo Manifest Value Calculation
- * Feature: ship-personality, Property 7: Cargo Manifest Value Calculation
- * Validates: Requirements 5.3
- */
-
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
@@ -119,12 +113,18 @@ describe('Property 7: Cargo Manifest Value Calculation', () => {
   });
 
   /**
-   * Property: Null or undefined cargo entry should return zero
+   * Property: Null or undefined cargo entry should throw error
    */
-  it('should return zero for null or undefined cargo entry', () => {
-    expect(TradingSystem.calculateCargoValue(null)).toBe(0);
-    expect(TradingSystem.calculateCargoValue(undefined)).toBe(0);
-    expect(TradingSystem.calculateCargoValue({})).toBe(0);
+  it('should throw error for null or undefined cargo entry', () => {
+    expect(() => TradingSystem.calculateCargoValue(null)).toThrow(
+      'Invalid cargo entry: expected object'
+    );
+    expect(() => TradingSystem.calculateCargoValue(undefined)).toThrow(
+      'Invalid cargo entry: expected object'
+    );
+    expect(() => TradingSystem.calculateCargoValue({})).toThrow(
+      'Invalid cargo entry: qty must be a number'
+    );
   });
 
   /**

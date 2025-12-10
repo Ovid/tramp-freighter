@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Property-Based Tests for Cargo Purchase Metadata Completeness
- * Feature: ship-personality, Property 6: Cargo Purchase Metadata Completeness
- * Validates: Requirements 5.6
- */
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';

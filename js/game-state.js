@@ -1045,32 +1045,23 @@ export class GameStateManager {
   /**
    * Decreases quantity in stack; removes stack if empty
    *
-   * Uses immutable pattern (returns new array/objects) because this is a utility
-   * function called by trading operations that need to validate before committing.
-   * This allows rollback if validation fails after cargo modification.
-   *
-   * Contrast with moveToHiddenCargo/moveToRegularCargo which mutate directly
-   * because they validate before any state changes.
+   * Mutates the cargo array in place for performance.
    *
    * @param {Array} cargo - Cargo array to modify
    * @param {number} stackIndex - Index of stack to modify
    * @param {number} quantity - Quantity to remove
-   * @returns {Array} New cargo array with updated quantities
+   * @returns {Array} The same cargo array (for chaining)
    */
   removeFromCargoStack(cargo, stackIndex, quantity) {
-    const updatedCargo = [...cargo];
-    const stack = { ...updatedCargo[stackIndex] };
-
+    const stack = cargo[stackIndex];
     stack.qty -= quantity;
 
     // Remove stack if empty
     if (stack.qty <= 0) {
-      updatedCargo.splice(stackIndex, 1);
-    } else {
-      updatedCargo[stackIndex] = stack;
+      cargo.splice(stackIndex, 1);
     }
 
-    return updatedCargo;
+    return cargo;
   }
 
   // ========================================================================
@@ -1539,28 +1530,21 @@ export class GameStateManager {
       };
     }
 
-    // Transfer cargo - create new arrays for immutability
-    const newCargo = [...ship.cargo];
-    const newHiddenCargo = [...ship.hiddenCargo];
-
     // Remove from regular cargo
-    newCargo[cargoIndex] = { ...cargoStack, qty: cargoStack.qty - qty };
-    if (newCargo[cargoIndex].qty === 0) {
-      newCargo.splice(cargoIndex, 1);
+    cargoStack.qty -= qty;
+    if (cargoStack.qty === 0) {
+      ship.cargo.splice(cargoIndex, 1);
     }
 
     // Add to hidden cargo (stack with matching good and buyPrice)
-    const hiddenIndex = newHiddenCargo.findIndex(
+    const hiddenIndex = ship.hiddenCargo.findIndex(
       (c) => c.good === good && c.buyPrice === cargoStack.buyPrice
     );
 
     if (hiddenIndex >= 0) {
-      newHiddenCargo[hiddenIndex] = {
-        ...newHiddenCargo[hiddenIndex],
-        qty: newHiddenCargo[hiddenIndex].qty + qty,
-      };
+      ship.hiddenCargo[hiddenIndex].qty += qty;
     } else {
-      newHiddenCargo.push({
+      ship.hiddenCargo.push({
         good: cargoStack.good,
         qty: qty,
         buyPrice: cargoStack.buyPrice,
@@ -1570,10 +1554,8 @@ export class GameStateManager {
       });
     }
 
-    // Update state using standard update methods
-    ship.cargo = newCargo;
-    ship.hiddenCargo = newHiddenCargo;
-    this.updateCargo(newCargo);
+    // Emit cargo change event
+    this.updateCargo(ship.cargo);
 
     // Persist immediately - cargo transfer modifies ship state
     this.saveGame();
@@ -1628,31 +1610,21 @@ export class GameStateManager {
       };
     }
 
-    // Transfer cargo - create new arrays for immutability
-    const newCargo = [...ship.cargo];
-    const newHiddenCargo = [...ship.hiddenCargo];
-
     // Remove from hidden cargo
-    newHiddenCargo[hiddenIndex] = {
-      ...hiddenStack,
-      qty: hiddenStack.qty - qty,
-    };
-    if (newHiddenCargo[hiddenIndex].qty === 0) {
-      newHiddenCargo.splice(hiddenIndex, 1);
+    hiddenStack.qty -= qty;
+    if (hiddenStack.qty === 0) {
+      ship.hiddenCargo.splice(hiddenIndex, 1);
     }
 
     // Add to regular cargo (stack with matching good and buyPrice)
-    const cargoIndex = newCargo.findIndex(
+    const cargoIndex = ship.cargo.findIndex(
       (c) => c.good === good && c.buyPrice === hiddenStack.buyPrice
     );
 
     if (cargoIndex >= 0) {
-      newCargo[cargoIndex] = {
-        ...newCargo[cargoIndex],
-        qty: newCargo[cargoIndex].qty + qty,
-      };
+      ship.cargo[cargoIndex].qty += qty;
     } else {
-      newCargo.push({
+      ship.cargo.push({
         good: hiddenStack.good,
         qty: qty,
         buyPrice: hiddenStack.buyPrice,
@@ -1662,10 +1634,8 @@ export class GameStateManager {
       });
     }
 
-    // Update state using standard update methods
-    ship.cargo = newCargo;
-    ship.hiddenCargo = newHiddenCargo;
-    this.updateCargo(newCargo);
+    // Emit cargo change event
+    this.updateCargo(ship.cargo);
 
     // Persist immediately - cargo transfer modifies ship state
     this.saveGame();
