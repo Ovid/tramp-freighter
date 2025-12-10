@@ -13,6 +13,7 @@ import {
   ECONOMY_CONFIG,
   SHIP_QUIRKS,
   SHIP_UPGRADES,
+  DEFAULT_SHIP_NAME,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -20,6 +21,32 @@ import { InformationBroker } from './game-information-broker.js';
 
 // Save debouncing prevents excessive localStorage writes (max 1 save per second)
 const SAVE_DEBOUNCE_MS = 1000;
+
+/**
+ * Sanitize ship name input
+ *
+ * Removes HTML tags, trims whitespace, and limits length to prevent display issues.
+ * Returns default ship name if input is empty after sanitization.
+ *
+ * Feature: ship-personality, Property 10: Ship Name Sanitization
+ * Validates: Requirements 4.2, 4.3, 10.3, 10.5
+ *
+ * @param {string} name - User input for ship name
+ * @returns {string} Sanitized name or default
+ */
+export function sanitizeShipName(name) {
+  if (!name || name.trim().length === 0) {
+    return DEFAULT_SHIP_NAME;
+  }
+
+  // Remove HTML tags and limit length
+  const sanitized = name
+    .replace(/<[^>]*>/g, '')
+    .trim()
+    .substring(0, 50);
+
+  return sanitized || DEFAULT_SHIP_NAME;
+}
 
 /**
  * GameStateManager - Manages all game state with event-driven reactivity

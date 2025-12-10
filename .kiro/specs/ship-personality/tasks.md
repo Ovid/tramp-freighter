@@ -144,24 +144,24 @@
     - **Property 8: Cargo Manifest Total Calculations**
     - **Validates: Requirements 5.4, 5.5**
 
-- [ ] 9. Implement ship naming system
-  - [ ] 9.1 Create sanitizeShipName function
+- [x] 9. Implement ship naming system
+  - [x] 9.1 Create sanitizeShipName function
     - Remove HTML tags from input
     - Trim whitespace
     - Limit to 50 characters
     - Return 'Serendipity' if empty
     - _Requirements: 4.3, 10.3, 10.5_
-  - [ ] 9.2 Write property test for ship name sanitization
+  - [x] 9.2 Write property test for ship name sanitization
     - **Property 10: Ship Name Sanitization**
     - **Validates: Requirements 4.2, 4.3, 10.3, 10.5**
-  - [ ] 9.3 Create ship naming dialog UI
+  - [x] 9.3 Create ship naming dialog UI
     - Add HTML for naming prompt
     - Add input field for ship name
     - Display at least 6 name suggestions
     - Add click handlers to populate field with suggestions
     - Add submit button to confirm name
     - _Requirements: 4.1, 10.1, 10.2_
-  - [ ] 9.4 Integrate ship naming into new game flow
+  - [x] 9.4 Integrate ship naming into new game flow
     - Show naming dialog after quirk assignment
     - Store sanitized name in gameState.ship.name
     - _Requirements: 4.1, 4.2_

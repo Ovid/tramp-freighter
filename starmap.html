@@ -565,6 +565,41 @@
       </div>
     </div>
 
+    <!-- Ship Naming Dialog -->
+    <div id="ship-naming-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <h3 class="modal-title">Name Your Ship</h3>
+          <p class="modal-description">
+            Every ship has a story. What's yours called?
+          </p>
+
+          <div class="ship-naming-input-group">
+            <input
+              type="text"
+              id="ship-name-input"
+              class="ship-name-input"
+              placeholder="Enter ship name..."
+              maxlength="50"
+            />
+          </div>
+
+          <div class="ship-name-suggestions">
+            <p class="suggestions-label">Suggestions:</p>
+            <div id="ship-name-suggestions-list" class="suggestions-list">
+              <!-- Suggestions will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="ship-name-confirm" class="modal-confirm">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Initial Game Menu -->
     <div id="game-menu">
       <div class="menu-content">
