@@ -125,9 +125,12 @@ export class UIManager {
     this.cachedRepairButtons = null;
     // Cache refuel preset buttons for consistency
     this.cachedRefuelPresetButtons = null;
+    // Cache ship status panel (created on first use)
+    this.shipStatusPanel = null;
 
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
+    this.setupShipStatusHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
   }
@@ -427,6 +430,19 @@ export class UIManager {
         this.showShipStatus();
       });
     }
+  }
+
+  setupShipStatusHandlers() {
+    // Use event delegation on document body for dynamically created ship status panel
+    // This prevents memory leaks from adding listeners every time the panel is rendered
+    document.body.addEventListener('click', (e) => {
+      if (
+        e.target.id === 'ship-status-close-btn' ||
+        e.target.id === 'ship-status-back-btn'
+      ) {
+        this.hideShipStatus();
+      }
+    });
   }
 
   showStationInterface() {
@@ -1887,13 +1903,12 @@ export class UIManager {
     const condition = this.gameStateManager.getShipCondition();
     const cargoUsed = this.gameStateManager.getCargoUsed();
 
-    // Create ship status panel if it doesn't exist
-    let shipStatusPanel = document.getElementById('ship-status-panel');
-    if (!shipStatusPanel) {
-      shipStatusPanel = document.createElement('div');
-      shipStatusPanel.id = 'ship-status-panel';
-      shipStatusPanel.className = 'ship-status-panel';
-      document.body.appendChild(shipStatusPanel);
+    // Create ship status panel on first use
+    if (!this.shipStatusPanel) {
+      this.shipStatusPanel = document.createElement('div');
+      this.shipStatusPanel.id = 'ship-status-panel';
+      this.shipStatusPanel.className = 'ship-status-panel';
+      document.body.appendChild(this.shipStatusPanel);
     }
 
     // Build panel content
@@ -2023,30 +2038,21 @@ export class UIManager {
     content.push('</div>');
 
     // Set panel content
-    shipStatusPanel.innerHTML = content.join('');
+    this.shipStatusPanel.innerHTML = content.join('');
 
     // Show panel
-    shipStatusPanel.classList.add('visible');
+    this.shipStatusPanel.classList.add('visible');
 
-    // Setup event handlers
-    const closeBtn = document.getElementById('ship-status-close-btn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.hideShipStatus());
-    }
-
-    const backBtn = document.getElementById('ship-status-back-btn');
-    if (backBtn) {
-      backBtn.addEventListener('click', () => this.hideShipStatus());
-    }
+    // Event handlers are set up once via event delegation in setupShipStatusHandlers
+    // No need to add listeners here - prevents memory leaks from repeated calls
   }
 
   /**
    * Hide ship status panel
    */
   hideShipStatus() {
-    const shipStatusPanel = document.getElementById('ship-status-panel');
-    if (shipStatusPanel) {
-      shipStatusPanel.classList.remove('visible');
+    if (this.shipStatusPanel) {
+      this.shipStatusPanel.classList.remove('visible');
     }
   }
 
@@ -2055,7 +2061,8 @@ export class UIManager {
    * @returns {boolean} True if panel is visible
    */
   isShipStatusVisible() {
-    const shipStatusPanel = document.getElementById('ship-status-panel');
-    return shipStatusPanel && shipStatusPanel.classList.contains('visible');
+    return (
+      this.shipStatusPanel && this.shipStatusPanel.classList.contains('visible')
+    );
   }
 }

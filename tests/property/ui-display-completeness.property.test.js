@@ -251,8 +251,8 @@ describe('Property 9: UI Display Completeness', () => {
 
     // Get all upgrades with tradeoffs (tradeoff !== 'None')
     const upgradesWithTradeoffs = Object.entries(SHIP_UPGRADES)
-      .filter(([_, upgrade]) => upgrade.tradeoff && upgrade.tradeoff !== 'None')
-      .map(([id, _]) => id);
+      .filter(([, upgrade]) => upgrade.tradeoff && upgrade.tradeoff !== 'None')
+      .map(([id]) => id);
 
     // For now, we just verify that the constant structure is correct
     // The actual UI test will be implemented when the upgrades interface exists
