@@ -52,34 +52,34 @@
     - Update life support drain logic to apply quirk modifiers
     - _Requirements: 6.3, 11.5_
 
-- [ ] 5. Implement upgrade system
-  - [ ] 5.1 Create validateUpgradePurchase function
+- [x] 5. Implement upgrade system
+  - [x] 5.1 Create validateUpgradePurchase function
     - Check if upgrade already purchased
     - Check if player has sufficient credits
     - Return validation result with reason
     - _Requirements: 2.5, 8.5_
-  - [ ] 5.2 Write property test for upgrade purchase validation
+  - [x] 5.2 Write property test for upgrade purchase validation
     - **Property 11: Upgrade Purchase Validation**
     - **Validates: Requirements 2.5, 8.5**
-  - [ ] 5.3 Create purchaseUpgrade function
+  - [x] 5.3 Create purchaseUpgrade function
     - Validate purchase
     - Deduct credits from player
     - Add upgrade to ship.upgrades array
     - Apply upgrade effects to ship capabilities
     - Return success/failure result
     - _Requirements: 2.4, 2.5_
-  - [ ] 5.4 Write property test for upgrade purchase transaction
+  - [x] 5.4 Write property test for upgrade purchase transaction
     - **Property 3: Upgrade Purchase Transaction**
     - **Validates: Requirements 2.4, 2.5**
-  - [ ] 5.5 Create calculateShipCapabilities function
+  - [x] 5.5 Create calculateShipCapabilities function
     - Start with base capabilities
     - Apply all upgrade effects (capacities as absolute values, rates as multipliers)
     - Return capabilities object
     - _Requirements: 2.6, 7.1-7.9_
-  - [ ] 5.6 Write property test for upgrade effect application
+  - [x] 5.6 Write property test for upgrade effect application
     - **Property 4: Upgrade Effect Application**
     - **Validates: Requirements 2.6, 7.9**
-  - [ ] 5.7 Integrate upgrade effects into ship systems
+  - [x] 5.7 Integrate upgrade effects into ship systems
     - Update fuel capacity based on upgrades
     - Update cargo capacity based on upgrades
     - Update fuel consumption based on upgrades
@@ -88,7 +88,7 @@
     - Update hidden cargo capacity based on upgrades
     - _Requirements: 7.1-7.8_
 
-  - [ ] 5.8 Implement Advanced Sensor Array event visibility
+  - [x] 5.8 Implement Advanced Sensor Array event visibility
     - Check if advanced_sensors upgrade is installed
     - When viewing connected systems, display active economic events
     - Show event name, affected commodity, and modifier

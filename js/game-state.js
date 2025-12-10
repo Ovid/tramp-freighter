@@ -12,6 +12,7 @@ import {
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
   SHIP_QUIRKS,
+  SHIP_UPGRADES,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -847,16 +848,25 @@ export class GameStateManager {
   /**
    * Get list of systems connected to current system with intelligence costs
    *
-   * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
+   * When Advanced Sensor Array upgrade is installed, includes active economic
+   * events for connected systems.
+   *
+   * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   listAvailableIntelligence() {
     const priceKnowledge = this.getPriceKnowledge();
     const currentSystemId = this.state.player.currentSystem;
+    const activeEvents = this.getActiveEvents();
+    const hasAdvancedSensors =
+      this.state.ship.upgrades.includes('advanced_sensors');
+
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,
       this.starData,
       currentSystemId,
-      this.navigationSystem
+      this.navigationSystem,
+      activeEvents,
+      hasAdvancedSensors
     );
   }
 
@@ -1285,6 +1295,149 @@ export class GameStateManager {
     this.saveGame();
 
     return { success: true, reason: null };
+  }
+
+  // ========================================================================
+  // UPGRADE SYSTEM
+  // ========================================================================
+
+  /**
+   * Validate upgrade purchase
+   *
+   * Checks if an upgrade can be purchased by verifying:
+   * 1. Upgrade is not already installed
+   * 2. Player has sufficient credits
+   *
+   * Feature: ship-personality, Property 11: Upgrade Purchase Validation
+   * Validates: Requirements 2.5, 8.5
+   *
+   * @param {string} upgradeId - Upgrade identifier from SHIP_UPGRADES
+   * @returns {Object} { valid: boolean, reason: string }
+   */
+  validateUpgradePurchase(upgradeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: validateUpgradePurchase called before game initialization'
+      );
+    }
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      return { valid: false, reason: 'Unknown upgrade' };
+    }
+
+    // Check if already purchased
+    if (this.state.ship.upgrades.includes(upgradeId)) {
+      return { valid: false, reason: 'Upgrade already installed' };
+    }
+
+    // Check credits
+    if (this.state.player.credits < upgrade.cost) {
+      return {
+        valid: false,
+        reason: `Insufficient credits (need ₡${upgrade.cost})`,
+      };
+    }
+
+    return { valid: true, reason: '' };
+  }
+
+  /**
+   * Purchase and install a ship upgrade
+   *
+   * Validates the purchase, deducts credits, adds upgrade to ship, and applies
+   * upgrade effects to ship capabilities. All upgrades are permanent and cannot
+   * be removed once purchased.
+   *
+   * Feature: ship-personality, Property 3: Upgrade Purchase Transaction
+   * Validates: Requirements 2.4, 2.5
+   *
+   * @param {string} upgradeId - Upgrade identifier from SHIP_UPGRADES
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  purchaseUpgrade(upgradeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: purchaseUpgrade called before game initialization'
+      );
+    }
+
+    // Validate purchase
+    const validation = this.validateUpgradePurchase(upgradeId);
+    if (!validation.valid) {
+      return { success: false, reason: validation.reason };
+    }
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+
+    // Deduct credits
+    this.updateCredits(this.state.player.credits - upgrade.cost);
+
+    // Add upgrade to ship
+    this.state.ship.upgrades.push(upgradeId);
+
+    // Apply upgrade effects to ship capabilities
+    const capabilities = this.calculateShipCapabilities();
+
+    // Update ship state with new capabilities
+    this.state.ship.cargoCapacity = capabilities.cargoCapacity;
+    this.state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+
+    // Note: fuel capacity is not stored in state, it's calculated on-demand
+    // Note: rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
+    // are applied during calculations, not stored
+
+    // Persist immediately - upgrade purchase modifies credits and ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Calculate ship capabilities based on installed upgrades
+   *
+   * Starts with base capabilities and applies all upgrade effects.
+   * Capacities use absolute values, rates use multipliers.
+   *
+   * Feature: ship-personality, Property 4: Upgrade Effect Application
+   * Validates: Requirements 2.6, 7.1-7.9
+   *
+   * @returns {Object} Ship capabilities with all upgrades applied
+   */
+  calculateShipCapabilities() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: calculateShipCapabilities called before game initialization'
+      );
+    }
+
+    const capabilities = {
+      fuelCapacity: SHIP_CONDITION_BOUNDS.MAX,
+      cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
+      fuelConsumption: 1.0,
+      hullDegradation: 1.0,
+      lifeSupportDrain: 1.0,
+      hiddenCargoCapacity: 0,
+      eventVisibility: 0,
+    };
+
+    // Apply upgrade effects
+    for (const upgradeId of this.state.ship.upgrades) {
+      const upgrade = SHIP_UPGRADES[upgradeId];
+      if (!upgrade) continue;
+
+      for (const [attr, value] of Object.entries(upgrade.effects)) {
+        if (attr.endsWith('Capacity')) {
+          // Absolute values for capacities
+          capabilities[attr] = value;
+        } else {
+          // Multipliers for rates
+          capabilities[attr] *= value;
+        }
+      }
+    }
+
+    return capabilities;
   }
 
   // ========================================================================
