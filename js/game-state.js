@@ -71,21 +71,20 @@ export class GameStateManager {
    * Feature: ship-personality, Property 1: Quirk Assignment Bounds
    * Validates: Requirements 1.1, 1.2
    *
+   * @param {Function} rng - Random number generator (0-1), defaults to Math.random
    * @returns {string[]} Array of quirk IDs
    */
-  assignShipQuirks() {
+  assignShipQuirks(rng = Math.random) {
     const quirkIds = Object.keys(SHIP_QUIRKS);
-    const count = Math.random() < 0.5 ? 2 : 3;
-    const assigned = [];
+    const count = rng() < 0.5 ? 2 : 3;
+    const assigned = new Set();
 
-    while (assigned.length < count) {
-      const randomId = quirkIds[Math.floor(Math.random() * quirkIds.length)];
-      if (!assigned.includes(randomId)) {
-        assigned.push(randomId);
-      }
+    while (assigned.size < count) {
+      const randomId = quirkIds[Math.floor(rng() * quirkIds.length)];
+      assigned.add(randomId);
     }
 
-    return assigned;
+    return Array.from(assigned);
   }
 
   /**
