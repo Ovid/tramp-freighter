@@ -95,16 +95,18 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         );
         const engineCondition = gameStateManager.getState().ship.engine;
         const quirks = gameStateManager.getState().ship.quirks || [];
-        const expectedFuelCost = navigationSystem.calculateFuelCostWithCondition(
-          distance,
-          engineCondition,
-          gameStateManager.applyQuirkModifiers.bind(gameStateManager),
-          quirks
-        );
-        const expectedJumpTime = navigationSystem.calculateJumpTimeWithCondition(
-          distance,
-          engineCondition
-        );
+        const expectedFuelCost =
+          navigationSystem.calculateFuelCostWithCondition(
+            distance,
+            engineCondition,
+            gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+            quirks
+          );
+        const expectedJumpTime =
+          navigationSystem.calculateJumpTimeWithCondition(
+            distance,
+            engineCondition
+          );
 
         // Track when state changes occur relative to animation
         let stateUpdatedBeforeAnimation = false;
@@ -342,16 +344,18 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         );
         const engineCondition = gameStateManager.getState().ship.engine;
         const quirks = gameStateManager.getState().ship.quirks || [];
-        const expectedFuelCost = navigationSystem.calculateFuelCostWithCondition(
-          distance,
-          engineCondition,
-          gameStateManager.applyQuirkModifiers.bind(gameStateManager),
-          quirks
-        );
-        const expectedJumpTime = navigationSystem.calculateJumpTimeWithCondition(
-          distance,
-          engineCondition
-        );
+        const expectedFuelCost =
+          navigationSystem.calculateFuelCostWithCondition(
+            distance,
+            engineCondition,
+            gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+            quirks
+          );
+        const expectedJumpTime =
+          navigationSystem.calculateJumpTimeWithCondition(
+            distance,
+            engineCondition
+          );
 
         // Execute jump WITHOUT animation system (null)
         const result = await navigationSystem.executeJump(
