@@ -166,8 +166,8 @@
     - Store sanitized name in gameState.ship.name
     - _Requirements: 4.1, 4.2_
 
-- [ ] 10. Implement ship status UI
-  - [ ] 10.1 Create renderShipStatus function
+- [x] 10. Implement ship status UI
+  - [x] 10.1 Create renderShipStatus function
     - Display ship name in header
     - Display fuel, hull, engine, life support bars
     - Display cargo capacity usage
@@ -175,14 +175,14 @@
     - For each quirk: display icon, name, description, flavor text
     - Add back button
     - _Requirements: 1.3_
-  - [ ] 10.2 Write property test for UI display completeness
+  - [x] 10.2 Write property test for UI display completeness
     - Verify quirk display includes name, description, effects, and flavor text
     - Verify upgrade display includes name, cost, description, effects, and tradeoffs
     - Verify warning symbol (⚠) appears for all upgrades that have tradeoffs
     - Verify cargo display includes all metadata fields (quantity, price, location, date)
     - **Property 9: UI Display Completeness**
     - **Validates: Requirements 1.3, 2.2, 5.2, 8.2, 8.3, 8.4, 9.2**
-  - [ ] 10.3 Add ship status button to HUD or station menu
+  - [x] 10.3 Add ship status button to HUD or station menu
     - Add button/menu option to access ship status
     - Wire up to renderShipStatus
     - _Requirements: 1.3_

@@ -1843,3 +1843,171 @@ canvas {
   background-color: rgba(0, 255, 136, 0.2);
   color: #ffffff;
 }
+
+/* Ship Status Panel Styling */
+.ship-status-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.ship-status-panel.visible {
+  display: block;
+}
+
+.ship-status-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 24px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.ship-status-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ship-status-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.ship-status-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.ship-status-section {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.ship-status-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ship-status-condition-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ship-status-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.info-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.info-value {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.ship-quirks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quirk-item {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.quirk-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.quirk-icon {
+  font-size: 20px;
+  color: #00ff88;
+}
+
+.quirk-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.quirk-description {
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.quirk-flavor {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.ship-quirks-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  font-style: italic;
+}
+
+.ship-status-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.ship-status-actions .station-btn.secondary {
+  background-color: transparent;
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+.ship-status-actions .station-btn.secondary:hover {
+  background-color: rgba(0, 255, 136, 0.2);
+  color: #ffffff;
+}

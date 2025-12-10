@@ -155,6 +155,19 @@ export class GameStateManager {
   }
 
   /**
+   * Get quirk definition by ID
+   *
+   * Returns the quirk definition object from SHIP_QUIRKS constant.
+   * Used by UI to display quirk information.
+   *
+   * @param {string} quirkId - Quirk identifier
+   * @returns {Object|null} Quirk definition or null if not found
+   */
+  getQuirkDefinition(quirkId) {
+    return SHIP_QUIRKS[quirkId] || null;
+  }
+
+  /**
    * Initialize a new game with default values
    */
   initNewGame() {

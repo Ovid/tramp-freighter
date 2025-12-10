@@ -98,6 +98,7 @@ export class UIManager {
       repairsBtn: document.getElementById('repairs-btn'),
       repairPanel: document.getElementById('repair-panel'),
       repairSystemName: document.getElementById('repair-system-name'),
+      shipStatusBtn: document.getElementById('ship-status-btn'),
       repairCloseBtn: document.getElementById('repair-close-btn'),
       repairBackBtn: document.getElementById('repair-back-btn'),
       repairHullPercent: document.getElementById('repair-hull-percent'),
@@ -418,6 +419,12 @@ export class UIManager {
     if (this.elements.repairAllBtn) {
       this.elements.repairAllBtn.addEventListener('click', () => {
         this.handleRepairAll();
+      });
+    }
+
+    if (this.elements.shipStatusBtn) {
+      this.elements.shipStatusBtn.addEventListener('click', () => {
+        this.showShipStatus();
       });
     }
   }
@@ -1838,5 +1845,217 @@ export class UIManager {
     // Refresh the repair panel to show updated state
     this.updateRepairConditionDisplay();
     this.updateRepairButtons();
+  }
+
+  // ========================================================================
+  // SHIP STATUS PANEL
+  // ========================================================================
+
+  /**
+   * Show ship status panel displaying ship name, condition, cargo, and quirks
+   *
+   * Displays comprehensive ship information including:
+   * - Ship name in header
+   * - Fuel, hull, engine, life support condition bars
+   * - Cargo capacity usage
+   * - All assigned quirks with icons, names, descriptions, and flavor text
+   *
+   * Validates: Requirements 1.3 (Ship Personality Spec)
+   */
+  showShipStatus() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showShipStatus');
+    }
+
+    this.renderShipStatus();
+  }
+
+  /**
+   * Render ship status panel content
+   *
+   * Creates and displays the ship status interface showing ship name, condition,
+   * cargo capacity, and all assigned quirks with their details.
+   */
+  renderShipStatus() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderShipStatus');
+    }
+
+    const ship = state.ship;
+    const condition = this.gameStateManager.getShipCondition();
+    const cargoUsed = this.gameStateManager.getCargoUsed();
+
+    // Create ship status panel if it doesn't exist
+    let shipStatusPanel = document.getElementById('ship-status-panel');
+    if (!shipStatusPanel) {
+      shipStatusPanel = document.createElement('div');
+      shipStatusPanel.id = 'ship-status-panel';
+      shipStatusPanel.className = 'ship-status-panel';
+      document.body.appendChild(shipStatusPanel);
+    }
+
+    // Build panel content
+    const content = [];
+
+    // Close button
+    content.push(
+      '<button class="close-btn" id="ship-status-close-btn">×</button>'
+    );
+
+    // Ship name header
+    content.push(`<h2>${ship.name}</h2>`);
+
+    // Ship condition section
+    content.push('<div class="ship-status-section">');
+    content.push('<h3>Ship Condition</h3>');
+    content.push('<div class="ship-status-conditions">');
+
+    // Fuel bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Fuel:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(ship.fuel)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container fuel-bar-container">');
+    content.push(
+      `<div class="condition-bar fuel-bar" style="width: ${ship.fuel}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Hull bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Hull:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.hull)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container hull-bar-container">');
+    content.push(
+      `<div class="condition-bar hull-bar" style="width: ${condition.hull}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Engine bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Engine:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.engine)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container engine-bar-container">');
+    content.push(
+      `<div class="condition-bar engine-bar" style="width: ${condition.engine}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Life Support bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Life Support:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.lifeSupport)}%</span>`
+    );
+    content.push('</div>');
+    content.push(
+      '<div class="condition-bar-container life-support-bar-container">'
+    );
+    content.push(
+      `<div class="condition-bar life-support-bar" style="width: ${condition.lifeSupport}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Cargo capacity
+    content.push('<div class="ship-status-info-row">');
+    content.push('<span class="info-label">Cargo:</span>');
+    content.push(
+      `<span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>`
+    );
+    content.push('</div>');
+
+    content.push('</div>'); // End ship-status-conditions
+    content.push('</div>'); // End ship-status-section
+
+    // Ship quirks section
+    content.push('<div class="ship-status-section">');
+    content.push('<h3>SHIP QUIRKS</h3>');
+
+    if (ship.quirks && ship.quirks.length > 0) {
+      content.push('<div class="ship-quirks-list">');
+
+      ship.quirks.forEach((quirkId) => {
+        const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
+        if (!quirk) return;
+
+        content.push('<div class="quirk-item">');
+        content.push('<div class="quirk-header">');
+        content.push('<span class="quirk-icon">⚙</span>');
+        content.push(`<span class="quirk-name">${quirk.name}</span>`);
+        content.push('</div>');
+        content.push(
+          `<div class="quirk-description">${quirk.description}</div>`
+        );
+        content.push(`<div class="quirk-flavor">"${quirk.flavor}"</div>`);
+        content.push('</div>');
+      });
+
+      content.push('</div>'); // End ship-quirks-list
+    } else {
+      content.push('<div class="ship-quirks-empty">No quirks assigned</div>');
+    }
+
+    content.push('</div>'); // End ship-status-section
+
+    // Back button
+    content.push('<div class="ship-status-actions">');
+    content.push(
+      '<button class="station-btn secondary" id="ship-status-back-btn">Back</button>'
+    );
+    content.push('</div>');
+
+    // Set panel content
+    shipStatusPanel.innerHTML = content.join('');
+
+    // Show panel
+    shipStatusPanel.classList.add('visible');
+
+    // Setup event handlers
+    const closeBtn = document.getElementById('ship-status-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.hideShipStatus());
+    }
+
+    const backBtn = document.getElementById('ship-status-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => this.hideShipStatus());
+    }
+  }
+
+  /**
+   * Hide ship status panel
+   */
+  hideShipStatus() {
+    const shipStatusPanel = document.getElementById('ship-status-panel');
+    if (shipStatusPanel) {
+      shipStatusPanel.classList.remove('visible');
+    }
+  }
+
+  /**
+   * Check if ship status panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isShipStatusVisible() {
+    const shipStatusPanel = document.getElementById('ship-status-panel');
+    return shipStatusPanel && shipStatusPanel.classList.contains('visible');
   }
 }
