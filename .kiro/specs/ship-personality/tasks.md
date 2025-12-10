@@ -16,16 +16,16 @@
   - Enhance cargo array structure to include buyPrice, buySystem, buySystemName, buyDate fields
   - _Requirements: 1.1, 2.1, 3.1, 4.2, 5.6_
 
-- [ ] 3. Implement quirk assignment system
-  - [ ] 3.1 Create assignShipQuirks function
+- [x] 3. Implement quirk assignment system
+  - [x] 3.1 Create assignShipQuirks function
     - Randomly select 2 or 3 quirks (50% chance each)
     - Ensure no duplicate quirks
     - Return array of quirk IDs
     - _Requirements: 1.1, 1.2_
-  - [ ] 3.2 Write property test for quirk assignment bounds
+  - [x] 3.2 Write property test for quirk assignment bounds
     - **Property 1: Quirk Assignment Bounds**
     - **Validates: Requirements 1.1, 1.2**
-  - [ ] 3.3 Integrate quirk assignment into new game initialization
+  - [x] 3.3 Integrate quirk assignment into new game initialization
     - Call assignShipQuirks during new game setup
     - Store result in gameState.ship.quirks
     - _Requirements: 1.1_

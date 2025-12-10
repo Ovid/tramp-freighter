@@ -11,6 +11,7 @@ import {
   SHIP_CONDITION_WARNING_THRESHOLDS,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
+  SHIP_QUIRKS,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -61,6 +62,33 @@ export class GameStateManager {
   }
 
   /**
+   * Assigns 2-3 random quirks to a new ship
+   *
+   * Quirks are permanent personality traits that provide both benefits and drawbacks.
+   * Each ship receives a random number of quirks (50% chance for 2, 50% chance for 3).
+   * No duplicate quirks are assigned.
+   *
+   * Feature: ship-personality, Property 1: Quirk Assignment Bounds
+   * Validates: Requirements 1.1, 1.2
+   *
+   * @returns {string[]} Array of quirk IDs
+   */
+  assignShipQuirks() {
+    const quirkIds = Object.keys(SHIP_QUIRKS);
+    const count = Math.random() < 0.5 ? 2 : 3;
+    const assigned = [];
+
+    while (assigned.length < count) {
+      const randomId = quirkIds[Math.floor(Math.random() * quirkIds.length)];
+      if (!assigned.includes(randomId)) {
+        assigned.push(randomId);
+      }
+    }
+
+    return assigned;
+  }
+
+  /**
    * Initialize a new game with default values
    */
   initNewGame() {
@@ -89,6 +117,9 @@ export class GameStateManager {
       );
     }
 
+    // Assign random quirks to the ship
+    const shipQuirks = this.assignShipQuirks();
+
     this.state = {
       player: {
         credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
@@ -98,7 +129,7 @@ export class GameStateManager {
       },
       ship: {
         name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
-        quirks: [],
+        quirks: shipQuirks,
         upgrades: [],
         fuel: SHIP_CONDITION_BOUNDS.MAX,
         hull: SHIP_CONDITION_BOUNDS.MAX,
