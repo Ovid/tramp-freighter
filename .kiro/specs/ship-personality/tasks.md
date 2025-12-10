@@ -115,32 +115,32 @@
     - **Property 12: Hidden Cargo Transfer Validation**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
 
-- [ ] 8. Implement enhanced cargo tracking
-  - [ ] 8.1 Update recordCargoPurchase function
+- [x] 8. Implement enhanced cargo tracking
+  - [x] 8.1 Update recordCargoPurchase function
     - Record good, qty, buyPrice
     - Record buySystem (current system ID)
     - Record buySystemName (current system name)
     - Record buyDate (current daysElapsed)
     - Stack cargo with matching good, price, and system
     - _Requirements: 5.6_
-  - [ ] 8.2 Write property test for cargo purchase metadata and stacking
+  - [x] 8.2 Write property test for cargo purchase metadata and stacking
     - Verify all required fields present (good, qty, buyPrice, buySystem, buySystemName, buyDate)
     - Verify cargo stacks when good, buyPrice, and buySystem all match
     - Verify cargo creates separate stack when any field differs
     - **Property 6: Cargo Purchase Metadata Completeness**
     - **Validates: Requirements 5.6**
-  - [ ] 8.3 Create calculateCargoValue function
+  - [x] 8.3 Create calculateCargoValue function
     - For single cargo entry: return qty × buyPrice
     - _Requirements: 5.3_
-  - [ ] 8.4 Write property test for cargo manifest value calculation
+  - [x] 8.4 Write property test for cargo manifest value calculation
     - **Property 7: Cargo Manifest Value Calculation**
     - **Validates: Requirements 5.3**
-  - [ ] 8.5 Create calculateCargoTotals function
+  - [x] 8.5 Create calculateCargoTotals function
     - Calculate total capacity usage (sum of all qty)
     - Calculate total value (sum of all cargo values)
     - Return totals object
     - _Requirements: 5.4, 5.5_
-  - [ ] 8.6 Write property test for cargo manifest total calculations
+  - [x] 8.6 Write property test for cargo manifest total calculations
     - **Property 8: Cargo Manifest Total Calculations**
     - **Validates: Requirements 5.4, 5.5**
 

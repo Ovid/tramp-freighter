@@ -934,7 +934,7 @@ export class GameStateManager {
     const currentSystemName = currentSystem.name;
     const currentDay = this.state.player.daysElapsed;
 
-    const newCargo = TradingSystem.addCargoStack(
+    const newCargo = TradingSystem.recordCargoPurchase(
       this.state.ship.cargo,
       goodType,
       quantity,

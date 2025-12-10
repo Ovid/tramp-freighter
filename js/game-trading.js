@@ -267,6 +267,64 @@ export class TradingSystem {
     }, 0);
   }
 
+  /**
+   * Calculate the value of a single cargo entry
+   *
+   * Returns the total value based on purchase price and quantity.
+   * Value = quantity × buyPrice
+   *
+   * Feature: ship-personality, Property 7: Cargo Manifest Value Calculation
+   * Validates: Requirements 5.3
+   *
+   * @param {Object} cargoEntry - Cargo stack with qty and buyPrice
+   * @returns {number} Total value in credits
+   */
+  static calculateCargoValue(cargoEntry) {
+    if (!cargoEntry || typeof cargoEntry !== 'object') {
+      return 0;
+    }
+
+    const qty = cargoEntry.qty || 0;
+    const buyPrice = cargoEntry.buyPrice || 0;
+
+    return qty * buyPrice;
+  }
+
+  /**
+   * Calculate total capacity usage and total value for cargo manifest
+   *
+   * Computes:
+   * - totalCapacityUsed: Sum of all cargo quantities
+   * - totalValue: Sum of all cargo values (qty × buyPrice for each stack)
+   *
+   * Feature: ship-personality, Property 8: Cargo Manifest Total Calculations
+   * Validates: Requirements 5.4, 5.5
+   *
+   * @param {Array} cargo - Array of cargo stacks
+   * @returns {Object} { totalCapacityUsed: number, totalValue: number }
+   */
+  static calculateCargoTotals(cargo) {
+    if (!Array.isArray(cargo)) {
+      return {
+        totalCapacityUsed: 0,
+        totalValue: 0,
+      };
+    }
+
+    let totalCapacityUsed = 0;
+    let totalValue = 0;
+
+    for (const stack of cargo) {
+      totalCapacityUsed += stack.qty || 0;
+      totalValue += TradingSystem.calculateCargoValue(stack);
+    }
+
+    return {
+      totalCapacityUsed,
+      totalValue,
+    };
+  }
+
   static validatePurchase(credits, cargoSpace, quantity, price) {
     const totalCost = quantity * price;
 
@@ -307,7 +365,74 @@ export class TradingSystem {
   }
 
   /**
+   * Records a cargo purchase with full metadata
+   *
+   * Creates a new cargo entry with purchase details including:
+   * - good: Commodity type
+   * - qty: Quantity purchased
+   * - buyPrice: Price per unit
+   * - buySystem: System ID where purchased
+   * - buySystemName: System name where purchased
+   * - buyDate: Game day when purchased
+   *
+   * Stack consolidation: Cargo with matching good type and price is consolidated
+   * into a single stack. Metadata (system, date) is preserved from the first
+   * purchase that created the stack.
+   *
+   * Feature: ship-personality, Property 6: Cargo Purchase Metadata Completeness
+   * Validates: Requirements 5.6
+   *
+   * @param {Array} cargo - Current cargo array
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity purchased
+   * @param {number} price - Price per unit
+   * @param {number} systemId - System ID where purchased
+   * @param {string} systemName - System name where purchased
+   * @param {number} day - Game day when purchased
+   * @returns {Array} Updated cargo array
+   */
+  static recordCargoPurchase(
+    cargo,
+    goodType,
+    quantity,
+    price,
+    systemId,
+    systemName,
+    day
+  ) {
+    // Stack consolidation: match on good type and price only
+    // Metadata (system, date) is preserved from the first purchase that created the stack
+    const existingStackIndex = cargo.findIndex(
+      (stack) => stack.good === goodType && stack.buyPrice === price
+    );
+
+    if (existingStackIndex !== -1) {
+      // Consolidate with existing stack - preserve original metadata
+      const updatedCargo = [...cargo];
+      updatedCargo[existingStackIndex] = {
+        ...updatedCargo[existingStackIndex],
+        qty: updatedCargo[existingStackIndex].qty + quantity,
+      };
+      return updatedCargo;
+    }
+
+    // Create new stack with complete metadata
+    const newStack = {
+      good: goodType,
+      qty: quantity,
+      buyPrice: price,
+      buySystem: systemId,
+      buySystemName: systemName,
+      buyDate: day,
+    };
+
+    return [...cargo, newStack];
+  }
+
+  /**
    * Consolidates cargo into existing stack if same good and price, otherwise creates new stack
+   *
+   * @deprecated Use recordCargoPurchase for new code - this method is kept for backward compatibility
    */
   static addCargoStack(
     cargo,
