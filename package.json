@@ -12,7 +12,8 @@
     "format:write": "prettier --write .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "clean": "npm run lint:fix && npm run format:write"
+    "clean": "npm run lint:fix && npm run format:write",
+    "all": "npm run lint:fix && npm run format:write && npm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
