@@ -315,13 +315,17 @@ export class TradingSystem {
     quantity,
     price,
     systemId = null,
+    systemName = null,
     day = null
   ) {
+    // Stack consolidation: match on good type and price only
+    // Metadata (system, date) is preserved from the first purchase that created the stack
     const existingStackIndex = cargo.findIndex(
-      (stack) => stack.good === goodType && stack.purchasePrice === price
+      (stack) => stack.good === goodType && stack.buyPrice === price
     );
 
     if (existingStackIndex !== -1) {
+      // Consolidate with existing stack - preserve original metadata
       const updatedCargo = [...cargo];
       updatedCargo[existingStackIndex] = {
         ...updatedCargo[existingStackIndex],
@@ -330,17 +334,21 @@ export class TradingSystem {
       return updatedCargo;
     }
 
+    // Create new stack with metadata
     const newStack = {
       good: goodType,
       qty: quantity,
-      purchasePrice: price,
+      buyPrice: price,
     };
 
     if (systemId !== null) {
-      newStack.purchaseSystem = systemId;
+      newStack.buySystem = systemId;
+    }
+    if (systemName !== null) {
+      newStack.buySystemName = systemName;
     }
     if (day !== null) {
-      newStack.purchaseDay = day;
+      newStack.buyDate = day;
     }
 
     return [...cargo, newStack];

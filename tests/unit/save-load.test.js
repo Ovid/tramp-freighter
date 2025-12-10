@@ -31,9 +31,9 @@ describe('Save/Load System', () => {
         fuel: 50,
         cargoCapacity: 100,
         cargo: [
-          { good: 'grain', qty: 10, purchasePrice: 10 },
-          { good: 'grain', qty: 10, purchasePrice: 11 },
-          { good: 'grain', qty: 10, purchasePrice: 12 },
+          { good: 'grain', qty: 10, buyPrice: 10 },
+          { good: 'grain', qty: 10, buyPrice: 11 },
+          { good: 'grain', qty: 10, buyPrice: 12 },
         ],
       },
       world: { visitedSystems: [0, 1] },
@@ -54,7 +54,7 @@ describe('Save/Load System', () => {
         (s) =>
           s.good === originalStack.good &&
           s.qty === originalStack.qty &&
-          s.purchasePrice === originalStack.purchasePrice
+          s.buyPrice === originalStack.buyPrice
       );
       expect(matchingStack).toBeDefined();
     }
@@ -103,7 +103,7 @@ describe('Save/Load System', () => {
         cargo: Array.from({ length: 20 }, () => ({
           good: 'grain',
           qty: 50,
-          purchasePrice: 100,
+          buyPrice: 100,
         })),
       },
       world: { visitedSystems: [0, 1, 4, 5, 7, 13] },

@@ -55,7 +55,7 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
         }),
         { minLength: 0, maxLength: 10 }
       ),
@@ -132,8 +132,8 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
           expect(loadedState.ship.cargo[i].qty).toBe(
             generatedState.ship.cargo[i].qty
           );
-          expect(loadedState.ship.cargo[i].purchasePrice).toBe(
-            generatedState.ship.cargo[i].purchasePrice
+          expect(loadedState.ship.cargo[i].buyPrice).toBe(
+            generatedState.ship.cargo[i].buyPrice
           );
         }
 
@@ -250,7 +250,7 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
               name: 'Serendipity',
               fuel: 50,
               cargoCapacity: capacity,
-              cargo: [{ good: 'grain', qty: capacity, purchasePrice: 10 }],
+              cargo: [{ good: 'grain', qty: capacity, buyPrice: 10 }],
             },
             world: {
               visitedSystems: [0, 1],

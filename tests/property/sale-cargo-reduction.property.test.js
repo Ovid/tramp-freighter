@@ -77,7 +77,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
             expect(cargoAfterSale.length).toBe(1);
             expect(cargoAfterSale[0].qty).toBe(expectedRemainingQty);
             expect(cargoAfterSale[0].good).toBe(goodType);
-            expect(cargoAfterSale[0].purchasePrice).toBe(purchasePrice);
+            expect(cargoAfterSale[0].buyPrice).toBe(purchasePrice);
           } else {
             // Stack should be removed when empty
             expect(cargoAfterSale.length).toBe(0);
@@ -170,7 +170,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
             const cargo = gameState.getShip().cargo;
             expect(cargo.length).toBe(1);
             expect(cargo[0].good).toBe(goodType);
-            expect(cargo[0].purchasePrice).toBe(purchasePrice);
+            expect(cargo[0].buyPrice).toBe(purchasePrice);
             expect(cargo[0].qty).toBe(purchaseQty - sellQty);
           }
         }
@@ -240,7 +240,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
               // Second stack should be unchanged
               expect(cargoAfterSale[1].good).toBe(goodType2);
               expect(cargoAfterSale[1].qty).toBe(qty2);
-              expect(cargoAfterSale[1].purchasePrice).toBe(price2);
+              expect(cargoAfterSale[1].buyPrice).toBe(price2);
             }
           }
         }
@@ -290,9 +290,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
           expect(cargoAfterSale.length).toBe(cargoBeforeSale.length);
           expect(cargoAfterSale[0].qty).toBe(cargoBeforeSale[0].qty);
           expect(cargoAfterSale[0].good).toBe(cargoBeforeSale[0].good);
-          expect(cargoAfterSale[0].purchasePrice).toBe(
-            cargoBeforeSale[0].purchasePrice
-          );
+          expect(cargoAfterSale[0].buyPrice).toBe(cargoBeforeSale[0].buyPrice);
         }
       ),
       { numRuns: 100 }
@@ -317,7 +315,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
               'electronics'
             ),
             quantity: fc.integer({ min: 5, max: 10 }),
-            purchasePrice: fc.integer({ min: 5, max: 20 }),
+            buyPrice: fc.integer({ min: 5, max: 20 }),
           }),
           { minLength: 2, maxLength: 4 }
         ),
@@ -333,7 +331,7 @@ describe('Property 22: Sale Cargo Reduction', () => {
             gameState.buyGood(
               purchase.goodType,
               purchase.quantity,
-              purchase.purchasePrice
+              purchase.buyPrice
             );
           }
 

@@ -96,7 +96,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 1, maxLength: 10 }
         ),
@@ -135,9 +135,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
             expect(stackHTML).toContain(`Qty: ${stack.qty}`);
 
             // Verify purchase price is displayed
-            expect(stackHTML).toContain(
-              `Bought at: ${stack.purchasePrice} cr/unit`
-            );
+            expect(stackHTML).toContain(`Bought at: ${stack.buyPrice} cr/unit`);
 
             // Verify stack has its own separate element
             expect(stackElement.className).toContain('cargo-stack');
@@ -167,7 +165,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
           const cargoStacks = Array.from({ length: numStacks }, (_, i) => ({
             good: goodType,
             qty: 10 + i,
-            purchasePrice: 10 + i * 5,
+            buyPrice: 10 + i * 5,
           }));
 
           // Set up game state with cargo
@@ -193,9 +191,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
             const stackElement = renderedStacks[index];
             const stackHTML = stackElement.innerHTML;
 
-            expect(stackHTML).toContain(
-              `Bought at: ${stack.purchasePrice} cr/unit`
-            );
+            expect(stackHTML).toContain(`Bought at: ${stack.buyPrice} cr/unit`);
             expect(stackHTML).toContain(`Qty: ${stack.qty}`);
           });
         }
@@ -219,7 +215,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 2, maxLength: 8 }
         ),
@@ -268,7 +264,7 @@ describe('Property 24: Cargo Stack Display Completeness', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 1, maxLength: 5 }
         ),

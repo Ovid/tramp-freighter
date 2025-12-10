@@ -54,7 +54,7 @@ describe('Property 19: Separate Stack for Different Prices', () => {
           expect(cargo.length).toBe(1);
           expect(cargo[0].good).toBe(goodType);
           expect(cargo[0].qty).toBe(qty1);
-          expect(cargo[0].purchasePrice).toBe(price1);
+          expect(cargo[0].buyPrice).toBe(price1);
 
           // Second purchase of SAME good at price2 (different price)
           const result2 = gameState.buyGood(goodType, qty2, price2);
@@ -67,15 +67,15 @@ describe('Property 19: Separate Stack for Different Prices', () => {
           // Verify first stack unchanged
           expect(cargo[0].good).toBe(goodType);
           expect(cargo[0].qty).toBe(qty1);
-          expect(cargo[0].purchasePrice).toBe(price1);
+          expect(cargo[0].buyPrice).toBe(price1);
 
           // Verify second stack is separate
           expect(cargo[1].good).toBe(goodType);
           expect(cargo[1].qty).toBe(qty2);
-          expect(cargo[1].purchasePrice).toBe(price2);
+          expect(cargo[1].buyPrice).toBe(price2);
 
           // Verify prices are different
-          expect(cargo[0].purchasePrice).not.toBe(cargo[1].purchasePrice);
+          expect(cargo[0].buyPrice).not.toBe(cargo[1].buyPrice);
         }
       ),
       { numRuns: 100 }
@@ -150,7 +150,7 @@ describe('Property 19: Separate Stack for Different Prices', () => {
           }
 
           // Verify all stacks have different prices
-          const prices = cargo.map((stack) => stack.purchasePrice);
+          const prices = cargo.map((stack) => stack.buyPrice);
           const uniqueStackPrices = new Set(prices);
           expect(uniqueStackPrices.size).toBe(cargo.length);
         }
@@ -247,7 +247,7 @@ describe('Property 19: Separate Stack for Different Prices', () => {
 
           // Verify stack has correct good and price
           expect(cargo[0].good).toBe(goodType);
-          expect(cargo[0].purchasePrice).toBe(price);
+          expect(cargo[0].buyPrice).toBe(price);
 
           // Verify quantities are combined
           expect(cargo[0].qty).toBe(qty1 + qty2);

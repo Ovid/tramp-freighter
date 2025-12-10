@@ -66,7 +66,7 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
             const newStack = cargo[0];
             expect(newStack.good).toBe(goodType);
             expect(newStack.qty).toBe(quantity);
-            expect(newStack.purchasePrice).toBe(price);
+            expect(newStack.buyPrice).toBe(price);
           }
         }
       ),
@@ -127,7 +127,7 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
             expect(cargo.length).toBe(1);
             expect(cargo[0].good).toBe(goodType);
             expect(cargo[0].qty).toBe(totalQuantity);
-            expect(cargo[0].purchasePrice).toBe(price);
+            expect(cargo[0].buyPrice).toBe(price);
           }
         }
       ),
@@ -185,7 +185,7 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
               expect(cargo.length).toBe(1);
               expect(cargo[0].good).toBe(goodType1);
               expect(cargo[0].qty).toBe(qty1 + qty2);
-              expect(cargo[0].purchasePrice).toBe(price1);
+              expect(cargo[0].buyPrice).toBe(price1);
             } else {
               // Different good or different price, should have 2 stacks
               expect(cargo.length).toBe(2);
@@ -193,12 +193,12 @@ describe('Property 18: Purchase Cargo Stack Creation', () => {
               // Verify first stack unchanged
               expect(cargo[0].good).toBe(firstStack.good);
               expect(cargo[0].qty).toBe(firstStack.qty);
-              expect(cargo[0].purchasePrice).toBe(firstStack.purchasePrice);
+              expect(cargo[0].buyPrice).toBe(firstStack.buyPrice);
 
               // Verify second stack is new
               expect(cargo[1].good).toBe(goodType2);
               expect(cargo[1].qty).toBe(qty2);
-              expect(cargo[1].purchasePrice).toBe(price2);
+              expect(cargo[1].buyPrice).toBe(price2);
             }
           }
         }

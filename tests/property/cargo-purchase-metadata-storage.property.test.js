@@ -24,9 +24,9 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
    * purchase system identifier, and purchase day as flat fields in the cargo stack structure.
    *
    * This property validates that when a player purchases cargo, the system records:
-   * - purchasePrice: The price paid per unit
-   * - purchaseSystem: The system ID where the cargo was purchased
-   * - purchaseDay: The game day when the cargo was purchased
+   * - buyPrice: The price paid per unit
+   * - buySystem: The system ID where the cargo was purchased
+   * - buyDate: The game day when the cargo was purchased
    */
   it('should store purchase metadata (price, system, day) for all cargo purchases', () => {
     fc.assert(
@@ -44,8 +44,8 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
         fc.integer({ min: 1, max: 30 }),
         // Generate random price (5-100 credits per unit)
         fc.integer({ min: 5, max: 100 }),
-        // Generate random system ID (0-10 for test data)
-        fc.integer({ min: 0, max: 10 }),
+        // Generate random system ID from valid test data systems
+        fc.constantFrom(0, 1, 4, 5, 7),
         // Generate random day (0-100)
         fc.integer({ min: 0, max: 100 }),
         (goodType, quantity, price, systemId, day) => {
@@ -81,9 +81,9 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
             const newStack = cargo[0];
             expect(newStack.good).toBe(goodType);
             expect(newStack.qty).toBe(quantity);
-            expect(newStack.purchasePrice).toBe(price);
-            expect(newStack.purchaseSystem).toBe(systemId);
-            expect(newStack.purchaseDay).toBe(day);
+            expect(newStack.buyPrice).toBe(price);
+            expect(newStack.buySystem).toBe(systemId);
+            expect(newStack.buyDate).toBe(day);
           }
         }
       ),
@@ -111,7 +111,7 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
         ),
         fc.integer({ min: 1, max: 5 }),
         fc.integer({ min: 5, max: 20 }),
-        fc.integer({ min: 0, max: 10 }),
+        fc.constantFrom(0, 1, 4, 5, 7), // Valid system IDs
         fc.integer({ min: 0, max: 50 }),
         (goodType, quantity, price, systemId, day) => {
           // Reset to known state with empty cargo
@@ -130,34 +130,34 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
 
           // Capture first stack metadata
           const firstStack = gameState.getShip().cargo[0];
-          const firstPurchaseSystem = firstStack.purchaseSystem;
-          const firstPurchaseDay = firstStack.purchaseDay;
+          const firstPurchaseSystem = firstStack.buySystem;
+          const firstPurchaseDay = firstStack.buyDate;
 
-          // Advance time and potentially change location
+          // Advance time and change location
           const newDay = day + 5;
-          const newSystemId = (systemId + 1) % 11; // Different system
+          const newSystemId = systemId === 0 ? 1 : 0; // Switch between valid systems
           gameState.updateTime(newDay);
           gameState.updateLocation(newSystemId);
 
-          // Second purchase of same good at same price
+          // Second purchase of same good at same price (different system)
           const result2 = gameState.buyGood(goodType, quantity, price);
 
           if (result2.success) {
             const cargo = gameState.getShip().cargo;
 
-            // Should consolidate into 1 stack
+            // Should consolidate into 1 stack (same good and price)
             expect(cargo.length).toBe(1);
             expect(cargo[0].good).toBe(goodType);
             expect(cargo[0].qty).toBe(quantity * 2);
-            expect(cargo[0].purchasePrice).toBe(price);
+            expect(cargo[0].buyPrice).toBe(price);
 
             // Metadata should be from the FIRST purchase (stack creation)
-            expect(cargo[0].purchaseSystem).toBe(firstPurchaseSystem);
-            expect(cargo[0].purchaseDay).toBe(firstPurchaseDay);
+            expect(cargo[0].buySystem).toBe(firstPurchaseSystem);
+            expect(cargo[0].buyDate).toBe(firstPurchaseDay);
 
             // Verify second purchase metadata was NOT used
-            expect(cargo[0].purchaseSystem).not.toBe(newSystemId);
-            expect(cargo[0].purchaseDay).not.toBe(newDay);
+            expect(cargo[0].buySystem).not.toBe(newSystemId);
+            expect(cargo[0].buyDate).not.toBe(newDay);
           }
         }
       ),
@@ -185,7 +185,7 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
         fc.integer({ min: 1, max: 10 }),
         fc.integer({ min: 5, max: 30 }),
         fc.integer({ min: 31, max: 50 }), // Ensure different price
-        fc.integer({ min: 0, max: 10 }),
+        fc.constantFrom(0, 1, 4, 5, 7), // Valid system IDs
         fc.integer({ min: 0, max: 50 }),
         (goodType, quantity, price1, price2, systemId, day) => {
           // Reset to known state
@@ -203,7 +203,7 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
 
           // Advance time and change location
           const newDay = day + 3;
-          const newSystemId = (systemId + 2) % 11;
+          const newSystemId = systemId === 0 ? 1 : 0; // Switch between valid systems
           gameState.updateTime(newDay);
           gameState.updateLocation(newSystemId);
 
@@ -219,16 +219,16 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
             // First stack should have first purchase metadata
             expect(cargo[0].good).toBe(goodType);
             expect(cargo[0].qty).toBe(quantity);
-            expect(cargo[0].purchasePrice).toBe(price1);
-            expect(cargo[0].purchaseSystem).toBe(systemId);
-            expect(cargo[0].purchaseDay).toBe(day);
+            expect(cargo[0].buyPrice).toBe(price1);
+            expect(cargo[0].buySystem).toBe(systemId);
+            expect(cargo[0].buyDate).toBe(day);
 
             // Second stack should have second purchase metadata
             expect(cargo[1].good).toBe(goodType);
             expect(cargo[1].qty).toBe(quantity);
-            expect(cargo[1].purchasePrice).toBe(price2);
-            expect(cargo[1].purchaseSystem).toBe(newSystemId);
-            expect(cargo[1].purchaseDay).toBe(newDay);
+            expect(cargo[1].buyPrice).toBe(price2);
+            expect(cargo[1].buySystem).toBe(newSystemId);
+            expect(cargo[1].buyDate).toBe(newDay);
           }
         }
       ),
@@ -255,8 +255,8 @@ describe('Property 32: Cargo Purchase Metadata Storage', () => {
     const initialStack = cargo[0];
     expect(initialStack.good).toBe('grain');
     expect(initialStack.qty).toBe(20);
-    expect(initialStack.purchasePrice).toBeGreaterThan(0);
-    expect(initialStack.purchaseSystem).toBe(0); // Sol
-    expect(initialStack.purchaseDay).toBe(0); // Day 0
+    expect(initialStack.buyPrice).toBeGreaterThan(0);
+    expect(initialStack.buySystem).toBe(0); // Sol
+    expect(initialStack.buyDate).toBe(0); // Day 0
   });
 });

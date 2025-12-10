@@ -814,11 +814,8 @@ export class UIManager {
       activeEvents,
       marketConditions
     );
-    const profitMargin = currentPrice - stack.purchasePrice;
-    const profitPercentage = (
-      (profitMargin / stack.purchasePrice) *
-      100
-    ).toFixed(1);
+    const profitMargin = currentPrice - stack.buyPrice;
+    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
 
     const stackItem = document.createElement('div');
     stackItem.className = 'cargo-stack';
@@ -834,20 +831,20 @@ export class UIManager {
     stackDetails.className = 'stack-details';
 
     // Build details text - start with quantity and purchase price
-    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
+    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
 
     // Add purchase context if available (Phase 2 feature)
-    if (stack.purchaseSystem !== undefined && stack.purchaseDay !== undefined) {
+    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
       const purchaseSystem = this.starData.find(
-        (s) => s.id === stack.purchaseSystem
+        (s) => s.id === stack.buySystem
       );
       if (!purchaseSystem) {
         throw new Error(
-          `Invalid cargo stack: purchase system ID ${stack.purchaseSystem} not found in star data`
+          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
         );
       }
 
-      const daysSincePurchase = currentDay - stack.purchaseDay;
+      const daysSincePurchase = currentDay - stack.buyDate;
       let ageText;
       if (daysSincePurchase === 0) {
         ageText = 'today';

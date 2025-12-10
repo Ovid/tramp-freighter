@@ -43,8 +43,8 @@ describe('Property 0: New Game Initialization', () => {
     // Price = base × production × stationCount × dailyFluctuation × event
     // Price = 10 × 0.8 × 1.3 × dailyFluctuation × 1.0
     // We just verify it's a positive number since daily fluctuation varies
-    expect(state.ship.cargo[0].purchasePrice).toBeGreaterThan(0);
-    expect(state.ship.cargo[0].purchasePrice).toBeTypeOf('number');
+    expect(state.ship.cargo[0].buyPrice).toBeGreaterThan(0);
+    expect(state.ship.cargo[0].buyPrice).toBeTypeOf('number');
 
     // Verify world state
     expect(state.world.visitedSystems).toEqual([0]);
@@ -79,8 +79,8 @@ describe('Property 0: New Game Initialization', () => {
 
       expect(states[i].ship.cargo[0].good).toBe(states[0].ship.cargo[0].good);
       expect(states[i].ship.cargo[0].qty).toBe(states[0].ship.cargo[0].qty);
-      expect(states[i].ship.cargo[0].purchasePrice).toBe(
-        states[0].ship.cargo[0].purchasePrice
+      expect(states[i].ship.cargo[0].buyPrice).toBe(
+        states[0].ship.cargo[0].buyPrice
       );
 
       expect(states[i].world.visitedSystems).toEqual(

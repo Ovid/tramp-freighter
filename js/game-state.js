@@ -98,6 +98,8 @@ export class GameStateManager {
       },
       ship: {
         name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
+        quirks: [],
+        upgrades: [],
         fuel: SHIP_CONDITION_BOUNDS.MAX,
         hull: SHIP_CONDITION_BOUNDS.MAX,
         engine: SHIP_CONDITION_BOUNDS.MAX,
@@ -107,11 +109,14 @@ export class GameStateManager {
           {
             good: 'grain',
             qty: NEW_GAME_DEFAULTS.STARTING_GRAIN_QUANTITY,
-            purchasePrice: solGrainPrice,
-            purchaseSystem: SOL_SYSTEM_ID,
-            purchaseDay: 0,
+            buyPrice: solGrainPrice,
+            buySystem: SOL_SYSTEM_ID,
+            buySystemName: 'Sol',
+            buyDate: 0,
           },
         ],
+        hiddenCargo: [],
+        hiddenCargoCapacity: 0,
       },
       world: {
         visitedSystems: [SOL_SYSTEM_ID],
@@ -827,6 +832,8 @@ export class GameStateManager {
 
     // Pass current system and day for purchase metadata
     const currentSystemId = this.state.player.currentSystem;
+    const currentSystem = this.getCurrentSystem();
+    const currentSystemName = currentSystem.name;
     const currentDay = this.state.player.daysElapsed;
 
     const newCargo = TradingSystem.addCargoStack(
@@ -835,6 +842,7 @@ export class GameStateManager {
       quantity,
       price,
       currentSystemId,
+      currentSystemName,
       currentDay
     );
     this.updateCargo(newCargo);
@@ -888,7 +896,7 @@ export class GameStateManager {
 
     const stack = cargo[stackIndex];
     const totalRevenue = quantity * salePrice;
-    const profitMargin = salePrice - stack.purchasePrice;
+    const profitMargin = salePrice - stack.buyPrice;
 
     const currentCredits = this.state.player.credits;
     this.updateCredits(currentCredits + totalRevenue);
@@ -1393,13 +1401,51 @@ export class GameStateManager {
       }
       if (loadedState.ship.cargo && Array.isArray(loadedState.ship.cargo)) {
         loadedState.ship.cargo.forEach((stack) => {
-          if (stack.purchaseSystem === undefined) {
-            stack.purchaseSystem = loadedState.player.currentSystem;
+          // Migrate old field names to new ones
+          if (
+            stack.purchasePrice !== undefined &&
+            stack.buyPrice === undefined
+          ) {
+            stack.buyPrice = stack.purchasePrice;
+            delete stack.purchasePrice;
           }
-          if (stack.purchaseDay === undefined) {
-            stack.purchaseDay = 0;
+          if (
+            stack.purchaseSystem !== undefined &&
+            stack.buySystem === undefined
+          ) {
+            stack.buySystem = stack.purchaseSystem;
+            delete stack.purchaseSystem;
+          }
+          if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
+            stack.buyDate = stack.purchaseDay;
+            delete stack.purchaseDay;
+          }
+
+          // Add defaults for missing fields
+          if (stack.buySystem === undefined) {
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (stack.buySystemName === undefined) {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (stack.buyDate === undefined) {
+            stack.buyDate = 0;
           }
         });
+      }
+      // Add ship personality fields if missing
+      if (!loadedState.ship.quirks) {
+        loadedState.ship.quirks = [];
+      }
+      if (!loadedState.ship.upgrades) {
+        loadedState.ship.upgrades = [];
+      }
+      if (!loadedState.ship.hiddenCargo) {
+        loadedState.ship.hiddenCargo = [];
+      }
+      if (loadedState.ship.hiddenCargoCapacity === undefined) {
+        loadedState.ship.hiddenCargoCapacity = 0;
       }
       if (!loadedState.world.priceKnowledge) {
         loadedState.world.priceKnowledge = {};
@@ -1547,18 +1593,52 @@ export class GameStateManager {
       state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
     }
 
-    // Add cargo purchase metadata
+    // Add cargo purchase metadata and migrate field names
     if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
       state.ship.cargo.forEach((stack) => {
-        if (stack.purchaseSystem === undefined) {
-          // Default to current system (best guess)
-          stack.purchaseSystem = state.player.currentSystem;
+        // Migrate old field names to new ones
+        if (stack.purchasePrice !== undefined && stack.buyPrice === undefined) {
+          stack.buyPrice = stack.purchasePrice;
+          delete stack.purchasePrice;
         }
-        if (stack.purchaseDay === undefined) {
-          // Default to day 0 (unknown purchase time)
-          stack.purchaseDay = 0;
+        if (
+          stack.purchaseSystem !== undefined &&
+          stack.buySystem === undefined
+        ) {
+          stack.buySystem = stack.purchaseSystem;
+          delete stack.purchaseSystem;
+        }
+        if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
+          stack.buyDate = stack.purchaseDay;
+          delete stack.purchaseDay;
+        }
+
+        // Add defaults for missing fields
+        if (stack.buySystem === undefined) {
+          stack.buySystem = state.player.currentSystem;
+        }
+        if (stack.buySystemName === undefined) {
+          const system = this.starData.find((s) => s.id === stack.buySystem);
+          stack.buySystemName = system ? system.name : 'Unknown';
+        }
+        if (stack.buyDate === undefined) {
+          stack.buyDate = 0;
         }
       });
+    }
+
+    // Add ship personality fields
+    if (!state.ship.quirks) {
+      state.ship.quirks = [];
+    }
+    if (!state.ship.upgrades) {
+      state.ship.upgrades = [];
+    }
+    if (!state.ship.hiddenCargo) {
+      state.ship.hiddenCargo = [];
+    }
+    if (state.ship.hiddenCargoCapacity === undefined) {
+      state.ship.hiddenCargoCapacity = 0;
     }
 
     // Add price knowledge database
@@ -1691,19 +1771,39 @@ export class GameStateManager {
 
     // Check cargo stacks
     for (const stack of state.ship.cargo) {
-      if (
-        !stack.good ||
-        typeof stack.qty !== 'number' ||
-        typeof stack.purchasePrice !== 'number'
-      ) {
+      if (!stack.good || typeof stack.qty !== 'number') {
+        return false;
+      }
+
+      // Accept both old and new field names for price
+      const hasPrice =
+        typeof stack.buyPrice === 'number' ||
+        typeof stack.purchasePrice === 'number';
+      if (!hasPrice) {
         return false;
       }
 
       // Purchase metadata is optional - will be initialized if missing
+      // Accept both old and new field names
+      if (
+        stack.buySystem !== undefined &&
+        typeof stack.buySystem !== 'number'
+      ) {
+        return false;
+      }
       if (
         stack.purchaseSystem !== undefined &&
         typeof stack.purchaseSystem !== 'number'
       ) {
+        return false;
+      }
+      if (
+        stack.buySystemName !== undefined &&
+        typeof stack.buySystemName !== 'string'
+      ) {
+        return false;
+      }
+      if (stack.buyDate !== undefined && typeof stack.buyDate !== 'number') {
         return false;
       }
       if (

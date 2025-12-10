@@ -177,9 +177,9 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
-            purchaseSystem: fc.constantFrom(0, 1, 2, 3),
-            purchaseDay: fc.integer({ min: 0, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
+            buySystem: fc.constantFrom(0, 1, 2, 3),
+            buyDate: fc.integer({ min: 0, max: 100 }),
           }),
           { minLength: 1, maxLength: 5 }
         ),
@@ -210,7 +210,7 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
             const stackHTML = stackElement.innerHTML;
 
             // Verify purchase price is displayed
-            expect(stackHTML).toContain(`${stack.purchasePrice} cr/unit`);
+            expect(stackHTML).toContain(`${stack.buyPrice} cr/unit`);
           });
         }
       ),
@@ -233,9 +233,9 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
-            purchaseSystem: fc.constantFrom(0, 1, 2, 3),
-            purchaseDay: fc.integer({ min: 0, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
+            buySystem: fc.constantFrom(0, 1, 2, 3),
+            buyDate: fc.integer({ min: 0, max: 100 }),
           }),
           { minLength: 1, maxLength: 5 }
         ),
@@ -266,13 +266,13 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
             const stackHTML = stackElement.innerHTML;
 
             // Get expected system name
-            const purchaseSystem = mockStarData.find(
-              (s) => s.id === stack.purchaseSystem
+            const buySystem = mockStarData.find(
+              (s) => s.id === stack.buySystem
             );
-            expect(purchaseSystem).toBeDefined();
+            expect(buySystem).toBeDefined();
 
             // Verify system name is displayed
-            expect(stackHTML).toContain(purchaseSystem.name);
+            expect(stackHTML).toContain(buySystem.name);
           });
         }
       ),
@@ -280,7 +280,7 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
     );
   });
 
-  it('should display days since purchase (currentDay - purchaseDay)', () => {
+  it('should display days since purchase (currentDay - buyDate)', () => {
     fc.assert(
       fc.property(
         // Generate random cargo stacks with purchase metadata
@@ -295,15 +295,15 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
-            purchaseSystem: fc.constantFrom(0, 1, 2, 3),
-            purchaseDay: fc.integer({ min: 0, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
+            buySystem: fc.constantFrom(0, 1, 2, 3),
+            buyDate: fc.integer({ min: 0, max: 100 }),
           }),
           { minLength: 1, maxLength: 5 }
         ),
         // Generate random current system
         fc.constantFrom(0, 1, 2, 3),
-        // Generate random current day (must be >= max purchaseDay to avoid negative)
+        // Generate random current day (must be >= max buyDate to avoid negative)
         fc.integer({ min: 100, max: 200 }),
         (cargoStacks, currentSystemId, currentDay) => {
           // Set up game state with cargo
@@ -328,7 +328,7 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
             const stackHTML = stackElement.innerHTML;
 
             // Calculate expected days since purchase
-            const daysSincePurchase = currentDay - stack.purchaseDay;
+            const daysSincePurchase = currentDay - stack.buyDate;
 
             // Verify days since purchase is displayed
             if (daysSincePurchase === 0) {
@@ -359,13 +359,13 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
-          purchaseSystem: fc.constantFrom(0, 1, 2, 3),
-          purchaseDay: fc.integer({ min: 0, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
+          buySystem: fc.constantFrom(0, 1, 2, 3),
+          buyDate: fc.integer({ min: 0, max: 100 }),
         }),
         // Generate random current system
         fc.constantFrom(0, 1, 2, 3),
-        // Generate random current day (must be >= purchaseDay)
+        // Generate random current day (must be >= buyDate)
         fc.integer({ min: 100, max: 200 }),
         (stack, currentSystemId, currentDay) => {
           // Set up game state with single cargo stack
@@ -386,14 +386,12 @@ describe('Property 33: Cargo Display with Purchase Context', () => {
           const stackHTML = stackElement.innerHTML;
 
           // Get expected values
-          const purchaseSystem = mockStarData.find(
-            (s) => s.id === stack.purchaseSystem
-          );
-          const daysSincePurchase = currentDay - stack.purchaseDay;
+          const buySystem = mockStarData.find((s) => s.id === stack.buySystem);
+          const daysSincePurchase = currentDay - stack.buyDate;
 
           // Verify all three pieces of purchase context are present
-          expect(stackHTML).toContain(`${stack.purchasePrice} cr/unit`);
-          expect(stackHTML).toContain(purchaseSystem.name);
+          expect(stackHTML).toContain(`${stack.buyPrice} cr/unit`);
+          expect(stackHTML).toContain(buySystem.name);
 
           if (daysSincePurchase === 0) {
             expect(stackHTML).toContain('today');

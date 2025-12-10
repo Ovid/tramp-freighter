@@ -28,7 +28,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 0, maxLength: 20 }
         ),
@@ -84,7 +84,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
           const cargoGrain = quantities.map((qty) => ({
             good: 'grain',
             qty: qty,
-            purchasePrice: 10,
+            buyPrice: 10,
           }));
 
           // Create cargo with mixed goods
@@ -98,7 +98,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
               'electronics',
             ][index % 6],
             qty: qty,
-            purchasePrice: 10,
+            buyPrice: 10,
           }));
 
           const capacityGrain = TradingSystem.calculateCargoUsed(cargoGrain);
@@ -130,7 +130,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 0, maxLength: 10 }
         ),
@@ -145,7 +145,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
         }),
         (initialCargo, newStack) => {
           const initialCapacity =
@@ -180,7 +180,7 @@ describe('Property 20: Cargo Capacity Calculation', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 1, maxLength: 10 }
         ),

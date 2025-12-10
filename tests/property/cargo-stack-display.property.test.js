@@ -97,7 +97,7 @@ describe('Property 16: Cargo Stack Display', () => {
               'electronics'
             ),
             qty: fc.integer({ min: 1, max: 50 }),
-            purchasePrice: fc.integer({ min: 5, max: 100 }),
+            buyPrice: fc.integer({ min: 5, max: 100 }),
           }),
           { minLength: 1, maxLength: 5 }
         ),
@@ -136,15 +136,13 @@ describe('Property 16: Cargo Stack Display', () => {
               currentDay,
               activeEvents
             );
-            const profitMargin = currentPrice - stack.purchasePrice;
+            const profitMargin = currentPrice - stack.buyPrice;
 
             // Verify station price is displayed
             expect(stackHTML).toContain(`${currentPrice} cr/unit`);
 
             // Verify purchase price is displayed
-            expect(stackHTML).toContain(
-              `Bought at: ${stack.purchasePrice} cr/unit`
-            );
+            expect(stackHTML).toContain(`Bought at: ${stack.buyPrice} cr/unit`);
 
             // Verify profit margin is displayed
             if (profitMargin > 0) {
@@ -225,7 +223,7 @@ describe('Property 16: Cargo Stack Display', () => {
             currentDay,
             activeEvents
           );
-          const expectedProfitMargin = currentPrice - stack.purchasePrice;
+          const expectedProfitMargin = currentPrice - stack.buyPrice;
 
           // Render cargo stacks
           uiManager.renderCargoStacks(system);

@@ -555,7 +555,7 @@ describe('Deterministic Economy Integration Tests', () => {
             {
               good: 'grain',
               qty: 20,
-              purchasePrice: 10,
+              buyPrice: 10,
             },
           ],
         },

@@ -7,7 +7,7 @@ A# Implementation Plan
   - Define DEFAULT_SHIP_NAME constant as 'Serendipity'
   - _Requirements: 1.1, 2.2, 7.1-7.8, 10.1, 10.4, 11.1-11.9_
 
-- [ ] 2. Extend ship state structure in game-state.js
+- [x] 2. Extend ship state structure in game-state.js
   - Add name field to ship state (default: 'Serendipity')
   - Add quirks array field to ship state
   - Add upgrades array field to ship state
