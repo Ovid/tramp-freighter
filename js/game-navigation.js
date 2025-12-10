@@ -82,24 +82,41 @@ export class NavigationSystem {
   }
 
   /**
-   * Calculate fuel cost with engine condition penalty
+   * Calculate fuel cost with engine condition penalty and quirk modifiers
    *
    * When engine condition falls below ENGINE_CONDITION_PENALTIES.THRESHOLD,
    * fuel consumption increases by ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER
    * due to reduced propulsion efficiency.
    *
+   * Quirk modifiers are applied multiplicatively after engine condition penalty.
+   * For example, with hot_thruster (+5%) and fuel_sipper (-15%):
+   * finalCost = baseCost × enginePenalty × 1.05 × 0.85
+   *
    * @param {number} distance - Distance in light years
    * @param {number} engineCondition - Engine condition percentage (0-100)
+   * @param {Function} applyQuirkModifiers - Function to apply quirk modifiers (optional)
+   * @param {string[]} quirks - Array of quirk IDs (optional)
    * @returns {number} Fuel cost as percentage
    */
-  calculateFuelCostWithCondition(distance, engineCondition) {
-    const baseCost = this.calculateFuelCost(distance);
+  calculateFuelCostWithCondition(
+    distance,
+    engineCondition,
+    applyQuirkModifiers = null,
+    quirks = []
+  ) {
+    let cost = this.calculateFuelCost(distance);
 
+    // Apply engine condition penalty
     if (engineCondition < ENGINE_CONDITION_PENALTIES.THRESHOLD) {
-      return baseCost * ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
+      cost *= ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
     }
 
-    return baseCost;
+    // Apply quirk modifiers if provided
+    if (applyQuirkModifiers && quirks.length > 0) {
+      cost = applyQuirkModifiers(cost, 'fuelConsumption', quirks);
+    }
+
+    return cost;
   }
 
   /**
@@ -128,12 +145,12 @@ export class NavigationSystem {
   // ========================================================================
 
   /**
-   * Apply ship degradation from a jump
+   * Apply ship degradation from a jump with quirk modifiers
    *
    * Formula:
-   * - Hull: current - SHIP_DEGRADATION.HULL_PER_JUMP
+   * - Hull: current - (SHIP_DEGRADATION.HULL_PER_JUMP × quirkModifiers)
    * - Engine: current - SHIP_DEGRADATION.ENGINE_PER_JUMP
-   * - Life Support: current - (SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY × jumpDays)
+   * - Life Support: current - (SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY × jumpDays × quirkModifiers)
    * All values clamped to [SHIP_CONDITION_BOUNDS.MIN, SHIP_CONDITION_BOUNDS.MAX]
    *
    * Degradation rates reflect wear from wormhole transit:
@@ -141,18 +158,42 @@ export class NavigationSystem {
    * - Engine: Stress from wormhole field interaction
    * - Life Support: Consumables and filter degradation over time
    *
+   * Quirk modifiers are applied multiplicatively to base degradation rates.
+   * For example, leaky_seals increases hull degradation by 50% (multiplier 1.5).
+   *
    * Mutates the ship object in place for performance.
    *
    * @param {Object} ship - Ship state with hull, engine, lifeSupport fields
    * @param {number} jumpDays - Jump duration in days
+   * @param {Function} applyQuirkModifiers - Function to apply quirk modifiers (optional)
+   * @param {string[]} quirks - Array of quirk IDs (optional)
    * @returns {Object} The same ship object with updated condition values
    */
-  static applyJumpDegradation(ship, jumpDays) {
-    // Calculate degradation amounts
-    const hullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
+  static applyJumpDegradation(
+    ship,
+    jumpDays,
+    applyQuirkModifiers = null,
+    quirks = []
+  ) {
+    // Calculate base degradation amounts
+    let hullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
     const engineDegradation = SHIP_DEGRADATION.ENGINE_PER_JUMP;
-    const lifeSupportDegradation =
+    let lifeSupportDegradation =
       SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
+
+    // Apply quirk modifiers if provided
+    if (applyQuirkModifiers && quirks.length > 0) {
+      hullDegradation = applyQuirkModifiers(
+        hullDegradation,
+        'hullDegradation',
+        quirks
+      );
+      lifeSupportDegradation = applyQuirkModifiers(
+        lifeSupportDegradation,
+        'lifeSupportDrain',
+        quirks
+      );
+    }
 
     // Apply degradation and clamp to valid range
     ship.hull = Math.max(
@@ -226,13 +267,17 @@ export class NavigationSystem {
    * @param {number} targetSystemId - Target system ID
    * @param {number} currentFuel - Current fuel percentage
    * @param {number} engineCondition - Engine condition percentage (0-100), optional for backward compatibility
+   * @param {Function} applyQuirkModifiers - Function to apply quirk modifiers (optional)
+   * @param {string[]} quirks - Array of quirk IDs (optional)
    * @returns {Object} { valid: boolean, error: string|null, fuelCost: number, distance: number, jumpTime: number }
    */
   validateJump(
     currentSystemId,
     targetSystemId,
     currentFuel,
-    engineCondition = 100
+    engineCondition = 100,
+    applyQuirkModifiers = null,
+    quirks = []
   ) {
     // Check wormhole connection
     if (!this.areSystemsConnected(currentSystemId, targetSystemId)) {
@@ -259,11 +304,13 @@ export class NavigationSystem {
       };
     }
 
-    // Calculate jump parameters with engine condition
+    // Calculate jump parameters with engine condition and quirk modifiers
     const distance = this.calculateDistanceBetween(currentStar, targetStar);
     const fuelCost = this.calculateFuelCostWithCondition(
       distance,
-      engineCondition
+      engineCondition,
+      applyQuirkModifiers,
+      quirks
     );
     const jumpTime = this.calculateJumpTimeWithCondition(
       distance,
@@ -314,13 +361,16 @@ export class NavigationSystem {
     const currentSystemId = state.player.currentSystem;
     const currentFuel = state.ship.fuel;
     const engineCondition = state.ship.engine;
+    const quirks = state.ship.quirks || [];
 
-    // Validate jump with engine condition
+    // Validate jump with engine condition and quirk modifiers
     const validation = this.validateJump(
       currentSystemId,
       targetSystemId,
       currentFuel,
-      engineCondition
+      engineCondition,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
     );
 
     if (!validation.valid) {
@@ -333,10 +383,12 @@ export class NavigationSystem {
     gameStateManager.updateTime(state.player.daysElapsed + validation.jumpTime);
     gameStateManager.updateLocation(targetSystemId);
 
-    // Apply ship condition degradation from jump
+    // Apply ship condition degradation from jump with quirk modifiers
     const degradedShip = NavigationSystem.applyJumpDegradation(
       state.ship,
-      validation.jumpTime
+      validation.jumpTime,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
     );
     gameStateManager.updateShipCondition(
       degradedShip.hull,

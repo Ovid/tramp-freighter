@@ -65,8 +65,18 @@ describe('Navigation UX Integration', () => {
         currentStar,
         targetStar
       );
-      const fuelCost = navSystem.calculateFuelCost(distance);
-      const jumpTime = navSystem.calculateJumpTime(distance);
+      const engineCondition = gameStateManager.getState().ship.engine;
+      const quirks = gameStateManager.getState().ship.quirks || [];
+      const fuelCost = navSystem.calculateFuelCostWithCondition(
+        distance,
+        engineCondition,
+        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        quirks
+      );
+      const jumpTime = navSystem.calculateJumpTimeWithCondition(
+        distance,
+        engineCondition
+      );
 
       const item = document.createElement('div');
       item.className = 'connected-system-item';
@@ -89,10 +99,15 @@ describe('Navigation UX Integration', () => {
 
     // Step 5: Validate jump
     const initialFuel = gameStateManager.getShip().fuel;
+    const engineCondition = gameStateManager.getShip().engine;
+    const quirks = gameStateManager.getShip().quirks || [];
     const validation = navSystem.validateJump(
       currentSystemId,
       targetSystemId,
-      initialFuel
+      initialFuel,
+      engineCondition,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
     );
 
     expect(validation.valid).toBe(true);
@@ -137,7 +152,14 @@ describe('Navigation UX Integration', () => {
         currentStar,
         targetStar
       );
-      const fuelCost = navSystem.calculateFuelCost(distance);
+      const engineCondition = gameStateManager.getState().ship.engine;
+      const quirks = gameStateManager.getState().ship.quirks || [];
+      const fuelCost = navSystem.calculateFuelCostWithCondition(
+        distance,
+        engineCondition,
+        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        quirks
+      );
 
       if (fuelCost > lowFuel) {
         unreachableSystem = id;
@@ -182,7 +204,14 @@ describe('Navigation UX Integration', () => {
         currentStar,
         targetStar
       );
-      const fuelCost = navSystem.calculateFuelCost(distance);
+      const engineCondition = gameStateManager.getState().ship.engine;
+      const quirks = gameStateManager.getState().ship.quirks || [];
+      const fuelCost = navSystem.calculateFuelCostWithCondition(
+        distance,
+        engineCondition,
+        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        quirks
+      );
 
       if (currentFuel >= fuelCost) {
         reachableSystems.push(id);

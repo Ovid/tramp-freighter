@@ -30,25 +30,25 @@
     - Store result in gameState.ship.quirks
     - _Requirements: 1.1_
 
-- [ ] 4. Implement quirk effect application system
-  - [ ] 4.1 Create applyQuirkModifiers function
+- [x] 4. Implement quirk effect application system
+  - [x] 4.1 Create applyQuirkModifiers function
     - Accept base value, attribute name, and quirks array
     - Iterate through quirks and apply relevant modifiers multiplicatively
     - Return modified value
     - _Requirements: 1.4, 6.1, 6.2, 6.3, 6.4, 6.5_
-  - [ ] 4.2 Write property test for quirk effect application
+  - [x] 4.2 Write property test for quirk effect application
     - **Property 2: Quirk Effect Application**
     - **Validates: Requirements 1.4, 6.1, 6.2, 6.3, 6.4, 6.5**
-  - [ ] 4.3 Write property test for multiplicative modifier combination
+  - [x] 4.3 Write property test for multiplicative modifier combination
     - **Property 13: Multiplicative Modifier Combination**
     - **Validates: Requirements 6.4, 7.9**
-  - [ ] 4.4 Integrate quirk modifiers into fuel consumption calculation
+  - [x] 4.4 Integrate quirk modifiers into fuel consumption calculation
     - Update calculateFuelCost to apply quirk modifiers
     - _Requirements: 6.1, 11.3, 11.7_
-  - [ ] 4.5 Integrate quirk modifiers into hull degradation calculation
+  - [x] 4.5 Integrate quirk modifiers into hull degradation calculation
     - Update hull degradation logic to apply quirk modifiers
     - _Requirements: 6.2, 11.8_
-  - [ ] 4.6 Integrate quirk modifiers into life support drain calculation
+  - [x] 4.6 Integrate quirk modifiers into life support drain calculation
     - Update life support drain logic to apply quirk modifiers
     - _Requirements: 6.3, 11.5_
 

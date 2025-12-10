@@ -58,10 +58,13 @@ describe('Property 11: Jump State Transition', () => {
           const initialTime = initialState.player.daysElapsed;
           const initialEngineCondition = initialState.ship.engine;
 
-          // Calculate expected values using initial engine condition
+          // Calculate expected values using initial engine condition and quirk modifiers
+          const quirks = gameStateManager.getState().ship.quirks || [];
           const expectedFuelCost = navSystem.calculateFuelCostWithCondition(
             distance,
-            initialEngineCondition
+            initialEngineCondition,
+            gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+            quirks
           );
           const expectedJumpTime = navSystem.calculateJumpTimeWithCondition(
             distance,

@@ -88,6 +88,36 @@ export class GameStateManager {
   }
 
   /**
+   * Apply quirk modifiers to a base value
+   *
+   * Iterates through all quirks and applies relevant modifiers multiplicatively.
+   * Quirks that don't affect the specified attribute are ignored.
+   *
+   * Example: If two quirks both affect fuelConsumption with modifiers 0.85 and 1.05,
+   * the result is baseValue × 0.85 × 1.05 = baseValue × 0.8925
+   *
+   * Feature: ship-personality, Property 2: Quirk Effect Application
+   * Validates: Requirements 1.4, 6.1, 6.2, 6.3, 6.4, 6.5
+   *
+   * @param {number} baseValue - Starting value before modifiers
+   * @param {string} attribute - Attribute name (e.g., 'fuelConsumption', 'hullDegradation')
+   * @param {string[]} quirks - Array of quirk IDs
+   * @returns {number} Modified value after applying all relevant quirk modifiers
+   */
+  applyQuirkModifiers(baseValue, attribute, quirks) {
+    let modified = baseValue;
+
+    for (const quirkId of quirks) {
+      const quirk = SHIP_QUIRKS[quirkId];
+      if (quirk && quirk.effects[attribute]) {
+        modified *= quirk.effects[attribute];
+      }
+    }
+
+    return modified;
+  }
+
+  /**
    * Initialize a new game with default values
    */
   initNewGame() {
