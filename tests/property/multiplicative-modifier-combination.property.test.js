@@ -6,6 +6,12 @@ import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Multiplicative Modifier Combination - Property Tests', () => {
   it('**Feature: ship-personality, Property 13: Multiplicative Modifier Combination** - For any set of modifiers affecting the same ship characteristic, applying all modifiers should be equivalent to multiplying the base value by the product of all individual modifiers', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -20,12 +26,6 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
         (baseValue, quirkId1, quirkId2, quirkId3, shipCharacteristic) => {
           // Create unique quirk set
           const quirks = [...new Set([quirkId1, quirkId2, quirkId3])];
-
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
 
           // Apply quirk modifiers using the function
           const result = gameStateManager.applyQuirkModifiers(
@@ -55,6 +55,12 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
   });
 
   it('**Feature: ship-personality, Property 13: Multiplicative Modifier Combination** - For multiple quirks with the same ship characteristic modifier, the combined effect should be the product of individual modifiers', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -64,12 +70,6 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
           // fuel_sipper: 0.85 (-15%)
           const quirks = ['hot_thruster', 'fuel_sipper'];
           const shipCharacteristic = 'fuelConsumption';
-
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
 
           // Apply quirk modifiers
           const result = gameStateManager.applyQuirkModifiers(
@@ -90,6 +90,12 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
   });
 
   it('**Feature: ship-personality, Property 13: Multiplicative Modifier Combination** - Order of modifier application should not affect the result (commutative property)', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -101,12 +107,6 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
           'lifeSupportDrain'
         ), // Random ship characteristic
         (baseValue, quirkId1, quirkId2, shipCharacteristic) => {
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
-
           // Apply quirks in order 1, 2
           const result1 = gameStateManager.applyQuirkModifiers(
             baseValue,

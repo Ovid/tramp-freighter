@@ -110,7 +110,16 @@ export class GameStateManager {
 
     for (const quirkId of quirks) {
       const quirk = SHIP_QUIRKS[quirkId];
-      if (quirk && quirk.effects[attribute]) {
+
+      // If quirk doesn't exist, this is a critical bug - fail loudly
+      if (!quirk) {
+        throw new Error(
+          `Invalid quirk ID: ${quirkId} not found in SHIP_QUIRKS`
+        );
+      }
+
+      // Only apply modifier if this quirk affects the specified attribute
+      if (quirk.effects[attribute]) {
         modified *= quirk.effects[attribute];
       }
     }
@@ -1424,7 +1433,13 @@ export class GameStateManager {
     // Apply upgrade effects
     for (const upgradeId of this.state.ship.upgrades) {
       const upgrade = SHIP_UPGRADES[upgradeId];
-      if (!upgrade) continue;
+
+      // If upgrade doesn't exist, this is a critical bug - fail loudly
+      if (!upgrade) {
+        throw new Error(
+          `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+        );
+      }
 
       for (const [attr, value] of Object.entries(upgrade.effects)) {
         if (attr.endsWith('Capacity')) {

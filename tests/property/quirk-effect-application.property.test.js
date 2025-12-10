@@ -6,6 +6,12 @@ import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Quirk Effect Application - Property Tests', () => {
   it('**Feature: ship-personality, Property 2: Quirk Effect Application** - For any ship with quirks and any calculation that uses a ship characteristic affected by those quirks, the result should equal the base value multiplied by all relevant quirk modifiers', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -26,12 +32,6 @@ describe('Quirk Effect Application - Property Tests', () => {
         (baseValue, quirkId1, quirkId2, quirkId3, shipCharacteristic) => {
           // Create unique quirk set (may have 1-3 quirks depending on duplicates)
           const quirks = [...new Set([quirkId1, quirkId2, quirkId3])];
-
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
 
           // Apply quirk modifiers
           const result = gameStateManager.applyQuirkModifiers(
@@ -58,6 +58,12 @@ describe('Quirk Effect Application - Property Tests', () => {
   });
 
   it('**Feature: ship-personality, Property 2: Quirk Effect Application** - For any ship characteristic not affected by any quirk, the result should equal the base value unchanged', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -68,12 +74,6 @@ describe('Quirk Effect Application - Property Tests', () => {
 
           // Use a ship characteristic that no quirk affects
           const shipCharacteristic = 'nonExistentCharacteristic';
-
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
 
           // Apply quirk modifiers
           const result = gameStateManager.applyQuirkModifiers(
@@ -91,6 +91,12 @@ describe('Quirk Effect Application - Property Tests', () => {
   });
 
   it('**Feature: ship-personality, Property 2: Quirk Effect Application** - For an empty quirks array, the result should equal the base value unchanged', () => {
+    // Create once outside the property loop to avoid repeated allocation
+    const gameStateManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
@@ -101,12 +107,6 @@ describe('Quirk Effect Application - Property Tests', () => {
         ), // Random ship characteristic
         (baseValue, shipCharacteristic) => {
           const quirks = [];
-
-          // Create game state manager
-          const gameStateManager = new GameStateManager(
-            TEST_STAR_DATA,
-            TEST_WORMHOLE_DATA
-          );
 
           // Apply quirk modifiers
           const result = gameStateManager.applyQuirkModifiers(

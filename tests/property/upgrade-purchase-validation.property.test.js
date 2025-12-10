@@ -1,6 +1,6 @@
 'use strict';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { SHIP_UPGRADES } from '../../js/game-constants.js';
