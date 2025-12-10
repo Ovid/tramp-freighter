@@ -1,0 +1,285 @@
+# Implementation Plan
+
+- [ ] 1. Add quirk and upgrade constants to game-constants.js
+  - Define SHIP_QUIRKS object with all 8 quirks (sticky_seal, hot_thruster, sensitive_sensors, cramped_quarters, lucky_ship, fuel_sipper, leaky_seals, smooth_talker)
+  - Define SHIP_UPGRADES object with all 7 upgrades (extended_tank, reinforced_hull, efficient_drive, expanded_hold, smuggler_panels, advanced_sensors, medical_bay)
+  - Define SHIP_NAME_SUGGESTIONS array with at least 6 suggested names
+  - Define DEFAULT_SHIP_NAME constant as 'Serendipity'
+  - _Requirements: 1.1, 2.2, 7.1-7.8, 10.1, 10.4, 11.1-11.9_
+
+- [ ] 2. Extend ship state structure in game-state.js
+  - Add name field to ship state (default: 'Serendipity')
+  - Add quirks array field to ship state
+  - Add upgrades array field to ship state
+  - Add hiddenCargo array field to ship state
+  - Add hiddenCargoCapacity field to ship state (default: 0)
+  - Enhance cargo array structure to include buyPrice, buySystem, buySystemName, buyDate fields
+  - _Requirements: 1.1, 2.1, 3.1, 4.2, 5.6_
+
+- [ ] 3. Implement quirk assignment system
+  - [ ] 3.1 Create assignShipQuirks function
+    - Randomly select 2 or 3 quirks (50% chance each)
+    - Ensure no duplicate quirks
+    - Return array of quirk IDs
+    - _Requirements: 1.1, 1.2_
+  
+  - [ ] 3.2 Write property test for quirk assignment bounds
+    - **Property 1: Quirk Assignment Bounds**
+    - **Validates: Requirements 1.1, 1.2**
+  
+  - [ ] 3.3 Integrate quirk assignment into new game initialization
+    - Call assignShipQuirks during new game setup
+    - Store result in gameState.ship.quirks
+    - _Requirements: 1.1_
+
+- [ ] 4. Implement quirk effect application system
+  - [ ] 4.1 Create applyQuirkModifiers function
+    - Accept base value, attribute name, and quirks array
+    - Iterate through quirks and apply relevant modifiers multiplicatively
+    - Return modified value
+    - _Requirements: 1.4, 6.1, 6.2, 6.3, 6.4, 6.5_
+  
+  - [ ] 4.2 Write property test for quirk effect application
+    - **Property 2: Quirk Effect Application**
+    - **Validates: Requirements 1.4, 6.1, 6.2, 6.3, 6.4, 6.5**
+  
+  - [ ] 4.3 Write property test for multiplicative modifier combination
+    - **Property 13: Multiplicative Modifier Combination**
+    - **Validates: Requirements 6.4, 7.9**
+  
+  - [ ] 4.4 Integrate quirk modifiers into fuel consumption calculation
+    - Update calculateFuelCost to apply quirk modifiers
+    - _Requirements: 6.1, 11.3, 11.7_
+  
+  - [ ] 4.5 Integrate quirk modifiers into hull degradation calculation
+    - Update hull degradation logic to apply quirk modifiers
+    - _Requirements: 6.2, 11.8_
+  
+  - [ ] 4.6 Integrate quirk modifiers into life support drain calculation
+    - Update life support drain logic to apply quirk modifiers
+    - _Requirements: 6.3, 11.5_
+
+- [ ] 5. Implement upgrade system
+  - [ ] 5.1 Create validateUpgradePurchase function
+    - Check if upgrade already purchased
+    - Check if player has sufficient credits
+    - Return validation result with reason
+    - _Requirements: 2.5, 8.5_
+  
+  - [ ] 5.2 Write property test for upgrade purchase validation
+    - **Property 11: Upgrade Purchase Validation**
+    - **Validates: Requirements 2.5, 8.5**
+  
+  - [ ] 5.3 Create purchaseUpgrade function
+    - Validate purchase
+    - Deduct credits from player
+    - Add upgrade to ship.upgrades array
+    - Apply upgrade effects to ship capabilities
+    - Return success/failure result
+    - _Requirements: 2.4, 2.5_
+  
+  - [ ] 5.4 Write property test for upgrade purchase transaction
+    - **Property 3: Upgrade Purchase Transaction**
+    - **Validates: Requirements 2.4, 2.5**
+  
+  - [ ] 5.5 Create calculateShipCapabilities function
+    - Start with base capabilities
+    - Apply all upgrade effects (capacities as absolute values, rates as multipliers)
+    - Return capabilities object
+    - _Requirements: 2.6, 7.1-7.9_
+  
+  - [ ] 5.6 Write property test for upgrade effect application
+    - **Property 4: Upgrade Effect Application**
+    - **Validates: Requirements 2.6, 7.9**
+  
+  - [ ] 5.7 Integrate upgrade effects into ship systems
+    - Update fuel capacity based on upgrades
+    - Update cargo capacity based on upgrades
+    - Update fuel consumption based on upgrades
+    - Update hull degradation based on upgrades
+    - Update life support drain based on upgrades
+    - Update hidden cargo capacity based on upgrades
+    - _Requirements: 7.1-7.8_
+
+- [ ] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 7. Implement hidden cargo system
+  - [ ] 7.1 Create moveToHiddenCargo function
+    - Validate Smuggler's Panels installed
+    - Validate cargo exists and quantity sufficient
+    - Validate hidden cargo capacity available
+    - Transfer cargo from regular to hidden
+    - Return success/failure result
+    - _Requirements: 3.1, 3.3_
+  
+  - [ ] 7.2 Create moveToRegularCargo function
+    - Validate cargo exists in hidden compartment
+    - Validate regular cargo capacity available
+    - Transfer cargo from hidden to regular
+    - Return success/failure result
+    - _Requirements: 3.4_
+  
+  - [ ] 7.3 Write property test for hidden cargo transfer validation
+    - **Property 12: Hidden Cargo Transfer Validation**
+    - **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+
+- [ ] 8. Implement enhanced cargo tracking
+  - [ ] 8.1 Update recordCargoPurchase function
+    - Record good, qty, buyPrice
+    - Record buySystem (current system ID)
+    - Record buySystemName (current system name)
+    - Record buyDate (current daysElapsed)
+    - Stack cargo with matching good, price, and system
+    - _Requirements: 5.6_
+  
+  - [ ] 8.2 Write property test for cargo purchase metadata completeness
+    - **Property 6: Cargo Purchase Metadata Completeness**
+    - **Validates: Requirements 5.6**
+  
+  - [ ] 8.3 Create calculateCargoValue function
+    - For single cargo entry: return qty × buyPrice
+    - _Requirements: 5.3_
+  
+  - [ ] 8.4 Write property test for cargo manifest value calculation
+    - **Property 7: Cargo Manifest Value Calculation**
+    - **Validates: Requirements 5.3**
+  
+  - [ ] 8.5 Create calculateCargoTotals function
+    - Calculate total capacity usage (sum of all qty)
+    - Calculate total value (sum of all cargo values)
+    - Return totals object
+    - _Requirements: 5.4, 5.5_
+  
+  - [ ] 8.6 Write property test for cargo manifest total calculations
+    - **Property 8: Cargo Manifest Total Calculations**
+    - **Validates: Requirements 5.4, 5.5**
+
+- [ ] 9. Implement ship naming system
+  - [ ] 9.1 Create sanitizeShipName function
+    - Remove HTML tags from input
+    - Trim whitespace
+    - Limit to 50 characters
+    - Return 'Serendipity' if empty
+    - _Requirements: 4.3, 10.3, 10.5_
+  
+  - [ ] 9.2 Write property test for ship name sanitization
+    - **Property 10: Ship Name Sanitization**
+    - **Validates: Requirements 4.2, 4.3, 10.3, 10.5**
+  
+  - [ ] 9.3 Create ship naming dialog UI
+    - Add HTML for naming prompt
+    - Add input field for ship name
+    - Display at least 6 name suggestions
+    - Add click handlers to populate field with suggestions
+    - Add submit button to confirm name
+    - _Requirements: 4.1, 10.1, 10.2_
+  
+  - [ ] 9.4 Integrate ship naming into new game flow
+    - Show naming dialog after quirk assignment
+    - Store sanitized name in gameState.ship.name
+    - _Requirements: 4.1, 4.2_
+
+- [ ] 10. Implement ship status UI
+  - [ ] 10.1 Create renderShipStatus function
+    - Display ship name in header
+    - Display fuel, hull, engine, life support bars
+    - Display cargo capacity usage
+    - Display "SHIP QUIRKS" section
+    - For each quirk: display icon, name, description, flavor text
+    - Add back button
+    - _Requirements: 1.3_
+  
+  - [ ] 10.2 Write property test for UI display completeness
+    - **Property 9: UI Display Completeness**
+    - **Validates: Requirements 1.3, 2.2, 5.2, 8.2, 8.3, 8.4, 9.2**
+  
+  - [ ] 10.3 Add ship status button to HUD or station menu
+    - Add button/menu option to access ship status
+    - Wire up to renderShipStatus
+    - _Requirements: 1.3_
+
+- [ ] 11. Implement upgrades interface UI
+  - [ ] 11.1 Create renderUpgradesInterface function
+    - Display "SHIP UPGRADES" header with credit balance
+    - Display all unpurchased upgrades with name, cost, description, effects, tradeoffs
+    - Add warning symbol (⚠) for upgrades with tradeoffs
+    - Disable purchase buttons for unaffordable upgrades
+    - Display "INSTALLED UPGRADES" section with purchased upgrades
+    - Add back button
+    - _Requirements: 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
+  
+  - [ ] 11.2 Create upgrade confirmation dialog
+    - Display upgrade name and cost
+    - List all effects and tradeoffs
+    - Show current credits and credits after purchase
+    - Display "This upgrade is PERMANENT and cannot be removed" warning
+    - Add Confirm and Cancel buttons
+    - _Requirements: 2.3, 9.1, 9.2, 9.3_
+  
+  - [ ] 11.3 Wire up upgrade purchase flow
+    - Click purchase button → show confirmation dialog
+    - Click confirm → call purchaseUpgrade, update UI, close dialog
+    - Click cancel → close dialog without changes
+    - _Requirements: 2.4, 9.4, 9.5_
+  
+  - [ ] 11.4 Add upgrades button to station menu
+    - Add button/menu option when docked
+    - Wire up to renderUpgradesInterface
+    - _Requirements: 2.1, 8.1_
+
+- [ ] 12. Implement cargo manifest UI
+  - [ ] 12.1 Create renderCargoManifest function
+    - Display "CARGO MANIFEST" header with ship name
+    - Display capacity usage (X/Y units)
+    - For each cargo: display name, quantity, purchase location, purchase price, days ago, current value
+    - Display total cargo value at bottom
+    - Add back button
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  
+  - [ ] 12.2 Add cargo manifest button to station menu or HUD
+    - Add button/menu option to access cargo manifest
+    - Wire up to renderCargoManifest
+    - _Requirements: 5.1_
+
+- [ ] 13. Implement hidden cargo UI integration
+  - [ ] 13.1 Add hidden cargo section to trade interface
+    - Display "HIDDEN CARGO" section when Smuggler's Panels installed
+    - Show hidden cargo with same format as regular cargo
+    - Display hidden capacity usage (X/10 units)
+    - _Requirements: 3.2_
+  
+  - [ ] 13.2 Add toggle hidden cargo view button
+    - Add button to show/hide hidden cargo section
+    - Toggle visibility on click
+    - _Requirements: 3.5_
+  
+  - [ ] 13.3 Add cargo transfer buttons
+    - Add "Move to Hidden" button when Smuggler's Panels installed
+    - Add "Move to Regular" button for hidden cargo
+    - Wire up to moveToHiddenCargo and moveToRegularCargo functions
+    - Display validation errors if transfer fails
+    - _Requirements: 3.3, 3.4_
+
+- [ ] 14. Update save/load system
+  - [ ] 14.1 Extend save data structure
+    - Include ship.name in save data
+    - Include ship.quirks in save data
+    - Include ship.upgrades in save data
+    - Include ship.hiddenCargo in save data
+    - Include enhanced cargo metadata in save data
+    - _Requirements: 1.5, 2.7, 3.6, 4.5_
+  
+  - [ ] 14.2 Add save data validation
+    - Validate quirk IDs exist in SHIP_QUIRKS
+    - Validate upgrade IDs exist in SHIP_UPGRADES
+    - Remove unknown IDs with console warning
+    - Validate cargo structure completeness
+    - _Requirements: 1.5, 2.7_
+  
+  - [ ] 14.3 Write property test for save/load round trip
+    - **Property 5: Save/Load Round Trip**
+    - **Validates: Requirements 1.5, 2.7, 3.6, 4.5**
+
+- [ ] 15. Final checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
