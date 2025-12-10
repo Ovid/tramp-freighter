@@ -1,4 +1,4 @@
-A# Implementation Plan
+# Implementation Plan
 
 - [x] 1. Add quirk and upgrade constants to game-constants.js
   - Define SHIP_QUIRKS object with all 8 quirks (sticky_seal, hot_thruster, sensitive_sensors, cramped_quarters, lucky_ship, fuel_sipper, leaky_seals, smooth_talker)

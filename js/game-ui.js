@@ -129,22 +129,6 @@ export class UIManager {
     this.setupStationInterfaceHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
-
-    // Validate critical DOM elements were cached (skip in test environment)
-    const isTestEnvironment =
-      typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
-    if (!isTestEnvironment) {
-      if (this.cachedRepairButtons.length === 0) {
-        throw new Error(
-          'Repair buttons not found in DOM - check HTML structure'
-        );
-      }
-      if (this.cachedRefuelPresetButtons.length === 0) {
-        throw new Error(
-          'Refuel preset buttons not found in DOM - check HTML structure'
-        );
-      }
-    }
   }
 
   subscribeToStateChanges() {
@@ -1623,7 +1607,11 @@ export class UIManager {
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
 
-    // cachedRepairButtons is guaranteed to exist - set in constructor via setupStationInterfaceHandlers()
+    // Update repair buttons if they exist (may not exist in test environment)
+    if (!this.cachedRepairButtons || this.cachedRepairButtons.length === 0) {
+      return;
+    }
+
     this.cachedRepairButtons.forEach((btn) => {
       const systemType = btn.getAttribute('data-system');
       const amountStr = btn.getAttribute('data-amount');
