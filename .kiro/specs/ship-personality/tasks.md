@@ -94,24 +94,24 @@
     - Show event name, affected commodity, and modifier
     - _Requirements: 7.8_
 
-- [ ] 6. Checkpoint - Ensure all tests pass
+- [x] 6. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement hidden cargo system
-  - [ ] 7.1 Create moveToHiddenCargo function
+- [x] 7. Implement hidden cargo system
+  - [x] 7.1 Create moveToHiddenCargo function
     - Validate Smuggler's Panels installed
     - Validate cargo exists and quantity sufficient
     - Validate hidden cargo capacity available
     - Transfer cargo from regular to hidden
     - Return success/failure result
     - _Requirements: 3.1, 3.3_
-  - [ ] 7.2 Create moveToRegularCargo function
+  - [x] 7.2 Create moveToRegularCargo function
     - Validate cargo exists in hidden compartment
     - Validate regular cargo capacity available
     - Transfer cargo from hidden to regular
     - Return success/failure result
     - _Requirements: 3.4_
-  - [ ] 7.3 Write property test for hidden cargo transfer validation
+  - [x] 7.3 Write property test for hidden cargo transfer validation
     - **Property 12: Hidden Cargo Transfer Validation**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
 

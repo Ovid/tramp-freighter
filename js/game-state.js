@@ -1456,6 +1456,172 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // HIDDEN CARGO SYSTEM
+  // ========================================================================
+
+  /**
+   * Move cargo from regular compartment to hidden compartment
+   *
+   * Validates that Smuggler's Panels is installed, cargo exists with sufficient
+   * quantity, and hidden cargo capacity is available. Transfers cargo between
+   * compartments while preserving purchase metadata.
+   *
+   * Feature: ship-personality, Property 12: Hidden Cargo Transfer Validation
+   * Validates: Requirements 3.1, 3.3
+   *
+   * @param {string} good - Commodity type
+   * @param {number} qty - Quantity to move
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  moveToHiddenCargo(good, qty) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: moveToHiddenCargo called before game initialization'
+      );
+    }
+
+    const ship = this.state.ship;
+
+    // Check if smuggler's panels installed
+    if (!ship.upgrades.includes('smuggler_panels')) {
+      return { success: false, reason: 'No hidden cargo compartment' };
+    }
+
+    // Find cargo stack
+    const cargoIndex = ship.cargo.findIndex((c) => c.good === good);
+    if (cargoIndex === -1) {
+      return { success: false, reason: 'Cargo not found' };
+    }
+
+    const cargoStack = ship.cargo[cargoIndex];
+    if (cargoStack.qty < qty) {
+      return { success: false, reason: 'Insufficient quantity' };
+    }
+
+    // Check hidden cargo capacity
+    const hiddenUsed = ship.hiddenCargo.reduce((sum, c) => sum + c.qty, 0);
+    const hiddenAvailable = ship.hiddenCargoCapacity - hiddenUsed;
+    if (qty > hiddenAvailable) {
+      return {
+        success: false,
+        reason: `Hidden cargo full (${hiddenAvailable} units available)`,
+      };
+    }
+
+    // Transfer cargo
+    cargoStack.qty -= qty;
+    if (cargoStack.qty === 0) {
+      ship.cargo.splice(cargoIndex, 1);
+    }
+
+    // Add to hidden cargo (stack with matching good and buyPrice)
+    const hiddenIndex = ship.hiddenCargo.findIndex(
+      (c) => c.good === good && c.buyPrice === cargoStack.buyPrice
+    );
+
+    if (hiddenIndex >= 0) {
+      ship.hiddenCargo[hiddenIndex].qty += qty;
+    } else {
+      ship.hiddenCargo.push({
+        good: cargoStack.good,
+        qty: qty,
+        buyPrice: cargoStack.buyPrice,
+        buySystem: cargoStack.buySystem,
+        buySystemName: cargoStack.buySystemName,
+        buyDate: cargoStack.buyDate,
+      });
+    }
+
+    // Emit cargo change event
+    this.emit('cargoChanged', ship.cargo);
+
+    // Persist immediately - cargo transfer modifies ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Move cargo from hidden compartment to regular compartment
+   *
+   * Validates that cargo exists in hidden compartment and regular cargo
+   * capacity is available. Transfers cargo between compartments while
+   * preserving purchase metadata.
+   *
+   * Feature: ship-personality, Property 12: Hidden Cargo Transfer Validation
+   * Validates: Requirements 3.4
+   *
+   * @param {string} good - Commodity type
+   * @param {number} qty - Quantity to move
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  moveToRegularCargo(good, qty) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: moveToRegularCargo called before game initialization'
+      );
+    }
+
+    const ship = this.state.ship;
+
+    // Find hidden cargo stack
+    const hiddenIndex = ship.hiddenCargo.findIndex((c) => c.good === good);
+    if (hiddenIndex === -1) {
+      return {
+        success: false,
+        reason: 'Cargo not found in hidden compartment',
+      };
+    }
+
+    const hiddenStack = ship.hiddenCargo[hiddenIndex];
+    if (hiddenStack.qty < qty) {
+      return { success: false, reason: 'Insufficient quantity' };
+    }
+
+    // Check regular cargo capacity
+    const cargoUsed = ship.cargo.reduce((sum, c) => sum + c.qty, 0);
+    const cargoAvailable = ship.cargoCapacity - cargoUsed;
+    if (qty > cargoAvailable) {
+      return {
+        success: false,
+        reason: `Cargo hold full (${cargoAvailable} units available)`,
+      };
+    }
+
+    // Transfer cargo
+    hiddenStack.qty -= qty;
+    if (hiddenStack.qty === 0) {
+      ship.hiddenCargo.splice(hiddenIndex, 1);
+    }
+
+    // Add to regular cargo (stack with matching good and buyPrice)
+    const cargoIndex = ship.cargo.findIndex(
+      (c) => c.good === good && c.buyPrice === hiddenStack.buyPrice
+    );
+
+    if (cargoIndex >= 0) {
+      ship.cargo[cargoIndex].qty += qty;
+    } else {
+      ship.cargo.push({
+        good: hiddenStack.good,
+        qty: qty,
+        buyPrice: hiddenStack.buyPrice,
+        buySystem: hiddenStack.buySystem,
+        buySystemName: hiddenStack.buySystemName,
+        buyDate: hiddenStack.buyDate,
+      });
+    }
+
+    // Emit cargo change event
+    this.emit('cargoChanged', ship.cargo);
+
+    // Persist immediately - cargo transfer modifies ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  // ========================================================================
   // DOCK/UNDOCK OPERATIONS
   // ========================================================================
 
