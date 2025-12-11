@@ -1,4 +1,5 @@
 - i18n?
+- Admin process for adjusting data for testing
 - On jump, panel not always hidden.
 - Economic events should last longer (and not have the popup every time)
 - Dead code check
