@@ -42,8 +42,8 @@ describe('Save/Load Migration System', () => {
         fuel: 75,
         cargoCapacity: 50,
         cargo: [
-          { good: 'grain', qty: 10, purchasePrice: 10 },
-          { good: 'ore', qty: 5, purchasePrice: 20 },
+          { good: 'grain', qty: 10, purchasePrice: 10 }, // Old field name
+          { good: 'ore', qty: 5, purchasePrice: 20 }, // Old field name
         ],
       },
       world: {
@@ -70,13 +70,15 @@ describe('Save/Load Migration System', () => {
     expect(loadedState.ship.engine).toBe(SHIP_CONDITION_BOUNDS.MAX);
     expect(loadedState.ship.lifeSupport).toBe(SHIP_CONDITION_BOUNDS.MAX);
 
-    // Verify cargo purchase metadata was added
+    // Verify cargo purchase metadata was added (migrated to new field names)
     expect(loadedState.ship.cargo).toHaveLength(2);
     loadedState.ship.cargo.forEach((stack) => {
-      expect(stack.purchaseSystem).toBeDefined();
-      expect(typeof stack.purchaseSystem).toBe('number');
-      expect(stack.purchaseDay).toBeDefined();
-      expect(typeof stack.purchaseDay).toBe('number');
+      expect(stack.buySystem).toBeDefined();
+      expect(typeof stack.buySystem).toBe('number');
+      expect(stack.buySystemName).toBeDefined();
+      expect(typeof stack.buySystemName).toBe('string');
+      expect(stack.buyDate).toBeDefined();
+      expect(typeof stack.buyDate).toBe('number');
     });
 
     // Verify price knowledge was initialized
@@ -124,9 +126,9 @@ describe('Save/Load Migration System', () => {
           {
             good: 'grain',
             qty: 15,
-            purchasePrice: 12,
-            purchaseSystem: 0,
-            purchaseDay: 20,
+            purchasePrice: 12, // Old field name
+            purchaseSystem: 0, // Old field name
+            purchaseDay: 20, // Old field name
           },
         ],
       },
@@ -177,8 +179,8 @@ describe('Save/Load Migration System', () => {
     expect(loadedState.ship.engine).toBe(90);
     expect(loadedState.ship.lifeSupport).toBe(95);
 
-    expect(loadedState.ship.cargo[0].purchaseSystem).toBe(0);
-    expect(loadedState.ship.cargo[0].purchaseDay).toBe(20);
+    expect(loadedState.ship.cargo[0].buySystem).toBe(0);
+    expect(loadedState.ship.cargo[0].buyDate).toBe(20);
 
     expect(loadedState.world.priceKnowledge[0]).toBeDefined();
     expect(loadedState.world.priceKnowledge[0].lastVisit).toBe(5);
@@ -216,9 +218,9 @@ describe('Save/Load Migration System', () => {
           {
             good: 'grain',
             qty: 10,
-            purchasePrice: 10,
-            purchaseSystem: 0,
-            // Missing purchaseDay
+            purchasePrice: 10, // Old field name
+            purchaseSystem: 0, // Old field name
+            // Missing purchaseDay (old field name)
           },
         ],
       },
@@ -248,8 +250,8 @@ describe('Save/Load Migration System', () => {
     expect(loadedState.ship.lifeSupport).toBe(SHIP_CONDITION_BOUNDS.MAX); // Default
 
     // Verify missing cargo metadata gets defaults
-    expect(loadedState.ship.cargo[0].purchaseSystem).toBe(0); // Preserved
-    expect(loadedState.ship.cargo[0].purchaseDay).toBe(0); // Default
+    expect(loadedState.ship.cargo[0].buySystem).toBe(0); // Preserved
+    expect(loadedState.ship.cargo[0].buyDate).toBe(0); // Default
 
     // Verify missing price knowledge gets initialized
     expect(loadedState.world.priceKnowledge).toBeDefined();
@@ -285,9 +287,9 @@ describe('Save/Load Migration System', () => {
           {
             good: 'grain',
             qty: 10,
-            purchasePrice: 10,
-            purchaseSystem: 0,
-            purchaseDay: 5,
+            purchasePrice: 10, // Old field name
+            purchaseSystem: 0, // Old field name
+            purchaseDay: 5, // Old field name
           },
         ],
       },
@@ -343,9 +345,9 @@ describe('Save/Load Migration System', () => {
           {
             good: 'grain',
             qty: 10,
-            purchasePrice: 10,
-            purchaseSystem: 'invalid', // Should be number
-            purchaseDay: 5,
+            purchasePrice: 10, // Old field name
+            purchaseSystem: 'invalid', // Should be number (old field name)
+            purchaseDay: 5, // Old field name
           },
         ],
       },
@@ -524,9 +526,9 @@ describe('Save/Load Migration System', () => {
         fuel: 75,
         cargoCapacity: 50,
         cargo: [
-          { good: 'grain', qty: 10, purchasePrice: 10 },
-          { good: 'ore', qty: 5, purchasePrice: 20 },
-          { good: 'tritium', qty: 3, purchasePrice: 50 },
+          { good: 'grain', qty: 10, purchasePrice: 10 }, // Old field name
+          { good: 'ore', qty: 5, purchasePrice: 20 }, // Old field name
+          { good: 'tritium', qty: 3, purchasePrice: 50 }, // Old field name
         ],
       },
       world: {
@@ -551,10 +553,10 @@ describe('Save/Load Migration System', () => {
     expect(loadedState.ship.cargo[1].good).toBe('ore');
     expect(loadedState.ship.cargo[2].good).toBe('tritium');
 
-    // Verify all stacks have metadata
+    // Verify all stacks have metadata (migrated to new field names)
     loadedState.ship.cargo.forEach((stack) => {
-      expect(stack.purchaseSystem).toBeDefined();
-      expect(stack.purchaseDay).toBeDefined();
+      expect(stack.buySystem).toBeDefined();
+      expect(stack.buyDate).toBeDefined();
     });
   });
 });

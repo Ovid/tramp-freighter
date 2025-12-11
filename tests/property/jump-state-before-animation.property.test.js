@@ -86,15 +86,27 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         const initialFuel = gameStateManager.getState().ship.fuel;
         const initialTime = gameStateManager.getState().player.daysElapsed;
 
-        // Calculate expected changes
+        // Calculate expected changes with quirk modifiers
         const originStar = TEST_STAR_DATA.find((s) => s.id === originId);
         const destStar = TEST_STAR_DATA.find((s) => s.id === destId);
         const distance = navigationSystem.calculateDistanceBetween(
           originStar,
           destStar
         );
-        const expectedFuelCost = navigationSystem.calculateFuelCost(distance);
-        const expectedJumpTime = navigationSystem.calculateJumpTime(distance);
+        const engineCondition = gameStateManager.getState().ship.engine;
+        const quirks = gameStateManager.getState().ship.quirks || [];
+        const expectedFuelCost =
+          navigationSystem.calculateFuelCostWithCondition(
+            distance,
+            engineCondition,
+            gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+            quirks
+          );
+        const expectedJumpTime =
+          navigationSystem.calculateJumpTimeWithCondition(
+            distance,
+            engineCondition
+          );
 
         // Track when state changes occur relative to animation
         let stateUpdatedBeforeAnimation = false;
@@ -229,15 +241,25 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
     const initialFuel = gameStateManager.getState().ship.fuel;
     const initialTime = gameStateManager.getState().player.daysElapsed;
 
-    // Calculate expected changes for jump to Alpha Centauri (system 1)
+    // Calculate expected changes for jump to Alpha Centauri (system 1) with quirk modifiers
     const originStar = TEST_STAR_DATA.find((s) => s.id === 0);
     const destStar = TEST_STAR_DATA.find((s) => s.id === 1);
     const distance = navigationSystem.calculateDistanceBetween(
       originStar,
       destStar
     );
-    const expectedFuelCost = navigationSystem.calculateFuelCost(distance);
-    const expectedJumpTime = navigationSystem.calculateJumpTime(distance);
+    const engineCondition = gameStateManager.getState().ship.engine;
+    const quirks = gameStateManager.getState().ship.quirks || [];
+    const expectedFuelCost = navigationSystem.calculateFuelCostWithCondition(
+      distance,
+      engineCondition,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
+    );
+    const expectedJumpTime = navigationSystem.calculateJumpTimeWithCondition(
+      distance,
+      engineCondition
+    );
 
     // Mock animation to simulate interruption (throw error)
     const originalPlayAnimation =
@@ -313,15 +335,27 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
         const initialFuel = gameStateManager.getState().ship.fuel;
         const initialTime = gameStateManager.getState().player.daysElapsed;
 
-        // Calculate expected changes
+        // Calculate expected changes with quirk modifiers
         const originStar = TEST_STAR_DATA.find((s) => s.id === originId);
         const destStar = TEST_STAR_DATA.find((s) => s.id === destId);
         const distance = navigationSystem.calculateDistanceBetween(
           originStar,
           destStar
         );
-        const expectedFuelCost = navigationSystem.calculateFuelCost(distance);
-        const expectedJumpTime = navigationSystem.calculateJumpTime(distance);
+        const engineCondition = gameStateManager.getState().ship.engine;
+        const quirks = gameStateManager.getState().ship.quirks || [];
+        const expectedFuelCost =
+          navigationSystem.calculateFuelCostWithCondition(
+            distance,
+            engineCondition,
+            gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+            quirks
+          );
+        const expectedJumpTime =
+          navigationSystem.calculateJumpTimeWithCondition(
+            distance,
+            engineCondition
+          );
 
         // Execute jump WITHOUT animation system (null)
         const result = await navigationSystem.executeJump(
@@ -357,15 +391,25 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
     const initialFuel = gameStateManager.getState().ship.fuel;
     const initialTime = gameStateManager.getState().player.daysElapsed;
 
-    // Calculate expected changes
+    // Calculate expected changes with quirk modifiers
     const originStar = TEST_STAR_DATA.find((s) => s.id === closeJump.originId);
     const destStar = TEST_STAR_DATA.find((s) => s.id === closeJump.destId);
     const distance = navigationSystem.calculateDistanceBetween(
       originStar,
       destStar
     );
-    const expectedFuelCost = navigationSystem.calculateFuelCost(distance);
-    const expectedJumpTime = navigationSystem.calculateJumpTime(distance);
+    const engineCondition = gameStateManager.getState().ship.engine;
+    const quirks = gameStateManager.getState().ship.quirks || [];
+    const expectedFuelCost = navigationSystem.calculateFuelCostWithCondition(
+      distance,
+      engineCondition,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
+    );
+    const expectedJumpTime = navigationSystem.calculateJumpTimeWithCondition(
+      distance,
+      engineCondition
+    );
 
     // Mock animation
     const originalPlayAnimation =
@@ -403,7 +447,7 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
     const initialFuel = gameStateManager.getState().ship.fuel;
     const initialTime = gameStateManager.getState().player.daysElapsed;
 
-    // Calculate expected changes
+    // Calculate expected changes with quirk modifiers
     const originStar = TEST_STAR_DATA.find(
       (s) => s.id === distantJump.originId
     );
@@ -412,8 +456,18 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
       originStar,
       destStar
     );
-    const expectedFuelCost = navigationSystem.calculateFuelCost(distance);
-    const expectedJumpTime = navigationSystem.calculateJumpTime(distance);
+    const engineCondition = gameStateManager.getState().ship.engine;
+    const quirks = gameStateManager.getState().ship.quirks || [];
+    const expectedFuelCost = navigationSystem.calculateFuelCostWithCondition(
+      distance,
+      engineCondition,
+      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      quirks
+    );
+    const expectedJumpTime = navigationSystem.calculateJumpTimeWithCondition(
+      distance,
+      engineCondition
+    );
 
     // Mock animation
     const originalPlayAnimation =

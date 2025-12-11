@@ -121,7 +121,7 @@ describe('Property 34: Auto-Save Triggers', () => {
             (stack) =>
               stack.good === goodType &&
               stack.qty === quantity &&
-              stack.purchasePrice === price
+              stack.buyPrice === price
           );
           expect(hasPurchasedGood).toBe(true);
 

@@ -83,7 +83,7 @@ This specification defines the Deterministic Economy system for Tramp Freighter 
 
 1. WHEN a game day passes THEN the Game System SHALL multiply all market condition values by the daily recovery factor
 2. WHEN the daily recovery factor is 0.90 THEN the Game System SHALL reduce market impacts by 10 percent per day
-3. WHEN a market condition value falls between negative 1 and positive 1 THEN the Game System SHALL remove that entry from market conditions to optimize save file size
+3. WHEN market recovery is applied AND a market condition value falls between negative 1 and positive 1 THEN the Game System SHALL remove that entry from market conditions to optimize save file size
 4. WHEN market conditions are updated THEN the Game System SHALL preserve the sign of surplus and deficit values during recovery
 5. WHEN multiple days pass THEN the Game System SHALL apply the recovery factor for each day that elapsed
 
@@ -138,7 +138,7 @@ This specification defines the Deterministic Economy system for Tramp Freighter 
 3. WHEN storing market conditions THEN the Game System SHALL use system identifier as the first level key
 4. WHEN storing market conditions THEN the Game System SHALL use commodity name as the second level key
 5. WHEN storing market conditions THEN the Game System SHALL store the net quantity as a numeric value
-6. WHEN a market condition value becomes insignificant THEN the Game System SHALL remove that entry from the market conditions object
+6. WHEN market recovery is applied AND a market condition value becomes insignificant THEN the Game System SHALL remove that entry from the market conditions object
 7. WHEN a system has no significant market conditions THEN the Game System SHALL remove that system entry from the market conditions object
 
 ### Requirement 10

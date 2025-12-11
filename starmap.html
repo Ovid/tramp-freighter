@@ -103,7 +103,7 @@
 
     <!-- System Info Panel (existing) -->
     <div id="hud">
-      <button class="close-btn" onclick="deselectStar()">×</button>
+      <button class="close-btn" id="hud-close-btn">×</button>
       <h2 id="hud-name">System Name</h2>
       <div class="info-row">
         <span class="label">Coordinates:</span>
@@ -170,6 +170,11 @@
         <button class="station-btn" id="refuel-btn">Refuel</button>
         <button class="station-btn" id="repairs-btn">Repairs</button>
         <button class="station-btn" id="info-broker-btn">Info Broker</button>
+        <button class="station-btn" id="upgrades-btn">Upgrades</button>
+        <button class="station-btn" id="cargo-manifest-btn">
+          Cargo Manifest
+        </button>
+        <button class="station-btn" id="ship-status-btn">Ship Status</button>
         <button class="station-btn" id="undock-btn">Undock</button>
       </div>
     </div>
@@ -201,6 +206,33 @@
           </div>
           <div id="cargo-stacks" class="cargo-list">
             <!-- Dynamically populated with cargo stacks -->
+          </div>
+        </div>
+
+        <!-- Hidden Cargo Section (only visible when Smuggler's Panels installed) -->
+        <div
+          id="hidden-cargo-section"
+          class="trade-section hidden-cargo-section hidden"
+        >
+          <div class="hidden-cargo-header">
+            <h3>Hidden Cargo</h3>
+            <button
+              id="toggle-hidden-cargo-btn"
+              class="toggle-hidden-cargo-btn"
+            >
+              Hide
+            </button>
+          </div>
+          <div id="hidden-cargo-content" class="hidden-cargo-content">
+            <div class="cargo-capacity-display">
+              <span class="capacity-label">Hidden Capacity:</span>
+              <span id="hidden-cargo-used">0</span> /
+              <span id="hidden-cargo-capacity">10</span>
+              <span class="capacity-units">units</span>
+            </div>
+            <div id="hidden-cargo-stacks" class="cargo-list">
+              <!-- Dynamically populated with hidden cargo stacks -->
+            </div>
           </div>
         </div>
       </div>
@@ -565,6 +597,167 @@
       </div>
     </div>
 
+    <!-- Ship Naming Dialog -->
+    <div id="ship-naming-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <h3 class="modal-title">Name Your Ship</h3>
+          <p class="modal-description">
+            Every ship has a story. What's yours called?
+          </p>
+
+          <div class="ship-naming-input-group">
+            <input
+              type="text"
+              id="ship-name-input"
+              class="ship-name-input"
+              placeholder="Enter ship name..."
+              maxlength="50"
+            />
+          </div>
+
+          <div class="ship-name-suggestions">
+            <p class="suggestions-label">Suggestions:</p>
+            <div id="ship-name-suggestions-list" class="suggestions-list">
+              <!-- Suggestions will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="ship-name-confirm" class="modal-confirm">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrades Interface -->
+    <div id="upgrades-panel">
+      <button class="close-btn" id="upgrades-close-btn">×</button>
+      <h2>Ship Upgrades</h2>
+
+      <div class="upgrades-content">
+        <!-- Credit Balance Display -->
+        <div class="upgrades-credits">
+          <span class="credits-label">Available Credits:</span>
+          <span id="upgrades-credits-value" class="credits-value">0</span>
+        </div>
+
+        <!-- Available Upgrades Section -->
+        <div class="upgrades-section">
+          <h3>Available Upgrades</h3>
+          <div id="available-upgrades-list" class="upgrades-list">
+            <!-- Dynamically populated with available upgrades -->
+          </div>
+        </div>
+
+        <!-- Installed Upgrades Section -->
+        <div class="upgrades-section">
+          <h3>Installed Upgrades</h3>
+          <div id="installed-upgrades-list" class="upgrades-list">
+            <!-- Dynamically populated with installed upgrades -->
+          </div>
+        </div>
+      </div>
+
+      <div class="upgrades-actions">
+        <button class="station-btn secondary" id="upgrades-back-btn">
+          Back to Station
+        </button>
+      </div>
+    </div>
+
+    <!-- Upgrade Confirmation Dialog -->
+    <div id="upgrade-confirmation-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <h3 id="upgrade-confirmation-title" class="modal-title"></h3>
+
+          <div class="upgrade-confirmation-details">
+            <div class="upgrade-confirmation-section">
+              <h4>Effects:</h4>
+              <div
+                id="upgrade-confirmation-effects"
+                class="upgrade-effects-list"
+              >
+                <!-- Effects will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <div class="upgrade-confirmation-section">
+              <h4>Cost:</h4>
+              <div class="upgrade-cost-display">
+                <div class="cost-row">
+                  <span class="cost-label">Current Credits:</span>
+                  <span id="upgrade-current-credits" class="cost-value">0</span>
+                </div>
+                <div class="cost-row">
+                  <span class="cost-label">Upgrade Cost:</span>
+                  <span id="upgrade-cost" class="cost-value">0</span>
+                </div>
+                <div class="cost-row total-row">
+                  <span class="cost-label">Credits After:</span>
+                  <span id="upgrade-credits-after" class="cost-value">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="upgrade-warning">
+              ⚠ This upgrade is PERMANENT and cannot be removed
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="upgrade-cancel-btn" class="modal-cancel">Cancel</button>
+            <button id="upgrade-confirm-btn" class="modal-confirm">
+              Confirm Purchase
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cargo Manifest Panel -->
+    <div id="cargo-manifest-panel">
+      <button class="close-btn" id="cargo-manifest-close-btn">×</button>
+      <h2>CARGO MANIFEST - <span id="cargo-manifest-ship-name"></span></h2>
+
+      <div class="cargo-manifest-content">
+        <!-- Capacity Display -->
+        <div class="cargo-manifest-section">
+          <div class="cargo-capacity-display">
+            <span class="capacity-label">Capacity:</span>
+            <span id="cargo-manifest-used">0</span> /
+            <span id="cargo-manifest-capacity">50</span>
+            <span class="capacity-units">units</span>
+          </div>
+        </div>
+
+        <!-- Cargo List -->
+        <div class="cargo-manifest-section">
+          <h3>Cargo</h3>
+          <div id="cargo-manifest-list" class="cargo-manifest-list">
+            <!-- Dynamically populated with cargo items -->
+          </div>
+        </div>
+
+        <!-- Total Value Display -->
+        <div class="cargo-manifest-section">
+          <div class="cargo-manifest-total">
+            <span class="total-label">Total Cargo Value:</span>
+            <span id="cargo-manifest-total-value" class="total-value">₡0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cargo-manifest-actions">
+        <button class="station-btn secondary" id="cargo-manifest-back-btn">
+          Back
+        </button>
+      </div>
+    </div>
+
     <!-- Initial Game Menu -->
     <div id="game-menu">
       <div class="menu-content">
@@ -584,20 +777,12 @@
 
     <!-- Control Buttons -->
     <div id="controls">
-      <button class="control-btn" onclick="zoomIn()">Zoom In</button>
-      <button class="control-btn" onclick="zoomOut()">Zoom Out</button>
-      <button
-        class="control-btn active"
-        id="rotation-btn"
-        onclick="toggleRotation()"
-      >
+      <button class="control-btn" id="zoom-in-btn">Zoom In</button>
+      <button class="control-btn" id="zoom-out-btn">Zoom Out</button>
+      <button class="control-btn active" id="rotation-btn">
         Toggle Rotation
       </button>
-      <button
-        class="control-btn active"
-        id="boundary-btn"
-        onclick="toggleBoundary()"
-      >
+      <button class="control-btn active" id="boundary-btn">
         Toggle Boundary
       </button>
     </div>

@@ -163,7 +163,7 @@ describe('Property 35: Profit Calculation and Display', () => {
     uiManager = new UIManager(gameStateManager);
   });
 
-  it('should calculate profit amount as (salePrice - purchasePrice)', () => {
+  it('should calculate profit amount as (salePrice - buyPrice)', () => {
     fc.assert(
       fc.property(
         // Generate random cargo stack
@@ -177,7 +177,7 @@ describe('Property 35: Profit Calculation and Display', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
           purchaseSystem: fc.constantFrom(0, 1, 2, 3),
           purchaseDay: fc.integer({ min: 0, max: 100 }),
         }),
@@ -212,7 +212,7 @@ describe('Property 35: Profit Calculation and Display', () => {
           );
 
           // Calculate expected profit
-          const expectedProfit = currentPrice - stack.purchasePrice;
+          const expectedProfit = currentPrice - stack.buyPrice;
 
           // Verify profit amount is displayed correctly
           if (expectedProfit > 0) {
@@ -228,7 +228,7 @@ describe('Property 35: Profit Calculation and Display', () => {
     );
   });
 
-  it('should calculate profit percentage as ((profit / purchasePrice) × 100)', () => {
+  it('should calculate profit percentage as ((profit / buyPrice) × 100)', () => {
     fc.assert(
       fc.property(
         // Generate random cargo stack
@@ -242,7 +242,7 @@ describe('Property 35: Profit Calculation and Display', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
           purchaseSystem: fc.constantFrom(0, 1, 2, 3),
           purchaseDay: fc.integer({ min: 0, max: 100 }),
         }),
@@ -277,11 +277,10 @@ describe('Property 35: Profit Calculation and Display', () => {
           );
 
           // Calculate expected profit and percentage
-          const profit = currentPrice - stack.purchasePrice;
-          const expectedPercentage = (
-            (profit / stack.purchasePrice) *
-            100
-          ).toFixed(1);
+          const profit = currentPrice - stack.buyPrice;
+          const expectedPercentage = ((profit / stack.buyPrice) * 100).toFixed(
+            1
+          );
 
           // Verify profit percentage is displayed correctly
           if (profit !== 0) {
@@ -307,7 +306,7 @@ describe('Property 35: Profit Calculation and Display', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
           purchaseSystem: fc.constantFrom(0, 1, 2, 3),
           purchaseDay: fc.integer({ min: 0, max: 100 }),
         }),
@@ -342,8 +341,8 @@ describe('Property 35: Profit Calculation and Display', () => {
           );
 
           // Calculate expected profit and percentage
-          const profit = currentPrice - stack.purchasePrice;
-          const percentage = ((profit / stack.purchasePrice) * 100).toFixed(1);
+          const profit = currentPrice - stack.buyPrice;
+          const percentage = ((profit / stack.buyPrice) * 100).toFixed(1);
 
           // Verify both profit amount and percentage are displayed
           if (profit > 0) {
@@ -383,7 +382,7 @@ describe('Property 35: Profit Calculation and Display', () => {
             'electronics'
           ),
           qty: fc.integer({ min: 1, max: 50 }),
-          purchasePrice: fc.integer({ min: 5, max: 100 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
           purchaseSystem: fc.constantFrom(0, 1, 2, 3),
           purchaseDay: fc.integer({ min: 0, max: 100 }),
         }),
@@ -459,7 +458,7 @@ describe('Property 35: Profit Calculation and Display', () => {
           const stack = {
             good: good,
             qty: 10,
-            purchasePrice: currentPrice,
+            buyPrice: currentPrice,
             purchaseSystem: currentSystemId,
             purchaseDay: currentDay,
           };

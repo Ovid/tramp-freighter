@@ -40,18 +40,14 @@ describe('Property 21: Sale Credits Addition', () => {
         fc.integer({ min: 5, max: 100 }),
         // Generate random quantity to sell (will be constrained by purchase qty)
         fc.integer({ min: 1, max: 30 }),
-        (goodType, purchaseQty, purchasePrice, salePrice, sellQty) => {
+        (goodType, purchaseQty, buyPrice, salePrice, sellQty) => {
           // Reset to known state with enough credits and cargo space
           gameState.initNewGame();
           gameState.updateCredits(10000);
           gameState.updateCargo([]);
 
           // First, buy some goods to have something to sell
-          const buyResult = gameState.buyGood(
-            goodType,
-            purchaseQty,
-            purchasePrice
-          );
+          const buyResult = gameState.buyGood(goodType, purchaseQty, buyPrice);
           expect(buyResult.success).toBe(true);
 
           // Constrain sell quantity to what we actually have
@@ -99,18 +95,14 @@ describe('Property 21: Sale Credits Addition', () => {
         fc.integer({ min: 1, max: 20 }),
         fc.integer({ min: 5, max: 100 }),
         fc.integer({ min: 5, max: 100 }),
-        (goodType, purchaseQty, purchasePrice, salePrice) => {
+        (goodType, purchaseQty, buyPrice, salePrice) => {
           // Reset to known state
           gameState.initNewGame();
           gameState.updateCredits(10000);
           gameState.updateCargo([]);
 
           // Buy some goods
-          const buyResult = gameState.buyGood(
-            goodType,
-            purchaseQty,
-            purchasePrice
-          );
+          const buyResult = gameState.buyGood(goodType, purchaseQty, buyPrice);
           expect(buyResult.success).toBe(true);
 
           const creditsBeforeSale = gameState.getPlayer().credits;
@@ -150,7 +142,7 @@ describe('Property 21: Sale Credits Addition', () => {
               'electronics'
             ),
             quantity: fc.integer({ min: 5, max: 10 }),
-            purchasePrice: fc.integer({ min: 5, max: 20 }),
+            buyPrice: fc.integer({ min: 5, max: 20 }),
           }),
           { minLength: 2, maxLength: 4 }
         ),
@@ -167,7 +159,7 @@ describe('Property 21: Sale Credits Addition', () => {
             gameState.buyGood(
               purchase.goodType,
               purchase.quantity,
-              purchase.purchasePrice
+              purchase.buyPrice
             );
           }
 
@@ -219,21 +211,21 @@ describe('Property 21: Sale Credits Addition', () => {
         fc.integer({ min: 1, max: 30 }),
         fc.integer({ min: 5, max: 100 }),
         fc.integer({ min: 5, max: 100 }),
-        (goodType, quantity, purchasePrice, salePrice) => {
+        (goodType, quantity, buyPrice, salePrice) => {
           // Reset to known state
           gameState.initNewGame();
           gameState.updateCredits(10000);
           gameState.updateCargo([]);
 
           // Buy goods
-          gameState.buyGood(goodType, quantity, purchasePrice);
+          gameState.buyGood(goodType, quantity, buyPrice);
 
           // Sell goods
           const sellResult = gameState.sellGood(0, quantity, salePrice);
 
           // Verify profit margin is correct
           expect(sellResult.success).toBe(true);
-          expect(sellResult.profitMargin).toBe(salePrice - purchasePrice);
+          expect(sellResult.profitMargin).toBe(salePrice - buyPrice);
         }
       ),
       { numRuns: 100 }

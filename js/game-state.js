@@ -1,3 +1,5 @@
+'use strict';
+
 import {
   COMMODITY_TYPES,
   FUEL_PRICING,
@@ -11,6 +13,9 @@ import {
   SHIP_CONDITION_WARNING_THRESHOLDS,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
+  SHIP_QUIRKS,
+  SHIP_UPGRADES,
+  DEFAULT_SHIP_NAME,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -18,6 +23,32 @@ import { InformationBroker } from './game-information-broker.js';
 
 // Save debouncing prevents excessive localStorage writes (max 1 save per second)
 const SAVE_DEBOUNCE_MS = 1000;
+
+/**
+ * Sanitize ship name input
+ *
+ * Removes HTML tags, trims whitespace, and limits length to prevent display issues.
+ * Returns default ship name if input is empty after sanitization.
+ *
+ * Feature: ship-personality, Property 10: Ship Name Sanitization
+ * Validates: Requirements 4.2, 4.3, 10.3, 10.5
+ *
+ * @param {string} name - User input for ship name
+ * @returns {string} Sanitized name or default
+ */
+export function sanitizeShipName(name) {
+  if (!name || name.trim().length === 0) {
+    return DEFAULT_SHIP_NAME;
+  }
+
+  // Remove HTML tags, limit length, then trim (order matters for edge cases)
+  const sanitized = name
+    .replace(/<[^>]*>/g, '')
+    .substring(0, 50)
+    .trim();
+
+  return sanitized || DEFAULT_SHIP_NAME;
+}
 
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
@@ -61,6 +92,84 @@ export class GameStateManager {
   }
 
   /**
+   * Assigns 2-3 random quirks to a new ship
+   *
+   * Quirks are permanent personality traits that provide both benefits and drawbacks.
+   * Each ship receives a random number of quirks (50% chance for 2, 50% chance for 3).
+   * No duplicate quirks are assigned.
+   *
+   * Feature: ship-personality, Property 1: Quirk Assignment Bounds
+   * Validates: Requirements 1.1, 1.2
+   *
+   * @param {Function} rng - Random number generator (0-1), defaults to Math.random
+   * @returns {string[]} Array of quirk IDs
+   */
+  assignShipQuirks(rng = Math.random) {
+    const quirkIds = Object.keys(SHIP_QUIRKS);
+    const count = rng() < 0.5 ? 2 : 3;
+    const assigned = new Set();
+
+    while (assigned.size < count) {
+      const randomId = quirkIds[Math.floor(rng() * quirkIds.length)];
+      assigned.add(randomId);
+    }
+
+    return Array.from(assigned);
+  }
+
+  /**
+   * Apply quirk modifiers to a base value
+   *
+   * Iterates through all quirks and applies relevant modifiers multiplicatively.
+   * Quirks that don't affect the specified attribute are ignored.
+   *
+   * Example: If two quirks both affect fuelConsumption with modifiers 0.85 and 1.05,
+   * the result is baseValue × 0.85 × 1.05 = baseValue × 0.8925
+   *
+   * Feature: ship-personality, Property 2: Quirk Effect Application
+   * Validates: Requirements 1.4, 6.1, 6.2, 6.3, 6.4, 6.5
+   *
+   * @param {number} baseValue - Starting value before modifiers
+   * @param {string} attribute - Attribute name (e.g., 'fuelConsumption', 'hullDegradation')
+   * @param {string[]} quirks - Array of quirk IDs
+   * @returns {number} Modified value after applying all relevant quirk modifiers
+   */
+  applyQuirkModifiers(baseValue, attribute, quirks) {
+    let modified = baseValue;
+
+    for (const quirkId of quirks) {
+      const quirk = SHIP_QUIRKS[quirkId];
+
+      // If quirk doesn't exist, this is a critical bug - fail loudly
+      if (!quirk) {
+        throw new Error(
+          `Invalid quirk ID: ${quirkId} not found in SHIP_QUIRKS`
+        );
+      }
+
+      // Only apply modifier if this quirk affects the specified attribute
+      if (quirk.effects[attribute]) {
+        modified *= quirk.effects[attribute];
+      }
+    }
+
+    return modified;
+  }
+
+  /**
+   * Get quirk definition by ID
+   *
+   * Returns the quirk definition object from SHIP_QUIRKS constant.
+   * Used by UI to display quirk information.
+   *
+   * @param {string} quirkId - Quirk identifier
+   * @returns {Object|null} Quirk definition or null if not found
+   */
+  getQuirkDefinition(quirkId) {
+    return SHIP_QUIRKS[quirkId] || null;
+  }
+
+  /**
    * Initialize a new game with default values
    */
   initNewGame() {
@@ -89,6 +198,9 @@ export class GameStateManager {
       );
     }
 
+    // Assign random quirks to the ship
+    const shipQuirks = this.assignShipQuirks();
+
     this.state = {
       player: {
         credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
@@ -98,6 +210,8 @@ export class GameStateManager {
       },
       ship: {
         name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
+        quirks: shipQuirks,
+        upgrades: [],
         fuel: SHIP_CONDITION_BOUNDS.MAX,
         hull: SHIP_CONDITION_BOUNDS.MAX,
         engine: SHIP_CONDITION_BOUNDS.MAX,
@@ -107,11 +221,14 @@ export class GameStateManager {
           {
             good: 'grain',
             qty: NEW_GAME_DEFAULTS.STARTING_GRAIN_QUANTITY,
-            purchasePrice: solGrainPrice,
-            purchaseSystem: SOL_SYSTEM_ID,
-            purchaseDay: 0,
+            buyPrice: solGrainPrice,
+            buySystem: SOL_SYSTEM_ID,
+            buySystemName: 'Sol',
+            buyDate: 0,
           },
         ],
+        hiddenCargo: [],
+        hiddenCargoCapacity: 0,
       },
       world: {
         visitedSystems: [SOL_SYSTEM_ID],
@@ -262,6 +379,26 @@ export class GameStateManager {
     return this.state.ship.cargoCapacity - this.getCargoUsed();
   }
 
+  /**
+   * Get current fuel capacity based on installed upgrades
+   *
+   * Fuel capacity is calculated on-demand rather than stored in state
+   * because it's derived from upgrades. Base capacity is 100, Extended
+   * Fuel Tank upgrade increases it to 150.
+   *
+   * @returns {number} Maximum fuel capacity in percentage points
+   */
+  getFuelCapacity() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getFuelCapacity called before game initialization'
+      );
+    }
+
+    const capabilities = this.calculateShipCapabilities();
+    return capabilities.fuelCapacity;
+  }
+
   isSystemVisited(systemId) {
     if (!this.state) {
       throw new Error(
@@ -356,7 +493,10 @@ export class GameStateManager {
         'Invalid state: getKnownPrices called before game initialization'
       );
     }
-    return this.state.world.priceKnowledge?.[systemId]?.prices || null;
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
+    return this.state.world.priceKnowledge[systemId]?.prices || null;
   }
 
   /**
@@ -368,7 +508,10 @@ export class GameStateManager {
         'Invalid state: hasVisitedSystem called before game initialization'
       );
     }
-    return this.state.world.priceKnowledge?.[systemId] !== undefined;
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
+    return this.state.world.priceKnowledge[systemId] !== undefined;
   }
 
   // ========================================================================
@@ -386,12 +529,11 @@ export class GameStateManager {
   }
 
   updateFuel(newFuel) {
-    if (
-      newFuel < SHIP_CONDITION_BOUNDS.MIN ||
-      newFuel > SHIP_CONDITION_BOUNDS.MAX
-    ) {
+    const maxFuel = this.getFuelCapacity();
+
+    if (newFuel < SHIP_CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
       throw new Error(
-        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${SHIP_CONDITION_BOUNDS.MAX}.`
+        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${maxFuel}.`
       );
     }
 
@@ -604,7 +746,14 @@ export class GameStateManager {
    * @param {number} days - Number of days to increment (default 1)
    */
   incrementPriceKnowledgeStaleness(days = 1) {
-    if (!this.state?.world.priceKnowledge) return;
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: incrementPriceKnowledgeStaleness called before game initialization'
+      );
+    }
+    if (!this.state.world.priceKnowledge) {
+      throw new Error('Invalid state: priceKnowledge missing from world state');
+    }
 
     for (const systemId in this.state.world.priceKnowledge) {
       this.state.world.priceKnowledge[systemId].lastVisit += days;
@@ -782,16 +931,25 @@ export class GameStateManager {
   /**
    * Get list of systems connected to current system with intelligence costs
    *
-   * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
+   * When Advanced Sensor Array upgrade is installed, includes active economic
+   * events for connected systems.
+   *
+   * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   listAvailableIntelligence() {
     const priceKnowledge = this.getPriceKnowledge();
     const currentSystemId = this.state.player.currentSystem;
+    const activeEvents = this.getActiveEvents();
+    const hasAdvancedSensors =
+      this.state.ship.upgrades.includes('advanced_sensors');
+
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,
       this.starData,
       currentSystemId,
-      this.navigationSystem
+      this.navigationSystem,
+      activeEvents,
+      hasAdvancedSensors
     );
   }
 
@@ -827,14 +985,17 @@ export class GameStateManager {
 
     // Pass current system and day for purchase metadata
     const currentSystemId = this.state.player.currentSystem;
+    const currentSystem = this.getCurrentSystem();
+    const currentSystemName = currentSystem.name;
     const currentDay = this.state.player.daysElapsed;
 
-    const newCargo = TradingSystem.addCargoStack(
+    const newCargo = TradingSystem.recordCargoPurchase(
       this.state.ship.cargo,
       goodType,
       quantity,
       price,
       currentSystemId,
+      currentSystemName,
       currentDay
     );
     this.updateCargo(newCargo);
@@ -888,13 +1049,17 @@ export class GameStateManager {
 
     const stack = cargo[stackIndex];
     const totalRevenue = quantity * salePrice;
-    const profitMargin = salePrice - stack.purchasePrice;
+    const profitMargin = salePrice - stack.buyPrice;
 
     const currentCredits = this.state.player.credits;
     this.updateCredits(currentCredits + totalRevenue);
 
-    const newCargo = this.removeFromCargoStack(cargo, stackIndex, quantity);
-    this.updateCargo(newCargo);
+    // Remove quantity from stack; remove stack if empty
+    stack.qty -= quantity;
+    if (stack.qty <= 0) {
+      cargo.splice(stackIndex, 1);
+    }
+    this.updateCargo(cargo);
 
     // Update market conditions: positive quantity creates surplus (lowers prices)
     // Feature: deterministic-economy, Requirements 4.1, 4.2
@@ -934,25 +1099,6 @@ export class GameStateManager {
     }
 
     return { valid: true };
-  }
-
-  /**
-   * Decreases quantity in stack; removes stack if empty
-   */
-  removeFromCargoStack(cargo, stackIndex, quantity) {
-    const updatedCargo = [...cargo];
-    const stack = { ...updatedCargo[stackIndex] };
-
-    stack.qty -= quantity;
-
-    // Remove stack if empty
-    if (stack.qty <= 0) {
-      updatedCargo.splice(stackIndex, 1);
-    } else {
-      updatedCargo[stackIndex] = stack;
-    }
-
-    return updatedCargo;
   }
 
   // ========================================================================
@@ -1004,15 +1150,15 @@ export class GameStateManager {
     // Calculate total cost
     const totalCost = amount * pricePerPercent;
 
+    // Get current fuel capacity (accounts for upgrades)
+    const maxFuel = this.getFuelCapacity();
+
     // Check capacity constraint
     // Use epsilon for floating point comparison
-    if (
-      currentFuel + amount >
-      SHIP_CONDITION_BOUNDS.MAX + FUEL_CAPACITY_EPSILON
-    ) {
+    if (currentFuel + amount > maxFuel + FUEL_CAPACITY_EPSILON) {
       return {
         valid: false,
-        reason: `Cannot refuel beyond ${SHIP_CONDITION_BOUNDS.MAX}% capacity`,
+        reason: `Cannot refuel beyond ${maxFuel}% capacity`,
         cost: totalCost,
       };
     }
@@ -1220,6 +1366,324 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // UPGRADE SYSTEM
+  // ========================================================================
+
+  /**
+   * Validate upgrade purchase
+   *
+   * Checks if an upgrade can be purchased by verifying:
+   * 1. Upgrade is not already installed
+   * 2. Player has sufficient credits
+   *
+   * Feature: ship-personality, Property 11: Upgrade Purchase Validation
+   * Validates: Requirements 2.5, 8.5
+   *
+   * @param {string} upgradeId - Upgrade identifier from SHIP_UPGRADES
+   * @returns {Object} { valid: boolean, reason: string }
+   */
+  validateUpgradePurchase(upgradeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: validateUpgradePurchase called before game initialization'
+      );
+    }
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      return { valid: false, reason: 'Unknown upgrade' };
+    }
+
+    // Check if already purchased
+    if (this.state.ship.upgrades.includes(upgradeId)) {
+      return { valid: false, reason: 'Upgrade already installed' };
+    }
+
+    // Check credits
+    if (this.state.player.credits < upgrade.cost) {
+      return {
+        valid: false,
+        reason: `Insufficient credits (need ₡${upgrade.cost})`,
+      };
+    }
+
+    return { valid: true, reason: '' };
+  }
+
+  /**
+   * Purchase and install a ship upgrade
+   *
+   * Validates the purchase, deducts credits, adds upgrade to ship, and applies
+   * upgrade effects to ship capabilities. All upgrades are permanent and cannot
+   * be removed once purchased.
+   *
+   * Feature: ship-personality, Property 3: Upgrade Purchase Transaction
+   * Validates: Requirements 2.4, 2.5
+   *
+   * @param {string} upgradeId - Upgrade identifier from SHIP_UPGRADES
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  purchaseUpgrade(upgradeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: purchaseUpgrade called before game initialization'
+      );
+    }
+
+    // Validate purchase
+    const validation = this.validateUpgradePurchase(upgradeId);
+    if (!validation.valid) {
+      return { success: false, reason: validation.reason };
+    }
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+
+    // Deduct credits
+    this.updateCredits(this.state.player.credits - upgrade.cost);
+
+    // Add upgrade to ship
+    this.state.ship.upgrades.push(upgradeId);
+
+    // Apply upgrade effects to ship capabilities
+    const capabilities = this.calculateShipCapabilities();
+
+    // Update ship state with new capabilities
+    this.state.ship.cargoCapacity = capabilities.cargoCapacity;
+    this.state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+
+    // Note: Fuel capacity is calculated on-demand via getFuelCapacity()
+    // Note: Rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
+    // are applied during calculations via calculateShipCapabilities(), not stored
+
+    // Persist immediately - upgrade purchase modifies credits and ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Calculate ship capabilities based on installed upgrades
+   *
+   * Starts with base capabilities and applies all upgrade effects.
+   * Capacities use absolute values, rates use multipliers.
+   *
+   * Feature: ship-personality, Property 4: Upgrade Effect Application
+   * Validates: Requirements 2.6, 7.1-7.9
+   *
+   * @returns {Object} Ship capabilities with all upgrades applied
+   */
+  calculateShipCapabilities() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: calculateShipCapabilities called before game initialization'
+      );
+    }
+
+    const capabilities = {
+      fuelCapacity: SHIP_CONDITION_BOUNDS.MAX,
+      cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
+      fuelConsumption: 1.0,
+      hullDegradation: 1.0,
+      lifeSupportDrain: 1.0,
+      hiddenCargoCapacity: 0,
+      eventVisibility: 0,
+    };
+
+    // Apply upgrade effects
+    for (const upgradeId of this.state.ship.upgrades) {
+      const upgrade = SHIP_UPGRADES[upgradeId];
+
+      // If upgrade doesn't exist, this is a critical bug - fail loudly
+      if (!upgrade) {
+        throw new Error(
+          `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+        );
+      }
+
+      for (const [attr, value] of Object.entries(upgrade.effects)) {
+        if (attr.endsWith('Capacity')) {
+          // Absolute values for capacities
+          capabilities[attr] = value;
+        } else {
+          // Multipliers for rates
+          capabilities[attr] *= value;
+        }
+      }
+    }
+
+    return capabilities;
+  }
+
+  // ========================================================================
+  // HIDDEN CARGO SYSTEM
+  // ========================================================================
+
+  /**
+   * Add cargo to a cargo array, stacking with existing cargo if possible
+   *
+   * Stacks cargo with matching good type and buyPrice. If no match is found,
+   * creates a new stack. Preserves purchase metadata from the source stack.
+   *
+   * @param {Array} cargoArray - Target cargo array (regular or hidden)
+   * @param {Object} sourceStack - Source cargo stack with metadata
+   * @param {number} qty - Quantity to add
+   * @private
+   */
+  _addToCargoArray(cargoArray, sourceStack, qty) {
+    // Find existing stack with matching good and buyPrice
+    const existingIndex = cargoArray.findIndex(
+      (c) => c.good === sourceStack.good && c.buyPrice === sourceStack.buyPrice
+    );
+
+    if (existingIndex >= 0) {
+      // Stack with existing cargo
+      cargoArray[existingIndex].qty += qty;
+    } else {
+      // Create new stack with metadata from source
+      cargoArray.push({
+        good: sourceStack.good,
+        qty: qty,
+        buyPrice: sourceStack.buyPrice,
+        buySystem: sourceStack.buySystem,
+        buySystemName: sourceStack.buySystemName,
+        buyDate: sourceStack.buyDate,
+      });
+    }
+  }
+
+  /**
+   * Move cargo from regular compartment to hidden compartment
+   *
+   * Validates that Smuggler's Panels is installed, cargo exists with sufficient
+   * quantity, and hidden cargo capacity is available. Transfers cargo between
+   * compartments while preserving purchase metadata.
+   *
+   * Feature: ship-personality, Property 12: Hidden Cargo Transfer Validation
+   * Validates: Requirements 3.1, 3.3
+   *
+   * @param {string} good - Commodity type
+   * @param {number} qty - Quantity to move
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  moveToHiddenCargo(good, qty) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: moveToHiddenCargo called before game initialization'
+      );
+    }
+
+    const ship = this.state.ship;
+
+    // Check if smuggler's panels installed
+    if (!ship.upgrades.includes('smuggler_panels')) {
+      return { success: false, reason: 'No hidden cargo compartment' };
+    }
+
+    // Find cargo stack
+    const cargoIndex = ship.cargo.findIndex((c) => c.good === good);
+    if (cargoIndex === -1) {
+      return { success: false, reason: 'Cargo not found' };
+    }
+
+    const cargoStack = ship.cargo[cargoIndex];
+    if (cargoStack.qty < qty) {
+      return { success: false, reason: 'Insufficient quantity' };
+    }
+
+    // Check hidden cargo capacity
+    const hiddenUsed = ship.hiddenCargo.reduce((sum, c) => sum + c.qty, 0);
+    const hiddenAvailable = ship.hiddenCargoCapacity - hiddenUsed;
+    if (qty > hiddenAvailable) {
+      return {
+        success: false,
+        reason: `Hidden cargo full (${hiddenAvailable} units available)`,
+      };
+    }
+
+    // Remove from regular cargo
+    cargoStack.qty -= qty;
+    if (cargoStack.qty === 0) {
+      ship.cargo.splice(cargoIndex, 1);
+    }
+
+    // Add to hidden cargo (stacks with matching good and buyPrice)
+    this._addToCargoArray(ship.hiddenCargo, cargoStack, qty);
+
+    // Emit cargo change event
+    this.updateCargo(ship.cargo);
+
+    // Persist immediately - cargo transfer modifies ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Move cargo from hidden compartment to regular compartment
+   *
+   * Validates that cargo exists in hidden compartment and regular cargo
+   * capacity is available. Transfers cargo between compartments while
+   * preserving purchase metadata.
+   *
+   * Feature: ship-personality, Property 12: Hidden Cargo Transfer Validation
+   * Validates: Requirements 3.4
+   *
+   * @param {string} good - Commodity type
+   * @param {number} qty - Quantity to move
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  moveToRegularCargo(good, qty) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: moveToRegularCargo called before game initialization'
+      );
+    }
+
+    const ship = this.state.ship;
+
+    // Find hidden cargo stack
+    const hiddenIndex = ship.hiddenCargo.findIndex((c) => c.good === good);
+    if (hiddenIndex === -1) {
+      return {
+        success: false,
+        reason: 'Cargo not found in hidden compartment',
+      };
+    }
+
+    const hiddenStack = ship.hiddenCargo[hiddenIndex];
+    if (hiddenStack.qty < qty) {
+      return { success: false, reason: 'Insufficient quantity' };
+    }
+
+    // Check regular cargo capacity
+    const cargoUsed = ship.cargo.reduce((sum, c) => sum + c.qty, 0);
+    const cargoAvailable = ship.cargoCapacity - cargoUsed;
+    if (qty > cargoAvailable) {
+      return {
+        success: false,
+        reason: `Cargo hold full (${cargoAvailable} units available)`,
+      };
+    }
+
+    // Remove from hidden cargo
+    hiddenStack.qty -= qty;
+    if (hiddenStack.qty === 0) {
+      ship.hiddenCargo.splice(hiddenIndex, 1);
+    }
+
+    // Add to regular cargo (stacks with matching good and buyPrice)
+    this._addToCargoArray(ship.cargo, hiddenStack, qty);
+
+    // Emit cargo change event
+    this.updateCargo(ship.cargo);
+
+    // Persist immediately - cargo transfer modifies ship state
+    this.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  // ========================================================================
   // DOCK/UNDOCK OPERATIONS
   // ========================================================================
 
@@ -1393,13 +1857,142 @@ export class GameStateManager {
       }
       if (loadedState.ship.cargo && Array.isArray(loadedState.ship.cargo)) {
         loadedState.ship.cargo.forEach((stack) => {
-          if (stack.purchaseSystem === undefined) {
-            stack.purchaseSystem = loadedState.player.currentSystem;
+          // Migrate old field names to new ones
+          if (
+            stack.purchasePrice !== undefined &&
+            stack.buyPrice === undefined
+          ) {
+            stack.buyPrice = stack.purchasePrice;
+            delete stack.purchasePrice;
           }
-          if (stack.purchaseDay === undefined) {
-            stack.purchaseDay = 0;
+          if (
+            stack.purchaseSystem !== undefined &&
+            stack.buySystem === undefined
+          ) {
+            stack.buySystem = stack.purchaseSystem;
+            delete stack.purchaseSystem;
+          }
+          if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
+            stack.buyDate = stack.purchaseDay;
+            delete stack.purchaseDay;
+          }
+
+          // Add defaults for missing fields
+          if (stack.buySystem === undefined) {
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (stack.buySystemName === undefined) {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (stack.buyDate === undefined) {
+            stack.buyDate = 0;
           }
         });
+      }
+      // Add ship personality fields if missing
+      if (!loadedState.ship.quirks) {
+        loadedState.ship.quirks = [];
+      }
+      if (!loadedState.ship.upgrades) {
+        loadedState.ship.upgrades = [];
+      }
+      if (!loadedState.ship.hiddenCargo) {
+        loadedState.ship.hiddenCargo = [];
+      }
+      if (loadedState.ship.hiddenCargoCapacity === undefined) {
+        loadedState.ship.hiddenCargoCapacity = 0;
+      }
+
+      // Validate quirk IDs and remove unknown ones
+      if (Array.isArray(loadedState.ship.quirks)) {
+        const validQuirks = [];
+        for (const quirkId of loadedState.ship.quirks) {
+          if (SHIP_QUIRKS[quirkId]) {
+            validQuirks.push(quirkId);
+          } else {
+            console.warn(
+              `Unknown quirk ID: ${quirkId}, removing from save data`
+            );
+          }
+        }
+        loadedState.ship.quirks = validQuirks;
+      }
+
+      // Validate upgrade IDs and remove unknown ones
+      if (Array.isArray(loadedState.ship.upgrades)) {
+        const validUpgrades = [];
+        for (const upgradeId of loadedState.ship.upgrades) {
+          if (SHIP_UPGRADES[upgradeId]) {
+            validUpgrades.push(upgradeId);
+          } else {
+            console.warn(
+              `Unknown upgrade ID: ${upgradeId}, removing from save data`
+            );
+          }
+        }
+        loadedState.ship.upgrades = validUpgrades;
+      }
+
+      // Validate cargo structure completeness
+      if (Array.isArray(loadedState.ship.cargo)) {
+        for (const stack of loadedState.ship.cargo) {
+          // Ensure all required fields are present
+          if (!stack.good || typeof stack.qty !== 'number') {
+            console.warn('Invalid cargo stack found, skipping:', stack);
+            continue;
+          }
+          if (typeof stack.buyPrice !== 'number') {
+            console.warn(`Cargo stack missing buyPrice, using 0:`, stack.good);
+            stack.buyPrice = 0;
+          }
+          if (typeof stack.buySystem !== 'number') {
+            console.warn(
+              `Cargo stack missing buySystem, using current system:`,
+              stack.good
+            );
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (typeof stack.buySystemName !== 'string') {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (typeof stack.buyDate !== 'number') {
+            stack.buyDate = 0;
+          }
+        }
+      }
+
+      // Validate hidden cargo structure completeness
+      if (Array.isArray(loadedState.ship.hiddenCargo)) {
+        for (const stack of loadedState.ship.hiddenCargo) {
+          // Ensure all required fields are present
+          if (!stack.good || typeof stack.qty !== 'number') {
+            console.warn('Invalid hidden cargo stack found, skipping:', stack);
+            continue;
+          }
+          if (typeof stack.buyPrice !== 'number') {
+            console.warn(
+              `Hidden cargo stack missing buyPrice, using 0:`,
+              stack.good
+            );
+            stack.buyPrice = 0;
+          }
+          if (typeof stack.buySystem !== 'number') {
+            console.warn(
+              `Hidden cargo stack missing buySystem, using current system:`,
+              stack.good
+            );
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (typeof stack.buySystemName !== 'string') {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (typeof stack.buyDate !== 'number') {
+            stack.buyDate = 0;
+          }
+        }
       }
       if (!loadedState.world.priceKnowledge) {
         loadedState.world.priceKnowledge = {};
@@ -1547,18 +2140,80 @@ export class GameStateManager {
       state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
     }
 
-    // Add cargo purchase metadata
+    // Add cargo purchase metadata and migrate field names
     if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
       state.ship.cargo.forEach((stack) => {
-        if (stack.purchaseSystem === undefined) {
-          // Default to current system (best guess)
-          stack.purchaseSystem = state.player.currentSystem;
+        // Migrate old field names to new ones
+        if (stack.purchasePrice !== undefined && stack.buyPrice === undefined) {
+          stack.buyPrice = stack.purchasePrice;
+          delete stack.purchasePrice;
         }
-        if (stack.purchaseDay === undefined) {
-          // Default to day 0 (unknown purchase time)
-          stack.purchaseDay = 0;
+        if (
+          stack.purchaseSystem !== undefined &&
+          stack.buySystem === undefined
+        ) {
+          stack.buySystem = stack.purchaseSystem;
+          delete stack.purchaseSystem;
+        }
+        if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
+          stack.buyDate = stack.purchaseDay;
+          delete stack.purchaseDay;
+        }
+
+        // Add defaults for missing fields
+        if (stack.buySystem === undefined) {
+          stack.buySystem = state.player.currentSystem;
+        }
+        if (stack.buySystemName === undefined) {
+          const system = this.starData.find((s) => s.id === stack.buySystem);
+          stack.buySystemName = system ? system.name : 'Unknown';
+        }
+        if (stack.buyDate === undefined) {
+          stack.buyDate = 0;
         }
       });
+    }
+
+    // Add ship personality fields
+    if (!state.ship.quirks) {
+      state.ship.quirks = [];
+    }
+    if (!state.ship.upgrades) {
+      state.ship.upgrades = [];
+    }
+    if (!state.ship.hiddenCargo) {
+      state.ship.hiddenCargo = [];
+    }
+    if (state.ship.hiddenCargoCapacity === undefined) {
+      state.ship.hiddenCargoCapacity = 0;
+    }
+
+    // Validate quirk IDs and remove unknown ones
+    if (Array.isArray(state.ship.quirks)) {
+      const validQuirks = [];
+      for (const quirkId of state.ship.quirks) {
+        if (SHIP_QUIRKS[quirkId]) {
+          validQuirks.push(quirkId);
+        } else {
+          console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
+        }
+      }
+      state.ship.quirks = validQuirks;
+    }
+
+    // Validate upgrade IDs and remove unknown ones
+    if (Array.isArray(state.ship.upgrades)) {
+      const validUpgrades = [];
+      for (const upgradeId of state.ship.upgrades) {
+        if (SHIP_UPGRADES[upgradeId]) {
+          validUpgrades.push(upgradeId);
+        } else {
+          console.warn(
+            `Unknown upgrade ID: ${upgradeId}, removing from save data`
+          );
+        }
+      }
+      state.ship.upgrades = validUpgrades;
     }
 
     // Add price knowledge database
@@ -1672,6 +2327,29 @@ export class GameStateManager {
       return false;
     }
 
+    // Check ship personality fields (optional - will be initialized if missing)
+    if (state.ship.quirks !== undefined && !Array.isArray(state.ship.quirks)) {
+      return false;
+    }
+    if (
+      state.ship.upgrades !== undefined &&
+      !Array.isArray(state.ship.upgrades)
+    ) {
+      return false;
+    }
+    if (
+      state.ship.hiddenCargo !== undefined &&
+      !Array.isArray(state.ship.hiddenCargo)
+    ) {
+      return false;
+    }
+    if (
+      state.ship.hiddenCargoCapacity !== undefined &&
+      typeof state.ship.hiddenCargoCapacity !== 'number'
+    ) {
+      return false;
+    }
+
     // Check ship condition fields (optional - will be initialized if missing)
     if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
       return false;
@@ -1691,19 +2369,39 @@ export class GameStateManager {
 
     // Check cargo stacks
     for (const stack of state.ship.cargo) {
-      if (
-        !stack.good ||
-        typeof stack.qty !== 'number' ||
-        typeof stack.purchasePrice !== 'number'
-      ) {
+      if (!stack.good || typeof stack.qty !== 'number') {
+        return false;
+      }
+
+      // Accept both old and new field names for price
+      const hasPrice =
+        typeof stack.buyPrice === 'number' ||
+        typeof stack.purchasePrice === 'number';
+      if (!hasPrice) {
         return false;
       }
 
       // Purchase metadata is optional - will be initialized if missing
+      // Accept both old and new field names
+      if (
+        stack.buySystem !== undefined &&
+        typeof stack.buySystem !== 'number'
+      ) {
+        return false;
+      }
       if (
         stack.purchaseSystem !== undefined &&
         typeof stack.purchaseSystem !== 'number'
       ) {
+        return false;
+      }
+      if (
+        stack.buySystemName !== undefined &&
+        typeof stack.buySystemName !== 'string'
+      ) {
+        return false;
+      }
+      if (stack.buyDate !== undefined && typeof stack.buyDate !== 'number') {
         return false;
       }
       if (

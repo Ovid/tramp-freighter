@@ -1,3 +1,5 @@
+'use strict';
+
 import {
   calculateDistanceFromSol,
   INTELLIGENCE_PRICES,
@@ -5,6 +7,7 @@ import {
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
   SHIP_CONDITION_BOUNDS,
+  SHIP_UPGRADES,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
@@ -98,6 +101,7 @@ export class UIManager {
       repairsBtn: document.getElementById('repairs-btn'),
       repairPanel: document.getElementById('repair-panel'),
       repairSystemName: document.getElementById('repair-system-name'),
+      shipStatusBtn: document.getElementById('ship-status-btn'),
       repairCloseBtn: document.getElementById('repair-close-btn'),
       repairBackBtn: document.getElementById('repair-back-btn'),
       repairHullPercent: document.getElementById('repair-hull-percent'),
@@ -118,33 +122,62 @@ export class UIManager {
       eventModalDescription: document.getElementById('event-modal-description'),
       eventModalDuration: document.getElementById('event-modal-duration'),
       eventModalDismiss: document.getElementById('event-modal-dismiss'),
+      upgradesBtn: document.getElementById('upgrades-btn'),
+      upgradesPanel: document.getElementById('upgrades-panel'),
+      cargoManifestBtn: document.getElementById('cargo-manifest-btn'),
+      upgradesCloseBtn: document.getElementById('upgrades-close-btn'),
+      upgradesBackBtn: document.getElementById('upgrades-back-btn'),
+      upgradesCreditsValue: document.getElementById('upgrades-credits-value'),
+      availableUpgradesList: document.getElementById('available-upgrades-list'),
+      installedUpgradesList: document.getElementById('installed-upgrades-list'),
+      upgradeConfirmationOverlay: document.getElementById(
+        'upgrade-confirmation-overlay'
+      ),
+      upgradeConfirmationTitle: document.getElementById(
+        'upgrade-confirmation-title'
+      ),
+      upgradeConfirmationEffects: document.getElementById(
+        'upgrade-confirmation-effects'
+      ),
+      upgradeCurrentCredits: document.getElementById('upgrade-current-credits'),
+      upgradeCost: document.getElementById('upgrade-cost'),
+      upgradeCreditsAfter: document.getElementById('upgrade-credits-after'),
+      upgradeCancelBtn: document.getElementById('upgrade-cancel-btn'),
+      upgradeConfirmBtn: document.getElementById('upgrade-confirm-btn'),
+      cargoManifestPanel: document.getElementById('cargo-manifest-panel'),
+      cargoManifestCloseBtn: document.getElementById(
+        'cargo-manifest-close-btn'
+      ),
+      cargoManifestBackBtn: document.getElementById('cargo-manifest-back-btn'),
+      cargoManifestShipName: document.getElementById(
+        'cargo-manifest-ship-name'
+      ),
+      cargoManifestUsed: document.getElementById('cargo-manifest-used'),
+      cargoManifestCapacity: document.getElementById('cargo-manifest-capacity'),
+      cargoManifestList: document.getElementById('cargo-manifest-list'),
+      cargoManifestTotalValue: document.getElementById(
+        'cargo-manifest-total-value'
+      ),
+      hiddenCargoSection: document.getElementById('hidden-cargo-section'),
+      hiddenCargoUsed: document.getElementById('hidden-cargo-used'),
+      hiddenCargoCapacity: document.getElementById('hidden-cargo-capacity'),
+      hiddenCargoStacks: document.getElementById('hidden-cargo-stacks'),
+      toggleHiddenCargoBtn: document.getElementById('toggle-hidden-cargo-btn'),
+      hiddenCargoContent: document.getElementById('hidden-cargo-content'),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
     this.cachedRepairButtons = null;
     // Cache refuel preset buttons for consistency
     this.cachedRefuelPresetButtons = null;
+    // Cache ship status panel (created on first use)
+    this.shipStatusPanel = null;
 
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
+    this.setupShipStatusHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
-
-    // Validate critical DOM elements were cached (skip in test environment)
-    const isTestEnvironment =
-      typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
-    if (!isTestEnvironment) {
-      if (this.cachedRepairButtons.length === 0) {
-        throw new Error(
-          'Repair buttons not found in DOM - check HTML structure'
-        );
-      }
-      if (this.cachedRefuelPresetButtons.length === 0) {
-        throw new Error(
-          'Refuel preset buttons not found in DOM - check HTML structure'
-        );
-      }
-    }
   }
 
   subscribeToStateChanges() {
@@ -191,7 +224,9 @@ export class UIManager {
 
   updateHUD() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in updateHUD');
+    }
 
     this.updateCredits(state.player.credits);
     this.updateDebt(state.player.debt);
@@ -255,7 +290,11 @@ export class UIManager {
    * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
    */
   updateShipCondition(condition) {
-    if (!condition) return;
+    if (!condition) {
+      throw new Error(
+        'Invalid game state: ship condition is null in updateShipCondition'
+      );
+    }
 
     this.updateConditionDisplay('', 'hull', condition.hull);
     this.updateConditionDisplay('', 'engine', condition.engine);
@@ -264,9 +303,13 @@ export class UIManager {
 
   updateCargo() {
     const cargoUsed = this.gameStateManager.getCargoUsed();
-    const cargoCapacity = this.gameStateManager.getShip()?.cargoCapacity || 0;
+    const ship = this.gameStateManager.getShip();
 
-    this.elements.cargo.textContent = `${cargoUsed}/${cargoCapacity}`;
+    if (!ship) {
+      throw new Error('Invalid game state: ship is null in updateCargo');
+    }
+
+    this.elements.cargo.textContent = `${cargoUsed}/${ship.cargoCapacity}`;
   }
 
   updateLocation(systemId) {
@@ -436,11 +479,90 @@ export class UIManager {
         this.handleRepairAll();
       });
     }
+
+    if (this.elements.shipStatusBtn) {
+      this.elements.shipStatusBtn.addEventListener('click', () => {
+        this.showShipStatus();
+      });
+    }
+
+    if (this.elements.upgradesBtn) {
+      this.elements.upgradesBtn.addEventListener('click', () => {
+        this.showUpgradesInterface();
+      });
+    }
+
+    if (this.elements.upgradesCloseBtn) {
+      this.elements.upgradesCloseBtn.addEventListener('click', () => {
+        this.hideUpgradesInterface();
+      });
+    }
+
+    if (this.elements.upgradesBackBtn) {
+      this.elements.upgradesBackBtn.addEventListener('click', () => {
+        this.hideUpgradesInterface();
+        this.showStationInterface();
+      });
+    }
+
+    if (this.elements.upgradeCancelBtn) {
+      this.elements.upgradeCancelBtn.addEventListener('click', () => {
+        this.hideUpgradeConfirmation();
+      });
+    }
+
+    if (this.elements.upgradeConfirmBtn) {
+      this.elements.upgradeConfirmBtn.addEventListener('click', () => {
+        this.handleUpgradeConfirm();
+      });
+    }
+
+    if (this.elements.cargoManifestCloseBtn) {
+      this.elements.cargoManifestCloseBtn.addEventListener('click', () => {
+        this.hideCargoManifest();
+      });
+    }
+
+    if (this.elements.cargoManifestBackBtn) {
+      this.elements.cargoManifestBackBtn.addEventListener('click', () => {
+        this.hideCargoManifest();
+        this.showStationInterface();
+      });
+    }
+
+    if (this.elements.cargoManifestBtn) {
+      this.elements.cargoManifestBtn.addEventListener('click', () => {
+        this.showCargoManifest();
+      });
+    }
+
+    if (this.elements.toggleHiddenCargoBtn) {
+      this.elements.toggleHiddenCargoBtn.addEventListener('click', () => {
+        this.toggleHiddenCargoView();
+      });
+    }
+  }
+
+  setupShipStatusHandlers() {
+    // Use event delegation on document body for dynamically created ship status panel
+    // This prevents memory leaks from adding listeners every time the panel is rendered
+    document.body.addEventListener('click', (e) => {
+      if (
+        e.target.id === 'ship-status-close-btn' ||
+        e.target.id === 'ship-status-back-btn'
+      ) {
+        this.hideShipStatus();
+      }
+    });
   }
 
   showStationInterface() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showStationInterface'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -510,7 +632,11 @@ export class UIManager {
 
   showSystemInfoPanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showSystemInfoPanel'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
 
@@ -523,7 +649,11 @@ export class UIManager {
 
   openStationOrShowError() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in openStationOrShowError'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -565,7 +695,13 @@ export class UIManager {
 
     // Calculate remaining duration
     const state = this.gameStateManager.getState();
-    const currentDay = state?.player?.daysElapsed || 0;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showEventNotification'
+      );
+    }
+
+    const currentDay = state.player.daysElapsed;
     const remainingDays = event.endDay - currentDay;
 
     // Set modal content
@@ -593,7 +729,9 @@ export class UIManager {
 
   handleSystemClick(systemId) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in handleSystemClick');
+    }
 
     // Only show station interface if clicking on current system
     if (systemId === state.player.currentSystem) {
@@ -603,7 +741,9 @@ export class UIManager {
 
   showTradePanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showTradePanel');
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -621,13 +761,18 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
 
     this.elements.tradePanel.classList.add('visible');
   }
 
   updateTradeCargoCapacity() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in updateTradeCargoCapacity'
+      );
+    }
 
     const cargoUsed = this.gameStateManager.getCargoUsed();
     const cargoCapacity = state.ship.cargoCapacity;
@@ -656,7 +801,9 @@ export class UIManager {
 
   renderMarketGoods(system) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderMarketGoods');
+    }
 
     this.elements.marketGoods.replaceChildren();
 
@@ -664,6 +811,8 @@ export class UIManager {
     const activeEvents = state.world.activeEvents || [];
     const marketConditions = state.world.marketConditions || {};
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     this.goodsList.forEach((goodType) => {
       const price = TradingSystem.calculatePrice(
         goodType,
@@ -673,8 +822,9 @@ export class UIManager {
         marketConditions
       );
       const goodItem = this.createGoodItem(goodType, price);
-      this.elements.marketGoods.appendChild(goodItem);
+      fragment.appendChild(goodItem);
     });
+    this.elements.marketGoods.appendChild(fragment);
   }
 
   createGoodItem(goodType, price) {
@@ -777,11 +927,14 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
   }
 
   renderCargoStacks(system) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderCargoStacks');
+    }
 
     this.elements.cargoStacks.replaceChildren();
 
@@ -795,13 +948,27 @@ export class UIManager {
       return;
     }
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     cargo.forEach((stack, index) => {
       const stackItem = this.createCargoStackItem(stack, index, system);
-      this.elements.cargoStacks.appendChild(stackItem);
+      fragment.appendChild(stackItem);
     });
+    this.elements.cargoStacks.appendChild(fragment);
   }
 
-  createCargoStackItem(stack, stackIndex, system) {
+  /**
+   * Create cargo stack display info (shared between regular and hidden cargo)
+   *
+   * Calculates current price, profit margin, and formats purchase details.
+   * Centralizes logic to avoid duplication between regular and hidden cargo displays.
+   *
+   * @private
+   * @param {Object} stack - Cargo stack with good, qty, buyPrice, buySystem, buyDate
+   * @param {Object} system - Current star system
+   * @returns {Object} Stack info with stackInfo DOM element and currentPrice
+   */
+  _createCargoStackInfo(stack, system) {
     const state = this.gameStateManager.getState();
     const currentDay = state.player.daysElapsed;
     const activeEvents = state.world.activeEvents || [];
@@ -814,14 +981,8 @@ export class UIManager {
       activeEvents,
       marketConditions
     );
-    const profitMargin = currentPrice - stack.purchasePrice;
-    const profitPercentage = (
-      (profitMargin / stack.purchasePrice) *
-      100
-    ).toFixed(1);
-
-    const stackItem = document.createElement('div');
-    stackItem.className = 'cargo-stack';
+    const profitMargin = currentPrice - stack.buyPrice;
+    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
 
     const stackInfo = document.createElement('div');
     stackInfo.className = 'stack-info';
@@ -833,21 +994,21 @@ export class UIManager {
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
 
-    // Build details text - start with quantity and purchase price
-    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.purchasePrice} cr/unit`;
+    // Build details text
+    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
 
-    // Add purchase context if available (Phase 2 feature)
-    if (stack.purchaseSystem !== undefined && stack.purchaseDay !== undefined) {
+    // Add purchase context if available
+    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
       const purchaseSystem = this.starData.find(
-        (s) => s.id === stack.purchaseSystem
+        (s) => s.id === stack.buySystem
       );
       if (!purchaseSystem) {
         throw new Error(
-          `Invalid cargo stack: purchase system ID ${stack.purchaseSystem} not found in star data`
+          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
         );
       }
 
-      const daysSincePurchase = currentDay - stack.purchaseDay;
+      const daysSincePurchase = currentDay - stack.buyDate;
       let ageText;
       if (daysSincePurchase === 0) {
         ageText = 'today';
@@ -880,6 +1041,21 @@ export class UIManager {
     stackInfo.appendChild(stackDetails);
     stackInfo.appendChild(stackProfit);
 
+    return { stackInfo, currentPrice };
+  }
+
+  createCargoStackItem(stack, stackIndex, system) {
+    const state = this.gameStateManager.getState();
+
+    const stackItem = document.createElement('div');
+    stackItem.className = 'cargo-stack';
+
+    // Create shared stack info display
+    const { stackInfo, currentPrice } = this._createCargoStackInfo(
+      stack,
+      system
+    );
+
     const stackActions = document.createElement('div');
     stackActions.className = 'stack-actions';
 
@@ -900,6 +1076,19 @@ export class UIManager {
 
     stackActions.appendChild(sell1Btn);
     stackActions.appendChild(sellAllBtn);
+
+    // Add "Move to Hidden" button if Smuggler's Panels installed
+    const hasSmugglersPanel =
+      state.ship.upgrades && state.ship.upgrades.includes('smuggler_panels');
+    if (hasSmugglersPanel) {
+      const moveToHiddenBtn = document.createElement('button');
+      moveToHiddenBtn.className = 'transfer-btn';
+      moveToHiddenBtn.textContent = 'Move to Hidden';
+      moveToHiddenBtn.addEventListener('click', () =>
+        this.handleMoveToHidden(stack.good, stack.qty)
+      );
+      stackActions.appendChild(moveToHiddenBtn);
+    }
 
     stackItem.appendChild(stackInfo);
     stackItem.appendChild(stackActions);
@@ -934,6 +1123,224 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Handle moving cargo to hidden compartment
+   *
+   * Transfers cargo from regular cargo to hidden compartment.
+   * Displays validation errors if transfer fails.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.3
+   *
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity to move
+   */
+  handleMoveToHidden(goodType, quantity) {
+    const result = this.gameStateManager.moveToHiddenCargo(goodType, quantity);
+
+    if (!result.success) {
+      this.showError(`Transfer failed: ${result.reason}`);
+      return;
+    }
+
+    this.showSuccess(`Moved ${quantity} ${goodType} to hidden cargo`);
+
+    // Refresh the trade panel to show updated state
+    const state = this.gameStateManager.getState();
+    const system = this.starData.find(
+      (s) => s.id === state.player.currentSystem
+    );
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
+    }
+
+    this.updateTradeCargoCapacity();
+    this.renderMarketGoods(system);
+    this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Handle moving cargo to regular compartment
+   *
+   * Transfers cargo from hidden compartment to regular cargo.
+   * Displays validation errors if transfer fails.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.4
+   *
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity to move
+   */
+  handleMoveToRegular(goodType, quantity) {
+    const result = this.gameStateManager.moveToRegularCargo(goodType, quantity);
+
+    if (!result.success) {
+      this.showError(`Transfer failed: ${result.reason}`);
+      return;
+    }
+
+    this.showSuccess(`Moved ${quantity} ${goodType} to regular cargo`);
+
+    // Refresh the trade panel to show updated state
+    const state = this.gameStateManager.getState();
+    const system = this.starData.find(
+      (s) => s.id === state.player.currentSystem
+    );
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
+    }
+
+    this.updateTradeCargoCapacity();
+    this.renderMarketGoods(system);
+    this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Render hidden cargo section in trade panel
+   *
+   * Displays hidden cargo section only when Smuggler's Panels upgrade is installed.
+   * Shows hidden cargo capacity usage and all hidden cargo stacks.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.2
+   *
+   * @param {Object} system - Current star system
+   */
+  renderHiddenCargoSection(system) {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderHiddenCargoSection'
+      );
+    }
+
+    // Check if hidden cargo elements exist (may not exist in test environment)
+    if (!this.elements.hiddenCargoSection || !this.elements.hiddenCargoStacks) {
+      return;
+    }
+
+    const ship = state.ship;
+    const hasSmugglersPanel =
+      ship.upgrades && ship.upgrades.includes('smuggler_panels');
+
+    // Show/hide section based on upgrade
+    if (!hasSmugglersPanel) {
+      this.elements.hiddenCargoSection.classList.add('hidden');
+      return;
+    }
+
+    this.elements.hiddenCargoSection.classList.remove('hidden');
+
+    // Update capacity display
+    const hiddenCargo = ship.hiddenCargo || [];
+    const hiddenCargoUsed = hiddenCargo.reduce(
+      (sum, stack) => sum + stack.qty,
+      0
+    );
+    const hiddenCargoCapacity = ship.hiddenCargoCapacity || 10;
+
+    if (this.elements.hiddenCargoUsed) {
+      this.elements.hiddenCargoUsed.textContent = hiddenCargoUsed;
+    }
+    if (this.elements.hiddenCargoCapacity) {
+      this.elements.hiddenCargoCapacity.textContent = hiddenCargoCapacity;
+    }
+
+    // Render hidden cargo stacks
+    this.elements.hiddenCargoStacks.replaceChildren();
+
+    if (hiddenCargo.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'cargo-empty';
+      emptyMsg.textContent = 'No hidden cargo';
+      this.elements.hiddenCargoStacks.appendChild(emptyMsg);
+      return;
+    }
+
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
+    hiddenCargo.forEach((stack) => {
+      const stackItem = this.createHiddenCargoStackItem(stack, system);
+      fragment.appendChild(stackItem);
+    });
+    this.elements.hiddenCargoStacks.appendChild(fragment);
+  }
+
+  /**
+   * Toggle hidden cargo view visibility
+   *
+   * Shows or hides the hidden cargo content section and updates button text.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.5
+   */
+  toggleHiddenCargoView() {
+    if (
+      !this.elements.hiddenCargoContent ||
+      !this.elements.toggleHiddenCargoBtn
+    ) {
+      return;
+    }
+
+    const isCollapsed =
+      this.elements.hiddenCargoContent.classList.contains('collapsed');
+
+    if (isCollapsed) {
+      // Show hidden cargo
+      this.elements.hiddenCargoContent.classList.remove('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Hide';
+    } else {
+      // Hide hidden cargo
+      this.elements.hiddenCargoContent.classList.add('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Show';
+    }
+  }
+
+  /**
+   * Create a hidden cargo stack item element
+   *
+   * Similar to regular cargo stack but for hidden compartment.
+   * Shows commodity name, quantity, purchase details, and profit calculation.
+   *
+   * @param {Object} stack - Hidden cargo stack
+   * @param {Object} system - Current star system
+   * @returns {HTMLElement} Hidden cargo stack item element
+   */
+  createHiddenCargoStackItem(stack, system) {
+    const stackItem = document.createElement('div');
+    stackItem.className = 'cargo-stack';
+
+    // Create shared stack info display
+    const { stackInfo } = this._createCargoStackInfo(stack, system);
+
+    // Add "Move to Regular" button for hidden cargo
+    const stackActions = document.createElement('div');
+    stackActions.className = 'stack-actions';
+
+    const moveToRegularBtn = document.createElement('button');
+    moveToRegularBtn.className = 'transfer-btn';
+    moveToRegularBtn.textContent = 'Move to Regular';
+    moveToRegularBtn.addEventListener('click', () =>
+      this.handleMoveToRegular(stack.good, stack.qty)
+    );
+
+    stackActions.appendChild(moveToRegularBtn);
+
+    stackItem.appendChild(stackInfo);
+    stackItem.appendChild(stackActions);
+
+    return stackItem;
   }
 
   /**
@@ -1307,14 +1714,17 @@ export class UIManager {
       return aLastVisit - bLastVisit;
     });
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     knownSystems.forEach((systemId) => {
       const system = this.starData.find((s) => s.id === systemId);
       if (!system) return;
 
       const knowledge = priceKnowledge[systemId];
       const marketDataItem = this.createMarketDataItem(system, knowledge);
-      this.elements.marketDataList.appendChild(marketDataItem);
+      fragment.appendChild(marketDataItem);
     });
+    this.elements.marketDataList.appendChild(fragment);
   }
 
   createMarketDataItem(system, knowledge) {
@@ -1437,10 +1847,13 @@ export class UIManager {
       (a, b) => getIntelligencePriority(a) - getIntelligencePriority(b)
     );
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     intelligenceOptions.forEach((option) => {
       const item = this.createIntelligenceItem(option, credits);
-      this.elements.intelligenceList.appendChild(item);
+      fragment.appendChild(item);
     });
+    this.elements.intelligenceList.appendChild(fragment);
   }
 
   createIntelligenceItem(option, credits) {
@@ -1626,7 +2039,11 @@ export class UIManager {
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
 
-    // cachedRepairButtons is guaranteed to exist - set in constructor via setupStationInterfaceHandlers()
+    // Update repair buttons if they exist (may not exist in test environment)
+    if (!this.cachedRepairButtons || this.cachedRepairButtons.length === 0) {
+      return;
+    }
+
     this.cachedRepairButtons.forEach((btn) => {
       const systemType = btn.getAttribute('data-system');
       const amountStr = btn.getAttribute('data-amount');
@@ -1777,9 +2194,17 @@ export class UIManager {
 
   handleRepairAll() {
     const condition = this.gameStateManager.getShipCondition();
-    if (!condition) return;
+    if (!condition) {
+      throw new Error(
+        'Invalid game state: ship condition is null in handleRepairAll'
+      );
+    }
 
     const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in handleRepairAll');
+    }
+
     const totalCost = this.calculateRepairAllCost();
 
     // Pre-validate total cost before executing any repairs
@@ -1798,39 +2223,42 @@ export class UIManager {
     // Repair hull
     const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem('hull', hullAmount);
-      if (result.success) {
+      const repairOutcome = this.gameStateManager.repairShipSystem(
+        'hull',
+        hullAmount
+      );
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Hull: ${result.reason}`);
+        failedRepairs.push(`Hull: ${repairOutcome.reason}`);
       }
     }
 
     // Repair engine
     const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem(
+      const repairOutcome = this.gameStateManager.repairShipSystem(
         'engine',
         engineAmount
       );
-      if (result.success) {
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Engine: ${result.reason}`);
+        failedRepairs.push(`Engine: ${repairOutcome.reason}`);
       }
     }
 
     // Repair life support
     const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem(
+      const repairOutcome = this.gameStateManager.repairShipSystem(
         'lifeSupport',
         lifeSupportAmount
       );
-      if (result.success) {
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Life Support: ${result.reason}`);
+        failedRepairs.push(`Life Support: ${repairOutcome.reason}`);
       }
     }
 
@@ -1853,5 +2281,795 @@ export class UIManager {
     // Refresh the repair panel to show updated state
     this.updateRepairConditionDisplay();
     this.updateRepairButtons();
+  }
+
+  // ========================================================================
+  // SHIP STATUS PANEL
+  // ========================================================================
+
+  /**
+   * Show ship status panel displaying ship name, condition, cargo, and quirks
+   *
+   * Displays comprehensive ship information including:
+   * - Ship name in header
+   * - Fuel, hull, engine, life support condition bars
+   * - Cargo capacity usage
+   * - All assigned quirks with icons, names, descriptions, and flavor text
+   *
+   * Validates: Requirements 1.3 (Ship Personality Spec)
+   */
+  showShipStatus() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showShipStatus');
+    }
+
+    this.renderShipStatus();
+  }
+
+  /**
+   * Render ship status panel content
+   *
+   * Creates and displays the ship status interface showing ship name, condition,
+   * cargo capacity, and all assigned quirks with their details.
+   */
+  renderShipStatus() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderShipStatus');
+    }
+
+    const ship = state.ship;
+    const condition = this.gameStateManager.getShipCondition();
+    const cargoUsed = this.gameStateManager.getCargoUsed();
+
+    // Create ship status panel on first use
+    if (!this.shipStatusPanel) {
+      this.shipStatusPanel = document.createElement('div');
+      this.shipStatusPanel.id = 'ship-status-panel';
+      this.shipStatusPanel.className = 'ship-status-panel';
+      document.body.appendChild(this.shipStatusPanel);
+    }
+
+    // Build panel content
+    const content = [];
+
+    // Close button
+    content.push(
+      '<button class="close-btn" id="ship-status-close-btn">×</button>'
+    );
+
+    // Ship name header
+    content.push(`<h2>${ship.name}</h2>`);
+
+    // Ship condition section
+    content.push('<div class="ship-status-section">');
+    content.push('<h3>Ship Condition</h3>');
+    content.push('<div class="ship-status-conditions">');
+
+    // Fuel bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Fuel:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(ship.fuel)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container fuel-bar-container">');
+    content.push(
+      `<div class="condition-bar fuel-bar" style="width: ${ship.fuel}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Hull bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Hull:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.hull)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container hull-bar-container">');
+    content.push(
+      `<div class="condition-bar hull-bar" style="width: ${condition.hull}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Engine bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Engine:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.engine)}%</span>`
+    );
+    content.push('</div>');
+    content.push('<div class="condition-bar-container engine-bar-container">');
+    content.push(
+      `<div class="condition-bar engine-bar" style="width: ${condition.engine}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Life Support bar
+    content.push('<div class="ship-status-condition-item">');
+    content.push('<div class="condition-header">');
+    content.push('<span class="condition-label">Life Support:</span>');
+    content.push(
+      `<span class="condition-value">${Math.round(condition.lifeSupport)}%</span>`
+    );
+    content.push('</div>');
+    content.push(
+      '<div class="condition-bar-container life-support-bar-container">'
+    );
+    content.push(
+      `<div class="condition-bar life-support-bar" style="width: ${condition.lifeSupport}%"></div>`
+    );
+    content.push('</div>');
+    content.push('</div>');
+
+    // Cargo capacity
+    content.push('<div class="ship-status-info-row">');
+    content.push('<span class="info-label">Cargo:</span>');
+    content.push(
+      `<span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>`
+    );
+    content.push('</div>');
+
+    content.push('</div>'); // End ship-status-conditions
+    content.push('</div>'); // End ship-status-section
+
+    // Ship quirks section
+    content.push('<div class="ship-status-section">');
+    content.push('<h3>SHIP QUIRKS</h3>');
+
+    if (ship.quirks && ship.quirks.length > 0) {
+      content.push('<div class="ship-quirks-list">');
+
+      ship.quirks.forEach((quirkId) => {
+        const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
+        if (!quirk) return;
+
+        content.push('<div class="quirk-item">');
+        content.push('<div class="quirk-header">');
+        content.push('<span class="quirk-icon">⚙</span>');
+        content.push(`<span class="quirk-name">${quirk.name}</span>`);
+        content.push('</div>');
+        content.push(
+          `<div class="quirk-description">${quirk.description}</div>`
+        );
+        content.push(`<div class="quirk-flavor">"${quirk.flavor}"</div>`);
+        content.push('</div>');
+      });
+
+      content.push('</div>'); // End ship-quirks-list
+    } else {
+      content.push('<div class="ship-quirks-empty">No quirks assigned</div>');
+    }
+
+    content.push('</div>'); // End ship-status-section
+
+    // Back button
+    content.push('<div class="ship-status-actions">');
+    content.push(
+      '<button class="station-btn secondary" id="ship-status-back-btn">Back</button>'
+    );
+    content.push('</div>');
+
+    // Set panel content
+    this.shipStatusPanel.innerHTML = content.join('');
+
+    // Show panel
+    this.shipStatusPanel.classList.add('visible');
+
+    // Event handlers are set up once via event delegation in setupShipStatusHandlers
+    // No need to add listeners here - prevents memory leaks from repeated calls
+  }
+
+  /**
+   * Hide ship status panel
+   */
+  hideShipStatus() {
+    if (this.shipStatusPanel) {
+      this.shipStatusPanel.classList.remove('visible');
+    }
+  }
+
+  /**
+   * Check if ship status panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isShipStatusVisible() {
+    return (
+      this.shipStatusPanel && this.shipStatusPanel.classList.contains('visible')
+    );
+  }
+
+  // ========================================================================
+  // UPGRADES INTERFACE
+  // ========================================================================
+
+  /**
+   * Show upgrades interface panel
+   *
+   * Displays all available and installed ship upgrades with costs, effects,
+   * and tradeoffs. Validates affordability and prevents duplicate purchases.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6
+   */
+  showUpgradesInterface() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showUpgradesInterface'
+      );
+    }
+
+    // Update credit balance display
+    this.elements.upgradesCreditsValue.textContent =
+      state.player.credits.toLocaleString();
+
+    // Render available and installed upgrades
+    this.renderAvailableUpgrades();
+    this.renderInstalledUpgrades();
+
+    this.hideStationInterface();
+    this.elements.upgradesPanel.classList.add('visible');
+  }
+
+  /**
+   * Hide upgrades interface panel
+   */
+  hideUpgradesInterface() {
+    this.elements.upgradesPanel.classList.remove('visible');
+  }
+
+  /**
+   * Check if upgrades interface is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isUpgradesVisible() {
+    return this.elements.upgradesPanel.classList.contains('visible');
+  }
+
+  /**
+   * Render list of available (unpurchased) upgrades
+   *
+   * Creates upgrade cards with name, cost, description, effects, and tradeoffs.
+   * Disables purchase buttons for unaffordable upgrades. Adds warning symbol
+   * for upgrades with tradeoffs.
+   */
+  renderAvailableUpgrades() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderAvailableUpgrades'
+      );
+    }
+
+    this.elements.availableUpgradesList.replaceChildren();
+
+    const credits = state.player.credits;
+    const installedUpgrades = state.ship.upgrades || [];
+
+    // Get all upgrade IDs
+    const allUpgradeIds = Object.keys(SHIP_UPGRADES);
+
+    // Filter to only unpurchased upgrades
+    const availableUpgradeIds = allUpgradeIds.filter(
+      (id) => !installedUpgrades.includes(id)
+    );
+
+    if (availableUpgradeIds.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'upgrades-empty';
+      emptyMsg.textContent = 'All upgrades installed';
+      this.elements.availableUpgradesList.appendChild(emptyMsg);
+      return;
+    }
+
+    // Sort by cost (cheapest first)
+    availableUpgradeIds.sort(
+      (a, b) => SHIP_UPGRADES[a].cost - SHIP_UPGRADES[b].cost
+    );
+
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
+    availableUpgradeIds.forEach((upgradeId) => {
+      const upgradeCard = this.createUpgradeCard(upgradeId, credits, false);
+      fragment.appendChild(upgradeCard);
+    });
+    this.elements.availableUpgradesList.appendChild(fragment);
+  }
+
+  /**
+   * Render list of installed upgrades
+   *
+   * Displays purchased upgrades with their effects and tradeoffs.
+   * No purchase buttons shown for installed upgrades.
+   */
+  renderInstalledUpgrades() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderInstalledUpgrades'
+      );
+    }
+
+    this.elements.installedUpgradesList.replaceChildren();
+
+    const installedUpgrades = state.ship.upgrades || [];
+
+    if (installedUpgrades.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'upgrades-empty';
+      emptyMsg.textContent = 'No upgrades installed';
+      this.elements.installedUpgradesList.appendChild(emptyMsg);
+      return;
+    }
+
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
+    installedUpgrades.forEach((upgradeId) => {
+      const upgradeCard = this.createUpgradeCard(upgradeId, 0, true);
+      fragment.appendChild(upgradeCard);
+    });
+    this.elements.installedUpgradesList.appendChild(fragment);
+  }
+
+  /**
+   * Create an upgrade card element
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   * @param {number} credits - Player's current credits
+   * @param {boolean} isInstalled - Whether upgrade is already installed
+   * @returns {HTMLElement} Upgrade card element
+   */
+  createUpgradeCard(upgradeId, credits, isInstalled) {
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    const card = document.createElement('div');
+    card.className = 'upgrade-card';
+
+    // Header with name and cost
+    const header = document.createElement('div');
+    header.className = 'upgrade-header';
+
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'upgrade-name-container';
+
+    const name = document.createElement('span');
+    name.className = 'upgrade-name';
+    name.textContent = upgrade.name;
+
+    // Add warning symbol if upgrade has tradeoffs
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const warningSymbol = document.createElement('span');
+      warningSymbol.className = 'upgrade-warning-symbol';
+      warningSymbol.textContent = ' ⚠';
+      warningSymbol.title = 'This upgrade has tradeoffs';
+      nameContainer.appendChild(name);
+      nameContainer.appendChild(warningSymbol);
+    } else {
+      nameContainer.appendChild(name);
+    }
+
+    const cost = document.createElement('span');
+    cost.className = 'upgrade-cost';
+    cost.textContent = `₡${upgrade.cost.toLocaleString()}`;
+
+    header.appendChild(nameContainer);
+    header.appendChild(cost);
+
+    // Description
+    const description = document.createElement('div');
+    description.className = 'upgrade-description';
+    description.textContent = upgrade.description;
+
+    // Effects list
+    const effectsContainer = document.createElement('div');
+    effectsContainer.className = 'upgrade-effects';
+
+    const effectsLabel = document.createElement('div');
+    effectsLabel.className = 'upgrade-effects-label';
+    effectsLabel.textContent = 'Effects:';
+
+    const effectsList = document.createElement('ul');
+    effectsList.className = 'upgrade-effects-list';
+
+    // Format effects for display
+    const effectsText = this.formatUpgradeEffects(upgrade.effects);
+    effectsText.forEach((effect) => {
+      const li = document.createElement('li');
+      li.textContent = effect;
+      effectsList.appendChild(li);
+    });
+
+    effectsContainer.appendChild(effectsLabel);
+    effectsContainer.appendChild(effectsList);
+
+    // Tradeoff (if any)
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const tradeoffContainer = document.createElement('div');
+      tradeoffContainer.className = 'upgrade-tradeoff';
+
+      const tradeoffLabel = document.createElement('div');
+      tradeoffLabel.className = 'upgrade-tradeoff-label';
+      tradeoffLabel.textContent = 'Tradeoff:';
+
+      const tradeoffText = document.createElement('div');
+      tradeoffText.className = 'upgrade-tradeoff-text';
+      tradeoffText.textContent = upgrade.tradeoff;
+
+      tradeoffContainer.appendChild(tradeoffLabel);
+      tradeoffContainer.appendChild(tradeoffText);
+
+      card.appendChild(header);
+      card.appendChild(description);
+      card.appendChild(effectsContainer);
+      card.appendChild(tradeoffContainer);
+    } else {
+      card.appendChild(header);
+      card.appendChild(description);
+      card.appendChild(effectsContainer);
+    }
+
+    // Purchase button (only for available upgrades)
+    if (!isInstalled) {
+      const actions = document.createElement('div');
+      actions.className = 'upgrade-actions';
+
+      const purchaseBtn = document.createElement('button');
+      purchaseBtn.className = 'upgrade-purchase-btn';
+      purchaseBtn.textContent = 'Purchase';
+      purchaseBtn.disabled = credits < upgrade.cost;
+
+      purchaseBtn.addEventListener('click', () => {
+        this.showUpgradeConfirmation(upgradeId);
+      });
+
+      actions.appendChild(purchaseBtn);
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  /**
+   * Format upgrade effects for display
+   *
+   * Converts effect object into human-readable strings.
+   *
+   * @param {Object} effects - Upgrade effects object
+   * @returns {string[]} Array of formatted effect strings
+   */
+  formatUpgradeEffects(effects) {
+    const formatted = [];
+
+    for (const [attr, value] of Object.entries(effects)) {
+      if (attr === 'fuelCapacity') {
+        formatted.push(`Fuel capacity: ${value}%`);
+      } else if (attr === 'cargoCapacity') {
+        formatted.push(`Cargo capacity: ${value} units`);
+      } else if (attr === 'hiddenCargoCapacity') {
+        formatted.push(`Hidden cargo: ${value} units`);
+      } else if (attr === 'fuelConsumption') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Fuel consumption: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Fuel consumption: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'hullDegradation') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Hull degradation: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Hull degradation: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'lifeSupportDrain') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Life support drain: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Life support drain: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'eventVisibility') {
+        formatted.push('See economic events in connected systems');
+      }
+    }
+
+    return formatted;
+  }
+
+  /**
+   * Show upgrade confirmation dialog
+   *
+   * Displays upgrade details, cost breakdown, and permanent warning before
+   * allowing purchase confirmation.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.3, 9.1, 9.2, 9.3
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   */
+  showUpgradeConfirmation(upgradeId) {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showUpgradeConfirmation'
+      );
+    }
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    // Set title
+    this.elements.upgradeConfirmationTitle.textContent = upgrade.name;
+
+    // Render effects
+    this.elements.upgradeConfirmationEffects.replaceChildren();
+
+    const effectsText = this.formatUpgradeEffects(upgrade.effects);
+    effectsText.forEach((effect) => {
+      const effectItem = document.createElement('div');
+      effectItem.className = 'upgrade-effect-item';
+      effectItem.textContent = `• ${effect}`;
+      this.elements.upgradeConfirmationEffects.appendChild(effectItem);
+    });
+
+    // Add tradeoff if present
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const tradeoffItem = document.createElement('div');
+      tradeoffItem.className = 'upgrade-effect-item upgrade-tradeoff-item';
+      tradeoffItem.textContent = `⚠ ${upgrade.tradeoff}`;
+      this.elements.upgradeConfirmationEffects.appendChild(tradeoffItem);
+    }
+
+    // Set cost information
+    const currentCredits = state.player.credits;
+    const creditsAfter = currentCredits - upgrade.cost;
+
+    this.elements.upgradeCurrentCredits.textContent =
+      currentCredits.toLocaleString();
+    this.elements.upgradeCost.textContent = upgrade.cost.toLocaleString();
+    this.elements.upgradeCreditsAfter.textContent =
+      creditsAfter.toLocaleString();
+
+    // Store upgrade ID for confirmation handler
+    this.pendingUpgradeId = upgradeId;
+
+    // Show dialog
+    this.elements.upgradeConfirmationOverlay.classList.remove('hidden');
+
+    // Focus confirm button
+    if (this.elements.upgradeConfirmBtn) {
+      this.elements.upgradeConfirmBtn.focus();
+    }
+  }
+
+  /**
+   * Hide upgrade confirmation dialog
+   */
+  hideUpgradeConfirmation() {
+    this.elements.upgradeConfirmationOverlay.classList.add('hidden');
+    this.pendingUpgradeId = null;
+  }
+
+  /**
+   * Handle upgrade purchase confirmation
+   *
+   * Executes the upgrade purchase transaction and updates the UI.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.4, 9.4, 9.5
+   */
+  handleUpgradeConfirm() {
+    if (!this.pendingUpgradeId) return;
+
+    const upgradeId = this.pendingUpgradeId;
+    const upgrade = SHIP_UPGRADES[upgradeId];
+
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    // Execute purchase
+    const purchaseOutcome = this.gameStateManager.purchaseUpgrade(upgradeId);
+
+    if (!purchaseOutcome.success) {
+      this.showError(`Upgrade purchase failed: ${purchaseOutcome.reason}`);
+      this.hideUpgradeConfirmation();
+      return;
+    }
+
+    // Show success notification
+    this.showSuccess(`${upgrade.name} installed`);
+
+    // Hide confirmation dialog
+    this.hideUpgradeConfirmation();
+
+    // Refresh upgrades interface
+    this.showUpgradesInterface();
+  }
+
+  // ========================================================================
+  // CARGO MANIFEST PANEL
+  // ========================================================================
+
+  /**
+   * Show cargo manifest panel
+   *
+   * Displays detailed cargo information including:
+   * - Ship name in header
+   * - Capacity usage (X/Y units)
+   * - Each cargo: name, quantity, purchase location, purchase price, days ago, current value
+   * - Total cargo value at bottom
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+   */
+  showCargoManifest() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showCargoManifest');
+    }
+
+    this.hideStationInterface();
+    this.renderCargoManifest();
+  }
+
+  /**
+   * Render cargo manifest panel content
+   *
+   * Creates and displays the cargo manifest interface showing ship name,
+   * capacity usage, all cargo with purchase details, and total value.
+   */
+  renderCargoManifest() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderCargoManifest'
+      );
+    }
+
+    const ship = state.ship;
+    const cargo = ship.cargo || [];
+    const cargoUsed = this.gameStateManager.getCargoUsed();
+    const currentDay = state.player.daysElapsed;
+
+    // Set ship name in header
+    this.elements.cargoManifestShipName.textContent = ship.name;
+
+    // Set capacity display
+    this.elements.cargoManifestUsed.textContent = cargoUsed;
+    this.elements.cargoManifestCapacity.textContent = ship.cargoCapacity;
+
+    // Render cargo list
+    this.elements.cargoManifestList.replaceChildren();
+
+    if (cargo.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'cargo-manifest-empty';
+      emptyMsg.textContent = 'No cargo';
+      this.elements.cargoManifestList.appendChild(emptyMsg);
+
+      // Set total value to 0
+      this.elements.cargoManifestTotalValue.textContent = '₡0';
+    } else {
+      // Calculate total value using TradingSystem
+      const totals = TradingSystem.calculateCargoTotals(cargo);
+
+      // Use DocumentFragment to batch DOM insertions for better performance
+      const fragment = document.createDocumentFragment();
+      cargo.forEach((cargoEntry) => {
+        const cargoItem = this.createCargoManifestItem(cargoEntry, currentDay);
+        fragment.appendChild(cargoItem);
+      });
+      this.elements.cargoManifestList.appendChild(fragment);
+
+      // Set total value
+      this.elements.cargoManifestTotalValue.textContent = `₡${totals.totalValue.toLocaleString()}`;
+    }
+
+    // Show panel
+    this.elements.cargoManifestPanel.classList.add('visible');
+  }
+
+  /**
+   * Create a cargo manifest item element
+   *
+   * Displays cargo details including name, quantity, purchase location,
+   * purchase price, days since purchase, and current value.
+   *
+   * @param {Object} cargoEntry - Cargo stack with metadata
+   * @param {number} currentDay - Current game day
+   * @returns {HTMLElement} Cargo manifest item element
+   */
+  createCargoManifestItem(cargoEntry, currentDay) {
+    const item = document.createElement('div');
+    item.className = 'cargo-manifest-item';
+
+    // Cargo name
+    const name = document.createElement('div');
+    name.className = 'cargo-manifest-name';
+    name.textContent = this.capitalizeFirst(cargoEntry.good);
+
+    // Cargo details
+    const details = document.createElement('div');
+    details.className = 'cargo-manifest-details';
+
+    // Quantity
+    const quantity = document.createElement('div');
+    quantity.className = 'cargo-manifest-detail';
+    quantity.innerHTML = `<span class="detail-label">Quantity:</span> <span class="detail-value">${cargoEntry.qty} units</span>`;
+
+    // Purchase location
+    const location = document.createElement('div');
+    location.className = 'cargo-manifest-detail';
+    const locationName = cargoEntry.buySystemName || 'Unknown';
+    location.innerHTML = `<span class="detail-label">Purchased at:</span> <span class="detail-value">${locationName}</span>`;
+
+    // Purchase price
+    const price = document.createElement('div');
+    price.className = 'cargo-manifest-detail';
+    price.innerHTML = `<span class="detail-label">Purchase price:</span> <span class="detail-value">₡${cargoEntry.buyPrice}/unit</span>`;
+
+    // Days ago
+    const daysAgo = document.createElement('div');
+    daysAgo.className = 'cargo-manifest-detail';
+    const daysSincePurchase = currentDay - (cargoEntry.buyDate || 0);
+    const ageText =
+      daysSincePurchase === 0
+        ? 'today'
+        : daysSincePurchase === 1
+          ? '1 day ago'
+          : `${daysSincePurchase} days ago`;
+    daysAgo.innerHTML = `<span class="detail-label">Purchased:</span> <span class="detail-value">${ageText}</span>`;
+
+    // Current value (using TradingSystem.calculateCargoValue)
+    const value = document.createElement('div');
+    value.className = 'cargo-manifest-detail cargo-manifest-value';
+    const cargoValue = TradingSystem.calculateCargoValue(cargoEntry);
+    value.innerHTML = `<span class="detail-label">Current value:</span> <span class="detail-value">₡${cargoValue.toLocaleString()}</span>`;
+
+    details.appendChild(quantity);
+    details.appendChild(location);
+    details.appendChild(price);
+    details.appendChild(daysAgo);
+    details.appendChild(value);
+
+    item.appendChild(name);
+    item.appendChild(details);
+
+    return item;
+  }
+
+  /**
+   * Hide cargo manifest panel
+   */
+  hideCargoManifest() {
+    this.elements.cargoManifestPanel.classList.remove('visible');
+  }
+
+  /**
+   * Check if cargo manifest panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isCargoManifestVisible() {
+    return this.elements.cargoManifestPanel.classList.contains('visible');
   }
 }

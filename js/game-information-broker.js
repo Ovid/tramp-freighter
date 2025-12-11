@@ -242,17 +242,24 @@ export class InformationBroker {
    * Used for displaying the information broker interface.
    * Only returns systems connected to the current system via wormholes.
    *
+   * When Advanced Sensor Array upgrade is installed, includes active economic
+   * events for connected systems.
+   *
    * @param {Object} priceKnowledge - Player's price knowledge database
    * @param {Array} starData - Star system data
    * @param {number} currentSystemId - Current system ID
    * @param {Object} navigationSystem - NavigationSystem instance for checking connections
-   * @returns {Array} Array of { systemId, systemName, cost, lastVisit }
+   * @param {Array} activeEvents - Active economic events (optional)
+   * @param {boolean} hasAdvancedSensors - Whether Advanced Sensor Array is installed (optional)
+   * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   static listAvailableIntelligence(
     priceKnowledge,
     starData,
     currentSystemId,
-    navigationSystem
+    navigationSystem,
+    activeEvents = [],
+    hasAdvancedSensors = false
   ) {
     // Get systems connected to current system
     const connectedSystemIds =
@@ -269,12 +276,28 @@ export class InformationBroker {
         );
         const lastVisit = knowledge ? knowledge.lastVisit : null;
 
-        return {
+        const result = {
           systemId: system.id,
           systemName: system.name,
           cost: cost,
           lastVisit: lastVisit,
         };
+
+        // Add event information if Advanced Sensor Array is installed
+        if (hasAdvancedSensors && activeEvents.length > 0) {
+          const systemEvent = activeEvents.find(
+            (event) => event.systemId === system.id
+          );
+          if (systemEvent) {
+            result.event = {
+              name: systemEvent.name,
+              commodity: systemEvent.commodity,
+              modifier: systemEvent.modifier,
+            };
+          }
+        }
+
+        return result;
       });
   }
 }

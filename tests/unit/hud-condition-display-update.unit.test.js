@@ -185,17 +185,21 @@ describe('Unit: HUD Condition Display Update', () => {
     expect(lifeSupportText.textContent).toBe('100%');
   });
 
-  it('should not throw error when condition object is null', () => {
-    // Should not throw when called with null
+  it('should throw error when condition object is null', () => {
+    // Should throw when called with null to expose invalid state
     expect(() => {
       uiManager.updateShipCondition(null);
-    }).not.toThrow();
+    }).toThrow(
+      'Invalid game state: ship condition is null in updateShipCondition'
+    );
   });
 
-  it('should not throw error when condition object is undefined', () => {
-    // Should not throw when called with undefined
+  it('should throw error when condition object is undefined', () => {
+    // Should throw when called with undefined to expose invalid state
     expect(() => {
       uiManager.updateShipCondition(undefined);
-    }).not.toThrow();
+    }).toThrow(
+      'Invalid game state: ship condition is null in updateShipCondition'
+    );
   });
 });

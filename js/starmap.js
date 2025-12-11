@@ -2968,6 +2968,82 @@ function showModal(message) {
   });
 }
 
+/**
+ * Show ship naming dialog
+ * @returns {Promise<string>} - Resolves to the sanitized ship name
+ */
+function showShipNamingDialog() {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('ship-naming-overlay');
+    const input = document.getElementById('ship-name-input');
+    const confirmBtn = document.getElementById('ship-name-confirm');
+    const suggestionsList = document.getElementById(
+      'ship-name-suggestions-list'
+    );
+
+    if (!overlay || !input || !confirmBtn || !suggestionsList) {
+      console.error('Ship naming dialog elements not found');
+      resolve('Serendipity');
+      return;
+    }
+
+    // Import constants dynamically
+    import('./game-constants.js').then((constants) => {
+      const { SHIP_NAME_SUGGESTIONS } = constants;
+
+      // Clear and populate suggestions
+      suggestionsList.innerHTML = '';
+      SHIP_NAME_SUGGESTIONS.forEach((name) => {
+        const btn = document.createElement('button');
+        btn.className = 'suggestion-btn';
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          input.value = name;
+          input.focus();
+        });
+        suggestionsList.appendChild(btn);
+      });
+
+      // Clear input
+      input.value = '';
+
+      // Show dialog
+      overlay.classList.remove('hidden');
+
+      // Focus input
+      input.focus();
+
+      // Handle confirm
+      const handleConfirm = () => {
+        cleanup();
+        // Import sanitizeShipName and resolve with sanitized name
+        import('./game-state.js').then((gameState) => {
+          const sanitizedName = gameState.sanitizeShipName(input.value);
+          resolve(sanitizedName);
+        });
+      };
+
+      // Handle enter key in input
+      const handleEnter = (e) => {
+        if (e.key === 'Enter') {
+          handleConfirm();
+        }
+      };
+
+      // Cleanup function
+      const cleanup = () => {
+        overlay.classList.add('hidden');
+        confirmBtn.removeEventListener('click', handleConfirm);
+        input.removeEventListener('keydown', handleEnter);
+      };
+
+      // Add event listeners
+      confirmBtn.addEventListener('click', handleConfirm);
+      input.addEventListener('keydown', handleEnter);
+    });
+  });
+}
+
 // Expose functions to global scope for onclick handlers
 window.zoomIn = zoomIn;
 window.zoomOut = zoomOut;
@@ -3044,7 +3120,7 @@ function animate() {
  * Initialize the game after menu selection
  * Called when user chooses New Game or Continue
  */
-function startGame(isNewGame) {
+async function startGame(isNewGame) {
   // Initialize game state manager
   gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
 
@@ -3065,7 +3141,17 @@ function startGame(isNewGame) {
 
   // Load or create game state
   if (isNewGame) {
+    // Initialize new game (assigns quirks)
     gameStateManager.initNewGame();
+
+    // Show ship naming dialog after quirk assignment
+    const shipName = await showShipNamingDialog();
+
+    // Store sanitized name in game state
+    gameStateManager.state.ship.name = shipName;
+
+    // Save immediately to persist the ship name
+    gameStateManager.saveGame();
   } else {
     const loadedState = gameStateManager.loadGame();
     if (!loadedState) {
@@ -3074,6 +3160,11 @@ function startGame(isNewGame) {
         'Failed to load saved game. Starting new game instead.'
       );
       gameStateManager.initNewGame();
+
+      // Show ship naming dialog for the new game
+      const shipName = await showShipNamingDialog();
+      gameStateManager.state.ship.name = shipName;
+      gameStateManager.saveGame();
     }
   }
 
@@ -3205,9 +3296,9 @@ function initMenu() {
   }
 
   // Set up Continue button handler
-  continueBtn.addEventListener('click', () => {
+  continueBtn.addEventListener('click', async () => {
     console.log('Continue game selected');
-    startGame(false);
+    await startGame(false);
   });
 
   // Set up New Game button handler
@@ -3223,7 +3314,7 @@ function initMenu() {
     }
 
     console.log('New game selected');
-    startGame(true);
+    await startGame(true);
   });
 
   // Show menu
@@ -3255,6 +3346,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Initialize menu
     initMenu();
+
+    // Attach event listeners for control buttons
+    const hudCloseBtn = document.getElementById('hud-close-btn');
+    const zoomInBtn = document.getElementById('zoom-in-btn');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+    const rotationBtn = document.getElementById('rotation-btn');
+    const boundaryBtn = document.getElementById('boundary-btn');
+
+    if (hudCloseBtn) hudCloseBtn.addEventListener('click', deselectStar);
+    if (zoomInBtn) zoomInBtn.addEventListener('click', zoomIn);
+    if (zoomOutBtn) zoomOutBtn.addEventListener('click', zoomOut);
+    if (rotationBtn) rotationBtn.addEventListener('click', toggleRotation);
+    if (boundaryBtn) boundaryBtn.addEventListener('click', toggleBoundary);
 
     // Start animation loop
     animate();

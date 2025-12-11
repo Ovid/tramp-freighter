@@ -733,11 +733,96 @@ canvas {
   cursor: not-allowed;
 }
 
+.transfer-btn {
+  padding: 6px 12px;
+  background-color: #222222;
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.transfer-btn:hover {
+  background-color: #ffaa00;
+  color: #000000;
+}
+
+.transfer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .trade-actions {
   display: flex;
   justify-content: center;
   padding-top: 10px;
   border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Hidden Cargo Section Styling */
+.hidden-cargo-section {
+  background-color: rgba(255, 170, 0, 0.05);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section h3 {
+  color: #ffaa00;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.hidden-cargo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+  margin-bottom: 12px;
+}
+
+.toggle-hidden-cargo-btn {
+  padding: 6px 12px;
+  background-color: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-hidden-cargo-btn:hover {
+  background-color: rgba(255, 170, 0, 0.3);
+  border-color: #ffcc66;
+  color: #ffcc66;
+}
+
+.hidden-cargo-content {
+  display: block;
+}
+
+.hidden-cargo-content.collapsed {
+  display: none;
+}
+
+.hidden-cargo-section .cargo-capacity-display {
+  border-color: rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-label {
+  color: #ffaa00;
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-units {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hidden-cargo-section.hidden {
+  display: none;
 }
 
 /* Refuel Panel Styling */
@@ -1556,6 +1641,97 @@ canvas {
   font-style: italic;
 }
 
+/* Ship Naming Dialog Styles */
+.modal-title {
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.modal-description {
+  color: #cccccc;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.ship-naming-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ship-name-input {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  background-color: #0a0a0a;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.ship-name-input:focus {
+  outline: none;
+  border-color: #00dd77;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.ship-name-input::placeholder {
+  color: #666666;
+}
+
+.ship-name-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suggestions-label {
+  color: #aaaaaa;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-btn {
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background-color: transparent;
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  color: #00ff88;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-btn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: #00dd77;
+  color: #00dd77;
+}
+
+.suggestion-btn:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}
+
 /* Repair Panel Styling */
 #repair-panel {
   position: absolute;
@@ -1751,4 +1927,723 @@ canvas {
 .repair-actions .station-btn.secondary:hover {
   background-color: rgba(0, 255, 136, 0.2);
   color: #ffffff;
+}
+
+/* Ship Status Panel Styling */
+.ship-status-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.ship-status-panel.visible {
+  display: block;
+}
+
+.ship-status-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 24px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.ship-status-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ship-status-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.ship-status-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.ship-status-section {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.ship-status-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ship-status-condition-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ship-status-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.info-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.info-value {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.ship-quirks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quirk-item {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.quirk-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.quirk-icon {
+  font-size: 20px;
+  color: #00ff88;
+}
+
+.quirk-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.quirk-description {
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.quirk-flavor {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.ship-quirks-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  font-style: italic;
+}
+
+.ship-status-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.ship-status-actions .station-btn.secondary {
+  background-color: transparent;
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+.ship-status-actions .station-btn.secondary:hover {
+  background-color: rgba(0, 255, 136, 0.2);
+  color: #ffffff;
+}
+
+/* Upgrades Panel Styling */
+#upgrades-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  background: rgba(0, 20, 40, 0.98);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 30px;
+  display: none;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+#upgrades-panel.visible {
+  display: block;
+}
+
+#upgrades-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 24px;
+  text-align: center;
+}
+
+#upgrades-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 18px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 8px;
+}
+
+#upgrades-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+}
+
+#upgrades-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.upgrades-content {
+  margin-bottom: 20px;
+}
+
+.upgrades-credits {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.upgrades-credits .credits-label {
+  color: #aaaaaa;
+  margin-right: 10px;
+}
+
+.upgrades-credits .credits-value {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.upgrades-section {
+  margin-bottom: 30px;
+}
+
+.upgrades-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.upgrades-empty {
+  text-align: center;
+  color: #888888;
+  padding: 20px;
+  font-style: italic;
+}
+
+.upgrade-card {
+  background: rgba(0, 40, 80, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 6px;
+  padding: 15px;
+  transition: border-color 0.2s;
+}
+
+.upgrade-card:hover {
+  border-color: rgba(0, 255, 136, 0.6);
+}
+
+.upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.upgrade-name-container {
+  display: flex;
+  align-items: center;
+}
+
+.upgrade-name {
+  color: #00ff88;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.upgrade-warning-symbol {
+  color: #ffaa00;
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+.upgrade-cost {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.upgrade-description {
+  color: #cccccc;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.upgrade-effects {
+  margin-bottom: 12px;
+}
+
+.upgrade-effects-label {
+  color: #aaaaaa;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.upgrade-effects-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.upgrade-effects-list li {
+  color: #00ccff;
+  font-size: 13px;
+  padding: 3px 0;
+  padding-left: 15px;
+  position: relative;
+}
+
+.upgrade-effects-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #00ff88;
+}
+
+.upgrade-tradeoff {
+  background: rgba(255, 170, 0, 0.1);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+
+.upgrade-tradeoff-label {
+  color: #ffaa00;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.upgrade-tradeoff-text {
+  color: #ffcc66;
+  font-size: 13px;
+}
+
+.upgrade-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.upgrade-purchase-btn {
+  background: rgba(0, 255, 136, 0.2);
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.upgrade-purchase-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 136, 0.3);
+  border-color: #00ffaa;
+}
+
+.upgrade-purchase-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #666666;
+  color: #666666;
+}
+
+.upgrades-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Upgrade Confirmation Dialog */
+#upgrade-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+#upgrade-confirmation-overlay.hidden {
+  display: none;
+}
+
+#upgrade-confirmation-overlay .modal-dialog {
+  width: 90%;
+  max-width: 500px;
+}
+
+#upgrade-confirmation-overlay .modal-content {
+  background: rgba(0, 20, 40, 0.98);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 25px;
+}
+
+#upgrade-confirmation-overlay .modal-title {
+  color: #00ff88;
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.upgrade-confirmation-details {
+  margin-bottom: 20px;
+}
+
+.upgrade-confirmation-section {
+  margin-bottom: 20px;
+}
+
+.upgrade-confirmation-section h4 {
+  color: #00ff88;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.upgrade-effect-item {
+  color: #00ccff;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.upgrade-tradeoff-item {
+  color: #ffcc66;
+  background: rgba(255, 170, 0, 0.1);
+  border-left: 3px solid #ffaa00;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.upgrade-cost-display {
+  background: rgba(0, 40, 80, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.upgrade-cost-display .cost-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  color: #cccccc;
+}
+
+.upgrade-cost-display .cost-row.total-row {
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+  margin-top: 8px;
+  padding-top: 12px;
+  font-weight: bold;
+}
+
+.upgrade-cost-display .cost-label {
+  color: #aaaaaa;
+}
+
+.upgrade-cost-display .cost-value {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.upgrade-warning {
+  background: rgba(255, 170, 0, 0.15);
+  border: 1px solid rgba(255, 170, 0, 0.4);
+  border-radius: 4px;
+  padding: 12px;
+  text-align: center;
+  color: #ffaa00;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#upgrade-confirmation-overlay .modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+#upgrade-confirmation-overlay .modal-cancel,
+#upgrade-confirmation-overlay .modal-confirm {
+  padding: 10px 25px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#upgrade-confirmation-overlay .modal-cancel {
+  background: rgba(100, 100, 100, 0.3);
+  border: 1px solid #666666;
+  color: #cccccc;
+}
+
+#upgrade-confirmation-overlay .modal-cancel:hover {
+  background: rgba(100, 100, 100, 0.5);
+  border-color: #888888;
+}
+
+#upgrade-confirmation-overlay .modal-confirm {
+  background: rgba(0, 255, 136, 0.2);
+  border: 1px solid #00ff88;
+  color: #00ff88;
+}
+
+#upgrade-confirmation-overlay .modal-confirm:hover {
+  background: rgba(0, 255, 136, 0.3);
+  border-color: #00ffaa;
+}
+
+/* Cargo Manifest Panel Styling */
+#cargo-manifest-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  background: rgba(0, 20, 40, 0.98);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 25px;
+  display: none;
+  overflow-y: auto;
+  z-index: 1500;
+}
+
+#cargo-manifest-panel.visible {
+  display: block;
+}
+
+#cargo-manifest-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 22px;
+  text-align: center;
+}
+
+#cargo-manifest-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 8px;
+}
+
+#cargo-manifest-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+}
+
+#cargo-manifest-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.cargo-manifest-content {
+  margin-bottom: 20px;
+}
+
+.cargo-manifest-section {
+  margin-bottom: 20px;
+}
+
+.cargo-capacity-display {
+  background: rgba(0, 40, 80, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  color: #cccccc;
+}
+
+.cargo-capacity-display .capacity-label {
+  color: #aaaaaa;
+  margin-right: 8px;
+}
+
+.cargo-capacity-display .capacity-units {
+  color: #aaaaaa;
+  margin-left: 4px;
+}
+
+.cargo-manifest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cargo-manifest-empty {
+  text-align: center;
+  color: #666666;
+  padding: 30px;
+  font-style: italic;
+}
+
+.cargo-manifest-item {
+  background: rgba(0, 40, 80, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 4px;
+  padding: 15px;
+}
+
+.cargo-manifest-name {
+  color: #00ff88;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.cargo-manifest-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cargo-manifest-detail {
+  display: flex;
+  justify-content: space-between;
+  color: #cccccc;
+  font-size: 14px;
+}
+
+.cargo-manifest-detail .detail-label {
+  color: #aaaaaa;
+}
+
+.cargo-manifest-detail .detail-value {
+  color: #00ccff;
+  font-weight: bold;
+}
+
+.cargo-manifest-value .detail-value {
+  color: #00ff88;
+  font-size: 15px;
+}
+
+.cargo-manifest-total {
+  background: rgba(0, 40, 80, 0.8);
+  border: 2px solid rgba(0, 255, 136, 0.5);
+  border-radius: 4px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cargo-manifest-total .total-label {
+  color: #00ff88;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cargo-manifest-total .total-value {
+  color: #00ff88;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.cargo-manifest-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
 }
