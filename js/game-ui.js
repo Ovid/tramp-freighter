@@ -1,3 +1,5 @@
+'use strict';
+
 import {
   calculateDistanceFromSol,
   INTELLIGENCE_PRICES,
@@ -288,7 +290,11 @@ export class UIManager {
    * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
    */
   updateShipCondition(condition) {
-    if (!condition) return;
+    if (!condition) {
+      throw new Error(
+        'Invalid game state: ship condition is null in updateShipCondition'
+      );
+    }
 
     this.updateConditionDisplay('', 'hull', condition.hull);
     this.updateConditionDisplay('', 'engine', condition.engine);
@@ -805,6 +811,8 @@ export class UIManager {
     const activeEvents = state.world.activeEvents || [];
     const marketConditions = state.world.marketConditions || {};
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     this.goodsList.forEach((goodType) => {
       const price = TradingSystem.calculatePrice(
         goodType,
@@ -814,8 +822,9 @@ export class UIManager {
         marketConditions
       );
       const goodItem = this.createGoodItem(goodType, price);
-      this.elements.marketGoods.appendChild(goodItem);
+      fragment.appendChild(goodItem);
     });
+    this.elements.marketGoods.appendChild(fragment);
   }
 
   createGoodItem(goodType, price) {
@@ -939,13 +948,27 @@ export class UIManager {
       return;
     }
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     cargo.forEach((stack, index) => {
       const stackItem = this.createCargoStackItem(stack, index, system);
-      this.elements.cargoStacks.appendChild(stackItem);
+      fragment.appendChild(stackItem);
     });
+    this.elements.cargoStacks.appendChild(fragment);
   }
 
-  createCargoStackItem(stack, stackIndex, system) {
+  /**
+   * Create cargo stack display info (shared between regular and hidden cargo)
+   *
+   * Calculates current price, profit margin, and formats purchase details.
+   * Centralizes logic to avoid duplication between regular and hidden cargo displays.
+   *
+   * @private
+   * @param {Object} stack - Cargo stack with good, qty, buyPrice, buySystem, buyDate
+   * @param {Object} system - Current star system
+   * @returns {Object} Stack info with stackInfo DOM element and currentPrice
+   */
+  _createCargoStackInfo(stack, system) {
     const state = this.gameStateManager.getState();
     const currentDay = state.player.daysElapsed;
     const activeEvents = state.world.activeEvents || [];
@@ -961,9 +984,6 @@ export class UIManager {
     const profitMargin = currentPrice - stack.buyPrice;
     const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
 
-    const stackItem = document.createElement('div');
-    stackItem.className = 'cargo-stack';
-
     const stackInfo = document.createElement('div');
     stackInfo.className = 'stack-info';
 
@@ -974,10 +994,10 @@ export class UIManager {
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
 
-    // Build details text - start with quantity and purchase price
+    // Build details text
     let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
 
-    // Add purchase context if available (Phase 2 feature)
+    // Add purchase context if available
     if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
       const purchaseSystem = this.starData.find(
         (s) => s.id === stack.buySystem
@@ -1020,6 +1040,21 @@ export class UIManager {
     stackInfo.appendChild(stackName);
     stackInfo.appendChild(stackDetails);
     stackInfo.appendChild(stackProfit);
+
+    return { stackInfo, currentPrice };
+  }
+
+  createCargoStackItem(stack, stackIndex, system) {
+    const state = this.gameStateManager.getState();
+
+    const stackItem = document.createElement('div');
+    stackItem.className = 'cargo-stack';
+
+    // Create shared stack info display
+    const { stackInfo, currentPrice } = this._createCargoStackInfo(
+      stack,
+      system
+    );
 
     const stackActions = document.createElement('div');
     stackActions.className = 'stack-actions';
@@ -1233,10 +1268,13 @@ export class UIManager {
       return;
     }
 
-    hiddenCargo.forEach((stack, index) => {
-      const stackItem = this.createHiddenCargoStackItem(stack, index, system);
-      this.elements.hiddenCargoStacks.appendChild(stackItem);
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
+    hiddenCargo.forEach((stack) => {
+      const stackItem = this.createHiddenCargoStackItem(stack, system);
+      fragment.appendChild(stackItem);
     });
+    this.elements.hiddenCargoStacks.appendChild(fragment);
   }
 
   /**
@@ -1276,85 +1314,15 @@ export class UIManager {
    * Shows commodity name, quantity, purchase details, and profit calculation.
    *
    * @param {Object} stack - Hidden cargo stack
-   * @param {number} stackIndex - Index in hidden cargo array
    * @param {Object} system - Current star system
    * @returns {HTMLElement} Hidden cargo stack item element
    */
-  createHiddenCargoStackItem(stack, stackIndex, system) {
-    const state = this.gameStateManager.getState();
-    const currentDay = state.player.daysElapsed;
-    const activeEvents = state.world.activeEvents || [];
-    const marketConditions = state.world.marketConditions || {};
-
-    const currentPrice = TradingSystem.calculatePrice(
-      stack.good,
-      system,
-      currentDay,
-      activeEvents,
-      marketConditions
-    );
-    const profitMargin = currentPrice - stack.buyPrice;
-    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
-
+  createHiddenCargoStackItem(stack, system) {
     const stackItem = document.createElement('div');
     stackItem.className = 'cargo-stack';
 
-    const stackInfo = document.createElement('div');
-    stackInfo.className = 'stack-info';
-
-    const stackName = document.createElement('div');
-    stackName.className = 'stack-name';
-    stackName.textContent = this.capitalizeFirst(stack.good);
-
-    const stackDetails = document.createElement('div');
-    stackDetails.className = 'stack-details';
-
-    // Build details text
-    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
-
-    // Add purchase context if available
-    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
-      const purchaseSystem = this.starData.find(
-        (s) => s.id === stack.buySystem
-      );
-      if (!purchaseSystem) {
-        throw new Error(
-          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
-        );
-      }
-
-      const daysSincePurchase = currentDay - stack.buyDate;
-      let ageText;
-      if (daysSincePurchase === 0) {
-        ageText = 'today';
-      } else if (daysSincePurchase === 1) {
-        ageText = '1 day ago';
-      } else {
-        ageText = `${daysSincePurchase} days ago`;
-      }
-
-      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
-    }
-
-    stackDetails.textContent = detailsText;
-
-    const stackProfit = document.createElement('div');
-    stackProfit.className = 'stack-profit';
-
-    if (profitMargin > 0) {
-      stackProfit.classList.add('positive');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Profit: +${profitMargin} cr/unit (+${profitPercentage}%)`;
-    } else if (profitMargin < 0) {
-      stackProfit.classList.add('negative');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Loss: ${profitMargin} cr/unit (${profitPercentage}%)`;
-    } else {
-      stackProfit.classList.add('neutral');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Break even`;
-    }
-
-    stackInfo.appendChild(stackName);
-    stackInfo.appendChild(stackDetails);
-    stackInfo.appendChild(stackProfit);
+    // Create shared stack info display
+    const { stackInfo } = this._createCargoStackInfo(stack, system);
 
     // Add "Move to Regular" button for hidden cargo
     const stackActions = document.createElement('div');
@@ -1746,14 +1714,17 @@ export class UIManager {
       return aLastVisit - bLastVisit;
     });
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     knownSystems.forEach((systemId) => {
       const system = this.starData.find((s) => s.id === systemId);
       if (!system) return;
 
       const knowledge = priceKnowledge[systemId];
       const marketDataItem = this.createMarketDataItem(system, knowledge);
-      this.elements.marketDataList.appendChild(marketDataItem);
+      fragment.appendChild(marketDataItem);
     });
+    this.elements.marketDataList.appendChild(fragment);
   }
 
   createMarketDataItem(system, knowledge) {
@@ -1876,10 +1847,13 @@ export class UIManager {
       (a, b) => getIntelligencePriority(a) - getIntelligencePriority(b)
     );
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     intelligenceOptions.forEach((option) => {
       const item = this.createIntelligenceItem(option, credits);
-      this.elements.intelligenceList.appendChild(item);
+      fragment.appendChild(item);
     });
+    this.elements.intelligenceList.appendChild(fragment);
   }
 
   createIntelligenceItem(option, credits) {
@@ -2601,10 +2575,13 @@ export class UIManager {
       (a, b) => SHIP_UPGRADES[a].cost - SHIP_UPGRADES[b].cost
     );
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     availableUpgradeIds.forEach((upgradeId) => {
       const upgradeCard = this.createUpgradeCard(upgradeId, credits, false);
-      this.elements.availableUpgradesList.appendChild(upgradeCard);
+      fragment.appendChild(upgradeCard);
     });
+    this.elements.availableUpgradesList.appendChild(fragment);
   }
 
   /**
@@ -2633,10 +2610,13 @@ export class UIManager {
       return;
     }
 
+    // Use DocumentFragment to batch DOM insertions for better performance
+    const fragment = document.createDocumentFragment();
     installedUpgrades.forEach((upgradeId) => {
       const upgradeCard = this.createUpgradeCard(upgradeId, 0, true);
-      this.elements.installedUpgradesList.appendChild(upgradeCard);
+      fragment.appendChild(upgradeCard);
     });
+    this.elements.installedUpgradesList.appendChild(fragment);
   }
 
   /**
