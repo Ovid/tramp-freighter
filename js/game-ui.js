@@ -201,7 +201,9 @@ export class UIManager {
 
   updateHUD() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in updateHUD');
+    }
 
     this.updateCredits(state.player.credits);
     this.updateDebt(state.player.debt);
@@ -274,9 +276,13 @@ export class UIManager {
 
   updateCargo() {
     const cargoUsed = this.gameStateManager.getCargoUsed();
-    const cargoCapacity = this.gameStateManager.getShip()?.cargoCapacity || 0;
+    const ship = this.gameStateManager.getShip();
 
-    this.elements.cargo.textContent = `${cargoUsed}/${cargoCapacity}`;
+    if (!ship) {
+      throw new Error('Invalid game state: ship is null in updateCargo');
+    }
+
+    this.elements.cargo.textContent = `${cargoUsed}/${ship.cargoCapacity}`;
   }
 
   updateLocation(systemId) {
@@ -500,7 +506,11 @@ export class UIManager {
 
   showStationInterface() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showStationInterface'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -570,7 +580,11 @@ export class UIManager {
 
   showSystemInfoPanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showSystemInfoPanel'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
 
@@ -583,7 +597,11 @@ export class UIManager {
 
   openStationOrShowError() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in openStationOrShowError'
+      );
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -625,7 +643,13 @@ export class UIManager {
 
     // Calculate remaining duration
     const state = this.gameStateManager.getState();
-    const currentDay = state?.player?.daysElapsed || 0;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showEventNotification'
+      );
+    }
+
+    const currentDay = state.player.daysElapsed;
     const remainingDays = event.endDay - currentDay;
 
     // Set modal content
@@ -653,7 +677,9 @@ export class UIManager {
 
   handleSystemClick(systemId) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in handleSystemClick');
+    }
 
     // Only show station interface if clicking on current system
     if (systemId === state.player.currentSystem) {
@@ -663,7 +689,9 @@ export class UIManager {
 
   showTradePanel() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showTradePanel');
+    }
 
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
@@ -687,7 +715,11 @@ export class UIManager {
 
   updateTradeCargoCapacity() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in updateTradeCargoCapacity'
+      );
+    }
 
     const cargoUsed = this.gameStateManager.getCargoUsed();
     const cargoCapacity = state.ship.cargoCapacity;
@@ -716,7 +748,9 @@ export class UIManager {
 
   renderMarketGoods(system) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderMarketGoods');
+    }
 
     this.elements.marketGoods.replaceChildren();
 
@@ -841,7 +875,9 @@ export class UIManager {
 
   renderCargoStacks(system) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderCargoStacks');
+    }
 
     this.elements.cargoStacks.replaceChildren();
 
@@ -1838,9 +1874,17 @@ export class UIManager {
 
   handleRepairAll() {
     const condition = this.gameStateManager.getShipCondition();
-    if (!condition) return;
+    if (!condition) {
+      throw new Error(
+        'Invalid game state: ship condition is null in handleRepairAll'
+      );
+    }
 
     const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in handleRepairAll');
+    }
+
     const totalCost = this.calculateRepairAllCost();
 
     // Pre-validate total cost before executing any repairs
@@ -1859,39 +1903,42 @@ export class UIManager {
     // Repair hull
     const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem('hull', hullAmount);
-      if (result.success) {
+      const repairOutcome = this.gameStateManager.repairShipSystem(
+        'hull',
+        hullAmount
+      );
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Hull: ${result.reason}`);
+        failedRepairs.push(`Hull: ${repairOutcome.reason}`);
       }
     }
 
     // Repair engine
     const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem(
+      const repairOutcome = this.gameStateManager.repairShipSystem(
         'engine',
         engineAmount
       );
-      if (result.success) {
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Engine: ${result.reason}`);
+        failedRepairs.push(`Engine: ${repairOutcome.reason}`);
       }
     }
 
     // Repair life support
     const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
-      const result = this.gameStateManager.repairShipSystem(
+      const repairOutcome = this.gameStateManager.repairShipSystem(
         'lifeSupport',
         lifeSupportAmount
       );
-      if (result.success) {
+      if (repairOutcome.success) {
         repairCount++;
       } else {
-        failedRepairs.push(`Life Support: ${result.reason}`);
+        failedRepairs.push(`Life Support: ${repairOutcome.reason}`);
       }
     }
 
@@ -2176,7 +2223,11 @@ export class UIManager {
    */
   renderAvailableUpgrades() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderAvailableUpgrades'
+      );
+    }
 
     this.elements.availableUpgradesList.replaceChildren();
 
@@ -2218,7 +2269,11 @@ export class UIManager {
    */
   renderInstalledUpgrades() {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderInstalledUpgrades'
+      );
+    }
 
     this.elements.installedUpgradesList.replaceChildren();
 
@@ -2421,7 +2476,11 @@ export class UIManager {
    */
   showUpgradeConfirmation(upgradeId) {
     const state = this.gameStateManager.getState();
-    if (!state) return;
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showUpgradeConfirmation'
+      );
+    }
 
     const upgrade = SHIP_UPGRADES[upgradeId];
     if (!upgrade) {
@@ -2503,10 +2562,10 @@ export class UIManager {
     }
 
     // Execute purchase
-    const result = this.gameStateManager.purchaseUpgrade(upgradeId);
+    const purchaseOutcome = this.gameStateManager.purchaseUpgrade(upgradeId);
 
-    if (!result.success) {
-      this.showError(`Upgrade purchase failed: ${result.reason}`);
+    if (!purchaseOutcome.success) {
+      this.showError(`Upgrade purchase failed: ${purchaseOutcome.reason}`);
       this.hideUpgradeConfirmation();
       return;
     }

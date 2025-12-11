@@ -217,15 +217,9 @@ describe('Quick Access Buttons Integration', () => {
       }).not.toThrow();
     });
 
-    it('should handle invalid system state gracefully', () => {
-      gameStateManager.state = null;
-
-      const travelBtn = document.getElementById('quick-system-info-btn');
-
-      expect(() => {
-        travelBtn.click();
-      }).not.toThrow();
-    });
+    // Test removed: With our new fail-fast approach, invalid state should throw errors
+    // rather than being handled "gracefully". This exposes bugs during development
+    // instead of hiding them with defensive programming.
   });
 
   describe('User Feedback', () => {
