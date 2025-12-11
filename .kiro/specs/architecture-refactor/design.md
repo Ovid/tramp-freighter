@@ -116,6 +116,7 @@ class PanelController {
 ### Trade Panel Controller
 
 **Responsibilities**:
+
 - Display market goods with prices and purchase metadata
 - Display cargo stacks with sale prices
 - Handle buy/sell transactions
@@ -123,6 +124,7 @@ class PanelController {
 - Validate transactions against credits and cargo capacity
 
 **Interface**:
+
 ```javascript
 class TradePanelController {
   constructor(elements, gameStateManager, starData)
@@ -135,6 +137,7 @@ class TradePanelController {
 ```
 
 **DOM Elements Required**:
+
 - `tradePanel`, `tradeSystemName`, `tradeCloseBtn`, `tradeBackBtn`
 - `marketGoods`, `cargoStacks`
 - `tradeCargoUsed`, `tradeCargoCapacity`, `tradeCargoRemaining`
@@ -142,6 +145,7 @@ class TradePanelController {
 ### Refuel Panel Controller
 
 **Responsibilities**:
+
 - Display current fuel and refuel pricing
 - Calculate refuel costs based on input
 - Validate refuel amount against credits and capacity
@@ -149,6 +153,7 @@ class TradePanelController {
 - Execute refuel transactions
 
 **Interface**:
+
 ```javascript
 class RefuelPanelController {
   constructor(elements, gameStateManager, starData)
@@ -161,6 +166,7 @@ class RefuelPanelController {
 ```
 
 **DOM Elements Required**:
+
 - `refuelPanel`, `refuelSystemName`, `refuelCloseBtn`, `refuelBackBtn`
 - `refuelCurrentFuel`, `refuelPricePerPercent`, `refuelAmountInput`
 - `refuelTotalCost`, `refuelConfirmBtn`, `refuelMaxBtn`
@@ -169,6 +175,7 @@ class RefuelPanelController {
 ### Repair Panel Controller
 
 **Responsibilities**:
+
 - Display ship condition for all systems
 - Calculate repair costs for individual systems and "Repair All"
 - Validate repair transactions against credits
@@ -176,6 +183,7 @@ class RefuelPanelController {
 - Update condition displays
 
 **Interface**:
+
 ```javascript
 class RepairPanelController {
   constructor(elements, gameStateManager, starData)
@@ -188,6 +196,7 @@ class RepairPanelController {
 ```
 
 **DOM Elements Required**:
+
 - `repairPanel`, `repairSystemName`, `repairCloseBtn`, `repairBackBtn`
 - `repairHullPercent`, `repairHullCost`, `repairHullBtn`
 - `repairEnginePercent`, `repairEngineCost`, `repairEngineBtn`
@@ -197,6 +206,7 @@ class RepairPanelController {
 ### Upgrade Panel Controller
 
 **Responsibilities**:
+
 - Display available ship upgrades
 - Show upgrade costs and effects
 - Validate upgrade purchases against credits
@@ -204,6 +214,7 @@ class RepairPanelController {
 - Display owned upgrades
 
 **Interface**:
+
 ```javascript
 class UpgradePanelController {
   constructor(elements, gameStateManager, starData)
@@ -215,12 +226,14 @@ class UpgradePanelController {
 ```
 
 **DOM Elements Required**:
+
 - `upgradesPanel`, `upgradesSystemName`, `upgradesCloseBtn`, `upgradesBackBtn`
 - `upgradesList`
 
 ### Info Broker Panel Controller
 
 **Responsibilities**:
+
 - Display connected systems list
 - Calculate intelligence costs
 - Handle intelligence purchases
@@ -228,6 +241,7 @@ class UpgradePanelController {
 - Manage purchase/market data tabs
 
 **Interface**:
+
 ```javascript
 class InfoBrokerPanelController {
   constructor(elements, gameStateManager, starData, informationBroker)
@@ -241,6 +255,7 @@ class InfoBrokerPanelController {
 ```
 
 **DOM Elements Required**:
+
 - `infoBrokerPanel`, `infoBrokerSystemName`, `infoBrokerCloseBtn`, `infoBrokerBackBtn`
 - `buyRumorBtn`, `rumorText`, `intelligenceList`, `infoBrokerValidationMessage`
 - `purchaseTab`, `marketDataTab`, `purchaseIntelContent`, `marketDataContent`
@@ -249,11 +264,13 @@ class InfoBrokerPanelController {
 ### Cargo Manifest Panel Controller
 
 **Responsibilities**:
+
 - Display all cargo stacks with purchase metadata
 - Calculate total cargo value
 - Show cargo capacity usage
 
 **Interface**:
+
 ```javascript
 class CargoManifestPanelController {
   constructor(elements, gameStateManager, starData)
@@ -264,12 +281,14 @@ class CargoManifestPanelController {
 ```
 
 **DOM Elements Required**:
+
 - `cargoManifestPanel`, `cargoManifestCloseBtn`
 - `cargoManifestList`, `cargoManifestTotalValue`
 
 ### UIManager (Refactored)
 
 The UIManager will become a coordinator that:
+
 - Caches all DOM elements during initialization
 - Creates controller instances, passing relevant DOM elements
 - Delegates panel show/hide to controllers
@@ -279,6 +298,7 @@ The UIManager will become a coordinator that:
 - Manages quick access buttons (not extracted to controller)
 
 **Why HUD/notifications stay in UIManager**:
+
 - HUD is always visible and updates reactively to many state changes
 - Notifications are a cross-cutting concern used by many systems
 - Quick access buttons are simple toggles that don't warrant a controller
@@ -289,6 +309,7 @@ The UIManager will become a coordinator that:
 The starmap will be split into focused modules:
 
 **starmap-coordinator.js** (Main module):
+
 - Initializes Three.js scene, camera, renderer
 - Creates and coordinates all starmap modules
 - Manages shared state (selected system, camera, scene)
@@ -296,34 +317,40 @@ The starmap will be split into focused modules:
 - Exports initialization function
 
 **starmap-scene.js**:
+
 - Scene setup (lighting, fog, background)
 - Camera initialization
 - Renderer configuration
 - OrbitControls setup
 
 **starmap-stars.js**:
+
 - Star sprite creation and rendering
 - Star label creation and management
 - Distance-based label scaling
 - Star selection visual feedback
 
 **starmap-wormholes.js**:
+
 - Wormhole line rendering
 - Connection color calculation based on fuel
 - Line material management
 
 **starmap-interaction.js**:
+
 - Raycasting for star selection
 - Mouse/touch event handling
 - System selection callbacks
 - Camera transition animations
 
 **star-data.js**:
+
 - Exports STAR_DATA array
 - Exports WORMHOLE_DATA array
 - Pure data module with no logic
 
 **wormhole-data.js**:
+
 - Exports wormhole connection pairs
 - Pure data module with no logic
 
@@ -332,6 +359,7 @@ The starmap will be split into focused modules:
 Constants will be grouped into configuration objects by domain:
 
 **Existing Config Objects** (preserve):
+
 - `ECONOMY_CONFIG` - Economy simulation parameters
 - `VISUAL_CONFIG` - Starmap visual settings
 - `LABEL_CONFIG` - Label display settings
@@ -410,6 +438,7 @@ export const FUEL_PRICING_CONFIG = {
 ```
 
 **Constants that remain top-level** (frequently used, simple values):
+
 - `SOL_SYSTEM_ID`, `ALPHA_CENTAURI_SYSTEM_ID`
 - `COMMODITY_TYPES`
 - `BASE_PRICES`
@@ -434,6 +463,7 @@ CSS will be split by component with a specific import order:
 5. **starmap-scene.css** - Starmap canvas and 3D scene styles
 
 **Import order rationale**:
+
 - Base styles first to establish defaults
 - HUD next as it's always visible
 - Panels alphabetically for predictability
@@ -488,7 +518,7 @@ constructor(elements, gameStateManager, starData) {
     throw new Error('RefuelPanelController: refuelPanel element required');
   }
   // Validate other required elements
-  
+
   this.elements = elements;
   this.gameStateManager = gameStateManager;
   this.starData = starData;
@@ -511,12 +541,14 @@ import { SHIP_CONFIG } from './game-constants.js';
 ### Refactoring Validation
 
 After refactoring, the application must:
+
 1. Load without module resolution errors
 2. Initialize all controllers successfully
 3. Pass all existing tests without modification
 4. Maintain identical functionality
 
 **Validation strategy**:
+
 - Run full test suite after each major refactoring step
 - Manually test each UI panel to verify functionality
 - Check browser console for errors during initialization
@@ -529,10 +561,12 @@ After refactoring, the application must:
 **No new unit tests required** - this is a pure refactoring. Existing unit tests will continue to work with updated import paths.
 
 **Import path updates required in**:
+
 - All test files that import from moved modules
 - Test setup files that mock modules
 
 **Example import path update**:
+
 ```javascript
 // Before
 import { STAR_DATA } from '../js/starmap.js';
@@ -546,6 +580,7 @@ import { STAR_DATA } from '../js/data/star-data.js';
 **No new property tests required** - existing property tests validate behavior that must be preserved.
 
 **Property tests will validate**:
+
 - Controllers maintain same transaction logic (buy/sell/refuel/repair)
 - Price calculations unchanged
 - Validation logic unchanged
@@ -558,6 +593,7 @@ import { STAR_DATA } from '../js/data/star-data.js';
 **No new integration tests required** - existing integration tests validate end-to-end flows.
 
 **Integration tests will validate**:
+
 - UI panels still show/hide correctly
 - Transactions still execute correctly
 - State changes still propagate to UI
@@ -568,6 +604,7 @@ import { STAR_DATA } from '../js/data/star-data.js';
 ### Manual Testing Checklist
 
 After refactoring, manually verify:
+
 - [ ] Application loads without errors
 - [ ] Starmap renders correctly
 - [ ] Star selection works
@@ -595,10 +632,9 @@ After refactoring, manually verify:
 3. **After completing refactoring**: Run full test suite and manual testing
 4. **Test output must be clean**: No stderr messages, no console errors
 
-
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property Reflection
 
@@ -613,7 +649,7 @@ The following properties provide comprehensive validation without redundancy:
 
 ### Property 1: Controller Delegation
 
-*For any* UI panel (trade, refuel, repair, upgrade, info broker, cargo manifest), when UIManager's show/hide method is called for that panel, the corresponding controller's show/hide method should be invoked.
+_For any_ UI panel (trade, refuel, repair, upgrade, info broker, cargo manifest), when UIManager's show/hide method is called for that panel, the corresponding controller's show/hide method should be invoked.
 
 **Validates: Requirements 1.4, 1.5**
 
@@ -621,7 +657,7 @@ The following properties provide comprehensive validation without redundancy:
 
 ### Property 2: Controller Initialization
 
-*For any* panel controller, when instantiated by UIManager, the controller should receive all required dependencies (DOM elements, gameStateManager, starData) as constructor parameters.
+_For any_ panel controller, when instantiated by UIManager, the controller should receive all required dependencies (DOM elements, gameStateManager, starData) as constructor parameters.
 
 **Validates: Requirements 1.2, 1.3**
 
@@ -629,7 +665,7 @@ The following properties provide comprehensive validation without redundancy:
 
 ### Property 3: Test Suite Preservation
 
-*For any* test in the existing test suite, after the refactoring is complete, the test should pass without modifications to test logic (only import path updates allowed).
+_For any_ test in the existing test suite, after the refactoring is complete, the test should pass without modifications to test logic (only import path updates allowed).
 
 **Validates: Requirements 8.2**
 
@@ -637,7 +673,7 @@ The following properties provide comprehensive validation without redundancy:
 
 ### Property 4: Import Path Correctness
 
-*For any* module that was moved during refactoring, all import statements referencing that module should use the new correct path, and the application should load without module resolution errors.
+_For any_ module that was moved during refactoring, all import statements referencing that module should use the new correct path, and the application should load without module resolution errors.
 
 **Validates: Requirements 8.3, 9.1, 9.2, 9.3, 9.4**
 
@@ -645,7 +681,7 @@ The following properties provide comprehensive validation without redundancy:
 
 ### Property 5: Application Load Success
 
-*For any* valid game state, after the refactoring is complete, the application should initialize successfully without errors and render the starmap.
+_For any_ valid game state, after the refactoring is complete, the application should initialize successfully without errors and render the starmap.
 
 **Validates: Requirements 9.4**
 
@@ -656,43 +692,51 @@ The following properties provide comprehensive validation without redundancy:
 The following acceptance criteria are best validated through specific examples rather than universal properties:
 
 **Example 1: Controller Instances Created**
+
 - Verify UIManager creates instances of TradePanelController, RefuelPanelController, RepairPanelController, UpgradePanelController, InfoBrokerPanelController, CargoManifestPanelController
 - **Validates: Requirements 1.1**
 
 **Example 2: Config Objects Exist**
+
 - Verify ECONOMY_CONFIG, VISUAL_CONFIG, LABEL_CONFIG, NOTIFICATION_CONFIG, ANIMATION_CONFIG still exist with same properties
 - Verify SHIP_CONFIG, NAVIGATION_CONFIG, REPAIR_CONFIG, INTELLIGENCE_CONFIG, FUEL_PRICING_CONFIG exist with expected properties
 - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 
 **Example 3: Vendor Directory Organization**
+
 - Verify vendor/ directory exists at project root
 - Verify vendor/three/ contains Three.js library
 - Verify js/ directory contains application code
 - **Validates: Requirements 3.1, 3.2, 3.3**
 
 **Example 4: Controller Directory Organization**
+
 - Verify js/controllers/ directory exists
 - Verify controller files exist: trade-panel-controller.js, refuel-panel-controller.js, repair-panel-controller.js, upgrade-panel-controller.js, info-broker-panel-controller.js, cargo-manifest-panel-controller.js
 - Verify UIManager imports from js/controllers/
 - **Validates: Requirements 4.1, 4.2, 4.4**
 
 **Example 5: Starmap Module Organization**
+
 - Verify js/data/ directory contains star-data.js and wormhole-data.js
 - Verify js/view/ directory contains starmap-coordinator.js, starmap-scene.js, starmap-stars.js, starmap-wormholes.js, starmap-interaction.js
 - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8**
 
 **Example 6: CSS File Organization**
+
 - Verify css/ directory contains: base.css, hud.css, cargo-manifest-panel.css, info-broker-panel.css, modals.css, refuel-panel.css, repair-panel.css, starmap-scene.css, trade-panel.css, upgrades-panel.css
 - Verify HTML imports CSS files in correct order
 - **Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7**
 
 **Example 7: Steering Documents Updated**
+
 - Verify coding-standards.md contains controller patterns and module organization
 - Verify structure.md contains new directory layout
 - Verify tech.md contains controller architecture documentation
 - **Validates: Requirements 7.1, 7.2, 7.3, 7.4**
 
 **Example 8: HTML Script Tags Updated**
+
 - Verify starmap.html script tags reference correct module paths
 - Verify vendor libraries referenced from vendor/ directory
 - **Validates: Requirements 3.4, 9.3**
@@ -707,4 +751,3 @@ The following requirements are guidelines for code organization and cannot be au
 - **Requirement 4.3**: Future controller placement (guideline for future development)
 
 These will be validated through code review during implementation.
-
