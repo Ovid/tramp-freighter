@@ -2681,10 +2681,13 @@ export class UIManager {
       // Calculate total value using TradingSystem
       const totals = TradingSystem.calculateCargoTotals(cargo);
 
+      // Use DocumentFragment to batch DOM insertions for better performance
+      const fragment = document.createDocumentFragment();
       cargo.forEach((cargoEntry) => {
         const cargoItem = this.createCargoManifestItem(cargoEntry, currentDay);
-        this.elements.cargoManifestList.appendChild(cargoItem);
+        fragment.appendChild(cargoItem);
       });
+      this.elements.cargoManifestList.appendChild(fragment);
 
       // Set total value
       this.elements.cargoManifestTotalValue.textContent = `₡${totals.totalValue.toLocaleString()}`;
@@ -2737,14 +2740,12 @@ export class UIManager {
     const daysAgo = document.createElement('div');
     daysAgo.className = 'cargo-manifest-detail';
     const daysSincePurchase = currentDay - (cargoEntry.buyDate || 0);
-    let ageText;
-    if (daysSincePurchase === 0) {
-      ageText = 'today';
-    } else if (daysSincePurchase === 1) {
-      ageText = '1 day ago';
-    } else {
-      ageText = `${daysSincePurchase} days ago`;
-    }
+    const ageText =
+      daysSincePurchase === 0
+        ? 'today'
+        : daysSincePurchase === 1
+          ? '1 day ago'
+          : `${daysSincePurchase} days ago`;
     daysAgo.innerHTML = `<span class="detail-label">Purchased:</span> <span class="detail-value">${ageText}</span>`;
 
     // Current value (using TradingSystem.calculateCargoValue)
