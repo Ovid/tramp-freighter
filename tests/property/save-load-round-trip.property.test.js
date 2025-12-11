@@ -1,6 +1,8 @@
 /**
  * Property-Based Tests for Save/Load Round Trip
  * Feature: tramp-freighter-core-loop, Property 1: Save/Load Round Trip Preservation
+ * Feature: ship-personality, Property 5: Save/Load Round Trip
+ * Validates: Requirements 1.5, 2.7, 3.6, 4.5
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -56,9 +58,74 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
           ),
           qty: fc.integer({ min: 1, max: 50 }),
           buyPrice: fc.integer({ min: 5, max: 100 }),
+          buySystem: fc.constantFrom(0, 1, 4, 5, 7, 13),
+          buySystemName: fc.constantFrom(
+            'Sol',
+            'Alpha Centauri',
+            'Barnard',
+            'Wolf 359',
+            'Lalande',
+            'Sirius'
+          ),
+          buyDate: fc.integer({ min: 0, max: 1000 }),
         }),
         { minLength: 0, maxLength: 10 }
       ),
+      quirks: fc
+        .array(
+          fc.constantFrom(
+            'sticky_seal',
+            'hot_thruster',
+            'sensitive_sensors',
+            'cramped_quarters',
+            'lucky_ship',
+            'fuel_sipper',
+            'leaky_seals',
+            'smooth_talker'
+          ),
+          { minLength: 0, maxLength: 3 }
+        )
+        .map((arr) => [...new Set(arr)]), // Remove duplicates
+      upgrades: fc
+        .array(
+          fc.constantFrom(
+            'extended_tank',
+            'reinforced_hull',
+            'efficient_drive',
+            'expanded_hold',
+            'smuggler_panels',
+            'advanced_sensors',
+            'medical_bay'
+          ),
+          { minLength: 0, maxLength: 7 }
+        )
+        .map((arr) => [...new Set(arr)]), // Remove duplicates
+      hiddenCargo: fc.array(
+        fc.record({
+          good: fc.constantFrom(
+            'grain',
+            'ore',
+            'tritium',
+            'parts',
+            'medicine',
+            'electronics'
+          ),
+          qty: fc.integer({ min: 1, max: 10 }),
+          buyPrice: fc.integer({ min: 5, max: 100 }),
+          buySystem: fc.constantFrom(0, 1, 4, 5, 7, 13),
+          buySystemName: fc.constantFrom(
+            'Sol',
+            'Alpha Centauri',
+            'Barnard',
+            'Wolf 359',
+            'Lalande',
+            'Sirius'
+          ),
+          buyDate: fc.integer({ min: 0, max: 1000 }),
+        }),
+        { minLength: 0, maxLength: 10 }
+      ),
+      hiddenCargoCapacity: fc.integer({ min: 0, max: 10 }),
     }),
     world: fc.record({
       visitedSystems: fc
@@ -69,7 +136,7 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
         .map((arr) => [...new Set(arr)]), // Remove duplicates
     }),
     meta: fc.record({
-      version: fc.constant('1.0.0'),
+      version: fc.constant('2.1.0'),
       timestamp: fc.integer({ min: 1000000000000, max: 2000000000000 }),
     }),
   });
@@ -121,7 +188,7 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
           generatedState.ship.cargoCapacity
         );
 
-        // Verify cargo is preserved
+        // Verify cargo is preserved with enhanced metadata
         expect(loadedState.ship.cargo).toHaveLength(
           generatedState.ship.cargo.length
         );
@@ -135,6 +202,47 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
           expect(loadedState.ship.cargo[i].buyPrice).toBe(
             generatedState.ship.cargo[i].buyPrice
           );
+          expect(loadedState.ship.cargo[i].buySystem).toBe(
+            generatedState.ship.cargo[i].buySystem
+          );
+          expect(loadedState.ship.cargo[i].buySystemName).toBe(
+            generatedState.ship.cargo[i].buySystemName
+          );
+          expect(loadedState.ship.cargo[i].buyDate).toBe(
+            generatedState.ship.cargo[i].buyDate
+          );
+        }
+
+        // Verify ship personality fields are preserved
+        expect(loadedState.ship.quirks).toEqual(generatedState.ship.quirks);
+        expect(loadedState.ship.upgrades).toEqual(generatedState.ship.upgrades);
+        expect(loadedState.ship.hiddenCargoCapacity).toBe(
+          generatedState.ship.hiddenCargoCapacity
+        );
+
+        // Verify hidden cargo is preserved
+        expect(loadedState.ship.hiddenCargo).toHaveLength(
+          generatedState.ship.hiddenCargo.length
+        );
+        for (let i = 0; i < generatedState.ship.hiddenCargo.length; i++) {
+          expect(loadedState.ship.hiddenCargo[i].good).toBe(
+            generatedState.ship.hiddenCargo[i].good
+          );
+          expect(loadedState.ship.hiddenCargo[i].qty).toBe(
+            generatedState.ship.hiddenCargo[i].qty
+          );
+          expect(loadedState.ship.hiddenCargo[i].buyPrice).toBe(
+            generatedState.ship.hiddenCargo[i].buyPrice
+          );
+          expect(loadedState.ship.hiddenCargo[i].buySystem).toBe(
+            generatedState.ship.hiddenCargo[i].buySystem
+          );
+          expect(loadedState.ship.hiddenCargo[i].buySystemName).toBe(
+            generatedState.ship.hiddenCargo[i].buySystemName
+          );
+          expect(loadedState.ship.hiddenCargo[i].buyDate).toBe(
+            generatedState.ship.hiddenCargo[i].buyDate
+          );
         }
 
         // Verify world data is preserved
@@ -143,8 +251,7 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
         );
 
         // Verify meta data is preserved
-        // Version may be migrated from 1.0.0 to 2.1.0, so check it's valid
-        expect(loadedState.meta.version).toMatch(/^[12]\.[01]\.0$/);
+        expect(loadedState.meta.version).toBe('2.1.0');
         expect(loadedState.meta.timestamp).toBeTypeOf('number');
         expect(loadedState.meta.timestamp).toBeGreaterThan(0);
       }),
@@ -250,13 +357,26 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
               name: 'Serendipity',
               fuel: 50,
               cargoCapacity: capacity,
-              cargo: [{ good: 'grain', qty: capacity, buyPrice: 10 }],
+              cargo: [
+                {
+                  good: 'grain',
+                  qty: capacity,
+                  buyPrice: 10,
+                  buySystem: 0,
+                  buySystemName: 'Sol',
+                  buyDate: 0,
+                },
+              ],
+              quirks: [],
+              upgrades: [],
+              hiddenCargo: [],
+              hiddenCargoCapacity: 0,
             },
             world: {
               visitedSystems: [0, 1],
             },
             meta: {
-              version: '1.0.0',
+              version: '2.1.0',
               timestamp: Date.now(),
             },
           };
@@ -371,7 +491,9 @@ describe('Property 1: Save/Load Round Trip Preservation', () => {
     fc.assert(
       fc.property(
         gameStateArbitrary,
-        fc.string({ minLength: 1, maxLength: 10 }).filter((v) => v !== '1.0.0'), // Different version
+        fc
+          .string({ minLength: 1, maxLength: 10 })
+          .filter((v) => v !== '2.1.0' && v !== '2.0.0' && v !== '1.0.0'), // Different version (exclude compatible versions)
         (generatedState, differentVersion) => {
           // Modify version
           generatedState.meta.version = differentVersion;

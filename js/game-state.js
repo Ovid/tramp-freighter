@@ -1901,6 +1901,97 @@ export class GameStateManager {
       if (loadedState.ship.hiddenCargoCapacity === undefined) {
         loadedState.ship.hiddenCargoCapacity = 0;
       }
+
+      // Validate quirk IDs and remove unknown ones
+      if (Array.isArray(loadedState.ship.quirks)) {
+        const validQuirks = [];
+        for (const quirkId of loadedState.ship.quirks) {
+          if (SHIP_QUIRKS[quirkId]) {
+            validQuirks.push(quirkId);
+          } else {
+            console.warn(
+              `Unknown quirk ID: ${quirkId}, removing from save data`
+            );
+          }
+        }
+        loadedState.ship.quirks = validQuirks;
+      }
+
+      // Validate upgrade IDs and remove unknown ones
+      if (Array.isArray(loadedState.ship.upgrades)) {
+        const validUpgrades = [];
+        for (const upgradeId of loadedState.ship.upgrades) {
+          if (SHIP_UPGRADES[upgradeId]) {
+            validUpgrades.push(upgradeId);
+          } else {
+            console.warn(
+              `Unknown upgrade ID: ${upgradeId}, removing from save data`
+            );
+          }
+        }
+        loadedState.ship.upgrades = validUpgrades;
+      }
+
+      // Validate cargo structure completeness
+      if (Array.isArray(loadedState.ship.cargo)) {
+        for (const stack of loadedState.ship.cargo) {
+          // Ensure all required fields are present
+          if (!stack.good || typeof stack.qty !== 'number') {
+            console.warn('Invalid cargo stack found, skipping:', stack);
+            continue;
+          }
+          if (typeof stack.buyPrice !== 'number') {
+            console.warn(`Cargo stack missing buyPrice, using 0:`, stack.good);
+            stack.buyPrice = 0;
+          }
+          if (typeof stack.buySystem !== 'number') {
+            console.warn(
+              `Cargo stack missing buySystem, using current system:`,
+              stack.good
+            );
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (typeof stack.buySystemName !== 'string') {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (typeof stack.buyDate !== 'number') {
+            stack.buyDate = 0;
+          }
+        }
+      }
+
+      // Validate hidden cargo structure completeness
+      if (Array.isArray(loadedState.ship.hiddenCargo)) {
+        for (const stack of loadedState.ship.hiddenCargo) {
+          // Ensure all required fields are present
+          if (!stack.good || typeof stack.qty !== 'number') {
+            console.warn('Invalid hidden cargo stack found, skipping:', stack);
+            continue;
+          }
+          if (typeof stack.buyPrice !== 'number') {
+            console.warn(
+              `Hidden cargo stack missing buyPrice, using 0:`,
+              stack.good
+            );
+            stack.buyPrice = 0;
+          }
+          if (typeof stack.buySystem !== 'number') {
+            console.warn(
+              `Hidden cargo stack missing buySystem, using current system:`,
+              stack.good
+            );
+            stack.buySystem = loadedState.player.currentSystem;
+          }
+          if (typeof stack.buySystemName !== 'string') {
+            const system = this.starData.find((s) => s.id === stack.buySystem);
+            stack.buySystemName = system ? system.name : 'Unknown';
+          }
+          if (typeof stack.buyDate !== 'number') {
+            stack.buyDate = 0;
+          }
+        }
+      }
       if (!loadedState.world.priceKnowledge) {
         loadedState.world.priceKnowledge = {};
 
@@ -2095,6 +2186,34 @@ export class GameStateManager {
       state.ship.hiddenCargoCapacity = 0;
     }
 
+    // Validate quirk IDs and remove unknown ones
+    if (Array.isArray(state.ship.quirks)) {
+      const validQuirks = [];
+      for (const quirkId of state.ship.quirks) {
+        if (SHIP_QUIRKS[quirkId]) {
+          validQuirks.push(quirkId);
+        } else {
+          console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
+        }
+      }
+      state.ship.quirks = validQuirks;
+    }
+
+    // Validate upgrade IDs and remove unknown ones
+    if (Array.isArray(state.ship.upgrades)) {
+      const validUpgrades = [];
+      for (const upgradeId of state.ship.upgrades) {
+        if (SHIP_UPGRADES[upgradeId]) {
+          validUpgrades.push(upgradeId);
+        } else {
+          console.warn(
+            `Unknown upgrade ID: ${upgradeId}, removing from save data`
+          );
+        }
+      }
+      state.ship.upgrades = validUpgrades;
+    }
+
     // Add price knowledge database
     if (!state.world.priceKnowledge) {
       state.world.priceKnowledge = {};
@@ -2202,6 +2321,29 @@ export class GameStateManager {
       typeof state.ship.fuel !== 'number' ||
       typeof state.ship.cargoCapacity !== 'number' ||
       !Array.isArray(state.ship.cargo)
+    ) {
+      return false;
+    }
+
+    // Check ship personality fields (optional - will be initialized if missing)
+    if (state.ship.quirks !== undefined && !Array.isArray(state.ship.quirks)) {
+      return false;
+    }
+    if (
+      state.ship.upgrades !== undefined &&
+      !Array.isArray(state.ship.upgrades)
+    ) {
+      return false;
+    }
+    if (
+      state.ship.hiddenCargo !== undefined &&
+      !Array.isArray(state.ship.hiddenCargo)
+    ) {
+      return false;
+    }
+    if (
+      state.ship.hiddenCargoCapacity !== undefined &&
+      typeof state.ship.hiddenCargoCapacity !== 'number'
     ) {
       return false;
     }

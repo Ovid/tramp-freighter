@@ -245,23 +245,23 @@
     - Display validation errors if transfer fails
     - _Requirements: 3.3, 3.4_
 
-- [ ] 14. Update save/load system
-  - [ ] 14.1 Extend save data structure
+- [x] 14. Update save/load system
+  - [x] 14.1 Extend save data structure
     - Include ship.name in save data
     - Include ship.quirks in save data
     - Include ship.upgrades in save data
     - Include ship.hiddenCargo in save data
     - Include enhanced cargo metadata in save data
     - _Requirements: 1.5, 2.7, 3.6, 4.5_
-  - [ ] 14.2 Add save data validation
+  - [x] 14.2 Add save data validation
     - Validate quirk IDs exist in SHIP_QUIRKS
     - Validate upgrade IDs exist in SHIP_UPGRADES
     - Remove unknown IDs with console warning
     - Validate cargo structure completeness
     - _Requirements: 1.5, 2.7_
-  - [ ] 14.3 Write property test for save/load round trip
+  - [x] 14.3 Write property test for save/load round trip
     - **Property 5: Save/Load Round Trip**
     - **Validates: Requirements 1.5, 2.7, 3.6, 4.5**
 
-- [ ] 15. Final checkpoint - Ensure all tests pass
+- [x] 15. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
