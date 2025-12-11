@@ -21,11 +21,11 @@
   - Create FUEL_PRICING_CONFIG object grouping fuel pricing constants
   - Preserve existing config objects (ECONOMY_CONFIG, VISUAL_CONFIG, LABEL_CONFIG, NOTIFICATION_CONFIG, ANIMATION_CONFIG)
   - Update all imports across codebase to use new config object paths
-  - _Requirements: 2.1, 2.2, 2.3_
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
 
-- [ ] 3.1 Write property test for config object structure
-  - **Property 2: Config Objects Exist**
-  - **Validates: Requirements 2.1, 2.2, 2.3**
+- [ ] 3.1 Write example-based test for config object structure
+  - **Example 2: Config Objects Exist**
+  - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 
 - [ ] 4. Extract Trade Panel Controller
   - Create js/controllers/trade-panel-controller.js

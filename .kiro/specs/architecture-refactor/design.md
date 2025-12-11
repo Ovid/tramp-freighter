@@ -662,7 +662,7 @@ The following acceptance criteria are best validated through specific examples r
 **Example 2: Config Objects Exist**
 - Verify ECONOMY_CONFIG, VISUAL_CONFIG, LABEL_CONFIG, NOTIFICATION_CONFIG, ANIMATION_CONFIG still exist with same properties
 - Verify SHIP_CONFIG, NAVIGATION_CONFIG, REPAIR_CONFIG, INTELLIGENCE_CONFIG, FUEL_PRICING_CONFIG exist with expected properties
-- **Validates: Requirements 2.1, 2.2, 2.3**
+- **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 
 **Example 3: Vendor Directory Organization**
 - Verify vendor/ directory exists at project root
