@@ -733,11 +733,96 @@ canvas {
   cursor: not-allowed;
 }
 
+.transfer-btn {
+  padding: 6px 12px;
+  background-color: #222222;
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.transfer-btn:hover {
+  background-color: #ffaa00;
+  color: #000000;
+}
+
+.transfer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .trade-actions {
   display: flex;
   justify-content: center;
   padding-top: 10px;
   border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Hidden Cargo Section Styling */
+.hidden-cargo-section {
+  background-color: rgba(255, 170, 0, 0.05);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section h3 {
+  color: #ffaa00;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.hidden-cargo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+  margin-bottom: 12px;
+}
+
+.toggle-hidden-cargo-btn {
+  padding: 6px 12px;
+  background-color: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-hidden-cargo-btn:hover {
+  background-color: rgba(255, 170, 0, 0.3);
+  border-color: #ffcc66;
+  color: #ffcc66;
+}
+
+.hidden-cargo-content {
+  display: block;
+}
+
+.hidden-cargo-content.collapsed {
+  display: none;
+}
+
+.hidden-cargo-section .cargo-capacity-display {
+  border-color: rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-label {
+  color: #ffaa00;
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-units {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hidden-cargo-section.hidden {
+  display: none;
 }
 
 /* Refuel Panel Styling */

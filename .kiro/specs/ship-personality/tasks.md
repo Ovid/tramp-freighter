@@ -227,18 +227,18 @@
     - Wire up to renderCargoManifest
     - _Requirements: 5.1_
 
-- [ ] 13. Implement hidden cargo UI integration
-  - [ ] 13.1 Add hidden cargo section to trade interface
+- [x] 13. Implement hidden cargo UI integration
+  - [x] 13.1 Add hidden cargo section to trade interface
     - Display "HIDDEN CARGO" section when Smuggler's Panels installed
     - Show hidden cargo with same format as regular cargo
     - Display hidden capacity usage (X/10 units)
     - Verify capacity display shows current usage and maximum (e.g., "5/10 units")
     - _Requirements: 3.2_
-  - [ ] 13.2 Add toggle hidden cargo view button
+  - [x] 13.2 Add toggle hidden cargo view button
     - Add button to show/hide hidden cargo section
     - Toggle visibility on click
     - _Requirements: 3.5_
-  - [ ] 13.3 Add cargo transfer buttons
+  - [x] 13.3 Add cargo transfer buttons
     - Add "Move to Hidden" button when Smuggler's Panels installed
     - Add "Move to Regular" button for hidden cargo
     - Wire up to moveToHiddenCargo and moveToRegularCargo functions

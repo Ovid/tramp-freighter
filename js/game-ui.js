@@ -156,6 +156,12 @@ export class UIManager {
       cargoManifestTotalValue: document.getElementById(
         'cargo-manifest-total-value'
       ),
+      hiddenCargoSection: document.getElementById('hidden-cargo-section'),
+      hiddenCargoUsed: document.getElementById('hidden-cargo-used'),
+      hiddenCargoCapacity: document.getElementById('hidden-cargo-capacity'),
+      hiddenCargoStacks: document.getElementById('hidden-cargo-stacks'),
+      toggleHiddenCargoBtn: document.getElementById('toggle-hidden-cargo-btn'),
+      hiddenCargoContent: document.getElementById('hidden-cargo-content'),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
@@ -523,6 +529,12 @@ export class UIManager {
         this.showCargoManifest();
       });
     }
+
+    if (this.elements.toggleHiddenCargoBtn) {
+      this.elements.toggleHiddenCargoBtn.addEventListener('click', () => {
+        this.toggleHiddenCargoView();
+      });
+    }
   }
 
   setupShipStatusHandlers() {
@@ -743,6 +755,7 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
 
     this.elements.tradePanel.classList.add('visible');
   }
@@ -905,6 +918,7 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
   }
 
   renderCargoStacks(system) {
@@ -1028,6 +1042,19 @@ export class UIManager {
     stackActions.appendChild(sell1Btn);
     stackActions.appendChild(sellAllBtn);
 
+    // Add "Move to Hidden" button if Smuggler's Panels installed
+    const hasSmugglersPanel =
+      state.ship.upgrades && state.ship.upgrades.includes('smuggler_panels');
+    if (hasSmugglersPanel) {
+      const moveToHiddenBtn = document.createElement('button');
+      moveToHiddenBtn.className = 'transfer-btn';
+      moveToHiddenBtn.textContent = 'Move to Hidden';
+      moveToHiddenBtn.addEventListener('click', () =>
+        this.handleMoveToHidden(stack.good, stack.qty)
+      );
+      stackActions.appendChild(moveToHiddenBtn);
+    }
+
     stackItem.appendChild(stackInfo);
     stackItem.appendChild(stackActions);
 
@@ -1061,6 +1088,291 @@ export class UIManager {
     this.updateTradeCargoCapacity();
     this.renderMarketGoods(system);
     this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Handle moving cargo to hidden compartment
+   *
+   * Transfers cargo from regular cargo to hidden compartment.
+   * Displays validation errors if transfer fails.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.3
+   *
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity to move
+   */
+  handleMoveToHidden(goodType, quantity) {
+    const result = this.gameStateManager.moveToHiddenCargo(goodType, quantity);
+
+    if (!result.success) {
+      this.showError(`Transfer failed: ${result.reason}`);
+      return;
+    }
+
+    this.showSuccess(`Moved ${quantity} ${goodType} to hidden cargo`);
+
+    // Refresh the trade panel to show updated state
+    const state = this.gameStateManager.getState();
+    const system = this.starData.find(
+      (s) => s.id === state.player.currentSystem
+    );
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
+    }
+
+    this.updateTradeCargoCapacity();
+    this.renderMarketGoods(system);
+    this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Handle moving cargo to regular compartment
+   *
+   * Transfers cargo from hidden compartment to regular cargo.
+   * Displays validation errors if transfer fails.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.4
+   *
+   * @param {string} goodType - Commodity type
+   * @param {number} quantity - Quantity to move
+   */
+  handleMoveToRegular(goodType, quantity) {
+    const result = this.gameStateManager.moveToRegularCargo(goodType, quantity);
+
+    if (!result.success) {
+      this.showError(`Transfer failed: ${result.reason}`);
+      return;
+    }
+
+    this.showSuccess(`Moved ${quantity} ${goodType} to regular cargo`);
+
+    // Refresh the trade panel to show updated state
+    const state = this.gameStateManager.getState();
+    const system = this.starData.find(
+      (s) => s.id === state.player.currentSystem
+    );
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
+    }
+
+    this.updateTradeCargoCapacity();
+    this.renderMarketGoods(system);
+    this.renderCargoStacks(system);
+    this.renderHiddenCargoSection(system);
+  }
+
+  /**
+   * Render hidden cargo section in trade panel
+   *
+   * Displays hidden cargo section only when Smuggler's Panels upgrade is installed.
+   * Shows hidden cargo capacity usage and all hidden cargo stacks.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.2
+   *
+   * @param {Object} system - Current star system
+   */
+  renderHiddenCargoSection(system) {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderHiddenCargoSection'
+      );
+    }
+
+    // Check if hidden cargo elements exist (may not exist in test environment)
+    if (!this.elements.hiddenCargoSection || !this.elements.hiddenCargoStacks) {
+      return;
+    }
+
+    const ship = state.ship;
+    const hasSmugglersPanel =
+      ship.upgrades && ship.upgrades.includes('smuggler_panels');
+
+    // Show/hide section based on upgrade
+    if (!hasSmugglersPanel) {
+      this.elements.hiddenCargoSection.classList.add('hidden');
+      return;
+    }
+
+    this.elements.hiddenCargoSection.classList.remove('hidden');
+
+    // Update capacity display
+    const hiddenCargo = ship.hiddenCargo || [];
+    const hiddenCargoUsed = hiddenCargo.reduce(
+      (sum, stack) => sum + stack.qty,
+      0
+    );
+    const hiddenCargoCapacity = ship.hiddenCargoCapacity || 10;
+
+    if (this.elements.hiddenCargoUsed) {
+      this.elements.hiddenCargoUsed.textContent = hiddenCargoUsed;
+    }
+    if (this.elements.hiddenCargoCapacity) {
+      this.elements.hiddenCargoCapacity.textContent = hiddenCargoCapacity;
+    }
+
+    // Render hidden cargo stacks
+    this.elements.hiddenCargoStacks.replaceChildren();
+
+    if (hiddenCargo.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'cargo-empty';
+      emptyMsg.textContent = 'No hidden cargo';
+      this.elements.hiddenCargoStacks.appendChild(emptyMsg);
+      return;
+    }
+
+    hiddenCargo.forEach((stack, index) => {
+      const stackItem = this.createHiddenCargoStackItem(stack, index, system);
+      this.elements.hiddenCargoStacks.appendChild(stackItem);
+    });
+  }
+
+  /**
+   * Toggle hidden cargo view visibility
+   *
+   * Shows or hides the hidden cargo content section and updates button text.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 3.5
+   */
+  toggleHiddenCargoView() {
+    if (
+      !this.elements.hiddenCargoContent ||
+      !this.elements.toggleHiddenCargoBtn
+    ) {
+      return;
+    }
+
+    const isCollapsed =
+      this.elements.hiddenCargoContent.classList.contains('collapsed');
+
+    if (isCollapsed) {
+      // Show hidden cargo
+      this.elements.hiddenCargoContent.classList.remove('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Hide';
+    } else {
+      // Hide hidden cargo
+      this.elements.hiddenCargoContent.classList.add('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Show';
+    }
+  }
+
+  /**
+   * Create a hidden cargo stack item element
+   *
+   * Similar to regular cargo stack but for hidden compartment.
+   * Shows commodity name, quantity, purchase details, and profit calculation.
+   *
+   * @param {Object} stack - Hidden cargo stack
+   * @param {number} stackIndex - Index in hidden cargo array
+   * @param {Object} system - Current star system
+   * @returns {HTMLElement} Hidden cargo stack item element
+   */
+  createHiddenCargoStackItem(stack, stackIndex, system) {
+    const state = this.gameStateManager.getState();
+    const currentDay = state.player.daysElapsed;
+    const activeEvents = state.world.activeEvents || [];
+    const marketConditions = state.world.marketConditions || {};
+
+    const currentPrice = TradingSystem.calculatePrice(
+      stack.good,
+      system,
+      currentDay,
+      activeEvents,
+      marketConditions
+    );
+    const profitMargin = currentPrice - stack.buyPrice;
+    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
+
+    const stackItem = document.createElement('div');
+    stackItem.className = 'cargo-stack';
+
+    const stackInfo = document.createElement('div');
+    stackInfo.className = 'stack-info';
+
+    const stackName = document.createElement('div');
+    stackName.className = 'stack-name';
+    stackName.textContent = this.capitalizeFirst(stack.good);
+
+    const stackDetails = document.createElement('div');
+    stackDetails.className = 'stack-details';
+
+    // Build details text
+    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
+
+    // Add purchase context if available
+    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
+      const purchaseSystem = this.starData.find(
+        (s) => s.id === stack.buySystem
+      );
+      if (!purchaseSystem) {
+        throw new Error(
+          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
+        );
+      }
+
+      const daysSincePurchase = currentDay - stack.buyDate;
+      let ageText;
+      if (daysSincePurchase === 0) {
+        ageText = 'today';
+      } else if (daysSincePurchase === 1) {
+        ageText = '1 day ago';
+      } else {
+        ageText = `${daysSincePurchase} days ago`;
+      }
+
+      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
+    }
+
+    stackDetails.textContent = detailsText;
+
+    const stackProfit = document.createElement('div');
+    stackProfit.className = 'stack-profit';
+
+    if (profitMargin > 0) {
+      stackProfit.classList.add('positive');
+      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Profit: +${profitMargin} cr/unit (+${profitPercentage}%)`;
+    } else if (profitMargin < 0) {
+      stackProfit.classList.add('negative');
+      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Loss: ${profitMargin} cr/unit (${profitPercentage}%)`;
+    } else {
+      stackProfit.classList.add('neutral');
+      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Break even`;
+    }
+
+    stackInfo.appendChild(stackName);
+    stackInfo.appendChild(stackDetails);
+    stackInfo.appendChild(stackProfit);
+
+    // Add "Move to Regular" button for hidden cargo
+    const stackActions = document.createElement('div');
+    stackActions.className = 'stack-actions';
+
+    const moveToRegularBtn = document.createElement('button');
+    moveToRegularBtn.className = 'transfer-btn';
+    moveToRegularBtn.textContent = 'Move to Regular';
+    moveToRegularBtn.addEventListener('click', () =>
+      this.handleMoveToRegular(stack.good, stack.qty)
+    );
+
+    stackActions.appendChild(moveToRegularBtn);
+
+    stackItem.appendChild(stackInfo);
+    stackItem.appendChild(stackActions);
+
+    return stackItem;
   }
 
   /**

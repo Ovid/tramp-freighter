@@ -1,4 +1,5 @@
 - i18n?
+- X/Y/Z should be fixed for star data. Get more star info?
 - Admin process for adjusting data for testing
 - On jump, panel not always hidden.
 - Economic events should last longer (and not have the popup every time)

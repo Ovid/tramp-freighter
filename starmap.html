@@ -208,6 +208,33 @@
             <!-- Dynamically populated with cargo stacks -->
           </div>
         </div>
+
+        <!-- Hidden Cargo Section (only visible when Smuggler's Panels installed) -->
+        <div
+          id="hidden-cargo-section"
+          class="trade-section hidden-cargo-section hidden"
+        >
+          <div class="hidden-cargo-header">
+            <h3>Hidden Cargo</h3>
+            <button
+              id="toggle-hidden-cargo-btn"
+              class="toggle-hidden-cargo-btn"
+            >
+              Hide
+            </button>
+          </div>
+          <div id="hidden-cargo-content" class="hidden-cargo-content">
+            <div class="cargo-capacity-display">
+              <span class="capacity-label">Hidden Capacity:</span>
+              <span id="hidden-cargo-used">0</span> /
+              <span id="hidden-cargo-capacity">10</span>
+              <span class="capacity-units">units</span>
+            </div>
+            <div id="hidden-cargo-stacks" class="cargo-list">
+              <!-- Dynamically populated with hidden cargo stacks -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="trade-actions">
