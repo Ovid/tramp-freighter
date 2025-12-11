@@ -214,15 +214,15 @@
     - Wire up to renderUpgradesInterface
     - _Requirements: 2.1, 8.1_
 
-- [ ] 12. Implement cargo manifest UI
-  - [ ] 12.1 Create renderCargoManifest function
+- [x] 12. Implement cargo manifest UI
+  - [x] 12.1 Create renderCargoManifest function
     - Display "CARGO MANIFEST" header with ship name
     - Display capacity usage (X/Y units)
     - For each cargo: display name, quantity, purchase location, purchase price, days ago, current value
     - Display total cargo value at bottom
     - Add back button
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
-  - [ ] 12.2 Add cargo manifest button to station menu or HUD
+  - [x] 12.2 Add cargo manifest button to station menu or HUD
     - Add button/menu option to access cargo manifest
     - Wire up to renderCargoManifest
     - _Requirements: 5.1_

@@ -171,6 +171,9 @@
         <button class="station-btn" id="repairs-btn">Repairs</button>
         <button class="station-btn" id="info-broker-btn">Info Broker</button>
         <button class="station-btn" id="upgrades-btn">Upgrades</button>
+        <button class="station-btn" id="cargo-manifest-btn">
+          Cargo Manifest
+        </button>
         <button class="station-btn" id="ship-status-btn">Ship Status</button>
         <button class="station-btn" id="undock-btn">Undock</button>
       </div>
@@ -685,6 +688,46 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Cargo Manifest Panel -->
+    <div id="cargo-manifest-panel">
+      <button class="close-btn" id="cargo-manifest-close-btn">×</button>
+      <h2>CARGO MANIFEST - <span id="cargo-manifest-ship-name"></span></h2>
+
+      <div class="cargo-manifest-content">
+        <!-- Capacity Display -->
+        <div class="cargo-manifest-section">
+          <div class="cargo-capacity-display">
+            <span class="capacity-label">Capacity:</span>
+            <span id="cargo-manifest-used">0</span> /
+            <span id="cargo-manifest-capacity">50</span>
+            <span class="capacity-units">units</span>
+          </div>
+        </div>
+
+        <!-- Cargo List -->
+        <div class="cargo-manifest-section">
+          <h3>Cargo</h3>
+          <div id="cargo-manifest-list" class="cargo-manifest-list">
+            <!-- Dynamically populated with cargo items -->
+          </div>
+        </div>
+
+        <!-- Total Value Display -->
+        <div class="cargo-manifest-section">
+          <div class="cargo-manifest-total">
+            <span class="total-label">Total Cargo Value:</span>
+            <span id="cargo-manifest-total-value" class="total-value">₡0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cargo-manifest-actions">
+        <button class="station-btn secondary" id="cargo-manifest-back-btn">
+          Back
+        </button>
       </div>
     </div>
 

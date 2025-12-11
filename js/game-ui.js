@@ -122,6 +122,7 @@ export class UIManager {
       eventModalDismiss: document.getElementById('event-modal-dismiss'),
       upgradesBtn: document.getElementById('upgrades-btn'),
       upgradesPanel: document.getElementById('upgrades-panel'),
+      cargoManifestBtn: document.getElementById('cargo-manifest-btn'),
       upgradesCloseBtn: document.getElementById('upgrades-close-btn'),
       upgradesBackBtn: document.getElementById('upgrades-back-btn'),
       upgradesCreditsValue: document.getElementById('upgrades-credits-value'),
@@ -141,6 +142,20 @@ export class UIManager {
       upgradeCreditsAfter: document.getElementById('upgrade-credits-after'),
       upgradeCancelBtn: document.getElementById('upgrade-cancel-btn'),
       upgradeConfirmBtn: document.getElementById('upgrade-confirm-btn'),
+      cargoManifestPanel: document.getElementById('cargo-manifest-panel'),
+      cargoManifestCloseBtn: document.getElementById(
+        'cargo-manifest-close-btn'
+      ),
+      cargoManifestBackBtn: document.getElementById('cargo-manifest-back-btn'),
+      cargoManifestShipName: document.getElementById(
+        'cargo-manifest-ship-name'
+      ),
+      cargoManifestUsed: document.getElementById('cargo-manifest-used'),
+      cargoManifestCapacity: document.getElementById('cargo-manifest-capacity'),
+      cargoManifestList: document.getElementById('cargo-manifest-list'),
+      cargoManifestTotalValue: document.getElementById(
+        'cargo-manifest-total-value'
+      ),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
@@ -487,6 +502,25 @@ export class UIManager {
     if (this.elements.upgradeConfirmBtn) {
       this.elements.upgradeConfirmBtn.addEventListener('click', () => {
         this.handleUpgradeConfirm();
+      });
+    }
+
+    if (this.elements.cargoManifestCloseBtn) {
+      this.elements.cargoManifestCloseBtn.addEventListener('click', () => {
+        this.hideCargoManifest();
+      });
+    }
+
+    if (this.elements.cargoManifestBackBtn) {
+      this.elements.cargoManifestBackBtn.addEventListener('click', () => {
+        this.hideCargoManifest();
+        this.showStationInterface();
+      });
+    }
+
+    if (this.elements.cargoManifestBtn) {
+      this.elements.cargoManifestBtn.addEventListener('click', () => {
+        this.showCargoManifest();
       });
     }
   }
@@ -2578,5 +2612,171 @@ export class UIManager {
 
     // Refresh upgrades interface
     this.showUpgradesInterface();
+  }
+
+  // ========================================================================
+  // CARGO MANIFEST PANEL
+  // ========================================================================
+
+  /**
+   * Show cargo manifest panel
+   *
+   * Displays detailed cargo information including:
+   * - Ship name in header
+   * - Capacity usage (X/Y units)
+   * - Each cargo: name, quantity, purchase location, purchase price, days ago, current value
+   * - Total cargo value at bottom
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+   */
+  showCargoManifest() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in showCargoManifest');
+    }
+
+    this.hideStationInterface();
+    this.renderCargoManifest();
+  }
+
+  /**
+   * Render cargo manifest panel content
+   *
+   * Creates and displays the cargo manifest interface showing ship name,
+   * capacity usage, all cargo with purchase details, and total value.
+   */
+  renderCargoManifest() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in renderCargoManifest'
+      );
+    }
+
+    const ship = state.ship;
+    const cargo = ship.cargo || [];
+    const cargoUsed = this.gameStateManager.getCargoUsed();
+    const currentDay = state.player.daysElapsed;
+
+    // Set ship name in header
+    this.elements.cargoManifestShipName.textContent = ship.name;
+
+    // Set capacity display
+    this.elements.cargoManifestUsed.textContent = cargoUsed;
+    this.elements.cargoManifestCapacity.textContent = ship.cargoCapacity;
+
+    // Render cargo list
+    this.elements.cargoManifestList.replaceChildren();
+
+    if (cargo.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'cargo-manifest-empty';
+      emptyMsg.textContent = 'No cargo';
+      this.elements.cargoManifestList.appendChild(emptyMsg);
+
+      // Set total value to 0
+      this.elements.cargoManifestTotalValue.textContent = '₡0';
+    } else {
+      // Calculate total value using TradingSystem
+      const totals = TradingSystem.calculateCargoTotals(cargo);
+
+      cargo.forEach((cargoEntry) => {
+        const cargoItem = this.createCargoManifestItem(cargoEntry, currentDay);
+        this.elements.cargoManifestList.appendChild(cargoItem);
+      });
+
+      // Set total value
+      this.elements.cargoManifestTotalValue.textContent = `₡${totals.totalValue.toLocaleString()}`;
+    }
+
+    // Show panel
+    this.elements.cargoManifestPanel.classList.add('visible');
+  }
+
+  /**
+   * Create a cargo manifest item element
+   *
+   * Displays cargo details including name, quantity, purchase location,
+   * purchase price, days since purchase, and current value.
+   *
+   * @param {Object} cargoEntry - Cargo stack with metadata
+   * @param {number} currentDay - Current game day
+   * @returns {HTMLElement} Cargo manifest item element
+   */
+  createCargoManifestItem(cargoEntry, currentDay) {
+    const item = document.createElement('div');
+    item.className = 'cargo-manifest-item';
+
+    // Cargo name
+    const name = document.createElement('div');
+    name.className = 'cargo-manifest-name';
+    name.textContent = this.capitalizeFirst(cargoEntry.good);
+
+    // Cargo details
+    const details = document.createElement('div');
+    details.className = 'cargo-manifest-details';
+
+    // Quantity
+    const quantity = document.createElement('div');
+    quantity.className = 'cargo-manifest-detail';
+    quantity.innerHTML = `<span class="detail-label">Quantity:</span> <span class="detail-value">${cargoEntry.qty} units</span>`;
+
+    // Purchase location
+    const location = document.createElement('div');
+    location.className = 'cargo-manifest-detail';
+    const locationName = cargoEntry.buySystemName || 'Unknown';
+    location.innerHTML = `<span class="detail-label">Purchased at:</span> <span class="detail-value">${locationName}</span>`;
+
+    // Purchase price
+    const price = document.createElement('div');
+    price.className = 'cargo-manifest-detail';
+    price.innerHTML = `<span class="detail-label">Purchase price:</span> <span class="detail-value">₡${cargoEntry.buyPrice}/unit</span>`;
+
+    // Days ago
+    const daysAgo = document.createElement('div');
+    daysAgo.className = 'cargo-manifest-detail';
+    const daysSincePurchase = currentDay - (cargoEntry.buyDate || 0);
+    let ageText;
+    if (daysSincePurchase === 0) {
+      ageText = 'today';
+    } else if (daysSincePurchase === 1) {
+      ageText = '1 day ago';
+    } else {
+      ageText = `${daysSincePurchase} days ago`;
+    }
+    daysAgo.innerHTML = `<span class="detail-label">Purchased:</span> <span class="detail-value">${ageText}</span>`;
+
+    // Current value (using TradingSystem.calculateCargoValue)
+    const value = document.createElement('div');
+    value.className = 'cargo-manifest-detail cargo-manifest-value';
+    const cargoValue = TradingSystem.calculateCargoValue(cargoEntry);
+    value.innerHTML = `<span class="detail-label">Current value:</span> <span class="detail-value">₡${cargoValue.toLocaleString()}</span>`;
+
+    details.appendChild(quantity);
+    details.appendChild(location);
+    details.appendChild(price);
+    details.appendChild(daysAgo);
+    details.appendChild(value);
+
+    item.appendChild(name);
+    item.appendChild(details);
+
+    return item;
+  }
+
+  /**
+   * Hide cargo manifest panel
+   */
+  hideCargoManifest() {
+    this.elements.cargoManifestPanel.classList.remove('visible');
+  }
+
+  /**
+   * Check if cargo manifest panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isCargoManifestVisible() {
+    return this.elements.cargoManifestPanel.classList.contains('visible');
   }
 }
