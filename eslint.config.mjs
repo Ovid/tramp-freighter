@@ -5,7 +5,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 export default [
   // 1. Global Ignores: Added 'vendor/' to the list
   {
-    ignores: ['dist', 'coverage', 'node_modules', 'vendor/'],
+    ignores: ['dist', 'coverage', 'node_modules', 'vendor'],
   },
 
   // 2. Base Javascript Recommended Rules

@@ -7,7 +7,7 @@
   - Update HTML script tags to reference vendor/three/ instead of js/vendor/three/
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 2. Extract star and wormhole data into dedicated modules
+- [x] 2. Extract star and wormhole data into dedicated modules
   - Create js/data/star-data.js and export STAR_DATA array from starmap.js
   - Create js/data/wormhole-data.js and export WORMHOLE_DATA array from starmap.js
   - Update starmap.js to import from js/data/ modules
