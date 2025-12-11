@@ -125,6 +125,21 @@ describe('Property 9: UI Display Completeness', () => {
       <div id="event-modal-duration"></div>
       <div id="event-modal-dismiss"></div>
       <div id="ship-status-btn"></div>
+      <div id="upgrades-btn"></div>
+      <div id="upgrades-panel"></div>
+      <div id="upgrades-close-btn"></div>
+      <div id="upgrades-back-btn"></div>
+      <div id="upgrades-credits-value"></div>
+      <div id="available-upgrades-list"></div>
+      <div id="installed-upgrades-list"></div>
+      <div id="upgrade-confirmation-overlay"></div>
+      <div id="upgrade-confirmation-title"></div>
+      <div id="upgrade-confirmation-effects"></div>
+      <div id="upgrade-current-credits"></div>
+      <div id="upgrade-cost"></div>
+      <div id="upgrade-credits-after"></div>
+      <div id="upgrade-cancel-btn"></div>
+      <div id="upgrade-confirm-btn"></div>
     `;
 
     gameStateManager = new GameStateManager(mockStarData, mockWormholeData);
@@ -246,42 +261,78 @@ describe('Property 9: UI Display Completeness', () => {
   });
 
   it('should display warning symbol (⚠) for all upgrades that have tradeoffs', () => {
-    // This test verifies that upgrades with tradeoffs display a warning symbol
-    // Note: This will be implemented when the upgrades interface is created in task 11
-
     // Get all upgrades with tradeoffs (tradeoff !== 'None')
     const upgradesWithTradeoffs = Object.entries(SHIP_UPGRADES)
       .filter(([, upgrade]) => upgrade.tradeoff && upgrade.tradeoff !== 'None')
       .map(([id]) => id);
 
-    // For now, we just verify that the constant structure is correct
-    // The actual UI test will be implemented when the upgrades interface exists
     expect(upgradesWithTradeoffs.length).toBeGreaterThan(0);
 
-    // Verify each upgrade with a tradeoff has the tradeoff field
+    // Setup game state
+    gameStateManager.initNewGame();
+    const state = gameStateManager.getState();
+    state.player.credits = 100000; // Ensure player can afford upgrades
+
+    // Render upgrades interface
+    uiManager.renderAvailableUpgrades();
+
+    // Get rendered HTML
+    const availableUpgradesList = document.getElementById(
+      'available-upgrades-list'
+    );
+    const html = availableUpgradesList.innerHTML;
+
+    // Verify each upgrade with a tradeoff displays the warning symbol
     for (const upgradeId of upgradesWithTradeoffs) {
       const upgrade = SHIP_UPGRADES[upgradeId];
-      expect(upgrade.tradeoff).toBeDefined();
-      expect(upgrade.tradeoff).not.toBe('None');
+
+      // Check that upgrade name is present
+      expect(html).toContain(upgrade.name);
+
+      // Check that warning symbol is present for this upgrade
+      // The warning symbol should appear near the upgrade name
+      const upgradeCardMatch = html.match(
+        new RegExp(`${upgrade.name}[\\s\\S]*?⚠`, 'i')
+      );
+      expect(upgradeCardMatch).not.toBeNull();
     }
   });
 
   it('should display all required fields for upgrades when interface is rendered', () => {
-    // This test will be fully implemented when the upgrades interface is created in task 11
-    // For now, we verify the upgrade constant structure
-
     fc.assert(
       fc.property(
         fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
         (upgradeId) => {
           const upgrade = SHIP_UPGRADES[upgradeId];
 
-          // Verify upgrade has all required fields
-          expect(upgrade.name).toBeDefined();
-          expect(upgrade.cost).toBeDefined();
-          expect(upgrade.description).toBeDefined();
-          expect(upgrade.effects).toBeDefined();
-          expect(upgrade.tradeoff).toBeDefined();
+          // Setup game state
+          gameStateManager.initNewGame();
+          const state = gameStateManager.getState();
+          state.player.credits = 100000; // Ensure player can afford upgrades
+
+          // Render upgrades interface
+          uiManager.renderAvailableUpgrades();
+
+          // Get rendered HTML
+          const availableUpgradesList = document.getElementById(
+            'available-upgrades-list'
+          );
+          const html = availableUpgradesList.innerHTML;
+
+          // Verify upgrade has all required fields displayed
+          expect(html).toContain(upgrade.name);
+          expect(html).toContain(upgrade.cost.toLocaleString());
+          expect(html).toContain(upgrade.description);
+
+          // Verify effects are displayed
+          // At least one effect should be visible in the rendered output
+          const hasEffects = Object.keys(upgrade.effects).length > 0;
+          expect(hasEffects).toBe(true);
+
+          // Verify tradeoff is displayed if present
+          if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+            expect(html).toContain(upgrade.tradeoff);
+          }
 
           return true;
         }

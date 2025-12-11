@@ -170,6 +170,7 @@
         <button class="station-btn" id="refuel-btn">Refuel</button>
         <button class="station-btn" id="repairs-btn">Repairs</button>
         <button class="station-btn" id="info-broker-btn">Info Broker</button>
+        <button class="station-btn" id="upgrades-btn">Upgrades</button>
         <button class="station-btn" id="ship-status-btn">Ship Status</button>
         <button class="station-btn" id="undock-btn">Undock</button>
       </div>
@@ -595,6 +596,92 @@
           <div class="modal-actions">
             <button id="ship-name-confirm" class="modal-confirm">
               Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrades Interface -->
+    <div id="upgrades-panel">
+      <button class="close-btn" id="upgrades-close-btn">×</button>
+      <h2>Ship Upgrades</h2>
+
+      <div class="upgrades-content">
+        <!-- Credit Balance Display -->
+        <div class="upgrades-credits">
+          <span class="credits-label">Available Credits:</span>
+          <span id="upgrades-credits-value" class="credits-value">0</span>
+        </div>
+
+        <!-- Available Upgrades Section -->
+        <div class="upgrades-section">
+          <h3>Available Upgrades</h3>
+          <div id="available-upgrades-list" class="upgrades-list">
+            <!-- Dynamically populated with available upgrades -->
+          </div>
+        </div>
+
+        <!-- Installed Upgrades Section -->
+        <div class="upgrades-section">
+          <h3>Installed Upgrades</h3>
+          <div id="installed-upgrades-list" class="upgrades-list">
+            <!-- Dynamically populated with installed upgrades -->
+          </div>
+        </div>
+      </div>
+
+      <div class="upgrades-actions">
+        <button class="station-btn secondary" id="upgrades-back-btn">
+          Back to Station
+        </button>
+      </div>
+    </div>
+
+    <!-- Upgrade Confirmation Dialog -->
+    <div id="upgrade-confirmation-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <h3 id="upgrade-confirmation-title" class="modal-title"></h3>
+
+          <div class="upgrade-confirmation-details">
+            <div class="upgrade-confirmation-section">
+              <h4>Effects:</h4>
+              <div
+                id="upgrade-confirmation-effects"
+                class="upgrade-effects-list"
+              >
+                <!-- Effects will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <div class="upgrade-confirmation-section">
+              <h4>Cost:</h4>
+              <div class="upgrade-cost-display">
+                <div class="cost-row">
+                  <span class="cost-label">Current Credits:</span>
+                  <span id="upgrade-current-credits" class="cost-value">0</span>
+                </div>
+                <div class="cost-row">
+                  <span class="cost-label">Upgrade Cost:</span>
+                  <span id="upgrade-cost" class="cost-value">0</span>
+                </div>
+                <div class="cost-row total-row">
+                  <span class="cost-label">Credits After:</span>
+                  <span id="upgrade-credits-after" class="cost-value">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="upgrade-warning">
+              ⚠ This upgrade is PERMANENT and cannot be removed
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="upgrade-cancel-btn" class="modal-cancel">Cancel</button>
+            <button id="upgrade-confirm-btn" class="modal-confirm">
+              Confirm Purchase
             </button>
           </div>
         </div>

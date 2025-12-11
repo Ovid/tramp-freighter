@@ -5,6 +5,7 @@ import {
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
   SHIP_CONDITION_BOUNDS,
+  SHIP_UPGRADES,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
@@ -119,6 +120,27 @@ export class UIManager {
       eventModalDescription: document.getElementById('event-modal-description'),
       eventModalDuration: document.getElementById('event-modal-duration'),
       eventModalDismiss: document.getElementById('event-modal-dismiss'),
+      upgradesBtn: document.getElementById('upgrades-btn'),
+      upgradesPanel: document.getElementById('upgrades-panel'),
+      upgradesCloseBtn: document.getElementById('upgrades-close-btn'),
+      upgradesBackBtn: document.getElementById('upgrades-back-btn'),
+      upgradesCreditsValue: document.getElementById('upgrades-credits-value'),
+      availableUpgradesList: document.getElementById('available-upgrades-list'),
+      installedUpgradesList: document.getElementById('installed-upgrades-list'),
+      upgradeConfirmationOverlay: document.getElementById(
+        'upgrade-confirmation-overlay'
+      ),
+      upgradeConfirmationTitle: document.getElementById(
+        'upgrade-confirmation-title'
+      ),
+      upgradeConfirmationEffects: document.getElementById(
+        'upgrade-confirmation-effects'
+      ),
+      upgradeCurrentCredits: document.getElementById('upgrade-current-credits'),
+      upgradeCost: document.getElementById('upgrade-cost'),
+      upgradeCreditsAfter: document.getElementById('upgrade-credits-after'),
+      upgradeCancelBtn: document.getElementById('upgrade-cancel-btn'),
+      upgradeConfirmBtn: document.getElementById('upgrade-confirm-btn'),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
@@ -428,6 +450,37 @@ export class UIManager {
     if (this.elements.shipStatusBtn) {
       this.elements.shipStatusBtn.addEventListener('click', () => {
         this.showShipStatus();
+      });
+    }
+
+    if (this.elements.upgradesBtn) {
+      this.elements.upgradesBtn.addEventListener('click', () => {
+        this.showUpgradesInterface();
+      });
+    }
+
+    if (this.elements.upgradesCloseBtn) {
+      this.elements.upgradesCloseBtn.addEventListener('click', () => {
+        this.hideUpgradesInterface();
+      });
+    }
+
+    if (this.elements.upgradesBackBtn) {
+      this.elements.upgradesBackBtn.addEventListener('click', () => {
+        this.hideUpgradesInterface();
+        this.showStationInterface();
+      });
+    }
+
+    if (this.elements.upgradeCancelBtn) {
+      this.elements.upgradeCancelBtn.addEventListener('click', () => {
+        this.hideUpgradeConfirmation();
+      });
+    }
+
+    if (this.elements.upgradeConfirmBtn) {
+      this.elements.upgradeConfirmBtn.addEventListener('click', () => {
+        this.handleUpgradeConfirm();
       });
     }
   }
@@ -2064,5 +2117,407 @@ export class UIManager {
     return (
       this.shipStatusPanel && this.shipStatusPanel.classList.contains('visible')
     );
+  }
+
+  // ========================================================================
+  // UPGRADES INTERFACE
+  // ========================================================================
+
+  /**
+   * Show upgrades interface panel
+   *
+   * Displays all available and installed ship upgrades with costs, effects,
+   * and tradeoffs. Validates affordability and prevents duplicate purchases.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6
+   */
+  showUpgradesInterface() {
+    const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error(
+        'Invalid game state: state is null in showUpgradesInterface'
+      );
+    }
+
+    // Update credit balance display
+    this.elements.upgradesCreditsValue.textContent =
+      state.player.credits.toLocaleString();
+
+    // Render available and installed upgrades
+    this.renderAvailableUpgrades();
+    this.renderInstalledUpgrades();
+
+    this.hideStationInterface();
+    this.elements.upgradesPanel.classList.add('visible');
+  }
+
+  /**
+   * Hide upgrades interface panel
+   */
+  hideUpgradesInterface() {
+    this.elements.upgradesPanel.classList.remove('visible');
+  }
+
+  /**
+   * Check if upgrades interface is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isUpgradesVisible() {
+    return this.elements.upgradesPanel.classList.contains('visible');
+  }
+
+  /**
+   * Render list of available (unpurchased) upgrades
+   *
+   * Creates upgrade cards with name, cost, description, effects, and tradeoffs.
+   * Disables purchase buttons for unaffordable upgrades. Adds warning symbol
+   * for upgrades with tradeoffs.
+   */
+  renderAvailableUpgrades() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    this.elements.availableUpgradesList.replaceChildren();
+
+    const credits = state.player.credits;
+    const installedUpgrades = state.ship.upgrades || [];
+
+    // Get all upgrade IDs
+    const allUpgradeIds = Object.keys(SHIP_UPGRADES);
+
+    // Filter to only unpurchased upgrades
+    const availableUpgradeIds = allUpgradeIds.filter(
+      (id) => !installedUpgrades.includes(id)
+    );
+
+    if (availableUpgradeIds.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'upgrades-empty';
+      emptyMsg.textContent = 'All upgrades installed';
+      this.elements.availableUpgradesList.appendChild(emptyMsg);
+      return;
+    }
+
+    // Sort by cost (cheapest first)
+    availableUpgradeIds.sort(
+      (a, b) => SHIP_UPGRADES[a].cost - SHIP_UPGRADES[b].cost
+    );
+
+    availableUpgradeIds.forEach((upgradeId) => {
+      const upgradeCard = this.createUpgradeCard(upgradeId, credits, false);
+      this.elements.availableUpgradesList.appendChild(upgradeCard);
+    });
+  }
+
+  /**
+   * Render list of installed upgrades
+   *
+   * Displays purchased upgrades with their effects and tradeoffs.
+   * No purchase buttons shown for installed upgrades.
+   */
+  renderInstalledUpgrades() {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    this.elements.installedUpgradesList.replaceChildren();
+
+    const installedUpgrades = state.ship.upgrades || [];
+
+    if (installedUpgrades.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'upgrades-empty';
+      emptyMsg.textContent = 'No upgrades installed';
+      this.elements.installedUpgradesList.appendChild(emptyMsg);
+      return;
+    }
+
+    installedUpgrades.forEach((upgradeId) => {
+      const upgradeCard = this.createUpgradeCard(upgradeId, 0, true);
+      this.elements.installedUpgradesList.appendChild(upgradeCard);
+    });
+  }
+
+  /**
+   * Create an upgrade card element
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   * @param {number} credits - Player's current credits
+   * @param {boolean} isInstalled - Whether upgrade is already installed
+   * @returns {HTMLElement} Upgrade card element
+   */
+  createUpgradeCard(upgradeId, credits, isInstalled) {
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    const card = document.createElement('div');
+    card.className = 'upgrade-card';
+
+    // Header with name and cost
+    const header = document.createElement('div');
+    header.className = 'upgrade-header';
+
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'upgrade-name-container';
+
+    const name = document.createElement('span');
+    name.className = 'upgrade-name';
+    name.textContent = upgrade.name;
+
+    // Add warning symbol if upgrade has tradeoffs
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const warningSymbol = document.createElement('span');
+      warningSymbol.className = 'upgrade-warning-symbol';
+      warningSymbol.textContent = ' ⚠';
+      warningSymbol.title = 'This upgrade has tradeoffs';
+      nameContainer.appendChild(name);
+      nameContainer.appendChild(warningSymbol);
+    } else {
+      nameContainer.appendChild(name);
+    }
+
+    const cost = document.createElement('span');
+    cost.className = 'upgrade-cost';
+    cost.textContent = `₡${upgrade.cost.toLocaleString()}`;
+
+    header.appendChild(nameContainer);
+    header.appendChild(cost);
+
+    // Description
+    const description = document.createElement('div');
+    description.className = 'upgrade-description';
+    description.textContent = upgrade.description;
+
+    // Effects list
+    const effectsContainer = document.createElement('div');
+    effectsContainer.className = 'upgrade-effects';
+
+    const effectsLabel = document.createElement('div');
+    effectsLabel.className = 'upgrade-effects-label';
+    effectsLabel.textContent = 'Effects:';
+
+    const effectsList = document.createElement('ul');
+    effectsList.className = 'upgrade-effects-list';
+
+    // Format effects for display
+    const effectsText = this.formatUpgradeEffects(upgrade.effects);
+    effectsText.forEach((effect) => {
+      const li = document.createElement('li');
+      li.textContent = effect;
+      effectsList.appendChild(li);
+    });
+
+    effectsContainer.appendChild(effectsLabel);
+    effectsContainer.appendChild(effectsList);
+
+    // Tradeoff (if any)
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const tradeoffContainer = document.createElement('div');
+      tradeoffContainer.className = 'upgrade-tradeoff';
+
+      const tradeoffLabel = document.createElement('div');
+      tradeoffLabel.className = 'upgrade-tradeoff-label';
+      tradeoffLabel.textContent = 'Tradeoff:';
+
+      const tradeoffText = document.createElement('div');
+      tradeoffText.className = 'upgrade-tradeoff-text';
+      tradeoffText.textContent = upgrade.tradeoff;
+
+      tradeoffContainer.appendChild(tradeoffLabel);
+      tradeoffContainer.appendChild(tradeoffText);
+
+      card.appendChild(header);
+      card.appendChild(description);
+      card.appendChild(effectsContainer);
+      card.appendChild(tradeoffContainer);
+    } else {
+      card.appendChild(header);
+      card.appendChild(description);
+      card.appendChild(effectsContainer);
+    }
+
+    // Purchase button (only for available upgrades)
+    if (!isInstalled) {
+      const actions = document.createElement('div');
+      actions.className = 'upgrade-actions';
+
+      const purchaseBtn = document.createElement('button');
+      purchaseBtn.className = 'upgrade-purchase-btn';
+      purchaseBtn.textContent = 'Purchase';
+      purchaseBtn.disabled = credits < upgrade.cost;
+
+      purchaseBtn.addEventListener('click', () => {
+        this.showUpgradeConfirmation(upgradeId);
+      });
+
+      actions.appendChild(purchaseBtn);
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  /**
+   * Format upgrade effects for display
+   *
+   * Converts effect object into human-readable strings.
+   *
+   * @param {Object} effects - Upgrade effects object
+   * @returns {string[]} Array of formatted effect strings
+   */
+  formatUpgradeEffects(effects) {
+    const formatted = [];
+
+    for (const [attr, value] of Object.entries(effects)) {
+      if (attr === 'fuelCapacity') {
+        formatted.push(`Fuel capacity: ${value}%`);
+      } else if (attr === 'cargoCapacity') {
+        formatted.push(`Cargo capacity: ${value} units`);
+      } else if (attr === 'hiddenCargoCapacity') {
+        formatted.push(`Hidden cargo: ${value} units`);
+      } else if (attr === 'fuelConsumption') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Fuel consumption: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Fuel consumption: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'hullDegradation') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Hull degradation: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Hull degradation: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'lifeSupportDrain') {
+        const percent = Math.round((1 - value) * 100);
+        if (percent > 0) {
+          formatted.push(`Life support drain: -${percent}%`);
+        } else if (percent < 0) {
+          formatted.push(`Life support drain: +${Math.abs(percent)}%`);
+        }
+      } else if (attr === 'eventVisibility') {
+        formatted.push('See economic events in connected systems');
+      }
+    }
+
+    return formatted;
+  }
+
+  /**
+   * Show upgrade confirmation dialog
+   *
+   * Displays upgrade details, cost breakdown, and permanent warning before
+   * allowing purchase confirmation.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.3, 9.1, 9.2, 9.3
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   */
+  showUpgradeConfirmation(upgradeId) {
+    const state = this.gameStateManager.getState();
+    if (!state) return;
+
+    const upgrade = SHIP_UPGRADES[upgradeId];
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    // Set title
+    this.elements.upgradeConfirmationTitle.textContent = upgrade.name;
+
+    // Render effects
+    this.elements.upgradeConfirmationEffects.replaceChildren();
+
+    const effectsText = this.formatUpgradeEffects(upgrade.effects);
+    effectsText.forEach((effect) => {
+      const effectItem = document.createElement('div');
+      effectItem.className = 'upgrade-effect-item';
+      effectItem.textContent = `• ${effect}`;
+      this.elements.upgradeConfirmationEffects.appendChild(effectItem);
+    });
+
+    // Add tradeoff if present
+    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
+      const tradeoffItem = document.createElement('div');
+      tradeoffItem.className = 'upgrade-effect-item upgrade-tradeoff-item';
+      tradeoffItem.textContent = `⚠ ${upgrade.tradeoff}`;
+      this.elements.upgradeConfirmationEffects.appendChild(tradeoffItem);
+    }
+
+    // Set cost information
+    const currentCredits = state.player.credits;
+    const creditsAfter = currentCredits - upgrade.cost;
+
+    this.elements.upgradeCurrentCredits.textContent =
+      currentCredits.toLocaleString();
+    this.elements.upgradeCost.textContent = upgrade.cost.toLocaleString();
+    this.elements.upgradeCreditsAfter.textContent =
+      creditsAfter.toLocaleString();
+
+    // Store upgrade ID for confirmation handler
+    this.pendingUpgradeId = upgradeId;
+
+    // Show dialog
+    this.elements.upgradeConfirmationOverlay.classList.remove('hidden');
+
+    // Focus confirm button
+    if (this.elements.upgradeConfirmBtn) {
+      this.elements.upgradeConfirmBtn.focus();
+    }
+  }
+
+  /**
+   * Hide upgrade confirmation dialog
+   */
+  hideUpgradeConfirmation() {
+    this.elements.upgradeConfirmationOverlay.classList.add('hidden');
+    this.pendingUpgradeId = null;
+  }
+
+  /**
+   * Handle upgrade purchase confirmation
+   *
+   * Executes the upgrade purchase transaction and updates the UI.
+   *
+   * Feature: ship-personality
+   * Validates: Requirements 2.4, 9.4, 9.5
+   */
+  handleUpgradeConfirm() {
+    if (!this.pendingUpgradeId) return;
+
+    const upgradeId = this.pendingUpgradeId;
+    const upgrade = SHIP_UPGRADES[upgradeId];
+
+    if (!upgrade) {
+      throw new Error(
+        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+      );
+    }
+
+    // Execute purchase
+    const result = this.gameStateManager.purchaseUpgrade(upgradeId);
+
+    if (!result.success) {
+      this.showError(`Upgrade purchase failed: ${result.reason}`);
+      this.hideUpgradeConfirmation();
+      return;
+    }
+
+    // Show success notification
+    this.showSuccess(`${upgrade.name} installed`);
+
+    // Hide confirmation dialog
+    this.hideUpgradeConfirmation();
+
+    // Refresh upgrades interface
+    this.showUpgradesInterface();
   }
 }

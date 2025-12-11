@@ -187,8 +187,8 @@
     - Wire up to renderShipStatus
     - _Requirements: 1.3_
 
-- [ ] 11. Implement upgrades interface UI
-  - [ ] 11.1 Create renderUpgradesInterface function
+- [x] 11. Implement upgrades interface UI
+  - [x] 11.1 Create renderUpgradesInterface function
     - Display "SHIP UPGRADES" header with credit balance
     - Display all unpurchased upgrades with name, cost, description, effects, tradeoffs
     - Add warning symbol (⚠) for upgrades with tradeoffs
@@ -197,19 +197,19 @@
     - Display "INSTALLED UPGRADES" section with purchased upgrades
     - Add back button
     - _Requirements: 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
-  - [ ] 11.2 Create upgrade confirmation dialog
+  - [x] 11.2 Create upgrade confirmation dialog
     - Display upgrade name and cost
     - List all effects and tradeoffs
     - Show current credits and credits after purchase
     - Display "This upgrade is PERMANENT and cannot be removed" warning
     - Add Confirm and Cancel buttons
     - _Requirements: 2.3, 9.1, 9.2, 9.3_
-  - [ ] 11.3 Wire up upgrade purchase flow
+  - [x] 11.3 Wire up upgrade purchase flow
     - Click purchase button → show confirmation dialog
     - Click confirm → call purchaseUpgrade, update UI, close dialog
     - Click cancel → close dialog without changes
     - _Requirements: 2.4, 9.4, 9.5_
-  - [ ] 11.4 Add upgrades button to station menu
+  - [x] 11.4 Add upgrades button to station menu
     - Add button/menu option when docked
     - Wire up to renderUpgradesInterface
     - _Requirements: 2.1, 8.1_
