@@ -108,15 +108,15 @@
   - Update starmap.html to import starmap-coordinator.js instead of starmap.js
   - _Requirements: 5.3, 5.4, 5.5, 5.6, 5.7, 5.8_
 
-- [ ] 12. Split CSS into component stylesheets
+- [x] 12. Split CSS into component stylesheets
   - Create css/base.css for global styles and resets
   - Create css/hud.css for HUD styles
-  - Create css/trade-panel.css for trade panel styles
-  - Create css/refuel-panel.css for refuel panel styles
-  - Create css/repair-panel.css for repair panel styles
-  - Create css/upgrades-panel.css for upgrades panel styles
-  - Create css/info-broker-panel.css for info broker panel styles
-  - Create css/cargo-manifest-panel.css for cargo manifest panel styles
+  - Create css/panel/trade.css for trade panel styles
+  - Create css/panel/refuel.css for refuel panel styles
+  - Create css/panel/repair.css for repair panel styles
+  - Create css/panel/upgrades.css for upgrades panel styles
+  - Create css/panel/info-broker.css for info broker panel styles
+  - Create css/panel/cargo-manifest.css for cargo manifest panel styles
   - Create css/modals.css for modal dialog styles
   - Create css/starmap-scene.css for starmap visualization styles
   - Extract corresponding styles from css/starmap.css into each file

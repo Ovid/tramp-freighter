@@ -1,0 +1,637 @@
+/* Game HUD Overlay */
+#game-hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  color: #00ff88;
+  z-index: 100;
+  display: none;
+}
+
+#game-hud.visible {
+  display: block;
+}
+
+.hud-section {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.hud-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.hud-label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.hud-value {
+  color: #ffffff;
+  text-align: right;
+}
+
+/* Ship Name Display */
+.hud-ship-name-row {
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.hud-ship-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Quick Access Buttons */
+.hud-quick-access {
+  margin-top: 10px;
+}
+
+.hud-quick-access-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.hud-quick-access-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-access-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-access-btn:hover:not(:disabled) {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.quick-access-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Condition Bar Styling (Fuel, Hull, Engine, Life Support) */
+/* Used in both HUD and Repair Panel */
+.condition-bar-container {
+  position: relative;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* HUD-specific: fixed width */
+.hud-row .condition-bar-container {
+  width: 150px;
+}
+
+/* Repair panel-specific: full width */
+.repair-section .condition-bar-container {
+  width: 100%;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.condition-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.condition-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+}
+
+/* Distinct visual styling for each condition type in HUD */
+.fuel-bar-container {
+  border: 1px solid #00ff88;
+}
+
+.fuel-bar {
+  background-color: #00ff88;
+}
+
+.hull-bar-container {
+  border: 1px solid #4a9eff;
+}
+
+.hull-bar {
+  background-color: #4a9eff;
+}
+
+/* Repair panel uses gradient backgrounds */
+.repair-section .hull-bar {
+  background: linear-gradient(90deg, #4a90e2, #00bfff);
+}
+
+.engine-bar-container {
+  border: 1px solid #ffaa00;
+}
+
+.engine-bar {
+  background-color: #ffaa00;
+}
+
+/* Repair panel uses gradient backgrounds */
+.repair-section .engine-bar {
+  background: linear-gradient(90deg, #ff6b6b, #ff4444);
+}
+
+.life-support-bar-container {
+  border: 1px solid #ff4a9e;
+}
+
+.life-support-bar {
+  background-color: #ff4a9e;
+}
+
+/* Repair panel uses gradient backgrounds */
+.repair-section .life-support-bar {
+  background: linear-gradient(90deg, #00ff88, #00cc66);
+}
+
+/* HUD Panel Styling */
+#hud {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 280px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+  display: none;
+  z-index: 100;
+}
+
+#hud h2 {
+  margin-bottom: 10px;
+  color: #00ff88;
+  font-size: 18px;
+}
+
+#hud .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+#hud .close-btn:hover {
+  color: #ffffff;
+}
+
+#hud .info-row {
+  margin: 5px 0;
+}
+
+#hud .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+/* Jump Info Styling */
+.jump-info {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Connected Systems List */
+.connected-systems {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.connected-header {
+  color: #00ff88;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.connected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.connected-system-item {
+  padding: 6px 8px;
+  background-color: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.connected-system-item:hover {
+  background-color: rgba(0, 255, 255, 0.3);
+  border-color: rgba(0, 255, 255, 0.6);
+}
+
+.connected-system-item.insufficient-fuel {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.3);
+  opacity: 0.7;
+}
+
+.connected-system-item.insufficient-fuel:hover {
+  background-color: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+.connected-system-name {
+  color: #00ffff;
+  font-weight: bold;
+}
+
+.connected-system-item.insufficient-fuel .connected-system-name {
+  color: #ff6b6b;
+}
+
+.connected-system-info {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.hud-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn.secondary {
+  background-color: transparent;
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+.action-btn.secondary:hover:not(:disabled) {
+  background-color: rgba(0, 255, 136, 0.2);
+  color: #ffffff;
+}
+
+/* Control Buttons Styling */
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.control-btn {
+  width: 120px;
+  height: 40px;
+  background-color: #222222;
+  color: #ffffff;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background-color: #333333;
+}
+
+.control-btn.active {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+/* Station Interface Styling */
+#station-interface {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+}
+
+#station-interface.visible {
+  display: block;
+}
+
+#station-interface h2 {
+  margin-bottom: 15px;
+  color: #00ff88;
+  font-size: 20px;
+  text-align: center;
+}
+
+#station-interface .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#station-interface .close-btn:hover {
+  color: #ffffff;
+}
+
+.station-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+}
+
+.station-info .info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.station-info .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.station-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.station-btn {
+  width: 100%;
+  height: 50px;
+  background-color: #222222;
+  color: #ffffff;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.station-btn:hover {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.station-btn:active {
+  transform: scale(0.98);
+}
+
+/* Notification Styling */
+#notification-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  z-index: 300;
+  pointer-events: none;
+}
+
+.notification {
+  border-radius: 5px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+  pointer-events: auto;
+}
+
+.notification-error {
+  background-color: rgba(255, 0, 0, 0.95);
+  border: 2px solid #ff6b6b;
+}
+
+.notification-success {
+  background-color: rgba(0, 255, 136, 0.95);
+  border: 2px solid #00ff88;
+  color: #000000;
+}
+
+.notification-info {
+  background-color: rgba(0, 136, 255, 0.95);
+  border: 2px solid #0088ff;
+}
+
+.notification.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Game Menu Styling */
+#game-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#game-menu.hidden {
+  display: none;
+}
+
+.menu-content {
+  text-align: center;
+  padding: 40px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border: 3px solid #00ff88;
+  border-radius: 10px;
+  min-width: 400px;
+}
+
+.menu-title {
+  color: #00ff88;
+  font-size: 36px;
+  margin-bottom: 10px;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.menu-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 40px;
+  font-family: 'Courier New', monospace;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.menu-btn {
+  width: 100%;
+  height: 60px;
+  background-color: #222222;
+  color: #ffffff;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 18px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.menu-btn:hover {
+  background-color: #00ff88;
+  color: #000000;
+  transform: scale(1.02);
+}
+
+.menu-btn:active {
+  transform: scale(0.98);
+}
+
+.menu-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.menu-btn:disabled:hover {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+.menu-footer {
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.menu-version {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}

@@ -1,0 +1,340 @@
+/* Trade Panel Styling */
+#trade-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+#trade-panel.visible {
+  display: block;
+}
+
+#trade-panel h2 {
+  margin-bottom: 20px;
+  color: #00ff88;
+  font-size: 20px;
+  text-align: center;
+}
+
+#trade-panel h3 {
+  margin-bottom: 12px;
+  color: #00ff88;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+}
+
+#trade-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#trade-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.trade-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.trade-section {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.goods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.good-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.good-info {
+  flex: 1;
+}
+
+.good-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.good-price {
+  color: #ffffff;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.good-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.buy-btn {
+  padding: 6px 12px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buy-btn:hover {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.buy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cargo-capacity-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.cargo-capacity-display .capacity-label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.cargo-capacity-display #trade-cargo-used {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.cargo-capacity-display #trade-cargo-capacity {
+  color: #ffffff;
+}
+
+.cargo-capacity-display .capacity-remaining {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+.cargo-capacity-display #trade-cargo-remaining {
+  color: #00ff88;
+}
+
+.cargo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cargo-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  font-style: italic;
+}
+
+.cargo-stack {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.stack-info {
+  flex: 1;
+}
+
+.stack-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.stack-details {
+  color: #ffffff;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.stack-profit {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.stack-profit.positive {
+  color: #00ff88;
+}
+
+.stack-profit.negative {
+  color: #ff6b6b;
+}
+
+.stack-profit.neutral {
+  color: #ffffff;
+}
+
+.stack-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sell-btn {
+  padding: 6px 12px;
+  background-color: #222222;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sell-btn:hover {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.sell-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.transfer-btn {
+  padding: 6px 12px;
+  background-color: #222222;
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.transfer-btn:hover {
+  background-color: #ffaa00;
+  color: #000000;
+}
+
+.transfer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trade-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Hidden Cargo Section Styling */
+.hidden-cargo-section {
+  background-color: rgba(255, 170, 0, 0.05);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section h3 {
+  color: #ffaa00;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.hidden-cargo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+  margin-bottom: 12px;
+}
+
+.toggle-hidden-cargo-btn {
+  padding: 6px 12px;
+  background-color: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-hidden-cargo-btn:hover {
+  background-color: rgba(255, 170, 0, 0.3);
+  border-color: #ffcc66;
+  color: #ffcc66;
+}
+
+.hidden-cargo-content {
+  display: block;
+}
+
+.hidden-cargo-content.collapsed {
+  display: none;
+}
+
+.hidden-cargo-section .cargo-capacity-display {
+  border-color: rgba(255, 170, 0, 0.3);
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-label {
+  color: #ffaa00;
+}
+
+.hidden-cargo-section .cargo-capacity-display .capacity-units {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hidden-cargo-section.hidden {
+  display: none;
+}
