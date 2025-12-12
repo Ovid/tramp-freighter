@@ -2,7 +2,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { VISUAL_CONFIG } from '../game-constants.js';
+import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../game-constants.js';
 
 /**
  * Initialize Three.js scene, camera, renderer, and controls
@@ -196,52 +196,48 @@ export function createStarfield(scene) {
   const spectralTypes = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
   const spectralWeights = [0.02, 0.08, 0.15, 0.2, 0.25, 0.2, 0.1];
 
-  // Import spectral colors
-  import('../game-constants.js').then((constants) => {
-    const { SPECTRAL_COLORS } = constants;
+  // Generate starfield positions and colors
+  for (let i = 0; i < starCount; i++) {
+    // Random spherical coordinates
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const radius = minRadius + Math.random() * (maxRadius - minRadius);
 
-    for (let i = 0; i < starCount; i++) {
-      // Random spherical coordinates
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const radius = minRadius + Math.random() * (maxRadius - minRadius);
+    // Convert to cartesian coordinates
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
 
-      // Convert to cartesian coordinates
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.sin(phi) * Math.sin(theta);
-      const z = radius * Math.cos(phi);
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
 
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
+    // Select spectral type based on weighted distribution
+    const roll = Math.random();
+    let cumulativeWeight = 0;
+    let spectralType = 'G';
 
-      // Select spectral type based on weighted distribution
-      const roll = Math.random();
-      let cumulativeWeight = 0;
-      let spectralType = 'G';
-
-      for (let j = 0; j < spectralTypes.length; j++) {
-        cumulativeWeight += spectralWeights[j];
-        if (roll < cumulativeWeight) {
-          spectralType = spectralTypes[j];
-          break;
-        }
+    for (let j = 0; j < spectralTypes.length; j++) {
+      cumulativeWeight += spectralWeights[j];
+      if (roll < cumulativeWeight) {
+        spectralType = spectralTypes[j];
+        break;
       }
-
-      // Get color from SPECTRAL_COLORS
-      const baseColor = SPECTRAL_COLORS[spectralType];
-      const brightness = 0.6 + Math.random() * 0.4;
-
-      // Extract RGB from hex color and apply brightness
-      const r = (((baseColor >> 16) & 255) / 255) * brightness;
-      const g = (((baseColor >> 8) & 255) / 255) * brightness;
-      const b = ((baseColor & 255) / 255) * brightness;
-
-      colors[i * 3] = r;
-      colors[i * 3 + 1] = g;
-      colors[i * 3 + 2] = b;
     }
-  });
+
+    // Get color from SPECTRAL_COLORS
+    const baseColor = SPECTRAL_COLORS[spectralType];
+    const brightness = 0.6 + Math.random() * 0.4;
+
+    // Extract RGB from hex color and apply brightness
+    const r = (((baseColor >> 16) & 255) / 255) * brightness;
+    const g = (((baseColor >> 8) & 255) / 255) * brightness;
+    const b = ((baseColor & 255) / 255) * brightness;
+
+    colors[i * 3] = r;
+    colors[i * 3 + 1] = g;
+    colors[i * 3 + 2] = b;
+  }
 
   starfieldGeometry.setAttribute(
     'position',

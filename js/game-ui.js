@@ -34,6 +34,7 @@ export class UIManager {
       credits: document.getElementById('hud-credits'),
       debt: document.getElementById('hud-debt'),
       days: document.getElementById('hud-days'),
+      shipName: document.getElementById('hud-ship-name'),
       fuelBar: document.getElementById('fuel-bar'),
       fuelText: document.getElementById('hud-fuel-text'),
       hullBar: document.getElementById('hull-bar'),
@@ -411,6 +412,10 @@ export class UIManager {
     this.gameStateManager.subscribe('shipConditionChanged', (condition) => {
       this.updateShipCondition(condition);
     });
+
+    this.gameStateManager.subscribe('shipNameChanged', (shipName) => {
+      this.updateShipName(shipName);
+    });
   }
 
   showHUD() {
@@ -430,6 +435,7 @@ export class UIManager {
     this.updateCredits(state.player.credits);
     this.updateDebt(state.player.debt);
     this.updateDays(state.player.daysElapsed);
+    this.updateShipName(state.ship.name);
     this.updateFuel(state.ship.fuel);
     this.updateShipCondition(this.gameStateManager.getShipCondition());
     this.updateCargo();
@@ -447,6 +453,12 @@ export class UIManager {
 
   updateDays(days) {
     this.elements.days.textContent = days;
+  }
+
+  updateShipName(shipName) {
+    if (this.elements.shipName) {
+      this.elements.shipName.textContent = shipName;
+    }
   }
 
   updateFuel(fuel) {

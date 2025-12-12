@@ -78,6 +78,7 @@ export class GameStateManager {
       activeEventsChanged: [],
       shipConditionChanged: [],
       conditionWarning: [],
+      shipNameChanged: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -585,6 +586,17 @@ export class GameStateManager {
     }
 
     this.emit('timeChanged', newDays);
+  }
+
+  /**
+   * Update ship name
+   *
+   * @param {string} newName - New ship name (will be sanitized)
+   */
+  updateShipName(newName) {
+    const sanitized = sanitizeShipName(newName);
+    this.state.ship.name = sanitized;
+    this.emit('shipNameChanged', sanitized);
   }
 
   /**

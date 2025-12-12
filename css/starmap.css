@@ -73,6 +73,20 @@ canvas {
   text-align: right;
 }
 
+/* Ship Name Display */
+.hud-ship-name-row {
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.hud-ship-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
+}
+
 /* Quick Access Buttons */
 .hud-quick-access {
   margin-top: 10px;

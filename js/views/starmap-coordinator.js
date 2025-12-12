@@ -581,6 +581,12 @@ async function startGame(isNewGame) {
     console.log(
       `Current system (${currentStar.data.name}) pre-selected on initialization`
     );
+
+    // Re-enable rotation after initial selection (selectStar disables it)
+    // User expects rotation to be on by default
+    if (!autoRotationEnabled) {
+      toggleRotation();
+    }
   } else {
     console.warn(
       `Current system (id: ${currentSystemId}) not found in star data`
@@ -770,7 +776,13 @@ window.addEventListener('DOMContentLoaded', () => {
       zoomInBtn.addEventListener('click', () => zoomIn(camera, controls));
     if (zoomOutBtn)
       zoomOutBtn.addEventListener('click', () => zoomOut(camera, controls));
-    if (rotationBtn) rotationBtn.addEventListener('click', toggleRotation);
+    if (rotationBtn) {
+      rotationBtn.addEventListener('click', toggleRotation);
+      // Initialize button state to match autoRotationEnabled (default: true)
+      if (autoRotationEnabled) {
+        rotationBtn.classList.add('active');
+      }
+    }
     if (boundaryBtn) boundaryBtn.addEventListener('click', toggleBoundary);
 
     // Start animation loop
