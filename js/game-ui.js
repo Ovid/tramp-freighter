@@ -5,7 +5,6 @@ import {
   INTELLIGENCE_CONFIG,
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
-  SHIP_CONFIG,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';

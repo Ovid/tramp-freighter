@@ -315,6 +315,17 @@ export class UpgradePanelController {
   formatUpgradeEffects(effects) {
     const formatted = [];
 
+    // Helper to format reduction/increase effects (multipliers)
+    const formatReduction = (label, multiplier) => {
+      const percent = Math.round((1 - multiplier) * 100);
+      if (percent > 0) {
+        return `${label}: -${percent}%`;
+      } else if (percent < 0) {
+        return `${label}: +${Math.abs(percent)}%`;
+      }
+      return null;
+    };
+
     for (const [attr, value] of Object.entries(effects)) {
       if (attr === 'fuelCapacity') {
         formatted.push(`Fuel capacity: ${value}%`);
@@ -323,26 +334,14 @@ export class UpgradePanelController {
       } else if (attr === 'hiddenCargoCapacity') {
         formatted.push(`Hidden cargo: ${value} units`);
       } else if (attr === 'fuelConsumption') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Fuel consumption: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Fuel consumption: +${Math.abs(percent)}%`);
-        }
+        const text = formatReduction('Fuel consumption', value);
+        if (text) formatted.push(text);
       } else if (attr === 'hullDegradation') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Hull degradation: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Hull degradation: +${Math.abs(percent)}%`);
-        }
+        const text = formatReduction('Hull degradation', value);
+        if (text) formatted.push(text);
       } else if (attr === 'lifeSupportDrain') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Life support drain: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Life support drain: +${Math.abs(percent)}%`);
-        }
+        const text = formatReduction('Life support drain', value);
+        if (text) formatted.push(text);
       } else if (attr === 'eventVisibility') {
         formatted.push('See economic events in connected systems');
       }
