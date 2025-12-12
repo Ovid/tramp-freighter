@@ -105,12 +105,6 @@ export class UpgradePanelController {
    */
   renderAvailableUpgrades() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderAvailableUpgrades'
-      );
-    }
-
     this.elements.availableUpgradesList.replaceChildren();
 
     const credits = state.player.credits;
@@ -154,12 +148,6 @@ export class UpgradePanelController {
    */
   renderInstalledUpgrades() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderInstalledUpgrades'
-      );
-    }
-
     this.elements.installedUpgradesList.replaceChildren();
 
     const installedUpgrades = state.ship.upgrades || [];
@@ -360,12 +348,6 @@ export class UpgradePanelController {
    */
   showUpgradeConfirmation(upgradeId) {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in showUpgradeConfirmation'
-      );
-    }
-
     const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
     if (!upgrade) {
       throw new Error(

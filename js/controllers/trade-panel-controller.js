@@ -97,10 +97,6 @@ export class TradePanelController {
 
   refreshTradePanel() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in refreshTradePanel');
-    }
-
     const currentSystemId = state.player.currentSystem;
     const system = this.starData.find((s) => s.id === currentSystemId);
 
@@ -118,12 +114,6 @@ export class TradePanelController {
 
   updateTradeCargoCapacity() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in updateTradeCargoCapacity'
-      );
-    }
-
     const cargoUsed = this.gameStateManager.getCargoUsed();
     const cargoCapacity = state.ship.cargoCapacity;
     const cargoRemaining = this.gameStateManager.getCargoRemaining();
@@ -135,10 +125,6 @@ export class TradePanelController {
 
   renderMarketGoods(system) {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in renderMarketGoods');
-    }
-
     this.elements.marketGoods.replaceChildren();
 
     const currentDay = state.player.daysElapsed;
@@ -250,10 +236,6 @@ export class TradePanelController {
 
   renderCargoStacks(system) {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in renderCargoStacks');
-    }
-
     this.elements.cargoStacks.replaceChildren();
 
     const cargo = state.ship.cargo;
@@ -434,11 +416,6 @@ export class TradePanelController {
 
   renderHiddenCargoSection(system) {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderHiddenCargoSection'
-      );
-    }
 
     if (!this.elements.hiddenCargoSection || !this.elements.hiddenCargoStacks) {
       return;

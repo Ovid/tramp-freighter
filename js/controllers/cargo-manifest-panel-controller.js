@@ -90,12 +90,6 @@ export class CargoManifestPanelController {
    */
   refreshCargoManifest() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in refreshCargoManifest'
-      );
-    }
-
     const ship = state.ship;
     const cargo = ship.cargo || [];
     const cargoUsed = this.gameStateManager.getCargoUsed();

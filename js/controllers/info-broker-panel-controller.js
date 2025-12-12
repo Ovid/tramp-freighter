@@ -159,12 +159,6 @@ export class InfoBrokerPanelController {
 
   updateRumorButton() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in InfoBrokerPanelController.updateRumorButton'
-      );
-    }
-
     const credits = state.player.credits;
     const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
 
@@ -173,12 +167,6 @@ export class InfoBrokerPanelController {
 
   handleBuyRumor() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in InfoBrokerPanelController.handleBuyRumor'
-      );
-    }
-
     const credits = state.player.credits;
     const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
 
@@ -212,12 +200,6 @@ export class InfoBrokerPanelController {
 
   renderIntelligenceList() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in InfoBrokerPanelController.renderIntelligenceList'
-      );
-    }
-
     this.elements.intelligenceList.replaceChildren();
 
     const credits = state.player.credits;
@@ -323,12 +305,6 @@ export class InfoBrokerPanelController {
 
   renderMarketData() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in InfoBrokerPanelController.renderMarketData'
-      );
-    }
-
     const priceKnowledge = state.world.priceKnowledge || {};
 
     this.elements.marketDataList.replaceChildren();

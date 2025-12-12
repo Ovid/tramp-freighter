@@ -169,12 +169,6 @@ export class RepairPanelController {
    */
   updateRepairButtons() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in updateRepairButtons'
-      );
-    }
-
     const condition = this.gameStateManager.getShipCondition();
     const credits = state.player.credits;
 
@@ -289,12 +283,6 @@ export class RepairPanelController {
 
   handleRepairSystem(systemType, amountStr) {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in handleRepairSystem'
-      );
-    }
-
     const condition = this.gameStateManager.getShipCondition();
     const currentCondition = this.getSystemCondition(condition, systemType);
 
@@ -331,17 +319,7 @@ export class RepairPanelController {
 
   handleRepairAll() {
     const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in handleRepairAll'
-      );
-    }
-
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRepairAll');
-    }
-
     const totalCost = this.calculateRepairAllCost();
 
     // Pre-validate total cost before executing any repairs

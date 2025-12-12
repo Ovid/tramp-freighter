@@ -109,10 +109,6 @@ export class RefuelPanelController {
 
   updateRefuelCost() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in updateRefuelCost');
-    }
-
     const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
     const currentSystemId = state.player.currentSystem;
     const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
@@ -152,10 +148,6 @@ export class RefuelPanelController {
 
   handleRefuelMax() {
     const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRefuelMax');
-    }
-
     const currentFuel = state.ship.fuel;
     const credits = state.player.credits;
     const currentSystemId = state.player.currentSystem;

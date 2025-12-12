@@ -5,7 +5,6 @@ import {
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
 } from './game-constants.js';
-import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
 import { RepairPanelController } from './controllers/repair-panel-controller.js';
@@ -174,111 +173,45 @@ export class UIManager {
     this.shipStatusPanel = null;
 
     // Initialize panel controllers
-    // Controllers require DOM elements - in test environments without full DOM,
-    // gracefully set to null. In production, missing elements will throw errors.
     const isTestEnvironment =
       typeof process !== 'undefined' &&
       process.env &&
       process.env.NODE_ENV === 'test';
 
-    if (isTestEnvironment) {
-      // Test environment - allow graceful degradation
-      try {
-        this.tradePanelController = new TradePanelController(
-          {
-            tradePanel: this.elements.tradePanel,
-            tradeSystemName: this.elements.tradeSystemName,
-            marketGoods: this.elements.marketGoods,
-            cargoStacks: this.elements.cargoStacks,
-            tradeCargoUsed: this.elements.tradeCargoUsed,
-            tradeCargoCapacity: this.elements.tradeCargoCapacity,
-            tradeCargoRemaining: this.elements.tradeCargoRemaining,
-            hiddenCargoSection: this.elements.hiddenCargoSection,
-            hiddenCargoUsed: this.elements.hiddenCargoUsed,
-            hiddenCargoCapacity: this.elements.hiddenCargoCapacity,
-            hiddenCargoStacks: this.elements.hiddenCargoStacks,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        this.tradePanelController = null;
-      }
+    this.tradePanelController = this.initializeController(
+      TradePanelController,
+      {
+        tradePanel: this.elements.tradePanel,
+        tradeSystemName: this.elements.tradeSystemName,
+        marketGoods: this.elements.marketGoods,
+        cargoStacks: this.elements.cargoStacks,
+        tradeCargoUsed: this.elements.tradeCargoUsed,
+        tradeCargoCapacity: this.elements.tradeCargoCapacity,
+        tradeCargoRemaining: this.elements.tradeCargoRemaining,
+        hiddenCargoSection: this.elements.hiddenCargoSection,
+        hiddenCargoUsed: this.elements.hiddenCargoUsed,
+        hiddenCargoCapacity: this.elements.hiddenCargoCapacity,
+        hiddenCargoStacks: this.elements.hiddenCargoStacks,
+      },
+      'TradePanelController',
+      isTestEnvironment
+    );
 
-      try {
-        this.refuelPanelController = new RefuelPanelController(
-          {
-            refuelPanel: this.elements.refuelPanel,
-            refuelSystemName: this.elements.refuelSystemName,
-            refuelCurrentFuel: this.elements.refuelCurrentFuel,
-            refuelPricePerPercent: this.elements.refuelPricePerPercent,
-            refuelAmountInput: this.elements.refuelAmountInput,
-            refuelTotalCost: this.elements.refuelTotalCost,
-            refuelConfirmBtn: this.elements.refuelConfirmBtn,
-            refuelValidationMessage: this.elements.refuelValidationMessage,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        this.refuelPanelController = null;
-      }
-    } else {
-      // Production environment - fail loudly if DOM elements missing
-      try {
-        this.tradePanelController = new TradePanelController(
-          {
-            tradePanel: this.elements.tradePanel,
-            tradeSystemName: this.elements.tradeSystemName,
-            marketGoods: this.elements.marketGoods,
-            cargoStacks: this.elements.cargoStacks,
-            tradeCargoUsed: this.elements.tradeCargoUsed,
-            tradeCargoCapacity: this.elements.tradeCargoCapacity,
-            tradeCargoRemaining: this.elements.tradeCargoRemaining,
-            hiddenCargoSection: this.elements.hiddenCargoSection,
-            hiddenCargoUsed: this.elements.hiddenCargoUsed,
-            hiddenCargoCapacity: this.elements.hiddenCargoCapacity,
-            hiddenCargoStacks: this.elements.hiddenCargoStacks,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize TradePanelController: ${error.message}`
-        );
-      }
-
-      try {
-        this.refuelPanelController = new RefuelPanelController(
-          {
-            refuelPanel: this.elements.refuelPanel,
-            refuelSystemName: this.elements.refuelSystemName,
-            refuelCurrentFuel: this.elements.refuelCurrentFuel,
-            refuelPricePerPercent: this.elements.refuelPricePerPercent,
-            refuelAmountInput: this.elements.refuelAmountInput,
-            refuelTotalCost: this.elements.refuelTotalCost,
-            refuelConfirmBtn: this.elements.refuelConfirmBtn,
-            refuelValidationMessage: this.elements.refuelValidationMessage,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize RefuelPanelController: ${error.message}`
-        );
-      }
-    }
-
-    // Repair controller will be initialized after buttons are cached
-    this.repairPanelController = null;
-    // Upgrade controller will be initialized after setup
-    this.upgradePanelController = null;
-    // Info broker controller will be initialized after setup
-    this.infoBrokerPanelController = null;
-    // Cargo manifest controller will be initialized after setup
-    this.cargoManifestPanelController = null;
+    this.refuelPanelController = this.initializeController(
+      RefuelPanelController,
+      {
+        refuelPanel: this.elements.refuelPanel,
+        refuelSystemName: this.elements.refuelSystemName,
+        refuelCurrentFuel: this.elements.refuelCurrentFuel,
+        refuelPricePerPercent: this.elements.refuelPricePerPercent,
+        refuelAmountInput: this.elements.refuelAmountInput,
+        refuelTotalCost: this.elements.refuelTotalCost,
+        refuelConfirmBtn: this.elements.refuelConfirmBtn,
+        refuelValidationMessage: this.elements.refuelValidationMessage,
+      },
+      'RefuelPanelController',
+      isTestEnvironment
+    );
 
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
@@ -286,190 +219,144 @@ export class UIManager {
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
 
-    // Initialize repair controller after buttons are cached
-    if (isTestEnvironment) {
-      try {
-        this.repairPanelController = new RepairPanelController(
-          {
-            repairPanel: this.elements.repairPanel,
-            repairSystemName: this.elements.repairSystemName,
-            repairHullPercent: this.elements.repairHullPercent,
-            repairHullBar: this.elements.repairHullBar,
-            repairEnginePercent: this.elements.repairEnginePercent,
-            repairEngineBar: this.elements.repairEngineBar,
-            repairLifeSupportPercent: this.elements.repairLifeSupportPercent,
-            repairLifeSupportBar: this.elements.repairLifeSupportBar,
-            repairAllBtn: this.elements.repairAllBtn,
-            repairValidationMessage: this.elements.repairValidationMessage,
-            cachedRepairButtons: this.cachedRepairButtons,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        this.repairPanelController = null;
-      }
+    // Initialize remaining controllers after setup handlers cache buttons
+    this.repairPanelController = this.initializeController(
+      RepairPanelController,
+      {
+        repairPanel: this.elements.repairPanel,
+        repairSystemName: this.elements.repairSystemName,
+        repairHullPercent: this.elements.repairHullPercent,
+        repairHullBar: this.elements.repairHullBar,
+        repairEnginePercent: this.elements.repairEnginePercent,
+        repairEngineBar: this.elements.repairEngineBar,
+        repairLifeSupportPercent: this.elements.repairLifeSupportPercent,
+        repairLifeSupportBar: this.elements.repairLifeSupportBar,
+        repairAllBtn: this.elements.repairAllBtn,
+        repairValidationMessage: this.elements.repairValidationMessage,
+        cachedRepairButtons: this.cachedRepairButtons,
+      },
+      'RepairPanelController',
+      isTestEnvironment
+    );
 
-      try {
-        this.upgradePanelController = new UpgradePanelController(
-          {
-            upgradesPanel: this.elements.upgradesPanel,
-            upgradesCreditsValue: this.elements.upgradesCreditsValue,
-            availableUpgradesList: this.elements.availableUpgradesList,
-            installedUpgradesList: this.elements.installedUpgradesList,
-            upgradeConfirmationOverlay:
-              this.elements.upgradeConfirmationOverlay,
-            upgradeConfirmationTitle: this.elements.upgradeConfirmationTitle,
-            upgradeConfirmationEffects:
-              this.elements.upgradeConfirmationEffects,
-            upgradeCurrentCredits: this.elements.upgradeCurrentCredits,
-            upgradeCost: this.elements.upgradeCost,
-            upgradeCreditsAfter: this.elements.upgradeCreditsAfter,
-            upgradeConfirmBtn: this.elements.upgradeConfirmBtn,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        this.upgradePanelController = null;
-      }
+    this.upgradePanelController = this.initializeController(
+      UpgradePanelController,
+      {
+        upgradesPanel: this.elements.upgradesPanel,
+        upgradesCreditsValue: this.elements.upgradesCreditsValue,
+        availableUpgradesList: this.elements.availableUpgradesList,
+        installedUpgradesList: this.elements.installedUpgradesList,
+        upgradeConfirmationOverlay: this.elements.upgradeConfirmationOverlay,
+        upgradeConfirmationTitle: this.elements.upgradeConfirmationTitle,
+        upgradeConfirmationEffects: this.elements.upgradeConfirmationEffects,
+        upgradeCurrentCredits: this.elements.upgradeCurrentCredits,
+        upgradeCost: this.elements.upgradeCost,
+        upgradeCreditsAfter: this.elements.upgradeCreditsAfter,
+        upgradeConfirmBtn: this.elements.upgradeConfirmBtn,
+      },
+      'UpgradePanelController',
+      isTestEnvironment
+    );
 
-      try {
-        this.infoBrokerPanelController = new InfoBrokerPanelController(
-          {
-            infoBrokerPanel: this.elements.infoBrokerPanel,
-            infoBrokerSystemName: this.elements.infoBrokerSystemName,
-            buyRumorBtn: this.elements.buyRumorBtn,
-            rumorText: this.elements.rumorText,
-            intelligenceList: this.elements.intelligenceList,
-            infoBrokerValidationMessage:
-              this.elements.infoBrokerValidationMessage,
-            purchaseTab: this.elements.purchaseTab,
-            marketDataTab: this.elements.marketDataTab,
-            purchaseIntelContent: this.elements.purchaseIntelContent,
-            marketDataContent: this.elements.marketDataContent,
-            marketDataList: this.elements.marketDataList,
-          },
-          this.gameStateManager,
-          this.starData,
-          this.gameStateManager.informationBroker
-        );
-      } catch (error) {
-        this.infoBrokerPanelController = null;
-      }
+    this.infoBrokerPanelController = this.initializeControllerWithBroker(
+      InfoBrokerPanelController,
+      {
+        infoBrokerPanel: this.elements.infoBrokerPanel,
+        infoBrokerSystemName: this.elements.infoBrokerSystemName,
+        buyRumorBtn: this.elements.buyRumorBtn,
+        rumorText: this.elements.rumorText,
+        intelligenceList: this.elements.intelligenceList,
+        infoBrokerValidationMessage: this.elements.infoBrokerValidationMessage,
+        purchaseTab: this.elements.purchaseTab,
+        marketDataTab: this.elements.marketDataTab,
+        purchaseIntelContent: this.elements.purchaseIntelContent,
+        marketDataContent: this.elements.marketDataContent,
+        marketDataList: this.elements.marketDataList,
+      },
+      'InfoBrokerPanelController',
+      isTestEnvironment
+    );
 
-      try {
-        this.cargoManifestPanelController = new CargoManifestPanelController(
-          {
-            cargoManifestPanel: this.elements.cargoManifestPanel,
-            cargoManifestShipName: this.elements.cargoManifestShipName,
-            cargoManifestUsed: this.elements.cargoManifestUsed,
-            cargoManifestCapacity: this.elements.cargoManifestCapacity,
-            cargoManifestList: this.elements.cargoManifestList,
-            cargoManifestTotalValue: this.elements.cargoManifestTotalValue,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        this.cargoManifestPanelController = null;
-      }
-    } else {
-      // Production environment - fail loudly
-      try {
-        this.repairPanelController = new RepairPanelController(
-          {
-            repairPanel: this.elements.repairPanel,
-            repairSystemName: this.elements.repairSystemName,
-            repairHullPercent: this.elements.repairHullPercent,
-            repairHullBar: this.elements.repairHullBar,
-            repairEnginePercent: this.elements.repairEnginePercent,
-            repairEngineBar: this.elements.repairEngineBar,
-            repairLifeSupportPercent: this.elements.repairLifeSupportPercent,
-            repairLifeSupportBar: this.elements.repairLifeSupportBar,
-            repairAllBtn: this.elements.repairAllBtn,
-            repairValidationMessage: this.elements.repairValidationMessage,
-            cachedRepairButtons: this.cachedRepairButtons,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize RepairPanelController: ${error.message}`
-        );
-      }
+    this.cargoManifestPanelController = this.initializeController(
+      CargoManifestPanelController,
+      {
+        cargoManifestPanel: this.elements.cargoManifestPanel,
+        cargoManifestShipName: this.elements.cargoManifestShipName,
+        cargoManifestUsed: this.elements.cargoManifestUsed,
+        cargoManifestCapacity: this.elements.cargoManifestCapacity,
+        cargoManifestList: this.elements.cargoManifestList,
+        cargoManifestTotalValue: this.elements.cargoManifestTotalValue,
+      },
+      'CargoManifestPanelController',
+      isTestEnvironment
+    );
+  }
 
-      try {
-        this.upgradePanelController = new UpgradePanelController(
-          {
-            upgradesPanel: this.elements.upgradesPanel,
-            upgradesCreditsValue: this.elements.upgradesCreditsValue,
-            availableUpgradesList: this.elements.availableUpgradesList,
-            installedUpgradesList: this.elements.installedUpgradesList,
-            upgradeConfirmationOverlay:
-              this.elements.upgradeConfirmationOverlay,
-            upgradeConfirmationTitle: this.elements.upgradeConfirmationTitle,
-            upgradeConfirmationEffects:
-              this.elements.upgradeConfirmationEffects,
-            upgradeCurrentCredits: this.elements.upgradeCurrentCredits,
-            upgradeCost: this.elements.upgradeCost,
-            upgradeCreditsAfter: this.elements.upgradeCreditsAfter,
-            upgradeConfirmBtn: this.elements.upgradeConfirmBtn,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize UpgradePanelController: ${error.message}`
-        );
+  /**
+   * Initialize a panel controller with environment-appropriate error handling
+   *
+   * In test environments, returns null on failure to allow partial DOM testing.
+   * In production, throws errors to fail fast on missing DOM elements.
+   *
+   * @param {Function} ControllerClass - Controller constructor
+   * @param {Object} elements - DOM elements for controller
+   * @param {string} controllerName - Name for error messages
+   * @param {boolean} isTestEnvironment - Whether running in test mode
+   * @returns {Object|null} Controller instance or null on test failure
+   */
+  initializeController(
+    ControllerClass,
+    elements,
+    controllerName,
+    isTestEnvironment
+  ) {
+    try {
+      return new ControllerClass(
+        elements,
+        this.gameStateManager,
+        this.starData
+      );
+    } catch (error) {
+      if (isTestEnvironment) {
+        return null;
       }
+      throw new Error(
+        `Failed to initialize ${controllerName}: ${error.message}`
+      );
+    }
+  }
 
-      try {
-        this.infoBrokerPanelController = new InfoBrokerPanelController(
-          {
-            infoBrokerPanel: this.elements.infoBrokerPanel,
-            infoBrokerSystemName: this.elements.infoBrokerSystemName,
-            buyRumorBtn: this.elements.buyRumorBtn,
-            rumorText: this.elements.rumorText,
-            intelligenceList: this.elements.intelligenceList,
-            infoBrokerValidationMessage:
-              this.elements.infoBrokerValidationMessage,
-            purchaseTab: this.elements.purchaseTab,
-            marketDataTab: this.elements.marketDataTab,
-            purchaseIntelContent: this.elements.purchaseIntelContent,
-            marketDataContent: this.elements.marketDataContent,
-            marketDataList: this.elements.marketDataList,
-          },
-          this.gameStateManager,
-          this.starData,
-          this.gameStateManager.informationBroker
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize InfoBrokerPanelController: ${error.message}`
-        );
+  /**
+   * Initialize InfoBrokerPanelController with additional informationBroker dependency
+   *
+   * InfoBrokerPanelController requires an extra parameter beyond the standard pattern.
+   *
+   * @param {Function} ControllerClass - Controller constructor
+   * @param {Object} elements - DOM elements for controller
+   * @param {string} controllerName - Name for error messages
+   * @param {boolean} isTestEnvironment - Whether running in test mode
+   * @returns {Object|null} Controller instance or null on test failure
+   */
+  initializeControllerWithBroker(
+    ControllerClass,
+    elements,
+    controllerName,
+    isTestEnvironment
+  ) {
+    try {
+      return new ControllerClass(
+        elements,
+        this.gameStateManager,
+        this.starData,
+        this.gameStateManager.informationBroker
+      );
+    } catch (error) {
+      if (isTestEnvironment) {
+        return null;
       }
-
-      try {
-        this.cargoManifestPanelController = new CargoManifestPanelController(
-          {
-            cargoManifestPanel: this.elements.cargoManifestPanel,
-            cargoManifestShipName: this.elements.cargoManifestShipName,
-            cargoManifestUsed: this.elements.cargoManifestUsed,
-            cargoManifestCapacity: this.elements.cargoManifestCapacity,
-            cargoManifestList: this.elements.cargoManifestList,
-            cargoManifestTotalValue: this.elements.cargoManifestTotalValue,
-          },
-          this.gameStateManager,
-          this.starData
-        );
-      } catch (error) {
-        throw new Error(
-          `Failed to initialize CargoManifestPanelController: ${error.message}`
-        );
-      }
+      throw new Error(
+        `Failed to initialize ${controllerName}: ${error.message}`
+      );
     }
   }
 
