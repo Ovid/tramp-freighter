@@ -9,6 +9,7 @@ import {
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
+import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
 
 /**
  * UIManager - Reactive UI layer using event subscription pattern
@@ -202,6 +203,34 @@ export class UIManager {
       );
     } else {
       this.tradePanelController = null;
+    }
+
+    if (
+      this.elements.refuelPanel &&
+      this.elements.refuelSystemName &&
+      this.elements.refuelCurrentFuel &&
+      this.elements.refuelPricePerPercent &&
+      this.elements.refuelAmountInput &&
+      this.elements.refuelTotalCost &&
+      this.elements.refuelConfirmBtn &&
+      this.elements.refuelValidationMessage
+    ) {
+      this.refuelPanelController = new RefuelPanelController(
+        {
+          refuelPanel: this.elements.refuelPanel,
+          refuelSystemName: this.elements.refuelSystemName,
+          refuelCurrentFuel: this.elements.refuelCurrentFuel,
+          refuelPricePerPercent: this.elements.refuelPricePerPercent,
+          refuelAmountInput: this.elements.refuelAmountInput,
+          refuelTotalCost: this.elements.refuelTotalCost,
+          refuelConfirmBtn: this.elements.refuelConfirmBtn,
+          refuelValidationMessage: this.elements.refuelValidationMessage,
+        },
+        this.gameStateManager,
+        this.starData
+      );
+    } else {
+      this.refuelPanelController = null;
     }
 
     this.subscribeToStateChanges();
@@ -410,7 +439,9 @@ export class UIManager {
 
     if (this.elements.refuelAmountInput) {
       this.elements.refuelAmountInput.addEventListener('input', () => {
-        this.updateRefuelCost();
+        if (this.refuelPanelController) {
+          this.refuelPanelController.updateRefuelCost();
+        }
       });
     }
 
@@ -420,20 +451,31 @@ export class UIManager {
     );
     this.cachedRefuelPresetButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        const amount = parseInt(btn.getAttribute('data-amount'));
-        this.setRefuelAmount(amount);
+        if (this.refuelPanelController) {
+          const amount = parseInt(btn.getAttribute('data-amount'));
+          this.refuelPanelController.elements.refuelAmountInput.value = amount;
+          this.refuelPanelController.updateRefuelCost();
+        }
       });
     });
 
     if (this.elements.refuelMaxBtn) {
       this.elements.refuelMaxBtn.addEventListener('click', () => {
-        this.setRefuelAmountToMax();
+        if (this.refuelPanelController) {
+          this.refuelPanelController.handleRefuelMax();
+        }
       });
     }
 
     if (this.elements.refuelConfirmBtn) {
       this.elements.refuelConfirmBtn.addEventListener('click', () => {
-        this.handleRefuel();
+        if (this.refuelPanelController) {
+          try {
+            this.refuelPanelController.handleRefuelConfirm();
+          } catch (error) {
+            this.showError(error.message);
+          }
+        }
       });
     }
 
@@ -855,8 +897,6 @@ export class UIManager {
     this.tradePanelController.renderCargoStacks(system);
   }
 
-
-
   createCargoStackItem(stack, stackIndex, system) {
     if (!this.tradePanelController) {
       throw new Error(
@@ -1145,8 +1185,10 @@ export class UIManager {
     stackItem.className = 'cargo-stack';
 
     // Delegate to controller for stack info creation
-    const { stackInfo } =
-      this.tradePanelController.createCargoStackInfo(stack, system);
+    const { stackInfo } = this.tradePanelController.createCargoStackInfo(
+      stack,
+      system
+    );
 
     // Add "Move to Regular" button for hidden cargo
     const stackActions = document.createElement('div');
@@ -1316,155 +1358,48 @@ export class UIManager {
   }
 
   showRefuelPanel() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in showRefuelPanel');
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) {
+    this.hideStationInterface();
+    if (!this.refuelPanelController) {
       throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+        'RefuelPanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    this.elements.refuelSystemName.textContent = system.name;
-
-    const currentFuel = state.ship.fuel;
-    this.elements.refuelCurrentFuel.textContent = `${Math.round(currentFuel)}%`;
-
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-    this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
-
-    const defaultAmount = Math.min(
-      10,
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - Math.round(currentFuel)
-    );
-    this.elements.refuelAmountInput.value =
-      defaultAmount > 0 ? defaultAmount : 0;
-    this.elements.refuelAmountInput.max =
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - Math.round(currentFuel);
-
-    this.updateRefuelCost();
-
-    this.hideStationInterface();
-
-    this.elements.refuelPanel.classList.add('visible');
+    try {
+      this.refuelPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   hideRefuelPanel() {
-    this.elements.refuelPanel.classList.remove('visible');
-  }
-
-  updateRefuelCost() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in updateRefuelCost');
-    }
-
-    const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
-    const currentSystemId = state.player.currentSystem;
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-
-    const totalCost = amount * fuelPrice;
-    this.elements.refuelTotalCost.textContent = `${totalCost} cr`;
-
-    const currentFuel = state.ship.fuel;
-    const credits = state.player.credits;
-
-    const validation = this.gameStateManager.validateRefuel(
-      currentFuel,
-      amount,
-      credits,
-      fuelPrice
-    );
-
-    // Update button state
-    this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
-
-    // Show validation message if there's an issue
-    if (this.elements.refuelValidationMessage) {
-      if (amount <= 0) {
-        this.elements.refuelValidationMessage.textContent =
-          'Enter an amount to refuel';
-        this.elements.refuelValidationMessage.className =
-          'validation-message info';
-      } else if (!validation.valid) {
-        this.elements.refuelValidationMessage.textContent = validation.reason;
-        this.elements.refuelValidationMessage.className =
-          'validation-message error';
-      } else {
-        // Valid - hide message
-        this.elements.refuelValidationMessage.textContent = '';
-        this.elements.refuelValidationMessage.className = 'validation-message';
-      }
-    }
-  }
-
-  setRefuelAmount(amount) {
-    if (!this.elements.refuelAmountInput) return;
-
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in setRefuelAmount');
-    }
-
-    const currentFuel = Math.round(state.ship.fuel);
-    const maxAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentFuel;
-    const actualAmount = Math.min(amount, maxAmount);
-
-    this.elements.refuelAmountInput.value = actualAmount > 0 ? actualAmount : 0;
-    this.updateRefuelCost();
-  }
-
-  setRefuelAmountToMax() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
+    if (!this.refuelPanelController) {
       throw new Error(
-        'Invalid game state: state is null in setRefuelAmountToMax'
+        'RefuelPanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    const currentFuel = state.ship.fuel;
-    const credits = state.player.credits;
-    const currentSystemId = state.player.currentSystem;
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-
-    // Calculate max affordable amount
-    const maxAffordable = Math.floor(credits / fuelPrice);
-
-    // Calculate max capacity amount
-    const maxCapacity = Math.floor(
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentFuel
-    );
-
-    // Use the smaller of the two
-    const maxAmount = Math.min(maxAffordable, maxCapacity);
-
-    this.setRefuelAmount(maxAmount);
+    this.refuelPanelController.hide();
   }
 
-  handleRefuel() {
-    if (!this.elements.refuelAmountInput) return;
-
-    const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
-
-    if (amount <= 0) {
-      this.showError('Refuel failed: Invalid amount');
-      return;
+  updateRefuelCost() {
+    if (!this.refuelPanelController) {
+      throw new Error(
+        'RefuelPanelController not initialized - required DOM elements may be missing'
+      );
     }
 
-    const refuelOutcome = this.gameStateManager.refuel(amount);
+    this.refuelPanelController.updateRefuelCost();
+  }
 
-    if (!refuelOutcome.success) {
-      this.showError(`Refuel failed: ${refuelOutcome.reason}`);
-      return;
+  setRefuelAmountToMax() {
+    if (!this.refuelPanelController) {
+      throw new Error(
+        'RefuelPanelController not initialized - required DOM elements may be missing'
+      );
     }
 
-    // Refresh the refuel panel to show updated state
-    this.showRefuelPanel();
+    this.refuelPanelController.handleRefuelMax();
   }
 
   showInfoBrokerPanel() {

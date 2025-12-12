@@ -44,6 +44,8 @@ describe('Refuel Price Display Properties', () => {
                 <input id="refuel-amount-input" type="number" value="10" />
                 <span id="refuel-total-cost">20 cr</span>
                 <button id="refuel-confirm-btn">Refuel</button>
+                <button id="refuel-max-btn">Max</button>
+                <div id="refuel-validation-message"></div>
             </div>
         `;
 
