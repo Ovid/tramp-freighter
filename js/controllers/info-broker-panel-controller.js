@@ -120,6 +120,22 @@ export class InfoBrokerPanelController {
   }
 
   /**
+   * Get intelligence priority for sorting
+   *
+   * Prioritizes systems where intelligence is most valuable:
+   * never visited → stale → recent → current
+   *
+   * @param {Object} option - Intelligence option with lastVisit property
+   * @returns {number} Priority value (lower = higher priority)
+   */
+  getIntelligencePriority(option) {
+    if (option.lastVisit === null) return 0; // Never visited - highest priority
+    if (option.lastVisit === 0) return 3; // Current - lowest priority (already have data)
+    if (option.lastVisit > INTELLIGENCE_CONFIG.RECENT_THRESHOLD) return 1; // Stale
+    return 2; // Recent
+  }
+
+  /**
    * Switch between purchase and market data tabs
    *
    * @param {string} tabName - 'purchase' or 'marketData'
@@ -210,17 +226,10 @@ export class InfoBrokerPanelController {
     const intelligenceOptions =
       this.gameStateManager.listAvailableIntelligence();
 
-    // Sort by information freshness: never visited → stale → recent → current
-    // This prioritizes systems where intelligence is most valuable
-    const getIntelligencePriority = (option) => {
-      if (option.lastVisit === null) return 0; // Never visited - highest priority
-      if (option.lastVisit === 0) return 3; // Current - lowest priority (already have data)
-      if (option.lastVisit > INTELLIGENCE_CONFIG.RECENT_THRESHOLD) return 1; // Stale
-      return 2; // Recent
-    };
-
+    // Sort by information freshness using hoisted priority function
     intelligenceOptions.sort(
-      (a, b) => getIntelligencePriority(a) - getIntelligencePriority(b)
+      (a, b) =>
+        this.getIntelligencePriority(a) - this.getIntelligencePriority(b)
     );
 
     // Use DocumentFragment to batch DOM insertions for better performance
