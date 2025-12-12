@@ -80,7 +80,7 @@
   - Update UIManager to create InfoBrokerPanelController instance and delegate to it
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4_
 
-- [ ] 9. Extract Cargo Manifest Panel Controller
+- [x] 9. Extract Cargo Manifest Panel Controller
   - Create js/controllers/cargo-manifest-panel-controller.js
   - Extract cargo manifest logic from UIManager into CargoManifestPanelController class
   - Implement constructor accepting elements, gameStateManager, starData
