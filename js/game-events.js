@@ -1,4 +1,9 @@
 import { SeededRandom } from './seeded-random.js';
+import {
+  COMMODITY_TYPES,
+  SOL_SYSTEM_ID,
+  ALPHA_CENTAURI_SYSTEM_ID,
+} from './game-constants.js';
 
 /**
  * EconomicEventsSystem - Manages random economic events that affect commodity prices
@@ -60,24 +65,12 @@ export class EconomicEventsSystem {
   /**
    * Core system IDs (Sol and Alpha Centauri)
    */
-  static CORE_SYSTEM_IDS = [0, 1];
+  static CORE_SYSTEM_IDS = [SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID];
 
   /**
    * Spectral classes that indicate mining systems (high ore production)
    */
   static MINING_SPECTRAL_CLASSES = ['M', 'L', 'T'];
-
-  /**
-   * All commodity types for supply glut random selection
-   */
-  static COMMODITY_TYPES = [
-    'grain',
-    'ore',
-    'tritium',
-    'parts',
-    'medicine',
-    'electronics',
-  ];
 
   /**
    * Update events for new day - trigger new events and remove expired ones
@@ -205,10 +198,9 @@ export class EconomicEventsSystem {
       const commoditySeed = `commodity_${id}`;
       const commodityRng = new SeededRandom(commoditySeed);
       const commodityIndex = Math.floor(
-        commodityRng.next() * EconomicEventsSystem.COMMODITY_TYPES.length
+        commodityRng.next() * COMMODITY_TYPES.length
       );
-      const randomCommodity =
-        EconomicEventsSystem.COMMODITY_TYPES[commodityIndex];
+      const randomCommodity = COMMODITY_TYPES[commodityIndex];
       modifiers = { [randomCommodity]: 0.6 };
     }
 

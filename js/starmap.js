@@ -11,7 +11,7 @@ import {
   SPECTRAL_COLORS,
   VISUAL_CONFIG,
   LABEL_CONFIG,
-  LY_PER_UNIT,
+  NAVIGATION_CONFIG,
 } from './game-constants.js';
 import { STAR_DATA } from './data/star-data.js';
 import { WORMHOLE_DATA } from './data/wormhole-data.js';
@@ -602,7 +602,7 @@ function createWormholeLines(connections, starObjects) {
           star1.data.x - star2.data.x,
           star1.data.y - star2.data.y,
           star1.data.z - star2.data.z
-        ) * LY_PER_UNIT;
+        ) * NAVIGATION_CONFIG.LY_PER_UNIT;
       const fuelCost = 10 + distance * 2;
 
       // Store connection data for fuel-based coloring
