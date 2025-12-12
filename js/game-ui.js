@@ -772,72 +772,37 @@ export class UIManager {
 
   showTradePanel() {
     this.hideStationInterface();
-    if (this.tradePanelController) {
-      try {
-        this.tradePanelController.show();
-      } catch (error) {
-        this.showError(error.message);
-      }
-    } else {
-      // Fallback to old implementation if controller not available
-      const state = this.gameStateManager.getState();
-      if (!state) {
-        throw new Error('Invalid game state: state is null in showTradePanel');
-      }
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
+    }
 
-      const currentSystemId = state.player.currentSystem;
-      const system = this.starData.find((s) => s.id === currentSystemId);
-
-      if (!system) {
-        throw new Error(
-          `Invalid game state: current system ID ${currentSystemId} not found in star data`
-        );
-      }
-
-      if (this.elements.tradeSystemName) {
-        this.elements.tradeSystemName.textContent = system.name;
-      }
-
-      if (this.elements.tradePanel) {
-        this.elements.tradePanel.classList.add('visible');
-      }
+    try {
+      this.tradePanelController.show();
+    } catch (error) {
+      this.showError(error.message);
     }
   }
 
   hideTradePanel() {
-    if (this.tradePanelController) {
-      this.tradePanelController.hide();
-    } else if (this.elements.tradePanel) {
-      this.elements.tradePanel.classList.remove('visible');
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
     }
+
+    this.tradePanelController.hide();
   }
 
   updateTradeCargoCapacity() {
-    if (this.tradePanelController) {
-      this.tradePanelController.updateTradeCargoCapacity();
-    } else {
-      // Fallback implementation
-      const state = this.gameStateManager.getState();
-      if (!state) {
-        throw new Error(
-          'Invalid game state: state is null in updateTradeCargoCapacity'
-        );
-      }
-
-      const cargoUsed = this.gameStateManager.getCargoUsed();
-      const cargoCapacity = state.ship.cargoCapacity;
-      const cargoRemaining = this.gameStateManager.getCargoRemaining();
-
-      if (this.elements.tradeCargoUsed) {
-        this.elements.tradeCargoUsed.textContent = cargoUsed;
-      }
-      if (this.elements.tradeCargoCapacity) {
-        this.elements.tradeCargoCapacity.textContent = cargoCapacity;
-      }
-      if (this.elements.tradeCargoRemaining) {
-        this.elements.tradeCargoRemaining.textContent = cargoRemaining;
-      }
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
     }
+
+    this.tradePanelController.updateTradeCargoCapacity();
   }
 
   isTradeVisible() {
@@ -853,114 +818,23 @@ export class UIManager {
   }
 
   renderMarketGoods(system) {
-    if (this.tradePanelController) {
-      this.tradePanelController.renderMarketGoods(system);
-    } else {
-      // Fallback implementation for tests
-      const state = this.gameStateManager.getState();
-      if (!state || !this.elements.marketGoods) {
-        return;
-      }
-
-      this.elements.marketGoods.replaceChildren();
-
-      const currentDay = state.player.daysElapsed;
-      const activeEvents = state.world.activeEvents || [];
-      const marketConditions = state.world.marketConditions || {};
-
-      const fragment = document.createDocumentFragment();
-      this.goodsList.forEach((goodType) => {
-        const price = TradingSystem.calculatePrice(
-          goodType,
-          system,
-          currentDay,
-          activeEvents,
-          marketConditions
-        );
-        const goodItem = this.createGoodItem(goodType, price);
-        fragment.appendChild(goodItem);
-      });
-      this.elements.marketGoods.appendChild(fragment);
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
     }
+
+    this.tradePanelController.renderMarketGoods(system);
   }
 
   createGoodItem(goodType, price) {
-    if (this.tradePanelController) {
-      return this.tradePanelController.createGoodItem(goodType, price);
-    } else {
-      // Fallback implementation for tests
-      const state = this.gameStateManager.getState();
-      const credits = state.player.credits;
-      const cargoRemaining = this.gameStateManager.getCargoRemaining();
-
-      const marketListing = document.createElement('div');
-      marketListing.className = 'good-item';
-
-      const commodityInfo = document.createElement('div');
-      commodityInfo.className = 'good-info';
-
-      const commodityName = document.createElement('div');
-      commodityName.className = 'good-name';
-      commodityName.textContent = this.capitalizeFirst(goodType);
-
-      const stationPrice = document.createElement('div');
-      stationPrice.className = 'good-price';
-      stationPrice.textContent = `${price} cr/unit`;
-
-      commodityInfo.appendChild(commodityName);
-      commodityInfo.appendChild(stationPrice);
-
-      const purchaseActions = document.createElement('div');
-      purchaseActions.className = 'good-actions';
-
-      const buy1Btn = document.createElement('button');
-      buy1Btn.className = 'buy-btn';
-      buy1Btn.textContent = 'Buy 1';
-      buy1Btn.disabled = credits < price || cargoRemaining < 1;
-      buy1Btn.addEventListener('click', () =>
-        this.handleBuy(goodType, 1, price)
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
       );
-
-      const buy10Btn = document.createElement('button');
-      buy10Btn.className = 'buy-btn';
-      buy10Btn.textContent = 'Buy 10';
-      const canBuy10 = credits >= price * 10 && cargoRemaining >= 10;
-      buy10Btn.disabled = !canBuy10;
-      buy10Btn.addEventListener('click', () =>
-        this.handleBuy(goodType, 10, price)
-      );
-
-      const buyMaxBtn = document.createElement('button');
-      buyMaxBtn.className = 'buy-btn';
-      buyMaxBtn.textContent = 'Buy Max';
-      const maxAffordable = Math.floor(credits / price);
-      const maxQuantity = Math.min(maxAffordable, cargoRemaining);
-      buyMaxBtn.disabled = maxQuantity < 1;
-      buyMaxBtn.addEventListener('click', () =>
-        this.handleBuy(goodType, maxQuantity, price)
-      );
-
-      purchaseActions.appendChild(buy1Btn);
-      purchaseActions.appendChild(buy10Btn);
-      purchaseActions.appendChild(buyMaxBtn);
-
-      const validationMessage = document.createElement('div');
-      validationMessage.className = 'validation-message';
-
-      if (cargoRemaining < 1) {
-        validationMessage.textContent = 'Cargo capacity full';
-        validationMessage.classList.add('error');
-      } else if (credits < price) {
-        validationMessage.textContent = 'Insufficient credits for purchase';
-        validationMessage.classList.add('error');
-      }
-
-      marketListing.appendChild(commodityInfo);
-      marketListing.appendChild(purchaseActions);
-      marketListing.appendChild(validationMessage);
-
-      return marketListing;
     }
+
+    return this.tradePanelController.createGoodItem(goodType, price);
   }
 
   handleBuy(goodType, quantity, price) {
@@ -972,134 +846,32 @@ export class UIManager {
   }
 
   renderCargoStacks(system) {
-    if (this.tradePanelController) {
-      this.tradePanelController.renderCargoStacks(system);
-    } else {
-      // Fallback implementation for tests
-      const state = this.gameStateManager.getState();
-      if (!state || !this.elements.cargoStacks) {
-        return;
-      }
-
-      this.elements.cargoStacks.replaceChildren();
-
-      const cargo = state.ship.cargo;
-
-      if (!cargo || cargo.length === 0) {
-        const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'cargo-empty';
-        emptyMsg.textContent = 'No cargo';
-        this.elements.cargoStacks.appendChild(emptyMsg);
-        return;
-      }
-
-      const fragment = document.createDocumentFragment();
-      cargo.forEach((stack, index) => {
-        const stackItem = this.createCargoStackItem(stack, index, system);
-        fragment.appendChild(stackItem);
-      });
-      this.elements.cargoStacks.appendChild(fragment);
-    }
-  }
-
-  /**
-   * Create cargo stack display info (shared between regular and hidden cargo)
-   *
-   * Calculates current price, profit margin, and formats purchase details.
-   * Centralizes logic to avoid duplication between regular and hidden cargo displays.
-   *
-   * @private
-   * @param {Object} stack - Cargo stack with good, qty, buyPrice, buySystem, buyDate
-   * @param {Object} system - Current star system
-   * @returns {Object} Stack info with stackInfo DOM element and currentPrice
-   */
-  _createCargoStackInfo(stack, system) {
-    const state = this.gameStateManager.getState();
-    const currentDay = state.player.daysElapsed;
-    const activeEvents = state.world.activeEvents || [];
-    const marketConditions = state.world.marketConditions || {};
-
-    const currentPrice = TradingSystem.calculatePrice(
-      stack.good,
-      system,
-      currentDay,
-      activeEvents,
-      marketConditions
-    );
-    const profitMargin = currentPrice - stack.buyPrice;
-    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
-
-    const stackInfo = document.createElement('div');
-    stackInfo.className = 'stack-info';
-
-    const stackName = document.createElement('div');
-    stackName.className = 'stack-name';
-    stackName.textContent = this.capitalizeFirst(stack.good);
-
-    const stackDetails = document.createElement('div');
-    stackDetails.className = 'stack-details';
-
-    // Build details text
-    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
-
-    // Add purchase context if available
-    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
-      const purchaseSystem = this.starData.find(
-        (s) => s.id === stack.buySystem
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
       );
-      if (!purchaseSystem) {
-        throw new Error(
-          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
-        );
-      }
-
-      const daysSincePurchase = currentDay - stack.buyDate;
-      let ageText;
-      if (daysSincePurchase === 0) {
-        ageText = 'today';
-      } else if (daysSincePurchase === 1) {
-        ageText = '1 day ago';
-      } else {
-        ageText = `${daysSincePurchase} days ago`;
-      }
-
-      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
     }
 
-    stackDetails.textContent = detailsText;
-
-    const stackProfit = document.createElement('div');
-    stackProfit.className = 'stack-profit';
-
-    if (profitMargin > 0) {
-      stackProfit.classList.add('positive');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Profit: +${profitMargin} cr/unit (+${profitPercentage}%)`;
-    } else if (profitMargin < 0) {
-      stackProfit.classList.add('negative');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Loss: ${profitMargin} cr/unit (${profitPercentage}%)`;
-    } else {
-      stackProfit.classList.add('neutral');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Break even`;
-    }
-
-    stackInfo.appendChild(stackName);
-    stackInfo.appendChild(stackDetails);
-    stackInfo.appendChild(stackProfit);
-
-    return { stackInfo, currentPrice };
+    this.tradePanelController.renderCargoStacks(system);
   }
+
+
 
   createCargoStackItem(stack, stackIndex, system) {
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
+    }
+
     const state = this.gameStateManager.getState();
 
     const stackItem = document.createElement('div');
     stackItem.className = 'cargo-stack';
 
-    // Create shared stack info display
-    const { stackInfo, currentPrice } = this._createCargoStackInfo(
-      stack,
-      system
-    );
+    // Delegate to controller for stack info creation
+    const { stackInfo, currentPrice } =
+      this.tradePanelController.createCargoStackInfo(stack, system);
 
     const stackActions = document.createElement('div');
     stackActions.className = 'stack-actions';
@@ -1363,11 +1135,18 @@ export class UIManager {
    * @returns {HTMLElement} Hidden cargo stack item element
    */
   createHiddenCargoStackItem(stack, system) {
+    if (!this.tradePanelController) {
+      throw new Error(
+        'TradePanelController not initialized - required DOM elements may be missing'
+      );
+    }
+
     const stackItem = document.createElement('div');
     stackItem.className = 'cargo-stack';
 
-    // Create shared stack info display
-    const { stackInfo } = this._createCargoStackInfo(stack, system);
+    // Delegate to controller for stack info creation
+    const { stackInfo } =
+      this.tradePanelController.createCargoStackInfo(stack, system);
 
     // Add "Move to Regular" button for hidden cargo
     const stackActions = document.createElement('div');
