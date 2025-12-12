@@ -2,7 +2,7 @@
 
 - [x] 1. Reorganize project structure and move files
   - Move vendor/ directory from js/vendor/ to top-level vendor/
-  - Create new directory structure: js/controllers/, js/view/, js/data/, css/ (multiple files)
+  - Create new directory structure: js/controllers/, js/views/, js/data/, css/ (multiple files)
   - Move Three.js from js/vendor/three/ to vendor/three/
   - Update HTML script tags to reference vendor/three/ instead of js/vendor/three/
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
@@ -98,11 +98,11 @@
   - _Requirements: 1.4, 1.5_
 
 - [ ] 11. Split starmap.js into focused modules
-  - Create js/view/starmap-scene.js for scene initialization
-  - Create js/view/starmap-stars.js for star rendering
-  - Create js/view/starmap-wormholes.js for wormhole line rendering
-  - Create js/view/starmap-interaction.js for user interaction handling
-  - Create js/view/starmap-coordinator.js as main coordinator module
+  - Create js/views/starmap-scene.js for scene initialization
+  - Create js/views/starmap-stars.js for star rendering
+  - Create js/views/starmap-wormholes.js for wormhole line rendering
+  - Create js/views/starmap-interaction.js for user interaction handling
+  - Create js/views/starmap-coordinator.js as main coordinator module
   - Extract corresponding logic from starmap.js into each module
   - Update starmap-coordinator.js to initialize and coordinate all modules
   - Update starmap.html to import starmap-coordinator.js instead of starmap.js
@@ -163,7 +163,7 @@
 - [ ] 16. Update steering documents
   - Update .kiro/steering/coding-standards.md with controller pattern examples
   - Update .kiro/steering/coding-standards.md with module organization patterns
-  - Update .kiro/steering/structure.md with new directory layout (js/controllers/, js/view/, js/data/, vendor/, css/ with multiple files)
+  - Update .kiro/steering/structure.md with new directory layout (js/controllers/, js/views/, js/data/, vendor/, css/ with multiple files)
   - Update .kiro/steering/tech.md with controller architecture description
   - Update .kiro/steering/tech.md with module organization description
   - Add examples of controller usage and module organization

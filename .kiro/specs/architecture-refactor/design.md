@@ -719,7 +719,7 @@ The following acceptance criteria are best validated through specific examples r
 **Example 5: Starmap Module Organization**
 
 - Verify js/data/ directory contains star-data.js and wormhole-data.js
-- Verify js/view/ directory contains starmap-coordinator.js, starmap-scene.js, starmap-stars.js, starmap-wormholes.js, starmap-interaction.js
+- Verify js/views/ directory contains starmap-coordinator.js, starmap-scene.js, starmap-stars.js, starmap-wormholes.js, starmap-interaction.js
 - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8**
 
 **Example 6: CSS File Organization**
