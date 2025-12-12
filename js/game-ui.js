@@ -3,7 +3,6 @@
 import {
   calculateDistanceFromSol,
   NOTIFICATION_CONFIG,
-  COMMODITY_TYPES,
 } from './game-constants.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
@@ -358,6 +357,24 @@ export class UIManager {
       }
       throw new Error(
         `Failed to initialize ${controllerName}: ${error.message}`
+      );
+    }
+  }
+
+  /**
+   * Validate that a controller is initialized
+   *
+   * Centralized validation to avoid repetitive null checks across delegation methods.
+   * Controllers may be null in test environments with incomplete DOM.
+   *
+   * @param {Object} controller - Controller instance to validate
+   * @param {string} controllerName - Name of controller for error message
+   * @throws {Error} If controller is not initialized
+   */
+  validateController(controller, controllerName) {
+    if (!controller) {
+      throw new Error(
+        `${controllerName} not initialized - required DOM elements may be missing`
       );
     }
   }
@@ -946,11 +963,7 @@ export class UIManager {
 
   showTradePanel() {
     this.hideStationInterface();
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(this.tradePanelController, 'TradePanelController');
 
     try {
       this.tradePanelController.show();
@@ -960,22 +973,12 @@ export class UIManager {
   }
 
   hideTradePanel() {
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(this.tradePanelController, 'TradePanelController');
     this.tradePanelController.hide();
   }
 
   updateTradeCargoCapacity() {
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(this.tradePanelController, 'TradePanelController');
     this.tradePanelController.updateTradeCargoCapacity();
   }
 
@@ -992,22 +995,12 @@ export class UIManager {
   }
 
   renderMarketGoods(system) {
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(this.tradePanelController, 'TradePanelController');
     this.tradePanelController.renderMarketGoods(system);
   }
 
   createGoodItem(goodType, price) {
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(this.tradePanelController, 'TradePanelController');
     return this.tradePanelController.createGoodItem(goodType, price);
   }
 
@@ -1020,12 +1013,7 @@ export class UIManager {
   }
 
   renderCargoStacks(system) {
-    if (!this.tradePanelController) {
-      throw new Error(
-        'TradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(this.tradePanelController, 'TradePanelController');
     this.tradePanelController.renderCargoStacks(system);
   }
 
@@ -1143,11 +1131,10 @@ export class UIManager {
 
   showRefuelPanel() {
     this.hideStationInterface();
-    if (!this.refuelPanelController) {
-      throw new Error(
-        'RefuelPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
 
     try {
       this.refuelPanelController.show();
@@ -1157,42 +1144,35 @@ export class UIManager {
   }
 
   hideRefuelPanel() {
-    if (!this.refuelPanelController) {
-      throw new Error(
-        'RefuelPanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
     this.refuelPanelController.hide();
   }
 
   updateRefuelCost() {
-    if (!this.refuelPanelController) {
-      throw new Error(
-        'RefuelPanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
     this.refuelPanelController.updateRefuelCost();
   }
 
   setRefuelAmountToMax() {
-    if (!this.refuelPanelController) {
-      throw new Error(
-        'RefuelPanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
     this.refuelPanelController.handleRefuelMax();
   }
 
   showInfoBrokerPanel() {
     this.hideStationInterface();
-    if (!this.infoBrokerPanelController) {
-      throw new Error(
-        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
+    );
 
     try {
       this.infoBrokerPanelController.show();
@@ -1202,21 +1182,18 @@ export class UIManager {
   }
 
   hideInfoBrokerPanel() {
-    if (!this.infoBrokerPanelController) {
-      throw new Error(
-        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
+    );
     this.infoBrokerPanelController.hide();
   }
 
   handlePurchaseIntelligence(systemId) {
-    if (!this.infoBrokerPanelController) {
-      throw new Error(
-        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
+    );
 
     const intelligenceOutcome =
       this.infoBrokerPanelController.handlePurchaseIntelligence(systemId);
@@ -1246,11 +1223,10 @@ export class UIManager {
 
   showRepairPanel() {
     this.hideStationInterface();
-    if (!this.repairPanelController) {
-      throw new Error(
-        'RepairPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
 
     try {
       this.repairPanelController.show();
@@ -1260,12 +1236,10 @@ export class UIManager {
   }
 
   hideRepairPanel() {
-    if (!this.repairPanelController) {
-      throw new Error(
-        'RepairPanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
     this.repairPanelController.hide();
   }
 
@@ -1274,11 +1248,10 @@ export class UIManager {
   }
 
   handleRepair(systemType, amountStr) {
-    if (!this.repairPanelController) {
-      throw new Error(
-        'RepairPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
 
     const result = this.repairPanelController.handleRepairSystem(
       systemType,
@@ -1291,11 +1264,10 @@ export class UIManager {
   }
 
   handleRepairAll() {
-    if (!this.repairPanelController) {
-      throw new Error(
-        'RepairPanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
 
     const result = this.repairPanelController.handleRepairAll();
 
@@ -1352,140 +1324,116 @@ export class UIManager {
       document.body.appendChild(this.shipStatusPanel);
     }
 
-    // Build panel content
-    const content = [];
-
-    // Close button
-    content.push(
-      '<button class="close-btn" id="ship-status-close-btn">×</button>'
-    );
-
-    // Ship name header
-    content.push(`<h2>${ship.name}</h2>`);
-
-    // Ship condition section
-    content.push('<div class="ship-status-section">');
-    content.push('<h3>Ship Condition</h3>');
-    content.push('<div class="ship-status-conditions">');
-
-    // Fuel bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Fuel:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(ship.fuel)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container fuel-bar-container">');
-    content.push(
-      `<div class="condition-bar fuel-bar" style="width: ${ship.fuel}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Hull bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Hull:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.hull)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container hull-bar-container">');
-    content.push(
-      `<div class="condition-bar hull-bar" style="width: ${condition.hull}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Engine bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Engine:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.engine)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container engine-bar-container">');
-    content.push(
-      `<div class="condition-bar engine-bar" style="width: ${condition.engine}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Life Support bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Life Support:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.lifeSupport)}%</span>`
-    );
-    content.push('</div>');
-    content.push(
-      '<div class="condition-bar-container life-support-bar-container">'
-    );
-    content.push(
-      `<div class="condition-bar life-support-bar" style="width: ${condition.lifeSupport}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Cargo capacity
-    content.push('<div class="ship-status-info-row">');
-    content.push('<span class="info-label">Cargo:</span>');
-    content.push(
-      `<span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>`
-    );
-    content.push('</div>');
-
-    content.push('</div>'); // End ship-status-conditions
-    content.push('</div>'); // End ship-status-section
-
-    // Ship quirks section
-    content.push('<div class="ship-status-section">');
-    content.push('<h3>SHIP QUIRKS</h3>');
-
-    if (ship.quirks && ship.quirks.length > 0) {
-      content.push('<div class="ship-quirks-list">');
-
-      ship.quirks.forEach((quirkId) => {
-        const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
-        if (!quirk) return;
-
-        content.push('<div class="quirk-item">');
-        content.push('<div class="quirk-header">');
-        content.push('<span class="quirk-icon">⚙</span>');
-        content.push(`<span class="quirk-name">${quirk.name}</span>`);
-        content.push('</div>');
-        content.push(
-          `<div class="quirk-description">${quirk.description}</div>`
-        );
-        content.push(`<div class="quirk-flavor">"${quirk.flavor}"</div>`);
-        content.push('</div>');
-      });
-
-      content.push('</div>'); // End ship-quirks-list
-    } else {
-      content.push('<div class="ship-quirks-empty">No quirks assigned</div>');
-    }
-
-    content.push('</div>'); // End ship-status-section
-
-    // Back button
-    content.push('<div class="ship-status-actions">');
-    content.push(
-      '<button class="station-btn secondary" id="ship-status-back-btn">Back</button>'
-    );
-    content.push('</div>');
-
-    // Set panel content
-    this.shipStatusPanel.innerHTML = content.join('');
+    // Build panel content using template literals for readability
+    this.shipStatusPanel.innerHTML = `
+      <button class="close-btn" id="ship-status-close-btn">×</button>
+      <h2>${ship.name}</h2>
+      ${this.renderShipConditionSection(ship, condition, cargoUsed)}
+      ${this.renderShipQuirksSection(ship)}
+      <div class="ship-status-actions">
+        <button class="station-btn secondary" id="ship-status-back-btn">Back</button>
+      </div>
+    `;
 
     // Show panel
     this.shipStatusPanel.classList.add('visible');
 
     // Event handlers are set up once via event delegation in setupShipStatusHandlers
     // No need to add listeners here - prevents memory leaks from repeated calls
+  }
+
+  /**
+   * Render ship condition section with fuel, hull, engine, life support bars
+   *
+   * @param {Object} ship - Ship state with fuel
+   * @param {Object} condition - Ship condition with hull, engine, lifeSupport
+   * @param {number} cargoUsed - Current cargo usage
+   * @returns {string} HTML string for condition section
+   */
+  renderShipConditionSection(ship, condition, cargoUsed) {
+    return `
+      <div class="ship-status-section">
+        <h3>Ship Condition</h3>
+        <div class="ship-status-conditions">
+          ${this.renderConditionBar('Fuel', ship.fuel, 'fuel')}
+          ${this.renderConditionBar('Hull', condition.hull, 'hull')}
+          ${this.renderConditionBar('Engine', condition.engine, 'engine')}
+          ${this.renderConditionBar('Life Support', condition.lifeSupport, 'life-support')}
+          <div class="ship-status-info-row">
+            <span class="info-label">Cargo:</span>
+            <span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render a single condition bar
+   *
+   * @param {string} label - Display label (e.g., 'Fuel', 'Hull')
+   * @param {number} value - Condition percentage (0-100)
+   * @param {string} cssClass - CSS class for styling (e.g., 'fuel', 'hull')
+   * @returns {string} HTML string for condition bar
+   */
+  renderConditionBar(label, value, cssClass) {
+    return `
+      <div class="ship-status-condition-item">
+        <div class="condition-header">
+          <span class="condition-label">${label}:</span>
+          <span class="condition-value">${Math.round(value)}%</span>
+        </div>
+        <div class="condition-bar-container ${cssClass}-bar-container">
+          <div class="condition-bar ${cssClass}-bar" style="width: ${value}%"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render ship quirks section
+   *
+   * @param {Object} ship - Ship state with quirks array
+   * @returns {string} HTML string for quirks section
+   */
+  renderShipQuirksSection(ship) {
+    const quirksContent =
+      ship.quirks && ship.quirks.length > 0
+        ? `<div class="ship-quirks-list">
+            ${ship.quirks
+              .map((quirkId) => {
+                const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
+                return quirk ? this.renderQuirkItem(quirk) : '';
+              })
+              .join('')}
+          </div>`
+        : '<div class="ship-quirks-empty">No quirks assigned</div>';
+
+    return `
+      <div class="ship-status-section">
+        <h3>SHIP QUIRKS</h3>
+        ${quirksContent}
+      </div>
+    `;
+  }
+
+  /**
+   * Render a single quirk item
+   *
+   * @param {Object} quirk - Quirk definition with name, description, flavor
+   * @returns {string} HTML string for quirk item
+   */
+  renderQuirkItem(quirk) {
+    return `
+      <div class="quirk-item">
+        <div class="quirk-header">
+          <span class="quirk-icon">⚙</span>
+          <span class="quirk-name">${quirk.name}</span>
+        </div>
+        <div class="quirk-description">${quirk.description}</div>
+        <div class="quirk-flavor">"${quirk.flavor}"</div>
+      </div>
+    `;
   }
 
   /**
@@ -1522,11 +1470,10 @@ export class UIManager {
    */
   showUpgradesInterface() {
     this.hideStationInterface();
-    if (!this.upgradePanelController) {
-      throw new Error(
-        'UpgradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
 
     try {
       this.upgradePanelController.show();
@@ -1544,12 +1491,10 @@ export class UIManager {
    * Validates: Requirements 1.4, 1.5
    */
   hideUpgradesInterface() {
-    if (!this.upgradePanelController) {
-      throw new Error(
-        'UpgradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
-
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
     this.upgradePanelController.hide();
   }
 
@@ -1571,11 +1516,10 @@ export class UIManager {
    * Validates: Requirements 1.4, 1.5
    */
   handleUpgradeConfirm() {
-    if (!this.upgradePanelController) {
-      throw new Error(
-        'UpgradePanelController not initialized - required DOM elements may be missing'
-      );
-    }
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
 
     const purchaseOutcome = this.upgradePanelController.handlePurchaseUpgrade();
 
