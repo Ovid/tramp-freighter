@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { SeededRandom } from '../../js/seeded-random.js';
+import { SeededRandom } from '../../js/utils/seeded-random.js';
 
 describe('SeededRandom - Determinism (Property Tests)', () => {
   it('Property 1: For any seed string, generating a sequence of random numbers multiple times with the same seed should produce identical sequences', () => {

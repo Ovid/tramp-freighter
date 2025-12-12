@@ -1,6 +1,6 @@
 import { COMMODITY_TYPES, INTELLIGENCE_CONFIG } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
-import { SeededRandom } from './seeded-random.js';
+import { SeededRandom } from './utils/seeded-random.js';
 
 /**
  * InformationBroker - Handles market intelligence purchases and rumor generation

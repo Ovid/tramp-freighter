@@ -4,12 +4,12 @@ import {
   calculateDistanceFromSol,
   NOTIFICATION_CONFIG,
 } from './game-constants.js';
-import { TradePanelController } from './controllers/trade-panel-controller.js';
-import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
-import { RepairPanelController } from './controllers/repair-panel-controller.js';
-import { UpgradePanelController } from './controllers/upgrade-panel-controller.js';
-import { InfoBrokerPanelController } from './controllers/info-broker-panel-controller.js';
-import { CargoManifestPanelController } from './controllers/cargo-manifest-panel-controller.js';
+import { TradePanelController } from './controllers/trade.js';
+import { RefuelPanelController } from './controllers/refuel.js';
+import { RepairPanelController } from './controllers/repair.js';
+import { UpgradePanelController } from './controllers/upgrades.js';
+import { InfoBrokerPanelController } from './controllers/info-broker.js';
+import { CargoManifestPanelController } from './controllers/cargo-manifest.js';
 import { capitalizeFirst } from './utils/string-utils.js';
 
 /**

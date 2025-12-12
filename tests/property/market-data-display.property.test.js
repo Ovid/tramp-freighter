@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
 import { GameStateManager } from '../../js/game-state.js';
-import { InfoBrokerPanelController } from '../../js/controllers/info-broker-panel-controller.js';
+import { InfoBrokerPanelController } from '../../js/controllers/info-broker.js';
 import { InformationBroker } from '../../js/game-information-broker.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 

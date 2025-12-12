@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { TradePanelController } from '../../js/controllers/trade-panel-controller.js';
+import { TradePanelController } from '../../js/controllers/trade.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { JSDOM } from 'jsdom';
 
