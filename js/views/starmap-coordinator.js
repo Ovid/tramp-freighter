@@ -736,9 +736,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     stars = createStarSystems(scene, STAR_DATA);
 
-    // Make stars available globally for interaction module
-    window._starmapStars = stars;
-
     // Create wormhole connections after stars are created
     createWormholeLines(scene, WORMHOLE_DATA, stars);
 

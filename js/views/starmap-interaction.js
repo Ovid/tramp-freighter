@@ -21,6 +21,9 @@ let highlightedStars = [];
 // Current system indicator (pulsing ring)
 let currentSystemIndicator = null;
 
+// Module-level stars reference to avoid window pollution
+let _stars = [];
+
 // Reusable temp vectors to avoid object allocation in hot paths
 const _tempOffset = new THREE.Vector3();
 const _tempZoomDirection = new THREE.Vector3();
@@ -48,6 +51,9 @@ export function setupRaycaster(
   wormholeConnections
 ) {
   raycaster = new THREE.Raycaster();
+
+  // Store stars reference at module level
+  _stars = stars;
 
   // Rebuild clickable objects cache
   rebuildClickableObjectsCache(stars);
@@ -228,7 +234,8 @@ function showJumpTooltip(
     if (connection) {
       const distance = connection.distance;
       const fuelCost = connection.fuelCost;
-      const jumpTime = Math.max(1, Math.ceil(distance * 0.5));
+      const jumpTime =
+        gameStateManager.navigationSystem.calculateJumpTime(distance);
 
       // Format tooltip content
       const fuelStatus = currentFuel >= fuelCost ? '✓' : '✗';
@@ -406,12 +413,9 @@ function highlightConnectedSystems(systemId, navigationSystem) {
   // Get connected system IDs
   const connectedIds = navigationSystem.getConnectedSystems(systemId);
 
-  // Get stars from global scope (will be passed in coordinator)
-  const stars = window._starmapStars || [];
-
   // Highlight each connected star
   connectedIds.forEach((connectedId) => {
-    const connectedStar = stars.find((s) => s.data.id === connectedId);
+    const connectedStar = _stars.find((s) => s.data.id === connectedId);
     if (connectedStar) {
       // Store original color if not already stored
       if (!connectedStar.highlightedOriginalColor) {

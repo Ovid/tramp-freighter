@@ -243,7 +243,13 @@ export class TradePanelController {
 
     const cargo = state.ship.cargo;
 
-    if (!cargo || cargo.length === 0) {
+    if (!cargo) {
+      throw new Error(
+        'Invalid game state: ship.cargo is null in renderCargoStacks'
+      );
+    }
+
+    if (cargo.length === 0) {
       const emptyMsg = document.createElement('div');
       emptyMsg.className = 'cargo-empty';
       emptyMsg.textContent = 'No cargo';
