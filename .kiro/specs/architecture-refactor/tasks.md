@@ -27,7 +27,7 @@
   - **Example 2: Config Objects Exist**
   - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 
-- [ ] 4. Extract Trade Panel Controller
+- [x] 4. Extract Trade Panel Controller
   - Create js/controllers/trade-panel-controller.js
   - Extract trade panel logic from UIManager into TradePanelController class
   - Implement constructor accepting elements, gameStateManager, starData
@@ -36,11 +36,11 @@
   - Update UIManager to create TradePanelController instance and delegate to it
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4_
 
-- [ ] 4.1 Write property test for controller delegation
+- [x] 4.1 Write property test for controller delegation
   - **Property 1: Controller Delegation**
   - **Validates: Requirements 1.4, 1.5**
 
-- [ ] 4.2 Write property test for controller initialization
+- [x] 4.2 Write property test for controller initialization
   - **Property 2: Controller Initialization**
   - **Validates: Requirements 1.2, 1.3**
 
