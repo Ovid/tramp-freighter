@@ -97,7 +97,7 @@
   - Verify UIManager is now a coordinator rather than containing panel logic
   - _Requirements: 1.4, 1.5_
 
-- [ ] 11. Split starmap.js into focused modules
+- [x] 11. Split starmap.js into focused modules
   - Create js/views/starmap-scene.js for scene initialization
   - Create js/views/starmap-stars.js for star rendering
   - Create js/views/starmap-wormholes.js for wormhole line rendering
@@ -123,7 +123,7 @@
   - Update starmap.html to import CSS files in correct order: base.css, hud.css, panels (alphabetically), modals.css, starmap-scene.css
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7_
 
-- [ ] 13. Update all import paths in application code
+- [x] 13. Update all import paths in application code
   - Update imports in all js/ files to reflect new module locations
   - Update imports for moved data modules (star-data.js, wormhole-data.js)
   - Update imports for new controller modules
@@ -132,11 +132,11 @@
   - Verify no module resolution errors when loading application
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [ ] 13.1 Write property test for import path correctness
+- [x] 13.1 Write property test for import path correctness
   - **Property 4: Import Path Correctness**
   - **Validates: Requirements 8.3, 9.1, 9.2, 9.3, 9.4**
 
-- [ ] 14. Update all import paths in test files
+- [x] 14. Update all import paths in test files
   - Update imports in all test files to reflect new module locations
   - Update imports for moved data modules
   - Update imports for new controller modules
@@ -145,18 +145,18 @@
   - Verify tests can load modules without resolution errors
   - _Requirements: 8.3, 8.4_
 
-- [ ] 15. Run full test suite and verify all tests pass
+- [x] 15. Run full test suite and verify all tests pass
   - Execute npm test to run all unit, property, and integration tests
   - Verify all tests pass without modifications to test logic
   - Verify test output is clean (no stderr messages)
   - Fix any import path issues discovered by tests
   - _Requirements: 8.1, 8.2_
 
-- [ ] 15.1 Write property test for test suite preservation
+- [x] 15.1 Write property test for test suite preservation
   - **Property 3: Test Suite Preservation**
   - **Validates: Requirements 8.2**
 
-- [ ] 15.2 Write property test for application load success
+- [x] 15.2 Write property test for application load success
   - **Property 5: Application Load Success**
   - **Validates: Requirements 9.4**
 
