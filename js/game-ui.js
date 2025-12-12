@@ -11,6 +11,7 @@ import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
 import { RepairPanelController } from './controllers/repair-panel-controller.js';
 import { UpgradePanelController } from './controllers/upgrade-panel-controller.js';
+import { InfoBrokerPanelController } from './controllers/info-broker-panel-controller.js';
 import { capitalizeFirst } from './utils/string-utils.js';
 
 /**
@@ -225,6 +226,8 @@ export class UIManager {
     this.repairPanelController = null;
     // Upgrade controller will be initialized after setup
     this.upgradePanelController = null;
+    // Info broker controller will be initialized after setup
+    this.infoBrokerPanelController = null;
 
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
@@ -278,6 +281,32 @@ export class UIManager {
     } catch (error) {
       // In test environments, upgrade panel elements may not exist
       this.upgradePanelController = null;
+    }
+
+    // Initialize info broker controller
+    try {
+      this.infoBrokerPanelController = new InfoBrokerPanelController(
+        {
+          infoBrokerPanel: this.elements.infoBrokerPanel,
+          infoBrokerSystemName: this.elements.infoBrokerSystemName,
+          buyRumorBtn: this.elements.buyRumorBtn,
+          rumorText: this.elements.rumorText,
+          intelligenceList: this.elements.intelligenceList,
+          infoBrokerValidationMessage:
+            this.elements.infoBrokerValidationMessage,
+          purchaseTab: this.elements.purchaseTab,
+          marketDataTab: this.elements.marketDataTab,
+          purchaseIntelContent: this.elements.purchaseIntelContent,
+          marketDataContent: this.elements.marketDataContent,
+          marketDataList: this.elements.marketDataList,
+        },
+        this.gameStateManager,
+        this.starData,
+        this.gameStateManager.informationBroker
+      );
+    } catch (error) {
+      // In test environments, info broker panel elements may not exist
+      this.infoBrokerPanelController = null;
     }
   }
 
@@ -541,19 +570,25 @@ export class UIManager {
 
     if (this.elements.buyRumorBtn) {
       this.elements.buyRumorBtn.addEventListener('click', () => {
-        this.handleBuyRumor();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.handleBuyRumor();
+        }
       });
     }
 
     if (this.elements.purchaseTab) {
       this.elements.purchaseTab.addEventListener('click', () => {
-        this.showPurchaseTab();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.switchTab('purchase');
+        }
       });
     }
 
     if (this.elements.marketDataTab) {
       this.elements.marketDataTab.addEventListener('click', () => {
-        this.showMarketDataTab();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.switchTab('marketData');
+        }
       });
     }
 
@@ -1433,56 +1468,69 @@ export class UIManager {
   }
 
   showInfoBrokerPanel() {
-    const state = this.gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) return;
-
-    this.elements.infoBrokerSystemName.textContent = system.name;
-
-    // Clear previous rumor
-    this.elements.rumorText.textContent = '';
-    this.elements.rumorText.classList.remove('visible');
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Show purchase tab by default
-    this.showPurchaseTab();
-
-    // Update rumor button state
-    this.updateRumorButton();
-
-    // Render intelligence list
-    this.renderIntelligenceList();
-
     this.hideStationInterface();
+    if (!this.infoBrokerPanelController) {
+      throw new Error(
+        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
+      );
+    }
 
-    this.elements.infoBrokerPanel.classList.add('visible');
+    try {
+      this.infoBrokerPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
-  showPurchaseTab() {
-    this.elements.purchaseTab.classList.add('active');
-    this.elements.marketDataTab.classList.remove('active');
-    this.elements.purchaseIntelContent.classList.add('active');
-    this.elements.marketDataContent.classList.remove('active');
+  hideInfoBrokerPanel() {
+    if (!this.infoBrokerPanelController) {
+      throw new Error(
+        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
+      );
+    }
+
+    this.infoBrokerPanelController.hide();
   }
 
-  showMarketDataTab() {
-    this.elements.purchaseTab.classList.remove('active');
-    this.elements.marketDataTab.classList.add('active');
-    this.elements.purchaseIntelContent.classList.remove('active');
-    this.elements.marketDataContent.classList.add('active');
+  handlePurchaseIntelligence(systemId) {
+    if (!this.infoBrokerPanelController) {
+      throw new Error(
+        'InfoBrokerPanelController not initialized - required DOM elements may be missing'
+      );
+    }
 
-    // Render market data when tab is shown
-    this.renderMarketData();
+    const intelligenceOutcome =
+      this.infoBrokerPanelController.handlePurchaseIntelligence(systemId);
+
+    // Show success notification if purchase succeeded
+    if (intelligenceOutcome && intelligenceOutcome.success) {
+      const system = this.starData.find((s) => s.id === systemId);
+      if (system) {
+        this.showSuccess(`Intelligence purchased for ${system.name}`);
+      }
+    }
   }
 
+  // Delegation method for backward compatibility with tests
+  // In test environments, controller may be null if DOM is incomplete
   renderMarketData() {
+    if (this.infoBrokerPanelController) {
+      this.infoBrokerPanelController.renderMarketData();
+      return;
+    }
+
+    // Fallback for test environments where controller is not initialized
+    // This maintains backward compatibility with existing tests
     const state = this.gameStateManager.getState();
+    if (!state) {
+      throw new Error('Invalid game state: state is null in renderMarketData');
+    }
+
     const priceKnowledge = state.world.priceKnowledge || {};
+
+    if (!this.elements.marketDataList) {
+      return;
+    }
 
     this.elements.marketDataList.replaceChildren();
 
@@ -1567,167 +1615,6 @@ export class UIManager {
     container.appendChild(pricesGrid);
 
     return container;
-  }
-
-  hideInfoBrokerPanel() {
-    this.elements.infoBrokerPanel.classList.remove('visible');
-  }
-
-  updateRumorButton() {
-    const state = this.gameStateManager.getState();
-    const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-
-    this.elements.buyRumorBtn.disabled = credits < rumorCost;
-  }
-
-  handleBuyRumor() {
-    const state = this.gameStateManager.getState();
-    const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-
-    // Validate purchase
-    if (credits < rumorCost) {
-      this.elements.infoBrokerValidationMessage.textContent =
-        'Insufficient credits for rumor';
-      this.elements.infoBrokerValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    // Deduct credits
-    this.gameStateManager.updateCredits(credits - rumorCost);
-
-    // Generate and display rumor
-    const rumor = this.gameStateManager.generateRumor();
-    this.elements.rumorText.textContent = rumor;
-    this.elements.rumorText.classList.add('visible');
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Update button state
-    this.updateRumorButton();
-
-    // Refresh intelligence list (credits changed)
-    this.renderIntelligenceList();
-  }
-
-  renderIntelligenceList() {
-    const state = this.gameStateManager.getState();
-
-    this.elements.intelligenceList.replaceChildren();
-
-    const credits = state.player.credits;
-
-    // Get all systems with their intelligence costs
-    const intelligenceOptions =
-      this.gameStateManager.listAvailableIntelligence();
-
-    // Sort by information freshness: never visited → stale → recent → current
-    // This prioritizes systems where intelligence is most valuable
-    const getIntelligencePriority = (option) => {
-      if (option.lastVisit === null) return 0; // Never visited - highest priority
-      if (option.lastVisit === 0) return 3; // Current - lowest priority (already have data)
-      if (option.lastVisit > INTELLIGENCE_CONFIG.RECENT_THRESHOLD) return 1; // Stale
-      return 2; // Recent
-    };
-
-    intelligenceOptions.sort(
-      (a, b) => getIntelligencePriority(a) - getIntelligencePriority(b)
-    );
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    intelligenceOptions.forEach((option) => {
-      const item = this.createIntelligenceItem(option, credits);
-      fragment.appendChild(item);
-    });
-    this.elements.intelligenceList.appendChild(fragment);
-  }
-
-  createIntelligenceItem(option, credits) {
-    const item = document.createElement('div');
-    item.className = 'intelligence-item';
-
-    const info = document.createElement('div');
-    info.className = 'intelligence-info';
-
-    const systemName = document.createElement('div');
-    systemName.className = 'intelligence-system-name';
-    systemName.textContent = option.systemName;
-
-    const visitInfo = document.createElement('div');
-    visitInfo.className = 'intelligence-visit-info';
-
-    if (option.lastVisit === null) {
-      visitInfo.textContent = 'Never visited';
-    } else if (option.lastVisit === 0) {
-      visitInfo.textContent = 'Current prices';
-    } else if (option.lastVisit === 1) {
-      visitInfo.textContent = 'Last visited 1 day ago';
-    } else {
-      visitInfo.textContent = `Last visited ${option.lastVisit} days ago`;
-    }
-
-    info.appendChild(systemName);
-    info.appendChild(visitInfo);
-
-    const actions = document.createElement('div');
-    actions.className = 'intelligence-actions';
-
-    const cost = document.createElement('div');
-    cost.className = 'intelligence-cost';
-    cost.textContent = `₡${option.cost}`;
-
-    const buyBtn = document.createElement('button');
-    buyBtn.className = 'info-broker-btn';
-    buyBtn.textContent = 'Purchase';
-    buyBtn.disabled = credits < option.cost || option.lastVisit === 0;
-
-    if (option.lastVisit === 0) {
-      buyBtn.textContent = 'Current';
-    }
-
-    buyBtn.addEventListener('click', () =>
-      this.handlePurchaseIntelligence(option.systemId)
-    );
-
-    actions.appendChild(cost);
-    actions.appendChild(buyBtn);
-
-    item.appendChild(info);
-    item.appendChild(actions);
-
-    return item;
-  }
-
-  handlePurchaseIntelligence(systemId) {
-    const intelligenceOutcome =
-      this.gameStateManager.purchaseIntelligence(systemId);
-
-    if (!intelligenceOutcome.success) {
-      this.elements.infoBrokerValidationMessage.textContent =
-        intelligenceOutcome.reason;
-      this.elements.infoBrokerValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Show success notification
-    const system = this.starData.find((s) => s.id === systemId);
-    if (system) {
-      this.showSuccess(`Intelligence purchased for ${system.name}`);
-    }
-
-    // Refresh the panel to show updated state
-    this.updateRumorButton();
-    this.renderIntelligenceList();
   }
 
   // ========================================================================

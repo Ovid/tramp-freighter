@@ -71,7 +71,7 @@
   - Update UIManager to create UpgradePanelController instance and delegate to it
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4_
 
-- [ ] 8. Extract Info Broker Panel Controller
+- [x] 8. Extract Info Broker Panel Controller
   - Create js/controllers/info-broker-panel-controller.js
   - Extract info broker panel logic from UIManager into InfoBrokerPanelController class
   - Implement constructor accepting elements, gameStateManager, starData, informationBroker
