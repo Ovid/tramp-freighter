@@ -112,7 +112,8 @@ describe('Property: Repair All Cost Calculation', () => {
             lifeSupportAmount * REPAIR_CONFIG.COST_PER_PERCENT;
 
           // Get actual calculated cost
-          const actualTotalCost = uiManager.calculateRepairAllCost();
+          const actualTotalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           expect(actualTotalCost).toBe(expectedTotalCost);
         }
@@ -150,10 +151,11 @@ describe('Property: Repair All Cost Calculation', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Calculate expected total cost
-          const totalCost = uiManager.calculateRepairAllCost();
+          const totalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           // Verify button text contains the cost
           const repairAllBtn = document.getElementById('repair-all-btn');
@@ -176,7 +178,7 @@ describe('Property: Repair All Cost Calculation', () => {
     );
 
     const uiManager = new UIManager(gameStateManager);
-    const totalCost = uiManager.calculateRepairAllCost();
+    const totalCost = uiManager.repairPanelController.calculateRepairAllCost();
 
     expect(totalCost).toBe(0);
   });
@@ -216,7 +218,8 @@ describe('Property: Repair All Cost Calculation', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          const totalCost = uiManager.calculateRepairAllCost();
+          const totalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           // Expected cost is only for the damaged system
           const expectedCost =

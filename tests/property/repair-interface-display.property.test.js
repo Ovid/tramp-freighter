@@ -91,7 +91,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairConditionDisplay();
+          uiManager.repairPanelController.updateRepairConditionDisplay();
 
           // Verify hull display
           const hullPercent = document.getElementById('repair-hull-percent');
@@ -157,7 +157,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify repair buttons exist for each system
           const systems = ['hull', 'engine', 'lifeSupport'];
@@ -206,7 +206,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify costs for fixed amount repairs
           const systems = [
@@ -267,7 +267,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify full repair button shows ₡0 for system at max
           const fullButton = document.querySelector(

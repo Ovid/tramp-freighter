@@ -10,6 +10,7 @@ import {
 import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
+import { RepairPanelController } from './controllers/repair-panel-controller.js';
 
 /**
  * UIManager - Reactive UI layer using event subscription pattern
@@ -219,11 +220,38 @@ export class UIManager {
       this.refuelPanelController = null;
     }
 
+    // Repair controller will be initialized after buttons are cached
+    this.repairPanelController = null;
+
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
     this.setupShipStatusHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
+
+    // Initialize repair controller after buttons are cached
+    try {
+      this.repairPanelController = new RepairPanelController(
+        {
+          repairPanel: this.elements.repairPanel,
+          repairSystemName: this.elements.repairSystemName,
+          repairHullPercent: this.elements.repairHullPercent,
+          repairHullBar: this.elements.repairHullBar,
+          repairEnginePercent: this.elements.repairEnginePercent,
+          repairEngineBar: this.elements.repairEngineBar,
+          repairLifeSupportPercent: this.elements.repairLifeSupportPercent,
+          repairLifeSupportBar: this.elements.repairLifeSupportBar,
+          repairAllBtn: this.elements.repairAllBtn,
+          repairValidationMessage: this.elements.repairValidationMessage,
+          cachedRepairButtons: this.cachedRepairButtons,
+        },
+        this.gameStateManager,
+        this.starData
+      );
+    } catch (error) {
+      // In test environments, repair panel elements may not exist
+      this.repairPanelController = null;
+    }
   }
 
   subscribeToStateChanges() {
@@ -1691,345 +1719,63 @@ export class UIManager {
   // ========================================================================
 
   showRepairPanel() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in showRepairPanel');
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) {
+    this.hideStationInterface();
+    if (!this.repairPanelController) {
       throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+        'RepairPanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    this.elements.repairSystemName.textContent = system.name;
-
-    // Update condition displays
-    this.updateRepairConditionDisplay();
-
-    // Update repair button states and costs
-    this.updateRepairButtons();
-
-    // Clear validation message
-    this.elements.repairValidationMessage.textContent = '';
-    this.elements.repairValidationMessage.className = 'validation-message';
-
-    this.hideStationInterface();
-
-    this.elements.repairPanel.classList.add('visible');
+    try {
+      this.repairPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   hideRepairPanel() {
-    this.elements.repairPanel.classList.remove('visible');
+    if (!this.repairPanelController) {
+      throw new Error(
+        'RepairPanelController not initialized - required DOM elements may be missing'
+      );
+    }
+
+    this.repairPanelController.hide();
   }
 
   isRepairVisible() {
     return this.elements.repairPanel.classList.contains('visible');
   }
 
-  /**
-   * Get current condition value for a specific ship system
-   * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
-   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
-   * @returns {number} Current condition percentage
-   */
-  getSystemCondition(condition, systemType) {
-    switch (systemType) {
-      case 'hull':
-        return condition.hull;
-      case 'engine':
-        return condition.engine;
-      case 'lifeSupport':
-        return condition.lifeSupport;
-      default:
-        return 0;
-    }
-  }
-
-  /**
-   * Update all ship condition displays in repair panel
-   *
-   * Refreshes the visual representation of hull, engine, and life support
-   * condition in the repair interface. Called when panel opens or after repairs.
-   */
-  updateRepairConditionDisplay() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in updateRepairConditionDisplay'
-      );
-    }
-
-    this.updateConditionDisplay('repair', 'hull', condition.hull);
-    this.updateConditionDisplay('repair', 'engine', condition.engine);
-    this.updateConditionDisplay('repair', 'lifeSupport', condition.lifeSupport);
-  }
-
-  /**
-   * Update repair button states and costs based on current ship condition
-   *
-   * Recalculates repair costs for all buttons and updates their text/disabled state.
-   * Buttons are disabled when system is at max, player lacks credits, or repair
-   * would exceed maximum condition. Called when repair panel opens or after repairs.
-   */
-  updateRepairButtons() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in updateRepairButtons'
-      );
-    }
-
-    const condition = this.gameStateManager.getShipCondition();
-    const credits = state.player.credits;
-
-    // Update repair buttons if they exist (may not exist in test environment)
-    if (!this.cachedRepairButtons || this.cachedRepairButtons.length === 0) {
-      return;
-    }
-
-    this.cachedRepairButtons.forEach((btn) => {
-      const systemType = btn.getAttribute('data-system');
-      const amountStr = btn.getAttribute('data-amount');
-      const currentCondition = this.getSystemCondition(condition, systemType);
-
-      let amount = 0;
-      let cost = 0;
-
-      if (amountStr === 'full') {
-        // Full repair
-        amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
-        cost = this.gameStateManager.getRepairCost(
-          systemType,
-          amount,
-          currentCondition
-        );
-        btn.textContent = `Full (₡${cost})`;
-      } else {
-        // Fixed amount repair
-        amount = parseInt(amountStr);
-        cost = this.gameStateManager.getRepairCost(
-          systemType,
-          amount,
-          currentCondition
-        );
-        btn.textContent = `+${amount}% (₡${cost})`;
-      }
-
-      // Disable button if:
-      // - Already at max condition
-      // - Not enough credits
-      // - Would exceed max condition
-      const wouldExceedMax =
-        currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      const atMax = currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      const notEnoughCredits = credits < cost;
-
-      btn.disabled = atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
-    });
-
-    // Update repair all button
-    const totalCost = this.calculateRepairAllCost();
-    this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
-
-    const allAtMax =
-      condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
-      condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
-      condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-    this.elements.repairAllBtn.disabled =
-      allAtMax || credits < totalCost || totalCost === 0;
-  }
-
-  /**
-   * Calculate total cost to repair all ship systems to maximum condition
-   *
-   * Sums the repair costs for hull, engine, and life support to reach 100%.
-   * Used to display cost on "Repair All" button and validate transaction.
-   *
-   * @returns {number} Total repair cost in credits
-   */
-  calculateRepairAllCost() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in calculateRepairAllCost'
-      );
-    }
-
-    let totalCost = 0;
-
-    // Hull
-    const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
-    if (hullAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'hull',
-        hullAmount,
-        condition.hull
-      );
-    }
-
-    // Engine
-    const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
-    if (engineAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'engine',
-        engineAmount,
-        condition.engine
-      );
-    }
-
-    // Life Support
-    const lifeSupportAmount =
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
-    if (lifeSupportAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'lifeSupport',
-        lifeSupportAmount,
-        condition.lifeSupport
-      );
-    }
-
-    return totalCost;
-  }
-
   handleRepair(systemType, amountStr) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRepair');
+    if (!this.repairPanelController) {
+      throw new Error(
+        'RepairPanelController not initialized - required DOM elements may be missing'
+      );
     }
 
-    const condition = this.gameStateManager.getShipCondition();
-    const currentCondition = this.getSystemCondition(condition, systemType);
-
-    let amount = 0;
-    if (amountStr === 'full') {
-      amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
-    } else {
-      amount = parseInt(amountStr);
-    }
-
-    // Execute repair
-    const repairOutcome = this.gameStateManager.repairShipSystem(
+    const result = this.repairPanelController.handleRepairSystem(
       systemType,
-      amount
+      amountStr
     );
 
-    if (!repairOutcome.success) {
-      this.elements.repairValidationMessage.textContent = `Repair failed: ${repairOutcome.reason}`;
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-      return;
+    if (result.success) {
+      this.showSuccess(`${result.systemName} repaired`);
     }
-
-    // Clear validation message
-    this.elements.repairValidationMessage.textContent = '';
-    this.elements.repairValidationMessage.className = 'validation-message';
-
-    // Show success notification
-    const systemName =
-      systemType === 'lifeSupport'
-        ? 'Life Support'
-        : this.capitalizeFirst(systemType);
-    this.showSuccess(`${systemName} repaired`);
-
-    // Refresh the repair panel to show updated state
-    this.updateRepairConditionDisplay();
-    this.updateRepairButtons();
   }
 
   handleRepairAll() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
+    if (!this.repairPanelController) {
       throw new Error(
-        'Invalid game state: ship condition is null in handleRepairAll'
+        'RepairPanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRepairAll');
-    }
+    const result = this.repairPanelController.handleRepairAll();
 
-    const totalCost = this.calculateRepairAllCost();
-
-    // Pre-validate total cost before executing any repairs
-    // This prevents partial repairs if player doesn't have enough credits for all systems
-    if (state.player.credits < totalCost) {
-      this.elements.repairValidationMessage.textContent =
-        'Insufficient credits for full repair';
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    let repairCount = 0;
-    let failedRepairs = [];
-
-    // Repair hull
-    const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
-    if (hullAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'hull',
-        hullAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Hull: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair engine
-    const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
-    if (engineAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'engine',
-        engineAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Engine: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair life support
-    const lifeSupportAmount =
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
-    if (lifeSupportAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'lifeSupport',
-        lifeSupportAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Life Support: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Show results
-    if (failedRepairs.length > 0) {
-      this.elements.repairValidationMessage.textContent = `Some repairs failed: ${failedRepairs.join(', ')}`;
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-    } else if (repairCount > 0) {
-      this.elements.repairValidationMessage.textContent = '';
-      this.elements.repairValidationMessage.className = 'validation-message';
+    if (result.success && result.repairCount > 0) {
       this.showSuccess(`All systems repaired to full`);
-    } else {
-      this.elements.repairValidationMessage.textContent =
-        'All systems already at maximum condition';
-      this.elements.repairValidationMessage.className =
-        'validation-message info';
     }
-
-    // Refresh the repair panel to show updated state
-    this.updateRepairConditionDisplay();
-    this.updateRepairButtons();
   }
 
   // ========================================================================

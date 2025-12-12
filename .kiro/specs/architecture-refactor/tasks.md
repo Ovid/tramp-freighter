@@ -53,7 +53,7 @@
   - Update UIManager to create RefuelPanelController instance and delegate to it
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4_
 
-- [ ] 6. Extract Repair Panel Controller
+- [x] 6. Extract Repair Panel Controller
   - Create js/controllers/repair-panel-controller.js
   - Extract repair panel logic from UIManager into RepairPanelController class
   - Implement constructor accepting elements, gameStateManager, starData
