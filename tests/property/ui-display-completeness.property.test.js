@@ -269,8 +269,8 @@ describe('Property 9: UI Display Completeness', () => {
     const state = gameStateManager.getState();
     state.player.credits = 100000; // Ensure player can afford upgrades
 
-    // Render upgrades interface
-    uiManager.renderAvailableUpgrades();
+    // Render upgrades interface via controller
+    uiManager.upgradePanelController.renderAvailableUpgrades();
 
     // Get rendered HTML
     const availableUpgradesList = document.getElementById(
@@ -306,8 +306,8 @@ describe('Property 9: UI Display Completeness', () => {
           const state = gameStateManager.getState();
           state.player.credits = 100000; // Ensure player can afford upgrades
 
-          // Render upgrades interface
-          uiManager.renderAvailableUpgrades();
+          // Render upgrades interface via controller
+          uiManager.upgradePanelController.renderAvailableUpgrades();
 
           // Get rendered HTML
           const availableUpgradesList = document.getElementById(

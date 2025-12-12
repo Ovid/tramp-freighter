@@ -62,7 +62,7 @@
   - Update UIManager to create RepairPanelController instance and delegate to it
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4_
 
-- [ ] 7. Extract Upgrade Panel Controller
+- [x] 7. Extract Upgrade Panel Controller
   - Create js/controllers/upgrade-panel-controller.js
   - Extract upgrade panel logic from UIManager into UpgradePanelController class
   - Implement constructor accepting elements, gameStateManager, starData

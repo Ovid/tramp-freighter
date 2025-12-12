@@ -11,6 +11,7 @@ import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
 import { RepairPanelController } from './controllers/repair-panel-controller.js';
+import { UpgradePanelController } from './controllers/upgrade-panel-controller.js';
 import { capitalizeFirst } from './utils/string-utils.js';
 
 /**
@@ -223,6 +224,8 @@ export class UIManager {
 
     // Repair controller will be initialized after buttons are cached
     this.repairPanelController = null;
+    // Upgrade controller will be initialized after setup
+    this.upgradePanelController = null;
 
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
@@ -252,6 +255,30 @@ export class UIManager {
     } catch (error) {
       // In test environments, repair panel elements may not exist
       this.repairPanelController = null;
+    }
+
+    // Initialize upgrade controller
+    try {
+      this.upgradePanelController = new UpgradePanelController(
+        {
+          upgradesPanel: this.elements.upgradesPanel,
+          upgradesCreditsValue: this.elements.upgradesCreditsValue,
+          availableUpgradesList: this.elements.availableUpgradesList,
+          installedUpgradesList: this.elements.installedUpgradesList,
+          upgradeConfirmationOverlay: this.elements.upgradeConfirmationOverlay,
+          upgradeConfirmationTitle: this.elements.upgradeConfirmationTitle,
+          upgradeConfirmationEffects: this.elements.upgradeConfirmationEffects,
+          upgradeCurrentCredits: this.elements.upgradeCurrentCredits,
+          upgradeCost: this.elements.upgradeCost,
+          upgradeCreditsAfter: this.elements.upgradeCreditsAfter,
+          upgradeConfirmBtn: this.elements.upgradeConfirmBtn,
+        },
+        this.gameStateManager,
+        this.starData
+      );
+    } catch (error) {
+      // In test environments, upgrade panel elements may not exist
+      this.upgradePanelController = null;
     }
   }
 
@@ -595,7 +622,9 @@ export class UIManager {
 
     if (this.elements.upgradeCancelBtn) {
       this.elements.upgradeCancelBtn.addEventListener('click', () => {
-        this.hideUpgradeConfirmation();
+        if (this.upgradePanelController) {
+          this.upgradePanelController.hideUpgradeConfirmation();
+        }
       });
     }
 
@@ -1976,37 +2005,43 @@ export class UIManager {
   /**
    * Show upgrades interface panel
    *
-   * Displays all available and installed ship upgrades with costs, effects,
-   * and tradeoffs. Validates affordability and prevents duplicate purchases.
+   * Delegates to UpgradePanelController to display available and installed
+   * ship upgrades with costs, effects, and tradeoffs.
    *
-   * Feature: ship-personality
-   * Validates: Requirements 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   showUpgradesInterface() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
+    this.hideStationInterface();
+    if (!this.upgradePanelController) {
       throw new Error(
-        'Invalid game state: state is null in showUpgradesInterface'
+        'UpgradePanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    // Update credit balance display
-    this.elements.upgradesCreditsValue.textContent =
-      state.player.credits.toLocaleString();
-
-    // Render available and installed upgrades
-    this.renderAvailableUpgrades();
-    this.renderInstalledUpgrades();
-
-    this.hideStationInterface();
-    this.elements.upgradesPanel.classList.add('visible');
+    try {
+      this.upgradePanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   /**
    * Hide upgrades interface panel
+   *
+   * Delegates to UpgradePanelController.
+   *
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   hideUpgradesInterface() {
-    this.elements.upgradesPanel.classList.remove('visible');
+    if (!this.upgradePanelController) {
+      throw new Error(
+        'UpgradePanelController not initialized - required DOM elements may be missing'
+      );
+    }
+
+    this.upgradePanelController.hide();
   }
 
   /**
@@ -2018,375 +2053,30 @@ export class UIManager {
   }
 
   /**
-   * Render list of available (unpurchased) upgrades
-   *
-   * Creates upgrade cards with name, cost, description, effects, and tradeoffs.
-   * Disables purchase buttons for unaffordable upgrades. Adds warning symbol
-   * for upgrades with tradeoffs.
-   */
-  renderAvailableUpgrades() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderAvailableUpgrades'
-      );
-    }
-
-    this.elements.availableUpgradesList.replaceChildren();
-
-    const credits = state.player.credits;
-    const installedUpgrades = state.ship.upgrades || [];
-
-    // Get all upgrade IDs
-    const allUpgradeIds = Object.keys(SHIP_CONFIG.UPGRADES);
-
-    // Filter to only unpurchased upgrades
-    const availableUpgradeIds = allUpgradeIds.filter(
-      (id) => !installedUpgrades.includes(id)
-    );
-
-    if (availableUpgradeIds.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'upgrades-empty';
-      emptyMsg.textContent = 'All upgrades installed';
-      this.elements.availableUpgradesList.appendChild(emptyMsg);
-      return;
-    }
-
-    // Sort by cost (cheapest first)
-    availableUpgradeIds.sort(
-      (a, b) => SHIP_CONFIG.UPGRADES[a].cost - SHIP_CONFIG.UPGRADES[b].cost
-    );
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    availableUpgradeIds.forEach((upgradeId) => {
-      const upgradeCard = this.createUpgradeCard(upgradeId, credits, false);
-      fragment.appendChild(upgradeCard);
-    });
-    this.elements.availableUpgradesList.appendChild(fragment);
-  }
-
-  /**
-   * Render list of installed upgrades
-   *
-   * Displays purchased upgrades with their effects and tradeoffs.
-   * No purchase buttons shown for installed upgrades.
-   */
-  renderInstalledUpgrades() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderInstalledUpgrades'
-      );
-    }
-
-    this.elements.installedUpgradesList.replaceChildren();
-
-    const installedUpgrades = state.ship.upgrades || [];
-
-    if (installedUpgrades.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'upgrades-empty';
-      emptyMsg.textContent = 'No upgrades installed';
-      this.elements.installedUpgradesList.appendChild(emptyMsg);
-      return;
-    }
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    installedUpgrades.forEach((upgradeId) => {
-      const upgradeCard = this.createUpgradeCard(upgradeId, 0, true);
-      fragment.appendChild(upgradeCard);
-    });
-    this.elements.installedUpgradesList.appendChild(fragment);
-  }
-
-  /**
-   * Create an upgrade card element
-   *
-   * @param {string} upgradeId - Upgrade identifier
-   * @param {number} credits - Player's current credits
-   * @param {boolean} isInstalled - Whether upgrade is already installed
-   * @returns {HTMLElement} Upgrade card element
-   */
-  createUpgradeCard(upgradeId, credits, isInstalled) {
-    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
-    if (!upgrade) {
-      throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
-      );
-    }
-
-    const card = document.createElement('div');
-    card.className = 'upgrade-card';
-
-    // Header with name and cost
-    const header = document.createElement('div');
-    header.className = 'upgrade-header';
-
-    const nameContainer = document.createElement('div');
-    nameContainer.className = 'upgrade-name-container';
-
-    const name = document.createElement('span');
-    name.className = 'upgrade-name';
-    name.textContent = upgrade.name;
-
-    // Add warning symbol if upgrade has tradeoffs
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const warningSymbol = document.createElement('span');
-      warningSymbol.className = 'upgrade-warning-symbol';
-      warningSymbol.textContent = ' ⚠';
-      warningSymbol.title = 'This upgrade has tradeoffs';
-      nameContainer.appendChild(name);
-      nameContainer.appendChild(warningSymbol);
-    } else {
-      nameContainer.appendChild(name);
-    }
-
-    const cost = document.createElement('span');
-    cost.className = 'upgrade-cost';
-    cost.textContent = `₡${upgrade.cost.toLocaleString()}`;
-
-    header.appendChild(nameContainer);
-    header.appendChild(cost);
-
-    // Description
-    const description = document.createElement('div');
-    description.className = 'upgrade-description';
-    description.textContent = upgrade.description;
-
-    // Effects list
-    const effectsContainer = document.createElement('div');
-    effectsContainer.className = 'upgrade-effects';
-
-    const effectsLabel = document.createElement('div');
-    effectsLabel.className = 'upgrade-effects-label';
-    effectsLabel.textContent = 'Effects:';
-
-    const effectsList = document.createElement('ul');
-    effectsList.className = 'upgrade-effects-list';
-
-    // Format effects for display
-    const effectsText = this.formatUpgradeEffects(upgrade.effects);
-    effectsText.forEach((effect) => {
-      const li = document.createElement('li');
-      li.textContent = effect;
-      effectsList.appendChild(li);
-    });
-
-    effectsContainer.appendChild(effectsLabel);
-    effectsContainer.appendChild(effectsList);
-
-    // Tradeoff (if any)
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const tradeoffContainer = document.createElement('div');
-      tradeoffContainer.className = 'upgrade-tradeoff';
-
-      const tradeoffLabel = document.createElement('div');
-      tradeoffLabel.className = 'upgrade-tradeoff-label';
-      tradeoffLabel.textContent = 'Tradeoff:';
-
-      const tradeoffText = document.createElement('div');
-      tradeoffText.className = 'upgrade-tradeoff-text';
-      tradeoffText.textContent = upgrade.tradeoff;
-
-      tradeoffContainer.appendChild(tradeoffLabel);
-      tradeoffContainer.appendChild(tradeoffText);
-
-      card.appendChild(header);
-      card.appendChild(description);
-      card.appendChild(effectsContainer);
-      card.appendChild(tradeoffContainer);
-    } else {
-      card.appendChild(header);
-      card.appendChild(description);
-      card.appendChild(effectsContainer);
-    }
-
-    // Purchase button (only for available upgrades)
-    if (!isInstalled) {
-      const actions = document.createElement('div');
-      actions.className = 'upgrade-actions';
-
-      const purchaseBtn = document.createElement('button');
-      purchaseBtn.className = 'upgrade-purchase-btn';
-      purchaseBtn.textContent = 'Purchase';
-      purchaseBtn.disabled = credits < upgrade.cost;
-
-      purchaseBtn.addEventListener('click', () => {
-        this.showUpgradeConfirmation(upgradeId);
-      });
-
-      actions.appendChild(purchaseBtn);
-      card.appendChild(actions);
-    }
-
-    return card;
-  }
-
-  /**
-   * Format upgrade effects for display
-   *
-   * Converts effect object into human-readable strings.
-   *
-   * @param {Object} effects - Upgrade effects object
-   * @returns {string[]} Array of formatted effect strings
-   */
-  formatUpgradeEffects(effects) {
-    const formatted = [];
-
-    for (const [attr, value] of Object.entries(effects)) {
-      if (attr === 'fuelCapacity') {
-        formatted.push(`Fuel capacity: ${value}%`);
-      } else if (attr === 'cargoCapacity') {
-        formatted.push(`Cargo capacity: ${value} units`);
-      } else if (attr === 'hiddenCargoCapacity') {
-        formatted.push(`Hidden cargo: ${value} units`);
-      } else if (attr === 'fuelConsumption') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Fuel consumption: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Fuel consumption: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'hullDegradation') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Hull degradation: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Hull degradation: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'lifeSupportDrain') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Life support drain: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Life support drain: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'eventVisibility') {
-        formatted.push('See economic events in connected systems');
-      }
-    }
-
-    return formatted;
-  }
-
-  /**
-   * Show upgrade confirmation dialog
-   *
-   * Displays upgrade details, cost breakdown, and permanent warning before
-   * allowing purchase confirmation.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 2.3, 9.1, 9.2, 9.3
-   *
-   * @param {string} upgradeId - Upgrade identifier
-   */
-  showUpgradeConfirmation(upgradeId) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in showUpgradeConfirmation'
-      );
-    }
-
-    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
-    if (!upgrade) {
-      throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
-      );
-    }
-
-    // Set title
-    this.elements.upgradeConfirmationTitle.textContent = upgrade.name;
-
-    // Render effects
-    this.elements.upgradeConfirmationEffects.replaceChildren();
-
-    const effectsText = this.formatUpgradeEffects(upgrade.effects);
-    effectsText.forEach((effect) => {
-      const effectItem = document.createElement('div');
-      effectItem.className = 'upgrade-effect-item';
-      effectItem.textContent = `• ${effect}`;
-      this.elements.upgradeConfirmationEffects.appendChild(effectItem);
-    });
-
-    // Add tradeoff if present
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const tradeoffItem = document.createElement('div');
-      tradeoffItem.className = 'upgrade-effect-item upgrade-tradeoff-item';
-      tradeoffItem.textContent = `⚠ ${upgrade.tradeoff}`;
-      this.elements.upgradeConfirmationEffects.appendChild(tradeoffItem);
-    }
-
-    // Set cost information
-    const currentCredits = state.player.credits;
-    const creditsAfter = currentCredits - upgrade.cost;
-
-    this.elements.upgradeCurrentCredits.textContent =
-      currentCredits.toLocaleString();
-    this.elements.upgradeCost.textContent = upgrade.cost.toLocaleString();
-    this.elements.upgradeCreditsAfter.textContent =
-      creditsAfter.toLocaleString();
-
-    // Store upgrade ID for confirmation handler
-    this.pendingUpgradeId = upgradeId;
-
-    // Show dialog
-    this.elements.upgradeConfirmationOverlay.classList.remove('hidden');
-
-    // Focus confirm button
-    if (this.elements.upgradeConfirmBtn) {
-      this.elements.upgradeConfirmBtn.focus();
-    }
-  }
-
-  /**
-   * Hide upgrade confirmation dialog
-   */
-  hideUpgradeConfirmation() {
-    this.elements.upgradeConfirmationOverlay.classList.add('hidden');
-    this.pendingUpgradeId = null;
-  }
-
-  /**
    * Handle upgrade purchase confirmation
    *
-   * Executes the upgrade purchase transaction and updates the UI.
+   * Delegates to UpgradePanelController to execute the purchase and handle
+   * success/error notifications.
    *
-   * Feature: ship-personality
-   * Validates: Requirements 2.4, 9.4, 9.5
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   handleUpgradeConfirm() {
-    if (!this.pendingUpgradeId) return;
-
-    const upgradeId = this.pendingUpgradeId;
-    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
-
-    if (!upgrade) {
+    if (!this.upgradePanelController) {
       throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
+        'UpgradePanelController not initialized - required DOM elements may be missing'
       );
     }
 
-    // Execute purchase
-    const purchaseOutcome = this.gameStateManager.purchaseUpgrade(upgradeId);
+    const purchaseOutcome = this.upgradePanelController.handlePurchaseUpgrade();
 
     if (!purchaseOutcome.success) {
       this.showError(`Upgrade purchase failed: ${purchaseOutcome.reason}`);
-      this.hideUpgradeConfirmation();
       return;
     }
 
     // Show success notification
-    this.showSuccess(`${upgrade.name} installed`);
-
-    // Hide confirmation dialog
-    this.hideUpgradeConfirmation();
-
-    // Refresh upgrades interface
-    this.showUpgradesInterface();
+    this.showSuccess(`${purchaseOutcome.upgradeName} installed`);
   }
 
   // ========================================================================
