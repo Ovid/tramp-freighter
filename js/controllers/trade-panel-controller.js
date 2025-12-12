@@ -54,6 +54,9 @@ export class TradePanelController {
       'tradeCargoRemaining',
     ];
 
+    // Optional elements for hidden cargo (only present when Smuggler's Panels upgrade exists)
+    // These are not required for basic functionality
+
     const missingElements = requiredElements.filter((key) => !elements[key]);
     if (missingElements.length > 0) {
       throw new Error(
@@ -486,5 +489,25 @@ export class TradePanelController {
     stackItem.appendChild(stackActions);
 
     return stackItem;
+  }
+
+  toggleHiddenCargoView() {
+    if (
+      !this.elements.hiddenCargoContent ||
+      !this.elements.toggleHiddenCargoBtn
+    ) {
+      return;
+    }
+
+    const isCollapsed =
+      this.elements.hiddenCargoContent.classList.contains('collapsed');
+
+    if (isCollapsed) {
+      this.elements.hiddenCargoContent.classList.remove('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Hide';
+    } else {
+      this.elements.hiddenCargoContent.classList.add('collapsed');
+      this.elements.toggleHiddenCargoBtn.textContent = 'Show';
+    }
   }
 }
