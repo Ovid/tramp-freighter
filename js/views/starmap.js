@@ -15,18 +15,18 @@ import {
   onWindowResize,
   setupSectorBoundary,
   createStarfield,
-} from './starmap-scene.js';
+} from './starmap/scene.js';
 import {
   createStarSystems,
   updateLabelScale,
   updateStarPulse,
   updateSelectionRingPulse,
-} from './starmap-stars.js';
+} from './starmap/stars.js';
 import {
   createWormholeLines,
   updateConnectionColors,
   getWormholeConnections,
-} from './starmap-wormholes.js';
+} from './starmap/wormholes.js';
 import {
   setupRaycaster,
   selectStar,
@@ -37,7 +37,7 @@ import {
   zoomIn,
   zoomOut,
   updateAutoRotation,
-} from './starmap-interaction.js';
+} from './starmap/interaction.js';
 
 // Make THREE available globally for debugging
 window.THREE = THREE;

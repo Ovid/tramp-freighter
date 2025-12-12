@@ -2,7 +2,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../game-constants.js';
+import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../../game-constants.js';
 
 /**
  * Initialize Three.js scene, camera, renderer, and controls

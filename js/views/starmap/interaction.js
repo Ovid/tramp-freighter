@@ -1,8 +1,8 @@
 'use strict';
 
 import * as THREE from 'three';
-import { VISUAL_CONFIG } from '../game-constants.js';
-import { createSelectionRing } from './starmap-stars.js';
+import { VISUAL_CONFIG } from '../../game-constants.js';
+import { createSelectionRing } from './stars.js';
 
 // Cached array of clickable objects to avoid allocation on every click
 let _clickableObjects = [];

@@ -5,7 +5,7 @@ import {
   SPECTRAL_COLORS,
   VISUAL_CONFIG,
   LABEL_CONFIG,
-} from '../game-constants.js';
+} from '../../game-constants.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;

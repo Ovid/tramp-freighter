@@ -1,7 +1,7 @@
 'use strict';
 
 import * as THREE from 'three';
-import { VISUAL_CONFIG, NAVIGATION_CONFIG } from '../game-constants.js';
+import { VISUAL_CONFIG, NAVIGATION_CONFIG } from '../../game-constants.js';
 
 // Store wormhole connection objects for dynamic color updates
 const wormholeConnections = [];
