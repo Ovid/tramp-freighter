@@ -6,11 +6,11 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import {
-  InformationBroker,
-  PRICES,
-  RECENT_THRESHOLD,
-} from '../../js/game-information-broker.js';
+import { InformationBroker } from '../../js/game-information-broker.js';
+import { INTELLIGENCE_CONFIG } from '../../js/game-constants.js';
+
+const PRICES = INTELLIGENCE_CONFIG.PRICES;
+const RECENT_THRESHOLD = INTELLIGENCE_CONFIG.RECENT_THRESHOLD;
 
 describe('Property: Intelligence Cost Calculation', () => {
   it('should charge RECENT_VISIT price for systems visited within 30 days', () => {

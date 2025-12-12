@@ -4,7 +4,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { InformationBroker } from '../../js/game-information-broker.js';
 import { GameStateManager } from '../../js/game-state.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
-import { INTELLIGENCE_MAX_AGE } from '../../js/game-constants.js';
+import { INTELLIGENCE_CONFIG } from '../../js/game-constants.js';
+
+const INTELLIGENCE_MAX_AGE = INTELLIGENCE_CONFIG.MAX_AGE;
 
 /**
  * Unit tests for intelligence data cleanup

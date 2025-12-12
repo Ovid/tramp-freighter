@@ -3,10 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import {
-  REPAIR_COST_PER_PERCENT,
-  SHIP_CONDITION_BOUNDS,
-} from '../../js/game-constants.js';
+import { REPAIR_CONFIG, SHIP_CONFIG } from '../../js/game-constants.js';
 
 /**
  * Feature: dynamic-economy, Property 25: Repair Validation
@@ -33,19 +30,19 @@ describe('Property 25: Repair Validation', () => {
           gameStateManager.initNewGame();
 
           // Set up state with insufficient credits
-          const requiredCredits = repairAmount * REPAIR_COST_PER_PERCENT;
+          const requiredCredits = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
           const insufficientCredits = Math.max(0, requiredCredits - 1);
           gameStateManager.updateCredits(insufficientCredits);
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Attempt repair
@@ -89,9 +86,9 @@ describe('Property 25: Repair Validation', () => {
           const initialCredits = 1000;
           gameStateManager.updateCredits(initialCredits);
           gameStateManager.updateShipCondition(
-            SHIP_CONDITION_BOUNDS.MAX,
-            SHIP_CONDITION_BOUNDS.MAX,
-            SHIP_CONDITION_BOUNDS.MAX
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Attempt repair
@@ -107,7 +104,7 @@ describe('Property 25: Repair Validation', () => {
           // Verify state unchanged
           expect(gameStateManager.getPlayer().credits).toBe(initialCredits);
           expect(gameStateManager.getShipCondition()[systemType]).toBe(
-            SHIP_CONDITION_BOUNDS.MAX
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
         }
       ),
@@ -119,11 +116,13 @@ describe('Property 25: Repair Validation', () => {
     fc.assert(
       fc.property(
         fc.constantFrom('hull', 'engine', 'lifeSupport'),
-        fc.integer({ min: 80, max: SHIP_CONDITION_BOUNDS.MAX - 1 }),
+        fc.integer({ min: 80, max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 1 }),
         fc.integer({ min: 2, max: 50 }),
         (systemType, currentCondition, repairAmount) => {
           // Only test cases where repair would exceed max
-          fc.pre(currentCondition + repairAmount > SHIP_CONDITION_BOUNDS.MAX);
+          fc.pre(
+            currentCondition + repairAmount > SHIP_CONFIG.CONDITION_BOUNDS.MAX
+          );
 
           // Create game state manager
           const starData = [
@@ -139,13 +138,13 @@ describe('Property 25: Repair Validation', () => {
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Attempt repair that would exceed max
@@ -190,13 +189,13 @@ describe('Property 25: Repair Validation', () => {
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Attempt repair with invalid amount
@@ -236,9 +235,9 @@ describe('Property 25: Repair Validation', () => {
 
           // Set system to max
           gameStateManager.updateShipCondition(
-            SHIP_CONDITION_BOUNDS.MAX,
-            SHIP_CONDITION_BOUNDS.MAX,
-            SHIP_CONDITION_BOUNDS.MAX
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Get repair cost
@@ -279,16 +278,16 @@ describe('Property 25: Repair Validation', () => {
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
-          const requiredCredits = repairAmount * REPAIR_COST_PER_PERCENT;
+          const requiredCredits = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
           const wouldExceed = currentCondition + repairAmount > 100;
           const hasCredits = credits >= requiredCredits;
 

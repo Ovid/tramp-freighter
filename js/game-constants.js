@@ -58,92 +58,76 @@ export const SPECTRAL_COLORS = {
 };
 
 /**
- * Information Broker pricing tiers
+ * Intelligence Broker Configuration
  *
  * The information broker sells market intelligence based on how recently
- * the player visited a system. Pricing reflects information freshness:
- * - Recent visits: Data is mostly current, low cost
- * - Never visited: Complete unknown, highest cost
- * - Stale visits: Outdated data, moderate cost
- * - Rumors: Vague hints, cheapest option
+ * the player visited a system. Pricing reflects information freshness.
+ * The broker's data is not always accurate - prices may be manipulated
+ * to show false profit opportunities, reflecting the unreliable nature
+ * of black market intelligence.
  */
-export const INTELLIGENCE_PRICES = {
-  RECENT_VISIT: 50, // System visited within RECENT_THRESHOLD days
-  NEVER_VISITED: 100, // System never visited
-  STALE_VISIT: 75, // System visited more than RECENT_THRESHOLD days ago
-  RUMOR: 25, // Market rumor/hint
+export const INTELLIGENCE_CONFIG = {
+  PRICES: {
+    RECENT_VISIT: 50, // System visited within RECENT_THRESHOLD days
+    NEVER_VISITED: 100, // System never visited
+    STALE_VISIT: 75, // System visited more than RECENT_THRESHOLD days ago
+    RUMOR: 25, // Market rumor/hint
+  },
+  RECENT_THRESHOLD: 30, // Days before price knowledge is considered stale
+  MAX_AGE: 100, // Days before purchased intelligence is automatically deleted
+  RELIABILITY: {
+    MANIPULATION_CHANCE: 0.1, // Probability that a commodity price will be manipulated
+    MIN_MANIPULATION_MULTIPLIER: 0.7, // Lower multiplier = appears cheaper to buy
+    MAX_MANIPULATION_MULTIPLIER: 0.85, // Upper multiplier for manipulated prices
+  },
 };
 
 /**
- * Time threshold for considering intelligence "recent"
- *
- * Price knowledge older than this many days is considered stale
- * and costs more to refresh via the information broker.
- */
-export const INTELLIGENCE_RECENT_THRESHOLD = 30;
-
-/**
- * Intelligence reliability configuration
- *
- * The information broker's data is not always accurate. Sometimes prices
- * are manipulated to show false profit opportunities, reflecting the
- * unreliable nature of black market intelligence.
- */
-export const INTELLIGENCE_RELIABILITY = {
-  // Probability that a commodity price will be manipulated (0.0 to 1.0)
-  MANIPULATION_CHANCE: 0.1,
-
-  // Multiplier range for manipulated prices (makes them appear more profitable)
-  // Lower multiplier = appears cheaper to buy (false buying opportunity)
-  MIN_MANIPULATION_MULTIPLIER: 0.7,
-  MAX_MANIPULATION_MULTIPLIER: 0.85,
-};
-
-/**
- * Maximum age for purchased intelligence data
- *
- * Market data older than this many days is automatically deleted
- * to prevent stale information from cluttering the player's knowledge base.
- */
-export const INTELLIGENCE_MAX_AGE = 100;
-
-/**
- * Fuel pricing configuration by system distance from Sol
+ * Fuel Pricing Configuration
  *
  * Pricing tiers reflect supply chain logistics:
  * - Core systems (Sol, Alpha Centauri): Abundant fuel infrastructure
+ * - Inner systems (<4.5 LY, non-core): Close to Sol infrastructure
  * - Mid-range systems (4.5-10 LY): Moderate supply chains
  * - Outer systems (≥10 LY): Remote, expensive logistics
- * - Inner systems (<4.5 LY, non-core): Close to Sol infrastructure
  */
-export const FUEL_PRICING = {
+export const FUEL_PRICING_CONFIG = {
   CORE_SYSTEMS: {
     IDS: [SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID],
-    PRICE: 2,
+    PRICE_PER_PERCENT: 2,
   },
-  MID_RANGE: {
-    MIN_DISTANCE: 4.5,
-    MAX_DISTANCE: 10,
-    PRICE: 3,
+  INNER_SYSTEMS: {
+    DISTANCE_THRESHOLD: 4.5, // Systems < 4.5 LY (excluding core)
+    PRICE_PER_PERCENT: 3,
   },
-  OUTER: {
-    MIN_DISTANCE: 10,
-    PRICE: 4,
+  MID_RANGE_SYSTEMS: {
+    DISTANCE_THRESHOLD: 10.0, // Systems >= 4.5 and < 10 LY
+    PRICE_PER_PERCENT: 3,
   },
-  INNER: {
-    PRICE: 2, // Systems < 4.5 LY (excluding core)
+  OUTER_SYSTEMS: {
+    PRICE_PER_PERCENT: 5,
   },
 };
 
 /**
- * Coordinate scale factor for converting map units to light-years
+ * Navigation Configuration
  *
- * The starmap coordinates are stored in arbitrary map units, not "light-years × 10".
- * The catalog includes stars out to 20 light-years from Sol.
- * The farthest star (Wolf 1481) has a radius of ~279.319 map units.
- * Therefore: 1 map unit ≈ 20 / 279.319 ≈ 0.0716027 light-years
+ * Configuration for navigation calculations including coordinate scaling
+ * and fuel capacity validation.
  */
-export const LY_PER_UNIT = 20 / 279.3190870671033;
+export const NAVIGATION_CONFIG = {
+  // Coordinate scale factor for converting map units to light-years
+  // The starmap coordinates are stored in arbitrary map units.
+  // The catalog includes stars out to 20 light-years from Sol.
+  // The farthest star (Wolf 1481) has a radius of ~279.319 map units.
+  // Therefore: 1 map unit ≈ 20 / 279.319 ≈ 0.0716027 light-years
+  LY_PER_UNIT: 20 / 279.3190870671033,
+
+  // Floating-point epsilon for fuel capacity checks
+  // Allows for minor floating-point arithmetic errors when validating
+  // refuel amounts against the 100% capacity limit
+  FUEL_CAPACITY_EPSILON: 0.01,
+};
 
 /**
  * Calculate distance from Sol to a star system
@@ -157,81 +141,185 @@ export const LY_PER_UNIT = 20 / 279.3190870671033;
  */
 export function calculateDistanceFromSol(system) {
   const r = Math.hypot(system.x, system.y, system.z);
-  return r * LY_PER_UNIT;
+  return r * NAVIGATION_CONFIG.LY_PER_UNIT;
 }
 
 /**
- * Ship condition degradation rates
+ * Ship Configuration
  *
- * Degradation occurs during jumps to simulate wear and tear from wormhole transit.
- * Rates are calibrated to create meaningful maintenance costs without being punishing:
- * - Hull degrades fastest (structural stress from transit)
- * - Engine degrades moderately (propulsion system wear)
- * - Life support degrades slowly over time (consumables depletion)
+ * Configuration for ship properties, degradation, condition management,
+ * quirks, and upgrades.
  */
-export const SHIP_DEGRADATION = {
-  HULL_PER_JUMP: 2, // Percentage points lost per jump
-  ENGINE_PER_JUMP: 1, // Percentage points lost per jump
-  LIFE_SUPPORT_PER_DAY: 0.5, // Percentage points lost per day traveled
+export const SHIP_CONFIG = {
+  DEFAULT_NAME: 'Serendipity',
+  NAME_SUGGESTIONS: [
+    'Serendipity',
+    'Lucky Break',
+    'Second Chance',
+    'Wanderer',
+    'Free Spirit',
+    "Horizon's Edge",
+    'Stardust Runner',
+    'Cosmic Drifter',
+  ],
+  FUEL_CAPACITY: 100,
+  CARGO_CAPACITY: 100,
+  DEGRADATION: {
+    HULL_PER_JUMP: 2, // Percentage points lost per jump
+    ENGINE_PER_JUMP: 1, // Percentage points lost per jump
+    LIFE_SUPPORT_PER_DAY: 0.5, // Percentage points lost per day traveled
+  },
+  CONDITION_BOUNDS: {
+    MIN: 0,
+    MAX: 100,
+  },
+  CONDITION_WARNING_THRESHOLDS: {
+    HULL: 50,
+    ENGINE: 30,
+    LIFE_SUPPORT: 20,
+  },
+  ENGINE_CONDITION_PENALTIES: {
+    THRESHOLD: 60, // Percentage below which penalties apply
+    FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption
+    TIME_PENALTY_DAYS: 1, // Additional days added to jump time
+  },
+  QUIRKS: {
+    sticky_seal: {
+      name: 'Sticky Cargo Seal',
+      description: 'The main cargo hatch sticks. Every. Single. Time.',
+      effects: {
+        loadingTime: 1.1, // +10% slower (future use)
+        theftRisk: 0.95, // -5% theft risk (future use)
+      },
+      flavor: "You've learned to kick it in just the right spot.",
+    },
+    hot_thruster: {
+      name: 'Hot Thruster',
+      description: 'Port thruster runs hot. Burns extra fuel but responsive.',
+      effects: {
+        fuelConsumption: 1.05, // +5% fuel use
+      },
+      flavor: "The engineers say it's 'within tolerances.' Barely.",
+    },
+    sensitive_sensors: {
+      name: 'Sensitive Sensors',
+      description:
+        'Sensor array picks up everything. Including false positives.',
+      effects: {
+        salvageDetection: 1.15, // +15% salvage (future use)
+        falseAlarms: 1.1, // +10% false alarms (future use)
+      },
+      flavor: "You've learned to tell the difference. Mostly.",
+    },
+    cramped_quarters: {
+      name: 'Cramped Quarters',
+      description: 'Living space is... cozy. Very cozy.',
+      effects: {
+        lifeSupportDrain: 0.9, // -10% drain
+      },
+      flavor: "At least you don't have to share.",
+    },
+    lucky_ship: {
+      name: 'Lucky Ship',
+      description: 'This ship has a history of beating the odds.',
+      effects: {
+        negateEventChance: 0.05, // 5% to negate bad events (future use)
+      },
+      flavor: 'Knock on hull plating.',
+    },
+    fuel_sipper: {
+      name: 'Fuel Sipper',
+      description: 'Efficient drive core. Previous owner was meticulous.',
+      effects: {
+        fuelConsumption: 0.85, // -15% fuel use
+      },
+      flavor: 'One of the few things that actually works better than spec.',
+    },
+    leaky_seals: {
+      name: 'Leaky Seals',
+      description: "Hull seals aren't quite right. Slow degradation.",
+      effects: {
+        hullDegradation: 1.5, // +50% hull damage
+      },
+      flavor: "You can hear the whistle when you're in the cargo bay.",
+    },
+    smooth_talker: {
+      name: "Smooth Talker's Ride",
+      description: 'Previous owner had a reputation. It rubs off.',
+      effects: {
+        npcRepGain: 1.05, // +5% reputation gains (future use)
+      },
+      flavor: 'People remember this ship. Usually fondly.',
+    },
+  },
+  UPGRADES: {
+    extended_tank: {
+      name: 'Extended Fuel Tank',
+      cost: 3000,
+      description: 'Increases fuel capacity by 50%',
+      effects: {
+        fuelCapacity: 150, // Up from 100
+      },
+      tradeoff: 'Larger tank is more vulnerable to weapons fire.',
+    },
+    reinforced_hull: {
+      name: 'Reinforced Hull Plating',
+      cost: 5000,
+      description: 'Reduces hull degradation by 50%',
+      effects: {
+        hullDegradation: 0.5, // Half degradation
+        cargoCapacity: 45, // Down from 50
+      },
+      tradeoff: 'Extra plating takes up cargo space.',
+    },
+    efficient_drive: {
+      name: 'Efficient Drive System',
+      cost: 4000,
+      description: 'Reduces fuel consumption by 20%',
+      effects: {
+        fuelConsumption: 0.8, // -20% fuel use
+      },
+      tradeoff: 'Optimized for efficiency, not speed.',
+    },
+    expanded_hold: {
+      name: 'Expanded Cargo Hold',
+      cost: 6000,
+      description: 'Increases cargo capacity by 50%',
+      effects: {
+        cargoCapacity: 75, // Up from 50
+      },
+      tradeoff: 'Heavier ship is less maneuverable.',
+    },
+    smuggler_panels: {
+      name: "Smuggler's Panels",
+      cost: 4500,
+      description: 'Hidden cargo compartment (10 units)',
+      effects: {
+        hiddenCargoCapacity: 10,
+      },
+      tradeoff: 'If discovered, reputation loss with authorities.',
+    },
+    advanced_sensors: {
+      name: 'Advanced Sensor Array',
+      cost: 3500,
+      description: 'See economic events one jump ahead',
+      effects: {
+        eventVisibility: 1, // Can see events in connected systems
+      },
+      tradeoff: 'None',
+    },
+    medical_bay: {
+      name: 'Medical Bay',
+      cost: 2500,
+      description: 'Slower life support degradation',
+      effects: {
+        lifeSupportDrain: 0.7, // -30% drain
+        cargoCapacity: 45, // Down from 50
+      },
+      tradeoff: 'Takes up cargo space.',
+    },
+  },
 };
-
-/**
- * Ship condition bounds
- *
- * All condition values are clamped to this range to prevent invalid states.
- */
-export const SHIP_CONDITION_BOUNDS = {
-  MIN: 0,
-  MAX: 100,
-};
-
-/**
- * Engine condition performance penalties
- *
- * When engine condition falls below the threshold, performance degrades:
- * - Fuel consumption increases (less efficient propulsion)
- * - Jump time increases (slower wormhole transit)
- *
- * Threshold set at 60% to create a meaningful "yellow zone" where players
- * must decide between continuing with penalties or spending credits on repairs.
- * Penalties (20% fuel increase, +1 day travel time) are calibrated to be
- * noticeable but not crippling.
- */
-export const ENGINE_CONDITION_PENALTIES = {
-  THRESHOLD: 60, // Percentage below which penalties apply
-  FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption
-  TIME_PENALTY_DAYS: 1, // Additional day added to jump time
-};
-
-/**
- * Ship repair cost per percentage point restored
- *
- * Repair costs are linear: ₡5 per 1% restored for any ship system.
- * Example: Repairing hull from 78% to 100% costs ₡110 (22% × ₡5)
- */
-export const REPAIR_COST_PER_PERCENT = 5;
-
-/**
- * Ship condition warning thresholds
- *
- * Warnings are displayed when ship systems fall below these thresholds:
- * - Hull < 50%: Risk of cargo loss during jumps
- * - Engine < 30%: Jump failure risk - immediate repairs recommended
- * - Life Support < 20%: Critical condition - urgent repairs required
- */
-export const SHIP_CONDITION_WARNING_THRESHOLDS = {
-  HULL: 50,
-  ENGINE: 30,
-  LIFE_SUPPORT: 20,
-};
-
-/**
- * Floating-point epsilon for fuel capacity checks
- *
- * Allows for minor floating-point arithmetic errors when validating
- * refuel amounts against the 100% capacity limit.
- */
-export const FUEL_CAPACITY_EPSILON = 0.01;
 
 /**
  * Deterministic Economy Configuration
@@ -279,189 +367,15 @@ export const ECONOMY_CONFIG = {
 };
 
 /**
- * Ship quirks - Permanent personality traits assigned at game start
+ * Repair Configuration
  *
- * Each ship receives 2-3 random quirks that provide both benefits and drawbacks.
- * Quirks create unique ship personalities and affect gameplay mechanics.
- * Effects are multiplicative modifiers (0.85 = -15%, 1.15 = +15%).
+ * Configuration for ship repair costs.
  */
-export const SHIP_QUIRKS = {
-  sticky_seal: {
-    name: 'Sticky Cargo Seal',
-    description: 'The main cargo hatch sticks. Every. Single. Time.',
-    effects: {
-      loadingTime: 1.1, // +10% slower (future use)
-      theftRisk: 0.95, // -5% theft risk (future use)
-    },
-    flavor: "You've learned to kick it in just the right spot.",
-  },
-
-  hot_thruster: {
-    name: 'Hot Thruster',
-    description: 'Port thruster runs hot. Burns extra fuel but responsive.',
-    effects: {
-      fuelConsumption: 1.05, // +5% fuel use
-    },
-    flavor: "The engineers say it's 'within tolerances.' Barely.",
-  },
-
-  sensitive_sensors: {
-    name: 'Sensitive Sensors',
-    description: 'Sensor array picks up everything. Including false positives.',
-    effects: {
-      salvageDetection: 1.15, // +15% salvage (future use)
-      falseAlarms: 1.1, // +10% false alarms (future use)
-    },
-    flavor: "You've learned to tell the difference. Mostly.",
-  },
-
-  cramped_quarters: {
-    name: 'Cramped Quarters',
-    description: 'Living space is... cozy. Very cozy.',
-    effects: {
-      lifeSupportDrain: 0.9, // -10% drain
-    },
-    flavor: "At least you don't have to share.",
-  },
-
-  lucky_ship: {
-    name: 'Lucky Ship',
-    description: 'This ship has a history of beating the odds.',
-    effects: {
-      negateEventChance: 0.05, // 5% to negate bad events (future use)
-    },
-    flavor: 'Knock on hull plating.',
-  },
-
-  fuel_sipper: {
-    name: 'Fuel Sipper',
-    description: 'Efficient drive core. Previous owner was meticulous.',
-    effects: {
-      fuelConsumption: 0.85, // -15% fuel use
-    },
-    flavor: 'One of the few things that actually works better than spec.',
-  },
-
-  leaky_seals: {
-    name: 'Leaky Seals',
-    description: "Hull seals aren't quite right. Slow degradation.",
-    effects: {
-      hullDegradation: 1.5, // +50% hull damage
-    },
-    flavor: "You can hear the whistle when you're in the cargo bay.",
-  },
-
-  smooth_talker: {
-    name: "Smooth Talker's Ride",
-    description: 'Previous owner had a reputation. It rubs off.',
-    effects: {
-      npcRepGain: 1.05, // +5% reputation gains (future use)
-    },
-    flavor: 'People remember this ship. Usually fondly.',
-  },
+export const REPAIR_CONFIG = {
+  // Repair costs are linear: ₡5 per 1% restored for any ship system
+  // Example: Repairing hull from 78% to 100% costs ₡110 (22% × ₡5)
+  COST_PER_PERCENT: 5,
 };
-
-/**
- * Ship upgrades - Purchasable permanent modifications with tradeoffs
- *
- * Upgrades provide meaningful benefits but come with explicit costs or drawbacks.
- * All upgrades are permanent and cannot be removed once purchased.
- * Effects use absolute values for capacities and multipliers for rates.
- */
-export const SHIP_UPGRADES = {
-  extended_tank: {
-    name: 'Extended Fuel Tank',
-    cost: 3000,
-    description: 'Increases fuel capacity by 50%',
-    effects: {
-      fuelCapacity: 150, // Up from 100
-    },
-    tradeoff: 'Larger tank is more vulnerable to weapons fire.',
-  },
-
-  reinforced_hull: {
-    name: 'Reinforced Hull Plating',
-    cost: 5000,
-    description: 'Reduces hull degradation by 50%',
-    effects: {
-      hullDegradation: 0.5, // Half degradation
-      cargoCapacity: 45, // Down from 50
-    },
-    tradeoff: 'Extra plating takes up cargo space.',
-  },
-
-  efficient_drive: {
-    name: 'Efficient Drive System',
-    cost: 4000,
-    description: 'Reduces fuel consumption by 20%',
-    effects: {
-      fuelConsumption: 0.8, // -20% fuel use
-    },
-    tradeoff: 'Optimized for efficiency, not speed.',
-  },
-
-  expanded_hold: {
-    name: 'Expanded Cargo Hold',
-    cost: 6000,
-    description: 'Increases cargo capacity by 50%',
-    effects: {
-      cargoCapacity: 75, // Up from 50
-    },
-    tradeoff: 'Heavier ship is less maneuverable.',
-  },
-
-  smuggler_panels: {
-    name: "Smuggler's Panels",
-    cost: 4500,
-    description: 'Hidden cargo compartment (10 units)',
-    effects: {
-      hiddenCargoCapacity: 10,
-    },
-    tradeoff: 'If discovered, reputation loss with authorities.',
-  },
-
-  advanced_sensors: {
-    name: 'Advanced Sensor Array',
-    cost: 3500,
-    description: 'See economic events one jump ahead',
-    effects: {
-      eventVisibility: 1, // Can see events in connected systems
-    },
-    tradeoff: 'None',
-  },
-
-  medical_bay: {
-    name: 'Medical Bay',
-    cost: 2500,
-    description: 'Slower life support degradation',
-    effects: {
-      lifeSupportDrain: 0.7, // -30% drain
-      cargoCapacity: 45, // Down from 50
-    },
-    tradeoff: 'Takes up cargo space.',
-  },
-};
-
-/**
- * Default ship name used when player doesn't provide a custom name
- */
-export const DEFAULT_SHIP_NAME = 'Serendipity';
-
-/**
- * Suggested ship names for player inspiration during game creation
- *
- * Names evoke themes of wandering, fortune, and the tramp freighter lifestyle.
- */
-export const SHIP_NAME_SUGGESTIONS = [
-  'Serendipity',
-  'Lucky Break',
-  'Second Chance',
-  'Wanderer',
-  'Free Spirit',
-  "Horizon's Edge",
-  'Stardust Runner',
-  'Cosmic Drifter',
-];
 
 /**
  * New game initialization values
@@ -471,7 +385,7 @@ export const NEW_GAME_DEFAULTS = {
   STARTING_DEBT: 10000,
   STARTING_CARGO_CAPACITY: 50,
   STARTING_GRAIN_QUANTITY: 20,
-  STARTING_SHIP_NAME: DEFAULT_SHIP_NAME,
+  STARTING_SHIP_NAME: SHIP_CONFIG.DEFAULT_NAME,
 };
 
 /**

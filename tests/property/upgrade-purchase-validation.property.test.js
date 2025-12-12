@@ -3,7 +3,7 @@
 import { describe, it, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_UPGRADES } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 /**
@@ -27,7 +27,7 @@ describe('Property Test: Upgrade Purchase Validation', () => {
   it('should reject already purchased upgrades', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         (upgradeId) => {
           // Add upgrade to ship
           gameStateManager.state.ship.upgrades.push(upgradeId);
@@ -48,9 +48,9 @@ describe('Property Test: Upgrade Purchase Validation', () => {
   it('should reject purchases with insufficient credits', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         (upgradeId) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Set credits below upgrade cost
           gameStateManager.state.player.credits = upgrade.cost - 1;
@@ -77,10 +77,10 @@ describe('Property Test: Upgrade Purchase Validation', () => {
   it('should accept valid purchases', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         fc.integer({ min: 0, max: 100000 }),
         (upgradeId, extraCredits) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Set credits to exactly enough or more
           gameStateManager.state.player.credits = upgrade.cost + extraCredits;

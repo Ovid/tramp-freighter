@@ -4,10 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
-import {
-  SHIP_CONDITION_BOUNDS,
-  REPAIR_COST_PER_PERCENT,
-} from '../../js/game-constants.js';
+import { SHIP_CONFIG, REPAIR_CONFIG } from '../../js/game-constants.js';
 
 // Feature: dynamic-economy, Property 26: Repair Interface Display Completeness
 // Validates: Requirements 7.2, 7.3, 7.4
@@ -70,16 +67,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -136,16 +133,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -185,16 +182,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
         }),
         (condition) => {
@@ -224,7 +221,7 @@ describe('Property: Repair Interface Display Completeness', () => {
                 `.repair-btn[data-system="${type}"][data-amount="${amount}"]`
               );
 
-              const expectedCost = amount * REPAIR_COST_PER_PERCENT;
+              const expectedCost = amount * REPAIR_CONFIG.COST_PER_PERCENT;
               expect(button.textContent).toContain(`₡${expectedCost}`);
             });
 
@@ -232,8 +229,9 @@ describe('Property: Repair Interface Display Completeness', () => {
             const fullButton = document.querySelector(
               `.repair-btn[data-system="${type}"][data-amount="full"]`
             );
-            const fullAmount = SHIP_CONDITION_BOUNDS.MAX - current;
-            const expectedFullCost = fullAmount * REPAIR_COST_PER_PERCENT;
+            const fullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - current;
+            const expectedFullCost =
+              fullAmount * REPAIR_CONFIG.COST_PER_PERCENT;
             expect(fullButton.textContent).toContain(`₡${expectedFullCost}`);
           });
         }
@@ -252,10 +250,14 @@ describe('Property: Repair Interface Display Completeness', () => {
 
           // Set one system to max, others to less than max
           const condition = {
-            hull: systemAtMax === 'hull' ? SHIP_CONDITION_BOUNDS.MAX : 50,
-            engine: systemAtMax === 'engine' ? SHIP_CONDITION_BOUNDS.MAX : 50,
+            hull:
+              systemAtMax === 'hull' ? SHIP_CONFIG.CONDITION_BOUNDS.MAX : 50,
+            engine:
+              systemAtMax === 'engine' ? SHIP_CONFIG.CONDITION_BOUNDS.MAX : 50,
             lifeSupport:
-              systemAtMax === 'lifeSupport' ? SHIP_CONDITION_BOUNDS.MAX : 50,
+              systemAtMax === 'lifeSupport'
+                ? SHIP_CONFIG.CONDITION_BOUNDS.MAX
+                : 50,
           };
 
           gameStateManager.updateShipCondition(

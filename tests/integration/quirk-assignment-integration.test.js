@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_QUIRKS } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
 
 // Mock star data for testing
 const mockStarData = [
@@ -44,7 +44,7 @@ describe('Quirk Assignment Integration', () => {
 
     // Verify all quirks exist in SHIP_QUIRKS
     for (const quirkId of state.ship.quirks) {
-      expect(SHIP_QUIRKS[quirkId]).toBeDefined();
+      expect(SHIP_CONFIG.QUIRKS[quirkId]).toBeDefined();
     }
   });
 

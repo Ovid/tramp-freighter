@@ -3,7 +3,9 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { sanitizeShipName } from '../../js/game-state.js';
-import { DEFAULT_SHIP_NAME } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
+
+const DEFAULT_SHIP_NAME = SHIP_CONFIG.DEFAULT_NAME;
 
 /**
  * Property-Based Tests for Ship Name Sanitization

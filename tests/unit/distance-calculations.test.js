@@ -1,14 +1,14 @@
 /**
  * Distance Calculation Tests
  *
- * Verifies that distance calculations use the correct LY_PER_UNIT scale factor
+ * Verifies that distance calculations use the correct NAVIGATION_CONFIG.LY_PER_UNIT scale factor
  * and that all stars in the catalog are within the expected 20 light-year radius.
  */
 
 import { describe, it, expect } from 'vitest';
 import {
   calculateDistanceFromSol,
-  LY_PER_UNIT,
+  NAVIGATION_CONFIG,
 } from '../../js/game-constants.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 
@@ -70,14 +70,14 @@ const TEST_STAR_DATA = [
 ];
 
 describe('Distance Calculations', () => {
-  describe('LY_PER_UNIT constant', () => {
+  describe('NAVIGATION_CONFIG.LY_PER_UNIT constant', () => {
     it('should be approximately 0.0716027', () => {
-      expect(LY_PER_UNIT).toBeCloseTo(0.0716027, 6);
+      expect(NAVIGATION_CONFIG.LY_PER_UNIT).toBeCloseTo(0.0716027, 6);
     });
 
     it('should equal 20 / 279.319', () => {
       const expected = 20 / 279.3190870671033;
-      expect(LY_PER_UNIT).toBe(expected);
+      expect(NAVIGATION_CONFIG.LY_PER_UNIT).toBe(expected);
     });
   });
 
@@ -207,7 +207,7 @@ describe('Distance Calculations', () => {
   });
 
   describe('Old vs New calculation comparison', () => {
-    it('should show the difference between old (÷10) and new (×LY_PER_UNIT) methods', () => {
+    it('should show the difference between old (÷10) and new (×NAVIGATION_CONFIG.LY_PER_UNIT) methods', () => {
       const alphaCen = TEST_STAR_DATA.find(
         (s) => s.name === 'Alpha Centauri A'
       );

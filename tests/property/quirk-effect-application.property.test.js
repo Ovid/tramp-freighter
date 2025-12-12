@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_QUIRKS } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Quirk Effect Application - Property Tests', () => {
@@ -15,9 +15,9 @@ describe('Quirk Effect Application - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 1
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 2
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 3
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 1
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 2
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 3
         fc.constantFrom(
           'fuelConsumption',
           'hullDegradation',
@@ -43,7 +43,7 @@ describe('Quirk Effect Application - Property Tests', () => {
           // Calculate expected result by manually applying all modifiers
           let expected = baseValue;
           for (const quirkId of quirks) {
-            const quirk = SHIP_QUIRKS[quirkId];
+            const quirk = SHIP_CONFIG.QUIRKS[quirkId];
             if (quirk && quirk.effects[shipCharacteristic]) {
               expected *= quirk.effects[shipCharacteristic];
             }
@@ -67,8 +67,8 @@ describe('Quirk Effect Application - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 1
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 2
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 1
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 2
         (baseValue, quirkId1, quirkId2) => {
           const quirks = [quirkId1, quirkId2];
 

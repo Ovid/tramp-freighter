@@ -2,20 +2,16 @@
 
 import {
   COMMODITY_TYPES,
-  FUEL_PRICING,
+  FUEL_PRICING_CONFIG,
+  NAVIGATION_CONFIG,
+  REPAIR_CONFIG,
+  SHIP_CONFIG,
   calculateDistanceFromSol,
   SOL_SYSTEM_ID,
   GAME_VERSION,
   SAVE_KEY,
-  FUEL_CAPACITY_EPSILON,
-  REPAIR_COST_PER_PERCENT,
-  SHIP_CONDITION_BOUNDS,
-  SHIP_CONDITION_WARNING_THRESHOLDS,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
-  SHIP_QUIRKS,
-  SHIP_UPGRADES,
-  DEFAULT_SHIP_NAME,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
@@ -38,7 +34,7 @@ const SAVE_DEBOUNCE_MS = 1000;
  */
 export function sanitizeShipName(name) {
   if (!name || name.trim().length === 0) {
-    return DEFAULT_SHIP_NAME;
+    return SHIP_CONFIG.DEFAULT_NAME;
   }
 
   // Remove HTML tags, limit length, then trim (order matters for edge cases)
@@ -47,7 +43,7 @@ export function sanitizeShipName(name) {
     .substring(0, 50)
     .trim();
 
-  return sanitized || DEFAULT_SHIP_NAME;
+  return sanitized || SHIP_CONFIG.DEFAULT_NAME;
 }
 
 /**
@@ -105,7 +101,7 @@ export class GameStateManager {
    * @returns {string[]} Array of quirk IDs
    */
   assignShipQuirks(rng = Math.random) {
-    const quirkIds = Object.keys(SHIP_QUIRKS);
+    const quirkIds = Object.keys(SHIP_CONFIG.QUIRKS);
     const count = rng() < 0.5 ? 2 : 3;
     const assigned = new Set();
 
@@ -138,12 +134,12 @@ export class GameStateManager {
     let modified = baseValue;
 
     for (const quirkId of quirks) {
-      const quirk = SHIP_QUIRKS[quirkId];
+      const quirk = SHIP_CONFIG.QUIRKS[quirkId];
 
       // If quirk doesn't exist, this is a critical bug - fail loudly
       if (!quirk) {
         throw new Error(
-          `Invalid quirk ID: ${quirkId} not found in SHIP_QUIRKS`
+          `Invalid quirk ID: ${quirkId} not found in SHIP_CONFIG.QUIRKS`
         );
       }
 
@@ -159,14 +155,14 @@ export class GameStateManager {
   /**
    * Get quirk definition by ID
    *
-   * Returns the quirk definition object from SHIP_QUIRKS constant.
+   * Returns the quirk definition object from SHIP_CONFIG.QUIRKS constant.
    * Used by UI to display quirk information.
    *
    * @param {string} quirkId - Quirk identifier
    * @returns {Object|null} Quirk definition or null if not found
    */
   getQuirkDefinition(quirkId) {
-    return SHIP_QUIRKS[quirkId] || null;
+    return SHIP_CONFIG.QUIRKS[quirkId] || null;
   }
 
   /**
@@ -212,10 +208,10 @@ export class GameStateManager {
         name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
         quirks: shipQuirks,
         upgrades: [],
-        fuel: SHIP_CONDITION_BOUNDS.MAX,
-        hull: SHIP_CONDITION_BOUNDS.MAX,
-        engine: SHIP_CONDITION_BOUNDS.MAX,
-        lifeSupport: SHIP_CONDITION_BOUNDS.MAX,
+        fuel: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+        hull: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+        engine: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+        lifeSupport: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
         cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
         cargo: [
           {
@@ -441,7 +437,7 @@ export class GameStateManager {
     const warnings = [];
 
     // Hull integrity affects cargo safety during jumps
-    if (condition.hull < SHIP_CONDITION_WARNING_THRESHOLDS.HULL) {
+    if (condition.hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL) {
       warnings.push({
         system: 'hull',
         message: 'Risk of cargo loss during jumps',
@@ -450,7 +446,7 @@ export class GameStateManager {
     }
 
     // Engine degradation increases fuel consumption and travel time
-    if (condition.engine < SHIP_CONDITION_WARNING_THRESHOLDS.ENGINE) {
+    if (condition.engine < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE) {
       warnings.push({
         system: 'engine',
         message: 'Jump failure risk - immediate repairs recommended',
@@ -460,7 +456,8 @@ export class GameStateManager {
 
     // Life support failure is catastrophic
     if (
-      condition.lifeSupport < SHIP_CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
+      condition.lifeSupport <
+      SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
     ) {
       warnings.push({
         system: 'lifeSupport',
@@ -531,9 +528,9 @@ export class GameStateManager {
   updateFuel(newFuel) {
     const maxFuel = this.getFuelCapacity();
 
-    if (newFuel < SHIP_CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
+    if (newFuel < SHIP_CONFIG.CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
       throw new Error(
-        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONDITION_BOUNDS.MIN} and ${maxFuel}.`
+        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONFIG.CONDITION_BOUNDS.MIN} and ${maxFuel}.`
       );
     }
 
@@ -603,16 +600,16 @@ export class GameStateManager {
   updateShipCondition(hull, engine, lifeSupport) {
     // Clamp all values to valid range
     this.state.ship.hull = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, hull)
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, hull)
     );
     this.state.ship.engine = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, engine)
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, engine)
     );
     this.state.ship.lifeSupport = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, lifeSupport)
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, lifeSupport)
     );
 
     this.emit('shipConditionChanged', {
@@ -1112,29 +1109,30 @@ export class GameStateManager {
    * @returns {number} Fuel price per percentage point
    */
   getFuelPrice(systemId) {
-    if (FUEL_PRICING.CORE_SYSTEMS.IDS.includes(systemId)) {
-      return FUEL_PRICING.CORE_SYSTEMS.PRICE;
+    if (FUEL_PRICING_CONFIG.CORE_SYSTEMS.IDS.includes(systemId)) {
+      return FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT;
     }
 
     const system = this.starData.find((s) => s.id === systemId);
     if (!system) {
-      return FUEL_PRICING.MID_RANGE.PRICE;
+      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
     }
 
     const distanceFromSol = calculateDistanceFromSol(system);
 
     if (
-      distanceFromSol >= FUEL_PRICING.MID_RANGE.MIN_DISTANCE &&
-      distanceFromSol < FUEL_PRICING.MID_RANGE.MAX_DISTANCE
+      distanceFromSol < FUEL_PRICING_CONFIG.INNER_SYSTEMS.DISTANCE_THRESHOLD
     ) {
-      return FUEL_PRICING.MID_RANGE.PRICE;
+      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
     }
 
-    if (distanceFromSol >= FUEL_PRICING.OUTER.MIN_DISTANCE) {
-      return FUEL_PRICING.OUTER.PRICE;
+    if (
+      distanceFromSol < FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.DISTANCE_THRESHOLD
+    ) {
+      return FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.PRICE_PER_PERCENT;
     }
 
-    return FUEL_PRICING.INNER.PRICE;
+    return FUEL_PRICING_CONFIG.OUTER_SYSTEMS.PRICE_PER_PERCENT;
   }
 
   /**
@@ -1155,7 +1153,10 @@ export class GameStateManager {
 
     // Check capacity constraint
     // Use epsilon for floating point comparison
-    if (currentFuel + amount > maxFuel + FUEL_CAPACITY_EPSILON) {
+    if (
+      currentFuel + amount >
+      maxFuel + NAVIGATION_CONFIG.FUEL_CAPACITY_EPSILON
+    ) {
       return {
         valid: false,
         reason: `Cannot refuel beyond ${maxFuel}% capacity`,
@@ -1242,12 +1243,12 @@ export class GameStateManager {
    */
   getRepairCost(systemType, amount, currentCondition) {
     // If already at max, no cost
-    if (currentCondition >= SHIP_CONDITION_BOUNDS.MAX) {
+    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
       return 0;
     }
 
     // Calculate cost at ₡5 per 1%
-    return amount * REPAIR_COST_PER_PERCENT;
+    return amount * REPAIR_CONFIG.COST_PER_PERCENT;
   }
 
   /**
@@ -1276,7 +1277,7 @@ export class GameStateManager {
     }
 
     // Check if system is already at maximum condition
-    if (currentCondition >= SHIP_CONDITION_BOUNDS.MAX) {
+    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
       return {
         valid: false,
         reason: 'System already at maximum condition',
@@ -1293,7 +1294,7 @@ export class GameStateManager {
     }
 
     // Check if repair would exceed maximum condition
-    if (currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX) {
+    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
       return {
         valid: false,
         reason: 'Repair would exceed maximum condition',
@@ -1389,7 +1390,7 @@ export class GameStateManager {
       );
     }
 
-    const upgrade = SHIP_UPGRADES[upgradeId];
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
     if (!upgrade) {
       return { valid: false, reason: 'Unknown upgrade' };
     }
@@ -1436,7 +1437,7 @@ export class GameStateManager {
       return { success: false, reason: validation.reason };
     }
 
-    const upgrade = SHIP_UPGRADES[upgradeId];
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
     // Deduct credits
     this.updateCredits(this.state.player.credits - upgrade.cost);
@@ -1480,7 +1481,7 @@ export class GameStateManager {
     }
 
     const capabilities = {
-      fuelCapacity: SHIP_CONDITION_BOUNDS.MAX,
+      fuelCapacity: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
       cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
       fuelConsumption: 1.0,
       hullDegradation: 1.0,
@@ -1491,7 +1492,7 @@ export class GameStateManager {
 
     // Apply upgrade effects
     for (const upgradeId of this.state.ship.upgrades) {
-      const upgrade = SHIP_UPGRADES[upgradeId];
+      const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
       // If upgrade doesn't exist, this is a critical bug - fail loudly
       if (!upgrade) {
@@ -1847,13 +1848,13 @@ export class GameStateManager {
       // Add defaults for missing Phase 2 fields (handles partial v2.0.0 saves)
       // This allows loading saves that pass validation but lack some optional fields
       if (loadedState.ship.hull === undefined) {
-        loadedState.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
+        loadedState.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
       }
       if (loadedState.ship.engine === undefined) {
-        loadedState.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
+        loadedState.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
       }
       if (loadedState.ship.lifeSupport === undefined) {
-        loadedState.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
+        loadedState.ship.lifeSupport = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
       }
       if (loadedState.ship.cargo && Array.isArray(loadedState.ship.cargo)) {
         loadedState.ship.cargo.forEach((stack) => {
@@ -1908,7 +1909,7 @@ export class GameStateManager {
       if (Array.isArray(loadedState.ship.quirks)) {
         const validQuirks = [];
         for (const quirkId of loadedState.ship.quirks) {
-          if (SHIP_QUIRKS[quirkId]) {
+          if (SHIP_CONFIG.QUIRKS[quirkId]) {
             validQuirks.push(quirkId);
           } else {
             console.warn(
@@ -1923,7 +1924,7 @@ export class GameStateManager {
       if (Array.isArray(loadedState.ship.upgrades)) {
         const validUpgrades = [];
         for (const upgradeId of loadedState.ship.upgrades) {
-          if (SHIP_UPGRADES[upgradeId]) {
+          if (SHIP_CONFIG.UPGRADES[upgradeId]) {
             validUpgrades.push(upgradeId);
           } else {
             console.warn(
@@ -2131,13 +2132,13 @@ export class GameStateManager {
 
     // Add ship condition fields (default to maximum)
     if (state.ship.hull === undefined) {
-      state.ship.hull = SHIP_CONDITION_BOUNDS.MAX;
+      state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
     }
     if (state.ship.engine === undefined) {
-      state.ship.engine = SHIP_CONDITION_BOUNDS.MAX;
+      state.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
     }
     if (state.ship.lifeSupport === undefined) {
-      state.ship.lifeSupport = SHIP_CONDITION_BOUNDS.MAX;
+      state.ship.lifeSupport = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
     }
 
     // Add cargo purchase metadata and migrate field names
@@ -2192,7 +2193,7 @@ export class GameStateManager {
     if (Array.isArray(state.ship.quirks)) {
       const validQuirks = [];
       for (const quirkId of state.ship.quirks) {
-        if (SHIP_QUIRKS[quirkId]) {
+        if (SHIP_CONFIG.QUIRKS[quirkId]) {
           validQuirks.push(quirkId);
         } else {
           console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
@@ -2205,7 +2206,7 @@ export class GameStateManager {
     if (Array.isArray(state.ship.upgrades)) {
       const validUpgrades = [];
       for (const upgradeId of state.ship.upgrades) {
-        if (SHIP_UPGRADES[upgradeId]) {
+        if (SHIP_CONFIG.UPGRADES[upgradeId]) {
           validUpgrades.push(upgradeId);
         } else {
           console.warn(

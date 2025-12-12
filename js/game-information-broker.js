@@ -1,10 +1,4 @@
-import {
-  COMMODITY_TYPES,
-  INTELLIGENCE_PRICES,
-  INTELLIGENCE_RECENT_THRESHOLD,
-  INTELLIGENCE_RELIABILITY,
-  INTELLIGENCE_MAX_AGE,
-} from './game-constants.js';
+import { COMMODITY_TYPES, INTELLIGENCE_CONFIG } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 import { SeededRandom } from './seeded-random.js';
 
@@ -27,16 +21,16 @@ export class InformationBroker {
 
     // Never visited
     if (!knowledge) {
-      return INTELLIGENCE_PRICES.NEVER_VISITED;
+      return INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED;
     }
 
     // Recently visited (within threshold)
-    if (knowledge.lastVisit <= INTELLIGENCE_RECENT_THRESHOLD) {
-      return INTELLIGENCE_PRICES.RECENT_VISIT;
+    if (knowledge.lastVisit <= INTELLIGENCE_CONFIG.RECENT_THRESHOLD) {
+      return INTELLIGENCE_CONFIG.PRICES.RECENT_VISIT;
     }
 
     // Stale visit (beyond threshold)
-    return INTELLIGENCE_PRICES.STALE_VISIT;
+    return INTELLIGENCE_CONFIG.PRICES.STALE_VISIT;
   }
 
   /**
@@ -95,12 +89,12 @@ export class InformationBroker {
 
       // Sometimes the intelligence is unreliable - prices are manipulated
       // to show false profit opportunities
-      if (rng.next() < INTELLIGENCE_RELIABILITY.MANIPULATION_CHANCE) {
+      if (rng.next() < INTELLIGENCE_CONFIG.RELIABILITY.MANIPULATION_CHANCE) {
         const manipulationMultiplier =
-          INTELLIGENCE_RELIABILITY.MIN_MANIPULATION_MULTIPLIER +
+          INTELLIGENCE_CONFIG.RELIABILITY.MIN_MANIPULATION_MULTIPLIER +
           rng.next() *
-            (INTELLIGENCE_RELIABILITY.MAX_MANIPULATION_MULTIPLIER -
-              INTELLIGENCE_RELIABILITY.MIN_MANIPULATION_MULTIPLIER);
+            (INTELLIGENCE_CONFIG.RELIABILITY.MAX_MANIPULATION_MULTIPLIER -
+              INTELLIGENCE_CONFIG.RELIABILITY.MIN_MANIPULATION_MULTIPLIER);
         price = Math.round(price * manipulationMultiplier);
       }
 
@@ -137,7 +131,7 @@ export class InformationBroker {
     for (const systemId in priceKnowledge) {
       const knowledge = priceKnowledge[systemId];
 
-      if (knowledge.lastVisit > INTELLIGENCE_MAX_AGE) {
+      if (knowledge.lastVisit > INTELLIGENCE_CONFIG.MAX_AGE) {
         delete priceKnowledge[systemId];
         cleanedCount++;
       }
@@ -303,7 +297,4 @@ export class InformationBroker {
 }
 
 // Re-export constants for testing convenience
-export {
-  INTELLIGENCE_PRICES as PRICES,
-  INTELLIGENCE_RECENT_THRESHOLD as RECENT_THRESHOLD,
-};
+export { INTELLIGENCE_CONFIG };

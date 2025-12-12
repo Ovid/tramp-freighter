@@ -13,7 +13,7 @@
   - Update starmap.js to import from js/data/ modules
   - _Requirements: 5.1, 5.2_
 
-- [ ] 3. Reorganize game constants into configuration objects
+- [x] 3. Reorganize game constants into configuration objects
   - Create SHIP_CONFIG object grouping ship-related constants
   - Create NAVIGATION_CONFIG object grouping navigation constants
   - Create REPAIR_CONFIG object for repair costs
@@ -23,7 +23,7 @@
   - Update all imports across codebase to use new config object paths
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
 
-- [ ] 3.1 Write example-based test for config object structure
+- [x] 3.1 Write example-based test for config object structure
   - **Example 2: Config Objects Exist**
   - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_QUIRKS } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Multiplicative Modifier Combination - Property Tests', () => {
@@ -15,9 +15,9 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 1
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 2
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 3
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 1
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 2
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 3
         fc.constantFrom(
           'fuelConsumption',
           'hullDegradation',
@@ -37,7 +37,7 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
           // Calculate product of all individual modifiers
           let product = 1.0;
           for (const quirkId of quirks) {
-            const quirk = SHIP_QUIRKS[quirkId];
+            const quirk = SHIP_CONFIG.QUIRKS[quirkId];
             if (quirk && quirk.effects[shipCharacteristic]) {
               product *= quirk.effects[shipCharacteristic];
             }
@@ -99,8 +99,8 @@ describe('Multiplicative Modifier Combination - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.double({ min: 1, max: 1000, noNaN: true }), // Base value
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 1
-        fc.constantFrom(...Object.keys(SHIP_QUIRKS)), // Random quirk 2
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 1
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), // Random quirk 2
         fc.constantFrom(
           'fuelConsumption',
           'hullDegradation',

@@ -6,7 +6,10 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { InformationBroker, PRICES } from '../../js/game-information-broker.js';
+import { InformationBroker } from '../../js/game-information-broker.js';
+import { INTELLIGENCE_CONFIG } from '../../js/game-constants.js';
+
+const PRICES = INTELLIGENCE_CONFIG.PRICES;
 
 describe('Property: Intelligence Purchase Validation', () => {
   it('should prevent purchase when player has insufficient credits', () => {

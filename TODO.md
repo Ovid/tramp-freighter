@@ -1,4 +1,6 @@
 - i18n?
+- COMMODITY_TYPES duplication
+- Ability to rename ship
 - X/Y/Z should be fixed for star data. Get more star info?
 - Admin process for adjusting data for testing
 - On jump, panel not always hidden.

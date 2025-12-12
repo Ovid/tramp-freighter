@@ -2,12 +2,10 @@
 
 import {
   calculateDistanceFromSol,
-  INTELLIGENCE_PRICES,
-  INTELLIGENCE_RECENT_THRESHOLD,
+  INTELLIGENCE_CONFIG,
   NOTIFICATION_CONFIG,
   COMMODITY_TYPES,
-  SHIP_CONDITION_BOUNDS,
-  SHIP_UPGRADES,
+  SHIP_CONFIG,
 } from './game-constants.js';
 import { TradingSystem } from './game-trading.js';
 
@@ -1516,12 +1514,12 @@ export class UIManager {
 
     const defaultAmount = Math.min(
       10,
-      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel)
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX - Math.round(currentFuel)
     );
     this.elements.refuelAmountInput.value =
       defaultAmount > 0 ? defaultAmount : 0;
     this.elements.refuelAmountInput.max =
-      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel);
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX - Math.round(currentFuel);
 
     this.updateRefuelCost();
 
@@ -1588,7 +1586,7 @@ export class UIManager {
     }
 
     const currentFuel = Math.round(state.ship.fuel);
-    const maxAmount = SHIP_CONDITION_BOUNDS.MAX - currentFuel;
+    const maxAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentFuel;
     const actualAmount = Math.min(amount, maxAmount);
 
     this.elements.refuelAmountInput.value = actualAmount > 0 ? actualAmount : 0;
@@ -1612,7 +1610,9 @@ export class UIManager {
     const maxAffordable = Math.floor(credits / fuelPrice);
 
     // Calculate max capacity amount
-    const maxCapacity = Math.floor(SHIP_CONDITION_BOUNDS.MAX - currentFuel);
+    const maxCapacity = Math.floor(
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentFuel
+    );
 
     // Use the smaller of the two
     const maxAmount = Math.min(maxAffordable, maxCapacity);
@@ -1785,7 +1785,7 @@ export class UIManager {
   updateRumorButton() {
     const state = this.gameStateManager.getState();
     const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_PRICES.RUMOR;
+    const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
 
     this.elements.buyRumorBtn.disabled = credits < rumorCost;
   }
@@ -1793,7 +1793,7 @@ export class UIManager {
   handleBuyRumor() {
     const state = this.gameStateManager.getState();
     const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_PRICES.RUMOR;
+    const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
 
     // Validate purchase
     if (credits < rumorCost) {
@@ -1839,7 +1839,7 @@ export class UIManager {
     const getIntelligencePriority = (option) => {
       if (option.lastVisit === null) return 0; // Never visited - highest priority
       if (option.lastVisit === 0) return 3; // Current - lowest priority (already have data)
-      if (option.lastVisit > INTELLIGENCE_RECENT_THRESHOLD) return 1; // Stale
+      if (option.lastVisit > INTELLIGENCE_CONFIG.RECENT_THRESHOLD) return 1; // Stale
       return 2; // Recent
     };
 
@@ -2054,7 +2054,7 @@ export class UIManager {
 
       if (amountStr === 'full') {
         // Full repair
-        amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
+        amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
         cost = this.gameStateManager.getRepairCost(
           systemType,
           amount,
@@ -2077,8 +2077,8 @@ export class UIManager {
       // - Not enough credits
       // - Would exceed max condition
       const wouldExceedMax =
-        currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX;
-      const atMax = currentCondition >= SHIP_CONDITION_BOUNDS.MAX;
+        currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX;
+      const atMax = currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
       const notEnoughCredits = credits < cost;
 
       btn.disabled = atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
@@ -2089,9 +2089,9 @@ export class UIManager {
     this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
 
     const allAtMax =
-      condition.hull >= SHIP_CONDITION_BOUNDS.MAX &&
-      condition.engine >= SHIP_CONDITION_BOUNDS.MAX &&
-      condition.lifeSupport >= SHIP_CONDITION_BOUNDS.MAX;
+      condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
+      condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
+      condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
     this.elements.repairAllBtn.disabled =
       allAtMax || credits < totalCost || totalCost === 0;
   }
@@ -2115,7 +2115,7 @@ export class UIManager {
     let totalCost = 0;
 
     // Hull
-    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
+    const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost(
         'hull',
@@ -2125,7 +2125,7 @@ export class UIManager {
     }
 
     // Engine
-    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
+    const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost(
         'engine',
@@ -2135,7 +2135,8 @@ export class UIManager {
     }
 
     // Life Support
-    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
+    const lifeSupportAmount =
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
       totalCost += this.gameStateManager.getRepairCost(
         'lifeSupport',
@@ -2158,7 +2159,7 @@ export class UIManager {
 
     let amount = 0;
     if (amountStr === 'full') {
-      amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
+      amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
     } else {
       amount = parseInt(amountStr);
     }
@@ -2221,7 +2222,7 @@ export class UIManager {
     let failedRepairs = [];
 
     // Repair hull
-    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
+    const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
       const repairOutcome = this.gameStateManager.repairShipSystem(
         'hull',
@@ -2235,7 +2236,7 @@ export class UIManager {
     }
 
     // Repair engine
-    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
+    const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
       const repairOutcome = this.gameStateManager.repairShipSystem(
         'engine',
@@ -2249,7 +2250,8 @@ export class UIManager {
     }
 
     // Repair life support
-    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
+    const lifeSupportAmount =
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
       const repairOutcome = this.gameStateManager.repairShipSystem(
         'lifeSupport',
@@ -2555,7 +2557,7 @@ export class UIManager {
     const installedUpgrades = state.ship.upgrades || [];
 
     // Get all upgrade IDs
-    const allUpgradeIds = Object.keys(SHIP_UPGRADES);
+    const allUpgradeIds = Object.keys(SHIP_CONFIG.UPGRADES);
 
     // Filter to only unpurchased upgrades
     const availableUpgradeIds = allUpgradeIds.filter(
@@ -2572,7 +2574,7 @@ export class UIManager {
 
     // Sort by cost (cheapest first)
     availableUpgradeIds.sort(
-      (a, b) => SHIP_UPGRADES[a].cost - SHIP_UPGRADES[b].cost
+      (a, b) => SHIP_CONFIG.UPGRADES[a].cost - SHIP_CONFIG.UPGRADES[b].cost
     );
 
     // Use DocumentFragment to batch DOM insertions for better performance
@@ -2628,7 +2630,7 @@ export class UIManager {
    * @returns {HTMLElement} Upgrade card element
    */
   createUpgradeCard(upgradeId, credits, isInstalled) {
-    const upgrade = SHIP_UPGRADES[upgradeId];
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
     if (!upgrade) {
       throw new Error(
         `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
@@ -2808,7 +2810,7 @@ export class UIManager {
       );
     }
 
-    const upgrade = SHIP_UPGRADES[upgradeId];
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
     if (!upgrade) {
       throw new Error(
         `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
@@ -2879,7 +2881,7 @@ export class UIManager {
     if (!this.pendingUpgradeId) return;
 
     const upgradeId = this.pendingUpgradeId;
-    const upgrade = SHIP_UPGRADES[upgradeId];
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
     if (!upgrade) {
       throw new Error(

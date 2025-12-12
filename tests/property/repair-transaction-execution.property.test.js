@@ -3,10 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import {
-  REPAIR_COST_PER_PERCENT,
-  SHIP_CONDITION_BOUNDS,
-} from '../../js/game-constants.js';
+import { REPAIR_CONFIG, SHIP_CONFIG } from '../../js/game-constants.js';
 
 /**
  * Feature: dynamic-economy, Property 24: Repair Transaction Execution
@@ -42,17 +39,17 @@ describe('Property 24: Repair Transaction Execution', () => {
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           // Calculate expected cost
-          const expectedCost = repairAmount * REPAIR_COST_PER_PERCENT;
+          const expectedCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
 
           // Execute repair
           const result = gameStateManager.repairShipSystem(
@@ -93,19 +90,20 @@ describe('Property 24: Repair Transaction Execution', () => {
           gameStateManager.initNewGame();
 
           // Set up initial state with sufficient credits
-          const repairAmount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
-          const requiredCredits = repairAmount * REPAIR_COST_PER_PERCENT;
+          const repairAmount =
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
+          const requiredCredits = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
           gameStateManager.updateCredits(requiredCredits + 100);
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           const initialCredits = gameStateManager.getPlayer().credits;
@@ -121,7 +119,9 @@ describe('Property 24: Repair Transaction Execution', () => {
 
           // Verify condition is exactly at max
           const finalCondition = gameStateManager.getShipCondition();
-          expect(finalCondition[systemType]).toBe(SHIP_CONDITION_BOUNDS.MAX);
+          expect(finalCondition[systemType]).toBe(
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX
+          );
 
           // Verify credits decreased correctly
           const finalCredits = gameStateManager.getPlayer().credits;
@@ -148,18 +148,18 @@ describe('Property 24: Repair Transaction Execution', () => {
 
           // Set up initial state
           const currentCondition = 50;
-          const expectedCost = repairAmount * REPAIR_COST_PER_PERCENT;
+          const expectedCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
           gameStateManager.updateCredits(expectedCost + 100);
           gameStateManager.updateShipCondition(
             systemType === 'hull'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'engine'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX,
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             systemType === 'lifeSupport'
               ? currentCondition
-              : SHIP_CONDITION_BOUNDS.MAX
+              : SHIP_CONFIG.CONDITION_BOUNDS.MAX
           );
 
           const initialCredits = gameStateManager.getPlayer().credits;
