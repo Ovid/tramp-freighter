@@ -1,47 +1,37 @@
 'use strict';
 
 import { TradingSystem } from '../game-trading.js';
+import { COMMODITY_TYPES } from '../game-constants.js';
 
 /**
  * TradePanelController - Manages trade panel UI and interactions
  *
+ * Part of the architecture-refactor pattern where UIManager delegates panel-specific
+ * logic to focused controllers. This controller owns all trade panel behavior including
+ * market display, cargo management, buy/sell transactions, and capacity tracking.
+ *
  * Responsibilities:
- * - Display market goods with prices and purchase metadata
- * - Display cargo stacks with sale prices
- * - Handle buy/sell transactions
- * - Update cargo capacity display
+ * - Display market goods with current prices and purchase metadata
+ * - Display cargo stacks with sale prices and profit calculations
+ * - Handle buy/sell transactions with validation
+ * - Update cargo capacity display in real-time
  * - Validate transactions against credits and cargo capacity
+ * - Manage hidden cargo section for Smuggler's Panels upgrade
+ *
+ * Dependencies:
+ * - Receives DOM elements, GameStateManager, and starData via constructor
+ * - Never queries DOM directly - uses only provided element references
+ * - Delegates all state changes to GameStateManager
+ * - Uses TradingSystem for price calculations
  *
  * Architecture: architecture-refactor
  * Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4
+ *
+ * @class
  */
 export class TradePanelController {
   constructor(elements, gameStateManager, starData) {
-    if (!elements.tradePanel) {
-      throw new Error('TradePanelController: tradePanel element required');
-    }
-    if (!elements.tradeSystemName) {
-      throw new Error('TradePanelController: tradeSystemName element required');
-    }
-    if (!elements.marketGoods) {
-      throw new Error('TradePanelController: marketGoods element required');
-    }
-    if (!elements.cargoStacks) {
-      throw new Error('TradePanelController: cargoStacks element required');
-    }
-    if (!elements.tradeCargoUsed) {
-      throw new Error('TradePanelController: tradeCargoUsed element required');
-    }
-    if (!elements.tradeCargoCapacity) {
-      throw new Error(
-        'TradePanelController: tradeCargoCapacity element required'
-      );
-    }
-    if (!elements.tradeCargoRemaining) {
-      throw new Error(
-        'TradePanelController: tradeCargoRemaining element required'
-      );
-    }
+    // Validate required dependencies
     if (!gameStateManager) {
       throw new Error(
         'TradePanelController: gameStateManager parameter required'
@@ -51,19 +41,31 @@ export class TradePanelController {
       throw new Error('TradePanelController: starData parameter required');
     }
 
+    // Validate elements object has required properties
+    // If any are missing, UIManager initialization is broken
+    const requiredElements = [
+      'tradePanel',
+      'tradeSystemName',
+      'marketGoods',
+      'cargoStacks',
+      'tradeCargoUsed',
+      'tradeCargoCapacity',
+      'tradeCargoRemaining',
+    ];
+
+    const missingElements = requiredElements.filter((key) => !elements[key]);
+    if (missingElements.length > 0) {
+      throw new Error(
+        `TradePanelController: Missing required DOM elements: ${missingElements.join(', ')}`
+      );
+    }
+
     this.elements = elements;
     this.gameStateManager = gameStateManager;
     this.starData = starData;
 
-    // List of all tradeable goods
-    this.goodsList = [
-      'grain',
-      'ore',
-      'tritium',
-      'parts',
-      'medicine',
-      'electronics',
-    ];
+    // Use centralized commodity list from game constants
+    this.goodsList = COMMODITY_TYPES;
   }
 
   show() {

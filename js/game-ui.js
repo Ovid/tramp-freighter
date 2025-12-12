@@ -174,16 +174,9 @@ export class UIManager {
     this.shipStatusPanel = null;
 
     // Initialize panel controllers
-    // Only create controller if all required elements exist
-    if (
-      this.elements.tradePanel &&
-      this.elements.tradeSystemName &&
-      this.elements.marketGoods &&
-      this.elements.cargoStacks &&
-      this.elements.tradeCargoUsed &&
-      this.elements.tradeCargoCapacity &&
-      this.elements.tradeCargoRemaining
-    ) {
+    // Try to create controllers - they will throw if required elements are missing
+    // In test environments, controllers may be null if DOM is incomplete
+    try {
       this.tradePanelController = new TradePanelController(
         {
           tradePanel: this.elements.tradePanel,
@@ -201,20 +194,12 @@ export class UIManager {
         this.gameStateManager,
         this.starData
       );
-    } else {
+    } catch (error) {
+      // In test environments, trade panel elements may not exist
       this.tradePanelController = null;
     }
 
-    if (
-      this.elements.refuelPanel &&
-      this.elements.refuelSystemName &&
-      this.elements.refuelCurrentFuel &&
-      this.elements.refuelPricePerPercent &&
-      this.elements.refuelAmountInput &&
-      this.elements.refuelTotalCost &&
-      this.elements.refuelConfirmBtn &&
-      this.elements.refuelValidationMessage
-    ) {
+    try {
       this.refuelPanelController = new RefuelPanelController(
         {
           refuelPanel: this.elements.refuelPanel,
@@ -229,7 +214,8 @@ export class UIManager {
         this.gameStateManager,
         this.starData
       );
-    } else {
+    } catch (error) {
+      // In test environments, refuel panel elements may not exist
       this.refuelPanelController = null;
     }
 

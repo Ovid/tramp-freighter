@@ -2,59 +2,36 @@
 
 import { SHIP_CONFIG } from '../game-constants.js';
 
+// Reasonable default refuel amount for quick refueling without overwhelming new players
+const DEFAULT_REFUEL_AMOUNT = 10;
+
 /**
  * RefuelPanelController - Manages refuel panel UI and interactions
  *
+ * Part of the architecture-refactor pattern where UIManager delegates panel-specific
+ * logic to focused controllers. This controller owns all refuel panel behavior including
+ * display updates, cost calculations, validation, and transaction execution.
+ *
  * Responsibilities:
- * - Display current fuel and refuel pricing
- * - Calculate refuel costs based on input
- * - Validate refuel amount against credits and capacity
- * - Display validation messages
- * - Execute refuel transactions
+ * - Display current fuel and refuel pricing based on system location
+ * - Calculate refuel costs dynamically as user adjusts amount
+ * - Validate refuel transactions against credits and fuel capacity
+ * - Display real-time validation messages per UX patterns
+ * - Execute refuel transactions through GameStateManager
+ *
+ * Dependencies:
+ * - Receives DOM elements, GameStateManager, and starData via constructor
+ * - Never queries DOM directly - uses only provided element references
+ * - Delegates all state changes to GameStateManager
  *
  * Architecture: architecture-refactor
  * Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.4
+ *
+ * @class
  */
 export class RefuelPanelController {
   constructor(elements, gameStateManager, starData) {
-    if (!elements.refuelPanel) {
-      throw new Error('RefuelPanelController: refuelPanel element required');
-    }
-    if (!elements.refuelSystemName) {
-      throw new Error(
-        'RefuelPanelController: refuelSystemName element required'
-      );
-    }
-    if (!elements.refuelCurrentFuel) {
-      throw new Error(
-        'RefuelPanelController: refuelCurrentFuel element required'
-      );
-    }
-    if (!elements.refuelPricePerPercent) {
-      throw new Error(
-        'RefuelPanelController: refuelPricePerPercent element required'
-      );
-    }
-    if (!elements.refuelAmountInput) {
-      throw new Error(
-        'RefuelPanelController: refuelAmountInput element required'
-      );
-    }
-    if (!elements.refuelTotalCost) {
-      throw new Error(
-        'RefuelPanelController: refuelTotalCost element required'
-      );
-    }
-    if (!elements.refuelConfirmBtn) {
-      throw new Error(
-        'RefuelPanelController: refuelConfirmBtn element required'
-      );
-    }
-    if (!elements.refuelValidationMessage) {
-      throw new Error(
-        'RefuelPanelController: refuelValidationMessage element required'
-      );
-    }
+    // Validate required dependencies
     if (!gameStateManager) {
       throw new Error(
         'RefuelPanelController: gameStateManager parameter required'
@@ -62,6 +39,26 @@ export class RefuelPanelController {
     }
     if (!starData) {
       throw new Error('RefuelPanelController: starData parameter required');
+    }
+
+    // Validate elements object has required properties
+    // If any are missing, UIManager initialization is broken
+    const requiredElements = [
+      'refuelPanel',
+      'refuelSystemName',
+      'refuelCurrentFuel',
+      'refuelPricePerPercent',
+      'refuelAmountInput',
+      'refuelTotalCost',
+      'refuelConfirmBtn',
+      'refuelValidationMessage',
+    ];
+
+    const missingElements = requiredElements.filter((key) => !elements[key]);
+    if (missingElements.length > 0) {
+      throw new Error(
+        `RefuelPanelController: Missing required DOM elements: ${missingElements.join(', ')}`
+      );
     }
 
     this.elements = elements;
@@ -93,7 +90,7 @@ export class RefuelPanelController {
     this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
 
     const defaultAmount = Math.min(
-      10,
+      DEFAULT_REFUEL_AMOUNT,
       SHIP_CONFIG.CONDITION_BOUNDS.MAX - Math.round(currentFuel)
     );
     this.elements.refuelAmountInput.value =
