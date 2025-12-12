@@ -11,6 +11,7 @@ import { TradingSystem } from './game-trading.js';
 import { TradePanelController } from './controllers/trade-panel-controller.js';
 import { RefuelPanelController } from './controllers/refuel-panel-controller.js';
 import { RepairPanelController } from './controllers/repair-panel-controller.js';
+import { capitalizeFirst } from './utils/string-utils.js';
 
 /**
  * UIManager - Reactive UI layer using event subscription pattern
@@ -340,7 +341,7 @@ export class UIManager {
    * @param {number} conditionValue - Condition percentage (0-100)
    */
   updateConditionDisplay(prefix, systemType, conditionValue) {
-    const capitalizedType = this.capitalizeFirst(systemType);
+    const capitalizedType = capitalizeFirst(systemType);
     // For HUD (empty prefix), use lowercase first letter; for repair panel, use capitalized
     const typeKey = prefix ? capitalizedType : systemType;
     const barElement = this.elements[`${prefix}${typeKey}Bar`];
@@ -1224,19 +1225,6 @@ export class UIManager {
   }
 
   /**
-   * Capitalize first letter of a string for display purposes
-   *
-   * Used consistently across UI for commodity names, system types, and labels
-   * to ensure uniform presentation. Centralizes formatting logic.
-   *
-   * @param {string} str - String to capitalize
-   * @returns {string} String with first letter capitalized
-   */
-  capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  /**
    * Format staleness information for price knowledge display
    *
    * Converts lastVisit days into human-readable text with appropriate CSS class.
@@ -1358,7 +1346,7 @@ export class UIManager {
     const systemName =
       warning.system === 'lifeSupport'
         ? 'Life Support'
-        : this.capitalizeFirst(warning.system);
+        : capitalizeFirst(warning.system);
 
     const message = `${systemName}: ${warning.message}`;
 
@@ -1536,7 +1524,7 @@ export class UIManager {
 
       const commodityName = document.createElement('span');
       commodityName.className = 'market-data-commodity';
-      commodityName.textContent = this.capitalizeFirst(commodity);
+      commodityName.textContent = capitalizeFirst(commodity);
 
       const price = document.createElement('span');
       price.className = 'market-data-price';
@@ -2501,7 +2489,7 @@ export class UIManager {
     // Cargo name
     const name = document.createElement('div');
     name.className = 'cargo-manifest-name';
-    name.textContent = this.capitalizeFirst(cargoEntry.good);
+    name.textContent = capitalizeFirst(cargoEntry.good);
 
     // Cargo details
     const details = document.createElement('div');

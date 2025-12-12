@@ -5,6 +5,11 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
 import { SHIP_CONFIG, REPAIR_CONFIG } from '../../js/game-constants.js';
+import {
+  setupRepairPanelDOM,
+  createMinimalStarData,
+  createMinimalWormholeData,
+} from '../test-utils.js';
 
 // Feature: dynamic-economy, Property 26: Repair Interface Display Completeness
 // Validates: Requirements 7.2, 7.3, 7.4
@@ -14,52 +19,9 @@ describe('Property: Repair Interface Display Completeness', () => {
   let wormholeData;
 
   beforeEach(() => {
-    // Minimal star data for testing
-    starData = [
-      { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2', wh: 3, st: 1, r: 1 },
-      {
-        id: 1,
-        name: 'Alpha Centauri',
-        x: 43,
-        y: 0,
-        z: 0,
-        type: 'G2',
-        wh: 1,
-        st: 1,
-        r: 1,
-      },
-    ];
-
-    wormholeData = [[0, 1]];
-
-    // Setup DOM elements for repair panel
-    document.body.innerHTML = `
-      <div id="game-hud"></div>
-      <div id="repair-panel">
-        <span id="repair-system-name"></span>
-        <span id="repair-hull-percent"></span>
-        <div id="repair-hull-bar"></div>
-        <span id="repair-engine-percent"></span>
-        <div id="repair-engine-bar"></div>
-        <span id="repair-life-support-percent"></span>
-        <div id="repair-life-support-bar"></div>
-        <button class="repair-btn" data-system="hull" data-amount="10"></button>
-        <button class="repair-btn" data-system="hull" data-amount="25"></button>
-        <button class="repair-btn" data-system="hull" data-amount="50"></button>
-        <button class="repair-btn" data-system="hull" data-amount="full"></button>
-        <button class="repair-btn" data-system="engine" data-amount="10"></button>
-        <button class="repair-btn" data-system="engine" data-amount="25"></button>
-        <button class="repair-btn" data-system="engine" data-amount="50"></button>
-        <button class="repair-btn" data-system="engine" data-amount="full"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="10"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="25"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="50"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="full"></button>
-        <button id="repair-all-btn"></button>
-        <div id="repair-validation-message"></div>
-      </div>
-      <div id="notification-area"></div>
-    `;
+    starData = createMinimalStarData();
+    wormholeData = createMinimalWormholeData();
+    setupRepairPanelDOM();
   });
 
   it('should display current condition percentages with visual progress bars for all systems', () => {

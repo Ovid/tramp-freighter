@@ -1,6 +1,7 @@
 'use strict';
 
 import { SHIP_CONFIG } from '../game-constants.js';
+import { capitalizeFirst } from '../utils/string-utils.js';
 
 /**
  * RepairPanelController - Manages repair panel UI and interactions
@@ -286,15 +287,6 @@ export class RepairPanelController {
     return totalCost;
   }
 
-  /**
-   * Capitalize first letter of a string
-   * @param {string} str - String to capitalize
-   * @returns {string} String with first letter capitalized
-   */
-  capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
   handleRepairSystem(systemType, amountStr) {
     const state = this.gameStateManager.getState();
     if (!state) {
@@ -447,7 +439,7 @@ export class RepairPanelController {
       case 'lifeSupport':
         return 'Life Support';
       default:
-        return systemType;
+        return capitalizeFirst(systemType);
     }
   }
 }

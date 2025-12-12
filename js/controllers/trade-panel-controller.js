@@ -2,6 +2,7 @@
 
 import { TradingSystem } from '../game-trading.js';
 import { COMMODITY_TYPES } from '../game-constants.js';
+import { capitalizeFirst } from '../utils/string-utils.js';
 
 /**
  * TradePanelController - Manages trade panel UI and interactions
@@ -172,7 +173,7 @@ export class TradePanelController {
 
     const commodityName = document.createElement('div');
     commodityName.className = 'good-name';
-    commodityName.textContent = this.capitalizeFirst(goodType);
+    commodityName.textContent = capitalizeFirst(goodType);
 
     const stationPrice = document.createElement('div');
     stationPrice.className = 'good-price';
@@ -294,7 +295,7 @@ export class TradePanelController {
 
     const stackName = document.createElement('div');
     stackName.className = 'stack-name';
-    stackName.textContent = this.capitalizeFirst(stack.good);
+    stackName.textContent = capitalizeFirst(stack.good);
 
     const stackDetails = document.createElement('div');
     stackDetails.className = 'stack-details';
@@ -508,9 +509,5 @@ export class TradePanelController {
     stackItem.appendChild(stackActions);
 
     return stackItem;
-  }
-
-  capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }
