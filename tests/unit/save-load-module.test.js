@@ -1,7 +1,26 @@
 'use strict';
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveGame, loadGame, hasSavedGame, clearSave } from '../../js/state/save-load.js';
+import {
+  saveGame,
+  loadGame,
+  hasSavedGame,
+  clearSave,
+} from '../../js/state/save-load.js';
+
+function createTestState() {
+  return {
+    player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
+    ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
+    world: {
+      visitedSystems: [1],
+      priceKnowledge: {},
+      activeEvents: [],
+      marketConditions: {},
+    },
+    meta: { version: '2.1.0', timestamp: Date.now() },
+  };
+}
 
 describe('save-load module', () => {
   beforeEach(() => {
@@ -11,12 +30,7 @@ describe('save-load module', () => {
 
   describe('saveGame', () => {
     it('should save game state to localStorage', () => {
-      const testState = {
-        player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
-        ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
-        world: { visitedSystems: [1], priceKnowledge: {}, activeEvents: [], marketConditions: {} },
-        meta: { version: '2.1.0', timestamp: Date.now() }
-      };
+      const testState = createTestState();
 
       const result = saveGame(testState, 0, true);
 
@@ -26,19 +40,18 @@ describe('save-load module', () => {
     });
 
     it('should debounce saves within 1 second', () => {
-      const testState = {
-        player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
-        ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
-        world: { visitedSystems: [1], priceKnowledge: {}, activeEvents: [], marketConditions: {} },
-        meta: { version: '2.1.0', timestamp: Date.now() }
-      };
+      const testState = createTestState();
 
       // First save should succeed
       const firstResult = saveGame(testState, 0, true);
       expect(firstResult.success).toBe(true);
 
       // Immediate second save should be debounced
-      const secondResult = saveGame(testState, firstResult.newLastSaveTime, true);
+      const secondResult = saveGame(
+        testState,
+        firstResult.newLastSaveTime,
+        true
+      );
       expect(secondResult.success).toBe(false);
       expect(secondResult.newLastSaveTime).toBe(firstResult.newLastSaveTime);
     });
@@ -59,12 +72,7 @@ describe('save-load module', () => {
 
   describe('loadGame', () => {
     it('should load game state from localStorage', () => {
-      const testState = {
-        player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
-        ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
-        world: { visitedSystems: [1], priceKnowledge: {}, activeEvents: [], marketConditions: {} },
-        meta: { version: '2.1.0', timestamp: Date.now() }
-      };
+      const testState = createTestState();
 
       // Save first
       saveGame(testState, 0, true);
@@ -91,12 +99,7 @@ describe('save-load module', () => {
 
   describe('hasSavedGame', () => {
     it('should return true if save exists', () => {
-      const testState = {
-        player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
-        ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
-        world: { visitedSystems: [1], priceKnowledge: {}, activeEvents: [], marketConditions: {} },
-        meta: { version: '2.1.0', timestamp: Date.now() }
-      };
+      const testState = createTestState();
 
       saveGame(testState, 0, true);
       expect(hasSavedGame()).toBe(true);
@@ -109,12 +112,7 @@ describe('save-load module', () => {
 
   describe('clearSave', () => {
     it('should remove save data from localStorage', () => {
-      const testState = {
-        player: { credits: 1000, debt: 5000, currentSystem: 1, daysElapsed: 10 },
-        ship: { name: 'Test Ship', fuel: 100, cargoCapacity: 100, cargo: [] },
-        world: { visitedSystems: [1], priceKnowledge: {}, activeEvents: [], marketConditions: {} },
-        meta: { version: '2.1.0', timestamp: Date.now() }
-      };
+      const testState = createTestState();
 
       // Save first
       saveGame(testState, 0, true);

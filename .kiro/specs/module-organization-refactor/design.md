@@ -7,12 +7,14 @@ This design document outlines the refactoring of two large monolithic files (`ga
 **Key Principle**: This is a pure refactoring - no functionality changes, only structural improvements. All existing tests must pass without modification to test logic.
 
 **Problem Statement**:
+
 - `game-state.js` contains state management, save/load logic, and state validation all in one file
 - `game-ui.js` contains UI coordination, HUD updates, notifications, and modal dialogs all in one file
 - Both files are difficult to navigate and maintain
 - Related functionality is scattered across thousands of lines
 
 **Solution**:
+
 - Split `game-state.js` into: `game-state-manager.js`, `save-load.js`, `state-validators.js`
 - Split `game-ui.js` into: `ui-manager.js`, `hud-manager.js`, `notification-manager.js`, `modal-manager.js`
 - Maintain identical functionality through careful extraction and dependency injection
@@ -57,6 +59,7 @@ js/
 #### game-state-manager.js
 
 **Responsibilities**:
+
 - GameStateManager class definition
 - State initialization (initNewGame)
 - State queries (getState, getPlayer, getShip, etc.)
@@ -66,18 +69,19 @@ js/
 - Quirk and upgrade systems
 
 **Exports**:
+
 ```javascript
 export class GameStateManager {
   constructor(starData, wormholeData, navigationSystem)
-  
+
   // Initialization
   initNewGame()
-  
+
   // Event system
   subscribe(eventType, callback)
   unsubscribe(eventType, callback)
   emit(eventType, data)
-  
+
   // State queries
   getState()
   getPlayer()
@@ -88,7 +92,7 @@ export class GameStateManager {
   getFuelCapacity()
   getShipCondition()
   // ... all other query methods
-  
+
   // State mutations
   updateCredits(newCredits)
   updateFuel(newFuel)
@@ -97,7 +101,7 @@ export class GameStateManager {
   updateTime(newDays)
   updateShipCondition(hull, engine, lifeSupport)
   // ... all other mutation methods
-  
+
   // Game operations
   buyGood(goodType, quantity, price)
   sellGood(stackIndex, quantity, salePrice)
@@ -111,6 +115,7 @@ export function sanitizeShipName(name)
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - Configuration objects
 - `game-trading.js` - TradingSystem
 - `game-events.js` - EconomicEventsSystem
@@ -123,11 +128,13 @@ export function sanitizeShipName(name)
 #### save-load.js
 
 **Responsibilities**:
+
 - Save game state to localStorage
 - Load game state from localStorage
 - Save debouncing logic
 
 **Exports**:
+
 ```javascript
 /**
  * Save game state to localStorage with debouncing
@@ -147,6 +154,7 @@ export function loadGame(isTestEnvironment)
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - SAVE_KEY, SAVE_DEBOUNCE_MS, GAME_VERSION
 - `state-validators.js` - Validation and migration functions
 
@@ -155,12 +163,14 @@ export function loadGame(isTestEnvironment)
 #### state-validators.js
 
 **Responsibilities**:
+
 - Validate state structure
 - Check version compatibility
 - Migrate saves between versions
 - Add defaults for missing fields
 
 **Exports**:
+
 ```javascript
 /**
  * Check if save version is compatible with current game version
@@ -203,6 +213,7 @@ export function addStateDefaults(state, starData)
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - GAME_VERSION, SHIP_CONFIG, NEW_GAME_DEFAULTS
 
 **Size**: ~600 lines
@@ -212,6 +223,7 @@ export function addStateDefaults(state, starData)
 #### ui-manager.js
 
 **Responsibilities**:
+
 - UIManager class definition
 - DOM element caching
 - Panel controller initialization
@@ -223,27 +235,28 @@ export function addStateDefaults(state, starData)
 - Upgrade confirmation handlers
 
 **Exports**:
+
 ```javascript
 export class UIManager {
   constructor(gameStateManager)
-  
+
   // HUD management (delegates to hud-manager)
   showHUD()
   hideHUD()
   updateHUD()
-  
+
   // Panel management (delegates to controllers)
   showStationInterface()
   hideStationInterface()
   showTradePanel()
   hideTradePanel()
   // ... other panel methods
-  
+
   // Notifications (delegates to notification-manager)
   showNotification(message, duration, type)
   showError(message)
   showSuccess(message)
-  
+
   // Modals (delegates to modal-manager)
   showEventModal(event)
   showConfirmModal(message, onConfirm)
@@ -251,6 +264,7 @@ export class UIManager {
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - Configuration objects
 - `controllers/*` - Panel controllers
 - `hud-manager.js` - HUD update functions (NEW)
@@ -262,6 +276,7 @@ export class UIManager {
 #### hud-manager.js
 
 **Responsibilities**:
+
 - Update HUD display elements
 - Format HUD values
 - Update condition bars
@@ -269,6 +284,7 @@ export class UIManager {
 - Update location display
 
 **Exports**:
+
 ```javascript
 /**
  * Update all HUD elements with current game state
@@ -347,6 +363,7 @@ export function updateConditionDisplay(elements, prefix, systemType, conditionVa
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - calculateDistanceFromSol
 - `utils/string-utils.js` - capitalizeFirst
 
@@ -355,12 +372,14 @@ export function updateConditionDisplay(elements, prefix, systemType, conditionVa
 #### notification-manager.js
 
 **Responsibilities**:
+
 - Display toast notifications
 - Queue notifications for sequential display
 - Auto-dismiss notifications
 - Handle notification types (error, success, info)
 
 **Exports**:
+
 ```javascript
 /**
  * Initialize notification system
@@ -401,6 +420,7 @@ export function showInfo(system, message)
 ```
 
 **Dependencies**:
+
 - `game-constants.js` - NOTIFICATION_CONFIG
 
 **Size**: ~150 lines
@@ -408,12 +428,14 @@ export function showInfo(system, message)
 #### modal-manager.js
 
 **Responsibilities**:
+
 - Display modal dialogs
 - Handle modal confirmation/cancellation
 - Show event modals
 - Show confirmation modals
 
 **Exports**:
+
 ```javascript
 /**
  * Show event modal with event details
@@ -509,6 +531,7 @@ After refactoring, the application must:
 4. Maintain identical functionality
 
 **Validation strategy**:
+
 - Run full test suite after each major refactoring step
 - Manually test save/load functionality
 - Check browser console for errors during initialization
@@ -521,6 +544,7 @@ After refactoring, the application must:
 **No new unit tests required** - this is a pure refactoring. Existing unit tests will continue to work with updated import paths.
 
 **Import path updates required in**:
+
 - All test files that import from `game-state.js` or `game-ui.js`
 - Test setup files that mock modules
 
@@ -539,6 +563,7 @@ import { GameStateManager } from '../js/state/game-state-manager.js';
 **No new property tests required** - existing property tests validate behavior that must be preserved.
 
 **Property tests will validate**:
+
 - State management logic unchanged
 - Save/load round-trip still works
 - UI updates still trigger correctly
@@ -551,6 +576,7 @@ import { GameStateManager } from '../js/state/game-state-manager.js';
 **No new integration tests required** - existing integration tests validate end-to-end flows.
 
 **Integration tests will validate**:
+
 - Game initialization still works
 - State changes still propagate to UI
 - Save/load still works

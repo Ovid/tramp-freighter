@@ -1,9 +1,6 @@
 'use strict';
 
-import { GAME_VERSION, SAVE_KEY } from '../game-constants.js';
-
-// Save debouncing prevents excessive localStorage writes (max 1 save per second)
-const SAVE_DEBOUNCE_MS = 1000;
+import { SAVE_KEY, SAVE_DEBOUNCE_MS } from '../game-constants.js';
 
 /**
  * Save game state to localStorage with debouncing
@@ -11,7 +8,9 @@ const SAVE_DEBOUNCE_MS = 1000;
  * Implements save debouncing to prevent excessive saves (max 1 save per second).
  * This protects against rapid state changes causing performance issues.
  *
- * @param {Object} state - Complete game state to save
+ * NOTE: This function mutates state.meta.timestamp to record the save time.
+ *
+ * @param {Object} state - Complete game state to save (will be mutated)
  * @param {number} lastSaveTime - Timestamp of last save (milliseconds since epoch)
  * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses console output)
  * @returns {Object} { success: boolean, newLastSaveTime: number }

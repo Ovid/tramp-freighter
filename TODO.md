@@ -1,4 +1,6 @@
 - i18n?
+- Economic events: we can find them, but do they last long enough to matter?
+  Is the ship info worth it?
 - Trade info: if your trade info is older than the last time you visited that
   star, the info should automatically be updated with the accurate data.
   Source should be that you visited the star, or "information broker"
