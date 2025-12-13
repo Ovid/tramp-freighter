@@ -176,7 +176,9 @@ class TradePanelController {
 
   refreshTradePanel() {
     const state = this.gameStateManager.getState();
-    const system = this.starData.find((s) => s.id === state.player.currentSystem);
+    const system = this.starData.find(
+      (s) => s.id === state.player.currentSystem
+    );
 
     if (!system) {
       throw new Error(

@@ -12,8 +12,10 @@ This specification defines the architectural refactoring needed to improve maint
 - **Configuration Object**: A nested object structure that groups related constants by domain
 - **Vendor Code**: Third-party libraries (Three.js) that should be separated from application code
 - **Starmap Module**: A focused module responsible for a specific aspect of starmap rendering (scene management, star rendering, wormhole rendering, interaction handling)
+- **Starmap Coordinator**: The main starmap module that initializes and orchestrates all starmap modules and manages shared state
 - **Star Data**: The static array of star system information (coordinates, names, spectral types, wormhole counts, station counts)
 - **Component Stylesheet**: A CSS file containing styles for a single UI component or panel
+- **Import Path**: The file path used in JavaScript import statements to reference modules
 
 ## Requirements
 
@@ -23,12 +25,13 @@ This specification defines the architectural refactoring needed to improve maint
 
 #### Acceptance Criteria
 
-1. WHEN the UIManager is initialized THEN the system SHALL create separate controller instances for each UI panel (trade, refuel, repair, upgrade, info broker)
+1. WHEN the UIManager is initialized THEN the system SHALL create separate controller instances for each UI panel (trade, refuel, repair, upgrade, info broker, cargo manifest)
 2. WHEN a controller is instantiated THEN the UIManager SHALL pass specific DOM element references cached by UIManager to the controller constructor
-3. WHEN a panel needs to be shown THEN the UIManager SHALL delegate to the appropriate controller's show method
-4. WHEN a panel needs to be hidden THEN the UIManager SHALL delegate to the appropriate controller's hide method
-5. WHEN user interactions occur within a panel THEN the system SHALL route the interaction to the appropriate controller's handler method
-6. WHEN a controller needs to update its display THEN the system SHALL use only the DOM elements and game state provided during initialization
+3. WHEN a controller is instantiated THEN the UIManager SHALL pass gameStateManager and starData references to the controller constructor
+4. WHEN a panel needs to be shown THEN the UIManager SHALL delegate to the appropriate controller's show method
+5. WHEN a panel needs to be hidden THEN the UIManager SHALL delegate to the appropriate controller's hide method
+6. WHEN user interactions occur within a panel THEN the system SHALL route the interaction to the appropriate controller's handler method
+7. WHEN a controller needs to update its display THEN the system SHALL use only the DOM elements and game state provided during initialization
 
 ### Requirement 2
 
@@ -38,9 +41,12 @@ This specification defines the architectural refactoring needed to improve maint
 
 1. WHEN constants are defined THEN the system SHALL group related constants into nested configuration objects
 2. WHEN existing configuration objects are present THEN the system SHALL preserve them (ECONOMY_CONFIG, VISUAL_CONFIG, LABEL_CONFIG, NOTIFICATION_CONFIG, ANIMATION_CONFIG)
-3. WHEN ungrouped constants exist THEN the system SHALL organize them into new configuration objects (SHIP_CONFIG, NAVIGATION_CONFIG)
+3. WHEN ungrouped constants exist THEN the system SHALL organize them into new configuration objects (SHIP_CONFIG, NAVIGATION_CONFIG, REPAIR_CONFIG, INTELLIGENCE_CONFIG, FUEL_PRICING_CONFIG)
 4. WHEN ship-related constants are needed THEN the system SHALL access them through the SHIP_CONFIG object
 5. WHEN navigation-related constants are needed THEN the system SHALL access them through the NAVIGATION_CONFIG object
+6. WHEN repair-related constants are needed THEN the system SHALL access them through the REPAIR_CONFIG object
+7. WHEN intelligence broker constants are needed THEN the system SHALL access them through the INTELLIGENCE_CONFIG object
+8. WHEN fuel pricing constants are needed THEN the system SHALL access them through the FUEL_PRICING_CONFIG object
 
 ### Requirement 3
 
@@ -71,13 +77,14 @@ This specification defines the architectural refactoring needed to improve maint
 
 #### Acceptance Criteria
 
-1. WHEN star system data is needed THEN the system SHALL access it from a dedicated data file (star-data.js)
-2. WHEN wormhole connection data is needed THEN the system SHALL access it from a dedicated data file (wormhole-data.js)
+1. WHEN star system data is needed THEN the system SHALL access it from a dedicated data file in the js/data/ directory (star-data.js)
+2. WHEN wormhole connection data is needed THEN the system SHALL access it from a dedicated data file in the js/data/ directory (wormhole-data.js)
 3. WHEN scene initialization is needed THEN the system SHALL use a dedicated scene management module (starmap-scene.js)
 4. WHEN star rendering is needed THEN the system SHALL use a dedicated star rendering module (starmap-stars.js)
 5. WHEN wormhole line rendering is needed THEN the system SHALL use a dedicated wormhole rendering module (starmap-wormholes.js)
 6. WHEN user interaction handling is needed THEN the system SHALL use a dedicated interaction module (starmap-interaction.js)
-7. WHEN starmap modules are organized THEN the system SHALL place them in the js/starmap/ directory
+7. WHEN starmap modules are organized THEN the system SHALL place them in the js/view/ directory
+8. WHEN starmap modules are created THEN the system SHALL use a starmap coordinator module that initializes all modules and manages shared state
 
 ### Requirement 6
 
@@ -91,7 +98,7 @@ This specification defines the architectural refactoring needed to improve maint
 4. WHEN panel styles are needed THEN the system SHALL use separate files for each panel (trade-panel.css, refuel-panel.css, repair-panel.css, info-broker-panel.css, upgrades-panel.css, cargo-manifest-panel.css)
 5. WHEN modal styles are needed THEN the system SHALL use a modals.css file
 6. WHEN starmap visualization styles are needed THEN the system SHALL use a starmap-scene.css file
-7. WHEN all CSS files are created THEN the HTML SHALL import them in the correct order
+7. WHEN all CSS files are created THEN the HTML SHALL import them in the following order: base.css, hud.css, panel files (alphabetically), modals.css, starmap-scene.css
 
 ### Requirement 7
 
@@ -100,6 +107,28 @@ This specification defines the architectural refactoring needed to improve maint
 #### Acceptance Criteria
 
 1. WHEN architectural patterns are documented THEN the system SHALL update coding-standards.md with controller patterns and module organization patterns
-2. WHEN file organization is documented THEN the system SHALL update structure.md with the new directory layout (js/controllers/, js/starmap/, js/data/, vendor/, css/ with multiple files)
+2. WHEN file organization is documented THEN the system SHALL update structure.md with the new directory layout (js/controllers/, js/view/, js/data/, vendor/, css/ with multiple files)
 3. WHEN technology stack is documented THEN the system SHALL update tech.md with the controller architecture and module organization
 4. WHEN new patterns are introduced THEN the system SHALL provide examples in the steering documents
+
+### Requirement 8
+
+**User Story:** As a developer, I want all existing tests to pass after refactoring, so that I can be confident the refactoring preserves existing functionality.
+
+#### Acceptance Criteria
+
+1. WHEN the refactoring is complete THEN the system SHALL maintain all existing test coverage
+2. WHEN tests are run after refactoring THEN all tests SHALL pass with no changes to test logic
+3. WHEN import paths change due to file reorganization THEN the system SHALL update import statements in test files to reflect new paths
+4. WHEN test files reference moved modules THEN the system SHALL update those references to use the new file locations
+
+### Requirement 9
+
+**User Story:** As a developer, I want all import paths updated when files are moved, so that the application continues to function correctly after refactoring.
+
+#### Acceptance Criteria
+
+1. WHEN files are moved to new locations THEN the system SHALL update all import statements in affected files to reflect the new paths
+2. WHEN a module is imported from a moved file THEN the system SHALL use the correct new path for that import
+3. WHEN HTML files reference JavaScript modules THEN the system SHALL update script tags to reflect new module locations
+4. WHEN all import paths are updated THEN the application SHALL load and execute without module resolution errors

@@ -1679,4 +1679,3 @@ export class UIManager {
     );
   }
 }
-
