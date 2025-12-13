@@ -8,9 +8,9 @@ import { SAVE_KEY, SAVE_DEBOUNCE_MS } from '../game-constants.js';
  * Implements save debouncing to prevent excessive saves (max 1 save per second).
  * This protects against rapid state changes causing performance issues.
  *
- * NOTE: This function mutates state.meta.timestamp to record the save time.
+ * Creates a new state object with updated timestamp without mutating the input.
  *
- * @param {Object} state - Complete game state to save (will be mutated)
+ * @param {Object} state - Complete game state to save
  * @param {number} lastSaveTime - Timestamp of last save (milliseconds since epoch)
  * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses console output)
  * @returns {Object} { success: boolean, newLastSaveTime: number }
@@ -31,9 +31,15 @@ export function saveGame(state, lastSaveTime, isTestEnvironment) {
   }
 
   try {
-    // Update timestamp in state metadata
-    state.meta.timestamp = now;
-    const saveData = JSON.stringify(state);
+    // Create new state object with updated timestamp (avoid mutation)
+    const stateToSave = {
+      ...state,
+      meta: {
+        ...state.meta,
+        timestamp: now,
+      },
+    };
+    const saveData = JSON.stringify(stateToSave);
     localStorage.setItem(SAVE_KEY, saveData);
 
     if (!isTestEnvironment) {

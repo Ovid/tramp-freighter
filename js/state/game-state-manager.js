@@ -1064,7 +1064,7 @@ export class GameStateManager {
     const cargo = this.state.ship.cargo;
 
     // Validate sale constraints
-    if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
+    if (stackIndex < 0 || stackIndex >= cargo.length) {
       return { success: false, reason: 'Invalid cargo stack' };
     }
 

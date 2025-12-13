@@ -18,61 +18,69 @@ import { TradingSystem } from '../game-trading.js';
  * Validate and filter ship configuration IDs (quirks or upgrades).
  * Removes unknown IDs and warns about them.
  *
- * @param {Array} idArray - Array of configuration IDs to validate
- * @param {Object} validConfigMap - Map of valid IDs (e.g., SHIP_CONFIG.QUIRKS)
+ * @param {Array} configIds - Array of configuration IDs to validate
+ * @param {Object} validConfigs - Map of valid IDs (e.g., SHIP_CONFIG.QUIRKS)
  * @param {string} configType - Type of config for warning messages ('quirk' or 'upgrade')
  * @returns {Array} Filtered array containing only valid IDs
  */
-function validateShipConfigIds(idArray, validConfigMap, configType) {
-  const validIds = [];
-  for (const id of idArray) {
-    if (validConfigMap[id]) {
-      validIds.push(id);
+function validateShipConfigIds(configIds, validConfigs, configType) {
+  const validatedIds = [];
+  for (const configId of configIds) {
+    if (validConfigs[configId]) {
+      validatedIds.push(configId);
     } else {
-      console.warn(`Unknown ${configType} ID: ${id}, removing from save data`);
+      console.warn(
+        `Unknown ${configType} ID: ${configId}, removing from save data`
+      );
     }
   }
-  return validIds;
+  return validatedIds;
 }
 
 /**
  * Validate and repair cargo stack structure, ensuring all required fields are present.
  * Used during state loading to handle corrupted or incomplete save data.
  *
- * @param {Array} cargoArray - Array of cargo stacks to validate
- * @param {number} fallbackSystemId - System ID to use for missing buySystem
- * @param {Array} starData - Star system data for system name lookups
- * @param {string} cargoType - Type of cargo for warning messages ('cargo' or 'hidden cargo')
+ * @param {Array} cargoStacks - Array of cargo stacks to validate
+ * @param {number} currentSystemId - System ID to use for missing buySystem
+ * @param {Array} systemData - Star system data for system name lookups
+ * @param {string} compartmentType - Type of cargo for warning messages ('cargo' or 'hidden cargo')
  */
 function validateAndRepairCargoStacks(
-  cargoArray,
-  fallbackSystemId,
-  starData,
-  cargoType
+  cargoStacks,
+  currentSystemId,
+  systemData,
+  compartmentType
 ) {
-  for (const stack of cargoArray) {
+  for (const cargoStack of cargoStacks) {
     // Ensure all required fields are present
-    if (!stack.good || typeof stack.qty !== 'number') {
-      console.warn(`Invalid ${cargoType} stack found, skipping:`, stack);
+    if (!cargoStack.good || typeof cargoStack.qty !== 'number') {
+      console.warn(
+        `Invalid ${compartmentType} stack found, skipping:`,
+        cargoStack
+      );
       continue;
     }
-    if (typeof stack.buyPrice !== 'number') {
-      console.warn(`${cargoType} stack missing buyPrice, using 0:`, stack.good);
-      stack.buyPrice = 0;
-    }
-    if (typeof stack.buySystem !== 'number') {
+    if (typeof cargoStack.buyPrice !== 'number') {
       console.warn(
-        `${cargoType} stack missing buySystem, using current system:`,
-        stack.good
+        `${compartmentType} stack missing buyPrice, using 0:`,
+        cargoStack.good
       );
-      stack.buySystem = fallbackSystemId;
+      cargoStack.buyPrice = 0;
     }
-    if (typeof stack.buySystemName !== 'string') {
-      const system = starData.find((s) => s.id === stack.buySystem);
-      stack.buySystemName = system ? system.name : 'Unknown';
+    if (typeof cargoStack.buySystem !== 'number') {
+      console.warn(
+        `${compartmentType} stack missing buySystem, using current system:`,
+        cargoStack.good
+      );
+      cargoStack.buySystem = currentSystemId;
     }
-    if (typeof stack.buyDate !== 'number') {
-      stack.buyDate = 0;
+    if (typeof cargoStack.buySystemName !== 'string') {
+      const system = systemData.find((s) => s.id === cargoStack.buySystem);
+      cargoStack.buySystemName = system ? system.name : 'Unknown';
+    }
+    if (typeof cargoStack.buyDate !== 'number') {
+      cargoStack.buyDate = 0;
     }
   }
 }
@@ -83,10 +91,10 @@ function validateAndRepairCargoStacks(
  * Adds defaults for missing metadata fields.
  *
  * @param {Object} cargoStack - Cargo stack to normalize
- * @param {number} fallbackSystemId - System ID to use if buySystem is missing
- * @param {Array} starData - Star system data for system name lookups
+ * @param {number} currentSystemId - System ID to use if buySystem is missing
+ * @param {Array} systemData - Star system data for system name lookups
  */
-function normalizeCargoStack(cargoStack, fallbackSystemId, starData) {
+function normalizeCargoStack(cargoStack, currentSystemId, systemData) {
   // Migrate old field names to new ones
   if (
     cargoStack.purchasePrice !== undefined &&
@@ -112,10 +120,10 @@ function normalizeCargoStack(cargoStack, fallbackSystemId, starData) {
 
   // Add defaults for missing fields
   if (cargoStack.buySystem === undefined) {
-    cargoStack.buySystem = fallbackSystemId;
+    cargoStack.buySystem = currentSystemId;
   }
   if (cargoStack.buySystemName === undefined) {
-    const system = starData.find((s) => s.id === cargoStack.buySystem);
+    const system = systemData.find((s) => s.id === cargoStack.buySystem);
     cargoStack.buySystemName = system ? system.name : 'Unknown';
   }
   if (cargoStack.buyDate === undefined) {
@@ -317,11 +325,11 @@ export function validateStateStructure(state) {
  * - Market conditions (deterministic economy)
  *
  * @param {Object} state - v1.0.0 state
- * @param {Array} starData - Star system data for lookups
+ * @param {Array} systemData - Star system data for lookups
  * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v2.1.0 state
  */
-export function migrateFromV1ToV2(state, starData, isTestEnvironment) {
+export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
   if (!isTestEnvironment) {
     console.log('Migrating save from v1.0.0 to v2.1.0');
   }
@@ -339,8 +347,8 @@ export function migrateFromV1ToV2(state, starData, isTestEnvironment) {
 
   // Add cargo purchase metadata and migrate field names
   if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
-    state.ship.cargo.forEach((stack) => {
-      normalizeCargoStack(stack, state.player.currentSystem, starData);
+    state.ship.cargo.forEach((cargoStack) => {
+      normalizeCargoStack(cargoStack, state.player.currentSystem, systemData);
     });
   }
 
@@ -382,7 +390,7 @@ export function migrateFromV1ToV2(state, starData, isTestEnvironment) {
 
     // Initialize with current system's prices
     const currentSystemId = state.player.currentSystem;
-    const currentSystem = starData.find((s) => s.id === currentSystemId);
+    const currentSystem = systemData.find((s) => s.id === currentSystemId);
 
     if (!currentSystem) {
       throw new Error(
@@ -467,10 +475,10 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
  * Normalizes field names from old versions and adds missing metadata.
  *
  * @param {Object} state - State to normalize
- * @param {Array} starData - Star system data for lookups
+ * @param {Array} systemData - Star system data for lookups
  * @returns {Object} Normalized state
  */
-export function addStateDefaults(state, starData) {
+export function addStateDefaults(state, systemData) {
   // Add defaults for missing Phase 2 fields
   if (state.ship.hull === undefined) {
     state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
@@ -484,8 +492,8 @@ export function addStateDefaults(state, starData) {
 
   // Normalize cargo stacks
   if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
-    state.ship.cargo.forEach((stack) => {
-      normalizeCargoStack(stack, state.player.currentSystem, starData);
+    state.ship.cargo.forEach((cargoStack) => {
+      normalizeCargoStack(cargoStack, state.player.currentSystem, systemData);
     });
   }
 
@@ -526,7 +534,7 @@ export function addStateDefaults(state, starData) {
     validateAndRepairCargoStacks(
       state.ship.cargo,
       state.player.currentSystem,
-      starData,
+      systemData,
       'Cargo'
     );
   }
@@ -536,7 +544,7 @@ export function addStateDefaults(state, starData) {
     validateAndRepairCargoStacks(
       state.ship.hiddenCargo,
       state.player.currentSystem,
-      starData,
+      systemData,
       'Hidden cargo'
     );
   }
@@ -547,7 +555,7 @@ export function addStateDefaults(state, starData) {
 
     // Initialize with current system's prices
     const currentSystemId = state.player.currentSystem;
-    const currentSystem = starData.find((s) => s.id === currentSystemId);
+    const currentSystem = systemData.find((s) => s.id === currentSystemId);
 
     if (!currentSystem) {
       throw new Error(
