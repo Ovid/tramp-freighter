@@ -5,6 +5,7 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 import { JumpAnimationSystem } from '../../js/game-animation.js';
+import { validateStateStructure } from '../../js/state/state-validators.js';
 import { setupThreeMock } from '../setup-three-mock.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
@@ -302,7 +303,7 @@ describe('State-Before-Animation Consistency - Property Tests', () => {
 
       // Property 3: Game should be in valid state (can load from save)
       const savedState = gameStateManager.getState();
-      expect(gameStateManager.validateStateStructure(savedState)).toBe(true);
+      expect(validateStateStructure(savedState)).toBe(true);
     } finally {
       // Restore original methods
       animationSystem.playJumpAnimation = originalPlayAnimation;
