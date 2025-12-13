@@ -13,6 +13,30 @@ import { InfoBrokerPanelController } from './controllers/info-broker.js';
 import { CargoManifestPanelController } from './controllers/cargo-manifest.js';
 import { DevAdminPanelController } from './controllers/dev-admin.js';
 import { capitalizeFirst } from './utils/string-utils.js';
+import {
+  showEventModal,
+  hideEventModal,
+  setupEventModalHandlers,
+} from './ui/modal-manager.js';
+import {
+  updateHUD as updateHUDDisplay,
+  updateCredits as updateCreditsDisplay,
+  updateDebt as updateDebtDisplay,
+  updateDays as updateDaysDisplay,
+  updateShipName as updateShipNameDisplay,
+  updateFuel as updateFuelDisplay,
+  updateShipCondition as updateShipConditionDisplay,
+  updateCargo as updateCargoDisplay,
+  updateLocation as updateLocationDisplay,
+  updateConditionDisplay,
+} from './ui/hud-manager.js';
+import {
+  createNotificationSystem,
+  showNotification as showNotificationMessage,
+  showError as showErrorMessage,
+  showSuccess as showSuccessMessage,
+  clearNotifications as clearNotificationMessages,
+} from './ui/notification-manager.js';
 
 /**
  * UIManager - Reactive UI layer using event subscription pattern
@@ -25,10 +49,6 @@ export class UIManager {
   constructor(gameStateManager) {
     this.gameStateManager = gameStateManager;
     this.starData = gameStateManager.starData;
-
-    // Notification queue for sequential display
-    this.notificationQueue = [];
-    this.isShowingNotification = false;
 
     // Cache DOM elements for performance
     this.elements = {
@@ -184,6 +204,11 @@ export class UIManager {
     this.cachedRefuelPresetButtons = null;
     // Cache ship status panel (created on first use)
     this.shipStatusPanel = null;
+
+    // Initialize notification system
+    this.notificationSystem = createNotificationSystem(
+      this.elements.notificationArea
+    );
 
     // Initialize panel controllers
     const isTestEnvironment =
@@ -474,38 +499,37 @@ export class UIManager {
       throw new Error('Invalid game state: state is null in updateHUD');
     }
 
-    this.updateCredits(state.player.credits);
-    this.updateDebt(state.player.debt);
-    this.updateDays(state.player.daysElapsed);
-    this.updateShipName(state.ship.name);
-    this.updateFuel(state.ship.fuel);
-    this.updateShipCondition(this.gameStateManager.getShipCondition());
-    this.updateCargo();
-    this.updateLocation(state.player.currentSystem);
+    updateHUDDisplay(
+      this.elements,
+      state,
+      this.starData,
+      () => this.gameStateManager.getShipCondition(),
+      () => this.gameStateManager.getCargoUsed()
+    );
     this.updateQuickAccessButtons();
   }
 
   updateCredits(credits) {
-    this.elements.credits.textContent = credits.toLocaleString();
+    updateCreditsDisplay(this.elements.credits, credits);
   }
 
   updateDebt(debt) {
-    this.elements.debt.textContent = debt.toLocaleString();
+    updateDebtDisplay(this.elements.debt, debt);
   }
 
   updateDays(days) {
-    this.elements.days.textContent = days;
+    updateDaysDisplay(this.elements.days, days);
   }
 
   updateShipName(shipName) {
-    if (this.elements.shipName) {
-      this.elements.shipName.textContent = shipName;
-    }
+    updateShipNameDisplay(this.elements.shipName, shipName);
   }
 
   updateFuel(fuel) {
-    this.elements.fuelBar.style.width = `${fuel}%`;
-    this.elements.fuelText.textContent = `${Math.round(fuel)}%`;
+    updateFuelDisplay(
+      { fuelBar: this.elements.fuelBar, fuelText: this.elements.fuelText },
+      fuel
+    );
   }
 
   /**
@@ -519,21 +543,7 @@ export class UIManager {
    * @param {number} conditionValue - Condition percentage (0-100)
    */
   updateConditionDisplay(prefix, systemType, conditionValue) {
-    const capitalizedType = capitalizeFirst(systemType);
-    // For HUD (empty prefix), use lowercase first letter; for repair panel, use capitalized
-    const typeKey = prefix ? capitalizedType : systemType;
-    const barElement = this.elements[`${prefix}${typeKey}Bar`];
-    // HUD uses 'Text' suffix, repair panel uses 'Percent' suffix
-    const textElement =
-      this.elements[`${prefix}${typeKey}Text`] ||
-      this.elements[`${prefix}${capitalizedType}Percent`];
-
-    if (barElement) {
-      barElement.style.width = `${conditionValue}%`;
-    }
-    if (textElement) {
-      textElement.textContent = `${Math.round(conditionValue)}%`;
-    }
+    updateConditionDisplay(this.elements, prefix, systemType, conditionValue);
   }
 
   /**
@@ -543,37 +553,32 @@ export class UIManager {
    * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
    */
   updateShipCondition(condition) {
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in updateShipCondition'
-      );
-    }
-
-    this.updateConditionDisplay('', 'hull', condition.hull);
-    this.updateConditionDisplay('', 'engine', condition.engine);
-    this.updateConditionDisplay('', 'lifeSupport', condition.lifeSupport);
+    updateShipConditionDisplay(
+      {
+        hullBar: this.elements.hullBar,
+        hullText: this.elements.hullText,
+        engineBar: this.elements.engineBar,
+        engineText: this.elements.engineText,
+        lifeSupportBar: this.elements.lifeSupportBar,
+        lifeSupportText: this.elements.lifeSupportText,
+      },
+      condition
+    );
   }
 
   updateCargo() {
     const cargoUsed = this.gameStateManager.getCargoUsed();
     const ship = this.gameStateManager.getShip();
 
-    if (!ship) {
-      throw new Error('Invalid game state: ship is null in updateCargo');
-    }
-
-    this.elements.cargo.textContent = `${cargoUsed}/${ship.cargoCapacity}`;
+    updateCargoDisplay(this.elements.cargo, cargoUsed, ship);
   }
 
   updateLocation(systemId) {
-    const system = this.starData.find((s) => s.id === systemId);
-
-    if (!system) return;
-
-    this.elements.system.textContent = system.name;
-
-    const distance = calculateDistanceFromSol(system);
-    this.elements.distance.textContent = `${distance.toFixed(1)} LY`;
+    updateLocationDisplay(
+      { system: this.elements.system, distance: this.elements.distance },
+      systemId,
+      this.starData
+    );
 
     // Update quick access button states
     this.updateQuickAccessButtons();
@@ -874,21 +879,8 @@ export class UIManager {
   }
 
   setupEventModalHandlers() {
-    if (this.elements.eventModalDismiss) {
-      this.elements.eventModalDismiss.addEventListener('click', () => {
-        this.hideEventNotification();
-      });
-    }
-
-    // Handle escape key to dismiss event notification
-    document.addEventListener('keydown', (e) => {
-      if (
-        e.key === 'Escape' &&
-        this.elements.eventModalOverlay &&
-        !this.elements.eventModalOverlay.classList.contains('hidden')
-      ) {
-        this.hideEventNotification();
-      }
+    setupEventModalHandlers(this.elements, () => {
+      this.hideEventNotification();
     });
   }
 
@@ -978,29 +970,16 @@ export class UIManager {
     }
 
     const currentDay = state.player.daysElapsed;
-    const remainingDays = event.endDay - currentDay;
 
-    // Set modal content
-    this.elements.eventModalTitle.textContent = eventType.name;
-    this.elements.eventModalDescription.textContent = eventType.description;
-    this.elements.eventModalDuration.textContent = `Expected duration: ${remainingDays} day${remainingDays !== 1 ? 's' : ''} remaining`;
-
-    // Show modal
-    this.elements.eventModalOverlay.classList.remove('hidden');
-
-    // Focus dismiss button
-    if (this.elements.eventModalDismiss) {
-      this.elements.eventModalDismiss.focus();
-    }
+    // Delegate to modal manager
+    showEventModal(this.elements, event, eventType, currentDay);
   }
 
   /**
    * Hide event notification modal
    */
   hideEventNotification() {
-    if (this.elements.eventModalOverlay) {
-      this.elements.eventModalOverlay.classList.add('hidden');
-    }
+    hideEventModal(this.elements);
   }
 
   handleSystemClick(systemId) {
@@ -1084,18 +1063,14 @@ export class UIManager {
     duration = NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION,
     type = 'error'
   ) {
-    this.notificationQueue.push({ message, duration, type });
-
-    if (!this.isShowingNotification) {
-      this.processNotificationQueue();
-    }
+    showNotificationMessage(this.notificationSystem, message, duration, type);
   }
 
   /**
    * Show an error notification (convenience method)
    */
   showError(message, duration = NOTIFICATION_CONFIG.DEFAULT_ERROR_DURATION) {
-    this.showNotification(message, duration, 'error');
+    showErrorMessage(this.notificationSystem, message, duration);
   }
 
   /**
@@ -1105,57 +1080,14 @@ export class UIManager {
     message,
     duration = NOTIFICATION_CONFIG.DEFAULT_SUCCESS_DURATION
   ) {
-    this.showNotification(message, duration, 'success');
-  }
-
-  /**
-   * Process the notification queue sequentially
-   * Ensures messages don't overlap
-   */
-  processNotificationQueue() {
-    if (this.notificationQueue.length === 0) {
-      this.isShowingNotification = false;
-      return;
-    }
-
-    this.isShowingNotification = true;
-    const { message, duration, type } = this.notificationQueue.shift();
-
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-
-    // Add to notification area
-    this.elements.notificationArea.appendChild(notification);
-
-    // Auto-dismiss after duration
-    setTimeout(() => {
-      // Add fade-out animation
-      notification.classList.add('fade-out');
-
-      // Remove from DOM after animation completes
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-
-        // Process next notification in queue
-        this.processNotificationQueue();
-      }, NOTIFICATION_CONFIG.FADE_DURATION);
-    }, duration);
+    showSuccessMessage(this.notificationSystem, message, duration);
   }
 
   /**
    * Clear all notifications immediately
    */
   clearNotifications() {
-    this.notificationQueue = [];
-    this.isShowingNotification = false;
-
-    if (this.elements.notificationArea) {
-      this.elements.notificationArea.replaceChildren();
-    }
+    clearNotificationMessages(this.notificationSystem);
   }
 
   /**

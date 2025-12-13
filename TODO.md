@@ -1,4 +1,6 @@
 - i18n?
+- Steering should not that files neeed single responsibilities
+- Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
   Is the ship info worth it?

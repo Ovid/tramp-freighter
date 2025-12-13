@@ -118,8 +118,10 @@ describe('Property 32: Error Message Sequencing', () => {
           }
 
           // Boundary check: empty queue proves all messages were processed
-          expect(uiManager.notificationQueue.length).toBe(0);
-          expect(uiManager.isShowingNotification).toBe(false);
+          expect(uiManager.notificationSystem.notificationQueue.length).toBe(0);
+          expect(uiManager.notificationSystem.isShowingNotification).toBe(
+            false
+          );
         }
       ),
       { numRuns: 100 }
