@@ -21,7 +21,7 @@
   - Confirm module has one focused responsibility
   - _Requirements: 4.1_
 
-- [ ] 3. Extract state validation system from game-state.js
+- [x] 3. Extract state validation system from game-state.js
   - Create `js/state/state-validators.js`
   - Extract `isVersionCompatible()` method into standalone function
   - Extract `validateStateStructure()` method into standalone function
@@ -33,7 +33,7 @@
   - Begin file with `"use strict";` directive
   - _Requirements: 1.3, 4.2, 4.3, 4.4, 5.3_
 
-- [ ] 3.1 Review state-validators.js for single responsibility
+- [x] 3.1 Review state-validators.js for single responsibility
   - Verify module only handles validation and migration logic
   - Check for any state management or save/load logic that belongs elsewhere
   - Confirm module has one focused responsibility
