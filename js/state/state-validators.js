@@ -15,6 +15,115 @@ import { TradingSystem } from '../game-trading.js';
  */
 
 /**
+ * Validate and filter ship configuration IDs (quirks or upgrades).
+ * Removes unknown IDs and warns about them.
+ *
+ * @param {Array} idArray - Array of configuration IDs to validate
+ * @param {Object} validConfigMap - Map of valid IDs (e.g., SHIP_CONFIG.QUIRKS)
+ * @param {string} configType - Type of config for warning messages ('quirk' or 'upgrade')
+ * @returns {Array} Filtered array containing only valid IDs
+ */
+function validateShipConfigIds(idArray, validConfigMap, configType) {
+  const validIds = [];
+  for (const id of idArray) {
+    if (validConfigMap[id]) {
+      validIds.push(id);
+    } else {
+      console.warn(`Unknown ${configType} ID: ${id}, removing from save data`);
+    }
+  }
+  return validIds;
+}
+
+/**
+ * Validate and repair cargo stack structure, ensuring all required fields are present.
+ * Used during state loading to handle corrupted or incomplete save data.
+ *
+ * @param {Array} cargoArray - Array of cargo stacks to validate
+ * @param {number} fallbackSystemId - System ID to use for missing buySystem
+ * @param {Array} starData - Star system data for system name lookups
+ * @param {string} cargoType - Type of cargo for warning messages ('cargo' or 'hidden cargo')
+ */
+function validateAndRepairCargoStacks(
+  cargoArray,
+  fallbackSystemId,
+  starData,
+  cargoType
+) {
+  for (const stack of cargoArray) {
+    // Ensure all required fields are present
+    if (!stack.good || typeof stack.qty !== 'number') {
+      console.warn(`Invalid ${cargoType} stack found, skipping:`, stack);
+      continue;
+    }
+    if (typeof stack.buyPrice !== 'number') {
+      console.warn(`${cargoType} stack missing buyPrice, using 0:`, stack.good);
+      stack.buyPrice = 0;
+    }
+    if (typeof stack.buySystem !== 'number') {
+      console.warn(
+        `${cargoType} stack missing buySystem, using current system:`,
+        stack.good
+      );
+      stack.buySystem = fallbackSystemId;
+    }
+    if (typeof stack.buySystemName !== 'string') {
+      const system = starData.find((s) => s.id === stack.buySystem);
+      stack.buySystemName = system ? system.name : 'Unknown';
+    }
+    if (typeof stack.buyDate !== 'number') {
+      stack.buyDate = 0;
+    }
+  }
+}
+
+/**
+ * Normalize cargo stack field names from old versions to current schema.
+ * Migrates purchasePrice → buyPrice, purchaseSystem → buySystem, purchaseDay → buyDate.
+ * Adds defaults for missing metadata fields.
+ *
+ * @param {Object} cargoStack - Cargo stack to normalize
+ * @param {number} fallbackSystemId - System ID to use if buySystem is missing
+ * @param {Array} starData - Star system data for system name lookups
+ */
+function normalizeCargoStack(cargoStack, fallbackSystemId, starData) {
+  // Migrate old field names to new ones
+  if (
+    cargoStack.purchasePrice !== undefined &&
+    cargoStack.buyPrice === undefined
+  ) {
+    cargoStack.buyPrice = cargoStack.purchasePrice;
+    delete cargoStack.purchasePrice;
+  }
+  if (
+    cargoStack.purchaseSystem !== undefined &&
+    cargoStack.buySystem === undefined
+  ) {
+    cargoStack.buySystem = cargoStack.purchaseSystem;
+    delete cargoStack.purchaseSystem;
+  }
+  if (
+    cargoStack.purchaseDay !== undefined &&
+    cargoStack.buyDate === undefined
+  ) {
+    cargoStack.buyDate = cargoStack.purchaseDay;
+    delete cargoStack.purchaseDay;
+  }
+
+  // Add defaults for missing fields
+  if (cargoStack.buySystem === undefined) {
+    cargoStack.buySystem = fallbackSystemId;
+  }
+  if (cargoStack.buySystemName === undefined) {
+    const system = starData.find((s) => s.id === cargoStack.buySystem);
+    cargoStack.buySystemName = system ? system.name : 'Unknown';
+  }
+  if (cargoStack.buyDate === undefined) {
+    cargoStack.buyDate = 0;
+  }
+}
+
+/**
  * Check if save version is compatible with current game version
  *
  * Supports migration from v1.0.0 to v2.1.0 and v2.0.0 to v2.1.0.
@@ -231,31 +340,7 @@ export function migrateFromV1ToV2(state, starData, isTestEnvironment) {
   // Add cargo purchase metadata and migrate field names
   if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
     state.ship.cargo.forEach((stack) => {
-      // Migrate old field names to new ones
-      if (stack.purchasePrice !== undefined && stack.buyPrice === undefined) {
-        stack.buyPrice = stack.purchasePrice;
-        delete stack.purchasePrice;
-      }
-      if (stack.purchaseSystem !== undefined && stack.buySystem === undefined) {
-        stack.buySystem = stack.purchaseSystem;
-        delete stack.purchaseSystem;
-      }
-      if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
-        stack.buyDate = stack.purchaseDay;
-        delete stack.purchaseDay;
-      }
-
-      // Add defaults for missing fields
-      if (stack.buySystem === undefined) {
-        stack.buySystem = state.player.currentSystem;
-      }
-      if (stack.buySystemName === undefined) {
-        const system = starData.find((s) => s.id === stack.buySystem);
-        stack.buySystemName = system ? system.name : 'Unknown';
-      }
-      if (stack.buyDate === undefined) {
-        stack.buyDate = 0;
-      }
+      normalizeCargoStack(stack, state.player.currentSystem, starData);
     });
   }
 
@@ -275,30 +360,20 @@ export function migrateFromV1ToV2(state, starData, isTestEnvironment) {
 
   // Validate quirk IDs and remove unknown ones
   if (Array.isArray(state.ship.quirks)) {
-    const validQuirks = [];
-    for (const quirkId of state.ship.quirks) {
-      if (SHIP_CONFIG.QUIRKS[quirkId]) {
-        validQuirks.push(quirkId);
-      } else {
-        console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
-      }
-    }
-    state.ship.quirks = validQuirks;
+    state.ship.quirks = validateShipConfigIds(
+      state.ship.quirks,
+      SHIP_CONFIG.QUIRKS,
+      'quirk'
+    );
   }
 
   // Validate upgrade IDs and remove unknown ones
   if (Array.isArray(state.ship.upgrades)) {
-    const validUpgrades = [];
-    for (const upgradeId of state.ship.upgrades) {
-      if (SHIP_CONFIG.UPGRADES[upgradeId]) {
-        validUpgrades.push(upgradeId);
-      } else {
-        console.warn(
-          `Unknown upgrade ID: ${upgradeId}, removing from save data`
-        );
-      }
-    }
-    state.ship.upgrades = validUpgrades;
+    state.ship.upgrades = validateShipConfigIds(
+      state.ship.upgrades,
+      SHIP_CONFIG.UPGRADES,
+      'upgrade'
+    );
   }
 
   // Add price knowledge database
@@ -410,31 +485,7 @@ export function addStateDefaults(state, starData) {
   // Normalize cargo stacks
   if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
     state.ship.cargo.forEach((stack) => {
-      // Migrate old field names to new ones
-      if (stack.purchasePrice !== undefined && stack.buyPrice === undefined) {
-        stack.buyPrice = stack.purchasePrice;
-        delete stack.purchasePrice;
-      }
-      if (stack.purchaseSystem !== undefined && stack.buySystem === undefined) {
-        stack.buySystem = stack.purchaseSystem;
-        delete stack.purchaseSystem;
-      }
-      if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
-        stack.buyDate = stack.purchaseDay;
-        delete stack.purchaseDay;
-      }
-
-      // Add defaults for missing fields
-      if (stack.buySystem === undefined) {
-        stack.buySystem = state.player.currentSystem;
-      }
-      if (stack.buySystemName === undefined) {
-        const system = starData.find((s) => s.id === stack.buySystem);
-        stack.buySystemName = system ? system.name : 'Unknown';
-      }
-      if (stack.buyDate === undefined) {
-        stack.buyDate = 0;
-      }
+      normalizeCargoStack(stack, state.player.currentSystem, starData);
     });
   }
 
@@ -454,91 +505,40 @@ export function addStateDefaults(state, starData) {
 
   // Validate quirk IDs and remove unknown ones
   if (Array.isArray(state.ship.quirks)) {
-    const validQuirks = [];
-    for (const quirkId of state.ship.quirks) {
-      if (SHIP_CONFIG.QUIRKS[quirkId]) {
-        validQuirks.push(quirkId);
-      } else {
-        console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
-      }
-    }
-    state.ship.quirks = validQuirks;
+    state.ship.quirks = validateShipConfigIds(
+      state.ship.quirks,
+      SHIP_CONFIG.QUIRKS,
+      'quirk'
+    );
   }
 
   // Validate upgrade IDs and remove unknown ones
   if (Array.isArray(state.ship.upgrades)) {
-    const validUpgrades = [];
-    for (const upgradeId of state.ship.upgrades) {
-      if (SHIP_CONFIG.UPGRADES[upgradeId]) {
-        validUpgrades.push(upgradeId);
-      } else {
-        console.warn(
-          `Unknown upgrade ID: ${upgradeId}, removing from save data`
-        );
-      }
-    }
-    state.ship.upgrades = validUpgrades;
+    state.ship.upgrades = validateShipConfigIds(
+      state.ship.upgrades,
+      SHIP_CONFIG.UPGRADES,
+      'upgrade'
+    );
   }
 
   // Validate cargo structure completeness
   if (Array.isArray(state.ship.cargo)) {
-    for (const stack of state.ship.cargo) {
-      // Ensure all required fields are present
-      if (!stack.good || typeof stack.qty !== 'number') {
-        console.warn('Invalid cargo stack found, skipping:', stack);
-        continue;
-      }
-      if (typeof stack.buyPrice !== 'number') {
-        console.warn(`Cargo stack missing buyPrice, using 0:`, stack.good);
-        stack.buyPrice = 0;
-      }
-      if (typeof stack.buySystem !== 'number') {
-        console.warn(
-          `Cargo stack missing buySystem, using current system:`,
-          stack.good
-        );
-        stack.buySystem = state.player.currentSystem;
-      }
-      if (typeof stack.buySystemName !== 'string') {
-        const system = starData.find((s) => s.id === stack.buySystem);
-        stack.buySystemName = system ? system.name : 'Unknown';
-      }
-      if (typeof stack.buyDate !== 'number') {
-        stack.buyDate = 0;
-      }
-    }
+    validateAndRepairCargoStacks(
+      state.ship.cargo,
+      state.player.currentSystem,
+      starData,
+      'Cargo'
+    );
   }
 
   // Validate hidden cargo structure completeness
   if (Array.isArray(state.ship.hiddenCargo)) {
-    for (const stack of state.ship.hiddenCargo) {
-      // Ensure all required fields are present
-      if (!stack.good || typeof stack.qty !== 'number') {
-        console.warn('Invalid hidden cargo stack found, skipping:', stack);
-        continue;
-      }
-      if (typeof stack.buyPrice !== 'number') {
-        console.warn(
-          `Hidden cargo stack missing buyPrice, using 0:`,
-          stack.good
-        );
-        stack.buyPrice = 0;
-      }
-      if (typeof stack.buySystem !== 'number') {
-        console.warn(
-          `Hidden cargo stack missing buySystem, using current system:`,
-          stack.good
-        );
-        stack.buySystem = state.player.currentSystem;
-      }
-      if (typeof stack.buySystemName !== 'string') {
-        const system = starData.find((s) => s.id === stack.buySystem);
-        stack.buySystemName = system ? system.name : 'Unknown';
-      }
-      if (typeof stack.buyDate !== 'number') {
-        stack.buyDate = 0;
-      }
-    }
+    validateAndRepairCargoStacks(
+      state.ship.hiddenCargo,
+      state.player.currentSystem,
+      starData,
+      'Hidden cargo'
+    );
   }
 
   // Initialize price knowledge if missing

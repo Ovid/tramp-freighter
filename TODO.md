@@ -1,4 +1,5 @@
 - i18n?
+- We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
   Is the ship info worth it?
 - Trade info: if your trade info is older than the last time you visited that
