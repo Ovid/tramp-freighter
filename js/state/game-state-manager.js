@@ -11,23 +11,23 @@ import {
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
-} from './game-constants.js';
-import { TradingSystem } from './game-trading.js';
-import { EconomicEventsSystem } from './game-events.js';
-import { InformationBroker } from './game-information-broker.js';
+} from '../game-constants.js';
+import { TradingSystem } from '../game-trading.js';
+import { EconomicEventsSystem } from '../game-events.js';
+import { InformationBroker } from '../game-information-broker.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
   hasSavedGame as checkSavedGame,
   clearSave as clearSaveFromStorage,
-} from './state/save-load.js';
+} from './save-load.js';
 import {
   isVersionCompatible,
   validateStateStructure,
   migrateFromV1ToV2,
   migrateFromV2ToV2_1,
   addStateDefaults,
-} from './state/state-validators.js';
+} from './state-validators.js';
 
 /**
  * Sanitize ship name input

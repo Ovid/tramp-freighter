@@ -49,13 +49,13 @@
   - Verify GameStateManager still exports all public methods
   - _Requirements: 1.4, 1.5, 4.2_
 
-- [ ] 5. Move game-state.js to js/state/ directory
+- [x] 5. Move game-state.js to js/state/ directory
   - Move `js/game-state.js` to `js/state/game-state-manager.js`
   - Update imports within `game-state-manager.js` to reflect new location
   - Update relative import paths for `save-load.js` and `state-validators.js`
   - _Requirements: 1.1, 5.1_
 
-- [ ] 5.1 Review game-state-manager.js for single responsibility
+- [x] 5.1 Review game-state-manager.js for single responsibility
   - Verify module only handles state management and game operations
   - Check that save/load and validation logic has been fully extracted
   - Confirm module has one focused responsibility

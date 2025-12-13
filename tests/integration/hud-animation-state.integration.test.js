@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 import { UIManager } from '../../js/game-ui.js';
 import { JumpAnimationSystem } from '../../js/game-animation.js';

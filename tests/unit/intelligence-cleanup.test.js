@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { InformationBroker } from '../../js/game-information-broker.js';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 import { INTELLIGENCE_CONFIG } from '../../js/game-constants.js';
 

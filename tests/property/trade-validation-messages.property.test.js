@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { UIManager } from '../../js/game-ui.js';
 import { TradingSystem } from '../../js/game-trading.js';
 

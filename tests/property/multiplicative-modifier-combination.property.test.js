@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { SHIP_CONFIG } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 

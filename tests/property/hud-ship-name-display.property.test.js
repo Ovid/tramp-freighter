@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { UIManager } from '../../js/game-ui.js';
 import { SHIP_CONFIG } from '../../js/game-constants.js';
 
