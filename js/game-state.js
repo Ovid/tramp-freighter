@@ -1011,18 +1011,17 @@ export class GameStateManager {
 
     const credits = this.state.player.credits;
     const cargoSpace = this.getCargoRemaining();
+    const totalCost = quantity * price;
 
-    const validation = this.validatePurchase(
-      credits,
-      cargoSpace,
-      quantity,
-      price
-    );
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    // Validate purchase constraints
+    if (totalCost > credits) {
+      return { success: false, reason: 'Insufficient credits' };
     }
 
-    const totalCost = quantity * price;
+    if (quantity > cargoSpace) {
+      return { success: false, reason: 'Not enough cargo space' };
+    }
+
     this.updateCredits(credits - totalCost);
 
     // Pass current system and day for purchase metadata
@@ -1052,26 +1051,6 @@ export class GameStateManager {
     return { success: true };
   }
 
-  validatePurchase(credits, cargoSpace, quantity, price) {
-    const totalCost = quantity * price;
-
-    if (totalCost > credits) {
-      return {
-        valid: false,
-        reason: 'Insufficient credits',
-      };
-    }
-
-    if (quantity > cargoSpace) {
-      return {
-        valid: false,
-        reason: 'Not enough cargo space',
-      };
-    }
-
-    return { valid: true };
-  }
-
   /**
    * Execute a sale transaction from a specific cargo stack
    */
@@ -1084,17 +1063,24 @@ export class GameStateManager {
 
     const cargo = this.state.ship.cargo;
 
-    const validation = this.validateSale(cargo, stackIndex, quantity);
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    // Validate sale constraints
+    if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
+      return { success: false, reason: 'Invalid cargo stack' };
     }
 
     const stack = cargo[stackIndex];
+
+    if (quantity <= 0) {
+      return { success: false, reason: 'Quantity must be positive' };
+    }
+
+    if (quantity > stack.qty) {
+      return { success: false, reason: 'Not enough quantity in stack' };
+    }
     const totalRevenue = quantity * salePrice;
     const profitMargin = salePrice - stack.buyPrice;
 
-    const currentCredits = this.state.player.credits;
-    this.updateCredits(currentCredits + totalRevenue);
+    this.updateCredits(this.state.player.credits + totalRevenue);
 
     // Remove quantity from stack; remove stack if empty
     stack.qty -= quantity;
@@ -1115,32 +1101,6 @@ export class GameStateManager {
       success: true,
       profitMargin: profitMargin,
     };
-  }
-
-  validateSale(cargo, stackIndex, quantity) {
-    if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
-      return {
-        valid: false,
-        reason: 'Invalid cargo stack',
-      };
-    }
-
-    const stack = cargo[stackIndex];
-    if (quantity > stack.qty) {
-      return {
-        valid: false,
-        reason: 'Not enough quantity in stack',
-      };
-    }
-
-    if (quantity <= 0) {
-      return {
-        valid: false,
-        reason: 'Quantity must be positive',
-      };
-    }
-
-    return { valid: true };
   }
 
   // ========================================================================
@@ -1190,13 +1150,17 @@ export class GameStateManager {
    * @returns {Object} { valid: boolean, reason: string, cost: number }
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-    // Calculate total cost
     const totalCost = amount * pricePerPercent;
-
-    // Get current fuel capacity (accounts for upgrades)
     const maxFuel = this.getFuelCapacity();
 
-    // Check capacity constraint
+    if (amount <= 0) {
+      return {
+        valid: false,
+        reason: 'Refuel amount must be positive',
+        cost: totalCost,
+      };
+    }
+
     // Use epsilon for floating point comparison
     if (
       currentFuel + amount >
@@ -1209,20 +1173,10 @@ export class GameStateManager {
       };
     }
 
-    // Check credit constraint
     if (totalCost > credits) {
       return {
         valid: false,
         reason: 'Insufficient credits for refuel',
-        cost: totalCost,
-      };
-    }
-
-    // Check for valid amount
-    if (amount <= 0) {
-      return {
-        valid: false,
-        reason: 'Refuel amount must be positive',
         cost: totalCost,
       };
     }
@@ -1250,8 +1204,8 @@ export class GameStateManager {
     const currentFuel = this.state.ship.fuel;
     const credits = this.state.player.credits;
     const systemId = this.state.player.currentSystem;
-
     const pricePerPercent = this.getFuelPrice(systemId);
+
     const validation = this.validateRefuel(
       currentFuel,
       amount,
@@ -1297,62 +1251,6 @@ export class GameStateManager {
   }
 
   /**
-   * Validate repair transaction
-   *
-   * Validation order matters for user experience:
-   * 1. Check for positive amount (basic input validation)
-   * 2. Check if system already at max (no repair needed)
-   * 3. Check credits (player can fix by earning money)
-   * 4. Check if would exceed max (player can fix by reducing amount)
-   *
-   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
-   * @param {number} amount - Percentage points to restore
-   * @param {number} cost - Repair cost in credits
-   * @param {number} credits - Player's current credits
-   * @param {number} currentCondition - Current condition percentage
-   * @returns {Object} { valid: boolean, reason: string }
-   */
-  validateRepair(systemType, amount, cost, credits, currentCondition) {
-    // Check for valid amount first (basic input validation)
-    if (amount <= 0) {
-      return {
-        valid: false,
-        reason: 'Repair amount must be positive',
-      };
-    }
-
-    // Check if system is already at maximum condition
-    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return {
-        valid: false,
-        reason: 'System already at maximum condition',
-      };
-    }
-
-    // Check credit constraint before checking if would exceed
-    // This provides better UX: player knows they need money first
-    if (cost > credits) {
-      return {
-        valid: false,
-        reason: 'Insufficient credits for repair',
-      };
-    }
-
-    // Check if repair would exceed maximum condition
-    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return {
-        valid: false,
-        reason: 'Repair would exceed maximum condition',
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-    };
-  }
-
-  /**
    * Execute repair transaction for a ship system
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
@@ -1376,34 +1274,48 @@ export class GameStateManager {
     const credits = this.state.player.credits;
     const cost = this.getRepairCost(systemType, amount, currentCondition);
 
-    const validation = this.validateRepair(
-      systemType,
-      amount,
-      cost,
-      credits,
-      currentCondition
-    );
+    // Validation order matters for user experience:
+    // 1. Check for positive amount (basic input validation)
+    // 2. Check if system already at max (no repair needed)
+    // 3. Check credits (player can fix by earning money)
+    // 4. Check if would exceed max (player can fix by reducing amount)
 
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    if (amount <= 0) {
+      return { success: false, reason: 'Repair amount must be positive' };
+    }
+
+    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
+      return { success: false, reason: 'System already at maximum condition' };
+    }
+
+    if (cost > credits) {
+      return { success: false, reason: 'Insufficient credits for repair' };
+    }
+
+    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
+      return {
+        success: false,
+        reason: 'Repair would exceed maximum condition',
+      };
     }
 
     // Deduct credits
     this.updateCredits(credits - cost);
 
     // Increase condition (clamped by updateShipCondition)
-    const newHull =
-      systemType === 'hull' ? currentCondition + amount : this.state.ship.hull;
-    const newEngine =
-      systemType === 'engine'
-        ? currentCondition + amount
-        : this.state.ship.engine;
-    const newLifeSupport =
-      systemType === 'lifeSupport'
-        ? currentCondition + amount
-        : this.state.ship.lifeSupport;
+    const newConditions = {
+      hull: this.state.ship.hull,
+      engine: this.state.ship.engine,
+      lifeSupport: this.state.ship.lifeSupport,
+    };
 
-    this.updateShipCondition(newHull, newEngine, newLifeSupport);
+    newConditions[systemType] = currentCondition + amount;
+
+    this.updateShipCondition(
+      newConditions.hull,
+      newConditions.engine,
+      newConditions.lifeSupport
+    );
 
     // Persist immediately - repair modifies credits and ship condition
     this.saveGame();
