@@ -3,6 +3,7 @@
 import {
   calculateDistanceFromSol,
   NOTIFICATION_CONFIG,
+  DEV_MODE,
 } from './game-constants.js';
 import { TradePanelController } from './controllers/trade.js';
 import { RefuelPanelController } from './controllers/refuel.js';
@@ -10,6 +11,7 @@ import { RepairPanelController } from './controllers/repair.js';
 import { UpgradePanelController } from './controllers/upgrades.js';
 import { InfoBrokerPanelController } from './controllers/info-broker.js';
 import { CargoManifestPanelController } from './controllers/cargo-manifest.js';
+import { DevAdminPanelController } from './controllers/dev-admin.js';
 import { capitalizeFirst } from './utils/string-utils.js';
 
 /**
@@ -163,6 +165,17 @@ export class UIManager {
       hiddenCargoStacks: document.getElementById('hidden-cargo-stacks'),
       toggleHiddenCargoBtn: document.getElementById('toggle-hidden-cargo-btn'),
       hiddenCargoContent: document.getElementById('hidden-cargo-content'),
+      devAdminBtn: document.getElementById('dev-admin-btn'),
+      devAdminPanel: document.getElementById('dev-admin-panel'),
+      devAdminCloseBtn: document.getElementById('dev-admin-close-btn'),
+      devCreditsInput: document.getElementById('dev-credits-input'),
+      devSetCreditsBtn: document.getElementById('dev-set-credits-btn'),
+      devDebtInput: document.getElementById('dev-debt-input'),
+      devSetDebtBtn: document.getElementById('dev-set-debt-btn'),
+      devFuelInput: document.getElementById('dev-fuel-input'),
+      devSetFuelBtn: document.getElementById('dev-set-fuel-btn'),
+      devRepairAllBtn: document.getElementById('dev-repair-all-btn'),
+      devClearCargoBtn: document.getElementById('dev-clear-cargo-btn'),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
@@ -292,6 +305,35 @@ export class UIManager {
       'CargoManifestPanelController',
       isTestEnvironment
     );
+
+    // Initialize dev admin panel if in dev mode
+    if (DEV_MODE) {
+      this.devAdminPanelController = this.initializeController(
+        DevAdminPanelController,
+        {
+          devAdminPanel: this.elements.devAdminPanel,
+          devAdminCloseBtn: this.elements.devAdminCloseBtn,
+          devCreditsInput: this.elements.devCreditsInput,
+          devSetCreditsBtn: this.elements.devSetCreditsBtn,
+          devDebtInput: this.elements.devDebtInput,
+          devSetDebtBtn: this.elements.devSetDebtBtn,
+          devFuelInput: this.elements.devFuelInput,
+          devSetFuelBtn: this.elements.devSetFuelBtn,
+          devRepairAllBtn: this.elements.devRepairAllBtn,
+          devClearCargoBtn: this.elements.devClearCargoBtn,
+        },
+        'DevAdminPanelController',
+        isTestEnvironment
+      );
+
+      // Show dev admin button
+      if (this.elements.devAdminBtn) {
+        this.elements.devAdminBtn.style.display = 'flex';
+        this.elements.devAdminBtn.addEventListener('click', () => {
+          this.showDevAdminPanel();
+        });
+      }
+    }
   }
 
   /**
@@ -1597,4 +1639,44 @@ export class UIManager {
   isCargoManifestVisible() {
     return this.elements.cargoManifestPanel.classList.contains('visible');
   }
+
+  // ========================================================================
+  // DEV ADMIN PANEL
+  // ========================================================================
+
+  /**
+   * Show dev admin panel (dev mode only)
+   *
+   * Provides controls to modify game state for testing purposes.
+   * Only available when running on localhost.
+   */
+  showDevAdminPanel() {
+    if (!DEV_MODE || !this.devAdminPanelController) {
+      return;
+    }
+
+    this.devAdminPanelController.show();
+  }
+
+  /**
+   * Hide dev admin panel
+   */
+  hideDevAdminPanel() {
+    if (this.devAdminPanelController) {
+      this.devAdminPanelController.hide();
+    }
+  }
+
+  /**
+   * Check if dev admin panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isDevAdminVisible() {
+    return (
+      DEV_MODE &&
+      this.elements.devAdminPanel &&
+      this.elements.devAdminPanel.classList.contains('visible')
+    );
+  }
 }
+

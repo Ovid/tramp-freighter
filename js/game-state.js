@@ -555,6 +555,30 @@ export class GameStateManager {
     this.emit('locationChanged', newSystemId);
   }
 
+  /**
+   * Set credits directly (dev mode only)
+   * @param {number} amount - New credit amount
+   */
+  setCredits(amount) {
+    this.updateCredits(amount);
+  }
+
+  /**
+   * Set debt directly (dev mode only)
+   * @param {number} amount - New debt amount
+   */
+  setDebt(amount) {
+    this.updateDebt(amount);
+  }
+
+  /**
+   * Set fuel directly (dev mode only)
+   * @param {number} amount - New fuel percentage (0-100)
+   */
+  setFuel(amount) {
+    this.updateFuel(amount);
+  }
+
   updateTime(newDays) {
     const oldDays = this.state.player.daysElapsed;
     this.state.player.daysElapsed = newDays;

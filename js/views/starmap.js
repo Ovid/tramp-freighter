@@ -8,6 +8,7 @@ import { UIManager } from '../game-ui.js';
 import { JumpAnimationSystem } from '../game-animation.js';
 import { STAR_DATA } from '../data/star-data.js';
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
+import { initDevMode } from '../game-constants.js';
 
 // Import starmap modules
 import {
@@ -198,6 +199,58 @@ function updateConnectedSystemsList(currentSystemId, currentFuel) {
 }
 
 /**
+ * Update system event information display
+ *
+ * Shows economic events for the selected system if Advanced Sensors upgrade is installed.
+ * This allows players to see events before jumping to a system.
+ *
+ * @param {number} systemId - System to check for events
+ */
+function updateSystemEventInfo(systemId) {
+  const eventInfoElement = document.getElementById('system-event-info');
+  const eventNameElement = document.getElementById('system-event-name');
+  const eventDescriptionElement = document.getElementById(
+    'system-event-description'
+  );
+
+  if (!eventInfoElement || !gameStateManager) {
+    return;
+  }
+
+  // Check if player has Advanced Sensors upgrade
+  const state = gameStateManager.getState();
+  if (!state) {
+    eventInfoElement.style.display = 'none';
+    return;
+  }
+
+  const hasAdvancedSensors = state.ship.upgrades.includes('advanced_sensors');
+  if (!hasAdvancedSensors) {
+    eventInfoElement.style.display = 'none';
+    return;
+  }
+
+  // Check for active event at this system
+  const activeEvent = gameStateManager.getActiveEventForSystem(systemId);
+  if (!activeEvent) {
+    eventInfoElement.style.display = 'none';
+    return;
+  }
+
+  // Get event type definition
+  const eventType = gameStateManager.getEventType(activeEvent.type);
+  if (!eventType) {
+    eventInfoElement.style.display = 'none';
+    return;
+  }
+
+  // Show event information
+  eventNameElement.textContent = eventType.name;
+  eventDescriptionElement.textContent = eventType.description;
+  eventInfoElement.style.display = 'block';
+}
+
+/**
  * Select a star by its system ID
  */
 function selectStarById(systemId, openStation = true) {
@@ -218,6 +271,9 @@ function updateHUD(star) {
   document.getElementById('hud-wormholes').textContent = star.data.wh;
   document.getElementById('hud-reachable').textContent =
     star.data.r === 1 ? 'Reachable' : 'Unreachable';
+
+  // Show event information if Advanced Sensors installed
+  updateSystemEventInfo(star.data.id);
 
   // Update jump information if game is active
   if (gameStateManager && navigationSystem) {
@@ -721,7 +777,10 @@ window.toggleBoundary = toggleBoundary;
 window.selectStarById = selectStarById;
 
 // Initialize the application
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Check for dev mode first (looks for .dev file)
+  await initDevMode();
+
   const sceneComponents = initScene();
   scene = sceneComponents.scene;
   camera = sceneComponents.camera;

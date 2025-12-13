@@ -389,6 +389,37 @@ export const NEW_GAME_DEFAULTS = {
 };
 
 /**
+ * Development mode flag
+ *
+ * Checks for existence of .dev file to enable dev features.
+ * The .dev file is gitignored, so it won't be deployed to production.
+ * This is more reliable than hostname checks for local development.
+ *
+ * Note: This is initialized asynchronously - see initDevMode() below.
+ */
+export let DEV_MODE = false;
+
+/**
+ * Initialize dev mode by checking for .dev file
+ *
+ * This must be called before creating the UIManager.
+ * The .dev file should exist in the project root for local development
+ * and be excluded from version control via .gitignore.
+ *
+ * @returns {Promise<boolean>} True if dev mode is enabled
+ */
+export async function initDevMode() {
+  try {
+    const response = await fetch('.dev');
+    DEV_MODE = response.ok;
+    return DEV_MODE;
+  } catch (error) {
+    DEV_MODE = false;
+    return false;
+  }
+}
+
+/**
  * Game version for save compatibility
  *
  * Version history:
