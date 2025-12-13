@@ -9,23 +9,35 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
 import { GameStateManager } from '../../js/game-state.js';
-import { UIManager } from '../../js/game-ui.js';
+import { InfoBrokerPanelController } from '../../js/controllers/info-broker.js';
+import { InformationBroker } from '../../js/game-information-broker.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Property: Market Data Display', () => {
   let dom;
   let document;
   let gameStateManager;
-  let uiManager;
+  let infoBrokerController;
+  let informationBroker;
 
   beforeEach(() => {
-    // Create minimal DOM for testing market data display
-    // UIManager caches all elements but handles null gracefully
+    // Create DOM with all required elements for InfoBrokerPanelController
     dom = new JSDOM(`
             <!DOCTYPE html>
             <html>
             <body>
-                <div id="market-data-list"></div>
+                <div id="info-broker-panel">
+                    <div id="info-broker-system-name"></div>
+                    <button id="buy-rumor-btn"></button>
+                    <div id="rumor-text"></div>
+                    <div id="intelligence-list"></div>
+                    <div id="info-broker-validation-message"></div>
+                    <div id="purchase-tab" class="active"></div>
+                    <div id="market-data-tab"></div>
+                    <div id="purchase-intel-content" class="active"></div>
+                    <div id="market-data-content"></div>
+                    <div id="market-data-list"></div>
+                </div>
             </body>
             </html>
         `);
@@ -38,8 +50,32 @@ describe('Property: Market Data Display', () => {
     gameStateManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
-    // Initialize UI manager
-    uiManager = new UIManager(gameStateManager);
+    // Initialize information broker
+    informationBroker = new InformationBroker(gameStateManager, TEST_STAR_DATA);
+
+    // Initialize InfoBrokerPanelController
+    const elements = {
+      infoBrokerPanel: document.getElementById('info-broker-panel'),
+      infoBrokerSystemName: document.getElementById('info-broker-system-name'),
+      buyRumorBtn: document.getElementById('buy-rumor-btn'),
+      rumorText: document.getElementById('rumor-text'),
+      intelligenceList: document.getElementById('intelligence-list'),
+      infoBrokerValidationMessage: document.getElementById(
+        'info-broker-validation-message'
+      ),
+      purchaseTab: document.getElementById('purchase-tab'),
+      marketDataTab: document.getElementById('market-data-tab'),
+      purchaseIntelContent: document.getElementById('purchase-intel-content'),
+      marketDataContent: document.getElementById('market-data-content'),
+      marketDataList: document.getElementById('market-data-list'),
+    };
+
+    infoBrokerController = new InfoBrokerPanelController(
+      elements,
+      gameStateManager,
+      TEST_STAR_DATA,
+      informationBroker
+    );
   });
 
   it('should display all systems with known prices', () => {
@@ -75,7 +111,7 @@ describe('Property: Market Data Display', () => {
           });
 
           // Render market data
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           const marketDataList = document.getElementById('market-data-list');
           const systemItems = marketDataList.querySelectorAll(
@@ -115,7 +151,7 @@ describe('Property: Market Data Display', () => {
           };
 
           // Render market data
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           const marketDataList = document.getElementById('market-data-list');
           const systemItem = marketDataList.querySelector(
@@ -170,7 +206,7 @@ describe('Property: Market Data Display', () => {
           };
 
           // Render market data
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           const marketDataList = document.getElementById('market-data-list');
           const systemItem = marketDataList.querySelector(
@@ -234,7 +270,7 @@ describe('Property: Market Data Display', () => {
           });
 
           // Render market data
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           const marketDataList = document.getElementById('market-data-list');
           const systemItems = marketDataList.querySelectorAll(
@@ -270,7 +306,7 @@ describe('Property: Market Data Display', () => {
     state.world.priceKnowledge = {};
 
     // Render market data
-    uiManager.renderMarketData();
+    infoBrokerController.renderMarketData();
 
     const marketDataList = document.getElementById('market-data-list');
     const emptyMessage = marketDataList.querySelector('.market-data-empty');
@@ -303,7 +339,7 @@ describe('Property: Market Data Display', () => {
         };
 
         // Render market data
-        uiManager.renderMarketData();
+        infoBrokerController.renderMarketData();
 
         const marketDataList = document.getElementById('market-data-list');
         const systemItem = marketDataList.querySelector('.market-data-system');
@@ -344,7 +380,7 @@ describe('Property: Market Data Display', () => {
           };
 
           // Render market data
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           const marketDataList = document.getElementById('market-data-list');
           let systemItems = marketDataList.querySelectorAll(
@@ -372,7 +408,7 @@ describe('Property: Market Data Display', () => {
           };
 
           // Re-render
-          uiManager.renderMarketData();
+          infoBrokerController.renderMarketData();
 
           systemItems = marketDataList.querySelectorAll('.market-data-system');
 

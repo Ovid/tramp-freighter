@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
-import { BASE_PRICES, LY_PER_UNIT } from '../../js/game-constants.js';
+import { BASE_PRICES, NAVIGATION_CONFIG } from '../../js/game-constants.js';
 
 /**
  * Feature: deterministic-economy, Property 27: Complete price formula
@@ -174,7 +174,7 @@ describe('Complete price formula property', () => {
         (goodType, systemId, currentDay) => {
           // Create system at tech level midpoint (11.67 LY from Sol)
           // This makes tech modifier = 1.0
-          const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+          const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
           const system = {
             id: systemId,
             x: distanceInMapUnits,
@@ -225,7 +225,7 @@ describe('Complete price formula property', () => {
         (goodType, surplus) => {
           // Create system at tech level midpoint (11.67 LY from Sol)
           // This makes tech modifier = 1.0
-          const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+          const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
           const system = {
             id: 0, // System 0 at day 0 has temporal = 1.0
             x: distanceInMapUnits,
@@ -286,7 +286,7 @@ describe('Complete price formula property', () => {
         (goodType, eventModifier) => {
           // Create system at tech level midpoint (11.67 LY from Sol)
           // This makes tech modifier = 1.0
-          const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+          const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
           const system = {
             id: 0, // System 0 at day 0 has temporal = 1.0
             x: distanceInMapUnits,

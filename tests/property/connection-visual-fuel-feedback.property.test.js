@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { determineConnectionColor } from '../../js/starmap.js';
+import { determineConnectionColor } from '../../js/views/starmap/wormholes.js';
 
 describe('Connection Visual Fuel Feedback (Property Tests)', () => {
   // ========================================================================

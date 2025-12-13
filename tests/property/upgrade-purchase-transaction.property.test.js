@@ -3,7 +3,7 @@
 import { describe, it, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import { SHIP_UPGRADES } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 /**
@@ -27,10 +27,10 @@ describe('Property Test: Upgrade Purchase Transaction', () => {
   it('should deduct credits and add upgrade for valid purchases', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         fc.integer({ min: 0, max: 100000 }),
         (upgradeId, extraCredits) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Set credits to exactly enough or more
           const initialCredits = upgrade.cost + extraCredits;
@@ -62,9 +62,9 @@ describe('Property Test: Upgrade Purchase Transaction', () => {
   it('should fail for already installed upgrades', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         (upgradeId) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Set sufficient credits
           gameStateManager.state.player.credits = upgrade.cost * 2;
@@ -90,9 +90,9 @@ describe('Property Test: Upgrade Purchase Transaction', () => {
   it('should fail for insufficient credits', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         (upgradeId) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Set credits below cost
           gameStateManager.state.player.credits = upgrade.cost - 1;

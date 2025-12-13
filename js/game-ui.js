@@ -2,14 +2,17 @@
 
 import {
   calculateDistanceFromSol,
-  INTELLIGENCE_PRICES,
-  INTELLIGENCE_RECENT_THRESHOLD,
   NOTIFICATION_CONFIG,
-  COMMODITY_TYPES,
-  SHIP_CONDITION_BOUNDS,
-  SHIP_UPGRADES,
+  DEV_MODE,
 } from './game-constants.js';
-import { TradingSystem } from './game-trading.js';
+import { TradePanelController } from './controllers/trade.js';
+import { RefuelPanelController } from './controllers/refuel.js';
+import { RepairPanelController } from './controllers/repair.js';
+import { UpgradePanelController } from './controllers/upgrades.js';
+import { InfoBrokerPanelController } from './controllers/info-broker.js';
+import { CargoManifestPanelController } from './controllers/cargo-manifest.js';
+import { DevAdminPanelController } from './controllers/dev-admin.js';
+import { capitalizeFirst } from './utils/string-utils.js';
 
 /**
  * UIManager - Reactive UI layer using event subscription pattern
@@ -23,9 +26,6 @@ export class UIManager {
     this.gameStateManager = gameStateManager;
     this.starData = gameStateManager.starData;
 
-    // List of all tradeable goods
-    this.goodsList = COMMODITY_TYPES;
-
     // Notification queue for sequential display
     this.notificationQueue = [];
     this.isShowingNotification = false;
@@ -36,6 +36,7 @@ export class UIManager {
       credits: document.getElementById('hud-credits'),
       debt: document.getElementById('hud-debt'),
       days: document.getElementById('hud-days'),
+      shipName: document.getElementById('hud-ship-name'),
       fuelBar: document.getElementById('fuel-bar'),
       fuelText: document.getElementById('hud-fuel-text'),
       hullBar: document.getElementById('hull-bar'),
@@ -164,6 +165,17 @@ export class UIManager {
       hiddenCargoStacks: document.getElementById('hidden-cargo-stacks'),
       toggleHiddenCargoBtn: document.getElementById('toggle-hidden-cargo-btn'),
       hiddenCargoContent: document.getElementById('hidden-cargo-content'),
+      devAdminBtn: document.getElementById('dev-admin-btn'),
+      devAdminPanel: document.getElementById('dev-admin-panel'),
+      devAdminCloseBtn: document.getElementById('dev-admin-close-btn'),
+      devCreditsInput: document.getElementById('dev-credits-input'),
+      devSetCreditsBtn: document.getElementById('dev-set-credits-btn'),
+      devDebtInput: document.getElementById('dev-debt-input'),
+      devSetDebtBtn: document.getElementById('dev-set-debt-btn'),
+      devFuelInput: document.getElementById('dev-fuel-input'),
+      devSetFuelBtn: document.getElementById('dev-set-fuel-btn'),
+      devRepairAllBtn: document.getElementById('dev-repair-all-btn'),
+      devClearCargoBtn: document.getElementById('dev-clear-cargo-btn'),
     };
 
     // Cache repair buttons to avoid repeated DOM queries
@@ -173,11 +185,241 @@ export class UIManager {
     // Cache ship status panel (created on first use)
     this.shipStatusPanel = null;
 
+    // Initialize panel controllers
+    const isTestEnvironment =
+      typeof process !== 'undefined' &&
+      process.env &&
+      process.env.NODE_ENV === 'test';
+
+    this.tradePanelController = this.initializeController(
+      TradePanelController,
+      {
+        tradePanel: this.elements.tradePanel,
+        tradeSystemName: this.elements.tradeSystemName,
+        marketGoods: this.elements.marketGoods,
+        cargoStacks: this.elements.cargoStacks,
+        tradeCargoUsed: this.elements.tradeCargoUsed,
+        tradeCargoCapacity: this.elements.tradeCargoCapacity,
+        tradeCargoRemaining: this.elements.tradeCargoRemaining,
+        hiddenCargoSection: this.elements.hiddenCargoSection,
+        hiddenCargoUsed: this.elements.hiddenCargoUsed,
+        hiddenCargoCapacity: this.elements.hiddenCargoCapacity,
+        hiddenCargoStacks: this.elements.hiddenCargoStacks,
+        hiddenCargoContent: this.elements.hiddenCargoContent,
+        toggleHiddenCargoBtn: this.elements.toggleHiddenCargoBtn,
+      },
+      'TradePanelController',
+      isTestEnvironment
+    );
+
+    this.refuelPanelController = this.initializeController(
+      RefuelPanelController,
+      {
+        refuelPanel: this.elements.refuelPanel,
+        refuelSystemName: this.elements.refuelSystemName,
+        refuelCurrentFuel: this.elements.refuelCurrentFuel,
+        refuelPricePerPercent: this.elements.refuelPricePerPercent,
+        refuelAmountInput: this.elements.refuelAmountInput,
+        refuelTotalCost: this.elements.refuelTotalCost,
+        refuelConfirmBtn: this.elements.refuelConfirmBtn,
+        refuelValidationMessage: this.elements.refuelValidationMessage,
+      },
+      'RefuelPanelController',
+      isTestEnvironment
+    );
+
     this.subscribeToStateChanges();
     this.setupStationInterfaceHandlers();
     this.setupShipStatusHandlers();
     this.setupEventModalHandlers();
     this.setupQuickAccessHandlers();
+
+    // Initialize remaining controllers after setup handlers cache buttons
+    this.repairPanelController = this.initializeController(
+      RepairPanelController,
+      {
+        repairPanel: this.elements.repairPanel,
+        repairSystemName: this.elements.repairSystemName,
+        repairHullPercent: this.elements.repairHullPercent,
+        repairHullBar: this.elements.repairHullBar,
+        repairEnginePercent: this.elements.repairEnginePercent,
+        repairEngineBar: this.elements.repairEngineBar,
+        repairLifeSupportPercent: this.elements.repairLifeSupportPercent,
+        repairLifeSupportBar: this.elements.repairLifeSupportBar,
+        repairAllBtn: this.elements.repairAllBtn,
+        repairValidationMessage: this.elements.repairValidationMessage,
+        cachedRepairButtons: this.cachedRepairButtons,
+      },
+      'RepairPanelController',
+      isTestEnvironment
+    );
+
+    this.upgradePanelController = this.initializeController(
+      UpgradePanelController,
+      {
+        upgradesPanel: this.elements.upgradesPanel,
+        upgradesCreditsValue: this.elements.upgradesCreditsValue,
+        availableUpgradesList: this.elements.availableUpgradesList,
+        installedUpgradesList: this.elements.installedUpgradesList,
+        upgradeConfirmationOverlay: this.elements.upgradeConfirmationOverlay,
+        upgradeConfirmationTitle: this.elements.upgradeConfirmationTitle,
+        upgradeConfirmationEffects: this.elements.upgradeConfirmationEffects,
+        upgradeCurrentCredits: this.elements.upgradeCurrentCredits,
+        upgradeCost: this.elements.upgradeCost,
+        upgradeCreditsAfter: this.elements.upgradeCreditsAfter,
+        upgradeConfirmBtn: this.elements.upgradeConfirmBtn,
+      },
+      'UpgradePanelController',
+      isTestEnvironment
+    );
+
+    this.infoBrokerPanelController = this.initializeControllerWithBroker(
+      InfoBrokerPanelController,
+      {
+        infoBrokerPanel: this.elements.infoBrokerPanel,
+        infoBrokerSystemName: this.elements.infoBrokerSystemName,
+        buyRumorBtn: this.elements.buyRumorBtn,
+        rumorText: this.elements.rumorText,
+        intelligenceList: this.elements.intelligenceList,
+        infoBrokerValidationMessage: this.elements.infoBrokerValidationMessage,
+        purchaseTab: this.elements.purchaseTab,
+        marketDataTab: this.elements.marketDataTab,
+        purchaseIntelContent: this.elements.purchaseIntelContent,
+        marketDataContent: this.elements.marketDataContent,
+        marketDataList: this.elements.marketDataList,
+      },
+      'InfoBrokerPanelController',
+      isTestEnvironment
+    );
+
+    this.cargoManifestPanelController = this.initializeController(
+      CargoManifestPanelController,
+      {
+        cargoManifestPanel: this.elements.cargoManifestPanel,
+        cargoManifestShipName: this.elements.cargoManifestShipName,
+        cargoManifestUsed: this.elements.cargoManifestUsed,
+        cargoManifestCapacity: this.elements.cargoManifestCapacity,
+        cargoManifestList: this.elements.cargoManifestList,
+        cargoManifestTotalValue: this.elements.cargoManifestTotalValue,
+      },
+      'CargoManifestPanelController',
+      isTestEnvironment
+    );
+
+    // Initialize dev admin panel if in dev mode
+    if (DEV_MODE) {
+      this.devAdminPanelController = this.initializeController(
+        DevAdminPanelController,
+        {
+          devAdminPanel: this.elements.devAdminPanel,
+          devAdminCloseBtn: this.elements.devAdminCloseBtn,
+          devCreditsInput: this.elements.devCreditsInput,
+          devSetCreditsBtn: this.elements.devSetCreditsBtn,
+          devDebtInput: this.elements.devDebtInput,
+          devSetDebtBtn: this.elements.devSetDebtBtn,
+          devFuelInput: this.elements.devFuelInput,
+          devSetFuelBtn: this.elements.devSetFuelBtn,
+          devRepairAllBtn: this.elements.devRepairAllBtn,
+          devClearCargoBtn: this.elements.devClearCargoBtn,
+        },
+        'DevAdminPanelController',
+        isTestEnvironment
+      );
+
+      // Show dev admin button
+      if (this.elements.devAdminBtn) {
+        this.elements.devAdminBtn.style.display = 'flex';
+        this.elements.devAdminBtn.addEventListener('click', () => {
+          this.showDevAdminPanel();
+        });
+      }
+    }
+  }
+
+  /**
+   * Initialize a panel controller with environment-appropriate error handling
+   *
+   * In test environments, returns null on failure to allow partial DOM testing.
+   * In production, throws errors to fail fast on missing DOM elements.
+   *
+   * @param {Function} ControllerClass - Controller constructor
+   * @param {Object} elements - DOM elements for controller
+   * @param {string} controllerName - Name for error messages
+   * @param {boolean} isTestEnvironment - Whether running in test mode
+   * @returns {Object|null} Controller instance or null on test failure
+   */
+  initializeController(
+    ControllerClass,
+    elements,
+    controllerName,
+    isTestEnvironment
+  ) {
+    try {
+      return new ControllerClass(
+        elements,
+        this.gameStateManager,
+        this.starData
+      );
+    } catch (error) {
+      if (isTestEnvironment) {
+        return null;
+      }
+      throw new Error(
+        `Failed to initialize ${controllerName}: ${error.message}`
+      );
+    }
+  }
+
+  /**
+   * Initialize InfoBrokerPanelController with additional informationBroker dependency
+   *
+   * InfoBrokerPanelController requires an extra parameter beyond the standard pattern.
+   *
+   * @param {Function} ControllerClass - Controller constructor
+   * @param {Object} elements - DOM elements for controller
+   * @param {string} controllerName - Name for error messages
+   * @param {boolean} isTestEnvironment - Whether running in test mode
+   * @returns {Object|null} Controller instance or null on test failure
+   */
+  initializeControllerWithBroker(
+    ControllerClass,
+    elements,
+    controllerName,
+    isTestEnvironment
+  ) {
+    try {
+      return new ControllerClass(
+        elements,
+        this.gameStateManager,
+        this.starData,
+        this.gameStateManager.informationBroker
+      );
+    } catch (error) {
+      if (isTestEnvironment) {
+        return null;
+      }
+      throw new Error(
+        `Failed to initialize ${controllerName}: ${error.message}`
+      );
+    }
+  }
+
+  /**
+   * Validate that a controller is initialized
+   *
+   * Centralized validation to avoid repetitive null checks across delegation methods.
+   * Controllers may be null in test environments with incomplete DOM.
+   *
+   * @param {Object} controller - Controller instance to validate
+   * @param {string} controllerName - Name of controller for error message
+   * @throws {Error} If controller is not initialized
+   */
+  validateController(controller, controllerName) {
+    if (!controller) {
+      throw new Error(
+        `${controllerName} not initialized - required DOM elements may be missing`
+      );
+    }
   }
 
   subscribeToStateChanges() {
@@ -212,6 +454,10 @@ export class UIManager {
     this.gameStateManager.subscribe('shipConditionChanged', (condition) => {
       this.updateShipCondition(condition);
     });
+
+    this.gameStateManager.subscribe('shipNameChanged', (shipName) => {
+      this.updateShipName(shipName);
+    });
   }
 
   showHUD() {
@@ -231,6 +477,7 @@ export class UIManager {
     this.updateCredits(state.player.credits);
     this.updateDebt(state.player.debt);
     this.updateDays(state.player.daysElapsed);
+    this.updateShipName(state.ship.name);
     this.updateFuel(state.ship.fuel);
     this.updateShipCondition(this.gameStateManager.getShipCondition());
     this.updateCargo();
@@ -250,6 +497,12 @@ export class UIManager {
     this.elements.days.textContent = days;
   }
 
+  updateShipName(shipName) {
+    if (this.elements.shipName) {
+      this.elements.shipName.textContent = shipName;
+    }
+  }
+
   updateFuel(fuel) {
     this.elements.fuelBar.style.width = `${fuel}%`;
     this.elements.fuelText.textContent = `${Math.round(fuel)}%`;
@@ -266,7 +519,7 @@ export class UIManager {
    * @param {number} conditionValue - Condition percentage (0-100)
    */
   updateConditionDisplay(prefix, systemType, conditionValue) {
-    const capitalizedType = this.capitalizeFirst(systemType);
+    const capitalizedType = capitalizeFirst(systemType);
     // For HUD (empty prefix), use lowercase first letter; for repair panel, use capitalized
     const typeKey = prefix ? capitalizedType : systemType;
     const barElement = this.elements[`${prefix}${typeKey}Bar`];
@@ -379,7 +632,9 @@ export class UIManager {
 
     if (this.elements.refuelAmountInput) {
       this.elements.refuelAmountInput.addEventListener('input', () => {
-        this.updateRefuelCost();
+        if (this.refuelPanelController) {
+          this.refuelPanelController.updateRefuelCost();
+        }
       });
     }
 
@@ -389,20 +644,31 @@ export class UIManager {
     );
     this.cachedRefuelPresetButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        const amount = parseInt(btn.getAttribute('data-amount'));
-        this.setRefuelAmount(amount);
+        if (this.refuelPanelController) {
+          const amount = parseInt(btn.getAttribute('data-amount'));
+          this.refuelPanelController.elements.refuelAmountInput.value = amount;
+          this.refuelPanelController.updateRefuelCost();
+        }
       });
     });
 
     if (this.elements.refuelMaxBtn) {
       this.elements.refuelMaxBtn.addEventListener('click', () => {
-        this.setRefuelAmountToMax();
+        if (this.refuelPanelController) {
+          this.refuelPanelController.handleRefuelMax();
+        }
       });
     }
 
     if (this.elements.refuelConfirmBtn) {
       this.elements.refuelConfirmBtn.addEventListener('click', () => {
-        this.handleRefuel();
+        if (this.refuelPanelController) {
+          try {
+            this.refuelPanelController.handleRefuelConfirm();
+          } catch (error) {
+            this.showError(error.message);
+          }
+        }
       });
     }
 
@@ -427,19 +693,25 @@ export class UIManager {
 
     if (this.elements.buyRumorBtn) {
       this.elements.buyRumorBtn.addEventListener('click', () => {
-        this.handleBuyRumor();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.handleBuyRumor();
+        }
       });
     }
 
     if (this.elements.purchaseTab) {
       this.elements.purchaseTab.addEventListener('click', () => {
-        this.showPurchaseTab();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.switchTab('purchase');
+        }
       });
     }
 
     if (this.elements.marketDataTab) {
       this.elements.marketDataTab.addEventListener('click', () => {
-        this.showMarketDataTab();
+        if (this.infoBrokerPanelController) {
+          this.infoBrokerPanelController.switchTab('marketData');
+        }
       });
     }
 
@@ -507,7 +779,9 @@ export class UIManager {
 
     if (this.elements.upgradeCancelBtn) {
       this.elements.upgradeCancelBtn.addEventListener('click', () => {
-        this.hideUpgradeConfirmation();
+        if (this.upgradePanelController) {
+          this.upgradePanelController.hideUpgradeConfirmation();
+        }
       });
     }
 
@@ -538,7 +812,9 @@ export class UIManager {
 
     if (this.elements.toggleHiddenCargoBtn) {
       this.elements.toggleHiddenCargoBtn.addEventListener('click', () => {
-        this.toggleHiddenCargoView();
+        if (this.tradePanelController) {
+          this.tradePanelController.toggleHiddenCargoView();
+        }
       });
     }
   }
@@ -740,51 +1016,24 @@ export class UIManager {
   }
 
   showTradePanel() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in showTradePanel');
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
-      );
-    }
-
-    this.elements.tradeSystemName.textContent = system.name;
-
     this.hideStationInterface();
+    this.validateController(this.tradePanelController, 'TradePanelController');
 
-    this.updateTradeCargoCapacity();
-    this.renderMarketGoods(system);
-    this.renderCargoStacks(system);
-    this.renderHiddenCargoSection(system);
-
-    this.elements.tradePanel.classList.add('visible');
-  }
-
-  updateTradeCargoCapacity() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in updateTradeCargoCapacity'
-      );
+    try {
+      this.tradePanelController.show();
+    } catch (error) {
+      this.showError(error.message);
     }
-
-    const cargoUsed = this.gameStateManager.getCargoUsed();
-    const cargoCapacity = state.ship.cargoCapacity;
-    const cargoRemaining = this.gameStateManager.getCargoRemaining();
-
-    this.elements.tradeCargoUsed.textContent = cargoUsed;
-    this.elements.tradeCargoCapacity.textContent = cargoCapacity;
-    this.elements.tradeCargoRemaining.textContent = cargoRemaining;
   }
 
   hideTradePanel() {
-    this.elements.tradePanel.classList.remove('visible');
+    this.validateController(this.tradePanelController, 'TradePanelController');
+    this.tradePanelController.hide();
+  }
+
+  updateTradeCargoCapacity() {
+    this.validateController(this.tradePanelController, 'TradePanelController');
+    this.tradePanelController.updateTradeCargoCapacity();
   }
 
   isTradeVisible() {
@@ -800,583 +1049,26 @@ export class UIManager {
   }
 
   renderMarketGoods(system) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in renderMarketGoods');
-    }
-
-    this.elements.marketGoods.replaceChildren();
-
-    const currentDay = state.player.daysElapsed;
-    const activeEvents = state.world.activeEvents || [];
-    const marketConditions = state.world.marketConditions || {};
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    this.goodsList.forEach((goodType) => {
-      const price = TradingSystem.calculatePrice(
-        goodType,
-        system,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-      const goodItem = this.createGoodItem(goodType, price);
-      fragment.appendChild(goodItem);
-    });
-    this.elements.marketGoods.appendChild(fragment);
+    this.validateController(this.tradePanelController, 'TradePanelController');
+    this.tradePanelController.renderMarketGoods(system);
   }
 
   createGoodItem(goodType, price) {
-    const state = this.gameStateManager.getState();
-    const credits = state.player.credits;
-    const cargoRemaining = this.gameStateManager.getCargoRemaining();
-
-    const marketListing = document.createElement('div');
-    marketListing.className = 'good-item';
-
-    const commodityInfo = document.createElement('div');
-    commodityInfo.className = 'good-info';
-
-    const commodityName = document.createElement('div');
-    commodityName.className = 'good-name';
-    commodityName.textContent = this.capitalizeFirst(goodType);
-
-    const stationPrice = document.createElement('div');
-    stationPrice.className = 'good-price';
-    stationPrice.textContent = `${price} cr/unit`;
-
-    commodityInfo.appendChild(commodityName);
-    commodityInfo.appendChild(stationPrice);
-
-    const purchaseActions = document.createElement('div');
-    purchaseActions.className = 'good-actions';
-
-    const buy1Btn = document.createElement('button');
-    buy1Btn.className = 'buy-btn';
-    buy1Btn.textContent = 'Buy 1';
-    buy1Btn.disabled = credits < price || cargoRemaining < 1;
-    buy1Btn.addEventListener('click', () => this.handleBuy(goodType, 1, price));
-
-    const buy10Btn = document.createElement('button');
-    buy10Btn.className = 'buy-btn';
-    buy10Btn.textContent = 'Buy 10';
-    const canBuy10 = credits >= price * 10 && cargoRemaining >= 10;
-    buy10Btn.disabled = !canBuy10;
-    buy10Btn.addEventListener('click', () =>
-      this.handleBuy(goodType, 10, price)
-    );
-
-    const buyMaxBtn = document.createElement('button');
-    buyMaxBtn.className = 'buy-btn';
-    buyMaxBtn.textContent = 'Buy Max';
-    const maxAffordable = Math.floor(credits / price);
-    const maxQuantity = Math.min(maxAffordable, cargoRemaining);
-    buyMaxBtn.disabled = maxQuantity < 1;
-    buyMaxBtn.addEventListener('click', () =>
-      this.handleBuy(goodType, maxQuantity, price)
-    );
-
-    purchaseActions.appendChild(buy1Btn);
-    purchaseActions.appendChild(buy10Btn);
-    purchaseActions.appendChild(buyMaxBtn);
-
-    // Add validation message if purchase not possible
-    const validationMessage = document.createElement('div');
-    validationMessage.className = 'validation-message';
-
-    if (cargoRemaining < 1) {
-      validationMessage.textContent = 'Cargo capacity full';
-      validationMessage.classList.add('error');
-    } else if (credits < price) {
-      validationMessage.textContent = 'Insufficient credits for purchase';
-      validationMessage.classList.add('error');
-    }
-
-    marketListing.appendChild(commodityInfo);
-    marketListing.appendChild(purchaseActions);
-    marketListing.appendChild(validationMessage);
-
-    return marketListing;
+    this.validateController(this.tradePanelController, 'TradePanelController');
+    return this.tradePanelController.createGoodItem(goodType, price);
   }
 
   handleBuy(goodType, quantity, price) {
-    const purchaseOutcome = this.gameStateManager.buyGood(
-      goodType,
-      quantity,
-      price
-    );
-
-    if (!purchaseOutcome.success) {
-      this.showError(`Purchase failed: ${purchaseOutcome.reason}`);
-      return;
+    try {
+      this.tradePanelController.handleBuyGood(goodType, quantity, price);
+    } catch (error) {
+      this.showError(error.message);
     }
-
-    // Refresh the trade panel to show updated state
-    const state = this.gameStateManager.getState();
-    const system = this.starData.find(
-      (s) => s.id === state.player.currentSystem
-    );
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
-      );
-    }
-
-    this.updateTradeCargoCapacity();
-    this.renderMarketGoods(system);
-    this.renderCargoStacks(system);
-    this.renderHiddenCargoSection(system);
   }
 
   renderCargoStacks(system) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in renderCargoStacks');
-    }
-
-    this.elements.cargoStacks.replaceChildren();
-
-    const cargo = state.ship.cargo;
-
-    if (!cargo || cargo.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'cargo-empty';
-      emptyMsg.textContent = 'No cargo';
-      this.elements.cargoStacks.appendChild(emptyMsg);
-      return;
-    }
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    cargo.forEach((stack, index) => {
-      const stackItem = this.createCargoStackItem(stack, index, system);
-      fragment.appendChild(stackItem);
-    });
-    this.elements.cargoStacks.appendChild(fragment);
-  }
-
-  /**
-   * Create cargo stack display info (shared between regular and hidden cargo)
-   *
-   * Calculates current price, profit margin, and formats purchase details.
-   * Centralizes logic to avoid duplication between regular and hidden cargo displays.
-   *
-   * @private
-   * @param {Object} stack - Cargo stack with good, qty, buyPrice, buySystem, buyDate
-   * @param {Object} system - Current star system
-   * @returns {Object} Stack info with stackInfo DOM element and currentPrice
-   */
-  _createCargoStackInfo(stack, system) {
-    const state = this.gameStateManager.getState();
-    const currentDay = state.player.daysElapsed;
-    const activeEvents = state.world.activeEvents || [];
-    const marketConditions = state.world.marketConditions || {};
-
-    const currentPrice = TradingSystem.calculatePrice(
-      stack.good,
-      system,
-      currentDay,
-      activeEvents,
-      marketConditions
-    );
-    const profitMargin = currentPrice - stack.buyPrice;
-    const profitPercentage = ((profitMargin / stack.buyPrice) * 100).toFixed(1);
-
-    const stackInfo = document.createElement('div');
-    stackInfo.className = 'stack-info';
-
-    const stackName = document.createElement('div');
-    stackName.className = 'stack-name';
-    stackName.textContent = this.capitalizeFirst(stack.good);
-
-    const stackDetails = document.createElement('div');
-    stackDetails.className = 'stack-details';
-
-    // Build details text
-    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
-
-    // Add purchase context if available
-    if (stack.buySystem !== undefined && stack.buyDate !== undefined) {
-      const purchaseSystem = this.starData.find(
-        (s) => s.id === stack.buySystem
-      );
-      if (!purchaseSystem) {
-        throw new Error(
-          `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
-        );
-      }
-
-      const daysSincePurchase = currentDay - stack.buyDate;
-      let ageText;
-      if (daysSincePurchase === 0) {
-        ageText = 'today';
-      } else if (daysSincePurchase === 1) {
-        ageText = '1 day ago';
-      } else {
-        ageText = `${daysSincePurchase} days ago`;
-      }
-
-      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
-    }
-
-    stackDetails.textContent = detailsText;
-
-    const stackProfit = document.createElement('div');
-    stackProfit.className = 'stack-profit';
-
-    if (profitMargin > 0) {
-      stackProfit.classList.add('positive');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Profit: +${profitMargin} cr/unit (+${profitPercentage}%)`;
-    } else if (profitMargin < 0) {
-      stackProfit.classList.add('negative');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Loss: ${profitMargin} cr/unit (${profitPercentage}%)`;
-    } else {
-      stackProfit.classList.add('neutral');
-      stackProfit.textContent = `Sell at: ${currentPrice} cr/unit | Break even`;
-    }
-
-    stackInfo.appendChild(stackName);
-    stackInfo.appendChild(stackDetails);
-    stackInfo.appendChild(stackProfit);
-
-    return { stackInfo, currentPrice };
-  }
-
-  createCargoStackItem(stack, stackIndex, system) {
-    const state = this.gameStateManager.getState();
-
-    const stackItem = document.createElement('div');
-    stackItem.className = 'cargo-stack';
-
-    // Create shared stack info display
-    const { stackInfo, currentPrice } = this._createCargoStackInfo(
-      stack,
-      system
-    );
-
-    const stackActions = document.createElement('div');
-    stackActions.className = 'stack-actions';
-
-    const sell1Btn = document.createElement('button');
-    sell1Btn.className = 'sell-btn';
-    sell1Btn.textContent = 'Sell 1';
-    sell1Btn.disabled = stack.qty < 1;
-    sell1Btn.addEventListener('click', () =>
-      this.handleSell(stackIndex, 1, currentPrice)
-    );
-
-    const sellAllBtn = document.createElement('button');
-    sellAllBtn.className = 'sell-btn';
-    sellAllBtn.textContent = `Sell All (${stack.qty})`;
-    sellAllBtn.addEventListener('click', () =>
-      this.handleSell(stackIndex, stack.qty, currentPrice)
-    );
-
-    stackActions.appendChild(sell1Btn);
-    stackActions.appendChild(sellAllBtn);
-
-    // Add "Move to Hidden" button if Smuggler's Panels installed
-    const hasSmugglersPanel =
-      state.ship.upgrades && state.ship.upgrades.includes('smuggler_panels');
-    if (hasSmugglersPanel) {
-      const moveToHiddenBtn = document.createElement('button');
-      moveToHiddenBtn.className = 'transfer-btn';
-      moveToHiddenBtn.textContent = 'Move to Hidden';
-      moveToHiddenBtn.addEventListener('click', () =>
-        this.handleMoveToHidden(stack.good, stack.qty)
-      );
-      stackActions.appendChild(moveToHiddenBtn);
-    }
-
-    stackItem.appendChild(stackInfo);
-    stackItem.appendChild(stackActions);
-
-    return stackItem;
-  }
-
-  handleSell(stackIndex, quantity, salePrice) {
-    const saleOutcome = this.gameStateManager.sellGood(
-      stackIndex,
-      quantity,
-      salePrice
-    );
-
-    if (!saleOutcome.success) {
-      this.showError(`Sale failed: ${saleOutcome.reason}`);
-      return;
-    }
-
-    // Refresh the trade panel to show updated state
-    const state = this.gameStateManager.getState();
-    const system = this.starData.find(
-      (s) => s.id === state.player.currentSystem
-    );
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
-      );
-    }
-
-    this.updateTradeCargoCapacity();
-    this.renderMarketGoods(system);
-    this.renderCargoStacks(system);
-    this.renderHiddenCargoSection(system);
-  }
-
-  /**
-   * Handle moving cargo to hidden compartment
-   *
-   * Transfers cargo from regular cargo to hidden compartment.
-   * Displays validation errors if transfer fails.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 3.3
-   *
-   * @param {string} goodType - Commodity type
-   * @param {number} quantity - Quantity to move
-   */
-  handleMoveToHidden(goodType, quantity) {
-    const result = this.gameStateManager.moveToHiddenCargo(goodType, quantity);
-
-    if (!result.success) {
-      this.showError(`Transfer failed: ${result.reason}`);
-      return;
-    }
-
-    this.showSuccess(`Moved ${quantity} ${goodType} to hidden cargo`);
-
-    // Refresh the trade panel to show updated state
-    const state = this.gameStateManager.getState();
-    const system = this.starData.find(
-      (s) => s.id === state.player.currentSystem
-    );
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
-      );
-    }
-
-    this.updateTradeCargoCapacity();
-    this.renderMarketGoods(system);
-    this.renderCargoStacks(system);
-    this.renderHiddenCargoSection(system);
-  }
-
-  /**
-   * Handle moving cargo to regular compartment
-   *
-   * Transfers cargo from hidden compartment to regular cargo.
-   * Displays validation errors if transfer fails.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 3.4
-   *
-   * @param {string} goodType - Commodity type
-   * @param {number} quantity - Quantity to move
-   */
-  handleMoveToRegular(goodType, quantity) {
-    const result = this.gameStateManager.moveToRegularCargo(goodType, quantity);
-
-    if (!result.success) {
-      this.showError(`Transfer failed: ${result.reason}`);
-      return;
-    }
-
-    this.showSuccess(`Moved ${quantity} ${goodType} to regular cargo`);
-
-    // Refresh the trade panel to show updated state
-    const state = this.gameStateManager.getState();
-    const system = this.starData.find(
-      (s) => s.id === state.player.currentSystem
-    );
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
-      );
-    }
-
-    this.updateTradeCargoCapacity();
-    this.renderMarketGoods(system);
-    this.renderCargoStacks(system);
-    this.renderHiddenCargoSection(system);
-  }
-
-  /**
-   * Render hidden cargo section in trade panel
-   *
-   * Displays hidden cargo section only when Smuggler's Panels upgrade is installed.
-   * Shows hidden cargo capacity usage and all hidden cargo stacks.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 3.2
-   *
-   * @param {Object} system - Current star system
-   */
-  renderHiddenCargoSection(system) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderHiddenCargoSection'
-      );
-    }
-
-    // Check if hidden cargo elements exist (may not exist in test environment)
-    if (!this.elements.hiddenCargoSection || !this.elements.hiddenCargoStacks) {
-      return;
-    }
-
-    const ship = state.ship;
-    const hasSmugglersPanel =
-      ship.upgrades && ship.upgrades.includes('smuggler_panels');
-
-    // Show/hide section based on upgrade
-    if (!hasSmugglersPanel) {
-      this.elements.hiddenCargoSection.classList.add('hidden');
-      return;
-    }
-
-    this.elements.hiddenCargoSection.classList.remove('hidden');
-
-    // Update capacity display
-    const hiddenCargo = ship.hiddenCargo || [];
-    const hiddenCargoUsed = hiddenCargo.reduce(
-      (sum, stack) => sum + stack.qty,
-      0
-    );
-    const hiddenCargoCapacity = ship.hiddenCargoCapacity || 10;
-
-    if (this.elements.hiddenCargoUsed) {
-      this.elements.hiddenCargoUsed.textContent = hiddenCargoUsed;
-    }
-    if (this.elements.hiddenCargoCapacity) {
-      this.elements.hiddenCargoCapacity.textContent = hiddenCargoCapacity;
-    }
-
-    // Render hidden cargo stacks
-    this.elements.hiddenCargoStacks.replaceChildren();
-
-    if (hiddenCargo.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'cargo-empty';
-      emptyMsg.textContent = 'No hidden cargo';
-      this.elements.hiddenCargoStacks.appendChild(emptyMsg);
-      return;
-    }
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    hiddenCargo.forEach((stack) => {
-      const stackItem = this.createHiddenCargoStackItem(stack, system);
-      fragment.appendChild(stackItem);
-    });
-    this.elements.hiddenCargoStacks.appendChild(fragment);
-  }
-
-  /**
-   * Toggle hidden cargo view visibility
-   *
-   * Shows or hides the hidden cargo content section and updates button text.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 3.5
-   */
-  toggleHiddenCargoView() {
-    if (
-      !this.elements.hiddenCargoContent ||
-      !this.elements.toggleHiddenCargoBtn
-    ) {
-      return;
-    }
-
-    const isCollapsed =
-      this.elements.hiddenCargoContent.classList.contains('collapsed');
-
-    if (isCollapsed) {
-      // Show hidden cargo
-      this.elements.hiddenCargoContent.classList.remove('collapsed');
-      this.elements.toggleHiddenCargoBtn.textContent = 'Hide';
-    } else {
-      // Hide hidden cargo
-      this.elements.hiddenCargoContent.classList.add('collapsed');
-      this.elements.toggleHiddenCargoBtn.textContent = 'Show';
-    }
-  }
-
-  /**
-   * Create a hidden cargo stack item element
-   *
-   * Similar to regular cargo stack but for hidden compartment.
-   * Shows commodity name, quantity, purchase details, and profit calculation.
-   *
-   * @param {Object} stack - Hidden cargo stack
-   * @param {Object} system - Current star system
-   * @returns {HTMLElement} Hidden cargo stack item element
-   */
-  createHiddenCargoStackItem(stack, system) {
-    const stackItem = document.createElement('div');
-    stackItem.className = 'cargo-stack';
-
-    // Create shared stack info display
-    const { stackInfo } = this._createCargoStackInfo(stack, system);
-
-    // Add "Move to Regular" button for hidden cargo
-    const stackActions = document.createElement('div');
-    stackActions.className = 'stack-actions';
-
-    const moveToRegularBtn = document.createElement('button');
-    moveToRegularBtn.className = 'transfer-btn';
-    moveToRegularBtn.textContent = 'Move to Regular';
-    moveToRegularBtn.addEventListener('click', () =>
-      this.handleMoveToRegular(stack.good, stack.qty)
-    );
-
-    stackActions.appendChild(moveToRegularBtn);
-
-    stackItem.appendChild(stackInfo);
-    stackItem.appendChild(stackActions);
-
-    return stackItem;
-  }
-
-  /**
-   * Capitalize first letter of a string for display purposes
-   *
-   * Used consistently across UI for commodity names, system types, and labels
-   * to ensure uniform presentation. Centralizes formatting logic.
-   *
-   * @param {string} str - String to capitalize
-   * @returns {string} String with first letter capitalized
-   */
-  capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  /**
-   * Format staleness information for price knowledge display
-   *
-   * Converts lastVisit days into human-readable text with appropriate CSS class.
-   * Centralizes staleness display logic to ensure consistency across UI.
-   *
-   * @param {number} lastVisit - Days since last visit (0 = current)
-   * @returns {Object} { text: string, cssClass: string }
-   */
-  formatStaleness(lastVisit) {
-    if (lastVisit === 0) {
-      return { text: 'Current', cssClass: '' };
-    } else if (lastVisit === 1) {
-      return { text: '1 day old', cssClass: '' };
-    } else if (lastVisit <= 10) {
-      return { text: `${lastVisit} days old`, cssClass: '' };
-    } else if (lastVisit <= 30) {
-      return { text: `${lastVisit} days old`, cssClass: 'stale' };
-    } else {
-      return { text: `${lastVisit} days old`, cssClass: 'very-stale' };
-    }
+    this.validateController(this.tradePanelController, 'TradePanelController');
+    this.tradePanelController.renderCargoStacks(system);
   }
 
   /**
@@ -1478,7 +1170,7 @@ export class UIManager {
     const systemName =
       warning.system === 'lifeSupport'
         ? 'Life Support'
-        : this.capitalizeFirst(warning.system);
+        : capitalizeFirst(warning.system);
 
     const message = `${systemName}: ${warning.message}`;
 
@@ -1492,795 +1184,150 @@ export class UIManager {
   }
 
   showRefuelPanel() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in showRefuelPanel');
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
-      );
-    }
-
-    this.elements.refuelSystemName.textContent = system.name;
-
-    const currentFuel = state.ship.fuel;
-    this.elements.refuelCurrentFuel.textContent = `${Math.round(currentFuel)}%`;
-
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-    this.elements.refuelPricePerPercent.textContent = `${fuelPrice} cr/%`;
-
-    const defaultAmount = Math.min(
-      10,
-      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel)
-    );
-    this.elements.refuelAmountInput.value =
-      defaultAmount > 0 ? defaultAmount : 0;
-    this.elements.refuelAmountInput.max =
-      SHIP_CONDITION_BOUNDS.MAX - Math.round(currentFuel);
-
-    this.updateRefuelCost();
-
     this.hideStationInterface();
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
 
-    this.elements.refuelPanel.classList.add('visible');
+    try {
+      this.refuelPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   hideRefuelPanel() {
-    this.elements.refuelPanel.classList.remove('visible');
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
+    this.refuelPanelController.hide();
   }
 
   updateRefuelCost() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in updateRefuelCost');
-    }
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
+    this.refuelPanelController.updateRefuelCost();
+  }
 
-    const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
-    const currentSystemId = state.player.currentSystem;
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
+  setRefuelAmountToMax() {
+    this.validateController(
+      this.refuelPanelController,
+      'RefuelPanelController'
+    );
+    this.refuelPanelController.handleRefuelMax();
+  }
 
-    const totalCost = amount * fuelPrice;
-    this.elements.refuelTotalCost.textContent = `${totalCost} cr`;
-
-    const currentFuel = state.ship.fuel;
-    const credits = state.player.credits;
-
-    const validation = this.gameStateManager.validateRefuel(
-      currentFuel,
-      amount,
-      credits,
-      fuelPrice
+  showInfoBrokerPanel() {
+    this.hideStationInterface();
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
     );
 
-    // Update button state
-    this.elements.refuelConfirmBtn.disabled = !validation.valid || amount <= 0;
+    try {
+      this.infoBrokerPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
+  }
 
-    // Show validation message if there's an issue
-    if (this.elements.refuelValidationMessage) {
-      if (amount <= 0) {
-        this.elements.refuelValidationMessage.textContent =
-          'Enter an amount to refuel';
-        this.elements.refuelValidationMessage.className =
-          'validation-message info';
-      } else if (!validation.valid) {
-        this.elements.refuelValidationMessage.textContent = validation.reason;
-        this.elements.refuelValidationMessage.className =
-          'validation-message error';
-      } else {
-        // Valid - hide message
-        this.elements.refuelValidationMessage.textContent = '';
-        this.elements.refuelValidationMessage.className = 'validation-message';
+  hideInfoBrokerPanel() {
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
+    );
+    this.infoBrokerPanelController.hide();
+  }
+
+  handlePurchaseIntelligence(systemId) {
+    this.validateController(
+      this.infoBrokerPanelController,
+      'InfoBrokerPanelController'
+    );
+
+    const intelligenceOutcome =
+      this.infoBrokerPanelController.handlePurchaseIntelligence(systemId);
+
+    // Show success notification if purchase succeeded
+    if (intelligenceOutcome && intelligenceOutcome.success) {
+      const system = this.starData.find((s) => s.id === systemId);
+      if (system) {
+        this.showSuccess(`Intelligence purchased for ${system.name}`);
       }
     }
   }
 
-  setRefuelAmount(amount) {
-    if (!this.elements.refuelAmountInput) return;
-
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in setRefuelAmount');
-    }
-
-    const currentFuel = Math.round(state.ship.fuel);
-    const maxAmount = SHIP_CONDITION_BOUNDS.MAX - currentFuel;
-    const actualAmount = Math.min(amount, maxAmount);
-
-    this.elements.refuelAmountInput.value = actualAmount > 0 ? actualAmount : 0;
-    this.updateRefuelCost();
-  }
-
-  setRefuelAmountToMax() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in setRefuelAmountToMax'
-      );
-    }
-
-    const currentFuel = state.ship.fuel;
-    const credits = state.player.credits;
-    const currentSystemId = state.player.currentSystem;
-    const fuelPrice = this.gameStateManager.getFuelPrice(currentSystemId);
-
-    // Calculate max affordable amount
-    const maxAffordable = Math.floor(credits / fuelPrice);
-
-    // Calculate max capacity amount
-    const maxCapacity = Math.floor(SHIP_CONDITION_BOUNDS.MAX - currentFuel);
-
-    // Use the smaller of the two
-    const maxAmount = Math.min(maxAffordable, maxCapacity);
-
-    this.setRefuelAmount(maxAmount);
-  }
-
-  handleRefuel() {
-    if (!this.elements.refuelAmountInput) return;
-
-    const amount = parseInt(this.elements.refuelAmountInput.value) || 0;
-
-    if (amount <= 0) {
-      this.showError('Refuel failed: Invalid amount');
-      return;
-    }
-
-    const refuelOutcome = this.gameStateManager.refuel(amount);
-
-    if (!refuelOutcome.success) {
-      this.showError(`Refuel failed: ${refuelOutcome.reason}`);
-      return;
-    }
-
-    // Refresh the refuel panel to show updated state
-    this.showRefuelPanel();
-  }
-
-  showInfoBrokerPanel() {
-    const state = this.gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) return;
-
-    this.elements.infoBrokerSystemName.textContent = system.name;
-
-    // Clear previous rumor
-    this.elements.rumorText.textContent = '';
-    this.elements.rumorText.classList.remove('visible');
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Show purchase tab by default
-    this.showPurchaseTab();
-
-    // Update rumor button state
-    this.updateRumorButton();
-
-    // Render intelligence list
-    this.renderIntelligenceList();
-
-    this.hideStationInterface();
-
-    this.elements.infoBrokerPanel.classList.add('visible');
-  }
-
-  showPurchaseTab() {
-    this.elements.purchaseTab.classList.add('active');
-    this.elements.marketDataTab.classList.remove('active');
-    this.elements.purchaseIntelContent.classList.add('active');
-    this.elements.marketDataContent.classList.remove('active');
-  }
-
-  showMarketDataTab() {
-    this.elements.purchaseTab.classList.remove('active');
-    this.elements.marketDataTab.classList.add('active');
-    this.elements.purchaseIntelContent.classList.remove('active');
-    this.elements.marketDataContent.classList.add('active');
-
-    // Render market data when tab is shown
-    this.renderMarketData();
-  }
-
+  // Delegation method for backward compatibility with tests
+  // In test environments, controller may be null if DOM is incomplete
   renderMarketData() {
-    const state = this.gameStateManager.getState();
-    const priceKnowledge = state.world.priceKnowledge || {};
-
-    this.elements.marketDataList.replaceChildren();
-
-    // Get all systems with known prices
-    const knownSystems = Object.keys(priceKnowledge).map(Number);
-
-    if (knownSystems.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'market-data-empty';
-      emptyMsg.textContent =
-        'No market data available. Purchase intelligence or visit systems to gather price information.';
-      this.elements.marketDataList.appendChild(emptyMsg);
-      return;
+    if (this.infoBrokerPanelController) {
+      this.infoBrokerPanelController.renderMarketData();
     }
-
-    // Sort by staleness (current first, then recent, then stale)
-    knownSystems.sort((a, b) => {
-      const aLastVisit = priceKnowledge[a].lastVisit;
-      const bLastVisit = priceKnowledge[b].lastVisit;
-      return aLastVisit - bLastVisit;
-    });
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    knownSystems.forEach((systemId) => {
-      const system = this.starData.find((s) => s.id === systemId);
-      if (!system) return;
-
-      const knowledge = priceKnowledge[systemId];
-      const marketDataItem = this.createMarketDataItem(system, knowledge);
-      fragment.appendChild(marketDataItem);
-    });
-    this.elements.marketDataList.appendChild(fragment);
   }
 
-  createMarketDataItem(system, knowledge) {
-    const container = document.createElement('div');
-    container.className = 'market-data-system';
-
-    // Header with system name and staleness
-    const header = document.createElement('div');
-    header.className = 'market-data-header';
-
-    const systemName = document.createElement('div');
-    systemName.className = 'market-data-system-name';
-    systemName.textContent = system.name;
-
-    const staleness = document.createElement('div');
-    staleness.className = 'market-data-staleness';
-
-    const stalenessInfo = this.formatStaleness(knowledge.lastVisit);
-    staleness.textContent = stalenessInfo.text;
-    if (stalenessInfo.cssClass) {
-      staleness.classList.add(stalenessInfo.cssClass);
-    }
-
-    header.appendChild(systemName);
-    header.appendChild(staleness);
-
-    // Prices grid
-    const pricesGrid = document.createElement('div');
-    pricesGrid.className = 'market-data-prices';
-
-    COMMODITY_TYPES.forEach((commodity) => {
-      const priceItem = document.createElement('div');
-      priceItem.className = 'market-data-price-item';
-
-      const commodityName = document.createElement('span');
-      commodityName.className = 'market-data-commodity';
-      commodityName.textContent = this.capitalizeFirst(commodity);
-
-      const price = document.createElement('span');
-      price.className = 'market-data-price';
-      price.textContent = `₡${knowledge.prices[commodity]}`;
-
-      priceItem.appendChild(commodityName);
-      priceItem.appendChild(price);
-      pricesGrid.appendChild(priceItem);
-    });
-
-    container.appendChild(header);
-    container.appendChild(pricesGrid);
-
-    return container;
-  }
-
-  hideInfoBrokerPanel() {
-    this.elements.infoBrokerPanel.classList.remove('visible');
-  }
-
-  updateRumorButton() {
-    const state = this.gameStateManager.getState();
-    const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_PRICES.RUMOR;
-
-    this.elements.buyRumorBtn.disabled = credits < rumorCost;
-  }
-
-  handleBuyRumor() {
-    const state = this.gameStateManager.getState();
-    const credits = state.player.credits;
-    const rumorCost = INTELLIGENCE_PRICES.RUMOR;
-
-    // Validate purchase
-    if (credits < rumorCost) {
-      this.elements.infoBrokerValidationMessage.textContent =
-        'Insufficient credits for rumor';
-      this.elements.infoBrokerValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    // Deduct credits
-    this.gameStateManager.updateCredits(credits - rumorCost);
-
-    // Generate and display rumor
-    const rumor = this.gameStateManager.generateRumor();
-    this.elements.rumorText.textContent = rumor;
-    this.elements.rumorText.classList.add('visible');
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Update button state
-    this.updateRumorButton();
-
-    // Refresh intelligence list (credits changed)
-    this.renderIntelligenceList();
-  }
-
-  renderIntelligenceList() {
-    const state = this.gameStateManager.getState();
-
-    this.elements.intelligenceList.replaceChildren();
-
-    const credits = state.player.credits;
-
-    // Get all systems with their intelligence costs
-    const intelligenceOptions =
-      this.gameStateManager.listAvailableIntelligence();
-
-    // Sort by information freshness: never visited → stale → recent → current
-    // This prioritizes systems where intelligence is most valuable
-    const getIntelligencePriority = (option) => {
-      if (option.lastVisit === null) return 0; // Never visited - highest priority
-      if (option.lastVisit === 0) return 3; // Current - lowest priority (already have data)
-      if (option.lastVisit > INTELLIGENCE_RECENT_THRESHOLD) return 1; // Stale
-      return 2; // Recent
-    };
-
-    intelligenceOptions.sort(
-      (a, b) => getIntelligencePriority(a) - getIntelligencePriority(b)
-    );
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    intelligenceOptions.forEach((option) => {
-      const item = this.createIntelligenceItem(option, credits);
-      fragment.appendChild(item);
-    });
-    this.elements.intelligenceList.appendChild(fragment);
-  }
-
-  createIntelligenceItem(option, credits) {
-    const item = document.createElement('div');
-    item.className = 'intelligence-item';
-
-    const info = document.createElement('div');
-    info.className = 'intelligence-info';
-
-    const systemName = document.createElement('div');
-    systemName.className = 'intelligence-system-name';
-    systemName.textContent = option.systemName;
-
-    const visitInfo = document.createElement('div');
-    visitInfo.className = 'intelligence-visit-info';
-
-    if (option.lastVisit === null) {
-      visitInfo.textContent = 'Never visited';
-    } else if (option.lastVisit === 0) {
-      visitInfo.textContent = 'Current prices';
-    } else if (option.lastVisit === 1) {
-      visitInfo.textContent = 'Last visited 1 day ago';
-    } else {
-      visitInfo.textContent = `Last visited ${option.lastVisit} days ago`;
-    }
-
-    info.appendChild(systemName);
-    info.appendChild(visitInfo);
-
-    const actions = document.createElement('div');
-    actions.className = 'intelligence-actions';
-
-    const cost = document.createElement('div');
-    cost.className = 'intelligence-cost';
-    cost.textContent = `₡${option.cost}`;
-
-    const buyBtn = document.createElement('button');
-    buyBtn.className = 'info-broker-btn';
-    buyBtn.textContent = 'Purchase';
-    buyBtn.disabled = credits < option.cost || option.lastVisit === 0;
-
-    if (option.lastVisit === 0) {
-      buyBtn.textContent = 'Current';
-    }
-
-    buyBtn.addEventListener('click', () =>
-      this.handlePurchaseIntelligence(option.systemId)
-    );
-
-    actions.appendChild(cost);
-    actions.appendChild(buyBtn);
-
-    item.appendChild(info);
-    item.appendChild(actions);
-
-    return item;
-  }
-
-  handlePurchaseIntelligence(systemId) {
-    const intelligenceOutcome =
-      this.gameStateManager.purchaseIntelligence(systemId);
-
-    if (!intelligenceOutcome.success) {
-      this.elements.infoBrokerValidationMessage.textContent =
-        intelligenceOutcome.reason;
-      this.elements.infoBrokerValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    // Clear validation message
-    this.elements.infoBrokerValidationMessage.textContent = '';
-    this.elements.infoBrokerValidationMessage.className = 'validation-message';
-
-    // Show success notification
-    const system = this.starData.find((s) => s.id === systemId);
-    if (system) {
-      this.showSuccess(`Intelligence purchased for ${system.name}`);
-    }
-
-    // Refresh the panel to show updated state
-    this.updateRumorButton();
-    this.renderIntelligenceList();
-  }
+  // Removed: createMarketDataItem - now handled by InfoBrokerPanelController
 
   // ========================================================================
   // REPAIR PANEL
   // ========================================================================
 
   showRepairPanel() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in showRepairPanel');
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
-      );
-    }
-
-    this.elements.repairSystemName.textContent = system.name;
-
-    // Update condition displays
-    this.updateRepairConditionDisplay();
-
-    // Update repair button states and costs
-    this.updateRepairButtons();
-
-    // Clear validation message
-    this.elements.repairValidationMessage.textContent = '';
-    this.elements.repairValidationMessage.className = 'validation-message';
-
     this.hideStationInterface();
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
 
-    this.elements.repairPanel.classList.add('visible');
+    try {
+      this.repairPanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   hideRepairPanel() {
-    this.elements.repairPanel.classList.remove('visible');
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
+    this.repairPanelController.hide();
   }
 
   isRepairVisible() {
     return this.elements.repairPanel.classList.contains('visible');
   }
 
-  /**
-   * Get current condition value for a specific ship system
-   * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
-   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
-   * @returns {number} Current condition percentage
-   */
-  getSystemCondition(condition, systemType) {
-    switch (systemType) {
-      case 'hull':
-        return condition.hull;
-      case 'engine':
-        return condition.engine;
-      case 'lifeSupport':
-        return condition.lifeSupport;
-      default:
-        return 0;
-    }
-  }
-
-  /**
-   * Update all ship condition displays in repair panel
-   *
-   * Refreshes the visual representation of hull, engine, and life support
-   * condition in the repair interface. Called when panel opens or after repairs.
-   */
-  updateRepairConditionDisplay() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in updateRepairConditionDisplay'
-      );
-    }
-
-    this.updateConditionDisplay('repair', 'hull', condition.hull);
-    this.updateConditionDisplay('repair', 'engine', condition.engine);
-    this.updateConditionDisplay('repair', 'lifeSupport', condition.lifeSupport);
-  }
-
-  /**
-   * Update repair button states and costs based on current ship condition
-   *
-   * Recalculates repair costs for all buttons and updates their text/disabled state.
-   * Buttons are disabled when system is at max, player lacks credits, or repair
-   * would exceed maximum condition. Called when repair panel opens or after repairs.
-   */
-  updateRepairButtons() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in updateRepairButtons'
-      );
-    }
-
-    const condition = this.gameStateManager.getShipCondition();
-    const credits = state.player.credits;
-
-    // Update repair buttons if they exist (may not exist in test environment)
-    if (!this.cachedRepairButtons || this.cachedRepairButtons.length === 0) {
-      return;
-    }
-
-    this.cachedRepairButtons.forEach((btn) => {
-      const systemType = btn.getAttribute('data-system');
-      const amountStr = btn.getAttribute('data-amount');
-      const currentCondition = this.getSystemCondition(condition, systemType);
-
-      let amount = 0;
-      let cost = 0;
-
-      if (amountStr === 'full') {
-        // Full repair
-        amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
-        cost = this.gameStateManager.getRepairCost(
-          systemType,
-          amount,
-          currentCondition
-        );
-        btn.textContent = `Full (₡${cost})`;
-      } else {
-        // Fixed amount repair
-        amount = parseInt(amountStr);
-        cost = this.gameStateManager.getRepairCost(
-          systemType,
-          amount,
-          currentCondition
-        );
-        btn.textContent = `+${amount}% (₡${cost})`;
-      }
-
-      // Disable button if:
-      // - Already at max condition
-      // - Not enough credits
-      // - Would exceed max condition
-      const wouldExceedMax =
-        currentCondition + amount > SHIP_CONDITION_BOUNDS.MAX;
-      const atMax = currentCondition >= SHIP_CONDITION_BOUNDS.MAX;
-      const notEnoughCredits = credits < cost;
-
-      btn.disabled = atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
-    });
-
-    // Update repair all button
-    const totalCost = this.calculateRepairAllCost();
-    this.elements.repairAllBtn.textContent = `Repair All to Full (₡${totalCost})`;
-
-    const allAtMax =
-      condition.hull >= SHIP_CONDITION_BOUNDS.MAX &&
-      condition.engine >= SHIP_CONDITION_BOUNDS.MAX &&
-      condition.lifeSupport >= SHIP_CONDITION_BOUNDS.MAX;
-    this.elements.repairAllBtn.disabled =
-      allAtMax || credits < totalCost || totalCost === 0;
-  }
-
-  /**
-   * Calculate total cost to repair all ship systems to maximum condition
-   *
-   * Sums the repair costs for hull, engine, and life support to reach 100%.
-   * Used to display cost on "Repair All" button and validate transaction.
-   *
-   * @returns {number} Total repair cost in credits
-   */
-  calculateRepairAllCost() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in calculateRepairAllCost'
-      );
-    }
-
-    let totalCost = 0;
-
-    // Hull
-    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
-    if (hullAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'hull',
-        hullAmount,
-        condition.hull
-      );
-    }
-
-    // Engine
-    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
-    if (engineAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'engine',
-        engineAmount,
-        condition.engine
-      );
-    }
-
-    // Life Support
-    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
-    if (lifeSupportAmount > 0) {
-      totalCost += this.gameStateManager.getRepairCost(
-        'lifeSupport',
-        lifeSupportAmount,
-        condition.lifeSupport
-      );
-    }
-
-    return totalCost;
-  }
-
   handleRepair(systemType, amountStr) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRepair');
-    }
-
-    const condition = this.gameStateManager.getShipCondition();
-    const currentCondition = this.getSystemCondition(condition, systemType);
-
-    let amount = 0;
-    if (amountStr === 'full') {
-      amount = SHIP_CONDITION_BOUNDS.MAX - currentCondition;
-    } else {
-      amount = parseInt(amountStr);
-    }
-
-    // Execute repair
-    const repairOutcome = this.gameStateManager.repairShipSystem(
-      systemType,
-      amount
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
     );
 
-    if (!repairOutcome.success) {
-      this.elements.repairValidationMessage.textContent = `Repair failed: ${repairOutcome.reason}`;
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-      return;
+    const result = this.repairPanelController.handleRepairSystem(
+      systemType,
+      amountStr
+    );
+
+    if (result.success) {
+      this.showSuccess(`${result.systemName} repaired`);
     }
-
-    // Clear validation message
-    this.elements.repairValidationMessage.textContent = '';
-    this.elements.repairValidationMessage.className = 'validation-message';
-
-    // Show success notification
-    const systemName =
-      systemType === 'lifeSupport'
-        ? 'Life Support'
-        : this.capitalizeFirst(systemType);
-    this.showSuccess(`${systemName} repaired`);
-
-    // Refresh the repair panel to show updated state
-    this.updateRepairConditionDisplay();
-    this.updateRepairButtons();
   }
 
   handleRepairAll() {
-    const condition = this.gameStateManager.getShipCondition();
-    if (!condition) {
-      throw new Error(
-        'Invalid game state: ship condition is null in handleRepairAll'
-      );
-    }
+    this.validateController(
+      this.repairPanelController,
+      'RepairPanelController'
+    );
 
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error('Invalid game state: state is null in handleRepairAll');
-    }
+    const result = this.repairPanelController.handleRepairAll();
 
-    const totalCost = this.calculateRepairAllCost();
-
-    // Pre-validate total cost before executing any repairs
-    // This prevents partial repairs if player doesn't have enough credits for all systems
-    if (state.player.credits < totalCost) {
-      this.elements.repairValidationMessage.textContent =
-        'Insufficient credits for full repair';
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-      return;
-    }
-
-    let repairCount = 0;
-    let failedRepairs = [];
-
-    // Repair hull
-    const hullAmount = SHIP_CONDITION_BOUNDS.MAX - condition.hull;
-    if (hullAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'hull',
-        hullAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Hull: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair engine
-    const engineAmount = SHIP_CONDITION_BOUNDS.MAX - condition.engine;
-    if (engineAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'engine',
-        engineAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Engine: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair life support
-    const lifeSupportAmount = SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport;
-    if (lifeSupportAmount > 0) {
-      const repairOutcome = this.gameStateManager.repairShipSystem(
-        'lifeSupport',
-        lifeSupportAmount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Life Support: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Show results
-    if (failedRepairs.length > 0) {
-      this.elements.repairValidationMessage.textContent = `Some repairs failed: ${failedRepairs.join(', ')}`;
-      this.elements.repairValidationMessage.className =
-        'validation-message error';
-    } else if (repairCount > 0) {
-      this.elements.repairValidationMessage.textContent = '';
-      this.elements.repairValidationMessage.className = 'validation-message';
+    if (result.success && result.repairCount > 0) {
       this.showSuccess(`All systems repaired to full`);
-    } else {
-      this.elements.repairValidationMessage.textContent =
-        'All systems already at maximum condition';
-      this.elements.repairValidationMessage.className =
-        'validation-message info';
     }
-
-    // Refresh the repair panel to show updated state
-    this.updateRepairConditionDisplay();
-    this.updateRepairButtons();
   }
 
   // ========================================================================
@@ -2331,140 +1378,116 @@ export class UIManager {
       document.body.appendChild(this.shipStatusPanel);
     }
 
-    // Build panel content
-    const content = [];
-
-    // Close button
-    content.push(
-      '<button class="close-btn" id="ship-status-close-btn">×</button>'
-    );
-
-    // Ship name header
-    content.push(`<h2>${ship.name}</h2>`);
-
-    // Ship condition section
-    content.push('<div class="ship-status-section">');
-    content.push('<h3>Ship Condition</h3>');
-    content.push('<div class="ship-status-conditions">');
-
-    // Fuel bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Fuel:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(ship.fuel)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container fuel-bar-container">');
-    content.push(
-      `<div class="condition-bar fuel-bar" style="width: ${ship.fuel}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Hull bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Hull:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.hull)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container hull-bar-container">');
-    content.push(
-      `<div class="condition-bar hull-bar" style="width: ${condition.hull}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Engine bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Engine:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.engine)}%</span>`
-    );
-    content.push('</div>');
-    content.push('<div class="condition-bar-container engine-bar-container">');
-    content.push(
-      `<div class="condition-bar engine-bar" style="width: ${condition.engine}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Life Support bar
-    content.push('<div class="ship-status-condition-item">');
-    content.push('<div class="condition-header">');
-    content.push('<span class="condition-label">Life Support:</span>');
-    content.push(
-      `<span class="condition-value">${Math.round(condition.lifeSupport)}%</span>`
-    );
-    content.push('</div>');
-    content.push(
-      '<div class="condition-bar-container life-support-bar-container">'
-    );
-    content.push(
-      `<div class="condition-bar life-support-bar" style="width: ${condition.lifeSupport}%"></div>`
-    );
-    content.push('</div>');
-    content.push('</div>');
-
-    // Cargo capacity
-    content.push('<div class="ship-status-info-row">');
-    content.push('<span class="info-label">Cargo:</span>');
-    content.push(
-      `<span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>`
-    );
-    content.push('</div>');
-
-    content.push('</div>'); // End ship-status-conditions
-    content.push('</div>'); // End ship-status-section
-
-    // Ship quirks section
-    content.push('<div class="ship-status-section">');
-    content.push('<h3>SHIP QUIRKS</h3>');
-
-    if (ship.quirks && ship.quirks.length > 0) {
-      content.push('<div class="ship-quirks-list">');
-
-      ship.quirks.forEach((quirkId) => {
-        const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
-        if (!quirk) return;
-
-        content.push('<div class="quirk-item">');
-        content.push('<div class="quirk-header">');
-        content.push('<span class="quirk-icon">⚙</span>');
-        content.push(`<span class="quirk-name">${quirk.name}</span>`);
-        content.push('</div>');
-        content.push(
-          `<div class="quirk-description">${quirk.description}</div>`
-        );
-        content.push(`<div class="quirk-flavor">"${quirk.flavor}"</div>`);
-        content.push('</div>');
-      });
-
-      content.push('</div>'); // End ship-quirks-list
-    } else {
-      content.push('<div class="ship-quirks-empty">No quirks assigned</div>');
-    }
-
-    content.push('</div>'); // End ship-status-section
-
-    // Back button
-    content.push('<div class="ship-status-actions">');
-    content.push(
-      '<button class="station-btn secondary" id="ship-status-back-btn">Back</button>'
-    );
-    content.push('</div>');
-
-    // Set panel content
-    this.shipStatusPanel.innerHTML = content.join('');
+    // Build panel content using template literals for readability
+    this.shipStatusPanel.innerHTML = `
+      <button class="close-btn" id="ship-status-close-btn">×</button>
+      <h2>${ship.name}</h2>
+      ${this.renderShipConditionSection(ship, condition, cargoUsed)}
+      ${this.renderShipQuirksSection(ship)}
+      <div class="ship-status-actions">
+        <button class="station-btn secondary" id="ship-status-back-btn">Back</button>
+      </div>
+    `;
 
     // Show panel
     this.shipStatusPanel.classList.add('visible');
 
     // Event handlers are set up once via event delegation in setupShipStatusHandlers
     // No need to add listeners here - prevents memory leaks from repeated calls
+  }
+
+  /**
+   * Render ship condition section with fuel, hull, engine, life support bars
+   *
+   * @param {Object} ship - Ship state with fuel
+   * @param {Object} condition - Ship condition with hull, engine, lifeSupport
+   * @param {number} cargoUsed - Current cargo usage
+   * @returns {string} HTML string for condition section
+   */
+  renderShipConditionSection(ship, condition, cargoUsed) {
+    return `
+      <div class="ship-status-section">
+        <h3>Ship Condition</h3>
+        <div class="ship-status-conditions">
+          ${this.renderConditionBar('Fuel', ship.fuel, 'fuel')}
+          ${this.renderConditionBar('Hull', condition.hull, 'hull')}
+          ${this.renderConditionBar('Engine', condition.engine, 'engine')}
+          ${this.renderConditionBar('Life Support', condition.lifeSupport, 'life-support')}
+          <div class="ship-status-info-row">
+            <span class="info-label">Cargo:</span>
+            <span class="info-value">${cargoUsed}/${ship.cargoCapacity} units</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render a single condition bar
+   *
+   * @param {string} label - Display label (e.g., 'Fuel', 'Hull')
+   * @param {number} value - Condition percentage (0-100)
+   * @param {string} cssClass - CSS class for styling (e.g., 'fuel', 'hull')
+   * @returns {string} HTML string for condition bar
+   */
+  renderConditionBar(label, value, cssClass) {
+    return `
+      <div class="ship-status-condition-item">
+        <div class="condition-header">
+          <span class="condition-label">${label}:</span>
+          <span class="condition-value">${Math.round(value)}%</span>
+        </div>
+        <div class="condition-bar-container ${cssClass}-bar-container">
+          <div class="condition-bar ${cssClass}-bar" style="width: ${value}%"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render ship quirks section
+   *
+   * @param {Object} ship - Ship state with quirks array
+   * @returns {string} HTML string for quirks section
+   */
+  renderShipQuirksSection(ship) {
+    const quirksContent =
+      ship.quirks && ship.quirks.length > 0
+        ? `<div class="ship-quirks-list">
+            ${ship.quirks
+              .map((quirkId) => {
+                const quirk = this.gameStateManager.getQuirkDefinition(quirkId);
+                return quirk ? this.renderQuirkItem(quirk) : '';
+              })
+              .join('')}
+          </div>`
+        : '<div class="ship-quirks-empty">No quirks assigned</div>';
+
+    return `
+      <div class="ship-status-section">
+        <h3>SHIP QUIRKS</h3>
+        ${quirksContent}
+      </div>
+    `;
+  }
+
+  /**
+   * Render a single quirk item
+   *
+   * @param {Object} quirk - Quirk definition with name, description, flavor
+   * @returns {string} HTML string for quirk item
+   */
+  renderQuirkItem(quirk) {
+    return `
+      <div class="quirk-item">
+        <div class="quirk-header">
+          <span class="quirk-icon">⚙</span>
+          <span class="quirk-name">${quirk.name}</span>
+        </div>
+        <div class="quirk-description">${quirk.description}</div>
+        <div class="quirk-flavor">"${quirk.flavor}"</div>
+      </div>
+    `;
   }
 
   /**
@@ -2493,37 +1516,40 @@ export class UIManager {
   /**
    * Show upgrades interface panel
    *
-   * Displays all available and installed ship upgrades with costs, effects,
-   * and tradeoffs. Validates affordability and prevents duplicate purchases.
+   * Delegates to UpgradePanelController to display available and installed
+   * ship upgrades with costs, effects, and tradeoffs.
    *
-   * Feature: ship-personality
-   * Validates: Requirements 2.1, 2.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   showUpgradesInterface() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in showUpgradesInterface'
-      );
-    }
-
-    // Update credit balance display
-    this.elements.upgradesCreditsValue.textContent =
-      state.player.credits.toLocaleString();
-
-    // Render available and installed upgrades
-    this.renderAvailableUpgrades();
-    this.renderInstalledUpgrades();
-
     this.hideStationInterface();
-    this.elements.upgradesPanel.classList.add('visible');
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
+
+    try {
+      this.upgradePanelController.show();
+    } catch (error) {
+      this.showError(error.message);
+    }
   }
 
   /**
    * Hide upgrades interface panel
+   *
+   * Delegates to UpgradePanelController.
+   *
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   hideUpgradesInterface() {
-    this.elements.upgradesPanel.classList.remove('visible');
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
+    this.upgradePanelController.hide();
   }
 
   /**
@@ -2535,375 +1561,29 @@ export class UIManager {
   }
 
   /**
-   * Render list of available (unpurchased) upgrades
-   *
-   * Creates upgrade cards with name, cost, description, effects, and tradeoffs.
-   * Disables purchase buttons for unaffordable upgrades. Adds warning symbol
-   * for upgrades with tradeoffs.
-   */
-  renderAvailableUpgrades() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderAvailableUpgrades'
-      );
-    }
-
-    this.elements.availableUpgradesList.replaceChildren();
-
-    const credits = state.player.credits;
-    const installedUpgrades = state.ship.upgrades || [];
-
-    // Get all upgrade IDs
-    const allUpgradeIds = Object.keys(SHIP_UPGRADES);
-
-    // Filter to only unpurchased upgrades
-    const availableUpgradeIds = allUpgradeIds.filter(
-      (id) => !installedUpgrades.includes(id)
-    );
-
-    if (availableUpgradeIds.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'upgrades-empty';
-      emptyMsg.textContent = 'All upgrades installed';
-      this.elements.availableUpgradesList.appendChild(emptyMsg);
-      return;
-    }
-
-    // Sort by cost (cheapest first)
-    availableUpgradeIds.sort(
-      (a, b) => SHIP_UPGRADES[a].cost - SHIP_UPGRADES[b].cost
-    );
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    availableUpgradeIds.forEach((upgradeId) => {
-      const upgradeCard = this.createUpgradeCard(upgradeId, credits, false);
-      fragment.appendChild(upgradeCard);
-    });
-    this.elements.availableUpgradesList.appendChild(fragment);
-  }
-
-  /**
-   * Render list of installed upgrades
-   *
-   * Displays purchased upgrades with their effects and tradeoffs.
-   * No purchase buttons shown for installed upgrades.
-   */
-  renderInstalledUpgrades() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderInstalledUpgrades'
-      );
-    }
-
-    this.elements.installedUpgradesList.replaceChildren();
-
-    const installedUpgrades = state.ship.upgrades || [];
-
-    if (installedUpgrades.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'upgrades-empty';
-      emptyMsg.textContent = 'No upgrades installed';
-      this.elements.installedUpgradesList.appendChild(emptyMsg);
-      return;
-    }
-
-    // Use DocumentFragment to batch DOM insertions for better performance
-    const fragment = document.createDocumentFragment();
-    installedUpgrades.forEach((upgradeId) => {
-      const upgradeCard = this.createUpgradeCard(upgradeId, 0, true);
-      fragment.appendChild(upgradeCard);
-    });
-    this.elements.installedUpgradesList.appendChild(fragment);
-  }
-
-  /**
-   * Create an upgrade card element
-   *
-   * @param {string} upgradeId - Upgrade identifier
-   * @param {number} credits - Player's current credits
-   * @param {boolean} isInstalled - Whether upgrade is already installed
-   * @returns {HTMLElement} Upgrade card element
-   */
-  createUpgradeCard(upgradeId, credits, isInstalled) {
-    const upgrade = SHIP_UPGRADES[upgradeId];
-    if (!upgrade) {
-      throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
-      );
-    }
-
-    const card = document.createElement('div');
-    card.className = 'upgrade-card';
-
-    // Header with name and cost
-    const header = document.createElement('div');
-    header.className = 'upgrade-header';
-
-    const nameContainer = document.createElement('div');
-    nameContainer.className = 'upgrade-name-container';
-
-    const name = document.createElement('span');
-    name.className = 'upgrade-name';
-    name.textContent = upgrade.name;
-
-    // Add warning symbol if upgrade has tradeoffs
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const warningSymbol = document.createElement('span');
-      warningSymbol.className = 'upgrade-warning-symbol';
-      warningSymbol.textContent = ' ⚠';
-      warningSymbol.title = 'This upgrade has tradeoffs';
-      nameContainer.appendChild(name);
-      nameContainer.appendChild(warningSymbol);
-    } else {
-      nameContainer.appendChild(name);
-    }
-
-    const cost = document.createElement('span');
-    cost.className = 'upgrade-cost';
-    cost.textContent = `₡${upgrade.cost.toLocaleString()}`;
-
-    header.appendChild(nameContainer);
-    header.appendChild(cost);
-
-    // Description
-    const description = document.createElement('div');
-    description.className = 'upgrade-description';
-    description.textContent = upgrade.description;
-
-    // Effects list
-    const effectsContainer = document.createElement('div');
-    effectsContainer.className = 'upgrade-effects';
-
-    const effectsLabel = document.createElement('div');
-    effectsLabel.className = 'upgrade-effects-label';
-    effectsLabel.textContent = 'Effects:';
-
-    const effectsList = document.createElement('ul');
-    effectsList.className = 'upgrade-effects-list';
-
-    // Format effects for display
-    const effectsText = this.formatUpgradeEffects(upgrade.effects);
-    effectsText.forEach((effect) => {
-      const li = document.createElement('li');
-      li.textContent = effect;
-      effectsList.appendChild(li);
-    });
-
-    effectsContainer.appendChild(effectsLabel);
-    effectsContainer.appendChild(effectsList);
-
-    // Tradeoff (if any)
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const tradeoffContainer = document.createElement('div');
-      tradeoffContainer.className = 'upgrade-tradeoff';
-
-      const tradeoffLabel = document.createElement('div');
-      tradeoffLabel.className = 'upgrade-tradeoff-label';
-      tradeoffLabel.textContent = 'Tradeoff:';
-
-      const tradeoffText = document.createElement('div');
-      tradeoffText.className = 'upgrade-tradeoff-text';
-      tradeoffText.textContent = upgrade.tradeoff;
-
-      tradeoffContainer.appendChild(tradeoffLabel);
-      tradeoffContainer.appendChild(tradeoffText);
-
-      card.appendChild(header);
-      card.appendChild(description);
-      card.appendChild(effectsContainer);
-      card.appendChild(tradeoffContainer);
-    } else {
-      card.appendChild(header);
-      card.appendChild(description);
-      card.appendChild(effectsContainer);
-    }
-
-    // Purchase button (only for available upgrades)
-    if (!isInstalled) {
-      const actions = document.createElement('div');
-      actions.className = 'upgrade-actions';
-
-      const purchaseBtn = document.createElement('button');
-      purchaseBtn.className = 'upgrade-purchase-btn';
-      purchaseBtn.textContent = 'Purchase';
-      purchaseBtn.disabled = credits < upgrade.cost;
-
-      purchaseBtn.addEventListener('click', () => {
-        this.showUpgradeConfirmation(upgradeId);
-      });
-
-      actions.appendChild(purchaseBtn);
-      card.appendChild(actions);
-    }
-
-    return card;
-  }
-
-  /**
-   * Format upgrade effects for display
-   *
-   * Converts effect object into human-readable strings.
-   *
-   * @param {Object} effects - Upgrade effects object
-   * @returns {string[]} Array of formatted effect strings
-   */
-  formatUpgradeEffects(effects) {
-    const formatted = [];
-
-    for (const [attr, value] of Object.entries(effects)) {
-      if (attr === 'fuelCapacity') {
-        formatted.push(`Fuel capacity: ${value}%`);
-      } else if (attr === 'cargoCapacity') {
-        formatted.push(`Cargo capacity: ${value} units`);
-      } else if (attr === 'hiddenCargoCapacity') {
-        formatted.push(`Hidden cargo: ${value} units`);
-      } else if (attr === 'fuelConsumption') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Fuel consumption: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Fuel consumption: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'hullDegradation') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Hull degradation: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Hull degradation: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'lifeSupportDrain') {
-        const percent = Math.round((1 - value) * 100);
-        if (percent > 0) {
-          formatted.push(`Life support drain: -${percent}%`);
-        } else if (percent < 0) {
-          formatted.push(`Life support drain: +${Math.abs(percent)}%`);
-        }
-      } else if (attr === 'eventVisibility') {
-        formatted.push('See economic events in connected systems');
-      }
-    }
-
-    return formatted;
-  }
-
-  /**
-   * Show upgrade confirmation dialog
-   *
-   * Displays upgrade details, cost breakdown, and permanent warning before
-   * allowing purchase confirmation.
-   *
-   * Feature: ship-personality
-   * Validates: Requirements 2.3, 9.1, 9.2, 9.3
-   *
-   * @param {string} upgradeId - Upgrade identifier
-   */
-  showUpgradeConfirmation(upgradeId) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in showUpgradeConfirmation'
-      );
-    }
-
-    const upgrade = SHIP_UPGRADES[upgradeId];
-    if (!upgrade) {
-      throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
-      );
-    }
-
-    // Set title
-    this.elements.upgradeConfirmationTitle.textContent = upgrade.name;
-
-    // Render effects
-    this.elements.upgradeConfirmationEffects.replaceChildren();
-
-    const effectsText = this.formatUpgradeEffects(upgrade.effects);
-    effectsText.forEach((effect) => {
-      const effectItem = document.createElement('div');
-      effectItem.className = 'upgrade-effect-item';
-      effectItem.textContent = `• ${effect}`;
-      this.elements.upgradeConfirmationEffects.appendChild(effectItem);
-    });
-
-    // Add tradeoff if present
-    if (upgrade.tradeoff && upgrade.tradeoff !== 'None') {
-      const tradeoffItem = document.createElement('div');
-      tradeoffItem.className = 'upgrade-effect-item upgrade-tradeoff-item';
-      tradeoffItem.textContent = `⚠ ${upgrade.tradeoff}`;
-      this.elements.upgradeConfirmationEffects.appendChild(tradeoffItem);
-    }
-
-    // Set cost information
-    const currentCredits = state.player.credits;
-    const creditsAfter = currentCredits - upgrade.cost;
-
-    this.elements.upgradeCurrentCredits.textContent =
-      currentCredits.toLocaleString();
-    this.elements.upgradeCost.textContent = upgrade.cost.toLocaleString();
-    this.elements.upgradeCreditsAfter.textContent =
-      creditsAfter.toLocaleString();
-
-    // Store upgrade ID for confirmation handler
-    this.pendingUpgradeId = upgradeId;
-
-    // Show dialog
-    this.elements.upgradeConfirmationOverlay.classList.remove('hidden');
-
-    // Focus confirm button
-    if (this.elements.upgradeConfirmBtn) {
-      this.elements.upgradeConfirmBtn.focus();
-    }
-  }
-
-  /**
-   * Hide upgrade confirmation dialog
-   */
-  hideUpgradeConfirmation() {
-    this.elements.upgradeConfirmationOverlay.classList.add('hidden');
-    this.pendingUpgradeId = null;
-  }
-
-  /**
    * Handle upgrade purchase confirmation
    *
-   * Executes the upgrade purchase transaction and updates the UI.
+   * Delegates to UpgradePanelController to execute the purchase and handle
+   * success/error notifications.
    *
-   * Feature: ship-personality
-   * Validates: Requirements 2.4, 9.4, 9.5
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   handleUpgradeConfirm() {
-    if (!this.pendingUpgradeId) return;
+    this.validateController(
+      this.upgradePanelController,
+      'UpgradePanelController'
+    );
 
-    const upgradeId = this.pendingUpgradeId;
-    const upgrade = SHIP_UPGRADES[upgradeId];
-
-    if (!upgrade) {
-      throw new Error(
-        `Invalid upgrade ID: ${upgradeId} not found in SHIP_UPGRADES`
-      );
-    }
-
-    // Execute purchase
-    const purchaseOutcome = this.gameStateManager.purchaseUpgrade(upgradeId);
+    const purchaseOutcome = this.upgradePanelController.handlePurchaseUpgrade();
 
     if (!purchaseOutcome.success) {
       this.showError(`Upgrade purchase failed: ${purchaseOutcome.reason}`);
-      this.hideUpgradeConfirmation();
       return;
     }
 
     // Show success notification
-    this.showSuccess(`${upgrade.name} installed`);
-
-    // Hide confirmation dialog
-    this.hideUpgradeConfirmation();
-
-    // Refresh upgrades interface
-    this.showUpgradesInterface();
+    this.showSuccess(`${purchaseOutcome.upgradeName} installed`);
   }
 
   // ========================================================================
@@ -2919,8 +1599,11 @@ export class UIManager {
    * - Each cargo: name, quantity, purchase location, purchase price, days ago, current value
    * - Total cargo value at bottom
    *
+   * Delegates to CargoManifestPanelController for panel display logic.
+   *
+   * Architecture: architecture-refactor
    * Feature: ship-personality
-   * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+   * Validates: Requirements 1.4, 1.5, 5.1, 5.2, 5.3, 5.4, 5.5
    */
   showCargoManifest() {
     const state = this.gameStateManager.getState();
@@ -2929,140 +1612,24 @@ export class UIManager {
     }
 
     this.hideStationInterface();
-    this.renderCargoManifest();
-  }
 
-  /**
-   * Render cargo manifest panel content
-   *
-   * Creates and displays the cargo manifest interface showing ship name,
-   * capacity usage, all cargo with purchase details, and total value.
-   */
-  renderCargoManifest() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid game state: state is null in renderCargoManifest'
-      );
+    if (this.cargoManifestPanelController) {
+      this.cargoManifestPanelController.show();
     }
-
-    const ship = state.ship;
-    const cargo = ship.cargo || [];
-    const cargoUsed = this.gameStateManager.getCargoUsed();
-    const currentDay = state.player.daysElapsed;
-
-    // Set ship name in header
-    this.elements.cargoManifestShipName.textContent = ship.name;
-
-    // Set capacity display
-    this.elements.cargoManifestUsed.textContent = cargoUsed;
-    this.elements.cargoManifestCapacity.textContent = ship.cargoCapacity;
-
-    // Render cargo list
-    this.elements.cargoManifestList.replaceChildren();
-
-    if (cargo.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'cargo-manifest-empty';
-      emptyMsg.textContent = 'No cargo';
-      this.elements.cargoManifestList.appendChild(emptyMsg);
-
-      // Set total value to 0
-      this.elements.cargoManifestTotalValue.textContent = '₡0';
-    } else {
-      // Calculate total value using TradingSystem
-      const totals = TradingSystem.calculateCargoTotals(cargo);
-
-      // Use DocumentFragment to batch DOM insertions for better performance
-      const fragment = document.createDocumentFragment();
-      cargo.forEach((cargoEntry) => {
-        const cargoItem = this.createCargoManifestItem(cargoEntry, currentDay);
-        fragment.appendChild(cargoItem);
-      });
-      this.elements.cargoManifestList.appendChild(fragment);
-
-      // Set total value
-      this.elements.cargoManifestTotalValue.textContent = `₡${totals.totalValue.toLocaleString()}`;
-    }
-
-    // Show panel
-    this.elements.cargoManifestPanel.classList.add('visible');
-  }
-
-  /**
-   * Create a cargo manifest item element
-   *
-   * Displays cargo details including name, quantity, purchase location,
-   * purchase price, days since purchase, and current value.
-   *
-   * @param {Object} cargoEntry - Cargo stack with metadata
-   * @param {number} currentDay - Current game day
-   * @returns {HTMLElement} Cargo manifest item element
-   */
-  createCargoManifestItem(cargoEntry, currentDay) {
-    const item = document.createElement('div');
-    item.className = 'cargo-manifest-item';
-
-    // Cargo name
-    const name = document.createElement('div');
-    name.className = 'cargo-manifest-name';
-    name.textContent = this.capitalizeFirst(cargoEntry.good);
-
-    // Cargo details
-    const details = document.createElement('div');
-    details.className = 'cargo-manifest-details';
-
-    // Quantity
-    const quantity = document.createElement('div');
-    quantity.className = 'cargo-manifest-detail';
-    quantity.innerHTML = `<span class="detail-label">Quantity:</span> <span class="detail-value">${cargoEntry.qty} units</span>`;
-
-    // Purchase location
-    const location = document.createElement('div');
-    location.className = 'cargo-manifest-detail';
-    const locationName = cargoEntry.buySystemName || 'Unknown';
-    location.innerHTML = `<span class="detail-label">Purchased at:</span> <span class="detail-value">${locationName}</span>`;
-
-    // Purchase price
-    const price = document.createElement('div');
-    price.className = 'cargo-manifest-detail';
-    price.innerHTML = `<span class="detail-label">Purchase price:</span> <span class="detail-value">₡${cargoEntry.buyPrice}/unit</span>`;
-
-    // Days ago
-    const daysAgo = document.createElement('div');
-    daysAgo.className = 'cargo-manifest-detail';
-    const daysSincePurchase = currentDay - (cargoEntry.buyDate || 0);
-    const ageText =
-      daysSincePurchase === 0
-        ? 'today'
-        : daysSincePurchase === 1
-          ? '1 day ago'
-          : `${daysSincePurchase} days ago`;
-    daysAgo.innerHTML = `<span class="detail-label">Purchased:</span> <span class="detail-value">${ageText}</span>`;
-
-    // Current value (using TradingSystem.calculateCargoValue)
-    const value = document.createElement('div');
-    value.className = 'cargo-manifest-detail cargo-manifest-value';
-    const cargoValue = TradingSystem.calculateCargoValue(cargoEntry);
-    value.innerHTML = `<span class="detail-label">Current value:</span> <span class="detail-value">₡${cargoValue.toLocaleString()}</span>`;
-
-    details.appendChild(quantity);
-    details.appendChild(location);
-    details.appendChild(price);
-    details.appendChild(daysAgo);
-    details.appendChild(value);
-
-    item.appendChild(name);
-    item.appendChild(details);
-
-    return item;
   }
 
   /**
    * Hide cargo manifest panel
+   *
+   * Delegates to CargoManifestPanelController for panel hiding.
+   *
+   * Architecture: architecture-refactor
+   * Validates: Requirements 1.4, 1.5
    */
   hideCargoManifest() {
-    this.elements.cargoManifestPanel.classList.remove('visible');
+    if (this.cargoManifestPanelController) {
+      this.cargoManifestPanelController.hide();
+    }
   }
 
   /**
@@ -3072,4 +1639,44 @@ export class UIManager {
   isCargoManifestVisible() {
     return this.elements.cargoManifestPanel.classList.contains('visible');
   }
+
+  // ========================================================================
+  // DEV ADMIN PANEL
+  // ========================================================================
+
+  /**
+   * Show dev admin panel (dev mode only)
+   *
+   * Provides controls to modify game state for testing purposes.
+   * Only available when running on localhost.
+   */
+  showDevAdminPanel() {
+    if (!DEV_MODE || !this.devAdminPanelController) {
+      return;
+    }
+
+    this.devAdminPanelController.show();
+  }
+
+  /**
+   * Hide dev admin panel
+   */
+  hideDevAdminPanel() {
+    if (this.devAdminPanelController) {
+      this.devAdminPanelController.hide();
+    }
+  }
+
+  /**
+   * Check if dev admin panel is visible
+   * @returns {boolean} True if panel is visible
+   */
+  isDevAdminVisible() {
+    return (
+      DEV_MODE &&
+      this.elements.devAdminPanel &&
+      this.elements.devAdminPanel.classList.contains('visible')
+    );
+  }
 }
+

@@ -133,31 +133,222 @@ ui.credits.textContent = player.credits;
 
 ## Code Organization
 
-### Module Pattern
+### Controller Pattern
 
-**Use revealing module pattern for encapsulation**
+**Use focused controllers for UI panel management**
+
+Controllers encapsulate all logic for a single UI panel, improving maintainability and testability. Each controller receives its dependencies through constructor injection.
 
 ```javascript
 'use strict';
 
-const GameModule = (function () {
-  // Private variables
-  let privateState = 0;
+/**
+ * Controller for managing the trade panel UI and interactions.
+ * Handles displaying market goods, cargo stacks, and buy/sell transactions.
+ */
+class TradePanelController {
+  constructor(elements, gameStateManager, starData) {
+    // Validate required dependencies
+    if (!elements.tradePanel) {
+      throw new Error('TradePanelController: tradePanel element required');
+    }
+    if (!gameStateManager) {
+      throw new Error('TradePanelController: gameStateManager required');
+    }
 
-  // Private functions
-  function privateHelper() {
-    return privateState * 2;
+    // Store dependencies
+    this.elements = elements;
+    this.gameStateManager = gameStateManager;
+    this.starData = starData;
+
+    // Bind event handlers
+    this.elements.tradeCloseBtn.addEventListener('click', () => this.hide());
   }
 
-  // Public API
-  return {
-    publicMethod: function () {
-      return privateHelper();
-    },
+  show() {
+    this.elements.tradePanel.classList.add('visible');
+    this.refreshTradePanel();
+  }
 
-    publicProperty: 42,
+  hide() {
+    this.elements.tradePanel.classList.remove('visible');
+  }
+
+  refreshTradePanel() {
+    const state = this.gameStateManager.getState();
+    const system = this.starData.find((s) => s.id === state.player.currentSystem);
+
+    if (!system) {
+      throw new Error(
+        `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      );
+    }
+
+    this.renderMarketGoods(system);
+    this.renderCargoStacks(state.ship.cargo);
+  }
+
+  handleBuyGood(goodType, quantity) {
+    // Transaction logic
+  }
+
+  handleSellStack(stackIndex, quantity) {
+    // Transaction logic
+  }
+
+  // Private helper methods
+  renderMarketGoods(system) {
+    // Rendering logic
+  }
+
+  renderCargoStacks(cargo) {
+    // Rendering logic
+  }
+}
+```
+
+**Controller Pattern Benefits:**
+
+- **Separation of concerns**: Each controller manages one panel
+- **Testability**: Controllers can be tested in isolation
+- **Dependency injection**: Dependencies are explicit and passed in constructor
+- **Maintainability**: Panel logic is contained in a single file
+
+**UIManager as Coordinator:**
+
+The UIManager creates controller instances and delegates panel operations to them:
+
+```javascript
+class UIManager {
+  constructor(gameStateManager, starData, informationBroker) {
+    // Cache all DOM elements
+    this.elements = this.cacheElements();
+
+    // Create panel controllers
+    this.tradeController = new TradePanelController(
+      {
+        tradePanel: this.elements.tradePanel,
+        tradeSystemName: this.elements.tradeSystemName,
+        tradeCloseBtn: this.elements.tradeCloseBtn,
+        // ... other trade panel elements
+      },
+      gameStateManager,
+      starData
+    );
+
+    this.refuelController = new RefuelPanelController(
+      {
+        refuelPanel: this.elements.refuelPanel,
+        // ... refuel panel elements
+      },
+      gameStateManager,
+      starData
+    );
+
+    // ... other controllers
+  }
+
+  showTradePanel() {
+    this.tradeController.show();
+  }
+
+  hideTradePanel() {
+    this.tradeController.hide();
+  }
+
+  // UIManager retains HUD, notifications, and quick access logic
+  updateHUD() {
+    // HUD update logic stays in UIManager
+  }
+}
+```
+
+### Module Organization
+
+**Organize code by feature and responsibility**
+
+```
+js/
+├── controllers/           # UI panel controllers
+│   ├── trade.js
+│   ├── refuel.js
+│   ├── repair.js
+│   ├── upgrades.js
+│   ├── info-broker.js
+│   └── cargo-manifest.js
+├── views/                 # Rendering modules
+│   └── starmap/
+│       ├── starmap.js     # Main coordinator
+│       ├── scene.js       # Scene initialization
+│       ├── stars.js       # Star rendering
+│       ├── wormholes.js   # Wormhole rendering
+│       └── interaction.js # User interaction
+├── data/                  # Static game data
+│   ├── star-data.js
+│   └── wormhole-data.js
+├── utils/                 # Utility functions
+│   ├── seeded-random.js
+│   └── string-utils.js
+├── game-constants.js      # Configuration objects
+├── game-state.js          # State management
+├── game-trading.js        # Trading logic
+├── game-navigation.js     # Navigation logic
+├── game-ui.js             # UI coordinator
+└── game-animation.js      # Animation system
+```
+
+**Module Organization Principles:**
+
+- **Controllers**: One file per UI panel controller
+- **Views**: Rendering logic organized by visual component
+- **Data**: Static data separated from logic
+- **Utils**: Reusable utility functions
+- **Core systems**: Game logic modules at root level
+
+**Starmap Module Coordinator Pattern:**
+
+```javascript
+'use strict';
+
+import { initializeScene } from './starmap/scene.js';
+import { createStarSprites } from './starmap/stars.js';
+import { createWormholeLines } from './starmap/wormholes.js';
+import { setupInteraction } from './starmap/interaction.js';
+
+/**
+ * Initializes and coordinates all starmap modules.
+ * Manages shared state and orchestrates rendering.
+ */
+export function initializeStarmap(container, starData, wormholeData) {
+  // Initialize scene
+  const { scene, camera, renderer, controls } = initializeScene(container);
+
+  // Create visual elements
+  const starSprites = createStarSprites(scene, starData);
+  const wormholeLines = createWormholeLines(scene, wormholeData);
+
+  // Setup interaction
+  const interaction = setupInteraction(camera, starSprites, (systemId) => {
+    // Selection callback
+  });
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  return {
+    scene,
+    camera,
+    renderer,
+    starSprites,
+    wormholeLines,
+    interaction,
   };
-})();
+}
 ```
 
 ### Avoid Global Pollution

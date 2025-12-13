@@ -3,7 +3,9 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { NavigationSystem } from '../../js/game-navigation.js';
-import { ENGINE_CONDITION_PENALTIES } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
+
+const ENGINE_CONDITION_PENALTIES = SHIP_CONFIG.ENGINE_CONDITION_PENALTIES;
 
 /**
  * Property-Based Tests for Engine Condition Fuel Penalty

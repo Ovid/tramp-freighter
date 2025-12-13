@@ -1,0 +1,206 @@
+/* Modal Dialog Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-dialog {
+  background-color: #1a1a1a;
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 500px;
+  min-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.modal-message {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.modal-cancel,
+.modal-confirm {
+  padding: 12px 30px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.modal-cancel {
+  background-color: transparent;
+  color: #00ff88;
+}
+
+.modal-cancel:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+.modal-cancel:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}
+
+.modal-confirm {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.modal-confirm:hover {
+  background-color: #00dd77;
+  border-color: #00dd77;
+}
+
+.modal-confirm:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}
+
+/* Event Notification Modal Styles */
+.event-modal-title {
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.event-modal-description {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.event-modal-duration {
+  color: #aaaaaa;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Ship Naming Dialog Styles */
+.modal-title {
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.modal-description {
+  color: #cccccc;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.ship-naming-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ship-name-input {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  background-color: #0a0a0a;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.ship-name-input:focus {
+  outline: none;
+  border-color: #00dd77;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.ship-name-input::placeholder {
+  color: #666666;
+}
+
+.ship-name-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suggestions-label {
+  color: #aaaaaa;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-btn {
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background-color: transparent;
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  color: #00ff88;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-btn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: #00dd77;
+  color: #00dd77;
+}
+
+.suggestion-btn:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}

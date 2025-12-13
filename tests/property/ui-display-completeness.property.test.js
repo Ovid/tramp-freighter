@@ -4,11 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
-import {
-  SHIP_QUIRKS,
-  SHIP_UPGRADES,
-  COMMODITY_TYPES,
-} from '../../js/game-constants.js';
+import { SHIP_CONFIG, COMMODITY_TYPES } from '../../js/game-constants.js';
 
 /**
  * Property 9: UI Display Completeness
@@ -151,7 +147,7 @@ describe('Property 9: UI Display Completeness', () => {
       fc.property(
         // Generate random quirk selections (1-3 quirks)
         fc
-          .array(fc.constantFrom(...Object.keys(SHIP_QUIRKS)), {
+          .array(fc.constantFrom(...Object.keys(SHIP_CONFIG.QUIRKS)), {
             minLength: 1,
             maxLength: 3,
           })
@@ -171,7 +167,7 @@ describe('Property 9: UI Display Completeness', () => {
 
           // Verify each quirk has all required fields displayed
           for (const quirkId of quirkIds) {
-            const quirk = SHIP_QUIRKS[quirkId];
+            const quirk = SHIP_CONFIG.QUIRKS[quirkId];
 
             // Check that quirk name is present
             expect(html).toContain(quirk.name);
@@ -262,7 +258,7 @@ describe('Property 9: UI Display Completeness', () => {
 
   it('should display warning symbol (⚠) for all upgrades that have tradeoffs', () => {
     // Get all upgrades with tradeoffs (tradeoff !== 'None')
-    const upgradesWithTradeoffs = Object.entries(SHIP_UPGRADES)
+    const upgradesWithTradeoffs = Object.entries(SHIP_CONFIG.UPGRADES)
       .filter(([, upgrade]) => upgrade.tradeoff && upgrade.tradeoff !== 'None')
       .map(([id]) => id);
 
@@ -273,8 +269,8 @@ describe('Property 9: UI Display Completeness', () => {
     const state = gameStateManager.getState();
     state.player.credits = 100000; // Ensure player can afford upgrades
 
-    // Render upgrades interface
-    uiManager.renderAvailableUpgrades();
+    // Render upgrades interface via controller
+    uiManager.upgradePanelController.renderAvailableUpgrades();
 
     // Get rendered HTML
     const availableUpgradesList = document.getElementById(
@@ -284,7 +280,7 @@ describe('Property 9: UI Display Completeness', () => {
 
     // Verify each upgrade with a tradeoff displays the warning symbol
     for (const upgradeId of upgradesWithTradeoffs) {
-      const upgrade = SHIP_UPGRADES[upgradeId];
+      const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
       // Check that upgrade name is present
       expect(html).toContain(upgrade.name);
@@ -301,17 +297,17 @@ describe('Property 9: UI Display Completeness', () => {
   it('should display all required fields for upgrades when interface is rendered', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...Object.keys(SHIP_UPGRADES)),
+        fc.constantFrom(...Object.keys(SHIP_CONFIG.UPGRADES)),
         (upgradeId) => {
-          const upgrade = SHIP_UPGRADES[upgradeId];
+          const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
           // Setup game state
           gameStateManager.initNewGame();
           const state = gameStateManager.getState();
           state.player.credits = 100000; // Ensure player can afford upgrades
 
-          // Render upgrades interface
-          uiManager.renderAvailableUpgrades();
+          // Render upgrades interface via controller
+          uiManager.upgradePanelController.renderAvailableUpgrades();
 
           // Get rendered HTML
           const availableUpgradesList = document.getElementById(

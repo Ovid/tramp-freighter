@@ -3,7 +3,9 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { NavigationSystem } from '../../js/game-navigation.js';
-import { SHIP_DEGRADATION } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
+
+const SHIP_DEGRADATION = SHIP_CONFIG.DEGRADATION;
 
 /**
  * Feature: dynamic-economy, Property 20: Jump Degradation Application

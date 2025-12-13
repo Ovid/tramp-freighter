@@ -4,10 +4,12 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
+import { SHIP_CONFIG, REPAIR_CONFIG } from '../../js/game-constants.js';
 import {
-  SHIP_CONDITION_BOUNDS,
-  REPAIR_COST_PER_PERCENT,
-} from '../../js/game-constants.js';
+  setupRepairPanelDOM,
+  createMinimalStarData,
+  createMinimalWormholeData,
+} from '../test-utils.js';
 
 // Feature: dynamic-economy, Property 26: Repair Interface Display Completeness
 // Validates: Requirements 7.2, 7.3, 7.4
@@ -17,52 +19,9 @@ describe('Property: Repair Interface Display Completeness', () => {
   let wormholeData;
 
   beforeEach(() => {
-    // Minimal star data for testing
-    starData = [
-      { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2', wh: 3, st: 1, r: 1 },
-      {
-        id: 1,
-        name: 'Alpha Centauri',
-        x: 43,
-        y: 0,
-        z: 0,
-        type: 'G2',
-        wh: 1,
-        st: 1,
-        r: 1,
-      },
-    ];
-
-    wormholeData = [[0, 1]];
-
-    // Setup DOM elements for repair panel
-    document.body.innerHTML = `
-      <div id="game-hud"></div>
-      <div id="repair-panel">
-        <span id="repair-system-name"></span>
-        <span id="repair-hull-percent"></span>
-        <div id="repair-hull-bar"></div>
-        <span id="repair-engine-percent"></span>
-        <div id="repair-engine-bar"></div>
-        <span id="repair-life-support-percent"></span>
-        <div id="repair-life-support-bar"></div>
-        <button class="repair-btn" data-system="hull" data-amount="10"></button>
-        <button class="repair-btn" data-system="hull" data-amount="25"></button>
-        <button class="repair-btn" data-system="hull" data-amount="50"></button>
-        <button class="repair-btn" data-system="hull" data-amount="full"></button>
-        <button class="repair-btn" data-system="engine" data-amount="10"></button>
-        <button class="repair-btn" data-system="engine" data-amount="25"></button>
-        <button class="repair-btn" data-system="engine" data-amount="50"></button>
-        <button class="repair-btn" data-system="engine" data-amount="full"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="10"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="25"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="50"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="full"></button>
-        <button id="repair-all-btn"></button>
-        <div id="repair-validation-message"></div>
-      </div>
-      <div id="notification-area"></div>
-    `;
+    starData = createMinimalStarData();
+    wormholeData = createMinimalWormholeData();
+    setupRepairPanelDOM();
   });
 
   it('should display current condition percentages with visual progress bars for all systems', () => {
@@ -70,16 +29,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -94,7 +53,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairConditionDisplay();
+          uiManager.repairPanelController.updateRepairConditionDisplay();
 
           // Verify hull display
           const hullPercent = document.getElementById('repair-hull-percent');
@@ -136,16 +95,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -160,7 +119,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify repair buttons exist for each system
           const systems = ['hull', 'engine', 'lifeSupport'];
@@ -185,16 +144,16 @@ describe('Property: Repair Interface Display Completeness', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX - 50,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 50,
           }),
         }),
         (condition) => {
@@ -209,7 +168,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify costs for fixed amount repairs
           const systems = [
@@ -224,7 +183,7 @@ describe('Property: Repair Interface Display Completeness', () => {
                 `.repair-btn[data-system="${type}"][data-amount="${amount}"]`
               );
 
-              const expectedCost = amount * REPAIR_COST_PER_PERCENT;
+              const expectedCost = amount * REPAIR_CONFIG.COST_PER_PERCENT;
               expect(button.textContent).toContain(`₡${expectedCost}`);
             });
 
@@ -232,8 +191,9 @@ describe('Property: Repair Interface Display Completeness', () => {
             const fullButton = document.querySelector(
               `.repair-btn[data-system="${type}"][data-amount="full"]`
             );
-            const fullAmount = SHIP_CONDITION_BOUNDS.MAX - current;
-            const expectedFullCost = fullAmount * REPAIR_COST_PER_PERCENT;
+            const fullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - current;
+            const expectedFullCost =
+              fullAmount * REPAIR_CONFIG.COST_PER_PERCENT;
             expect(fullButton.textContent).toContain(`₡${expectedFullCost}`);
           });
         }
@@ -252,10 +212,14 @@ describe('Property: Repair Interface Display Completeness', () => {
 
           // Set one system to max, others to less than max
           const condition = {
-            hull: systemAtMax === 'hull' ? SHIP_CONDITION_BOUNDS.MAX : 50,
-            engine: systemAtMax === 'engine' ? SHIP_CONDITION_BOUNDS.MAX : 50,
+            hull:
+              systemAtMax === 'hull' ? SHIP_CONFIG.CONDITION_BOUNDS.MAX : 50,
+            engine:
+              systemAtMax === 'engine' ? SHIP_CONFIG.CONDITION_BOUNDS.MAX : 50,
             lifeSupport:
-              systemAtMax === 'lifeSupport' ? SHIP_CONDITION_BOUNDS.MAX : 50,
+              systemAtMax === 'lifeSupport'
+                ? SHIP_CONFIG.CONDITION_BOUNDS.MAX
+                : 50,
           };
 
           gameStateManager.updateShipCondition(
@@ -265,7 +229,7 @@ describe('Property: Repair Interface Display Completeness', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Verify full repair button shows ₡0 for system at max
           const fullButton = document.querySelector(

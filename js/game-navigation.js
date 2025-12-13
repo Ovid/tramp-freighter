@@ -1,11 +1,6 @@
 'use strict';
 
-import {
-  LY_PER_UNIT,
-  SHIP_DEGRADATION,
-  SHIP_CONDITION_BOUNDS,
-  ENGINE_CONDITION_PENALTIES,
-} from './game-constants.js';
+import { NAVIGATION_CONFIG, SHIP_CONFIG } from './game-constants.js';
 
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
@@ -28,14 +23,14 @@ export class NavigationSystem {
 
   /**
    * Calculate distance from Sol to a star system
-   * Formula: hypot(x, y, z) * LY_PER_UNIT
+   * Formula: hypot(x, y, z) * NAVIGATION_CONFIG.LY_PER_UNIT
    *
    * @param {Object} star - Star system object with x, y, z coordinates
    * @returns {number} Distance in light years
    */
   calculateDistanceFromSol(star) {
     const r = Math.hypot(star.x, star.y, star.z);
-    return r * LY_PER_UNIT;
+    return r * NAVIGATION_CONFIG.LY_PER_UNIT;
   }
 
   /**
@@ -52,7 +47,7 @@ export class NavigationSystem {
       star1.y - star2.y,
       star1.z - star2.z
     );
-    return r * LY_PER_UNIT;
+    return r * NAVIGATION_CONFIG.LY_PER_UNIT;
   }
 
   // ========================================================================
@@ -84,8 +79,8 @@ export class NavigationSystem {
   /**
    * Calculate fuel cost with engine condition penalty, quirk modifiers, and upgrade effects
    *
-   * When engine condition falls below ENGINE_CONDITION_PENALTIES.THRESHOLD,
-   * fuel consumption increases by ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER
+   * When engine condition falls below SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD,
+   * fuel consumption increases by SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER
    * due to reduced propulsion efficiency.
    *
    * Quirk modifiers and upgrade effects are applied multiplicatively after engine condition penalty.
@@ -109,8 +104,8 @@ export class NavigationSystem {
     let cost = this.calculateFuelCost(distance);
 
     // Apply engine condition penalty
-    if (engineCondition < ENGINE_CONDITION_PENALTIES.THRESHOLD) {
-      cost *= ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
+    if (engineCondition < SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD) {
+      cost *= SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.FUEL_PENALTY_MULTIPLIER;
     }
 
     // Apply quirk modifiers if provided
@@ -127,8 +122,8 @@ export class NavigationSystem {
   /**
    * Calculate jump time with engine condition penalty
    *
-   * When engine condition falls below ENGINE_CONDITION_PENALTIES.THRESHOLD,
-   * jump time increases by ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS
+   * When engine condition falls below SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD,
+   * jump time increases by SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS
    * due to slower wormhole transit.
    *
    * @param {number} distance - Distance in light years
@@ -138,8 +133,10 @@ export class NavigationSystem {
   calculateJumpTimeWithCondition(distance, engineCondition) {
     const baseTime = this.calculateJumpTime(distance);
 
-    if (engineCondition < ENGINE_CONDITION_PENALTIES.THRESHOLD) {
-      return baseTime + ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS;
+    if (engineCondition < SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD) {
+      return (
+        baseTime + SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.TIME_PENALTY_DAYS
+      );
     }
 
     return baseTime;
@@ -153,10 +150,10 @@ export class NavigationSystem {
    * Apply ship degradation from a jump with quirk modifiers and upgrade effects
    *
    * Formula:
-   * - Hull: current - (SHIP_DEGRADATION.HULL_PER_JUMP × quirkModifiers × upgradeModifiers)
-   * - Engine: current - SHIP_DEGRADATION.ENGINE_PER_JUMP
-   * - Life Support: current - (SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY × jumpDays × quirkModifiers × upgradeModifiers)
-   * All values clamped to [SHIP_CONDITION_BOUNDS.MIN, SHIP_CONDITION_BOUNDS.MAX]
+   * - Hull: current - (SHIP_CONFIG.DEGRADATION.HULL_PER_JUMP × quirkModifiers × upgradeModifiers)
+   * - Engine: current - SHIP_CONFIG.DEGRADATION.ENGINE_PER_JUMP
+   * - Life Support: current - (SHIP_CONFIG.DEGRADATION.LIFE_SUPPORT_PER_DAY × jumpDays × quirkModifiers × upgradeModifiers)
+   * All values clamped to [SHIP_CONFIG.CONDITION_BOUNDS.MIN, SHIP_CONFIG.CONDITION_BOUNDS.MAX]
    *
    * Degradation rates reflect wear from wormhole transit:
    * - Hull: Space debris and micro-meteorites
@@ -185,10 +182,10 @@ export class NavigationSystem {
     lifeSupportUpgradeModifier = 1.0
   ) {
     // Calculate base degradation amounts
-    let hullDegradation = SHIP_DEGRADATION.HULL_PER_JUMP;
-    const engineDegradation = SHIP_DEGRADATION.ENGINE_PER_JUMP;
+    let hullDegradation = SHIP_CONFIG.DEGRADATION.HULL_PER_JUMP;
+    const engineDegradation = SHIP_CONFIG.DEGRADATION.ENGINE_PER_JUMP;
     let lifeSupportDegradation =
-      SHIP_DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
+      SHIP_CONFIG.DEGRADATION.LIFE_SUPPORT_PER_DAY * jumpDays;
 
     // Apply quirk modifiers if provided
     if (applyQuirkModifiers && quirks.length > 0) {
@@ -210,19 +207,22 @@ export class NavigationSystem {
 
     // Apply degradation and clamp to valid range
     ship.hull = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.hull - hullDegradation)
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+      Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, ship.hull - hullDegradation)
     );
 
     ship.engine = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
-      Math.min(SHIP_CONDITION_BOUNDS.MAX, ship.engine - engineDegradation)
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+      Math.min(
+        SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+        ship.engine - engineDegradation
+      )
     );
 
     ship.lifeSupport = Math.max(
-      SHIP_CONDITION_BOUNDS.MIN,
+      SHIP_CONFIG.CONDITION_BOUNDS.MIN,
       Math.min(
-        SHIP_CONDITION_BOUNDS.MAX,
+        SHIP_CONFIG.CONDITION_BOUNDS.MAX,
         ship.lifeSupport - lifeSupportDegradation
       )
     );

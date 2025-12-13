@@ -2,7 +2,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { TradingSystem } from '../../js/game-trading.js';
-import { BASE_PRICES, LY_PER_UNIT } from '../../js/game-constants.js';
+import { BASE_PRICES, NAVIGATION_CONFIG } from '../../js/game-constants.js';
 
 /**
  * Feature: deterministic-economy, Property 28: Price with all modifiers at 1.0 equals base price
@@ -16,8 +16,8 @@ describe('Price calculation with neutral modifiers', () => {
     // Create a system at the tech level midpoint (5.0) where tech modifier = 1.0
     // Distance from Sol that produces TL 5.0: 10.0 - (9.0 × d / 21) = 5.0
     // Solving: 9.0 × d / 21 = 5.0 → d = 11.67 LY
-    // Convert to map units: 11.67 / LY_PER_UNIT ≈ 163 units
-    const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+    // Convert to map units: 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT ≈ 163 units
+    const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
     const system = {
       id: 0,
       x: distanceInMapUnits, // 11.67 LY from Sol
@@ -67,7 +67,7 @@ describe('Price calculation with neutral modifiers', () => {
 
   it('should equal base price for grain at neutral conditions', () => {
     // Specific test for grain with explicit neutral conditions
-    const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+    const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
     const system = {
       id: 0,
       x: distanceInMapUnits,
@@ -90,7 +90,7 @@ describe('Price calculation with neutral modifiers', () => {
 
   it('should equal base price for electronics at neutral conditions', () => {
     // Specific test for electronics with explicit neutral conditions
-    const distanceInMapUnits = 11.67 / LY_PER_UNIT;
+    const distanceInMapUnits = 11.67 / NAVIGATION_CONFIG.LY_PER_UNIT;
     const system = {
       id: 0,
       x: distanceInMapUnits,

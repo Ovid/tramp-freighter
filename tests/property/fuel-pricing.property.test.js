@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import {
-  FUEL_PRICING,
+  FUEL_PRICING_CONFIG,
   calculateDistanceFromSol,
 } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
@@ -33,7 +33,9 @@ describe('Fuel Pricing Properties', () => {
           fc.constantFrom(0, 1), // Sol or Alpha Centauri
           (systemId) => {
             const fuelPrice = gameStateManager.getFuelPrice(systemId);
-            expect(fuelPrice).toBe(FUEL_PRICING.CORE_SYSTEMS.PRICE);
+            expect(fuelPrice).toBe(
+              FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT
+            );
             return true;
           }
         ),
@@ -61,7 +63,9 @@ describe('Fuel Pricing Properties', () => {
           ),
           (system) => {
             const fuelPrice = gameStateManager.getFuelPrice(system.id);
-            expect(fuelPrice).toBe(FUEL_PRICING.MID_RANGE.PRICE);
+            expect(fuelPrice).toBe(
+              FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT
+            );
             return true;
           }
         ),
@@ -88,7 +92,9 @@ describe('Fuel Pricing Properties', () => {
           ),
           (system) => {
             const fuelPrice = gameStateManager.getFuelPrice(system.id);
-            expect(fuelPrice).toBe(FUEL_PRICING.OUTER.PRICE);
+            expect(fuelPrice).toBe(
+              FUEL_PRICING_CONFIG.OUTER_SYSTEMS.PRICE_PER_PERCENT
+            );
             return true;
           }
         ),
@@ -141,7 +147,7 @@ describe('Fuel Pricing Properties', () => {
           fc.integer({ min: 0, max: 100 }), // current fuel
           fc.integer({ min: 1, max: 200 }), // refuel amount
           (currentFuel, amount) => {
-            const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
+            const pricePerPercent = FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE;
             const totalCost = amount * pricePerPercent;
 
             const validation = gameStateManager.validateRefuel(
@@ -179,7 +185,7 @@ describe('Fuel Pricing Properties', () => {
           fc.integer({ min: 0, max: 99 }), // current fuel (not full)
           (currentFuel) => {
             const amount = 100 - currentFuel; // Refuel to exactly 100%
-            const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
+            const pricePerPercent = FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE;
             const totalCost = amount * pricePerPercent;
 
             const validation = gameStateManager.validateRefuel(
@@ -214,7 +220,7 @@ describe('Fuel Pricing Properties', () => {
           fc.integer({ min: 1, max: 50 }), // refuel amount
           fc.integer({ min: 0, max: 1000 }), // player credits
           (amount, credits) => {
-            const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
+            const pricePerPercent = FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE;
             const totalCost = amount * pricePerPercent;
 
             const validation = gameStateManager.validateRefuel(
@@ -249,7 +255,7 @@ describe('Fuel Pricing Properties', () => {
         fc.property(
           fc.integer({ min: 1, max: 50 }), // refuel amount
           (amount) => {
-            const pricePerPercent = FUEL_PRICING.CORE_SYSTEMS.PRICE;
+            const pricePerPercent = FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE;
             const totalCost = amount * pricePerPercent;
 
             const validation = gameStateManager.validateRefuel(

@@ -7,12 +7,24 @@
     <script type="importmap">
       {
         "imports": {
-          "three": "./js/vendor/three/build/three.module.js",
-          "three/addons/": "./js/vendor/three/examples/jsm/"
+          "three": "./vendor/three/build/three.module.js",
+          "three/addons/": "./vendor/three/examples/jsm/"
         }
       }
     </script>
-    <link rel="stylesheet" href="css/starmap.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/hud.css" />
+    <link rel="stylesheet" href="css/panel/cargo-manifest.css" />
+    <link rel="stylesheet" href="css/panel/info-broker.css" />
+    <link rel="stylesheet" href="css/panel/refuel.css" />
+    <link rel="stylesheet" href="css/panel/repair.css" />
+    <link rel="stylesheet" href="css/panel/ship-status.css" />
+    <link rel="stylesheet" href="css/panel/trade.css" />
+    <link rel="stylesheet" href="css/panel/upgrades.css" />
+    <link rel="stylesheet" href="css/panel/dev-admin.css" />
+    <link rel="stylesheet" href="css/system-event-info.css" />
+    <link rel="stylesheet" href="css/modals.css" />
+    <link rel="stylesheet" href="css/starmap-scene.css" />
   </head>
   <body>
     <div id="container"></div>
@@ -38,6 +50,9 @@
       </div>
 
       <div class="hud-section hud-ship">
+        <div class="hud-row hud-ship-name-row">
+          <span id="hud-ship-name" class="hud-ship-name">Serendipity</span>
+        </div>
         <div class="hud-row">
           <span class="hud-label">Fuel:</span>
           <div class="condition-bar-container fuel-bar-container">
@@ -120,6 +135,14 @@
       <div class="info-row">
         <span class="label">Status:</span>
         <span id="hud-reachable">Reachable</span>
+      </div>
+      <!-- Economic Event Info (shown with Advanced Sensors) -->
+      <div id="system-event-info" class="system-event-info" style="display: none;">
+        <div class="event-indicator">
+          <span class="event-icon">📊</span>
+          <span id="system-event-name" class="event-name"></span>
+        </div>
+        <div id="system-event-description" class="event-description"></div>
       </div>
       <div id="jump-info" class="jump-info">
         <div class="info-row">
@@ -787,7 +810,54 @@
       </button>
     </div>
 
+    <!-- Dev Admin Button (only visible in dev mode) -->
+    <button id="dev-admin-btn" style="display: none;">⚙</button>
+
+    <!-- Dev Admin Panel -->
+    <div id="dev-admin-panel">
+      <button class="close-btn" id="dev-admin-close-btn">×</button>
+      <h2>🔧 Dev Admin Panel</h2>
+
+      <div class="dev-admin-section">
+        <h3>Player Resources</h3>
+        <div class="dev-admin-control">
+          <label>Credits:</label>
+          <input type="number" id="dev-credits-input" value="0" min="0" />
+          <button id="dev-set-credits-btn">Set</button>
+        </div>
+        <div class="dev-admin-control">
+          <label>Debt:</label>
+          <input type="number" id="dev-debt-input" value="0" min="0" />
+          <button id="dev-set-debt-btn">Set</button>
+        </div>
+      </div>
+
+      <div class="dev-admin-section">
+        <h3>Ship Status</h3>
+        <div class="dev-admin-control">
+          <label>Fuel (%):</label>
+          <input
+            type="number"
+            id="dev-fuel-input"
+            value="100"
+            min="0"
+            max="100"
+          />
+          <button id="dev-set-fuel-btn">Set</button>
+        </div>
+      </div>
+
+      <div class="dev-admin-actions">
+        <button id="dev-repair-all-btn">Repair All Systems to 100%</button>
+        <button id="dev-clear-cargo-btn">Clear All Cargo</button>
+      </div>
+
+      <div class="dev-admin-warning">
+        ⚠ Dev Mode Only - Not visible in production
+      </div>
+    </div>
+
     <!-- Application Code -->
-    <script type="module" src="js/starmap.js"></script>
+    <script type="module" src="js/views/starmap.js"></script>
   </body>
 </html>

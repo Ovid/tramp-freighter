@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { TradingSystem } from '../../js/game-trading.js';
-import { ECONOMY_CONFIG, LY_PER_UNIT } from '../../js/game-constants.js';
+import { ECONOMY_CONFIG, NAVIGATION_CONFIG } from '../../js/game-constants.js';
 
 describe('Technology Level Formula (Property Tests)', () => {
   // ========================================================================
@@ -33,7 +33,9 @@ describe('Technology Level Formula (Property Tests)', () => {
       fc.property(starGenerator, (system) => {
         const calculatedTechLevel = TradingSystem.calculateTechLevel(system);
 
-        const distance = Math.hypot(system.x, system.y, system.z) * LY_PER_UNIT;
+        const distance =
+          Math.hypot(system.x, system.y, system.z) *
+          NAVIGATION_CONFIG.LY_PER_UNIT;
         const clampedDistance = Math.min(
           distance,
           ECONOMY_CONFIG.MAX_COORD_DISTANCE
@@ -59,8 +61,8 @@ describe('Technology Level Formula (Property Tests)', () => {
 
   it('Property 4: For any system between 0 and 21 light years from Sol, tech level should be strictly between 1.0 and 10.0', () => {
     // Use 0.1-20.9 LY range to ensure strict inequality (not at boundaries)
-    const minUnits = Math.fround(0.1 / LY_PER_UNIT);
-    const maxUnitsForTest = Math.fround(20.9 / LY_PER_UNIT);
+    const minUnits = Math.fround(0.1 / NAVIGATION_CONFIG.LY_PER_UNIT);
+    const maxUnitsForTest = Math.fround(20.9 / NAVIGATION_CONFIG.LY_PER_UNIT);
 
     const starGenerator = fc
       .record({
@@ -126,8 +128,8 @@ describe('Technology Level Formula (Property Tests)', () => {
       .filter(([d1, d2]) => d1 < d2) // Ensure d1 < d2
       .map(([d1, d2]) => {
         // Convert distances to map units
-        const r1 = d1 / LY_PER_UNIT;
-        const r2 = d2 / LY_PER_UNIT;
+        const r1 = d1 / NAVIGATION_CONFIG.LY_PER_UNIT;
+        const r2 = d2 / NAVIGATION_CONFIG.LY_PER_UNIT;
 
         // Create systems at these distances (along x-axis for simplicity)
         return [

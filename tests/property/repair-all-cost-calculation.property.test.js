@@ -4,10 +4,12 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
 import { UIManager } from '../../js/game-ui.js';
+import { SHIP_CONFIG, REPAIR_CONFIG } from '../../js/game-constants.js';
 import {
-  SHIP_CONDITION_BOUNDS,
-  REPAIR_COST_PER_PERCENT,
-} from '../../js/game-constants.js';
+  setupRepairPanelDOM,
+  createMinimalStarData,
+  createMinimalWormholeData,
+} from '../test-utils.js';
 
 // Feature: dynamic-economy, Property 27: Repair All Cost Calculation
 // Validates: Requirements 7.9
@@ -17,52 +19,9 @@ describe('Property: Repair All Cost Calculation', () => {
   let wormholeData;
 
   beforeEach(() => {
-    // Minimal star data for testing
-    starData = [
-      { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G2', wh: 3, st: 1, r: 1 },
-      {
-        id: 1,
-        name: 'Alpha Centauri',
-        x: 43,
-        y: 0,
-        z: 0,
-        type: 'G2',
-        wh: 1,
-        st: 1,
-        r: 1,
-      },
-    ];
-
-    wormholeData = [[0, 1]];
-
-    // Setup DOM elements for repair panel
-    document.body.innerHTML = `
-      <div id="game-hud"></div>
-      <div id="repair-panel">
-        <span id="repair-system-name"></span>
-        <span id="repair-hull-percent"></span>
-        <div id="repair-hull-bar"></div>
-        <span id="repair-engine-percent"></span>
-        <div id="repair-engine-bar"></div>
-        <span id="repair-life-support-percent"></span>
-        <div id="repair-life-support-bar"></div>
-        <button class="repair-btn" data-system="hull" data-amount="10"></button>
-        <button class="repair-btn" data-system="hull" data-amount="25"></button>
-        <button class="repair-btn" data-system="hull" data-amount="50"></button>
-        <button class="repair-btn" data-system="hull" data-amount="full"></button>
-        <button class="repair-btn" data-system="engine" data-amount="10"></button>
-        <button class="repair-btn" data-system="engine" data-amount="25"></button>
-        <button class="repair-btn" data-system="engine" data-amount="50"></button>
-        <button class="repair-btn" data-system="engine" data-amount="full"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="10"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="25"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="50"></button>
-        <button class="repair-btn" data-system="lifeSupport" data-amount="full"></button>
-        <button id="repair-all-btn"></button>
-        <div id="repair-validation-message"></div>
-      </div>
-      <div id="notification-area"></div>
-    `;
+    starData = createMinimalStarData();
+    wormholeData = createMinimalWormholeData();
+    setupRepairPanelDOM();
   });
 
   it('should calculate repair all cost as sum of costs to repair each system to 100%', () => {
@@ -70,16 +29,16 @@ describe('Property: Repair All Cost Calculation', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -98,24 +57,25 @@ describe('Property: Repair All Cost Calculation', () => {
           // Calculate expected total cost
           const hullAmount = Math.max(
             0,
-            SHIP_CONDITION_BOUNDS.MAX - condition.hull
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull
           );
           const engineAmount = Math.max(
             0,
-            SHIP_CONDITION_BOUNDS.MAX - condition.engine
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine
           );
           const lifeSupportAmount = Math.max(
             0,
-            SHIP_CONDITION_BOUNDS.MAX - condition.lifeSupport
+            SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport
           );
 
           const expectedTotalCost =
-            hullAmount * REPAIR_COST_PER_PERCENT +
-            engineAmount * REPAIR_COST_PER_PERCENT +
-            lifeSupportAmount * REPAIR_COST_PER_PERCENT;
+            hullAmount * REPAIR_CONFIG.COST_PER_PERCENT +
+            engineAmount * REPAIR_CONFIG.COST_PER_PERCENT +
+            lifeSupportAmount * REPAIR_CONFIG.COST_PER_PERCENT;
 
           // Get actual calculated cost
-          const actualTotalCost = uiManager.calculateRepairAllCost();
+          const actualTotalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           expect(actualTotalCost).toBe(expectedTotalCost);
         }
@@ -129,16 +89,16 @@ describe('Property: Repair All Cost Calculation', () => {
       fc.property(
         fc.record({
           hull: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           engine: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
           lifeSupport: fc.integer({
-            min: SHIP_CONDITION_BOUNDS.MIN,
-            max: SHIP_CONDITION_BOUNDS.MAX,
+            min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+            max: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           }),
         }),
         (condition) => {
@@ -153,10 +113,11 @@ describe('Property: Repair All Cost Calculation', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          uiManager.updateRepairButtons();
+          uiManager.repairPanelController.updateRepairButtons();
 
           // Calculate expected total cost
-          const totalCost = uiManager.calculateRepairAllCost();
+          const totalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           // Verify button text contains the cost
           const repairAllBtn = document.getElementById('repair-all-btn');
@@ -173,13 +134,13 @@ describe('Property: Repair All Cost Calculation', () => {
 
     // Set all systems to max
     gameStateManager.updateShipCondition(
-      SHIP_CONDITION_BOUNDS.MAX,
-      SHIP_CONDITION_BOUNDS.MAX,
-      SHIP_CONDITION_BOUNDS.MAX
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX
     );
 
     const uiManager = new UIManager(gameStateManager);
-    const totalCost = uiManager.calculateRepairAllCost();
+    const totalCost = uiManager.repairPanelController.calculateRepairAllCost();
 
     expect(totalCost).toBe(0);
   });
@@ -189,8 +150,8 @@ describe('Property: Repair All Cost Calculation', () => {
       fc.property(
         fc.constantFrom('hull', 'engine', 'lifeSupport'),
         fc.integer({
-          min: SHIP_CONDITION_BOUNDS.MIN,
-          max: SHIP_CONDITION_BOUNDS.MAX - 1,
+          min: SHIP_CONFIG.CONDITION_BOUNDS.MIN,
+          max: SHIP_CONFIG.CONDITION_BOUNDS.MAX - 1,
         }),
         (systemToRepair, damagedCondition) => {
           const gameStateManager = new GameStateManager(starData, wormholeData);
@@ -201,15 +162,15 @@ describe('Property: Repair All Cost Calculation', () => {
             hull:
               systemToRepair === 'hull'
                 ? damagedCondition
-                : SHIP_CONDITION_BOUNDS.MAX,
+                : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             engine:
               systemToRepair === 'engine'
                 ? damagedCondition
-                : SHIP_CONDITION_BOUNDS.MAX,
+                : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
             lifeSupport:
               systemToRepair === 'lifeSupport'
                 ? damagedCondition
-                : SHIP_CONDITION_BOUNDS.MAX,
+                : SHIP_CONFIG.CONDITION_BOUNDS.MAX,
           };
 
           gameStateManager.updateShipCondition(
@@ -219,12 +180,13 @@ describe('Property: Repair All Cost Calculation', () => {
           );
 
           const uiManager = new UIManager(gameStateManager);
-          const totalCost = uiManager.calculateRepairAllCost();
+          const totalCost =
+            uiManager.repairPanelController.calculateRepairAllCost();
 
           // Expected cost is only for the damaged system
           const expectedCost =
-            (SHIP_CONDITION_BOUNDS.MAX - damagedCondition) *
-            REPAIR_COST_PER_PERCENT;
+            (SHIP_CONFIG.CONDITION_BOUNDS.MAX - damagedCondition) *
+            REPAIR_CONFIG.COST_PER_PERCENT;
 
           expect(totalCost).toBe(expectedCost);
         }

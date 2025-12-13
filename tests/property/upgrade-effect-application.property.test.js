@@ -3,11 +3,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../js/game-state.js';
-import {
-  SHIP_UPGRADES,
-  NEW_GAME_DEFAULTS,
-  SHIP_CONDITION_BOUNDS,
-} from '../../js/game-constants.js';
+import { SHIP_CONFIG, NEW_GAME_DEFAULTS } from '../../js/game-constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 /**
@@ -31,7 +27,10 @@ describe('Property Test: Upgrade Effect Application', () => {
   it('should apply capacity upgrades as absolute values', () => {
     fc.assert(
       fc.property(
-        fc.subarray(Object.keys(SHIP_UPGRADES), { minLength: 1, maxLength: 7 }),
+        fc.subarray(Object.keys(SHIP_CONFIG.UPGRADES), {
+          minLength: 1,
+          maxLength: 7,
+        }),
         (upgradeIds) => {
           // Install upgrades
           gameStateManager.state.ship.upgrades = upgradeIds;
@@ -40,12 +39,12 @@ describe('Property Test: Upgrade Effect Application', () => {
           const capabilities = gameStateManager.calculateShipCapabilities();
 
           // Verify capacity effects are absolute values
-          let expectedFuelCapacity = SHIP_CONDITION_BOUNDS.MAX;
+          let expectedFuelCapacity = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
           let expectedCargoCapacity = NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY;
           let expectedHiddenCargoCapacity = 0;
 
           for (const upgradeId of upgradeIds) {
-            const upgrade = SHIP_UPGRADES[upgradeId];
+            const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
             if (upgrade.effects.fuelCapacity !== undefined) {
               expectedFuelCapacity = upgrade.effects.fuelCapacity;
             }
@@ -71,7 +70,10 @@ describe('Property Test: Upgrade Effect Application', () => {
   it('should apply rate modifiers multiplicatively', () => {
     fc.assert(
       fc.property(
-        fc.subarray(Object.keys(SHIP_UPGRADES), { minLength: 1, maxLength: 7 }),
+        fc.subarray(Object.keys(SHIP_CONFIG.UPGRADES), {
+          minLength: 1,
+          maxLength: 7,
+        }),
         (upgradeIds) => {
           // Install upgrades
           gameStateManager.state.ship.upgrades = upgradeIds;
@@ -85,7 +87,7 @@ describe('Property Test: Upgrade Effect Application', () => {
           let expectedLifeSupportDrain = 1.0;
 
           for (const upgradeId of upgradeIds) {
-            const upgrade = SHIP_UPGRADES[upgradeId];
+            const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
             if (upgrade.effects.fuelConsumption !== undefined) {
               expectedFuelConsumption *= upgrade.effects.fuelConsumption;
             }
@@ -120,7 +122,7 @@ describe('Property Test: Upgrade Effect Application', () => {
     const capabilities = gameStateManager.calculateShipCapabilities();
 
     // Should return base values
-    expect(capabilities.fuelCapacity).toBe(SHIP_CONDITION_BOUNDS.MAX);
+    expect(capabilities.fuelCapacity).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
     expect(capabilities.cargoCapacity).toBe(
       NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY
     );

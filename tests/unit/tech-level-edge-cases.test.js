@@ -7,7 +7,9 @@
 
 import { describe, it, expect } from 'vitest';
 import { TradingSystem } from '../../js/game-trading.js';
-import { ECONOMY_CONFIG, LY_PER_UNIT } from '../../js/game-constants.js';
+import { ECONOMY_CONFIG, NAVIGATION_CONFIG } from '../../js/game-constants.js';
+
+const LY_PER_UNIT = NAVIGATION_CONFIG.LY_PER_UNIT;
 
 describe('Technology Level Edge Cases', () => {
   /**

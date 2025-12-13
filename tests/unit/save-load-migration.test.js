@@ -8,7 +8,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { GameStateManager } from '../../js/game-state.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
-import { SHIP_CONDITION_BOUNDS } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../js/game-constants.js';
+
+const SHIP_CONDITION_BOUNDS = SHIP_CONFIG.CONDITION_BOUNDS;
 
 describe('Save/Load Migration System', () => {
   let manager;
