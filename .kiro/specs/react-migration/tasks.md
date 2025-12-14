@@ -1,12 +1,15 @@
 # Implementation Plan
 
-- [ ] 1. Set up Vite project scaffolding and build configuration
+- [x] 1. Set up Vite project scaffolding and build configuration
   - Create package.json with React 18+, Vite, Vitest, and testing dependencies
   - Create vite.config.js with proper configuration for React and path aliases
   - Create vitest.config.js with jsdom environment and test setup
   - Create index.html as the new entry point with root div and script tag
+  - Verify Vite dev server runs on port 5173 (different from vanilla setup)
+  - Test that vanilla starmap.html still works with existing server
+  - Document commands to run both servers simultaneously for testing
   - Verify dev server starts and builds successfully
-  - _Requirements: 22.1, 22.2, 22.3, 22.4, 22.5, 35.1, 35.2, 35.3, 35.4, 35.5, 20.1, 20.2, 20.3, 20.4, 20.5_
+  - _Requirements: 6.5, 22.1, 22.2, 22.3, 22.4, 22.5, 35.1, 35.2, 35.3, 35.4, 35.5, 20.1, 20.2, 20.3, 20.4, 20.5, 38.1, 38.2, 38.3, 38.4_
 
 - [ ] 2. Create directory structure and migrate game logic
   - Create src directory with subdirectories: assets, components, context, features, game, hooks
@@ -23,7 +26,7 @@
   - Move string-utils.js to src/game/utils/string-utils.js
   - Move game-trading.js, game-navigation.js, game-events.js, game-information-broker.js to src/game/
   - Update all import paths to use new locations
-  - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8, 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 12.1, 12.2, 12.3, 12.4, 12.5, 30.1, 30.2, 30.3, 30.4, 30.5_
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8, 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 12.1, 12.2, 12.3, 12.4, 12.5, 30.1, 30.2, 30.3, 30.4, 30.5_
 
 - [ ] 2.1 Write property test for import resolution
   - **Property 35: Import resolution correctness**
@@ -100,12 +103,21 @@
   - Add handlers for view mode transitions
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4, 25.5_
 
-- [ ] 4.3 Write property test for view mode rendering
+- [ ] 4.3 Write property test for ORBIT mode rendering
   - **Property 26: ORBIT mode displays starmap and HUD**
+  - **Validates: Requirements 9.2, 25.1, 25.2**
+
+- [ ] 4.4 Write property test for STATION mode rendering
   - **Property 27: STATION mode displays station menu**
+  - **Validates: Requirements 9.3, 25.3**
+
+- [ ] 4.5 Write property test for PANEL mode rendering
   - **Property 28: PANEL mode displays active panel**
+  - **Validates: Requirements 9.4, 25.4**
+
+- [ ] 4.6 Write property test for view mode transitions
   - **Property 29: View mode changes update visibility**
-  - **Validates: Requirements 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4**
+  - **Validates: Requirements 9.5**
 
 - [ ] 5. Create shared UI components
   - Create src/components/Button.jsx
@@ -118,10 +130,13 @@
   - **Property 38: Error boundaries catch component errors**
   - **Validates: Requirements 36.1, 36.2, 36.3**
 
-- [ ] 5.2 Write property test for modal blocking
+- [ ] 5.2 Write property test for modal UI blocking
   - **Property 42: Modals block underlying UI**
+  - **Validates: Requirements 42.2**
+
+- [ ] 5.3 Write property test for modal state updates
   - **Property 43: Modals don't block state updates**
-  - **Validates: Requirements 42.2, 42.5**
+  - **Validates: Requirements 42.5**
 
 - [ ] 6. Implement StarMapCanvas component
 - [ ] 6.1 Create StarMapCanvas component
@@ -524,6 +539,14 @@
   - Verify all instances are removed or in game logic only
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
+- [ ] 27.2 Verify all UI functionality migrated to React
+  - Verify every UI panel has a corresponding React component
+  - Verify all HUD elements are React components
+  - Confirm no DOM manipulation remains in files that will be kept (game logic)
+  - Verify all UI updates use React component re-renders
+  - Document any remaining DOM manipulation with justification
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
 - [ ] 28. Final testing and validation
 - [ ] 28.1 Run full test suite
   - Execute npm test to run all tests
@@ -579,4 +602,4 @@
   - _Requirements: 38.5_
 
 - [ ] 30. Final checkpoint - Verify complete migration
-  - Ensure all tests pass, ask the user if questions arise.
+  - Ensure all tests pass, ask the user if questions arise
