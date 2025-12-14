@@ -3,19 +3,23 @@ import { useState } from 'react';
 /**
  * CameraControls component provides debug/camera control buttons.
  *
- * Features:
- * - Zoom In/Out buttons
- * - Toggle Rotation button
- * - Toggle Boundary button
- * - Collapsible panel that can be hidden/shown
- *
  * These controls supplement mouse/trackpad controls for the starmap camera.
+ * The panel is collapsible to minimize screen clutter during normal gameplay.
  *
- * @param {Object} cameraState - Current camera state from starmap
- * @param {Function} onZoomIn - Callback to zoom camera in
- * @param {Function} onZoomOut - Callback to zoom camera out
- * @param {Function} onToggleRotation - Callback to toggle auto-rotation
- * @param {Function} onToggleBoundary - Callback to toggle boundary visibility
+ * Features:
+ * - Zoom In/Out buttons for camera distance adjustment
+ * - Toggle Rotation button to enable/disable automatic camera orbit
+ * - Toggle Boundary button to show/hide the 20 light-year sector boundary
+ * - Collapsible panel that can be hidden/shown with toggle button
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.cameraState - Current camera state from starmap
+ * @param {boolean} props.cameraState.autoRotationEnabled - Whether auto-rotation is currently enabled
+ * @param {boolean} props.cameraState.boundaryVisible - Whether sector boundary is currently visible
+ * @param {Function} props.onZoomIn - Callback to zoom camera in (decreases distance to target)
+ * @param {Function} props.onZoomOut - Callback to zoom camera out (increases distance from target)
+ * @param {Function} props.onToggleRotation - Callback to toggle auto-rotation on/off
+ * @param {Function} props.onToggleBoundary - Callback to toggle boundary visibility on/off
  */
 export function CameraControls({
   cameraState,
@@ -45,13 +49,13 @@ export function CameraControls({
             Zoom Out
           </button>
           <button
-            className={`control-btn ${cameraState?.autoRotationEnabled ? 'active' : ''}`}
+            className={`control-btn ${cameraState.autoRotationEnabled ? 'active' : ''}`}
             onClick={onToggleRotation}
           >
             Toggle Rotation
           </button>
           <button
-            className={`control-btn ${cameraState?.boundaryVisible ? 'active' : ''}`}
+            className={`control-btn ${cameraState.boundaryVisible ? 'active' : ''}`}
             onClick={onToggleBoundary}
           >
             Toggle Boundary

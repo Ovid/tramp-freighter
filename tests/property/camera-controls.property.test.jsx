@@ -14,6 +14,31 @@ import * as fc from 'fast-check';
  */
 
 describe('Property: Camera Controls', () => {
+  it('should start in collapsed state by default', () => {
+    const mockHandlers = {
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      onToggleRotation: vi.fn(),
+      onToggleBoundary: vi.fn(),
+    };
+
+    const { container } = render(
+      <CameraControls
+        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        {...mockHandlers}
+      />
+    );
+
+    // Should have collapsed class
+    const cameraControls = container.querySelector('#camera-controls');
+    expect(cameraControls.classList.contains('collapsed')).toBe(true);
+    expect(cameraControls.classList.contains('expanded')).toBe(false);
+
+    // Buttons should not be visible
+    const controlButtons = container.querySelector('.camera-controls-buttons');
+    expect(controlButtons).toBeFalsy();
+  });
+
   it('should toggle camera controls visibility when toggle button clicked', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
@@ -311,5 +336,79 @@ describe('Property: Camera Controls', () => {
 
     fireEvent.click(zoomOutButton);
     expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('Property: Zoom In button calls handler on each click', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10 }), (clickCount) => {
+        const mockHandlers = {
+          onZoomIn: vi.fn(),
+          onZoomOut: vi.fn(),
+          onToggleRotation: vi.fn(),
+          onToggleBoundary: vi.fn(),
+        };
+
+        const { container } = render(
+          <CameraControls
+            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            {...mockHandlers}
+          />
+        );
+
+        const toggleButton = container.querySelector('.camera-controls-toggle');
+        fireEvent.click(toggleButton);
+
+        const buttons = container.querySelectorAll('.control-btn');
+        const zoomInButton = Array.from(buttons).find((btn) =>
+          btn.textContent.includes('Zoom In')
+        );
+
+        for (let i = 0; i < clickCount; i++) {
+          fireEvent.click(zoomInButton);
+        }
+
+        expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(clickCount);
+
+        return true;
+      }),
+      { numRuns: 10 }
+    );
+  });
+
+  it('Property: Zoom Out button calls handler on each click', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10 }), (clickCount) => {
+        const mockHandlers = {
+          onZoomIn: vi.fn(),
+          onZoomOut: vi.fn(),
+          onToggleRotation: vi.fn(),
+          onToggleBoundary: vi.fn(),
+        };
+
+        const { container } = render(
+          <CameraControls
+            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            {...mockHandlers}
+          />
+        );
+
+        const toggleButton = container.querySelector('.camera-controls-toggle');
+        fireEvent.click(toggleButton);
+
+        const buttons = container.querySelectorAll('.control-btn');
+        const zoomOutButton = Array.from(buttons).find((btn) =>
+          btn.textContent.includes('Zoom Out')
+        );
+
+        for (let i = 0; i < clickCount; i++) {
+          fireEvent.click(zoomOutButton);
+        }
+
+        expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(clickCount);
+
+        return true;
+      }),
+      { numRuns: 10 }
+    );
   });
 });

@@ -81,9 +81,16 @@ export function initScene() {
 }
 
 /**
- * Set up camera controls with OrbitControls
+ * Set up camera controls with OrbitControls.
+ *
+ * Configures mouse/trackpad controls for camera manipulation:
+ * - Left mouse: Orbit (rotate around target)
+ * - Middle mouse: Dolly (zoom in/out)
+ * - Right mouse: Pan (move target)
+ * - Scroll wheel: Dolly (zoom in/out)
+ *
  * @param {THREE.PerspectiveCamera} camera - The camera to control
- * @param {THREE.WebGLRenderer} renderer - The renderer
+ * @param {THREE.WebGLRenderer} renderer - The renderer providing the DOM element for event listeners
  * @returns {OrbitControls} The configured controls
  */
 function setupCameraControls(camera, renderer) {
@@ -284,7 +291,8 @@ export function createStarfield(scene) {
  * Create a soft glowing star texture for background stars.
  *
  * PERFORMANCE NOTE: This function creates a canvas texture. The canvas element
- * is intentionally kept alive as THREE.CanvasTexture maintains a reference to it.
+ * is intentionally kept alive as THREE.CanvasTexture maintains a reference to it
+ * for texture updates. Disposing the canvas would break the texture.
  * This function should only be called once during scene initialization.
  *
  * @returns {THREE.CanvasTexture} The star texture
@@ -321,7 +329,9 @@ function createBackgroundStarTexture() {
   return texture;
 }
 
-// Temp vectors for camera control calculations (reused to avoid allocation)
+// Temp vectors for camera control calculations (reused to avoid allocation during user interaction)
+// These are module-scoped because zoom functions are called from React event handlers,
+// and we want to avoid allocating new Vector3 objects on every button click.
 const _tempZoomDirection = new THREE.Vector3();
 const _tempZoomPosition = new THREE.Vector3();
 

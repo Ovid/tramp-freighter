@@ -371,7 +371,7 @@
   - Provide same functionality as DevAdminPanelController
   - _Requirements: 45.1, 45.2, 45.3, 45.4, 45.5_
 
-- [ ] 20. Checkpoint - Verify all UI components work
+- [x] 20. Checkpoint - Verify all UI components work
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 21. Migrate unit tests to Vitest
@@ -424,10 +424,6 @@
   - Migrate all other property tests from tests/property/
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3_
-
-- [ ] 22.5 Write property test for property test equivalence
-  - **Property 33: Property test equivalence**
-  - **Validates: Requirements 11.3**
 
 - [ ] 23. Migrate integration tests to Vitest
 - [ ] 23.1 Migrate game flow integration tests
