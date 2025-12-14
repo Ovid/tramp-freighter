@@ -74,7 +74,7 @@ describe('Property 44: Animation loop outside React', () => {
     );
   });
 
-  it('should work when animation system is not set', () => {
+  it('should throw error when animation system is not set', () => {
     const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
@@ -83,9 +83,13 @@ describe('Property 44: Animation loop outside React', () => {
 
     const { result } = renderHook(() => useAnimationLock(), { wrapper });
 
-    // Should return false when animation system not available
-    expect(result.current.isAnimating()).toBe(false);
-    expect(result.current.isLocked()).toBe(false);
+    // Should throw error when animation system not available
+    expect(() => result.current.isAnimating()).toThrow(
+      'Animation system not initialized - StarMapCanvas must be mounted before using useAnimationLock'
+    );
+    expect(() => result.current.isLocked()).toThrow(
+      'Animation system not initialized - StarMapCanvas must be mounted before using useAnimationLock'
+    );
   });
 });
 
@@ -170,7 +174,7 @@ describe('Property 45: useAnimationLock disables interactions', () => {
     // Components just check current state via the hook
   });
 
-  it('should handle animation system with missing inputLockManager', () => {
+  it('should throw error when animation system has missing inputLockManager', () => {
     const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
@@ -185,8 +189,11 @@ describe('Property 45: useAnimationLock disables interactions', () => {
 
     const { result } = renderHook(() => useAnimationLock(), { wrapper });
 
-    // Should handle gracefully and return false
-    expect(result.current.isLocked()).toBe(false);
+    // Should throw error when inputLockManager is missing
+    expect(() => result.current.isLocked()).toThrow(
+      'Invalid animation system: inputLockManager missing'
+    );
+    // isAnimating should still work
     expect(result.current.isAnimating()).toBe(true);
   });
 });

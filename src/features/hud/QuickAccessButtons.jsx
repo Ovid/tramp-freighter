@@ -33,7 +33,15 @@ export function QuickAccessButtons({ onDock }) {
   const canDock = currentSystem.st > 0;
 
   // Check if animations are running (disables all buttons during animations)
-  const isAnimationRunning = animationLock.isLocked();
+  // Animation system may not be initialized yet if StarMapCanvas hasn't mounted
+  let isAnimationRunning = false;
+  try {
+    isAnimationRunning = animationLock.isLocked();
+  } catch (error) {
+    // Animation system not initialized yet - treat as not locked
+    // This is expected during initial render before StarMapCanvas mounts
+    isAnimationRunning = false;
+  }
 
   const handleSystemInfo = () => {
     // Don't execute if animation is running

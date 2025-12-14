@@ -27,8 +27,13 @@ export function useAnimationLock() {
    * @returns {boolean} True if input is locked
    */
   const isLocked = () => {
-    if (!animationSystem || !animationSystem.inputLockManager) {
-      return false;
+    if (!animationSystem) {
+      throw new Error(
+        'Animation system not initialized - StarMapCanvas must be mounted before using useAnimationLock'
+      );
+    }
+    if (!animationSystem.inputLockManager) {
+      throw new Error('Invalid animation system: inputLockManager missing');
     }
     return animationSystem.inputLockManager.isInputLocked();
   };
@@ -40,7 +45,9 @@ export function useAnimationLock() {
    */
   const isAnimating = () => {
     if (!animationSystem) {
-      return false;
+      throw new Error(
+        'Animation system not initialized - StarMapCanvas must be mounted before using useAnimationLock'
+      );
     }
     return animationSystem.isAnimating;
   };
