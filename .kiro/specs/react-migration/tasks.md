@@ -312,13 +312,13 @@
   - Display available intelligence
   - _Requirements: 8.5_
 
-- [ ] 15. Implement Cargo Manifest panel
-- [ ] 15.1 Create cargo utility functions
+- [x] 15. Implement Cargo Manifest panel
+- [x] 15.1 Create cargo utility functions
   - Create src/features/cargo/cargoUtils.js
   - Implement cargo calculation functions
   - _Requirements: 15.5_
 
-- [ ] 15.2 Create CargoManifestPanel component
+- [x] 15.2 Create CargoManifestPanel component
   - Create src/features/cargo/CargoManifestPanel.jsx
   - Use useGameEvent for cargo
   - Display cargo stacks with purchase metadata
