@@ -299,13 +299,13 @@
   - Display available upgrades
   - _Requirements: 8.4_
 
-- [ ] 14. Implement Information Broker panel
-- [ ] 14.1 Create info broker utility functions
+- [x] 14. Implement Information Broker panel
+- [x] 14.1 Create info broker utility functions
   - Create src/features/info-broker/infoBrokerUtils.js
   - Implement intelligence validation functions
   - _Requirements: 15.5_
 
-- [ ] 14.2 Create InfoBrokerPanel component
+- [x] 14.2 Create InfoBrokerPanel component
   - Create src/features/info-broker/InfoBrokerPanel.jsx
   - Use useGameEvent for credits and intelligence data
   - Use useGameAction for purchaseIntelligence

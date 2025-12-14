@@ -2,6 +2,7 @@ import { TradePanel } from '../trade/TradePanel';
 import { RefuelPanel } from '../refuel/RefuelPanel';
 import { RepairPanel } from '../repair/RepairPanel';
 import { UpgradesPanel } from '../upgrades/UpgradesPanel';
+import { InfoBrokerPanel } from '../info-broker/InfoBrokerPanel';
 
 /**
  * Panel container component.
@@ -28,12 +29,7 @@ export function PanelContainer({ activePanel, onClose }) {
       case 'upgrades':
         return <UpgradesPanel onClose={onClose} />;
       case 'info-broker':
-        return (
-          <div className="panel-placeholder">
-            <h2>Info Broker Panel</h2>
-            <p>InfoBrokerPanel will be implemented in task 14</p>
-          </div>
-        );
+        return <InfoBrokerPanel onClose={onClose} />;
       case 'cargo-manifest':
         return (
           <div className="panel-placeholder">
