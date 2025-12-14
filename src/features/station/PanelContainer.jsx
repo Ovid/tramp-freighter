@@ -1,5 +1,6 @@
 import { TradePanel } from '../trade/TradePanel';
 import { RefuelPanel } from '../refuel/RefuelPanel';
+import { RepairPanel } from '../repair/RepairPanel';
 
 /**
  * Panel container component.
@@ -22,12 +23,7 @@ export function PanelContainer({ activePanel, onClose }) {
       case 'refuel':
         return <RefuelPanel onClose={onClose} />;
       case 'repair':
-        return (
-          <div className="panel-placeholder">
-            <h2>Repair Panel</h2>
-            <p>RepairPanel will be implemented in task 12</p>
-          </div>
-        );
+        return <RepairPanel onClose={onClose} />;
       case 'upgrades':
         return (
           <div className="panel-placeholder">

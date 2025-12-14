@@ -272,14 +272,14 @@
   - **Property 25: Refuel panel manages local state**
   - **Validates: Requirements 27.1, 27.2**
 
-- [ ] 12. Implement Repair panel
-- [ ] 12.1 Create repair utility functions
+- [x] 12. Implement Repair panel
+- [x] 12.1 Create repair utility functions
   - Create src/features/repair/repairUtils.js
   - Implement repair cost calculation functions
   - Implement repair validation functions
   - _Requirements: 15.3, 15.5_
 
-- [ ] 12.2 Create RepairPanel component
+- [x] 12.2 Create RepairPanel component
   - Create src/features/repair/RepairPanel.jsx
   - Use useGameEvent for ship condition and credits
   - Use useGameAction for repair
