@@ -11,7 +11,7 @@
   - Verify dev server starts and builds successfully
   - _Requirements: 6.5, 22.1, 22.2, 22.3, 22.4, 22.5, 35.1, 35.2, 35.3, 35.4, 35.5, 20.1, 20.2, 20.3, 20.4, 20.5, 38.1, 38.2, 38.3, 38.4_
 
-- [ ] 2. Create directory structure and migrate game logic
+- [x] 2. Create directory structure and migrate game logic
   - Create src directory with subdirectories: assets, components, context, features, game, hooks
   - Create game subdirectories: state, engine, data, utils
   - Move game-constants.js to src/game/constants.js
@@ -28,10 +28,9 @@
   - Update all import paths to use new locations
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8, 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 12.1, 12.2, 12.3, 12.4, 12.5, 30.1, 30.2, 30.3, 30.4, 30.5_
 
-- [ ] 2.1 Write property test for import resolution
+- [x] 2.1 Write property test for import resolution
   - **Property 35: Import resolution correctness**
   - **Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5**
-
 
 - [ ] 3. Implement Bridge Pattern foundation
 - [ ] 3.1 Create GameContext provider
@@ -157,7 +156,6 @@
 
 - [ ] 7. Checkpoint - Verify foundation works
   - Ensure all tests pass, ask the user if questions arise.
-
 
 - [ ] 8. Implement HUD components
 - [ ] 8.1 Create ResourceBar component
@@ -295,7 +293,6 @@
   - Display available upgrades
   - _Requirements: 8.4_
 
-
 - [ ] 14. Implement Information Broker panel
 - [ ] 14.1 Create info broker utility functions
   - Create src/features/info-broker/infoBrokerUtils.js
@@ -425,7 +422,6 @@
 - [ ] 22.5 Write property test for property test equivalence
   - **Property 33: Property test equivalence**
   - **Validates: Requirements 11.3**
-
 
 - [ ] 23. Migrate integration tests to Vitest
 - [ ] 23.1 Migrate game flow integration tests

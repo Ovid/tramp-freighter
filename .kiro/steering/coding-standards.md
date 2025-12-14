@@ -38,12 +38,14 @@ Every task must leave the codebase in a working state with all tests passing. Th
 **CRITICAL: All tasks must be self-contained and leave the system in a working or improved state**
 
 Do NOT:
+
 - Schedule tests for a later task
 - Leave new components unintegrated "to be hooked up later"
 - Create incomplete features that break existing functionality
 - Leave the system in a transition state
 
 DO:
+
 - Complete all aspects of a feature in the current task
 - Write and pass tests as part of the task
 - Integrate new components immediately
@@ -64,12 +66,13 @@ class TradePanelController {
 
 // BAD - Multiple unrelated purposes in one file
 // js/game-stuff.js
-class TradePanelController { }
-class RefuelPanelController { }
-function calculateDistance() { }
+class TradePanelController {}
+class RefuelPanelController {}
+function calculateDistance() {}
 ```
 
 Benefits:
+
 - Easier to locate functionality
 - Clearer dependencies
 - Better testability
@@ -106,6 +109,7 @@ function getPlayerCredits(state) {
 ```
 
 **When wrappers ARE appropriate:**
+
 - Adding validation or error handling
 - Transforming data format
 - Providing a stable API over changing implementation
@@ -369,7 +373,10 @@ Import statements should always be placed at the top of the file, immediately af
 ```javascript
 // GOOD - All imports at the top
 import * as THREE from 'three';
-import { GameStateManager, sanitizeShipName } from '../state/game-state-manager.js';
+import {
+  GameStateManager,
+  sanitizeShipName,
+} from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
 import { UIManager } from '../ui/ui-manager.js';
 import { STAR_DATA } from '../data/star-data.js';
@@ -800,6 +807,7 @@ class GameStateManager {
 **Before writing a defensive check, ask: "Is this variable guaranteed to exist?"**
 
 Check the code path:
+
 1. Is it initialized in the constructor? → No check needed
 2. Is it set by an initialization method called in constructor? → No check needed
 3. Is it a required parameter that should be validated once at entry? → Validate at entry, not at every use
@@ -1305,11 +1313,7 @@ function TradePanel({ onClose }) {
     // Handler logic
   };
 
-  return (
-    <div className="trade-panel">
-      {/* JSX */}
-    </div>
-  );
+  return <div className="trade-panel">{/* JSX */}</div>;
 }
 
 // BAD - Class components (avoid unless necessary)
@@ -1367,14 +1371,15 @@ export function TradePanel({ onClose }) {
   };
 
   // 7. Derived values
-  const validation = validateTrade('buy', selectedGood, quantity, gameStateManager.getState());
+  const validation = validateTrade(
+    'buy',
+    selectedGood,
+    quantity,
+    gameStateManager.getState()
+  );
 
   // 8. Return JSX
-  return (
-    <div className="trade-panel">
-      {/* JSX */}
-    </div>
-  );
+  return <div className="trade-panel">{/* JSX */}</div>;
 }
 ```
 

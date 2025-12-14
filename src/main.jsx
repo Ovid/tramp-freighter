@@ -7,7 +7,10 @@ function App() {
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Tramp Freighter Blues - React Migration</h1>
       <p>Vite setup successful! React 18+ is running.</p>
-      <p>This is a placeholder. The full application will be implemented in subsequent tasks.</p>
+      <p>
+        This is a placeholder. The full application will be implemented in
+        subsequent tasks.
+      </p>
     </div>
   );
 }

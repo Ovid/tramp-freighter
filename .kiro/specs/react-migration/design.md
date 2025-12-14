@@ -61,6 +61,7 @@ The Bridge Pattern connects the imperative GameStateManager to React's declarati
 3. **useGameAction**: Custom hook for triggering game actions
 
 This pattern ensures:
+
 - GameStateManager remains the single source of truth
 - React components reactively respond to state changes
 - No state duplication in React Context or Redux
@@ -201,7 +202,7 @@ import { useGameState } from '../context/GameContext';
 
 /**
  * Subscribe to GameStateManager events and trigger re-renders on changes.
- * 
+ *
  * @param {string} eventName - Event name from GameStateManager.subscribers
  * @returns {any} Current state value from the event
  */
@@ -235,8 +236,8 @@ function extractStateForEvent(eventName, state) {
     shipConditionChanged: {
       hull: state.ship.hull,
       engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport
-    }
+      lifeSupport: state.ship.lifeSupport,
+    },
   };
 
   return eventStateMap[eventName] || null;
@@ -251,7 +252,7 @@ import { useGameState } from '../context/GameContext';
 
 /**
  * Provides methods to trigger game actions through GameStateManager.
- * 
+ *
  * @returns {Object} Object containing action methods
  */
 export function useGameAction() {
@@ -259,15 +260,17 @@ export function useGameAction() {
 
   return {
     jump: (targetSystemId) => gameStateManager.jump(targetSystemId),
-    buyGood: (goodType, quantity) => gameStateManager.buyGood(goodType, quantity),
-    sellGood: (stackIndex, quantity) => gameStateManager.sellGood(stackIndex, quantity),
+    buyGood: (goodType, quantity) =>
+      gameStateManager.buyGood(goodType, quantity),
+    sellGood: (stackIndex, quantity) =>
+      gameStateManager.sellGood(stackIndex, quantity),
     refuel: (amount) => gameStateManager.refuel(amount),
     repair: (component, amount) => gameStateManager.repair(component, amount),
     purchaseUpgrade: (upgradeId) => gameStateManager.purchaseUpgrade(upgradeId),
-    purchaseIntelligence: (systemId, goodType) => 
+    purchaseIntelligence: (systemId, goodType) =>
       gameStateManager.purchaseIntelligence(systemId, goodType),
     saveGame: () => gameStateManager.saveGame(),
-    newGame: () => gameStateManager.initNewGame()
+    newGame: () => gameStateManager.initNewGame(),
   };
 }
 ```
@@ -345,7 +348,7 @@ import { PanelContainer } from './features/station/PanelContainer';
 const VIEW_MODES = {
   ORBIT: 'ORBIT',
   STATION: 'STATION',
-  PANEL: 'PANEL'
+  PANEL: 'PANEL',
 };
 
 export default function App() {
@@ -375,16 +378,13 @@ export default function App() {
       <div className="app-container">
         <StarMapCanvas />
         <HUD onDock={handleDock} />
-        
+
         {viewMode === VIEW_MODES.STATION && (
-          <StationMenu 
-            onOpenPanel={handleOpenPanel}
-            onUndock={handleUndock}
-          />
+          <StationMenu onOpenPanel={handleOpenPanel} onUndock={handleUndock} />
         )}
-        
+
         {viewMode === VIEW_MODES.PANEL && (
-          <PanelContainer 
+          <PanelContainer
             activePanel={activePanel}
             onClose={handleClosePanel}
           />
@@ -428,12 +428,8 @@ export function ResourceBar() {
 
   return (
     <div className="resource-bar">
-      <div className="credits">
-        Credits: {credits?.toLocaleString() || 0}
-      </div>
-      <div className="fuel">
-        Fuel: {fuel?.toFixed(1) || 0}%
-      </div>
+      <div className="credits">Credits: {credits?.toLocaleString() || 0}</div>
+      <div className="fuel">Fuel: {fuel?.toFixed(1) || 0}%</div>
     </div>
   );
 }
@@ -472,8 +468,8 @@ export function StarMapCanvas() {
   }, []); // Empty dependency array - initialize once
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="starmap-container"
       style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }}
     />
@@ -501,7 +497,9 @@ export function TradePanel({ onClose }) {
   const [quantity, setQuantity] = useState(1);
 
   const state = gameStateManager.getState();
-  const knownPrices = gameStateManager.getKnownPrices(state.player.currentSystem);
+  const knownPrices = gameStateManager.getKnownPrices(
+    state.player.currentSystem
+  );
 
   const handleBuy = () => {
     const validation = validateTrade('buy', selectedGood, quantity, state);
@@ -564,18 +562,16 @@ export function RefuelPanel({ onClose }) {
     <div className="refuel-panel">
       <h2>Refuel</h2>
       <div>Current Fuel: {fuel?.toFixed(1)}%</div>
-      <input 
-        type="range" 
-        min="0" 
-        max="100" 
+      <input
+        type="range"
+        min="0"
+        max="100"
         value={amount}
         onChange={(e) => setAmount(Number(e.target.value))}
       />
       <div>Cost: {cost} credits</div>
       {!validation.valid && (
-        <div className="validation-message error">
-          {validation.reason}
-        </div>
+        <div className="validation-message error">{validation.reason}</div>
       )}
       <button onClick={handleRefuel} disabled={!validation.valid}>
         Confirm Refuel
@@ -595,7 +591,7 @@ Utility functions extract business logic from components, making them pure and t
 
 /**
  * Validates a trade transaction.
- * 
+ *
  * @param {string} type - 'buy' or 'sell'
  * @param {string|number} item - Good type or stack index
  * @param {number} quantity - Amount to trade
@@ -610,7 +606,7 @@ export function validateTrade(type, item, quantity, state) {
   if (type === 'buy') {
     const price = calculateGoodPrice(item, state);
     const totalCost = price * quantity;
-    
+
     if (state.player.credits < totalCost) {
       return { valid: false, reason: 'Insufficient credits' };
     }
@@ -685,250 +681,250 @@ React components maintain minimal local state:
 
 All game state remains in GameStateManager.
 
-## 
+##
+
 Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 Before defining the correctness properties, I need to analyze the acceptance criteria to determine which are testable as properties, examples, or edge cases.
-
 
 ### Core Migration Properties
 
 Property 1: Game state behavioral equivalence
-*For any* game action (navigation, trade, refuel, repair, upgrade), executing that action in the React version should produce the same game state changes as the vanilla version
+_For any_ game action (navigation, trade, refuel, repair, upgrade), executing that action in the React version should produce the same game state changes as the vanilla version
 **Validates: Requirements 1.1, 1.2, 1.3**
 
 Property 2: Save/load round trip
-*For any* game state, saving then loading should produce an equivalent state in both vanilla and React versions
+_For any_ game state, saving then loading should produce an equivalent state in both vanilla and React versions
 **Validates: Requirements 1.4**
 
 Property 3: UI rendering equivalence
-*For any* game state and UI panel, the React version should display the same information as the vanilla version
+_For any_ game state and UI panel, the React version should display the same information as the vanilla version
 **Validates: Requirements 1.5**
 
 ### Bridge Pattern Properties
 
 Property 4: Single GameStateManager instance
-*For any* application initialization, exactly one GameStateManager instance should be created
+_For any_ application initialization, exactly one GameStateManager instance should be created
 **Validates: Requirements 3.3**
 
 Property 5: State updates through GameStateManager
-*For any* game state change, the change should occur only through GameStateManager methods, not through direct mutations
+_For any_ game state change, the change should occur only through GameStateManager methods, not through direct mutations
 **Validates: Requirements 3.1**
 
 Property 6: Component state matches GameStateManager
-*For any* React component reading game state, the component's state should match the corresponding GameStateManager state
+_For any_ React component reading game state, the component's state should match the corresponding GameStateManager state
 **Validates: Requirements 3.2, 3.5**
 
 Property 7: GameContext provides valid instance
-*For any* component accessing GameContext, the context should provide a non-null GameStateManager instance
+_For any_ component accessing GameContext, the context should provide a non-null GameStateManager instance
 **Validates: Requirements 5.1, 13.5**
 
 Property 8: Selective re-rendering on events
-*For any* game event, only components subscribed to that event should re-render
+_For any_ game event, only components subscribed to that event should re-render
 **Validates: Requirements 5.3, 34.3**
 
 Property 9: Automatic unsubscription on unmount
-*For any* component using useGameEvent, unmounting the component should automatically unsubscribe from GameStateManager events
+_For any_ component using useGameEvent, unmounting the component should automatically unsubscribe from GameStateManager events
 **Validates: Requirements 5.4, 34.4**
 
 Property 10: All subscribers notified
-*For any* game event with multiple subscribers, all subscribers should receive the event notification
+_For any_ game event with multiple subscribers, all subscribers should receive the event notification
 **Validates: Requirements 5.5**
 
 Property 11: useGameEvent subscription correctness
-*For any* call to useGameEvent with an event name, the hook should call gameStateManager.subscribe with that event name
+_For any_ call to useGameEvent with an event name, the hook should call gameStateManager.subscribe with that event name
 **Validates: Requirements 34.1**
 
 Property 12: useGameEvent state updates
-*For any* subscription callback firing, the useGameEvent hook should update its local state and return the updated value
+_For any_ subscription callback firing, the useGameEvent hook should update its local state and return the updated value
 **Validates: Requirements 34.2, 34.5**
 
 Property 13: useGameAction delegates to GameStateManager
-*For any* action triggered through useGameAction, the corresponding GameStateManager method should be called
+_For any_ action triggered through useGameAction, the corresponding GameStateManager method should be called
 **Validates: Requirements 16.2, 16.3**
 
 Property 14: Actions trigger events
-*For any* game action completing, the appropriate GameStateManager events should be fired
+_For any_ game action completing, the appropriate GameStateManager events should be fired
 **Validates: Requirements 16.4**
 
 Property 15: useGameAction consistency
-*For any* multiple components using useGameAction, they should all receive the same action methods
+_For any_ multiple components using useGameAction, they should all receive the same action methods
 **Validates: Requirements 16.5**
 
 ### Three.js Integration Properties
 
 Property 16: Scene initialization once per mount
-*For any* StarMapCanvas mount, the Three.js scene should be initialized exactly once
+_For any_ StarMapCanvas mount, the Three.js scene should be initialized exactly once
 **Validates: Requirements 4.3, 14.1**
 
 Property 17: No scene re-initialization on re-render
-*For any* React component re-render, the Three.js scene should not be re-initialized
+_For any_ React component re-render, the Three.js scene should not be re-initialized
 **Validates: Requirements 4.2, 14.5**
 
 Property 18: Resource cleanup on unmount
-*For any* StarMapCanvas unmount, all Three.js resources should be disposed
+_For any_ StarMapCanvas unmount, all Three.js resources should be disposed
 **Validates: Requirements 14.4**
 
 ### UI Reactivity Properties
 
 Property 19: HUD updates on credit changes
-*For any* change to player credits, the HUD credits display should update to reflect the new value
+_For any_ change to player credits, the HUD credits display should update to reflect the new value
 **Validates: Requirements 7.1**
 
 Property 20: HUD updates on fuel changes
-*For any* change to ship fuel, the HUD fuel display should update to reflect the new value
+_For any_ change to ship fuel, the HUD fuel display should update to reflect the new value
 **Validates: Requirements 7.2**
 
 Property 21: HUD updates on time changes
-*For any* change to game time, the HUD date display should update to reflect the new value
+_For any_ change to game time, the HUD date display should update to reflect the new value
 **Validates: Requirements 7.3**
 
 Property 22: HUD updates on condition changes
-*For any* change to ship condition (hull, engine, life support), the HUD condition bars should update to reflect the new values
+_For any_ change to ship condition (hull, engine, life support), the HUD condition bars should update to reflect the new values
 **Validates: Requirements 7.4**
 
 ### Panel Component Properties
 
 Property 23: Panels rendered as React components
-*For any* UI panel (trade, refuel, repair, upgrades, info-broker, cargo-manifest, ship-status), the panel should be rendered as a React component
+_For any_ UI panel (trade, refuel, repair, upgrades, info-broker, cargo-manifest, ship-status), the panel should be rendered as a React component
 **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7**
 
 Property 24: Trade panel delegates to GameStateManager
-*For any* trade operation (buy, sell, price query), the trade panel should call the corresponding GameStateManager method
+_For any_ trade operation (buy, sell, price query), the trade panel should call the corresponding GameStateManager method
 **Validates: Requirements 26.1, 26.2, 26.3**
 
 Property 25: Refuel panel manages local state
-*For any* refuel slider interaction, the slider value should be managed in local React state until submission
+_For any_ refuel slider interaction, the slider value should be managed in local React state until submission
 **Validates: Requirements 27.1, 27.2**
 
 ### View Mode Properties
 
 Property 26: ORBIT mode displays starmap and HUD
-*For any* view mode set to ORBIT, only the starmap and HUD should be displayed
+_For any_ view mode set to ORBIT, only the starmap and HUD should be displayed
 **Validates: Requirements 9.2**
 
 Property 27: STATION mode displays station menu
-*For any* view mode set to STATION, the station menu should be displayed
+_For any_ view mode set to STATION, the station menu should be displayed
 **Validates: Requirements 9.3**
 
 Property 28: PANEL mode displays active panel
-*For any* view mode set to PANEL, the active panel should be displayed
+_For any_ view mode set to PANEL, the active panel should be displayed
 **Validates: Requirements 9.4**
 
 Property 29: View mode changes update visibility
-*For any* view mode change, the visible components should update to match the new view mode
+_For any_ view mode change, the visible components should update to match the new view mode
 **Validates: Requirements 9.5, 25.1, 25.2, 25.3, 25.4**
 
 ### CSS and Styling Properties
 
 Property 30: CSS class names preserved
-*For any* component rendering, the component should use the same CSS class names as the vanilla version
+_For any_ component rendering, the component should use the same CSS class names as the vanilla version
 **Validates: Requirements 10.1**
 
 Property 31: CSS animations preserved
-*For any* animation playing, the animation should use the existing CSS animation definitions
+_For any_ animation playing, the animation should use the existing CSS animation definitions
 **Validates: Requirements 10.5**
 
 ### Test Migration Properties
 
 Property 32: Unit test equivalence
-*For any* unit test in the vanilla version, the React version should have an equivalent test verifying the same functionality
+_For any_ unit test in the vanilla version, the React version should have an equivalent test verifying the same functionality
 **Validates: Requirements 11.2**
 
 Property 33: Property test equivalence
-*For any* property-based test in the vanilla version, the React version should have an equivalent test verifying the same property
+_For any_ property-based test in the vanilla version, the React version should have an equivalent test verifying the same property
 **Validates: Requirements 11.3**
 
 Property 34: Integration test equivalence
-*For any* integration test in the vanilla version, the React version should have an equivalent test verifying the same workflow
+_For any_ integration test in the vanilla version, the React version should have an equivalent test verifying the same workflow
 **Validates: Requirements 11.4**
 
 ### Import Path Properties
 
 Property 35: Import resolution correctness
-*For any* module import, the import should resolve to the correct file path in the new src directory structure
+_For any_ module import, the import should resolve to the correct file path in the new src directory structure
 **Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5**
 
 ### Utility Function Properties
 
 Property 36: Utility functions are pure
-*For any* utility function (trade validation, refuel calculation, repair cost, upgrade validation), the function should be pure (same inputs produce same outputs)
+_For any_ utility function (trade validation, refuel calculation, repair cost, upgrade validation), the function should be pure (same inputs produce same outputs)
 **Validates: Requirements 15.1, 15.2, 15.3, 15.4, 15.5**
 
 ### Event Name Properties
 
 Property 37: Correct event names used
-*For any* component subscribing to GameStateManager events, the component should use the exact event names defined in GameStateManager.subscribers
+_For any_ component subscribing to GameStateManager events, the component should use the exact event names defined in GameStateManager.subscribers
 **Validates: Requirements 21.1, 21.2, 21.3, 21.4, 21.5, 21.6**
 
 ### Error Handling Properties
 
 Property 38: Error boundaries catch component errors
-*For any* React component throwing an error, an Error Boundary should catch it and display a fallback UI
+_For any_ React component throwing an error, an Error Boundary should catch it and display a fallback UI
 **Validates: Requirements 36.1, 36.2, 36.3**
 
 ### Save Compatibility Properties
 
 Property 39: Old saves load correctly
-*For any* saved game from the vanilla version, the React version should be able to load and restore the game state
+_For any_ saved game from the vanilla version, the React version should be able to load and restore the game state
 **Validates: Requirements 37.1, 37.2, 37.3**
 
 ### Performance Properties
 
 Property 40: No redundant re-renders
-*For any* multiple events firing rapidly, components should not re-render redundantly when subscribed to the same event
+_For any_ multiple events firing rapidly, components should not re-render redundantly when subscribed to the same event
 **Validates: Requirements 41.3**
 
 Property 41: No unnecessary object cloning
-*For any* event data being passed to subscribers, the data should not be unnecessarily cloned if it's not being mutated
+_For any_ event data being passed to subscribers, the data should not be unnecessarily cloned if it's not being mutated
 **Validates: Requirements 41.4**
 
 ### Modal Properties
 
 Property 42: Modals block underlying UI
-*For any* modal being displayed, interaction with underlying UI elements should be blocked
+_For any_ modal being displayed, interaction with underlying UI elements should be blocked
 **Validates: Requirements 42.2**
 
 Property 43: Modals don't block state updates
-*For any* modal being open, GameStateManager state updates should continue to function normally
+_For any_ modal being open, GameStateManager state updates should continue to function normally
 **Validates: Requirements 42.5**
 
 ### Animation Integration Properties
 
 Property 44: Animation loop outside React
-*For any* animation executing, the animation loop should run outside the React render cycle
+_For any_ animation executing, the animation loop should run outside the React render cycle
 **Validates: Requirements 43.1**
 
 Property 45: useAnimationLock disables interactions
-*For any* animation starting, the useAnimationLock hook should disable UI interactions until the animation completes
+_For any_ animation starting, the useAnimationLock hook should disable UI interactions until the animation completes
 **Validates: Requirements 43.2, 43.5**
 
 ### Notification Properties
 
 Property 46: Notification queueing
-*For any* multiple notifications triggered, they should be queued and displayed appropriately
+_For any_ multiple notifications triggered, they should be queued and displayed appropriately
 **Validates: Requirements 44.4**
 
 Property 47: Notification expiration
-*For any* notification expiring, it should be removed with fade animations matching existing CSS
+_For any_ notification expiring, it should be removed with fade animations matching existing CSS
 **Validates: Requirements 44.5**
 
 ### Quick Access Properties
 
 Property 48: Quick access button state updates
-*For any* player location change, quick access button enabled/disabled state should update accordingly
+_For any_ player location change, quick access button enabled/disabled state should update accordingly
 **Validates: Requirements 46.2**
 
 Property 49: Animation lock disables quick access
-*For any* animation running, quick access buttons should be disabled
+_For any_ animation running, quick access buttons should be disabled
 **Validates: Requirements 46.3**
 
 ### Game Logic Preservation Properties
 
 Property 50: Game logic not reimplemented
-*For any* game calculation (trading, navigation, fuel consumption), the React version should use the existing game logic functions, not reimplemented versions
+_For any_ game calculation (trading, navigation, fuel consumption), the React version should use the existing game logic functions, not reimplemented versions
 **Validates: Requirements 29.1, 29.2, 29.3, 29.4, 29.5**
 
 ## Error Handling
@@ -1024,6 +1020,7 @@ Unit tests verify individual functions and components in isolation:
 - **Components**: Test individual components with mocked dependencies
 
 Example:
+
 ```javascript
 // src/features/trade/tradeUtils.test.js
 import { describe, it, expect } from 'vitest';
@@ -1033,11 +1030,11 @@ describe('validateTrade', () => {
   it('should reject trades with insufficient credits', () => {
     const state = {
       player: { credits: 100 },
-      ship: { cargo: [] }
+      ship: { cargo: [] },
     };
-    
+
     const result = validateTrade('buy', 'electronics', 10, state);
-    
+
     expect(result.valid).toBe(false);
     expect(result.reason).toContain('Insufficient credits');
   });
@@ -1054,6 +1051,7 @@ Property-based tests verify universal properties across many generated inputs:
 - **Resource Cleanup**: Verify no memory leaks on mount/unmount
 
 Example:
+
 ```javascript
 // tests/property/bridge-pattern.property.test.js
 import { describe, it } from 'vitest';
@@ -1071,14 +1069,15 @@ describe('Property: Automatic unsubscription on unmount', () => {
         fc.constantFrom('creditsChanged', 'fuelChanged', 'cargoChanged'),
         (eventName) => {
           const mockGameStateManager = createMockGameStateManager();
-          const { unmount } = renderHook(
-            () => useGameEvent(eventName),
-            { wrapper: createWrapper(mockGameStateManager) }
-          );
+          const { unmount } = renderHook(() => useGameEvent(eventName), {
+            wrapper: createWrapper(mockGameStateManager),
+          });
 
-          const subscriptionCount = mockGameStateManager.getSubscriptionCount(eventName);
+          const subscriptionCount =
+            mockGameStateManager.getSubscriptionCount(eventName);
           unmount();
-          const afterUnmountCount = mockGameStateManager.getSubscriptionCount(eventName);
+          const afterUnmountCount =
+            mockGameStateManager.getSubscriptionCount(eventName);
 
           return afterUnmountCount === subscriptionCount - 1;
         }
@@ -1099,6 +1098,7 @@ Integration tests verify complete workflows across multiple components:
 - **Save/Load**: Test save/load round trips
 
 Example:
+
 ```javascript
 // tests/integration/trade-workflow.integration.test.js
 import { describe, it, expect } from 'vitest';
@@ -1109,7 +1109,7 @@ import { TradePanel } from '../../src/features/trade/TradePanel';
 describe('Trade Workflow Integration', () => {
   it('should complete a buy transaction and update state', async () => {
     const gameStateManager = createTestGameStateManager();
-    
+
     render(
       <GameProvider gameStateManager={gameStateManager}>
         <TradePanel onClose={() => {}} />
@@ -1118,8 +1118,10 @@ describe('Trade Workflow Integration', () => {
 
     // Select good and quantity
     fireEvent.click(screen.getByText('Electronics'));
-    fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '5' } });
-    
+    fireEvent.change(screen.getByLabelText('Quantity'), {
+      target: { value: '5' },
+    });
+
     // Execute buy
     fireEvent.click(screen.getByText('Buy'));
 
@@ -1141,6 +1143,7 @@ These tests compare vanilla and React versions to ensure identical behavior:
 - **UI Output**: Compare rendered output
 
 Example:
+
 ```javascript
 // tests/integration/behavioral-equivalence.test.js
 import { describe, it, expect } from 'vitest';
@@ -1166,7 +1169,9 @@ describe('Property: Game state behavioral equivalence', () => {
     const vanillaState = vanillaGSM.getState();
     const reactState = reactGSM.getState();
 
-    expect(reactState.player.currentSystem).toBe(vanillaState.player.currentSystem);
+    expect(reactState.player.currentSystem).toBe(
+      vanillaState.player.currentSystem
+    );
     expect(reactState.ship.fuel).toBeCloseTo(vanillaState.ship.fuel, 2);
     expect(reactState.player.daysElapsed).toBe(vanillaState.player.daysElapsed);
   });
@@ -1203,6 +1208,7 @@ npm test -- bridge-pattern.property.test.js
 **Goal**: Establish build system and bridge pattern
 
 Deliverables:
+
 1. Vite project scaffolding (package.json, vite.config.js, vitest.config.js)
 2. Directory structure (src/, features/, game/, hooks/, context/)
 3. Game logic moved to src/game/ with preserved imports
@@ -1213,6 +1219,7 @@ Deliverables:
 8. Initial test setup with Vitest
 
 Success Criteria:
+
 - Vite dev server runs without errors
 - Three.js scene renders in React
 - HUD updates reactively when credits/fuel change
@@ -1223,6 +1230,7 @@ Success Criteria:
 **Goal**: Migrate all UI panels to React components
 
 Deliverables:
+
 1. Complete HUD with all components (ResourceBar, DateDisplay, ShipStatus, QuickAccessButtons)
 2. View mode management in App component
 3. StationMenu component
@@ -1233,6 +1241,7 @@ Deliverables:
 8. Notification system with useNotification hook
 
 Success Criteria:
+
 - All panels render correctly
 - All panels interact with GameStateManager correctly
 - View mode transitions work smoothly
@@ -1243,6 +1252,7 @@ Success Criteria:
 **Goal**: Integrate animation system and polish UX
 
 Deliverables:
+
 1. useAnimationLock hook
 2. Animation system integration with React
 3. Dev admin panel migration
@@ -1251,6 +1261,7 @@ Deliverables:
 6. Performance optimization (React.memo, useMemo where needed)
 
 Success Criteria:
+
 - Jump animations work smoothly
 - Input locking during animations works correctly
 - Dev admin panel functional
@@ -1261,6 +1272,7 @@ Success Criteria:
 **Goal**: Achieve test parity and validate behavioral equivalence
 
 Deliverables:
+
 1. All unit tests migrated to Vitest
 2. All property-based tests migrated to fast-check
 3. All integration tests migrated
@@ -1269,6 +1281,7 @@ Deliverables:
 6. Performance benchmarks comparing vanilla vs React
 
 Success Criteria:
+
 - All tests pass
 - Test coverage >= vanilla version
 - All behavioral equivalence tests pass
@@ -1279,6 +1292,7 @@ Success Criteria:
 **Goal**: Complete migration and remove vanilla code
 
 Deliverables:
+
 1. Save migration utility for old saves
 2. Updated documentation
 3. Vanilla code removal
@@ -1286,6 +1300,7 @@ Deliverables:
 5. Final QA and bug fixes
 
 Success Criteria:
+
 - Production build works correctly
 - Old saves load successfully
 - No vanilla code remains
@@ -1360,6 +1375,7 @@ npm run build
 ```
 
 Output:
+
 - Optimized bundle in dist/
 - Minified JavaScript and CSS
 - Source maps for debugging

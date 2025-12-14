@@ -5,13 +5,13 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 export default [
   // 1. Global Ignores: Added 'vendor/' to the list
   {
-    ignores: ['dist', 'coverage', 'node_modules', 'vendor'],
+    ignores: ['dist', 'coverage', 'node_modules', 'vendor', 'src/**/*.jsx'],
   },
 
   // 2. Base Javascript Recommended Rules
   js.configs.recommended,
 
-  // 3. Your Custom Configuration for source files
+  // 3. Your Custom Configuration for source files (vanilla JS)
   {
     files: ['js/**/*.js'],
     languageOptions: {
@@ -22,6 +22,48 @@ export default [
         ...globals.es2021,
         // Allow process for test environment detection
         process: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-console': 'off',
+    },
+  },
+
+  // 3b. Configuration for React source files
+  {
+    files: ['src/**/*.js', 'src/**/*.jsx'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+        // Allow process for environment detection
+        process: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-console': 'off',
+    },
+  },
+
+  // 3c. Configuration for build/config files
+  {
+    files: [
+      '*.js',
+      '*.mjs',
+      'vite.config.js',
+      'vitest.config.js',
+      'shared-config.js',
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
       },
     },
     rules: {

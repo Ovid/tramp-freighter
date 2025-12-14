@@ -9,11 +9,13 @@ This guide helps new developers understand the React migration project for Tramp
 ### What We're Migrating
 
 **Migrating (UI Layer):**
+
 - `js/ui/` - All UI management code
 - Portions of `js/controllers/` - Panel controller logic
 - DOM manipulation code throughout
 
 **Preserving (Game Logic & Rendering):**
+
 - `js/state/` - Game state management
 - `js/game-*.js` - Trading, navigation, events logic
 - `js/views/starmap/` - Three.js rendering engine
@@ -43,6 +45,7 @@ GameStateManager (Imperative)
 ```
 
 **How it works:**
+
 1. GameStateManager remains the single source of truth
 2. GameContext holds the GameStateManager instance
 3. useGameEvent subscribes to GameStateManager events
@@ -78,24 +81,27 @@ src/
 ### 1. GameStateManager Integration
 
 **DO:**
+
 - Read state from GameStateManager
 - Call GameStateManager methods for actions
 - Subscribe to events via useGameEvent
 - Keep GameStateManager as single source of truth
 
 **DON'T:**
+
 - Duplicate state in React state
 - Reimplement game logic in components
 - Use Redux or other state management
 - Modify GameStateManager internals
 
 **Example:**
+
 ```jsx
 // GOOD
 function ResourceBar() {
   const credits = useGameEvent('creditsChanged');
   const fuel = useGameEvent('fuelChanged');
-  
+
   return (
     <div>
       <span>Credits: {credits}</span>
@@ -116,27 +122,29 @@ function ResourceBar() {
 Three.js must run outside React's render cycle for 60 FPS performance.
 
 **Pattern:**
+
 ```jsx
 function StarMapCanvas() {
   const containerRef = useRef(null);
-  
+
   useEffect(() => {
     // Initialize once with empty dependency array
     const { renderer, scene, camera } = initScene(containerRef.current);
     containerRef.current.appendChild(renderer.domElement);
-    
+
     // Cleanup on unmount
     return () => {
       renderer.dispose();
       // ... other cleanup
     };
   }, []); // Empty array = run once
-  
+
   return <div ref={containerRef} />;
 }
 ```
 
 **Key Points:**
+
 - Use `useRef` to target container
 - Call existing `initScene()` from `scene.js`
 - Empty dependency array prevents re-initialization
@@ -147,6 +155,7 @@ function StarMapCanvas() {
 Components subscribe to specific GameStateManager events:
 
 **Available Events:**
+
 - `creditsChanged` - Player credits updated
 - `fuelChanged` - Ship fuel updated
 - `locationChanged` - Player moved systems
@@ -155,18 +164,19 @@ Components subscribe to specific GameStateManager events:
 - `shipConditionChanged` - Ship condition updated
 
 **Usage:**
+
 ```jsx
 function TradePanel() {
   const cargo = useGameEvent('cargoChanged');
   const { buyGood, sellGood } = useGameAction();
-  
+
   const handleBuy = (goodType, quantity) => {
     buyGood(goodType, quantity);
     // GameStateManager handles state update
     // cargoChanged event fires automatically
     // Component re-renders with new cargo
   };
-  
+
   return (
     <div>
       {/* Render cargo */}
@@ -181,15 +191,17 @@ function TradePanel() {
 The App component manages which UI panels are visible:
 
 **View Modes:**
+
 - `ORBIT` - Starmap + HUD only
 - `STATION` - Station menu visible
 - `PANEL` - Specific panel visible (trade, refuel, etc.)
 
 **Rendering Logic:**
+
 ```jsx
 function App() {
   const [viewMode, setViewMode] = useState('ORBIT');
-  
+
   return (
     <>
       <StarMapCanvas /> {/* Always rendered, z-index: 0 */}
@@ -204,16 +216,19 @@ function App() {
 ### 5. CSS Strategy
 
 **Global Styles:**
+
 - Import existing CSS files in `main.jsx`
 - Maintains visual consistency
 - Reuses existing class names
 
 **CSS Modules:**
+
 - Use for component-specific styles
 - Prevents naming conflicts
 - Enables tree-shaking
 
 **Example:**
+
 ```jsx
 // main.jsx
 import '../css/base.css';
@@ -256,22 +271,26 @@ The migration is designed to be incremental:
 4. **Phase 4**: Optimize and polish
 
 During migration, both versions can coexist:
+
 - Vite dev server: `http://localhost:5173` (React version)
 - Original: `starmap.html` (Vanilla JS version)
 
 ### Testing Strategy
 
 **Unit Tests:**
+
 - Test individual components in isolation
 - Mock GameStateManager for predictable state
 - Use Vitest + React Testing Library
 
 **Property-Based Tests:**
+
 - Migrate existing property tests to fast-check
 - Maintain same properties and coverage
 - Test game logic, not React components
 
 **Integration Tests:**
+
 - Test complete workflows (trade, refuel, navigation)
 - Use real GameStateManager instance
 - Verify UI updates match state changes
@@ -285,12 +304,8 @@ Components that only display data:
 ```jsx
 function DateDisplay() {
   const gameTime = useGameEvent('timeChanged');
-  
-  return (
-    <div className="date-display">
-      Day {gameTime.day}
-    </div>
-  );
+
+  return <div className="date-display">Day {gameTime.day}</div>;
 }
 ```
 
@@ -302,22 +317,22 @@ Components that trigger game actions:
 function RefuelPanel() {
   const [amount, setAmount] = useState(0);
   const { refuel, validateRefuel } = useGameAction();
-  
+
   const validation = validateRefuel(amount);
-  
+
   const handleRefuel = () => {
     if (validation.valid) {
       refuel(amount);
       setAmount(0); // Reset local UI state
     }
   };
-  
+
   return (
     <div>
-      <input 
-        type="range" 
-        value={amount} 
-        onChange={(e) => setAmount(e.target.value)} 
+      <input
+        type="range"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
       />
       {!validation.valid && <p>{validation.reason}</p>}
       <button onClick={handleRefuel} disabled={!validation.valid}>
@@ -384,7 +399,7 @@ Handle GameStateManager initialization failures:
 function GameProvider({ children }) {
   const [gameState, setGameState] = useState(null);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     try {
       const state = loadGame() || initNewGame();
@@ -393,14 +408,12 @@ function GameProvider({ children }) {
       setError(err);
     }
   }, []);
-  
+
   if (error) return <ErrorScreen error={error} />;
   if (!gameState) return <LoadingScreen />;
-  
+
   return (
-    <GameContext.Provider value={gameState}>
-      {children}
-    </GameContext.Provider>
+    <GameContext.Provider value={gameState}>{children}</GameContext.Provider>
   );
 }
 ```
@@ -430,9 +443,9 @@ React 18 automatically batches updates:
 ```jsx
 // These updates are automatically batched
 function handleJump() {
-  updateFuel(newFuel);      // Triggers fuelChanged
+  updateFuel(newFuel); // Triggers fuelChanged
   updateLocation(newSystem); // Triggers locationChanged
-  updateTime(newTime);       // Triggers timeChanged
+  updateTime(newTime); // Triggers timeChanged
   // Only one re-render for all three changes
 }
 ```
@@ -453,6 +466,7 @@ const StarSprite = React.memo(({ star }) => {
 ### 1. React DevTools
 
 Install React DevTools browser extension:
+
 - Inspect component tree
 - View props and state
 - Profile performance
@@ -473,6 +487,7 @@ useEffect(() => {
 ### 3. Vite HMR
 
 Hot Module Replacement preserves state during development:
+
 - Edit components without losing game state
 - Fast feedback loop
 - Automatic browser refresh
@@ -543,11 +558,14 @@ function StarMapCanvas() {
 // BAD - Duplicating GameStateManager state
 function HUD() {
   const [credits, setCredits] = useState(0);
-  
+
   useEffect(() => {
-    const unsubscribe = gameStateManager.subscribe('creditsChanged', (newCredits) => {
-      setCredits(newCredits); // Unnecessary duplication
-    });
+    const unsubscribe = gameStateManager.subscribe(
+      'creditsChanged',
+      (newCredits) => {
+        setCredits(newCredits); // Unnecessary duplication
+      }
+    );
     return unsubscribe;
   }, []);
 }
@@ -562,12 +580,14 @@ function HUD() {
 ## Resources
 
 ### Documentation
+
 - [React 18 Docs](https://react.dev/)
 - [Vite Guide](https://vitejs.dev/guide/)
 - [Vitest Docs](https://vitest.dev/)
 - [Three.js Docs](https://threejs.org/docs/)
 
 ### Project Files
+
 - `requirements.md` - Complete requirements specification
 - `design.md` - Technical design document
 - `tasks.md` - Implementation task list

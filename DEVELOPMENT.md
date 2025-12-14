@@ -14,6 +14,7 @@ npm run dev
 The React application will be available at: http://localhost:5173/
 
 Features:
+
 - Hot Module Replacement (HMR) for instant updates
 - Fast build times with Vite
 - React 18+ with modern features
@@ -35,18 +36,23 @@ The vanilla application will be available at: http://localhost:8080/starmap.html
 During the migration, you can run both versions at the same time for comparison and testing:
 
 **Terminal 1 - React Version:**
+
 ```bash
 npm run dev
 ```
+
 Access at: http://localhost:5173/
 
 **Terminal 2 - Vanilla Version:**
+
 ```bash
 npm run dev:vanilla
 ```
+
 Access at: http://localhost:8080/starmap.html
 
 This allows you to:
+
 - Compare behavior between versions
 - Test feature parity
 - Validate behavioral equivalence
@@ -55,18 +61,21 @@ This allows you to:
 ## Build Commands
 
 ### Development Build
+
 ```bash
 npm run dev          # Start Vite dev server (React)
 npm run dev:vanilla  # Start vanilla JS server
 ```
 
 ### Production Build
+
 ```bash
 npm run build        # Build React app for production
 npm run preview      # Preview production build locally
 ```
 
 ### Testing
+
 ```bash
 npm test             # Run all tests once
 npm run test:watch   # Run tests in watch mode
@@ -74,6 +83,7 @@ npm run test:coverage # Run tests with coverage report
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint         # Check for linting errors
 npm run lint:fix     # Fix linting errors automatically
@@ -95,9 +105,11 @@ These ports are configured to avoid conflicts, allowing both servers to run simu
 The React migration is in progress. The vanilla version remains functional and serves as the reference implementation for behavioral equivalence testing.
 
 ### Current Phase
+
 Phase 1: Foundation - Setting up Vite project scaffolding and build configuration
 
 ### Completed
+
 - ✅ Vite project scaffolding
 - ✅ React 18+ dependencies
 - ✅ Build configuration (vite.config.js)
@@ -106,6 +118,7 @@ Phase 1: Foundation - Setting up Vite project scaffolding and build configuratio
 - ✅ Dual server setup (React + Vanilla)
 
 ### Next Steps
+
 - Create directory structure
 - Migrate game logic to src/game/
 - Implement Bridge Pattern (GameContext, useGameEvent, useGameAction)
@@ -117,12 +130,14 @@ Phase 1: Foundation - Setting up Vite project scaffolding and build configuratio
 ### Port Already in Use
 
 If you see "Port 5173 is already in use":
+
 ```bash
 # Find and kill the process using port 5173
 lsof -ti:5173 | xargs kill -9
 ```
 
 If you see "Port 8080 is already in use":
+
 ```bash
 # Find and kill the process using port 8080
 lsof -ti:8080 | xargs kill -9
@@ -131,6 +146,7 @@ lsof -ti:8080 | xargs kill -9
 ### Module Not Found Errors
 
 If you see module resolution errors:
+
 ```bash
 # Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
@@ -140,6 +156,7 @@ npm install
 ### Vite Cache Issues
 
 If you experience strange build issues:
+
 ```bash
 # Clear Vite cache
 rm -rf node_modules/.vite
@@ -218,6 +235,7 @@ project-root/
 ## Migration Specification
 
 For detailed migration requirements, design, and tasks, see:
+
 - `.kiro/specs/react-migration/requirements.md`
 - `.kiro/specs/react-migration/design.md`
 - `.kiro/specs/react-migration/tasks.md`
