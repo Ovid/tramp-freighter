@@ -27,17 +27,3 @@ export function formatCargoAge(currentDay, purchaseDay) {
     return `${daysSincePurchase} days ago`;
   }
 }
-
-/**
- * Calculate cargo capacity usage
- *
- * @param {Array} cargo - Array of cargo stacks
- * @returns {number} Total cargo units used
- */
-export function calculateCargoUsed(cargo) {
-  if (!Array.isArray(cargo)) {
-    return 0;
-  }
-
-  return cargo.reduce((total, stack) => total + (stack.qty || 0), 0);
-}

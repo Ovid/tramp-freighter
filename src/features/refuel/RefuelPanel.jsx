@@ -29,13 +29,10 @@ export function RefuelPanel({ onClose }) {
   // Subscribe to game state changes
   const fuel = useGameEvent('fuelChanged');
   const credits = useGameEvent('creditsChanged');
+  const currentSystem = useGameEvent('locationChanged');
 
   // Get action methods
   const { refuel } = useGameAction();
-
-  // Get current state for calculations
-  const state = gameStateManager.getState();
-  const currentSystem = state.player.currentSystem;
   const fuelPrice = gameStateManager.getFuelPrice(currentSystem);
 
   // Calculate values

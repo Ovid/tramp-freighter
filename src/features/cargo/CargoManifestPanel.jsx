@@ -20,13 +20,13 @@ export function CargoManifestPanel({ onClose }) {
   // Access GameStateManager
   const gameStateManager = useGameState();
 
-  // Subscribe to cargo changes
+  // Subscribe to game events
   const cargo = useGameEvent('cargoChanged');
+  const shipName = useGameEvent('shipNameChanged');
+  const currentDay = useGameEvent('timeChanged');
 
-  // Get current state
-  const state = gameStateManager.getState();
-  const ship = state.ship;
-  const currentDay = state.player.daysElapsed;
+  // Get ship for cargoCapacity (non-reactive property)
+  const ship = gameStateManager.getShip();
 
   // Calculate cargo usage
   const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
@@ -87,7 +87,7 @@ export function CargoManifestPanel({ onClose }) {
         ×
       </button>
       <h2>
-        CARGO MANIFEST — <span id="cargo-manifest-ship-name">{ship.name}</span>
+        CARGO MANIFEST — <span id="cargo-manifest-ship-name">{shipName}</span>
       </h2>
 
       <div className="cargo-manifest-content">

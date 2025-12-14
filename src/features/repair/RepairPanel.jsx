@@ -14,6 +14,7 @@ export function RepairPanel({ onClose }) {
   const gameStateManager = useGameState();
   const shipCondition = useGameEvent('shipConditionChanged');
   const credits = useGameEvent('creditsChanged');
+  const currentSystemId = useGameEvent('locationChanged');
   const { repair } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
@@ -183,12 +184,12 @@ export function RepairPanel({ onClose }) {
   const repairAllDisabled = allAtMax || credits < totalCost || totalCost === 0;
 
   const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === state.player.currentSystem
+    (s) => s.id === currentSystemId
   );
 
   if (!currentSystem) {
     throw new Error(
-      `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      `Invalid game state: current system ID ${currentSystemId} not found in star data`
     );
   }
 

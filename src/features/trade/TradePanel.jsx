@@ -35,14 +35,14 @@ export function TradePanel({ onClose }) {
   // Subscribe to relevant game events
   const cargo = useGameEvent('cargoChanged');
   const credits = useGameEvent('creditsChanged');
+  const currentSystemId = useGameEvent('locationChanged');
+  const currentDay = useGameEvent('timeChanged');
 
   // Get game actions
   const { buyGood, sellGood, moveToHiddenCargo, moveToRegularCargo } =
     useGameAction();
 
-  // Get current state
-  const state = gameStateManager.getState();
-  const currentSystemId = state.player.currentSystem;
+  // Get current system
   const system = gameStateManager.starData.find(
     (s) => s.id === currentSystemId
   );
@@ -53,28 +53,31 @@ export function TradePanel({ onClose }) {
     );
   }
 
+  // Get ship data for capacity and upgrades
+  const ship = gameStateManager.getShip();
+
   // Calculate cargo capacity
   const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoCapacity = state.ship.cargoCapacity;
+  const cargoCapacity = ship.cargoCapacity;
   const cargoRemaining = cargoCapacity - cargoUsed;
 
   // Check for Smuggler's Panels upgrade
   const hasSmugglersPanel =
-    state.ship.upgrades && state.ship.upgrades.includes('smuggler_panels');
-  const hiddenCargo = state.ship.hiddenCargo || [];
+    ship.upgrades && ship.upgrades.includes('smuggler_panels');
+  const hiddenCargo = ship.hiddenCargo || [];
   const hiddenCargoUsed = hiddenCargo.reduce(
     (sum, stack) => sum + stack.qty,
     0
   );
   const hiddenCargoCapacity =
-    state.ship.hiddenCargoCapacity ||
+    ship.hiddenCargoCapacity ||
     SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity;
 
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
-  // Get current prices for all goods
-  const currentDay = state.player.daysElapsed;
+  // Get world state for price calculations (non-reactive properties)
+  const state = gameStateManager.getState();
   const activeEvents = state.world.activeEvents || [];
   const marketConditions = state.world.marketConditions || {};
 

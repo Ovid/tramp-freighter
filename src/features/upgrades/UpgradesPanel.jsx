@@ -14,6 +14,7 @@ import { SHIP_CONFIG } from '../../game/constants';
 export function UpgradesPanel({ onClose }) {
   const gameStateManager = useGameState();
   const credits = useGameEvent('creditsChanged');
+  const currentSystemId = useGameEvent('locationChanged');
   const { purchaseUpgrade } = useGameAction();
 
   const [pendingUpgradeId, setPendingUpgradeId] = useState(null);
@@ -193,12 +194,12 @@ export function UpgradesPanel({ onClose }) {
   );
 
   const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === state.player.currentSystem
+    (s) => s.id === currentSystemId
   );
 
   if (!currentSystem) {
     throw new Error(
-      `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      `Invalid game state: current system ID ${currentSystemId} not found in star data`
     );
   }
 
