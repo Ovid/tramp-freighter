@@ -22,7 +22,7 @@ describe('Property 25: Refuel panel manages local state', () => {
   beforeAll(() => {
     originalConsoleError = console.error;
     console.error = (...args) => {
-      const message = args[0]?.toString() || '';
+      const message = String(args[0] || '');
       if (
         message.includes('act(') ||
         message.includes('Warning: ReactDOM.render')

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -19,6 +19,9 @@ import { calculateRefuelCost, calculateMaxRefuel } from './refuelUtils';
 export function RefuelPanel({ onClose }) {
   // Local state for slider amount (UI-only state)
   const [amount, setAmount] = useState(0);
+
+  // Track if this is the first render
+  const isFirstRender = useRef(true);
 
   // Access GameStateManager
   const gameStateManager = useGameState();
@@ -47,20 +50,33 @@ export function RefuelPanel({ onClose }) {
     fuelPrice
   );
 
-  // Initialize amount when panel opens
+  // Initialize amount when panel opens (only on first render)
   useEffect(() => {
-    const defaultAmount = Math.min(10, maxRefuel);
-    setAmount(defaultAmount > 0 ? defaultAmount : 0);
-  }, []); // Empty dependency array - only run on mount
+    if (isFirstRender.current) {
+      const defaultAmount = Math.min(10, maxRefuel);
+      setAmount(defaultAmount > 0 ? defaultAmount : 0);
+      isFirstRender.current = false;
+    }
+  }, [maxRefuel]);
 
+  /**
+   * Handle slider value changes
+   * @param {Event} e - Change event from range input
+   */
   const handleAmountChange = (e) => {
     setAmount(Number(e.target.value));
   };
 
+  /**
+   * Set slider to maximum refuelable amount
+   */
   const handleMaxClick = () => {
     setAmount(maxRefuel);
   };
 
+  /**
+   * Confirm refuel transaction and reset slider
+   */
   const handleConfirm = () => {
     if (validation.valid && amount > 0) {
       refuel(amount);
