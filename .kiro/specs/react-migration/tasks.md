@@ -286,13 +286,13 @@
   - Display repair options and costs
   - _Requirements: 8.3_
 
-- [ ] 13. Implement Upgrades panel
-- [ ] 13.1 Create upgrades utility functions
+- [x] 13. Implement Upgrades panel
+- [x] 13.1 Create upgrades utility functions
   - Create src/features/upgrades/upgradesUtils.js
   - Implement upgrade validation functions
   - _Requirements: 15.4, 15.5_
 
-- [ ] 13.2 Create UpgradesPanel component
+- [x] 13.2 Create UpgradesPanel component
   - Create src/features/upgrades/UpgradesPanel.jsx
   - Use useGameEvent for credits and upgrades
   - Use useGameAction for purchaseUpgrade
