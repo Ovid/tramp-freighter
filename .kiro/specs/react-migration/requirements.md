@@ -506,7 +506,7 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 
 ### Requirement 39
 
-**User Story:** As a developer, I want CSS imported strategically, so that styles are maintainable and performant.
+**User Story:** As a developer, I want CSS imported strategically, so that styles are organized efficiently and component-specific styles are scoped.
 
 #### Acceptance Criteria
 

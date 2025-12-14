@@ -6,22 +6,16 @@ inclusion: always
 
 ## Strict Mode
 
-**REQUIRED: All JavaScript files MUST begin with `"use strict";`**
+**ES Modules and React files are automatically in strict mode** - no explicit `"use strict";` directive is needed.
 
-```javascript
-'use strict';
+Modern JavaScript using ES Modules (files with `import`/`export` statements) and React JSX files compiled by Vite automatically run in strict mode. This provides:
 
-// Module code follows...
-```
+- Automatic catching of common coding mistakes
+- Prevention of problematic language features
+- Optimized code execution
+- Prevention of accidental global variable creation
 
-This enables strict mode which:
-
-- Catches common coding mistakes and throws exceptions
-- Prevents use of problematic language features
-- Makes code run faster by enabling optimizations
-- Prevents accidental global variable creation
-
-**Note**: React JSX files (.jsx) do not require explicit `"use strict";` as they are automatically in strict mode when compiled by Vite.
+**Note**: For legacy non-module JavaScript files (if any remain), you may add `"use strict";` at the top, but this should not be necessary for the React migration as all files will use ES Modules.
 
 ## Task Completion Standards
 
