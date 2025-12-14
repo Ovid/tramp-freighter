@@ -7,8 +7,10 @@ import {
   zoomOut,
   toggleBoundary,
 } from '../../game/engine/scene';
+import { updateConnectionColors } from '../../game/engine/wormholes';
 import { JumpAnimationSystem } from '../../game/engine/game-animation';
 import { useGameState } from '../../context/GameContext';
+import { useGameEvent } from '../../hooks/useGameEvent';
 import { CameraControls } from './CameraControls';
 
 /**
@@ -31,10 +33,21 @@ export function StarMapCanvas() {
   const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
+  // Subscribe to fuel changes to update wormhole connection colors
+  const fuel = useGameEvent('fuelChanged');
+  const currentSystem = useGameEvent('systemChanged');
+
   // Keep ref in sync with state
   useEffect(() => {
     autoRotationRef.current = autoRotationEnabled;
   }, [autoRotationEnabled]);
+
+  // Update wormhole connection colors when fuel or system changes
+  useEffect(() => {
+    if (sceneRef.current) {
+      updateConnectionColors(gameStateManager);
+    }
+  }, [fuel, currentSystem, gameStateManager]);
 
   useEffect(() => {
     // Guard: Don't initialize if container not ready or already initialized

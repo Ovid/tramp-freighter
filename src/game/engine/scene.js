@@ -2,7 +2,9 @@ import * as THREE from '../../../vendor/three/build/three.module.js';
 import { OrbitControls } from '../../../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
 import { createStarSystems } from './stars.js';
+import { createWormholeLines } from './wormholes.js';
 import { STAR_DATA } from '../data/star-data.js';
+import { WORMHOLE_DATA } from '../data/wormhole-data.js';
 
 /**
  * Initialize Three.js scene, camera, renderer, and controls
@@ -63,6 +65,7 @@ export function initScene() {
     const starfield = createStarfield(scene);
     const sectorBoundary = setupSectorBoundary(scene);
     const stars = createStarSystems(scene, STAR_DATA);
+    const wormholes = createWormholeLines(scene, WORMHOLE_DATA, stars);
 
     return {
       scene,
@@ -73,6 +76,7 @@ export function initScene() {
       starfield,
       sectorBoundary,
       stars,
+      wormholes,
     };
   } catch (error) {
     console.error('Failed to initialize Three.js scene:', error);
