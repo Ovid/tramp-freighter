@@ -421,7 +421,9 @@ export async function initDevMode() {
     const response = await fetch('.dev');
     DEV_MODE = response.ok;
     return DEV_MODE;
-  } catch (error) {
+  } catch {
+    // .dev file not found or fetch failed - dev mode disabled
+    // This is expected in production and when .dev file doesn't exist
     DEV_MODE = false;
     return false;
   }

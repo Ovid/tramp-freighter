@@ -38,7 +38,6 @@ import {
   deselectStar,
   getSelectedStar,
   updateCurrentSystemIndicator,
-  getCurrentSystemIndicator,
   zoomIn,
   zoomOut,
   updateAutoRotation,

@@ -282,7 +282,6 @@ export class RepairPanelController {
   }
 
   handleRepairSystem(systemType, amountStr) {
-    const state = this.gameStateManager.getState();
     const condition = this.gameStateManager.getShipCondition();
     const currentCondition = this.getSystemCondition(condition, systemType);
 

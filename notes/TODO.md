@@ -64,3 +64,89 @@
   transition state that could be unstable.
 - Before you write a defensive check for a variable, check if it's guaranteed
   to exist. You don't write `if (state) ...` if `state` always exists.
+
+# Context Issues
+
+A discussion with Kiro:
+
+When I run my "kwality" hook (`.kiro/hooks/ai-code-review-audit.kiro.hook`), we have the various steering documents loaded. I'm immediately at 48% of my context window consumed before we even start. Can you tell me what's causing this behavior? Having context consumed this quickly makes it harder to maintain session quality.
+
+Kiro
+Including Steering Documents
+
+coding-standards.md
+
+product.md
+
+structure.md
+
+tech.md
+
+ux-patterns.md
+Looking at your context consumption issue, I can identify several factors contributing to the 48% usage before you even start:
+
+Primary Culprits
+
+1. Steering Document Size
+
+Your steering documents are comprehensive and detailed:
+
+coding-standards.md - Extremely detailed (covers vanilla JS, React, testing, performance, etc.)
+tech.md - Full tech stack documentation
+structure.md - Complete project structure
+product.md - Product overview
+ux-patterns.md - UX guidelines
+These are all loaded automatically for every interaction.
+
+2. Open Editor Files
+
+You have 50+ files open in your editor, and Kiro loads context about all of them. That's a significant amount of metadata.
+
+3. Steering Document Overlap
+
+There's substantial overlap between documents:
+
+coding-standards.md covers both vanilla JS AND React patterns
+tech.md documents both old and new architecture
+Both contain similar information about testing, imports, etc.
+Recommendations
+Immediate Actions:
+
+Split coding-standards.md into separate files:
+
+coding-standards-core.md (general JS, performance, naming)
+coding-standards-react.md (React-specific patterns)
+Use inclusion: manual for the React one, load it only when needed
+Use Conditional Inclusion for steering files:
+
+---
+
+inclusion: fileMatch
+fileMatchPattern: '\*_/_.jsx'
+
+---
+
+This way React standards only load when working with React files.
+
+Archive Completed Migration Docs in tech.md:
+
+Remove vanilla JS controller patterns (you're done migrating)
+Remove old module organization details
+Keep only current React architecture
+Close Unused Editor Files:
+
+You have 50+ files open
+Close completed test files and components you're not actively working on
+Consolidate Overlapping Content:
+
+Remove duplicate import/testing guidance between files
+Reference other docs instead of repeating content
+Structural Changes:
+
+.kiro/steering/
+├── core.md (always loaded - minimal essentials)
+├── react.md (fileMatch: **/\*.jsx)
+├── testing.md (fileMatch: **/_.test._)
+├── performance.md (inclusion: manual)
+└── migration-archive.md (inclusion: manual)
+This tould reduce your baseline context by ~60-70%, giving you much more room to work with actual code during sessions.
