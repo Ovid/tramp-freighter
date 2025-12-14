@@ -5,6 +5,10 @@ import { SPECTRAL_COLORS, VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
 let sharedStarTexture = null;
 const starMaterials = new Map();
 
+// Shared reticle texture and material for selection rings
+let sharedReticleTexture = null;
+let sharedReticleMaterial = null;
+
 /**
  * Get star color based on spectral class.
  * @param {string} spectralClass - The spectral class (e.g., "G2", "M5.5")
@@ -164,4 +168,184 @@ export function createStarSystems(scene, starData) {
   console.log(`Created ${stars.length} star systems`);
 
   return stars;
+}
+
+/**
+ * Create a targeting reticle texture with sci-fi HUD aesthetic
+ * @returns {THREE.CanvasTexture} The reticle texture
+ */
+function createTargetingReticleTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Guard for test environment where canvas context may not be fully implemented
+  if (!ctx || !ctx.clearRect) {
+    return new THREE.CanvasTexture(canvas);
+  }
+
+  const centerX = 128;
+  const centerY = 128;
+  const radius = 80;
+
+  // Clear canvas
+  ctx.clearRect(0, 0, 256, 256);
+
+  // Set line style
+  ctx.strokeStyle = '#00FF88';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+
+  // Draw outer circle
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Draw inner circle
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Draw corner brackets (targeting reticle style)
+  const bracketSize = 20;
+  const bracketOffset = radius + 10;
+
+  // Top-left bracket
+  ctx.beginPath();
+  ctx.moveTo(centerX - bracketOffset, centerY - bracketOffset + bracketSize);
+  ctx.lineTo(centerX - bracketOffset, centerY - bracketOffset);
+  ctx.lineTo(centerX - bracketOffset + bracketSize, centerY - bracketOffset);
+  ctx.stroke();
+
+  // Top-right bracket
+  ctx.beginPath();
+  ctx.moveTo(centerX + bracketOffset - bracketSize, centerY - bracketOffset);
+  ctx.lineTo(centerX + bracketOffset, centerY - bracketOffset);
+  ctx.lineTo(centerX + bracketOffset, centerY - bracketOffset + bracketSize);
+  ctx.stroke();
+
+  // Bottom-left bracket
+  ctx.beginPath();
+  ctx.moveTo(centerX - bracketOffset, centerY + bracketOffset - bracketSize);
+  ctx.lineTo(centerX - bracketOffset, centerY + bracketOffset);
+  ctx.lineTo(centerX - bracketOffset + bracketSize, centerY + bracketOffset);
+  ctx.stroke();
+
+  // Bottom-right bracket
+  ctx.beginPath();
+  ctx.moveTo(centerX + bracketOffset - bracketSize, centerY + bracketOffset);
+  ctx.lineTo(centerX + bracketOffset, centerY + bracketOffset);
+  ctx.lineTo(centerX + bracketOffset, centerY + bracketOffset - bracketSize);
+  ctx.stroke();
+
+  // Draw crosshair lines
+  const crosshairLength = 15;
+  const crosshairGap = 5;
+
+  // Horizontal line (left)
+  ctx.beginPath();
+  ctx.moveTo(centerX - crosshairLength - crosshairGap, centerY);
+  ctx.lineTo(centerX - crosshairGap, centerY);
+  ctx.stroke();
+
+  // Horizontal line (right)
+  ctx.beginPath();
+  ctx.moveTo(centerX + crosshairGap, centerY);
+  ctx.lineTo(centerX + crosshairLength + crosshairGap, centerY);
+  ctx.stroke();
+
+  // Vertical line (top)
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY - crosshairLength - crosshairGap);
+  ctx.lineTo(centerX, centerY - crosshairGap);
+  ctx.stroke();
+
+  // Vertical line (bottom)
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY + crosshairGap);
+  ctx.lineTo(centerX, centerY + crosshairLength + crosshairGap);
+  ctx.stroke();
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Create selection ring for a star with targeting reticle
+ * @returns {THREE.Mesh} The selection ring mesh
+ */
+export function createSelectionRing() {
+  // Create a plane geometry for the reticle
+  const reticleGeometry = new THREE.PlaneGeometry(
+    VISUAL_CONFIG.selectionRingSize * 3,
+    VISUAL_CONFIG.selectionRingSize * 3
+  );
+
+  // Texture creation is expensive; cache and reuse across all selection rings
+  if (!sharedReticleTexture) {
+    sharedReticleTexture = createTargetingReticleTexture();
+  }
+
+  // Material creation is expensive; cache and reuse across all selection rings
+  if (!sharedReticleMaterial) {
+    sharedReticleMaterial = new THREE.MeshBasicMaterial({
+      map: sharedReticleTexture,
+      transparent: true,
+      opacity: 1.0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+  }
+
+  // Create mesh with shared material
+  const reticle = new THREE.Mesh(reticleGeometry, sharedReticleMaterial);
+
+  return reticle;
+}
+
+/**
+ * Update selection ring pulsing animation
+ * @param {Object} selectedStar - The selected star object
+ * @param {Object} currentSystemIndicator - The current system indicator
+ * @param {number} time - Current time in seconds
+ */
+export function updateSelectionRingPulse(
+  selectedStar,
+  currentSystemIndicator,
+  time
+) {
+  if (selectedStar && selectedStar.selectionRing) {
+    // Subtle pulsing scale for targeting lock effect
+    const pulseScale =
+      1.0 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.08;
+
+    // Apply pulsing to reticle scale
+    selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
+
+    // Pulse the opacity for "scanning" effect
+    const pulseOpacity =
+      0.75 +
+      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 1.5) * 0.25;
+    selectedStar.selectionRing.material.opacity = pulseOpacity;
+
+    // Slow rotation for targeting system effect
+    selectedStar.selectionRing.rotation.z = time * 0.2;
+  }
+
+  // Update current system indicator
+  if (currentSystemIndicator) {
+    // Pulsing for current system indicator
+    const pulseScale =
+      1.2 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 0.8) * 0.1;
+    currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
+
+    // Pulse opacity
+    const pulseOpacity =
+      0.7 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.3;
+    currentSystemIndicator.material.opacity = pulseOpacity;
+
+    // Rotate in opposite direction from selection ring
+    currentSystemIndicator.rotation.z = -time * 0.15;
+  }
 }

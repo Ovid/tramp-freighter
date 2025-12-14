@@ -44,7 +44,8 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
       const result = await executeJump(targetSystemId);
       if (result.success) {
         if (onJumpComplete) {
-          onJumpComplete();
+          // Pass the destination system ID to the complete handler
+          onJumpComplete(targetSystemId);
         }
         onClose();
       } else {

@@ -42,6 +42,16 @@ vi.mock('../../src/game/engine/scene', () => {
     },
   };
 
+  // Mock stars array with minimal data needed for updateCurrentSystemIndicator
+  const mockStars = [
+    {
+      data: { id: 1 },
+      position: { x: 0, y: 0, z: 0 },
+      sprite: { material: { color: { setHex: vi.fn() } } },
+      originalColor: 0xffffff,
+    },
+  ];
+
   return {
     initScene: vi.fn(() => ({
       scene: mockScene,
@@ -49,8 +59,13 @@ vi.mock('../../src/game/engine/scene', () => {
       renderer: mockRenderer,
       controls: mockControls,
       lights: mockLights,
+      stars: mockStars,
+      sectorBoundary: { visible: true },
     })),
     onWindowResize: vi.fn(),
+    zoomIn: vi.fn(),
+    zoomOut: vi.fn(),
+    toggleBoundary: vi.fn(() => true),
   };
 });
 

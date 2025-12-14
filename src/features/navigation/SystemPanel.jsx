@@ -47,8 +47,10 @@ export function SystemPanel({
     const handleJump = async () => {
       if (!validation.valid) return;
 
-      // Close panel and station menu immediately so user can see the jump animation
-      onClose();
+      // Close panel immediately so user can see the jump animation
+      // Pass true to indicate we're jumping (don't deselect star)
+      onClose(true); // true = keep selection ring visible
+
       if (onJumpStart) {
         onJumpStart();
       }
@@ -57,7 +59,8 @@ export function SystemPanel({
         const result = await executeJump(viewingSystemId);
         if (result.success) {
           if (onJumpComplete) {
-            onJumpComplete();
+            // Pass the destination system ID to the complete handler
+            onJumpComplete(viewingSystemId);
           }
         }
       } catch (error) {

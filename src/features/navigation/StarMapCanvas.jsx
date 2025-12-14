@@ -9,6 +9,14 @@ import {
 } from '../../game/engine/scene';
 import { updateConnectionColors } from '../../game/engine/wormholes';
 import { JumpAnimationSystem } from '../../game/engine/game-animation';
+import {
+  selectStar,
+  deselectStar,
+  getSelectedStar,
+  updateCurrentSystemIndicator,
+  getCurrentSystemIndicator,
+  updateSelectionRingAnimations,
+} from '../../game/engine/interaction';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { CameraControls } from './CameraControls';
@@ -35,7 +43,7 @@ export function StarMapCanvas() {
 
   // Subscribe to fuel changes to update wormhole connection colors
   const fuel = useGameEvent('fuelChanged');
-  const currentSystem = useGameEvent('systemChanged');
+  const currentSystem = useGameEvent('locationChanged');
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -48,6 +56,18 @@ export function StarMapCanvas() {
       updateConnectionColors(gameStateManager);
     }
   }, [fuel, currentSystem, gameStateManager]);
+
+  // Update current system indicator when system changes
+  useEffect(() => {
+    if (sceneRef.current && sceneRef.current.stars) {
+      updateCurrentSystemIndicator(
+        sceneRef.current.scene,
+        sceneRef.current.camera,
+        sceneRef.current.stars,
+        currentSystem
+      );
+    }
+  }, [currentSystem]);
 
   useEffect(() => {
     // Guard: Don't initialize if container not ready or already initialized
@@ -112,8 +132,19 @@ export function StarMapCanvas() {
                 star.sprite === clickedObject || star.label === clickedObject
             );
 
-            if (clickedStar && window.selectStarById) {
-              window.selectStarById(clickedStar.data.id);
+            if (clickedStar) {
+              // Select star visually and notify React
+              selectStar(clickedStar, scene, camera);
+              if (window.selectStarById) {
+                window.selectStarById(clickedStar.data.id);
+              }
+            }
+          } else {
+            // Clicked empty space - deselect
+            deselectStar();
+            // Close system panel when clicking empty space
+            if (window.closeSystemPanel) {
+              window.closeSystemPanel();
             }
           }
         };
@@ -141,6 +172,28 @@ export function StarMapCanvas() {
         lights,
         animationSystem,
         sectorBoundary: sceneComponents.sectorBoundary,
+        stars,
+      };
+
+      // Initialize current system indicator
+      updateCurrentSystemIndicator(
+        scene,
+        camera,
+        stars,
+        gameStateManager.state.player.currentSystem
+      );
+
+      // Expose function to select star by ID (for external calls)
+      window.selectStarInScene = (systemId) => {
+        const star = stars.find((s) => s.data.id === systemId);
+        if (star) {
+          selectStar(star, scene, camera);
+        }
+      };
+
+      // Expose function to deselect star (for external calls)
+      window.deselectStarInScene = () => {
+        deselectStar();
       };
 
       // Temp vector for auto-rotation (reused to avoid allocation)
@@ -149,6 +202,9 @@ export function StarMapCanvas() {
       // Animation loop - runs outside React render cycle
       function animate() {
         animationFrameId = requestAnimationFrame(animate);
+
+        // Get current time for animations
+        const currentTime = Date.now() / 1000;
 
         // Update auto-rotation if enabled (use ref to avoid stale closure)
         if (autoRotationRef.current && controls && controls.target) {
@@ -170,6 +226,24 @@ export function StarMapCanvas() {
 
           // Update camera position
           camera.position.copy(controls.target).add(_tempOffset);
+        }
+
+        // Update selection ring animations
+        updateSelectionRingAnimations(currentTime);
+
+        // Orient selection rings to face camera
+        const selectedStar = getSelectedStar();
+        if (selectedStar && selectedStar.selectionRing) {
+          selectedStar.selectionRing.lookAt(camera.position);
+        }
+
+        const currentIndicator = getCurrentSystemIndicator();
+        if (currentIndicator) {
+          currentIndicator.lookAt(camera.position);
+          // Ensure current system indicator is always visible
+          if (!currentIndicator.visible) {
+            currentIndicator.visible = true;
+          }
         }
 
         // Update controls (damping)
@@ -204,6 +278,10 @@ export function StarMapCanvas() {
         if (renderer && renderer.domElement && handleCanvasClick) {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
         }
+
+        // Clear window functions
+        window.selectStarInScene = null;
+        window.deselectStarInScene = null;
 
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);

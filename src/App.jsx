@@ -55,6 +55,10 @@ export default function App() {
   if (typeof window !== 'undefined') {
     window.selectStarById = (systemId) => {
       handleSystemSelected(systemId);
+      // Also trigger visual selection in Three.js scene
+      if (window.selectStarInScene) {
+        window.selectStarInScene(systemId);
+      }
     };
   }
 
@@ -141,26 +145,45 @@ export default function App() {
 
   /**
    * Handle closing the system panel.
+   * @param {boolean} keepSelection - If true, don't deselect star (used during jump)
    */
-  const handleCloseSystemPanel = () => {
+  const handleCloseSystemPanel = (keepSelection = false) => {
     setViewingSystemId(null);
+    // Deselect star in scene unless we're keeping it for jump animation
+    if (!keepSelection && window.deselectStarInScene) {
+      window.deselectStarInScene();
+    }
   };
+
+  // Expose close system panel handler to starmap
+  if (typeof window !== 'undefined') {
+    window.closeSystemPanel = handleCloseSystemPanel;
+  }
 
   /**
    * Handle jump start.
    * Close station menu immediately so user can see the animation.
+   * Keep selection ring visible during animation to show destination.
    */
   const handleJumpStart = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
+    // Don't deselect star - keep selection ring visible during jump
   };
 
   /**
    * Handle successful jump completion.
-   * After jump, close system panel.
+   * After jump, deselect star so only current system indicator is visible.
+   *
+   * @param {number} destinationSystemId - The system we just jumped to (unused, kept for compatibility)
    */
-  const handleJumpComplete = () => {
+  const handleJumpComplete = (destinationSystemId) => {
     setViewingSystemId(null);
+    // Deselect star after jump completes - we've arrived at destination
+    // Only the current system indicator (green) should be visible
+    if (window.deselectStarInScene) {
+      window.deselectStarInScene();
+    }
   };
 
   return (

@@ -60,12 +60,24 @@ function createMockSceneComponents() {
     },
   };
 
+  // Mock stars array with minimal data needed for updateCurrentSystemIndicator
+  const mockStars = [
+    {
+      data: { id: 1 },
+      position: { x: 0, y: 0, z: 0 },
+      sprite: { material: { color: { setHex: vi.fn() } } },
+      originalColor: 0xffffff,
+    },
+  ];
+
   return {
     scene: mockScene,
     camera: mockCamera,
     renderer: mockRenderer,
     controls: mockControls,
     lights: mockLights,
+    stars: mockStars,
+    sectorBoundary: { visible: true },
     mockGeometry,
     mockMaterial,
   };
