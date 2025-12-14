@@ -16,6 +16,8 @@ import { capitalizeFirst } from '../../game/utils/string-utils';
 export function InfoBrokerPanel({ onClose }) {
   const gameStateManager = useGameState();
   const credits = useGameEvent('creditsChanged');
+  const currentSystemId = useGameEvent('locationChanged');
+  const priceKnowledge = useGameEvent('priceKnowledgeChanged');
   const { purchaseIntelligence } = useGameAction();
 
   const [activeTab, setActiveTab] = useState('purchase');
@@ -23,19 +25,21 @@ export function InfoBrokerPanel({ onClose }) {
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
 
-  const state = gameStateManager.getState();
   const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === state.player.currentSystem
+    (s) => s.id === currentSystemId
   );
 
   if (!currentSystem) {
     throw new Error(
-      `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+      `Invalid game state: current system ID ${currentSystemId} not found in star data`
     );
   }
 
   // Get available intelligence options
-  const intelligenceOptions = gameStateManager.listAvailableIntelligence();
+  // Guard against null navigationSystem (common in tests)
+  const intelligenceOptions = gameStateManager.navigationSystem
+    ? gameStateManager.listAvailableIntelligence()
+    : [];
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
   const handleBuyRumor = () => {
@@ -108,9 +112,8 @@ export function InfoBrokerPanel({ onClose }) {
   };
 
   const renderMarketData = () => {
-    const priceKnowledge = state.world.priceKnowledge || {};
     const knownSystems = getKnownSystemsSortedByStaleness(
-      priceKnowledge,
+      priceKnowledge || {},
       gameStateManager.starData
     );
 
