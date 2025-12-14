@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
-import { ResourceBar } from '../../src/features/hud/ResourceBar';
+import { ShipStatus } from '../../src/features/hud/ShipStatus';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -52,16 +52,18 @@ describe('Property 20: HUD fuel updates', () => {
           );
           gameStateManager.initNewGame();
 
-          // Render ResourceBar
+          // Render ShipStatus (which contains fuel display)
           render(
             <GameProvider gameStateManager={gameStateManager}>
-              <ResourceBar />
+              <ShipStatus />
             </GameProvider>
           );
 
           // Verify initial fuel display (new game starts with 100%)
           await waitFor(() => {
-            expect(screen.getByText('100.0%')).toBeInTheDocument();
+            const fuelBar = document.querySelector('.fuel-bar-container');
+            expect(fuelBar).toBeTruthy();
+            expect(fuelBar.textContent).toContain('100.0%');
           });
 
           // Update fuel
@@ -69,9 +71,9 @@ describe('Property 20: HUD fuel updates', () => {
 
           // Verify fuel display updated
           await waitFor(() => {
-            expect(
-              screen.getByText(`${newFuel.toFixed(1)}%`)
-            ).toBeInTheDocument();
+            const fuelBar = document.querySelector('.fuel-bar-container');
+            expect(fuelBar).toBeTruthy();
+            expect(fuelBar.textContent).toContain(`${newFuel.toFixed(1)}%`);
           });
 
           return true;

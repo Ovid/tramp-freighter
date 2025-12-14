@@ -1,3 +1,5 @@
+import { TradePanel } from '../trade/TradePanel';
+
 /**
  * Panel container component.
  *
@@ -15,12 +17,7 @@ export function PanelContainer({ activePanel, onClose }) {
   const renderPanel = () => {
     switch (activePanel) {
       case 'trade':
-        return (
-          <div className="panel-placeholder">
-            <h2>Trade Panel</h2>
-            <p>TradePanel will be implemented in task 10</p>
-          </div>
-        );
+        return <TradePanel onClose={onClose} />;
       case 'refuel':
         return (
           <div className="panel-placeholder">
@@ -68,38 +65,7 @@ export function PanelContainer({ activePanel, onClose }) {
     }
   };
 
-  return (
-    <div
-      className="panel-container"
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 20,
-        backgroundColor: '#333',
-        color: '#fff',
-        padding: '20px',
-        borderRadius: '8px',
-        minWidth: '400px',
-      }}
-    >
-      <button
-        onClick={onClose}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          background: 'none',
-          border: 'none',
-          color: '#fff',
-          fontSize: '24px',
-          cursor: 'pointer',
-        }}
-      >
-        ×
-      </button>
-      {renderPanel()}
-    </div>
-  );
+  // Minimal wrapper that doesn't interfere with panel styling
+  // Each panel has its own complete styling from CSS
+  return <div className="panel-container">{renderPanel()}</div>;
 }

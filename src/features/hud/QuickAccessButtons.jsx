@@ -19,8 +19,14 @@ export function QuickAccessButtons({ onDock }) {
   const starData = gameStateManager.starData || [];
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
+  if (!currentSystem) {
+    throw new Error(
+      `Invalid game state: current system ID ${currentSystemId} not found in star data`
+    );
+  }
+
   // Determine if docking is available (system has a station)
-  const canDock = currentSystem?.st > 0;
+  const canDock = currentSystem.st > 0;
 
   const handleSystemInfo = () => {
     // TODO: Implement system info display in future task
@@ -34,8 +40,8 @@ export function QuickAccessButtons({ onDock }) {
   };
 
   return (
-    <div className="hud-quick-access">
-      <div className="hud-quick-access-label">Quick Access</div>
+    <div className="hud-section hud-quick-access">
+      <div className="hud-quick-access-label">Quick Access:</div>
       <div className="hud-quick-access-buttons">
         <button className="quick-access-btn" onClick={handleSystemInfo}>
           System Info

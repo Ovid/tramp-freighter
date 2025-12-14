@@ -1,6 +1,6 @@
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { STAR_DATA } from '../../game/data/star-data';
+import { calculateDistanceFromSol } from '../hud/hudUtils';
 
 /**
  * Station menu component.
@@ -15,7 +15,6 @@ import { STAR_DATA } from '../../game/data/star-data';
  * @param {Function} onUndock - Callback to undock from station
  */
 export function StationMenu({ onOpenPanel, onUndock }) {
-  const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
 
   // Get current system data
@@ -28,11 +27,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   }
 
   // Calculate distance from Sol
-  const sol = STAR_DATA.find((s) => s.name === 'Sol');
-  const dx = system.x - sol.x;
-  const dy = system.y - sol.y;
-  const dz = system.z - sol.z;
-  const distance = Math.sqrt(dx * dx + dy * dy + dz * dz) / 10;
+  const distance = calculateDistanceFromSol(system);
 
   return (
     <div id="station-interface" className="visible">

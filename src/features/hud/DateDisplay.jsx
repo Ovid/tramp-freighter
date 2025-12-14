@@ -12,10 +12,10 @@ export function DateDisplay() {
   const daysElapsed = useGameEvent('timeChanged');
 
   return (
-    <div className="hud-section">
+    <div className="hud-section hud-time">
       <div className="hud-row">
-        <span className="hud-label">Day:</span>
-        <span className="hud-value">{daysElapsed || 0}</span>
+        <span className="hud-label">Days:</span>
+        <span className="hud-value">{daysElapsed}</span>
       </div>
     </div>
   );

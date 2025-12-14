@@ -215,8 +215,8 @@ describe('Property: PANEL mode displays active panel', () => {
         const panelContainer = container.querySelector('.panel-container');
         expect(panelContainer).toBeTruthy();
 
-        // Verify panel displays the correct panel name
-        expect(panelContainer.textContent).toContain('Trade Panel');
+        // Verify panel displays the trade panel (check for trade-specific content)
+        expect(panelContainer.textContent).toContain('Trade -');
 
         // Verify starmap and HUD are still present
         const starmapContainer = container.querySelector('.starmap-container');

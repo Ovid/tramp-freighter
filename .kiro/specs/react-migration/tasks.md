@@ -212,32 +212,32 @@
   - Compose ResourceBar, DateDisplay, ShipStatus, QuickAccessButtons
   - _Requirements: 7.5, 24.1, 24.2, 24.3_
 
-- [ ] 9. Implement station menu and panel container
-- [ ] 9.1 Create StationMenu component
+- [x] 9. Implement station menu and panel container
+- [x] 9.1 Create StationMenu component
   - Create src/features/station/StationMenu.jsx
   - Display station options (Trade, Refuel, Repair, etc.)
   - Handle panel opening and undocking
   - **Remove test buttons from App.jsx station menu placeholder** (Open Trade Panel, Undock buttons)
   - _Requirements: 9.3_
 
-- [ ] 9.2 Create PanelContainer component
+- [x] 9.2 Create PanelContainer component
   - Create src/features/station/PanelContainer.jsx
   - Conditionally render active panel based on prop
   - Handle panel closing
   - _Requirements: 9.4_
 
-- [ ] 10. Implement Trade panel
-- [ ] 10.1 Create trade utility functions
+- [x] 10. Implement Trade panel
+- [x] 10.1 Create trade utility functions
   - Create src/features/trade/tradeUtils.js
   - Implement validateTrade function
   - Implement other pure trade calculation functions
   - _Requirements: 15.1, 15.5, 26.4_
 
-- [ ] 10.2 Write property test for utility function purity
+- [x] 10.2 Write property test for utility function purity
   - **Property 36: Utility functions are pure**
   - **Validates: Requirements 15.1, 15.2, 15.3, 15.4, 15.5**
 
-- [ ] 10.3 Create TradePanel component
+- [x] 10.3 Create TradePanel component
   - Create src/features/trade/TradePanel.jsx
   - Use useGameEvent for cargo and credits
   - Use useGameAction for buyGood and sellGood
@@ -245,11 +245,11 @@
   - Display market goods and cargo stacks
   - _Requirements: 8.1, 26.1, 26.2, 26.3, 26.5_
 
-- [ ] 10.4 Write property test for trade panel delegation
+- [x] 10.4 Write property test for trade panel delegation
   - **Property 24: Trade panel delegates to GameStateManager**
   - **Validates: Requirements 26.1, 26.2, 26.3**
 
-- [ ] 10.5 Write property test for panels as React components
+- [x] 10.5 Write property test for panels as React components
   - **Property 23: Panels rendered as React components**
   - **Validates: Requirements 8.1**
 

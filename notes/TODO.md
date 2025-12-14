@@ -1,3 +1,12 @@
+# Notes
+
+- When summarizing a long conversation, I've found that sometimes it gets
+  confused and continues to the next task. I had it work on one task that was
+  complex and I went to lunch. I came back and found it had poorly implemented
+  three tasks.
+
+# TODO
+
 - i18n?
 - Why are tests being skipped?
 - React? (Except for THREE.js and starmap)
