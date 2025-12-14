@@ -143,8 +143,5 @@ function processNotificationQueue(system) {
 export function clearNotifications(system) {
   system.notificationQueue = [];
   system.isShowingNotification = false;
-
-  if (system.notificationArea) {
-    system.notificationArea.replaceChildren();
-  }
+  system.notificationArea.replaceChildren();
 }

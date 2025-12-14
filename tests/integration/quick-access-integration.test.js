@@ -120,7 +120,6 @@ describe('Quick Access Buttons Integration', () => {
       // Start at Sol (has station)
       const sol = TEST_STAR_DATA.find((s) => s.name === 'Sol');
       gameStateManager.updateLocation(sol.id);
-      uiManager.updateLocation(sol.id);
 
       const tradeBtn = document.getElementById('quick-station-btn');
       const travelBtn = document.getElementById('quick-system-info-btn');
@@ -131,7 +130,6 @@ describe('Quick Access Buttons Integration', () => {
       const mockSystemWithoutStation = { id: 999, name: 'Test System', st: 0 };
       uiManager.starData = [...TEST_STAR_DATA, mockSystemWithoutStation];
       gameStateManager.updateLocation(mockSystemWithoutStation.id);
-      uiManager.updateLocation(mockSystemWithoutStation.id);
 
       // Button references are still valid, no need to re-query
       expect(tradeBtn.disabled).toBe(false);
@@ -144,7 +142,6 @@ describe('Quick Access Buttons Integration', () => {
       // Check at Sol
       const sol = TEST_STAR_DATA.find((s) => s.name === 'Sol');
       gameStateManager.updateLocation(sol.id);
-      uiManager.updateLocation(sol.id);
       expect(travelBtn.disabled).toBe(false);
 
       // Check at Alpha Centauri A
@@ -152,14 +149,12 @@ describe('Quick Access Buttons Integration', () => {
         (s) => s.name === 'Alpha Centauri A'
       );
       gameStateManager.updateLocation(alphaCentauri.id);
-      uiManager.updateLocation(alphaCentauri.id);
       expect(travelBtn.disabled).toBe(false);
 
       // Check at a mock system without station
       const mockSystemWithoutStation = { id: 999, name: 'Test System', st: 0 };
       gameStateManager.starData = [...TEST_STAR_DATA, mockSystemWithoutStation];
       gameStateManager.updateLocation(mockSystemWithoutStation.id);
-      uiManager.updateLocation(mockSystemWithoutStation.id);
       expect(travelBtn.disabled).toBe(false);
     });
   });

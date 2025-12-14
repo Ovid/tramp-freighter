@@ -307,32 +307,10 @@ describe('HUD Animation State Integration', () => {
 
   it('should update all HUD elements reactively via event system', async () => {
     // Track which HUD elements were updated
-    const updatedElements = {
-      location: false,
-      fuel: false,
-      time: false,
-      credits: false,
-    };
-
-    // Spy on HUD update methods
-    const originalUpdateLocation = uiManager.updateLocation.bind(uiManager);
-    const originalUpdateFuel = uiManager.updateFuel.bind(uiManager);
-    const originalUpdateDays = uiManager.updateDays.bind(uiManager);
-
-    uiManager.updateLocation = function (...args) {
-      updatedElements.location = true;
-      return originalUpdateLocation(...args);
-    };
-
-    uiManager.updateFuel = function (...args) {
-      updatedElements.fuel = true;
-      return originalUpdateFuel(...args);
-    };
-
-    uiManager.updateDays = function (...args) {
-      updatedElements.time = true;
-      return originalUpdateDays(...args);
-    };
+    // Record initial HUD values
+    const initialLocation = document.getElementById('hud-system').textContent;
+    const initialFuel = document.getElementById('hud-fuel-text').textContent;
+    const initialDays = document.getElementById('hud-days').textContent;
 
     // Execute jump
     await navigationSystem.executeJump(
@@ -341,10 +319,15 @@ describe('HUD Animation State Integration', () => {
       animationSystem
     );
 
-    // Verify all relevant HUD elements were updated
-    expect(updatedElements.location).toBe(true);
-    expect(updatedElements.fuel).toBe(true);
-    expect(updatedElements.time).toBe(true);
+    // Verify HUD elements were updated via reactive event system
+    const finalLocation = document.getElementById('hud-system').textContent;
+    const finalFuel = document.getElementById('hud-fuel-text').textContent;
+    const finalDays = document.getElementById('hud-days').textContent;
+
+    expect(finalLocation).not.toBe(initialLocation);
+    expect(finalLocation).toBe('Alpha Centauri');
+    expect(finalFuel).not.toBe(initialFuel); // Fuel consumed
+    expect(finalDays).not.toBe(initialDays); // Time advanced
   });
 
   it('should maintain HUD visibility during animation', async () => {

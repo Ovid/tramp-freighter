@@ -3,7 +3,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
+import {
+  GameStateManager,
+  sanitizeShipName,
+} from '../../js/state/game-state-manager.js';
 import { UIManager } from '../../js/game-ui.js';
 import { SHIP_CONFIG } from '../../js/game-constants.js';
 
@@ -102,10 +105,11 @@ describe('HUD Ship Name Display', () => {
   });
 
   /**
-   * Property 3: updateShipName updates DOM element
+   * Property 3: Ship name updates reactively via event system
    *
-   * When updateShipName is called, the ship name element's textContent
-   * should be updated to match the new name.
+   * When gameStateManager.updateShipName is called, the ship name element's textContent
+   * should be updated to match the sanitized name via the reactive subscription.
+   * GameStateManager sanitizes ship names (trims whitespace, removes HTML, limits length).
    */
   it('should update ship name element when updateShipName is called', () => {
     fc.assert(
@@ -116,9 +120,11 @@ describe('HUD Ship Name Display', () => {
         (shipName) => {
           const shipNameElement = document.getElementById('hud-ship-name');
 
-          uiManager.updateShipName(shipName);
+          gameStateManager.updateShipName(shipName);
 
-          expect(shipNameElement.textContent).toBe(shipName);
+          // Expect the sanitized version since GameStateManager sanitizes input
+          const expectedName = sanitizeShipName(shipName);
+          expect(shipNameElement.textContent).toBe(expectedName);
         }
       ),
       { numRuns: 50 }
@@ -254,7 +260,7 @@ describe('HUD Ship Name Display', () => {
     specialNames.forEach((shipName) => {
       const shipNameElement = document.getElementById('hud-ship-name');
 
-      uiManager.updateShipName(shipName);
+      gameStateManager.updateShipName(shipName);
 
       expect(shipNameElement.textContent).toBe(shipName);
     });

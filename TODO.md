@@ -46,5 +46,10 @@
 - Avoid unnecessary wrapper functions
 - Each .js file should have a single purpose
 - No task is finished until the entire test suite passes (`npm test`)
+- All tasks should be self-contained and leave the system in a working or
+  improved state. DO NOT SCHEDULE tests for a later task, or hook in a newly
+  built component for a later task. This is because we might have to pause the
+  project and when we come back, we might not realize the system is in a
+  transition state that could be unstable.
 - Before you write a defensive check for a variable, check if it's guaranteed
   to exist. You don't `if (state) ...` if `state` always exists.

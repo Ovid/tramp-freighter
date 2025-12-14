@@ -141,12 +141,6 @@ export function updateFuel(elements, fuel) {
  * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
  */
 export function updateShipCondition(elements, condition) {
-  if (!condition) {
-    throw new Error(
-      'Invalid game state: ship condition is null in updateShipCondition'
-    );
-  }
-
   updateConditionDisplay(elements, '', 'hull', condition.hull);
   updateConditionDisplay(elements, '', 'engine', condition.engine);
   updateConditionDisplay(elements, '', 'lifeSupport', condition.lifeSupport);
@@ -162,10 +156,6 @@ export function updateShipCondition(elements, condition) {
  * @param {Object} ship - Ship object with cargoCapacity
  */
 export function updateCargo(element, cargoUsed, ship) {
-  if (!ship) {
-    throw new Error('Invalid game state: ship is null in updateCargo');
-  }
-
   element.textContent = `${cargoUsed}/${ship.cargoCapacity}`;
 }
 

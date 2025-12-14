@@ -28,11 +28,7 @@
  * @param {number} currentDay - Current game day for duration calculation
  */
 export function showEventModal(elements, event, eventType, currentDay) {
-  if (!event || !elements.eventModalOverlay) {
-    return;
-  }
-
-  if (!eventType) {
+  if (!event || !eventType) {
     return;
   }
 
@@ -62,9 +58,7 @@ export function showEventModal(elements, event, eventType, currentDay) {
  * @param {HTMLElement} elements.eventModalOverlay - Modal overlay container
  */
 export function hideEventModal(elements) {
-  if (elements.eventModalOverlay) {
-    elements.eventModalOverlay.classList.add('hidden');
-  }
+  elements.eventModalOverlay.classList.add('hidden');
 }
 
 /**

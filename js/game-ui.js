@@ -449,27 +449,38 @@ export class UIManager {
 
   subscribeToStateChanges() {
     this.gameStateManager.subscribe('creditsChanged', (credits) => {
-      this.updateCredits(credits);
+      updateCreditsDisplay(this.elements.credits, credits);
     });
 
     this.gameStateManager.subscribe('debtChanged', (debt) => {
-      this.updateDebt(debt);
+      updateDebtDisplay(this.elements.debt, debt);
     });
 
     this.gameStateManager.subscribe('timeChanged', (days) => {
-      this.updateDays(days);
+      updateDaysDisplay(this.elements.days, days);
     });
 
     this.gameStateManager.subscribe('fuelChanged', (fuel) => {
-      this.updateFuel(fuel);
+      updateFuelDisplay(
+        { fuelBar: this.elements.fuelBar, fuelText: this.elements.fuelText },
+        fuel
+      );
     });
 
     this.gameStateManager.subscribe('cargoChanged', () => {
-      this.updateCargo();
+      const cargoUsed = this.gameStateManager.getCargoUsed();
+      const ship = this.gameStateManager.getShip();
+      updateCargoDisplay(this.elements.cargo, cargoUsed, ship);
     });
 
     this.gameStateManager.subscribe('locationChanged', (systemId) => {
-      this.updateLocation(systemId);
+      updateLocationDisplay(
+        { system: this.elements.system, distance: this.elements.distance },
+        systemId,
+        this.starData
+      );
+      // Update quick access button states
+      this.updateQuickAccessButtons();
     });
 
     this.gameStateManager.subscribe('conditionWarning', (warning) => {
@@ -477,11 +488,21 @@ export class UIManager {
     });
 
     this.gameStateManager.subscribe('shipConditionChanged', (condition) => {
-      this.updateShipCondition(condition);
+      updateShipConditionDisplay(
+        {
+          hullBar: this.elements.hullBar,
+          hullText: this.elements.hullText,
+          engineBar: this.elements.engineBar,
+          engineText: this.elements.engineText,
+          lifeSupportBar: this.elements.lifeSupportBar,
+          lifeSupportText: this.elements.lifeSupportText,
+        },
+        condition
+      );
     });
 
     this.gameStateManager.subscribe('shipNameChanged', (shipName) => {
-      this.updateShipName(shipName);
+      updateShipNameDisplay(this.elements.shipName, shipName);
     });
   }
 
@@ -509,29 +530,6 @@ export class UIManager {
     this.updateQuickAccessButtons();
   }
 
-  updateCredits(credits) {
-    updateCreditsDisplay(this.elements.credits, credits);
-  }
-
-  updateDebt(debt) {
-    updateDebtDisplay(this.elements.debt, debt);
-  }
-
-  updateDays(days) {
-    updateDaysDisplay(this.elements.days, days);
-  }
-
-  updateShipName(shipName) {
-    updateShipNameDisplay(this.elements.shipName, shipName);
-  }
-
-  updateFuel(fuel) {
-    updateFuelDisplay(
-      { fuelBar: this.elements.fuelBar, fuelText: this.elements.fuelText },
-      fuel
-    );
-  }
-
   /**
    * Update a condition bar and text display
    *
@@ -544,44 +542,6 @@ export class UIManager {
    */
   updateConditionDisplay(prefix, systemType, conditionValue) {
     updateConditionDisplay(this.elements, prefix, systemType, conditionValue);
-  }
-
-  /**
-   * Update ship condition bars in HUD
-   * Updates visual width and percentage text for hull, engine, and life support
-   *
-   * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
-   */
-  updateShipCondition(condition) {
-    updateShipConditionDisplay(
-      {
-        hullBar: this.elements.hullBar,
-        hullText: this.elements.hullText,
-        engineBar: this.elements.engineBar,
-        engineText: this.elements.engineText,
-        lifeSupportBar: this.elements.lifeSupportBar,
-        lifeSupportText: this.elements.lifeSupportText,
-      },
-      condition
-    );
-  }
-
-  updateCargo() {
-    const cargoUsed = this.gameStateManager.getCargoUsed();
-    const ship = this.gameStateManager.getShip();
-
-    updateCargoDisplay(this.elements.cargo, cargoUsed, ship);
-  }
-
-  updateLocation(systemId) {
-    updateLocationDisplay(
-      { system: this.elements.system, distance: this.elements.distance },
-      systemId,
-      this.starData
-    );
-
-    // Update quick access button states
-    this.updateQuickAccessButtons();
   }
 
   setupStationInterfaceHandlers() {
