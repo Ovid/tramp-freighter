@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Game Animation System
  *

@@ -1,5 +1,3 @@
-'use strict';
-
 import {
   COMMODITY_TYPES,
   FUEL_PRICING_CONFIG,

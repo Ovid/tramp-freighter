@@ -1,5 +1,3 @@
-'use strict';
-
 // Star System Data
 // Each star system has: id, x/y/z coordinates, name, spectral type, wormhole count (wh), station count (st), reachable flag (r)
 export const STAR_DATA = [

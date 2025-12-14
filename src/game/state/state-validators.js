@@ -1,5 +1,3 @@
-'use strict';
-
 import { GAME_VERSION, SHIP_CONFIG, COMMODITY_TYPES } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 

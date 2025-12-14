@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * String utility functions for text formatting and display
  *

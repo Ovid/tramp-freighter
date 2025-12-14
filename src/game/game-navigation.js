@@ -1,5 +1,3 @@
-'use strict';
-
 import { NAVIGATION_CONFIG, SHIP_CONFIG } from './constants.js';
 
 /**

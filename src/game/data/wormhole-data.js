@@ -1,5 +1,3 @@
-'use strict';
-
 // Wormhole Connection Data
 // Each connection is a pair of star system IDs [fromId, toId]
 export const WORMHOLE_DATA = [

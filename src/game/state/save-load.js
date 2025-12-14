@@ -1,5 +1,3 @@
-'use strict';
-
 import { SAVE_KEY, SAVE_DEBOUNCE_MS } from '../constants.js';
 
 /**

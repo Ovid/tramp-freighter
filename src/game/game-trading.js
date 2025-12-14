@@ -1,5 +1,3 @@
-'use strict';
-
 import {
   BASE_PRICES,
   ECONOMY_CONFIG,

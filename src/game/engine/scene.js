@@ -1,5 +1,3 @@
-'use strict';
-
 import * as THREE from '../../../vendor/three/build/three.module.js';
 import { OrbitControls } from '../../../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
