@@ -17,11 +17,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  * React Migration Spec, Property 49: Animation lock disables quick access
  * Validates: Requirement 46.3
  *
- * When animations are running, quick access buttons should be disabled
+ * When animations are running, the Dock button should be disabled
  * to prevent player actions during cinematic sequences.
+ * System Info should remain accessible at all times.
  */
 describe('Property 49: Animation lock disables quick access', () => {
-  it('should disable quick access buttons when animation is running', () => {
+  it('should disable Dock button but not System Info when animation is running', () => {
     fc.assert(
       fc.property(fc.boolean(), (isAnimationRunning) => {
         cleanup(); // Clean up between property test iterations
@@ -51,19 +52,17 @@ describe('Property 49: Animation lock disables quick access', () => {
         const systemInfoBtn = screen.getByText('System Info');
         const dockBtn = screen.getByText('Dock');
 
-        // Verify buttons are disabled when animation is running
+        // System Info should NEVER be disabled (always accessible)
+        expect(systemInfoBtn).not.toBeDisabled();
+
+        // Verify Dock button is disabled when animation is running
         if (isAnimationRunning) {
-          expect(systemInfoBtn).toBeDisabled();
           expect(dockBtn).toBeDisabled();
 
-          // Clicking disabled buttons should not trigger callbacks
-          fireEvent.click(systemInfoBtn);
+          // Clicking disabled Dock button should not trigger callback
           fireEvent.click(dockBtn);
           expect(mockOnDock).not.toHaveBeenCalled();
         } else {
-          // When animation is not running, System Info should be enabled
-          expect(systemInfoBtn).not.toBeDisabled();
-
           // Dock button state depends on whether current system has a station
           // (tested separately in quick-access-button-state test)
         }
@@ -90,17 +89,32 @@ describe('Property 49: Animation lock disables quick access', () => {
 
     const wrapper = createWrapper(gameStateManager);
     const mockOnDock = vi.fn();
+    const mockOnSystemInfo = vi.fn();
 
-    render(<QuickAccessButtons onDock={mockOnDock} />, { wrapper });
+    render(
+      <QuickAccessButtons
+        onDock={mockOnDock}
+        onSystemInfo={mockOnSystemInfo}
+      />,
+      { wrapper }
+    );
 
     const dockBtn = screen.getByText('Dock');
+    const systemInfoBtn = screen.getByText('System Info');
 
-    // Button should be disabled
+    // Dock button should be disabled
     expect(dockBtn).toBeDisabled();
 
-    // Try to click (should not trigger callback)
+    // System Info button should NOT be disabled
+    expect(systemInfoBtn).not.toBeDisabled();
+
+    // Try to click Dock (should not trigger callback)
     fireEvent.click(dockBtn);
     expect(mockOnDock).not.toHaveBeenCalled();
+
+    // Click System Info (should trigger callback)
+    fireEvent.click(systemInfoBtn);
+    expect(mockOnSystemInfo).toHaveBeenCalledTimes(1);
   });
 
   it('should allow dock callback when animation is not running', () => {
@@ -141,19 +155,29 @@ describe('Property 49: Animation lock disables quick access', () => {
     // Don't set animation system (simulating before StarMapCanvas mounts)
     const wrapper = createWrapper(gameStateManager);
     const mockOnDock = vi.fn();
+    const mockOnSystemInfo = vi.fn();
 
-    render(<QuickAccessButtons onDock={mockOnDock} />, { wrapper });
+    render(
+      <QuickAccessButtons
+        onDock={mockOnDock}
+        onSystemInfo={mockOnSystemInfo}
+      />,
+      { wrapper }
+    );
 
     const systemInfoBtn = screen.getByText('System Info');
     const dockBtn = screen.getByText('Dock');
 
-    // Buttons should be enabled when animation system is not available
+    // Both buttons should be enabled when animation system is not available
     expect(systemInfoBtn).not.toBeDisabled();
     expect(dockBtn).not.toBeDisabled();
 
     // Clicking should work
     fireEvent.click(dockBtn);
     expect(mockOnDock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(systemInfoBtn);
+    expect(mockOnSystemInfo).toHaveBeenCalledTimes(1);
   });
 
   it('should re-enable buttons when animation completes', () => {

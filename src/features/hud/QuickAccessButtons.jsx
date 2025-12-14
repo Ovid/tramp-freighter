@@ -69,9 +69,8 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
   }, [currentSystemId, animationLock]);
 
   const handleSystemInfo = () => {
-    // Don't execute if animation is running
-    if (isAnimationRunning) return;
-
+    // System Info should always be accessible, even during animations
+    // This allows players to view system information at any time
     if (onSystemInfo) {
       onSystemInfo();
     }
@@ -93,7 +92,7 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
         <button
           className="quick-access-btn"
           onClick={handleSystemInfo}
-          disabled={isAnimationRunning}
+          disabled={false}
         >
           System Info
         </button>

@@ -46,10 +46,9 @@ export default function App() {
   const [viewingSystemId, setViewingSystemId] = useState(null);
 
   // Determine if system panel should be shown
-  // Show when a system is selected and we're in orbit or station mode
-  const showSystemPanel =
-    viewingSystemId !== null &&
-    (viewMode === VIEW_MODES.ORBIT || viewMode === VIEW_MODES.STATION);
+  // Show when a system is selected (regardless of view mode)
+  // System Info should always be accessible, even when panels are open
+  const showSystemPanel = viewingSystemId !== null;
 
   // Expose system selection handler to starmap (temporary bridge until full migration)
   // This allows the vanilla JS starmap interaction code to trigger React state updates
