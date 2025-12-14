@@ -486,6 +486,7 @@ export const VISUAL_CONFIG = {
   // Camera controls
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
+  autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
   // Sector boundary
   sectorBoundaryRadius: 300,
   // Background starfield

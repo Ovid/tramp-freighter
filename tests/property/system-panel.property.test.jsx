@@ -107,7 +107,7 @@ describe('Property: System Panel', () => {
       }
     });
 
-    it('should call window.selectStarById when connected system is clicked', () => {
+    it('should call window.StarmapBridge.selectStarById when connected system is clicked', () => {
       const currentSystemId = gameStateManager.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
@@ -117,7 +117,9 @@ describe('Property: System Panel', () => {
         return;
       }
 
-      window.selectStarById = vi.fn();
+      window.StarmapBridge = {
+        selectStarById: vi.fn(),
+      };
 
       render(
         <GameProvider gameStateManager={gameStateManager}>
@@ -137,7 +139,12 @@ describe('Property: System Panel', () => {
 
       fireEvent.click(systemButton);
 
-      expect(window.selectStarById).toHaveBeenCalledWith(connectedIds[0]);
+      expect(window.StarmapBridge.selectStarById).toHaveBeenCalledWith(
+        connectedIds[0]
+      );
+
+      // Clean up
+      delete window.StarmapBridge;
     });
 
     it('should not display economic event info when Advanced Sensors not installed', () => {

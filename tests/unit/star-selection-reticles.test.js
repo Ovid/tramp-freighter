@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as THREE from '../../vendor/three/build/three.module.js';
 import { createSelectionRing } from '../../src/game/engine/stars.js';
 import {

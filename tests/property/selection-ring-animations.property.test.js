@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import * as THREE from '../../vendor/three/build/three.module.js';
-import { createSelectionRing } from '../../src/game/engine/stars.js';
 import {
   selectStar,
   deselectStar,

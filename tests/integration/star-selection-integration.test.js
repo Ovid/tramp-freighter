@@ -41,11 +41,13 @@ describe('Star Selection Integration', () => {
       scene.add(star.label);
     });
 
-    // Mock window functions
-    window.selectStarInScene = vi.fn();
-    window.deselectStarInScene = vi.fn();
-    window.selectStarById = vi.fn();
-    window.closeSystemPanel = vi.fn();
+    // Mock window functions (namespaced bridge)
+    window.StarmapBridge = {
+      selectStarInScene: vi.fn(),
+      deselectStarInScene: vi.fn(),
+      selectStarById: vi.fn(),
+      closeSystemPanel: vi.fn(),
+    };
   });
 
   afterEach(() => {
@@ -54,10 +56,7 @@ describe('Star Selection Integration', () => {
     scene.clear();
 
     // Clean up window functions
-    delete window.selectStarInScene;
-    delete window.deselectStarInScene;
-    delete window.selectStarById;
-    delete window.closeSystemPanel;
+    delete window.StarmapBridge;
   });
 
   describe('Complete Selection Flow', () => {
@@ -117,20 +116,25 @@ describe('Star Selection Integration', () => {
   });
 
   describe('Window Function Integration', () => {
+    it('should expose StarmapBridge namespace', () => {
+      expect(window.StarmapBridge).toBeDefined();
+      expect(typeof window.StarmapBridge).toBe('object');
+    });
+
     it('should expose selectStarInScene function', () => {
-      expect(typeof window.selectStarInScene).toBe('function');
+      expect(typeof window.StarmapBridge.selectStarInScene).toBe('function');
     });
 
     it('should expose deselectStarInScene function', () => {
-      expect(typeof window.deselectStarInScene).toBe('function');
+      expect(typeof window.StarmapBridge.deselectStarInScene).toBe('function');
     });
 
     it('should expose selectStarById function', () => {
-      expect(typeof window.selectStarById).toBe('function');
+      expect(typeof window.StarmapBridge.selectStarById).toBe('function');
     });
 
     it('should expose closeSystemPanel function', () => {
-      expect(typeof window.closeSystemPanel).toBe('function');
+      expect(typeof window.StarmapBridge.closeSystemPanel).toBe('function');
     });
   });
 

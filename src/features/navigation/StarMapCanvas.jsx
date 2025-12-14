@@ -17,6 +17,7 @@ import {
   getCurrentSystemIndicator,
   updateSelectionRingAnimations,
 } from '../../game/engine/interaction';
+import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { CameraControls } from './CameraControls';
@@ -135,16 +136,16 @@ export function StarMapCanvas() {
             if (clickedStar) {
               // Select star visually and notify React
               selectStar(clickedStar, scene, camera);
-              if (window.selectStarById) {
-                window.selectStarById(clickedStar.data.id);
+              if (window.StarmapBridge?.selectStarById) {
+                window.StarmapBridge.selectStarById(clickedStar.data.id);
               }
             }
           } else {
             // Clicked empty space - deselect
             deselectStar();
             // Close system panel when clicking empty space
-            if (window.closeSystemPanel) {
-              window.closeSystemPanel();
+            if (window.StarmapBridge?.closeSystemPanel) {
+              window.StarmapBridge.closeSystemPanel();
             }
           }
         };
@@ -183,8 +184,13 @@ export function StarMapCanvas() {
         gameStateManager.state.player.currentSystem
       );
 
+      // Create namespaced bridge object for temporary React migration
+      if (typeof window !== 'undefined') {
+        window.StarmapBridge = window.StarmapBridge || {};
+      }
+
       // Expose function to select star by ID (for external calls)
-      window.selectStarInScene = (systemId) => {
+      window.StarmapBridge.selectStarInScene = (systemId) => {
         const star = stars.find((s) => s.data.id === systemId);
         if (star) {
           selectStar(star, scene, camera);
@@ -192,7 +198,7 @@ export function StarMapCanvas() {
       };
 
       // Expose function to deselect star (for external calls)
-      window.deselectStarInScene = () => {
+      window.StarmapBridge.deselectStarInScene = () => {
         deselectStar();
       };
 
@@ -208,8 +214,9 @@ export function StarMapCanvas() {
 
         // Update auto-rotation if enabled (use ref to avoid stale closure)
         if (autoRotationRef.current && controls && controls.target) {
-          // Rotation speed chosen for smooth, noticeable orbit without inducing motion sickness
-          const rotationSpeed = 0.2 * (Math.PI / 180);
+          // Convert degrees per frame to radians
+          const rotationSpeed =
+            VISUAL_CONFIG.autoRotationSpeed * (Math.PI / 180);
 
           // Get current camera position relative to target
           _tempOffset.copy(camera.position).sub(controls.target);
@@ -280,8 +287,10 @@ export function StarMapCanvas() {
         }
 
         // Clear window functions
-        window.selectStarInScene = null;
-        window.deselectStarInScene = null;
+        if (window.StarmapBridge) {
+          window.StarmapBridge.selectStarInScene = null;
+          window.StarmapBridge.deselectStarInScene = null;
+        }
 
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);

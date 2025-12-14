@@ -50,14 +50,16 @@ export default function App() {
   // System Info should always be accessible, even when panels are open
   const showSystemPanel = viewingSystemId !== null;
 
-  // Expose system selection handler to starmap (temporary bridge until full migration)
+  // Create namespaced bridge object for temporary React migration
   // This allows the vanilla JS starmap interaction code to trigger React state updates
   if (typeof window !== 'undefined') {
-    window.selectStarById = (systemId) => {
+    window.StarmapBridge = window.StarmapBridge || {};
+
+    window.StarmapBridge.selectStarById = (systemId) => {
       handleSystemSelected(systemId);
       // Also trigger visual selection in Three.js scene
-      if (window.selectStarInScene) {
-        window.selectStarInScene(systemId);
+      if (window.StarmapBridge.selectStarInScene) {
+        window.StarmapBridge.selectStarInScene(systemId);
       }
     };
   }
@@ -150,14 +152,15 @@ export default function App() {
   const handleCloseSystemPanel = (keepSelection = false) => {
     setViewingSystemId(null);
     // Deselect star in scene unless we're keeping it for jump animation
-    if (!keepSelection && window.deselectStarInScene) {
-      window.deselectStarInScene();
+    if (!keepSelection && window.StarmapBridge?.deselectStarInScene) {
+      window.StarmapBridge.deselectStarInScene();
     }
   };
 
   // Expose close system panel handler to starmap
   if (typeof window !== 'undefined') {
-    window.closeSystemPanel = handleCloseSystemPanel;
+    window.StarmapBridge = window.StarmapBridge || {};
+    window.StarmapBridge.closeSystemPanel = handleCloseSystemPanel;
   }
 
   /**
@@ -181,8 +184,8 @@ export default function App() {
     setViewingSystemId(null);
     // Deselect star after jump completes - we've arrived at destination
     // Only the current system indicator (green) should be visible
-    if (window.deselectStarInScene) {
-      window.deselectStarInScene();
+    if (window.StarmapBridge?.deselectStarInScene) {
+      window.StarmapBridge.deselectStarInScene();
     }
   };
 

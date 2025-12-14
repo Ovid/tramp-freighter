@@ -238,8 +238,8 @@ export function SystemPanel({
                   key={system.id}
                   className="connection-item"
                   onClick={() => {
-                    if (window.selectStarById) {
-                      window.selectStarById(system.id);
+                    if (window.StarmapBridge?.selectStarById) {
+                      window.StarmapBridge.selectStarById(system.id);
                     }
                   }}
                 >
