@@ -1,4 +1,6 @@
 - i18n?
+- React? (Except for THREE.js and starmap)
+- Arbitrage bug: you can always sell at a profit something you just bought
 - Steering should not that files neeed single responsibilities
 - Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
@@ -38,3 +40,11 @@
   we have dynamic pricing?
 - Easy way to figure out which stars I can travel to.
 - Travel indicator instead of instant travel?
+
+# Steering
+
+- Avoid unnecessary wrapper functions
+- Each .js file should have a single purpose
+- No task is finished until the entire test suite passes (`npm test`)
+- Before you write a defensive check for a variable, check if it's guaranteed
+  to exist. You don't `if (state) ...` if `state` always exists.
