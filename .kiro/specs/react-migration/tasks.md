@@ -122,7 +122,8 @@
   - Create src/components/Button.jsx
   - Create src/components/Modal.jsx with React Portals
   - Create src/components/Card.jsx
-  - Create src/components/ErrorBoundary.jsx
+  - ErrorBoundary.jsx already created in task 4
+  - **Consider adding more granular error boundaries around StarMapCanvas and individual panels**
   - _Requirements: 33.1, 33.2, 33.3, 33.4, 33.5, 36.1, 36.2, 36.3, 36.4, 36.5, 42.1, 42.2, 42.3, 42.4, 42.5_
 
 - [ ] 5.1 Write property test for error boundaries
@@ -143,6 +144,9 @@
   - Use useRef for container element
   - Call initScene from src/game/engine/scene.js in useEffect
   - Implement resource cleanup on unmount
+  - **CRITICAL:** Ensure THREE.js scene initializes only once in useEffect with empty dependency array
+  - **CRITICAL:** Verify no object allocation in animation loop (requestAnimationFrame)
+  - **CRITICAL:** Dispose of all THREE.js resources (geometries, materials, renderer) on unmount
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5_
 
 - [ ] 6.2 Write property test for scene initialization
@@ -162,6 +166,7 @@
   - Create src/features/hud/ResourceBar.jsx
   - Use useGameEvent for creditsChanged and fuelChanged
   - Display credits and fuel with proper formatting
+  - **Remove test buttons and placeholder divs from App.jsx** (Dock button, View Mode display)
   - _Requirements: 7.1, 7.2, 24.4_
 
 - [ ] 8.2 Write property test for HUD credit updates
@@ -212,6 +217,7 @@
   - Create src/features/station/StationMenu.jsx
   - Display station options (Trade, Refuel, Repair, etc.)
   - Handle panel opening and undocking
+  - **Remove test buttons from App.jsx station menu placeholder** (Open Trade Panel, Undock buttons)
   - _Requirements: 9.3_
 
 - [ ] 9.2 Create PanelContainer component
@@ -509,6 +515,8 @@
 - [ ] 26.1 Add React.memo to expensive components
   - Identify components that render frequently
   - Wrap with React.memo where appropriate
+  - **Add FPS counter in development mode to verify 60 FPS target for starmap**
+  - **Profile THREE.js rendering to ensure no frame drops during camera movement**
   - _Requirements: 41.1, 41.2, 41.3, 41.5_
 
 - [ ] 26.2 Add useMemo for expensive calculations
