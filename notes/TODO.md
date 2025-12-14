@@ -8,6 +8,7 @@
 # TODO
 
 - i18n?
+- GCT
 - Why are tests being skipped?
 - React? (Except for THREE.js and starmap)
 - Arbitrage bug: you can always sell at a profit something you just bought
