@@ -21,6 +21,8 @@ This enables strict mode which:
 - Makes code run faster by enabling optimizations
 - Prevents accidental global variable creation
 
+**Note**: React JSX files (.jsx) do not require explicit `"use strict";` as they are automatically in strict mode when compiled by Vite.
+
 ## Task Completion Standards
 
 ### Test Suite Requirements
@@ -1193,3 +1195,596 @@ console.timeEnd('expensive-operation');
 5. Defer non-critical work
 
 Remember: Premature optimization is the root of all evil. Write clear code first, optimize when profiling shows a need.
+
+## React-Specific Standards
+
+### Component Structure
+
+**Functional components with hooks are the standard**
+
+```javascript
+// GOOD - Functional component with hooks
+function TradePanel({ onClose }) {
+  const gameStateManager = useGameState();
+  const cargo = useGameEvent('cargoChanged');
+  const { buyGood, sellGood } = useGameAction();
+
+  const handleBuy = () => {
+    // Handler logic
+  };
+
+  return (
+    <div className="trade-panel">
+      {/* JSX */}
+    </div>
+  );
+}
+
+// BAD - Class components (avoid unless necessary)
+class TradePanel extends React.Component {
+  // Don't use class components
+}
+```
+
+### Component File Organization
+
+**Standard order for component file contents:**
+
+1. Imports (React, hooks, components, utilities, styles)
+2. Component function declaration
+3. State declarations (useState, useReducer)
+4. Context access (useContext, useGameState)
+5. Event subscriptions (useGameEvent)
+6. Actions (useGameAction)
+7. Effects (useEffect)
+8. Event handlers
+9. Derived values (useMemo, calculations)
+10. Return statement with JSX
+
+```javascript
+import { useState, useEffect } from 'react';
+import { useGameState } from '../../context/GameContext';
+import { useGameEvent } from '../../hooks/useGameEvent';
+import { useGameAction } from '../../hooks/useGameAction';
+import { Button } from '../../components/Button';
+import { validateTrade } from './tradeUtils';
+
+export function TradePanel({ onClose }) {
+  // 1. Local state
+  const [selectedGood, setSelectedGood] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  // 2. Context access
+  const gameStateManager = useGameState();
+
+  // 3. Event subscriptions
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+
+  // 4. Actions
+  const { buyGood, sellGood } = useGameAction();
+
+  // 5. Effects
+  useEffect(() => {
+    // Effect logic
+  }, []);
+
+  // 6. Event handlers
+  const handleBuy = () => {
+    // Handler logic
+  };
+
+  // 7. Derived values
+  const validation = validateTrade('buy', selectedGood, quantity, gameStateManager.getState());
+
+  // 8. Return JSX
+  return (
+    <div className="trade-panel">
+      {/* JSX */}
+    </div>
+  );
+}
+```
+
+### Bridge Pattern Usage
+
+**Always use the Bridge Pattern to access game state**
+
+```javascript
+// GOOD - Use Bridge Pattern hooks
+function ResourceBar() {
+  const credits = useGameEvent('creditsChanged');
+  const fuel = useGameEvent('fuelChanged');
+
+  return (
+    <div>
+      <div>Credits: {credits}</div>
+      <div>Fuel: {fuel}%</div>
+    </div>
+  );
+}
+
+// BAD - Direct GameStateManager access without subscription
+function ResourceBar() {
+  const gameStateManager = useGameState();
+  const state = gameStateManager.getState(); // Won't re-render on changes!
+
+  return (
+    <div>
+      <div>Credits: {state.player.credits}</div>
+    </div>
+  );
+}
+
+// GOOD - Use useGameAction for triggering actions
+function RefuelButton() {
+  const { refuel } = useGameAction();
+
+  return <button onClick={() => refuel(50)}>Refuel</button>;
+}
+
+// BAD - Direct GameStateManager method calls
+function RefuelButton() {
+  const gameStateManager = useGameState();
+
+  return <button onClick={() => gameStateManager.refuel(50)}>Refuel</button>;
+}
+```
+
+### Hook Rules
+
+**Follow React's Rules of Hooks**
+
+1. Only call hooks at the top level (not in loops, conditions, or nested functions)
+2. Only call hooks from React functions (components or custom hooks)
+3. Custom hooks must start with "use"
+
+```javascript
+// GOOD - Hooks at top level
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+
+  if (cargo.length === 0) {
+    return <div>No cargo</div>;
+  }
+
+  return <div>{/* JSX */}</div>;
+}
+
+// BAD - Conditional hook call
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+
+  if (cargo.length > 0) {
+    const credits = useGameEvent('creditsChanged'); // WRONG!
+  }
+
+  return <div>{/* JSX */}</div>;
+}
+```
+
+### State Management
+
+**Use local state for UI-only state, GameStateManager for game state**
+
+```javascript
+// GOOD - Local state for UI concerns
+function RefuelPanel() {
+  const [sliderValue, setSliderValue] = useState(0); // UI state
+  const fuel = useGameEvent('fuelChanged'); // Game state
+  const { refuel } = useGameAction();
+
+  const handleRefuel = () => {
+    refuel(sliderValue);
+    setSliderValue(0); // Reset UI state
+  };
+
+  return (
+    <input
+      type="range"
+      value={sliderValue}
+      onChange={(e) => setSliderValue(Number(e.target.value))}
+    />
+  );
+}
+
+// BAD - Duplicating game state in React state
+function RefuelPanel() {
+  const [fuel, setFuel] = useState(0); // DON'T duplicate game state!
+  const { refuel } = useGameAction();
+
+  // This creates two sources of truth
+}
+```
+
+### Effect Dependencies
+
+**Always specify correct dependencies for useEffect**
+
+```javascript
+// GOOD - Correct dependencies
+function TradePanel({ systemId }) {
+  const gameStateManager = useGameState();
+
+  useEffect(() => {
+    const prices = gameStateManager.getKnownPrices(systemId);
+    // Use prices
+  }, [gameStateManager, systemId]); // Correct dependencies
+}
+
+// BAD - Missing dependencies
+function TradePanel({ systemId }) {
+  const gameStateManager = useGameState();
+
+  useEffect(() => {
+    const prices = gameStateManager.getKnownPrices(systemId);
+    // Use prices
+  }, []); // WRONG - missing dependencies
+}
+
+// BAD - Unnecessary dependencies causing re-runs
+function TradePanel({ onClose }) {
+  useEffect(() => {
+    // Effect doesn't use onClose
+  }, [onClose]); // WRONG - unnecessary dependency
+}
+```
+
+### Component Props
+
+**Destructure props in function signature**
+
+```javascript
+// GOOD - Destructured props
+function TradePanel({ onClose, systemId }) {
+  return <button onClick={onClose}>Close</button>;
+}
+
+// BAD - Props object
+function TradePanel(props) {
+  return <button onClick={props.onClose}>Close</button>;
+}
+```
+
+### Event Handlers
+
+**Use arrow functions for inline handlers, named functions for complex logic**
+
+```javascript
+// GOOD - Simple inline handler
+function Button() {
+  return <button onClick={() => console.log('clicked')}>Click</button>;
+}
+
+// GOOD - Named handler for complex logic
+function TradePanel() {
+  const handleBuy = () => {
+    // Complex logic
+    validateTransaction();
+    updateInventory();
+    showNotification();
+  };
+
+  return <button onClick={handleBuy}>Buy</button>;
+}
+
+// BAD - Binding in render
+function TradePanel() {
+  function handleBuy() {
+    // Logic
+  }
+
+  return <button onClick={handleBuy.bind(this)}>Buy</button>; // WRONG
+}
+```
+
+### Conditional Rendering
+
+**Use clear conditional rendering patterns**
+
+```javascript
+// GOOD - Logical AND for simple conditions
+function Panel() {
+  return (
+    <div>
+      {isLoading && <Spinner />}
+      {error && <ErrorMessage error={error} />}
+    </div>
+  );
+}
+
+// GOOD - Ternary for if-else
+function Panel() {
+  return <div>{isLoading ? <Spinner /> : <Content />}</div>;
+}
+
+// GOOD - Early return for complex conditions
+function Panel() {
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMessage error={error} />;
+  }
+
+  return <Content />;
+}
+
+// BAD - Nested ternaries
+function Panel() {
+  return (
+    <div>
+      {isLoading ? <Spinner /> : error ? <ErrorMessage /> : <Content />}
+    </div>
+  );
+}
+```
+
+### Lists and Keys
+
+**Always provide stable keys for lists**
+
+```javascript
+// GOOD - Stable unique key
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item, index) => (
+        <li key={`${item.type}-${item.purchaseDate}-${index}`}>
+          {item.type}: {item.quantity}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// BAD - Index as key (only acceptable if list never reorders)
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item, index) => (
+        <li key={index}>{item.type}</li>
+      ))}
+    </ul>
+  );
+}
+
+// BAD - Non-unique key
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item) => (
+        <li key={item.type}>{item.type}</li> // Multiple items can have same type!
+      ))}
+    </ul>
+  );
+}
+```
+
+### Performance Optimization
+
+**Use React.memo, useMemo, and useCallback judiciously**
+
+```javascript
+// GOOD - Memo for expensive components
+const ExpensiveComponent = React.memo(function ExpensiveComponent({ data }) {
+  // Expensive rendering logic
+  return <div>{/* Complex JSX */}</div>;
+});
+
+// GOOD - useMemo for expensive calculations
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+
+  const totalValue = useMemo(() => {
+    return cargo.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  }, [cargo]);
+
+  return <div>Total: {totalValue}</div>;
+}
+
+// GOOD - useCallback for stable function references
+function TradePanel() {
+  const { buyGood } = useGameAction();
+
+  const handleBuy = useCallback(
+    (goodType, quantity) => {
+      buyGood(goodType, quantity);
+    },
+    [buyGood]
+  );
+
+  return <ExpensiveChild onBuy={handleBuy} />;
+}
+
+// BAD - Premature optimization
+function SimpleComponent({ text }) {
+  // Don't memo everything!
+  const uppercased = useMemo(() => text.toUpperCase(), [text]);
+  return <div>{uppercased}</div>;
+}
+```
+
+### CSS and Styling
+
+**Prefer existing CSS classes, use CSS modules for new component-specific styles**
+
+```javascript
+// GOOD - Use existing CSS classes
+function TradePanel() {
+  return <div className="trade-panel">{/* Content */}</div>;
+}
+
+// GOOD - CSS modules for new component-specific styles
+import styles from './TradePanel.module.css';
+
+function TradePanel() {
+  return <div className={styles.container}>{/* Content */}</div>;
+}
+
+// ACCEPTABLE - Inline styles for dynamic values only
+function ProgressBar({ percentage }) {
+  return <div style={{ width: `${percentage}%` }} className="progress-bar" />;
+}
+
+// BAD - Inline styles for static styling
+function TradePanel() {
+  return (
+    <div style={{ padding: '20px', backgroundColor: '#fff' }}>
+      {/* Content */}
+    </div>
+  );
+}
+```
+
+### Error Boundaries
+
+**Wrap features in Error Boundaries**
+
+```javascript
+// GOOD - Error boundary around feature
+function App() {
+  return (
+    <ErrorBoundary>
+      <StarMapCanvas />
+    </ErrorBoundary>
+  );
+}
+
+// GOOD - Multiple boundaries for isolation
+function App() {
+  return (
+    <div>
+      <ErrorBoundary>
+        <StarMapCanvas />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <HUD />
+      </ErrorBoundary>
+    </div>
+  );
+}
+```
+
+### Testing React Components
+
+**Use React Testing Library for component tests**
+
+```javascript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { TradePanel } from './TradePanel';
+
+describe('TradePanel', () => {
+  it('should display cargo items', () => {
+    const mockGameStateManager = createMockGameStateManager();
+
+    render(
+      <GameProvider gameStateManager={mockGameStateManager}>
+        <TradePanel onClose={() => {}} />
+      </GameProvider>
+    );
+
+    expect(screen.getByText('Electronics')).toBeInTheDocument();
+  });
+
+  it('should call buyGood when buy button clicked', () => {
+    const mockGameStateManager = createMockGameStateManager();
+    const buySpy = vi.spyOn(mockGameStateManager, 'buyGood');
+
+    render(
+      <GameProvider gameStateManager={mockGameStateManager}>
+        <TradePanel onClose={() => {}} />
+      </GameProvider>
+    );
+
+    fireEvent.click(screen.getByText('Buy'));
+
+    expect(buySpy).toHaveBeenCalledWith('electronics', 1);
+  });
+});
+```
+
+### React Anti-Patterns to Avoid
+
+**Common mistakes to avoid:**
+
+1. **Don't mutate state directly**
+
+```javascript
+// BAD
+const [items, setItems] = useState([]);
+items.push(newItem); // WRONG - mutating state
+
+// GOOD
+setItems([...items, newItem]);
+```
+
+2. **Don't use index as key for dynamic lists**
+
+```javascript
+// BAD - List can reorder
+{
+  items.map((item, index) => <Item key={index} {...item} />);
+}
+
+// GOOD
+{
+  items.map((item) => <Item key={item.id} {...item} />);
+}
+```
+
+3. **Don't create components inside components**
+
+```javascript
+// BAD
+function Parent() {
+  function Child() {
+    // This creates a new component on every render!
+    return <div>Child</div>;
+  }
+  return <Child />;
+}
+
+// GOOD
+function Child() {
+  return <div>Child</div>;
+}
+
+function Parent() {
+  return <Child />;
+}
+```
+
+4. **Don't forget cleanup in useEffect**
+
+```javascript
+// BAD
+useEffect(() => {
+  const subscription = gameStateManager.subscribe('event', handler);
+  // Missing cleanup!
+});
+
+// GOOD
+useEffect(() => {
+  const subscription = gameStateManager.subscribe('event', handler);
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+5. **Don't duplicate game state in React state**
+
+```javascript
+// BAD
+function HUD() {
+  const [credits, setCredits] = useState(0);
+  // Duplicates GameStateManager state!
+}
+
+// GOOD
+function HUD() {
+  const credits = useGameEvent('creditsChanged');
+  // Single source of truth
+}
+```

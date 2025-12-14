@@ -13,41 +13,83 @@ inclusion: always
 ├── .kiro/             # Kiro AI assistant configuration
 │   ├── specs/         # Feature specifications
 │   │   ├── architecture-refactor/       # Completed: Code organization
+│   │   ├── react-migration/             # In Progress: React migration
 │   │   ├── sol-sector-starmap/          # Completed: 3D starmap foundation
 │   │   └── tramp-freighter-core-loop/   # Completed: Game MVP
 │   └── steering/      # AI steering rules and guidelines
 ├── vendor/            # Third-party libraries
 │   └── three/         # Three.js library
-├── js/                # Application JavaScript
-│   ├── controllers/   # UI panel controllers
-│   │   ├── trade.js
-│   │   ├── refuel.js
-│   │   ├── repair.js
-│   │   ├── upgrades.js
-│   │   ├── info-broker.js
-│   │   └── cargo-manifest.js
-│   ├── views/         # Rendering modules
-│   │   └── starmap/
-│   │       ├── starmap.js     # Main coordinator
-│   │       ├── scene.js       # Scene initialization
-│   │       ├── stars.js       # Star rendering
-│   │       ├── wormholes.js   # Wormhole rendering
-│   │       └── interaction.js # User interaction
-│   ├── data/          # Static game data
-│   │   ├── star-data.js
-│   │   └── wormhole-data.js
-│   ├── utils/         # Utility functions
-│   │   ├── seeded-random.js
-│   │   └── string-utils.js
-│   ├── game-animation.js      # Animation system
-│   ├── game-constants.js      # Configuration objects
-│   ├── game-events.js         # Economic events system
-│   ├── game-information-broker.js  # Intelligence system
-│   ├── game-navigation.js     # Navigation logic
-│   ├── game-state.js          # State management
-│   ├── game-trading.js        # Trading logic
-│   └── game-ui.js             # UI coordinator
-├── css/               # Component stylesheets
+├── src/               # React application source
+│   ├── main.jsx       # Application entry point
+│   ├── App.jsx        # Root component
+│   ├── assets/        # Images and static resources
+│   ├── components/    # Shared UI components
+│   │   ├── Button.jsx
+│   │   ├── Modal.jsx
+│   │   ├── Card.jsx
+│   │   └── ErrorBoundary.jsx
+│   ├── context/       # React Context providers
+│   │   └── GameContext.jsx
+│   ├── hooks/         # Custom React hooks
+│   │   ├── useGameEvent.js
+│   │   ├── useGameAction.js
+│   │   ├── useAnimationLock.js
+│   │   └── useNotification.js
+│   ├── features/      # Feature modules
+│   │   ├── hud/
+│   │   │   ├── HUD.jsx
+│   │   │   ├── ResourceBar.jsx
+│   │   │   ├── DateDisplay.jsx
+│   │   │   ├── ShipStatus.jsx
+│   │   │   └── QuickAccessButtons.jsx
+│   │   ├── navigation/
+│   │   │   ├── StarMapCanvas.jsx
+│   │   │   └── navigationUtils.js
+│   │   ├── station/
+│   │   │   ├── StationMenu.jsx
+│   │   │   └── PanelContainer.jsx
+│   │   ├── trade/
+│   │   │   ├── TradePanel.jsx
+│   │   │   └── tradeUtils.js
+│   │   ├── refuel/
+│   │   │   ├── RefuelPanel.jsx
+│   │   │   └── refuelUtils.js
+│   │   ├── repair/
+│   │   │   ├── RepairPanel.jsx
+│   │   │   └── repairUtils.js
+│   │   ├── upgrades/
+│   │   │   ├── UpgradesPanel.jsx
+│   │   │   └── upgradesUtils.js
+│   │   ├── info-broker/
+│   │   │   ├── InfoBrokerPanel.jsx
+│   │   │   └── infoBrokerUtils.js
+│   │   ├── cargo/
+│   │   │   ├── CargoManifestPanel.jsx
+│   │   │   └── cargoUtils.js
+│   │   ├── ship-status/
+│   │   │   └── ShipStatusPanel.jsx
+│   │   └── dev-admin/
+│   │       └── DevAdminPanel.jsx
+│   └── game/          # Migrated game logic
+│       ├── constants.js
+│       ├── game-trading.js
+│       ├── game-navigation.js
+│       ├── game-events.js
+│       ├── game-information-broker.js
+│       ├── state/
+│       │   ├── game-state-manager.js
+│       │   ├── save-load.js
+│       │   └── state-validators.js
+│       ├── engine/
+│       │   ├── game-animation.js
+│       │   └── scene.js
+│       ├── data/
+│       │   ├── star-data.js
+│       │   └── wormhole-data.js
+│       └── utils/
+│           ├── seeded-random.js
+│           └── string-utils.js
+├── css/               # Component stylesheets (preserved)
 │   ├── base.css       # Global styles and resets
 │   ├── hud.css        # HUD overlay styles
 │   ├── panel/         # Panel-specific styles
@@ -60,7 +102,7 @@ inclusion: always
 │   │   └── upgrades.css
 │   ├── modals.css     # Modal dialog styles
 │   └── starmap-scene.css  # Starmap visualization
-├── tests/             # Test suite
+├── tests/             # Test suite (migrated to Vitest)
 │   ├── unit/          # Unit tests
 │   ├── property/      # Property-based tests
 │   └── integration/   # Integration tests
@@ -68,37 +110,53 @@ inclusion: always
 │   ├── tramp-freighter.md           # Complete PRD for full game
 │   ├── tramp-freighter-01-core-loop.md  # Phase 1 spec
 │   └── [other design docs]
-└── starmap.html       # Main application entry point
+├── index.html         # Vite entry point
+├── vite.config.js     # Vite configuration
+├── vitest.config.js   # Vitest configuration
+├── package.json       # Dependencies and scripts
+└── package-lock.json  # Dependency lock file
 ```
 
 ## Organization Principles
 
-- **Root level**: Application entry point (starmap.html)
+- **Root level**: Build configuration (vite.config.js, vitest.config.js, package.json) and HTML entry point (index.html)
 - **vendor/**: Third-party libraries (Three.js) separated from application code
-- **js/**: Application JavaScript organized by responsibility
-  - **controllers/**: UI panel controllers (one per panel)
-  - **views/**: Rendering modules (starmap visualization)
-  - **data/**: Static game data (star systems, wormhole connections)
-  - **utils/**: Reusable utility functions
-  - **Core systems**: Game logic modules at root level
-- **css/**: Component stylesheets organized by UI component
+- **src/**: React application source code organized by feature
+  - **features/**: Feature-based organization with components, hooks, and utilities co-located
+  - **components/**: Shared UI components used across features
+  - **context/**: React Context providers (GameContext)
+  - **hooks/**: Custom React hooks (useGameEvent, useGameAction, etc.)
+  - **game/**: Migrated game logic organized by category
+    - **state/**: State management (GameStateManager, save/load)
+    - **engine/**: Scene and animation logic
+    - **data/**: Static game data (star systems, wormhole connections)
+    - **utils/**: Reusable utility functions
+  - **assets/**: Images and static resources
+  - **main.jsx**: Application entry point
+  - **App.jsx**: Root component
+- **css/**: Component stylesheets (preserved from vanilla version)
   - **panel/**: Panel-specific styles in subdirectory
   - Base, HUD, modals, and starmap styles at root level
-- **tests/**: Test suite organized by test type
+- **tests/**: Test suite organized by test type (migrated to Vitest)
 - **notes/**: Documentation and specifications (excluded from version control)
 - **.kiro/specs/**: Formal feature specifications with requirements, design, and tasks
 - **.kiro/steering/**: AI assistant configuration and steering rules
 
 ## Key Files
 
-- `starmap.html`: Main application entry point with 3D visualization
-- `js/game-state.js`: Central state management and game initialization
-- `js/game-ui.js`: UI coordinator that delegates to panel controllers
-- `js/game-constants.js`: Configuration objects for all game constants
-- `js/controllers/`: UI panel controllers (trade, refuel, repair, upgrades, info-broker, cargo-manifest)
-- `js/views/starmap/starmap.js`: Starmap coordinator module
+- `index.html`: Vite entry point for React application
+- `src/main.jsx`: Application entry point, initializes GameStateManager, imports global CSS
+- `src/App.jsx`: Root component, manages view mode state
+- `src/context/GameContext.jsx`: Provides GameStateManager to all components
+- `src/hooks/useGameEvent.js`: Custom hook for subscribing to GameStateManager events
+- `src/hooks/useGameAction.js`: Custom hook for triggering game actions
+- `src/game/state/game-state-manager.js`: Central state management (preserved from vanilla)
+- `src/game/constants.js`: Configuration objects for all game constants
+- `src/features/`: Feature modules with React components and utilities
+- `vite.config.js`: Vite build configuration
+- `vitest.config.js`: Vitest test configuration
 - `notes/tramp-freighter.md`: Complete product requirements document for full game
-- `.kiro/specs/architecture-refactor/`: Architecture refactoring specification
+- `.kiro/specs/react-migration/`: React migration specification
 - `.kiro/specs/tramp-freighter-core-loop/`: Core game loop specification
 
 ## Development Status
@@ -106,7 +164,8 @@ inclusion: always
 - **Starmap Foundation**: Complete (v1.1)
 - **Game Core Loop**: Complete (Phase 1)
 - **Architecture Refactor**: Complete (improved code organization)
-- **Current Phase**: Ready for Phase 2 features
+- **React Migration**: In Progress (migrating UI to React 18+)
+- **Current Phase**: React migration with Bridge Pattern implementation
 
 ## Development Phases
 

@@ -6,111 +6,113 @@ inclusion: always
 
 ## Core Framework
 
+- **React 18+**: UI framework for declarative component-based interface
 - **Three.js**: 3D rendering framework for hardware-accelerated graphics (starmap)
-- **Vanilla JavaScript**: Primary development language (no framework dependencies for game logic)
+- **Vite**: Build tool and development server for fast development and optimized production builds
+- **Vitest**: Testing framework for unit, property-based, and integration tests
+- **JavaScript (ES Modules)**: Primary development language using modern module syntax
 - **localStorage**: Browser-based persistence for save games (REQUIRED - all game state must be stored in browser localStorage, no server-side storage)
 
 ## Architecture
 
 - Client-side application (no backend required)
+- React-based declarative UI with component architecture
 - Hardware-accelerated 3D rendering via WebGL (starmap)
-- Event-driven game state management
-- Data-driven content system for narrative events
-- Controller pattern for UI panel management
-- Module-based code organization with clear separation of concerns
+- Event-driven game state management via GameStateManager singleton
+- Bridge Pattern connecting imperative GameStateManager to React's declarative model
+- Feature-based code organization with clear separation of concerns
+- Custom hooks for game state subscription and actions
 
-### Controller Architecture
+### React Component Architecture
 
-The application uses a controller pattern for UI panel management:
+The application uses React components with a Bridge Pattern to connect to game logic:
 
-**UIManager (Coordinator)**:
+**Bridge Pattern**:
 
-- Caches all DOM elements during initialization
-- Creates panel controller instances with dependency injection
-- Delegates panel show/hide operations to controllers
-- Manages HUD updates, notifications, and quick access buttons
-- Subscribes to GameStateManager events
+- **GameContext**: Provides GameStateManager instance to all components via React Context
+- **useGameEvent**: Custom hook for subscribing to GameStateManager events and triggering re-renders
+- **useGameAction**: Custom hook for triggering game actions through GameStateManager methods
+- Ensures GameStateManager remains single source of truth
+- Automatic cleanup of subscriptions on component unmount
 
-**Panel Controllers**:
+**Component Structure**:
 
-- Each UI panel has a dedicated controller class
-- Controllers receive dependencies through constructor injection
-- Controllers encapsulate all logic for their panel (display, validation, transactions)
-- Controllers validate required DOM elements in constructor
-- Controllers throw exceptions for invalid state (fail fast)
+- **Feature Modules**: Related components, hooks, and utilities co-located in feature directories
+- **Shared Components**: Reusable UI components (Button, Modal, Card, ErrorBoundary)
+- **Panel Components**: React components for each UI panel (Trade, Refuel, Repair, etc.)
+- **Utility Functions**: Pure functions for validation and calculations, separated from components
 
-**Example Controller Structure**:
+**Example Component Structure**:
 
 ```javascript
-class TradePanelController {
-  constructor(elements, gameStateManager, starData) {
-    // Validate dependencies
-    // Store references
-    // Bind event handlers
-  }
+// Panel component using Bridge Pattern
+function TradePanel({ onClose }) {
+  const gameStateManager = useGameState();
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+  const { buyGood, sellGood } = useGameAction();
 
-  show() {
-    /* Display panel and initialize */
-  }
-  hide() {
-    /* Hide panel and cleanup */
-  }
-  refresh() {
-    /* Update panel display */
-  }
-  handleTransaction() {
-    /* Process user actions */
-  }
+  // Component logic using hooks
+  // Declarative rendering
 }
 ```
 
 **Benefits**:
 
-- Improved testability (controllers can be tested in isolation)
-- Better maintainability (panel logic contained in single file)
-- Clear separation of concerns (coordinator vs. panel logic)
-- Explicit dependencies (no hidden globals)
+- Declarative UI updates through React's rendering model
+- No manual DOM manipulation
+- Improved testability with React Testing Library
+- Clear data flow from GameStateManager to components
+- Automatic re-rendering on state changes
 
 ### Module Organization
 
-Code is organized by feature and responsibility:
+Code is organized by feature and responsibility in the `src/` directory:
 
-**Controllers** (`js/controllers/`):
+**Features** (`src/features/`):
 
-- One file per UI panel controller
-- Trade, refuel, repair, upgrades, info-broker, cargo-manifest
+- Feature-based organization with related components, hooks, and utilities co-located
+- Each feature directory contains: components (.jsx), utility functions (.js), and feature-specific hooks
+- Examples: hud/, navigation/, station/, trade/, refuel/, repair/, upgrades/, info-broker/, cargo/, ship-status/
 
-**Views** (`js/views/`):
+**Components** (`src/components/`):
 
-- Rendering modules organized by visual component
-- Starmap modules: coordinator, scene, stars, wormholes, interaction
+- Shared UI components used across features
+- Button, Modal, Card, ErrorBoundary
 
-**Data** (`js/data/`):
+**Context** (`src/context/`):
 
-- Static game data separated from logic
-- Star system data, wormhole connections
+- React Context providers
+- GameContext provides GameStateManager instance to all components
 
-**Utils** (`js/utils/`):
+**Hooks** (`src/hooks/`):
 
-- Reusable utility functions
-- Seeded random, string utilities
+- Custom React hooks for common patterns
+- useGameEvent, useGameAction, useAnimationLock, useNotification
 
-**Core Systems** (js/ root):
+**Game** (`src/game/`):
 
-- Game logic modules: state, trading, navigation, animation, events
-- UI coordinator, constants
+- Migrated game logic (preserved from vanilla version)
+- Subdirectories: state/, engine/, data/, utils/
+- Game constants, trading logic, navigation logic, events system
 
-**Starmap Module Pattern**:
+**Assets** (`src/assets/`):
 
-The starmap is split into focused modules coordinated by a main module:
+- Images and static resources
 
-- `starmap.js`: Main coordinator, initializes all modules, manages shared state
-- `scene.js`: Scene setup, camera, renderer, controls
-- `stars.js`: Star sprite creation, labels, selection feedback
-- `wormholes.js`: Wormhole line rendering, connection colors
-- `interaction.js`: Raycasting, mouse/touch events, selection callbacks
+**Entry Points**:
 
-Each module exports focused functions and receives dependencies as parameters.
+- `src/main.jsx`: Application entry point, initializes GameStateManager, imports global CSS
+- `src/App.jsx`: Root component, manages view mode state, conditional rendering
+
+**Starmap Integration**:
+
+The Three.js starmap is wrapped in a React component:
+
+- `StarMapCanvas.jsx`: React component that initializes Three.js scene once on mount
+- Uses refs to access DOM container
+- Calls existing `initScene` from `src/game/engine/scene.js`
+- Properly disposes resources on unmount
 
 ## Key Technical Components
 
@@ -263,33 +265,48 @@ Wormhole connections stored as array of ID pairs.
 
 ## Dependencies
 
+- **React 18+** - UI framework for declarative components
+- **ReactDOM 18+** - React rendering for web
 - **Three.js** - 3D rendering. Located in `vendor/three/` directory. NEVER EDIT THIS CODE.
-- **No additional dependencies** - Vanilla JS for game logic to minimize complexity
+- **Vite** - Build tool and development server
+- **Vitest** - Testing framework
+- **@testing-library/react** - React component testing utilities
+- **fast-check** - Property-based testing library
+- **jsdom** - DOM environment for tests
 
 ## Import Paths
 
-When importing modules, use the correct paths based on the new directory structure:
+When importing modules, use the correct paths based on the React/Vite directory structure:
 
 ```javascript
-// Controllers
-import { TradePanelController } from './controllers/trade.js';
+// React components
+import { TradePanel } from './features/trade/TradePanel';
+import { Button } from './components/Button';
 
-// Views
-import { initializeStarmap } from './views/starmap/starmap.js';
+// Hooks
+import { useGameEvent } from './hooks/useGameEvent';
+import { useGameAction } from './hooks/useGameAction';
+
+// Context
+import { useGameState } from './context/GameContext';
+
+// Game logic
+import { GameStateManager } from './game/state/game-state-manager';
+import { SHIP_CONFIG, ECONOMY_CONFIG } from './game/constants';
 
 // Data
-import { STAR_DATA } from './data/star-data.js';
-import { WORMHOLE_DATA } from './data/wormhole-data.js';
+import { STAR_DATA } from './game/data/star-data';
+import { WORMHOLE_DATA } from './game/data/wormhole-data';
 
 // Utils
-import { SeededRandom } from './utils/seeded-random.js';
-
-// Core systems
-import { GameStateManager } from './game-state.js';
-import { SHIP_CONFIG, ECONOMY_CONFIG } from './game-constants.js';
+import { SeededRandom } from './game/utils/seeded-random';
 
 // Vendor
 import * as THREE from '../vendor/three/build/three.module.js';
+
+// CSS (in main.jsx or component files)
+import '../css/base.css';
+import styles from './Component.module.css'; // CSS modules
 ```
 
 ## Comments and Documentation
