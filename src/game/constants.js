@@ -365,6 +365,16 @@ export const ECONOMY_CONFIG = {
 };
 
 /**
+ * Trade Configuration
+ *
+ * Configuration for trading UI and mechanics.
+ */
+export const TRADE_CONFIG = {
+  // Quick buy button quantity for convenience
+  QUICK_BUY_QUANTITY: 10,
+};
+
+/**
  * Repair Configuration
  *
  * Configuration for ship repair costs.

@@ -16,7 +16,7 @@ export function QuickAccessButtons({ onDock }) {
   const currentSystemId = useGameEvent('locationChanged');
 
   // Get current system data
-  const starData = gameStateManager.starData || [];
+  const starData = gameStateManager.starData;
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
@@ -30,7 +30,7 @@ export function QuickAccessButtons({ onDock }) {
 
   const handleSystemInfo = () => {
     // TODO: Implement system info display in future task
-    console.log('System info clicked');
+    // Placeholder - no action until system info panel is implemented
   };
 
   const handleDock = () => {

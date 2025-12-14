@@ -17,14 +17,14 @@ export function ShipStatus() {
   const shipName = useGameEvent('shipNameChanged');
   const fuel = useGameEvent('fuelChanged');
   const condition = useGameEvent('shipConditionChanged');
-  useGameEvent('cargoChanged'); // Subscribe to trigger re-render
+  const cargo = useGameEvent('cargoChanged');
 
   const hull = condition.hull;
   const engine = condition.engine;
   const lifeSupport = condition.lifeSupport;
 
-  // Get cargo info from GameStateManager
-  const cargoUsed = gameStateManager.getCargoUsed();
+  // Calculate cargo info from event data
+  const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
   const ship = gameStateManager.getShip();
   const cargoCapacity = ship.cargoCapacity;
 

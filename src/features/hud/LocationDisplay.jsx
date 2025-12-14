@@ -16,14 +16,14 @@ export function LocationDisplay() {
   // Get current system data
   const system = STAR_DATA.find((s) => s.id === currentSystemId);
 
-  // Calculate distance from Sol
-  const distance = calculateDistanceFromSol(system);
-
   if (!system) {
     throw new Error(
       `Invalid game state: current system ID ${currentSystemId} not found in star data`
     );
   }
+
+  // Calculate distance from Sol
+  const distance = calculateDistanceFromSol(system);
 
   return (
     <div className="hud-section hud-location">

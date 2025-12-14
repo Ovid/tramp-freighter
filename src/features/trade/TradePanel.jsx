@@ -3,7 +3,11 @@ import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { TradingSystem } from '../../game/game-trading.js';
-import { COMMODITY_TYPES } from '../../game/constants.js';
+import {
+  COMMODITY_TYPES,
+  TRADE_CONFIG,
+  SHIP_CONFIG,
+} from '../../game/constants.js';
 import { capitalizeFirst } from '../../game/utils/string-utils.js';
 import {
   validateBuy,
@@ -62,7 +66,9 @@ export function TradePanel({ onClose }) {
     (sum, stack) => sum + stack.qty,
     0
   );
-  const hiddenCargoCapacity = state.ship.hiddenCargoCapacity || 10;
+  const hiddenCargoCapacity =
+    state.ship.hiddenCargoCapacity ||
+    SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity;
 
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
@@ -147,10 +153,19 @@ export function TradePanel({ onClose }) {
                     </button>
                     <button
                       className="buy-btn"
-                      disabled={credits < price * 10 || cargoRemaining < 10}
-                      onClick={() => handleBuyGood(goodType, 10, price)}
+                      disabled={
+                        credits < price * TRADE_CONFIG.QUICK_BUY_QUANTITY ||
+                        cargoRemaining < TRADE_CONFIG.QUICK_BUY_QUANTITY
+                      }
+                      onClick={() =>
+                        handleBuyGood(
+                          goodType,
+                          TRADE_CONFIG.QUICK_BUY_QUANTITY,
+                          price
+                        )
+                      }
                     >
-                      Buy 10
+                      Buy {TRADE_CONFIG.QUICK_BUY_QUANTITY}
                     </button>
                     <button
                       className="buy-btn"
@@ -327,13 +342,14 @@ export function TradePanel({ onClose }) {
                       const purchaseSystem = gameStateManager.starData.find(
                         (s) => s.id === stack.buySystem
                       );
-                      if (purchaseSystem) {
-                        const ageText = formatCargoAge(
-                          currentDay,
-                          stack.buyDate
+                      if (!purchaseSystem) {
+                        throw new Error(
+                          `Invalid hidden cargo stack: purchase system ID ${stack.buySystem} not found in star data`
                         );
-                        detailsText += ` in ${purchaseSystem.name} (${ageText})`;
                       }
+
+                      const ageText = formatCargoAge(currentDay, stack.buyDate);
+                      detailsText += ` in ${purchaseSystem.name} (${ageText})`;
                     }
 
                     let profitText = '';
