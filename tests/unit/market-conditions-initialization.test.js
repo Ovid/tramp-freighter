@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 
 /**
  * Unit Tests for Market Conditions Initialization

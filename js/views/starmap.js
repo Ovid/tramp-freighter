@@ -2,13 +2,14 @@
 
 // Import Three.js and OrbitControls as ES modules
 import * as THREE from 'three';
-import { GameStateManager } from '../game-state.js';
+import { GameStateManager } from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
-import { UIManager } from '../game-ui.js';
+import { UIManager } from '../ui/ui-manager.js';
 import { JumpAnimationSystem } from '../game-animation.js';
 import { STAR_DATA } from '../data/star-data.js';
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
 import { initDevMode } from '../game-constants.js';
+import { showConfirmModal } from '../ui/modal-manager.js';
 
 // Import starmap modules
 import {
@@ -360,65 +361,6 @@ function hideHUD() {
 }
 
 /**
- * Show a modal confirmation dialog
- */
-function showModal(message) {
-  return new Promise((resolve) => {
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modalMessage = document.getElementById('modal-message');
-    const modalCancel = document.getElementById('modal-cancel');
-    const modalConfirm = document.getElementById('modal-confirm');
-
-    if (!modalOverlay || !modalMessage || !modalCancel || !modalConfirm) {
-      console.error('Modal elements not found');
-      resolve(false);
-      return;
-    }
-
-    // Set message
-    modalMessage.textContent = message;
-
-    // Show modal
-    modalOverlay.classList.remove('hidden');
-
-    // Focus cancel button (safer default)
-    modalCancel.focus();
-
-    // Handle cancel
-    const handleCancel = () => {
-      cleanup();
-      resolve(false);
-    };
-
-    // Handle confirm
-    const handleConfirm = () => {
-      cleanup();
-      resolve(true);
-    };
-
-    // Handle escape key
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        handleCancel();
-      }
-    };
-
-    // Cleanup function
-    const cleanup = () => {
-      modalOverlay.classList.add('hidden');
-      modalCancel.removeEventListener('click', handleCancel);
-      modalConfirm.removeEventListener('click', handleConfirm);
-      document.removeEventListener('keydown', handleEscape);
-    };
-
-    // Add event listeners
-    modalCancel.addEventListener('click', handleCancel);
-    modalConfirm.addEventListener('click', handleConfirm);
-    document.addEventListener('keydown', handleEscape);
-  });
-}
-
-/**
  * Show ship naming dialog
  */
 function showShipNamingDialog() {
@@ -466,7 +408,7 @@ function showShipNamingDialog() {
       const handleConfirm = () => {
         cleanup();
         // Import sanitizeShipName and resolve with sanitized name
-        import('../game-state.js').then((gameState) => {
+        import('../state/game-state-manager.js').then((gameState) => {
           const sanitizedName = gameState.sanitizeShipName(input.value);
           resolve(sanitizedName);
         });
@@ -752,7 +694,7 @@ function initMenu() {
   newGameBtn.addEventListener('click', async () => {
     // Show confirmation if save exists
     if (hasSave) {
-      const confirmed = await showModal(
+      const confirmed = await showConfirmModal(
         'Starting a new game will overwrite your existing save. Continue?'
       );
       if (!confirmed) {

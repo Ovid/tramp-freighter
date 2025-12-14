@@ -1,8 +1,8 @@
 'use strict';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UIManager } from '../../js/game-ui.js';
-import { GameStateManager } from '../../js/game-state.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Quick Access Buttons', () => {
@@ -109,7 +109,6 @@ describe('Quick Access Buttons', () => {
       // Start at Sol (has station)
       const sol = TEST_STAR_DATA.find((s) => s.name === 'Sol');
       gameStateManager.updateLocation(sol.id);
-      uiManager.updateLocation(sol.id);
 
       const tradeBtn = document.getElementById('quick-station-btn');
       expect(tradeBtn.disabled).toBe(false);
@@ -118,7 +117,6 @@ describe('Quick Access Buttons', () => {
       const mockSystemWithoutStation = { id: 999, name: 'Test System', st: 0 };
       uiManager.starData = [...TEST_STAR_DATA, mockSystemWithoutStation];
       gameStateManager.updateLocation(mockSystemWithoutStation.id);
-      uiManager.updateLocation(mockSystemWithoutStation.id);
 
       // Button reference is still valid, no need to re-query
       expect(tradeBtn.disabled).toBe(false);
@@ -226,7 +224,7 @@ describe('Quick Access Buttons', () => {
       const alphaCentauri = TEST_STAR_DATA.find(
         (s) => s.name === 'Alpha Centauri A'
       );
-      uiManager.updateLocation(alphaCentauri.id);
+      gameStateManager.updateLocation(alphaCentauri.id);
 
       expect(updateQuickAccessSpy).toHaveBeenCalled();
     });

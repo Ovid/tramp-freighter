@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { BASE_PRICES } from '../../js/game-constants.js';
 
 // Create minimal test star data with deterministic values for reproducible tests

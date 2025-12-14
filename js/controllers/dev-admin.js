@@ -9,7 +9,9 @@
 export class DevAdminPanelController {
   constructor(elements, gameStateManager) {
     if (!elements.devAdminPanel) {
-      throw new Error('DevAdminPanelController: devAdminPanel element required');
+      throw new Error(
+        'DevAdminPanelController: devAdminPanel element required'
+      );
     }
     if (!gameStateManager) {
       throw new Error('DevAdminPanelController: gameStateManager required');
@@ -23,7 +25,9 @@ export class DevAdminPanelController {
 
   setupEventHandlers() {
     if (this.elements.devAdminCloseBtn) {
-      this.elements.devAdminCloseBtn.addEventListener('click', () => this.hide());
+      this.elements.devAdminCloseBtn.addEventListener('click', () =>
+        this.hide()
+      );
     }
 
     if (this.elements.devSetCreditsBtn) {
@@ -59,7 +63,10 @@ export class DevAdminPanelController {
         state.ship.hull = 100;
         state.ship.engine = 100;
         state.ship.lifeSupport = 100;
-        this.gameStateManager.emit('shipConditionChanged', this.gameStateManager.getShipCondition());
+        this.gameStateManager.emit(
+          'shipConditionChanged',
+          this.gameStateManager.getShipCondition()
+        );
         this.refresh();
       });
     }

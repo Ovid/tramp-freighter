@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 import { TradingSystem } from '../../js/game-trading.js';
-import { UIManager } from '../../js/game-ui.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
 import {
   TEST_STAR_DATA as STAR_DATA,
   TEST_WORMHOLE_DATA as WORMHOLE_DATA,

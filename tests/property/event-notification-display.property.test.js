@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/game-state.js';
-import { UIManager } from '../../js/game-ui.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
 import { EconomicEventsSystem } from '../../js/game-events.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 

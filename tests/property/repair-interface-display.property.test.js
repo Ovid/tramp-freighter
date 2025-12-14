@@ -2,8 +2,8 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../js/game-state.js';
-import { UIManager } from '../../js/game-ui.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
 import { SHIP_CONFIG, REPAIR_CONFIG } from '../../js/game-constants.js';
 import {
   setupRepairPanelDOM,

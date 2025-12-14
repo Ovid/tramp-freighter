@@ -1,8 +1,8 @@
 'use strict';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UIManager } from '../../js/game-ui.js';
-import { GameStateManager } from '../../js/game-state.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 
 /**
  * Unit tests for HUD condition bar display updates
@@ -59,6 +59,7 @@ describe('Unit: HUD Condition Display Update', () => {
       { id: 0, name: 'Sol', x: 0, y: 0, z: 0, type: 'G', wh: 1, st: 1, r: 1 },
     ];
     gameStateManager = new GameStateManager(starData);
+    gameStateManager.initNewGame(); // Initialize game state
 
     // Mock the UIManager methods that aren't relevant to this test
     vi.spyOn(
@@ -124,7 +125,7 @@ describe('Unit: HUD Condition Display Update', () => {
     expect(lifeSupportText.textContent).toBe('89%');
   });
 
-  it('should update all condition bars when updateShipCondition is called', () => {
+  it('should update all condition bars reactively via event system', () => {
     const hullBar = document.getElementById('hull-bar');
     const hullText = document.getElementById('hud-hull-text');
     const engineBar = document.getElementById('engine-bar');
@@ -132,14 +133,10 @@ describe('Unit: HUD Condition Display Update', () => {
     const lifeSupportBar = document.getElementById('life-support-bar');
     const lifeSupportText = document.getElementById('hud-life-support-text');
 
-    // Update all conditions at once
-    uiManager.updateShipCondition({
-      hull: 75,
-      engine: 82,
-      lifeSupport: 68,
-    });
+    // Update conditions via GameStateManager (triggers reactive update)
+    gameStateManager.updateShipCondition(75, 82, 68);
 
-    // Verify all bars and text updated correctly
+    // Verify all bars and text updated correctly via subscription
     expect(hullBar.style.width).toBe('75%');
     expect(hullText.textContent).toBe('75%');
     expect(engineBar.style.width).toBe('82%');
@@ -185,21 +182,13 @@ describe('Unit: HUD Condition Display Update', () => {
     expect(lifeSupportText.textContent).toBe('100%');
   });
 
-  it('should throw error when condition object is null', () => {
-    // Should throw when called with null to expose invalid state
-    expect(() => {
-      uiManager.updateShipCondition(null);
-    }).toThrow(
-      'Invalid game state: ship condition is null in updateShipCondition'
-    );
-  });
+  it('should throw error when state is null in updateHUD', () => {
+    // Mock gameStateManager to return null state
+    vi.spyOn(gameStateManager, 'getState').mockReturnValue(null);
 
-  it('should throw error when condition object is undefined', () => {
-    // Should throw when called with undefined to expose invalid state
+    // updateHUD validates state before calling individual update functions
     expect(() => {
-      uiManager.updateShipCondition(undefined);
-    }).toThrow(
-      'Invalid game state: ship condition is null in updateShipCondition'
-    );
+      uiManager.updateHUD();
+    }).toThrow('Invalid game state: state is null in updateHUD');
   });
 });

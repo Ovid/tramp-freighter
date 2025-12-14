@@ -9,16 +9,25 @@ import {
   calculateDistanceFromSol,
   SOL_SYSTEM_ID,
   GAME_VERSION,
-  SAVE_KEY,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
-} from './game-constants.js';
-import { TradingSystem } from './game-trading.js';
-import { EconomicEventsSystem } from './game-events.js';
-import { InformationBroker } from './game-information-broker.js';
-
-// Save debouncing prevents excessive localStorage writes (max 1 save per second)
-const SAVE_DEBOUNCE_MS = 1000;
+} from '../game-constants.js';
+import { TradingSystem } from '../game-trading.js';
+import { EconomicEventsSystem } from '../game-events.js';
+import { InformationBroker } from '../game-information-broker.js';
+import {
+  saveGame as saveGameToStorage,
+  loadGame as loadGameFromStorage,
+  hasSavedGame as checkSavedGame,
+  clearSave as clearSaveFromStorage,
+} from './save-load.js';
+import {
+  isVersionCompatible,
+  validateStateStructure,
+  migrateFromV1ToV2,
+  migrateFromV2ToV2_1,
+  addStateDefaults,
+} from './state-validators.js';
 
 /**
  * Sanitize ship name input
@@ -1002,18 +1011,17 @@ export class GameStateManager {
 
     const credits = this.state.player.credits;
     const cargoSpace = this.getCargoRemaining();
+    const totalCost = quantity * price;
 
-    const validation = this.validatePurchase(
-      credits,
-      cargoSpace,
-      quantity,
-      price
-    );
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    // Validate purchase constraints
+    if (totalCost > credits) {
+      return { success: false, reason: 'Insufficient credits' };
     }
 
-    const totalCost = quantity * price;
+    if (quantity > cargoSpace) {
+      return { success: false, reason: 'Not enough cargo space' };
+    }
+
     this.updateCredits(credits - totalCost);
 
     // Pass current system and day for purchase metadata
@@ -1043,26 +1051,6 @@ export class GameStateManager {
     return { success: true };
   }
 
-  validatePurchase(credits, cargoSpace, quantity, price) {
-    const totalCost = quantity * price;
-
-    if (totalCost > credits) {
-      return {
-        valid: false,
-        reason: 'Insufficient credits',
-      };
-    }
-
-    if (quantity > cargoSpace) {
-      return {
-        valid: false,
-        reason: 'Not enough cargo space',
-      };
-    }
-
-    return { valid: true };
-  }
-
   /**
    * Execute a sale transaction from a specific cargo stack
    */
@@ -1075,17 +1063,24 @@ export class GameStateManager {
 
     const cargo = this.state.ship.cargo;
 
-    const validation = this.validateSale(cargo, stackIndex, quantity);
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    // Validate sale constraints
+    if (stackIndex < 0 || stackIndex >= cargo.length) {
+      return { success: false, reason: 'Invalid cargo stack' };
     }
 
     const stack = cargo[stackIndex];
+
+    if (quantity <= 0) {
+      return { success: false, reason: 'Quantity must be positive' };
+    }
+
+    if (quantity > stack.qty) {
+      return { success: false, reason: 'Not enough quantity in stack' };
+    }
     const totalRevenue = quantity * salePrice;
     const profitMargin = salePrice - stack.buyPrice;
 
-    const currentCredits = this.state.player.credits;
-    this.updateCredits(currentCredits + totalRevenue);
+    this.updateCredits(this.state.player.credits + totalRevenue);
 
     // Remove quantity from stack; remove stack if empty
     stack.qty -= quantity;
@@ -1106,32 +1101,6 @@ export class GameStateManager {
       success: true,
       profitMargin: profitMargin,
     };
-  }
-
-  validateSale(cargo, stackIndex, quantity) {
-    if (!Array.isArray(cargo) || stackIndex < 0 || stackIndex >= cargo.length) {
-      return {
-        valid: false,
-        reason: 'Invalid cargo stack',
-      };
-    }
-
-    const stack = cargo[stackIndex];
-    if (quantity > stack.qty) {
-      return {
-        valid: false,
-        reason: 'Not enough quantity in stack',
-      };
-    }
-
-    if (quantity <= 0) {
-      return {
-        valid: false,
-        reason: 'Quantity must be positive',
-      };
-    }
-
-    return { valid: true };
   }
 
   // ========================================================================
@@ -1181,13 +1150,17 @@ export class GameStateManager {
    * @returns {Object} { valid: boolean, reason: string, cost: number }
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-    // Calculate total cost
     const totalCost = amount * pricePerPercent;
-
-    // Get current fuel capacity (accounts for upgrades)
     const maxFuel = this.getFuelCapacity();
 
-    // Check capacity constraint
+    if (amount <= 0) {
+      return {
+        valid: false,
+        reason: 'Refuel amount must be positive',
+        cost: totalCost,
+      };
+    }
+
     // Use epsilon for floating point comparison
     if (
       currentFuel + amount >
@@ -1200,20 +1173,10 @@ export class GameStateManager {
       };
     }
 
-    // Check credit constraint
     if (totalCost > credits) {
       return {
         valid: false,
         reason: 'Insufficient credits for refuel',
-        cost: totalCost,
-      };
-    }
-
-    // Check for valid amount
-    if (amount <= 0) {
-      return {
-        valid: false,
-        reason: 'Refuel amount must be positive',
         cost: totalCost,
       };
     }
@@ -1241,8 +1204,8 @@ export class GameStateManager {
     const currentFuel = this.state.ship.fuel;
     const credits = this.state.player.credits;
     const systemId = this.state.player.currentSystem;
-
     const pricePerPercent = this.getFuelPrice(systemId);
+
     const validation = this.validateRefuel(
       currentFuel,
       amount,
@@ -1288,62 +1251,6 @@ export class GameStateManager {
   }
 
   /**
-   * Validate repair transaction
-   *
-   * Validation order matters for user experience:
-   * 1. Check for positive amount (basic input validation)
-   * 2. Check if system already at max (no repair needed)
-   * 3. Check credits (player can fix by earning money)
-   * 4. Check if would exceed max (player can fix by reducing amount)
-   *
-   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
-   * @param {number} amount - Percentage points to restore
-   * @param {number} cost - Repair cost in credits
-   * @param {number} credits - Player's current credits
-   * @param {number} currentCondition - Current condition percentage
-   * @returns {Object} { valid: boolean, reason: string }
-   */
-  validateRepair(systemType, amount, cost, credits, currentCondition) {
-    // Check for valid amount first (basic input validation)
-    if (amount <= 0) {
-      return {
-        valid: false,
-        reason: 'Repair amount must be positive',
-      };
-    }
-
-    // Check if system is already at maximum condition
-    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return {
-        valid: false,
-        reason: 'System already at maximum condition',
-      };
-    }
-
-    // Check credit constraint before checking if would exceed
-    // This provides better UX: player knows they need money first
-    if (cost > credits) {
-      return {
-        valid: false,
-        reason: 'Insufficient credits for repair',
-      };
-    }
-
-    // Check if repair would exceed maximum condition
-    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return {
-        valid: false,
-        reason: 'Repair would exceed maximum condition',
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-    };
-  }
-
-  /**
    * Execute repair transaction for a ship system
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
@@ -1367,34 +1274,48 @@ export class GameStateManager {
     const credits = this.state.player.credits;
     const cost = this.getRepairCost(systemType, amount, currentCondition);
 
-    const validation = this.validateRepair(
-      systemType,
-      amount,
-      cost,
-      credits,
-      currentCondition
-    );
+    // Validation order matters for user experience:
+    // 1. Check for positive amount (basic input validation)
+    // 2. Check if system already at max (no repair needed)
+    // 3. Check credits (player can fix by earning money)
+    // 4. Check if would exceed max (player can fix by reducing amount)
 
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
+    if (amount <= 0) {
+      return { success: false, reason: 'Repair amount must be positive' };
+    }
+
+    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
+      return { success: false, reason: 'System already at maximum condition' };
+    }
+
+    if (cost > credits) {
+      return { success: false, reason: 'Insufficient credits for repair' };
+    }
+
+    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
+      return {
+        success: false,
+        reason: 'Repair would exceed maximum condition',
+      };
     }
 
     // Deduct credits
     this.updateCredits(credits - cost);
 
     // Increase condition (clamped by updateShipCondition)
-    const newHull =
-      systemType === 'hull' ? currentCondition + amount : this.state.ship.hull;
-    const newEngine =
-      systemType === 'engine'
-        ? currentCondition + amount
-        : this.state.ship.engine;
-    const newLifeSupport =
-      systemType === 'lifeSupport'
-        ? currentCondition + amount
-        : this.state.ship.lifeSupport;
+    const newConditions = {
+      hull: this.state.ship.hull,
+      engine: this.state.ship.engine,
+      lifeSupport: this.state.ship.lifeSupport,
+    };
 
-    this.updateShipCondition(newHull, newEngine, newLifeSupport);
+    newConditions[systemType] = currentCondition + amount;
+
+    this.updateShipCondition(
+      newConditions.hull,
+      newConditions.engine,
+      newConditions.lifeSupport
+    );
 
     // Persist immediately - repair modifies credits and ship condition
     this.saveGame();
@@ -1808,34 +1729,17 @@ export class GameStateManager {
    * This protects against rapid state changes causing performance issues.
    */
   saveGame() {
-    if (!this.state) {
-      console.error('Cannot save: no game state exists');
-      return false;
+    const result = saveGameToStorage(
+      this.state,
+      this.lastSaveTime,
+      this.isTestEnvironment
+    );
+
+    if (result.success) {
+      this.lastSaveTime = result.newLastSaveTime;
     }
 
-    // Debounce: skip save if less than 1 second since last save
-    const now = Date.now();
-    if (now - this.lastSaveTime < SAVE_DEBOUNCE_MS) {
-      if (!this.isTestEnvironment) {
-        console.log('Save debounced (too soon since last save)');
-      }
-      return false;
-    }
-
-    try {
-      this.state.meta.timestamp = now;
-      const saveData = JSON.stringify(this.state);
-      localStorage.setItem(SAVE_KEY, saveData);
-
-      this.lastSaveTime = now;
-      if (!this.isTestEnvironment) {
-        console.log('Game saved successfully');
-      }
-      return true;
-    } catch (error) {
-      console.error('Failed to save game:', error);
-      return false;
-    }
+    return result.success;
   }
 
   /**
@@ -1845,238 +1749,47 @@ export class GameStateManager {
    */
   loadGame() {
     try {
-      // Retrieve save data from localStorage
-      const saveData = localStorage.getItem(SAVE_KEY);
+      // Load raw state from localStorage
+      let loadedState = loadGameFromStorage(this.isTestEnvironment);
 
-      if (!saveData) {
-        if (!this.isTestEnvironment) {
-          console.log('No saved game found');
-        }
+      if (!loadedState) {
         return null;
       }
 
-      let loadedState = JSON.parse(saveData);
-
-      if (!this.isVersionCompatible(loadedState.meta?.version)) {
+      // Check version compatibility
+      if (!isVersionCompatible(loadedState.meta?.version)) {
         if (!this.isTestEnvironment) {
           console.log('Save version incompatible, starting new game');
         }
         return null;
       }
 
-      // Migrate from v1.0.0 to v2.0.0 if needed
+      // Migrate from v1.0.0 to v2.1.0 if needed
       if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.1.0') {
-        loadedState = this.migrateFromV1ToV2(loadedState);
+        loadedState = migrateFromV1ToV2(
+          loadedState,
+          this.starData,
+          this.isTestEnvironment
+        );
       }
 
       // Migrate from v2.0.0 to v2.1.0 if needed
       if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '2.1.0') {
-        loadedState = this.migrateFromV2ToV2_1(loadedState);
+        loadedState = migrateFromV2ToV2_1(loadedState, this.isTestEnvironment);
       }
 
-      if (!this.validateStateStructure(loadedState)) {
+      // Validate state structure
+      if (!validateStateStructure(loadedState)) {
         if (!this.isTestEnvironment) {
           console.log('Save data corrupted, starting new game');
         }
         return null;
       }
 
-      // Add defaults for missing Phase 2 fields (handles partial v2.0.0 saves)
-      // This allows loading saves that pass validation but lack some optional fields
-      if (loadedState.ship.hull === undefined) {
-        loadedState.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      }
-      if (loadedState.ship.engine === undefined) {
-        loadedState.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      }
-      if (loadedState.ship.lifeSupport === undefined) {
-        loadedState.ship.lifeSupport = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      }
-      if (loadedState.ship.cargo && Array.isArray(loadedState.ship.cargo)) {
-        loadedState.ship.cargo.forEach((stack) => {
-          // Migrate old field names to new ones
-          if (
-            stack.purchasePrice !== undefined &&
-            stack.buyPrice === undefined
-          ) {
-            stack.buyPrice = stack.purchasePrice;
-            delete stack.purchasePrice;
-          }
-          if (
-            stack.purchaseSystem !== undefined &&
-            stack.buySystem === undefined
-          ) {
-            stack.buySystem = stack.purchaseSystem;
-            delete stack.purchaseSystem;
-          }
-          if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
-            stack.buyDate = stack.purchaseDay;
-            delete stack.purchaseDay;
-          }
-
-          // Add defaults for missing fields
-          if (stack.buySystem === undefined) {
-            stack.buySystem = loadedState.player.currentSystem;
-          }
-          if (stack.buySystemName === undefined) {
-            const system = this.starData.find((s) => s.id === stack.buySystem);
-            stack.buySystemName = system ? system.name : 'Unknown';
-          }
-          if (stack.buyDate === undefined) {
-            stack.buyDate = 0;
-          }
-        });
-      }
-      // Add ship personality fields if missing
-      if (!loadedState.ship.quirks) {
-        loadedState.ship.quirks = [];
-      }
-      if (!loadedState.ship.upgrades) {
-        loadedState.ship.upgrades = [];
-      }
-      if (!loadedState.ship.hiddenCargo) {
-        loadedState.ship.hiddenCargo = [];
-      }
-      if (loadedState.ship.hiddenCargoCapacity === undefined) {
-        loadedState.ship.hiddenCargoCapacity = 0;
-      }
-
-      // Validate quirk IDs and remove unknown ones
-      if (Array.isArray(loadedState.ship.quirks)) {
-        const validQuirks = [];
-        for (const quirkId of loadedState.ship.quirks) {
-          if (SHIP_CONFIG.QUIRKS[quirkId]) {
-            validQuirks.push(quirkId);
-          } else {
-            console.warn(
-              `Unknown quirk ID: ${quirkId}, removing from save data`
-            );
-          }
-        }
-        loadedState.ship.quirks = validQuirks;
-      }
-
-      // Validate upgrade IDs and remove unknown ones
-      if (Array.isArray(loadedState.ship.upgrades)) {
-        const validUpgrades = [];
-        for (const upgradeId of loadedState.ship.upgrades) {
-          if (SHIP_CONFIG.UPGRADES[upgradeId]) {
-            validUpgrades.push(upgradeId);
-          } else {
-            console.warn(
-              `Unknown upgrade ID: ${upgradeId}, removing from save data`
-            );
-          }
-        }
-        loadedState.ship.upgrades = validUpgrades;
-      }
-
-      // Validate cargo structure completeness
-      if (Array.isArray(loadedState.ship.cargo)) {
-        for (const stack of loadedState.ship.cargo) {
-          // Ensure all required fields are present
-          if (!stack.good || typeof stack.qty !== 'number') {
-            console.warn('Invalid cargo stack found, skipping:', stack);
-            continue;
-          }
-          if (typeof stack.buyPrice !== 'number') {
-            console.warn(`Cargo stack missing buyPrice, using 0:`, stack.good);
-            stack.buyPrice = 0;
-          }
-          if (typeof stack.buySystem !== 'number') {
-            console.warn(
-              `Cargo stack missing buySystem, using current system:`,
-              stack.good
-            );
-            stack.buySystem = loadedState.player.currentSystem;
-          }
-          if (typeof stack.buySystemName !== 'string') {
-            const system = this.starData.find((s) => s.id === stack.buySystem);
-            stack.buySystemName = system ? system.name : 'Unknown';
-          }
-          if (typeof stack.buyDate !== 'number') {
-            stack.buyDate = 0;
-          }
-        }
-      }
-
-      // Validate hidden cargo structure completeness
-      if (Array.isArray(loadedState.ship.hiddenCargo)) {
-        for (const stack of loadedState.ship.hiddenCargo) {
-          // Ensure all required fields are present
-          if (!stack.good || typeof stack.qty !== 'number') {
-            console.warn('Invalid hidden cargo stack found, skipping:', stack);
-            continue;
-          }
-          if (typeof stack.buyPrice !== 'number') {
-            console.warn(
-              `Hidden cargo stack missing buyPrice, using 0:`,
-              stack.good
-            );
-            stack.buyPrice = 0;
-          }
-          if (typeof stack.buySystem !== 'number') {
-            console.warn(
-              `Hidden cargo stack missing buySystem, using current system:`,
-              stack.good
-            );
-            stack.buySystem = loadedState.player.currentSystem;
-          }
-          if (typeof stack.buySystemName !== 'string') {
-            const system = this.starData.find((s) => s.id === stack.buySystem);
-            stack.buySystemName = system ? system.name : 'Unknown';
-          }
-          if (typeof stack.buyDate !== 'number') {
-            stack.buyDate = 0;
-          }
-        }
-      }
-      if (!loadedState.world.priceKnowledge) {
-        loadedState.world.priceKnowledge = {};
-
-        // Initialize with current system's prices
-        const currentSystemId = loadedState.player.currentSystem;
-        const currentSystem = this.starData.find(
-          (s) => s.id === currentSystemId
-        );
-
-        if (!currentSystem) {
-          throw new Error(
-            `Load failed: current system ID ${currentSystemId} not found in star data`
-          );
-        }
-
-        const currentDay = loadedState.player.daysElapsed;
-        const marketConditions = {}; // No market conditions if missing
-        const currentPrices = {};
-
-        for (const goodType of COMMODITY_TYPES) {
-          currentPrices[goodType] = TradingSystem.calculatePrice(
-            goodType,
-            currentSystem,
-            currentDay,
-            [], // No events if missing
-            marketConditions
-          );
-        }
-
-        loadedState.world.priceKnowledge[currentSystemId] = {
-          lastVisit: 0,
-          prices: currentPrices,
-        };
-      }
-      if (!loadedState.world.activeEvents) {
-        loadedState.world.activeEvents = [];
-      }
-      if (!loadedState.world.marketConditions) {
-        loadedState.world.marketConditions = {};
-      }
+      // Add defaults for missing fields
+      loadedState = addStateDefaults(loadedState, this.starData);
 
       this.state = loadedState;
-
-      if (!this.isTestEnvironment) {
-        console.log('Game loaded successfully');
-      }
 
       // Emit all state events to update UI
       this.emit('creditsChanged', this.state.player.credits);
@@ -2106,388 +1819,10 @@ export class GameStateManager {
    * Check if saved game exists
    */
   hasSavedGame() {
-    try {
-      const saveData = localStorage.getItem(SAVE_KEY);
-      return saveData !== null;
-    } catch (error) {
-      console.error('Failed to check for saved game:', error);
-      return false;
-    }
+    return checkSavedGame();
   }
 
   clearSave() {
-    try {
-      localStorage.removeItem(SAVE_KEY);
-      if (!this.isTestEnvironment) {
-        console.log('Save data cleared');
-      }
-      return true;
-    } catch (error) {
-      console.error('Failed to clear save:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Check if save version is compatible with current version
-   *
-   * Supports migration from v1.0.0 to v2.1.0
-   */
-  isVersionCompatible(saveVersion) {
-    if (!saveVersion) return false;
-
-    // Exact version match
-    if (saveVersion === GAME_VERSION) return true;
-
-    // Support migration from v1.0.0 to v2.1.0
-    if (saveVersion === '1.0.0' && GAME_VERSION === '2.1.0') return true;
-
-    // Support migration from v2.0.0 to v2.1.0
-    if (saveVersion === '2.0.0' && GAME_VERSION === '2.1.0') return true;
-
-    return false;
-  }
-
-  /**
-   * Migrate save data from v1.0.0 to v2.1.0
-   *
-   * Adds Phase 2 features:
-   * - Ship condition (hull, engine, lifeSupport)
-   * - Cargo purchase metadata (purchaseSystem, purchaseDay)
-   * - Price knowledge database
-   * - Active events array
-   * - Market conditions (deterministic economy)
-   *
-   * @param {Object} state - v1.0.0 save state
-   * @returns {Object} Migrated v2.1.0 state
-   */
-  migrateFromV1ToV2(state) {
-    if (!this.isTestEnvironment) {
-      console.log('Migrating save from v1.0.0 to v2.1.0');
-    }
-
-    // Add ship condition fields (default to maximum)
-    if (state.ship.hull === undefined) {
-      state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-    }
-    if (state.ship.engine === undefined) {
-      state.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-    }
-    if (state.ship.lifeSupport === undefined) {
-      state.ship.lifeSupport = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-    }
-
-    // Add cargo purchase metadata and migrate field names
-    if (state.ship.cargo && Array.isArray(state.ship.cargo)) {
-      state.ship.cargo.forEach((stack) => {
-        // Migrate old field names to new ones
-        if (stack.purchasePrice !== undefined && stack.buyPrice === undefined) {
-          stack.buyPrice = stack.purchasePrice;
-          delete stack.purchasePrice;
-        }
-        if (
-          stack.purchaseSystem !== undefined &&
-          stack.buySystem === undefined
-        ) {
-          stack.buySystem = stack.purchaseSystem;
-          delete stack.purchaseSystem;
-        }
-        if (stack.purchaseDay !== undefined && stack.buyDate === undefined) {
-          stack.buyDate = stack.purchaseDay;
-          delete stack.purchaseDay;
-        }
-
-        // Add defaults for missing fields
-        if (stack.buySystem === undefined) {
-          stack.buySystem = state.player.currentSystem;
-        }
-        if (stack.buySystemName === undefined) {
-          const system = this.starData.find((s) => s.id === stack.buySystem);
-          stack.buySystemName = system ? system.name : 'Unknown';
-        }
-        if (stack.buyDate === undefined) {
-          stack.buyDate = 0;
-        }
-      });
-    }
-
-    // Add ship personality fields
-    if (!state.ship.quirks) {
-      state.ship.quirks = [];
-    }
-    if (!state.ship.upgrades) {
-      state.ship.upgrades = [];
-    }
-    if (!state.ship.hiddenCargo) {
-      state.ship.hiddenCargo = [];
-    }
-    if (state.ship.hiddenCargoCapacity === undefined) {
-      state.ship.hiddenCargoCapacity = 0;
-    }
-
-    // Validate quirk IDs and remove unknown ones
-    if (Array.isArray(state.ship.quirks)) {
-      const validQuirks = [];
-      for (const quirkId of state.ship.quirks) {
-        if (SHIP_CONFIG.QUIRKS[quirkId]) {
-          validQuirks.push(quirkId);
-        } else {
-          console.warn(`Unknown quirk ID: ${quirkId}, removing from save data`);
-        }
-      }
-      state.ship.quirks = validQuirks;
-    }
-
-    // Validate upgrade IDs and remove unknown ones
-    if (Array.isArray(state.ship.upgrades)) {
-      const validUpgrades = [];
-      for (const upgradeId of state.ship.upgrades) {
-        if (SHIP_CONFIG.UPGRADES[upgradeId]) {
-          validUpgrades.push(upgradeId);
-        } else {
-          console.warn(
-            `Unknown upgrade ID: ${upgradeId}, removing from save data`
-          );
-        }
-      }
-      state.ship.upgrades = validUpgrades;
-    }
-
-    // Add price knowledge database
-    if (!state.world.priceKnowledge) {
-      state.world.priceKnowledge = {};
-
-      // Initialize with current system's prices
-      const currentSystemId = state.player.currentSystem;
-      const currentSystem = this.starData.find((s) => s.id === currentSystemId);
-
-      if (!currentSystem) {
-        throw new Error(
-          `Migration failed: current system ID ${currentSystemId} not found in star data`
-        );
-      }
-
-      const currentDay = state.player.daysElapsed;
-      const marketConditions = {}; // No market conditions in v1.0.0
-      const currentPrices = {};
-
-      for (const goodType of COMMODITY_TYPES) {
-        currentPrices[goodType] = TradingSystem.calculatePrice(
-          goodType,
-          currentSystem,
-          currentDay,
-          [], // No events in v1.0.0
-          marketConditions
-        );
-      }
-
-      state.world.priceKnowledge[currentSystemId] = {
-        lastVisit: 0,
-        prices: currentPrices,
-      };
-    }
-
-    // Add active events array
-    if (!state.world.activeEvents) {
-      state.world.activeEvents = [];
-    }
-
-    // Add market conditions (deterministic economy)
-    if (!state.world.marketConditions) {
-      state.world.marketConditions = {};
-    }
-
-    // Update version
-    state.meta.version = GAME_VERSION;
-
-    if (!this.isTestEnvironment) {
-      console.log('Migration complete');
-    }
-
-    return state;
-  }
-
-  /**
-   * Migrate save data from v2.0.0 to v2.1.0
-   *
-   * Adds deterministic economy features:
-   * - Market conditions tracking for local supply/demand effects
-   *
-   * @param {Object} state - v2.0.0 save state
-   * @returns {Object} Migrated v2.1.0 state
-   */
-  migrateFromV2ToV2_1(state) {
-    if (!this.isTestEnvironment) {
-      console.log('Migrating save from v2.0.0 to v2.1.0');
-    }
-
-    // Add market conditions (empty object for backward compatibility)
-    if (!state.world.marketConditions) {
-      state.world.marketConditions = {};
-    }
-
-    // Update version
-    state.meta.version = GAME_VERSION;
-
-    if (!this.isTestEnvironment) {
-      console.log('Migration complete');
-    }
-
-    return state;
-  }
-
-  /**
-   * Validate that loaded state has required structure
-   */
-  validateStateStructure(state) {
-    if (!state) return false;
-
-    // Check player structure
-    if (
-      !state.player ||
-      typeof state.player.credits !== 'number' ||
-      typeof state.player.debt !== 'number' ||
-      typeof state.player.currentSystem !== 'number' ||
-      typeof state.player.daysElapsed !== 'number'
-    ) {
-      return false;
-    }
-
-    // Check ship structure
-    if (
-      !state.ship ||
-      typeof state.ship.name !== 'string' ||
-      typeof state.ship.fuel !== 'number' ||
-      typeof state.ship.cargoCapacity !== 'number' ||
-      !Array.isArray(state.ship.cargo)
-    ) {
-      return false;
-    }
-
-    // Check ship personality fields (optional - will be initialized if missing)
-    if (state.ship.quirks !== undefined && !Array.isArray(state.ship.quirks)) {
-      return false;
-    }
-    if (
-      state.ship.upgrades !== undefined &&
-      !Array.isArray(state.ship.upgrades)
-    ) {
-      return false;
-    }
-    if (
-      state.ship.hiddenCargo !== undefined &&
-      !Array.isArray(state.ship.hiddenCargo)
-    ) {
-      return false;
-    }
-    if (
-      state.ship.hiddenCargoCapacity !== undefined &&
-      typeof state.ship.hiddenCargoCapacity !== 'number'
-    ) {
-      return false;
-    }
-
-    // Check ship condition fields (optional - will be initialized if missing)
-    if (state.ship.hull !== undefined && typeof state.ship.hull !== 'number') {
-      return false;
-    }
-    if (
-      state.ship.engine !== undefined &&
-      typeof state.ship.engine !== 'number'
-    ) {
-      return false;
-    }
-    if (
-      state.ship.lifeSupport !== undefined &&
-      typeof state.ship.lifeSupport !== 'number'
-    ) {
-      return false;
-    }
-
-    // Check cargo stacks
-    for (const stack of state.ship.cargo) {
-      if (!stack.good || typeof stack.qty !== 'number') {
-        return false;
-      }
-
-      // Accept both old and new field names for price
-      const hasPrice =
-        typeof stack.buyPrice === 'number' ||
-        typeof stack.purchasePrice === 'number';
-      if (!hasPrice) {
-        return false;
-      }
-
-      // Purchase metadata is optional - will be initialized if missing
-      // Accept both old and new field names
-      if (
-        stack.buySystem !== undefined &&
-        typeof stack.buySystem !== 'number'
-      ) {
-        return false;
-      }
-      if (
-        stack.purchaseSystem !== undefined &&
-        typeof stack.purchaseSystem !== 'number'
-      ) {
-        return false;
-      }
-      if (
-        stack.buySystemName !== undefined &&
-        typeof stack.buySystemName !== 'string'
-      ) {
-        return false;
-      }
-      if (stack.buyDate !== undefined && typeof stack.buyDate !== 'number') {
-        return false;
-      }
-      if (
-        stack.purchaseDay !== undefined &&
-        typeof stack.purchaseDay !== 'number'
-      ) {
-        return false;
-      }
-    }
-
-    // Check world structure
-    if (!state.world || !Array.isArray(state.world.visitedSystems)) {
-      return false;
-    }
-
-    // priceKnowledge and activeEvents are optional - will be initialized if missing
-    if (state.world.priceKnowledge !== undefined) {
-      if (typeof state.world.priceKnowledge !== 'object') {
-        return false;
-      }
-
-      // Validate each price knowledge entry
-      for (const systemId in state.world.priceKnowledge) {
-        const knowledge = state.world.priceKnowledge[systemId];
-        if (
-          !knowledge ||
-          typeof knowledge.lastVisit !== 'number' ||
-          typeof knowledge.prices !== 'object'
-        ) {
-          return false;
-        }
-      }
-    }
-
-    if (state.world.activeEvents !== undefined) {
-      if (!Array.isArray(state.world.activeEvents)) {
-        return false;
-      }
-    }
-
-    // Check meta structure
-    if (
-      !state.meta ||
-      typeof state.meta.version !== 'string' ||
-      typeof state.meta.timestamp !== 'number'
-    ) {
-      return false;
-    }
-
-    return true;
+    return clearSaveFromStorage(this.isTestEnvironment);
   }
 }

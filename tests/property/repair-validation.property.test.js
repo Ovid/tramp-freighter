@@ -2,7 +2,7 @@
 
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { REPAIR_CONFIG, SHIP_CONFIG } from '../../js/game-constants.js';
 
 /**

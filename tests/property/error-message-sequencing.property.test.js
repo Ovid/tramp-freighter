@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
-import { UIManager } from '../../js/game-ui.js';
-import { GameStateManager } from '../../js/game-state.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 /**
@@ -118,8 +118,10 @@ describe('Property 32: Error Message Sequencing', () => {
           }
 
           // Boundary check: empty queue proves all messages were processed
-          expect(uiManager.notificationQueue.length).toBe(0);
-          expect(uiManager.isShowingNotification).toBe(false);
+          expect(uiManager.notificationSystem.notificationQueue.length).toBe(0);
+          expect(uiManager.notificationSystem.isShowingNotification).toBe(
+            false
+          );
         }
       ),
       { numRuns: 100 }

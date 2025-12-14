@@ -2,7 +2,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { sanitizeShipName } from '../../js/game-state.js';
+import { sanitizeShipName } from '../../js/state/game-state-manager.js';
 import { SHIP_CONFIG } from '../../js/game-constants.js';
 
 const DEFAULT_SHIP_NAME = SHIP_CONFIG.DEFAULT_NAME;

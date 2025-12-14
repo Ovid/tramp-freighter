@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/game-state.js';
+import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { DevAdminPanelController } from '../../js/controllers/dev-admin.js';
 import { STAR_DATA } from '../../js/data/star-data.js';
 import { WORMHOLE_DATA } from '../../js/data/wormhole-data.js';
@@ -171,7 +171,13 @@ describe('DevAdminPanelController', () => {
       // Add some cargo
       const state = gameStateManager.getState();
       state.ship.cargo = [
-        { type: 'grain', quantity: 10, buyPrice: 10, buySystemId: 0, buyDay: 0 },
+        {
+          type: 'grain',
+          quantity: 10,
+          buyPrice: 10,
+          buySystemId: 0,
+          buyDay: 0,
+        },
         { type: 'ore', quantity: 5, buyPrice: 15, buySystemId: 0, buyDay: 0 },
       ];
 
@@ -184,7 +190,13 @@ describe('DevAdminPanelController', () => {
       // Add some hidden cargo
       const state = gameStateManager.getState();
       state.ship.hiddenCargo = [
-        { type: 'electronics', quantity: 3, buyPrice: 35, buySystemId: 0, buyDay: 0 },
+        {
+          type: 'electronics',
+          quantity: 3,
+          buyPrice: 35,
+          buySystemId: 0,
+          buyDay: 0,
+        },
       ];
 
       elements.devClearCargoBtn.click();

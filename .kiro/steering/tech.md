@@ -24,6 +24,7 @@ inclusion: always
 The application uses a controller pattern for UI panel management:
 
 **UIManager (Coordinator)**:
+
 - Caches all DOM elements during initialization
 - Creates panel controller instances with dependency injection
 - Delegates panel show/hide operations to controllers
@@ -31,6 +32,7 @@ The application uses a controller pattern for UI panel management:
 - Subscribes to GameStateManager events
 
 **Panel Controllers**:
+
 - Each UI panel has a dedicated controller class
 - Controllers receive dependencies through constructor injection
 - Controllers encapsulate all logic for their panel (display, validation, transactions)
@@ -47,14 +49,23 @@ class TradePanelController {
     // Bind event handlers
   }
 
-  show() { /* Display panel and initialize */ }
-  hide() { /* Hide panel and cleanup */ }
-  refresh() { /* Update panel display */ }
-  handleTransaction() { /* Process user actions */ }
+  show() {
+    /* Display panel and initialize */
+  }
+  hide() {
+    /* Hide panel and cleanup */
+  }
+  refresh() {
+    /* Update panel display */
+  }
+  handleTransaction() {
+    /* Process user actions */
+  }
 }
 ```
 
 **Benefits**:
+
 - Improved testability (controllers can be tested in isolation)
 - Better maintainability (panel logic contained in single file)
 - Clear separation of concerns (coordinator vs. panel logic)
@@ -65,22 +76,27 @@ class TradePanelController {
 Code is organized by feature and responsibility:
 
 **Controllers** (`js/controllers/`):
+
 - One file per UI panel controller
 - Trade, refuel, repair, upgrades, info-broker, cargo-manifest
 
 **Views** (`js/views/`):
+
 - Rendering modules organized by visual component
 - Starmap modules: coordinator, scene, stars, wormholes, interaction
 
 **Data** (`js/data/`):
+
 - Static game data separated from logic
 - Star system data, wormhole connections
 
 **Utils** (`js/utils/`):
+
 - Reusable utility functions
 - Seeded random, string utilities
 
 **Core Systems** (js/ root):
+
 - Game logic modules: state, trading, navigation, animation, events
 - UI coordinator, constants
 
@@ -169,11 +185,13 @@ Wormhole connections stored as array of ID pairs.
 ### Current Structure
 
 **Vendor Libraries**:
+
 - `vendor/three/` - Three.js library (never edit)
 
 **Application JavaScript** (`js/`):
 
 **Controllers** (`js/controllers/`):
+
 - `trade.js` - Trade panel controller
 - `refuel.js` - Refuel panel controller
 - `repair.js` - Repair panel controller
@@ -182,6 +200,7 @@ Wormhole connections stored as array of ID pairs.
 - `cargo-manifest.js` - Cargo manifest panel controller
 
 **Views** (`js/views/starmap/`):
+
 - `starmap.js` - Main starmap coordinator
 - `scene.js` - Scene initialization
 - `stars.js` - Star rendering
@@ -189,14 +208,17 @@ Wormhole connections stored as array of ID pairs.
 - `interaction.js` - User interaction handling
 
 **Data** (`js/data/`):
+
 - `star-data.js` - Star system data
 - `wormhole-data.js` - Wormhole connection data
 
 **Utils** (`js/utils/`):
+
 - `seeded-random.js` - Deterministic random number generation
 - `string-utils.js` - String manipulation utilities
 
 **Core Systems** (js/ root):
+
 - `game-constants.js` - Configuration objects (prices, modifiers, colors, version)
 - `game-state.js` - State management and initialization
 - `game-trading.js` - Trading logic and price calculations
@@ -207,6 +229,7 @@ Wormhole connections stored as array of ID pairs.
 - `game-information-broker.js` - Intelligence trading system
 
 **Stylesheets** (`css/`):
+
 - `base.css` - Global styles and resets
 - `hud.css` - HUD overlay styles
 - `panel/` - Panel-specific styles (trade, refuel, repair, upgrades, info-broker, cargo-manifest, ship-status)
@@ -214,6 +237,7 @@ Wormhole connections stored as array of ID pairs.
 - `starmap-scene.css` - Starmap visualization styles
 
 **Entry Point**:
+
 - `starmap.html` - Main application HTML
 
 ### Future Phases
