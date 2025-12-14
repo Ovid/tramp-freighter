@@ -102,6 +102,8 @@ function extractStateForEvent(eventName, state) {
     priceKnowledgeChanged: state.world.priceKnowledge,
     activeEventsChanged: state.world.activeEvents,
     shipNameChanged: state.ship.name,
+    upgradesChanged: state.ship.upgrades,
+    quirksChanged: state.ship.quirks,
     conditionWarning: null, // Warnings are passed directly in event data
   };
 

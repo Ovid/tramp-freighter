@@ -463,4 +463,34 @@ describe('ShipStatusPanel Property Tests', () => {
       { numRuns: 10 }
     );
   });
+
+  it('should subscribe to upgradesChanged event', () => {
+    fc.assert(
+      fc.property(fc.constant(null), () => {
+        cleanup();
+
+        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        gameStateManager.initNewGame();
+
+        const wrapper = createWrapper(gameStateManager);
+
+        // Render ShipStatusPanel
+        const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
+          wrapper,
+        });
+
+        // Verify initial state - no upgrades
+        let upgradesSection = Array.from(
+          container.querySelectorAll('.ship-status-section')
+        ).find((section) => section.textContent.includes('Upgrades'));
+        expect(upgradesSection.textContent).toContain('No upgrades installed');
+
+        // Verify component subscribed to upgradesChanged event
+        const subscriberCount =
+          gameStateManager.subscribers.upgradesChanged.length;
+        expect(subscriberCount).toBeGreaterThan(0);
+      }),
+      { numRuns: 10 }
+    );
+  });
 });

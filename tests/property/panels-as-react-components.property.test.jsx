@@ -208,39 +208,4 @@ describe('Property 23: Panels rendered as React components', () => {
       { numRuns: 10 }
     );
   });
-
-  it('TradePanel should not use manual DOM manipulation', () => {
-    fc.assert(
-      fc.property(fc.constant(null), () => {
-        cleanup();
-
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
-
-        gameStateManager.state.player.currentSystem = 0; // Sol
-
-        const wrapper = createWrapper(gameStateManager);
-
-        // Spy on DOM manipulation methods
-        const createElementSpy = document.createElement;
-        let createElementCalled = false;
-        document.createElement = (...args) => {
-          createElementCalled = true;
-          return createElementSpy.apply(document, args);
-        };
-
-        // Render TradePanel
-        render(<TradePanel onClose={() => {}} />, { wrapper });
-
-        // Restore original method
-        document.createElement = createElementSpy;
-
-        // TradePanel should not call createElement directly
-        // (React may call it internally, but the component code should not)
-        // This is a weak test, but validates the principle
-        expect(true).toBe(true); // Placeholder - actual validation is in code review
-      }),
-      { numRuns: 10 }
-    );
-  });
 });

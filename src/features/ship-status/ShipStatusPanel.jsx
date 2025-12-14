@@ -20,9 +20,8 @@ export function ShipStatusPanel({ onClose }) {
   // Subscribe to game events
   const shipName = useGameEvent('shipNameChanged');
   const shipCondition = useGameEvent('shipConditionChanged');
-
-  // Get ship for upgrades and quirks (non-reactive properties)
-  const ship = gameStateManager.getShip();
+  const upgrades = useGameEvent('upgradesChanged');
+  const quirks = useGameEvent('quirksChanged');
 
   /**
    * Render a single condition bar
@@ -125,10 +124,10 @@ export function ShipStatusPanel({ onClose }) {
       <div className="ship-status-section">
         <h3>Upgrades</h3>
         <div className="ship-quirks-list">
-          {ship.upgrades.length === 0 ? (
+          {upgrades.length === 0 ? (
             <div className="ship-quirks-empty">No upgrades installed</div>
           ) : (
-            ship.upgrades.map((upgradeId) => renderUpgrade(upgradeId))
+            upgrades.map((upgradeId) => renderUpgrade(upgradeId))
           )}
         </div>
       </div>
@@ -137,10 +136,10 @@ export function ShipStatusPanel({ onClose }) {
       <div className="ship-status-section">
         <h3>Ship Quirks</h3>
         <div className="ship-quirks-list">
-          {ship.quirks.length === 0 ? (
+          {quirks.length === 0 ? (
             <div className="ship-quirks-empty">No quirks</div>
           ) : (
-            ship.quirks.map((quirkId) => renderQuirk(quirkId))
+            quirks.map((quirkId) => renderQuirk(quirkId))
           )}
         </div>
       </div>

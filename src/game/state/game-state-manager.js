@@ -86,6 +86,8 @@ export class GameStateManager {
       shipConditionChanged: [],
       conditionWarning: [],
       shipNameChanged: [],
+      upgradesChanged: [],
+      quirksChanged: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -281,6 +283,8 @@ export class GameStateManager {
       engine: this.state.ship.engine,
       lifeSupport: this.state.ship.lifeSupport,
     });
+    this.emit('upgradesChanged', this.state.ship.upgrades);
+    this.emit('quirksChanged', this.state.ship.quirks);
 
     return this.state;
   }
@@ -291,7 +295,7 @@ export class GameStateManager {
 
   /**
    * Subscribe to state change events
-   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged, conditionWarning
+   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged, conditionWarning, shipNameChanged, upgradesChanged, quirksChanged
    * @param {function} callback - Function to call when event occurs
    */
   subscribe(eventType, callback) {
@@ -1424,6 +1428,9 @@ export class GameStateManager {
     // Note: Rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
     // are applied during calculations via calculateShipCapabilities(), not stored
 
+    // Emit upgrade change event
+    this.emit('upgradesChanged', this.state.ship.upgrades);
+
     // Persist immediately - upgrade purchase modifies credits and ship state
     this.saveGame();
 
@@ -1816,6 +1823,8 @@ export class GameStateManager {
         engine: this.state.ship.engine,
         lifeSupport: this.state.ship.lifeSupport,
       });
+      this.emit('upgradesChanged', this.state.ship.upgrades);
+      this.emit('quirksChanged', this.state.ship.quirks);
 
       return this.state;
     } catch (error) {
