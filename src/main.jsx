@@ -1,21 +1,26 @@
+// 1. External libraries
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import { GameProvider } from './context/GameContext';
+
+// 2. Internal modules (game logic, state management)
 import { GameStateManager } from './game/state/game-state-manager';
 import { loadGame } from './game/state/save-load';
-import { STAR_DATA } from './game/data/star-data';
-import { WORMHOLE_DATA } from './game/data/wormhole-data';
 import { NavigationSystem } from './game/game-navigation';
 
-// Import global CSS
+// 3. Components
+import App from './App';
+import { GameProvider } from './context/GameContext';
+
+// 4. Data/constants
+import { STAR_DATA } from './game/data/star-data';
+import { WORMHOLE_DATA } from './game/data/wormhole-data';
+
+// 5. Styles (CSS imports)
 import '../css/base.css';
 import '../css/hud.css';
 import '../css/modals.css';
 import '../css/starmap-scene.css';
 import '../css/system-event-info.css';
-
-// Import panel CSS
 import '../css/panel/trade.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
@@ -45,7 +50,13 @@ function initializeGameStateManager() {
   );
 
   // Try to load saved game
-  const savedGame = loadGame(false); // false = not test environment
+  let savedGame = null;
+  try {
+    savedGame = loadGame(false); // false = not test environment
+  } catch (loadError) {
+    console.error('Failed to load saved game:', loadError);
+    // Continue with new game if load fails
+  }
 
   if (savedGame) {
     // Restore from saved game

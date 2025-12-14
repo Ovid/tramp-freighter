@@ -37,12 +37,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       jump: (targetSystemId) => {
-        return (
-          gameStateManager.navigationSystem?.jump(targetSystemId) ?? {
-            success: false,
-            reason: 'Navigation system not initialized',
-          }
-        );
+        return gameStateManager.navigationSystem.jump(targetSystemId);
       },
 
       /**

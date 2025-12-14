@@ -8,6 +8,10 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
+// React Testing Library warnings that are expected in property-based tests:
+// - "Warning: An update to" - React state updates outside act() are expected in fast-check
+// - "act()" - Property tests intentionally trigger updates without act() wrapper
+// - "Not implemented: HTMLFormElement.prototype.submit" - jsdom limitation, not a real error
 let originalConsoleError;
 let originalConsoleWarn;
 
@@ -23,7 +27,7 @@ beforeAll(() => {
         message.includes('act()') ||
         message.includes('Not implemented: HTMLFormElement.prototype.submit'))
     ) {
-      return; // Suppress expected warnings
+      return; // Suppress expected warnings listed above
     }
     originalConsoleError(...args);
   };
@@ -31,7 +35,7 @@ beforeAll(() => {
   console.warn = (...args) => {
     const message = args[0];
     if (typeof message === 'string' && message.includes('Not implemented')) {
-      return; // Suppress jsdom warnings
+      return; // Suppress jsdom "Not implemented" warnings (browser API limitations)
     }
     originalConsoleWarn(...args);
   };
@@ -52,7 +56,7 @@ afterAll(() => {
 describe('Property: ORBIT mode displays starmap and HUD', () => {
   it('should display starmap and HUD in ORBIT mode', () => {
     fc.assert(
-      fc.property(fc.constant('ORBIT'), (viewMode) => {
+      fc.property(fc.constant(null), () => {
         cleanup();
 
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
@@ -106,7 +110,7 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
 describe('Property: STATION mode displays station menu', () => {
   it('should display station menu when docked', () => {
     fc.assert(
-      fc.property(fc.constant('STATION'), (viewMode) => {
+      fc.property(fc.constant(null), () => {
         cleanup();
 
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
@@ -158,57 +162,51 @@ describe('Property: STATION mode displays station menu', () => {
 describe('Property: PANEL mode displays active panel', () => {
   it('should display active panel when opened', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom('trade', 'refuel', 'repair', 'upgrades'),
-        (panelName) => {
-          cleanup();
+      fc.property(fc.constant(null), () => {
+        cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        gameStateManager.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(gameStateManager);
 
-          // Render App component
-          const { container } = render(<App />, { wrapper });
+        // Render App component
+        const { container } = render(<App />, { wrapper });
 
-          // Click dock button to transition to STATION mode
-          const dockButton = screen.getByText('Dock (Test)');
-          fireEvent.click(dockButton);
+        // Click dock button to transition to STATION mode
+        const dockButton = screen.getByText('Dock (Test)');
+        fireEvent.click(dockButton);
 
-          // Click open panel button to transition to PANEL mode
-          const openPanelButton = screen.getByText('Open Trade Panel (Test)');
-          fireEvent.click(openPanelButton);
+        // Click open panel button to transition to PANEL mode
+        const openPanelButton = screen.getByText('Open Trade Panel (Test)');
+        fireEvent.click(openPanelButton);
 
-          // Verify panel container is now present
-          const panelContainer = container.querySelector(
-            '.panel-container-placeholder'
-          );
-          expect(panelContainer).toBeTruthy();
+        // Verify panel container is now present
+        const panelContainer = container.querySelector(
+          '.panel-container-placeholder'
+        );
+        expect(panelContainer).toBeTruthy();
 
-          // Verify panel displays the correct panel name
-          expect(panelContainer.textContent).toContain('trade');
+        // Verify panel displays the correct panel name
+        expect(panelContainer.textContent).toContain('trade');
 
-          // Verify starmap and HUD are still present
-          const starmapPlaceholder = container.querySelector(
-            '.starmap-placeholder'
-          );
-          expect(starmapPlaceholder).toBeTruthy();
+        // Verify starmap and HUD are still present
+        const starmapPlaceholder = container.querySelector(
+          '.starmap-placeholder'
+        );
+        expect(starmapPlaceholder).toBeTruthy();
 
-          const hudPlaceholder = container.querySelector('.hud-placeholder');
-          expect(hudPlaceholder).toBeTruthy();
+        const hudPlaceholder = container.querySelector('.hud-placeholder');
+        expect(hudPlaceholder).toBeTruthy();
 
-          // Verify station menu is NOT present (replaced by panel)
-          const stationMenu = container.querySelector(
-            '.station-menu-placeholder'
-          );
-          expect(stationMenu).toBeFalsy();
+        // Verify station menu is NOT present (replaced by panel)
+        const stationMenu = container.querySelector(
+          '.station-menu-placeholder'
+        );
+        expect(stationMenu).toBeFalsy();
 
-          return true;
-        }
-      ),
+        return true;
+      }),
       { numRuns: 10 }
     );
   });

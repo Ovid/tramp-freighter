@@ -1,3 +1,17 @@
+/**
+ * Error Boundary component for React error handling.
+ *
+ * Catches JavaScript errors anywhere in the child component tree,
+ * logs the error, and displays a fallback UI instead of crashing
+ * the entire application.
+ *
+ * Usage:
+ *   <ErrorBoundary>
+ *     <YourComponent />
+ *   </ErrorBoundary>
+ *
+ * React Migration Spec: Requirements 36.1, 36.2, 36.3, 36.4, 36.5
+ */
 import React from 'react';
 
 /**

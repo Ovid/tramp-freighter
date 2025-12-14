@@ -116,6 +116,7 @@ export default function App() {
           }}
         >
           <p>HUD will be implemented in task 8</p>
+          {/* TODO: Remove test buttons when HUD is implemented in task 8 */}
           <p>View Mode: {viewMode}</p>
           <button onClick={handleDock}>Dock (Test)</button>
         </div>
@@ -139,6 +140,7 @@ export default function App() {
           >
             <h2>Station Menu</h2>
             <p>StationMenu will be implemented in task 9</p>
+            {/* TODO: Remove test buttons when StationMenu is implemented in task 9 */}
             <button onClick={() => handleOpenPanel('trade')}>
               Open Trade Panel (Test)
             </button>
