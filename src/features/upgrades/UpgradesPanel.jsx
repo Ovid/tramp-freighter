@@ -50,7 +50,7 @@ export function UpgradesPanel({ onClose }) {
 
     const effectsText = formatUpgradeEffects(upgrade.effects);
     const hasTradeoff = upgrade.tradeoff && upgrade.tradeoff !== 'None';
-    const canAfford = credits >= upgrade.cost;
+    const validation = validateUpgradePurchase(upgradeId, state);
 
     return (
       <div key={upgradeId} className="upgrade-card">
@@ -89,15 +89,22 @@ export function UpgradesPanel({ onClose }) {
         )}
 
         {!isInstalled && (
-          <div className="upgrade-actions">
-            <button
-              className="upgrade-purchase-btn"
-              onClick={() => handlePurchaseClick(upgradeId)}
-              disabled={!canAfford}
-            >
-              Purchase
-            </button>
-          </div>
+          <>
+            <div className="upgrade-actions">
+              <button
+                className="upgrade-purchase-btn"
+                onClick={() => handlePurchaseClick(upgradeId)}
+                disabled={!validation.valid}
+              >
+                Purchase
+              </button>
+            </div>
+            {!validation.valid && (
+              <div className="validation-message error">
+                {validation.reason}
+              </div>
+            )}
+          </>
         )}
       </div>
     );
