@@ -118,25 +118,19 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
         const starmapContainer = container.querySelector('.starmap-container');
         expect(starmapContainer).toBeTruthy();
 
-        // Verify HUD placeholder is present
-        const hudPlaceholder = container.querySelector('.hud-placeholder');
-        expect(hudPlaceholder).toBeTruthy();
+        // Verify HUD is present
+        const hud = container.querySelector('#game-hud');
+        expect(hud).toBeTruthy();
 
         // Verify station menu is NOT present (initial state is ORBIT)
-        const stationMenu = container.querySelector(
-          '.station-menu-placeholder'
-        );
+        const stationMenu = container.querySelector('#station-interface');
         expect(stationMenu).toBeFalsy();
 
         // Verify panel container is NOT present
-        const panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        const panelContainer = container.querySelector('.panel-container');
         expect(panelContainer).toBeFalsy();
 
-        return (
-          starmapContainer && hudPlaceholder && !stationMenu && !panelContainer
-        );
+        return starmapContainer && hud && !stationMenu && !panelContainer;
       }),
       { numRuns: 10 }
     );
@@ -164,26 +158,22 @@ describe('Property: STATION mode displays station menu', () => {
         const { container } = render(<App />, { wrapper });
 
         // Click dock button to transition to STATION mode
-        const dockButton = screen.getByText('Dock (Test)');
+        const dockButton = screen.getByText('Dock');
         fireEvent.click(dockButton);
 
         // Verify station menu is now present
-        const stationMenu = container.querySelector(
-          '.station-menu-placeholder'
-        );
+        const stationMenu = container.querySelector('#station-interface');
         expect(stationMenu).toBeTruthy();
 
         // Verify starmap and HUD are still present (they're always visible)
         const starmapContainer = container.querySelector('.starmap-container');
         expect(starmapContainer).toBeTruthy();
 
-        const hudPlaceholder = container.querySelector('.hud-placeholder');
-        expect(hudPlaceholder).toBeTruthy();
+        const hud = container.querySelector('#game-hud');
+        expect(hud).toBeTruthy();
 
         // Verify panel container is NOT present
-        const panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        const panelContainer = container.querySelector('.panel-container');
         expect(panelContainer).toBeFalsy();
 
         return true;
@@ -214,33 +204,29 @@ describe('Property: PANEL mode displays active panel', () => {
         const { container } = render(<App />, { wrapper });
 
         // Click dock button to transition to STATION mode
-        const dockButton = screen.getByText('Dock (Test)');
+        const dockButton = screen.getByText('Dock');
         fireEvent.click(dockButton);
 
         // Click open panel button to transition to PANEL mode
-        const openPanelButton = screen.getByText('Open Trade Panel (Test)');
+        const openPanelButton = screen.getByText('Trade');
         fireEvent.click(openPanelButton);
 
         // Verify panel container is now present
-        const panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        const panelContainer = container.querySelector('.panel-container');
         expect(panelContainer).toBeTruthy();
 
         // Verify panel displays the correct panel name
-        expect(panelContainer.textContent).toContain('trade');
+        expect(panelContainer.textContent).toContain('Trade Panel');
 
         // Verify starmap and HUD are still present
         const starmapContainer = container.querySelector('.starmap-container');
         expect(starmapContainer).toBeTruthy();
 
-        const hudPlaceholder = container.querySelector('.hud-placeholder');
-        expect(hudPlaceholder).toBeTruthy();
+        const hud = container.querySelector('#game-hud');
+        expect(hud).toBeTruthy();
 
         // Verify station menu is NOT present (replaced by panel)
-        const stationMenu = container.querySelector(
-          '.station-menu-placeholder'
-        );
+        const stationMenu = container.querySelector('#station-interface');
         expect(stationMenu).toBeFalsy();
 
         return true;
@@ -272,54 +258,48 @@ describe('Property: View mode changes update visibility', () => {
         const { container } = render(<App />, { wrapper });
 
         // Initial state: ORBIT mode
-        let stationMenu = container.querySelector('.station-menu-placeholder');
-        let panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        let stationMenu = container.querySelector('#station-interface');
+        let panelContainer = container.querySelector('.panel-container');
         expect(stationMenu).toBeFalsy();
         expect(panelContainer).toBeFalsy();
 
         // Transition to STATION mode
-        const dockButton = screen.getByText('Dock (Test)');
+        const dockButton = screen.getByText('Dock');
         fireEvent.click(dockButton);
 
-        stationMenu = container.querySelector('.station-menu-placeholder');
-        panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        stationMenu = container.querySelector('#station-interface');
+        panelContainer = container.querySelector('.panel-container');
         expect(stationMenu).toBeTruthy();
         expect(panelContainer).toBeFalsy();
 
         // Transition to PANEL mode
-        const openPanelButton = screen.getByText('Open Trade Panel (Test)');
+        const openPanelButton = screen.getByText('Trade');
         fireEvent.click(openPanelButton);
 
-        stationMenu = container.querySelector('.station-menu-placeholder');
-        panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        stationMenu = container.querySelector('#station-interface');
+        panelContainer = container.querySelector('.panel-container');
         expect(stationMenu).toBeFalsy();
         expect(panelContainer).toBeTruthy();
 
         // Transition back to STATION mode
-        const closePanelButton = screen.getByText('Close Panel');
+        const closePanelButtons = screen.getAllByText('×');
+        // Find the close button in the panel container (not the station menu)
+        const closePanelButton = closePanelButtons.find((btn) =>
+          btn.closest('.panel-container')
+        );
         fireEvent.click(closePanelButton);
 
-        stationMenu = container.querySelector('.station-menu-placeholder');
-        panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        stationMenu = container.querySelector('#station-interface');
+        panelContainer = container.querySelector('.panel-container');
         expect(stationMenu).toBeTruthy();
         expect(panelContainer).toBeFalsy();
 
         // Transition back to ORBIT mode
-        const undockButton = screen.getByText('Undock');
-        fireEvent.click(undockButton);
+        const undockButtons = screen.getAllByText('Undock');
+        fireEvent.click(undockButtons[0]);
 
-        stationMenu = container.querySelector('.station-menu-placeholder');
-        panelContainer = container.querySelector(
-          '.panel-container-placeholder'
-        );
+        stationMenu = container.querySelector('#station-interface');
+        panelContainer = container.querySelector('.panel-container');
         expect(stationMenu).toBeFalsy();
         expect(panelContainer).toBeFalsy();
 

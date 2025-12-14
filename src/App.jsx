@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StarMapCanvas } from './features/navigation/StarMapCanvas';
+import { HUD } from './features/hud/HUD';
+import { StationMenu } from './features/station/StationMenu';
+import { PanelContainer } from './features/station/PanelContainer';
 
 /**
  * View modes for the application.
@@ -86,77 +89,19 @@ export default function App() {
         </ErrorBoundary>
 
         {/* HUD is always rendered */}
-        {/* TODO: Implement HUD in task 8 */}
-        <div
-          className="hud-placeholder"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            zIndex: 10,
-            color: '#fff',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            padding: '10px',
-            borderRadius: '4px',
-          }}
-        >
-          <p>HUD will be implemented in task 8</p>
-          {/* TODO: Remove test buttons when HUD is implemented in task 8 */}
-          <p>View Mode: {viewMode}</p>
-          <button onClick={handleDock}>Dock (Test)</button>
-        </div>
+        <HUD onDock={handleDock} />
 
         {/* Station menu displayed when docked */}
         {viewMode === VIEW_MODES.STATION && (
-          <div
-            className="station-menu-placeholder"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 20,
-              backgroundColor: '#222',
-              color: '#fff',
-              padding: '20px',
-              borderRadius: '8px',
-              minWidth: '300px',
-            }}
-          >
-            <h2>Station Menu</h2>
-            <p>StationMenu will be implemented in task 9</p>
-            {/* TODO: Remove test buttons when StationMenu is implemented in task 9 */}
-            <button onClick={() => handleOpenPanel('trade')}>
-              Open Trade Panel (Test)
-            </button>
-            <br />
-            <button onClick={handleUndock} style={{ marginTop: '10px' }}>
-              Undock
-            </button>
-          </div>
+          <StationMenu onOpenPanel={handleOpenPanel} onUndock={handleUndock} />
         )}
 
         {/* Panel container displayed when a panel is open */}
         {viewMode === VIEW_MODES.PANEL && (
-          <div
-            className="panel-container-placeholder"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 20,
-              backgroundColor: '#333',
-              color: '#fff',
-              padding: '20px',
-              borderRadius: '8px',
-              minWidth: '400px',
-            }}
-          >
-            <h2>Panel: {activePanel}</h2>
-            <p>PanelContainer will be implemented in task 9</p>
-            <button onClick={handleClosePanel}>Close Panel</button>
-          </div>
+          <PanelContainer
+            activePanel={activePanel}
+            onClose={handleClosePanel}
+          />
         )}
       </div>
     </ErrorBoundary>

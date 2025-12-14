@@ -161,53 +161,53 @@
 - [x] 7. Checkpoint - Verify foundation works
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement HUD components
-- [ ] 8.1 Create ResourceBar component
+- [x] 8. Implement HUD components
+- [x] 8.1 Create ResourceBar component
   - Create src/features/hud/ResourceBar.jsx
   - Use useGameEvent for creditsChanged and fuelChanged
   - Display credits and fuel with proper formatting
   - **Remove test buttons and placeholder divs from App.jsx** (Dock button, View Mode display)
   - _Requirements: 7.1, 7.2, 24.4_
 
-- [ ] 8.2 Write property test for HUD credit updates
+- [x] 8.2 Write property test for HUD credit updates
   - **Property 19: HUD updates on credit changes**
   - **Validates: Requirements 7.1**
 
-- [ ] 8.3 Write property test for HUD fuel updates
+- [x] 8.3 Write property test for HUD fuel updates
   - **Property 20: HUD updates on fuel changes**
   - **Validates: Requirements 7.2**
 
-- [ ] 8.4 Create DateDisplay component
+- [x] 8.4 Create DateDisplay component
   - Create src/features/hud/DateDisplay.jsx
   - Use useGameEvent for timeChanged
   - Display game time with proper formatting
   - _Requirements: 7.3, 24.5_
 
-- [ ] 8.5 Write property test for HUD time updates
+- [x] 8.5 Write property test for HUD time updates
   - **Property 21: HUD updates on time changes**
   - **Validates: Requirements 7.3**
 
-- [ ] 8.6 Create ShipStatus component
+- [x] 8.6 Create ShipStatus component
   - Create src/features/hud/ShipStatus.jsx
   - Use useGameEvent for shipConditionChanged
   - Display hull, engine, and life support condition bars
   - _Requirements: 7.4, 24.6_
 
-- [ ] 8.7 Write property test for HUD condition updates
+- [x] 8.7 Write property test for HUD condition updates
   - **Property 22: HUD updates on condition changes**
   - **Validates: Requirements 7.4**
 
-- [ ] 8.8 Create QuickAccessButtons component
+- [x] 8.8 Create QuickAccessButtons component
   - Create src/features/hud/QuickAccessButtons.jsx
   - Implement system info and dock buttons
   - Use useGameEvent for location changes to update button state
   - _Requirements: 46.1, 46.2, 46.4, 46.5_
 
-- [ ] 8.9 Write property test for quick access button state
+- [x] 8.9 Write property test for quick access button state
   - **Property 48: Quick access button state updates**
   - **Validates: Requirements 46.2**
 
-- [ ] 8.10 Create HUD component
+- [x] 8.10 Create HUD component
   - Create src/features/hud/HUD.jsx
   - Compose ResourceBar, DateDisplay, ShipStatus, QuickAccessButtons
   - _Requirements: 7.5, 24.1, 24.2, 24.3_
