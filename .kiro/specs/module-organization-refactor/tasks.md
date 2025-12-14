@@ -120,20 +120,20 @@
   - Verify UIManager still exports all public methods
   - _Requirements: 2.5, 2.6, 4.2_
 
-- [ ] 10. Move game-ui.js to js/ui/ directory
+- [x] 10. Move game-ui.js to js/ui/ directory
   - Move `js/game-ui.js` to `js/ui/ui-manager.js`
   - Update imports within `ui-manager.js` to reflect new location
   - Update relative import paths for `hud-manager.js`, `notification-manager.js`, `modal-manager.js`
   - Update relative import paths for panel controllers (now `../controllers/`)
   - _Requirements: 2.1, 5.2_
 
-- [ ] 10.1 Review ui-manager.js for single responsibility
+- [x] 10.1 Review ui-manager.js for single responsibility
   - Verify module only handles UI coordination and delegation
   - Check that HUD, notification, and modal logic has been fully extracted
   - Confirm module has one focused responsibility
   - _Requirements: 4.1_
 
-- [ ] 11. Update all application code import paths
+- [x] 11. Update all application code import paths
   - Update `starmap.html` script imports:
     - Change GameStateManager import from `./js/game-state.js` to `./js/state/game-state-manager.js`
     - Change UIManager import from `./js/game-ui.js` to `./js/ui/ui-manager.js`
@@ -145,7 +145,7 @@
   - Check browser console for any import/initialization errors
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 12. Update all test file import paths
+- [x] 12. Update all test file import paths
   - Update all test files that import from `game-state.js` to use `state/game-state-manager.js`
   - Update all test files that import from `game-ui.js` to use `ui/ui-manager.js`
   - Update test setup files to use new import paths

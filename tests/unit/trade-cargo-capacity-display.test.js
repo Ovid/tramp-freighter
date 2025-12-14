@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { TradingSystem } from '../../js/game-trading.js';
-import { UIManager } from '../../js/game-ui.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Trade Panel Cargo Capacity Display', () => {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { GameStateManager } from '../../js/state/game-state-manager.js';
-import { UIManager } from '../../js/game-ui.js';
+import { UIManager } from '../../js/ui/ui-manager.js';
 
 /**
  * Property-based tests for refuel validation messages

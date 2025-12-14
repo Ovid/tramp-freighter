@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { GameStateManager } from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
-import { UIManager } from '../game-ui.js';
+import { UIManager } from '../ui/ui-manager.js';
 import { JumpAnimationSystem } from '../game-animation.js';
 import { STAR_DATA } from '../data/star-data.js';
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
