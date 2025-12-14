@@ -539,3 +539,63 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 3. WHEN components subscribe to the same event THEN the System SHALL not cause redundant re-renders
 4. WHEN event data is large THEN the System SHALL avoid unnecessary object cloning
 5. WHEN profiling the application THEN the System SHALL show minimal overhead from the Bridge Pattern
+
+### Requirement 42
+
+**User Story:** As a developer, I want modal dialogs implemented as React components, so that critical confirmations and messages are displayed consistently.
+
+#### Acceptance Criteria
+
+1. WHEN modal components are created THEN the System SHALL use React Portals for rendering
+2. WHEN a modal is displayed THEN the System SHALL block interaction with underlying UI elements
+3. WHEN a modal is dismissed THEN the System SHALL remove the portal and restore focus appropriately
+4. WHEN modal patterns are implemented THEN the System SHALL maintain the existing modal behavior from modal-manager.js
+5. WHEN modals are open THEN the System SHALL not block GameStateManager state updates
+
+### Requirement 43
+
+**User Story:** As a developer, I want the animation system to integrate with React without interfering with animations, so that jump sequences remain smooth and input is properly locked.
+
+#### Acceptance Criteria
+
+1. WHEN animations execute THEN the System SHALL run the animation loop outside React render cycle
+2. WHEN an animation starts THEN the System SHALL provide a useAnimationLock hook that disables UI interactions
+3. WHEN an animation completes THEN the System SHALL trigger React updates through GameStateManager events
+4. WHEN animation state changes THEN the System SHALL not trigger React component re-renders
+5. WHEN the useAnimationLock hook is used THEN the System SHALL automatically unlock when animations complete
+
+### Requirement 44
+
+**User Story:** As a developer, I want a notification system implemented in React, so that success messages, errors, and game events are displayed to players.
+
+#### Acceptance Criteria
+
+1. WHEN the notification system is implemented THEN the System SHALL provide a useNotification custom hook
+2. WHEN useNotification is called THEN the System SHALL provide showError, showSuccess, and showNotification methods
+3. WHEN notifications are displayed THEN the System SHALL maintain the existing timing and behavior from notification-manager.js
+4. WHEN multiple notifications are triggered THEN the System SHALL queue them appropriately
+5. WHEN notifications expire THEN the System SHALL remove them with fade animations matching existing CSS
+
+### Requirement 45
+
+**User Story:** As a developer, I want the dev admin panel migrated to React, so that development tools are available in the React version.
+
+#### Acceptance Criteria
+
+1. WHEN dev mode is enabled THEN the System SHALL detect the .dev file using the same approach as the vanilla version
+2. WHEN dev mode is enabled THEN the System SHALL render the DevAdminPanel component
+3. WHEN dev mode is disabled THEN the System SHALL not render dev-only components
+4. WHEN the production build executes THEN the System SHALL exclude dev admin code through tree-shaking
+5. WHEN the dev admin panel is used THEN the System SHALL provide the same functionality as DevAdminPanelController
+
+### Requirement 46
+
+**User Story:** As a player, I want quick access buttons in the HUD, so that I can quickly access common actions without navigating through menus.
+
+#### Acceptance Criteria
+
+1. WHEN the HUD renders THEN the System SHALL display quick access buttons for system info and station docking
+2. WHEN the player location changes THEN the System SHALL update quick access button enabled/disabled state
+3. WHEN an animation is running THEN the System SHALL disable quick access buttons using the animation lock
+4. WHEN a quick access button is clicked THEN the System SHALL trigger the appropriate view mode change
+5. WHEN quick access buttons are implemented THEN the System SHALL maintain the same behavior as the vanilla version
