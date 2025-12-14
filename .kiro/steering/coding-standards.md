@@ -355,6 +355,104 @@ class UIManager {
 }
 ```
 
+### Import Statements
+
+**CRITICAL: All imports must be at the top of the file**
+
+Import statements should always be placed at the top of the file, immediately after any file-level comments or directives. This ensures:
+
+- Clear visibility of all dependencies
+- Easier dependency management
+- Better static analysis and tree-shaking
+- Consistent code structure across the project
+
+```javascript
+// GOOD - All imports at the top
+import * as THREE from 'three';
+import { GameStateManager, sanitizeShipName } from '../state/game-state-manager.js';
+import { NavigationSystem } from '../game-navigation.js';
+import { UIManager } from '../ui/ui-manager.js';
+import { STAR_DATA } from '../data/star-data.js';
+
+// ... rest of the code
+
+function myFunction() {
+  const name = sanitizeShipName(input);
+  // Use imported functions directly
+}
+
+// BAD - Dynamic imports in function bodies (unless code-splitting is required)
+function myFunction() {
+  import('../state/game-state-manager.js').then((module) => {
+    const name = module.sanitizeShipName(input);
+  });
+}
+
+// BAD - Imports scattered throughout the file
+import { GameStateManager } from '../state/game-state-manager.js';
+
+function someFunction() {
+  // ... code
+}
+
+import { NavigationSystem } from '../game-navigation.js'; // WRONG - not at top
+
+function anotherFunction() {
+  // ... code
+}
+```
+
+**When dynamic imports ARE appropriate:**
+
+- Code-splitting for large modules that aren't always needed
+- Lazy-loading features that are rarely used
+- Loading modules conditionally based on runtime configuration
+
+**Example of acceptable dynamic import:**
+
+```javascript
+// Acceptable - Loading a large visualization library only when needed
+async function showAdvancedChart() {
+  const { Chart } = await import('./heavy-chart-library.js');
+  return new Chart(data);
+}
+```
+
+**Import Organization:**
+
+Group imports in the following order:
+
+1. External libraries (React, Three.js, etc.)
+2. Internal modules (game logic, state management)
+3. Components (if applicable)
+4. Utilities
+5. Data/constants
+6. Styles (CSS imports)
+
+```javascript
+// 1. External libraries
+import { useState, useEffect } from 'react';
+import * as THREE from 'three';
+
+// 2. Internal modules
+import { GameStateManager } from '../state/game-state-manager.js';
+import { NavigationSystem } from '../game-navigation.js';
+
+// 3. Components
+import { Button } from '../../components/Button';
+import { Modal } from '../../components/Modal';
+
+// 4. Utilities
+import { validateInput } from './utils';
+
+// 5. Data/constants
+import { STAR_DATA } from '../data/star-data.js';
+import { GAME_CONFIG } from '../game-constants.js';
+
+// 6. Styles
+import './styles.css';
+```
+
 ### Module Organization
 
 **Organize code by feature and responsibility**
