@@ -2,7 +2,10 @@
 
 // Import Three.js and OrbitControls as ES modules
 import * as THREE from 'three';
-import { GameStateManager } from '../state/game-state-manager.js';
+import {
+  GameStateManager,
+  sanitizeShipName,
+} from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
 import { UIManager } from '../ui/ui-manager.js';
 import { JumpAnimationSystem } from '../game-animation.js';
@@ -380,11 +383,11 @@ function showShipNamingDialog() {
 
     // Import constants dynamically
     import('../game-constants.js').then((constants) => {
-      const { SHIP_NAME_SUGGESTIONS } = constants;
+      const { SHIP_CONFIG } = constants;
 
       // Clear and populate suggestions
       suggestionsList.innerHTML = '';
-      SHIP_NAME_SUGGESTIONS.forEach((name) => {
+      SHIP_CONFIG.NAME_SUGGESTIONS.forEach((name) => {
         const btn = document.createElement('button');
         btn.className = 'suggestion-btn';
         btn.textContent = name;
@@ -406,12 +409,12 @@ function showShipNamingDialog() {
 
       // Handle confirm
       const handleConfirm = () => {
+        const inputValue = input.value;
+        console.log('Ship name input value:', inputValue);
+        const sanitizedName = sanitizeShipName(inputValue);
+        console.log('Sanitized ship name:', sanitizedName);
         cleanup();
-        // Import sanitizeShipName and resolve with sanitized name
-        import('../state/game-state-manager.js').then((gameState) => {
-          const sanitizedName = gameState.sanitizeShipName(input.value);
-          resolve(sanitizedName);
-        });
+        resolve(sanitizedName);
       };
 
       // Handle enter key in input
@@ -513,12 +516,15 @@ async function startGame(isNewGame) {
 
     // Show ship naming dialog after quirk assignment
     const shipName = await showShipNamingDialog();
+    console.log('Ship name from dialog:', shipName);
 
-    // Store sanitized name in game state
-    gameStateManager.state.ship.name = shipName;
+    // Update ship name using proper method (emits shipNameChanged event)
+    gameStateManager.updateShipName(shipName);
+    console.log('Ship name set in state:', gameStateManager.state.ship.name);
 
     // Save immediately to persist the ship name
     gameStateManager.saveGame();
+    console.log('Game saved with ship name:', gameStateManager.state.ship.name);
   } else {
     const loadedState = gameStateManager.loadGame();
     if (!loadedState) {
@@ -530,17 +536,32 @@ async function startGame(isNewGame) {
 
       // Show ship naming dialog for the new game
       const shipName = await showShipNamingDialog();
-      gameStateManager.state.ship.name = shipName;
+      gameStateManager.updateShipName(shipName);
       gameStateManager.saveGame();
     }
   }
 
   // Subscribe to fuel and location changes to update connection colors
   gameStateManager.subscribe('fuelChanged', () => {
-    updateConnectionColors(gameStateManager);
+    if (gameStateManager && gameStateManager.state) {
+      updateConnectionColors(gameStateManager);
+    }
   });
 
   gameStateManager.subscribe('locationChanged', () => {
+    if (gameStateManager && gameStateManager.state) {
+      updateConnectionColors(gameStateManager);
+      currentSystemIndicator = updateCurrentSystemIndicator(
+        scene,
+        camera,
+        stars,
+        gameStateManager
+      );
+    }
+  });
+
+  // Initial update of connection colors and current system indicator
+  if (gameStateManager && gameStateManager.state) {
     updateConnectionColors(gameStateManager);
     currentSystemIndicator = updateCurrentSystemIndicator(
       scene,
@@ -548,19 +569,11 @@ async function startGame(isNewGame) {
       stars,
       gameStateManager
     );
-  });
+  }
 
-  // Initial update of connection colors and current system indicator
-  updateConnectionColors(gameStateManager);
-  currentSystemIndicator = updateCurrentSystemIndicator(
-    scene,
-    camera,
-    stars,
-    gameStateManager
-  );
-
-  // Show the game HUD
+  // Show the game HUD and update it with current state
   uiManager.showHUD();
+  uiManager.updateHUD();
 
   // Make game state manager and UI manager available globally for debugging
   window.gameStateManager = gameStateManager;
