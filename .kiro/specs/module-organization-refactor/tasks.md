@@ -152,13 +152,13 @@
   - Verify tests can load modules without resolution errors
   - _Requirements: 3.4_
 
-- [ ] 13. Remove original monolithic files
+- [x] 13. Remove original monolithic files
   - Delete `js/game-state.js` (now at `js/state/game-state-manager.js`)
   - Delete `js/game-ui.js` (now at `js/ui/ui-manager.js`)
   - Verify application still loads without errors
   - _Requirements: 6.4_
 
-- [ ] 13.1 Final architecture review
+- [x] 13.1 Final architecture review
   - Verify all modules have single, focused responsibilities
   - Check for clear boundaries between state, UI, and controller modules
   - Confirm no overlapping concerns between modules
@@ -166,14 +166,14 @@
   - Review module sizes are reasonable (no new monoliths created)
   - _Requirements: 4.1, 4.5_
 
-- [ ] 14. Run full test suite and verify all tests pass
+- [x] 14. Run full test suite and verify all tests pass
   - Execute `npm test` to run all unit, property, and integration tests
   - Verify all tests pass without modifications to test logic
   - Verify test output is clean (no stderr messages)
   - Fix any import path issues discovered by tests
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 15. Manual validation and testing
+- [x] 15. Manual validation and testing
   - Load application in browser and verify no console errors
   - Verify new game initializes correctly
   - Test save game functionality
