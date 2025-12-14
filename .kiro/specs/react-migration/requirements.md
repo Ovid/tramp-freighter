@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies the requirements for migrating the Tramp Freighter Blues UI layer from Vanilla JavaScript to React 19+ using JavaScript (ES Modules), while preserving all existing game logic, state management, and Three.js rendering functionality. The migration aims to improve UI maintainability and scalability without affecting game behavior or performance. The migration will use Vite as the build tool and Vitest for testing.
+This document specifies the requirements for migrating the Tramp Freighter Blues UI layer from Vanilla JavaScript to React 18+ using JavaScript (ES Modules), while preserving all existing game logic, state management, and Three.js rendering functionality. The migration aims to improve UI maintainability and scalability without affecting game behavior or performance. The migration will use Vite as the build tool and Vitest for testing.
 
 ## Glossary
 
@@ -15,7 +15,10 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 - **View Mode**: The current UI state determining which panels are visible (ORBIT, STATION, PANEL)
 - **Vite**: The build tool and development server used for the React application
 - **Vitest**: The testing framework used for unit and property-based tests
-- **React 19+**: The target version of the React framework for the migration
+- **React 18+**: The target version of the React framework for the migration
+- **Error Boundary**: A React component that catches JavaScript errors in child components and displays fallback UI
+- **index.html**: The new HTML entry point for the Vite-based React application
+- **localStorage Format**: The structure of saved game data stored in browser localStorage
 - **GameContext**: The React Context that holds the GameStateManager instance
 - **useGameEvent**: A custom React hook that subscribes to GameStateManager events
 - **useGameAction**: A custom React hook that provides methods to trigger game actions
@@ -285,28 +288,28 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 
 ### Requirement 20
 
-**User Story:** As a developer, I want React 19+ as the target framework, so that the migration uses the latest stable React features.
+**User Story:** As a developer, I want React 18+ as the target framework, so that the migration uses stable and well-supported React features.
 
 #### Acceptance Criteria
 
-1. WHEN package.json is examined THEN the System SHALL specify React version 19 or higher
-2. WHEN package.json is examined THEN the System SHALL specify ReactDOM version 19 or higher
-3. WHEN React features are used THEN the System SHALL use only features available in React 19+
-4. WHEN the build executes THEN the System SHALL compile with React 19+ compatibility
-5. WHEN the application runs THEN the System SHALL use React 19+ runtime
+1. WHEN package.json is examined THEN the System SHALL specify React version 18 or higher
+2. WHEN package.json is examined THEN the System SHALL specify ReactDOM version 18 or higher
+3. WHEN React features are used THEN the System SHALL use only features available in React 18+
+4. WHEN the build executes THEN the System SHALL compile with React 18+ compatibility
+5. WHEN the application runs THEN the System SHALL use React 18+ runtime
 
 ### Requirement 21
 
-**User Story:** As a developer, I want exact event names from GameStateManager used, so that subscriptions match existing event emissions.
+**User Story:** As a developer, I want exact event names from GameStateManager.subscribers used, so that subscriptions match existing event emissions.
 
 #### Acceptance Criteria
 
-1. WHEN components subscribe to credit changes THEN the System SHALL use the event name creditsChanged
-2. WHEN components subscribe to fuel changes THEN the System SHALL use the event name fuelChanged
-3. WHEN components subscribe to location changes THEN the System SHALL use the event name locationChanged
-4. WHEN components subscribe to time changes THEN the System SHALL use the event name timeChanged
-5. WHEN components subscribe to cargo changes THEN the System SHALL use the event name cargoChanged
-6. WHEN components subscribe to ship condition changes THEN the System SHALL use the event name shipConditionChanged
+1. WHEN components subscribe to credit changes THEN the System SHALL use the event name creditsChanged as defined in GameStateManager.subscribers
+2. WHEN components subscribe to fuel changes THEN the System SHALL use the event name fuelChanged as defined in GameStateManager.subscribers
+3. WHEN components subscribe to location changes THEN the System SHALL use the event name locationChanged as defined in GameStateManager.subscribers
+4. WHEN components subscribe to time changes THEN the System SHALL use the event name timeChanged as defined in GameStateManager.subscribers
+5. WHEN components subscribe to cargo changes THEN the System SHALL use the event name cargoChanged as defined in GameStateManager.subscribers
+6. WHEN components subscribe to ship condition changes THEN the System SHALL use the event name shipConditionChanged as defined in GameStateManager.subscribers
 
 ### Requirement 22
 
@@ -452,3 +455,87 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 3. WHEN the components directory is examined THEN the System SHALL contain a Card component
 4. WHEN features need common UI elements THEN the System SHALL import components from the components directory
 5. WHEN shared components are used THEN the System SHALL maintain consistent styling and behavior
+
+### Requirement 35
+
+**User Story:** As a developer, I want a new HTML entry point for the React application, so that Vite can properly serve the application.
+
+#### Acceptance Criteria
+
+1. WHEN the project root is examined THEN the System SHALL contain an index.html file
+2. WHEN index.html is examined THEN the System SHALL contain a root div element for React mounting
+3. WHEN index.html is examined THEN the System SHALL include a script tag importing main.jsx
+4. WHEN the dev server starts THEN the System SHALL serve index.html as the entry point
+5. WHEN the application builds THEN the System SHALL use index.html as the template for the output
+
+### Requirement 36
+
+**User Story:** As a developer, I want React Error Boundaries implemented, so that errors are handled gracefully without crashing the entire application.
+
+#### Acceptance Criteria
+
+1. WHEN a React component throws an error THEN the System SHALL catch it with an Error Boundary
+2. WHEN an Error Boundary catches an error THEN the System SHALL display a fallback UI
+3. WHEN an Error Boundary catches an error THEN the System SHALL log the error details
+4. WHEN GameStateManager initialization fails THEN the System SHALL display an error message with recovery options
+5. WHEN Three.js rendering fails THEN the System SHALL display an error message without crashing other UI components
+
+### Requirement 37
+
+**User Story:** As a player, I want my existing saved games to work after the migration, so that I don't lose my progress.
+
+#### Acceptance Criteria
+
+1. WHEN the application loads THEN the System SHALL read localStorage using the same keys as pre-migration
+2. WHEN saved game data is loaded THEN the System SHALL validate the data format
+3. WHEN saved game data format is incompatible THEN the System SHALL attempt migration to new format
+4. WHEN migration fails THEN the System SHALL preserve the original save and display an error message
+5. WHEN new saves are created THEN the System SHALL use a format compatible with the migration version
+
+### Requirement 38
+
+**User Story:** As a developer, I want the development server to coexist with the existing setup, so that migration can be incremental.
+
+#### Acceptance Criteria
+
+1. WHEN the Vite dev server starts THEN the System SHALL run on a different port than the existing setup
+2. WHEN both servers are running THEN the System SHALL not conflict with each other
+3. WHEN the dev server is accessed THEN the System SHALL serve the React version of the application
+4. WHEN the original starmap.html is accessed THEN the System SHALL continue to work with the vanilla JS version
+5. WHEN development is complete THEN the System SHALL provide a clear cutover path from old to new
+
+### Requirement 39
+
+**User Story:** As a developer, I want CSS imported strategically, so that styles are maintainable and performant.
+
+#### Acceptance Criteria
+
+1. WHEN feature components are created THEN the System SHALL prefer CSS modules for component-specific styles
+2. WHEN global styles are needed THEN the System SHALL import them in main.jsx
+3. WHEN CSS modules are used THEN the System SHALL generate scoped class names
+4. WHEN the build executes THEN the System SHALL tree-shake unused CSS
+5. WHEN CSS conflicts occur THEN the System SHALL resolve them through module scoping
+
+### Requirement 40
+
+**User Story:** As a developer, I want test migration strategy documented, so that test coverage is maintained during migration.
+
+#### Acceptance Criteria
+
+1. WHEN existing tests are examined THEN the System SHALL identify which tests need migration
+2. WHEN property-based tests are migrated THEN the System SHALL use fast-check library for Vitest
+3. WHEN test setup is migrated THEN the System SHALL configure Vitest to match existing test environment
+4. WHEN mocking is needed THEN the System SHALL use Vitest mocking utilities
+5. WHEN tests are migrated THEN the System SHALL maintain the same test coverage percentage
+
+### Requirement 41
+
+**User Story:** As a developer, I want useGameEvent optimized for performance, so that React updates are efficient.
+
+#### Acceptance Criteria
+
+1. WHEN multiple events fire rapidly THEN the System SHALL batch state updates when possible
+2. WHEN useGameEvent updates state THEN the System SHALL use React 18 automatic batching
+3. WHEN components subscribe to the same event THEN the System SHALL not cause redundant re-renders
+4. WHEN event data is large THEN the System SHALL avoid unnecessary object cloning
+5. WHEN profiling the application THEN the System SHALL show minimal overhead from the Bridge Pattern
