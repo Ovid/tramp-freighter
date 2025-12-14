@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { StarMapCanvas } from './features/navigation/StarMapCanvas';
 
 /**
  * View modes for the application.
@@ -80,25 +81,9 @@ export default function App() {
     <ErrorBoundary>
       <div className="app-container">
         {/* Starmap is always rendered (z-index 0) */}
-        {/* TODO: Implement StarMapCanvas in task 6 */}
-        <div
-          className="starmap-placeholder"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 0,
-            backgroundColor: '#000',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-          }}
-        >
-          <p>StarMapCanvas will be implemented in task 6</p>
-        </div>
+        <ErrorBoundary>
+          <StarMapCanvas />
+        </ErrorBoundary>
 
         {/* HUD is always rendered */}
         {/* TODO: Implement HUD in task 8 */}

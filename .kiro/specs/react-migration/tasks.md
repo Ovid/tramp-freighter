@@ -138,8 +138,8 @@
   - **Property 43: Modals don't block state updates**
   - **Validates: Requirements 42.5**
 
-- [ ] 6. Implement StarMapCanvas component
-- [ ] 6.1 Create StarMapCanvas component
+- [x] 6. Implement StarMapCanvas component
+- [x] 6.1 Create StarMapCanvas component
   - Create src/features/navigation/StarMapCanvas.jsx
   - Use useRef for container element
   - Call initScene from src/game/engine/scene.js in useEffect
@@ -149,12 +149,12 @@
   - **CRITICAL:** Dispose of all THREE.js resources (geometries, materials, renderer) on unmount
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5_
 
-- [ ] 6.2 Write property test for scene initialization
+- [x] 6.2 Write property test for scene initialization
   - **Property 16: Scene initialization once per mount**
   - **Property 17: No scene re-initialization on re-render**
   - **Validates: Requirements 4.3, 14.1, 14.5**
 
-- [ ] 6.3 Write property test for resource cleanup
+- [x] 6.3 Write property test for resource cleanup
   - **Property 18: Resource cleanup on unmount**
   - **Validates: Requirements 14.4**
 

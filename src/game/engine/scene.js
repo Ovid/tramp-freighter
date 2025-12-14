@@ -36,9 +36,6 @@ export function initScene() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    const container = document.getElementById('container');
-    container.appendChild(renderer.domElement);
-
     // Ambient + directional lighting provides depth without harsh shadows
     const ambientLight = new THREE.AmbientLight(
       VISUAL_CONFIG.ambientLightColor,
@@ -66,15 +63,6 @@ export function initScene() {
     };
   } catch (error) {
     console.error('Failed to initialize Three.js scene:', error);
-    const container = document.getElementById('container');
-    container.innerHTML =
-      '<div style="color: #FF0000; padding: 20px; text-align: center;">' +
-      '<h2>WebGL Error</h2>' +
-      '<p>Unable to initialize 3D visualization. Please ensure your browser supports WebGL.</p>' +
-      '<p>Error: ' +
-      error.message +
-      '</p>' +
-      '</div>';
     throw error;
   }
 }

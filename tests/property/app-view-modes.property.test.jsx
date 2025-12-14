@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import App from '../../src/App.jsx';
@@ -6,6 +6,53 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
+
+// Mock the scene module to avoid WebGL errors in jsdom
+vi.mock('../../src/game/engine/scene', () => {
+  const mockRenderer = {
+    domElement: document.createElement('canvas'),
+    setSize: vi.fn(),
+    setPixelRatio: vi.fn(),
+    render: vi.fn(),
+    dispose: vi.fn(),
+  };
+
+  const mockControls = {
+    update: vi.fn(),
+  };
+
+  const mockScene = {
+    background: null,
+    fog: null,
+    add: vi.fn(),
+    traverse: vi.fn(),
+  };
+
+  const mockCamera = {
+    aspect: 1,
+    position: { set: vi.fn() },
+    lookAt: vi.fn(),
+    updateProjectionMatrix: vi.fn(),
+  };
+
+  const mockLights = {
+    ambientLight: {},
+    directionalLight: {
+      position: { set: vi.fn().mockReturnThis(), normalize: vi.fn() },
+    },
+  };
+
+  return {
+    initScene: vi.fn(() => ({
+      scene: mockScene,
+      camera: mockCamera,
+      renderer: mockRenderer,
+      controls: mockControls,
+      lights: mockLights,
+    })),
+    onWindowResize: vi.fn(),
+  };
+});
 
 // Suppress console warnings during tests
 // React Testing Library warnings that are expected in property-based tests:
@@ -67,11 +114,9 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
         // Render App component
         const { container } = render(<App />, { wrapper });
 
-        // Verify starmap placeholder is present
-        const starmapPlaceholder = container.querySelector(
-          '.starmap-placeholder'
-        );
-        expect(starmapPlaceholder).toBeTruthy();
+        // Verify starmap container is present (StarMapCanvas component)
+        const starmapContainer = container.querySelector('.starmap-container');
+        expect(starmapContainer).toBeTruthy();
 
         // Verify HUD placeholder is present
         const hudPlaceholder = container.querySelector('.hud-placeholder');
@@ -90,10 +135,7 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
         expect(panelContainer).toBeFalsy();
 
         return (
-          starmapPlaceholder &&
-          hudPlaceholder &&
-          !stationMenu &&
-          !panelContainer
+          starmapContainer && hudPlaceholder && !stationMenu && !panelContainer
         );
       }),
       { numRuns: 10 }
@@ -132,10 +174,8 @@ describe('Property: STATION mode displays station menu', () => {
         expect(stationMenu).toBeTruthy();
 
         // Verify starmap and HUD are still present (they're always visible)
-        const starmapPlaceholder = container.querySelector(
-          '.starmap-placeholder'
-        );
-        expect(starmapPlaceholder).toBeTruthy();
+        const starmapContainer = container.querySelector('.starmap-container');
+        expect(starmapContainer).toBeTruthy();
 
         const hudPlaceholder = container.querySelector('.hud-placeholder');
         expect(hudPlaceholder).toBeTruthy();
@@ -191,10 +231,8 @@ describe('Property: PANEL mode displays active panel', () => {
         expect(panelContainer.textContent).toContain('trade');
 
         // Verify starmap and HUD are still present
-        const starmapPlaceholder = container.querySelector(
-          '.starmap-placeholder'
-        );
-        expect(starmapPlaceholder).toBeTruthy();
+        const starmapContainer = container.querySelector('.starmap-container');
+        expect(starmapContainer).toBeTruthy();
 
         const hudPlaceholder = container.querySelector('.hud-placeholder');
         expect(hudPlaceholder).toBeTruthy();
