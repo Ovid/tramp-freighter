@@ -5,9 +5,7 @@ import { useGameAction } from '../../hooks/useGameAction';
 import {
   calculateRepairCost,
   calculateRepairAllCost,
-  validateRepair,
   validateRepairAll,
-  getSystemName,
   getSystemCondition,
 } from './repairUtils';
 import { SHIP_CONFIG } from '../../game/constants';
@@ -145,11 +143,11 @@ export function RepairPanel({ onClose }) {
 
             if (amountStr === 'full') {
               amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
-              cost = calculateRepairCost(systemType, amount, currentCondition);
+              cost = calculateRepairCost(amount, currentCondition);
               buttonText = `Full (₡${cost})`;
             } else {
               amount = amountStr;
-              cost = calculateRepairCost(systemType, amount, currentCondition);
+              cost = calculateRepairCost(amount, currentCondition);
               buttonText = `+${amount}% (₡${cost})`;
             }
 
@@ -187,7 +185,14 @@ export function RepairPanel({ onClose }) {
   const currentSystem = gameStateManager.starData.find(
     (s) => s.id === state.player.currentSystem
   );
-  const currentSystemName = currentSystem?.name || 'Unknown';
+
+  if (!currentSystem) {
+    throw new Error(
+      `Invalid game state: current system ID ${state.player.currentSystem} not found in star data`
+    );
+  }
+
+  const currentSystemName = currentSystem.name;
 
   return (
     <div id="repair-panel" className="visible">

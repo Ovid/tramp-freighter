@@ -5,12 +5,11 @@ import { SHIP_CONFIG, REPAIR_CONFIG } from '../../game/constants.js';
  *
  * Cost is ₡5 per 1% restored. If system is already at maximum condition, cost is 0.
  *
- * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
  * @param {number} amount - Percentage points to restore
  * @param {number} currentCondition - Current condition percentage
  * @returns {number} Cost in credits
  */
-export function calculateRepairCost(systemType, amount, currentCondition) {
+export function calculateRepairCost(amount, currentCondition) {
   // If already at max, no cost
   if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
     return 0;
@@ -34,24 +33,20 @@ export function calculateRepairAllCost(condition) {
   // Hull
   const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
   if (hullAmount > 0) {
-    totalCost += calculateRepairCost('hull', hullAmount, condition.hull);
+    totalCost += calculateRepairCost(hullAmount, condition.hull);
   }
 
   // Engine
   const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
   if (engineAmount > 0) {
-    totalCost += calculateRepairCost('engine', engineAmount, condition.engine);
+    totalCost += calculateRepairCost(engineAmount, condition.engine);
   }
 
   // Life Support
   const lifeSupportAmount =
     SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
   if (lifeSupportAmount > 0) {
-    totalCost += calculateRepairCost(
-      'lifeSupport',
-      lifeSupportAmount,
-      condition.lifeSupport
-    );
+    totalCost += calculateRepairCost(lifeSupportAmount, condition.lifeSupport);
   }
 
   return totalCost;
