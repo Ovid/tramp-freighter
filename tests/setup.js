@@ -1,6 +1,9 @@
 // Test setup file for Vitest
 // This file runs before all tests
 
+// Import testing library matchers
+import '@testing-library/jest-dom/vitest';
+
 // Create a proper localStorage mock that actually stores data
 class LocalStorageMock {
   constructor() {

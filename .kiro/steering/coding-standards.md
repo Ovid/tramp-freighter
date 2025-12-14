@@ -29,6 +29,7 @@ npm test
 
 Every task must leave the codebase in a working state with all tests passing. This ensures:
 
+- Our version of npm DOES NOT accept a `--run` argument.
 - No regressions are introduced
 - New functionality integrates correctly
 - The system remains stable and deployable

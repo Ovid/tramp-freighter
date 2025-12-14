@@ -118,7 +118,7 @@
   - **Property 29: View mode changes update visibility**
   - **Validates: Requirements 9.5**
 
-- [ ] 5. Create shared UI components
+- [x] 5. Create shared UI components
   - Create src/components/Button.jsx
   - Create src/components/Modal.jsx with React Portals
   - Create src/components/Card.jsx
@@ -126,15 +126,15 @@
   - **Consider adding more granular error boundaries around StarMapCanvas and individual panels**
   - _Requirements: 33.1, 33.2, 33.3, 33.4, 33.5, 36.1, 36.2, 36.3, 36.4, 36.5, 42.1, 42.2, 42.3, 42.4, 42.5_
 
-- [ ] 5.1 Write property test for error boundaries
+- [x] 5.1 Write property test for error boundaries
   - **Property 38: Error boundaries catch component errors**
   - **Validates: Requirements 36.1, 36.2, 36.3**
 
-- [ ] 5.2 Write property test for modal UI blocking
+- [x] 5.2 Write property test for modal UI blocking
   - **Property 42: Modals block underlying UI**
   - **Validates: Requirements 42.2**
 
-- [ ] 5.3 Write property test for modal state updates
+- [x] 5.3 Write property test for modal state updates
   - **Property 43: Modals don't block state updates**
   - **Validates: Requirements 42.5**
 
@@ -158,7 +158,7 @@
   - **Property 18: Resource cleanup on unmount**
   - **Validates: Requirements 14.4**
 
-- [ ] 7. Checkpoint - Verify foundation works
+- [x] 7. Checkpoint - Verify foundation works
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Implement HUD components
