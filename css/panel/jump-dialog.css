@@ -1,0 +1,109 @@
+/* Jump Dialog Styles */
+
+.jump-dialog {
+  position: absolute;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  width: 300px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  z-index: 150;
+}
+
+.jump-dialog-header {
+  position: relative;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.jump-dialog-header h3 {
+  color: #00ff88;
+  font-size: 18px;
+  margin: 0;
+  padding-right: 30px;
+}
+
+.jump-dialog .close-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.jump-dialog .close-btn:hover {
+  color: #ffffff;
+}
+
+.jump-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jump-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.jump-info-row .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.jump-info-row .value {
+  color: #ffffff;
+}
+
+.jump-dialog .validation-message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.jump-dialog .validation-message.error {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
+  color: #ff6666;
+}
+
+.jump-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.jump-btn:hover:not(:disabled) {
+  background-color: rgba(0, 255, 136, 0.2);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.jump-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #666;
+  color: #666;
+}

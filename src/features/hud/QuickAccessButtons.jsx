@@ -13,8 +13,9 @@ import { useAnimationLock } from '../../hooks/useAnimationLock';
  * React Migration Spec: Requirements 46.1, 46.2, 46.3, 46.4, 46.5
  *
  * @param {Function} onDock - Callback to trigger docking at a station
+ * @param {Function} onSystemInfo - Callback to open system info panel
  */
-export function QuickAccessButtons({ onDock }) {
+export function QuickAccessButtons({ onDock, onSystemInfo }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const animationLock = useAnimationLock();
@@ -47,8 +48,9 @@ export function QuickAccessButtons({ onDock }) {
     // Don't execute if animation is running
     if (isAnimationRunning) return;
 
-    // TODO: Implement system info display in future task
-    // Placeholder - no action until system info panel is implemented
+    if (onSystemInfo) {
+      onSystemInfo();
+    }
   };
 
   const handleDock = () => {

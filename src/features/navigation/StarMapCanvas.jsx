@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import * as THREE from '../../../vendor/three/build/three.module.js';
 import { initScene, onWindowResize } from '../../game/engine/scene';
 import { JumpAnimationSystem } from '../../game/engine/game-animation';
 import { useGameState } from '../../context/GameContext';
@@ -42,9 +43,55 @@ export function StarMapCanvas() {
       renderer = sceneComponents.renderer;
       controls = sceneComponents.controls;
       lights = sceneComponents.lights;
+      const stars = sceneComponents.stars;
 
       // Append renderer to container
       containerRef.current.appendChild(renderer.domElement);
+
+      // Set up raycaster for star selection (only if stars exist)
+      let handleCanvasClick = null;
+      if (stars && stars.length > 0) {
+        const raycaster = new THREE.Raycaster();
+        const mouse = { x: 0, y: 0 };
+
+        // Build clickable objects array
+        const clickableObjects = [];
+        stars.forEach((star) => {
+          if (star.sprite) {
+            clickableObjects.push(star.sprite);
+          }
+          if (star.label) {
+            clickableObjects.push(star.label);
+          }
+        });
+
+        // Handle star clicks
+        handleCanvasClick = (event) => {
+          // Convert to normalized device coordinates
+          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(
+            clickableObjects,
+            false
+          );
+
+          if (intersects.length > 0) {
+            const clickedObject = intersects[0].object;
+            const clickedStar = stars.find(
+              (star) =>
+                star.sprite === clickedObject || star.label === clickedObject
+            );
+
+            if (clickedStar && window.selectStarById) {
+              window.selectStarById(clickedStar.data.id);
+            }
+          }
+        };
+
+        renderer.domElement.addEventListener('click', handleCanvasClick);
+      }
 
       // Initialize animation system
       animationSystem = new JumpAnimationSystem(
@@ -96,6 +143,11 @@ export function StarMapCanvas() {
 
         // Remove resize listener
         window.removeEventListener('resize', handleResize);
+
+        // Remove click listener
+        if (renderer && renderer.domElement && handleCanvasClick) {
+          renderer.domElement.removeEventListener('click', handleCanvasClick);
+        }
 
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);

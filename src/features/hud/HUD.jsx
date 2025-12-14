@@ -17,15 +17,16 @@ import { QuickAccessButtons } from './QuickAccessButtons';
  * React Migration Spec: Requirements 7.5, 24.1, 24.2, 24.3
  *
  * @param {Function} onDock - Callback to trigger docking at a station
+ * @param {Function} onSystemInfo - Callback to open system info panel
  */
-export function HUD({ onDock }) {
+export function HUD({ onDock, onSystemInfo }) {
   return (
     <div id="game-hud" className="visible">
       <ResourceBar />
       <DateDisplay />
       <ShipStatus />
       <LocationDisplay />
-      <QuickAccessButtons onDock={onDock} />
+      <QuickAccessButtons onDock={onDock} onSystemInfo={onSystemInfo} />
     </div>
   );
 }

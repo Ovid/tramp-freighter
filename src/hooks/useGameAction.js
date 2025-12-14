@@ -32,12 +32,16 @@ export function useGameAction() {
   const actions = useMemo(
     () => ({
       /**
-       * Jump to a target system
+       * Execute jump to a target system with animation
        * @param {number} targetSystemId - Target system ID
-       * @returns {Object} { success: boolean, reason: string }
+       * @returns {Promise<Object>} { success: boolean, error: string|null }
        */
-      jump: (targetSystemId) => {
-        return gameStateManager.navigationSystem.jump(targetSystemId);
+      executeJump: async (targetSystemId) => {
+        return await gameStateManager.navigationSystem.executeJump(
+          gameStateManager,
+          targetSystemId,
+          gameStateManager.animationSystem
+        );
       },
 
       /**

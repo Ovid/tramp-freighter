@@ -14,6 +14,7 @@ import { GameProvider } from './context/GameContext';
 // 4. Data/constants
 import { STAR_DATA } from './game/data/star-data';
 import { WORMHOLE_DATA } from './game/data/wormhole-data';
+import { initDevMode } from './game/constants';
 
 // 5. Styles (CSS imports)
 import '../css/base.css';
@@ -29,6 +30,7 @@ import '../css/panel/info-broker.css';
 import '../css/panel/cargo-manifest.css';
 import '../css/panel/ship-status.css';
 import '../css/panel/dev-admin.css';
+import '../css/panel/system-panel.css';
 
 /**
  * Initialize GameStateManager with either saved game or new game.
@@ -128,20 +130,34 @@ function renderErrorUI(error) {
   );
 }
 
-// Initialize GameStateManager
-let gameStateManager;
-try {
-  gameStateManager = initializeGameStateManager();
-} catch (error) {
-  renderErrorUI(error);
-  throw error; // Re-throw to prevent further execution
+/**
+ * Initialize the application.
+ * Initializes dev mode detection, then GameStateManager, then renders the app.
+ *
+ * React Migration Spec: Requirements 45.1, 45.2, 45.3
+ */
+async function initializeApp() {
+  // Initialize dev mode detection
+  await initDevMode();
+
+  // Initialize GameStateManager
+  let gameStateManager;
+  try {
+    gameStateManager = initializeGameStateManager();
+  } catch (error) {
+    renderErrorUI(error);
+    throw error; // Re-throw to prevent further execution
+  }
+
+  // Render application
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <GameProvider gameStateManager={gameStateManager}>
+        <App />
+      </GameProvider>
+    </React.StrictMode>
+  );
 }
 
-// Render application
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <GameProvider gameStateManager={gameStateManager}>
-      <App />
-    </GameProvider>
-  </React.StrictMode>
-);
+// Start the application
+initializeApp();
