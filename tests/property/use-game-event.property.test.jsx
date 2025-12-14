@@ -1,24 +1,34 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, cleanup, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { renderHook, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { GameProvider } from '../../src/context/GameContext.jsx';
 import { useGameEvent } from '../../src/hooks/useGameEvent.js';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { createWrapper } from '../react-test-utils.jsx';
 
-/**
- * Helper to create a wrapper component with GameProvider
- */
-function createWrapper(gameStateManager) {
-  return function Wrapper({ children }) {
-    return (
-      <GameProvider gameStateManager={gameStateManager}>
-        {children}
-      </GameProvider>
-    );
+// Suppress React act() warnings in property-based tests
+// These warnings are expected when testing hooks in isolation
+let originalConsoleError;
+
+beforeAll(() => {
+  originalConsoleError = console.error;
+  console.error = (...args) => {
+    const message = args[0];
+    if (
+      typeof message === 'string' &&
+      message.includes('Warning: An update to') &&
+      message.includes('was not wrapped in act')
+    ) {
+      return; // Suppress expected act() warnings
+    }
+    originalConsoleError(...args);
   };
-}
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 /**
  * React Migration Spec, Property 11: useGameEvent subscription correctness
@@ -78,32 +88,39 @@ describe('Property: useGameEvent subscription correctness', () => {
  * its local state and return the updated value to the component.
  */
 describe('Property: useGameEvent state updates', () => {
-  it('should update state when event fires', () => {
-    fc.assert(
-      fc.property(fc.integer({ min: 600, max: 100000 }), (newCredits) => {
-        cleanup();
+  it('should update state when event fires', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 600, max: 100000 }),
+        async (newCredits) => {
+          cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          gameStateManager.initNewGame();
 
-        // Render hook
-        const { result } = renderHook(() => useGameEvent('creditsChanged'), {
-          wrapper: createWrapper(gameStateManager),
-        });
+          // Render hook
+          const { result } = renderHook(() => useGameEvent('creditsChanged'), {
+            wrapper: createWrapper(gameStateManager),
+          });
 
-        // Get initial value (should be 500 from new game)
-        const initialCredits = result.current;
-        expect(initialCredits).toBe(500);
+          // Get initial value (should be 500 from new game)
+          const initialCredits = result.current;
+          expect(initialCredits).toBe(500);
 
-        // Trigger event by updating credits (wrapped in act)
-        act(() => {
+          // Trigger event by updating credits
           gameStateManager.updateCredits(newCredits);
-        });
 
-        // Verify state updated
-        expect(result.current).toBe(newCredits);
-        return result.current === newCredits;
-      }),
+          // Wait for state to update
+          await waitFor(() => {
+            expect(result.current).toBe(newCredits);
+          });
+
+          return result.current === newCredits;
+        }
+      ),
       { numRuns: 50 }
     );
   });
@@ -174,40 +191,46 @@ describe('Property: Automatic unsubscription on unmount', () => {
  * re-render when an unrelated event fires.
  */
 describe('Property: Selective re-rendering on events', () => {
-  it('should only re-render components subscribed to the fired event', () => {
-    fc.assert(
-      fc.property(fc.integer({ min: 600, max: 100000 }), (newCredits) => {
-        cleanup();
+  it('should only re-render components subscribed to the fired event', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 600, max: 100000 }),
+        async (newCredits) => {
+          cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          gameStateManager.initNewGame();
 
-        // Render two hooks subscribed to different events
-        const creditsHook = renderHook(() => useGameEvent('creditsChanged'), {
-          wrapper: createWrapper(gameStateManager),
-        });
+          // Render two hooks subscribed to different events
+          const creditsHook = renderHook(() => useGameEvent('creditsChanged'), {
+            wrapper: createWrapper(gameStateManager),
+          });
 
-        const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
-          wrapper: createWrapper(gameStateManager),
-        });
+          const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
+            wrapper: createWrapper(gameStateManager),
+          });
 
-        // Get initial values
-        const initialFuel = fuelHook.result.current;
-        expect(initialFuel).toBe(100); // New game starts with 100 fuel
+          // Get initial values
+          const initialFuel = fuelHook.result.current;
+          expect(initialFuel).toBe(100); // New game starts with 100 fuel
 
-        // Fire creditsChanged event (wrapped in act)
-        act(() => {
+          // Fire creditsChanged event
           gameStateManager.updateCredits(newCredits);
-        });
 
-        // Verify credits hook updated
-        expect(creditsHook.result.current).toBe(newCredits);
+          // Wait for credits hook to update
+          await waitFor(() => {
+            expect(creditsHook.result.current).toBe(newCredits);
+          });
 
-        // Verify fuel hook did NOT update (still has initial value)
-        expect(fuelHook.result.current).toBe(initialFuel);
+          // Verify fuel hook did NOT update (still has initial value)
+          expect(fuelHook.result.current).toBe(initialFuel);
 
-        return fuelHook.result.current === initialFuel;
-      }),
+          return fuelHook.result.current === initialFuel;
+        }
+      ),
       { numRuns: 50 }
     );
   });

@@ -1,10 +1,35 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { GameProvider, useGameState } from '../../src/context/GameContext.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+
+// Suppress expected React error messages when testing error cases
+let originalConsoleError;
+
+beforeAll(() => {
+  originalConsoleError = console.error;
+  console.error = (...args) => {
+    const message = args[0];
+    if (typeof message === 'string') {
+      // Suppress expected error boundary messages
+      if (
+        message.includes('useGameState must be used within GameProvider') ||
+        message.includes('The above error occurred in the') ||
+        message.includes('Consider adding an error boundary')
+      ) {
+        return;
+      }
+    }
+    originalConsoleError(...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 /**
  * React Migration Spec, Property 7: GameContext provides valid instance

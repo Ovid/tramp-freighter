@@ -1,24 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderHook, cleanup, act } from '@testing-library/react';
+import { renderHook, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { GameProvider } from '../../src/context/GameContext.jsx';
 import { useGameAction } from '../../src/hooks/useGameAction.js';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-
-/**
- * Helper to create a wrapper component with GameProvider
- */
-function createWrapper(gameStateManager) {
-  return function Wrapper({ children }) {
-    return (
-      <GameProvider gameStateManager={gameStateManager}>
-        {children}
-      </GameProvider>
-    );
-  };
-}
+import { createWrapper } from '../react-test-utils.jsx';
 
 /**
  * React Migration Spec, Property 13: useGameAction delegates to GameStateManager
@@ -45,9 +32,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
         });
 
         // Call refuel action
-        act(() => {
-          result.current.refuel(refuelAmount);
-        });
+        result.current.refuel(refuelAmount);
 
         // Verify GameStateManager method was called
         expect(refuelSpy).toHaveBeenCalledWith(refuelAmount);
@@ -83,9 +68,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
           });
 
           // Call buyGood action
-          act(() => {
-            result.current.buyGood(goodType, quantity, price);
-          });
+          result.current.buyGood(goodType, quantity, price);
 
           // Verify GameStateManager method was called
           expect(buyGoodSpy).toHaveBeenCalledWith(goodType, quantity, price);
@@ -127,9 +110,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
           });
 
           // Call purchaseUpgrade action
-          act(() => {
-            result.current.purchaseUpgrade(upgradeId);
-          });
+          result.current.purchaseUpgrade(upgradeId);
 
           // Verify GameStateManager method was called
           expect(purchaseUpgradeSpy).toHaveBeenCalledWith(upgradeId);
@@ -177,10 +158,7 @@ describe('Property: Actions trigger events', () => {
         });
 
         // Call refuel action
-        let refuelResult;
-        act(() => {
-          refuelResult = result.current.refuel(refuelAmount);
-        });
+        const refuelResult = result.current.refuel(refuelAmount);
 
         // Only verify event if refuel succeeded
         if (refuelResult.success) {
@@ -221,10 +199,7 @@ describe('Property: Actions trigger events', () => {
         });
 
         // Call refuel action
-        let refuelResult;
-        act(() => {
-          refuelResult = result.current.refuel(refuelAmount);
-        });
+        const refuelResult = result.current.refuel(refuelAmount);
 
         // Only verify event if refuel succeeded
         if (refuelResult.success) {

@@ -57,32 +57,51 @@ export function useGameEvent(eventName) {
  * Maps event names to their corresponding state extraction logic.
  * This ensures components receive the correct data structure for each event.
  *
+ * Fails loudly if state is incomplete to expose initialization bugs early.
+ * GameStateManager should always provide complete state after initialization.
+ *
  * @param {string} eventName - Event name
  * @param {Object} state - Full game state
  * @returns {any} Extracted state value for the event
+ * @throws {Error} If state is null or missing required properties
  * @private
  */
 function extractStateForEvent(eventName, state) {
   if (!state) {
-    return null;
+    throw new Error(
+      'extractStateForEvent called with null state - GameStateManager not initialized'
+    );
+  }
+
+  if (!state.player) {
+    throw new Error('Invalid game state: player object missing');
+  }
+
+  if (!state.ship) {
+    throw new Error('Invalid game state: ship object missing');
+  }
+
+  if (!state.world) {
+    throw new Error('Invalid game state: world object missing');
   }
 
   // Map event names to state extraction logic
+  // No optional chaining - properties MUST exist after initialization
   const eventStateMap = {
-    creditsChanged: state.player?.credits ?? 0,
-    debtChanged: state.player?.debt ?? 0,
-    fuelChanged: state.ship?.fuel ?? 0,
-    locationChanged: state.player?.currentSystem ?? null,
-    timeChanged: state.player?.daysElapsed ?? 0,
-    cargoChanged: state.ship?.cargo ?? [],
+    creditsChanged: state.player.credits,
+    debtChanged: state.player.debt,
+    fuelChanged: state.ship.fuel,
+    locationChanged: state.player.currentSystem,
+    timeChanged: state.player.daysElapsed,
+    cargoChanged: state.ship.cargo,
     shipConditionChanged: {
-      hull: state.ship?.hull ?? 100,
-      engine: state.ship?.engine ?? 100,
-      lifeSupport: state.ship?.lifeSupport ?? 100,
+      hull: state.ship.hull,
+      engine: state.ship.engine,
+      lifeSupport: state.ship.lifeSupport,
     },
-    priceKnowledgeChanged: state.world?.priceKnowledge ?? {},
-    activeEventsChanged: state.world?.activeEvents ?? [],
-    shipNameChanged: state.ship?.name ?? 'Unknown',
+    priceKnowledgeChanged: state.world.priceKnowledge,
+    activeEventsChanged: state.world.activeEvents,
+    shipNameChanged: state.ship.name,
     conditionWarning: null, // Warnings are passed directly in event data
   };
 
