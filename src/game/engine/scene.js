@@ -1,6 +1,8 @@
 import * as THREE from '../../../vendor/three/build/three.module.js';
 import { OrbitControls } from '../../../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
+import { createStarSystems } from './stars.js';
+import { STAR_DATA } from '../data/star-data.js';
 
 /**
  * Initialize Three.js scene, camera, renderer, and controls
@@ -20,7 +22,10 @@ export function initScene() {
     scene.background = new THREE.Color(VISUAL_CONFIG.sceneBackground);
 
     // Exponential fog creates subtle volumetric depth without obscuring nearby stars
-    scene.fog = new THREE.FogExp2(VISUAL_CONFIG.sceneBackground, 0.0003);
+    scene.fog = new THREE.FogExp2(
+      VISUAL_CONFIG.sceneBackground,
+      VISUAL_CONFIG.fogDensity
+    );
 
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -39,13 +44,13 @@ export function initScene() {
     // Ambient + directional lighting provides depth without harsh shadows
     const ambientLight = new THREE.AmbientLight(
       VISUAL_CONFIG.ambientLightColor,
-      1.5
+      VISUAL_CONFIG.ambientLightIntensity
     );
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(
       VISUAL_CONFIG.directionalLightColor,
-      0.8
+      VISUAL_CONFIG.directionalLightIntensity
     );
     directionalLight.position.set(1, 1, 1).normalize();
     scene.add(directionalLight);
@@ -54,12 +59,20 @@ export function initScene() {
 
     console.log('Scene initialized successfully');
 
+    // Add visual content to scene
+    const starfield = createStarfield(scene);
+    const sectorBoundary = setupSectorBoundary(scene);
+    const stars = createStarSystems(scene, STAR_DATA);
+
     return {
       scene,
       camera,
       renderer,
       controls,
       lights: { ambientLight, directionalLight },
+      starfield,
+      sectorBoundary,
+      stars,
     };
   } catch (error) {
     console.error('Failed to initialize Three.js scene:', error);
@@ -86,13 +99,13 @@ function setupCameraControls(camera, renderer) {
 
   // Enable damping for smooth movement
   controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
+  controls.dampingFactor = VISUAL_CONFIG.dampingFactor;
 
   // Configure control speeds
   controls.rotateSpeed = 1.0;
   controls.panSpeed = 1.0;
-  // Configure scroll wheel for dolly (zoom) with sensitivity 150
-  controls.zoomSpeed = 1.5;
+  // Configure scroll wheel for dolly (zoom)
+  controls.zoomSpeed = VISUAL_CONFIG.zoomSpeed;
 
   // Set min/max distance limits
   controls.minDistance = 50;
@@ -131,8 +144,12 @@ export function onWindowResize(camera, renderer) {
  * @returns {THREE.LineSegments} The sector boundary object
  */
 export function setupSectorBoundary(scene) {
-  // Create sphere geometry with radius 300
-  const sphereGeometry = new THREE.SphereGeometry(300, 32, 32);
+  // Create sphere geometry
+  const sphereGeometry = new THREE.SphereGeometry(
+    VISUAL_CONFIG.sectorBoundaryRadius,
+    32,
+    32
+  );
 
   // Use EdgesGeometry for clean wireframe lines
   const edgesGeometry = new THREE.EdgesGeometry(sphereGeometry);
@@ -158,25 +175,31 @@ export function setupSectorBoundary(scene) {
   // Add to scene
   scene.add(sectorBoundary);
 
-  console.log('Sector boundary created with radius 300');
+  console.log(
+    `Sector boundary created with radius ${VISUAL_CONFIG.sectorBoundaryRadius}`
+  );
 
   return sectorBoundary;
 }
 
 /**
- * Create starfield background
+ * Create starfield background.
+ *
+ * PERFORMANCE NOTE: This function allocates 1200 stars with Float32Arrays.
+ * It should only be called once during scene initialization, never in animation loops.
+ *
  * @param {THREE.Scene} scene - The scene to add the starfield to
  * @returns {THREE.Points} The starfield object
  */
 export function createStarfield(scene) {
   const starfieldGeometry = new THREE.BufferGeometry();
-  const starCount = 1200;
+  const starCount = VISUAL_CONFIG.starfieldCount;
   const positions = new Float32Array(starCount * 3);
   const colors = new Float32Array(starCount * 3);
 
   // Create stars at random positions in a spherical shell
-  const minRadius = 700;
-  const maxRadius = 1400;
+  const minRadius = VISUAL_CONFIG.starfieldMinRadius;
+  const maxRadius = VISUAL_CONFIG.starfieldMaxRadius;
 
   // Spectral types for random selection
   const spectralTypes = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
@@ -258,7 +281,12 @@ export function createStarfield(scene) {
 }
 
 /**
- * Create a soft glowing star texture for background stars
+ * Create a soft glowing star texture for background stars.
+ *
+ * PERFORMANCE NOTE: This function creates a canvas texture. The canvas element
+ * is intentionally kept alive as THREE.CanvasTexture maintains a reference to it.
+ * This function should only be called once during scene initialization.
+ *
  * @returns {THREE.CanvasTexture} The star texture
  */
 function createBackgroundStarTexture() {

@@ -467,6 +467,19 @@ export const VISUAL_CONFIG = {
     default: 0.6,
     active: 0.8,
   },
+  // Scene atmosphere
+  fogDensity: 0.0003,
+  ambientLightIntensity: 1.5,
+  directionalLightIntensity: 0.8,
+  // Camera controls
+  dampingFactor: 0.05,
+  zoomSpeed: 1.5,
+  // Sector boundary
+  sectorBoundaryRadius: 300,
+  // Background starfield
+  starfieldCount: 1200,
+  starfieldMinRadius: 700,
+  starfieldMaxRadius: 1400,
 };
 
 /**

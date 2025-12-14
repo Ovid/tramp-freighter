@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { initScene, onWindowResize } from '../../game/engine/scene';
-import { STAR_DATA } from '../../game/data/star-data';
-import { WORMHOLE_DATA } from '../../game/data/wormhole-data';
 
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
@@ -19,7 +16,6 @@ import { WORMHOLE_DATA } from '../../game/data/wormhole-data';
 export function StarMapCanvas() {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
-  const gameStateManager = useGameState();
 
   useEffect(() => {
     // Guard: Don't initialize if container not ready or already initialized
@@ -55,9 +51,7 @@ export function StarMapCanvas() {
         animationFrameId = requestAnimationFrame(animate);
 
         // Update controls (damping)
-        if (controls) {
-          controls.update();
-        }
+        controls.update();
 
         // Render scene
         renderer.render(scene, camera);
@@ -97,16 +91,21 @@ export function StarMapCanvas() {
           renderer.dispose();
         }
 
-        // Dispose scene children (geometries, materials)
+        // Dispose scene children (geometries, materials, textures)
         if (scene) {
           scene.traverse((object) => {
             if (object.geometry) {
               object.geometry.dispose();
             }
             if (object.material) {
+              // Dispose material textures first
               if (Array.isArray(object.material)) {
-                object.material.forEach((material) => material.dispose());
+                object.material.forEach((material) => {
+                  if (material.map) material.map.dispose();
+                  material.dispose();
+                });
               } else {
+                if (object.material.map) object.material.map.dispose();
                 object.material.dispose();
               }
             }

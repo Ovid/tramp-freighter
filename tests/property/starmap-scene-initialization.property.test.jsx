@@ -27,8 +27,8 @@ function createMockSceneComponents() {
     background: null,
     fog: null,
     add: vi.fn(),
-    traverse: vi.fn((callback) => {
-      // Mock traverse for cleanup
+    traverse: vi.fn((_callback) => {
+      // Mock traverse for cleanup - callback not needed in mock
     }),
   };
 
