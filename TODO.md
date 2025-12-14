@@ -52,4 +52,4 @@
   project and when we come back, we might not realize the system is in a
   transition state that could be unstable.
 - Before you write a defensive check for a variable, check if it's guaranteed
-  to exist. You don't `if (state) ...` if `state` always exists.
+  to exist. You don't write `if (state) ...` if `state` always exists.

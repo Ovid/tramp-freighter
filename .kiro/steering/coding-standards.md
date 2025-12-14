@@ -21,6 +21,100 @@ This enables strict mode which:
 - Makes code run faster by enabling optimizations
 - Prevents accidental global variable creation
 
+## Task Completion Standards
+
+### Test Suite Requirements
+
+**CRITICAL: No task is complete until the entire test suite passes**
+
+```bash
+npm test
+```
+
+Every task must leave the codebase in a working state with all tests passing. This ensures:
+
+- No regressions are introduced
+- New functionality integrates correctly
+- The system remains stable and deployable
+
+### Self-Contained Tasks
+
+**CRITICAL: All tasks must be self-contained and leave the system in a working or improved state**
+
+Do NOT:
+- Schedule tests for a later task
+- Leave new components unintegrated "to be hooked up later"
+- Create incomplete features that break existing functionality
+- Leave the system in a transition state
+
+DO:
+- Complete all aspects of a feature in the current task
+- Write and pass tests as part of the task
+- Integrate new components immediately
+- Ensure the system is stable before marking the task complete
+
+**Why this matters**: Projects may be paused and resumed later. When returning to a project, it must be clear that the system is stable, not in an unstable transition state.
+
+### Single Purpose Per File
+
+**Each .js file should have a single, clear purpose**
+
+```javascript
+// GOOD - Single purpose: trade panel controller
+// js/controllers/trade.js
+class TradePanelController {
+  // All trade panel logic
+}
+
+// BAD - Multiple unrelated purposes in one file
+// js/game-stuff.js
+class TradePanelController { }
+class RefuelPanelController { }
+function calculateDistance() { }
+```
+
+Benefits:
+- Easier to locate functionality
+- Clearer dependencies
+- Better testability
+- Simpler code review
+
+### Avoid Unnecessary Wrapper Functions
+
+**Don't create wrapper functions that just call another function without adding value**
+
+```javascript
+// BAD - Unnecessary wrapper
+function getPlayerCredits(state) {
+  return state.player.credits;
+}
+
+// GOOD - Direct access
+const credits = state.player.credits;
+
+// BAD - Wrapper adds no value
+function updateHUD() {
+  hudManager.update();
+}
+
+// GOOD - Call directly
+hudManager.update();
+
+// GOOD - Wrapper adds value (transformation, validation, error handling)
+function getPlayerCredits(state) {
+  if (!state?.player) {
+    throw new Error('Invalid state: player not initialized');
+  }
+  return Math.floor(state.player.credits); // Ensures integer
+}
+```
+
+**When wrappers ARE appropriate:**
+- Adding validation or error handling
+- Transforming data format
+- Providing a stable API over changing implementation
+- Abstracting complex operations into a clear interface
+
 ## Performance Best Practices
 
 ### Object Allocation in Hot Loops
@@ -609,18 +703,58 @@ class GameStateManager {
 }
 ```
 
+**Before writing a defensive check, ask: "Is this variable guaranteed to exist?"**
+
+Check the code path:
+1. Is it initialized in the constructor? → No check needed
+2. Is it set by an initialization method called in constructor? → No check needed
+3. Is it a required parameter that should be validated once at entry? → Validate at entry, not at every use
+4. Is it internal state that should always be valid? → No check needed, throw if invalid
+
 **When to use defensive checks:**
 
 - External data (user input, API responses, localStorage)
-- Optional parameters
+- Optional parameters explicitly marked as optional
 - Data from untrusted sources
+- Public API boundaries where callers might pass invalid data
 
 **When NOT to use defensive checks:**
 
 - Variables initialized in constructor
-- Required parameters (use validation instead)
+- Required parameters (validate once at function entry, not at every use)
 - Internal state that should always be valid
 - Variables set by initialization methods called in constructor
+- Properties that are guaranteed to exist by design
+
+**Example - Trace the guarantee:**
+
+```javascript
+class GameStateManager {
+  constructor() {
+    // state is guaranteed to exist after this line
+    this.state = this.initializeNewGame();
+  }
+
+  getCredits() {
+    // BAD - state is guaranteed to exist, no check needed
+    if (!this.state) {
+      throw new Error('State not initialized');
+    }
+    return this.state.player.credits;
+
+    // GOOD - state is guaranteed, access directly
+    return this.state.player.credits;
+  }
+
+  loadGame(savedData) {
+    // GOOD - savedData is external, validate it
+    if (!savedData || typeof savedData !== 'object') {
+      throw new Error('Invalid save data');
+    }
+    this.state = savedData;
+  }
+}
+```
 
 ### Throw Exceptions for "Impossible" Conditions
 
