@@ -174,6 +174,19 @@ export class GameStateManager {
   }
 
   /**
+   * Get upgrade definition by ID
+   *
+   * Returns the upgrade definition object from SHIP_CONFIG.UPGRADES constant.
+   * Used by UI to display upgrade information.
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   * @returns {Object|null} Upgrade definition or null if not found
+   */
+  getUpgradeDefinition(upgradeId) {
+    return SHIP_CONFIG.UPGRADES[upgradeId] || null;
+  }
+
+  /**
    * Initialize a new game with default values
    */
   initNewGame() {

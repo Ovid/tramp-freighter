@@ -324,8 +324,8 @@
   - Display cargo stacks with purchase metadata
   - _Requirements: 8.6_
 
-- [ ] 16. Implement Ship Status panel
-- [ ] 16.1 Create ShipStatusPanel component
+- [x] 16. Implement Ship Status panel
+- [x] 16.1 Create ShipStatusPanel component
   - Create src/features/ship-status/ShipStatusPanel.jsx
   - Use useGameEvent for ship data
   - Display ship name, condition, upgrades, quirks

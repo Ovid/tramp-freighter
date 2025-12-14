@@ -4,6 +4,7 @@ import { RepairPanel } from '../repair/RepairPanel';
 import { UpgradesPanel } from '../upgrades/UpgradesPanel';
 import { InfoBrokerPanel } from '../info-broker/InfoBrokerPanel';
 import { CargoManifestPanel } from '../cargo/CargoManifestPanel';
+import { ShipStatusPanel } from '../ship-status/ShipStatusPanel';
 
 /**
  * Panel container component.
@@ -34,12 +35,7 @@ export function PanelContainer({ activePanel, onClose }) {
       case 'cargo-manifest':
         return <CargoManifestPanel onClose={onClose} />;
       case 'ship-status':
-        return (
-          <div className="panel-placeholder">
-            <h2>Ship Status Panel</h2>
-            <p>ShipStatusPanel will be implemented in task 16</p>
-          </div>
-        );
+        return <ShipStatusPanel onClose={onClose} />;
       default:
         return null;
     }
