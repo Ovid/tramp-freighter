@@ -253,14 +253,14 @@
   - **Property 23: Panels rendered as React components**
   - **Validates: Requirements 8.1**
 
-- [ ] 11. Implement Refuel panel
-- [ ] 11.1 Create refuel utility functions
+- [x] 11. Implement Refuel panel
+- [x] 11.1 Create refuel utility functions
   - Create src/features/refuel/refuelUtils.js
   - Implement calculateRefuelCost function
   - Implement validateRefuel function
   - _Requirements: 15.2, 15.5_
 
-- [ ] 11.2 Create RefuelPanel component
+- [x] 11.2 Create RefuelPanel component
   - Create src/features/refuel/RefuelPanel.jsx
   - Use local state for slider amount
   - Use useGameEvent for fuel and credits
@@ -268,7 +268,7 @@
   - Display validation messages
   - _Requirements: 8.2, 27.1, 27.2, 27.3, 27.4, 27.5_
 
-- [ ] 11.3 Write property test for refuel local state
+- [x] 11.3 Write property test for refuel local state
   - **Property 25: Refuel panel manages local state**
   - **Validates: Requirements 27.1, 27.2**
 
