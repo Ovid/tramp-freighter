@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { useAnimationLock } from '../../hooks/useAnimationLock';
@@ -9,6 +10,7 @@ import { useAnimationLock } from '../../hooks/useAnimationLock';
  * - locationChanged: Updates button state when player location changes
  *
  * Uses useAnimationLock to disable buttons during animations.
+ * Polls animation state after location changes to re-enable buttons when animation completes.
  *
  * React Migration Spec: Requirements 46.1, 46.2, 46.3, 46.4, 46.5
  *
@@ -19,6 +21,7 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const animationLock = useAnimationLock();
+  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
 
   // Get current system data
   const starData = gameStateManager.starData;
@@ -33,16 +36,37 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
   // Determine if docking is available (system has a station)
   const canDock = currentSystem.st > 0;
 
-  // Check if animations are running (disables all buttons during animations)
-  // Animation system may not be initialized yet if StarMapCanvas hasn't mounted
-  let isAnimationRunning = false;
-  try {
-    isAnimationRunning = animationLock.isLocked();
-  } catch (error) {
-    // Animation system not initialized yet - treat as not locked
-    // This is expected during initial render before StarMapCanvas mounts
-    isAnimationRunning = false;
-  }
+  // Poll animation lock state after location changes
+  // Location changes before animation completes, so we need to poll until animation finishes
+  useEffect(() => {
+    // Check animation state immediately
+    const checkAnimationState = () => {
+      try {
+        const locked = animationLock.isLocked();
+        setIsAnimationRunning(locked);
+        return locked;
+      } catch (error) {
+        // Animation system not initialized yet - treat as not locked
+        setIsAnimationRunning(false);
+        return false;
+      }
+    };
+
+    // Check immediately
+    const isLocked = checkAnimationState();
+
+    // If animation is running, poll until it completes
+    if (isLocked) {
+      const pollInterval = setInterval(() => {
+        const stillLocked = checkAnimationState();
+        if (!stillLocked) {
+          clearInterval(pollInterval);
+        }
+      }, 100); // Poll every 100ms
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [currentSystemId, animationLock]);
 
   const handleSystemInfo = () => {
     // Don't execute if animation is running

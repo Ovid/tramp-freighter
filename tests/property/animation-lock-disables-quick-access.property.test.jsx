@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+} from '@testing-library/react';
 import * as fc from 'fast-check';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -191,5 +197,148 @@ describe('Property 49: Animation lock disables quick access', () => {
     // Clicking should work
     fireEvent.click(dockBtn);
     expect(mockOnDock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should poll animation state and re-enable buttons after location change during animation', async () => {
+    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gameStateManager.initNewGame();
+
+    // Create mock animation system starting locked
+    let isLocked = true;
+    const mockAnimationSystem = {
+      isAnimating: true,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => isLocked),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+    };
+
+    gameStateManager.setAnimationSystem(mockAnimationSystem);
+
+    const wrapper = createWrapper(gameStateManager);
+    const mockOnDock = vi.fn();
+
+    render(<QuickAccessButtons onDock={mockOnDock} />, { wrapper });
+
+    const dockBtn = screen.getByText('Dock');
+
+    // Initially disabled because animation is running
+    expect(dockBtn).toBeDisabled();
+
+    // Simulate location change (which happens before animation completes)
+    // This triggers the useEffect that starts polling
+    gameStateManager.updateLocation(1); // Jump to Alpha Centauri A
+
+    // Animation is still running, button should still be disabled
+    expect(dockBtn).toBeDisabled();
+
+    // Simulate animation completing
+    isLocked = false;
+    mockAnimationSystem.isAnimating = false;
+
+    // Wait for polling to detect animation completion and re-enable button
+    await waitFor(
+      () => {
+        expect(dockBtn).not.toBeDisabled();
+      },
+      { timeout: 500, interval: 50 }
+    );
+
+    // Clicking should work
+    fireEvent.click(dockBtn);
+    expect(mockOnDock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should stop polling once animation completes', async () => {
+    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gameStateManager.initNewGame();
+
+    // Create mock animation system starting locked
+    let isLocked = true;
+    const mockAnimationSystem = {
+      isAnimating: true,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => isLocked),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+    };
+
+    gameStateManager.setAnimationSystem(mockAnimationSystem);
+
+    const wrapper = createWrapper(gameStateManager);
+
+    render(<QuickAccessButtons onDock={vi.fn()} />, { wrapper });
+
+    // Trigger location change to start polling
+    gameStateManager.updateLocation(1);
+
+    // Wait a bit for initial polling to start
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Clear mock call count
+    mockAnimationSystem.inputLockManager.isInputLocked.mockClear();
+
+    // Unlock animation
+    isLocked = false;
+    mockAnimationSystem.isAnimating = false;
+
+    // Wait for polling to detect unlock
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    const callsAfterUnlock =
+      mockAnimationSystem.inputLockManager.isInputLocked.mock.calls.length;
+
+    // Wait significantly longer
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Should not have made additional calls (polling stopped)
+    expect(
+      mockAnimationSystem.inputLockManager.isInputLocked.mock.calls.length
+    ).toBe(callsAfterUnlock);
+  });
+
+  it('should clean up polling interval on unmount', async () => {
+    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gameStateManager.initNewGame();
+
+    // Create mock animation system starting locked
+    const mockAnimationSystem = {
+      isAnimating: true,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => true),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+    };
+
+    gameStateManager.setAnimationSystem(mockAnimationSystem);
+
+    const wrapper = createWrapper(gameStateManager);
+
+    const { unmount } = render(<QuickAccessButtons onDock={vi.fn()} />, {
+      wrapper,
+    });
+
+    // Trigger location change to start polling
+    gameStateManager.updateLocation(1);
+
+    // Wait for polling to start
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Clear mock call count
+    mockAnimationSystem.inputLockManager.isInputLocked.mockClear();
+
+    // Unmount component
+    unmount();
+
+    // Wait significantly
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Should not have made any calls after unmount (interval was cleaned up)
+    expect(
+      mockAnimationSystem.inputLockManager.isInputLocked
+    ).not.toHaveBeenCalled();
   });
 });
