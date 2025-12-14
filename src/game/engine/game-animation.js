@@ -5,6 +5,7 @@
  * Includes timing calculations, easing functions, and input management.
  */
 
+import * as THREE from '../../../vendor/three/build/three.module.js';
 import { ANIMATION_CONFIG } from '../constants.js';
 
 /**
@@ -195,7 +196,6 @@ function createShipIndicatorCanvasTexture() {
   context2d.fillStyle = gradient;
   context2d.fillRect(0, 0, size, size);
 
-  const THREE = window.THREE;
   return new THREE.CanvasTexture(canvas);
 }
 
@@ -209,8 +209,6 @@ function createShipIndicatorCanvasTexture() {
  * @returns {THREE.Sprite} Ship indicator sprite
  */
 export function createShipIndicatorSprite() {
-  const THREE = window.THREE;
-
   // Create texture using same pattern as star sprites
   const texture = createShipIndicatorCanvasTexture();
 
@@ -248,8 +246,6 @@ export function createShipIndicatorSprite() {
  * @returns {THREE.LineLoop} Reticle line object
  */
 export function createShipReticle() {
-  const THREE = window.THREE;
-
   // Create circle vertices manually
   const vertices = [];
   const segments = ANIMATION_CONFIG.RETICLE_SEGMENTS;
@@ -319,7 +315,6 @@ export class JumpAnimationSystem {
     this.originalCameraState = null;
 
     // Reusable Vector3 objects for calculations to avoid allocations in hot paths
-    const THREE = window.THREE;
     this._tempVec1 = new THREE.Vector3();
     this._tempVec2 = new THREE.Vector3();
     this._tempVec3 = new THREE.Vector3();
@@ -348,8 +343,6 @@ export class JumpAnimationSystem {
    * @returns {Object} { position: THREE.Vector3, lookAt: THREE.Vector3 }
    */
   calculateSideViewPosition(originPos, destPos, distance) {
-    const THREE = window.THREE;
-
     // Position camera to look at midpoint for balanced framing of both stars
     this._tempVec1.addVectors(originPos, destPos).multiplyScalar(0.5);
 
@@ -396,7 +389,6 @@ export class JumpAnimationSystem {
    * Captures the camera position and look-at target before any transitions.
    */
   _storeCameraState() {
-    const THREE = window.THREE;
     this.originalCameraState = {
       position: new THREE.Vector3().copy(this.camera.position),
       target: new THREE.Vector3().copy(this.controls.target),
@@ -625,7 +617,6 @@ export class JumpAnimationSystem {
       }
 
       // Get star positions
-      const THREE = window.THREE;
       const originPos = new THREE.Vector3(
         originSystem.x,
         originSystem.y,

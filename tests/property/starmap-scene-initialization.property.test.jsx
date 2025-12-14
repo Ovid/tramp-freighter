@@ -64,6 +64,21 @@ vi.mock('../../src/game/engine/scene', () => {
   };
 });
 
+// Mock the animation system
+vi.mock('../../src/game/engine/game-animation', () => {
+  return {
+    JumpAnimationSystem: vi.fn().mockImplementation(() => ({
+      isAnimating: false,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => false),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+      playJumpAnimation: vi.fn(),
+    })),
+  };
+});
+
 describe('Property: Scene initialization', () => {
   let initSceneMock;
 

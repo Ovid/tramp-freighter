@@ -54,6 +54,21 @@ vi.mock('../../src/game/engine/scene', () => {
   };
 });
 
+// Mock the animation system
+vi.mock('../../src/game/engine/game-animation', () => {
+  return {
+    JumpAnimationSystem: vi.fn().mockImplementation(() => ({
+      isAnimating: false,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => false),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+      playJumpAnimation: vi.fn(),
+    })),
+  };
+});
+
 // Suppress console warnings during tests
 // React Testing Library warnings that are expected in property-based tests:
 // - "Warning: An update to" - React state updates outside act() are expected in fast-check

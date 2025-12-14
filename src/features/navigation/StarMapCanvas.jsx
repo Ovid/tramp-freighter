@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { initScene, onWindowResize } from '../../game/engine/scene';
+import { JumpAnimationSystem } from '../../game/engine/game-animation';
+import { useGameState } from '../../context/GameContext';
 
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
@@ -11,11 +13,12 @@ import { initScene, onWindowResize } from '../../game/engine/scene';
  * CRITICAL: The Three.js scene must initialize only once per mount.
  * Re-initialization on re-render would cause performance issues and memory leaks.
  *
- * React Migration Spec: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5
+ * React Migration Spec: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5, 43.1, 43.2
  */
 export function StarMapCanvas() {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
+  const gameStateManager = useGameState();
 
   useEffect(() => {
     // Guard: Don't initialize if container not ready or already initialized
@@ -23,7 +26,13 @@ export function StarMapCanvas() {
       return;
     }
 
-    let scene, camera, renderer, controls, lights, animationFrameId;
+    let scene,
+      camera,
+      renderer,
+      controls,
+      lights,
+      animationFrameId,
+      animationSystem;
 
     try {
       // Initialize Three.js scene once
@@ -37,6 +46,17 @@ export function StarMapCanvas() {
       // Append renderer to container
       containerRef.current.appendChild(renderer.domElement);
 
+      // Initialize animation system
+      animationSystem = new JumpAnimationSystem(
+        scene,
+        camera,
+        controls,
+        gameStateManager.starData
+      );
+
+      // Register animation system with GameStateManager for useAnimationLock hook
+      gameStateManager.setAnimationSystem(animationSystem);
+
       // Store scene components for cleanup
       sceneRef.current = {
         scene,
@@ -44,6 +64,7 @@ export function StarMapCanvas() {
         renderer,
         controls,
         lights,
+        animationSystem,
       };
 
       // Animation loop - runs outside React render cycle
@@ -75,6 +96,9 @@ export function StarMapCanvas() {
 
         // Remove resize listener
         window.removeEventListener('resize', handleResize);
+
+        // Clear animation system reference from GameStateManager
+        gameStateManager.setAnimationSystem(null);
 
         // Dispose of Three.js resources
         if (renderer) {

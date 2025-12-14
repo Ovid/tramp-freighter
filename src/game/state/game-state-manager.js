@@ -95,6 +95,24 @@ export class GameStateManager {
 
     // Track last save time for debouncing
     this.lastSaveTime = 0;
+
+    // Animation system reference (set by StarMapCanvas after scene initialization)
+    // Used by useAnimationLock hook to check animation state
+    this.animationSystem = null;
+  }
+
+  /**
+   * Set the animation system reference
+   *
+   * Called by StarMapCanvas after scene initialization to make the animation
+   * system accessible to React components via useAnimationLock hook.
+   *
+   * React Migration Spec: Requirements 43.2, 43.5
+   *
+   * @param {JumpAnimationSystem} animationSystem - The animation system instance
+   */
+  setAnimationSystem(animationSystem) {
+    this.animationSystem = animationSystem;
   }
 
   /**
