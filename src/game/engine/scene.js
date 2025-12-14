@@ -320,3 +320,80 @@ function createBackgroundStarTexture() {
   texture.needsUpdate = true;
   return texture;
 }
+
+// Temp vectors for camera control calculations (reused to avoid allocation)
+const _tempZoomDirection = new THREE.Vector3();
+const _tempZoomPosition = new THREE.Vector3();
+
+/**
+ * Zoom In button handler - decreases camera distance
+ * @param {THREE.PerspectiveCamera} camera - The camera
+ * @param {OrbitControls} controls - The controls
+ */
+export function zoomIn(camera, controls) {
+  if (controls) {
+    // Reuse temp vector to avoid allocation during user interaction
+    _tempZoomDirection.subVectors(controls.target, camera.position).normalize();
+
+    // Calculate current distance
+    const currentDistance = camera.position.distanceTo(controls.target);
+
+    // Calculate zoom amount (10% of current distance, minimum 10 units)
+    const zoomAmount = Math.max(currentDistance * 0.1, 10);
+
+    // Calculate new position using temp vector to avoid allocation
+    _tempZoomPosition
+      .copy(camera.position)
+      .add(_tempZoomDirection.multiplyScalar(zoomAmount));
+
+    // Check if new distance would be below minimum
+    const newDistance = _tempZoomPosition.distanceTo(controls.target);
+    if (newDistance > controls.minDistance) {
+      camera.position.copy(_tempZoomPosition);
+      controls.update();
+    }
+  }
+}
+
+/**
+ * Zoom Out button handler - increases camera distance
+ * @param {THREE.PerspectiveCamera} camera - The camera
+ * @param {OrbitControls} controls - The controls
+ */
+export function zoomOut(camera, controls) {
+  if (controls) {
+    // Reuse temp vector to avoid allocation during user interaction
+    _tempZoomDirection.subVectors(camera.position, controls.target).normalize();
+
+    // Calculate current distance
+    const currentDistance = camera.position.distanceTo(controls.target);
+
+    // Calculate zoom amount (10% of current distance, minimum 10 units)
+    const zoomAmount = Math.max(currentDistance * 0.1, 10);
+
+    // Calculate new position using temp vector to avoid allocation
+    _tempZoomPosition
+      .copy(camera.position)
+      .add(_tempZoomDirection.multiplyScalar(zoomAmount));
+
+    // Check if new distance would be above maximum
+    const newDistance = _tempZoomPosition.distanceTo(controls.target);
+    if (newDistance < controls.maxDistance) {
+      camera.position.copy(_tempZoomPosition);
+      controls.update();
+    }
+  }
+}
+
+/**
+ * Toggle boundary visibility
+ * @param {THREE.LineSegments} sectorBoundary - The sector boundary object
+ * @returns {boolean} New visibility state
+ */
+export function toggleBoundary(sectorBoundary) {
+  if (sectorBoundary) {
+    sectorBoundary.visible = !sectorBoundary.visible;
+    return sectorBoundary.visible;
+  }
+  return false;
+}

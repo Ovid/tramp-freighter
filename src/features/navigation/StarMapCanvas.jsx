@@ -1,8 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from '../../../vendor/three/build/three.module.js';
-import { initScene, onWindowResize } from '../../game/engine/scene';
+import {
+  initScene,
+  onWindowResize,
+  zoomIn,
+  zoomOut,
+  toggleBoundary,
+} from '../../game/engine/scene';
 import { JumpAnimationSystem } from '../../game/engine/game-animation';
 import { useGameState } from '../../context/GameContext';
+import { CameraControls } from './CameraControls';
 
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
@@ -20,6 +27,14 @@ export function StarMapCanvas() {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const gameStateManager = useGameState();
+  const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
+  const autoRotationRef = useRef(autoRotationEnabled);
+  const [boundaryVisible, setBoundaryVisible] = useState(true);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    autoRotationRef.current = autoRotationEnabled;
+  }, [autoRotationEnabled]);
 
   useEffect(() => {
     // Guard: Don't initialize if container not ready or already initialized
@@ -112,14 +127,42 @@ export function StarMapCanvas() {
         controls,
         lights,
         animationSystem,
+        sectorBoundary: sceneComponents.sectorBoundary,
       };
+
+      // Temp vector for auto-rotation (reused to avoid allocation)
+      const _tempOffset = new THREE.Vector3();
 
       // Animation loop - runs outside React render cycle
       function animate() {
         animationFrameId = requestAnimationFrame(animate);
 
+        // Update auto-rotation if enabled (use ref to avoid stale closure)
+        if (autoRotationRef.current && controls && controls.target) {
+          // Rotation speed chosen for smooth, noticeable orbit without inducing motion sickness
+          const rotationSpeed = 0.2 * (Math.PI / 180);
+
+          // Get current camera position relative to target
+          _tempOffset.copy(camera.position).sub(controls.target);
+
+          // Apply rotation around Y-axis (vertical axis)
+          const cosAngle = Math.cos(rotationSpeed);
+          const sinAngle = Math.sin(rotationSpeed);
+
+          const newX = _tempOffset.x * cosAngle - _tempOffset.z * sinAngle;
+          const newZ = _tempOffset.x * sinAngle + _tempOffset.z * cosAngle;
+
+          _tempOffset.x = newX;
+          _tempOffset.z = newZ;
+
+          // Update camera position
+          camera.position.copy(controls.target).add(_tempOffset);
+        }
+
         // Update controls (damping)
-        controls.update();
+        if (controls) {
+          controls.update();
+        }
 
         // Render scene
         renderer.render(scene, camera);
@@ -198,18 +241,51 @@ export function StarMapCanvas() {
     }
   }, []); // Empty dependency array - initialize once per mount
 
+  // Camera control handlers
+  const handleZoomIn = () => {
+    if (sceneRef.current) {
+      zoomIn(sceneRef.current.camera, sceneRef.current.controls);
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (sceneRef.current) {
+      zoomOut(sceneRef.current.camera, sceneRef.current.controls);
+    }
+  };
+
+  const handleToggleRotation = () => {
+    setAutoRotationEnabled(!autoRotationEnabled);
+  };
+
+  const handleToggleBoundary = () => {
+    if (sceneRef.current) {
+      const newVisibility = toggleBoundary(sceneRef.current.sectorBoundary);
+      setBoundaryVisible(newVisibility);
+    }
+  };
+
   return (
-    <div
-      ref={containerRef}
-      className="starmap-container"
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 0,
-      }}
-    />
+    <>
+      <div
+        ref={containerRef}
+        className="starmap-container"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+        }}
+      />
+      <CameraControls
+        cameraState={{ autoRotationEnabled, boundaryVisible }}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onToggleRotation={handleToggleRotation}
+        onToggleBoundary={handleToggleBoundary}
+      />
+    </>
   );
 }
