@@ -1,19 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import { aliases } from './shared-config.js';
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@context': path.resolve(__dirname, './src/context'),
-      '@game': path.resolve(__dirname, './src/game'),
-      '@assets': path.resolve(__dirname, './src/assets'),
-    },
+    alias: aliases,
   },
   test: {
     globals: true,
