@@ -10,6 +10,18 @@ import {
 } from './repairUtils';
 import { SHIP_CONFIG } from '../../game/constants';
 
+/**
+ * RepairPanel component for repairing ship systems.
+ *
+ * Displays current ship condition and provides options to repair hull,
+ * engine, and life support systems individually or all at once.
+ *
+ * React Migration Spec: Requirements 8.3
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback to close the panel
+ * @returns {JSX.Element} Repair panel component
+ */
 export function RepairPanel({ onClose }) {
   const gameStateManager = useGameState();
   const shipCondition = useGameEvent('shipConditionChanged');

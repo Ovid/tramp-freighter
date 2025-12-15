@@ -11,6 +11,18 @@ import {
 } from './upgradesUtils';
 import { SHIP_CONFIG } from '../../game/constants';
 
+/**
+ * UpgradesPanel component for purchasing ship upgrades.
+ *
+ * Displays available and installed upgrades with their effects, costs,
+ * and tradeoffs. Provides confirmation dialog for permanent upgrades.
+ *
+ * React Migration Spec: Requirements 8.4
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback to close the panel
+ * @returns {JSX.Element} Upgrades panel component
+ */
 export function UpgradesPanel({ onClose }) {
   const gameStateManager = useGameState();
   const credits = useGameEvent('creditsChanged');

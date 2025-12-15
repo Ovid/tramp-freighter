@@ -13,6 +13,19 @@ import {
 import { INTELLIGENCE_CONFIG, COMMODITY_TYPES } from '../../game/constants';
 import { capitalizeFirst } from '../../game/utils/string-utils';
 
+/**
+ * InfoBrokerPanel component for purchasing market intelligence.
+ *
+ * Provides two tabs:
+ * - Purchase Intelligence: Buy rumors and system price data
+ * - Market Data: View known market prices sorted by staleness
+ *
+ * React Migration Spec: Requirements 8.5
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback to close the panel
+ * @returns {JSX.Element} Information broker panel component
+ */
 export function InfoBrokerPanel({ onClose }) {
   const gameStateManager = useGameState();
   const credits = useGameEvent('creditsChanged');

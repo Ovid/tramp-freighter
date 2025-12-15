@@ -601,7 +601,7 @@
   - **Validates: Requirements 41.3, 41.4**
 
 - [ ] 27. Verify DOM manipulation removal
-- [ ] 27.1 Search codebase for manual DOM manipulation
+- [x] 27.1 Search codebase for manual DOM manipulation
   - Search for document.querySelector in UI code
   - Search for innerHTML assignments in UI code
   - Search for createElement in UI code
@@ -609,7 +609,7 @@
   - Verify all instances are removed or in game logic only
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 27.2 Verify all UI functionality migrated to React
+- [x] 27.2 Verify all UI functionality migrated to React
   - Verify every UI panel has a corresponding React component
   - Verify all HUD elements are React components
   - Confirm no DOM manipulation remains in files that will be kept (game logic)
@@ -624,7 +624,7 @@
   - Generate coverage report
   - _Requirements: 11.5_
 
-- [ ] 28.2 Verify test coverage
+- [x] 28.2 Verify test coverage
   - Compare coverage to vanilla version
   - Ensure coverage >= vanilla version
   - _Requirements: 11.5, 40.5_
@@ -645,19 +645,19 @@
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 37.1, 37.2, 37.3, 37.4, 37.5_
 
 - [ ] 29. Documentation and cleanup
-- [ ] 29.1 Update README
+- [x] 29.1 Update DEVELOPMENT.md
   - Document new build commands
   - Document new directory structure
   - Document Bridge Pattern architecture
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 29.2 Add JSDoc comments
+- [x] 29.2 Add JSDoc comments
   - Document all public functions and components
   - Document custom hooks
   - Document utility functions
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 29.3 Create migration guide
+- [x] 29.3 Create migration guide
   - Document migration process
   - Document lessons learned
   - Document rollback procedure
@@ -665,9 +665,11 @@
 
 - [ ] 29.4 Remove vanilla JavaScript version files
   - Remove starmap.html (vanilla entry point)
+  - Remove vendor/ after verifying new code does not use it
   - Remove js/ directory containing vanilla UI code
   - Update package.json dev script to only use Vite
   - Verify index.html is the sole entry point
+  - Remove all references to vanilla JavaScript implementation in steering docs
   - Document cutover in migration guide
   - _Requirements: 38.5_
 
