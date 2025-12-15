@@ -382,7 +382,7 @@
   - Update imports to use new paths
   - _Requirements: 11.1, 11.2, 40.1, 40.2, 40.3, 40.4, 40.5_
 
-- [ ] 21.2 Migrate trading tests
+- [x] 21.2 Migrate trading tests
   - Migrate tests from tests/unit/economy-config-constants.test.js
   - Migrate tests from tests/unit/price-neutral-modifiers.test.js
   - Update imports to use new paths
@@ -400,7 +400,7 @@
   - Update imports and test syntax for Vitest
   - _Requirements: 11.1, 11.2_
 
-- [ ] 21.5 Write property test for unit test equivalence
+- [x] 21.5 Write property test for unit test equivalence
   - **Property 32: Unit test equivalence**
   - **Validates: Requirements 11.2**
 

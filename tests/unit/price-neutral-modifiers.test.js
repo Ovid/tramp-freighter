@@ -1,8 +1,6 @@
-'use strict';
-
 import { describe, it, expect } from 'vitest';
-import { TradingSystem } from '../../js/game-trading.js';
-import { BASE_PRICES, NAVIGATION_CONFIG } from '../../js/game-constants.js';
+import { TradingSystem } from '../../src/game/game-trading.js';
+import { BASE_PRICES, NAVIGATION_CONFIG } from '../../src/game/constants.js';
 
 /**
  * Feature: deterministic-economy, Property 28: Price with all modifiers at 1.0 equals base price
