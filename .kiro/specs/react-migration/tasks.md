@@ -375,7 +375,7 @@
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 21. Migrate unit tests to Vitest
-- [ ] 21.1 Migrate state management tests
+- [x] 21.1 Migrate state management tests
   - Migrate tests from tests/unit/save-load.test.js
   - Migrate tests from tests/unit/state-validators.test.js
   - Migrate tests from tests/unit/new-game-initialization.test.js

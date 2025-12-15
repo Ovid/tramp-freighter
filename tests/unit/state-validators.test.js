@@ -12,8 +12,8 @@ import {
   migrateFromV1ToV2,
   migrateFromV2ToV2_1,
   addStateDefaults,
-} from '../../js/state/state-validators.js';
-import { SHIP_CONFIG } from '../../js/game-constants.js';
+} from '../../src/game/state/state-validators.js';
+import { SHIP_CONFIG } from '../../src/game/constants.js';
 
 const TEST_STAR_DATA = [
   { id: 0, name: 'Sol', x: 0, y: 0, z: 0 },
