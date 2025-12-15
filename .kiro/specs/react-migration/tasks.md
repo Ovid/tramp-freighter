@@ -495,7 +495,7 @@
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3_
 
-- [ ] 23. Migrate integration tests to Vitest
+- [x] 23. Migrate integration tests to Vitest
 - [x] 23.1 Migrate game flow integration tests
   - Migrate tests from tests/integration/game-flow.integration.test.js
   - Update to use React Testing Library
@@ -512,12 +512,12 @@
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
 
-- [ ] 23.4 Migrate remaining integration tests
+- [x] 23.4 Migrate remaining integration tests
   - Migrate all other integration tests from tests/integration/
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
 
-- [ ] 23.5 Write property test for integration test equivalence
+- [x] 23.5 Write property test for integration test equivalence
   - **Property 34: Integration test equivalence**
   - **Validates: Requirements 11.4**
 
