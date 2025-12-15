@@ -7,8 +7,8 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
-import { TradingSystem } from '../../js/game-trading.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { TradingSystem } from '../../src/game/game-trading.js';
 import { UIManager } from '../../js/ui/ui-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 

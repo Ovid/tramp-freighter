@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createShipReticle } from '../../js/game-animation.js';
-import { ANIMATION_CONFIG } from '../../js/game-constants.js';
+import { ANIMATION_CONFIG } from '../../src/game/constants.js';
 import { setupThreeMock } from '../setup-three-mock.js';
 
 describe('Ship Reticle', () => {

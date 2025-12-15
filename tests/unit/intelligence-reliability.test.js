@@ -1,8 +1,8 @@
 'use strict';
 
 import { describe, it, expect } from 'vitest';
-import { InformationBroker } from '../../js/game-information-broker.js';
-import { TradingSystem } from '../../js/game-trading.js';
+import { InformationBroker } from '../../src/game/game-information-broker.js';
+import { TradingSystem } from '../../src/game/game-trading.js';
 
 /**
  * Unit tests for unreliable intelligence data

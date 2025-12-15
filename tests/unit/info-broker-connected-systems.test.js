@@ -1,8 +1,8 @@
 'use strict';
 
 import { describe, it, expect } from 'vitest';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
-import { NavigationSystem } from '../../js/game-navigation.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { NavigationSystem } from '../../src/game/game-navigation.js';
 
 /**
  * Unit tests for Information Broker filtering to connected systems only

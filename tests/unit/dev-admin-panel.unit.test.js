@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { DevAdminPanelController } from '../../js/controllers/dev-admin.js';
 import { STAR_DATA } from '../../js/data/star-data.js';
 import { WORMHOLE_DATA } from '../../js/data/wormhole-data.js';

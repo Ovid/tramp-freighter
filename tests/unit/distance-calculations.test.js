@@ -9,8 +9,8 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateDistanceFromSol,
   NAVIGATION_CONFIG,
-} from '../../js/game-constants.js';
-import { NavigationSystem } from '../../js/game-navigation.js';
+} from '../../src/game/constants.js';
+import { NavigationSystem } from '../../src/game/game-navigation.js';
 
 // Sample of known nearby stars with their real-world distances
 const KNOWN_DISTANCES = {

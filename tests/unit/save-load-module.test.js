@@ -6,7 +6,7 @@ import {
   loadGame,
   hasSavedGame,
   clearSave,
-} from '../../js/state/save-load.js';
+} from '../../src/game/state/save-load.js';
 
 function createTestState() {
   return {

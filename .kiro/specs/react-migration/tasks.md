@@ -374,7 +374,7 @@
 - [x] 20. Checkpoint - Verify all UI components work
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 21. Migrate unit tests to Vitest
+- [x] 21. Migrate unit tests to Vitest
 - [x] 21.1 Migrate state management tests
   - Migrate tests from tests/unit/save-load.test.js
   - Migrate tests from tests/unit/state-validators.test.js
@@ -388,14 +388,14 @@
   - Update imports to use new paths
   - _Requirements: 11.1, 11.2_
 
-- [ ] 21.3 Migrate UI tests
+- [x] 21.3 Migrate UI tests
   - Migrate tests from tests/unit/modal-dialog.test.js
   - Migrate tests from tests/unit/quick-access-buttons.unit.test.js
   - Migrate tests from tests/unit/hud-condition-display-update.unit.test.js
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.2_
 
-- [ ] 21.4 Migrate remaining unit tests
+- [x] 21.4 Migrate remaining unit tests
   - Migrate all other unit tests from tests/unit/
   - Update imports and test syntax for Vitest
   - _Requirements: 11.1, 11.2_

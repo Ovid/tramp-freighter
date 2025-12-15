@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UIManager } from '../../js/ui/ui-manager.js';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 
 /**
  * Unit tests for HUD condition bar display updates
