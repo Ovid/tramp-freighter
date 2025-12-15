@@ -4,6 +4,7 @@ import { createSelectionRing } from './stars.js';
 // Selection state
 let selectedStar = null;
 let currentSystemIndicator = null;
+let currentSystemMaterial = null;
 
 /**
  * Select a star and show targeting reticle
@@ -100,6 +101,8 @@ export function updateCurrentSystemIndicator(
   // Remove old indicator if it exists
   if (currentSystemIndicator) {
     scene.remove(currentSystemIndicator);
+    // Dispose geometry to free GPU memory (material is shared, don't dispose)
+    currentSystemIndicator.geometry.dispose();
   }
 
   // Create new indicator at current system
@@ -112,12 +115,18 @@ export function updateCurrentSystemIndicator(
   currentSystemIndicator.lookAt(camera.position);
 
   // Make it slightly larger and different color to distinguish from selection
-  currentSystemIndicator.scale.set(1.2, 1.2, 1);
+  currentSystemIndicator.scale.set(
+    VISUAL_CONFIG.currentSystemBaseScale,
+    VISUAL_CONFIG.currentSystemBaseScale,
+    1
+  );
 
-  // Clone the material to avoid affecting other selection rings
-  const clonedMaterial = currentSystemIndicator.material.clone();
-  clonedMaterial.color.setHex(VISUAL_CONFIG.currentSystemColor);
-  currentSystemIndicator.material = clonedMaterial;
+  // Create shared material once to avoid repeated cloning
+  if (!currentSystemMaterial) {
+    currentSystemMaterial = currentSystemIndicator.material.clone();
+    currentSystemMaterial.color.setHex(VISUAL_CONFIG.currentSystemColor);
+  }
+  currentSystemIndicator.material = currentSystemMaterial;
 
   scene.add(currentSystemIndicator);
 
@@ -139,6 +148,7 @@ export function getCurrentSystemIndicator() {
 export function _resetState() {
   selectedStar = null;
   currentSystemIndicator = null;
+  currentSystemMaterial = null;
 }
 
 /**
@@ -149,34 +159,51 @@ export function updateSelectionRingAnimations(time) {
   if (selectedStar && selectedStar.selectionRing) {
     // Subtle pulsing scale for targeting lock effect
     const pulseScale =
-      1.0 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.08;
+      1.0 +
+      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
+        VISUAL_CONFIG.selectionRingScaleAmplitude;
 
     // Apply pulsing to reticle scale
     selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
 
     // Pulse the opacity for "scanning" effect
     const pulseOpacity =
-      0.75 +
-      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 1.5) * 0.25;
+      VISUAL_CONFIG.selectionRingBaseOpacity +
+      Math.sin(
+        time *
+          VISUAL_CONFIG.selectionRingPulseSpeed *
+          VISUAL_CONFIG.selectionRingOpacityFrequency
+      ) *
+        VISUAL_CONFIG.selectionRingOpacityAmplitude;
     selectedStar.selectionRing.material.opacity = pulseOpacity;
 
     // Slow rotation for targeting system effect
-    selectedStar.selectionRing.rotation.z = time * 0.2;
+    selectedStar.selectionRing.rotation.z =
+      time * VISUAL_CONFIG.selectionRingRotationSpeed;
   }
 
   // Update current system indicator
   if (currentSystemIndicator) {
     // Pulsing for current system indicator
     const pulseScale =
-      1.2 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed * 0.8) * 0.1;
+      VISUAL_CONFIG.currentSystemBaseScale +
+      Math.sin(
+        time *
+          VISUAL_CONFIG.selectionRingPulseSpeed *
+          VISUAL_CONFIG.currentSystemScaleFrequency
+      ) *
+        VISUAL_CONFIG.currentSystemScaleAmplitude;
     currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
 
     // Pulse opacity
     const pulseOpacity =
-      0.7 + Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) * 0.3;
+      VISUAL_CONFIG.currentSystemBaseOpacity +
+      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
+        VISUAL_CONFIG.currentSystemOpacityAmplitude;
     currentSystemIndicator.material.opacity = pulseOpacity;
 
     // Rotate in opposite direction from selection ring
-    currentSystemIndicator.rotation.z = -time * 0.15;
+    currentSystemIndicator.rotation.z =
+      -time * VISUAL_CONFIG.currentSystemRotationSpeed;
   }
 }

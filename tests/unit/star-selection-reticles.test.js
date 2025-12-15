@@ -297,8 +297,8 @@ describe('Star Selection Reticles', () => {
         currentSystemId
       );
 
-      expect(indicator.scale.x).toBe(1.2);
-      expect(indicator.scale.y).toBe(1.2);
+      expect(indicator.scale.x).toBe(VISUAL_CONFIG.currentSystemBaseScale);
+      expect(indicator.scale.y).toBe(VISUAL_CONFIG.currentSystemBaseScale);
     });
 
     it('should use current system color', () => {

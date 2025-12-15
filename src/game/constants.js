@@ -469,6 +469,19 @@ export const VISUAL_CONFIG = {
   sceneBackground: 0x000000,
   ambientLightColor: 0x404040,
   directionalLightColor: 0xffffff,
+  // Selection ring animation parameters
+  selectionRingScaleAmplitude: 0.08, // Scale variation for pulse effect (8%)
+  selectionRingBaseOpacity: 0.75, // Base opacity for selection ring
+  selectionRingOpacityAmplitude: 0.25, // Opacity variation for scanning effect
+  selectionRingOpacityFrequency: 1.5, // Frequency multiplier for opacity pulse
+  selectionRingRotationSpeed: 0.2, // Rotation speed in radians per second
+  // Current system indicator animation parameters
+  currentSystemBaseScale: 1.2, // Base scale (20% larger than selection ring)
+  currentSystemScaleAmplitude: 0.1, // Scale variation for pulse effect (10%)
+  currentSystemScaleFrequency: 0.8, // Frequency multiplier for scale pulse
+  currentSystemBaseOpacity: 0.7, // Base opacity for current system indicator
+  currentSystemOpacityAmplitude: 0.3, // Opacity variation for pulse effect
+  currentSystemRotationSpeed: 0.15, // Rotation speed in radians per second (opposite direction)
   connectionColors: {
     default: 0x00ccff,
     sufficient: 0x00ff00,
