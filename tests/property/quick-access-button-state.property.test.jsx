@@ -69,6 +69,15 @@ describe('Property 48: Quick access button state updates', () => {
           );
           gameStateManager.initNewGame();
 
+          // Set up mock animation system (required for useAnimationLock)
+          const mockAnimationSystem = {
+            isAnimating: false,
+            inputLockManager: {
+              isInputLocked: () => false,
+            },
+          };
+          gameStateManager.setAnimationSystem(mockAnimationSystem);
+
           // First move to a system without a station to ensure we're not at the target
           const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
           if (systemWithoutStation) {
@@ -114,6 +123,15 @@ describe('Property 48: Quick access button state updates', () => {
             WORMHOLE_DATA
           );
           gameStateManager.initNewGame();
+
+          // Set up mock animation system (required for useAnimationLock)
+          const mockAnimationSystem = {
+            isAnimating: false,
+            inputLockManager: {
+              isInputLocked: () => false,
+            },
+          };
+          gameStateManager.setAnimationSystem(mockAnimationSystem);
 
           // Render QuickAccessButtons
           render(

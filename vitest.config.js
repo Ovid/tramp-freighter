@@ -16,8 +16,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'tests/', 'vendor/', '*.config.js', 'dist/'],
     },
-    // Ensure clean test output
-    silent: false,
-    reporters: ['verbose'],
+    // Use default reporter for cleaner output
+    reporters: ['default'],
   },
 });

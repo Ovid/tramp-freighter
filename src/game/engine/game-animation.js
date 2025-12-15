@@ -319,6 +319,14 @@ export class JumpAnimationSystem {
     this._tempVec2 = new THREE.Vector3();
     this._tempVec3 = new THREE.Vector3();
     this._tempVec4 = new THREE.Vector3();
+
+    // Reusable objects for side view calculation results
+    this._sideViewPosition = new THREE.Vector3();
+    this._sideViewLookAt = new THREE.Vector3();
+
+    // Pre-allocated vectors for camera state storage
+    this._storedCameraPosition = new THREE.Vector3();
+    this._storedCameraTarget = new THREE.Vector3();
   }
 
   /**
@@ -331,11 +339,9 @@ export class JumpAnimationSystem {
    * Uses cross product with up vector to find perpendicular direction.
    * Applies minimum distance constraint to prevent camera clipping for very close stars.
    *
-   * PERFORMANCE NOTE: This method allocates new Vector3 objects in the return value.
-   * This is acceptable because it's called ONCE per jump (not per animation frame).
-   * The allocation happens outside the requestAnimationFrame loop, so it doesn't
-   * impact frame rate. Methods called inside requestAnimationFrame (like
-   * animateCameraTransition and animateShipTravel) must reuse pre-allocated vectors.
+   * PERFORMANCE NOTE: This method reuses pre-allocated Vector3 objects to avoid
+   * allocations during jump animations. The returned objects are instance properties
+   * that persist across jumps, eliminating garbage collection pressure.
    *
    * @param {THREE.Vector3} originPos - Origin star position
    * @param {THREE.Vector3} destPos - Destination star position
@@ -374,11 +380,13 @@ export class JumpAnimationSystem {
       .copy(this._tempVec1)
       .addScaledVector(this._tempVec3, cameraDistance);
 
-    // Return new Vector3 objects to avoid external mutation of internal state
-    // Allocation is acceptable here: called once per jump, not per animation frame
+    // Store results in reusable objects to avoid allocations
+    this._sideViewPosition.copy(this._tempVec4);
+    this._sideViewLookAt.copy(this._tempVec1);
+
     return {
-      position: new THREE.Vector3().copy(this._tempVec4),
-      lookAt: new THREE.Vector3().copy(this._tempVec1),
+      position: this._sideViewPosition,
+      lookAt: this._sideViewLookAt,
     };
   }
 
@@ -389,9 +397,11 @@ export class JumpAnimationSystem {
    * Captures the camera position and look-at target before any transitions.
    */
   _storeCameraState() {
+    this._storedCameraPosition.copy(this.camera.position);
+    this._storedCameraTarget.copy(this.controls.target);
     this.originalCameraState = {
-      position: new THREE.Vector3().copy(this.camera.position),
-      target: new THREE.Vector3().copy(this.controls.target),
+      position: this._storedCameraPosition,
+      target: this._storedCameraTarget,
     };
   }
 
@@ -616,20 +626,24 @@ export class JumpAnimationSystem {
         );
       }
 
-      // Get star positions
-      const originPos = new THREE.Vector3(
-        originSystem.x,
-        originSystem.y,
-        originSystem.z
-      );
-      const destPos = new THREE.Vector3(
+      // Get star positions using dedicated instance vectors
+      // These persist throughout the animation sequence and are passed to async methods
+      if (!this._jumpOriginPos) {
+        this._jumpOriginPos = new THREE.Vector3();
+      }
+      if (!this._jumpDestPos) {
+        this._jumpDestPos = new THREE.Vector3();
+      }
+
+      this._jumpOriginPos.set(originSystem.x, originSystem.y, originSystem.z);
+      this._jumpDestPos.set(
         destinationSystem.x,
         destinationSystem.y,
         destinationSystem.z
       );
 
       // Calculate distance for timing
-      const distance = originPos.distanceTo(destPos);
+      const distance = this._jumpOriginPos.distanceTo(this._jumpDestPos);
 
       // Store original camera state before any transitions
       this._storeCameraState();
@@ -640,8 +654,8 @@ export class JumpAnimationSystem {
       // Phase 1: Zoom in to side view
       try {
         const sideView = this.calculateSideViewPosition(
-          originPos,
-          destPos,
+          this._jumpOriginPos,
+          this._jumpDestPos,
           distance
         );
         const zoomDuration = AnimationTimingCalculator.calculateZoomDuration();
@@ -657,7 +671,11 @@ export class JumpAnimationSystem {
 
       // Phase 2: Animate ship travel from origin to destination
       try {
-        await this.animateShipTravel(originPos, destPos, distance);
+        await this.animateShipTravel(
+          this._jumpOriginPos,
+          this._jumpDestPos,
+          distance
+        );
       } catch (error) {
         console.error('Error during ship travel phase:', error);
         throw error;

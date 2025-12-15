@@ -329,7 +329,6 @@ function createBackgroundStarTexture() {
   ctx.fillRect(0, 0, 64, 64);
 
   const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
   return texture;
 }
 

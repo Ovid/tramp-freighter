@@ -78,7 +78,6 @@ function createLabel(text, fontSize = 18) {
 
   // Create texture from canvas
   const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
 
   // Create sprite material
   const spriteMaterial = new THREE.SpriteMaterial({
