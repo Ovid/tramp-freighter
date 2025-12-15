@@ -420,8 +420,23 @@ export let DEV_MODE = false;
  */
 export async function initDevMode() {
   try {
-    const response = await fetch('.dev');
-    DEV_MODE = response.ok;
+    // Add cache-busting query parameter to ensure fresh check
+    // This prevents browser from caching the .dev file existence check
+    const url = `.dev?t=${Date.now()}`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+    });
+
+    // Check if response is actually the .dev file, not an HTML fallback
+    // Vite's dev server might return index.html for 404s (SPA fallback)
+    const contentType = response.headers.get('content-type') || '';
+    const isHtmlFallback = contentType.includes('text/html');
+
+    // Dev mode is enabled only if:
+    // 1. Response is OK (200)
+    // 2. Response is NOT an HTML fallback (which would indicate 404 with SPA fallback)
+    DEV_MODE = response.ok && !isHtmlFallback;
+
     return DEV_MODE;
   } catch {
     // .dev file not found or fetch failed - dev mode disabled

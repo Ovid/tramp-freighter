@@ -12,12 +12,10 @@ export default defineConfig({
     port: 5173,
     open: false,
     fs: {
-      // Allow serving .dev file without parsing it as JS
+      // Allow serving .dev file from project root
       allow: ['.'],
     },
   },
-  // Exclude .dev from being processed as a module
-  assetsInclude: ['**/.dev'],
   build: {
     outDir: 'dist',
     sourcemap: true,

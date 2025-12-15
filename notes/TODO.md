@@ -4,6 +4,10 @@
   confused and continues to the next task. I had it work on one task that was
   complex and I went to lunch. I came back and found it had poorly implemented
   three tasks.
+- When migrating from vanilla JS to React, I had to temporarily have steering
+  docs listing both old and new tech stacks. That meant my context on task
+  launch was much larger, often around 30-40% instead of 20%. That made tasks
+  harder to complete as they hit the context window limits.
 
 # TODO
 

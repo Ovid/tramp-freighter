@@ -10,7 +10,6 @@ import { DevAdminPanel } from './features/dev-admin/DevAdminPanel';
 import { SystemPanel } from './features/navigation/SystemPanel';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
-import { DEV_MODE } from './game/constants';
 
 /**
  * View modes for the application.
@@ -43,8 +42,10 @@ const VIEW_MODES = {
  * - PanelContainer (when panel is open)
  *
  * React Migration Spec: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4, 25.5, 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 48.1, 48.7
+ *
+ * @param {boolean} devMode - Whether dev mode is enabled (from .dev file check)
  */
-export default function App() {
+export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
 
@@ -279,7 +280,7 @@ export default function App() {
               )}
 
               {/* Dev admin button (only visible in dev mode) */}
-              {DEV_MODE && (
+              {devMode && (
                 <button
                   id="dev-admin-btn"
                   onClick={handleOpenDevAdmin}
@@ -290,7 +291,7 @@ export default function App() {
               )}
 
               {/* Dev admin panel (only rendered in dev mode when open) */}
-              {DEV_MODE && showDevAdmin && (
+              {devMode && showDevAdmin && (
                 <DevAdminPanel onClose={handleCloseDevAdmin} />
               )}
 
