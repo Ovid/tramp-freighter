@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 
 /**
@@ -10,177 +10,117 @@ import { NavigationSystem } from '../../js/game-navigation.js';
  * is not possible due to fuel or connection constraints.
  */
 describe('Jump Validation Messages', () => {
-  let gameStateManager;
-  let navSystem;
+  const navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
 
-  beforeEach(() => {
-    gameStateManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    gameStateManager.initNewGame();
-    navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-  });
+  it('Property: For any connected systems with insufficient fuel, validation fails with error message', () => {
+    const wormholeGen = fc.constantFrom(...TEST_WORMHOLE_DATA);
+    const lowFuelGen = fc.float({ min: 0, max: 5, noNaN: true });
 
-  it('should provide error message for insufficient fuel', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
+    fc.assert(
+      fc.property(wormholeGen, lowFuelGen, ([systemAId, systemBId], fuel) => {
+        // Validate jump with low fuel
+        const validation = navSystem.validateJump(systemAId, systemBId, fuel);
 
-    // Set low fuel
-    gameStateManager.updateFuel(5);
-
-    // Find a connected system
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-    expect(connectedIds.length).toBeGreaterThan(0);
-
-    const targetSystemId = connectedIds[0];
-
-    // Validate jump
-    const validation = navSystem.validateJump(
-      currentSystemId,
-      targetSystemId,
-      5
-    );
-
-    // Should fail with specific error message
-    expect(validation.valid).toBe(false);
-    expect(validation.error).toContain('Insufficient fuel');
-  });
-
-  it('should provide error message for no wormhole connection', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
-
-    // Find a system that's NOT connected
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-    const unconnectedSystem = TEST_STAR_DATA.find(
-      (s) => s.id !== currentSystemId && !connectedIds.includes(s.id)
-    );
-
-    if (unconnectedSystem) {
-      // Validate jump to unconnected system
-      const validation = navSystem.validateJump(
-        currentSystemId,
-        unconnectedSystem.id,
-        100
-      );
-
-      // Should fail with specific error message
-      expect(validation.valid).toBe(false);
-      expect(validation.error).toContain('No wormhole connection');
-    }
-  });
-
-  it('should not provide error message when jump is valid', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
-
-    // Ensure full fuel
-    gameStateManager.updateFuel(100);
-
-    // Find a connected system
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-    expect(connectedIds.length).toBeGreaterThan(0);
-
-    const targetSystemId = connectedIds[0];
-
-    // Validate jump
-    const validation = navSystem.validateJump(
-      currentSystemId,
-      targetSystemId,
-      100
-    );
-
-    // Should succeed with no error
-    expect(validation.valid).toBe(true);
-    expect(validation.error).toBeNull();
-  });
-
-  it('should provide consistent error messages across multiple systems', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
-
-    // Set low fuel
-    gameStateManager.updateFuel(5);
-
-    // Get all connected systems
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-
-    // Validate jumps to all connected systems
-    const validations = connectedIds.map((targetId) =>
-      navSystem.validateJump(currentSystemId, targetId, 5)
-    );
-
-    // All should fail with same error message
-    validations.forEach((validation) => {
-      if (!validation.valid) {
+        // Should fail with specific error message
+        expect(validation.valid).toBe(false);
         expect(validation.error).toContain('Insufficient fuel');
+      }),
+      { numRuns: 50 }
+    );
+  });
+
+  it('Property: For any unconnected systems, validation fails with connection error', () => {
+    // Find pairs of unconnected systems
+    const unconnectedPairs = [];
+    for (const systemA of TEST_STAR_DATA) {
+      const connectedIds = navSystem.getConnectedSystems(systemA.id);
+      for (const systemB of TEST_STAR_DATA) {
+        if (systemA.id !== systemB.id && !connectedIds.includes(systemB.id)) {
+          unconnectedPairs.push([systemA.id, systemB.id]);
+        }
       }
-    });
+    }
+
+    if (unconnectedPairs.length === 0) {
+      return; // Skip if all systems are connected
+    }
+
+    const unconnectedPairGen = fc.constantFrom(...unconnectedPairs);
+
+    fc.assert(
+      fc.property(unconnectedPairGen, ([systemAId, systemBId]) => {
+        // Validate jump to unconnected system with full fuel
+        const validation = navSystem.validateJump(systemAId, systemBId, 100);
+
+        // Should fail with specific error message
+        expect(validation.valid).toBe(false);
+        expect(validation.error).toContain('No wormhole connection');
+      }),
+      { numRuns: Math.min(50, unconnectedPairs.length) }
+    );
   });
 
-  it('should calculate correct fuel requirements in error context', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
+  it('Property: For any connected systems with sufficient fuel, validation succeeds', () => {
+    const wormholeGen = fc.constantFrom(...TEST_WORMHOLE_DATA);
 
-    // Find a connected system
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-    const targetSystemId = connectedIds[0];
+    fc.assert(
+      fc.property(wormholeGen, ([systemAId, systemBId]) => {
+        // Validate jump with full fuel
+        const validation = navSystem.validateJump(systemAId, systemBId, 100);
 
-    // Get the actual fuel cost
-    const currentStar = TEST_STAR_DATA.find((s) => s.id === currentSystemId);
-    const targetStar = TEST_STAR_DATA.find((s) => s.id === targetSystemId);
-    const distance = navSystem.calculateDistanceBetween(
-      currentStar,
-      targetStar
+        // Should succeed with no error
+        expect(validation.valid).toBe(true);
+        expect(validation.error).toBeNull();
+      }),
+      { numRuns: TEST_WORMHOLE_DATA.length }
     );
-    const fuelCost = navSystem.calculateFuelCost(distance);
-
-    // Set fuel just below requirement
-    const insufficientFuel = fuelCost - 1;
-    gameStateManager.updateFuel(insufficientFuel);
-
-    // Validate jump
-    const validation = navSystem.validateJump(
-      currentSystemId,
-      targetSystemId,
-      insufficientFuel
-    );
-
-    // Should fail
-    expect(validation.valid).toBe(false);
-    expect(validation.error).toContain('Insufficient fuel');
-
-    // Fuel cost should be accurate
-    expect(validation.fuelCost).toBeCloseTo(fuelCost, 2);
   });
 
-  it('should handle edge case of exactly enough fuel', () => {
-    const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
+  it('Property: For any connected systems, validation includes accurate fuel cost', () => {
+    const wormholeGen = fc.constantFrom(...TEST_WORMHOLE_DATA);
+    const fuelGen = fc.float({ min: 0, max: 100, noNaN: true });
 
-    // Find a connected system
-    const connectedIds = navSystem.getConnectedSystems(currentSystemId);
-    const targetSystemId = connectedIds[0];
+    fc.assert(
+      fc.property(wormholeGen, fuelGen, ([systemAId, systemBId], fuel) => {
+        const systemA = TEST_STAR_DATA.find((s) => s.id === systemAId);
+        const systemB = TEST_STAR_DATA.find((s) => s.id === systemBId);
 
-    // Get the exact fuel cost
-    const currentStar = TEST_STAR_DATA.find((s) => s.id === currentSystemId);
-    const targetStar = TEST_STAR_DATA.find((s) => s.id === targetSystemId);
-    const distance = navSystem.calculateDistanceBetween(
-      currentStar,
-      targetStar
+        const distance = navSystem.calculateDistanceBetween(systemA, systemB);
+        const expectedFuelCost = navSystem.calculateFuelCost(distance);
+
+        // Validate jump
+        const validation = navSystem.validateJump(systemAId, systemBId, fuel);
+
+        // Fuel cost should be accurate
+        expect(validation.fuelCost).toBeCloseTo(expectedFuelCost, 2);
+      }),
+      { numRuns: 50 }
     );
-    const fuelCost = navSystem.calculateFuelCost(distance);
+  });
 
-    // Set fuel to exactly the requirement
-    gameStateManager.updateFuel(fuelCost);
+  it('Property: For any connected systems with exactly enough fuel, validation succeeds', () => {
+    const wormholeGen = fc.constantFrom(...TEST_WORMHOLE_DATA);
 
-    // Validate jump
-    const validation = navSystem.validateJump(
-      currentSystemId,
-      targetSystemId,
-      fuelCost
+    fc.assert(
+      fc.property(wormholeGen, ([systemAId, systemBId]) => {
+        const systemA = TEST_STAR_DATA.find((s) => s.id === systemAId);
+        const systemB = TEST_STAR_DATA.find((s) => s.id === systemBId);
+
+        const distance = navSystem.calculateDistanceBetween(systemA, systemB);
+        const fuelCost = navSystem.calculateFuelCost(distance);
+
+        // Validate jump with exactly enough fuel
+        const validation = navSystem.validateJump(
+          systemAId,
+          systemBId,
+          fuelCost
+        );
+
+        // Should succeed
+        expect(validation.valid).toBe(true);
+        expect(validation.error).toBeNull();
+      }),
+      { numRuns: TEST_WORMHOLE_DATA.length }
     );
-
-    // Should succeed
-    expect(validation.valid).toBe(true);
-    expect(validation.error).toBeNull();
   });
 });

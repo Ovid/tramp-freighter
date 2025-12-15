@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  act,
+} from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
@@ -64,7 +70,7 @@ describe('QuickAccessButtons Component', () => {
   it('should disable Dock button when at system without station', () => {
     // Find a system without a station
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
-    
+
     if (systemWithoutStation) {
       gameStateManager.updateLocation(systemWithoutStation.id);
 
@@ -114,7 +120,7 @@ describe('QuickAccessButtons Component', () => {
   it('should not call onDock when Dock button is clicked at system without station', () => {
     const onDock = vi.fn();
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
-    
+
     if (systemWithoutStation) {
       gameStateManager.updateLocation(systemWithoutStation.id);
 

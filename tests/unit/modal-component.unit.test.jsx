@@ -18,8 +18,9 @@ describe('Modal Component', () => {
   });
 
   it('should show modal with correct message', () => {
-    const message = 'Starting a new game will overwrite your existing save. Continue?';
-    
+    const message =
+      'Starting a new game will overwrite your existing save. Continue?';
+
     render(
       <Modal isOpen={true} onClose={() => {}} title="Confirm">
         <p className="modal-message">{message}</p>
@@ -37,7 +38,13 @@ describe('Modal Component', () => {
     let closeCalled = false;
 
     render(
-      <Modal isOpen={true} onClose={() => { closeCalled = true; }} title="Test">
+      <Modal
+        isOpen={true}
+        onClose={() => {
+          closeCalled = true;
+        }}
+        title="Test"
+      >
         <p>Test message</p>
       </Modal>
     );
@@ -52,7 +59,13 @@ describe('Modal Component', () => {
     let closeCalled = false;
 
     render(
-      <Modal isOpen={true} onClose={() => { closeCalled = true; }} title="Test">
+      <Modal
+        isOpen={true}
+        onClose={() => {
+          closeCalled = true;
+        }}
+        title="Test"
+      >
         <p data-testid="modal-content">Test message</p>
       </Modal>
     );
@@ -78,7 +91,13 @@ describe('Modal Component', () => {
     let closeCalled = false;
 
     render(
-      <Modal isOpen={true} onClose={() => { closeCalled = true; }} title="Test">
+      <Modal
+        isOpen={true}
+        onClose={() => {
+          closeCalled = true;
+        }}
+        title="Test"
+      >
         <p>Test message</p>
       </Modal>
     );
@@ -118,8 +137,12 @@ describe('ConfirmModal Component', () => {
     render(
       <ConfirmModal
         isOpen={true}
-        onConfirm={() => { confirmCalled = true; }}
-        onCancel={() => { cancelCalled = true; }}
+        onConfirm={() => {
+          confirmCalled = true;
+        }}
+        onCancel={() => {
+          cancelCalled = true;
+        }}
         message="Test message"
       />
     );
@@ -138,8 +161,12 @@ describe('ConfirmModal Component', () => {
     render(
       <ConfirmModal
         isOpen={true}
-        onConfirm={() => { confirmCalled = true; }}
-        onCancel={() => { cancelCalled = true; }}
+        onConfirm={() => {
+          confirmCalled = true;
+        }}
+        onCancel={() => {
+          cancelCalled = true;
+        }}
         message="Test message"
       />
     );
@@ -189,7 +216,9 @@ describe('ConfirmModal Component', () => {
       <ConfirmModal
         isOpen={true}
         onConfirm={() => {}}
-        onCancel={() => { cancelCalled = true; }}
+        onCancel={() => {
+          cancelCalled = true;
+        }}
         message="Test message"
       />
     );

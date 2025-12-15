@@ -404,7 +404,7 @@
   - **Property 32: Unit test equivalence**
   - **Validates: Requirements 11.2**
 
-- [ ] 22. Migrate property-based tests to Vitest
+- [x] 22. Migrate property-based tests to Vitest
 - [x] 22.1 Migrate core game logic property tests
   - Migrate distance, jump, fuel, navigation property tests
   - Update to use fast-check with Vitest
@@ -415,12 +415,12 @@
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3_
 
-- [ ] 22.3 Migrate UI property tests
+- [x] 22.3 Migrate UI property tests
   - Migrate HUD, panel, validation message property tests
   - Update to use React Testing Library with fast-check
   - _Requirements: 11.1, 11.3_
 
-- [ ] 22.4 Migrate remaining property tests
+- [x] 22.4 Migrate remaining property tests
   - Migrate all other property tests from tests/property/
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3_

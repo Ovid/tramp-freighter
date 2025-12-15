@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { NavigationSystem } from '../../js/game-navigation.js';
 
@@ -9,79 +10,84 @@ import { NavigationSystem } from '../../js/game-navigation.js';
  * are highlighted, improving navigation UX.
  */
 describe('Connected Systems Highlighting', () => {
-  let navSystem;
+  const navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
 
-  beforeEach(() => {
-    navSystem = new NavigationSystem(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+  it('Property: For any valid system ID, getConnectedSystems returns an array of valid system IDs', () => {
+    // Generator for valid system IDs from TEST_STAR_DATA
+    const validSystemIdGen = fc.constantFrom(
+      ...TEST_STAR_DATA.map((s) => s.id)
+    );
+
+    fc.assert(
+      fc.property(validSystemIdGen, (systemId) => {
+        const connectedSystems = navSystem.getConnectedSystems(systemId);
+
+        // Should return an array
+        expect(Array.isArray(connectedSystems)).toBe(true);
+
+        // All returned IDs should be valid system IDs
+        connectedSystems.forEach((id) => {
+          const system = TEST_STAR_DATA.find((s) => s.id === id);
+          expect(system).toBeDefined();
+        });
+      }),
+      { numRuns: 100 }
+    );
   });
 
-  it('should return all systems connected to a given system', () => {
-    // Sol (id: 0) is connected to multiple systems
-    const connectedToSol = navSystem.getConnectedSystems(0);
+  it('Property: For any wormhole connection, connections are symmetric (if A connects to B, B connects to A)', () => {
+    // Generator for wormhole connections
+    const wormholeGen = fc.constantFrom(...TEST_WORMHOLE_DATA);
 
-    // Should return an array
-    expect(Array.isArray(connectedToSol)).toBe(true);
+    fc.assert(
+      fc.property(wormholeGen, ([systemA, systemB]) => {
+        const connectionsFromA = navSystem.getConnectedSystems(systemA);
+        const connectionsFromB = navSystem.getConnectedSystems(systemB);
 
-    // Should have at least one connection
-    expect(connectedToSol.length).toBeGreaterThan(0);
+        // A should list B as connected
+        expect(connectionsFromA).toContain(systemB);
 
-    // All returned IDs should be valid system IDs
-    connectedToSol.forEach((id) => {
-      const system = TEST_STAR_DATA.find((s) => s.id === id);
-      expect(system).toBeDefined();
-    });
+        // B should list A as connected
+        expect(connectionsFromB).toContain(systemA);
+      }),
+      { numRuns: TEST_WORMHOLE_DATA.length }
+    );
   });
 
-  it('should return empty array for system with no connections', () => {
-    // Find a system with no wormholes
-    const isolatedSystem = TEST_STAR_DATA.find((s) => s.wh === 0);
+  it('Property: For any system, connected systems list does not include the system itself', () => {
+    const validSystemIdGen = fc.constantFrom(
+      ...TEST_STAR_DATA.map((s) => s.id)
+    );
 
-    if (isolatedSystem) {
-      const connected = navSystem.getConnectedSystems(isolatedSystem.id);
-      expect(connected).toEqual([]);
-    }
+    fc.assert(
+      fc.property(validSystemIdGen, (systemId) => {
+        const connected = navSystem.getConnectedSystems(systemId);
+
+        // Should not include itself
+        expect(connected).not.toContain(systemId);
+      }),
+      { numRuns: 100 }
+    );
   });
 
-  it('should return symmetric connections (if A connects to B, B connects to A)', () => {
-    // Test all wormhole connections for symmetry
-    TEST_WORMHOLE_DATA.forEach(([systemA, systemB]) => {
-      const connectionsFromA = navSystem.getConnectedSystems(systemA);
-      const connectionsFromB = navSystem.getConnectedSystems(systemB);
+  it('Property: For any system, connected systems list contains no duplicates', () => {
+    const validSystemIdGen = fc.constantFrom(
+      ...TEST_STAR_DATA.map((s) => s.id)
+    );
 
-      // A should list B as connected
-      expect(connectionsFromA).toContain(systemB);
+    fc.assert(
+      fc.property(validSystemIdGen, (systemId) => {
+        const connected = navSystem.getConnectedSystems(systemId);
 
-      // B should list A as connected
-      expect(connectionsFromB).toContain(systemA);
-    });
+        // Check for duplicates
+        const uniqueConnected = [...new Set(connected)];
+        expect(connected.length).toBe(uniqueConnected.length);
+      }),
+      { numRuns: 100 }
+    );
   });
 
-  it('should not include the system itself in connected systems', () => {
-    // Test several systems
-    const systemsToTest = [0, 1, 4, 7];
-
-    systemsToTest.forEach((systemId) => {
-      const connected = navSystem.getConnectedSystems(systemId);
-
-      // Should not include itself
-      expect(connected).not.toContain(systemId);
-    });
-  });
-
-  it('should return unique system IDs (no duplicates)', () => {
-    // Test all systems with connections
-    const systemsWithConnections = TEST_STAR_DATA.filter((s) => s.wh > 0);
-
-    systemsWithConnections.forEach((system) => {
-      const connected = navSystem.getConnectedSystems(system.id);
-
-      // Check for duplicates
-      const uniqueConnected = [...new Set(connected)];
-      expect(connected.length).toBe(uniqueConnected.length);
-    });
-  });
-
-  it('should return correct count based on actual wormhole data', () => {
+  it('Property: For any system, connection count matches wormhole data', () => {
     // Count actual connections for each system in wormhole data
     const connectionCounts = new Map();
 
@@ -90,19 +96,37 @@ describe('Connected Systems Highlighting', () => {
       connectionCounts.set(systemB, (connectionCounts.get(systemB) || 0) + 1);
     });
 
-    // Verify getConnectedSystems returns correct count
-    TEST_STAR_DATA.forEach((system) => {
-      const connected = navSystem.getConnectedSystems(system.id);
-      const expectedCount = connectionCounts.get(system.id) || 0;
+    const validSystemIdGen = fc.constantFrom(
+      ...TEST_STAR_DATA.map((s) => s.id)
+    );
 
-      expect(connected.length).toBe(expectedCount);
-    });
+    fc.assert(
+      fc.property(validSystemIdGen, (systemId) => {
+        const connected = navSystem.getConnectedSystems(systemId);
+        const expectedCount = connectionCounts.get(systemId) || 0;
+
+        expect(connected.length).toBe(expectedCount);
+      }),
+      { numRuns: 100 }
+    );
   });
 
-  it('should handle invalid system ID gracefully', () => {
-    const connected = navSystem.getConnectedSystems(99999);
+  it('Property: For any invalid system ID, returns empty array', () => {
+    // Generator for invalid system IDs (outside the range of valid IDs)
+    const maxValidId = Math.max(...TEST_STAR_DATA.map((s) => s.id));
+    const invalidIdGen = fc.integer({
+      min: maxValidId + 1,
+      max: maxValidId + 1000,
+    });
 
-    // Should return empty array for invalid ID
-    expect(connected).toEqual([]);
+    fc.assert(
+      fc.property(invalidIdGen, (invalidId) => {
+        const connected = navSystem.getConnectedSystems(invalidId);
+
+        // Should return empty array for invalid ID
+        expect(connected).toEqual([]);
+      }),
+      { numRuns: 100 }
+    );
   });
 });

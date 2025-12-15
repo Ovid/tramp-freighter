@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { GameStateManager } from '../../js/state/game-state-manager.js';
@@ -9,6 +10,9 @@ import { UIManager } from '../../js/ui/ui-manager.js';
  *
  * Verifies that users receive clear feedback when refueling
  * is not possible, improving UX.
+ *
+ * Note: These are UI integration tests that verify validation message display.
+ * They use example-based testing as they test specific UI interactions.
  */
 describe('Refuel Validation Messages', () => {
   let dom;

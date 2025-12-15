@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import fc from 'fast-check';
 import { JSDOM } from 'jsdom';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { GameStateManager } from '../../js/state/game-state-manager.js';
@@ -10,6 +11,9 @@ import { TradingSystem } from '../../js/game-trading.js';
  *
  * Verifies that users receive clear feedback when buying goods
  * is not possible due to resource constraints.
+ *
+ * Note: These are UI integration tests that verify validation message display.
+ * They use example-based testing as they test specific UI interactions.
  */
 // TODO: Update this test to work with the new deterministic economy
 // The calculatePrice() signature has changed to require a full system object

@@ -43,7 +43,9 @@ describe('ShipStatus Component', () => {
     );
 
     const state = gameStateManager.getState();
-    const fuelBar = document.querySelector('.fuel-bar-container .condition-text');
+    const fuelBar = document.querySelector(
+      '.fuel-bar-container .condition-text'
+    );
     expect(fuelBar.textContent).toBe(`${state.ship.fuel.toFixed(1)}%`);
   });
 
@@ -55,7 +57,9 @@ describe('ShipStatus Component', () => {
     );
 
     const state = gameStateManager.getState();
-    const hullBar = document.querySelector('.hull-bar-container .condition-text');
+    const hullBar = document.querySelector(
+      '.hull-bar-container .condition-text'
+    );
     expect(hullBar.textContent).toBe(`${state.ship.hull.toFixed(1)}%`);
   });
 
@@ -67,7 +71,9 @@ describe('ShipStatus Component', () => {
     );
 
     const state = gameStateManager.getState();
-    const engineBar = document.querySelector('.engine-bar-container .condition-text');
+    const engineBar = document.querySelector(
+      '.engine-bar-container .condition-text'
+    );
     expect(engineBar.textContent).toBe(`${state.ship.engine.toFixed(1)}%`);
   });
 
@@ -79,8 +85,12 @@ describe('ShipStatus Component', () => {
     );
 
     const state = gameStateManager.getState();
-    const lifeSupportBar = document.querySelector('.life-support-bar-container .condition-text');
-    expect(lifeSupportBar.textContent).toBe(`${state.ship.lifeSupport.toFixed(1)}%`);
+    const lifeSupportBar = document.querySelector(
+      '.life-support-bar-container .condition-text'
+    );
+    expect(lifeSupportBar.textContent).toBe(
+      `${state.ship.lifeSupport.toFixed(1)}%`
+    );
   });
 
   it('should update hull bar width when condition changes', () => {
@@ -220,7 +230,9 @@ describe('ShipStatus Component', () => {
 
     // Initial state should be 100%
     const lifeSupportBar = document.querySelector('.life-support-bar');
-    const lifeSupportText = document.querySelector('.life-support-bar-container .condition-text');
+    const lifeSupportText = document.querySelector(
+      '.life-support-bar-container .condition-text'
+    );
     expect(lifeSupportBar.style.width).toBe('100%');
     expect(lifeSupportText.textContent).toBe('100.0%');
   });
@@ -234,7 +246,10 @@ describe('ShipStatus Component', () => {
 
     const state = gameStateManager.getState();
     const ship = gameStateManager.getShip();
-    const cargoUsed = state.ship.cargo.reduce((sum, stack) => sum + stack.qty, 0);
+    const cargoUsed = state.ship.cargo.reduce(
+      (sum, stack) => sum + stack.qty,
+      0
+    );
     const cargoText = `${cargoUsed}/${ship.cargoCapacity}`;
 
     expect(screen.getByText(cargoText)).toBeInTheDocument();
@@ -249,8 +264,10 @@ describe('ShipStatus Component', () => {
 
     // Buy some goods to change cargo
     const state = gameStateManager.getState();
-    const currentSystem = STAR_DATA.find((s) => s.id === state.player.currentSystem);
-    
+    const currentSystem = STAR_DATA.find(
+      (s) => s.id === state.player.currentSystem
+    );
+
     if (currentSystem && currentSystem.st > 0) {
       act(() => {
         gameStateManager.buyGood('electronics', 10);
@@ -265,7 +282,10 @@ describe('ShipStatus Component', () => {
 
       const ship = gameStateManager.getShip();
       const newState = gameStateManager.getState();
-      const cargoUsed = newState.ship.cargo.reduce((sum, stack) => sum + stack.qty, 0);
+      const cargoUsed = newState.ship.cargo.reduce(
+        (sum, stack) => sum + stack.qty,
+        0
+      );
       const cargoText = `${cargoUsed}/${ship.cargoCapacity}`;
 
       expect(screen.getByText(cargoText)).toBeInTheDocument();
