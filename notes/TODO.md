@@ -9,8 +9,9 @@
 
 - i18n?
 - GCT
+- When clicking on a star, the others stars change colors.
+- Remove vendor/ (I think)
 - Why are tests being skipped?
-- React? (Except for THREE.js and starmap)
 - Arbitrage bug: you can always sell at a profit something you just bought
 - Steering should not that files neeed single responsibilities
 - Ensure all individual js modules have unit tests
