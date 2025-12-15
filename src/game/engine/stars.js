@@ -1,5 +1,6 @@
 import * as THREE from '../../../vendor/three/build/three.module.js';
-import { SPECTRAL_COLORS, VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
+import { VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
+import { getStarVisuals } from '../utils/star-visuals.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;
@@ -8,16 +9,6 @@ const starMaterials = new Map();
 // Shared reticle texture and material for selection rings
 let sharedReticleTexture = null;
 let sharedReticleMaterial = null;
-
-/**
- * Get star color based on spectral class.
- * @param {string} spectralClass - The spectral class (e.g., "G2", "M5.5")
- * @returns {number} The color as a hex value
- */
-function getStarColor(spectralClass) {
-  const spectralType = spectralClass.charAt(0).toUpperCase();
-  return SPECTRAL_COLORS[spectralType] || VISUAL_CONFIG.defaultStarColor;
-}
 
 /**
  * Create a realistic star texture with radial glow.
@@ -52,6 +43,23 @@ function createStarTexture() {
 function createLabel(text, fontSize = 18) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
+
+  // Guard for test environment where canvas context may not be fully implemented
+  if (!ctx || !ctx.fillText) {
+    // Create minimal texture for test environment
+    canvas.width = 64;
+    canvas.height = 64;
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(fontSize * 2, fontSize * 2, 1);
+    return sprite;
+  }
 
   // Set font for measuring text
   ctx.font = `${fontSize}px 'Courier New', monospace`;
@@ -103,6 +111,9 @@ function createLabel(text, fontSize = 18) {
  * PERFORMANCE NOTE: This function creates 117 star sprites with shared textures
  * and materials. It should only be called once during scene initialization.
  *
+ * Star colors and sizes are determined by spectral classification using
+ * astronomically accurate properties from getStarVisuals().
+ *
  * @param {THREE.Scene} scene - The scene to add stars to
  * @param {Array} starData - Array of star system data
  * @returns {Array} Array of star objects
@@ -116,7 +127,15 @@ export function createStarSystems(scene, starData) {
   }
 
   starData.forEach((data) => {
-    const color = getStarColor(data.type);
+    // Get astronomically accurate color and size for this star's spectral type
+    const visuals = getStarVisuals(data.type);
+
+    // Convert hex color string to THREE.js color number
+    const color = parseInt(visuals.color.substring(1), 16);
+
+    // Calculate sprite size based on relative stellar radius
+    // Base size is VISUAL_CONFIG.starSize (30), scaled by relative radius
+    const spriteSize = VISUAL_CONFIG.starSize * visuals.radius;
 
     // Reduces 117 materials down to ~7 (one per spectral class)
     let spriteMaterial = starMaterials.get(color);
@@ -134,7 +153,7 @@ export function createStarSystems(scene, starData) {
 
     // Create sprite
     const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(VISUAL_CONFIG.starSize, VISUAL_CONFIG.starSize, 1);
+    sprite.scale.set(spriteSize, spriteSize, 1);
 
     // Position sprite at x, y, z coordinates from data
     sprite.position.set(data.x, data.y, data.z);
@@ -159,6 +178,7 @@ export function createStarSystems(scene, starData) {
       selectionRing: null,
       position: sprite.position,
       originalColor: color,
+      visualProperties: visuals,
     };
 
     stars.push(starObject);
