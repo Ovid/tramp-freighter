@@ -17,9 +17,6 @@
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
   Is the ship info worth it?
-- Trade info: if your trade info is older than the last time you visited that
-  star, the info should automatically be updated with the accurate data.
-  Source should be that you visited the star, or "information broker"
 - COMMODITY_TYPES duplication
 - Ability to rename ship
 - X/Y/Z should be fixed for star data. Get more star info?
@@ -57,6 +54,9 @@
   we have dynamic pricing?
 - Easy way to figure out which stars I can travel to.
 - Travel indicator instead of instant travel?
+- Trade info: if your trade info is older than the last time you visited that
+  star, the info should automatically be updated with the accurate data.
+  Source should be that you visited the star, or "information broker"
 
 # Steering
 
