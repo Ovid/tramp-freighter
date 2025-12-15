@@ -128,7 +128,7 @@
   - Display game title, subtitle, and version
   - _Requirements: 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 47.7_
 
-- [ ] 4.8 Write property test for title screen display
+- [x] 4.8 Write property test for title screen display
   - **Property 51: Title screen displays on load**
   - **Validates: Requirements 47.1**
 
