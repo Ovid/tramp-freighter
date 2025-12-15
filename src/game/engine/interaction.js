@@ -18,7 +18,12 @@ export function selectStar(star, scene, camera) {
 
   selectedStar = star;
 
-  // Change star color to selection color
+  // Clone material to avoid affecting other stars that share the same material
+  // Stars share materials by spectral class for performance, so we need unique materials for selection
+  if (!star.originalMaterial) {
+    star.originalMaterial = star.sprite.material;
+  }
+  star.sprite.material = star.originalMaterial.clone();
   star.sprite.material.color.setHex(VISUAL_CONFIG.selectionColor);
 
   // Create or show selection ring
@@ -51,8 +56,10 @@ export function deselectStar() {
     return;
   }
 
-  // Restore original star color
-  selectedStar.sprite.material.color.setHex(selectedStar.originalColor);
+  // Restore original shared material
+  if (selectedStar.originalMaterial) {
+    selectedStar.sprite.material = selectedStar.originalMaterial;
+  }
 
   // Hide selection ring
   if (selectedStar.selectionRing) {
