@@ -663,14 +663,13 @@
   - Document rollback procedure
   - _Requirements: 38.1, 38.2, 38.3, 38.4, 38.5_
 
-- [ ] 29.4 Remove vanilla JavaScript version files
-  - Remove starmap.html (vanilla entry point)
+- [x] 29.4 Remove vanilla JavaScript version files
   - Remove vendor/ after verifying new code does not use it
+  - Remove starmap.html (vanilla entry point)
   - Remove js/ directory containing vanilla UI code
   - Update package.json dev script to only use Vite
   - Verify index.html is the sole entry point
   - Remove all references to vanilla JavaScript implementation in steering docs
-  - Document cutover in migration guide
   - _Requirements: 38.5_
 
 - [ ] 30. Final checkpoint - Verify complete migration

@@ -15,7 +15,7 @@ Modern JavaScript using ES Modules (files with `import`/`export` statements) and
 - Optimized code execution
 - Prevention of accidental global variable creation
 
-**Note**: For legacy non-module JavaScript files (if any remain), you may add `"use strict";` at the top, but this should not be necessary for the React migration as all files will use ES Modules.
+**Note**: All files use ES Modules and are automatically in strict mode.
 
 ## Task Completion Standards
 
@@ -59,17 +59,17 @@ DO:
 **Each .js file should have a single, clear purpose**
 
 ```javascript
-// GOOD - Single purpose: trade panel controller
-// js/controllers/trade.js
-class TradePanelController {
+// GOOD - Single purpose: trade panel component
+// src/features/trade/TradePanel.jsx
+export function TradePanel({ onClose }) {
   // All trade panel logic
 }
 
 // BAD - Multiple unrelated purposes in one file
-// js/game-stuff.js
-class TradePanelController {}
-class RefuelPanelController {}
-function calculateDistance() {}
+// src/features/game-stuff.jsx
+export function TradePanel() {}
+export function RefuelPanel() {}
+export function calculateDistance() {}
 ```
 
 Benefits:
@@ -466,58 +466,76 @@ import './styles.css';
 **Organize code by feature and responsibility**
 
 ```
-js/
-├── controllers/           # UI panel controllers
-│   ├── trade.js
-│   ├── refuel.js
-│   ├── repair.js
-│   ├── upgrades.js
-│   ├── info-broker.js
-│   └── cargo-manifest.js
-├── views/                 # Rendering modules
-│   └── starmap/
-│       ├── starmap.js     # Main coordinator
-│       ├── scene.js       # Scene initialization
-│       ├── stars.js       # Star rendering
-│       ├── wormholes.js   # Wormhole rendering
-│       └── interaction.js # User interaction
-├── data/                  # Static game data
-│   ├── star-data.js
-│   └── wormhole-data.js
-├── utils/                 # Utility functions
-│   ├── seeded-random.js
-│   └── string-utils.js
-├── game-constants.js      # Configuration objects
-├── game-state.js          # State management
-├── game-trading.js        # Trading logic
-├── game-navigation.js     # Navigation logic
-├── game-ui.js             # UI coordinator
-└── game-animation.js      # Animation system
+src/
+├── features/              # Feature modules
+│   ├── trade/
+│   │   ├── TradePanel.jsx
+│   │   └── tradeUtils.js
+│   ├── refuel/
+│   │   ├── RefuelPanel.jsx
+│   │   └── refuelUtils.js
+│   ├── repair/
+│   │   ├── RepairPanel.jsx
+│   │   └── repairUtils.js
+│   ├── navigation/
+│   │   ├── StarMapCanvas.jsx
+│   │   ├── JumpDialog.jsx
+│   │   └── SystemPanel.jsx
+│   └── hud/
+│       ├── HUD.jsx
+│       ├── ResourceBar.jsx
+│       └── hudUtils.js
+├── components/            # Shared UI components
+│   ├── Button.jsx
+│   ├── Modal.jsx
+│   └── Card.jsx
+├── hooks/                 # Custom React hooks
+│   ├── useGameEvent.js
+│   └── useGameAction.js
+├── context/               # React Context
+│   └── GameContext.jsx
+└── game/                  # Game logic
+    ├── constants.js
+    ├── game-trading.js
+    ├── game-navigation.js
+    ├── state/
+    │   └── game-state-manager.js
+    ├── engine/
+    │   ├── scene.js
+    │   ├── stars.js
+    │   └── wormholes.js
+    ├── data/
+    │   ├── star-data.js
+    │   └── wormhole-data.js
+    └── utils/
+        ├── seeded-random.js
+        └── string-utils.js
 ```
 
 **Module Organization Principles:**
 
-- **Controllers**: One file per UI panel controller
-- **Views**: Rendering logic organized by visual component
-- **Data**: Static data separated from logic
-- **Utils**: Reusable utility functions
-- **Core systems**: Game logic modules at root level
+- **Features**: Feature-based organization with components and utilities co-located
+- **Components**: Shared UI components used across features
+- **Hooks**: Custom React hooks for common patterns
+- **Context**: React Context providers
+- **Game**: Game logic separated from UI
 
-**Starmap Module Coordinator Pattern:**
+**Scene Initialization Pattern:**
 
 ```javascript
-'use strict';
-
-import { initializeScene } from './starmap/scene.js';
-import { createStarSprites } from './starmap/stars.js';
-import { createWormholeLines } from './starmap/wormholes.js';
-import { setupInteraction } from './starmap/interaction.js';
+import { initScene } from '../../game/engine/scene.js';
+import { createStarSystems } from '../../game/engine/stars.js';
+import { createWormholeLines } from '../../game/engine/wormholes.js';
 
 /**
- * Initializes and coordinates all starmap modules.
- * Manages shared state and orchestrates rendering.
+ * Initializes Three.js scene for starmap rendering.
+ * Called once on component mount.
  */
-export function initializeStarmap(container, starData, wormholeData) {
+export function StarMapCanvas() {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
   // Initialize scene
   const { scene, camera, renderer, controls } = initializeScene(container);
 

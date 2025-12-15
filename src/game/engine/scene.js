@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from '../../../vendor/three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
 import { createStarSystems } from './stars.js';
 import { createWormholeLines } from './wormholes.js';

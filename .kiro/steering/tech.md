@@ -92,7 +92,7 @@ Code is organized by feature and responsibility in the `src/` directory:
 
 **Game** (`src/game/`):
 
-- Migrated game logic (preserved from vanilla version)
+- Game logic and state management
 - Subdirectories: state/, engine/, data/, utils/
 - Game constants, trading logic, navigation logic, events system
 
@@ -186,49 +186,81 @@ Wormhole connections stored as array of ID pairs.
 
 ### Current Structure
 
-**Vendor Libraries**:
+**React Application** (`src/`):
 
-- `vendor/three/` - Three.js library (never edit)
+**Features** (`src/features/`):
 
-**Application JavaScript** (`js/`):
+- Feature-based organization with components, hooks, and utilities co-located
+- `hud/` - HUD components (ResourceBar, DateDisplay, ShipStatus, QuickAccessButtons)
+- `navigation/` - Starmap and navigation (StarMapCanvas, JumpDialog, SystemPanel, CameraControls)
+- `station/` - Station interface (StationMenu, PanelContainer)
+- `trade/` - Trading panel (TradePanel, tradeUtils)
+- `refuel/` - Refueling panel (RefuelPanel, refuelUtils)
+- `repair/` - Repair panel (RepairPanel, repairUtils)
+- `upgrades/` - Upgrades panel (UpgradesPanel, upgradesUtils)
+- `info-broker/` - Information broker panel (InfoBrokerPanel, infoBrokerUtils)
+- `cargo/` - Cargo manifest panel (CargoManifestPanel, cargoUtils)
+- `ship-status/` - Ship status panel (ShipStatusPanel)
+- `title-screen/` - Title screen and ship naming (TitleScreen, ShipNamingDialog)
+- `dev-admin/` - Development admin panel (DevAdminPanel)
 
-**Controllers** (`js/controllers/`):
+**Components** (`src/components/`):
 
-- `trade.js` - Trade panel controller
-- `refuel.js` - Refuel panel controller
-- `repair.js` - Repair panel controller
-- `upgrades.js` - Upgrades panel controller
-- `info-broker.js` - Information broker panel controller
-- `cargo-manifest.js` - Cargo manifest panel controller
+- Shared UI components used across features
+- `Button.jsx` - Reusable button component
+- `Modal.jsx` - Modal dialog with React Portals
+- `Card.jsx` - Card container component
+- `ErrorBoundary.jsx` - Error boundary for graceful failures
 
-**Views** (`js/views/starmap/`):
+**Context** (`src/context/`):
 
-- `starmap.js` - Main starmap coordinator
-- `scene.js` - Scene initialization
+- React Context providers
+- `GameContext.jsx` - Provides GameStateManager to all components
+
+**Hooks** (`src/hooks/`):
+
+- Custom React hooks for common patterns
+- `useGameEvent.js` - Subscribe to GameStateManager events
+- `useGameAction.js` - Trigger game actions
+- `useAnimationLock.js` - Animation state management
+- `useNotification.js` - Notification system
+
+**Game Logic** (`src/game/`):
+
+- Core game logic and mechanics
+- `constants.js` - Game configuration constants
+- `game-trading.js` - Trading calculations
+- `game-navigation.js` - Navigation mechanics
+- `game-events.js` - Event system
+- `game-information-broker.js` - Information broker logic
+
+**State Management** (`src/game/state/`):
+
+- `game-state-manager.js` - Central state manager (singleton)
+- `save-load.js` - Save/load functionality
+- `state-validators.js` - State validation
+
+**Rendering Engine** (`src/game/engine/`):
+
+- Three.js-based rendering and animation
+- `game-animation.js` - Animation system
+- `scene.js` - Three.js scene setup
 - `stars.js` - Star rendering
 - `wormholes.js` - Wormhole rendering
-- `interaction.js` - User interaction handling
+- `interaction.js` - User interaction
 
-**Data** (`js/data/`):
+**Data** (`src/game/data/`):
 
+- Static game data
 - `star-data.js` - Star system data
-- `wormhole-data.js` - Wormhole connection data
+- `wormhole-data.js` - Wormhole connections
 
-**Utils** (`js/utils/`):
+**Utils** (`src/game/utils/`):
 
-- `seeded-random.js` - Deterministic random number generation
-- `string-utils.js` - String manipulation utilities
-
-**Core Systems** (js/ root):
-
-- `game-constants.js` - Configuration objects (prices, modifiers, colors, version)
-- `game-state.js` - State management and initialization
-- `game-trading.js` - Trading logic and price calculations
-- `game-navigation.js` - Jump mechanics and distance calculations
-- `game-ui.js` - UI coordinator (delegates to controllers)
-- `game-animation.js` - Animation system with input locking
-- `game-events.js` - Economic events system
-- `game-information-broker.js` - Intelligence trading system
+- Utility functions
+- `seeded-random.js` - Deterministic RNG
+- `string-utils.js` - String utilities
+- `star-visuals.js` - Star visualization
 
 **Stylesheets** (`css/`):
 
@@ -240,13 +272,15 @@ Wormhole connections stored as array of ID pairs.
 
 **Entry Point**:
 
-- `starmap.html` - Main application HTML
+- `index.html` - React application entry point (served by Vite)
+- `src/main.jsx` - Application initialization
+- `src/App.jsx` - Root component with view mode management
 
 ### Future Phases
 
-- `game-npcs.js` - NPC and relationship system
-- `game-combat.js` - Tactical combat choices
-- `content/` - Data-driven event and dialogue content
+- NPC and relationship system
+- Tactical combat choices
+- Data-driven event and dialogue content
 
 ## Performance Targets
 
@@ -267,7 +301,7 @@ Wormhole connections stored as array of ID pairs.
 
 - **React 18+** - UI framework for declarative components
 - **ReactDOM 18+** - React rendering for web
-- **Three.js** - 3D rendering. Located in `vendor/three/` directory. NEVER EDIT THIS CODE.
+- **Three.js** - 3D rendering library (installed via npm)
 - **Vite** - Build tool and development server
 - **Vitest** - Testing framework
 - **@testing-library/react** - React component testing utilities
@@ -301,8 +335,9 @@ import { WORMHOLE_DATA } from './game/data/wormhole-data';
 // Utils
 import { SeededRandom } from './game/utils/seeded-random';
 
-// Vendor
-import * as THREE from '../vendor/three/build/three.module.js';
+// External libraries
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // CSS (in main.jsx or component files)
 import '../css/base.css';

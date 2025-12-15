@@ -13,12 +13,10 @@ inclusion: always
 ├── .kiro/             # Kiro AI assistant configuration
 │   ├── specs/         # Feature specifications
 │   │   ├── architecture-refactor/       # Completed: Code organization
-│   │   ├── react-migration/             # In Progress: React migration
+│   │   ├── react-migration/             # Completed: React migration
 │   │   ├── sol-sector-starmap/          # Completed: 3D starmap foundation
 │   │   └── tramp-freighter-core-loop/   # Completed: Game MVP
 │   └── steering/      # AI steering rules and guidelines
-├── vendor/            # Third-party libraries
-│   └── three/         # Three.js library
 ├── src/               # React application source
 │   ├── main.jsx       # Application entry point
 │   ├── App.jsx        # Root component
@@ -70,7 +68,7 @@ inclusion: always
 │   │   │   └── ShipStatusPanel.jsx
 │   │   └── dev-admin/
 │   │       └── DevAdminPanel.jsx
-│   └── game/          # Migrated game logic
+│   └── game/          # Game logic
 │       ├── constants.js
 │       ├── game-trading.js
 │       ├── game-navigation.js
@@ -89,7 +87,7 @@ inclusion: always
 │       └── utils/
 │           ├── seeded-random.js
 │           └── string-utils.js
-├── css/               # Component stylesheets (preserved)
+├── css/               # Component stylesheets
 │   ├── base.css       # Global styles and resets
 │   ├── hud.css        # HUD overlay styles
 │   ├── panel/         # Panel-specific styles
@@ -102,7 +100,7 @@ inclusion: always
 │   │   └── upgrades.css
 │   ├── modals.css     # Modal dialog styles
 │   └── starmap-scene.css  # Starmap visualization
-├── tests/             # Test suite (migrated to Vitest)
+├── tests/             # Test suite
 │   ├── unit/          # Unit tests
 │   ├── property/      # Property-based tests
 │   └── integration/   # Integration tests
@@ -120,13 +118,12 @@ inclusion: always
 ## Organization Principles
 
 - **Root level**: Build configuration (vite.config.js, vitest.config.js, package.json) and HTML entry point (index.html)
-- **vendor/**: Third-party libraries (Three.js) separated from application code
 - **src/**: React application source code organized by feature
   - **features/**: Feature-based organization with components, hooks, and utilities co-located
   - **components/**: Shared UI components used across features
   - **context/**: React Context providers (GameContext)
   - **hooks/**: Custom React hooks (useGameEvent, useGameAction, etc.)
-  - **game/**: Migrated game logic organized by category
+  - **game/**: Game logic organized by category
     - **state/**: State management (GameStateManager, save/load)
     - **engine/**: Scene and animation logic
     - **data/**: Static game data (star systems, wormhole connections)
@@ -134,10 +131,10 @@ inclusion: always
   - **assets/**: Images and static resources
   - **main.jsx**: Application entry point
   - **App.jsx**: Root component
-- **css/**: Component stylesheets (preserved from vanilla version)
+- **css/**: Component stylesheets
   - **panel/**: Panel-specific styles in subdirectory
   - Base, HUD, modals, and starmap styles at root level
-- **tests/**: Test suite organized by test type (migrated to Vitest)
+- **tests/**: Test suite organized by test type
 - **notes/**: Documentation and specifications (excluded from version control)
 - **.kiro/specs/**: Formal feature specifications with requirements, design, and tasks
 - **.kiro/steering/**: AI assistant configuration and steering rules
@@ -150,7 +147,7 @@ inclusion: always
 - `src/context/GameContext.jsx`: Provides GameStateManager to all components
 - `src/hooks/useGameEvent.js`: Custom hook for subscribing to GameStateManager events
 - `src/hooks/useGameAction.js`: Custom hook for triggering game actions
-- `src/game/state/game-state-manager.js`: Central state management (preserved from vanilla)
+- `src/game/state/game-state-manager.js`: Central state management
 - `src/game/constants.js`: Configuration objects for all game constants
 - `src/features/`: Feature modules with React components and utilities
 - `vite.config.js`: Vite build configuration
@@ -164,8 +161,8 @@ inclusion: always
 - **Starmap Foundation**: Complete (v1.1)
 - **Game Core Loop**: Complete (Phase 1)
 - **Architecture Refactor**: Complete (improved code organization)
-- **React Migration**: In Progress (migrating UI to React 18+)
-- **Current Phase**: React migration with Bridge Pattern implementation
+- **React Migration**: Complete (React 18+ with Vite)
+- **Current Phase**: Feature development and polish
 
 ## Development Phases
 

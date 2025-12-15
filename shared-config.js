@@ -24,12 +24,4 @@ export const aliases = [
     find: '@assets',
     replacement: path.resolve(process.cwd(), './src/assets'),
   },
-  // Ensure all Three.js imports resolve to vendor directory
-  {
-    find: 'three',
-    replacement: path.resolve(
-      process.cwd(),
-      './vendor/three/build/three.module.js'
-    ),
-  },
 ];
