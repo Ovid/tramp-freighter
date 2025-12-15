@@ -118,7 +118,12 @@ export function ConfirmModal({
   cancelText = 'Cancel',
 }) {
   return (
-    <Modal isOpen={isOpen} onClose={onCancel} title={title} showCloseButton={false}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={title}
+      showCloseButton={false}
+    >
       <p className="modal-message">{message}</p>
       <div className="modal-actions">
         <button className="modal-cancel" onClick={onCancel}>

@@ -496,7 +496,7 @@
   - _Requirements: 11.1, 11.3_
 
 - [ ] 23. Migrate integration tests to Vitest
-- [ ] 23.1 Migrate game flow integration tests
+- [x] 23.1 Migrate game flow integration tests
   - Migrate tests from tests/integration/game-flow.integration.test.js
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
