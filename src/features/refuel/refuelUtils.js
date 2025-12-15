@@ -37,6 +37,10 @@ export function calculateMaxAffordable(credits, pricePerPercent) {
 /**
  * Calculate the maximum amount that can be refueled based on capacity
  *
+ * Uses Math.ceil to round up fractional remaining capacity, allowing players
+ * to refuel to exactly 100% even when current fuel has fractional values.
+ * The validation epsilon in GameStateManager handles the slight overage.
+ *
  * @param {number} currentFuel - Current fuel percentage
  * @param {number} maxFuel - Maximum fuel capacity (default: 100%)
  * @returns {number} Maximum capacity amount (percentage points)
@@ -45,7 +49,7 @@ export function calculateMaxCapacity(
   currentFuel,
   maxFuel = SHIP_CONFIG.CONDITION_BOUNDS.MAX
 ) {
-  return Math.floor(maxFuel - currentFuel);
+  return Math.ceil(maxFuel - currentFuel);
 }
 
 /**

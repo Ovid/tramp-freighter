@@ -139,8 +139,9 @@ function renderErrorUI(error) {
  * React Migration Spec: Requirements 45.1, 45.2, 45.3
  */
 async function initializeApp() {
-  // Initialize dev mode detection
-  await initDevMode();
+  // Initialize dev mode detection BEFORE rendering
+  // This ensures DEV_MODE is set before React evaluates the App component
+  const isDevMode = await initDevMode();
 
   // Initialize GameStateManager
   let gameStateManager;
@@ -152,10 +153,11 @@ async function initializeApp() {
   }
 
   // Render application
+  // Pass devMode as a prop to ensure React knows about it
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <GameProvider gameStateManager={gameStateManager}>
-        <App />
+        <App devMode={isDevMode} />
       </GameProvider>
     </React.StrictMode>
   );

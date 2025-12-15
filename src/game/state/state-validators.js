@@ -574,7 +574,18 @@ export function addStateDefaults(state, systemData) {
     state.world.priceKnowledge[currentSystemId] = {
       lastVisit: 0,
       prices: currentPrices,
+      source: 'visited',
     };
+  }
+
+  // Add source field to existing price knowledge entries if missing (backward compatibility)
+  if (state.world.priceKnowledge) {
+    for (const systemId in state.world.priceKnowledge) {
+      if (!state.world.priceKnowledge[systemId].source) {
+        // Default to 'visited' for old saves
+        state.world.priceKnowledge[systemId].source = 'visited';
+      }
+    }
   }
 
   // Initialize active events if missing
@@ -585,6 +596,35 @@ export function addStateDefaults(state, systemData) {
   // Initialize market conditions if missing
   if (!state.world.marketConditions) {
     state.world.marketConditions = {};
+  }
+
+  // Initialize current system prices if missing (snapshot prices at current location)
+  if (!state.world.currentSystemPrices) {
+    const currentSystemId = state.player.currentSystem;
+    const currentSystem = systemData.find((s) => s.id === currentSystemId);
+
+    if (!currentSystem) {
+      throw new Error(
+        `Load failed: current system ID ${currentSystemId} not found in star data`
+      );
+    }
+
+    const currentDay = state.player.daysElapsed;
+    const activeEvents = state.world.activeEvents || [];
+    const marketConditions = state.world.marketConditions || {};
+    const currentPrices = {};
+
+    for (const goodType of COMMODITY_TYPES) {
+      currentPrices[goodType] = TradingSystem.calculatePrice(
+        goodType,
+        currentSystem,
+        currentDay,
+        activeEvents,
+        marketConditions
+      );
+    }
+
+    state.world.currentSystemPrices = currentPrices;
   }
 
   return state;

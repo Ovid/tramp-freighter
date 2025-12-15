@@ -156,6 +156,75 @@ describe('Star Selection Reticles', () => {
 
       expect(secondRing).toBe(firstRing);
     });
+
+    it('should not affect other stars with shared material', () => {
+      // Create two stars that share the same material (same spectral class)
+      const sharedMaterial = new THREE.SpriteMaterial({ color: 0xff0000 });
+      const star1 = {
+        data: { id: 3, name: 'Star A', x: 0, y: 0, z: 0 },
+        sprite: new THREE.Sprite(sharedMaterial),
+        label: new THREE.Sprite(new THREE.SpriteMaterial()),
+        position: new THREE.Vector3(0, 0, 0),
+        originalColor: 0xff0000,
+        selectionRing: null,
+      };
+      const star2 = {
+        data: { id: 4, name: 'Star B', x: 20, y: 10, z: 5 },
+        sprite: new THREE.Sprite(sharedMaterial),
+        label: new THREE.Sprite(new THREE.SpriteMaterial()),
+        position: new THREE.Vector3(20, 10, 5),
+        originalColor: 0xff0000,
+        selectionRing: null,
+      };
+
+      // Verify they share the same material initially
+      expect(star1.sprite.material).toBe(star2.sprite.material);
+
+      // Select star1
+      selectStar(star1, scene, camera);
+
+      // star1 should have selection color
+      expect(star1.sprite.material.color.getHex()).toBe(
+        VISUAL_CONFIG.selectionColor
+      );
+
+      // star2 should still have original color (not affected by star1's selection)
+      expect(star2.sprite.material.color.getHex()).toBe(0xff0000);
+
+      // star1 should now have a different material instance (cloned)
+      expect(star1.sprite.material).not.toBe(star2.sprite.material);
+
+      // star1 should have originalMaterial stored
+      expect(star1.originalMaterial).toBe(sharedMaterial);
+    });
+
+    it('should restore shared material on deselect', () => {
+      // Create star with a specific material
+      const sharedMaterial = new THREE.SpriteMaterial({ color: 0x00ff00 });
+      const star = {
+        data: { id: 5, name: 'Star C', x: 0, y: 0, z: 0 },
+        sprite: new THREE.Sprite(sharedMaterial),
+        label: new THREE.Sprite(new THREE.SpriteMaterial()),
+        position: new THREE.Vector3(0, 0, 0),
+        originalColor: 0x00ff00,
+        selectionRing: null,
+      };
+
+      // Select the star (should clone material)
+      selectStar(star, scene, camera);
+      const clonedMaterial = star.sprite.material;
+
+      // Verify material was cloned
+      expect(clonedMaterial).not.toBe(sharedMaterial);
+      expect(star.originalMaterial).toBe(sharedMaterial);
+
+      // Deselect the star (should restore shared material)
+      deselectStar();
+
+      // Verify shared material is restored
+      expect(star.sprite.material).toBe(sharedMaterial);
+      expect(star.sprite.material.color.getHex()).toBe(0x00ff00);
+    });
   });
 
   describe('deselectStar', () => {
@@ -228,8 +297,8 @@ describe('Star Selection Reticles', () => {
         currentSystemId
       );
 
-      expect(indicator.scale.x).toBe(1.2);
-      expect(indicator.scale.y).toBe(1.2);
+      expect(indicator.scale.x).toBe(VISUAL_CONFIG.currentSystemBaseScale);
+      expect(indicator.scale.y).toBe(VISUAL_CONFIG.currentSystemBaseScale);
     });
 
     it('should use current system color', () => {

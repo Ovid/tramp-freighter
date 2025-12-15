@@ -610,7 +610,6 @@ function HUD() {
 
 Welcome to the team! 🚀
 
-
 ## Migration Cutover - December 2024
 
 ### Cutover Summary
@@ -640,22 +639,26 @@ All game logic and rendering code was migrated to the new React structure:
 ### Configuration Changes
 
 **package.json:**
+
 - Removed `dev:vanilla` script
 - Removed `http-server` dependency
 - `dev` script now only runs Vite
 
 **Build Configuration:**
+
 - Removed vendor/three path aliases from vite.config.js and vitest.config.js
 - Updated to use Three.js from npm package
 - Removed custom three/addons resolver plugin
 
 **Import Changes:**
+
 - Changed from `vendor/three/examples/jsm/controls/OrbitControls.js`
 - To: `three/examples/jsm/controls/OrbitControls.js` (npm package)
 
 ### Test Suite Changes
 
 Removed 110+ test files that tested the vanilla JavaScript implementation. These tests were either:
+
 1. Migrated to React versions (using React Testing Library)
 2. Removed as redundant (functionality covered by React tests)
 
@@ -664,6 +667,7 @@ All remaining tests (86 test files, 718 tests) pass successfully.
 ### Save File Compatibility
 
 **Important**: Save files remain 100% compatible. The localStorage format and keys are unchanged:
+
 - `tramp-freighter-save` - Main save file
 - Save file version remains the same
 - Players can continue their existing games without any issues
@@ -704,6 +708,7 @@ Before cutover, the following was verified:
 ### Post-Cutover Status
 
 **Current State:**
+
 - Single entry point: `index.html` (served by Vite)
 - Single dev command: `npm run dev`
 - All code in React/ES Modules
@@ -711,6 +716,7 @@ Before cutover, the following was verified:
 - All tests passing
 
 **Benefits Realized:**
+
 - Simplified development workflow (one server, one entry point)
 - Faster development with HMR
 - Better tooling and debugging
@@ -724,9 +730,9 @@ None. The migration is complete and stable.
 ### Future Work
 
 With the migration complete, future development can focus on:
+
 - New game features (NPCs, missions, combat)
 - Performance optimizations
 - Additional UI polish
 - Mobile support
 - Multiplayer features
-

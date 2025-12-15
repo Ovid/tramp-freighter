@@ -4,24 +4,19 @@
   confused and continues to the next task. I had it work on one task that was
   complex and I went to lunch. I came back and found it had poorly implemented
   three tasks.
+- When migrating from vanilla JS to React, I had to temporarily have steering
+  docs listing both old and new tech stacks. That meant my context on task
+  launch was much larger, often around 30-40% instead of 20%. That made tasks
+  harder to complete as they hit the context window limits.
 
 # TODO
 
 - i18n?
 - GCT
-- When clicking on a star, the others stars change colors.
-- Remove vendor/ (I think)
-- Why are tests being skipped?
-- Can't refuel to 100%?
-- Arbitrage bug: you can always sell at a profit something you just bought
-- Steering should not that files neeed single responsibilities
 - Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
   Is the ship info worth it?
-- Trade info: if your trade info is older than the last time you visited that
-  star, the info should automatically be updated with the accurate data.
-  Source should be that you visited the star, or "information broker"
 - COMMODITY_TYPES duplication
 - Ability to rename ship
 - X/Y/Z should be fixed for star data. Get more star info?
@@ -35,17 +30,23 @@
 - Multi-route jumps?
 - Needs a tutorial.
 - Some kind of "Achievement" system (visited all stars, for example)
-- No messages occur when I can't refuel (100% or no money)
+- No messages occur when I cannot refuel (100% or no money)
 
 # Fixed
 
+- Cannot refuel to 100%?
+- Arbitrage bug: you can always sell at a profit something you just bought
+- Steering should note that files neeed single responsibilities
+- When clicking on a star, the others stars change colors.
+- Remove vendor/ (I think)
+- Why are tests being skipped?
 - Cargo
   - See cargo capacity and remaining capacity
   - Consolidate stacks if item and "bought at" are the same
 - Fix star distances and locations.
 - Economy
   notes/realistic_economy.md
-  We're a single-player game, so perhaps the more you sell or buy in a
+  We are a single-player game, so perhaps the more you sell or buy in a
   system, the more the prices drop or rise based on your individual
   activity, before slowly returning to baseline? That forces players to look
   for other places to buy/sell.
@@ -53,6 +54,9 @@
   we have dynamic pricing?
 - Easy way to figure out which stars I can travel to.
 - Travel indicator instead of instant travel?
+- Trade info: if your trade info is older than the last time you visited that
+  star, the info should automatically be updated with the accurate data.
+  Source should be that you visited the star, or "information broker"
 
 # Steering
 

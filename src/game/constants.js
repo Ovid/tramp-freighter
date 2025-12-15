@@ -122,9 +122,11 @@ export const NAVIGATION_CONFIG = {
   LY_PER_UNIT: 20 / 279.3190870671033,
 
   // Floating-point epsilon for fuel capacity checks
-  // Allows for minor floating-point arithmetic errors when validating
-  // refuel amounts against the 100% capacity limit
-  FUEL_CAPACITY_EPSILON: 0.01,
+  // Allows for minor floating-point arithmetic errors and integer rounding
+  // when validating refuel amounts against the 100% capacity limit.
+  // Set to 1.0 to allow refueling in 1% increments even when current fuel
+  // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
+  FUEL_CAPACITY_EPSILON: 1.0,
 };
 
 /**
@@ -418,8 +420,23 @@ export let DEV_MODE = false;
  */
 export async function initDevMode() {
   try {
-    const response = await fetch('.dev');
-    DEV_MODE = response.ok;
+    // Add cache-busting query parameter to ensure fresh check
+    // This prevents browser from caching the .dev file existence check
+    const url = `.dev?t=${Date.now()}`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+    });
+
+    // Check if response is actually the .dev file, not an HTML fallback
+    // Vite's dev server might return index.html for 404s (SPA fallback)
+    const contentType = response.headers.get('content-type') || '';
+    const isHtmlFallback = contentType.includes('text/html');
+
+    // Dev mode is enabled only if:
+    // 1. Response is OK (200)
+    // 2. Response is NOT an HTML fallback (which would indicate 404 with SPA fallback)
+    DEV_MODE = response.ok && !isHtmlFallback;
+
     return DEV_MODE;
   } catch {
     // .dev file not found or fetch failed - dev mode disabled
@@ -469,6 +486,19 @@ export const VISUAL_CONFIG = {
   sceneBackground: 0x000000,
   ambientLightColor: 0x404040,
   directionalLightColor: 0xffffff,
+  // Selection ring animation parameters
+  selectionRingScaleAmplitude: 0.08, // Scale variation for pulse effect (8%)
+  selectionRingBaseOpacity: 0.75, // Base opacity for selection ring
+  selectionRingOpacityAmplitude: 0.25, // Opacity variation for scanning effect
+  selectionRingOpacityFrequency: 1.5, // Frequency multiplier for opacity pulse
+  selectionRingRotationSpeed: 0.2, // Rotation speed in radians per second
+  // Current system indicator animation parameters
+  currentSystemBaseScale: 1.2, // Base scale (20% larger than selection ring)
+  currentSystemScaleAmplitude: 0.1, // Scale variation for pulse effect (10%)
+  currentSystemScaleFrequency: 0.8, // Frequency multiplier for scale pulse
+  currentSystemBaseOpacity: 0.7, // Base opacity for current system indicator
+  currentSystemOpacityAmplitude: 0.3, // Opacity variation for pulse effect
+  currentSystemRotationSpeed: 0.15, // Rotation speed in radians per second (opposite direction)
   connectionColors: {
     default: 0x00ccff,
     sufficient: 0x00ff00,

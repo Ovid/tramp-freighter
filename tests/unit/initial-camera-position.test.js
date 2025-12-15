@@ -1,57 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { VISUAL_CONFIG } from '../../src/game/constants.js';
 
 describe('Initial Camera Position', () => {
-  let mockScene;
-  let mockCamera;
-  let mockRenderer;
-  let mockControls;
-
-  beforeEach(() => {
-    // Mock Three.js objects
-    mockCamera = {
-      position: { x: 0, y: 0, z: 0, set: vi.fn(), copy: vi.fn() },
-      lookAt: vi.fn(),
-      aspect: 1,
-      updateProjectionMatrix: vi.fn(),
-    };
-
-    mockRenderer = {
-      domElement: document.createElement('canvas'),
-      setSize: vi.fn(),
-      setPixelRatio: vi.fn(),
-      render: vi.fn(),
-      dispose: vi.fn(),
-    };
-
-    mockScene = {
-      add: vi.fn(),
-      background: null,
-      fog: null,
-      traverse: vi.fn(),
-    };
-
-    mockControls = {
-      target: { x: 0, y: 0, z: 0, set: vi.fn() },
-      update: vi.fn(),
-      enableDamping: false,
-      dampingFactor: 0,
-      rotateSpeed: 0,
-      panSpeed: 0,
-      zoomSpeed: 0,
-      minDistance: 0,
-      maxDistance: 0,
-      enableRotate: false,
-      enablePan: false,
-      enableZoom: false,
-      mouseButtons: {},
-    };
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should define initialCameraDistance in VISUAL_CONFIG', () => {
     expect(VISUAL_CONFIG.initialCameraDistance).toBeDefined();
     expect(typeof VISUAL_CONFIG.initialCameraDistance).toBe('number');

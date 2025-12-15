@@ -8,6 +8,7 @@ import {
   sortIntelligenceByPriority,
   formatVisitInfo,
   formatStaleness,
+  formatSource,
   getKnownSystemsSortedByStaleness,
 } from './infoBrokerUtils';
 import { INTELLIGENCE_CONFIG, COMMODITY_TYPES } from '../../game/constants';
@@ -49,10 +50,7 @@ export function InfoBrokerPanel({ onClose }) {
   }
 
   // Get available intelligence options
-  // Guard against null navigationSystem (common in tests)
-  const intelligenceOptions = gameStateManager.navigationSystem
-    ? gameStateManager.listAvailableIntelligence()
-    : [];
+  const intelligenceOptions = gameStateManager.listAvailableIntelligence();
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
   const handleBuyRumor = () => {
@@ -143,10 +141,15 @@ export function InfoBrokerPanel({ onClose }) {
       <div key={system.id} className="market-data-system">
         <div className="market-data-header">
           <div className="market-data-system-name">{system.name}</div>
-          <div
-            className={`market-data-staleness ${formatStaleness(knowledge.lastVisit).cssClass}`}
-          >
-            {formatStaleness(knowledge.lastVisit).text}
+          <div className="market-data-meta">
+            <div className="market-data-source">
+              {formatSource(knowledge.source)}
+            </div>
+            <div
+              className={`market-data-staleness ${formatStaleness(knowledge.lastVisit).cssClass}`}
+            >
+              {formatStaleness(knowledge.lastVisit).text}
+            </div>
           </div>
         </div>
         <div className="market-data-prices">
