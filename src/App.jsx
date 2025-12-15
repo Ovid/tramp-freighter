@@ -201,7 +201,7 @@ export default function App({ devMode = false }) {
   const handleCloseSystemPanel = (keepSelection = false) => {
     setViewingSystemId(null);
     // Deselect star in scene unless we're keeping it for jump animation
-    if (!keepSelection && window.StarmapBridge?.deselectStarInScene) {
+    if (!keepSelection && window.StarmapBridge.deselectStarInScene) {
       window.StarmapBridge.deselectStarInScene();
     }
   };
@@ -226,14 +226,12 @@ export default function App({ devMode = false }) {
   /**
    * Handle successful jump completion.
    * After jump, deselect star so only current system indicator is visible.
-   *
-   * @param {number} destinationSystemId - The system we just jumped to (unused, kept for compatibility)
    */
-  const handleJumpComplete = (destinationSystemId) => {
+  const handleJumpComplete = () => {
     setViewingSystemId(null);
     // Deselect star after jump completes - we've arrived at destination
     // Only the current system indicator (green) should be visible
-    if (window.StarmapBridge?.deselectStarInScene) {
+    if (window.StarmapBridge.deselectStarInScene) {
       window.StarmapBridge.deselectStarInScene();
     }
   };

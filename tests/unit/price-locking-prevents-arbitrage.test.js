@@ -27,7 +27,6 @@ describe('Price locking prevents intra-system arbitrage', () => {
 
   it('should lock prices when arriving at a system', () => {
     const state = gameStateManager.getState();
-    const currentSystemId = state.player.currentSystem;
 
     // Get initial locked prices
     const initialPrices = gameStateManager.getCurrentSystemPrices();
