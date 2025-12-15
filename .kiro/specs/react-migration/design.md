@@ -340,20 +340,52 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // src/App.jsx
 import { useState } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { TitleScreen } from './features/title-screen/TitleScreen';
+import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
 import { StarMapCanvas } from './features/navigation/StarMapCanvas';
 import { HUD } from './features/hud/HUD';
 import { StationMenu } from './features/station/StationMenu';
 import { PanelContainer } from './features/station/PanelContainer';
+import { useGameState } from './context/GameContext';
+import { useGameAction } from './hooks/useGameAction';
 
 const VIEW_MODES = {
+  TITLE: 'TITLE',
+  SHIP_NAMING: 'SHIP_NAMING',
   ORBIT: 'ORBIT',
   STATION: 'STATION',
   PANEL: 'PANEL',
 };
 
 export default function App() {
-  const [viewMode, setViewMode] = useState(VIEW_MODES.ORBIT);
+  const gameStateManager = useGameState();
+  const { newGame, updateShipName } = useGameAction();
+  const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
   const [activePanel, setActivePanel] = useState(null);
+
+  const handleStartGame = (isNewGame) => {
+    if (isNewGame) {
+      // Initialize new game
+      newGame();
+      // Show ship naming dialog
+      setViewMode(VIEW_MODES.SHIP_NAMING);
+    } else {
+      // Load existing game
+      const loadedState = gameStateManager.loadGame();
+      if (loadedState) {
+        setViewMode(VIEW_MODES.ORBIT);
+      }
+    }
+  };
+
+  const handleShipNamed = (shipName) => {
+    // Update ship name in game state
+    updateShipName(shipName);
+    // Save game with ship name
+    gameStateManager.saveGame();
+    // Transition to game
+    setViewMode(VIEW_MODES.ORBIT);
+  };
 
   const handleDock = () => {
     setViewMode(VIEW_MODES.STATION);
@@ -376,19 +408,35 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="app-container">
-        <StarMapCanvas />
-        <HUD onDock={handleDock} />
-
-        {viewMode === VIEW_MODES.STATION && (
-          <StationMenu onOpenPanel={handleOpenPanel} onUndock={handleUndock} />
+        {viewMode === VIEW_MODES.TITLE && (
+          <TitleScreen onStartGame={handleStartGame} />
         )}
 
-        {viewMode === VIEW_MODES.PANEL && (
-          <PanelContainer
-            activePanel={activePanel}
-            onClose={handleClosePanel}
-          />
+        {viewMode === VIEW_MODES.SHIP_NAMING && (
+          <ShipNamingDialog onSubmit={handleShipNamed} />
         )}
+
+        {viewMode !== VIEW_MODES.TITLE &&
+          viewMode !== VIEW_MODES.SHIP_NAMING && (
+            <>
+              <StarMapCanvas />
+              <HUD onDock={handleDock} />
+
+              {viewMode === VIEW_MODES.STATION && (
+                <StationMenu
+                  onOpenPanel={handleOpenPanel}
+                  onUndock={handleUndock}
+                />
+              )}
+
+              {viewMode === VIEW_MODES.PANEL && (
+                <PanelContainer
+                  activePanel={activePanel}
+                  onClose={handleClosePanel}
+                />
+              )}
+            </>
+          )}
       </div>
     </ErrorBoundary>
   );
@@ -396,6 +444,141 @@ export default function App() {
 ```
 
 ### Feature Components
+
+#### TitleScreen Component
+
+```javascript
+// src/features/title-screen/TitleScreen.jsx
+import { useState, useEffect } from 'react';
+import { useGameState } from '../../context/GameContext';
+import { Modal } from '../../components/Modal';
+
+export function TitleScreen({ onStartGame }) {
+  const gameStateManager = useGameState();
+  const [hasSave, setHasSave] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    // Check for saved game
+    setHasSave(gameStateManager.hasSavedGame());
+  }, [gameStateManager]);
+
+  const handleContinue = () => {
+    onStartGame(false); // Load existing game
+  };
+
+  const handleNewGame = () => {
+    if (hasSave) {
+      setShowConfirmation(true);
+    } else {
+      onStartGame(true); // Start new game
+    }
+  };
+
+  const handleConfirmNewGame = () => {
+    setShowConfirmation(false);
+    onStartGame(true); // Start new game
+  };
+
+  return (
+    <div className="title-screen">
+      <div className="menu-content">
+        <h1 className="menu-title">Tramp Freighter Blues</h1>
+        <div className="menu-subtitle">Sol Sector Trading Simulation</div>
+
+        <div className="menu-buttons">
+          {hasSave && (
+            <button className="menu-btn" onClick={handleContinue}>
+              Continue Game
+            </button>
+          )}
+          <button className="menu-btn" onClick={handleNewGame}>
+            New Game
+          </button>
+        </div>
+
+        <div className="menu-footer">
+          <div className="menu-version">v1.0.0</div>
+        </div>
+      </div>
+
+      {showConfirmation && (
+        <Modal
+          message="Starting a new game will overwrite your existing save. Continue?"
+          onConfirm={handleConfirmNewGame}
+          onCancel={() => setShowConfirmation(false)}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+#### ShipNamingDialog Component
+
+```javascript
+// src/features/title-screen/ShipNamingDialog.jsx
+import { useState } from 'react';
+import { SHIP_CONFIG } from '../../game/constants';
+import { sanitizeShipName } from '../../game/state/game-state-manager';
+
+export function ShipNamingDialog({ onSubmit }) {
+  const [shipName, setShipName] = useState('');
+
+  const handleSubmit = () => {
+    const sanitized = sanitizeShipName(shipName);
+    onSubmit(sanitized);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
+  const handleSuggestionClick = (name) => {
+    setShipName(name);
+  };
+
+  return (
+    <div className="ship-naming-overlay">
+      <div className="ship-naming-dialog">
+        <h2>Name Your Ship</h2>
+        <p>What will you call your vessel?</p>
+
+        <input
+          type="text"
+          className="ship-name-input"
+          value={shipName}
+          onChange={(e) => setShipName(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Enter ship name..."
+          autoFocus
+        />
+
+        <div className="ship-name-suggestions">
+          <p>Suggestions:</p>
+          <div className="suggestion-buttons">
+            {SHIP_CONFIG.NAME_SUGGESTIONS.map((name) => (
+              <button
+                key={name}
+                className="suggestion-btn"
+                onClick={() => handleSuggestionClick(name)}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button className="confirm-btn" onClick={handleSubmit}>
+          Confirm
+        </button>
+      </div>
+    </div>
+  );
+}
+```
 
 #### HUD Component
 
@@ -920,6 +1103,50 @@ _For any_ player location change, quick access button enabled/disabled state sho
 Property 49: Animation lock disables quick access
 _For any_ animation running, quick access buttons should be disabled
 **Validates: Requirements 46.3**
+
+### Title Screen Properties
+
+Property 51: Title screen displays on load
+_For any_ application initialization, the title screen should be displayed before the game view
+**Validates: Requirements 47.1**
+
+Property 52: Continue button visibility
+_For any_ title screen display, the Continue Game button should be visible if and only if a saved game exists
+**Validates: Requirements 47.2, 47.3**
+
+Property 53: New game confirmation
+_For any_ New Game button click when a saved game exists, a confirmation dialog should be displayed
+**Validates: Requirements 47.5**
+
+Property 54: Game initialization on continue
+_For any_ Continue Game button click, the saved game should be loaded and the game view should be displayed
+**Validates: Requirements 47.4**
+
+Property 55: Ship naming after new game
+_For any_ confirmed new game start, the ship naming dialog should be displayed before the game view
+**Validates: Requirements 47.6**
+
+### Ship Naming Properties
+
+Property 56: Ship naming dialog displays
+_For any_ new game initialization, the ship naming dialog should be displayed
+**Validates: Requirements 48.1**
+
+Property 57: Ship name sanitization
+_For any_ ship name submission, the name should be sanitized using the existing sanitizeShipName function
+**Validates: Requirements 48.4**
+
+Property 58: Default ship name on empty input
+_For any_ empty ship name submission, the default ship name from SHIP_CONFIG should be used
+**Validates: Requirements 48.5**
+
+Property 59: Enter key submits ship name
+_For any_ Enter key press in the ship name input field, the ship name should be submitted
+**Validates: Requirements 48.6**
+
+Property 60: Ship name persists after submission
+_For any_ ship name submission, the game state should be updated and saved with the new ship name
+**Validates: Requirements 48.7**
 
 ### Game Logic Preservation Properties
 

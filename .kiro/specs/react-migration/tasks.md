@@ -118,6 +118,76 @@
   - **Property 29: View mode changes update visibility**
   - **Validates: Requirements 9.5**
 
+- [ ] 4.7 Implement TitleScreen component
+  - Create src/features/title-screen/TitleScreen.jsx
+  - Check for saved game using gameStateManager.hasSavedGame()
+  - Display Continue Game button only if save exists
+  - Display New Game button always
+  - Show confirmation modal if starting new game with existing save
+  - Handle Continue and New Game button clicks
+  - Display game title, subtitle, and version
+  - _Requirements: 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 47.7_
+
+- [ ] 4.8 Write property test for title screen display
+  - **Property 51: Title screen displays on load**
+  - **Validates: Requirements 47.1**
+
+- [ ] 4.9 Write property test for continue button visibility
+  - **Property 52: Continue button visibility**
+  - **Validates: Requirements 47.2, 47.3**
+
+- [ ] 4.10 Write property test for new game confirmation
+  - **Property 53: New game confirmation**
+  - **Validates: Requirements 47.5**
+
+- [ ] 4.11 Write property test for game initialization on continue
+  - **Property 54: Game initialization on continue**
+  - **Validates: Requirements 47.4**
+
+- [ ] 4.12 Write property test for ship naming after new game
+  - **Property 55: Ship naming after new game**
+  - **Validates: Requirements 47.6**
+
+- [ ] 4.13 Implement ShipNamingDialog component
+  - Create src/features/title-screen/ShipNamingDialog.jsx
+  - Display input field for ship name
+  - Display suggested ship names from SHIP_CONFIG.NAME_SUGGESTIONS
+  - Handle suggestion button clicks to populate input
+  - Sanitize ship name on submission using sanitizeShipName
+  - Use default ship name if input is empty
+  - Handle Enter key to submit
+  - Call onSubmit callback with sanitized name
+  - _Requirements: 48.1, 48.2, 48.3, 48.4, 48.5, 48.6, 48.7_
+
+- [ ] 4.14 Write property test for ship naming dialog display
+  - **Property 56: Ship naming dialog displays**
+  - **Validates: Requirements 48.1**
+
+- [ ] 4.15 Write property test for ship name sanitization
+  - **Property 57: Ship name sanitization**
+  - **Validates: Requirements 48.4**
+
+- [ ] 4.16 Write property test for default ship name
+  - **Property 58: Default ship name on empty input**
+  - **Validates: Requirements 48.5**
+
+- [ ] 4.17 Write property test for Enter key submission
+  - **Property 59: Enter key submits ship name**
+  - **Validates: Requirements 48.6**
+
+- [ ] 4.18 Write property test for ship name persistence
+  - **Property 60: Ship name persists after submission**
+  - **Validates: Requirements 48.7**
+
+- [ ] 4.19 Update App.jsx to include title screen flow
+  - Add TITLE and SHIP_NAMING view modes
+  - Initialize with TITLE view mode
+  - Implement handleStartGame to handle continue vs new game
+  - Implement handleShipNamed to update ship name and transition to game
+  - Conditionally render TitleScreen and ShipNamingDialog
+  - Only render game components after title screen flow completes
+  - _Requirements: 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 48.1, 48.7_
+
 - [x] 5. Create shared UI components
   - Create src/components/Button.jsx
   - Create src/components/Modal.jsx with React Portals

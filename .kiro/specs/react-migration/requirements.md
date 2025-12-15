@@ -599,3 +599,31 @@ This document specifies the requirements for migrating the Tramp Freighter Blues
 3. WHEN an animation is running THEN the System SHALL disable quick access buttons using the animation lock
 4. WHEN a quick access button is clicked THEN the System SHALL trigger the appropriate view mode change
 5. WHEN quick access buttons are implemented THEN the System SHALL maintain the same behavior as the vanilla version
+
+### Requirement 47
+
+**User Story:** As a player, I want a title screen when I first load the game, so that I can choose to continue my existing game or start a new one.
+
+#### Acceptance Criteria
+
+1. WHEN the application loads THEN the System SHALL display a title screen before showing the game
+2. WHEN a saved game exists THEN the System SHALL display both Continue Game and New Game buttons
+3. WHEN no saved game exists THEN the System SHALL display only the New Game button
+4. WHEN the Continue Game button is clicked THEN the System SHALL load the saved game and transition to the game view
+5. WHEN the New Game button is clicked THEN the System SHALL show a confirmation dialog if a saved game exists
+6. WHEN the New Game confirmation is accepted THEN the System SHALL initialize a new game and show the ship naming dialog
+7. WHEN the title screen is displayed THEN the System SHALL show the game title, subtitle, and version number
+
+### Requirement 48
+
+**User Story:** As a player, I want to name my ship when starting a new game, so that I can personalize my gameplay experience.
+
+#### Acceptance Criteria
+
+1. WHEN a new game is started THEN the System SHALL display a ship naming dialog before showing the game
+2. WHEN the ship naming dialog is displayed THEN the System SHALL show an input field for the ship name
+3. WHEN the ship naming dialog is displayed THEN the System SHALL show suggested ship names that can be clicked to populate the input
+4. WHEN the player enters a ship name THEN the System SHALL sanitize the input using the existing sanitizeShipName function
+5. WHEN the player submits an empty ship name THEN the System SHALL use the default ship name from SHIP_CONFIG
+6. WHEN the player presses Enter in the input field THEN the System SHALL submit the ship name
+7. WHEN the ship name is submitted THEN the System SHALL update the game state and transition to the game view
