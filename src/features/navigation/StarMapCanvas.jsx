@@ -17,6 +17,7 @@ import {
   getCurrentSystemIndicator,
   updateSelectionRingAnimations,
 } from '../../game/engine/interaction';
+import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
@@ -234,6 +235,9 @@ export function StarMapCanvas() {
           // Update camera position
           camera.position.copy(controls.target).add(_tempOffset);
         }
+
+        // Update label scale and opacity based on camera distance
+        updateLabelScale(stars, camera);
 
         // Update selection ring animations
         updateSelectionRingAnimations(currentTime);

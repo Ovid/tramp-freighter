@@ -487,6 +487,8 @@ export const VISUAL_CONFIG = {
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
   autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
+  // Initial camera position (slightly closer view for better label visibility)
+  initialCameraDistance: 700, // Distance from origin (0,0,0) - equivalent to ~2 zoom clicks from default
   // Sector boundary
   sectorBoundaryRadius: 300,
   // Background starfield
@@ -504,7 +506,7 @@ export const LABEL_CONFIG = {
   maxFontSize: 18,
   minFontSize: 8,
   maxOpacity: 1.0,
-  minOpacity: 0.1,
+  minOpacity: 0.3, // Increased from 0.1 to make distant labels more visible at starting zoom
   nearDistance: 100,
   farDistance: 500,
 };

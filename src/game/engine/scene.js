@@ -36,7 +36,10 @@ export function initScene() {
       10000
     );
 
-    camera.position.set(500, 500, 500);
+    // Position camera at configured initial distance for better label visibility
+    // Using equal x, y, z values creates a diagonal view from corner
+    const initialPos = VISUAL_CONFIG.initialCameraDistance / Math.sqrt(3);
+    camera.position.set(initialPos, initialPos, initialPos);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });

@@ -304,6 +304,72 @@ export function createSelectionRing() {
 }
 
 /**
+ * Calculate label properties based on distance from camera
+ * @param {number} distance - Distance from camera
+ * @returns {Object} Label properties: { fontSize, opacity }
+ */
+function calculateLabelProperties(distance) {
+  // Clamp distance to configured range
+  const clampedDistance = Math.max(
+    LABEL_CONFIG.nearDistance,
+    Math.min(distance, LABEL_CONFIG.farDistance)
+  );
+
+  // Calculate interpolation factor (0 at near, 1 at far)
+  const t =
+    (clampedDistance - LABEL_CONFIG.nearDistance) /
+    (LABEL_CONFIG.farDistance - LABEL_CONFIG.nearDistance);
+
+  // Calculate font size (linear interpolation)
+  const fontSize =
+    LABEL_CONFIG.maxFontSize -
+    (LABEL_CONFIG.maxFontSize - LABEL_CONFIG.minFontSize) * t;
+
+  // Calculate opacity (linear interpolation)
+  const opacity =
+    LABEL_CONFIG.maxOpacity -
+    (LABEL_CONFIG.maxOpacity - LABEL_CONFIG.minOpacity) * t;
+
+  return { fontSize, opacity };
+}
+
+// Temp vector for label distance calculations (reused to avoid allocation)
+const _tempLabelDistance = new THREE.Vector3();
+
+/**
+ * Update label scale and opacity based on camera distance
+ * @param {Array} stars - Array of star objects
+ * @param {THREE.PerspectiveCamera} camera - The camera
+ */
+export function updateLabelScale(stars, camera) {
+  stars.forEach((star) => {
+    if (star.label) {
+      // Reuse temp vector to avoid allocation (117 stars * 60fps = 7,020 allocations/sec)
+      _tempLabelDistance.subVectors(camera.position, star.position);
+      const distance = _tempLabelDistance.length();
+
+      // Get label properties for this distance
+      const { fontSize, opacity } = calculateLabelProperties(distance);
+
+      // Update label opacity
+      star.label.material.opacity = opacity;
+
+      // Update label scale based on font size
+      const scaleFactor = fontSize / LABEL_CONFIG.maxFontSize;
+      const baseScale = LABEL_CONFIG.maxFontSize * 2;
+      const canvas = star.label.material.map.image;
+      const aspectRatio = canvas.width / canvas.height;
+
+      star.label.scale.set(
+        baseScale * aspectRatio * scaleFactor,
+        baseScale * scaleFactor,
+        1
+      );
+    }
+  });
+}
+
+/**
  * Update selection ring pulsing animation
  * @param {Object} selectedStar - The selected star object
  * @param {Object} currentSystemIndicator - The current system indicator
