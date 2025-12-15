@@ -410,7 +410,7 @@
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3, 40.2_
 
-- [ ] 22.2 Migrate trading property tests
+- [x] 22.2 Migrate trading property tests
   - Migrate price calculation, cargo, trade validation property tests
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3_
