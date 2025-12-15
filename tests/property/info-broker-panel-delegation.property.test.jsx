@@ -9,6 +9,7 @@ import {
 import * as fc from 'fast-check';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -48,7 +49,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         // Give player credits
@@ -96,7 +102,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         // Give player credits
@@ -135,7 +146,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         // Give player credits
@@ -179,7 +195,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.asyncProperty(fc.constant(null), async () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         gameStateManager.state.player.credits = 10000;
@@ -217,9 +238,14 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         async (newSystemId) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const navigationSystem = new NavigationSystem(
             STAR_DATA,
             WORMHOLE_DATA
+          );
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA,
+            navigationSystem
           );
           gameStateManager.initNewGame();
 
@@ -260,7 +286,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.asyncProperty(fc.constant(null), async () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         gameStateManager.state.player.credits = 10000;
@@ -321,7 +352,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         gameStateManager.state.player.credits = 1; // Very low credits
@@ -355,10 +391,15 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
-        gameStateManager.state.player.credits = 1; // Very low credits
+        gameStateManager.state.player.credits = 10; // Low credits (less than rumor cost of 25)
         gameStateManager.state.player.currentSystem = 0; // Sol
 
         const wrapper = createWrapper(gameStateManager);
@@ -368,21 +409,11 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
           wrapper,
         });
 
-        // Try to purchase intelligence (should fail)
-        const purchaseButtons = screen.queryAllByText('Purchase');
+        // Try to buy rumor (should fail with insufficient credits)
+        const buyRumorButton = screen.getByText(/Buy Rumor/);
 
-        if (purchaseButtons.length > 0) {
-          fireEvent.click(purchaseButtons[0]);
-
-          // Validation message should be displayed
-          const validationMessage = container.querySelector(
-            '.validation-message.error'
-          );
-          expect(validationMessage).toBeTruthy();
-          expect(validationMessage.textContent).toContain(
-            'Insufficient credits'
-          );
-        }
+        // Button should be disabled due to insufficient credits
+        expect(buyRumorButton).toBeDisabled();
 
         return true;
       }),
@@ -395,7 +426,12 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA,
+          navigationSystem
+        );
         gameStateManager.initNewGame();
 
         gameStateManager.state.player.credits = 10000;

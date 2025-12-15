@@ -60,10 +60,10 @@ updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
 recordVisitedPrices() {
   // Get current prices from the locked snapshot
   const currentPrices = this.getCurrentSystemPrices();
-  
+
   // Update price knowledge with source "Visited"
   this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
-  
+
   // Persist immediately
   this.saveGame();
 }
@@ -89,9 +89,7 @@ Updated Market Data display to show source:
 <div className="market-data-header">
   <div className="market-data-system-name">{system.name}</div>
   <div className="market-data-meta">
-    <div className="market-data-source">
-      {formatSource(knowledge.source)}
-    </div>
+    <div className="market-data-source">{formatSource(knowledge.source)}</div>
     <div className="market-data-staleness">
       {formatStaleness(knowledge.lastVisit).text}
     </div>

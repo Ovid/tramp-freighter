@@ -40,7 +40,7 @@ export function TradePanel({ onClose }) {
   // Update price knowledge when panel opens (records "Visited" data)
   useEffect(() => {
     gameStateManager.recordVisitedPrices();
-  }, []); // Only run once on mount
+  }, [gameStateManager]);
 
   // Get game actions
   const { buyGood, sellGood, moveToHiddenCargo, moveToRegularCargo } =

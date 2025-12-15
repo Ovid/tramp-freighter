@@ -197,8 +197,6 @@ describe('Visited price recording', () => {
     // Record visited prices at Sol (day 0)
     gameStateManager.recordVisitedPrices();
 
-    const initialPrices = gameStateManager.getCurrentSystemPrices();
-
     // Jump to another system
     const connectedSystems =
       navigationSystem.getConnectedSystems(initialSystemId);
@@ -233,10 +231,6 @@ describe('Visited price recording', () => {
 
     // Record visited prices at system 1
     gameStateManager.recordVisitedPrices();
-
-    // Get system 1 prices from price knowledge (not current prices)
-    const priceKnowledge1 = gameStateManager.getPriceKnowledge();
-    const system1Prices = { ...priceKnowledge1[system1Id].prices };
 
     // Jump to system 2
     const connectedSystems = navigationSystem.getConnectedSystems(system1Id);

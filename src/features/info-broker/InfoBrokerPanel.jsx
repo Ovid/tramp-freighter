@@ -50,10 +50,7 @@ export function InfoBrokerPanel({ onClose }) {
   }
 
   // Get available intelligence options
-  // Guard against null navigationSystem (common in tests)
-  const intelligenceOptions = gameStateManager.navigationSystem
-    ? gameStateManager.listAvailableIntelligence()
-    : [];
+  const intelligenceOptions = gameStateManager.listAvailableIntelligence();
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
   const handleBuyRumor = () => {
