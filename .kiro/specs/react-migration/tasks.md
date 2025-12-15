@@ -140,7 +140,7 @@
   - **Property 53: New game confirmation**
   - **Validates: Requirements 47.5**
 
-- [ ] 4.11 Write property test for game initialization on continue
+- [x] 4.11 Write property test for game initialization on continue
   - **Property 54: Game initialization on continue**
   - **Validates: Requirements 47.4**
 
