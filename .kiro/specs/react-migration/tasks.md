@@ -132,7 +132,7 @@
   - **Property 51: Title screen displays on load**
   - **Validates: Requirements 47.1**
 
-- [ ] 4.9 Write property test for continue button visibility
+- [x] 4.9 Write property test for continue button visibility
   - **Property 52: Continue button visibility**
   - **Validates: Requirements 47.2, 47.3**
 
