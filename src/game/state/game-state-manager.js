@@ -273,6 +273,7 @@ export class GameStateManager {
           [SOL_SYSTEM_ID]: {
             lastVisit: 0,
             prices: solPrices,
+            source: 'visited',
           },
         },
         activeEvents: [],
@@ -848,8 +849,9 @@ export class GameStateManager {
    * @param {number} systemId - System ID
    * @param {Object} prices - Price object with all commodity prices
    * @param {number} lastVisit - Days since last visit (0 = current)
+   * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
-  updatePriceKnowledge(systemId, prices, lastVisit = 0) {
+  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
     if (!this.state.world.priceKnowledge) {
       this.state.world.priceKnowledge = {};
     }
@@ -857,6 +859,7 @@ export class GameStateManager {
     this.state.world.priceKnowledge[systemId] = {
       lastVisit: lastVisit,
       prices: { ...prices },
+      source: source,
     };
 
     this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
@@ -1300,7 +1303,7 @@ export class GameStateManager {
     }
 
     this.updateCredits(credits - validation.cost);
-    
+
     // Clamp fuel to max capacity to handle floating point rounding
     // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
     const maxFuel = this.getFuelCapacity();
@@ -1736,6 +1739,43 @@ export class GameStateManager {
   // ========================================================================
 
   /**
+   * Record visited prices for current system
+   *
+   * Called when Trade panel opens to update price knowledge with current,
+   * accurate prices. This overwrites any existing information broker data
+   * with "Visited" source data at the current day.
+   *
+   * The data ages naturally as time passes (lastVisit increments), so when
+   * viewing this system later from another location, it will show how old
+   * the visited data is.
+   */
+  recordVisitedPrices() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: recordVisitedPrices called before game initialization'
+      );
+    }
+
+    const currentSystemId = this.state.player.currentSystem;
+    const currentSystem = this.starData.find((s) => s.id === currentSystemId);
+
+    if (!currentSystem) {
+      throw new Error(
+        `Invalid game state: current system ID ${currentSystemId} not found in star data`
+      );
+    }
+
+    // Get current prices from the locked snapshot (already calculated on arrival)
+    const currentPrices = this.getCurrentSystemPrices();
+
+    // Update price knowledge with source "Visited" (lastVisit = 0 means current)
+    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
+
+    // Persist immediately - price knowledge update should be saved
+    this.saveGame();
+  }
+
+  /**
    * Dock at current system's station to access trading and refueling
    *
    * Updates price knowledge on dock:
@@ -1781,7 +1821,7 @@ export class GameStateManager {
     }
 
     // Update price knowledge (resets lastVisit to 0)
-    this.updatePriceKnowledge(currentSystemId, currentPrices, 0);
+    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
 
     // Persist state transition - prevents loss if player closes browser while docked
     this.saveGame();

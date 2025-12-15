@@ -54,6 +54,25 @@ export function getIntelligencePriority(option) {
 }
 
 /**
+ * Format source information for price knowledge display
+ *
+ * Converts source identifier into human-readable text.
+ *
+ * @param {string} source - Source identifier ('visited' or 'intelligence_broker')
+ * @returns {string} Human-readable source text
+ */
+export function formatSource(source) {
+  if (source === 'visited') {
+    return 'Visited';
+  } else if (source === 'intelligence_broker') {
+    return 'Information Broker';
+  } else {
+    // Fallback for old saves without source field
+    return 'Unknown';
+  }
+}
+
+/**
  * Format staleness information for price knowledge display
  *
  * Converts lastVisit days into human-readable text with appropriate CSS class.

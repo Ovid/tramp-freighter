@@ -64,12 +64,14 @@ The following features are planned for future releases:
 ### Coming Soon
 
 **NPCs & Relationships** (Spec 04)
+
 - Memorable NPCs at each station who remember you
 - Relationship system with benefits for building friendships
 - Branching dialogue with meaningful choices
 - NPC-specific tips, favors, and storylines
 
 **Danger & Combat** (Spec 05)
+
 - Pirate encounters with tactical choices
 - Customs inspections (watch that contraband!)
 - Mechanical failures and emergency repairs
@@ -77,12 +79,14 @@ The following features are planned for future releases:
 - Faction reputation system
 
 **Missions & Events** (Spec 06)
+
 - Structured mission system (delivery, fetch, passenger, intel)
 - Rich narrative events at docks and during jumps
 - Time-based story beats
 - Mission board with repeatable contracts
 
 **The Tanaka Sequence & Endgame** (Spec 07)
+
 - Main questline with Yuki Tanaka
 - Range Extender technology unlock
 - The Pavonis Run - journey to the most distant system
@@ -90,6 +94,7 @@ The following features are planned for future releases:
 - Personalized epilogue
 
 **Polish & Content** (Spec 08)
+
 - Expanded NPC roster (15+ characters)
 - 50+ narrative events
 - Balance tuning and difficulty options
@@ -146,4 +151,4 @@ MIT License - see [LICENSE.md](LICENSE.md) for details.
 
 ---
 
-*"The stars are far apart, but the people who live among them are closer than you think."*
+_"The stars are far apart, but the people who live among them are closer than you think."_

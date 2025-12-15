@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -36,6 +36,11 @@ export function TradePanel({ onClose }) {
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const currentDay = useGameEvent('timeChanged');
+
+  // Update price knowledge when panel opens (records "Visited" data)
+  useEffect(() => {
+    gameStateManager.recordVisitedPrices();
+  }, []); // Only run once on mount
 
   // Get game actions
   const { buyGood, sellGood, moveToHiddenCargo, moveToRegularCargo } =

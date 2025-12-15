@@ -108,6 +108,7 @@ export class InformationBroker {
     gameState.world.priceKnowledge[systemId] = {
       lastVisit: 0, // Intelligence is "current"
       prices: currentPrices,
+      source: 'intelligence_broker',
     };
 
     return { success: true, reason: null };

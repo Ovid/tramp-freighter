@@ -574,7 +574,18 @@ export function addStateDefaults(state, systemData) {
     state.world.priceKnowledge[currentSystemId] = {
       lastVisit: 0,
       prices: currentPrices,
+      source: 'visited',
     };
+  }
+
+  // Add source field to existing price knowledge entries if missing (backward compatibility)
+  if (state.world.priceKnowledge) {
+    for (const systemId in state.world.priceKnowledge) {
+      if (!state.world.priceKnowledge[systemId].source) {
+        // Default to 'visited' for old saves
+        state.world.priceKnowledge[systemId].source = 'visited';
+      }
+    }
   }
 
   // Initialize active events if missing
