@@ -501,7 +501,7 @@
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
 
-- [ ] 23.2 Migrate navigation integration tests
+- [x] 23.2 Migrate navigation integration tests
   - Migrate tests from tests/integration/navigation-ux.integration.test.js
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
