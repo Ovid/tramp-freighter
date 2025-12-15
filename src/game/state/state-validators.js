@@ -587,5 +587,34 @@ export function addStateDefaults(state, systemData) {
     state.world.marketConditions = {};
   }
 
+  // Initialize current system prices if missing (snapshot prices at current location)
+  if (!state.world.currentSystemPrices) {
+    const currentSystemId = state.player.currentSystem;
+    const currentSystem = systemData.find((s) => s.id === currentSystemId);
+
+    if (!currentSystem) {
+      throw new Error(
+        `Load failed: current system ID ${currentSystemId} not found in star data`
+      );
+    }
+
+    const currentDay = state.player.daysElapsed;
+    const activeEvents = state.world.activeEvents || [];
+    const marketConditions = state.world.marketConditions || {};
+    const currentPrices = {};
+
+    for (const goodType of COMMODITY_TYPES) {
+      currentPrices[goodType] = TradingSystem.calculatePrice(
+        goodType,
+        currentSystem,
+        currentDay,
+        activeEvents,
+        marketConditions
+      );
+    }
+
+    state.world.currentSystemPrices = currentPrices;
+  }
+
   return state;
 }

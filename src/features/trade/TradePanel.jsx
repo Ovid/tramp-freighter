@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { TradingSystem } from '../../game/game-trading.js';
 import {
   COMMODITY_TYPES,
   TRADE_CONFIG,
@@ -76,10 +75,11 @@ export function TradePanel({ onClose }) {
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
-  // Get world state for price calculations (non-reactive properties)
+  // Get locked prices for current system (prevents intra-system arbitrage)
+  const currentSystemPrices = gameStateManager.getCurrentSystemPrices();
+
+  // Get state for other calculations
   const state = gameStateManager.getState();
-  const activeEvents = state.world.activeEvents || [];
-  const marketConditions = state.world.marketConditions || {};
 
   const handleBuyGood = (goodType, quantity, price) => {
     const purchaseOutcome = buyGood(goodType, quantity, price);
@@ -128,13 +128,7 @@ export function TradePanel({ onClose }) {
           <h3>Market Goods</h3>
           <div id="market-goods" className="goods-list">
             {COMMODITY_TYPES.map((goodType) => {
-              const price = TradingSystem.calculatePrice(
-                goodType,
-                system,
-                currentDay,
-                activeEvents,
-                marketConditions
-              );
+              const price = currentSystemPrices[goodType];
 
               const maxQuantity = calculateMaxBuyQuantity(price, state);
               const validation = validateBuy(goodType, 1, price, state);
@@ -211,13 +205,7 @@ export function TradePanel({ onClose }) {
               <div className="cargo-empty">No cargo</div>
             ) : (
               cargo.map((stack, index) => {
-                const currentPrice = TradingSystem.calculatePrice(
-                  stack.good,
-                  system,
-                  currentDay,
-                  activeEvents,
-                  marketConditions
-                );
+                const currentPrice = currentSystemPrices[stack.good];
                 const profit = calculateProfit(stack, currentPrice);
 
                 let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
@@ -327,13 +315,7 @@ export function TradePanel({ onClose }) {
                   <div className="cargo-empty">No hidden cargo</div>
                 ) : (
                   hiddenCargo.map((stack, index) => {
-                    const currentPrice = TradingSystem.calculatePrice(
-                      stack.good,
-                      system,
-                      currentDay,
-                      activeEvents,
-                      marketConditions
-                    );
+                    const currentPrice = currentSystemPrices[stack.good];
                     const profit = calculateProfit(stack, currentPrice);
 
                     let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;

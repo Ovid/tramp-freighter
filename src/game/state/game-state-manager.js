@@ -277,6 +277,7 @@ export class GameStateManager {
         },
         activeEvents: [],
         marketConditions: {},
+        currentSystemPrices: solPrices,
       },
       meta: {
         version: GAME_VERSION,
@@ -525,6 +526,28 @@ export class GameStateManager {
   }
 
   /**
+   * Get locked prices for current system
+   *
+   * Returns the price snapshot taken when player arrived at current system.
+   * These prices remain fixed until player leaves, preventing intra-system arbitrage.
+   *
+   * @returns {Object} Price object with all commodity prices
+   */
+  getCurrentSystemPrices() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getCurrentSystemPrices called before game initialization'
+      );
+    }
+    if (!this.state.world.currentSystemPrices) {
+      throw new Error(
+        'Invalid state: currentSystemPrices missing from world state'
+      );
+    }
+    return this.state.world.currentSystemPrices;
+  }
+
+  /**
    * Get known prices for a specific system
    */
   getKnownPrices(systemId) {
@@ -593,6 +616,32 @@ export class GameStateManager {
     if (!this.state.world.visitedSystems.includes(newSystemId)) {
       this.state.world.visitedSystems.push(newSystemId);
     }
+
+    // Snapshot prices at arrival to prevent intra-system arbitrage
+    // Prices are locked until player leaves the system
+    const system = this.starData.find((s) => s.id === newSystemId);
+    if (!system) {
+      throw new Error(
+        `Invalid system ID: ${newSystemId} not found in star data`
+      );
+    }
+
+    const currentDay = this.state.player.daysElapsed;
+    const activeEvents = this.state.world.activeEvents || [];
+    const marketConditions = this.state.world.marketConditions || {};
+
+    const snapshotPrices = {};
+    for (const goodType of COMMODITY_TYPES) {
+      snapshotPrices[goodType] = TradingSystem.calculatePrice(
+        goodType,
+        system,
+        currentDay,
+        activeEvents,
+        marketConditions
+      );
+    }
+
+    this.state.world.currentSystemPrices = snapshotPrices;
 
     this.emit('locationChanged', newSystemId);
   }
