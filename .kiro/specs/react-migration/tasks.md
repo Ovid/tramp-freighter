@@ -405,7 +405,7 @@
   - **Validates: Requirements 11.2**
 
 - [ ] 22. Migrate property-based tests to Vitest
-- [ ] 22.1 Migrate core game logic property tests
+- [x] 22.1 Migrate core game logic property tests
   - Migrate distance, jump, fuel, navigation property tests
   - Update to use fast-check with Vitest
   - _Requirements: 11.1, 11.3, 40.2_
