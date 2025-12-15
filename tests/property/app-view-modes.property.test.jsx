@@ -136,14 +136,26 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
+        // Clear localStorage to ensure no saved game exists
+        localStorage.clear();
+
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        // Don't initialize game - let App handle it
 
         const wrapper = createWrapper(gameStateManager);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
 
+        // Start a new game from title screen
+        const newGameButton = screen.getByText('New Game');
+        fireEvent.click(newGameButton);
+
+        // Submit ship name (uses default if empty)
+        const confirmButton = screen.getByText('Confirm');
+        fireEvent.click(confirmButton);
+
+        // Now we should be in ORBIT mode
         // Verify starmap container is present (StarMapCanvas component)
         const starmapContainer = container.querySelector('.starmap-container');
         expect(starmapContainer).toBeTruthy();
@@ -179,13 +191,24 @@ describe('Property: STATION mode displays station menu', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
+        // Clear localStorage to ensure no saved game exists
+        localStorage.clear();
+
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        // Don't initialize game - let App handle it
 
         const wrapper = createWrapper(gameStateManager);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
+
+        // Start a new game from title screen
+        const newGameButton = screen.getByText('New Game');
+        fireEvent.click(newGameButton);
+
+        // Submit ship name (uses default if empty)
+        const confirmButton = screen.getByText('Confirm');
+        fireEvent.click(confirmButton);
 
         // Click dock button to transition to STATION mode
         const dockButton = screen.getByText('Dock');
@@ -225,13 +248,24 @@ describe('Property: PANEL mode displays active panel', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
+        // Clear localStorage to ensure no saved game exists
+        localStorage.clear();
+
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        // Don't initialize game - let App handle it
 
         const wrapper = createWrapper(gameStateManager);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
+
+        // Start a new game from title screen
+        const newGameButton = screen.getByText('New Game');
+        fireEvent.click(newGameButton);
+
+        // Submit ship name (uses default if empty)
+        const confirmButton = screen.getByText('Confirm');
+        fireEvent.click(confirmButton);
 
         // Click dock button to transition to STATION mode
         const dockButton = screen.getByText('Dock');
@@ -279,13 +313,24 @@ describe('Property: View mode changes update visibility', () => {
       fc.property(fc.constant('transition'), () => {
         cleanup();
 
+        // Clear localStorage to ensure no saved game exists
+        localStorage.clear();
+
         const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        // Don't initialize game - let App handle it
 
         const wrapper = createWrapper(gameStateManager);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
+
+        // Start a new game from title screen
+        const newGameButton = screen.getByText('New Game');
+        fireEvent.click(newGameButton);
+
+        // Submit ship name (uses default if empty)
+        const confirmButton = screen.getByText('Confirm');
+        fireEvent.click(confirmButton);
 
         // Initial state: ORBIT mode
         let stationMenu = container.querySelector('#station-interface');

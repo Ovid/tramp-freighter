@@ -179,7 +179,7 @@
   - **Property 60: Ship name persists after submission**
   - **Validates: Requirements 48.7**
 
-- [ ] 4.19 Update App.jsx to include title screen flow
+- [x] 4.19 Update App.jsx to include title screen flow
   - Add TITLE and SHIP_NAMING view modes
   - Initialize with TITLE view mode
   - Implement handleStartGame to handle continue vs new game

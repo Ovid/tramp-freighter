@@ -600,6 +600,20 @@
   display: none;
 }
 
+/* Title Screen Styling (React Migration) */
+.title-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 .menu-content {
   text-align: center;
   padding: 40px;

@@ -80,7 +80,7 @@ export function TitleScreen({ onStartGame }) {
         onCancel={handleCancelNewGame}
         title="Start New Game"
         message="Starting a new game will overwrite your existing save. Continue?"
-        confirmText="Start New Game"
+        confirmText="OK"
         cancelText="Cancel"
       />
     </div>

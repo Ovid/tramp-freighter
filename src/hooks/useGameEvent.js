@@ -57,22 +57,22 @@ export function useGameEvent(eventName) {
  * Maps event names to their corresponding state extraction logic.
  * This ensures components receive the correct data structure for each event.
  *
- * Fails loudly if state is incomplete to expose initialization bugs early.
- * GameStateManager should always provide complete state after initialization.
+ * Returns null if state is not yet initialized (e.g., during title screen).
+ * Once game is initialized, fails loudly if state is incomplete to expose bugs.
  *
  * @param {string} eventName - Event name
  * @param {Object} state - Full game state
- * @returns {any} Extracted state value for the event
- * @throws {Error} If state is null or missing required properties
+ * @returns {any} Extracted state value for the event, or null if not initialized
+ * @throws {Error} If state is initialized but missing required properties
  * @private
  */
 function extractStateForEvent(eventName, state) {
+  // Return null if state not yet initialized (e.g., title screen)
   if (!state) {
-    throw new Error(
-      'extractStateForEvent called with null state - GameStateManager not initialized'
-    );
+    return null;
   }
 
+  // Once state exists, it must be complete - fail loudly if not
   if (!state.player) {
     throw new Error('Invalid game state: player object missing');
   }
