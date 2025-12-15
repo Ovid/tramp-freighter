@@ -44,21 +44,9 @@ function createLabel(text, fontSize = 18) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
-  // Guard for test environment where canvas context may not be fully implemented
-  if (!ctx || !ctx.fillText) {
-    // Create minimal texture for test environment
-    canvas.width = 64;
-    canvas.height = 64;
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMaterial = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-    });
-    const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(fontSize * 2, fontSize * 2, 1);
-    return sprite;
+  // Canvas context must exist - fail loudly if not
+  if (!ctx) {
+    throw new Error('Canvas 2D context not available');
   }
 
   // Set font for measuring text
@@ -199,9 +187,9 @@ function createTargetingReticleTexture() {
   canvas.height = 256;
   const ctx = canvas.getContext('2d');
 
-  // Guard for test environment where canvas context may not be fully implemented
-  if (!ctx || !ctx.clearRect) {
-    return new THREE.CanvasTexture(canvas);
+  // Canvas context must exist - fail loudly if not
+  if (!ctx) {
+    throw new Error('Canvas 2D context not available');
   }
 
   const centerX = 128;
