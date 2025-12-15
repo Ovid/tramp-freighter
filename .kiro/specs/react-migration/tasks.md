@@ -506,7 +506,7 @@
   - Update to use React Testing Library
   - _Requirements: 11.1, 11.4_
 
-- [ ] 23.3 Migrate panel integration tests
+- [x] 23.3 Migrate panel integration tests
   - Migrate tests from tests/integration/trade-panel-animation-hide.integration.test.js
   - Migrate tests from tests/integration/quick-access-integration.test.js
   - Update to use React Testing Library
