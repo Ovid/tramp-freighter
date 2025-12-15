@@ -558,22 +558,22 @@
   - **Property 39: Old saves load correctly**
   - **Validates: Requirements 37.1, 37.2, 37.3**
 
-- [ ] 25. Implement CSS strategy
-- [ ] 25.1 Import global CSS in main.jsx
+- [x] 25. Implement CSS strategy
+- [x] 25.1 Import global CSS in main.jsx
   - Import all existing CSS files from css/ directory
   - Verify styles apply correctly
   - _Requirements: 23.1, 23.2, 23.3, 23.4, 23.5_
 
-- [ ] 25.2 Create CSS modules for new component-specific styles
+- [x] 25.2 Create CSS modules for new component-specific styles
   - Create CSS modules for any new component-specific styles
   - Use scoped class names
   - _Requirements: 39.1, 39.3, 39.5_
 
-- [ ] 25.3 Write property test for CSS class names preserved
+- [x] 25.3 Write property test for CSS class names preserved
   - **Property 30: CSS class names preserved**
   - **Validates: Requirements 10.1**
 
-- [ ] 25.4 Write property test for CSS animations preserved
+- [x] 25.4 Write property test for CSS animations preserved
   - **Property 31: CSS animations preserved**
   - **Validates: Requirements 10.5**
 

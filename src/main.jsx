@@ -22,15 +22,17 @@ import '../css/hud.css';
 import '../css/modals.css';
 import '../css/starmap-scene.css';
 import '../css/system-event-info.css';
-import '../css/panel/trade.css';
+import '../css/panel/cargo-manifest.css';
+import '../css/panel/dev-admin.css';
+import '../css/panel/info-broker.css';
+import '../css/panel/jump-dialog.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
-import '../css/panel/upgrades.css';
-import '../css/panel/info-broker.css';
-import '../css/panel/cargo-manifest.css';
 import '../css/panel/ship-status.css';
-import '../css/panel/dev-admin.css';
+import '../css/panel/system-info.css';
 import '../css/panel/system-panel.css';
+import '../css/panel/trade.css';
+import '../css/panel/upgrades.css';
 
 /**
  * Initialize GameStateManager with either saved game or new game.
