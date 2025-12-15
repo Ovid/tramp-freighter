@@ -144,7 +144,7 @@
   - **Property 54: Game initialization on continue**
   - **Validates: Requirements 47.4**
 
-- [ ] 4.12 Write property test for ship naming after new game
+- [x] 4.12 Write property test for ship naming after new game
   - **Property 55: Ship naming after new game**
   - **Validates: Requirements 47.6**
 
