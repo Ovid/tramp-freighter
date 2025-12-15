@@ -118,7 +118,7 @@
   - **Property 29: View mode changes update visibility**
   - **Validates: Requirements 9.5**
 
-- [ ] 4.7 Implement TitleScreen component
+- [x] 4.7 Implement TitleScreen component
   - Create src/features/title-screen/TitleScreen.jsx
   - Check for saved game using gameStateManager.hasSavedGame()
   - Display Continue Game button only if save exists

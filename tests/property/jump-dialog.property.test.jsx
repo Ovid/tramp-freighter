@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { JumpDialog } from '../../src/features/navigation/JumpDialog';
 import { GameProvider } from '../../src/context/GameContext';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -144,7 +144,7 @@ describe('Property: Jump Dialog', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should update displayed information when fuel changes', () => {
+  it('should update displayed information when fuel changes', async () => {
     const targetSystemId = 1;
 
     const { rerender } = render(
@@ -162,7 +162,9 @@ describe('Property: Jump Dialog', () => {
     expect(jumpButton).not.toBeDisabled();
 
     // Reduce fuel to insufficient level
-    gameStateManager.updateFuel(0);
+    await act(async () => {
+      gameStateManager.updateFuel(0);
+    });
 
     // Re-render to reflect state change
     rerender(

@@ -5,6 +5,7 @@ import {
   fireEvent,
   cleanup,
   waitFor,
+  act,
 } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
@@ -252,14 +253,18 @@ describe('Property 49: Animation lock disables quick access', () => {
 
     // Simulate location change (which happens before animation completes)
     // This triggers the useEffect that starts polling
-    gameStateManager.updateLocation(1); // Jump to Alpha Centauri A
+    await act(async () => {
+      gameStateManager.updateLocation(1); // Jump to Alpha Centauri A
+    });
 
     // Animation is still running, button should still be disabled
     expect(dockBtn).toBeDisabled();
 
     // Simulate animation completing
-    isLocked = false;
-    mockAnimationSystem.isAnimating = false;
+    await act(async () => {
+      isLocked = false;
+      mockAnimationSystem.isAnimating = false;
+    });
 
     // Wait for polling to detect animation completion and re-enable button
     await waitFor(
@@ -296,26 +301,36 @@ describe('Property 49: Animation lock disables quick access', () => {
     render(<QuickAccessButtons onDock={vi.fn()} />, { wrapper });
 
     // Trigger location change to start polling
-    gameStateManager.updateLocation(1);
+    await act(async () => {
+      gameStateManager.updateLocation(1);
+    });
 
     // Wait a bit for initial polling to start
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
 
     // Clear mock call count
     mockAnimationSystem.inputLockManager.isInputLocked.mockClear();
 
     // Unlock animation
-    isLocked = false;
-    mockAnimationSystem.isAnimating = false;
+    await act(async () => {
+      isLocked = false;
+      mockAnimationSystem.isAnimating = false;
+    });
 
     // Wait for polling to detect unlock
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    });
 
     const callsAfterUnlock =
       mockAnimationSystem.inputLockManager.isInputLocked.mock.calls.length;
 
     // Wait significantly longer
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    });
 
     // Should not have made additional calls (polling stopped)
     expect(
@@ -346,10 +361,14 @@ describe('Property 49: Animation lock disables quick access', () => {
     });
 
     // Trigger location change to start polling
-    gameStateManager.updateLocation(1);
+    await act(async () => {
+      gameStateManager.updateLocation(1);
+    });
 
     // Wait for polling to start
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
 
     // Clear mock call count
     mockAnimationSystem.inputLockManager.isInputLocked.mockClear();
@@ -358,7 +377,9 @@ describe('Property 49: Animation lock disables quick access', () => {
     unmount();
 
     // Wait significantly
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
 
     // Should not have made any calls after unmount (interval was cleaned up)
     expect(

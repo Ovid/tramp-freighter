@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { STAR_DATA } from '../../src/game/data/star-data';
@@ -177,7 +177,7 @@ describe('System Info Accessible With Panels Open', () => {
     expect(mockOnDock).not.toHaveBeenCalled();
   });
 
-  it('should never disable System Info button regardless of game state', () => {
+  it('should never disable System Info button regardless of game state', async () => {
     const wrapper = createWrapper(gameStateManager);
     const mockOnSystemInfo = vi.fn();
 
@@ -192,26 +192,33 @@ describe('System Info Accessible With Panels Open', () => {
     expect(systemInfoBtn).not.toBeDisabled();
 
     // Jump to different system
-    gameStateManager.updateLocation(1);
+    await act(async () => {
+      gameStateManager.updateLocation(1);
+    });
     rerender(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />);
     expect(systemInfoBtn).not.toBeDisabled();
 
     // Start animation
-    const mockAnimationSystem = {
-      isAnimating: true,
-      inputLockManager: {
-        isInputLocked: vi.fn(() => true),
-        lock: vi.fn(),
-        unlock: vi.fn(),
-      },
-    };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    await act(async () => {
+      const mockAnimationSystem = {
+        isAnimating: true,
+        inputLockManager: {
+          isInputLocked: vi.fn(() => true),
+          lock: vi.fn(),
+          unlock: vi.fn(),
+        },
+      };
+      gameStateManager.setAnimationSystem(mockAnimationSystem);
+    });
     rerender(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />);
     expect(systemInfoBtn).not.toBeDisabled();
 
     // Stop animation
-    mockAnimationSystem.isAnimating = false;
-    mockAnimationSystem.inputLockManager.isInputLocked.mockReturnValue(false);
+    await act(async () => {
+      const mockAnimationSystem = gameStateManager.animationSystem;
+      mockAnimationSystem.isAnimating = false;
+      mockAnimationSystem.inputLockManager.isInputLocked.mockReturnValue(false);
+    });
     rerender(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />);
     expect(systemInfoBtn).not.toBeDisabled();
 
