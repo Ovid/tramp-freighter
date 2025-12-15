@@ -136,7 +136,7 @@
   - **Property 52: Continue button visibility**
   - **Validates: Requirements 47.2, 47.3**
 
-- [ ] 4.10 Write property test for new game confirmation
+- [x] 4.10 Write property test for new game confirmation
   - **Property 53: New game confirmation**
   - **Validates: Requirements 47.5**
 
