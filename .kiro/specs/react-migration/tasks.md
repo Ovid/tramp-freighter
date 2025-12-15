@@ -148,7 +148,7 @@
   - **Property 55: Ship naming after new game**
   - **Validates: Requirements 47.6**
 
-- [ ] 4.13 Implement ShipNamingDialog component
+- [x] 4.13 Implement ShipNamingDialog component
   - Create src/features/title-screen/ShipNamingDialog.jsx
   - Display input field for ship name
   - Display suggested ship names from SHIP_CONFIG.NAME_SUGGESTIONS
@@ -159,23 +159,23 @@
   - Call onSubmit callback with sanitized name
   - _Requirements: 48.1, 48.2, 48.3, 48.4, 48.5, 48.6, 48.7_
 
-- [ ] 4.14 Write property test for ship naming dialog display
+- [x] 4.14 Write property test for ship naming dialog display
   - **Property 56: Ship naming dialog displays**
   - **Validates: Requirements 48.1**
 
-- [ ] 4.15 Write property test for ship name sanitization
+- [x] 4.15 Write property test for ship name sanitization
   - **Property 57: Ship name sanitization**
   - **Validates: Requirements 48.4**
 
-- [ ] 4.16 Write property test for default ship name
+- [x] 4.16 Write property test for default ship name
   - **Property 58: Default ship name on empty input**
   - **Validates: Requirements 48.5**
 
-- [ ] 4.17 Write property test for Enter key submission
+- [x] 4.17 Write property test for Enter key submission
   - **Property 59: Enter key submits ship name**
   - **Validates: Requirements 48.6**
 
-- [ ] 4.18 Write property test for ship name persistence
+- [x] 4.18 Write property test for ship name persistence
   - **Property 60: Ship name persists after submission**
   - **Validates: Requirements 48.7**
 
