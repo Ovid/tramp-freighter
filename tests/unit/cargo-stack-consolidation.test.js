@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { TradingSystem } from '../../js/game-trading.js';
+import { TradingSystem } from '../../src/game/game-trading.js';
 
 describe('Cargo Stack Consolidation', () => {
   it('should consolidate when buying same good at same price and system', () => {

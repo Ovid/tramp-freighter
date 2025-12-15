@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Save/Load System', () => {

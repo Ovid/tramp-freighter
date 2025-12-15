@@ -6,20 +6,16 @@ inclusion: always
 
 ## Strict Mode
 
-**REQUIRED: All JavaScript files MUST begin with `"use strict";`**
+**ES Modules and React files are automatically in strict mode** - no explicit `"use strict";` directive is needed.
 
-```javascript
-'use strict';
+Modern JavaScript using ES Modules (files with `import`/`export` statements) and React JSX files compiled by Vite automatically run in strict mode. This provides:
 
-// Module code follows...
-```
+- Automatic catching of common coding mistakes
+- Prevention of problematic language features
+- Optimized code execution
+- Prevention of accidental global variable creation
 
-This enables strict mode which:
-
-- Catches common coding mistakes and throws exceptions
-- Prevents use of problematic language features
-- Makes code run faster by enabling optimizations
-- Prevents accidental global variable creation
+**Note**: All files use ES Modules and are automatically in strict mode.
 
 ## Task Completion Standards
 
@@ -33,6 +29,7 @@ npm test
 
 Every task must leave the codebase in a working state with all tests passing. This ensures:
 
+- Our version of npm DOES NOT accept a `--run` argument.
 - No regressions are introduced
 - New functionality integrates correctly
 - The system remains stable and deployable
@@ -42,12 +39,14 @@ Every task must leave the codebase in a working state with all tests passing. Th
 **CRITICAL: All tasks must be self-contained and leave the system in a working or improved state**
 
 Do NOT:
+
 - Schedule tests for a later task
 - Leave new components unintegrated "to be hooked up later"
 - Create incomplete features that break existing functionality
 - Leave the system in a transition state
 
 DO:
+
 - Complete all aspects of a feature in the current task
 - Write and pass tests as part of the task
 - Integrate new components immediately
@@ -60,20 +59,21 @@ DO:
 **Each .js file should have a single, clear purpose**
 
 ```javascript
-// GOOD - Single purpose: trade panel controller
-// js/controllers/trade.js
-class TradePanelController {
+// GOOD - Single purpose: trade panel component
+// src/features/trade/TradePanel.jsx
+export function TradePanel({ onClose }) {
   // All trade panel logic
 }
 
 // BAD - Multiple unrelated purposes in one file
-// js/game-stuff.js
-class TradePanelController { }
-class RefuelPanelController { }
-function calculateDistance() { }
+// src/features/game-stuff.jsx
+export function TradePanel() {}
+export function RefuelPanel() {}
+export function calculateDistance() {}
 ```
 
 Benefits:
+
 - Easier to locate functionality
 - Clearer dependencies
 - Better testability
@@ -110,6 +110,7 @@ function getPlayerCredits(state) {
 ```
 
 **When wrappers ARE appropriate:**
+
 - Adding validation or error handling
 - Transforming data format
 - Providing a stable API over changing implementation
@@ -359,63 +360,182 @@ class UIManager {
 }
 ```
 
+### Import Statements
+
+**CRITICAL: All imports must be at the top of the file**
+
+Import statements should always be placed at the top of the file, immediately after any file-level comments or directives. This ensures:
+
+- Clear visibility of all dependencies
+- Easier dependency management
+- Better static analysis and tree-shaking
+- Consistent code structure across the project
+
+```javascript
+// GOOD - All imports at the top
+import * as THREE from 'three';
+import {
+  GameStateManager,
+  sanitizeShipName,
+} from '../state/game-state-manager.js';
+import { NavigationSystem } from '../game-navigation.js';
+import { UIManager } from '../ui/ui-manager.js';
+import { STAR_DATA } from '../data/star-data.js';
+
+// ... rest of the code
+
+function myFunction() {
+  const name = sanitizeShipName(input);
+  // Use imported functions directly
+}
+
+// BAD - Dynamic imports in function bodies (unless code-splitting is required)
+function myFunction() {
+  import('../state/game-state-manager.js').then((module) => {
+    const name = module.sanitizeShipName(input);
+  });
+}
+
+// BAD - Imports scattered throughout the file
+import { GameStateManager } from '../state/game-state-manager.js';
+
+function someFunction() {
+  // ... code
+}
+
+import { NavigationSystem } from '../game-navigation.js'; // WRONG - not at top
+
+function anotherFunction() {
+  // ... code
+}
+```
+
+**When dynamic imports ARE appropriate:**
+
+- Code-splitting for large modules that aren't always needed
+- Lazy-loading features that are rarely used
+- Loading modules conditionally based on runtime configuration
+
+**Example of acceptable dynamic import:**
+
+```javascript
+// Acceptable - Loading a large visualization library only when needed
+async function showAdvancedChart() {
+  const { Chart } = await import('./heavy-chart-library.js');
+  return new Chart(data);
+}
+```
+
+**Import Organization:**
+
+Group imports in the following order:
+
+1. External libraries (React, Three.js, etc.)
+2. Internal modules (game logic, state management)
+3. Components (if applicable)
+4. Utilities
+5. Data/constants
+6. Styles (CSS imports)
+
+```javascript
+// 1. External libraries
+import { useState, useEffect } from 'react';
+import * as THREE from 'three';
+
+// 2. Internal modules
+import { GameStateManager } from '../state/game-state-manager.js';
+import { NavigationSystem } from '../game-navigation.js';
+
+// 3. Components
+import { Button } from '../../components/Button';
+import { Modal } from '../../components/Modal';
+
+// 4. Utilities
+import { validateInput } from './utils';
+
+// 5. Data/constants
+import { STAR_DATA } from '../data/star-data.js';
+import { GAME_CONFIG } from '../game-constants.js';
+
+// 6. Styles
+import './styles.css';
+```
+
 ### Module Organization
 
 **Organize code by feature and responsibility**
 
 ```
-js/
-├── controllers/           # UI panel controllers
-│   ├── trade.js
-│   ├── refuel.js
-│   ├── repair.js
-│   ├── upgrades.js
-│   ├── info-broker.js
-│   └── cargo-manifest.js
-├── views/                 # Rendering modules
-│   └── starmap/
-│       ├── starmap.js     # Main coordinator
-│       ├── scene.js       # Scene initialization
-│       ├── stars.js       # Star rendering
-│       ├── wormholes.js   # Wormhole rendering
-│       └── interaction.js # User interaction
-├── data/                  # Static game data
-│   ├── star-data.js
-│   └── wormhole-data.js
-├── utils/                 # Utility functions
-│   ├── seeded-random.js
-│   └── string-utils.js
-├── game-constants.js      # Configuration objects
-├── game-state.js          # State management
-├── game-trading.js        # Trading logic
-├── game-navigation.js     # Navigation logic
-├── game-ui.js             # UI coordinator
-└── game-animation.js      # Animation system
+src/
+├── features/              # Feature modules
+│   ├── trade/
+│   │   ├── TradePanel.jsx
+│   │   └── tradeUtils.js
+│   ├── refuel/
+│   │   ├── RefuelPanel.jsx
+│   │   └── refuelUtils.js
+│   ├── repair/
+│   │   ├── RepairPanel.jsx
+│   │   └── repairUtils.js
+│   ├── navigation/
+│   │   ├── StarMapCanvas.jsx
+│   │   ├── JumpDialog.jsx
+│   │   └── SystemPanel.jsx
+│   └── hud/
+│       ├── HUD.jsx
+│       ├── ResourceBar.jsx
+│       └── hudUtils.js
+├── components/            # Shared UI components
+│   ├── Button.jsx
+│   ├── Modal.jsx
+│   └── Card.jsx
+├── hooks/                 # Custom React hooks
+│   ├── useGameEvent.js
+│   └── useGameAction.js
+├── context/               # React Context
+│   └── GameContext.jsx
+└── game/                  # Game logic
+    ├── constants.js
+    ├── game-trading.js
+    ├── game-navigation.js
+    ├── state/
+    │   └── game-state-manager.js
+    ├── engine/
+    │   ├── scene.js
+    │   ├── stars.js
+    │   └── wormholes.js
+    ├── data/
+    │   ├── star-data.js
+    │   └── wormhole-data.js
+    └── utils/
+        ├── seeded-random.js
+        └── string-utils.js
 ```
 
 **Module Organization Principles:**
 
-- **Controllers**: One file per UI panel controller
-- **Views**: Rendering logic organized by visual component
-- **Data**: Static data separated from logic
-- **Utils**: Reusable utility functions
-- **Core systems**: Game logic modules at root level
+- **Features**: Feature-based organization with components and utilities co-located
+- **Components**: Shared UI components used across features
+- **Hooks**: Custom React hooks for common patterns
+- **Context**: React Context providers
+- **Game**: Game logic separated from UI
 
-**Starmap Module Coordinator Pattern:**
+**Scene Initialization Pattern:**
 
 ```javascript
-'use strict';
-
-import { initializeScene } from './starmap/scene.js';
-import { createStarSprites } from './starmap/stars.js';
-import { createWormholeLines } from './starmap/wormholes.js';
-import { setupInteraction } from './starmap/interaction.js';
+import { initScene } from '../../game/engine/scene.js';
+import { createStarSystems } from '../../game/engine/stars.js';
+import { createWormholeLines } from '../../game/engine/wormholes.js';
 
 /**
- * Initializes and coordinates all starmap modules.
- * Manages shared state and orchestrates rendering.
+ * Initializes Three.js scene for starmap rendering.
+ * Called once on component mount.
  */
-export function initializeStarmap(container, starData, wormholeData) {
+export function StarMapCanvas() {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
   // Initialize scene
   const { scene, camera, renderer, controls } = initializeScene(container);
 
@@ -706,6 +826,7 @@ class GameStateManager {
 **Before writing a defensive check, ask: "Is this variable guaranteed to exist?"**
 
 Check the code path:
+
 1. Is it initialized in the constructor? → No check needed
 2. Is it set by an initialization method called in constructor? → No check needed
 3. Is it a required parameter that should be validated once at entry? → Validate at entry, not at every use
@@ -1193,3 +1314,593 @@ console.timeEnd('expensive-operation');
 5. Defer non-critical work
 
 Remember: Premature optimization is the root of all evil. Write clear code first, optimize when profiling shows a need.
+
+## React-Specific Standards
+
+### Component Structure
+
+**Functional components with hooks are the standard**
+
+```javascript
+// GOOD - Functional component with hooks
+function TradePanel({ onClose }) {
+  const gameStateManager = useGameState();
+  const cargo = useGameEvent('cargoChanged');
+  const { buyGood, sellGood } = useGameAction();
+
+  const handleBuy = () => {
+    // Handler logic
+  };
+
+  return <div className="trade-panel">{/* JSX */}</div>;
+}
+
+// BAD - Class components (avoid unless necessary)
+class TradePanel extends React.Component {
+  // Don't use class components
+}
+```
+
+### Component File Organization
+
+**Standard order for component file contents:**
+
+1. Imports (React, hooks, components, utilities, styles)
+2. Component function declaration
+3. State declarations (useState, useReducer)
+4. Context access (useContext, useGameState)
+5. Event subscriptions (useGameEvent)
+6. Actions (useGameAction)
+7. Effects (useEffect)
+8. Event handlers
+9. Derived values (useMemo, calculations)
+10. Return statement with JSX
+
+```javascript
+import { useState, useEffect } from 'react';
+import { useGameState } from '../../context/GameContext';
+import { useGameEvent } from '../../hooks/useGameEvent';
+import { useGameAction } from '../../hooks/useGameAction';
+import { Button } from '../../components/Button';
+import { validateTrade } from './tradeUtils';
+
+export function TradePanel({ onClose }) {
+  // 1. Local state
+  const [selectedGood, setSelectedGood] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  // 2. Context access
+  const gameStateManager = useGameState();
+
+  // 3. Event subscriptions
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+
+  // 4. Actions
+  const { buyGood, sellGood } = useGameAction();
+
+  // 5. Effects
+  useEffect(() => {
+    // Effect logic
+  }, []);
+
+  // 6. Event handlers
+  const handleBuy = () => {
+    // Handler logic
+  };
+
+  // 7. Derived values
+  const validation = validateTrade(
+    'buy',
+    selectedGood,
+    quantity,
+    gameStateManager.getState()
+  );
+
+  // 8. Return JSX
+  return <div className="trade-panel">{/* JSX */}</div>;
+}
+```
+
+### Bridge Pattern Usage
+
+**Always use the Bridge Pattern to access game state**
+
+```javascript
+// GOOD - Use Bridge Pattern hooks
+function ResourceBar() {
+  const credits = useGameEvent('creditsChanged');
+  const fuel = useGameEvent('fuelChanged');
+
+  return (
+    <div>
+      <div>Credits: {credits}</div>
+      <div>Fuel: {fuel}%</div>
+    </div>
+  );
+}
+
+// BAD - Direct GameStateManager access without subscription
+function ResourceBar() {
+  const gameStateManager = useGameState();
+  const state = gameStateManager.getState(); // Won't re-render on changes!
+
+  return (
+    <div>
+      <div>Credits: {state.player.credits}</div>
+    </div>
+  );
+}
+
+// GOOD - Use useGameAction for triggering actions
+function RefuelButton() {
+  const { refuel } = useGameAction();
+
+  return <button onClick={() => refuel(50)}>Refuel</button>;
+}
+
+// BAD - Direct GameStateManager method calls
+function RefuelButton() {
+  const gameStateManager = useGameState();
+
+  return <button onClick={() => gameStateManager.refuel(50)}>Refuel</button>;
+}
+```
+
+### Hook Rules
+
+**Follow React's Rules of Hooks**
+
+1. Only call hooks at the top level (not in loops, conditions, or nested functions)
+2. Only call hooks from React functions (components or custom hooks)
+3. Custom hooks must start with "use"
+
+```javascript
+// GOOD - Hooks at top level
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+
+  if (cargo.length === 0) {
+    return <div>No cargo</div>;
+  }
+
+  return <div>{/* JSX */}</div>;
+}
+
+// BAD - Conditional hook call
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+
+  if (cargo.length > 0) {
+    const credits = useGameEvent('creditsChanged'); // WRONG!
+  }
+
+  return <div>{/* JSX */}</div>;
+}
+```
+
+### State Management
+
+**Use local state for UI-only state, GameStateManager for game state**
+
+```javascript
+// GOOD - Local state for UI concerns
+function RefuelPanel() {
+  const [sliderValue, setSliderValue] = useState(0); // UI state
+  const fuel = useGameEvent('fuelChanged'); // Game state
+  const { refuel } = useGameAction();
+
+  const handleRefuel = () => {
+    refuel(sliderValue);
+    setSliderValue(0); // Reset UI state
+  };
+
+  return (
+    <input
+      type="range"
+      value={sliderValue}
+      onChange={(e) => setSliderValue(Number(e.target.value))}
+    />
+  );
+}
+
+// BAD - Duplicating game state in React state
+function RefuelPanel() {
+  const [fuel, setFuel] = useState(0); // DON'T duplicate game state!
+  const { refuel } = useGameAction();
+
+  // This creates two sources of truth
+}
+```
+
+### Effect Dependencies
+
+**Always specify correct dependencies for useEffect**
+
+```javascript
+// GOOD - Correct dependencies
+function TradePanel({ systemId }) {
+  const gameStateManager = useGameState();
+
+  useEffect(() => {
+    const prices = gameStateManager.getKnownPrices(systemId);
+    // Use prices
+  }, [gameStateManager, systemId]); // Correct dependencies
+}
+
+// BAD - Missing dependencies
+function TradePanel({ systemId }) {
+  const gameStateManager = useGameState();
+
+  useEffect(() => {
+    const prices = gameStateManager.getKnownPrices(systemId);
+    // Use prices
+  }, []); // WRONG - missing dependencies
+}
+
+// BAD - Unnecessary dependencies causing re-runs
+function TradePanel({ onClose }) {
+  useEffect(() => {
+    // Effect doesn't use onClose
+  }, [onClose]); // WRONG - unnecessary dependency
+}
+```
+
+### Component Props
+
+**Destructure props in function signature**
+
+```javascript
+// GOOD - Destructured props
+function TradePanel({ onClose, systemId }) {
+  return <button onClick={onClose}>Close</button>;
+}
+
+// BAD - Props object
+function TradePanel(props) {
+  return <button onClick={props.onClose}>Close</button>;
+}
+```
+
+### Event Handlers
+
+**Use arrow functions for inline handlers, named functions for complex logic**
+
+```javascript
+// GOOD - Simple inline handler
+function Button() {
+  return <button onClick={() => console.log('clicked')}>Click</button>;
+}
+
+// GOOD - Named handler for complex logic
+function TradePanel() {
+  const handleBuy = () => {
+    // Complex logic
+    validateTransaction();
+    updateInventory();
+    showNotification();
+  };
+
+  return <button onClick={handleBuy}>Buy</button>;
+}
+
+// BAD - Binding in render
+function TradePanel() {
+  function handleBuy() {
+    // Logic
+  }
+
+  return <button onClick={handleBuy.bind(this)}>Buy</button>; // WRONG
+}
+```
+
+### Conditional Rendering
+
+**Use clear conditional rendering patterns**
+
+```javascript
+// GOOD - Logical AND for simple conditions
+function Panel() {
+  return (
+    <div>
+      {isLoading && <Spinner />}
+      {error && <ErrorMessage error={error} />}
+    </div>
+  );
+}
+
+// GOOD - Ternary for if-else
+function Panel() {
+  return <div>{isLoading ? <Spinner /> : <Content />}</div>;
+}
+
+// GOOD - Early return for complex conditions
+function Panel() {
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMessage error={error} />;
+  }
+
+  return <Content />;
+}
+
+// BAD - Nested ternaries
+function Panel() {
+  return (
+    <div>
+      {isLoading ? <Spinner /> : error ? <ErrorMessage /> : <Content />}
+    </div>
+  );
+}
+```
+
+### Lists and Keys
+
+**Always provide stable keys for lists**
+
+```javascript
+// GOOD - Stable unique key
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item, index) => (
+        <li key={`${item.type}-${item.purchaseDate}-${index}`}>
+          {item.type}: {item.quantity}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// BAD - Index as key (only acceptable if list never reorders)
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item, index) => (
+        <li key={index}>{item.type}</li>
+      ))}
+    </ul>
+  );
+}
+
+// BAD - Non-unique key
+function CargoList({ cargo }) {
+  return (
+    <ul>
+      {cargo.map((item) => (
+        <li key={item.type}>{item.type}</li> // Multiple items can have same type!
+      ))}
+    </ul>
+  );
+}
+```
+
+### Performance Optimization
+
+**Use React.memo, useMemo, and useCallback judiciously**
+
+```javascript
+// GOOD - Memo for expensive components
+const ExpensiveComponent = React.memo(function ExpensiveComponent({ data }) {
+  // Expensive rendering logic
+  return <div>{/* Complex JSX */}</div>;
+});
+
+// GOOD - useMemo for expensive calculations
+function TradePanel() {
+  const cargo = useGameEvent('cargoChanged');
+
+  const totalValue = useMemo(() => {
+    return cargo.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  }, [cargo]);
+
+  return <div>Total: {totalValue}</div>;
+}
+
+// GOOD - useCallback for stable function references
+function TradePanel() {
+  const { buyGood } = useGameAction();
+
+  const handleBuy = useCallback(
+    (goodType, quantity) => {
+      buyGood(goodType, quantity);
+    },
+    [buyGood]
+  );
+
+  return <ExpensiveChild onBuy={handleBuy} />;
+}
+
+// BAD - Premature optimization
+function SimpleComponent({ text }) {
+  // Don't memo everything!
+  const uppercased = useMemo(() => text.toUpperCase(), [text]);
+  return <div>{uppercased}</div>;
+}
+```
+
+### CSS and Styling
+
+**Prefer existing CSS classes, use CSS modules for new component-specific styles**
+
+```javascript
+// GOOD - Use existing CSS classes
+function TradePanel() {
+  return <div className="trade-panel">{/* Content */}</div>;
+}
+
+// GOOD - CSS modules for new component-specific styles
+import styles from './TradePanel.module.css';
+
+function TradePanel() {
+  return <div className={styles.container}>{/* Content */}</div>;
+}
+
+// ACCEPTABLE - Inline styles for dynamic values only
+function ProgressBar({ percentage }) {
+  return <div style={{ width: `${percentage}%` }} className="progress-bar" />;
+}
+
+// BAD - Inline styles for static styling
+function TradePanel() {
+  return (
+    <div style={{ padding: '20px', backgroundColor: '#fff' }}>
+      {/* Content */}
+    </div>
+  );
+}
+```
+
+### Error Boundaries
+
+**Wrap features in Error Boundaries**
+
+```javascript
+// GOOD - Error boundary around feature
+function App() {
+  return (
+    <ErrorBoundary>
+      <StarMapCanvas />
+    </ErrorBoundary>
+  );
+}
+
+// GOOD - Multiple boundaries for isolation
+function App() {
+  return (
+    <div>
+      <ErrorBoundary>
+        <StarMapCanvas />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <HUD />
+      </ErrorBoundary>
+    </div>
+  );
+}
+```
+
+### Testing React Components
+
+**Use React Testing Library for component tests**
+
+```javascript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { TradePanel } from './TradePanel';
+
+describe('TradePanel', () => {
+  it('should display cargo items', () => {
+    const mockGameStateManager = createMockGameStateManager();
+
+    render(
+      <GameProvider gameStateManager={mockGameStateManager}>
+        <TradePanel onClose={() => {}} />
+      </GameProvider>
+    );
+
+    expect(screen.getByText('Electronics')).toBeInTheDocument();
+  });
+
+  it('should call buyGood when buy button clicked', () => {
+    const mockGameStateManager = createMockGameStateManager();
+    const buySpy = vi.spyOn(mockGameStateManager, 'buyGood');
+
+    render(
+      <GameProvider gameStateManager={mockGameStateManager}>
+        <TradePanel onClose={() => {}} />
+      </GameProvider>
+    );
+
+    fireEvent.click(screen.getByText('Buy'));
+
+    expect(buySpy).toHaveBeenCalledWith('electronics', 1);
+  });
+});
+```
+
+### React Anti-Patterns to Avoid
+
+**Common mistakes to avoid:**
+
+1. **Don't mutate state directly**
+
+```javascript
+// BAD
+const [items, setItems] = useState([]);
+items.push(newItem); // WRONG - mutating state
+
+// GOOD
+setItems([...items, newItem]);
+```
+
+2. **Don't use index as key for dynamic lists**
+
+```javascript
+// BAD - List can reorder
+{
+  items.map((item, index) => <Item key={index} {...item} />);
+}
+
+// GOOD
+{
+  items.map((item) => <Item key={item.id} {...item} />);
+}
+```
+
+3. **Don't create components inside components**
+
+```javascript
+// BAD
+function Parent() {
+  function Child() {
+    // This creates a new component on every render!
+    return <div>Child</div>;
+  }
+  return <Child />;
+}
+
+// GOOD
+function Child() {
+  return <div>Child</div>;
+}
+
+function Parent() {
+  return <Child />;
+}
+```
+
+4. **Don't forget cleanup in useEffect**
+
+```javascript
+// BAD
+useEffect(() => {
+  const subscription = gameStateManager.subscribe('event', handler);
+  // Missing cleanup!
+});
+
+// GOOD
+useEffect(() => {
+  const subscription = gameStateManager.subscribe('event', handler);
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+5. **Don't duplicate game state in React state**
+
+```javascript
+// BAD
+function HUD() {
+  const [credits, setCredits] = useState(0);
+  // Duplicates GameStateManager state!
+}
+
+// GOOD
+function HUD() {
+  const credits = useGameEvent('creditsChanged');
+  // Single source of truth
+}
+```

@@ -1,9 +1,22 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { aliases } from './shared-config.js';
 
 export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: aliases,
+  },
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: ['./tests/setup.js'],
+    environment: 'jsdom',
+    setupFiles: './tests/setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'tests/', '*.config.js', 'dist/'],
+    },
+    // Use default reporter for cleaner output
+    reporters: ['default'],
   },
 });

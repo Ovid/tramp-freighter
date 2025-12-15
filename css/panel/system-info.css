@@ -1,0 +1,160 @@
+/* System Info Panel Styles */
+
+.system-info-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.system-info-panel .panel-header {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.system-info-panel h2 {
+  color: #00ff88;
+  font-size: 20px;
+  text-align: center;
+  margin: 0;
+}
+
+.system-info-panel .close-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.system-info-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.system-info-panel .panel-content {
+  /* Content wrapper */
+}
+
+.system-details {
+  margin-bottom: 20px;
+}
+
+.system-details h3 {
+  color: #00ff88;
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.system-property {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.system-property .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.system-property .value {
+  color: #ffffff;
+}
+
+/* Economic Event Info */
+.system-event-info {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00ff88;
+  border-radius: 5px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.event-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.event-icon {
+  font-size: 20px;
+}
+
+.event-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.event-description {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Connected Systems */
+.connected-systems h4 {
+  color: #00ff88;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.no-connections {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.connection-item {
+  width: 100%;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  padding: 10px;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+.connection-item:hover {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: #00ff88;
+  transform: translateX(5px);
+}
+
+.connection-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.connection-details {
+  color: #aaa;
+  font-size: 14px;
+}

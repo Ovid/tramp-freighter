@@ -381,6 +381,49 @@
   color: #000000;
 }
 
+/* Camera Controls (React version - collapsible) */
+#camera-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+#camera-controls.collapsed {
+  flex-direction: row;
+}
+
+#camera-controls.expanded {
+  flex-direction: row;
+}
+
+.camera-controls-toggle {
+  width: 100px;
+  height: 40px;
+  background-color: #222222;
+  color: #ffffff;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.camera-controls-toggle:hover {
+  background-color: #333333;
+}
+
+.camera-controls-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* Station Interface Styling */
 #station-interface {
   position: absolute;
@@ -555,6 +598,20 @@
 
 #game-menu.hidden {
   display: none;
+}
+
+/* Title Screen Styling (React Migration) */
+.title-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .menu-content {

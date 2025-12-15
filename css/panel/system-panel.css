@@ -1,0 +1,253 @@
+/* System Panel Styles - Unified panel for system info and jump info */
+
+.system-panel {
+  position: absolute;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  width: 350px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  z-index: 150;
+  overflow-y: auto;
+}
+
+.system-panel-header {
+  position: relative;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.system-panel-header h3 {
+  color: #00ff88;
+  font-size: 20px;
+  margin: 0;
+  padding-right: 30px;
+}
+
+.system-panel .close-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.system-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.system-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* System Details */
+.system-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.system-property {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.system-property .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.system-property .value {
+  color: #ffffff;
+}
+
+/* Divider */
+.system-divider {
+  height: 1px;
+  background: rgba(0, 255, 136, 0.5);
+  margin: 10px 0;
+}
+
+/* Jump Information */
+.jump-information {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jump-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.jump-info-row .label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.jump-info-row .value {
+  color: #ffffff;
+}
+
+/* Economic Event Info */
+.system-event-info {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00ff88;
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.event-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.event-icon {
+  font-size: 20px;
+}
+
+.event-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.event-description {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Connected Systems */
+.connected-systems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.no-connections {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connection-item {
+  width: 100%;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  padding: 10px;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+.connection-item:hover {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: #00ff88;
+  transform: translateX(5px);
+}
+
+.connection-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.connection-details {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* Validation Message */
+.system-panel .validation-message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.system-panel .validation-message.error {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
+  color: #ff6666;
+}
+
+/* Jump Button */
+.jump-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.jump-btn:hover:not(:disabled) {
+  background-color: rgba(0, 255, 136, 0.2);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.jump-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #666;
+  color: #666;
+}
+
+/* Dock Button */
+.dock-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dock-btn:hover {
+  background-color: rgba(0, 255, 136, 0.2);
+  border-color: #ffffff;
+  color: #ffffff;
+}

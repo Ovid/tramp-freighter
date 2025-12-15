@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../js/state/game-state-manager.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
-import { SHIP_CONFIG } from '../../js/game-constants.js';
+import { SHIP_CONFIG } from '../../src/game/constants.js';
 
 const SHIP_CONDITION_BOUNDS = SHIP_CONFIG.CONDITION_BOUNDS;
 

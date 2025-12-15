@@ -1,6 +1,9 @@
 // Test setup file for Vitest
 // This file runs before all tests
 
+// Import testing library matchers
+import '@testing-library/jest-dom/vitest';
+
 // Create a proper localStorage mock that actually stores data
 class LocalStorageMock {
   constructor() {
@@ -35,8 +38,14 @@ beforeEach(() => {
 class CanvasRenderingContext2DMock {
   constructor() {
     this.fillStyle = '';
+    this.strokeStyle = '';
     this.shadowColor = '';
     this.shadowBlur = 0;
+    this.lineWidth = 1;
+    this.lineCap = 'butt';
+    this.font = '';
+    this.textAlign = 'start';
+    this.textBaseline = 'alphabetic';
   }
 
   createRadialGradient() {
@@ -46,8 +55,18 @@ class CanvasRenderingContext2DMock {
   }
 
   fillRect() {}
-  measureText() {
-    return { width: 100 };
+  clearRect() {}
+  fillText() {}
+  strokeText() {}
+  beginPath() {}
+  closePath() {}
+  moveTo() {}
+  lineTo() {}
+  arc() {}
+  stroke() {}
+  fill() {}
+  measureText(text) {
+    return { width: text.length * 10 };
   }
 }
 

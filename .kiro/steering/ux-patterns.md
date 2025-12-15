@@ -199,9 +199,9 @@ When adding a new feature with user input:
 
 **Refuel Panel:**
 
-- Location: `starmap.html` - `#refuel-validation-message`
-- Styling: `css/starmap.css` - `.refuel-validation-message`
-- Logic: `js/game-ui.js` - `updateRefuelCost()`
+- Location: `src/features/refuel/RefuelPanel.jsx`
+- Styling: `css/panel/refuel.css` - `.validation-message`
+- Logic: `src/features/refuel/refuelUtils.js` - `validateRefuel()`
 - Tests: `tests/property/refuel-validation-messages.property.test.js`
 
 **Future Implementations:**

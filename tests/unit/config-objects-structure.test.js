@@ -12,7 +12,7 @@ import {
   LABEL_CONFIG,
   NOTIFICATION_CONFIG,
   ANIMATION_CONFIG,
-} from '../../js/game-constants.js';
+} from '../../src/game/constants.js';
 
 /**
  * Unit tests for configuration object structure
