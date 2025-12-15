@@ -1,4 +1,4 @@
-import * as THREE from '../../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import { VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
 

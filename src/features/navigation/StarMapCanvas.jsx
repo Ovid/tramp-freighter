@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import * as THREE from '../../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import {
   initScene,
   onWindowResize,

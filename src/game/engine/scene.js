@@ -1,4 +1,4 @@
-import * as THREE from '../../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import { OrbitControls } from '../../../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
 import { createStarSystems } from './stars.js';

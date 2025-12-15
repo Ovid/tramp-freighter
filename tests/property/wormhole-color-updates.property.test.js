@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import * as THREE from '../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import {
   createWormholeLines,
   determineConnectionColor,

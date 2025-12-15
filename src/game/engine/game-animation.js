@@ -5,7 +5,7 @@
  * Includes timing calculations, easing functions, and input management.
  */
 
-import * as THREE from '../../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import { ANIMATION_CONFIG } from '../constants.js';
 
 /**

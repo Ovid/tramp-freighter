@@ -1,10 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { aliases } from './shared-config.js';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Custom plugin to handle three/addons/* imports
+    {
+      name: 'three-addons-resolver',
+      enforce: 'pre',
+      resolveId(id) {
+        if (id.startsWith('three/addons/')) {
+          const subpath = id.replace('three/addons/', '');
+          return path.resolve(
+            process.cwd(),
+            `vendor/three/examples/jsm/${subpath}`
+          );
+        }
+        return null;
+      },
+    },
+  ],
   resolve: {
     alias: aliases,
   },

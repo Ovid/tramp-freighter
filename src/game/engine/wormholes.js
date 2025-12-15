@@ -1,4 +1,4 @@
-import * as THREE from '../../../vendor/three/build/three.module.js';
+import * as THREE from 'three';
 import { VISUAL_CONFIG, NAVIGATION_CONFIG } from '../constants.js';
 
 // Store wormhole connection objects for dynamic color updates
