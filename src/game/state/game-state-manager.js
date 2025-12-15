@@ -1300,7 +1300,12 @@ export class GameStateManager {
     }
 
     this.updateCredits(credits - validation.cost);
-    this.updateFuel(currentFuel + amount);
+    
+    // Clamp fuel to max capacity to handle floating point rounding
+    // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
+    const maxFuel = this.getFuelCapacity();
+    const newFuel = Math.min(currentFuel + amount, maxFuel);
+    this.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel
     this.saveGame();

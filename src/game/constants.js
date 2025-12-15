@@ -122,9 +122,11 @@ export const NAVIGATION_CONFIG = {
   LY_PER_UNIT: 20 / 279.3190870671033,
 
   // Floating-point epsilon for fuel capacity checks
-  // Allows for minor floating-point arithmetic errors when validating
-  // refuel amounts against the 100% capacity limit
-  FUEL_CAPACITY_EPSILON: 0.01,
+  // Allows for minor floating-point arithmetic errors and integer rounding
+  // when validating refuel amounts against the 100% capacity limit.
+  // Set to 1.0 to allow refueling in 1% increments even when current fuel
+  // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
+  FUEL_CAPACITY_EPSILON: 1.0,
 };
 
 /**

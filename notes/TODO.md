@@ -9,7 +9,6 @@
 
 - i18n?
 - GCT
-- Can't refuel to 100%?
 - Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
@@ -34,6 +33,7 @@
 
 # Fixed
 
+- Cannot refuel to 100%?
 - Arbitrage bug: you can always sell at a profit something you just bought
 - Steering should note that files neeed single responsibilities
 - When clicking on a star, the others stars change colors.

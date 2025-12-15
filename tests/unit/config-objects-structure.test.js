@@ -103,7 +103,7 @@ describe('Configuration Object Structure', () => {
       expect(NAVIGATION_CONFIG).toBeDefined();
       expect(NAVIGATION_CONFIG.LY_PER_UNIT).toBeDefined();
       expect(typeof NAVIGATION_CONFIG.LY_PER_UNIT).toBe('number');
-      expect(NAVIGATION_CONFIG.FUEL_CAPACITY_EPSILON).toBe(0.01);
+      expect(NAVIGATION_CONFIG.FUEL_CAPACITY_EPSILON).toBe(1.0);
     });
 
     it('should have REPAIR_CONFIG with expected properties', () => {
