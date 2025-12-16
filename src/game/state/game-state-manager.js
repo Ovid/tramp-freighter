@@ -9,6 +9,7 @@ import {
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
+  REPUTATION_TIERS,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { EconomicEventsSystem } from '../game-events.js';
@@ -26,6 +27,7 @@ import {
   migrateFromV2ToV2_1,
   addStateDefaults,
 } from './state-validators.js';
+import { ALL_NPCS } from '../data/npc-data.js';
 
 /**
  * Sanitize ship name input
@@ -280,6 +282,7 @@ export class GameStateManager {
         marketConditions: {},
         currentSystemPrices: solPrices,
       },
+      npcs: {},
       meta: {
         version: GAME_VERSION,
         timestamp: Date.now(),
@@ -1078,6 +1081,125 @@ export class GameStateManager {
       activeEvents,
       hasAdvancedSensors
     );
+  }
+
+  // ========================================================================
+  // NPC REPUTATION SYSTEM
+  // ========================================================================
+
+  /**
+   * Get reputation tier classification for a reputation value
+   *
+   * Classifies reputation into named tiers based on numeric ranges.
+   * Each tier has a name and min/max bounds for display purposes.
+   *
+   * @param {number} rep - Reputation value (-100 to 100)
+   * @returns {Object} Tier object with name, min, max properties
+   */
+  getRepTier(rep) {
+    for (const tier of Object.values(REPUTATION_TIERS)) {
+      if (rep >= tier.min && rep <= tier.max) {
+        return tier;
+      }
+    }
+
+    // This should never happen with valid reputation values
+    throw new Error(`Invalid reputation value: ${rep}`);
+  }
+
+  /**
+   * Get or initialize NPC state
+   *
+   * Returns existing NPC state or creates default state with initial reputation.
+   * NPC state includes reputation, last interaction day, story flags, and interaction count.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} NPC state object
+   */
+  getNPCState(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getNPCState called before game initialization'
+      );
+    }
+
+    // Validate NPC ID exists in NPC data
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+
+    // Return existing state or create default
+    if (!this.state.npcs[npcId]) {
+      this.state.npcs[npcId] = {
+        rep: 0,
+        lastInteraction: this.state.player.daysElapsed,
+        flags: [],
+        interactions: 0,
+      };
+    }
+
+    return this.state.npcs[npcId];
+  }
+
+  /**
+   * Modify NPC reputation with trust modifier and quirk support
+   *
+   * Applies reputation change with NPC personality trust modifier and
+   * smooth_talker quirk bonus. Clamps final value to [-100, 100] range.
+   * Updates interaction count and timestamp.
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} amount - Base reputation change amount
+   * @param {string} reason - Reason for reputation change (for logging)
+   */
+  modifyRep(npcId, amount, reason) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: modifyRep called before game initialization'
+      );
+    }
+
+    // Validate NPC ID exists in NPC data
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+
+    // Get or create NPC state
+    const npcState = this.getNPCState(npcId);
+
+    // Apply trust modifier for positive reputation gains
+    let modifiedAmount = amount;
+    if (amount > 0) {
+      modifiedAmount *= npcData.personality.trust;
+    }
+
+    // Apply smooth_talker quirk bonus for positive reputation gains
+    if (amount > 0 && this.state.ship.quirks.includes('smooth_talker')) {
+      modifiedAmount *= 1.05;
+    }
+
+    // Calculate new reputation with clamping
+    const oldRep = npcState.rep;
+    const newRep = Math.max(-100, Math.min(100, oldRep + modifiedAmount));
+
+    // Log warning if clamping occurred
+    if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {
+      if (!this.isTestEnvironment) {
+        console.warn(
+          `Reputation clamped for ${npcId}: ${oldRep + modifiedAmount} -> ${newRep}`
+        );
+      }
+    }
+
+    // Update NPC state
+    npcState.rep = newRep;
+    npcState.lastInteraction = this.state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Persist immediately - reputation changes should be saved
+    this.saveGame();
   }
 
   // ========================================================================

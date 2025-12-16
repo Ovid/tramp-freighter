@@ -15,7 +15,7 @@
   - Test each NPC is assigned to correct system and station
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1, 7.2, 7.3_
 
-- [ ] 2. Implement reputation system
+- [x] 2. Implement reputation system
   - Add `npcs` object to game state schema in `src/game/state/game-state-manager.js`
   - Implement `modifyRep(npcId, amount, reason)` function with trust modifier and smooth_talker quirk support
   - Implement `getRepTier(rep)` function to classify reputation into tiers
@@ -25,27 +25,27 @@
   - Add error handling: clamp reputation values to [-100, 100] and log warnings if exceeded
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1-4.7, 5.1, 5.3_
 
-- [ ] 2.1 Write property test for reputation tier classification
+- [x] 2.1 Write property test for reputation tier classification
   - **Property 4: Reputation tier classification**
   - **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7**
 
-- [ ] 2.2 Write property test for reputation clamping
+- [x] 2.2 Write property test for reputation clamping
   - **Property 5: Reputation clamping invariant**
   - **Validates: Requirements 3.4**
 
-- [ ] 2.3 Write property test for trust modifier
+- [x] 2.3 Write property test for trust modifier
   - **Property 6: Trust modifier application**
   - **Validates: Requirements 3.2**
 
-- [ ] 2.4 Write property test for smooth talker quirk
+- [x] 2.4 Write property test for smooth talker quirk
   - **Property 7: Smooth talker quirk bonus**
   - **Validates: Requirements 3.3**
 
-- [ ] 2.5 Write property test for interaction count
+- [x] 2.5 Write property test for interaction count
   - **Property 8: Interaction count monotonicity**
   - **Validates: Requirements 5.3**
 
-- [ ] 2.6 Write property test for timestamp updates
+- [x] 2.6 Write property test for timestamp updates
   - **Property 15: Timestamp update on reputation change**
   - **Validates: Requirements 3.5**
 
