@@ -12,7 +12,10 @@
   specs, parts 1 and 2. It did so, expanding examples tremendously/. Each new
   spec was larger than the original notes/tramp-freighter-04.md. The original
   04 spec was so large that Kiro was really struggling to clarify and align
-  it, so I reverted and took this "split" approach.
+  it, so I reverted and took this "split" approach. Even though the size of
+  the two specs were not much smaller individually (20%) than the original
+  04 spec, the requirements document for part 1 shrunk from 800 lines to about
+  160. Much easier to manage!
 
 # TODO
 
