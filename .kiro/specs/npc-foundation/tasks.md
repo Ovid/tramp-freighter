@@ -64,7 +64,7 @@
   - Test Marcus Cole and Father Okonkwo dialogue trees exist and have greeting nodes
   - _Requirements: 9.4, 11.2_
 
-- [ ] 4. Implement dialogue engine
+- [x] 4. Implement dialogue engine
   - Create `src/game/game-dialogue.js` with dialogue engine functions
   - Implement `showDialogue(npcId, nodeId)` to display dialogue with filtered choices
   - Implement `selectChoice(npcId, choice)` to process player choice and advance dialogue
@@ -78,31 +78,31 @@
   - Add error handling: log errors and hide choices when condition functions throw exceptions
   - _Requirements: 2.1, 2.3, 2.4, 2.5, 5.2, 5.4, 9.1, 9.2, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
-- [ ] 4.1 Write property test for choice filtering
+- [x] 4.1 Write property test for choice filtering
   - **Property 10: Dialogue choice filtering**
   - **Validates: Requirements 9.1, 9.2, 10.6**
 
-- [ ] 4.2 Write property test for dialogue navigation
+- [x] 4.2 Write property test for dialogue navigation
   - **Property 11: Dialogue navigation**
   - **Validates: Requirements 2.4, 10.4**
 
-- [ ] 4.3 Write property test for reputation update timing
+- [x] 4.3 Write property test for reputation update timing
   - **Property 12: Reputation update before navigation**
   - **Validates: Requirements 10.2**
 
-- [ ] 4.4 Write property test for flag setting timing
+- [x] 4.4 Write property test for flag setting timing
   - **Property 13: Flag setting before navigation**
   - **Validates: Requirements 10.3**
 
-- [ ] 4.5 Write property test for dynamic text generation
+- [x] 4.5 Write property test for dynamic text generation
   - **Property 14: Dynamic dialogue text generation**
   - **Validates: Requirements 2.6, 9.3**
 
-- [ ] 4.6 Write property test for story flag idempotence
+- [x] 4.6 Write property test for story flag idempotence
   - **Property 9: Story flag idempotence**
   - **Validates: Requirements 5.4**
 
-- [ ] 4.7 Write unit tests for dialogue edge cases
+- [x] 4.7 Write unit tests for dialogue edge cases
   - Test dialogue ending when choice has no next node
   - Test greeting node is displayed by default
   - Test uninitialized NPC uses initialRep for dialogue display

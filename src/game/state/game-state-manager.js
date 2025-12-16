@@ -1180,9 +1180,9 @@ export class GameStateManager {
       modifiedAmount *= 1.05;
     }
 
-    // Calculate new reputation with clamping
+    // Calculate new reputation with clamping and rounding
     const oldRep = npcState.rep;
-    const newRep = Math.max(-100, Math.min(100, oldRep + modifiedAmount));
+    const newRep = Math.max(-100, Math.min(100, Math.round(oldRep + modifiedAmount)));
 
     // Log warning if clamping occurred
     if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {

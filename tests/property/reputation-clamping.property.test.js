@@ -75,8 +75,8 @@ describe('Reputation Clamping Properties', () => {
               changeAmount * 0.3 * (hasSmooth ? 1.05 : 1.0);
             const expectedFinal = initialRep + expectedChange;
 
-            // Allow for floating point precision
-            return Math.abs(finalRep - expectedFinal) < 0.1;
+            // Expected value should be rounded
+            return finalRep === Math.round(expectedFinal);
           } else {
             // Negative changes have no modifiers
             return finalRep === initialRep + changeAmount;

@@ -41,17 +41,17 @@ describe('Trust Modifier Properties', () => {
           // Apply reputation change
           gameStateManager.modifyRep(npcId, reputationGain, 'test');
 
-          // Calculate expected reputation after trust modifier
+          // Calculate expected reputation after trust modifier and rounding
           const expectedGain = reputationGain * trustValue;
           const expectedFinalRep = initialRep + expectedGain;
           const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
 
-          // Allow for floating point precision and clamping
+          // Expected value should be rounded and clamped
           const clampedExpected = Math.max(
             -100,
-            Math.min(100, expectedFinalRep)
+            Math.min(100, Math.round(expectedFinalRep))
           );
-          return Math.abs(actualFinalRep - clampedExpected) < 0.1;
+          return actualFinalRep === clampedExpected;
         }
       ),
       { numRuns: 100 }
