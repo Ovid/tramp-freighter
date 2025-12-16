@@ -656,3 +656,24 @@ export const REPUTATION_TIERS = {
     name: 'Family',
   },
 };
+
+/**
+ * NPC Data Validation Configuration
+ *
+ * Required fields and properties for NPC definitions to ensure data integrity.
+ */
+export const NPC_VALIDATION = {
+  REQUIRED_FIELDS: [
+    'id',
+    'name',
+    'role',
+    'system',
+    'station',
+    'personality',
+    'speechStyle',
+    'description',
+    'initialRep',
+  ],
+  REQUIRED_PERSONALITY_TRAITS: ['trust', 'greed', 'loyalty', 'morality'],
+  REQUIRED_SPEECH_PROPERTIES: ['greeting', 'vocabulary', 'quirk'],
+};

@@ -10,11 +10,12 @@ import fc from 'fast-check';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
+// Extract system IDs once to avoid repeated computation in tests
+const systemIds = [...new Set(ALL_NPCS.map((npc) => npc.system))];
+const npcSystemIds = new Set(ALL_NPCS.map((npc) => npc.system));
+
 describe('NPC Location Filtering Properties', () => {
   it('should return only NPCs located at the specified system', () => {
-    // Get all unique system IDs from NPC data
-    const systemIds = [...new Set(ALL_NPCS.map((npc) => npc.system))];
-
     fc.assert(
       fc.property(fc.constantFrom(...systemIds), (systemId) => {
         const npcsAtSystem = getNPCsAtSystem(systemId);
@@ -40,9 +41,6 @@ describe('NPC Location Filtering Properties', () => {
   });
 
   it('should return empty array for systems with no NPCs', () => {
-    // Generate arbitrary system IDs that don't have NPCs
-    const npcSystemIds = new Set(ALL_NPCS.map((npc) => npc.system));
-
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 200 }).filter((id) => !npcSystemIds.has(id)),
@@ -56,9 +54,6 @@ describe('NPC Location Filtering Properties', () => {
   });
 
   it('should return consistent results for the same system ID', () => {
-    // Get all unique system IDs from NPC data
-    const systemIds = [...new Set(ALL_NPCS.map((npc) => npc.system))];
-
     fc.assert(
       fc.property(fc.constantFrom(...systemIds), (systemId) => {
         const result1 = getNPCsAtSystem(systemId);
@@ -76,6 +71,32 @@ describe('NPC Location Filtering Properties', () => {
         return JSON.stringify(result1Ids) === JSON.stringify(result2Ids);
       }),
       { numRuns: 100 }
+    );
+  });
+
+  it('should throw error for invalid system ID inputs', () => {
+    fc.assert(
+      fc.property(
+        fc.oneof(
+          fc.string(),
+          fc.constant(null),
+          fc.constant(undefined),
+          fc.object(),
+          fc.array(fc.integer())
+        ),
+        (invalidSystemId) => {
+          let threwError = false;
+          try {
+            getNPCsAtSystem(invalidSystemId);
+          } catch (error) {
+            threwError = true;
+            // Verify it's the expected error message
+            return error.message.includes('Invalid systemId: must be a number');
+          }
+          return threwError;
+        }
+      ),
+      { numRuns: 50 }
     );
   });
 });

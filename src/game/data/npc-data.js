@@ -13,25 +13,15 @@
  * @module NPCData
  */
 
+import { NPC_VALIDATION } from '../constants.js';
+
 /**
  * Validates that an NPC definition has all required fields
  * @param {Object} npc - NPC definition to validate
  * @throws {Error} If any required field is missing
  */
 export function validateNPCDefinition(npc) {
-  const requiredFields = [
-    'id',
-    'name',
-    'role',
-    'system',
-    'station',
-    'personality',
-    'speechStyle',
-    'description',
-    'initialRep',
-  ];
-
-  for (const field of requiredFields) {
+  for (const field of NPC_VALIDATION.REQUIRED_FIELDS) {
     if (!(field in npc)) {
       throw new Error(
         `Invalid NPC definition: missing required field '${field}'`
@@ -40,8 +30,7 @@ export function validateNPCDefinition(npc) {
   }
 
   // Validate personality object has required traits
-  const requiredPersonalityTraits = ['trust', 'greed', 'loyalty', 'morality'];
-  for (const trait of requiredPersonalityTraits) {
+  for (const trait of NPC_VALIDATION.REQUIRED_PERSONALITY_TRAITS) {
     if (!(trait in npc.personality)) {
       throw new Error(
         `Invalid NPC definition: missing personality trait '${trait}'`
@@ -50,8 +39,7 @@ export function validateNPCDefinition(npc) {
   }
 
   // Validate speechStyle object has required properties
-  const requiredSpeechProperties = ['greeting', 'vocabulary', 'quirk'];
-  for (const prop of requiredSpeechProperties) {
+  for (const prop of NPC_VALIDATION.REQUIRED_SPEECH_PROPERTIES) {
     if (!(prop in npc.speechStyle)) {
       throw new Error(
         `Invalid NPC definition: missing speechStyle property '${prop}'`

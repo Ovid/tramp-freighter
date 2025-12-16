@@ -10,6 +10,11 @@
 
 import { ALL_NPCS } from './data/npc-data.js';
 
+// Validate NPC data import
+if (!ALL_NPCS || !Array.isArray(ALL_NPCS)) {
+  throw new Error('Invalid NPC data: ALL_NPCS must be a non-empty array');
+}
+
 /**
  * Get all NPCs located at a specific star system
  *
@@ -20,6 +25,11 @@ import { ALL_NPCS } from './data/npc-data.js';
  * @returns {Array} Array of NPC definition objects at the specified system
  */
 export function getNPCsAtSystem(systemId) {
+  // Validate input
+  if (typeof systemId !== 'number') {
+    throw new Error('Invalid systemId: must be a number');
+  }
+
   return ALL_NPCS.filter((npc) => npc.system === systemId);
 }
 
@@ -36,9 +46,22 @@ export function getNPCsAtSystem(systemId) {
  * @returns {string} Formatted display string: "Name (Role) [Tier]"
  */
 export function renderNPCListItem(npc, npcState, getRepTier) {
+  // Validate inputs
+  if (!npc || typeof npc !== 'object') {
+    throw new Error('Invalid NPC: must be a non-null object');
+  }
+  if (!getRepTier || typeof getRepTier !== 'function') {
+    throw new Error('Invalid getRepTier: must be a function');
+  }
+  if (!npc.name || !npc.role || typeof npc.initialRep !== 'number') {
+    throw new Error(
+      'Invalid NPC: missing required fields (name, role, initialRep)'
+    );
+  }
+
   // Use current reputation from state, or initial reputation if no state exists
   const currentRep = npcState ? npcState.rep : npc.initialRep;
   const tier = getRepTier(currentRep);
-  
+
   return `${npc.name} (${npc.role}) [${tier.name}]`;
 }
