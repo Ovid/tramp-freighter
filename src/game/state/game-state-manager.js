@@ -1198,6 +1198,11 @@ export class GameStateManager {
     npcState.lastInteraction = this.state.player.daysElapsed;
     npcState.interactions += 1;
 
+    // Log reputation change for debugging (only in non-test environment)
+    if (!this.isTestEnvironment) {
+      console.log(`Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`);
+    }
+
     // Persist immediately - reputation changes should be saved
     this.saveGame();
   }

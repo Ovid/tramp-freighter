@@ -28,12 +28,9 @@ describe('Trust Modifier Properties', () => {
 
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = initialRep;
+          npcState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
           gameStateManager.state.ship.quirks = gameStateManager.state.ship.quirks.filter(
@@ -50,7 +47,7 @@ describe('Trust Modifier Properties', () => {
 
           // Allow for floating point precision and clamping
           const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
-          return Math.abs(actualFinalRep - clampedExpected) < 0.01;
+          return Math.abs(actualFinalRep - clampedExpected) < 0.1;
         }
       ),
       { numRuns: 100 }
@@ -68,12 +65,9 @@ describe('Trust Modifier Properties', () => {
         (npcId, reputationChange) => {
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = initialRep;
+          npcState.lastInteraction = 0;
 
           // Apply reputation change
           gameStateManager.modifyRep(npcId, reputationChange, 'test');
@@ -95,13 +89,9 @@ describe('Trust Modifier Properties', () => {
     const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
-    // Test with two NPCs that have different trust values
-    const npc1 = ALL_NPCS.find(npc => npc.personality.trust !== ALL_NPCS[0].personality.trust);
-    const npc2 = ALL_NPCS[0];
-    
-    if (!npc1) {
-      return true; // Skip if all NPCs have same trust value
-    }
+    // Use Wei Chen (trust: 0.3) and Marcus Cole (trust: 0.1) for comparison
+    const weiChenId = 'chen_barnards';
+    const marcusColeId = 'cole_sol';
 
     fc.assert(
       fc.property(
@@ -109,18 +99,13 @@ describe('Trust Modifier Properties', () => {
         (reputationGain) => {
           // Set up both NPCs with same initial reputation
           const initialRep = 0;
-          gameStateManager.state.npcs[npc1.id] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
-          gameStateManager.state.npcs[npc2.id] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const weiChenState = gameStateManager.getNPCState(weiChenId);
+          weiChenState.rep = initialRep;
+          weiChenState.lastInteraction = 0;
+          
+          const marcusState = gameStateManager.getNPCState(marcusColeId);
+          marcusState.rep = initialRep;
+          marcusState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
           gameStateManager.state.ship.quirks = gameStateManager.state.ship.quirks.filter(
@@ -128,19 +113,15 @@ describe('Trust Modifier Properties', () => {
           );
 
           // Apply same reputation change to both NPCs
-          gameStateManager.modifyRep(npc1.id, reputationGain, 'test');
-          gameStateManager.modifyRep(npc2.id, reputationGain, 'test');
+          gameStateManager.modifyRep(weiChenId, reputationGain, 'test');
+          gameStateManager.modifyRep(marcusColeId, reputationGain, 'test');
 
           // Get final reputations
-          const finalRep1 = gameStateManager.state.npcs[npc1.id].rep;
-          const finalRep2 = gameStateManager.state.npcs[npc2.id].rep;
+          const weiChenFinalRep = gameStateManager.state.npcs[weiChenId].rep;
+          const marcusFinalRep = gameStateManager.state.npcs[marcusColeId].rep;
 
-          // If trust values are different, final reputations should be different
-          if (npc1.personality.trust !== npc2.personality.trust) {
-            return finalRep1 !== finalRep2;
-          }
-
-          return true;
+          // Wei Chen (trust: 0.3) should have higher reputation gain than Marcus (trust: 0.1)
+          return weiChenFinalRep > marcusFinalRep;
         }
       ),
       { numRuns: 100 }

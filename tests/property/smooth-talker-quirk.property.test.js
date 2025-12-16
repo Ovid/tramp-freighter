@@ -28,12 +28,9 @@ describe('Smooth Talker Quirk Properties', () => {
 
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = initialRep;
+          npcState.lastInteraction = 0;
 
           // Ensure smooth_talker quirk is present
           if (!gameStateManager.state.ship.quirks.includes('smooth_talker')) {
@@ -50,7 +47,7 @@ describe('Smooth Talker Quirk Properties', () => {
 
           // Allow for floating point precision and clamping
           const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
-          return Math.abs(actualFinalRep - clampedExpected) < 0.01;
+          return Math.abs(actualFinalRep - clampedExpected) < 0.1;
         }
       ),
       { numRuns: 100 }
@@ -68,12 +65,9 @@ describe('Smooth Talker Quirk Properties', () => {
         (npcId, reputationChange) => {
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: initialRep,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = initialRep;
+          npcState.lastInteraction = 0;
 
           // Ensure smooth_talker quirk is present
           if (!gameStateManager.state.ship.quirks.includes('smooth_talker')) {

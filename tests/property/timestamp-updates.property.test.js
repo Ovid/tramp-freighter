@@ -28,12 +28,9 @@ describe('Timestamp Update Properties', () => {
 
           // Set up NPC state with different lastInteraction timestamp
           const oldTimestamp = currentDay - 10; // 10 days ago
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: oldTimestamp,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = oldTimestamp;
 
           // Apply reputation change
           gameStateManager.modifyRep(npcId, reputationChange, 'test');
@@ -62,12 +59,9 @@ describe('Timestamp Update Properties', () => {
 
           // Set up NPC state with old timestamp
           const oldTimestamp = currentDay - 5;
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: oldTimestamp,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = oldTimestamp;
 
           // Apply negative reputation change
           gameStateManager.modifyRep(npcId, reputationChange, 'test');
@@ -96,12 +90,9 @@ describe('Timestamp Update Properties', () => {
 
           // Set up NPC state with old timestamp
           const oldTimestamp = currentDay - 15;
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: oldTimestamp,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = oldTimestamp;
 
           // Apply multiple reputation changes on the same day
           for (const change of reputationChanges) {
@@ -135,12 +126,9 @@ describe('Timestamp Update Properties', () => {
           gameStateManager.state.player.daysElapsed = startDay;
 
           // Set up NPC state
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: startDay - 5,
-            flags: [],
-            interactions: 0,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = startDay - 5;
 
           // First interaction
           gameStateManager.modifyRep(npcId, 1, 'test');
@@ -178,18 +166,13 @@ describe('Timestamp Update Properties', () => {
           const day2 = day1 + dayAdvance;
 
           // Set up both NPCs with old timestamps
-          gameStateManager.state.npcs[npc1Id] = {
-            rep: 0,
-            lastInteraction: day1 - 10,
-            flags: [],
-            interactions: 0,
-          };
-          gameStateManager.state.npcs[npc2Id] = {
-            rep: 0,
-            lastInteraction: day2 - 10,
-            flags: [],
-            interactions: 0,
-          };
+          const npc1State = gameStateManager.getNPCState(npc1Id);
+          npc1State.rep = 0;
+          npc1State.lastInteraction = day1 - 10;
+          
+          const npc2State = gameStateManager.getNPCState(npc2Id);
+          npc2State.rep = 0;
+          npc2State.lastInteraction = day2 - 10;
 
           // Interact with NPC 1 on day1
           gameStateManager.state.player.daysElapsed = day1;

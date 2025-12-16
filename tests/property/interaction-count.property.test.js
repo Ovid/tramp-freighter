@@ -24,12 +24,10 @@ describe('Interaction Count Properties', () => {
         (npcId, numModifications) => {
           // Set up NPC state with known initial interaction count
           const initialCount = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: 0,
-            flags: [],
-            interactions: initialCount,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = 0;
+          npcState.interactions = initialCount;
 
           // Apply multiple reputation modifications
           for (let i = 0; i < numModifications; i++) {
@@ -56,12 +54,10 @@ describe('Interaction Count Properties', () => {
         (npcId, reputationChanges) => {
           // Set up NPC state with known initial interaction count
           const initialCount = 0;
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: 0,
-            flags: [],
-            interactions: initialCount,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = 0;
+          npcState.interactions = initialCount;
 
           // Apply all reputation changes
           for (const change of reputationChanges) {
@@ -91,18 +87,15 @@ describe('Interaction Count Properties', () => {
         fc.integer({ min: 1, max: 5 }), // Modifications for NPC 2
         (npc1Mods, npc2Mods) => {
           // Set up both NPCs with initial interaction counts
-          gameStateManager.state.npcs[npc1Id] = {
-            rep: 0,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
-          gameStateManager.state.npcs[npc2Id] = {
-            rep: 0,
-            lastInteraction: 0,
-            flags: [],
-            interactions: 0,
-          };
+          const npc1State = gameStateManager.getNPCState(npc1Id);
+          npc1State.rep = 0;
+          npc1State.lastInteraction = 0;
+          npc1State.interactions = 0;
+          
+          const npc2State = gameStateManager.getNPCState(npc2Id);
+          npc2State.rep = 0;
+          npc2State.lastInteraction = 0;
+          npc2State.interactions = 0;
 
           // Apply modifications to NPC 1
           for (let i = 0; i < npc1Mods; i++) {
@@ -136,12 +129,10 @@ describe('Interaction Count Properties', () => {
         fc.array(fc.integer({ min: -20, max: 20 }), { minLength: 1, maxLength: 10 }), // Reputation changes
         (npcId, initialCount, reputationChanges) => {
           // Set up NPC state with initial interaction count
-          gameStateManager.state.npcs[npcId] = {
-            rep: 0,
-            lastInteraction: 0,
-            flags: [],
-            interactions: initialCount,
-          };
+          const npcState = gameStateManager.getNPCState(npcId);
+          npcState.rep = 0;
+          npcState.lastInteraction = 0;
+          npcState.interactions = initialCount;
 
           let previousCount = initialCount;
 
