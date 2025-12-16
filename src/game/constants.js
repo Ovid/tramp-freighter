@@ -600,12 +600,31 @@ export const ANIMATION_CONFIG = {
  * Reputation tiers classify the relationship between player and NPCs.
  * Each tier has a name and numeric range (-100 to 100).
  */
+
+// Reputation boundary constants
+export const REPUTATION_BOUNDS = {
+  MIN: -100,
+  MAX: 100,
+  HOSTILE_MAX: -50,
+  COLD_MIN: -49,
+  COLD_MAX: -10,
+  NEUTRAL_MIN: -9,
+  NEUTRAL_MAX: 9,
+  WARM_MIN: 10,
+  WARM_MAX: 29,
+  FRIENDLY_MIN: 30,
+  FRIENDLY_MAX: 59,
+  TRUSTED_MIN: 60,
+  TRUSTED_MAX: 89,
+  FAMILY_MIN: 90
+};
+
 export const REPUTATION_TIERS = {
-  hostile: { min: -100, max: -50, name: 'Hostile' },
-  cold: { min: -49, max: -10, name: 'Cold' },
-  neutral: { min: -9, max: 9, name: 'Neutral' },
-  warm: { min: 10, max: 29, name: 'Warm' },
-  friendly: { min: 30, max: 59, name: 'Friendly' },
-  trusted: { min: 60, max: 89, name: 'Trusted' },
-  family: { min: 90, max: 100, name: 'Family' }
+  hostile: { min: REPUTATION_BOUNDS.MIN, max: REPUTATION_BOUNDS.HOSTILE_MAX, name: 'Hostile' },
+  cold: { min: REPUTATION_BOUNDS.COLD_MIN, max: REPUTATION_BOUNDS.COLD_MAX, name: 'Cold' },
+  neutral: { min: REPUTATION_BOUNDS.NEUTRAL_MIN, max: REPUTATION_BOUNDS.NEUTRAL_MAX, name: 'Neutral' },
+  warm: { min: REPUTATION_BOUNDS.WARM_MIN, max: REPUTATION_BOUNDS.WARM_MAX, name: 'Warm' },
+  friendly: { min: REPUTATION_BOUNDS.FRIENDLY_MIN, max: REPUTATION_BOUNDS.FRIENDLY_MAX, name: 'Friendly' },
+  trusted: { min: REPUTATION_BOUNDS.TRUSTED_MIN, max: REPUTATION_BOUNDS.TRUSTED_MAX, name: 'Trusted' },
+  family: { min: REPUTATION_BOUNDS.FAMILY_MIN, max: REPUTATION_BOUNDS.MAX, name: 'Family' }
 };

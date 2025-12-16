@@ -1,9 +1,16 @@
 /**
- * NPC Data Definitions
- *
+ * @fileoverview NPC Data Definitions
+ * 
  * Static definitions for all NPCs in the game. Each NPC has a unique personality,
  * speech style, and is located at a specific station in a specific star system.
  * This data drives the relationship and dialogue systems.
+ * 
+ * Usage:
+ * - Import individual NPCs: `import { WEI_CHEN } from './npc-data.js'`
+ * - Import all NPCs: `import { ALL_NPCS } from './npc-data.js'`
+ * - Validate NPC definitions: `validateNPCDefinition(npcObject)`
+ * 
+ * @module NPCData
  */
 
 /**
@@ -141,5 +148,11 @@ export const ALL_NPCS = [
   FATHER_OKONKWO
 ];
 
-// Validate all NPC definitions on module load
-ALL_NPCS.forEach(npc => validateNPCDefinition(npc));
+/**
+ * Validates all NPC definitions in the game
+ * Call this during game initialization to ensure data integrity
+ * @throws {Error} If any NPC definition is invalid
+ */
+export function validateAllNPCs() {
+  ALL_NPCS.forEach(npc => validateNPCDefinition(npc));
+}
