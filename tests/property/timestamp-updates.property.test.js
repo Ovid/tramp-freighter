@@ -19,7 +19,7 @@ describe('Timestamp Update Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 0, max: 100 }), // Current game day
         fc.integer({ min: -10, max: 10 }), // Reputation change
         (npcId, currentDay, reputationChange) => {
@@ -36,7 +36,8 @@ describe('Timestamp Update Properties', () => {
           gameStateManager.modifyRep(npcId, reputationChange, 'test');
 
           // Check that lastInteraction was updated to current day
-          const updatedTimestamp = gameStateManager.state.npcs[npcId].lastInteraction;
+          const updatedTimestamp =
+            gameStateManager.state.npcs[npcId].lastInteraction;
           return updatedTimestamp === currentDay;
         }
       ),
@@ -50,7 +51,7 @@ describe('Timestamp Update Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 10, max: 100 }), // Current game day
         fc.integer({ min: -20, max: -1 }), // Negative reputation change
         (npcId, currentDay, reputationChange) => {
@@ -67,7 +68,8 @@ describe('Timestamp Update Properties', () => {
           gameStateManager.modifyRep(npcId, reputationChange, 'test');
 
           // Check that timestamp was updated even for negative changes
-          const updatedTimestamp = gameStateManager.state.npcs[npcId].lastInteraction;
+          const updatedTimestamp =
+            gameStateManager.state.npcs[npcId].lastInteraction;
           return updatedTimestamp === currentDay;
         }
       ),
@@ -81,9 +83,12 @@ describe('Timestamp Update Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 20, max: 100 }), // Current game day
-        fc.array(fc.integer({ min: -5, max: 5 }), { minLength: 2, maxLength: 5 }), // Multiple reputation changes
+        fc.array(fc.integer({ min: -5, max: 5 }), {
+          minLength: 2,
+          maxLength: 5,
+        }), // Multiple reputation changes
         (npcId, currentDay, reputationChanges) => {
           // Set game day
           gameStateManager.state.player.daysElapsed = currentDay;
@@ -97,9 +102,10 @@ describe('Timestamp Update Properties', () => {
           // Apply multiple reputation changes on the same day
           for (const change of reputationChanges) {
             gameStateManager.modifyRep(npcId, change, 'test');
-            
+
             // After each change, timestamp should be current day
-            const currentTimestamp = gameStateManager.state.npcs[npcId].lastInteraction;
+            const currentTimestamp =
+              gameStateManager.state.npcs[npcId].lastInteraction;
             if (currentTimestamp !== currentDay) {
               return false;
             }
@@ -118,7 +124,7 @@ describe('Timestamp Update Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 10, max: 50 }), // Starting game day
         fc.integer({ min: 1, max: 10 }), // Days to advance
         (npcId, startDay, daysAdvance) => {
@@ -132,7 +138,8 @@ describe('Timestamp Update Properties', () => {
 
           // First interaction
           gameStateManager.modifyRep(npcId, 1, 'test');
-          const firstTimestamp = gameStateManager.state.npcs[npcId].lastInteraction;
+          const firstTimestamp =
+            gameStateManager.state.npcs[npcId].lastInteraction;
 
           // Advance game time
           const newDay = startDay + daysAdvance;
@@ -140,7 +147,8 @@ describe('Timestamp Update Properties', () => {
 
           // Second interaction
           gameStateManager.modifyRep(npcId, 1, 'test');
-          const secondTimestamp = gameStateManager.state.npcs[npcId].lastInteraction;
+          const secondTimestamp =
+            gameStateManager.state.npcs[npcId].lastInteraction;
 
           // First timestamp should be start day, second should be new day
           return firstTimestamp === startDay && secondTimestamp === newDay;
@@ -169,7 +177,7 @@ describe('Timestamp Update Properties', () => {
           const npc1State = gameStateManager.getNPCState(npc1Id);
           npc1State.rep = 0;
           npc1State.lastInteraction = day1 - 10;
-          
+
           const npc2State = gameStateManager.getNPCState(npc2Id);
           npc2State.rep = 0;
           npc2State.lastInteraction = day2 - 10;
@@ -183,8 +191,10 @@ describe('Timestamp Update Properties', () => {
           gameStateManager.modifyRep(npc2Id, 1, 'test');
 
           // Check that each NPC has the correct timestamp
-          const npc1Timestamp = gameStateManager.state.npcs[npc1Id].lastInteraction;
-          const npc2Timestamp = gameStateManager.state.npcs[npc2Id].lastInteraction;
+          const npc1Timestamp =
+            gameStateManager.state.npcs[npc1Id].lastInteraction;
+          const npc2Timestamp =
+            gameStateManager.state.npcs[npc2Id].lastInteraction;
 
           return npc1Timestamp === day1 && npc2Timestamp === day2;
         }

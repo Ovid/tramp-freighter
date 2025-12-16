@@ -19,11 +19,11 @@ describe('Smooth Talker Quirk Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 1, max: 50 }), // Positive reputation gain
         (npcId, reputationGain) => {
           // Get NPC data to check trust value
-          const npcData = ALL_NPCS.find(npc => npc.id === npcId);
+          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
           const trustValue = npcData.personality.trust;
 
           // Set up NPC state with known initial reputation
@@ -46,7 +46,10 @@ describe('Smooth Talker Quirk Properties', () => {
           const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
 
           // Allow for floating point precision and clamping
-          const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
+          const clampedExpected = Math.max(
+            -100,
+            Math.min(100, expectedFinalRep)
+          );
           return Math.abs(actualFinalRep - clampedExpected) < 0.1;
         }
       ),
@@ -60,7 +63,7 @@ describe('Smooth Talker Quirk Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: -50, max: -1 }), // Negative reputation change
         (npcId, reputationChange) => {
           // Set up NPC state with known initial reputation
@@ -82,7 +85,10 @@ describe('Smooth Talker Quirk Properties', () => {
           const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
 
           // Allow for clamping
-          const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
+          const clampedExpected = Math.max(
+            -100,
+            Math.min(100, expectedFinalRep)
+          );
           return actualFinalRep === clampedExpected;
         }
       ),
@@ -93,11 +99,14 @@ describe('Smooth Talker Quirk Properties', () => {
   it('should provide larger reputation gains with smooth_talker than without', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 10, max: 50 }), // Positive reputation gain
         (npcId, reputationGain) => {
           // Test without smooth_talker quirk
-          const gameStateManager1 = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gameStateManager1 = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
           gameStateManager1.initNewGame();
           gameStateManager1.state.npcs[npcId] = {
             rep: 0,
@@ -106,14 +115,18 @@ describe('Smooth Talker Quirk Properties', () => {
             interactions: 0,
           };
           // Remove smooth_talker quirk
-          gameStateManager1.state.ship.quirks = gameStateManager1.state.ship.quirks.filter(
-            quirk => quirk !== 'smooth_talker'
-          );
+          gameStateManager1.state.ship.quirks =
+            gameStateManager1.state.ship.quirks.filter(
+              (quirk) => quirk !== 'smooth_talker'
+            );
           gameStateManager1.modifyRep(npcId, reputationGain, 'test');
           const repWithoutQuirk = gameStateManager1.state.npcs[npcId].rep;
 
           // Test with smooth_talker quirk
-          const gameStateManager2 = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gameStateManager2 = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
           gameStateManager2.initNewGame();
           gameStateManager2.state.npcs[npcId] = {
             rep: 0,

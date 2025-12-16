@@ -19,7 +19,7 @@ describe('Interaction Count Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 1, max: 10 }), // Number of modifications
         (npcId, numModifications) => {
           // Set up NPC state with known initial interaction count
@@ -49,8 +49,11 @@ describe('Interaction Count Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
-        fc.array(fc.integer({ min: -10, max: 10 }), { minLength: 1, maxLength: 5 }), // Array of reputation changes
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
+        fc.array(fc.integer({ min: -10, max: 10 }), {
+          minLength: 1,
+          maxLength: 5,
+        }), // Array of reputation changes
         (npcId, reputationChanges) => {
           // Set up NPC state with known initial interaction count
           const initialCount = 0;
@@ -91,7 +94,7 @@ describe('Interaction Count Properties', () => {
           npc1State.rep = 0;
           npc1State.lastInteraction = 0;
           npc1State.interactions = 0;
-          
+
           const npc2State = gameStateManager.getNPCState(npc2Id);
           npc2State.rep = 0;
           npc2State.lastInteraction = 0;
@@ -124,9 +127,12 @@ describe('Interaction Count Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 0, max: 10 }), // Initial interaction count
-        fc.array(fc.integer({ min: -20, max: 20 }), { minLength: 1, maxLength: 10 }), // Reputation changes
+        fc.array(fc.integer({ min: -20, max: 20 }), {
+          minLength: 1,
+          maxLength: 10,
+        }), // Reputation changes
         (npcId, initialCount, reputationChanges) => {
           // Set up NPC state with initial interaction count
           const npcState = gameStateManager.getNPCState(npcId);
@@ -139,13 +145,17 @@ describe('Interaction Count Properties', () => {
           // Apply reputation changes one by one and check monotonicity
           for (const change of reputationChanges) {
             gameStateManager.modifyRep(npcId, change, 'test');
-            const currentCount = gameStateManager.state.npcs[npcId].interactions;
-            
+            const currentCount =
+              gameStateManager.state.npcs[npcId].interactions;
+
             // Count should never decrease and should increase by exactly 1
-            if (currentCount < previousCount || currentCount !== previousCount + 1) {
+            if (
+              currentCount < previousCount ||
+              currentCount !== previousCount + 1
+            ) {
               return false;
             }
-            
+
             previousCount = currentCount;
           }
 

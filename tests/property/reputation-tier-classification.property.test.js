@@ -20,7 +20,12 @@ describe('Reputation Tier Classification Properties', () => {
         const tier = gameStateManager.getRepTier(reputation);
 
         // Tier should exist and have required properties
-        if (!tier || typeof tier.name !== 'string' || typeof tier.min !== 'number' || typeof tier.max !== 'number') {
+        if (
+          !tier ||
+          typeof tier.name !== 'string' ||
+          typeof tier.min !== 'number' ||
+          typeof tier.max !== 'number'
+        ) {
           return false;
         }
 
@@ -54,10 +59,12 @@ describe('Reputation Tier Classification Properties', () => {
       fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
         const tier1 = gameStateManager.getRepTier(reputation);
         const tier2 = gameStateManager.getRepTier(reputation);
-        
-        return tier1.name === tier2.name && 
-               tier1.min === tier2.min && 
-               tier1.max === tier2.max;
+
+        return (
+          tier1.name === tier2.name &&
+          tier1.min === tier2.min &&
+          tier1.max === tier2.max
+        );
       }),
       { numRuns: 100 }
     );

@@ -19,11 +19,11 @@ describe('Trust Modifier Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: 1, max: 50 }), // Positive reputation gain
         (npcId, reputationGain) => {
           // Get NPC data to check trust value
-          const npcData = ALL_NPCS.find(npc => npc.id === npcId);
+          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
           const trustValue = npcData.personality.trust;
 
           // Set up NPC state with known initial reputation
@@ -33,9 +33,10 @@ describe('Trust Modifier Properties', () => {
           npcState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          gameStateManager.state.ship.quirks = gameStateManager.state.ship.quirks.filter(
-            quirk => quirk !== 'smooth_talker'
-          );
+          gameStateManager.state.ship.quirks =
+            gameStateManager.state.ship.quirks.filter(
+              (quirk) => quirk !== 'smooth_talker'
+            );
 
           // Apply reputation change
           gameStateManager.modifyRep(npcId, reputationGain, 'test');
@@ -46,7 +47,10 @@ describe('Trust Modifier Properties', () => {
           const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
 
           // Allow for floating point precision and clamping
-          const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
+          const clampedExpected = Math.max(
+            -100,
+            Math.min(100, expectedFinalRep)
+          );
           return Math.abs(actualFinalRep - clampedExpected) < 0.1;
         }
       ),
@@ -60,7 +64,7 @@ describe('Trust Modifier Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)), // Valid NPC ID
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)), // Valid NPC ID
         fc.integer({ min: -50, max: -1 }), // Negative reputation change
         (npcId, reputationChange) => {
           // Set up NPC state with known initial reputation
@@ -77,7 +81,10 @@ describe('Trust Modifier Properties', () => {
           const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
 
           // Allow for clamping
-          const clampedExpected = Math.max(-100, Math.min(100, expectedFinalRep));
+          const clampedExpected = Math.max(
+            -100,
+            Math.min(100, expectedFinalRep)
+          );
           return actualFinalRep === clampedExpected;
         }
       ),
@@ -102,15 +109,16 @@ describe('Trust Modifier Properties', () => {
           const weiChenState = gameStateManager.getNPCState(weiChenId);
           weiChenState.rep = initialRep;
           weiChenState.lastInteraction = 0;
-          
+
           const marcusState = gameStateManager.getNPCState(marcusColeId);
           marcusState.rep = initialRep;
           marcusState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          gameStateManager.state.ship.quirks = gameStateManager.state.ship.quirks.filter(
-            quirk => quirk !== 'smooth_talker'
-          );
+          gameStateManager.state.ship.quirks =
+            gameStateManager.state.ship.quirks.filter(
+              (quirk) => quirk !== 'smooth_talker'
+            );
 
           // Apply same reputation change to both NPCs
           gameStateManager.modifyRep(weiChenId, reputationGain, 'test');

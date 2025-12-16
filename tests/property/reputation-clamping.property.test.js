@@ -63,16 +63,18 @@ describe('Reputation Clamping Properties', () => {
 
           // Check that reputation changed by expected amount (accounting for trust modifier)
           const finalRep = gameStateManager.state.npcs[npcId].rep;
-          
+
           // For positive changes, trust modifier (0.3) and smooth_talker quirk may apply
           // For negative changes, no modifiers apply
           if (changeAmount > 0) {
             // Trust modifier applies: 0.3 * changeAmount
             // Smooth_talker quirk may apply: 1.05 multiplier
-            const hasSmooth = gameStateManager.state.ship.quirks.includes('smooth_talker');
-            const expectedChange = changeAmount * 0.3 * (hasSmooth ? 1.05 : 1.0);
+            const hasSmooth =
+              gameStateManager.state.ship.quirks.includes('smooth_talker');
+            const expectedChange =
+              changeAmount * 0.3 * (hasSmooth ? 1.05 : 1.0);
             const expectedFinal = initialRep + expectedChange;
-            
+
             // Allow for floating point precision
             return Math.abs(finalRep - expectedFinal) < 0.1;
           } else {
