@@ -1,13 +1,13 @@
 # Implementation Plan
 
-- [ ] 1. Create NPC data structures and constants
+- [x] 1. Create NPC data structures and constants
   - Create `src/game/data/npc-data.js` with NPC definitions for Wei Chen, Marcus Cole, and Father Okonkwo
   - Create reputation tier constants in `src/game/constants.js`
   - Define NPC schema with id, name, role, system, station, personality, speechStyle, description, and initialRep
   - Add validation function to check NPC definitions have all required fields (throw error if missing)
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 11.1_
 
-- [ ] 1.1 Write unit tests for NPC data definitions
+- [x] 1.1 Write unit tests for NPC data definitions
   - Test Wei Chen has correct personality traits (trust: 0.3, greed: 0.2, loyalty: 0.8, morality: 0.6)
   - Test Marcus Cole has correct personality traits (trust: 0.1, greed: 0.9, loyalty: 0.3, morality: 0.2)
   - Test Father Okonkwo has correct personality traits (trust: 0.7, greed: 0.0, loyalty: 0.9, morality: 0.9)

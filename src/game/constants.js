@@ -593,3 +593,19 @@ export const ANIMATION_CONFIG = {
   // Animation timeout for error recovery
   ANIMATION_TIMEOUT: 10000, // milliseconds - force completion if animation hangs
 };
+
+/**
+ * NPC Reputation System Configuration
+ *
+ * Reputation tiers classify the relationship between player and NPCs.
+ * Each tier has a name and numeric range (-100 to 100).
+ */
+export const REPUTATION_TIERS = {
+  hostile: { min: -100, max: -50, name: 'Hostile' },
+  cold: { min: -49, max: -10, name: 'Cold' },
+  neutral: { min: -9, max: 9, name: 'Neutral' },
+  warm: { min: 10, max: 29, name: 'Warm' },
+  friendly: { min: 30, max: 59, name: 'Friendly' },
+  trusted: { min: 60, max: 89, name: 'Trusted' },
+  family: { min: 90, max: 100, name: 'Family' }
+};
