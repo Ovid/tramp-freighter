@@ -15,7 +15,7 @@ import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
  * Unit tests for dialogue tree structure
  * Feature: npc-foundation
  *
- * **Validates: Requirements 9.4, 11.2**
+ * **Validates: npc-foundation Requirements 9.4, 11.2**
  *
  * Verifies that dialogue trees have the correct structure, greeting nodes exist,
  * and reputation-gated choices have proper condition functions.
@@ -29,13 +29,15 @@ describe('Dialogue Tree Structure', () => {
       expect(Array.isArray(WEI_CHEN_DIALOGUE.greeting.choices)).toBe(true);
       expect(WEI_CHEN_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
 
-      // Check for expected choice texts
-      const choiceTexts = WEI_CHEN_DIALOGUE.greeting.choices.map(
+      // Check for expected dialogue options
+      const dialogueOptions = WEI_CHEN_DIALOGUE.greeting.choices.map(
         (choice) => choice.text
       );
-      expect(choiceTexts).toContain('Just making conversation. How\'s work?');
-      expect(choiceTexts).toContain('Tell me about yourself.');
-      expect(choiceTexts).toContain('Nothing right now. Take care.');
+      expect(dialogueOptions).toContain(
+        "Just making conversation. How's work?"
+      );
+      expect(dialogueOptions).toContain('Tell me about yourself.');
+      expect(dialogueOptions).toContain('Nothing right now. Take care.');
     });
 
     it('should have backstory choice with condition function requiring rep >= 30', () => {
@@ -74,15 +76,15 @@ describe('Dialogue Tree Structure', () => {
       expect(typeof WEI_CHEN_DIALOGUE.greeting.text).toBe('function');
 
       // Test different reputation levels generate different text
-      const hostileText = WEI_CHEN_DIALOGUE.greeting.text(-60);
-      const neutralText = WEI_CHEN_DIALOGUE.greeting.text(0);
-      const friendlyText = WEI_CHEN_DIALOGUE.greeting.text(40);
+      const hostileGreeting = WEI_CHEN_DIALOGUE.greeting.text(-60);
+      const neutralGreeting = WEI_CHEN_DIALOGUE.greeting.text(0);
+      const friendlyGreeting = WEI_CHEN_DIALOGUE.greeting.text(40);
 
-      expect(typeof hostileText).toBe('string');
-      expect(typeof neutralText).toBe('string');
-      expect(typeof friendlyText).toBe('string');
-      expect(hostileText).not.toBe(neutralText);
-      expect(neutralText).not.toBe(friendlyText);
+      expect(typeof hostileGreeting).toBe('string');
+      expect(typeof neutralGreeting).toBe('string');
+      expect(typeof friendlyGreeting).toBe('string');
+      expect(hostileGreeting).not.toBe(neutralGreeting);
+      expect(neutralGreeting).not.toBe(friendlyGreeting);
     });
 
     it('should have story flags in backstory nodes', () => {
@@ -107,17 +109,22 @@ describe('Dialogue Tree Structure', () => {
     });
 
     it('should have expected choice structure in greeting', () => {
-      const choiceTexts = MARCUS_COLE_DIALOGUE.greeting.choices.map(
+      const conversationChoices = MARCUS_COLE_DIALOGUE.greeting.choices.map(
         (choice) => choice.text
       );
-      expect(choiceTexts).toContain('About my debt...');
-      expect(choiceTexts).toContain('I wanted to discuss business opportunities.');
-      expect(choiceTexts).toContain('Just checking in. I\'ll be going now.');
+      expect(conversationChoices).toContain('About my debt...');
+      expect(conversationChoices).toContain(
+        'I wanted to discuss business opportunities.'
+      );
+      expect(conversationChoices).toContain(
+        "Just checking in. I'll be going now."
+      );
     });
 
     it('should have business choice with reputation condition', () => {
       const businessChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
-        (choice) => choice.text === 'I wanted to discuss business opportunities.'
+        (choice) =>
+          choice.text === 'I wanted to discuss business opportunities.'
       );
 
       expect(businessChoice).toBeDefined();
@@ -163,12 +170,12 @@ describe('Dialogue Tree Structure', () => {
     });
 
     it('should have expected choice structure in greeting', () => {
-      const choiceTexts = FATHER_OKONKWO_DIALOGUE.greeting.choices.map(
+      const playerResponses = FATHER_OKONKWO_DIALOGUE.greeting.choices.map(
         (choice) => choice.text
       );
-      expect(choiceTexts).toContain('Tell me about your faith.');
-      expect(choiceTexts).toContain('I could use some help.');
-      expect(choiceTexts).toContain('Just passing through. Thank you.');
+      expect(playerResponses).toContain('Tell me about your faith.');
+      expect(playerResponses).toContain('I could use some help.');
+      expect(playerResponses).toContain('Just passing through. Thank you.');
     });
 
     it('should have help choice with reputation condition', () => {
@@ -207,9 +214,9 @@ describe('Dialogue Tree Structure', () => {
 
     it('should have story flags in help_details node', () => {
       expect(FATHER_OKONKWO_DIALOGUE.help_details.flags).toBeDefined();
-      expect(
-        Array.isArray(FATHER_OKONKWO_DIALOGUE.help_details.flags)
-      ).toBe(true);
+      expect(Array.isArray(FATHER_OKONKWO_DIALOGUE.help_details.flags)).toBe(
+        true
+      );
       expect(FATHER_OKONKWO_DIALOGUE.help_details.flags).toContain(
         'okonkwo_help_offered'
       );
@@ -327,46 +334,50 @@ describe('Dialogue Tree Structure', () => {
     it('should generate different greeting text for different reputation levels', () => {
       // Test Wei Chen's greeting function
       const weiChenGreeting = WEI_CHEN_DIALOGUE.greeting.text;
-      const hostileText = weiChenGreeting(REPUTATION_BOUNDS.MIN);
-      const neutralText = weiChenGreeting(0);
-      const friendlyText = weiChenGreeting(REPUTATION_BOUNDS.FRIENDLY_MIN);
+      const hostileWeiGreeting = weiChenGreeting(REPUTATION_BOUNDS.MIN);
+      const neutralWeiGreeting = weiChenGreeting(0);
+      const friendlyWeiGreeting = weiChenGreeting(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
 
-      expect(hostileText).not.toBe(neutralText);
-      expect(neutralText).not.toBe(friendlyText);
-      expect(hostileText).not.toBe(friendlyText);
+      expect(hostileWeiGreeting).not.toBe(neutralWeiGreeting);
+      expect(neutralWeiGreeting).not.toBe(friendlyWeiGreeting);
+      expect(hostileWeiGreeting).not.toBe(friendlyWeiGreeting);
 
       // Test Marcus Cole's greeting function
       const marcusGreeting = MARCUS_COLE_DIALOGUE.greeting.text;
-      const marcusHostileText = marcusGreeting(REPUTATION_BOUNDS.MIN);
-      const marcusNeutralText = marcusGreeting(0);
-      const marcusWarmText = marcusGreeting(REPUTATION_BOUNDS.WARM_MIN);
+      const marcusHostileGreeting = marcusGreeting(REPUTATION_BOUNDS.MIN);
+      const marcusNeutralGreeting = marcusGreeting(0);
+      const marcusWarmGreeting = marcusGreeting(REPUTATION_BOUNDS.WARM_MIN);
 
-      expect(marcusHostileText).not.toBe(marcusNeutralText);
-      expect(marcusNeutralText).not.toBe(marcusWarmText);
+      expect(marcusHostileGreeting).not.toBe(marcusNeutralGreeting);
+      expect(marcusNeutralGreeting).not.toBe(marcusWarmGreeting);
 
       // Test Father Okonkwo's greeting function
       const okonkwoGreeting = FATHER_OKONKWO_DIALOGUE.greeting.text;
-      const okonkwoHostileText = okonkwoGreeting(REPUTATION_BOUNDS.MIN);
-      const okonkwoNeutralText = okonkwoGreeting(0);
-      const okonkwoFriendlyText = okonkwoGreeting(REPUTATION_BOUNDS.FRIENDLY_MIN);
+      const okonkwoHostileGreeting = okonkwoGreeting(REPUTATION_BOUNDS.MIN);
+      const okonkwoNeutralGreeting = okonkwoGreeting(0);
+      const okonkwoFriendlyGreeting = okonkwoGreeting(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
 
-      expect(okonkwoHostileText).not.toBe(okonkwoNeutralText);
-      expect(okonkwoNeutralText).not.toBe(okonkwoFriendlyText);
+      expect(okonkwoHostileGreeting).not.toBe(okonkwoNeutralGreeting);
+      expect(okonkwoNeutralGreeting).not.toBe(okonkwoFriendlyGreeting);
     });
 
     it('should have function-based text in backstory node for Wei Chen', () => {
       expect(typeof WEI_CHEN_DIALOGUE.backstory.text).toBe('function');
 
-      const friendlyText = WEI_CHEN_DIALOGUE.backstory.text(
+      const friendlyBackstory = WEI_CHEN_DIALOGUE.backstory.text(
         REPUTATION_BOUNDS.FRIENDLY_MIN
       );
-      const trustedText = WEI_CHEN_DIALOGUE.backstory.text(
+      const trustedBackstory = WEI_CHEN_DIALOGUE.backstory.text(
         REPUTATION_BOUNDS.TRUSTED_MIN
       );
 
-      expect(typeof friendlyText).toBe('string');
-      expect(typeof trustedText).toBe('string');
-      expect(friendlyText).not.toBe(trustedText);
+      expect(typeof friendlyBackstory).toBe('string');
+      expect(typeof trustedBackstory).toBe('string');
+      expect(friendlyBackstory).not.toBe(trustedBackstory);
     });
   });
 
@@ -376,22 +387,34 @@ describe('Dialogue Tree Structure', () => {
       const weiChenBackstoryChoice = WEI_CHEN_DIALOGUE.greeting.choices.find(
         (choice) => choice.next === 'backstory'
       );
-      expect(weiChenBackstoryChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN - 1)).toBe(false);
-      expect(weiChenBackstoryChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(true);
+      expect(
+        weiChenBackstoryChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN - 1)
+      ).toBe(false);
+      expect(
+        weiChenBackstoryChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)
+      ).toBe(true);
 
       // Marcus Cole business requires rep >= NEUTRAL_MIN (-9)
       const marcusBusinessChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
         (choice) => choice.next === 'business'
       );
-      expect(marcusBusinessChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN - 1)).toBe(false);
-      expect(marcusBusinessChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe(true);
+      expect(
+        marcusBusinessChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN - 1)
+      ).toBe(false);
+      expect(
+        marcusBusinessChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN)
+      ).toBe(true);
 
       // Father Okonkwo help requires rep >= 10 (WARM_MIN)
       const okonkwoHelpChoice = FATHER_OKONKWO_DIALOGUE.greeting.choices.find(
         (choice) => choice.next === 'help'
       );
-      expect(okonkwoHelpChoice.condition(REPUTATION_BOUNDS.WARM_MIN - 1)).toBe(false);
-      expect(okonkwoHelpChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(true);
+      expect(okonkwoHelpChoice.condition(REPUTATION_BOUNDS.WARM_MIN - 1)).toBe(
+        false
+      );
+      expect(okonkwoHelpChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(
+        true
+      );
     });
   });
 

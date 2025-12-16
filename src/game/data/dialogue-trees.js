@@ -6,10 +6,55 @@
  * or functions that generate dynamic content based on reputation. Choices can have
  * condition functions to control visibility based on relationship level.
  *
- * Usage:
- * - Import specific trees: `import { WEI_CHEN_DIALOGUE } from './dialogue-trees.js'`
- * - Import all trees: `import { ALL_DIALOGUE_TREES } from './dialogue-trees.js'`
- * - Validate tree structure: `validateDialogueTree(treeObject)`
+ * ## Architecture Integration
+ *
+ * Dialogue trees integrate with the NPC reputation system through:
+ * - **Dynamic Text**: Text functions receive current reputation and generate contextual responses
+ * - **Conditional Choices**: Choice visibility controlled by reputation thresholds (e.g., backstory requires rep >= 30)
+ * - **Reputation Changes**: Choices can modify reputation via `repGain` property
+ * - **Story Flags**: Dialogue nodes can set persistent flags in NPC state for quest tracking
+ *
+ * ## Game State Integration
+ *
+ * Dialogue execution affects game state through:
+ * - **Reputation Modification**: Applied before advancing to next node (ensures immediate effect)
+ * - **Story Flag Setting**: Flags added to NPC state before navigation (enables conditional content)
+ * - **Trust Modifiers**: Reputation gains affected by NPC personality traits and ship quirks
+ * - **Interaction Tracking**: Last interaction timestamp and total interaction count updated
+ *
+ * ## Usage Patterns
+ *
+ * ```javascript
+ * // Import specific trees for dialogue engine
+ * import { WEI_CHEN_DIALOGUE } from './dialogue-trees.js';
+ *
+ * // Import all trees for system initialization
+ * import { ALL_DIALOGUE_TREES, validateAllDialogueTrees } from './dialogue-trees.js';
+ *
+ * // Validate tree structure during game initialization
+ * validateAllDialogueTrees(); // Throws if any tree is malformed
+ *
+ * // Execute dialogue with reputation-based text
+ * const greetingText = WEI_CHEN_DIALOGUE.greeting.text(currentReputation);
+ *
+ * // Filter choices by reputation conditions
+ * const availableChoices = node.choices.filter(choice =>
+ *   !choice.condition || choice.condition(currentReputation)
+ * );
+ * ```
+ *
+ * ## Dialogue Node Structure
+ *
+ * Each dialogue node contains:
+ * - `text`: String or function(reputation) returning contextual NPC dialogue
+ * - `choices`: Array of player response options
+ * - `flags`: Optional array of story flags to set when node is visited
+ *
+ * Each choice contains:
+ * - `text`: Player response text (always static string)
+ * - `next`: Next node ID or null to end dialogue
+ * - `repGain`: Optional reputation change (applied before navigation)
+ * - `condition`: Optional function(reputation) controlling choice visibility
  *
  * @module DialogueTrees
  */
@@ -102,7 +147,10 @@ export function validateDialogueChoice(nodeId, choiceIndex, choice) {
   }
 
   // condition is optional but must be function if present
-  if (choice.condition !== undefined && typeof choice.condition !== 'function') {
+  if (
+    choice.condition !== undefined &&
+    typeof choice.condition !== 'function'
+  ) {
     throw new Error(
       `Choice ${choiceIndex} in node '${nodeId}' condition must be function`
     );
@@ -123,13 +171,13 @@ export const WEI_CHEN_DIALOGUE = {
   greeting: {
     text: (rep) => {
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hey there, friend! Good to see you again. Ship treating you well?";
+        return 'Hey there, friend! Good to see you again. Ship treating you well?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return "Oh, it's you. How's business? Ship holding together?";
       } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
-        return "Another trader. Docking fees paid? Good. What you need?";
+        return 'Another trader. Docking fees paid? Good. What you need?';
       } else if (rep >= REPUTATION_BOUNDS.COLD_MIN) {
-        return "You again. Keep your business quick. Got work to do.";
+        return 'You again. Keep your business quick. Got work to do.';
       } else {
         return "Don't want trouble. State your business and move along.";
       }
@@ -140,12 +188,12 @@ export const WEI_CHEN_DIALOGUE = {
         next: 'small_talk',
       },
       {
-        text: "Tell me about yourself.",
+        text: 'Tell me about yourself.',
         next: 'backstory',
         condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
       },
       {
-        text: "Nothing right now. Take care.",
+        text: 'Nothing right now. Take care.',
         next: null,
       },
     ],
@@ -155,17 +203,17 @@ export const WEI_CHEN_DIALOGUE = {
     text: "Work's work. Docks don't run themselves. Ships come, ships go. Some captains know what they're doing, others... well, you learn to spot the difference.",
     choices: [
       {
-        text: "Sounds boring.",
+        text: 'Sounds boring.',
         next: 'boring_response',
         repGain: -2,
       },
       {
-        text: "Honest work is good work.",
+        text: 'Honest work is good work.',
         next: 'honest_work',
         repGain: 3,
       },
       {
-        text: "I should let you get back to it.",
+        text: 'I should let you get back to it.',
         next: 'greeting',
       },
     ],
@@ -180,7 +228,7 @@ export const WEI_CHEN_DIALOGUE = {
         repGain: 2,
       },
       {
-        text: "If you say so.",
+        text: 'If you say so.',
         next: 'greeting',
       },
     ],
@@ -195,7 +243,7 @@ export const WEI_CHEN_DIALOGUE = {
         repGain: 1,
       },
       {
-        text: "Wise words. Thanks for the chat.",
+        text: 'Wise words. Thanks for the chat.',
         next: 'greeting',
       },
     ],
@@ -217,12 +265,12 @@ export const WEI_CHEN_DIALOGUE = {
         repGain: 3,
       },
       {
-        text: "What kind of bad deal?",
+        text: 'What kind of bad deal?',
         next: 'backstory_2',
         repGain: 1,
       },
       {
-        text: "We all make mistakes.",
+        text: 'We all make mistakes.',
         next: 'greeting',
         repGain: 1,
       },
@@ -234,12 +282,12 @@ export const WEI_CHEN_DIALOGUE = {
     flags: ['chen_backstory_2'],
     choices: [
       {
-        text: "Any advice for me?",
+        text: 'Any advice for me?',
         next: 'greeting',
         repGain: 2,
       },
       {
-        text: "Thanks for sharing that with me.",
+        text: 'Thanks for sharing that with me.',
         next: 'greeting',
         repGain: 2,
       },
@@ -261,22 +309,22 @@ export const MARCUS_COLE_DIALOGUE = {
   greeting: {
     text: (rep) => {
       if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Ah, my most reliable client. Your account shows consistent progress. How may I assist you today?";
+        return 'Ah, my most reliable client. Your account shows consistent progress. How may I assist you today?';
       } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
         return "You're punctual. I appreciate that in a debtor. What brings you to my office?";
       } else if (rep >= REPUTATION_BOUNDS.COLD_MIN) {
-        return "Your debt remains outstanding. I trust you have good news for me.";
+        return 'Your debt remains outstanding. I trust you have good news for me.';
       } else {
-        return "You have considerable nerve showing your face here. This had better be about payment.";
+        return 'You have considerable nerve showing your face here. This had better be about payment.';
       }
     },
     choices: [
       {
-        text: "About my debt...",
+        text: 'About my debt...',
         next: 'debt_talk',
       },
       {
-        text: "I wanted to discuss business opportunities.",
+        text: 'I wanted to discuss business opportunities.',
         next: 'business',
         condition: (rep) => rep >= REPUTATION_BOUNDS.NEUTRAL_MIN,
       },
@@ -288,10 +336,10 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   debt_talk: {
-    text: "Ten thousand credits. Plus interest. The terms were clear when you signed. I expect regular payments. Defaulting would be... inadvisable.",
+    text: 'Ten thousand credits. Plus interest. The terms were clear when you signed. I expect regular payments. Defaulting would be... inadvisable.',
     choices: [
       {
-        text: "I need more time to pay.",
+        text: 'I need more time to pay.',
         next: 'payment_plan',
         repGain: -1,
       },
@@ -312,7 +360,7 @@ export const MARCUS_COLE_DIALOGUE = {
     text: "Time is money. My money. However, I'm not unreasonable. Continue trading. Make regular payments. Show progress. I can be patient with those who demonstrate good faith.",
     choices: [
       {
-        text: "Thank you for being understanding.",
+        text: 'Thank you for being understanding.',
         next: 'greeting',
         repGain: 2,
       },
@@ -324,7 +372,7 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   defiant_response: {
-    text: "Threats? I deal in facts. Fact: you owe me money. Fact: I have resources you lack. Fact: cooperation serves us both better than confrontation. Consider your position carefully.",
+    text: 'Threats? I deal in facts. Fact: you owe me money. Fact: I have resources you lack. Fact: cooperation serves us both better than confrontation. Consider your position carefully.',
     choices: [
       {
         text: "You're right. I apologize.",
@@ -339,25 +387,25 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   business: {
-    text: "Business. Yes. I appreciate directness. I have connections throughout the sector. Information. Opportunities. For the right client, I can provide... guidance.",
+    text: 'Business. Yes. I appreciate directness. I have connections throughout the sector. Information. Opportunities. For the right client, I can provide... guidance.',
     choices: [
       {
-        text: "What kind of opportunities?",
+        text: 'What kind of opportunities?',
         next: 'business_details',
         repGain: 1,
       },
       {
-        text: "Maybe another time.",
+        text: 'Maybe another time.',
         next: 'greeting',
       },
     ],
   },
 
   business_details: {
-    text: "Market intelligence. Cargo manifests. Shipping schedules. Knowledge is profit, properly applied. Of course, such services require trust. And trust must be earned.",
+    text: 'Market intelligence. Cargo manifests. Shipping schedules. Knowledge is profit, properly applied. Of course, such services require trust. And trust must be earned.',
     choices: [
       {
-        text: "How do I earn that trust?",
+        text: 'How do I earn that trust?',
         next: 'greeting',
         repGain: 2,
       },
@@ -383,29 +431,29 @@ export const FATHER_OKONKWO_DIALOGUE = {
   greeting: {
     text: (rep) => {
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "My dear friend! Your presence brings light to this station. How may I serve you today? Are you well in body and spirit?";
+        return 'My dear friend! Your presence brings light to this station. How may I serve you today? Are you well in body and spirit?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return "Welcome back, child. It does my heart good to see you safe. The void between stars can be lonely - you're always welcome here.";
       } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
-        return "Peace be with you, traveler. You look weary from your journey. Please, rest a moment. How can I help you?";
+        return 'Peace be with you, traveler. You look weary from your journey. Please, rest a moment. How can I help you?';
       } else if (rep >= REPUTATION_BOUNDS.COLD_MIN) {
-        return "Even the lost are welcome in this place. Whatever burdens you carry, there is always hope for redemption.";
+        return 'Even the lost are welcome in this place. Whatever burdens you carry, there is always hope for redemption.';
       } else {
-        return "I see pain in your eyes, child. This is a place of healing. Whatever darkness follows you, it cannot enter here.";
+        return 'I see pain in your eyes, child. This is a place of healing. Whatever darkness follows you, it cannot enter here.';
       }
     },
     choices: [
       {
-        text: "Tell me about your faith.",
+        text: 'Tell me about your faith.',
         next: 'faith_talk',
       },
       {
-        text: "I could use some help.",
+        text: 'I could use some help.',
         next: 'help',
         condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
       },
       {
-        text: "Just passing through. Thank you.",
+        text: 'Just passing through. Thank you.',
         next: null,
       },
     ],
@@ -420,7 +468,7 @@ export const FATHER_OKONKWO_DIALOGUE = {
         repGain: 3,
       },
       {
-        text: "I prefer to rely on instruments.",
+        text: 'I prefer to rely on instruments.',
         next: 'skeptical',
         repGain: -1,
       },
@@ -433,15 +481,15 @@ export const FATHER_OKONKWO_DIALOGUE = {
   },
 
   agree: {
-    text: "You have wisdom, my friend. The universe is vast and full of wonders. Whether we find meaning in the dance of planets or the kindness of strangers, what matters is that we find it. Connection. Purpose. Love.",
+    text: 'You have wisdom, my friend. The universe is vast and full of wonders. Whether we find meaning in the dance of planets or the kindness of strangers, what matters is that we find it. Connection. Purpose. Love.',
     choices: [
       {
-        text: "Thank you for that perspective.",
+        text: 'Thank you for that perspective.',
         next: 'greeting',
         repGain: 2,
       },
       {
-        text: "You have a gift for words, Father.",
+        text: 'You have a gift for words, Father.',
         next: 'greeting',
         repGain: 1,
       },
@@ -457,17 +505,17 @@ export const FATHER_OKONKWO_DIALOGUE = {
         repGain: 2,
       },
       {
-        text: "I suppose we all find our own way.",
+        text: 'I suppose we all find our own way.',
         next: 'greeting',
       },
     ],
   },
 
   help: {
-    text: "Of course, dear one. This station serves all who travel the void. Medical supplies, spiritual counsel, a safe harbor in the storm. What weighs on your heart?",
+    text: 'Of course, dear one. This station serves all who travel the void. Medical supplies, spiritual counsel, a safe harbor in the storm. What weighs on your heart?',
     choices: [
       {
-        text: "What kind of help do you offer?",
+        text: 'What kind of help do you offer?',
         next: 'help_details',
         repGain: 1,
       },
@@ -480,11 +528,11 @@ export const FATHER_OKONKWO_DIALOGUE = {
   },
 
   help_details: {
-    text: "Medical care for the body, guidance for the spirit, and sometimes just a listening ear. The void between stars is cold, but human kindness can warm even the darkest journey. You need never face your troubles alone.",
+    text: 'Medical care for the body, guidance for the spirit, and sometimes just a listening ear. The void between stars is cold, but human kindness can warm even the darkest journey. You need never face your troubles alone.',
     flags: ['okonkwo_help_offered'],
     choices: [
       {
-        text: "That means more than you know.",
+        text: 'That means more than you know.',
         next: 'greeting',
         repGain: 3,
       },
@@ -517,7 +565,9 @@ export function validateAllDialogueTrees() {
     try {
       validateDialogueTree(tree);
     } catch (error) {
-      throw new Error(`Invalid dialogue tree for NPC '${npcId}': ${error.message}`);
+      throw new Error(
+        `Invalid dialogue tree for NPC '${npcId}': ${error.message}`
+      );
     }
   });
 }
