@@ -123,7 +123,7 @@
   - **Property 2: NPC display information completeness**
   - **Validates: Requirements 1.2, 2.1**
 
-- [ ] 6. Create dialogue UI components
+- [x] 6. Create dialogue UI components
   - Create `src/features/dialogue/DialoguePanel.jsx` React component
   - Display NPC name, role, station, and reputation tier in header
   - Display dialogue text (evaluate functions with current reputation)
@@ -132,7 +132,7 @@
   - Close dialogue when choice has no next node
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 6.1 Write property test for numbered choice list
+- [x] 6.1 Write property test for numbered choice list
   - **Property 16: Numbered choice list format**
   - **Validates: Requirements 2.3**
 

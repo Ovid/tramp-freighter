@@ -1,0 +1,249 @@
+/* Dialogue Panel Styling */
+#dialogue-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+#dialogue-panel.visible {
+  display: block;
+}
+
+#dialogue-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#dialogue-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+/* Dialogue Header */
+.dialogue-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.npc-name {
+  color: #00ff88;
+  font-size: 24px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.npc-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.npc-role {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.npc-station {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.reputation-tier {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Reputation Tier Colors */
+.reputation-tier.tier-hostile {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
+  color: #ff6666;
+}
+
+.reputation-tier.tier-cold {
+  background-color: rgba(255, 100, 100, 0.2);
+  border: 1px solid #ff6464;
+  color: #ff9999;
+}
+
+.reputation-tier.tier-neutral {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.reputation-tier.tier-warm {
+  background-color: rgba(255, 255, 0, 0.2);
+  border: 1px solid #ffff00;
+  color: #ffff66;
+}
+
+.reputation-tier.tier-friendly {
+  background-color: rgba(0, 255, 136, 0.2);
+  border: 1px solid #00ff88;
+  color: #66ffaa;
+}
+
+.reputation-tier.tier-trusted {
+  background-color: rgba(0, 136, 255, 0.2);
+  border: 1px solid #0088ff;
+  color: #66aaff;
+}
+
+.reputation-tier.tier-family {
+  background-color: rgba(255, 0, 255, 0.2);
+  border: 1px solid #ff00ff;
+  color: #ff66ff;
+}
+
+/* Dialogue Content */
+.dialogue-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dialogue-text {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.dialogue-text p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+/* Dialogue Choices */
+.dialogue-choices h3 {
+  color: #00ff88;
+  font-size: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+}
+
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+
+.choice-btn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+}
+
+.choice-btn:active {
+  background-color: rgba(0, 255, 136, 0.2);
+}
+
+.choice-number {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 16px;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+
+.choice-text {
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Loading and Error States */
+.dialogue-loading,
+.dialogue-error {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.dialogue-loading {
+  color: #00ff88;
+  font-size: 16px;
+}
+
+.dialogue-error {
+  color: #ff6666;
+}
+
+.dialogue-error h3 {
+  color: #ff6666;
+  margin-bottom: 10px;
+}
+
+.dialogue-error p {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #dialogue-panel {
+    width: 90%;
+    max-width: 500px;
+    padding: 15px;
+  }
+  
+  .npc-name {
+    font-size: 20px;
+  }
+  
+  .npc-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .choice-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
