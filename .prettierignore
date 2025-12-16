@@ -1,2 +1,6 @@
 # Ignore the entire js/vendor directory
 js/vendor
+
+# Ignore markdown files
+*.md
+**/*.md
