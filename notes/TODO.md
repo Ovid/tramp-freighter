@@ -8,6 +8,11 @@
   docs listing both old and new tech stacks. That meant my context on task
   launch was much larger, often around 30-40% instead of 20%. That made tasks
   harder to complete as they hit the context window limits.
+- I instructed Kiro to break down notes/tramp-freighter-04.md into two new
+  specs, parts 1 and 2. It did so, expanding examples tremendously/. Each new
+  spec was larger than the original notes/tramp-freighter-04.md. The original
+  04 spec was so large that Kiro was really struggling to clarify and align
+  it, so I reverted and took this "split" approach.
 
 # TODO
 
