@@ -108,18 +108,18 @@
   - Test uninitialized NPC uses initialRep for dialogue display
   - _Requirements: 2.5, 5.2, 10.1, 10.5_
 
-- [ ] 5. Create NPC query functions
+- [x] 5. Create NPC query functions
   - Create `src/game/game-npcs.js` with NPC query functions
   - Implement `getNPCsAtSystem(systemId)` to filter NPCs by system
   - Implement `renderNPCListItem(npc, npcState)` to format NPC display with name, role, and tier
   - Add error handling: throw "Unknown NPC ID: {npcId}" for invalid NPC references in getNPCState
   - _Requirements: 1.1, 1.2_
 
-- [ ] 5.1 Write property test for NPC location filtering
+- [x] 5.1 Write property test for NPC location filtering
   - **Property 1: NPC location filtering**
   - **Validates: Requirements 1.1**
 
-- [ ] 5.2 Write property test for NPC display information
+- [x] 5.2 Write property test for NPC display information
   - **Property 2: NPC display information completeness**
   - **Validates: Requirements 1.2, 2.1**
 
