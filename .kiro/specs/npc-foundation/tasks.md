@@ -49,7 +49,7 @@
   - **Property 15: Timestamp update on reputation change**
   - **Validates: Requirements 3.5**
 
-- [ ] 3. Create dialogue tree data structures
+- [x] 3. Create dialogue tree data structures
   - Create `src/game/data/dialogue-trees.js` with dialogue trees for all three NPCs
   - Implement Wei Chen dialogue tree with greeting, small_talk, backstory nodes
   - Implement Marcus Cole dialogue tree with greeting, debt_talk, business nodes
@@ -58,7 +58,7 @@
   - Add condition functions for reputation-gated choices (e.g., backstory requires rep >= 30)
   - _Requirements: 2.2, 2.6, 9.3, 9.4, 11.2, 11.3, 11.4_
 
-- [ ] 3.1 Write unit tests for dialogue tree structure
+- [x] 3.1 Write unit tests for dialogue tree structure
   - Test Wei Chen dialogue tree has greeting node with expected choices
   - Test backstory choice has condition function requiring rep >= 30
   - Test Marcus Cole and Father Okonkwo dialogue trees exist and have greeting nodes
