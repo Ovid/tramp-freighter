@@ -6,9 +6,12 @@ import {
   FATHER_OKONKWO,
   ALL_NPCS,
   validateNPCDefinition,
-  validateAllNPCs
+  validateAllNPCs,
 } from '../../src/game/data/npc-data.js';
-import { REPUTATION_TIERS, REPUTATION_BOUNDS } from '../../src/game/constants.js';
+import {
+  REPUTATION_TIERS,
+  REPUTATION_BOUNDS,
+} from '../../src/game/constants.js';
 
 /**
  * Unit tests for NPC data definitions
@@ -20,7 +23,7 @@ import { REPUTATION_TIERS, REPUTATION_BOUNDS } from '../../src/game/constants.js
  * system/station assignments, and speech styles as specified in requirements.
  */
 describe('NPC Data Definitions', () => {
-  describe('Wei Chen (Dock Worker at Barnard\'s Star)', () => {
+  describe("Wei Chen (Dock Worker at Barnard's Star)", () => {
     it('should have correct personality traits', () => {
       expect(WEI_CHEN.personality.trust).toBe(0.3);
       expect(WEI_CHEN.personality.greed).toBe(0.2);
@@ -131,11 +134,13 @@ describe('NPC Data Definitions', () => {
     it('should throw error for NPC missing required fields', () => {
       const invalidNPC = {
         id: 'test_npc',
-        name: 'Test NPC'
+        name: 'Test NPC',
         // Missing other required fields
       };
 
-      expect(() => validateNPCDefinition(invalidNPC)).toThrow('Invalid NPC definition: missing required field');
+      expect(() => validateNPCDefinition(invalidNPC)).toThrow(
+        'Invalid NPC definition: missing required field'
+      );
     });
 
     it('should throw error for NPC missing personality traits', () => {
@@ -146,19 +151,21 @@ describe('NPC Data Definitions', () => {
         system: 0,
         station: 'Test Station',
         personality: {
-          trust: 0.5
+          trust: 0.5,
           // Missing other personality traits
         },
         speechStyle: {
           greeting: 'casual',
           vocabulary: 'simple',
-          quirk: 'test quirk'
+          quirk: 'test quirk',
         },
         description: 'Test description',
-        initialRep: 0
+        initialRep: 0,
       };
 
-      expect(() => validateNPCDefinition(invalidNPC)).toThrow('Invalid NPC definition: missing personality trait');
+      expect(() => validateNPCDefinition(invalidNPC)).toThrow(
+        'Invalid NPC definition: missing personality trait'
+      );
     });
 
     it('should throw error for NPC missing speech style properties', () => {
@@ -172,17 +179,19 @@ describe('NPC Data Definitions', () => {
           trust: 0.5,
           greed: 0.3,
           loyalty: 0.7,
-          morality: 0.6
+          morality: 0.6,
         },
         speechStyle: {
-          greeting: 'casual'
+          greeting: 'casual',
           // Missing other speech style properties
         },
         description: 'Test description',
-        initialRep: 0
+        initialRep: 0,
       };
 
-      expect(() => validateNPCDefinition(invalidNPC)).toThrow('Invalid NPC definition: missing speechStyle property');
+      expect(() => validateNPCDefinition(invalidNPC)).toThrow(
+        'Invalid NPC definition: missing speechStyle property'
+      );
     });
   });
 
@@ -214,8 +223,12 @@ describe('NPC Data Definitions', () => {
       expect(REPUTATION_TIERS.warm.max).toBe(REPUTATION_BOUNDS.WARM_MAX);
       expect(REPUTATION_TIERS.warm.name).toBe('Warm');
 
-      expect(REPUTATION_TIERS.friendly.min).toBe(REPUTATION_BOUNDS.FRIENDLY_MIN);
-      expect(REPUTATION_TIERS.friendly.max).toBe(REPUTATION_BOUNDS.FRIENDLY_MAX);
+      expect(REPUTATION_TIERS.friendly.min).toBe(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
+      expect(REPUTATION_TIERS.friendly.max).toBe(
+        REPUTATION_BOUNDS.FRIENDLY_MAX
+      );
       expect(REPUTATION_TIERS.friendly.name).toBe('Friendly');
 
       expect(REPUTATION_TIERS.trusted.min).toBe(REPUTATION_BOUNDS.TRUSTED_MIN);
@@ -231,101 +244,83 @@ describe('NPC Data Definitions', () => {
   describe('Property-Based Tests for Universal NPC Properties', () => {
     it('should have personality traits within valid range [0, 1]', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            // All personality traits must be between 0 and 1 inclusive
-            expect(npc.personality.trust).toBeGreaterThanOrEqual(0);
-            expect(npc.personality.trust).toBeLessThanOrEqual(1);
-            expect(npc.personality.greed).toBeGreaterThanOrEqual(0);
-            expect(npc.personality.greed).toBeLessThanOrEqual(1);
-            expect(npc.personality.loyalty).toBeGreaterThanOrEqual(0);
-            expect(npc.personality.loyalty).toBeLessThanOrEqual(1);
-            expect(npc.personality.morality).toBeGreaterThanOrEqual(0);
-            expect(npc.personality.morality).toBeLessThanOrEqual(1);
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          // All personality traits must be between 0 and 1 inclusive
+          expect(npc.personality.trust).toBeGreaterThanOrEqual(0);
+          expect(npc.personality.trust).toBeLessThanOrEqual(1);
+          expect(npc.personality.greed).toBeGreaterThanOrEqual(0);
+          expect(npc.personality.greed).toBeLessThanOrEqual(1);
+          expect(npc.personality.loyalty).toBeGreaterThanOrEqual(0);
+          expect(npc.personality.loyalty).toBeLessThanOrEqual(1);
+          expect(npc.personality.morality).toBeGreaterThanOrEqual(0);
+          expect(npc.personality.morality).toBeLessThanOrEqual(1);
+        })
       );
     });
 
     it('should have valid system IDs (non-negative integers)', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            expect(typeof npc.system).toBe('number');
-            expect(Number.isInteger(npc.system)).toBe(true);
-            expect(npc.system).toBeGreaterThanOrEqual(0);
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          expect(typeof npc.system).toBe('number');
+          expect(Number.isInteger(npc.system)).toBe(true);
+          expect(npc.system).toBeGreaterThanOrEqual(0);
+        })
       );
     });
 
     it('should have initial reputation within valid range [-100, 100]', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            expect(typeof npc.initialRep).toBe('number');
-            expect(npc.initialRep).toBeGreaterThanOrEqual(REPUTATION_BOUNDS.MIN);
-            expect(npc.initialRep).toBeLessThanOrEqual(REPUTATION_BOUNDS.MAX);
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          expect(typeof npc.initialRep).toBe('number');
+          expect(npc.initialRep).toBeGreaterThanOrEqual(REPUTATION_BOUNDS.MIN);
+          expect(npc.initialRep).toBeLessThanOrEqual(REPUTATION_BOUNDS.MAX);
+        })
       );
     });
 
     it('should have non-empty string fields for identification', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            // ID, name, role, station, and description must be non-empty strings
-            expect(typeof npc.id).toBe('string');
-            expect(npc.id.length).toBeGreaterThan(0);
-            expect(typeof npc.name).toBe('string');
-            expect(npc.name.length).toBeGreaterThan(0);
-            expect(typeof npc.role).toBe('string');
-            expect(npc.role.length).toBeGreaterThan(0);
-            expect(typeof npc.station).toBe('string');
-            expect(npc.station.length).toBeGreaterThan(0);
-            expect(typeof npc.description).toBe('string');
-            expect(npc.description.length).toBeGreaterThan(0);
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          // ID, name, role, station, and description must be non-empty strings
+          expect(typeof npc.id).toBe('string');
+          expect(npc.id.length).toBeGreaterThan(0);
+          expect(typeof npc.name).toBe('string');
+          expect(npc.name.length).toBeGreaterThan(0);
+          expect(typeof npc.role).toBe('string');
+          expect(npc.role.length).toBeGreaterThan(0);
+          expect(typeof npc.station).toBe('string');
+          expect(npc.station.length).toBeGreaterThan(0);
+          expect(typeof npc.description).toBe('string');
+          expect(npc.description.length).toBeGreaterThan(0);
+        })
       );
     });
 
     it('should have valid speech style properties', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            // Speech style properties must be non-empty strings
-            expect(typeof npc.speechStyle.greeting).toBe('string');
-            expect(npc.speechStyle.greeting.length).toBeGreaterThan(0);
-            expect(typeof npc.speechStyle.vocabulary).toBe('string');
-            expect(npc.speechStyle.vocabulary.length).toBeGreaterThan(0);
-            expect(typeof npc.speechStyle.quirk).toBe('string');
-            expect(npc.speechStyle.quirk.length).toBeGreaterThan(0);
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          // Speech style properties must be non-empty strings
+          expect(typeof npc.speechStyle.greeting).toBe('string');
+          expect(npc.speechStyle.greeting.length).toBeGreaterThan(0);
+          expect(typeof npc.speechStyle.vocabulary).toBe('string');
+          expect(npc.speechStyle.vocabulary.length).toBeGreaterThan(0);
+          expect(typeof npc.speechStyle.quirk).toBe('string');
+          expect(npc.speechStyle.quirk.length).toBeGreaterThan(0);
+        })
       );
     });
 
     it('should have unique IDs across all NPCs', () => {
-      const ids = ALL_NPCS.map(npc => npc.id);
+      const ids = ALL_NPCS.map((npc) => npc.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
     });
 
     it('should pass validation for all NPCs', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom(...ALL_NPCS),
-          (npc) => {
-            expect(() => validateNPCDefinition(npc)).not.toThrow();
-          }
-        )
+        fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
+          expect(() => validateNPCDefinition(npc)).not.toThrow();
+        })
       );
     });
   });
