@@ -45,11 +45,11 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
           const testReputations = [
             -75, // Hostile
             -25, // Cold
-            0,   // Neutral
-            20,  // Warm
-            45,  // Friendly
-            75,  // Trusted
-            95   // Family
+            0, // Neutral
+            20, // Warm
+            45, // Friendly
+            75, // Trusted
+            95, // Family
           ];
 
           const generatedTexts = new Set();
@@ -61,8 +61,12 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
             try {
               // Show dialogue for this node
-              const dialogueResult = showDialogue(npcId, nodeId, gameStateManager);
-              
+              const dialogueResult = showDialogue(
+                npcId,
+                nodeId,
+                gameStateManager
+              );
+
               if (dialogueResult && typeof dialogueResult.text === 'string') {
                 generatedTexts.add(dialogueResult.text);
               }
@@ -125,11 +129,12 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             const thirdResult = showDialogue(npcId, nodeId, gameStateManager);
 
             // Text should be consistent across multiple calls
-            if (firstResult.text !== secondResult.text || 
-                secondResult.text !== thirdResult.text) {
+            if (
+              firstResult.text !== secondResult.text ||
+              secondResult.text !== thirdResult.text
+            ) {
               return false; // Text should be consistent for same reputation
             }
-
           } catch (error) {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -177,8 +182,12 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         for (const [nodeId, node] of nodesWithFunctionText) {
           try {
             // Show dialogue for this node
-            const dialogueResult = showDialogue(npcId, nodeId, gameStateManager);
-            
+            const dialogueResult = showDialogue(
+              npcId,
+              nodeId,
+              gameStateManager
+            );
+
             // Verify text is a valid non-empty string
             if (typeof dialogueResult.text !== 'string') {
               return false; // Text should be a string
@@ -187,7 +196,6 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             if (dialogueResult.text.length === 0) {
               return false; // Text should not be empty
             }
-
           } catch (error) {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -235,13 +243,16 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         for (const [nodeId, node] of nodesWithStaticText) {
           try {
             // Show dialogue for this node
-            const dialogueResult = showDialogue(npcId, nodeId, gameStateManager);
-            
+            const dialogueResult = showDialogue(
+              npcId,
+              nodeId,
+              gameStateManager
+            );
+
             // Text should match exactly the static text from the node
             if (dialogueResult.text !== node.text) {
               return false; // Static text should be used directly
             }
-
           } catch (error) {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -265,7 +276,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
       fc.property(fc.constantFrom(...npcIds), (npcId) => {
         // Test at reputation tier boundaries
         const boundaryReputations = [
-          -100, -50, -49, -10, -9, 9, 10, 29, 30, 59, 60, 89, 90, 100
+          -100, -50, -49, -10, -9, 9, 10, 29, 30, 59, 60, 89, 90, 100,
         ];
 
         const dialogueTree = ALL_DIALOGUE_TREES[npcId];
@@ -281,10 +292,17 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
           try {
             // Show greeting dialogue
-            const dialogueResult = showDialogue(npcId, 'greeting', gameStateManager);
-            
+            const dialogueResult = showDialogue(
+              npcId,
+              'greeting',
+              gameStateManager
+            );
+
             // Verify text is valid
-            if (typeof dialogueResult.text !== 'string' || dialogueResult.text.length === 0) {
+            if (
+              typeof dialogueResult.text !== 'string' ||
+              dialogueResult.text.length === 0
+            ) {
               return false; // Should generate valid text at all boundaries
             }
 
@@ -293,7 +311,6 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             if (dialogueResult.reputationTier.name !== expectedTier.name) {
               return false; // Reputation tier should match
             }
-
           } catch (error) {
             return false; // Should not throw errors at boundary conditions
           }

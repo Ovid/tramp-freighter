@@ -30,17 +30,7 @@
 import { ALL_NPCS } from './data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 
-/**
- * Current dialogue state
- * Tracks active dialogue session for UI integration
- */
-let currentDialogue = {
-  npcId: null,
-  nodeId: null,
-  npcData: null,
-  dialogueTree: null,
-  gameStateManager: null,
-};
+// Dialogue state is now managed by GameStateManager
 
 /**
  * Display dialogue node with filtered choices
@@ -74,40 +64,24 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     throw new Error(`Unknown dialogue node: ${nodeId} for NPC: ${npcId}`);
   }
 
-  // Store current dialogue state for selectChoice
-  currentDialogue = {
-    npcId,
-    nodeId,
-    npcData,
-    dialogueTree,
-    gameStateManager,
-  };
+  // Store current dialogue state in GameStateManager
+  gameStateManager.setDialogueState(npcId, nodeId);
 
-  // Get current reputation (use initialRep for uninitialized NPCs)
-  let currentRep;
-  
-  // Check if NPC state exists without initializing it
-  if (gameStateManager.getState().npcs[npcId]) {
-    // NPC state exists, use actual reputation
-    currentRep = gameStateManager.getState().npcs[npcId].rep;
-  } else {
-    // NPC not initialized yet, use initialRep from NPC data
-    currentRep = npcData.initialRep;
-  }
+  // Get current reputation (getNPCState handles initialization with initialRep)
+  const npcState = gameStateManager.getNPCState(npcId);
+  const currentRep = npcState.rep;
 
   // Generate dialogue text (evaluate function if needed)
-  let dialogueText;
-  if (typeof dialogueNode.text === 'function') {
-    dialogueText = dialogueNode.text(currentRep);
-  } else {
-    dialogueText = dialogueNode.text;
-  }
+  const dialogueText =
+    typeof dialogueNode.text === 'function'
+      ? dialogueNode.text(currentRep)
+      : dialogueNode.text;
 
   // Filter choices based on condition functions
   const availableChoices = [];
   for (let i = 0; i < dialogueNode.choices.length; i++) {
     const choice = dialogueNode.choices[i];
-    let isVisible = true;
+    let isVisible;
 
     // Check condition function if present
     if (choice.condition) {
@@ -121,6 +95,8 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
         );
         isVisible = false;
       }
+    } else {
+      isVisible = true;
     }
 
     if (isVisible) {
@@ -135,8 +111,6 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
 
   // Add story flags to NPC state before displaying (if node has flags)
   if (dialogueNode.flags && dialogueNode.flags.length > 0) {
-    // Initialize NPC state if it doesn't exist, then add flags
-    const npcState = gameStateManager.getNPCState(npcId);
     for (const flag of dialogueNode.flags) {
       if (!npcState.flags.includes(flag)) {
         npcState.flags.push(flag);
@@ -174,24 +148,27 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
     throw new Error(`Unknown NPC ID: ${npcId}`);
   }
 
-  // Use current dialogue state if available, otherwise get fresh data
-  let dialogueTree, currentNodeId;
-  if (currentDialogue.npcId === npcId && currentDialogue.gameStateManager === gameStateManager) {
-    dialogueTree = currentDialogue.dialogueTree;
-    currentNodeId = currentDialogue.nodeId;
+  // Get dialogue tree for this NPC
+  const dialogueTree = ALL_DIALOGUE_TREES[npcId];
+  if (!dialogueTree) {
+    throw new Error(`No dialogue tree found for NPC: ${npcId}`);
+  }
+
+  // Use current dialogue state if available, otherwise default to greeting
+  const dialogueState = gameStateManager.getDialogueState();
+  let currentNodeId;
+  if (dialogueState.isActive && dialogueState.currentNpcId === npcId) {
+    currentNodeId = dialogueState.currentNodeId;
   } else {
-    // Get dialogue tree for this NPC
-    dialogueTree = ALL_DIALOGUE_TREES[npcId];
-    if (!dialogueTree) {
-      throw new Error(`No dialogue tree found for NPC: ${npcId}`);
-    }
     currentNodeId = 'greeting'; // Default to greeting if no current state
   }
 
   // Get current dialogue node
   const currentNode = dialogueTree[currentNodeId];
   if (!currentNode) {
-    throw new Error(`Unknown dialogue node: ${currentNodeId} for NPC: ${npcId}`);
+    throw new Error(
+      `Unknown dialogue node: ${currentNodeId} for NPC: ${npcId}`
+    );
   }
 
   // Validate choice index
@@ -205,19 +182,17 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
 
   // Apply reputation gain before advancing to next node
   if (selectedChoice.repGain && selectedChoice.repGain !== 0) {
-    gameStateManager.modifyRep(npcId, selectedChoice.repGain, 'dialogue_choice');
+    gameStateManager.modifyRep(
+      npcId,
+      selectedChoice.repGain,
+      'dialogue_choice'
+    );
   }
 
   // Close dialogue if choice has no next node
   if (!selectedChoice.next) {
-    // Clear current dialogue state
-    currentDialogue = {
-      npcId: null,
-      nodeId: null,
-      npcData: null,
-      dialogueTree: null,
-      gameStateManager: null,
-    };
+    // Clear dialogue state in GameStateManager
+    gameStateManager.clearDialogueState();
     return null;
   }
 
@@ -231,10 +206,11 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
  * Returns the current active dialogue session information.
  * Used by UI components to track dialogue state.
  *
+ * @param {GameStateManager} gameStateManager - Game state manager instance
  * @returns {Object} Current dialogue state object
  */
-export function getCurrentDialogue() {
-  return { ...currentDialogue };
+export function getCurrentDialogue(gameStateManager) {
+  return gameStateManager.getDialogueState();
 }
 
 /**
@@ -242,13 +218,9 @@ export function getCurrentDialogue() {
  *
  * Resets the dialogue engine state. Called when dialogue is closed
  * or when starting a new dialogue session.
+ *
+ * @param {GameStateManager} gameStateManager - Game state manager instance
  */
-export function clearDialogue() {
-  currentDialogue = {
-    npcId: null,
-    nodeId: null,
-    npcData: null,
-    dialogueTree: null,
-    gameStateManager: null,
-  };
+export function clearDialogue(gameStateManager) {
+  gameStateManager.clearDialogueState();
 }

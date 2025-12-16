@@ -60,10 +60,12 @@ describe('Story Flag Idempotence Properties', () => {
 
           // Check that each flag appears exactly once
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
-          
+
           for (const expectedFlag of node.flags) {
-            const flagCount = currentFlags.filter(flag => flag === expectedFlag).length;
-            
+            const flagCount = currentFlags.filter(
+              (flag) => flag === expectedFlag
+            ).length;
+
             if (flagCount !== 1) {
               return false; // Each flag should appear exactly once
             }
@@ -117,8 +119,9 @@ describe('Story Flag Idempotence Properties', () => {
           }
 
           // Check that no duplicate flags were added
-          const finalFlagCount = gameStateManager.getNPCState(npcId).flags.length;
-          
+          const finalFlagCount =
+            gameStateManager.getNPCState(npcId).flags.length;
+
           if (finalFlagCount !== initialFlagCount) {
             return false; // Flag count should not change when flags already exist
           }
@@ -126,8 +129,10 @@ describe('Story Flag Idempotence Properties', () => {
           // Verify each flag still appears exactly once
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
           for (const expectedFlag of node.flags) {
-            const flagCount = currentFlags.filter(flag => flag === expectedFlag).length;
-            
+            const flagCount = currentFlags.filter(
+              (flag) => flag === expectedFlag
+            ).length;
+
             if (flagCount !== 1) {
               return false; // Each flag should still appear exactly once
             }
@@ -166,12 +171,16 @@ describe('Story Flag Idempotence Properties', () => {
 
         // Test with existing flags
         const npcState = gameStateManager.getNPCState(npcId);
-        const existingFlags = ['pre_existing_1', 'pre_existing_2', 'pre_existing_3'];
+        const existingFlags = [
+          'pre_existing_1',
+          'pre_existing_2',
+          'pre_existing_3',
+        ];
         npcState.flags = [...existingFlags];
 
         // Visit a node that adds new flags
         const [nodeId, node] = nodesWithFlags[0];
-        
+
         try {
           showDialogue(npcId, nodeId, gameStateManager);
         } catch (error) {
@@ -181,7 +190,7 @@ describe('Story Flag Idempotence Properties', () => {
 
         // Check that existing flags are still at the beginning in the same order
         const currentFlags = gameStateManager.getNPCState(npcId).flags;
-        
+
         for (let i = 0; i < existingFlags.length; i++) {
           if (currentFlags[i] !== existingFlags[i]) {
             return false; // Existing flags should maintain their order and position
@@ -200,53 +209,65 @@ describe('Story Flag Idempotence Properties', () => {
 
     // Test specifically with Wei Chen who has multiple flag-setting nodes
     const npcId = 'chen_barnards';
-    
+
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation to access backstory nodes
         const npcState = gameStateManager.getNPCState(npcId);
         npcState.rep = reputation;
-        
+
         // Start with some existing flags, including one that will be "re-added"
-        npcState.flags = ['existing_flag', 'chen_backstory_1', 'another_existing'];
+        npcState.flags = [
+          'existing_flag',
+          'chen_backstory_1',
+          'another_existing',
+        ];
 
         const initialFlags = [...npcState.flags];
 
         try {
           // Visit backstory node which should try to add 'chen_backstory_1' (already exists)
           showDialogue(npcId, 'backstory', gameStateManager);
-          
+
           // Check that the existing flag wasn't duplicated
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
-          const backstoryFlagCount = currentFlags.filter(flag => flag === 'chen_backstory_1').length;
-          
+          const backstoryFlagCount = currentFlags.filter(
+            (flag) => flag === 'chen_backstory_1'
+          ).length;
+
           if (backstoryFlagCount !== 1) {
             return false; // Should still have exactly one instance of the flag
           }
 
           // Check that other existing flags are preserved
-          if (!currentFlags.includes('existing_flag') || !currentFlags.includes('another_existing')) {
+          if (
+            !currentFlags.includes('existing_flag') ||
+            !currentFlags.includes('another_existing')
+          ) {
             return false; // Other existing flags should be preserved
           }
 
           // Visit backstory_2 node which should add a new flag
           showDialogue(npcId, 'backstory_2', gameStateManager);
-          
+
           const finalFlags = gameStateManager.getNPCState(npcId).flags;
-          
+
           // Should now have the new flag
           if (!finalFlags.includes('chen_backstory_2')) {
             return false; // New flag should be added
           }
 
           // Should still have exactly one of each flag
-          const backstory1Count = finalFlags.filter(flag => flag === 'chen_backstory_1').length;
-          const backstory2Count = finalFlags.filter(flag => flag === 'chen_backstory_2').length;
-          
+          const backstory1Count = finalFlags.filter(
+            (flag) => flag === 'chen_backstory_1'
+          ).length;
+          const backstory2Count = finalFlags.filter(
+            (flag) => flag === 'chen_backstory_2'
+          ).length;
+
           if (backstory1Count !== 1 || backstory2Count !== 1) {
             return false; // Each flag should appear exactly once
           }
-
         } catch (error) {
           // If we can't access the nodes, that's acceptable
           return true;

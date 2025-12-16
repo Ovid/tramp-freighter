@@ -38,7 +38,11 @@ describe('Dialogue Reputation Update Timing Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
         const availableChoices = initialDialogue.choices;
 
         // Find choices that have reputation gains and next nodes
@@ -54,12 +58,16 @@ describe('Dialogue Reputation Update Timing Properties', () => {
         for (const choice of choicesWithRepGain) {
           // Reset dialogue state
           showDialogue(npcId, 'greeting', gameStateManager);
-          
+
           // Record initial reputation
           const initialRep = gameStateManager.getNPCState(npcId).rep;
 
           // Select the choice
-          const nextDialogue = selectChoice(npcId, choice.index, gameStateManager);
+          const nextDialogue = selectChoice(
+            npcId,
+            choice.index,
+            gameStateManager
+          );
 
           if (!nextDialogue) {
             return false; // Should have returned next dialogue
@@ -67,23 +75,28 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
           // Check that reputation was updated
           const finalRep = gameStateManager.getNPCState(npcId).rep;
-          
+
           // Calculate expected reputation change (accounting for trust modifier and quirks)
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
           let expectedChange = choice.repGain;
-          
+
           if (expectedChange > 0) {
             // Apply trust modifier for positive gains
             expectedChange *= npcData.personality.trust;
-            
+
             // Apply smooth_talker quirk if present
-            if (gameStateManager.getState().ship.quirks.includes('smooth_talker')) {
+            if (
+              gameStateManager.getState().ship.quirks.includes('smooth_talker')
+            ) {
               expectedChange *= 1.05;
             }
           }
 
           // Calculate expected final reputation (with clamping)
-          const expectedFinalRep = Math.max(-100, Math.min(100, initialRep + expectedChange));
+          const expectedFinalRep = Math.max(
+            -100,
+            Math.min(100, initialRep + expectedChange)
+          );
 
           // Allow for small floating point differences
           const repDifference = Math.abs(finalRep - expectedFinalRep);
@@ -95,11 +108,11 @@ describe('Dialogue Reputation Update Timing Properties', () => {
           // If the next node has reputation-dependent text, it should use the new reputation
           const nextNodeId = choice.next;
           const nextNode = dialogueTree[nextNodeId];
-          
+
           if (nextNode && typeof nextNode.text === 'function') {
             // Generate text with the new reputation
             const expectedText = nextNode.text(finalRep);
-            
+
             if (nextDialogue.text !== expectedText) {
               return false; // Next dialogue should use updated reputation
             }
@@ -124,7 +137,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
     // Test specifically with Wei Chen who has a reputation-gated choice
     const npcId = 'chen_barnards';
-    
+
     fc.assert(
       fc.property(fc.integer({ min: 25, max: 29 }), (initialRep) => {
         // Set up NPC state with reputation just below the backstory threshold (30)
@@ -132,8 +145,12 @@ describe('Dialogue Reputation Update Timing Properties', () => {
         npcState.rep = initialRep;
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
-        
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
+
         // Find a choice that gives enough reputation to unlock the backstory choice
         const choicesWithRepGain = initialDialogue.choices.filter(
           (choice) => choice.repGain && choice.repGain > 0 && choice.next
@@ -145,7 +162,11 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
         // Select a choice that should increase reputation
         const choice = choicesWithRepGain[0];
-        const nextDialogue = selectChoice(npcId, choice.index, gameStateManager);
+        const nextDialogue = selectChoice(
+          npcId,
+          choice.index,
+          gameStateManager
+        );
 
         if (!nextDialogue) {
           return false; // Should have returned next dialogue
@@ -153,14 +174,18 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
         // Check if reputation increased enough to potentially unlock backstory
         const finalRep = gameStateManager.getNPCState(npcId).rep;
-        
+
         if (finalRep >= 30) {
           // If we now have enough reputation, go back to greeting and check if backstory is available
-          const greetingDialogue = showDialogue(npcId, 'greeting', gameStateManager);
-          const backstoryChoice = greetingDialogue.choices.find(
-            (c) => c.text.includes('Tell me about yourself')
+          const greetingDialogue = showDialogue(
+            npcId,
+            'greeting',
+            gameStateManager
           );
-          
+          const backstoryChoice = greetingDialogue.choices.find((c) =>
+            c.text.includes('Tell me about yourself')
+          );
+
           if (!backstoryChoice) {
             return false; // Backstory choice should be available with rep >= 30
           }

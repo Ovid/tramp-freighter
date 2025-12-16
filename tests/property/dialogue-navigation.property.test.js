@@ -38,7 +38,11 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
         const availableChoices = initialDialogue.choices;
 
         if (availableChoices.length === 0) {
@@ -49,11 +53,15 @@ describe('Dialogue Navigation Properties', () => {
         for (const choice of availableChoices) {
           // Reset dialogue state by showing dialogue again
           showDialogue(npcId, 'greeting', gameStateManager);
-          
+
           if (choice.next) {
             // Choice has a next node - should navigate there
-            const nextDialogue = selectChoice(npcId, choice.index, gameStateManager);
-            
+            const nextDialogue = selectChoice(
+              npcId,
+              choice.index,
+              gameStateManager
+            );
+
             if (!nextDialogue) {
               return false; // Should have returned dialogue for next node
             }
@@ -65,7 +73,10 @@ describe('Dialogue Navigation Properties', () => {
             }
 
             // Verify the dialogue text is valid (string)
-            if (typeof nextDialogue.text !== 'string' || nextDialogue.text.length === 0) {
+            if (
+              typeof nextDialogue.text !== 'string' ||
+              nextDialogue.text.length === 0
+            ) {
               return false; // Should have valid text
             }
 
@@ -111,11 +122,17 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
         const availableChoices = initialDialogue.choices;
 
         // Find choices that end dialogue (next: null)
-        const endingChoices = availableChoices.filter((choice) => choice.next === null);
+        const endingChoices = availableChoices.filter(
+          (choice) => choice.next === null
+        );
 
         if (endingChoices.length === 0) {
           return true; // Skip if no ending choices available
@@ -158,8 +175,12 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
-        
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
+
         // Verify dialogue state consistency
         if (initialDialogue.npcId !== npcId) {
           return false; // NPC ID should match

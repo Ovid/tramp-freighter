@@ -38,21 +38,27 @@ describe('Dialogue Choice Filtering Properties', () => {
         }
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(npcId, 'greeting', gameStateManager);
+        const dialogueResult = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
         const availableChoices = dialogueResult.choices;
 
         // Check each choice in the original dialogue node
         const originalChoices = dialogueTree.greeting.choices;
         for (let i = 0; i < originalChoices.length; i++) {
           const originalChoice = originalChoices[i];
-          const isAvailable = availableChoices.some((choice) => choice.index === i);
+          const isAvailable = availableChoices.some(
+            (choice) => choice.index === i
+          );
 
           if (originalChoice.condition) {
             // Choice has condition function - check if visibility matches condition result
             let conditionResult;
             try {
               conditionResult = originalChoice.condition(reputation);
-            } catch (error) {
+            } catch (_error) {
               // If condition throws, choice should be hidden
               conditionResult = false;
             }
@@ -88,7 +94,7 @@ describe('Dialogue Choice Filtering Properties', () => {
     // Create a mock dialogue tree with a choice that has a throwing condition
     const mockNPCId = 'chen_barnards';
     const originalTree = ALL_DIALOGUE_TREES[mockNPCId];
-    
+
     // Temporarily modify the dialogue tree to include a throwing condition
     const originalGreeting = originalTree.greeting;
     const modifiedGreeting = {
@@ -116,7 +122,11 @@ describe('Dialogue Choice Filtering Properties', () => {
           npcState.rep = reputation;
 
           // Show dialogue and get filtered choices
-          const dialogueResult = showDialogue(mockNPCId, 'greeting', gameStateManager);
+          const dialogueResult = showDialogue(
+            mockNPCId,
+            'greeting',
+            gameStateManager
+          );
           const availableChoices = dialogueResult.choices;
 
           // The choice with throwing condition should not be in available choices
@@ -163,17 +173,23 @@ describe('Dialogue Choice Filtering Properties', () => {
         }
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(npcId, 'greeting', gameStateManager);
+        const dialogueResult = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
         const availableChoices = dialogueResult.choices;
 
         // Check that all choices without conditions are available
         const originalChoices = dialogueTree.greeting.choices;
         for (let i = 0; i < originalChoices.length; i++) {
           const originalChoice = originalChoices[i];
-          
+
           if (!originalChoice.condition) {
             // Choice has no condition - should be available
-            const isAvailable = availableChoices.some((choice) => choice.index === i);
+            const isAvailable = availableChoices.some(
+              (choice) => choice.index === i
+            );
             if (!isAvailable) {
               return false; // Choice without condition should be visible
             }

@@ -283,6 +283,11 @@ export class GameStateManager {
         currentSystemPrices: solPrices,
       },
       npcs: {},
+      dialogue: {
+        currentNpcId: null,
+        currentNodeId: null,
+        isActive: false,
+      },
       meta: {
         version: GAME_VERSION,
         timestamp: Date.now(),
@@ -1129,10 +1134,10 @@ export class GameStateManager {
       throw new Error(`Unknown NPC ID: ${npcId}`);
     }
 
-    // Return existing state or create default
+    // Return existing state or create default using NPC's initialRep
     if (!this.state.npcs[npcId]) {
       this.state.npcs[npcId] = {
-        rep: 0,
+        rep: npcData.initialRep,
         lastInteraction: this.state.player.daysElapsed,
         flags: [],
         interactions: 0,
@@ -1182,7 +1187,10 @@ export class GameStateManager {
 
     // Calculate new reputation with clamping and rounding
     const oldRep = npcState.rep;
-    const newRep = Math.max(-100, Math.min(100, Math.round(oldRep + modifiedAmount)));
+    const newRep = Math.max(
+      -100,
+      Math.min(100, Math.round(oldRep + modifiedAmount))
+    );
 
     // Log warning if clamping occurred
     if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {
@@ -1207,6 +1215,58 @@ export class GameStateManager {
 
     // Persist immediately - reputation changes should be saved
     this.saveGame();
+  }
+
+  // ========================================================================
+  // DIALOGUE STATE MANAGEMENT
+  // ========================================================================
+
+  /**
+   * Set current dialogue state
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} nodeId - Dialogue node identifier
+   */
+  setDialogueState(npcId, nodeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: setDialogueState called before game initialization'
+      );
+    }
+
+    this.state.dialogue.currentNpcId = npcId;
+    this.state.dialogue.currentNodeId = nodeId;
+    this.state.dialogue.isActive = true;
+  }
+
+  /**
+   * Get current dialogue state
+   *
+   * @returns {Object} Current dialogue state
+   */
+  getDialogueState() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getDialogueState called before game initialization'
+      );
+    }
+
+    return { ...this.state.dialogue };
+  }
+
+  /**
+   * Clear dialogue state
+   */
+  clearDialogueState() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: clearDialogueState called before game initialization'
+      );
+    }
+
+    this.state.dialogue.currentNpcId = null;
+    this.state.dialogue.currentNodeId = null;
+    this.state.dialogue.isActive = false;
   }
 
   // ========================================================================

@@ -54,11 +54,15 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
           // Show dialogue for this specific node
           try {
-            const dialogueResult = showDialogue(npcId, nodeId, gameStateManager);
+            const dialogueResult = showDialogue(
+              npcId,
+              nodeId,
+              gameStateManager
+            );
 
             // Verify that flags were set when the node was displayed
             const currentFlags = gameStateManager.getNPCState(npcId).flags;
-            
+
             for (const expectedFlag of node.flags) {
               if (!currentFlags.includes(expectedFlag)) {
                 return false; // Flag should have been set when node was displayed
@@ -69,7 +73,6 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             if (!dialogueResult || typeof dialogueResult.text !== 'string') {
               return false; // Dialogue should still be displayed properly
             }
-
           } catch (error) {
             // Some nodes might not be accessible directly (e.g., require specific conditions)
             // This is acceptable, skip these nodes
@@ -89,7 +92,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
     // Test specifically with Wei Chen who has nodes with flags (backstory nodes)
     const npcId = 'chen_barnards';
-    
+
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation to access backstory
@@ -98,11 +101,15 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         npcState.flags = []; // Clear existing flags
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
-        
+        const initialDialogue = showDialogue(
+          npcId,
+          'greeting',
+          gameStateManager
+        );
+
         // Find the backstory choice
-        const backstoryChoice = initialDialogue.choices.find(
-          (choice) => choice.text.includes('Tell me about yourself')
+        const backstoryChoice = initialDialogue.choices.find((choice) =>
+          choice.text.includes('Tell me about yourself')
         );
 
         if (!backstoryChoice) {
@@ -110,7 +117,11 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         }
 
         // Select the backstory choice
-        const backstoryDialogue = selectChoice(npcId, backstoryChoice.index, gameStateManager);
+        const backstoryDialogue = selectChoice(
+          npcId,
+          backstoryChoice.index,
+          gameStateManager
+        );
 
         if (!backstoryDialogue) {
           return false; // Should have returned backstory dialogue
@@ -128,8 +139,12 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         );
 
         if (continueChoice) {
-          const backstory2Dialogue = selectChoice(npcId, continueChoice.index, gameStateManager);
-          
+          const backstory2Dialogue = selectChoice(
+            npcId,
+            continueChoice.index,
+            gameStateManager
+          );
+
           if (backstory2Dialogue) {
             // Check that the second backstory flag was set
             const updatedFlags = gameStateManager.getNPCState(npcId).flags;
@@ -151,7 +166,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
     // Test with Wei Chen backstory nodes
     const npcId = 'chen_barnards';
-    
+
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation
@@ -163,11 +178,13 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         for (let i = 0; i < 3; i++) {
           try {
             showDialogue(npcId, 'backstory', gameStateManager);
-            
+
             // Check that flag is present but not duplicated
             const currentFlags = gameStateManager.getNPCState(npcId).flags;
-            const flagCount = currentFlags.filter(flag => flag === 'chen_backstory_1').length;
-            
+            const flagCount = currentFlags.filter(
+              (flag) => flag === 'chen_backstory_1'
+            ).length;
+
             if (flagCount !== 1) {
               return false; // Flag should appear exactly once, not duplicated
             }
@@ -189,7 +206,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
     // Test with Wei Chen
     const npcId = 'chen_barnards';
-    
+
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation and some existing flags
@@ -200,22 +217,21 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         try {
           // Show a dialogue node that sets flags
           showDialogue(npcId, 'backstory', gameStateManager);
-          
+
           // Check that both existing and new flags are present
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
-          
+
           if (!currentFlags.includes('existing_flag_1')) {
             return false; // Existing flag should be preserved
           }
-          
+
           if (!currentFlags.includes('existing_flag_2')) {
             return false; // Existing flag should be preserved
           }
-          
+
           if (!currentFlags.includes('chen_backstory_1')) {
             return false; // New flag should be added
           }
-
         } catch (error) {
           // If we can't access the node, that's acceptable
           return true;
