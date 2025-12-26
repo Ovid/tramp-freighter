@@ -120,7 +120,7 @@ describe('Station Menu NPC Integration', () => {
   });
 
   describe('NPC display at different systems', () => {
-    it('should display Wei Chen at Barnard\'s Star', () => {
+    it("should display Wei Chen at Barnard's Star", () => {
       // Barnard's Star (system 4) has Wei Chen
       const barnards = STAR_DATA.find((s) => s.id === 4);
       act(() => {
@@ -163,7 +163,7 @@ describe('Station Menu NPC Integration', () => {
     it('should display updated reputation tier after reputation change', () => {
       // Sol (system 0) has Marcus Cole
       const sol = STAR_DATA.find((s) => s.id === 0);
-      
+
       // Marcus Cole starts at -20 (Cold) and has trust of 0.1
       // To move from Cold (-49 to -10) to Neutral (-9 to 9), we need to get to at least -9
       // With trust modifier of 0.1, we need to add a large amount

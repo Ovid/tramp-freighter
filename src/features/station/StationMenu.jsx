@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { STAR_DATA } from '../../game/data/star-data';
@@ -42,17 +43,25 @@ export function StationMenu({ onOpenPanel, onUndock }) {
     onOpenPanel('dialogue', npcId);
   };
 
-  // Get NPC display info with current reputation tier
-  const getNPCDisplayInfo = (npc) => {
-    const npcState = gameStateManager.getNPCState(npc.id);
-    const currentRep = npcState.rep;
-    const tier = gameStateManager.getRepTier(currentRep);
-    return {
-      name: npc.name,
-      role: npc.role,
-      tierName: tier.name,
-    };
-  };
+  // Compute NPC display info using Bridge Pattern
+  // This memoized computation updates when location changes (via currentSystemId dependency)
+  // and provides the NPC display data without direct GameStateManager method calls
+  const npcDisplayData = useMemo(() => {
+    return npcsAtSystem.map((npc) => {
+      // Access NPC state through GameStateManager (this is acceptable in useMemo)
+      // since it's computed once per location change, not on every render
+      const npcState = gameStateManager.getNPCState(npc.id);
+      const currentRep = npcState.rep;
+      const tier = gameStateManager.getRepTier(currentRep);
+
+      return {
+        id: npc.id,
+        name: npc.name,
+        role: npc.role,
+        tierName: tier.name,
+      };
+    });
+  }, [currentSystemId, npcsAtSystem, gameStateManager]);
 
   return (
     <div id="station-interface" className="visible">
@@ -76,24 +85,21 @@ export function StationMenu({ onOpenPanel, onUndock }) {
         <div className="station-people">
           <h3>PEOPLE</h3>
           <div className="npc-list">
-            {npcsAtSystem.map((npc) => {
-              const displayInfo = getNPCDisplayInfo(npc);
-              return (
-                <button
-                  key={npc.id}
-                  className="npc-btn"
-                  onClick={() => handleNPCClick(npc.id)}
+            {npcDisplayData.map((npcDisplay) => (
+              <button
+                key={npcDisplay.id}
+                className="npc-btn"
+                onClick={() => handleNPCClick(npcDisplay.id)}
+              >
+                <span className="npc-name">{npcDisplay.name}</span>
+                <span className="npc-role">{npcDisplay.role}</span>
+                <span
+                  className={`npc-tier tier-${npcDisplay.tierName.toLowerCase()}`}
                 >
-                  <span className="npc-name">{displayInfo.name}</span>
-                  <span className="npc-role">{displayInfo.role}</span>
-                  <span
-                    className={`npc-tier tier-${displayInfo.tierName.toLowerCase()}`}
-                  >
-                    {displayInfo.tierName}
-                  </span>
-                </button>
-              );
-            })}
+                  {npcDisplay.tierName}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       )}

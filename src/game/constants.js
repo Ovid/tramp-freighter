@@ -677,3 +677,42 @@ export const NPC_VALIDATION = {
   REQUIRED_PERSONALITY_TRAITS: ['trust', 'greed', 'loyalty', 'morality'],
   REQUIRED_SPEECH_PROPERTIES: ['greeting', 'vocabulary', 'quirk'],
 };
+
+/**
+ * NPC Personality Trait Values
+ *
+ * Standardized personality trait values for NPCs to ensure consistency
+ * and prevent magic numbers in NPC definitions.
+ */
+export const NPC_PERSONALITY_VALUES = {
+  // Trust levels (how easily they trust others)
+  TRUST_VERY_LOW: 0.1, // Marcus Cole - trusts no one
+  TRUST_LOW: 0.3, // Wei Chen - cautious after being burned
+  TRUST_HIGH: 0.7, // Father Okonkwo - trusts by default
+
+  // Greed levels (motivation by material gain)
+  GREED_NONE: 0.0, // Father Okonkwo - not motivated by material gain
+  GREED_LOW: 0.2, // Wei Chen - not motivated by money
+  GREED_VERY_HIGH: 0.9, // Marcus Cole - highly motivated by profit
+
+  // Loyalty levels (commitment to relationships/causes)
+  LOYALTY_LOW: 0.3, // Marcus Cole - loyalty is transactional
+  LOYALTY_HIGH: 0.8, // Wei Chen - deeply loyal once trust is earned
+  LOYALTY_VERY_HIGH: 0.9, // Father Okonkwo - deeply committed
+
+  // Morality levels (ethical standards)
+  MORALITY_LOW: 0.2, // Marcus Cole - flexible ethics when profit involved
+  MORALITY_MODERATE: 0.6, // Wei Chen - generally ethical but pragmatic
+  MORALITY_VERY_HIGH: 0.9, // Father Okonkwo - strong moral compass
+};
+
+/**
+ * NPC Initial Reputation Values
+ *
+ * Starting reputation values for NPCs to establish initial relationships.
+ */
+export const NPC_INITIAL_REPUTATION = {
+  HOSTILE: -20, // Marcus Cole - starts cold due to player debt
+  NEUTRAL: 0, // Wei Chen - neutral starting relationship
+  FRIENDLY: 10, // Father Okonkwo - starts warm and welcoming
+};

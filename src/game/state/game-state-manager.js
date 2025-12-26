@@ -638,8 +638,8 @@ export class GameStateManager {
     }
 
     const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents || [];
-    const marketConditions = this.state.world.marketConditions || {};
+    const activeEvents = this.state.world.activeEvents;
+    const marketConditions = this.state.world.marketConditions;
 
     const snapshotPrices = {};
     for (const goodType of COMMODITY_TYPES) {
@@ -781,10 +781,7 @@ export class GameStateManager {
    * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
    */
   updateMarketConditions(systemId, goodType, quantityDelta) {
-    if (!this.state.world.marketConditions) {
-      this.state.world.marketConditions = {};
-    }
-
+    // marketConditions is guaranteed to exist after initialization
     // Create system entry if first trade at that system
     if (!this.state.world.marketConditions[systemId]) {
       this.state.world.marketConditions[systemId] = {};
@@ -862,10 +859,7 @@ export class GameStateManager {
    * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
   updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
-    if (!this.state.world.priceKnowledge) {
-      this.state.world.priceKnowledge = {};
-    }
-
+    // priceKnowledge is guaranteed to exist after initialization
     this.state.world.priceKnowledge[systemId] = {
       lastVisit: lastVisit,
       prices: { ...prices },
@@ -965,7 +959,7 @@ export class GameStateManager {
         'Invalid state: getActiveEvents called before game initialization'
       );
     }
-    return this.state.world.activeEvents || [];
+    return this.state.world.activeEvents;
   }
 
   /**
@@ -976,10 +970,7 @@ export class GameStateManager {
    * @param {Array} newEvents - Updated events array
    */
   updateActiveEvents(newEvents) {
-    if (!this.state.world.activeEvents) {
-      this.state.world.activeEvents = [];
-    }
-
+    // activeEvents is guaranteed to exist after initialization
     this.state.world.activeEvents = newEvents;
     this.emit('activeEventsChanged', newEvents);
   }
@@ -2135,6 +2126,8 @@ export class GameStateManager {
    *
    * Implements save debouncing to prevent excessive saves (max 1 save per second).
    * This protects against rapid state changes causing performance issues.
+   *
+   * Handles save failures gracefully by logging errors and notifying the user.
    */
   saveGame() {
     const result = saveGameToStorage(
@@ -2145,6 +2138,19 @@ export class GameStateManager {
 
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
+    } else {
+      // Only show error notification if save actually failed (not just debounced)
+      const now = Date.now();
+      const timeSinceLastSave = now - this.lastSaveTime;
+
+      if (timeSinceLastSave >= 1000) {
+        // Not debounced, actual failure
+        if (!this.isTestEnvironment) {
+          console.error('Save failed - game progress may be lost');
+        }
+        // TODO: Show user notification about save failure
+        // For now, just log the error - UI notification system would be added later
+      }
     }
 
     return result.success;

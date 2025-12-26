@@ -13,7 +13,11 @@
  * @module NPCData
  */
 
-import { NPC_VALIDATION } from '../constants.js';
+import {
+  NPC_VALIDATION,
+  NPC_PERSONALITY_VALUES,
+  NPC_INITIAL_REPUTATION,
+} from '../constants.js';
 
 /**
  * Validates that an NPC definition has all required fields
@@ -62,10 +66,10 @@ export const WEI_CHEN = {
   system: 4, // Barnard's Star
   station: 'Bore Station 7',
   personality: {
-    trust: 0.3, // Cautious after losing her ship
-    greed: 0.2, // Not motivated by money
-    loyalty: 0.8, // Deeply loyal once trust is earned
-    morality: 0.6, // Generally ethical but pragmatic
+    trust: NPC_PERSONALITY_VALUES.TRUST_LOW, // Cautious after losing her ship
+    greed: NPC_PERSONALITY_VALUES.GREED_LOW, // Not motivated by money
+    loyalty: NPC_PERSONALITY_VALUES.LOYALTY_HIGH, // Deeply loyal once trust is earned
+    morality: NPC_PERSONALITY_VALUES.MORALITY_MODERATE, // Generally ethical but pragmatic
   },
   speechStyle: {
     greeting: 'casual',
@@ -74,7 +78,7 @@ export const WEI_CHEN = {
   },
   description:
     'A weathered dock worker with calloused hands and knowing eyes. Former ship captain.',
-  initialRep: 0, // Neutral starting relationship
+  initialRep: NPC_INITIAL_REPUTATION.NEUTRAL, // Neutral starting relationship
 };
 
 /**
@@ -91,10 +95,10 @@ export const MARCUS_COLE = {
   system: 0, // Sol
   station: 'Sol Central',
   personality: {
-    trust: 0.1, // Trusts no one
-    greed: 0.9, // Highly motivated by profit
-    loyalty: 0.3, // Loyalty is transactional
-    morality: 0.2, // Flexible ethics when profit is involved
+    trust: NPC_PERSONALITY_VALUES.TRUST_VERY_LOW, // Trusts no one
+    greed: NPC_PERSONALITY_VALUES.GREED_VERY_HIGH, // Highly motivated by profit
+    loyalty: NPC_PERSONALITY_VALUES.LOYALTY_LOW, // Loyalty is transactional
+    morality: NPC_PERSONALITY_VALUES.MORALITY_LOW, // Flexible ethics when profit is involved
   },
   speechStyle: {
     greeting: 'formal',
@@ -103,7 +107,7 @@ export const MARCUS_COLE = {
   },
   description:
     'Impeccably dressed financier with cold eyes and a calculating smile. Your creditor.',
-  initialRep: -20, // Starts cold due to player debt
+  initialRep: NPC_INITIAL_REPUTATION.HOSTILE, // Starts cold due to player debt
 };
 
 /**
@@ -120,10 +124,10 @@ export const FATHER_OKONKWO = {
   system: 11, // Ross 154
   station: 'Ross 154 Medical',
   personality: {
-    trust: 0.7, // Trusts people by default
-    greed: 0.0, // Not motivated by material gain
-    loyalty: 0.9, // Deeply committed to his calling and community
-    morality: 0.9, // Strong moral compass
+    trust: NPC_PERSONALITY_VALUES.TRUST_HIGH, // Trusts people by default
+    greed: NPC_PERSONALITY_VALUES.GREED_NONE, // Not motivated by material gain
+    loyalty: NPC_PERSONALITY_VALUES.LOYALTY_VERY_HIGH, // Deeply committed to his calling and community
+    morality: NPC_PERSONALITY_VALUES.MORALITY_VERY_HIGH, // Strong moral compass
   },
   speechStyle: {
     greeting: 'warm',
@@ -132,7 +136,7 @@ export const FATHER_OKONKWO = {
   },
   description:
     'Gentle chaplain with kind eyes and a warm smile. Offers comfort to weary travelers.',
-  initialRep: 10, // Starts warm and welcoming
+  initialRep: NPC_INITIAL_REPUTATION.FRIENDLY, // Starts warm and welcoming
 };
 
 /**

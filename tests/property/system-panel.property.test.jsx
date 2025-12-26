@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
+import { StarmapProvider } from '../../src/context/StarmapContext';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
@@ -107,7 +108,7 @@ describe('Property: System Panel', () => {
       }
     });
 
-    it('should call window.StarmapBridge.selectStarById when connected system is clicked', () => {
+    it('should call selectStarById when connected system is clicked', () => {
       const currentSystemId = gameStateManager.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
@@ -117,18 +118,22 @@ describe('Property: System Panel', () => {
         return;
       }
 
-      window.StarmapBridge = {
-        selectStarById: vi.fn(),
+      const mockSelectStarById = vi.fn();
+      const mockStarmapMethods = {
+        selectStarById: mockSelectStarById,
+        deselectStar: vi.fn(),
       };
 
       render(
         <GameProvider gameStateManager={gameStateManager}>
-          <SystemPanel
-            viewingSystemId={currentSystemId}
-            onClose={() => {}}
-            onJumpStart={() => {}}
-            onJumpComplete={() => {}}
-          />
+          <StarmapProvider value={mockStarmapMethods}>
+            <SystemPanel
+              viewingSystemId={currentSystemId}
+              onClose={() => {}}
+              onJumpStart={() => {}}
+              onJumpComplete={() => {}}
+            />
+          </StarmapProvider>
         </GameProvider>
       );
 
@@ -139,12 +144,7 @@ describe('Property: System Panel', () => {
 
       fireEvent.click(systemButton);
 
-      expect(window.StarmapBridge.selectStarById).toHaveBeenCalledWith(
-        connectedIds[0]
-      );
-
-      // Clean up
-      delete window.StarmapBridge;
+      expect(mockSelectStarById).toHaveBeenCalledWith(connectedIds[0]);
     });
 
     it('should not display economic event info when Advanced Sensors not installed', () => {
