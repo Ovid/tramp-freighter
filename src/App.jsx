@@ -115,13 +115,19 @@ export default function App({ devMode = false }) {
 
   /**
    * Handle docking at a station.
-   * Transitions from ORBIT to STATION view mode.
+   * Toggles between ORBIT and STATION view modes.
    *
    * React Migration Spec: Requirements 9.3, 25.3
    */
   const handleDock = () => {
-    setViewMode(VIEW_MODES.STATION);
-    setViewingSystemId(null); // Close system panel when docking
+    if (viewMode === VIEW_MODES.STATION || viewMode === VIEW_MODES.PANEL) {
+      // If currently in station or panel mode, go back to orbit
+      setViewMode(VIEW_MODES.ORBIT);
+      setActivePanel(null);
+    } else {
+      // If in orbit mode, go to station
+      setViewMode(VIEW_MODES.STATION);
+    }
   };
 
   /**
@@ -133,7 +139,6 @@ export default function App({ devMode = false }) {
   const handleUndock = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
-    setViewingSystemId(null); // Close system panel when undocking
   };
 
   /**
@@ -181,9 +186,16 @@ export default function App({ devMode = false }) {
 
   /**
    * Handle opening the system panel (shows current system info).
+   * Toggles the system panel visibility.
    */
   const handleOpenSystemInfo = () => {
-    setViewingSystemId(currentSystemId);
+    if (viewingSystemId === currentSystemId) {
+      // If already viewing current system, close the panel
+      setViewingSystemId(null);
+    } else {
+      // Open system panel for current system
+      setViewingSystemId(currentSystemId);
+    }
   };
 
   /**
