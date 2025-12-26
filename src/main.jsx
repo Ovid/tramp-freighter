@@ -24,6 +24,7 @@ import '../css/starmap-scene.css';
 import '../css/system-event-info.css';
 import '../css/panel/cargo-manifest.css';
 import '../css/panel/dev-admin.css';
+import '../css/panel/dialogue.css';
 import '../css/panel/info-broker.css';
 import '../css/panel/jump-dialog.css';
 import '../css/panel/refuel.css';

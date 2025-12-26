@@ -1,6 +1,7 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarmap } from '../../context/StarmapContext';
 
 /**
  * SystemPanel displays information about a system.
@@ -24,6 +25,7 @@ export function SystemPanel({
   const fuel = useGameEvent('fuelChanged');
   const upgrades = useGameEvent('upgradesChanged');
   const { executeJump } = useGameAction();
+  const { selectStarById } = useStarmap();
 
   // Get system data
   const starData = gameStateManager.starData;
@@ -238,9 +240,7 @@ export function SystemPanel({
                   key={system.id}
                   className="connection-item"
                   onClick={() => {
-                    if (window.StarmapBridge?.selectStarById) {
-                      window.StarmapBridge.selectStarById(system.id);
-                    }
+                    selectStarById(system.id);
                   }}
                 >
                   <div className="connection-name">{system.name}</div>

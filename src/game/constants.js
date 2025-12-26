@@ -453,8 +453,9 @@ export async function initDevMode() {
  * - 1.0.0: Initial release with basic trading
  * - 2.0.0: Added ship condition, price knowledge, events
  * - 2.1.0: Deterministic economy with market conditions
+ * - 4.0.0: NPC foundation with reputation system and dialogue
  */
-export const GAME_VERSION = '2.1.0';
+export const GAME_VERSION = '4.0.0';
 
 /**
  * localStorage key for save data
@@ -592,4 +593,127 @@ export const ANIMATION_CONFIG = {
 
   // Animation timeout for error recovery
   ANIMATION_TIMEOUT: 10000, // milliseconds - force completion if animation hangs
+};
+
+/**
+ * NPC Reputation System Configuration
+ *
+ * Reputation tiers classify the relationship between player and NPCs.
+ * Each tier has a name and numeric range (-100 to 100).
+ */
+
+// Reputation boundary constants
+export const REPUTATION_BOUNDS = {
+  MIN: -100,
+  MAX: 100,
+  HOSTILE_MAX: -50,
+  COLD_MIN: -49,
+  COLD_MAX: -10,
+  NEUTRAL_MIN: -9,
+  NEUTRAL_MAX: 9,
+  WARM_MIN: 10,
+  WARM_MAX: 29,
+  FRIENDLY_MIN: 30,
+  FRIENDLY_MAX: 59,
+  TRUSTED_MIN: 60,
+  TRUSTED_MAX: 89,
+  FAMILY_MIN: 90,
+};
+
+export const REPUTATION_TIERS = {
+  hostile: {
+    min: REPUTATION_BOUNDS.MIN,
+    max: REPUTATION_BOUNDS.HOSTILE_MAX,
+    name: 'Hostile',
+  },
+  cold: {
+    min: REPUTATION_BOUNDS.COLD_MIN,
+    max: REPUTATION_BOUNDS.COLD_MAX,
+    name: 'Cold',
+  },
+  neutral: {
+    min: REPUTATION_BOUNDS.NEUTRAL_MIN,
+    max: REPUTATION_BOUNDS.NEUTRAL_MAX,
+    name: 'Neutral',
+  },
+  warm: {
+    min: REPUTATION_BOUNDS.WARM_MIN,
+    max: REPUTATION_BOUNDS.WARM_MAX,
+    name: 'Warm',
+  },
+  friendly: {
+    min: REPUTATION_BOUNDS.FRIENDLY_MIN,
+    max: REPUTATION_BOUNDS.FRIENDLY_MAX,
+    name: 'Friendly',
+  },
+  trusted: {
+    min: REPUTATION_BOUNDS.TRUSTED_MIN,
+    max: REPUTATION_BOUNDS.TRUSTED_MAX,
+    name: 'Trusted',
+  },
+  family: {
+    min: REPUTATION_BOUNDS.FAMILY_MIN,
+    max: REPUTATION_BOUNDS.MAX,
+    name: 'Family',
+  },
+};
+
+/**
+ * NPC Data Validation Configuration
+ *
+ * Required fields and properties for NPC definitions to ensure data integrity.
+ */
+export const NPC_VALIDATION = {
+  REQUIRED_FIELDS: [
+    'id',
+    'name',
+    'role',
+    'system',
+    'station',
+    'personality',
+    'speechStyle',
+    'description',
+    'initialRep',
+  ],
+  REQUIRED_PERSONALITY_TRAITS: ['trust', 'greed', 'loyalty', 'morality'],
+  REQUIRED_SPEECH_PROPERTIES: ['greeting', 'vocabulary', 'quirk'],
+};
+
+/**
+ * NPC Personality Trait Values
+ *
+ * Standardized personality trait values for NPCs to ensure consistency
+ * and prevent magic numbers in NPC definitions.
+ */
+export const NPC_PERSONALITY_VALUES = {
+  // Trust levels (how easily they trust others)
+  TRUST_VERY_LOW: 0.1, // Marcus Cole - trusts no one
+  TRUST_LOW: 0.3, // Wei Chen - cautious after being burned
+  TRUST_HIGH: 0.7, // Father Okonkwo - trusts by default
+
+  // Greed levels (motivation by material gain)
+  GREED_NONE: 0.0, // Father Okonkwo - not motivated by material gain
+  GREED_LOW: 0.2, // Wei Chen - not motivated by money
+  GREED_VERY_HIGH: 0.9, // Marcus Cole - highly motivated by profit
+
+  // Loyalty levels (commitment to relationships/causes)
+  LOYALTY_LOW: 0.3, // Marcus Cole - loyalty is transactional
+  LOYALTY_HIGH: 0.8, // Wei Chen - deeply loyal once trust is earned
+  LOYALTY_VERY_HIGH: 0.9, // Father Okonkwo - deeply committed
+
+  // Morality levels (ethical standards)
+  MORALITY_LOW: 0.2, // Marcus Cole - flexible ethics when profit involved
+  MORALITY_MODERATE: 0.6, // Wei Chen - generally ethical but pragmatic
+  MORALITY_VERY_HIGH: 0.9, // Father Okonkwo - strong moral compass
+};
+
+/**
+ * NPC Initial Reputation Values
+ *
+ * Starting reputation values for NPCs to establish initial relationships.
+ */
+export const NPC_INITIAL_REPUTATION = {
+  HOSTILE: -20, // Marcus Cole - starts cold due to player debt
+  NEUTRAL: 0, // Wei Chen - neutral starting relationship
+  FRIENDLY: 10, // Father Okonkwo - starts warm and welcoming
 };

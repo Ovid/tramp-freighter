@@ -65,7 +65,7 @@ describe('Save/Load Migration System', () => {
 
     // Verify migration succeeded
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('2.1.0');
+    expect(loadedState.meta.version).toBe('4.0.0');
 
     // Verify ship condition fields were added with max values
     expect(loadedState.ship.hull).toBe(SHIP_CONDITION_BOUNDS.MAX);
@@ -174,7 +174,7 @@ describe('Save/Load Migration System', () => {
 
     // Verify load succeeded
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('2.1.0');
+    expect(loadedState.meta.version).toBe('4.0.0');
 
     // Verify all Phase 2 fields are preserved exactly
     expect(loadedState.ship.hull).toBe(85);
@@ -503,7 +503,7 @@ describe('Save/Load Migration System', () => {
     const loadedState = manager.loadGame();
 
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('2.1.0');
+    expect(loadedState.meta.version).toBe('4.0.0');
     expect(loadedState.ship.cargo).toEqual([]);
     expect(loadedState.ship.hull).toBe(SHIP_CONDITION_BOUNDS.MAX);
     expect(loadedState.world.priceKnowledge).toBeDefined();

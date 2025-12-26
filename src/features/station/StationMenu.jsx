@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useGameState } from '../../context/GameContext';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../hud/hudUtils';
+import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
  * Station menu component.
@@ -8,14 +11,17 @@ import { calculateDistanceFromSol } from '../hud/hudUtils';
  * Displays station information and action buttons when docked.
  * Provides access to Trade, Refuel, Repairs, Info Broker, Upgrades,
  * Cargo Manifest, Ship Status, and Undock actions.
+ * Shows NPCs present at the current station in a "PEOPLE" section.
  *
  * React Migration Spec: Requirements 9.3
+ * NPC Foundation Spec: Requirements 1.1, 1.2, 1.3, 1.4, 1.5
  *
  * @param {Function} onOpenPanel - Callback to open a specific panel
  * @param {Function} onUndock - Callback to undock from station
  */
 export function StationMenu({ onOpenPanel, onUndock }) {
   const currentSystemId = useGameEvent('locationChanged');
+  const gameStateManager = useGameState();
 
   // Get current system data
   const system = STAR_DATA.find((s) => s.id === currentSystemId);
@@ -28,6 +34,34 @@ export function StationMenu({ onOpenPanel, onUndock }) {
 
   // Calculate distance from Sol
   const distance = calculateDistanceFromSol(system);
+
+  // Get NPCs at current system
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId);
+
+  // Handle NPC selection to open dialogue
+  const handleNPCClick = (npcId) => {
+    onOpenPanel('dialogue', npcId);
+  };
+
+  // Compute NPC display info using Bridge Pattern
+  // This memoized computation updates when location changes (via currentSystemId dependency)
+  // and provides the NPC display data without direct GameStateManager method calls
+  const npcDisplayData = useMemo(() => {
+    return npcsAtSystem.map((npc) => {
+      // Access NPC state through GameStateManager (this is acceptable in useMemo)
+      // since it's computed once per location change, not on every render
+      const npcState = gameStateManager.getNPCState(npc.id);
+      const currentRep = npcState.rep;
+      const tier = gameStateManager.getRepTier(currentRep);
+
+      return {
+        id: npc.id,
+        name: npc.name,
+        role: npc.role,
+        tierName: tier.name,
+      };
+    });
+  }, [currentSystemId, npcsAtSystem, gameStateManager]);
 
   return (
     <div id="station-interface" className="visible">
@@ -45,6 +79,31 @@ export function StationMenu({ onOpenPanel, onUndock }) {
           <span>{distance.toFixed(1)} LY</span>
         </div>
       </div>
+
+      {/* PEOPLE section - only shown when NPCs are present */}
+      {npcsAtSystem.length > 0 && (
+        <div className="station-people">
+          <h3>PEOPLE</h3>
+          <div className="npc-list">
+            {npcDisplayData.map((npcDisplay) => (
+              <button
+                key={npcDisplay.id}
+                className="npc-btn"
+                onClick={() => handleNPCClick(npcDisplay.id)}
+              >
+                <span className="npc-name">{npcDisplay.name}</span>
+                <span className="npc-role">{npcDisplay.role}</span>
+                <span
+                  className={`npc-tier tier-${npcDisplay.tierName.toLowerCase()}`}
+                >
+                  {npcDisplay.tierName}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="station-actions">
         <button className="station-btn" onClick={() => onOpenPanel('trade')}>
           Trade

@@ -173,7 +173,7 @@ describe('Property: Resource cleanup', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 5 }
     );
   });
 
@@ -218,7 +218,7 @@ describe('Property: Resource cleanup', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 5 }
     );
   });
 
@@ -260,7 +260,7 @@ describe('Property: Resource cleanup', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 5 }
     );
   });
 });

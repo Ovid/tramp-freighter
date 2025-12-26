@@ -1,14 +1,3 @@
-# Notes
-
-- When summarizing a long conversation, I've found that sometimes it gets
-  confused and continues to the next task. I had it work on one task that was
-  complex and I went to lunch. I came back and found it had poorly implemented
-  three tasks.
-- When migrating from vanilla JS to React, I had to temporarily have steering
-  docs listing both old and new tech stacks. That meant my context on task
-  launch was much larger, often around 30-40% instead of 20%. That made tasks
-  harder to complete as they hit the context window limits.
-
 # TODO
 
 - i18n?
@@ -30,10 +19,33 @@
 - Multi-route jumps?
 - Needs a tutorial.
 - Some kind of "Achievement" system (visited all stars, for example)
-- No messages occur when I cannot refuel (100% or no money)
+
+# Notes
+
+- When summarizing a long conversation, I've found that sometimes it gets
+  confused and continues to the next task. I had it work on one task that was
+  complex and I went to lunch. I came back and found it had poorly implemented
+  three tasks.
+- When migrating from vanilla JS to React, I had to temporarily have steering
+  docs listing both old and new tech stacks. That meant my context on task
+  launch was much larger, often around 30-40% instead of 20%. That made tasks
+  harder to complete as they hit the context window limits.
+- I instructed Kiro to break down notes/tramp-freighter-04.md into two new
+  specs, parts 1 and 2. It did so, expanding examples tremendously/. Each new
+  spec was larger than the original notes/tramp-freighter-04.md. The original
+  04 spec was so large that Kiro was really struggling to clarify and align
+  it, so I reverted and took this "split" approach. Even though the size of
+  the two specs were not much smaller individually (20%) than the original
+  04 spec, the requirements document for part 1 shrunk from 800 lines to about
+  160. Much easier to manage!
 
 # Fixed
 
+- Blur further stars and routes (tried in two different sessions. failed
+  badly. Bokeh effect blurred everything. Tried post processing, but it
+  failed. Eventually, Claude Opus 4.5 decided to "fall back to the simpler fog
+  effect". This meant no code changes. I gave up)
+- Swap dock/station info buttons
 - Cannot refuel to 100%?
 - Arbitrage bug: you can always sell at a profit something you just bought
 - Steering should note that files neeed single responsibilities

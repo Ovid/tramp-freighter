@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import * as THREE from 'three';
 import {
   initScene,
@@ -21,6 +27,7 @@ import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { StarmapProvider } from '../../context/StarmapContext';
 import { CameraControls } from './CameraControls';
 
 /**
@@ -35,7 +42,7 @@ import { CameraControls } from './CameraControls';
  *
  * React Migration Spec: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5, 43.1, 43.2
  */
-export function StarMapCanvas() {
+export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const gameStateManager = useGameState();
@@ -46,6 +53,30 @@ export function StarMapCanvas() {
   // Subscribe to fuel changes to update wormhole connection colors
   const fuel = useGameEvent('fuelChanged');
   const currentSystem = useGameEvent('locationChanged');
+
+  // Starmap interaction methods for context
+  const starmapMethods = useRef({
+    selectStarById: null,
+    deselectStar: null,
+  });
+
+  // Expose imperative methods to parent component
+  useImperativeHandle(
+    ref,
+    () => ({
+      selectStarById: (systemId) => {
+        if (starmapMethods.current.selectStarById) {
+          starmapMethods.current.selectStarById(systemId);
+        }
+      },
+      deselectStar: () => {
+        if (starmapMethods.current.deselectStar) {
+          starmapMethods.current.deselectStar();
+        }
+      },
+    }),
+    []
+  );
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -135,18 +166,18 @@ export function StarMapCanvas() {
             );
 
             if (clickedStar) {
-              // Select star visually and notify React
+              // Select star visually and notify parent via callback
               selectStar(clickedStar, scene, camera);
-              if (window.StarmapBridge?.selectStarById) {
-                window.StarmapBridge.selectStarById(clickedStar.data.id);
+              if (props.onSystemSelected) {
+                props.onSystemSelected(clickedStar.data.id);
               }
             }
           } else {
             // Clicked empty space - deselect
             deselectStar();
             // Close system panel when clicking empty space
-            if (window.StarmapBridge?.closeSystemPanel) {
-              window.StarmapBridge.closeSystemPanel();
+            if (props.onSystemDeselected) {
+              props.onSystemDeselected();
             }
           }
         };
@@ -177,6 +208,30 @@ export function StarMapCanvas() {
         stars,
       };
 
+      // Set up starmap interaction methods for context
+      const selectStarById = (systemId) => {
+        const star = stars.find((s) => s.data.id === systemId);
+        if (star) {
+          selectStar(star, scene, camera);
+          if (props.onSystemSelected) {
+            props.onSystemSelected(systemId);
+          }
+        }
+      };
+
+      const deselectStarMethod = () => {
+        deselectStar();
+        if (props.onSystemDeselected) {
+          props.onSystemDeselected();
+        }
+      };
+
+      // Update ref methods for imperative handle and context
+      starmapMethods.current = {
+        selectStarById,
+        deselectStar: deselectStarMethod,
+      };
+
       // Initialize current system indicator
       updateCurrentSystemIndicator(
         scene,
@@ -184,24 +239,6 @@ export function StarMapCanvas() {
         stars,
         gameStateManager.state.player.currentSystem
       );
-
-      // Create namespaced bridge object for temporary React migration
-      if (typeof window !== 'undefined') {
-        window.StarmapBridge = window.StarmapBridge || {};
-      }
-
-      // Expose function to select star by ID (for external calls)
-      window.StarmapBridge.selectStarInScene = (systemId) => {
-        const star = stars.find((s) => s.data.id === systemId);
-        if (star) {
-          selectStar(star, scene, camera);
-        }
-      };
-
-      // Expose function to deselect star (for external calls)
-      window.StarmapBridge.deselectStarInScene = () => {
-        deselectStar();
-      };
 
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
@@ -290,12 +327,6 @@ export function StarMapCanvas() {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
         }
 
-        // Clear window functions
-        if (window.StarmapBridge) {
-          window.StarmapBridge.selectStarInScene = null;
-          window.StarmapBridge.deselectStarInScene = null;
-        }
-
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);
 
@@ -370,7 +401,7 @@ export function StarMapCanvas() {
   };
 
   return (
-    <>
+    <StarmapProvider value={starmapMethods.current}>
       <div ref={containerRef} className="starmap-container" />
       <CameraControls
         cameraState={{ autoRotationEnabled, boundaryVisible }}
@@ -379,6 +410,6 @@ export function StarMapCanvas() {
         onToggleRotation={handleToggleRotation}
         onToggleBoundary={handleToggleBoundary}
       />
-    </>
+    </StarmapProvider>
   );
-}
+});

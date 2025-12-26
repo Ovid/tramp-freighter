@@ -9,6 +9,7 @@ import {
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
+  REPUTATION_TIERS,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { EconomicEventsSystem } from '../game-events.js';
@@ -24,8 +25,10 @@ import {
   validateStateStructure,
   migrateFromV1ToV2,
   migrateFromV2ToV2_1,
+  migrateFromV2_1ToV4,
   addStateDefaults,
 } from './state-validators.js';
+import { ALL_NPCS } from '../data/npc-data.js';
 
 /**
  * Sanitize ship name input
@@ -88,6 +91,7 @@ export class GameStateManager {
       shipNameChanged: [],
       upgradesChanged: [],
       quirksChanged: [],
+      dialogueChanged: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -279,6 +283,13 @@ export class GameStateManager {
         activeEvents: [],
         marketConditions: {},
         currentSystemPrices: solPrices,
+      },
+      npcs: {},
+      dialogue: {
+        currentNpcId: null,
+        currentNodeId: null,
+        isActive: false,
+        display: null,
       },
       meta: {
         version: GAME_VERSION,
@@ -628,8 +639,8 @@ export class GameStateManager {
     }
 
     const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents || [];
-    const marketConditions = this.state.world.marketConditions || {};
+    const activeEvents = this.state.world.activeEvents;
+    const marketConditions = this.state.world.marketConditions;
 
     const snapshotPrices = {};
     for (const goodType of COMMODITY_TYPES) {
@@ -771,10 +782,7 @@ export class GameStateManager {
    * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
    */
   updateMarketConditions(systemId, goodType, quantityDelta) {
-    if (!this.state.world.marketConditions) {
-      this.state.world.marketConditions = {};
-    }
-
+    // marketConditions is guaranteed to exist after initialization
     // Create system entry if first trade at that system
     if (!this.state.world.marketConditions[systemId]) {
       this.state.world.marketConditions[systemId] = {};
@@ -852,10 +860,7 @@ export class GameStateManager {
    * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
   updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
-    if (!this.state.world.priceKnowledge) {
-      this.state.world.priceKnowledge = {};
-    }
-
+    // priceKnowledge is guaranteed to exist after initialization
     this.state.world.priceKnowledge[systemId] = {
       lastVisit: lastVisit,
       prices: { ...prices },
@@ -955,7 +960,7 @@ export class GameStateManager {
         'Invalid state: getActiveEvents called before game initialization'
       );
     }
-    return this.state.world.activeEvents || [];
+    return this.state.world.activeEvents;
   }
 
   /**
@@ -966,10 +971,7 @@ export class GameStateManager {
    * @param {Array} newEvents - Updated events array
    */
   updateActiveEvents(newEvents) {
-    if (!this.state.world.activeEvents) {
-      this.state.world.activeEvents = [];
-    }
-
+    // activeEvents is guaranteed to exist after initialization
     this.state.world.activeEvents = newEvents;
     this.emit('activeEventsChanged', newEvents);
   }
@@ -1078,6 +1080,274 @@ export class GameStateManager {
       activeEvents,
       hasAdvancedSensors
     );
+  }
+
+  // ========================================================================
+  // NPC REPUTATION SYSTEM
+  // ========================================================================
+
+  /**
+   * Get reputation tier classification for a reputation value
+   *
+   * Classifies reputation into named tiers based on numeric ranges.
+   * Each tier has a name and min/max bounds for display purposes.
+   *
+   * @param {number} rep - Reputation value (-100 to 100)
+   * @returns {Object} Tier object with name, min, max properties
+   */
+  getRepTier(rep) {
+    for (const tier of Object.values(REPUTATION_TIERS)) {
+      if (rep >= tier.min && rep <= tier.max) {
+        return tier;
+      }
+    }
+
+    // This should never happen with valid reputation values
+    throw new Error(`Invalid reputation value: ${rep}`);
+  }
+
+  /**
+   * Get or initialize NPC state
+   *
+   * Returns existing NPC state or creates default state with initial reputation.
+   * NPC state includes reputation, last interaction day, story flags, and interaction count.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} NPC state object
+   */
+  getNPCState(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getNPCState called before game initialization'
+      );
+    }
+
+    // Validate NPC ID exists in NPC data
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+
+    // Return existing state or create default using NPC's initialRep
+    if (!this.state.npcs[npcId]) {
+      this.state.npcs[npcId] = {
+        rep: npcData.initialRep,
+        lastInteraction: this.state.player.daysElapsed,
+        flags: [],
+        interactions: 0,
+      };
+    }
+
+    return this.state.npcs[npcId];
+  }
+
+  /**
+   * Modify NPC reputation with trust modifier and quirk support
+   *
+   * Applies reputation change with NPC personality trust modifier and
+   * smooth_talker quirk bonus. Clamps final value to [-100, 100] range.
+   * Updates interaction count and timestamp.
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} amount - Base reputation change amount
+   * @param {string} reason - Reason for reputation change (for logging)
+   */
+  modifyRep(npcId, amount, reason) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: modifyRep called before game initialization'
+      );
+    }
+
+    // Validate NPC ID exists in NPC data
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+
+    // Get or create NPC state
+    const npcState = this.getNPCState(npcId);
+
+    // Apply trust modifier for positive reputation gains
+    let modifiedAmount = amount;
+    if (amount > 0) {
+      modifiedAmount *= npcData.personality.trust;
+    }
+
+    // Apply smooth_talker quirk bonus for positive reputation gains
+    if (amount > 0 && this.state.ship.quirks.includes('smooth_talker')) {
+      modifiedAmount *= 1.05;
+    }
+
+    // Calculate new reputation with clamping and rounding
+    const oldRep = npcState.rep;
+    const newRep = Math.max(
+      -100,
+      Math.min(100, Math.round(oldRep + modifiedAmount))
+    );
+
+    // Log warning if clamping occurred
+    if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {
+      if (!this.isTestEnvironment) {
+        console.warn(
+          `Reputation clamped for ${npcId}: ${oldRep + modifiedAmount} -> ${newRep}`
+        );
+      }
+    }
+
+    // Update NPC state
+    npcState.rep = newRep;
+    npcState.lastInteraction = this.state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Log reputation change for debugging (only in non-test environment)
+    if (!this.isTestEnvironment) {
+      console.log(
+        `Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`
+      );
+    }
+
+    // Persist immediately - reputation changes should be saved
+    this.saveGame();
+  }
+
+  // ========================================================================
+  // DIALOGUE STATE MANAGEMENT
+  // ========================================================================
+
+  /**
+   * Set current dialogue state
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} nodeId - Dialogue node identifier
+   */
+  setDialogueState(npcId, nodeId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: setDialogueState called before game initialization'
+      );
+    }
+
+    this.state.dialogue.currentNpcId = npcId;
+    this.state.dialogue.currentNodeId = nodeId;
+    this.state.dialogue.isActive = true;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
+  }
+
+  /**
+   * Get current dialogue state
+   *
+   * @returns {Object} Current dialogue state
+   */
+  getDialogueState() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getDialogueState called before game initialization'
+      );
+    }
+
+    return { ...this.state.dialogue };
+  }
+
+  /**
+   * Clear dialogue state
+   */
+  clearDialogueState() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: clearDialogueState called before game initialization'
+      );
+    }
+
+    this.state.dialogue.currentNpcId = null;
+    this.state.dialogue.currentNodeId = null;
+    this.state.dialogue.isActive = false;
+    this.state.dialogue.display = null;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
+  }
+
+  // ========================================================================
+  // DIALOGUE ACTIONS
+  // ========================================================================
+
+  /**
+   * Start dialogue with an NPC
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
+   * @returns {Object} Dialogue display object with text, choices, and NPC info
+   */
+  async startDialogue(npcId, nodeId = 'greeting') {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: startDialogue called before game initialization'
+      );
+    }
+
+    // Import dialogue functions dynamically to avoid circular dependency
+    const { showDialogue } = await import('../game-dialogue.js');
+
+    const dialogueDisplay = showDialogue(npcId, nodeId, this);
+
+    // Update dialogue state with display
+    this.state.dialogue.currentNpcId = npcId;
+    this.state.dialogue.currentNodeId = nodeId;
+    this.state.dialogue.isActive = true;
+    this.state.dialogue.display = dialogueDisplay;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
+
+    return dialogueDisplay;
+  }
+
+  /**
+   * Select a dialogue choice and advance conversation
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} choiceIndex - Index of selected choice
+   * @returns {Object|null} Next dialogue display object or null if dialogue ended
+   */
+  async selectDialogueChoice(npcId, choiceIndex) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: selectDialogueChoice called before game initialization'
+      );
+    }
+
+    // Import dialogue functions dynamically to avoid circular dependency
+    const { selectChoice } = await import('../game-dialogue.js');
+
+    const nextDisplay = selectChoice(npcId, choiceIndex, this);
+
+    if (nextDisplay) {
+      // Continue dialogue - update state with new display
+      this.state.dialogue.currentNpcId = npcId;
+      this.state.dialogue.currentNodeId =
+        nextDisplay.currentNodeId || this.state.dialogue.currentNodeId;
+      this.state.dialogue.isActive = true;
+      this.state.dialogue.display = nextDisplay;
+
+      // Emit dialogue state change
+      this.emit('dialogueChanged', { ...this.state.dialogue });
+
+      return nextDisplay;
+    } else {
+      // Dialogue ended - clear state
+      this.state.dialogue.currentNpcId = null;
+      this.state.dialogue.currentNodeId = null;
+      this.state.dialogue.isActive = false;
+      this.state.dialogue.display = null;
+
+      // Emit dialogue state change
+      this.emit('dialogueChanged', { ...this.state.dialogue });
+
+      return null;
+    }
   }
 
   // ========================================================================
@@ -1857,6 +2127,8 @@ export class GameStateManager {
    *
    * Implements save debouncing to prevent excessive saves (max 1 save per second).
    * This protects against rapid state changes causing performance issues.
+   *
+   * Handles save failures gracefully by logging errors and notifying the user.
    */
   saveGame() {
     const result = saveGameToStorage(
@@ -1867,6 +2139,19 @@ export class GameStateManager {
 
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
+    } else {
+      // Only show error notification if save actually failed (not just debounced)
+      const now = Date.now();
+      const timeSinceLastSave = now - this.lastSaveTime;
+
+      if (timeSinceLastSave >= 1000) {
+        // Not debounced, actual failure
+        if (!this.isTestEnvironment) {
+          console.error('Save failed - game progress may be lost');
+        }
+        // TODO: Show user notification about save failure
+        // For now, just log the error - UI notification system would be added later
+      }
     }
 
     return result.success;
@@ -1894,8 +2179,8 @@ export class GameStateManager {
         return null;
       }
 
-      // Migrate from v1.0.0 to v2.1.0 if needed
-      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.1.0') {
+      // Migrate from v1.0.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '4.0.0') {
         loadedState = migrateFromV1ToV2(
           loadedState,
           this.starData,
@@ -1903,9 +2188,14 @@ export class GameStateManager {
         );
       }
 
-      // Migrate from v2.0.0 to v2.1.0 if needed
-      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '2.1.0') {
+      // Migrate from v2.0.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '4.0.0') {
         loadedState = migrateFromV2ToV2_1(loadedState, this.isTestEnvironment);
+      }
+
+      // Migrate from v2.1.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '2.1.0' && GAME_VERSION === '4.0.0') {
+        loadedState = migrateFromV2_1ToV4(loadedState, this.isTestEnvironment);
       }
 
       // Validate state structure
@@ -1942,6 +2232,61 @@ export class GameStateManager {
     } catch (error) {
       if (!this.isTestEnvironment) {
         console.log('Failed to load game:', error);
+
+        // If NPC data is corrupted, try to recover by initializing empty NPC state
+        if (error.message && error.message.includes('NPC')) {
+          console.log(
+            'NPC data corrupted, continuing with fresh NPC relationships'
+          );
+          try {
+            // Try to load again with NPC data reset
+            let recoveredState = loadGameFromStorage(this.isTestEnvironment);
+            if (recoveredState && recoveredState.npcs) {
+              recoveredState.npcs = {};
+              if (recoveredState.dialogue) {
+                recoveredState.dialogue = {
+                  currentNpcId: null,
+                  currentNodeId: null,
+                  isActive: false,
+                  display: null,
+                };
+              }
+
+              // Validate and set recovered state
+              if (validateStateStructure(recoveredState)) {
+                recoveredState = addStateDefaults(
+                  recoveredState,
+                  this.starData
+                );
+                this.state = recoveredState;
+
+                // Emit all state events
+                this.emit('creditsChanged', this.state.player.credits);
+                this.emit('debtChanged', this.state.player.debt);
+                this.emit('fuelChanged', this.state.ship.fuel);
+                this.emit('cargoChanged', this.state.ship.cargo);
+                this.emit('locationChanged', this.state.player.currentSystem);
+                this.emit('timeChanged', this.state.player.daysElapsed);
+                this.emit(
+                  'priceKnowledgeChanged',
+                  this.state.world.priceKnowledge
+                );
+                this.emit('activeEventsChanged', this.state.world.activeEvents);
+                this.emit('shipConditionChanged', {
+                  hull: this.state.ship.hull,
+                  engine: this.state.ship.engine,
+                  lifeSupport: this.state.ship.lifeSupport,
+                });
+                this.emit('upgradesChanged', this.state.ship.upgrades);
+                this.emit('quirksChanged', this.state.ship.quirks);
+
+                return this.state;
+              }
+            }
+          } catch {
+            console.log('Recovery failed, starting new game');
+          }
+        }
       }
       return null;
     }

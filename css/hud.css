@@ -488,6 +488,102 @@
   font-weight: bold;
 }
 
+/* Station People Section */
+.station-people {
+  margin-bottom: 20px;
+}
+
+.station-people h3 {
+  color: #00ff88;
+  font-size: 14px;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.npc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.npc-btn {
+  width: 100%;
+  height: 50px;
+  background-color: #222222;
+  color: #ffffff;
+  border: 2px solid #00ff88;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  padding-top: 14px;
+  gap: 10px;
+}
+
+.npc-btn:hover {
+  background-color: #00ff88;
+  color: #000000;
+}
+
+.npc-btn:hover .npc-name,
+.npc-btn:hover .npc-role {
+  color: #000000;
+}
+
+.npc-btn:hover .npc-tier {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #000000;
+}
+
+.npc-btn:active {
+  transform: scale(0.98);
+}
+
+.npc-btn .npc-name {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.npc-btn .npc-role {
+  color: #888888;
+  font-size: 12px;
+}
+
+.npc-tier {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: bold;
+  position: relative;
+  top: -2px;
+}
+
+.npc-tier.tier-cold {
+  color: #6699ff;
+  background-color: rgba(102, 153, 255, 0.3);
+}
+
+.npc-tier.tier-neutral {
+  color: #aaaaaa;
+  background-color: rgba(136, 136, 136, 0.3);
+}
+
+.npc-tier.tier-warm {
+  color: #ffcc00;
+  background-color: rgba(255, 204, 0, 0.3);
+}
+
+.npc-tier.tier-trusted {
+  color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.3);
+}
+
 .station-actions {
   display: flex;
   flex-direction: column;

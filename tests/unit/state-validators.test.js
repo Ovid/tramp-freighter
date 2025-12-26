@@ -228,10 +228,10 @@ describe('State Validators Module', () => {
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
-    it('should update version to 2.1.0', () => {
+    it('should update version to 4.0.0', () => {
       const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
 
-      expect(migrated.meta.version).toBe('2.1.0');
+      expect(migrated.meta.version).toBe('4.0.0');
     });
 
     it('should throw error if current system not found in star data', () => {
@@ -316,10 +316,10 @@ describe('State Validators Module', () => {
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
-    it('should update version to 2.1.0', () => {
+    it('should update version to 4.0.0', () => {
       const migrated = migrateFromV2ToV2_1(v2State, true);
 
-      expect(migrated.meta.version).toBe('2.1.0');
+      expect(migrated.meta.version).toBe('4.0.0');
     });
 
     it('should preserve existing state', () => {

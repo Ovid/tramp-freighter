@@ -1,0 +1,265 @@
+/* Dialogue Panel Styling */
+.dialogue-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 80vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.dialogue-panel.visible {
+  display: block;
+}
+
+/* Close Button */
+.dialogue-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.dialogue-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+/* Loading State */
+.dialogue-loading {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Dialogue Header - NPC Info and Reputation Tier */
+.dialogue-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.dialogue-header .npc-name {
+  color: #00ff88;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.dialogue-header .npc-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.dialogue-header .npc-role {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
+.dialogue-header .npc-station {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* Reputation Tier Styling */
+.reputation-tier {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reputation-tier.tier-hostile {
+  background-color: rgba(255, 107, 107, 0.2);
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+}
+
+.reputation-tier.tier-cold {
+  background-color: rgba(135, 206, 235, 0.2);
+  border: 1px solid #87ceeb;
+  color: #87ceeb;
+}
+
+.reputation-tier.tier-neutral {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.reputation-tier.tier-warm {
+  background-color: rgba(255, 255, 0, 0.2);
+  border: 1px solid #ffff00;
+  color: #ffff00;
+}
+
+.reputation-tier.tier-friendly {
+  background-color: rgba(0, 255, 136, 0.2);
+  border: 1px solid #00ff88;
+  color: #00ff88;
+}
+
+.reputation-tier.tier-trusted {
+  background-color: rgba(0, 191, 255, 0.2);
+  border: 1px solid #00bfff;
+  color: #00bfff;
+}
+
+.reputation-tier.tier-family {
+  background-color: rgba(255, 215, 0, 0.2);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+}
+
+/* Dialogue Content */
+.dialogue-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Dialogue Text Area */
+.dialogue-text {
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 5px;
+  padding: 20px;
+  min-height: 80px;
+}
+
+.dialogue-text p {
+  color: #ffffff;
+  line-height: 1.6;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Dialogue Choices Section */
+.dialogue-choices h3 {
+  color: #00ff88;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+}
+
+/* Numbered Choice List */
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 5px;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+
+.choice-btn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+  color: #ffffff;
+}
+
+.choice-btn:active {
+  background-color: rgba(0, 255, 136, 0.2);
+  transform: scale(0.98);
+}
+
+.choice-number {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 15px;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+
+.choice-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+  .dialogue-panel {
+    width: 90vw;
+    max-width: 500px;
+    padding: 15px;
+  }
+
+  .dialogue-header .npc-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .dialogue-text {
+    padding: 15px;
+  }
+
+  .choice-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Accessibility Improvements */
+.choice-btn:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}
+
+.dialogue-panel .close-btn:focus {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
+}
+
+/* Animation for Panel Appearance */
+.dialogue-panel.visible {
+  animation: dialogueFadeIn 0.3s ease-out;
+}
+
+@keyframes dialogueFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
