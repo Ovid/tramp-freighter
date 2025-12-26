@@ -14,9 +14,9 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 
 - [ ] 2. Extend NPC state structure in GameStateManager
   - [ ] 2.1 Add new NPC state fields to `getNPCState()` initialization
-    - Add `lastTipDay`, `lastFavorDay`, `loanAmount`, `loanDay`, `storedCargo` fields
+    - Add `lastTipDay`, `lastFavorDay`, `loanAmount`, `loanDay`, `storedCargo`, `lastFreeRepairDay` fields
     - Ensure backward compatibility with existing NPC state
-    - _Requirements: 2.2, 3.5, 3.6, 3.7_
+    - _Requirements: 2.2, 3.5, 3.6, 3.7, 1.6, 1.7_
 
   - [ ] 2.2 Write property test for NPC state initialization
     - **Property: NPC state includes all benefit tracking fields**
@@ -144,185 +144,237 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 - [ ] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Add new NPC definitions
-  - [ ] 9.1 Add Whisper NPC definition to npc-data.js
+- [ ] 9. Implement free repair system
+  - [ ] 9.1 Implement `canGetFreeRepair(npcId)` method
+    - Check NPC's reputation tier is Trusted or Family
+    - Check lastFreeRepairDay is not current day (once per visit)
+    - Return max hull percent based on tier (10% for Trusted, 25% for Family)
+    - Return `{ available: boolean, maxHullPercent: number, reason: string | null }`
+    - _Requirements: 1.6, 1.7_
+
+  - [ ] 9.2 Implement `applyFreeRepair(npcId, hullDamagePercent)` method
+    - Validate with `canGetFreeRepair(npcId)`
+    - Repair up to maxHullPercent of hull damage
+    - Set lastFreeRepairDay to current game day
+    - Return `{ success: boolean, repairedPercent: number, message: string }`
+    - _Requirements: 1.6, 1.7_
+
+  - [ ] 9.3 Write property test for free repair tier limits
+    - **Property: Free Repair Tier Limits**
+    - *For any* NPC at Trusted tier, free repair SHALL be limited to 10% hull damage
+    - *For any* NPC at Family tier, free repair SHALL be limited to 25% hull damage
+    - **Validates: Requirements 1.6, 1.7**
+
+  - [ ] 9.4 Integrate free repair into RepairPanel UI
+    - Show "Free repair available" when `canGetFreeRepair()` returns available
+    - Add button to apply free repair with tier-appropriate limits
+    - Display repaired amount and remaining free repair eligibility
+    - _Requirements: 1.6, 1.7_
+
+  - [ ] 9.5 Add free repair validation and feedback
+    - Show validation messages for free repair availability
+    - Display "Once per visit" limitation clearly
+    - Show tier-based repair limits (10% for Trusted, 25% for Family)
+    - _Requirements: 1.6, 1.7_
+
+  - [ ] 9.6 Write integration test for free repair UI
+    - Verify free repair button appears when available
+    - Verify free repair button hidden when unavailable
+    - Verify repair limits are enforced in UI
+    - _Requirements: 1.6, 1.7_
+
+- [ ] 10. Add new NPC definitions
+  - [ ] 10.1 Add Whisper NPC definition to npc-data.js
     - Add to Sirius A (system 2), Sirius Exchange station
     - Include personality, speechStyle, tips array, discountService: 'intel'
     - Include tierBenefits configuration
     - _Requirements: 4.1-4.15_
 
-  - [ ] 9.2 Add Captain Vasquez NPC definition to npc-data.js
+  - [ ] 10.2 Add Captain Vasquez NPC definition to npc-data.js
     - Add to Epsilon Eridani (system 3), Eridani Hub station
     - Include personality, speechStyle, tips array, discountService: null
     - Include tierBenefits configuration
     - _Requirements: 5.1-5.11_
 
-  - [ ] 9.3 Add Dr. Sarah Kim NPC definition to npc-data.js
+  - [ ] 10.3 Add Dr. Sarah Kim NPC definition to npc-data.js
     - Add to Tau Ceti (system 5), Tau Ceti Station
     - Include personality, speechStyle, tips array, discountService: 'docking'
     - Include tierBenefits configuration
     - _Requirements: 6.1-6.10_
 
-  - [ ] 9.4 Add "Rusty" Rodriguez NPC definition to npc-data.js
+  - [ ] 10.4 Add "Rusty" Rodriguez NPC definition to npc-data.js
     - Add to Procyon (system 6), Procyon Depot station
     - Include personality, speechStyle, tips array, discountService: 'repair'
     - Include tierBenefits configuration
     - _Requirements: 7.1-7.10_
 
-  - [ ] 9.5 Add Zara Osman NPC definition to npc-data.js
+  - [ ] 10.5 Add Zara Osman NPC definition to npc-data.js
     - Add to Luyten's Star (system 7), Luyten's Outpost station
     - Include personality, speechStyle, tips array, discountService: 'trade'
     - Include tierBenefits configuration
     - _Requirements: 8.1-8.10_
 
-  - [ ] 9.6 Add Station Master Kowalski NPC definition to npc-data.js
+  - [ ] 10.6 Add Station Master Kowalski NPC definition to npc-data.js
     - Add to Alpha Centauri (system 1), Centauri Station
     - Include personality, speechStyle, tips array, discountService: 'docking'
     - Include tierBenefits configuration
     - _Requirements: 9.1-9.10_
 
-  - [ ] 9.7 Add "Lucky" Liu NPC definition to npc-data.js
+  - [ ] 10.7 Add "Lucky" Liu NPC definition to npc-data.js
     - Add to Wolf 359 (system 8), Wolf 359 Station
     - Include personality, speechStyle, tips array, discountService: null
     - Include tierBenefits configuration
     - _Requirements: 10.1-10.10_
 
-  - [ ] 9.8 Write unit test for NPC data validation
+  - [ ] 10.8 Write unit test for NPC data validation
     - Verify all 7 new NPCs have required fields
     - Verify personality values match specification
     - Verify tips arrays are non-empty (except Father Okonkwo)
     - **Validates: Requirements 4.1-10.10**
 
-- [ ] 10. Extend existing NPC definitions
-  - [ ] 10.1 Add tips and benefits to Wei Chen
+  - [ ] 10.9 Write property test for NPC data validation
+    - **Property 13: NPC Data Validation**
+    - *For all* new NPCs, verify required fields exist and values match specification ranges
+    - **Validates: Requirements 4.1-4.15, 5.1-5.11, 6.1-6.10, 7.1-7.10, 8.1-8.10, 9.1-9.10, 10.1-10.10**
+
+- [ ] 11. Extend existing NPC definitions
+  - [ ] 11.1 Add tips and benefits to Wei Chen
     - Add tips array with dock worker tips
     - Add discountService: 'docking'
     - Add tierBenefits configuration
     - _Requirements: 13.1-13.4_
 
-  - [ ] 10.2 Add tips and benefits to Marcus Cole
+  - [ ] 11.2 Add tips and benefits to Marcus Cole
     - Add tips array with financial tips
     - Add discountService: 'debt'
     - Add tierBenefits configuration
     - _Requirements: 13.5-13.8_
 
-  - [ ] 10.3 Add benefits to Father Okonkwo (no tips)
+  - [ ] 11.3 Add benefits to Father Okonkwo (no tips)
     - Keep tips array empty
     - Add discountService: 'medical'
     - Add tierBenefits configuration
     - _Requirements: 13.9-13.11_
 
-- [ ] 11. Add dialogue trees for new NPCs
-  - [ ] 11.1 Create Whisper dialogue tree
-    - Add greeting with tier-based text
+- [ ] 12. Add dialogue trees for new NPCs
+  - [ ] 12.1 Create Whisper dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option (conditional on canGetTip)
     - Add favor dialogue options (conditional on tier)
-    - _Requirements: 4.11-4.15, 12.1-12.10_
+    - _Requirements: 4.11-4.15, 12.1-12.6_
 
-  - [ ] 11.2 Create Captain Vasquez dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.2 Create Captain Vasquez dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - Add backstory with Pavonis route hints
-    - _Requirements: 5.6-5.11, 12.1-12.10_
+    - _Requirements: 5.6-5.11, 12.1-12.6_
 
-  - [ ] 11.3 Create Dr. Sarah Kim dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.3 Create Dr. Sarah Kim dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
-    - _Requirements: 6.6-6.10, 12.1-12.10_
+    - _Requirements: 6.6-6.10, 12.1-12.6_
 
-  - [ ] 11.4 Create "Rusty" Rodriguez dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.4 Create "Rusty" Rodriguez dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
-    - _Requirements: 7.6-7.10, 12.1-12.10_
+    - _Requirements: 7.6-7.10, 12.1-12.6_
 
-  - [ ] 11.5 Create Zara Osman dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.5 Create Zara Osman dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
-    - _Requirements: 8.6-8.10, 12.1-12.10_
+    - _Requirements: 8.6-8.10, 12.1-12.6_
 
-  - [ ] 11.6 Create Station Master Kowalski dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.6 Create Station Master Kowalski dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
-    - _Requirements: 9.6-9.10, 12.1-12.10_
+    - _Requirements: 9.6-9.10, 12.1-12.6_
 
-  - [ ] 11.7 Create "Lucky" Liu dialogue tree
-    - Add greeting with tier-based text
+  - [ ] 12.7 Create "Lucky" Liu dialogue tree
+    - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
-    - _Requirements: 10.6-10.10, 12.1-12.10_
+    - _Requirements: 10.6-10.10, 12.1-12.6_
 
-- [ ] 12. Checkpoint - Ensure all tests pass
+- [ ] 13. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 13. Integrate discounts into service panels
-  - [ ] 13.1 Update RepairPanel to show NPC discounts
+- [ ] 14. Integrate discounts into service panels
+  - [ ] 14.1 Update RepairPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'repair' service
     - Display discounted price and discount percentage
     - Show source NPC name
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 13.2 Update RefuelPanel to show NPC discounts
+  - [ ] 14.2 Update RefuelPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'refuel' service
     - Display discounted price and discount percentage
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 13.3 Update InfoBrokerPanel to show NPC discounts
+  - [ ] 14.3 Update InfoBrokerPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'intel' service
     - Display discounted price and discount percentage
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 13.4 Write integration test for service panel discounts
+  - [ ] 14.4 Write integration test for service panel discounts
     - Verify discounts display correctly in panels
     - Verify discount source NPC is shown
     - _Requirements: 11.1, 11.2_
 
-- [ ] 14. Integrate tips into DialoguePanel
-  - [ ] 14.1 Add tip dialogue option to DialoguePanel
+- [ ] 15. Integrate tips into DialoguePanel
+  - [ ] 15.1 Add tip dialogue option to DialoguePanel
     - Show "Ask for trading tip" option when `canGetTip()` returns true
     - Call `getTip()` when option selected
     - Display tip in dialogue
     - _Requirements: 2.1, 2.3_
 
-  - [ ] 14.2 Write integration test for dialogue tips
+  - [ ] 15.2 Write integration test for dialogue tips
     - Verify tip option appears when available
     - Verify tip option hidden when unavailable
-    - _Requirements: 2.1, 2.3_
+    - Verify displayed tip text comes from correct NPC's tips array
+    - Verify different NPCs show different tips
+    - _Requirements: 2.1, 2.3, 2.4_
 
-- [ ] 15. Integrate favors into DialoguePanel
-  - [ ] 15.1 Add loan request dialogue option
+- [ ] 16. Integrate favors into DialoguePanel
+  - [ ] 16.1 Add loan request dialogue option
     - Show "Request emergency loan" when `canRequestFavor('loan')` returns available
     - Show cooldown message when unavailable
     - Call `requestLoan()` when confirmed
     - _Requirements: 3.1, 3.4, 3.9_
 
-  - [ ] 15.2 Add loan repayment dialogue option
+  - [ ] 16.2 Add loan repayment dialogue option
     - Show "Repay loan" when NPC has outstanding loan
     - Call `repayLoan()` when confirmed
     - _Requirements: 3.14_
 
-  - [ ] 15.3 Add cargo storage dialogue option
+  - [ ] 16.3 Add cargo storage dialogue option
     - Show "Store cargo" when `canRequestFavor('storage')` returns available
     - Open cargo selection UI
     - Call `storeCargo()` with selected cargo
     - _Requirements: 3.2, 3.6, 3.10_
 
-  - [ ] 15.4 Add cargo retrieval dialogue option
+  - [ ] 16.4 Add cargo retrieval dialogue option
     - Show "Retrieve stored cargo" when NPC has storedCargo
     - Call `retrieveCargo()` when selected
     - Show partial retrieval message if capacity limited
     - _Requirements: 3.11, 3.12, 3.13_
 
-- [ ] 16. Update save/load for new NPC state fields
-  - [ ] 16.1 Update state-validators.js for NPC benefits migration
+  - [ ] 16.5 Add loan status display to NPC dialogue
+    - Show outstanding loan amount and days remaining for repayment
+    - Display "Loan overdue" warning when past 30-day deadline
+    - Show favor cooldown status with days remaining
+    - _Requirements: 3.4, 3.17_
+
+- [ ] 17. Update save/load for new NPC state fields
+  - [ ] 17.1 Update state-validators.js for NPC benefits migration
     - Add migration from v4.0.0 to v4.1.0
     - Add default values for new NPC state fields
     - _Requirements: 2.2, 3.5, 3.6, 3.7_
 
-  - [ ] 16.2 Write unit test for save/load migration
+  - [ ] 17.2 Write unit test for save/load migration
     - Verify old saves load with default benefit fields
     - Verify new saves preserve all benefit state
     - _Requirements: 2.2, 3.5, 3.6, 3.7_
 
-- [ ] 17. Final checkpoint - Ensure all tests pass
+- [ ] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

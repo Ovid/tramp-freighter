@@ -33,9 +33,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 
 #### Acceptance Criteria
 
-1. WHEN an NPC relationship is Hostile THEN the system SHALL refuse service, may report smuggling, and tip off pirates
-2. WHEN an NPC relationship is Cold THEN the system SHALL provide minimal interaction, no tips, and standard prices
-3. WHEN an NPC relationship is Neutral THEN the system SHALL provide standard service and generic dialogue
+1. WHEN an NPC relationship is Hostile THEN the system SHALL provide no discounts and no tips (note: service refusal, smuggling reports, and pirate tip-offs deferred to danger-systems spec)
+2. WHEN an NPC relationship is Cold THEN the system SHALL provide no discounts and no tips
+3. WHEN an NPC relationship is Neutral THEN the system SHALL provide standard service, no discounts, and no tips
 4. WHEN an NPC relationship is Warm THEN the system SHALL provide occasional tips, 5% discount on services, and hints about events
 5. WHEN an NPC relationship is Friendly THEN the system SHALL provide regular tips, 10% discount on services, and personal dialogue
 6. WHEN an NPC relationship is Trusted THEN the system SHALL provide free minor repairs up to 10% hull damage once per visit, 15% discount on services, safe harbor, and advance warnings
@@ -92,8 +92,8 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 6. WHEN Whisper dialogue is displayed THEN the system SHALL use formal greeting style, educated vocabulary, and cryptic measured tones quirk
 7. WHEN Whisper provides tips THEN the system SHALL randomly select from: "Procyon is buying ore at premium prices this week.", "Avoid Tau Ceti. Inspections are up 300%.", "Someone at Ross 154 is looking for electronics. Big buyer."
 8. WHEN Whisper reaches Warm tier THEN the system SHALL provide 10% discount on intel purchases
-9. WHEN Whisper reaches Friendly tier THEN the system SHALL provide free rumors once per visit
-10. WHEN Whisper reaches Trusted tier THEN the system SHALL provide advance warning of inspections
+9. WHEN Whisper reaches Friendly tier THEN the system SHALL provide additional tips (implemented as standard tip system)
+10. WHEN Whisper reaches Trusted tier THEN the system SHALL provide enhanced tips about inspections (note: advance warning mechanics deferred to danger-systems spec)
 11. WHEN Whisper greets a Neutral player THEN the system SHALL display "Welcome. I deal in information. What do you need?"
 12. WHEN Whisper greets a Warm player THEN the system SHALL display "Ah, a familiar face. Looking for intel?"
 13. WHEN Whisper greets a Friendly player THEN the system SHALL display "Good to see you. I have something interesting."
@@ -113,9 +113,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 5. WHEN Captain Vasquez is defined THEN the system SHALL set description to "Retired freighter captain. Mentor figure. Knows the old routes."
 6. WHEN Captain Vasquez dialogue is displayed THEN the system SHALL use warm greeting style, simple vocabulary, and trading stories quirk
 7. WHEN Captain Vasquez provides tips THEN the system SHALL randomly select from: "Barnard's Star always needs ore. Mining station, you know.", "Sirius A pays top credit for luxury goods. Rich folks.", "The Procyon run is profitable if you can afford the fuel."
-8. WHEN Captain Vasquez reaches Warm tier THEN the system SHALL provide trading tips and route suggestions
-9. WHEN Captain Vasquez reaches Friendly tier THEN the system SHALL provide old star charts that reveal profitable routes
-10. WHEN Captain Vasquez reaches Trusted tier THEN the system SHALL offer co-investment opportunities with 50/50 profit splits
+8. WHEN Captain Vasquez reaches Warm tier THEN the system SHALL provide trading tips and route suggestions (implemented as standard tip system)
+9. WHEN Captain Vasquez reaches Friendly tier THEN the system SHALL provide enhanced trading tips (note: old star charts mechanic deferred to future spec)
+10. WHEN Captain Vasquez reaches Trusted tier THEN the system SHALL provide endgame hints in dialogue (note: co-investment mechanic deferred to future spec)
 11. WHEN Captain Vasquez dialogue includes backstory THEN the system SHALL include hints about the Pavonis route and Range Extender as endgame content
 
 ### Requirement 6
@@ -131,9 +131,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 5. WHEN Dr. Sarah Kim is defined THEN the system SHALL set description to "Efficient station administrator. By-the-book. Respects professionalism."
 6. WHEN Dr. Sarah Kim dialogue is displayed THEN the system SHALL use formal greeting style, technical vocabulary, and regulation citations quirk
 7. WHEN Dr. Sarah Kim provides tips THEN the system SHALL randomly select from: "We have strict customs here. Keep your cargo manifest accurate.", "Medicine prices are stable at Ross 154. Good for planning.", "Fuel efficiency matters on long routes. Upgrade your engine."
-8. WHEN Dr. Sarah Kim reaches Warm tier THEN the system SHALL provide expedited docking clearance
-9. WHEN Dr. Sarah Kim reaches Friendly tier THEN the system SHALL waive docking fees
-10. WHEN Dr. Sarah Kim reaches Trusted tier THEN the system SHALL provide advance notice of customs inspections
+8. WHEN Dr. Sarah Kim reaches Warm tier THEN the system SHALL provide operational tips (implemented as standard tip system)
+9. WHEN Dr. Sarah Kim reaches Friendly tier THEN the system SHALL provide enhanced operational tips (note: docking fee waiver deferred to station-operations spec)
+10. WHEN Dr. Sarah Kim reaches Trusted tier THEN the system SHALL provide inspection-related tips (note: advance customs notice deferred to danger-systems spec)
 
 ### Requirement 7
 
@@ -150,7 +150,7 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 7. WHEN "Rusty" Rodriguez provides tips THEN the system SHALL randomly select from: "Don't let your hull drop below 50%. Expensive to fix after that.", "Engine degradation is real. Budget for maintenance.", "Life support is critical. Never skip those repairs."
 8. WHEN "Rusty" Rodriguez reaches Warm tier THEN the system SHALL provide 5% discount on repairs
 9. WHEN "Rusty" Rodriguez reaches Friendly tier THEN the system SHALL provide 15% discount on repairs
-10. WHEN "Rusty" Rodriguez reaches Trusted tier THEN the system SHALL provide free diagnostics and minor ship repairs
+10. WHEN "Rusty" Rodriguez reaches Trusted tier THEN the system SHALL provide maintenance tips and free diagnostics (implemented as enhanced tip system)
 
 ### Requirement 8
 
@@ -165,9 +165,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 5. WHEN Zara Osman is defined THEN the system SHALL set description to "Sharp trader with connections across the sector. Competitive but fair."
 6. WHEN Zara Osman dialogue is displayed THEN the system SHALL use casual greeting style, slang vocabulary, and trading jargon quirk
 7. WHEN Zara Osman provides tips THEN the system SHALL randomly select from: "Buy low at mining stations, sell high at rich systems.", "Luxury goods have the best margins if you can afford the capital.", "Watch for economic events. They shift prices dramatically."
-8. WHEN Zara Osman reaches Warm tier THEN the system SHALL provide market price hints
-9. WHEN Zara Osman reaches Friendly tier THEN the system SHALL provide advance notice of price shifts
-10. WHEN Zara Osman reaches Trusted tier THEN the system SHALL buy player cargo at 105% market rate
+8. WHEN Zara Osman reaches Warm tier THEN the system SHALL provide market price tips (implemented as standard tip system)
+9. WHEN Zara Osman reaches Friendly tier THEN the system SHALL provide enhanced market tips (note: advance price shift notice deferred to economy-events spec)
+10. WHEN Zara Osman reaches Trusted tier THEN the system SHALL provide premium trading tips (note: 105% buy rate mechanic deferred to trading-enhancements spec)
 
 ### Requirement 9
 
@@ -182,9 +182,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 5. WHEN Station Master Kowalski is defined THEN the system SHALL set description to "Veteran station master. Seen everything. Respects competence."
 6. WHEN Station Master Kowalski dialogue is displayed THEN the system SHALL use gruff greeting style, simple vocabulary, and no-nonsense direct quirk
 7. WHEN Station Master Kowalski provides tips THEN the system SHALL randomly select from: "Alpha Centauri is a hub. Good for buying and selling most goods.", "We get a lot of traffic. Prices are competitive.", "Keep your ship in good shape. We have standards here."
-8. WHEN Station Master Kowalski reaches Warm tier THEN the system SHALL provide priority docking
-9. WHEN Station Master Kowalski reaches Friendly tier THEN the system SHALL provide access to station storage of 10 units
-10. WHEN Station Master Kowalski reaches Trusted tier THEN the system SHALL provide emergency fuel at cost
+8. WHEN Station Master Kowalski reaches Warm tier THEN the system SHALL provide station operation tips (implemented as standard tip system)
+9. WHEN Station Master Kowalski reaches Friendly tier THEN the system SHALL provide enhanced station tips (note: station storage access deferred to station-operations spec)
+10. WHEN Station Master Kowalski reaches Trusted tier THEN the system SHALL provide emergency operation tips (note: emergency fuel at cost deferred to station-operations spec)
 
 ### Requirement 10
 
@@ -199,9 +199,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 5. WHEN "Lucky" Liu is defined THEN the system SHALL set description to "Professional gambler and risk-taker. Loves long odds. Respects bold moves."
 6. WHEN "Lucky" Liu dialogue is displayed THEN the system SHALL use casual greeting style, slang vocabulary, and gambling metaphors quirk
 7. WHEN "Lucky" Liu provides tips THEN the system SHALL randomly select from: "Sometimes you gotta take risks. Big risks, big rewards.", "I heard about a high-stakes cargo run. Interested?", "Don't play it safe all the time. Fortune favors the bold."
-8. WHEN "Lucky" Liu reaches Warm tier THEN the system SHALL provide gambling tips
-9. WHEN "Lucky" Liu reaches Friendly tier THEN the system SHALL stake the player ₡500 for cargo runs
-10. WHEN "Lucky" Liu reaches Trusted tier THEN the system SHALL share insider information on risky opportunities
+8. WHEN "Lucky" Liu reaches Warm tier THEN the system SHALL provide risk-taking tips (implemented as standard tip system)
+9. WHEN "Lucky" Liu reaches Friendly tier THEN the system SHALL provide enhanced risk tips (note: ₡500 stake mechanic deferred to gambling-systems spec)
+10. WHEN "Lucky" Liu reaches Trusted tier THEN the system SHALL provide high-risk opportunity tips (note: insider information mechanic deferred to gambling-systems spec)
 
 ### Requirement 11
 
@@ -225,11 +225,7 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 3. WHEN an NPC relationship is Warm THEN the system SHALL display familiar recognition greetings
 4. WHEN an NPC relationship is Friendly THEN the system SHALL display warm personal greetings
 5. WHEN an NPC relationship is Trusted THEN the system SHALL display intimate trusted greetings
-6. WHEN dialogue choices are displayed THEN the system SHALL conditionally show options based on reputation thresholds
-7. WHEN a dialogue choice requires reputation of 10 or higher THEN the system SHALL hide that choice for lower reputation values
-8. WHEN a dialogue choice requires reputation of 30 or higher THEN the system SHALL hide that choice for lower reputation values
-9. WHEN a dialogue choice has a repGain value THEN the system SHALL increase NPC reputation by that amount when the choice is selected
-10. WHEN a dialogue choice leads to null THEN the system SHALL end the conversation
+6. WHEN an NPC relationship is Family THEN the system SHALL display family-like greetings (note: conditional dialogue options, reputation thresholds, and reputation gain from choices deferred to dialogue-enhancement spec)
 
 ### Requirement 13
 
