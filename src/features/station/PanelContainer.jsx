@@ -5,6 +5,7 @@ import { UpgradesPanel } from '../upgrades/UpgradesPanel';
 import { InfoBrokerPanel } from '../info-broker/InfoBrokerPanel';
 import { CargoManifestPanel } from '../cargo/CargoManifestPanel';
 import { ShipStatusPanel } from '../ship-status/ShipStatusPanel';
+import { DialoguePanel } from '../dialogue/DialoguePanel';
 
 /**
  * Panel container component.
@@ -13,11 +14,13 @@ import { ShipStatusPanel } from '../ship-status/ShipStatusPanel';
  * Handles panel closing and provides a consistent container for all panels.
  *
  * React Migration Spec: Requirements 9.4
+ * NPC Foundation Spec: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
  *
  * @param {string} activePanel - Name of the currently active panel
+ * @param {string} npcId - NPC ID for dialogue panel (optional)
  * @param {Function} onClose - Callback to close the panel
  */
-export function PanelContainer({ activePanel, onClose }) {
+export function PanelContainer({ activePanel, npcId, onClose }) {
   // Placeholder for panel rendering
   // Actual panel components will be imported and rendered in later tasks
   const renderPanel = () => {
@@ -36,6 +39,8 @@ export function PanelContainer({ activePanel, onClose }) {
         return <CargoManifestPanel onClose={onClose} />;
       case 'ship-status':
         return <ShipStatusPanel onClose={onClose} />;
+      case 'dialogue':
+        return <DialoguePanel npcId={npcId} onClose={onClose} />;
       default:
         return null;
     }

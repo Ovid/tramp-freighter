@@ -204,6 +204,26 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         stars,
       };
 
+      // Set up global StarmapBridge for cross-component communication
+      // This allows SystemPanel to select stars without prop drilling
+      window.StarmapBridge = {
+        selectStarById: (systemId) => {
+          const star = stars.find((s) => s.data.id === systemId);
+          if (star) {
+            selectStar(star, scene, camera);
+            if (props.onSystemSelected) {
+              props.onSystemSelected(systemId);
+            }
+          }
+        },
+        deselectStar: () => {
+          deselectStar();
+          if (props.onSystemDeselected) {
+            props.onSystemDeselected();
+          }
+        },
+      };
+
       // Initialize current system indicator
       updateCurrentSystemIndicator(
         scene,
@@ -301,6 +321,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
 
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);
+
+        // Clean up global StarmapBridge
+        delete window.StarmapBridge;
 
         // Dispose of Three.js resources
         if (renderer) {

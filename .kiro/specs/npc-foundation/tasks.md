@@ -136,7 +136,7 @@
   - **Property 16: Numbered choice list format**
   - **Validates: Requirements 2.3**
 
-- [ ] 7. Integrate NPCs into station menu
+- [x] 7. Integrate NPCs into station menu
   - Update `src/features/station/StationMenu.jsx` to display NPCs
   - Add "PEOPLE" section with list of NPCs at current system
   - Show NPC name, role, and reputation tier for each NPC
@@ -144,7 +144,7 @@
   - Handle NPC selection to open dialogue
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 7.1 Write unit tests for station menu NPC integration
+- [x] 7.1 Write unit tests for station menu NPC integration
   - Test "PEOPLE" section appears when NPCs present
   - Test "PEOPLE" section omitted when no NPCs present
   - Test clicking NPC opens dialogue interface

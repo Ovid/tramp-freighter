@@ -44,6 +44,7 @@ export default function App({ devMode = false }) {
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
   const [activePanel, setActivePanel] = useState(null);
+  const [activePanelNpcId, setActivePanelNpcId] = useState(null);
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
 
@@ -91,14 +92,16 @@ export default function App({ devMode = false }) {
     setActivePanel(null);
   };
 
-  const handleOpenPanel = (panelName) => {
+  const handleOpenPanel = (panelName, npcId = null) => {
     setActivePanel(panelName);
+    setActivePanelNpcId(npcId);
     setViewMode(VIEW_MODES.PANEL);
   };
 
   const handleClosePanel = () => {
     setViewMode(VIEW_MODES.STATION);
     setActivePanel(null);
+    setActivePanelNpcId(null);
   };
 
   const handleOpenDevAdmin = () => {
@@ -197,6 +200,7 @@ export default function App({ devMode = false }) {
               {viewMode === VIEW_MODES.PANEL && (
                 <PanelContainer
                   activePanel={activePanel}
+                  npcId={activePanelNpcId}
                   onClose={handleClosePanel}
                 />
               )}
