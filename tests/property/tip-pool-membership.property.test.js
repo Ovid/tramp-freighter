@@ -39,187 +39,205 @@ describe('Tip Pool Membership Property Tests', () => {
 
   it('should return tips that are members of the NPCs tips array', () => {
     fc.assert(
-      fc.property(arbNPCId(), arbDay(), (npcId, currentDay) => {
-        // Create a fresh GameStateManager for this test iteration
-        const testGameStateManager = new GameStateManager(
-          STAR_DATA,
-          WORMHOLE_DATA
-        );
-        testGameStateManager.initNewGame();
+      fc.property(
+        arbNPCId(),
+        arbDay(),
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, currentDay, randomValue) => {
+          // Create a fresh GameStateManager for this test iteration
+          const testGameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          testGameStateManager.initNewGame();
 
-        // Get NPC data
-        const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-        // Only test NPCs that have tips
-        if (npcData.tips && npcData.tips.length > 0) {
-          testGameStateManager.updateTime(currentDay);
+          try {
+            // Get NPC data
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-          // Set up NPC state for successful tip
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = 50; // High enough reputation (Warm tier)
-          npcState.lastTipDay = null; // No previous tip
+            // Only test NPCs that have tips
+            if (npcData.tips && npcData.tips.length > 0) {
+              testGameStateManager.updateTime(currentDay);
 
-          // Get multiple tips by resetting cooldown each time
-          const receivedTips = new Set();
-          const maxAttempts = Math.min(100, npcData.tips.length * 10); // Reasonable limit
+              // Set up NPC state for successful tip
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = 50; // High enough reputation (Warm tier)
+              npcState.lastTipDay = null; // No previous tip
 
-          for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            // Reset cooldown for each attempt
-            npcState.lastTipDay = null;
+              // Get tip
+              const tip = testGameStateManager.getTip(npcId);
 
-            const tip = testGameStateManager.getTip(npcId);
-            if (tip) {
-              receivedTips.add(tip);
-
-              // Verify this tip is in the NPC's tips array
+              // Verify tip was returned and is from the correct pool
+              expect(tip).toBeTruthy();
+              expect(typeof tip).toBe('string');
+              expect(tip.length).toBeGreaterThan(0);
               expect(npcData.tips).toContain(tip);
-
-              // If we've seen all possible tips, we can stop
-              if (receivedTips.size === npcData.tips.length) {
-                break;
-              }
             }
-          }
-
-          // Verify we received at least one tip (since conditions were met)
-          expect(receivedTips.size).toBeGreaterThan(0);
-
-          // Verify all received tips are from the NPC's tips array
-          for (const tip of receivedTips) {
-            expect(npcData.tips).toContain(tip);
-            expect(typeof tip).toBe('string');
-            expect(tip.length).toBeGreaterThan(0);
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
           }
         }
-      }),
-      { numRuns: 10 }
+      ),
+      { numRuns: 20 }
     );
   });
 
   it('should return null when NPC has no tips array', () => {
     fc.assert(
-      fc.property(arbNPCId(), arbDay(), (npcId, currentDay) => {
-        // Create a fresh GameStateManager for this test iteration
-        const testGameStateManager = new GameStateManager(
-          STAR_DATA,
-          WORMHOLE_DATA
-        );
-        testGameStateManager.initNewGame();
+      fc.property(
+        arbNPCId(),
+        arbDay(),
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, currentDay, randomValue) => {
+          // Create a fresh GameStateManager for this test iteration
+          const testGameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          testGameStateManager.initNewGame();
 
-        // Get NPC data
-        const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-        // Only test NPCs that don't have tips
-        if (!npcData.tips || npcData.tips.length === 0) {
-          testGameStateManager.updateTime(currentDay);
+          try {
+            // Get NPC data
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-          // Set up NPC state with high reputation (other conditions met)
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = 50; // High enough reputation
-          npcState.lastTipDay = null; // No cooldown
+            // Only test NPCs that don't have tips
+            if (!npcData.tips || npcData.tips.length === 0) {
+              testGameStateManager.updateTime(currentDay);
 
-          // Verify canGetTip returns false due to no tips
-          const availability = testGameStateManager.canGetTip(npcId);
-          expect(availability.available).toBe(false);
-          expect(availability.reason).toContain('no tips available');
+              // Set up NPC state with high reputation (other conditions met)
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = 50; // High enough reputation
+              npcState.lastTipDay = null; // No cooldown
 
-          // Verify getTip returns null
-          const tip = testGameStateManager.getTip(npcId);
-          expect(tip).toBeNull();
+              // Verify canGetTip returns false due to no tips
+              const availability = testGameStateManager.canGetTip(npcId);
+              expect(availability.available).toBe(false);
+              expect(availability.reason).toContain('no tips available');
+
+              // Verify getTip returns null
+              const tip = testGameStateManager.getTip(npcId);
+              expect(tip).toBeNull();
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
+          }
         }
-      }),
+      ),
       { numRuns: 20 }
     );
   });
 
   it('should return null when NPC has empty tips array', () => {
     fc.assert(
-      fc.property(arbNPCId(), arbDay(), (npcId, currentDay) => {
-        // Create a fresh GameStateManager for this test iteration
-        const testGameStateManager = new GameStateManager(
-          STAR_DATA,
-          WORMHOLE_DATA
-        );
-        testGameStateManager.initNewGame();
+      fc.property(
+        arbNPCId(),
+        arbDay(),
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, currentDay, randomValue) => {
+          // Create a fresh GameStateManager for this test iteration
+          const testGameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          testGameStateManager.initNewGame();
 
-        // Get NPC data
-        const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-        // Only test NPCs that have empty tips array
-        if (npcData.tips && npcData.tips.length === 0) {
-          testGameStateManager.updateTime(currentDay);
+          try {
+            // Get NPC data
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-          // Set up NPC state with high reputation (other conditions met)
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = 50; // High enough reputation
-          npcState.lastTipDay = null; // No cooldown
+            // Only test NPCs that have empty tips array
+            if (npcData.tips && npcData.tips.length === 0) {
+              testGameStateManager.updateTime(currentDay);
 
-          // Verify canGetTip returns false due to empty tips
-          const availability = testGameStateManager.canGetTip(npcId);
-          expect(availability.available).toBe(false);
-          expect(availability.reason).toContain('no tips available');
+              // Set up NPC state with high reputation (other conditions met)
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = 50; // High enough reputation
+              npcState.lastTipDay = null; // No cooldown
 
-          // Verify getTip returns null
-          const tip = testGameStateManager.getTip(npcId);
-          expect(tip).toBeNull();
+              // Verify canGetTip returns false due to empty tips
+              const availability = testGameStateManager.canGetTip(npcId);
+              expect(availability.available).toBe(false);
+              expect(availability.reason).toContain('no tips available');
+
+              // Verify getTip returns null
+              const tip = testGameStateManager.getTip(npcId);
+              expect(tip).toBeNull();
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
+          }
         }
-      }),
+      ),
       { numRuns: 20 }
     );
   });
 
-  it('should select tips randomly from the available pool', () => {
+  it('should select tips deterministically based on random seed', () => {
     fc.assert(
-      fc.property(arbNPCId(), arbDay(), (npcId, currentDay) => {
-        // Create a fresh GameStateManager for this test iteration
-        const testGameStateManager = new GameStateManager(
-          STAR_DATA,
-          WORMHOLE_DATA
-        );
-        testGameStateManager.initNewGame();
+      fc.property(
+        arbNPCId(),
+        arbDay(),
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, currentDay, randomValue) => {
+          // Create a fresh GameStateManager for this test iteration
+          const testGameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
+          testGameStateManager.initNewGame();
 
-        // Get NPC data
-        const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Get NPC data
+          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-        // Only test NPCs that have multiple tips (to test randomness)
-        if (npcData.tips && npcData.tips.length > 1) {
-          testGameStateManager.updateTime(currentDay);
+          // Only test NPCs that have multiple tips (to test selection logic)
+          if (npcData.tips && npcData.tips.length > 1) {
+            testGameStateManager.updateTime(currentDay);
 
-          // Set up NPC state for successful tips
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = 50; // High enough reputation
-          npcState.lastTipDay = null; // No previous tip
+            // Set up NPC state for successful tips
+            const npcState = testGameStateManager.getNPCState(npcId);
+            npcState.rep = 50; // High enough reputation
+            npcState.lastTipDay = null; // No previous tip
 
-          // Collect tips from multiple attempts
-          const tipCounts = new Map();
-          const numAttempts = 50;
+            // Mock Math.random for deterministic behavior
+            const originalMathRandom = Math.random;
+            Math.random = vi.fn(() => randomValue);
 
-          for (let i = 0; i < numAttempts; i++) {
-            // Reset cooldown for each attempt
-            npcState.lastTipDay = null;
+            try {
+              // Get tip with deterministic random value
+              const tip1 = testGameStateManager.getTip(npcId);
+              expect(tip1).toBeTruthy();
+              expect(npcData.tips).toContain(tip1);
 
-            const tip = testGameStateManager.getTip(npcId);
-            if (tip) {
-              tipCounts.set(tip, (tipCounts.get(tip) || 0) + 1);
+              // Reset cooldown and get another tip with same random value
+              npcState.lastTipDay = null;
+              const tip2 = testGameStateManager.getTip(npcId);
+              expect(tip2).toBeTruthy();
+              expect(npcData.tips).toContain(tip2);
+
+              // With same random seed, should get same tip
+              expect(tip2).toBe(tip1);
+            } finally {
+              // Restore Math.random
+              Math.random = originalMathRandom;
             }
           }
-
-          // Verify we got tips
-          expect(tipCounts.size).toBeGreaterThan(0);
-
-          // Verify all tips are from the NPC's tips array
-          for (const tip of tipCounts.keys()) {
-            expect(npcData.tips).toContain(tip);
-          }
-
-          // For NPCs with multiple tips, we should see some variety
-          // (This is probabilistic, but with 50 attempts it's very likely)
-          if (npcData.tips.length > 2) {
-            // We should see at least 2 different tips with reasonable probability
-            expect(tipCounts.size).toBeGreaterThanOrEqual(1);
-          }
         }
-      }),
+      ),
       { numRuns: 10 } // Fewer runs since this test does multiple attempts internally
     );
   });

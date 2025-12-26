@@ -47,7 +47,8 @@ describe('Tip Availability Rules Property Tests', () => {
         arbNPCId(),
         arbReputation(),
         arbDay(),
-        (npcId, reputation, currentDay) => {
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, reputation, currentDay, randomValue) => {
           // Create a fresh GameStateManager for this test iteration
           const testGameStateManager = new GameStateManager(
             STAR_DATA,
@@ -55,75 +56,92 @@ describe('Tip Availability Rules Property Tests', () => {
           );
           testGameStateManager.initNewGame();
 
-          // Set current day
-          testGameStateManager.updateTime(currentDay);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-          // Get NPC data and state
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          try {
+            // Set current day
+            testGameStateManager.updateTime(currentDay);
 
-          // Set reputation
-          npcState.rep = reputation;
+            // Get NPC data and state
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+            const npcState = testGameStateManager.getNPCState(npcId);
 
-          // Test case 1: No previous tip (lastTipDay = null)
-          npcState.lastTipDay = null;
+            // Set reputation
+            npcState.rep = reputation;
 
-          const result1 = testGameStateManager.canGetTip(npcId);
+            // Test case 1: No previous tip (lastTipDay = null)
+            npcState.lastTipDay = null;
 
-          // Should be available if and only if:
-          // 1. Reputation >= 10 (Warm tier)
-          // 2. NPC has non-empty tips array
-          const hasWarmRep = reputation >= 10;
-          const hasTips = !!(npcData.tips && npcData.tips.length > 0);
-          const expectedAvailable1 = hasWarmRep && hasTips;
+            const result1 = testGameStateManager.canGetTip(npcId);
 
-          expect(result1.available).toBe(expectedAvailable1);
+            // Should be available if and only if:
+            // 1. Reputation >= 10 (Warm tier)
+            // 2. NPC has non-empty tips array
+            const hasWarmRep = reputation >= 10;
+            const hasTips = !!(npcData.tips && npcData.tips.length > 0);
+            const expectedAvailable1 = hasWarmRep && hasTips;
 
-          if (!expectedAvailable1) {
-            expect(result1.reason).toBeTruthy();
-            expect(typeof result1.reason).toBe('string');
-            // Verify the reason matches the specific failure
-            if (!hasWarmRep) {
-              expect(result1.reason).toContain('Warm relationship');
-            } else if (!hasTips) {
-              expect(result1.reason).toContain('no tips available');
-            }
-          } else {
-            expect(result1.reason).toBeNull();
-          }
+            expect(result1.available).toBe(expectedAvailable1);
 
-          // Test case 2: Previous tip within cooldown period (only test if other conditions are met)
-          if (currentDay >= NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS && hasWarmRep && hasTips) {
-            const recentTipDay =
-              currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS + 1;
-            npcState.lastTipDay = recentTipDay;
-
-            const result2 = testGameStateManager.canGetTip(npcId);
-
-            // Should not be available due to cooldown when other conditions are met
-            expect(result2.available).toBe(false);
-            expect(result2.reason).toBeTruthy();
-            expect(result2.reason).toContain('cooldown');
-          }
-
-          // Test case 3: Previous tip outside cooldown period (only test if other conditions are met)
-          if (currentDay >= NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS && hasWarmRep && hasTips) {
-            const oldTipDay =
-              currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS;
-            npcState.lastTipDay = oldTipDay;
-
-            const result3 = testGameStateManager.canGetTip(npcId);
-
-            // Should follow same rules as case 1 (cooldown has passed)
-            const expectedAvailable3 = hasWarmRep && hasTips;
-            expect(result3.available).toBe(expectedAvailable3);
-
-            if (!expectedAvailable3) {
-              expect(result3.reason).toBeTruthy();
-              expect(typeof result3.reason).toBe('string');
+            if (!expectedAvailable1) {
+              expect(result1.reason).toBeTruthy();
+              expect(typeof result1.reason).toBe('string');
+              // Verify the reason matches the specific failure
+              if (!hasWarmRep) {
+                expect(result1.reason).toContain('Warm relationship');
+              } else if (!hasTips) {
+                expect(result1.reason).toContain('no tips available');
+              }
             } else {
-              expect(result3.reason).toBeNull();
+              expect(result1.reason).toBeNull();
             }
+
+            // Test case 2: Previous tip within cooldown period (only test if other conditions are met)
+            if (
+              currentDay >= NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS &&
+              hasWarmRep &&
+              hasTips
+            ) {
+              const recentTipDay =
+                currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS + 1;
+              npcState.lastTipDay = recentTipDay;
+
+              const result2 = testGameStateManager.canGetTip(npcId);
+
+              // Should not be available due to cooldown when other conditions are met
+              expect(result2.available).toBe(false);
+              expect(result2.reason).toBeTruthy();
+              expect(result2.reason).toContain('cooldown');
+            }
+
+            // Test case 3: Previous tip outside cooldown period (only test if other conditions are met)
+            if (
+              currentDay >= NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS &&
+              hasWarmRep &&
+              hasTips
+            ) {
+              const oldTipDay =
+                currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS;
+              npcState.lastTipDay = oldTipDay;
+
+              const result3 = testGameStateManager.canGetTip(npcId);
+
+              // Should follow same rules as case 1 (cooldown has passed)
+              const expectedAvailable3 = hasWarmRep && hasTips;
+              expect(result3.available).toBe(expectedAvailable3);
+
+              if (!expectedAvailable3) {
+                expect(result3.reason).toBeTruthy();
+                expect(typeof result3.reason).toBe('string');
+              } else {
+                expect(result3.reason).toBeNull();
+              }
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
           }
         }
       ),
@@ -136,7 +154,8 @@ describe('Tip Availability Rules Property Tests', () => {
       fc.property(
         arbNPCId(),
         fc.integer({ min: -100, max: 9 }),
-        (npcId, lowReputation) => {
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, lowReputation, randomValue) => {
           // Create a fresh GameStateManager for this test iteration
           const testGameStateManager = new GameStateManager(
             STAR_DATA,
@@ -144,20 +163,29 @@ describe('Tip Availability Rules Property Tests', () => {
           );
           testGameStateManager.initNewGame();
 
-          // Get NPC data to check if it has tips
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-          // Only test NPCs that have tips (otherwise they'd fail for different reason)
-          if (npcData.tips && npcData.tips.length > 0) {
-            const npcState = testGameStateManager.getNPCState(npcId);
-            npcState.rep = lowReputation;
-            npcState.lastTipDay = null; // No cooldown
+          try {
+            // Get NPC data to check if it has tips
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-            const result = testGameStateManager.canGetTip(npcId);
+            // Only test NPCs that have tips (otherwise they'd fail for different reason)
+            if (npcData.tips && npcData.tips.length > 0) {
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = lowReputation;
+              npcState.lastTipDay = null; // No cooldown
 
-            expect(result.available).toBe(false);
-            expect(result.reason).toBeTruthy();
-            expect(result.reason).toContain('Warm relationship');
+              const result = testGameStateManager.canGetTip(npcId);
+
+              expect(result.available).toBe(false);
+              expect(result.reason).toBeTruthy();
+              expect(result.reason).toContain('Warm relationship');
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
           }
         }
       ),
@@ -170,7 +198,8 @@ describe('Tip Availability Rules Property Tests', () => {
       fc.property(
         arbNPCId(),
         fc.integer({ min: 10, max: 100 }),
-        (npcId, highReputation) => {
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, highReputation, randomValue) => {
           // Create a fresh GameStateManager for this test iteration
           const testGameStateManager = new GameStateManager(
             STAR_DATA,
@@ -178,20 +207,29 @@ describe('Tip Availability Rules Property Tests', () => {
           );
           testGameStateManager.initNewGame();
 
-          // Get NPC data to check if it has tips
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-          // Only test NPCs that don't have tips
-          if (!npcData.tips || npcData.tips.length === 0) {
-            const npcState = testGameStateManager.getNPCState(npcId);
-            npcState.rep = highReputation; // High enough reputation
-            npcState.lastTipDay = null; // No cooldown
+          try {
+            // Get NPC data to check if it has tips
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-            const result = testGameStateManager.canGetTip(npcId);
+            // Only test NPCs that don't have tips
+            if (!npcData.tips || npcData.tips.length === 0) {
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = highReputation; // High enough reputation
+              npcState.lastTipDay = null; // No cooldown
 
-            expect(result.available).toBe(false);
-            expect(result.reason).toBeTruthy();
-            expect(result.reason).toContain('no tips available');
+              const result = testGameStateManager.canGetTip(npcId);
+
+              expect(result.available).toBe(false);
+              expect(result.reason).toBeTruthy();
+              expect(result.reason).toContain('no tips available');
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
           }
         }
       ),
@@ -205,7 +243,8 @@ describe('Tip Availability Rules Property Tests', () => {
         arbNPCId(),
         fc.integer({ min: 10, max: 1000 }),
         fc.integer({ min: 1, max: NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - 1 }),
-        (npcId, currentDay, daysSinceLastTip) => {
+        fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
+        (npcId, currentDay, daysSinceLastTip, randomValue) => {
           // Create a fresh GameStateManager for this test iteration
           const testGameStateManager = new GameStateManager(
             STAR_DATA,
@@ -213,30 +252,37 @@ describe('Tip Availability Rules Property Tests', () => {
           );
           testGameStateManager.initNewGame();
 
-          // Get NPC data to check if it has tips
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+          // Mock Math.random for deterministic behavior
+          const originalMathRandom = Math.random;
+          Math.random = vi.fn(() => randomValue);
 
-          // Only test NPCs that have tips
-          if (npcData.tips && npcData.tips.length > 0) {
-            testGameStateManager.updateTime(currentDay);
+          try {
+            // Get NPC data to check if it has tips
+            const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
-            const npcState = testGameStateManager.getNPCState(npcId);
-            npcState.rep = 50; // High enough reputation
-            npcState.lastTipDay = currentDay - daysSinceLastTip;
+            // Only test NPCs that have tips
+            if (npcData.tips && npcData.tips.length > 0) {
+              testGameStateManager.updateTime(currentDay);
 
-            const result = testGameStateManager.canGetTip(npcId);
+              const npcState = testGameStateManager.getNPCState(npcId);
+              npcState.rep = 50; // High enough reputation
+              npcState.lastTipDay = currentDay - daysSinceLastTip;
 
-            // Should not be available due to cooldown
-            expect(result.available).toBe(false);
-            expect(result.reason).toBeTruthy();
-            expect(result.reason).toContain('cooldown');
+              const result = testGameStateManager.canGetTip(npcId);
 
-            // Should show correct days remaining
-            const expectedDaysRemaining =
-              NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - daysSinceLastTip;
-            expect(result.reason).toContain(
-              expectedDaysRemaining.toString()
-            );
+              // Should not be available due to cooldown
+              expect(result.available).toBe(false);
+              expect(result.reason).toBeTruthy();
+              expect(result.reason).toContain('cooldown');
+
+              // Should show correct days remaining
+              const expectedDaysRemaining =
+                NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - daysSinceLastTip;
+              expect(result.reason).toContain(expectedDaysRemaining.toString());
+            }
+          } finally {
+            // Restore Math.random
+            Math.random = originalMathRandom;
           }
         }
       ),

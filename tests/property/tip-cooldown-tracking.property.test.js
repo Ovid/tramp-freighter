@@ -3,7 +3,6 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
 
 /**
@@ -15,7 +14,35 @@ import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
 
 describe('Tip Cooldown Tracking Property Tests', () => {
   let gameStateManager;
-  let mockNPCAdded = false;
+  let originalValidateAndGetNPCData;
+
+  // Test-specific NPC data without modifying global state
+  const testNPCs = [
+    {
+      id: 'test_npc_with_tips_1',
+      name: 'Test NPC 1',
+      role: 'Test NPC',
+      system: 0,
+      station: 'Test Station',
+      personality: { trust: 0.5, greed: 0.5, loyalty: 0.5, morality: 0.5 },
+      speechStyle: { greeting: 'casual', vocabulary: 'simple', quirk: 'none' },
+      description: 'Test NPC 1 for testing',
+      initialRep: 0,
+      tips: ['Test tip 1A', 'Test tip 2A', 'Test tip 3A'],
+    },
+    {
+      id: 'test_npc_with_tips_2',
+      name: 'Test NPC 2',
+      role: 'Test NPC',
+      system: 1,
+      station: 'Test Station 2',
+      personality: { trust: 0.5, greed: 0.5, loyalty: 0.5, morality: 0.5 },
+      speechStyle: { greeting: 'casual', vocabulary: 'simple', quirk: 'none' },
+      description: 'Test NPC 2 for testing',
+      initialRep: 0,
+      tips: ['Test tip 1B', 'Test tip 2B', 'Test tip 3B'],
+    },
+  ];
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -32,62 +59,29 @@ describe('Tip Cooldown Tracking Property Tests', () => {
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
-    // Mock NPCs with tips for testing if none exist
-    const npcsWithTips = ALL_NPCS.filter(
-      (npc) => npc.tips && npc.tips.length > 0
-    );
-    if (npcsWithTips.length < 2) {
-      // Add mock NPCs with tips to ALL_NPCS temporarily for testing
-      const mockNPC1 = {
-        id: 'mock_npc_with_tips_1',
-        name: 'Mock NPC 1',
-        role: 'Test NPC',
-        system: 0,
-        station: 'Test Station',
-        personality: { trust: 0.5, greed: 0.5, loyalty: 0.5, morality: 0.5 },
-        speechStyle: { greeting: 'casual', vocabulary: 'simple', quirk: 'none' },
-        description: 'Mock NPC 1 for testing',
-        initialRep: 0,
-        tips: ['Test tip 1A', 'Test tip 2A', 'Test tip 3A'],
-      };
-      const mockNPC2 = {
-        id: 'mock_npc_with_tips_2',
-        name: 'Mock NPC 2',
-        role: 'Test NPC',
-        system: 1,
-        station: 'Test Station 2',
-        personality: { trust: 0.5, greed: 0.5, loyalty: 0.5, morality: 0.5 },
-        speechStyle: { greeting: 'casual', vocabulary: 'simple', quirk: 'none' },
-        description: 'Mock NPC 2 for testing',
-        initialRep: 0,
-        tips: ['Test tip 1B', 'Test tip 2B', 'Test tip 3B'],
-      };
-      ALL_NPCS.push(mockNPC1, mockNPC2);
-      mockNPCAdded = true;
-    }
+    // Mock the private validation method to use test NPCs
+    originalValidateAndGetNPCData = gameStateManager._validateAndGetNPCData;
+    gameStateManager._validateAndGetNPCData = (npcId) => {
+      // First check test NPCs
+      const testNPC = testNPCs.find((npc) => npc.id === npcId);
+      if (testNPC) {
+        return testNPC;
+      }
+      // Fall back to original method for other NPCs
+      return originalValidateAndGetNPCData.call(gameStateManager, npcId);
+    };
   });
 
   afterEach(() => {
-    // Clean up mock NPCs if they were added
-    if (mockNPCAdded) {
-      const mockIndex1 = ALL_NPCS.findIndex(npc => npc.id === 'mock_npc_with_tips_1');
-      const mockIndex2 = ALL_NPCS.findIndex(npc => npc.id === 'mock_npc_with_tips_2');
-      if (mockIndex1 !== -1) {
-        ALL_NPCS.splice(mockIndex1, 1);
-      }
-      if (mockIndex2 !== -1) {
-        // Adjust index if first mock was removed
-        const adjustedIndex = mockIndex1 !== -1 && mockIndex2 > mockIndex1 ? mockIndex2 - 1 : mockIndex2;
-        ALL_NPCS.splice(adjustedIndex, 1);
-      }
-      mockNPCAdded = false;
+    // Restore original method
+    if (originalValidateAndGetNPCData) {
+      gameStateManager._validateAndGetNPCData = originalValidateAndGetNPCData;
     }
   });
 
-  // Generator for NPCs that have tips - simplified approach
+  // Generator for test NPCs that have tips
   const arbNPCWithTips = () => {
-    // Always return one of the mock NPC IDs since we ensure they exist in beforeEach
-    return fc.constantFrom('mock_npc_with_tips_1', 'mock_npc_with_tips_2');
+    return fc.constantFrom('test_npc_with_tips_1', 'test_npc_with_tips_2');
   };
 
   // Generator for day values
@@ -102,6 +96,18 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           WORMHOLE_DATA
         );
         testGameStateManager.initNewGame();
+
+        // Mock the validation method for this test instance
+        testGameStateManager._validateAndGetNPCData = (npcId) => {
+          const testNPC = testNPCs.find((npc) => npc.id === npcId);
+          if (testNPC) {
+            return testNPC;
+          }
+          return originalValidateAndGetNPCData.call(
+            testGameStateManager,
+            npcId
+          );
+        };
 
         // Set current day
         testGameStateManager.updateTime(currentDay);
@@ -143,6 +149,18 @@ describe('Tip Cooldown Tracking Property Tests', () => {
             WORMHOLE_DATA
           );
           testGameStateManager.initNewGame();
+
+          // Mock the validation method for this test instance
+          testGameStateManager._validateAndGetNPCData = (npcId) => {
+            const testNPC = testNPCs.find((npc) => npc.id === npcId);
+            if (testNPC) {
+              return testNPC;
+            }
+            return originalValidateAndGetNPCData.call(
+              testGameStateManager,
+              npcId
+            );
+          };
 
           // Set initial day
           testGameStateManager.updateTime(initialDay);
@@ -195,6 +213,18 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           );
           testGameStateManager.initNewGame();
 
+          // Mock the validation method for this test instance
+          testGameStateManager._validateAndGetNPCData = (npcId) => {
+            const testNPC = testNPCs.find((npc) => npc.id === npcId);
+            if (testNPC) {
+              return testNPC;
+            }
+            return originalValidateAndGetNPCData.call(
+              testGameStateManager,
+              npcId
+            );
+          };
+
           // Set initial day
           testGameStateManager.updateTime(initialDay);
 
@@ -232,63 +262,72 @@ describe('Tip Cooldown Tracking Property Tests', () => {
 
   it('should track cooldown independently for different NPCs', () => {
     fc.assert(
-      fc.property(
-        arbDay(),
-        (currentDay) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
+      fc.property(arbDay(), (currentDay) => {
+        // Create a fresh GameStateManager for this test iteration
+        const testGameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA
+        );
+        testGameStateManager.initNewGame();
+
+        // Mock the validation method for this test instance too
+        testGameStateManager._validateAndGetNPCData = (npcId) => {
+          const testNPC = testNPCs.find((npc) => npc.id === npcId);
+          if (testNPC) {
+            return testNPC;
+          }
+          return originalValidateAndGetNPCData.call(
+            testGameStateManager,
+            npcId
           );
-          testGameStateManager.initNewGame();
+        };
 
-          // Use our two mock NPCs
-          const npcId1 = 'mock_npc_with_tips_1';
-          const npcId2 = 'mock_npc_with_tips_2';
+        // Use our test NPCs
+        const npcId1 = 'test_npc_with_tips_1';
+        const npcId2 = 'test_npc_with_tips_2';
 
-          // Set current day
-          testGameStateManager.updateTime(currentDay);
+        // Set current day
+        testGameStateManager.updateTime(currentDay);
 
-          // Set up both NPCs for successful tips
-          const npcState1 = testGameStateManager.getNPCState(npcId1);
-          const npcState2 = testGameStateManager.getNPCState(npcId2);
-          npcState1.rep = 50;
-          npcState2.rep = 50;
-          npcState1.lastTipDay = null;
-          npcState2.lastTipDay = null;
+        // Set up both NPCs for successful tips
+        const npcState1 = testGameStateManager.getNPCState(npcId1);
+        const npcState2 = testGameStateManager.getNPCState(npcId2);
+        npcState1.rep = 50;
+        npcState2.rep = 50;
+        npcState1.lastTipDay = null;
+        npcState2.lastTipDay = null;
 
-          // Get tip from first NPC
-          const tip1 = testGameStateManager.getTip(npcId1);
-          expect(tip1).toBeTruthy();
+        // Get tip from first NPC
+        const tip1 = testGameStateManager.getTip(npcId1);
+        expect(tip1).toBeTruthy();
 
-          // Verify first NPC's lastTipDay was updated
-          expect(testGameStateManager.getNPCState(npcId1).lastTipDay).toBe(
-            currentDay
-          );
+        // Verify first NPC's lastTipDay was updated
+        expect(testGameStateManager.getNPCState(npcId1).lastTipDay).toBe(
+          currentDay
+        );
 
-          // Verify second NPC's lastTipDay was not affected
-          expect(testGameStateManager.getNPCState(npcId2).lastTipDay).toBeNull();
+        // Verify second NPC's lastTipDay was not affected
+        expect(testGameStateManager.getNPCState(npcId2).lastTipDay).toBeNull();
 
-          // Verify second NPC can still provide tip
-          const availability2 = testGameStateManager.canGetTip(npcId2);
-          expect(availability2.available).toBe(true);
+        // Verify second NPC can still provide tip
+        const availability2 = testGameStateManager.canGetTip(npcId2);
+        expect(availability2.available).toBe(true);
 
-          const tip2 = testGameStateManager.getTip(npcId2);
-          expect(tip2).toBeTruthy();
+        const tip2 = testGameStateManager.getTip(npcId2);
+        expect(tip2).toBeTruthy();
 
-          // Verify both NPCs now have lastTipDay set to current day
-          expect(testGameStateManager.getNPCState(npcId1).lastTipDay).toBe(
-            currentDay
-          );
-          expect(testGameStateManager.getNPCState(npcId2).lastTipDay).toBe(
-            currentDay
-          );
+        // Verify both NPCs now have lastTipDay set to current day
+        expect(testGameStateManager.getNPCState(npcId1).lastTipDay).toBe(
+          currentDay
+        );
+        expect(testGameStateManager.getNPCState(npcId2).lastTipDay).toBe(
+          currentDay
+        );
 
-          // Verify both NPCs are now on cooldown
-          expect(testGameStateManager.canGetTip(npcId1).available).toBe(false);
-          expect(testGameStateManager.canGetTip(npcId2).available).toBe(false);
-        }
-      ),
+        // Verify both NPCs are now on cooldown
+        expect(testGameStateManager.canGetTip(npcId1).available).toBe(false);
+        expect(testGameStateManager.canGetTip(npcId2).available).toBe(false);
+      }),
       { numRuns: 10 }
     );
   });
@@ -306,6 +345,18 @@ describe('Tip Cooldown Tracking Property Tests', () => {
             WORMHOLE_DATA
           );
           testGameStateManager.initNewGame();
+
+          // Mock the validation method for this test instance
+          testGameStateManager._validateAndGetNPCData = (npcId) => {
+            const testNPC = testNPCs.find((npc) => npc.id === npcId);
+            if (testNPC) {
+              return testNPC;
+            }
+            return originalValidateAndGetNPCData.call(
+              testGameStateManager,
+              npcId
+            );
+          };
 
           testGameStateManager.updateTime(currentDay);
 

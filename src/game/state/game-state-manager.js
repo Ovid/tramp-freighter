@@ -1088,6 +1088,25 @@ export class GameStateManager {
   // ========================================================================
 
   /**
+   * Validate NPC ID and return NPC data
+   *
+   * Private method to validate NPC ID exists in game data and return the NPC data object.
+   * Used by all NPC-related methods to avoid redundant validation.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} NPC data object
+   * @throws {Error} If NPC ID is not found
+   * @private
+   */
+  _validateAndGetNPCData(npcId) {
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+    return npcData;
+  }
+
+  /**
    * Get reputation tier classification for a reputation value
    *
    * Classifies reputation into named tiers based on numeric ranges.
@@ -1117,11 +1136,8 @@ export class GameStateManager {
    * @returns {Object} NPC state object
    */
   getNPCState(npcId) {
-    // Validate NPC ID exists in NPC data
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-    if (!npcData) {
-      throw new Error(`Unknown NPC ID: ${npcId}`);
-    }
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
 
     // Return existing state or create default using NPC's initialRep
     if (!this.state.npcs[npcId]) {
@@ -1155,11 +1171,8 @@ export class GameStateManager {
    * @param {string} reason - Reason for reputation change (for logging)
    */
   modifyRep(npcId, amount, reason) {
-    // Validate NPC ID exists in NPC data
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-    if (!npcData) {
-      throw new Error(`Unknown NPC ID: ${npcId}`);
-    }
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
 
     // Get or create NPC state
     const npcState = this.getNPCState(npcId);
@@ -1288,11 +1301,8 @@ export class GameStateManager {
       );
     }
 
-    // Validate NPC ID exists in NPC data
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-    if (!npcData) {
-      throw new Error(`Unknown NPC ID: ${npcId}`);
-    }
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
 
     // Get NPC state (creates default if doesn't exist)
     const npcState = this.getNPCState(npcId);
@@ -1356,8 +1366,8 @@ export class GameStateManager {
       return null;
     }
 
-    // Get NPC data and state
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    // Get NPC data and state (validation already done in canGetTip)
+    const npcData = this._validateAndGetNPCData(npcId);
     const npcState = this.getNPCState(npcId);
 
     // Select random tip from NPC's tips array
