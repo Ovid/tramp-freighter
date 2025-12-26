@@ -35,7 +35,7 @@ describe('Story Flag Idempotence Properties', () => {
 
         // Find nodes that have story flags
         const nodesWithFlags = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => node.flags && node.flags.length > 0
+          ([, node]) => node.flags && node.flags.length > 0
         );
 
         if (nodesWithFlags.length === 0) {
@@ -52,7 +52,7 @@ describe('Story Flag Idempotence Properties', () => {
           for (let i = 0; i < visitCount; i++) {
             try {
               showDialogue(npcId, nodeId, gameStateManager);
-            } catch (error) {
+            } catch {
               // Some nodes might not be accessible directly, skip them
               break;
             }
@@ -95,7 +95,7 @@ describe('Story Flag Idempotence Properties', () => {
 
         // Find nodes that have story flags
         const nodesWithFlags = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => node.flags && node.flags.length > 0
+          ([, node]) => node.flags && node.flags.length > 0
         );
 
         if (nodesWithFlags.length === 0) {
@@ -113,7 +113,7 @@ describe('Story Flag Idempotence Properties', () => {
           try {
             // Visit the node (which should try to add the same flags)
             showDialogue(npcId, nodeId, gameStateManager);
-          } catch (error) {
+          } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
           }
@@ -162,7 +162,7 @@ describe('Story Flag Idempotence Properties', () => {
 
         // Find nodes that have story flags
         const nodesWithFlags = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => node.flags && node.flags.length > 0
+          ([, node]) => node.flags && node.flags.length > 0
         );
 
         if (nodesWithFlags.length === 0) {
@@ -179,11 +179,11 @@ describe('Story Flag Idempotence Properties', () => {
         npcState.flags = [...existingFlags];
 
         // Visit a node that adds new flags
-        const [nodeId, node] = nodesWithFlags[0];
+        const [nodeId] = nodesWithFlags[0];
 
         try {
           showDialogue(npcId, nodeId, gameStateManager);
-        } catch (error) {
+        } catch {
           // Some nodes might not be accessible directly, skip
           return true;
         }
@@ -222,8 +222,6 @@ describe('Story Flag Idempotence Properties', () => {
           'chen_backstory_1',
           'another_existing',
         ];
-
-        const initialFlags = [...npcState.flags];
 
         try {
           // Visit backstory node which should try to add 'chen_backstory_1' (already exists)
@@ -268,7 +266,7 @@ describe('Story Flag Idempotence Properties', () => {
           if (backstory1Count !== 1 || backstory2Count !== 1) {
             return false; // Each flag should appear exactly once
           }
-        } catch (error) {
+        } catch {
           // If we can't access the nodes, that's acceptable
           return true;
         }

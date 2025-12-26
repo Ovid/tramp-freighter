@@ -58,7 +58,7 @@ describe('Dialogue Choice Filtering Properties', () => {
             let conditionResult;
             try {
               conditionResult = originalChoice.condition(reputation);
-            } catch (_error) {
+            } catch {
               // If condition throws, choice should be hidden
               conditionResult = false;
             }

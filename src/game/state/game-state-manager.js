@@ -2283,7 +2283,7 @@ export class GameStateManager {
                 return this.state;
               }
             }
-          } catch (recoveryError) {
+          } catch {
             console.log('Recovery failed, starting new game');
           }
         }

@@ -32,7 +32,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
         // Find nodes with function-based text
         const nodesWithFunctionText = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => typeof node.text === 'function'
+          ([, node]) => typeof node.text === 'function'
         );
 
         if (nodesWithFunctionText.length === 0) {
@@ -40,7 +40,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         }
 
         // Test each node with function-based text
-        for (const [nodeId, node] of nodesWithFunctionText) {
+        for (const [nodeId] of nodesWithFunctionText) {
           // Test with different reputation values across different tiers
           const testReputations = [
             -75, // Hostile
@@ -70,7 +70,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
               if (dialogueResult && typeof dialogueResult.text === 'string') {
                 generatedTexts.add(dialogueResult.text);
               }
-            } catch (error) {
+            } catch {
               // Some nodes might not be accessible directly, skip them
               continue;
             }
@@ -113,7 +113,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
         // Find nodes with function-based text
         const nodesWithFunctionText = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => typeof node.text === 'function'
+          ([, node]) => typeof node.text === 'function'
         );
 
         if (nodesWithFunctionText.length === 0) {
@@ -121,7 +121,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         }
 
         // Test each node with function-based text
-        for (const [nodeId, node] of nodesWithFunctionText) {
+        for (const [nodeId] of nodesWithFunctionText) {
           try {
             // Show dialogue multiple times with same reputation
             const firstResult = showDialogue(npcId, nodeId, gameStateManager);
@@ -135,7 +135,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             ) {
               return false; // Text should be consistent for same reputation
             }
-          } catch (error) {
+          } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
           }
@@ -171,7 +171,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
         // Find nodes with function-based text
         const nodesWithFunctionText = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => typeof node.text === 'function'
+          ([, node]) => typeof node.text === 'function'
         );
 
         if (nodesWithFunctionText.length === 0) {
@@ -179,7 +179,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         }
 
         // Test each node with function-based text
-        for (const [nodeId, node] of nodesWithFunctionText) {
+        for (const [nodeId] of nodesWithFunctionText) {
           try {
             // Show dialogue for this node
             const dialogueResult = showDialogue(
@@ -196,7 +196,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             if (dialogueResult.text.length === 0) {
               return false; // Text should not be empty
             }
-          } catch (error) {
+          } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
           }
@@ -232,7 +232,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
         // Find nodes with static string text
         const nodesWithStaticText = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => typeof node.text === 'string'
+          ([, node]) => typeof node.text === 'string'
         );
 
         if (nodesWithStaticText.length === 0) {
@@ -253,7 +253,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             if (dialogueResult.text !== node.text) {
               return false; // Static text should be used directly
             }
-          } catch (error) {
+          } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
           }
@@ -311,7 +311,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             if (dialogueResult.reputationTier.name !== expectedTier.name) {
               return false; // Reputation tier should match
             }
-          } catch (error) {
+          } catch {
             return false; // Should not throw errors at boundary conditions
           }
         }

@@ -39,7 +39,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
         // Find nodes that have story flags
         const nodesWithFlags = Object.entries(dialogueTree).filter(
-          ([nodeId, node]) => node.flags && node.flags.length > 0
+          ([, node]) => node.flags && node.flags.length > 0
         );
 
         if (nodesWithFlags.length === 0) {
@@ -73,7 +73,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             if (!dialogueResult || typeof dialogueResult.text !== 'string') {
               return false; // Dialogue should still be displayed properly
             }
-          } catch (error) {
+          } catch {
             // Some nodes might not be accessible directly (e.g., require specific conditions)
             // This is acceptable, skip these nodes
             continue;
@@ -188,7 +188,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             if (flagCount !== 1) {
               return false; // Flag should appear exactly once, not duplicated
             }
-          } catch (error) {
+          } catch {
             // If we can't access the node directly, that's fine
             break;
           }
@@ -232,7 +232,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           if (!currentFlags.includes('chen_backstory_1')) {
             return false; // New flag should be added
           }
-        } catch (error) {
+        } catch {
           // If we can't access the node, that's acceptable
           return true;
         }
