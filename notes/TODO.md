@@ -19,8 +19,10 @@
 
 # TODO
 
-- Blur further stars and routes
-- Swap dock/station info buttons
+- Blur further stars and routes (tried in two different sessions. failed
+  badly. Bokeh effect blurred everything. Tried post processing, but it
+  failed. Eventually, Claude Opus 4.5 decided to "fall back to the simpler fog
+  effect". This meant no code changes. I gave up)
 - i18n?
 - GCT
 - Ensure all individual js modules have unit tests
@@ -44,6 +46,7 @@
 
 # Fixed
 
+- Swap dock/station info buttons
 - Cannot refuel to 100%?
 - Arbitrage bug: you can always sell at a profit something you just bought
 - Steering should note that files neeed single responsibilities
