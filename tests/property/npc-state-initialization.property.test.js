@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -14,30 +14,27 @@ import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 describe('NPC State Initialization Property Tests', () => {
   let gameStateManager;
-  let originalLocalStorage;
 
   beforeEach(() => {
-    // Mock localStorage for testing
-    originalLocalStorage = global.localStorage;
-    global.localStorage = {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
+    // Mock localStorage with Vitest
+    const localStorageMock = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      key: vi.fn(),
+      length: 0,
     };
+    vi.stubGlobal('localStorage', localStorageMock);
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
-  });
-
-  afterEach(() => {
-    global.localStorage = originalLocalStorage;
   });
 
   // Generator for valid NPC IDs from the game data
   const arbNPCId = () => fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
 
   it('should initialize NPC state with all benefit tracking fields', () => {
-    // Feature: npc-benefits, Property: NPC state includes all benefit tracking fields
     fc.assert(
       fc.property(arbNPCId(), (npcId) => {
         // Get NPC state (this will initialize it if it doesn't exist)
@@ -87,7 +84,6 @@ describe('NPC State Initialization Property Tests', () => {
   });
 
   it('should preserve existing NPC state when accessing again', () => {
-    // Feature: npc-benefits, Property: NPC state includes all benefit tracking fields
     fc.assert(
       fc.property(arbNPCId(), (npcId) => {
         // Create a fresh GameStateManager for this test iteration
@@ -133,7 +129,6 @@ describe('NPC State Initialization Property Tests', () => {
   });
 
   it('should initialize different NPCs with independent state', () => {
-    // Feature: npc-benefits, Property: NPC state includes all benefit tracking fields
     fc.assert(
       fc.property(
         fc.tuple(arbNPCId(), arbNPCId()).filter(([id1, id2]) => id1 !== id2),

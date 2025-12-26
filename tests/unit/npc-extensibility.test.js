@@ -149,7 +149,7 @@ describe('NPC System Extensibility', () => {
       expect(npcsAtAlphaCentauri).toContain(TEST_NPC);
 
       // Test that renderNPCListItem works with the new NPC
-      const mockGetRepTier = (rep) => ({ name: 'Warm' });
+      const mockGetRepTier = () => ({ name: 'Warm' });
       const mockNPCState = { rep: 5 };
 
       const displayText = renderNPCListItem(

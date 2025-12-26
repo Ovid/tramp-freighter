@@ -1116,12 +1116,6 @@ export class GameStateManager {
    * @returns {Object} NPC state object
    */
   getNPCState(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getNPCState called before game initialization'
-      );
-    }
-
     // Validate NPC ID exists in NPC data
     const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
     if (!npcData) {
@@ -1160,12 +1154,6 @@ export class GameStateManager {
    * @param {string} reason - Reason for reputation change (for logging)
    */
   modifyRep(npcId, amount, reason) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: modifyRep called before game initialization'
-      );
-    }
-
     // Validate NPC ID exists in NPC data
     const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
     if (!npcData) {
