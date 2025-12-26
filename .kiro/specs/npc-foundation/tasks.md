@@ -177,7 +177,7 @@
   - Match existing panel styling patterns
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 10. Validate NPC system extensibility
+- [x] 10. Validate NPC system extensibility
   - Create a test NPC definition (e.g., "Test Trader" at Alpha Centauri) using the same data structure as the three main NPCs
   - Create a minimal dialogue tree for the test NPC with greeting and one choice
   - Verify the test NPC appears in station menu when at the correct system
@@ -186,13 +186,13 @@
   - Remove test NPC after validation (cleanup)
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 10.1 Write unit tests for NPC extensibility
+- [x] 10.1 Write unit tests for NPC extensibility
   - Test creating new NPC definition with all required fields
   - Test new NPC integrates with existing query functions
   - Test new dialogue tree follows required structure
   - Test new NPC state persists in save/load cycle
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 11. Checkpoint - Ensure all tests pass
+- [x] 11. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
