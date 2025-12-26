@@ -1,5 +1,5 @@
 /* Dialogue Panel Styling */
-#dialogue-panel {
+.dialogue-panel {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -17,11 +17,11 @@
   overflow-y: auto;
 }
 
-#dialogue-panel.visible {
+.dialogue-panel.visible {
   display: block;
 }
 
-#dialogue-panel .close-btn {
+.dialogue-panel .close-btn {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -34,7 +34,7 @@
   line-height: 1;
 }
 
-#dialogue-panel .close-btn:hover {
+.dialogue-panel .close-btn:hover {
   color: #ffffff;
 }
 
@@ -227,21 +227,21 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  #dialogue-panel {
+  .dialogue-panel {
     width: 90%;
     max-width: 500px;
     padding: 15px;
   }
-  
+
   .npc-name {
     font-size: 20px;
   }
-  
+
   .npc-info {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .choice-btn {
     padding: 10px 12px;
     font-size: 13px;

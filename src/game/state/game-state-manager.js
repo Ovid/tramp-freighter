@@ -90,6 +90,7 @@ export class GameStateManager {
       shipNameChanged: [],
       upgradesChanged: [],
       quirksChanged: [],
+      dialogueChanged: [],
     };
 
     // Initialize with null state (will be set by initNewGame or loadGame)
@@ -287,6 +288,7 @@ export class GameStateManager {
         currentNpcId: null,
         currentNodeId: null,
         isActive: false,
+        display: null,
       },
       meta: {
         version: GAME_VERSION,
@@ -1237,6 +1239,9 @@ export class GameStateManager {
     this.state.dialogue.currentNpcId = npcId;
     this.state.dialogue.currentNodeId = nodeId;
     this.state.dialogue.isActive = true;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
   }
 
   /**
@@ -1267,6 +1272,90 @@ export class GameStateManager {
     this.state.dialogue.currentNpcId = null;
     this.state.dialogue.currentNodeId = null;
     this.state.dialogue.isActive = false;
+    this.state.dialogue.display = null;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
+  }
+
+  // ========================================================================
+  // DIALOGUE ACTIONS
+  // ========================================================================
+
+  /**
+   * Start dialogue with an NPC
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
+   * @returns {Object} Dialogue display object with text, choices, and NPC info
+   */
+  async startDialogue(npcId, nodeId = 'greeting') {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: startDialogue called before game initialization'
+      );
+    }
+
+    // Import dialogue functions dynamically to avoid circular dependency
+    const { showDialogue } = await import('../game-dialogue.js');
+
+    const dialogueDisplay = showDialogue(npcId, nodeId, this);
+
+    // Update dialogue state with display
+    this.state.dialogue.currentNpcId = npcId;
+    this.state.dialogue.currentNodeId = nodeId;
+    this.state.dialogue.isActive = true;
+    this.state.dialogue.display = dialogueDisplay;
+
+    // Emit dialogue state change
+    this.emit('dialogueChanged', { ...this.state.dialogue });
+
+    return dialogueDisplay;
+  }
+
+  /**
+   * Select a dialogue choice and advance conversation
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} choiceIndex - Index of selected choice
+   * @returns {Object|null} Next dialogue display object or null if dialogue ended
+   */
+  async selectDialogueChoice(npcId, choiceIndex) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: selectDialogueChoice called before game initialization'
+      );
+    }
+
+    // Import dialogue functions dynamically to avoid circular dependency
+    const { selectChoice } = await import('../game-dialogue.js');
+
+    const nextDisplay = selectChoice(npcId, choiceIndex, this);
+
+    if (nextDisplay) {
+      // Continue dialogue - update state with new display
+      this.state.dialogue.currentNpcId = npcId;
+      this.state.dialogue.currentNodeId =
+        nextDisplay.currentNodeId || this.state.dialogue.currentNodeId;
+      this.state.dialogue.isActive = true;
+      this.state.dialogue.display = nextDisplay;
+
+      // Emit dialogue state change
+      this.emit('dialogueChanged', { ...this.state.dialogue });
+
+      return nextDisplay;
+    } else {
+      // Dialogue ended - clear state
+      this.state.dialogue.currentNpcId = null;
+      this.state.dialogue.currentNodeId = null;
+      this.state.dialogue.isActive = false;
+      this.state.dialogue.display = null;
+
+      // Emit dialogue state change
+      this.emit('dialogueChanged', { ...this.state.dialogue });
+
+      return null;
+    }
   }
 
   // ========================================================================

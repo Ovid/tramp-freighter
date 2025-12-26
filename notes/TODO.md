@@ -19,6 +19,8 @@
 
 # TODO
 
+- Blur further stars and routes
+- Swap dock/station info buttons
 - i18n?
 - GCT
 - Ensure all individual js modules have unit tests

@@ -162,6 +162,33 @@ export function useGameAction() {
       moveToRegularCargo: (good, qty) => {
         return gameStateManager.moveToRegularCargo(good, qty);
       },
+
+      /**
+       * Start dialogue with an NPC
+       * @param {string} npcId - NPC identifier
+       * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
+       * @returns {Promise<Object>} Dialogue display object with text, choices, and NPC info
+       */
+      startDialogue: async (npcId, nodeId = 'greeting') => {
+        return await gameStateManager.startDialogue(npcId, nodeId);
+      },
+
+      /**
+       * Select a dialogue choice and advance conversation
+       * @param {string} npcId - NPC identifier
+       * @param {number} choiceIndex - Index of selected choice
+       * @returns {Promise<Object|null>} Next dialogue display object or null if dialogue ended
+       */
+      selectDialogueChoice: async (npcId, choiceIndex) => {
+        return await gameStateManager.selectDialogueChoice(npcId, choiceIndex);
+      },
+
+      /**
+       * Clear current dialogue state
+       */
+      clearDialogue: () => {
+        gameStateManager.clearDialogueState();
+      },
     }),
     [gameStateManager]
   );
