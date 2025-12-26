@@ -169,7 +169,7 @@
   - Test version 4 save includes npcs field in schema
   - _Requirements: 8.1, 8.3, 8.5_
 
-- [ ] 9. Add CSS styling for dialogue interface
+- [x] 9. Add CSS styling for dialogue interface
   - Create `css/panel/dialogue.css` with dialogue panel styles
   - Style dialogue header with NPC info and reputation tier
   - Style dialogue text area
