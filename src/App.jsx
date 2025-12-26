@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleScreen } from './features/title-screen/TitleScreen';
 import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
@@ -12,13 +12,9 @@ import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 
 /**
- * View modes for the application.
- *
- * TITLE: Title screen with Continue/New Game options
- * SHIP_NAMING: Ship naming dialog for new games
- * ORBIT: Player is in orbit around a system, viewing the starmap
- * STATION: Player is docked at a station, viewing the station menu
- * PANEL: Player has opened a specific panel from the station menu
+ * Application state machine modes.
+ * Controls which UI components are rendered and manages the game flow
+ * from initial load through gameplay without complex conditional logic.
  *
  * React Migration Spec: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 47.1, 48.1
  */
@@ -31,15 +27,11 @@ const VIEW_MODES = {
 };
 
 /**
- * Root application component.
+ * Root application orchestrator.
  *
- * Manages view mode state and conditionally renders:
- * - TitleScreen (on initial load)
- * - ShipNamingDialog (when starting a new game)
- * - StarMapCanvas (after title screen flow, z-index 0)
- * - HUD (after title screen flow)
- * - StationMenu (when docked)
- * - PanelContainer (when panel is open)
+ * Manages the UI state machine and coordinates between React's declarative
+ * rendering and the imperative GameStateManager. Acts as the bridge between
+ * the game engine and the user interface.
  *
  * React Migration Spec: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4, 25.5, 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 48.1, 48.7
  *
@@ -48,6 +40,7 @@ const VIEW_MODES = {
 export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
+  const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
   const [activePanel, setActivePanel] = useState(null);
@@ -59,15 +52,6 @@ export default function App({ devMode = false }) {
   // System Info should always be accessible, even when panels are open
   const showSystemPanel = viewingSystemId !== null;
 
-  /**
-   * Handle starting a game from the title screen.
-   * If isNewGame is true, initialize a new game and show ship naming dialog.
-   * If isNewGame is false, load existing game and transition to orbit view.
-   *
-   * React Migration Spec: Requirements 47.2, 47.3, 47.4, 47.6
-   *
-   * @param {boolean} isNewGame - True for new game, false to continue existing game
-   */
   const handleStartGame = (isNewGame) => {
     if (isNewGame) {
       // Initialize new game
@@ -82,14 +66,6 @@ export default function App({ devMode = false }) {
     }
   };
 
-  /**
-   * Handle ship name submission from the ship naming dialog.
-   * Updates the ship name in game state, saves the game, and transitions to orbit view.
-   *
-   * React Migration Spec: Requirements 48.7
-   *
-   * @param {string} shipName - The sanitized ship name
-   */
   const handleShipNamed = (shipName) => {
     // Update ship name in game state
     gameStateManager.updateShipName(shipName);
@@ -99,26 +75,6 @@ export default function App({ devMode = false }) {
     setViewMode(VIEW_MODES.ORBIT);
   };
 
-  // Create namespaced bridge object for temporary React migration
-  // This allows the vanilla JS starmap interaction code to trigger React state updates
-  if (typeof window !== 'undefined') {
-    window.StarmapBridge = window.StarmapBridge || {};
-
-    window.StarmapBridge.selectStarById = (systemId) => {
-      handleSystemSelected(systemId);
-      // Also trigger visual selection in Three.js scene
-      if (window.StarmapBridge.selectStarInScene) {
-        window.StarmapBridge.selectStarInScene(systemId);
-      }
-    };
-  }
-
-  /**
-   * Handle docking at a station.
-   * Toggles between ORBIT and STATION view modes.
-   *
-   * React Migration Spec: Requirements 9.3, 25.3
-   */
   const handleDock = () => {
     if (viewMode === VIEW_MODES.STATION || viewMode === VIEW_MODES.PANEL) {
       // If currently in station or panel mode, go back to orbit
@@ -130,64 +86,29 @@ export default function App({ devMode = false }) {
     }
   };
 
-  /**
-   * Handle undocking from a station.
-   * Transitions from STATION to ORBIT view mode.
-   *
-   * React Migration Spec: Requirements 9.2, 25.1, 25.2
-   */
   const handleUndock = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
   };
 
-  /**
-   * Handle opening a panel from the station menu.
-   * Transitions from STATION to PANEL view mode.
-   *
-   * React Migration Spec: Requirements 9.4, 25.4
-   *
-   * @param {string} panelName - Name of the panel to open
-   */
   const handleOpenPanel = (panelName) => {
     setActivePanel(panelName);
     setViewMode(VIEW_MODES.PANEL);
   };
 
-  /**
-   * Handle closing a panel.
-   * Transitions from PANEL back to STATION view mode.
-   *
-   * React Migration Spec: Requirements 9.3, 25.3
-   */
   const handleClosePanel = () => {
     setViewMode(VIEW_MODES.STATION);
     setActivePanel(null);
   };
 
-  /**
-   * Handle opening the dev admin panel.
-   * Only available in dev mode.
-   *
-   * React Migration Spec: Requirements 45.2, 45.5
-   */
   const handleOpenDevAdmin = () => {
     setShowDevAdmin(true);
   };
 
-  /**
-   * Handle closing the dev admin panel.
-   *
-   * React Migration Spec: Requirements 45.5
-   */
   const handleCloseDevAdmin = () => {
     setShowDevAdmin(false);
   };
 
-  /**
-   * Handle opening the system panel (shows current system info).
-   * Toggles the system panel visibility.
-   */
   const handleOpenSystemInfo = () => {
     if (viewingSystemId === currentSystemId) {
       // If already viewing current system, close the panel
@@ -198,53 +119,40 @@ export default function App({ devMode = false }) {
     }
   };
 
-  /**
-   * Handle system selection from starmap.
-   * Shows system panel for the selected system.
-   */
   const handleSystemSelected = (systemId) => {
     setViewingSystemId(systemId);
   };
 
+  const handleSystemDeselected = () => {
+    setViewingSystemId(null);
+  };
+
   /**
-   * Handle closing the system panel.
    * @param {boolean} keepSelection - If true, don't deselect star (used during jump)
    */
   const handleCloseSystemPanel = (keepSelection = false) => {
     setViewingSystemId(null);
     // Deselect star in scene unless we're keeping it for jump animation
-    if (!keepSelection && window.StarmapBridge.deselectStarInScene) {
-      window.StarmapBridge.deselectStarInScene();
+    if (!keepSelection && starmapRef.current) {
+      starmapRef.current.deselectStar();
     }
   };
 
-  // Expose close system panel handler to starmap
-  if (typeof window !== 'undefined') {
-    window.StarmapBridge = window.StarmapBridge || {};
-    window.StarmapBridge.closeSystemPanel = handleCloseSystemPanel;
-  }
-
-  /**
-   * Handle jump start.
-   * Close station menu immediately so user can see the animation.
-   * Keep selection ring visible during animation to show destination.
-   */
+  // Close station menu immediately so user can see the animation.
+  // Keep selection ring visible during animation to show destination.
   const handleJumpStart = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
     // Don't deselect star - keep selection ring visible during jump
   };
 
-  /**
-   * Handle successful jump completion.
-   * After jump, deselect star so only current system indicator is visible.
-   */
+  // After jump, deselect star so only current system indicator is visible.
   const handleJumpComplete = () => {
     setViewingSystemId(null);
     // Deselect star after jump completes - we've arrived at destination
     // Only the current system indicator (green) should be visible
-    if (window.StarmapBridge.deselectStarInScene) {
-      window.StarmapBridge.deselectStarInScene();
+    if (starmapRef.current) {
+      starmapRef.current.deselectStar();
     }
   };
 
@@ -267,7 +175,11 @@ export default function App({ devMode = false }) {
             <>
               {/* Starmap is always rendered (z-index 0) */}
               <ErrorBoundary>
-                <StarMapCanvas />
+                <StarMapCanvas
+                  ref={starmapRef}
+                  onSystemSelected={handleSystemSelected}
+                  onSystemDeselected={handleSystemDeselected}
+                />
               </ErrorBoundary>
 
               {/* HUD is always rendered */}

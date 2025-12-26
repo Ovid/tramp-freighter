@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import * as THREE from 'three';
 import {
   initScene,
@@ -35,7 +41,7 @@ import { CameraControls } from './CameraControls';
  *
  * React Migration Spec: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 31.1, 31.2, 31.3, 31.4, 31.5, 43.1, 43.2
  */
-export function StarMapCanvas() {
+export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const gameStateManager = useGameState();
@@ -46,6 +52,27 @@ export function StarMapCanvas() {
   // Subscribe to fuel changes to update wormhole connection colors
   const fuel = useGameEvent('fuelChanged');
   const currentSystem = useGameEvent('locationChanged');
+
+  // Expose imperative methods to parent component
+  useImperativeHandle(
+    ref,
+    () => ({
+      selectStarById: (systemId) => {
+        if (sceneRef.current && sceneRef.current.stars) {
+          const star = sceneRef.current.stars.find(
+            (s) => s.data.id === systemId
+          );
+          if (star) {
+            selectStar(star, sceneRef.current.scene, sceneRef.current.camera);
+          }
+        }
+      },
+      deselectStar: () => {
+        deselectStar();
+      },
+    }),
+    []
+  );
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -135,18 +162,18 @@ export function StarMapCanvas() {
             );
 
             if (clickedStar) {
-              // Select star visually and notify React
+              // Select star visually and notify parent via callback
               selectStar(clickedStar, scene, camera);
-              if (window.StarmapBridge?.selectStarById) {
-                window.StarmapBridge.selectStarById(clickedStar.data.id);
+              if (props.onSystemSelected) {
+                props.onSystemSelected(clickedStar.data.id);
               }
             }
           } else {
             // Clicked empty space - deselect
             deselectStar();
             // Close system panel when clicking empty space
-            if (window.StarmapBridge?.closeSystemPanel) {
-              window.StarmapBridge.closeSystemPanel();
+            if (props.onSystemDeselected) {
+              props.onSystemDeselected();
             }
           }
         };
@@ -184,24 +211,6 @@ export function StarMapCanvas() {
         stars,
         gameStateManager.state.player.currentSystem
       );
-
-      // Create namespaced bridge object for temporary React migration
-      if (typeof window !== 'undefined') {
-        window.StarmapBridge = window.StarmapBridge || {};
-      }
-
-      // Expose function to select star by ID (for external calls)
-      window.StarmapBridge.selectStarInScene = (systemId) => {
-        const star = stars.find((s) => s.data.id === systemId);
-        if (star) {
-          selectStar(star, scene, camera);
-        }
-      };
-
-      // Expose function to deselect star (for external calls)
-      window.StarmapBridge.deselectStarInScene = () => {
-        deselectStar();
-      };
 
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
@@ -290,12 +299,6 @@ export function StarMapCanvas() {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
         }
 
-        // Clear window functions
-        if (window.StarmapBridge) {
-          window.StarmapBridge.selectStarInScene = null;
-          window.StarmapBridge.deselectStarInScene = null;
-        }
-
         // Clear animation system reference from GameStateManager
         gameStateManager.setAnimationSystem(null);
 
@@ -381,4 +384,4 @@ export function StarMapCanvas() {
       />
     </>
   );
-}
+});
