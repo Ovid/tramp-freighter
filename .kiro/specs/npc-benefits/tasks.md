@@ -6,7 +6,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 
 ## Tasks
 
-- [ ] 1. Add NPC benefits configuration constants
+- [x] 1. Add NPC benefits configuration constants
   - Add `NPC_BENEFITS_CONFIG` to `src/game/constants.js`
   - Include tip cooldown (7 days), favor cooldown (30 days), loan amount (500), storage limit (10)
   - Include tier discount percentages and free repair limits

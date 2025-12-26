@@ -9,7 +9,10 @@ import {
   validateDialogueTree,
   validateAllDialogueTrees,
 } from '../../src/game/data/dialogue-trees.js';
-import { getNPCsAtSystem, renderNPCListItem } from '../../src/game/game-npcs.js';
+import {
+  getNPCsAtSystem,
+  renderNPCListItem,
+} from '../../src/game/game-npcs.js';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { ALPHA_CENTAURI_SYSTEM_ID } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -91,9 +94,7 @@ describe('NPC System Extensibility', () => {
 
   afterEach(() => {
     // Clean up: remove test NPC from arrays
-    const testNPCIndex = ALL_NPCS.findIndex(
-      (npc) => npc.id === TEST_NPC.id
-    );
+    const testNPCIndex = ALL_NPCS.findIndex((npc) => npc.id === TEST_NPC.id);
     if (testNPCIndex !== -1) {
       ALL_NPCS.splice(testNPCIndex, 1);
     }
@@ -122,7 +123,9 @@ describe('NPC System Extensibility', () => {
       expect(TEST_NPC.role).toBe('Merchant');
       expect(TEST_NPC.system).toBe(ALPHA_CENTAURI_SYSTEM_ID);
       expect(TEST_NPC.station).toBe('Alpha Centauri Station');
-      expect(TEST_NPC.description).toBe('A friendly merchant who deals in common goods.');
+      expect(TEST_NPC.description).toBe(
+        'A friendly merchant who deals in common goods.'
+      );
       expect(TEST_NPC.initialRep).toBe(5);
 
       // Verify personality traits
@@ -148,12 +151,20 @@ describe('NPC System Extensibility', () => {
       // Test that renderNPCListItem works with the new NPC
       const mockGetRepTier = (rep) => ({ name: 'Warm' });
       const mockNPCState = { rep: 5 };
-      
-      const displayText = renderNPCListItem(TEST_NPC, mockNPCState, mockGetRepTier);
+
+      const displayText = renderNPCListItem(
+        TEST_NPC,
+        mockNPCState,
+        mockGetRepTier
+      );
       expect(displayText).toBe('Test Trader (Merchant) [Warm]');
 
       // Test with no NPC state (should use initialRep)
-      const displayTextNoState = renderNPCListItem(TEST_NPC, null, mockGetRepTier);
+      const displayTextNoState = renderNPCListItem(
+        TEST_NPC,
+        null,
+        mockGetRepTier
+      );
       expect(displayTextNoState).toBe('Test Trader (Merchant) [Warm]');
     });
 
@@ -173,7 +184,9 @@ describe('NPC System Extensibility', () => {
 
       // Verify required structure
       expect(TEST_DIALOGUE_TREE.greeting).toBeDefined();
-      expect(TEST_DIALOGUE_TREE.greeting.text).toBe('Welcome to my shop! Looking for anything in particular?');
+      expect(TEST_DIALOGUE_TREE.greeting.text).toBe(
+        'Welcome to my shop! Looking for anything in particular?'
+      );
       expect(Array.isArray(TEST_DIALOGUE_TREE.greeting.choices)).toBe(true);
       expect(TEST_DIALOGUE_TREE.greeting.choices).toHaveLength(2);
 
@@ -189,7 +202,9 @@ describe('NPC System Extensibility', () => {
 
       // Verify second node
       expect(TEST_DIALOGUE_TREE.goods_talk).toBeDefined();
-      expect(TEST_DIALOGUE_TREE.goods_talk.text).toBe('I specialize in basic commodities - grain, ore, that sort of thing. Fair prices, honest dealing.');
+      expect(TEST_DIALOGUE_TREE.goods_talk.text).toBe(
+        'I specialize in basic commodities - grain, ore, that sort of thing. Fair prices, honest dealing.'
+      );
     });
 
     it('should integrate new dialogue tree with validation system', () => {
@@ -240,7 +255,10 @@ describe('NPC System Extensibility', () => {
         expect(parsedSaveData.npcs[TEST_NPC.id].interactions).toBe(1);
 
         // Create new GameStateManager and load the save
-        const newGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const newGameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA
+        );
         const loadedState = newGameStateManager.loadGame();
 
         // Verify NPC state was preserved
@@ -278,10 +296,10 @@ describe('NPC System Extensibility', () => {
         // Interact with both existing and new NPCs
         // Chen: 5 * 0.3 (trust) = 1.5, rounded = 2, so 0 + 2 = 2
         gameStateManager.modifyRep('chen_barnards', 5, 'test');
-        
+
         // Reset lastSaveTime to ensure save is not debounced
         gameStateManager.lastSaveTime = 0;
-        
+
         // Test NPC: 8 * 0.5 (trust) = 4, so 5 + 4 = 9
         gameStateManager.modifyRep(TEST_NPC.id, 8, 'test');
 
@@ -292,15 +310,18 @@ describe('NPC System Extensibility', () => {
         expect(parsedSaveData.npcs[TEST_NPC.id]).toBeDefined();
 
         // Load in new manager and verify both NPCs work
-        const newGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const newGameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA
+        );
         const loadedState = newGameStateManager.loadGame();
 
         expect(loadedState).not.toBeNull();
-        
+
         // Verify the loaded state has the NPC data
         expect(loadedState.npcs['chen_barnards']).toBeDefined();
         expect(loadedState.npcs[TEST_NPC.id]).toBeDefined();
-        
+
         const chenState = newGameStateManager.getNPCState('chen_barnards');
         const testNPCState = newGameStateManager.getNPCState(TEST_NPC.id);
 
@@ -388,16 +409,16 @@ describe('NPC System Extensibility', () => {
         // Perform operations on both existing and new NPCs
         // Chen: 10 * 0.3 (trust) = 3, so 0 + 3 = 3
         gameStateManager.modifyRep('chen_barnards', 10, 'test');
-        
+
         // Reset lastSaveTime to ensure save is not debounced
         gameStateManager.lastSaveTime = 0;
-        
+
         // Cole: -5 (negative, no trust modifier), so -20 + (-5) = -25
         gameStateManager.modifyRep('cole_sol', -5, 'test');
-        
+
         // Reset lastSaveTime to ensure save is not debounced
         gameStateManager.lastSaveTime = 0;
-        
+
         // Test NPC: 7 * 0.5 (trust) = 3.5, rounded = 4, so 5 + 4 = 9
         gameStateManager.modifyRep(TEST_NPC.id, 7, 'test');
 
@@ -420,12 +441,12 @@ describe('NPC System Extensibility', () => {
         const loadedState = newManager.loadGame();
 
         expect(loadedState).not.toBeNull();
-        
+
         // Verify the loaded state has the NPC data
         expect(loadedState.npcs['chen_barnards']).toBeDefined();
         expect(loadedState.npcs['cole_sol']).toBeDefined();
         expect(loadedState.npcs[TEST_NPC.id]).toBeDefined();
-        
+
         const loadedChenState = newManager.getNPCState('chen_barnards');
         const loadedColeState = newManager.getNPCState('cole_sol');
         const loadedTestState = newManager.getNPCState(TEST_NPC.id);
