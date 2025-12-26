@@ -22,29 +22,29 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - **Property: NPC state includes all benefit tracking fields**
     - **Validates: Requirements 2.2, 3.5, 3.6, 3.7**
 
-- [ ] 3. Implement tip system in GameStateManager
-  - [ ] 3.1 Implement `canGetTip(npcId)` method
+- [x] 3. Implement tip system in GameStateManager
+  - [x] 3.1 Implement `canGetTip(npcId)` method
     - Check reputation tier >= Warm (rep >= 10)
     - Check NPC has non-empty tips array
     - Check tip cooldown (7 days since lastTipDay)
     - Return `{ available: boolean, reason: string | null }`
     - _Requirements: 2.1, 2.3, 2.5, 2.6_
 
-  - [ ] 3.2 Implement `getTip(npcId)` method
+  - [x] 3.2 Implement `getTip(npcId)` method
     - Return null if `canGetTip()` returns false
     - Select random tip from NPC's tips array
     - Update `lastTipDay` to current game day
     - _Requirements: 2.2, 2.4_
 
-  - [ ] 3.3 Write property test for tip availability rules
+  - [x] 3.3 Write property test for tip availability rules
     - **Property 2: Tip Availability Rules**
     - **Validates: Requirements 2.1, 2.3, 2.5, 2.6**
 
-  - [ ] 3.4 Write property test for tip cooldown tracking
+  - [x] 3.4 Write property test for tip cooldown tracking
     - **Property 3: Tip Cooldown Tracking**
     - **Validates: Requirements 2.2, 2.6**
 
-  - [ ] 3.5 Write property test for tip pool membership
+  - [x] 3.5 Write property test for tip pool membership
     - **Property 4: Tip Pool Membership**
     - **Validates: Requirements 2.4**
 

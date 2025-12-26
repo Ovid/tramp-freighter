@@ -10,6 +10,7 @@ import {
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
   REPUTATION_TIERS,
+  NPC_BENEFITS_CONFIG,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { EconomicEventsSystem } from '../game-events.js';
@@ -1263,6 +1264,113 @@ export class GameStateManager {
 
     // Emit dialogue state change
     this.emit('dialogueChanged', { ...this.state.dialogue });
+  }
+
+  // ========================================================================
+  // NPC BENEFITS SYSTEM - TIP SYSTEM
+  // ========================================================================
+
+  /**
+   * Check if NPC can provide a tip
+   *
+   * Validates that the NPC meets all requirements for providing a trading tip:
+   * 1. Reputation tier is Warm or higher (rep >= 10)
+   * 2. NPC has a non-empty tips array
+   * 3. Tip cooldown has passed (7 days since lastTipDay)
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} { available: boolean, reason: string | null }
+   */
+  canGetTip(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: canGetTip called before game initialization'
+      );
+    }
+
+    // Validate NPC ID exists in NPC data
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+
+    // Get NPC state (creates default if doesn't exist)
+    const npcState = this.getNPCState(npcId);
+
+    // Check reputation tier >= Warm (rep >= 10)
+    const repTier = this.getRepTier(npcState.rep);
+    if (npcState.rep < 10) {
+      return {
+        available: false,
+        reason: `Requires Warm relationship (currently ${repTier.name})`,
+      };
+    }
+
+    // Check NPC has non-empty tips array
+    if (!npcData.tips || npcData.tips.length === 0) {
+      return {
+        available: false,
+        reason: 'NPC has no tips available',
+      };
+    }
+
+    // Check tip cooldown (7 days since lastTipDay)
+    if (npcState.lastTipDay !== null) {
+      const daysSinceLastTip =
+        this.state.player.daysElapsed - npcState.lastTipDay;
+      if (daysSinceLastTip < NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS) {
+        const daysRemaining =
+          NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - daysSinceLastTip;
+        return {
+          available: false,
+          reason: `Tip cooldown active (${daysRemaining} days remaining)`,
+        };
+      }
+    }
+
+    return {
+      available: true,
+      reason: null,
+    };
+  }
+
+  /**
+   * Get a random tip from NPC's tip pool
+   *
+   * Returns null if canGetTip() returns false. Otherwise, selects a random tip
+   * from the NPC's tips array and updates lastTipDay to current game day.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {string | null} Tip text or null if unavailable
+   */
+  getTip(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getTip called before game initialization'
+      );
+    }
+
+    // Check if tip is available
+    const availability = this.canGetTip(npcId);
+    if (!availability.available) {
+      return null;
+    }
+
+    // Get NPC data and state
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    const npcState = this.getNPCState(npcId);
+
+    // Select random tip from NPC's tips array
+    const randomIndex = Math.floor(Math.random() * npcData.tips.length);
+    const selectedTip = npcData.tips[randomIndex];
+
+    // Update lastTipDay to current game day
+    npcState.lastTipDay = this.state.player.daysElapsed;
+
+    // Persist immediately - tip state should be saved
+    this.saveGame();
+
+    return selectedTip;
   }
 
   // ========================================================================
