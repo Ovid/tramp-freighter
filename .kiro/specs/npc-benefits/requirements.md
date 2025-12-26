@@ -13,8 +13,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 - **Market Intel**: Information about price trends, supply/demand, or economic events shared by NPCs
 - **Special Favor**: A unique service or assistance that NPCs provide to trusted players, with cooldown periods
 - **Favor Cooldown**: A 30-day waiting period between requests for special favors from the same NPC
-- **Emergency Loan**: A special favor providing ₡500 in credits to trusted players in financial difficulty
-- **Cargo Storage**: A special favor allowing temporary storage of up to 10 cargo units with friendly NPCs
+- **Emergency Loan**: A special favor providing ₡500 in credits to trusted players in financial difficulty, tracked per-NPC with a 30-day repayment deadline
+- **Cargo Storage**: A special favor allowing temporary storage of up to 10 cargo units with friendly NPCs, retrievable anytime at the NPC's station
+- **Loan Repayment**: The act of returning borrowed credits to an NPC before the 30-day deadline to avoid relationship penalties
 - **Information Broker**: An NPC role specializing in selling market intelligence and rumors
 - **Station Administrator**: An NPC role with authority over station operations and regulations
 - **Mechanic**: An NPC role specializing in ship repairs and maintenance services
@@ -22,6 +23,7 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 - **Trader**: An NPC role specializing in commodity trading with sector-wide connections
 - **Station Master**: An NPC role with authority over station operations and docking procedures
 - **Gambler**: An NPC role specializing in high-risk opportunities and chance-based ventures
+- **NPC-Specific Discount**: A discount that applies only to services matching the NPC's specialty (e.g., Mechanic discounts apply to repairs only)
 
 ## Requirements
 
@@ -36,8 +38,8 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 3. WHEN an NPC relationship is Neutral THEN the system SHALL provide standard service and generic dialogue
 4. WHEN an NPC relationship is Warm THEN the system SHALL provide occasional tips, 5% discount on services, and hints about events
 5. WHEN an NPC relationship is Friendly THEN the system SHALL provide regular tips, 10% discount on services, and personal dialogue
-6. WHEN an NPC relationship is Trusted THEN the system SHALL provide free minor repairs up to 10% hull damage, 15% discount on services, safe harbor, and advance warnings
-7. WHEN an NPC relationship is Family THEN the system SHALL provide free minor repairs up to 25% hull damage, 20% discount on services, willingness to take risks, and unique content
+6. WHEN an NPC relationship is Trusted THEN the system SHALL provide free minor repairs up to 10% hull damage once per visit, 15% discount on services, safe harbor, and advance warnings
+7. WHEN an NPC relationship is Family THEN the system SHALL provide free minor repairs up to 25% hull damage once per visit, 20% discount on services, willingness to take risks, and unique content
 
 ### Requirement 2
 
@@ -62,12 +64,20 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 2. WHEN an NPC relationship is Friendly or higher THEN the system SHALL allow requests for temporary cargo storage of up to 10 units
 3. WHEN a special favor is granted THEN the system SHALL impose a 30-day cooldown before the same favor can be requested again
 4. WHEN a favor cooldown is active THEN the system SHALL display "Favor used recently (wait 30 days)" and show remaining days until available
-5. WHEN granting an emergency loan THEN the system SHALL increase the NPC reputation by 5 points for accepting help
+5. WHEN granting an emergency loan THEN the system SHALL increase the NPC reputation by 5 points for accepting help and record the loan amount and loanDay
 6. WHEN granting cargo storage THEN the system SHALL remove up to 10 cargo units from the ship and store them with the NPC as storedCargo
 7. WHEN a favor is granted THEN the system SHALL record lastFavorDay to track the 30-day cooldown period
 8. WHEN an NPC has not been met THEN the system SHALL return "NPC not met" when checking favor availability
 9. WHEN an emergency loan is requested from an NPC below Trusted tier THEN the system SHALL return "Requires Trusted relationship"
 10. WHEN cargo storage is requested from an NPC below Friendly tier THEN the system SHALL return "Requires Friendly relationship"
+11. WHEN the player visits an NPC with storedCargo THEN the system SHALL allow retrieval of stored cargo at any time
+12. WHEN the player retrieves stored cargo and has sufficient capacity THEN the system SHALL transfer all cargo back to the ship
+13. WHEN the player retrieves stored cargo and has insufficient capacity THEN the system SHALL transfer as much cargo as fits and leave the remainder stored with the NPC
+14. WHEN an emergency loan is outstanding THEN the system SHALL allow repayment by deducting ₡500 from player credits
+15. WHEN an emergency loan is repaid THEN the system SHALL clear the loan record for that NPC
+16. WHEN an emergency loan remains unpaid after 30 days THEN the system SHALL reduce the NPC relationship by 1 tier
+17. WHEN checking loan status THEN the system SHALL calculate days remaining as 30 minus daysSinceLoan
+
 ### Requirement 4
 
 **User Story:** As a player, I want to interact with Whisper at Sirius A, so that I can access specialized information brokering services.
@@ -107,6 +117,7 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 9. WHEN Captain Vasquez reaches Friendly tier THEN the system SHALL provide old star charts that reveal profitable routes
 10. WHEN Captain Vasquez reaches Trusted tier THEN the system SHALL offer co-investment opportunities with 50/50 profit splits
 11. WHEN Captain Vasquez dialogue includes backstory THEN the system SHALL include hints about the Pavonis route and Range Extender as endgame content
+
 ### Requirement 6
 
 **User Story:** As a player, I want to interact with Dr. Sarah Kim at Tau Ceti, so that I can build relationships with station administration for operational benefits.
@@ -199,8 +210,9 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 #### Acceptance Criteria
 
 1. WHEN displaying service prices THEN the system SHALL show the discounted price based on NPC relationship tier
-2. WHEN a discount applies THEN the system SHALL indicate the discount percentage in the UI
+2. WHEN a discount applies THEN the system SHALL indicate the discount percentage and source NPC in the UI
 3. WHEN calculating service prices THEN the system SHALL apply 5% discount for Warm tier, 10% for Friendly, 15% for Trusted, and 20% for Family tier
+4. WHEN multiple NPCs are at the same station THEN the system SHALL apply each NPC's discount only to their specialty services (e.g., Mechanic discounts apply to repairs only)
 
 ### Requirement 12
 
@@ -218,3 +230,21 @@ This specification expands the NPC system with tangible gameplay benefits, addit
 8. WHEN a dialogue choice requires reputation of 30 or higher THEN the system SHALL hide that choice for lower reputation values
 9. WHEN a dialogue choice has a repGain value THEN the system SHALL increase NPC reputation by that amount when the choice is selected
 10. WHEN a dialogue choice leads to null THEN the system SHALL end the conversation
+
+### Requirement 13
+
+**User Story:** As a player, I want existing NPCs (Wei Chen and Marcus Cole) to provide tips and benefits matching their roles, so that all NPCs feel integrated into the benefits system.
+
+#### Acceptance Criteria
+
+1. WHEN Wei Chen relationship is Warm or higher THEN the system SHALL provide dock worker tips about cargo handling and station operations
+2. WHEN Wei Chen provides tips THEN the system SHALL randomly select from: "Heavy cargo shifts during transit. Secure it properly.", "Dock fees vary by station. Sol and Alpha Centauri charge premium.", "Some captains overload their holds. Bad idea in rough space."
+3. WHEN Wei Chen reaches Friendly tier THEN the system SHALL provide 5% discount on docking-related services
+4. WHEN Wei Chen reaches Trusted tier THEN the system SHALL provide advance warning about dock inspections
+5. WHEN Marcus Cole relationship is Warm or higher THEN the system SHALL provide financial tips about debt management and credit
+6. WHEN Marcus Cole provides tips THEN the system SHALL randomly select from: "Debt compounds. Pay early when you can.", "Credit is a tool. Use it wisely, not desperately.", "Some traders leverage debt for bigger hauls. Risky but effective."
+7. WHEN Marcus Cole reaches Friendly tier THEN the system SHALL reduce interest on outstanding debt by 10%
+8. WHEN Marcus Cole reaches Trusted tier THEN the system SHALL offer debt restructuring options
+9. WHEN Father Okonkwo is interacted with THEN the system SHALL NOT provide trading tips (role is spiritual guidance, not commerce)
+10. WHEN Father Okonkwo reaches Friendly tier THEN the system SHALL provide free medical supplies once per visit
+11. WHEN Father Okonkwo reaches Trusted tier THEN the system SHALL provide sanctuary (safe harbor) benefits
