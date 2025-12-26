@@ -12,13 +12,13 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
   - Include tier discount percentages and free repair limits
   - _Requirements: 1.4, 1.5, 1.6, 1.7, 2.6, 3.3, 3.5, 3.6, 11.3_
 
-- [ ] 2. Extend NPC state structure in GameStateManager
-  - [ ] 2.1 Add new NPC state fields to `getNPCState()` initialization
+- [x] 2. Extend NPC state structure in GameStateManager
+  - [x] 2.1 Add new NPC state fields to `getNPCState()` initialization
     - Add `lastTipDay`, `lastFavorDay`, `loanAmount`, `loanDay`, `storedCargo`, `lastFreeRepairDay` fields
     - Ensure backward compatibility with existing NPC state
     - _Requirements: 2.2, 3.5, 3.6, 3.7, 1.6, 1.7_
 
-  - [ ] 2.2 Write property test for NPC state initialization
+  - [x] 2.2 Write property test for NPC state initialization
     - **Property: NPC state includes all benefit tracking fields**
     - **Validates: Requirements 2.2, 3.5, 3.6, 3.7**
 

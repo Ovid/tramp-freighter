@@ -1135,6 +1135,13 @@ export class GameStateManager {
         lastInteraction: this.state.player.daysElapsed,
         flags: [],
         interactions: 0,
+        // NPC Benefits System fields
+        lastTipDay: null,
+        lastFavorDay: null,
+        loanAmount: null,
+        loanDay: null,
+        storedCargo: [],
+        lastFreeRepairDay: null,
       };
     }
 
