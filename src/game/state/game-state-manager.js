@@ -25,6 +25,7 @@ import {
   validateStateStructure,
   migrateFromV1ToV2,
   migrateFromV2ToV2_1,
+  migrateFromV2_1ToV4,
   addStateDefaults,
 } from './state-validators.js';
 import { ALL_NPCS } from '../data/npc-data.js';
@@ -2178,8 +2179,8 @@ export class GameStateManager {
         return null;
       }
 
-      // Migrate from v1.0.0 to v2.1.0 if needed
-      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '2.1.0') {
+      // Migrate from v1.0.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '4.0.0') {
         loadedState = migrateFromV1ToV2(
           loadedState,
           this.starData,
@@ -2187,9 +2188,14 @@ export class GameStateManager {
         );
       }
 
-      // Migrate from v2.0.0 to v2.1.0 if needed
-      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '2.1.0') {
+      // Migrate from v2.0.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '4.0.0') {
         loadedState = migrateFromV2ToV2_1(loadedState, this.isTestEnvironment);
+      }
+
+      // Migrate from v2.1.0 to v4.0.0 if needed
+      if (loadedState.meta?.version === '2.1.0' && GAME_VERSION === '4.0.0') {
+        loadedState = migrateFromV2_1ToV4(loadedState, this.isTestEnvironment);
       }
 
       // Validate state structure
@@ -2226,6 +2232,61 @@ export class GameStateManager {
     } catch (error) {
       if (!this.isTestEnvironment) {
         console.log('Failed to load game:', error);
+
+        // If NPC data is corrupted, try to recover by initializing empty NPC state
+        if (error.message && error.message.includes('NPC')) {
+          console.log(
+            'NPC data corrupted, continuing with fresh NPC relationships'
+          );
+          try {
+            // Try to load again with NPC data reset
+            let recoveredState = loadGameFromStorage(this.isTestEnvironment);
+            if (recoveredState && recoveredState.npcs) {
+              recoveredState.npcs = {};
+              if (recoveredState.dialogue) {
+                recoveredState.dialogue = {
+                  currentNpcId: null,
+                  currentNodeId: null,
+                  isActive: false,
+                  display: null,
+                };
+              }
+
+              // Validate and set recovered state
+              if (validateStateStructure(recoveredState)) {
+                recoveredState = addStateDefaults(
+                  recoveredState,
+                  this.starData
+                );
+                this.state = recoveredState;
+
+                // Emit all state events
+                this.emit('creditsChanged', this.state.player.credits);
+                this.emit('debtChanged', this.state.player.debt);
+                this.emit('fuelChanged', this.state.ship.fuel);
+                this.emit('cargoChanged', this.state.ship.cargo);
+                this.emit('locationChanged', this.state.player.currentSystem);
+                this.emit('timeChanged', this.state.player.daysElapsed);
+                this.emit(
+                  'priceKnowledgeChanged',
+                  this.state.world.priceKnowledge
+                );
+                this.emit('activeEventsChanged', this.state.world.activeEvents);
+                this.emit('shipConditionChanged', {
+                  hull: this.state.ship.hull,
+                  engine: this.state.ship.engine,
+                  lifeSupport: this.state.ship.lifeSupport,
+                });
+                this.emit('upgradesChanged', this.state.ship.upgrades);
+                this.emit('quirksChanged', this.state.ship.quirks);
+
+                return this.state;
+              }
+            }
+          } catch (recoveryError) {
+            console.log('Recovery failed, starting new game');
+          }
+        }
       }
       return null;
     }

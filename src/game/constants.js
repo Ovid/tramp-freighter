@@ -453,8 +453,9 @@ export async function initDevMode() {
  * - 1.0.0: Initial release with basic trading
  * - 2.0.0: Added ship condition, price knowledge, events
  * - 2.1.0: Deterministic economy with market conditions
+ * - 4.0.0: NPC foundation with reputation system and dialogue
  */
-export const GAME_VERSION = '2.1.0';
+export const GAME_VERSION = '4.0.0';
 
 /**
  * localStorage key for save data

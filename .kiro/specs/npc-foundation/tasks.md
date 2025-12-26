@@ -150,7 +150,7 @@
   - Test clicking NPC opens dialogue interface
   - _Requirements: 1.4, 1.5_
 
-- [ ] 8. Update save/load system
+- [x] 8. Update save/load system
   - Update `src/game/state/save-load.js` to version 4
   - Add `npcs` field to save data schema
   - Implement migration from version 3 to version 4 (initialize empty npcs object)
@@ -160,11 +160,11 @@
   - Add error handling: continue game with fresh NPC relationships if NPC data cannot be loaded
   - _Requirements: 5.5, 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 8.1 Write property test for save/load preservation
+- [x] 8.1 Write property test for save/load preservation
   - **Property 3: Save/load NPC state preservation**
   - **Validates: Requirements 1.3, 5.5, 8.2, 8.4**
 
-- [ ] 8.2 Write unit tests for save/load migration
+- [x] 8.2 Write unit tests for save/load migration
   - Test version 3 save migrates to version 4 with empty npcs object
   - Test version 4 save includes npcs field in schema
   - _Requirements: 8.1, 8.3, 8.5_

@@ -128,7 +128,7 @@ function normalizeCargoStack(cargoStack, currentSystemId, systemData) {
 /**
  * Check if save version is compatible with current game version
  *
- * Supports migration from v1.0.0 to v2.1.0 and v2.0.0 to v2.1.0.
+ * Supports migration from v1.0.0 to v4.0.0, v2.0.0 to v4.0.0, and v2.1.0 to v4.0.0.
  * Returns true if the save version matches exactly or can be migrated.
  *
  * @param {string} saveVersion - Version from save file
@@ -140,11 +140,14 @@ export function isVersionCompatible(saveVersion) {
   // Exact version match
   if (saveVersion === GAME_VERSION) return true;
 
-  // Support migration from v1.0.0 to v2.1.0
-  if (saveVersion === '1.0.0' && GAME_VERSION === '2.1.0') return true;
+  // Support migration from v1.0.0 to v4.0.0
+  if (saveVersion === '1.0.0' && GAME_VERSION === '4.0.0') return true;
 
-  // Support migration from v2.0.0 to v2.1.0
-  if (saveVersion === '2.0.0' && GAME_VERSION === '2.1.0') return true;
+  // Support migration from v2.0.0 to v4.0.0
+  if (saveVersion === '2.0.0' && GAME_VERSION === '4.0.0') return true;
+
+  // Support migration from v2.1.0 to v4.0.0
+  if (saveVersion === '2.1.0' && GAME_VERSION === '4.0.0') return true;
 
   return false;
 }
@@ -305,11 +308,66 @@ export function validateStateStructure(state) {
     return false;
   }
 
+  // Check NPC state structure (optional - will be initialized if missing)
+  if (state.npcs !== undefined) {
+    if (typeof state.npcs !== 'object' || state.npcs === null) {
+      return false;
+    }
+
+    // Validate each NPC state entry
+    for (const npcId in state.npcs) {
+      const npcState = state.npcs[npcId];
+      if (
+        !npcState ||
+        typeof npcState.rep !== 'number' ||
+        typeof npcState.lastInteraction !== 'number' ||
+        !Array.isArray(npcState.flags) ||
+        typeof npcState.interactions !== 'number'
+      ) {
+        return false;
+      }
+    }
+  }
+
+  // Check dialogue state structure (optional - will be initialized if missing)
+  if (state.dialogue !== undefined) {
+    if (typeof state.dialogue !== 'object' || state.dialogue === null) {
+      return false;
+    }
+
+    // currentNpcId and currentNodeId can be null
+    if (
+      state.dialogue.currentNpcId !== null &&
+      typeof state.dialogue.currentNpcId !== 'string'
+    ) {
+      return false;
+    }
+
+    if (
+      state.dialogue.currentNodeId !== null &&
+      typeof state.dialogue.currentNodeId !== 'string'
+    ) {
+      return false;
+    }
+
+    if (typeof state.dialogue.isActive !== 'boolean') {
+      return false;
+    }
+
+    // display can be null or an object
+    if (
+      state.dialogue.display !== null &&
+      typeof state.dialogue.display !== 'object'
+    ) {
+      return false;
+    }
+  }
+
   return true;
 }
 
 /**
- * Migrate save data from v1.0.0 to v2.1.0
+ * Migrate save data from v1.0.0 to v4.0.0
  *
  * Adds Phase 2 features:
  * - Ship condition (hull, engine, lifeSupport)
@@ -317,15 +375,17 @@ export function validateStateStructure(state) {
  * - Price knowledge database
  * - Active events array
  * - Market conditions (deterministic economy)
+ * - NPC state tracking (reputation, flags, interactions)
+ * - Dialogue state management
  *
  * @param {Object} state - v1.0.0 state
  * @param {Array} systemData - Star system data for lookups
  * @param {boolean} isTestEnvironment - Whether running in test mode
- * @returns {Object} Migrated v2.1.0 state
+ * @returns {Object} Migrated v4.0.0 state
  */
 export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v1.0.0 to v2.1.0');
+    console.log('Migrating save from v1.0.0 to v4.0.0');
   }
 
   // Add ship condition fields (default to maximum)
@@ -422,6 +482,21 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     state.world.marketConditions = {};
   }
 
+  // Add NPC state tracking (empty object for backward compatibility)
+  if (!state.npcs) {
+    state.npcs = {};
+  }
+
+  // Add dialogue state management
+  if (!state.dialogue) {
+    state.dialogue = {
+      currentNpcId: null,
+      currentNodeId: null,
+      isActive: false,
+      display: null,
+    };
+  }
+
   // Update version
   state.meta.version = GAME_VERSION;
 
@@ -433,23 +508,84 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
 }
 
 /**
- * Migrate save data from v2.0.0 to v2.1.0
+ * Migrate save data from v2.0.0 to v4.0.0
  *
  * Adds deterministic economy features:
  * - Market conditions tracking for local supply/demand effects
+ * - NPC state tracking (reputation, flags, interactions)
+ * - Dialogue state management
  *
  * @param {Object} state - v2.0.0 state
  * @param {boolean} isTestEnvironment - Whether running in test mode
- * @returns {Object} Migrated v2.1.0 state
+ * @returns {Object} Migrated v4.0.0 state
  */
 export function migrateFromV2ToV2_1(state, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v2.0.0 to v2.1.0');
+    console.log('Migrating save from v2.0.0 to v4.0.0');
   }
 
   // Add market conditions (empty object for backward compatibility)
   if (!state.world.marketConditions) {
     state.world.marketConditions = {};
+  }
+
+  // Add NPC state tracking (empty object for backward compatibility)
+  if (!state.npcs) {
+    state.npcs = {};
+  }
+
+  // Add dialogue state management
+  if (!state.dialogue) {
+    state.dialogue = {
+      currentNpcId: null,
+      currentNodeId: null,
+      isActive: false,
+      display: null,
+    };
+  }
+
+  // Update version
+  state.meta.version = GAME_VERSION;
+
+  if (!isTestEnvironment) {
+    console.log('Migration complete');
+  }
+
+  return state;
+}
+
+/**
+ * Migrate save data from v2.1.0 to v4.0.0
+ *
+/**
+ * Migrate save data from v2.1.0 to v4.0.0
+ *
+ * Adds NPC foundation features:
+ * - NPC state tracking (reputation, flags, interactions)
+ * - Dialogue state management
+ *
+ * @param {Object} state - v2.1.0 state
+ * @param {boolean} isTestEnvironment - Whether running in test mode
+ * @returns {Object} Migrated v4.0.0 state
+ */
+export function migrateFromV2_1ToV4(state, isTestEnvironment) {
+  if (!isTestEnvironment) {
+    console.log('Migrating save from v2.1.0 to v4.0.0');
+  }
+
+  // Add NPC state tracking (empty object for backward compatibility)
+  if (!state.npcs) {
+    state.npcs = {};
+  }
+
+  // Add dialogue state management
+  if (!state.dialogue) {
+    state.dialogue = {
+      currentNpcId: null,
+      currentNodeId: null,
+      isActive: false,
+      display: null,
+    };
   }
 
   // Update version
@@ -464,10 +600,6 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
 
 /**
  * Add defaults for missing fields in loaded state
- *
- * Handles partial v2.0.0 saves that pass validation but lack some optional fields.
- * Normalizes field names from old versions and adds missing metadata.
- *
  * @param {Object} state - State to normalize
  * @param {Array} systemData - Star system data for lookups
  * @returns {Object} Normalized state
@@ -625,6 +757,21 @@ export function addStateDefaults(state, systemData) {
     }
 
     state.world.currentSystemPrices = currentPrices;
+  }
+
+  // Initialize NPC state if missing
+  if (!state.npcs) {
+    state.npcs = {};
+  }
+
+  // Initialize dialogue state if missing
+  if (!state.dialogue) {
+    state.dialogue = {
+      currentNpcId: null,
+      currentNodeId: null,
+      isActive: false,
+      display: null,
+    };
   }
 
   return state;
