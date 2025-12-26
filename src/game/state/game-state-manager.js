@@ -1384,6 +1384,54 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // NPC BENEFITS SYSTEM - DISCOUNT SYSTEM
+  // ========================================================================
+
+  /**
+   * Get service discount based on NPC relationship
+   *
+   * Checks if any NPC at the current system provides a discount for the specified
+   * service type. Returns the discount percentage and source NPC name if available.
+   * Only NPCs whose discountService matches the serviceType can provide discounts.
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} serviceType - Service type (e.g., 'repair', 'refuel', 'intel', 'docking', 'trade', 'debt', 'medical')
+   * @returns {Object} { discount: number, npcName: string | null }
+   */
+  getServiceDiscount(npcId, serviceType) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: getServiceDiscount called before game initialization'
+      );
+    }
+
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
+
+    // Get NPC state (creates default if doesn't exist)
+    const npcState = this.getNPCState(npcId);
+
+    // Check if NPC's discountService matches serviceType
+    if (!npcData.discountService || npcData.discountService !== serviceType) {
+      return {
+        discount: 0,
+        npcName: null,
+      };
+    }
+
+    // Get reputation tier
+    const repTier = this.getRepTier(npcState.rep);
+
+    // Get discount percentage based on tier
+    const discountPercentage = NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[repTier.name.toLowerCase()] || 0;
+
+    return {
+      discount: discountPercentage,
+      npcName: discountPercentage > 0 ? npcData.name : null,
+    };
+  }
+
+  // ========================================================================
   // DIALOGUE ACTIONS
   // ========================================================================
 

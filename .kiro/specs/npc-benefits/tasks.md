@@ -48,19 +48,19 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - **Property 4: Tip Pool Membership**
     - **Validates: Requirements 2.4**
 
-- [ ] 4. Implement discount system in GameStateManager
-  - [ ] 4.1 Implement `getServiceDiscount(npcId, serviceType)` method
+- [x] 4. Implement discount system in GameStateManager
+  - [x] 4.1 Implement `getServiceDiscount(npcId, serviceType)` method
     - Get NPC's reputation tier
     - Check if NPC's discountService matches serviceType
     - Return discount percentage based on tier (0/5/10/15/20%)
     - Return `{ discount: number, npcName: string | null }`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 11.3, 11.4_
 
-  - [ ] 4.2 Write property test for tier discount calculation
+  - [x] 4.2 Write property test for tier discount calculation
     - **Property 1: Tier Discount Calculation**
     - **Validates: Requirements 1.4, 1.5, 1.6, 1.7, 11.3**
 
-  - [ ] 4.3 Write property test for NPC-specific discount application
+  - [x] 4.3 Write property test for NPC-specific discount application
     - **Property 12: NPC-Specific Discount Application**
     - **Validates: Requirements 11.4**
 
