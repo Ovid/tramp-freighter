@@ -1,3 +1,8 @@
+1. Smaller specs are better
+2. Don't skip optional tasks (TODO)
+3. Tabs you have open fill context!
+4. Fix bad architecture FIRST!
+
 > Finding 1: Missing Coverage for Requirement 1.1, 1.2, 1.3 (Hostile/Cold/Neutral Tier Behaviors)
 > Severity: Critical
 > 
