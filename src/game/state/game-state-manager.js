@@ -111,7 +111,7 @@ export class GameStateManager {
     // Initialize managers
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
-    this.npcManager = new NPCManager(null, this.emit.bind(this));
+    this.npcManager = new NPCManager(this);
     this.navigationManager = new NavigationManager(this, this.starData);
     this.refuelManager = new RefuelManager(this);
   }
@@ -258,9 +258,6 @@ export class GameStateManager {
         timestamp: Date.now(),
       },
     };
-
-    // Update manager state references
-    this.npcManager.state = this.state;
 
     if (!this.isTestEnvironment) {
       console.log('New game initialized:', this.state);
@@ -1468,236 +1465,38 @@ export class GameStateManager {
 
   /**
    * Store cargo with NPC
-   *
-   * Validates storage request with canRequestFavor, then removes up to 10 cargo units
-   * from ship and adds them to NPC's storedCargo array. Sets favor cooldown.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { success: boolean, stored: number, message: string }
    */
   storeCargo(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: storeCargo called before game initialization'
-      );
+    const result = this.npcManager.storeCargo(npcId);
+
+    if (result.success) {
+      // Persist immediately - cargo storage modifies ship cargo and NPC state
+      this.saveGame();
     }
 
-    if (!npcId || typeof npcId !== 'string') {
-      throw new Error(
-        'Invalid npcId: storeCargo requires a valid NPC identifier'
-      );
-    }
-
-    // Validate with canRequestFavor
-    const availability = this.canRequestFavor(npcId, 'storage');
-    if (!availability.available) {
-      return {
-        success: false,
-        stored: 0,
-        message: availability.reason,
-      };
-    }
-
-    // Get NPC state (validation already done in canRequestFavor)
-    const npcState = this.getNPCState(npcId);
-
-    // Get current ship cargo
-    const currentShipCargo = [...this.state.ship.cargo];
-
-    // Calculate total cargo units to store (up to limit)
-    const totalCargoUnits = currentShipCargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
-    );
-    const unitsToStore = Math.min(
-      totalCargoUnits,
-      NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
-    );
-
-    if (unitsToStore === 0) {
-      return {
-        success: false,
-        stored: 0,
-        message: 'No cargo to store',
-      };
-    }
-
-    // Initialize storedCargo if it doesn't exist
-    if (!npcState.storedCargo) {
-      npcState.storedCargo = [];
-    }
-
-    // Remove cargo from ship and add to NPC storage
-    let remainingToStore = unitsToStore;
-    const newShipCargo = [];
-    const cargoToAdd = [];
-
-    for (const stack of currentShipCargo) {
-      if (remainingToStore <= 0) {
-        // No more to store, keep remaining cargo on ship
-        newShipCargo.push(stack);
-      } else if (stack.qty <= remainingToStore) {
-        // Store entire stack
-        cargoToAdd.push({ ...stack });
-        remainingToStore -= stack.qty;
-      } else {
-        // Partial stack - store some, keep rest on ship
-        const storeQty = remainingToStore;
-        const keepQty = stack.qty - storeQty;
-
-        cargoToAdd.push({
-          ...stack,
-          qty: storeQty,
-        });
-
-        newShipCargo.push({
-          ...stack,
-          qty: keepQty,
-        });
-
-        remainingToStore = 0;
-      }
-    }
-
-    // Add stored cargo to NPC's storedCargo array
-    npcState.storedCargo.push(...cargoToAdd);
-
-    // Update ship cargo
-    this.updateCargo(newShipCargo);
-
-    // Set lastFavorDay to current day
-    npcState.lastFavorDay = this.state.player.daysElapsed;
-
-    // Update interaction tracking
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Persist immediately - cargo storage modifies ship cargo and NPC state
-    this.saveGame();
-
-    return {
-      success: true,
-      stored: unitsToStore,
-      message: `Stored ${unitsToStore} cargo units with ${this._validateAndGetNPCData(npcId).name}`,
-    };
+    return result;
   }
 
   /**
    * Retrieve stored cargo from NPC
-   *
-   * Calculates available ship capacity and transfers min(storedCargo, availableCapacity)
-   * to ship. Leaves remainder in NPC storage if ship capacity is insufficient.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { success: boolean, retrieved: CargoStack[], remaining: CargoStack[] }
    */
   retrieveCargo(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: retrieveCargo called before game initialization'
-      );
+    const result = this.npcManager.retrieveCargo(npcId);
+
+    if (result.success && result.retrieved.length > 0) {
+      // Persist immediately - cargo retrieval modifies ship cargo and NPC state
+      this.saveGame();
     }
 
-    if (!npcId || typeof npcId !== 'string') {
-      throw new Error(
-        'Invalid npcId: retrieveCargo requires a valid NPC identifier'
-      );
-    }
-
-    // Get NPC state
-    const npcState = this.getNPCState(npcId);
-
-    // Initialize storedCargo if it doesn't exist
-    if (!npcState.storedCargo) {
-      npcState.storedCargo = [];
-    }
-
-    // If no stored cargo, return empty result
-    if (npcState.storedCargo.length === 0) {
-      return {
-        success: true,
-        retrieved: [],
-        remaining: [],
-      };
-    }
-
-    // Calculate available ship capacity
-    const availableCapacity = this.getCargoRemaining();
-
-    // Calculate total stored cargo units
-    const totalStoredUnits = npcState.storedCargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
-    );
-
-    // Determine how much to transfer
-    const unitsToTransfer = Math.min(totalStoredUnits, availableCapacity);
-
-    if (unitsToTransfer === 0) {
-      // No capacity available, return current stored cargo as remaining
-      return {
-        success: true,
-        retrieved: [],
-        remaining: [...npcState.storedCargo],
-      };
-    }
-
-    // Transfer cargo from NPC storage to ship
-    let remainingToTransfer = unitsToTransfer;
-    const currentShipCargo = [...this.state.ship.cargo];
-    const retrievedCargo = [];
-    const remainingStoredCargo = [];
-
-    for (const stack of npcState.storedCargo) {
-      if (remainingToTransfer <= 0) {
-        // No more to transfer, keep remaining in storage
-        remainingStoredCargo.push(stack);
-      } else if (stack.qty <= remainingToTransfer) {
-        // Transfer entire stack
-        retrievedCargo.push({ ...stack });
-        remainingToTransfer -= stack.qty;
-      } else {
-        // Partial stack - transfer some, keep rest in storage
-        const transferQty = remainingToTransfer;
-        const keepQty = stack.qty - transferQty;
-
-        retrievedCargo.push({
-          ...stack,
-          qty: transferQty,
-        });
-
-        remainingStoredCargo.push({
-          ...stack,
-          qty: keepQty,
-        });
-
-        remainingToTransfer = 0;
-      }
-    }
-
-    // Add retrieved cargo to ship using the same stacking logic as storeCargo
-    for (const stack of retrievedCargo) {
-      this.shipManager._addToCargoArray(currentShipCargo, stack, stack.qty);
-    }
-
-    // Update ship cargo
-    this.updateCargo(currentShipCargo);
-
-    // Update NPC's stored cargo
-    npcState.storedCargo = remainingStoredCargo;
-
-    // Update interaction tracking
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Persist immediately - cargo retrieval modifies ship cargo and NPC state
-    this.saveGame();
-
-    return {
-      success: true,
-      retrieved: retrievedCargo,
-      remaining: remainingStoredCargo,
-    };
+    return result;
   }
 
   // ========================================================================
@@ -2163,9 +1962,6 @@ export class GameStateManager {
 
       this.state = loadedState;
 
-      // Update manager state references
-      this.npcManager.state = this.state;
-
       // Emit all state events to update UI
       this.emit('creditsChanged', this.state.player.credits);
       this.emit('debtChanged', this.state.player.debt);
@@ -2216,9 +2012,6 @@ export class GameStateManager {
                   this.isTestEnvironment
                 );
                 this.state = recoveredState;
-
-                // Update manager state references
-                this.npcManager.state = this.state;
 
                 // Emit all state events
                 this.emit('creditsChanged', this.state.player.credits);
