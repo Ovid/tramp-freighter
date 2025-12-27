@@ -32,6 +32,7 @@ import {
 import { ALL_NPCS } from '../data/npc-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
+import { NPCManager } from './managers/npc.js';
 
 /**
  * Sanitize ship name input
@@ -110,6 +111,7 @@ export class GameStateManager {
     // Initialize managers
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
+    this.npcManager = new NPCManager(null, this.emit.bind(this));
   }
 
   /**
@@ -254,6 +256,9 @@ export class GameStateManager {
         timestamp: Date.now(),
       },
     };
+
+    // Update manager state references
+    this.npcManager.state = this.state;
 
     if (!this.isTestEnvironment) {
       console.log('New game initialized:', this.state);
@@ -2302,6 +2307,9 @@ export class GameStateManager {
 
       this.state = loadedState;
 
+      // Update manager state references
+      this.npcManager.state = this.state;
+
       // Emit all state events to update UI
       this.emit('creditsChanged', this.state.player.credits);
       this.emit('debtChanged', this.state.player.debt);
@@ -2351,6 +2359,9 @@ export class GameStateManager {
                   this.isTestEnvironment
                 );
                 this.state = recoveredState;
+
+                // Update manager state references
+                this.npcManager.state = this.state;
 
                 // Emit all state events
                 this.emit('creditsChanged', this.state.player.credits);
