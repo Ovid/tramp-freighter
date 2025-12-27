@@ -50,8 +50,8 @@ export function useDialogue() {
   const startDialogue = useCallback(
     async (npcId, nodeId = 'greeting') => {
       try {
-        // Call the DialogueManager method directly (not exposed in public API)
-        await gameStateManager.dialogueManager.startDialogue(npcId, nodeId);
+        // Call the GameStateManager public API method
+        await gameStateManager.startDialogue(npcId, nodeId);
         return true;
       } catch (error) {
         console.error('Failed to start dialogue:', error);
@@ -75,11 +75,8 @@ export function useDialogue() {
   const selectChoice = useCallback(
     async (npcId, choiceIndex) => {
       try {
-        // Call the DialogueManager method directly (not exposed in public API)
-        await gameStateManager.dialogueManager.selectDialogueChoice(
-          npcId,
-          choiceIndex
-        );
+        // Call the GameStateManager public API method
+        await gameStateManager.selectDialogueChoice(npcId, choiceIndex);
         return true;
       } catch (error) {
         console.error('Failed to select dialogue choice:', error);
@@ -95,7 +92,7 @@ export function useDialogue() {
    * Immediately clears the dialogue state and updates UI through event system.
    */
   const clearDialogue = useCallback(() => {
-    gameStateManager.dialogueManager.clearDialogueState();
+    gameStateManager.clearDialogueState();
   }, [gameStateManager]);
 
   return {

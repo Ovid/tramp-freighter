@@ -3,6 +3,22 @@ import { render } from '@testing-library/react';
 import { ShipStatus } from '../../src/features/hud/ShipStatus.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 
+/**
+ * ShipStatus Null Safety Tests
+ *
+ * These tests specifically handle corrupted save data scenarios where ship condition
+ * values might be null or undefined due to:
+ * - Save file corruption
+ * - Incomplete migration from older game versions
+ * - Manual localStorage manipulation
+ * - Network interruption during save/load
+ *
+ * The component should gracefully degrade by showing default values (100%) rather
+ * than crashing, allowing players to continue playing even with corrupted data.
+ *
+ * NOTE: These are NOT normal operation tests - in normal gameplay, these values
+ * should never be null after proper game initialization.
+ */
 describe('ShipStatus Null Safety', () => {
   let mockGameStateManager;
   let mockState;
@@ -58,10 +74,10 @@ describe('ShipStatus Null Safety', () => {
   };
 
   it('should handle null fuel value without crashing', () => {
-    // Arrange: State has null fuel
+    // Arrange: Simulate corrupted save data with null fuel
     mockState.ship.fuel = null;
 
-    // Act & Assert: Should not throw error
+    // Act & Assert: Component should gracefully degrade, not crash
     expect(() => renderShipStatus()).not.toThrow();
   });
 

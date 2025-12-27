@@ -31,8 +31,9 @@ export function DialoguePanel({ npcId, onClose }) {
         await startDialogue(npcId, 'greeting');
       } catch (err) {
         console.error('Failed to initialize dialogue:', err);
-        // Clear dialogue state on error
+        // Clear dialogue state and close panel on error
         clearDialogue();
+        onClose();
       }
     };
 
@@ -47,15 +48,17 @@ export function DialoguePanel({ npcId, onClose }) {
       const success = await selectChoice(npcId, choiceIndex);
 
       if (!success) {
-        // Error occurred, close panel
+        // Error occurred, clear dialogue state and close panel
+        clearDialogue();
         onClose();
       }
       // If successful, the dialogueChanged event will trigger re-render
       // If dialogue ended, the dialogueState.isActive will become false
     } catch (err) {
       console.error('Failed to process dialogue choice:', err);
-      // Clear dialogue state on error
+      // Clear dialogue state and close panel on error
       clearDialogue();
+      onClose();
     }
   };
 

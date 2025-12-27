@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 
 /**
@@ -34,19 +34,19 @@ export function useGameEvent(eventName) {
     return extractStateForEvent(eventName, currentState);
   });
 
-  useEffect(() => {
-    // Subscribe to event
-    const callback = (data) => {
-      setState(data);
-    };
+  // Memoized callback to prevent unnecessary re-subscriptions
+  const callback = useCallback((data) => {
+    setState(data);
+  }, []);
 
+  useEffect(() => {
     gameStateManager.subscribe(eventName, callback);
 
     // Cleanup: unsubscribe on unmount
     return () => {
       gameStateManager.unsubscribe(eventName, callback);
     };
-  }, [gameStateManager, eventName]);
+  }, [gameStateManager, eventName, callback]);
 
   return state;
 }

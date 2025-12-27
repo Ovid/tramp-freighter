@@ -970,6 +970,30 @@ export class GameStateManager {
     return this.dialogueManager.clearDialogueState();
   }
 
+  /**
+   * Start dialogue with an NPC
+   * Delegates to DialogueManager
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
+   * @returns {Promise<Object>} Dialogue display object with text, choices, and NPC info
+   */
+  async startDialogue(npcId, nodeId = 'greeting') {
+    return await this.dialogueManager.startDialogue(npcId, nodeId);
+  }
+
+  /**
+   * Select a dialogue choice and advance conversation
+   * Delegates to DialogueManager
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} choiceIndex - Index of selected choice
+   * @returns {Promise<Object|null>} Next dialogue display object or null if dialogue ended
+   */
+  async selectDialogueChoice(npcId, choiceIndex) {
+    return await this.dialogueManager.selectDialogueChoice(npcId, choiceIndex);
+  }
+
   // ========================================================================
   // NPC BENEFITS SYSTEM - TIP SYSTEM
   // ========================================================================

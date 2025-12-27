@@ -162,13 +162,6 @@ export function useGameAction() {
       moveToRegularCargo: (good, qty) => {
         return gameStateManager.moveToRegularCargo(good, qty);
       },
-
-      /**
-       * Clear current dialogue state
-       */
-      clearDialogue: () => {
-        gameStateManager.clearDialogueState();
-      },
     }),
     [gameStateManager]
   );
