@@ -1,10 +1,7 @@
 import {
   COMMODITY_TYPES,
-  FUEL_PRICING_CONFIG,
-  NAVIGATION_CONFIG,
   REPAIR_CONFIG,
   SHIP_CONFIG,
-  calculateDistanceFromSol,
   SOL_SYSTEM_ID,
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
@@ -34,6 +31,7 @@ import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
 import { NavigationManager } from './managers/navigation.js';
+import { RefuelManager } from './managers/refuel.js';
 
 /**
  * Sanitize ship name input
@@ -115,6 +113,7 @@ export class GameStateManager {
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(null, this.emit.bind(this));
     this.navigationManager = new NavigationManager(this, this.starData);
+    this.refuelManager = new RefuelManager(this);
   }
 
   /**
@@ -1805,39 +1804,18 @@ export class GameStateManager {
 
   /**
    * Calculate fuel price based on system distance from Sol
+   * Delegates to RefuelManager
    *
    * @param {number} systemId - System ID to check
    * @returns {number} Fuel price per percentage point
    */
   getFuelPrice(systemId) {
-    if (FUEL_PRICING_CONFIG.CORE_SYSTEMS.IDS.includes(systemId)) {
-      return FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    const system = this.starData.find((s) => s.id === systemId);
-    if (!system) {
-      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    const distanceFromSol = calculateDistanceFromSol(system);
-
-    if (
-      distanceFromSol < FUEL_PRICING_CONFIG.INNER_SYSTEMS.DISTANCE_THRESHOLD
-    ) {
-      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    if (
-      distanceFromSol < FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.DISTANCE_THRESHOLD
-    ) {
-      return FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    return FUEL_PRICING_CONFIG.OUTER_SYSTEMS.PRICE_PER_PERCENT;
+    return this.refuelManager.getFuelPrice(systemId);
   }
 
   /**
    * Validate refuel transaction
+   * Delegates to RefuelManager
    *
    * @param {number} currentFuel - Current fuel percentage
    * @param {number} amount - Amount to refuel (percentage points)
@@ -1846,97 +1824,23 @@ export class GameStateManager {
    * @returns {Object} { valid: boolean, reason: string, cost: number }
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-    const totalCost = amount * pricePerPercent;
-    const maxFuel = this.getFuelCapacity();
-
-    if (amount <= 0) {
-      return {
-        valid: false,
-        reason: 'Refuel amount must be positive',
-        cost: totalCost,
-      };
-    }
-
-    // Use epsilon for floating point comparison
-    if (
-      currentFuel + amount >
-      maxFuel + NAVIGATION_CONFIG.FUEL_CAPACITY_EPSILON
-    ) {
-      return {
-        valid: false,
-        reason: `Cannot refuel beyond ${maxFuel}% capacity`,
-        cost: totalCost,
-      };
-    }
-
-    if (totalCost > credits) {
-      return {
-        valid: false,
-        reason: 'Insufficient credits for refuel',
-        cost: totalCost,
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-      cost: totalCost,
-    };
-  }
-
-  /**
-   * Execute refuel transaction
-   *
-   * @param {number} amount - Amount to refuel (percentage points)
-   * @returns {Object} { success: boolean, reason: string }
-   */
-  refuel(amount) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: refuel called before game initialization'
-      );
-    }
-
-    const currentFuel = this.state.ship.fuel;
-    const credits = this.state.player.credits;
-    const systemId = this.state.player.currentSystem;
-    const pricePerPercent = this.getFuelPrice(systemId);
-
-    const validation = this.validateRefuel(
+    return this.refuelManager.validateRefuel(
       currentFuel,
       amount,
       credits,
       pricePerPercent
     );
+  }
 
-    if (!validation.valid) {
-      return { success: false, reason: validation.reason };
-    }
-
-    this.updateCredits(credits - validation.cost);
-
-    // Clamp fuel to max capacity to handle floating point rounding
-    // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
-    const maxFuel = this.getFuelCapacity();
-    const newFuel = Math.min(currentFuel + amount, maxFuel);
-
-    // SAFETY CHECK: Prevent fuel reduction bug
-    // We experienced a non-reproducible bug where refueling at 100% fuel could reduce fuel.
-    // This safety check remains in place until the root cause is identified and fixed.
-    // The validation logic should prevent this, but this check provides a fail-safe.
-    if (newFuel < currentFuel) {
-      throw new Error(
-        `CRITICAL BUG: Refuel would reduce fuel from ${currentFuel}% to ${newFuel}%. ` +
-          `Amount: ${amount}, MaxFuel: ${maxFuel}. This should never happen.`
-      );
-    }
-
-    this.updateFuel(newFuel);
-
-    // Persist immediately - refuel modifies credits and fuel
-    this.saveGame();
-
-    return { success: true, reason: null };
+  /**
+   * Execute refuel transaction
+   * Delegates to RefuelManager
+   *
+   * @param {number} amount - Amount to refuel (percentage points)
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  refuel(amount) {
+    return this.refuelManager.refuel(amount);
   }
 
   // ========================================================================
