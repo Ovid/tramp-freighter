@@ -240,7 +240,9 @@ export function SystemPanel({
                   key={system.id}
                   className="connection-item"
                   onClick={() => {
-                    selectStarById(system.id);
+                    if (selectStarById) {
+                      selectStarById(system.id);
+                    }
                   }}
                 >
                   <div className="connection-name">{system.name}</div>

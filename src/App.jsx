@@ -10,6 +10,7 @@ import { DevAdminPanel } from './features/dev-admin/DevAdminPanel';
 import { SystemPanel } from './features/navigation/SystemPanel';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
+import { StarmapProvider } from './context/StarmapContext';
 
 /**
  * Application state machine modes.
@@ -47,6 +48,13 @@ export default function App({ devMode = false }) {
   const [activePanelNpcId, setActivePanelNpcId] = useState(null);
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
+
+  // Starmap methods that will be provided to context
+  // These will be set by StarMapCanvas when it initializes
+  const starmapMethods = useRef({
+    selectStarById: () => {},
+    deselectStar: () => {},
+  });
 
   // Determine if system panel should be shown
   // Show when a system is selected (regardless of view mode)
@@ -175,13 +183,16 @@ export default function App({ devMode = false }) {
         {/* Game components only rendered after title screen flow completes */}
         {viewMode !== VIEW_MODES.TITLE &&
           viewMode !== VIEW_MODES.SHIP_NAMING && (
-            <>
+            <StarmapProvider value={starmapMethods.current}>
               {/* Starmap is always rendered (z-index 0) */}
               <ErrorBoundary>
                 <StarMapCanvas
                   ref={starmapRef}
                   onSystemSelected={handleSystemSelected}
                   onSystemDeselected={handleSystemDeselected}
+                  onStarmapMethodsReady={(methods) => {
+                    starmapMethods.current = methods;
+                  }}
                 />
               </ErrorBoundary>
 
@@ -230,7 +241,7 @@ export default function App({ devMode = false }) {
                   onJumpComplete={handleJumpComplete}
                 />
               )}
-            </>
+            </StarmapProvider>
           )}
       </div>
     </ErrorBoundary>

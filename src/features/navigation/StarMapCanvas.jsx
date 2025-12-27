@@ -27,7 +27,6 @@ import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { StarmapProvider } from '../../context/StarmapContext';
 import { CameraControls } from './CameraControls';
 
 /**
@@ -232,6 +231,14 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         deselectStar: deselectStarMethod,
       };
 
+      // Notify parent that starmap methods are ready
+      if (props.onStarmapMethodsReady) {
+        props.onStarmapMethodsReady({
+          selectStarById,
+          deselectStar: deselectStarMethod,
+        });
+      }
+
       // Initialize current system indicator
       updateCurrentSystemIndicator(
         scene,
@@ -401,7 +408,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   };
 
   return (
-    <StarmapProvider value={starmapMethods.current}>
+    <>
       <div ref={containerRef} className="starmap-container" />
       <CameraControls
         cameraState={{ autoRotationEnabled, boundaryVisible }}
@@ -410,6 +417,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         onToggleRotation={handleToggleRotation}
         onToggleBoundary={handleToggleBoundary}
       />
-    </StarmapProvider>
+    </>
   );
 });
