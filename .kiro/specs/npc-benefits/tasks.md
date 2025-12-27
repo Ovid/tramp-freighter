@@ -171,7 +171,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 
 - [ ] 9. Implement free repair system (TDD)
 
-  - [ ] 9.1 TDD: `canGetFreeRepair(npcId)` and `applyFreeRepair(npcId, hullDamagePercent)` methods
+  - [x] 9.1 TDD: `canGetFreeRepair(npcId)` and `applyFreeRepair(npcId, hullDamagePercent)` methods
     - **RED**: Write property test for free repair tier limits
       - **Property: Free Repair Tier Limits**
       - *For any* NPC at Trusted tier, free repair SHALL be limited to 10% hull damage
@@ -192,7 +192,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Return `{ success: boolean, repairedPercent: number, message: string }`
       - _Requirements: 1.6, 1.7_
 
-  - [ ] 9.2 Integrate free repair into RepairPanel UI
+  - [x] 9.2 Integrate free repair into RepairPanel UI
     - Show "Free repair available" when `canGetFreeRepair()` returns available
     - Add button to apply free repair with tier-appropriate limits
     - Display repaired amount and remaining free repair eligibility
