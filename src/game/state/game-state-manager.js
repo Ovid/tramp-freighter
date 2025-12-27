@@ -8,7 +8,6 @@ import {
   SOL_SYSTEM_ID,
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
-  ECONOMY_CONFIG,
   REPUTATION_TIERS,
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
@@ -31,6 +30,7 @@ import {
   addStateDefaults,
 } from './state-validators.js';
 import { ALL_NPCS } from '../data/npc-data.js';
+import { TradingManager } from './managers/trading.js';
 
 /**
  * Sanitize ship name input
@@ -105,6 +105,9 @@ export class GameStateManager {
     // Animation system reference (set by StarMapCanvas after scene initialization)
     // Used by useAnimationLock hook to check animation state
     this.animationSystem = null;
+
+    // Initialize managers
+    this.tradingManager = new TradingManager(this);
   }
 
   /**
@@ -531,12 +534,7 @@ export class GameStateManager {
    * Get price knowledge database
    */
   getPriceKnowledge() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getPriceKnowledge called before game initialization'
-      );
-    }
-    return this.state.world.priceKnowledge || {};
+    return this.tradingManager.getPriceKnowledge();
   }
 
   /**
@@ -548,47 +546,21 @@ export class GameStateManager {
    * @returns {Object} Price object with all commodity prices
    */
   getCurrentSystemPrices() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getCurrentSystemPrices called before game initialization'
-      );
-    }
-    if (!this.state.world.currentSystemPrices) {
-      throw new Error(
-        'Invalid state: currentSystemPrices missing from world state'
-      );
-    }
-    return this.state.world.currentSystemPrices;
+    return this.tradingManager.getCurrentSystemPrices();
   }
 
   /**
    * Get known prices for a specific system
    */
   getKnownPrices(systemId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getKnownPrices called before game initialization'
-      );
-    }
-    if (!this.state.world.priceKnowledge) {
-      throw new Error('Invalid state: priceKnowledge missing from world state');
-    }
-    return this.state.world.priceKnowledge[systemId]?.prices || null;
+    return this.tradingManager.getKnownPrices(systemId);
   }
 
   /**
    * Check if player has price knowledge for a system
    */
   hasVisitedSystem(systemId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: hasVisitedSystem called before game initialization'
-      );
-    }
-    if (!this.state.world.priceKnowledge) {
-      throw new Error('Invalid state: priceKnowledge missing from world state');
-    }
-    return this.state.world.priceKnowledge[systemId] !== undefined;
+    return this.tradingManager.hasVisitedSystem(systemId);
   }
 
   // ========================================================================
@@ -787,19 +759,7 @@ export class GameStateManager {
    * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
    */
   updateMarketConditions(systemId, goodType, quantityDelta) {
-    // marketConditions is guaranteed to exist after initialization
-    // Create system entry if first trade at that system
-    if (!this.state.world.marketConditions[systemId]) {
-      this.state.world.marketConditions[systemId] = {};
-    }
-
-    // Create commodity entry if first trade of that commodity
-    if (this.state.world.marketConditions[systemId][goodType] === undefined) {
-      this.state.world.marketConditions[systemId][goodType] = 0;
-    }
-
-    // Add quantityDelta to existing value
-    this.state.world.marketConditions[systemId][goodType] += quantityDelta;
+    return this.tradingManager.updateMarketConditions(systemId, goodType, quantityDelta);
   }
 
   /**
@@ -814,46 +774,7 @@ export class GameStateManager {
    * @param {number} daysPassed - Number of days elapsed
    */
   applyMarketRecovery(daysPassed) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: applyMarketRecovery called before game initialization'
-      );
-    }
-
-    if (!this.state.world.marketConditions) {
-      throw new Error(
-        'Invalid state: marketConditions missing from world state'
-      );
-    }
-
-    const recoveryFactor = Math.pow(
-      ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR,
-      daysPassed
-    );
-
-    // Iterate over all systems
-    for (const systemId in this.state.world.marketConditions) {
-      const systemConditions = this.state.world.marketConditions[systemId];
-
-      // Iterate over all commodities in this system
-      for (const goodType in systemConditions) {
-        // Apply exponential decay
-        systemConditions[goodType] *= recoveryFactor;
-
-        // Prune insignificant entries
-        if (
-          Math.abs(systemConditions[goodType]) <
-          ECONOMY_CONFIG.MARKET_CONDITION_PRUNE_THRESHOLD
-        ) {
-          delete systemConditions[goodType];
-        }
-      }
-
-      // Remove empty system entries
-      if (Object.keys(systemConditions).length === 0) {
-        delete this.state.world.marketConditions[systemId];
-      }
-    }
+    return this.tradingManager.applyMarketRecovery(daysPassed);
   }
 
   /**
@@ -865,14 +786,7 @@ export class GameStateManager {
    * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
   updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
-    // priceKnowledge is guaranteed to exist after initialization
-    this.state.world.priceKnowledge[systemId] = {
-      lastVisit: lastVisit,
-      prices: { ...prices },
-      source: source,
-    };
-
-    this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    return this.tradingManager.updatePriceKnowledge(systemId, prices, lastVisit, source);
   }
 
   /**
@@ -883,20 +797,7 @@ export class GameStateManager {
    * @param {number} days - Number of days to increment (default 1)
    */
   incrementPriceKnowledgeStaleness(days = 1) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: incrementPriceKnowledgeStaleness called before game initialization'
-      );
-    }
-    if (!this.state.world.priceKnowledge) {
-      throw new Error('Invalid state: priceKnowledge missing from world state');
-    }
-
-    for (const systemId in this.state.world.priceKnowledge) {
-      this.state.world.priceKnowledge[systemId].lastVisit += days;
-    }
-
-    this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    return this.tradingManager.incrementPriceKnowledgeStaleness(days);
   }
 
   /**
@@ -906,50 +807,7 @@ export class GameStateManager {
    * fluctuations and active event modifiers.
    */
   recalculatePricesForKnownSystems() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: recalculatePricesForKnownSystems called before game initialization'
-      );
-    }
-    if (!this.state.world.priceKnowledge) return;
-
-    const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents;
-    if (!activeEvents) {
-      throw new Error('Invalid state: activeEvents missing from world state');
-    }
-    const marketConditions = this.state.world.marketConditions;
-    if (!marketConditions) {
-      throw new Error(
-        'Invalid state: marketConditions missing from world state'
-      );
-    }
-
-    // Recalculate prices for each system in price knowledge
-    for (const systemIdStr in this.state.world.priceKnowledge) {
-      const systemId = parseInt(systemIdStr);
-      const system = this.starData.find((s) => s.id === systemId);
-
-      if (system) {
-        const newPrices = {};
-
-        // Calculate new prices for all commodities
-        for (const goodType of COMMODITY_TYPES) {
-          newPrices[goodType] = TradingSystem.calculatePrice(
-            goodType,
-            system,
-            currentDay,
-            activeEvents,
-            marketConditions
-          );
-        }
-
-        // Update prices while preserving lastVisit
-        this.state.world.priceKnowledge[systemId].prices = newPrices;
-      }
-    }
-
-    this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
+    return this.tradingManager.recalculatePricesForKnownSystems();
   }
 
   // ========================================================================
@@ -2068,104 +1926,14 @@ export class GameStateManager {
    * Execute a purchase transaction
    */
   buyGood(goodType, quantity, price) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: buyGood called before game initialization'
-      );
-    }
-
-    const credits = this.state.player.credits;
-    const cargoSpace = this.getCargoRemaining();
-    const totalCost = quantity * price;
-
-    // Validate purchase constraints
-    if (totalCost > credits) {
-      return { success: false, reason: 'Insufficient credits' };
-    }
-
-    if (quantity > cargoSpace) {
-      return { success: false, reason: 'Not enough cargo space' };
-    }
-
-    this.updateCredits(credits - totalCost);
-
-    // Pass current system and day for purchase metadata
-    const currentSystemId = this.state.player.currentSystem;
-    const currentSystem = this.getCurrentSystem();
-    const currentSystemName = currentSystem.name;
-    const currentDay = this.state.player.daysElapsed;
-
-    const newCargo = TradingSystem.recordCargoPurchase(
-      this.state.ship.cargo,
-      goodType,
-      quantity,
-      price,
-      currentSystemId,
-      currentSystemName,
-      currentDay
-    );
-    this.updateCargo(newCargo);
-
-    // Update market conditions: negative quantity creates deficit (raises prices)
-    // Feature: deterministic-economy, Requirements 4.1, 4.2
-    this.updateMarketConditions(currentSystemId, goodType, -quantity);
-
-    // Persist immediately - trade transactions modify credits and cargo
-    this.saveGame();
-
-    return { success: true };
+    return this.tradingManager.buyGood(goodType, quantity, price);
   }
 
   /**
    * Execute a sale transaction from a specific cargo stack
    */
   sellGood(stackIndex, quantity, salePrice) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: sellGood called before game initialization'
-      );
-    }
-
-    const cargo = this.state.ship.cargo;
-
-    // Validate sale constraints
-    if (stackIndex < 0 || stackIndex >= cargo.length) {
-      return { success: false, reason: 'Invalid cargo stack' };
-    }
-
-    const stack = cargo[stackIndex];
-
-    if (quantity <= 0) {
-      return { success: false, reason: 'Quantity must be positive' };
-    }
-
-    if (quantity > stack.qty) {
-      return { success: false, reason: 'Not enough quantity in stack' };
-    }
-    const totalRevenue = quantity * salePrice;
-    const profitMargin = salePrice - stack.buyPrice;
-
-    this.updateCredits(this.state.player.credits + totalRevenue);
-
-    // Remove quantity from stack; remove stack if empty
-    stack.qty -= quantity;
-    if (stack.qty <= 0) {
-      cargo.splice(stackIndex, 1);
-    }
-    this.updateCargo(cargo);
-
-    // Update market conditions: positive quantity creates surplus (lowers prices)
-    // Feature: deterministic-economy, Requirements 4.1, 4.2
-    const currentSystemId = this.state.player.currentSystem;
-    this.updateMarketConditions(currentSystemId, stack.good, quantity);
-
-    // Persist immediately - trade transactions modify credits and cargo
-    this.saveGame();
-
-    return {
-      success: true,
-      profitMargin: profitMargin,
-    };
+    return this.tradingManager.sellGood(stackIndex, quantity, salePrice);
   }
 
   // ========================================================================
@@ -2730,29 +2498,7 @@ export class GameStateManager {
    * the visited data is.
    */
   recordVisitedPrices() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: recordVisitedPrices called before game initialization'
-      );
-    }
-
-    const currentSystemId = this.state.player.currentSystem;
-    const currentSystem = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!currentSystem) {
-      throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
-      );
-    }
-
-    // Get current prices from the locked snapshot (already calculated on arrival)
-    const currentPrices = this.getCurrentSystemPrices();
-
-    // Update price knowledge with source "Visited" (lastVisit = 0 means current)
-    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
-
-    // Persist immediately - price knowledge update should be saved
-    this.saveGame();
+    return this.tradingManager.recordVisitedPrices();
   }
 
   /**
