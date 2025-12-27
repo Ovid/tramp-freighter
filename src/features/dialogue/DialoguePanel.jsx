@@ -31,17 +31,16 @@ export function DialoguePanel({ npcId, onClose }) {
         await startDialogue(npcId, 'greeting');
       } catch (err) {
         console.error('Failed to initialize dialogue:', err);
-        // Clear dialogue state and close panel on error
         clearDialogue();
         onClose();
       }
     };
 
     initializeDialogue();
-  }, [npcId, startDialogue, clearDialogue]);
+  }, [npcId, startDialogue, clearDialogue, onClose]);
 
   const handleChoiceSelection = async (choiceIndex) => {
-    if (!dialogueState?.display || !npcId) return;
+    if (!dialogueState.display || !npcId) return;
 
     try {
       // Process choice selection through Bridge Pattern
@@ -69,7 +68,7 @@ export function DialoguePanel({ npcId, onClose }) {
   };
 
   // Loading state - dialogue not yet initialized
-  if (!dialogueState || !dialogueState.isActive || !dialogueState.display) {
+  if (!dialogueState.isActive || !dialogueState.display) {
     return (
       <div className="dialogue-panel visible">
         <button

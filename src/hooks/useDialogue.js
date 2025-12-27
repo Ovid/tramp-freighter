@@ -25,8 +25,8 @@ import { useGameEvent } from './useGameEvent.js';
  *
  *   return (
  *     <div>
- *       {dialogueState?.isActive && (
- *         <div>{dialogueState.display?.text}</div>
+ *       {dialogueState.isActive && (
+ *         <div>{dialogueState.display.text}</div>
  *       )}
  *     </div>
  *   );

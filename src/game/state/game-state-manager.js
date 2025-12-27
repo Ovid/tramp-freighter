@@ -8,6 +8,7 @@ import {
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
 } from '../constants.js';
+import { SeededRandom } from '../utils/seeded-random.js';
 import { TradingSystem } from '../game-trading.js';
 import {
   saveGame as saveGameToStorage,
@@ -1006,8 +1007,11 @@ export class GameStateManager {
     const npcData = this._validateAndGetNPCData(npcId);
     const npcState = this.getNPCState(npcId);
 
-    // Select random tip from NPC's tips array
-    const randomIndex = Math.floor(Math.random() * npcData.tips.length);
+    // Select random tip from NPC's tips array using deterministic RNG
+    // Use game day + npcId as seed for consistent but varied tip selection
+    const tipSeed = `tip-${npcId}-${this.state.player.daysElapsed}`;
+    const rng = new SeededRandom(tipSeed);
+    const randomIndex = rng.nextInt(0, npcData.tips.length - 1);
     const selectedTip = npcData.tips[randomIndex];
 
     // Update lastTipDay to current game day

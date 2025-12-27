@@ -207,3 +207,20 @@ function App() {
 3. **Don't create components inside components**
 4. **Don't forget cleanup in useEffect**
 5. **Don't duplicate game state in React state**
+6. **Don't use isMountedRef pattern - React handles unmounted components gracefully**
+
+```javascript
+// BAD - isMountedRef anti-pattern
+const isMountedRef = useRef(true);
+useEffect(() => {
+  fetchData().then(data => {
+    if (isMountedRef.current) setState(data);
+  });
+  return () => { isMountedRef.current = false; };
+}, []);
+
+// GOOD - Trust React's cleanup
+useEffect(() => {
+  fetchData().then(setState); // React ignores updates on unmounted components
+}, []);
+```

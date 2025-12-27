@@ -1,4 +1,5 @@
 import { InformationBroker } from '../../game-information-broker.js';
+import { BaseManager } from './base-manager.js';
 
 /**
  * Information Broker Manager - Handles intelligence trading system
@@ -9,9 +10,9 @@ import { InformationBroker } from '../../game-information-broker.js';
  * - Generate market rumors
  * - List available intelligence for connected systems
  */
-export class InfoBrokerManager {
+export class InfoBrokerManager extends BaseManager {
   constructor(gameStateManager) {
-    this.gameStateManager = gameStateManager;
+    super(gameStateManager);
     this.starData = gameStateManager.starData;
     this.navigationSystem = gameStateManager.navigationSystem;
   }
@@ -23,7 +24,7 @@ export class InfoBrokerManager {
    * @returns {number} Cost in credits
    */
   getIntelligenceCost(systemId) {
-    const priceKnowledge = this.gameStateManager.tradingManager.getPriceKnowledge();
+    const priceKnowledge = this.gameStateManager.getPriceKnowledge();
     return InformationBroker.getIntelligenceCost(systemId, priceKnowledge);
   }
 
@@ -34,12 +35,7 @@ export class InfoBrokerManager {
    * @returns {Object} { success: boolean, reason: string }
    */
   purchaseIntelligence(systemId) {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid state: purchaseIntelligence called before game initialization'
-      );
-    }
+    const state = this.getState();
 
     const result = InformationBroker.purchaseIntelligence(
       state,
@@ -49,11 +45,11 @@ export class InfoBrokerManager {
 
     if (result.success) {
       // Emit state change events
-      this.gameStateManager.emit('creditsChanged', state.player.credits);
-      this.gameStateManager.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+      this.emit('creditsChanged', state.player.credits);
+      this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
 
       // Persist immediately - intelligence purchase modifies credits and price knowledge
-      this.gameStateManager.saveGame();
+      this.saveGame();
     }
 
     return result;
@@ -65,13 +61,7 @@ export class InfoBrokerManager {
    * @returns {string} Rumor text
    */
   generateRumor() {
-    const state = this.gameStateManager.getState();
-    if (!state) {
-      throw new Error(
-        'Invalid state: generateRumor called before game initialization'
-      );
-    }
-
+    const state = this.getState();
     return InformationBroker.generateRumor(state, this.starData);
   }
 
@@ -84,12 +74,11 @@ export class InfoBrokerManager {
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   listAvailableIntelligence() {
-    const state = this.gameStateManager.getState();
-    const priceKnowledge = this.gameStateManager.tradingManager.getPriceKnowledge();
+    const state = this.getState();
+    const priceKnowledge = this.gameStateManager.getPriceKnowledge();
     const currentSystemId = state.player.currentSystem;
-    const activeEvents = this.gameStateManager.eventsManager.getActiveEvents();
-    const hasAdvancedSensors =
-      state.ship.upgrades.includes('advanced_sensors');
+    const activeEvents = this.gameStateManager.getActiveEvents();
+    const hasAdvancedSensors = state.ship.upgrades.includes('advanced_sensors');
 
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,
