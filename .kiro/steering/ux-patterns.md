@@ -1,5 +1,6 @@
 ---
-inclusion: always
+inclusion: fileMatch
+fileMatchPattern: "src/features/**"
 ---
 
 # UX Patterns and Guidelines
