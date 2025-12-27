@@ -1,7 +1,3 @@
----
-inclusion: manual
----
-
 # Product Overview
 
 Tramp Freighter Blues - A single-player space trading survival game built on the Sol Sector Starmap foundation.

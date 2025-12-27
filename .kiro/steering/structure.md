@@ -1,7 +1,3 @@
----
-inclusion: manual
----
-
 # Project Structure
 
 ## Directory Layout
