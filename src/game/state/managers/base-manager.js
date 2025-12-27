@@ -43,6 +43,7 @@ export class BaseManager {
 
   /**
    * Save game state through the main state manager
+   * Note: SaveLoadManager should not use this method to avoid circular calls
    * @returns {boolean} Success status
    */
   saveGame() {

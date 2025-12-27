@@ -2,15 +2,23 @@
 
 This document outlines the step-by-step refactoring of the monolithic `GameStateManager` (1864 lines) into focused, maintainable modules.
 
-**STATUS: TASK 3.2 COMPLETE** - StateManager successfully extracted with all direct state access replaced by delegation methods.
+**STATUS: TASK 3.4 COMPLETE** - SaveLoadManager successfully extracted with comprehensive save/load functionality properly separated into focused methods.
 
-**RECENT FIXES COMPLETED:**
-- Fixed NPCManager delegation: `canGetFreeRepair` and `getFreeRepair` methods were incorrectly delegating to RepairManager instead of NPCManager
-- Updated RepairPanel.jsx to use `getFreeRepair` instead of `applyFreeRepair` 
-- Fixed NPCManager's `getFreeRepair` method to actually apply hull repairs and emit ship condition change events
-- Fixed test file `tests/property/tip-cooldown-tracking.property.test.js` to use correct NPCManager method references
-- Cleaned up unused imports: `REPUTATION_TIERS`, `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG`, and `SeededRandom`
-- All tests now pass (1011/1011) with no linting warnings
+**RECENT COMPLETION:**
+- Created SaveLoadManager with focused methods for save/load operations:
+  - `saveGame()` - Save with debouncing and error handling
+  - `loadGame()` - Load with validation, migration, and recovery
+  - `applyMigrations()` - Version migration handling
+  - `emitLoadedStateEvents()` - UI synchronization after load
+  - `handleLoadError()` - Error handling with NPC recovery
+  - `attemptNPCRecovery()` - Recovery from corrupted NPC data
+  - `hasSavedGame()` - Check for existing save
+  - `clearSave()` - Clear save data
+  - `getLastSaveTime()` / `setLastSaveTime()` - Debouncing support
+- Updated GameStateManager to delegate to SaveLoadManager
+- Added getter/setter properties for lastSaveTime to maintain test compatibility
+- Removed save/load imports and methods from GameStateManager
+- All tests pass (1011/1011) with no linting warnings
 
 # Critical Components
 
@@ -301,31 +309,31 @@ src/game/state/
 **File**: `src/game/state/managers/initialization.js`
 
 **Methods to move**:
-- [ ] `initNewGame()` (break into smaller methods)
-- [ ] `initializePlayerState()`
-- [ ] `initializeShipState()`
-- [ ] `initializeWorldState()`
-- [ ] `emitInitialEvents()`
+- [x] `initNewGame()` (break into smaller methods)
+- [x] `initializePlayerState()`
+- [x] `initializeShipState()`
+- [x] `initializeWorldState()`
+- [x] `emitInitialEvents()`
 
 **Dependencies**:
-- [ ] Access to all other managers for initialization
-- [ ] Constants and default values
+- [x] Access to all other managers for initialization
+- [x] Constants and default values
 
 #### Task 3.4: Extract Save/Load Manager
 **File**: `src/game/state/managers/save-load.js`
 
 **Methods to move**:
-- [ ] `saveGame()`
-- [ ] `loadGame(gameData)`
-- [ ] `hasSavedGame()`
-- [ ] `clearSave()`
-- [ ] Save debouncing logic
+- [x] `saveGame()`
+- [x] `loadGame(gameData)`
+- [x] `hasSavedGame()`
+- [x] `clearSave()`
+- [x] Save debouncing logic
 
 **Dependencies**:
-- [ ] Import save/load utilities
-- [ ] State validation and migration
+- [x] Import save/load utilities
+- [x] State validation and migration
 
-### Phase 4: Update Core GameStateManager (NOT STARTED)
+### Phase 4: Update Core GameStateManager (READY TO START)
 
 #### Task 4.1: Slim down GameStateManager
 - [ ] Remove extracted methods from GameStateManager
@@ -384,7 +392,7 @@ src/game/state/
 - [ ] All existing tests pass
 - [ ] Public API remains unchanged
 - [ ] Each manager file is under 500 lines
-- [ ] Core GameStateManager reduced to under 500 lines (currently 1416 lines, reduced from 1864 lines - 448 line reduction)
+- [ ] Core GameStateManager reduced to under 500 lines (currently 1176 lines, reduced from 1864 lines - 688 line reduction)
 - [ ] No performance regression
 - [ ] Save/load compatibility maintained
 - [ ] AGENTS.md updated with new manager structure

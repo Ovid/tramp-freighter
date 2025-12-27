@@ -1,18 +1,4 @@
-import { GAME_VERSION, SHIP_CONFIG } from '../constants.js';
-import {
-  saveGame as saveGameToStorage,
-  loadGame as loadGameFromStorage,
-  hasSavedGame as checkSavedGame,
-  clearSave as clearSaveFromStorage,
-} from './save-load.js';
-import {
-  isVersionCompatible,
-  validateStateStructure,
-  migrateFromV1ToV2,
-  migrateFromV2ToV2_1,
-  migrateFromV2_1ToV4,
-  addStateDefaults,
-} from './state-validators.js';
+import { SHIP_CONFIG } from '../constants.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -25,6 +11,7 @@ import { InfoBrokerManager } from './managers/info-broker.js';
 import { EventSystemManager } from './managers/event-system.js';
 import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
+import { SaveLoadManager } from './managers/save-load.js';
 
 /**
  * Sanitize ship name input
@@ -72,9 +59,6 @@ export class GameStateManager {
     this.isTestEnvironment =
       typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
 
-    // Track last save time for debouncing
-    this.lastSaveTime = 0;
-
     // Animation system reference (set by StarMapCanvas after scene initialization)
     // Used by useAnimationLock hook to check animation state
     this.animationSystem = null;
@@ -86,6 +70,7 @@ export class GameStateManager {
     this.eventSystemManager = new EventSystemManager(this);
     this.stateManager = new StateManager(this);
     this.initializationManager = new InitializationManager(this);
+    this.saveLoadManager = new SaveLoadManager(this);
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(this);
@@ -1104,190 +1089,62 @@ export class GameStateManager {
 
   /**
    * Save game state to localStorage with debouncing
+   * Delegates to SaveLoadManager
    *
-   * Implements save debouncing to prevent excessive saves (max 1 save per second).
-   * This protects against rapid state changes causing performance issues.
-   *
-   * Handles save failures gracefully by logging errors and notifying the user.
+   * @returns {boolean} True if save succeeded or was debounced, false if failed
    */
   saveGame() {
-    const result = saveGameToStorage(
-      this.state,
-      this.lastSaveTime,
-      this.isTestEnvironment
-    );
-
-    if (result.success) {
-      this.lastSaveTime = result.newLastSaveTime;
-    } else {
-      // Only show error notification if save actually failed (not just debounced)
-      const now = Date.now();
-      const timeSinceLastSave = now - this.lastSaveTime;
-
-      if (timeSinceLastSave >= 1000) {
-        // Not debounced, actual failure
-        if (!this.isTestEnvironment) {
-          console.error('Save failed - game progress may be lost');
-        }
-        // TODO: Show user notification about save failure
-        // For now, just log the error - UI notification system would be added later
-      }
-    }
-
-    return result.success;
+    return this.saveLoadManager.saveGame();
   }
 
   /**
    * Load game state from localStorage
+   * Delegates to SaveLoadManager
    *
-   * Supports migration from v1.0.0 to v2.0.0
+   * @returns {Object|null} Loaded and validated game state, or null if load failed
    */
   loadGame() {
-    try {
-      // Load raw state from localStorage
-      let loadedState = loadGameFromStorage(this.isTestEnvironment);
-
-      if (!loadedState) {
-        return null;
-      }
-
-      // Check version compatibility
-      if (!isVersionCompatible(loadedState.meta?.version)) {
-        if (!this.isTestEnvironment) {
-          console.log('Save version incompatible, starting new game');
-        }
-        return null;
-      }
-
-      // Migrate from v1.0.0 to v4.0.0 if needed
-      if (loadedState.meta?.version === '1.0.0' && GAME_VERSION === '4.0.0') {
-        loadedState = migrateFromV1ToV2(
-          loadedState,
-          this.starData,
-          this.isTestEnvironment
-        );
-      }
-
-      // Migrate from v2.0.0 to v4.0.0 if needed
-      if (loadedState.meta?.version === '2.0.0' && GAME_VERSION === '4.0.0') {
-        loadedState = migrateFromV2ToV2_1(loadedState, this.isTestEnvironment);
-      }
-
-      // Migrate from v2.1.0 to v4.0.0 if needed
-      if (loadedState.meta?.version === '2.1.0' && GAME_VERSION === '4.0.0') {
-        loadedState = migrateFromV2_1ToV4(loadedState, this.isTestEnvironment);
-      }
-
-      // Validate state structure
-      if (!validateStateStructure(loadedState)) {
-        if (!this.isTestEnvironment) {
-          console.log('Save data corrupted, starting new game');
-        }
-        return null;
-      }
-
-      // Add defaults for missing fields
-      loadedState = addStateDefaults(
-        loadedState,
-        this.starData,
-        this.isTestEnvironment
-      );
-
-      this.state = loadedState;
-
-      // Emit all state events to update UI
-      this.emit('creditsChanged', this.getPlayer().credits);
-      this.emit('debtChanged', this.getPlayer().debt);
-      this.emit('fuelChanged', this.getShip().fuel);
-      this.emit('cargoChanged', this.getShip().cargo);
-      this.emit('locationChanged', this.getPlayer().currentSystem);
-      this.emit('timeChanged', this.getPlayer().daysElapsed);
-      this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
-      this.emit('activeEventsChanged', this.state.world.activeEvents);
-      this.emit('shipConditionChanged', {
-        hull: this.getShip().hull,
-        engine: this.getShip().engine,
-        lifeSupport: this.getShip().lifeSupport,
-      });
-      this.emit('upgradesChanged', this.getShip().upgrades);
-      this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
-      this.emit('quirksChanged', this.getShip().quirks);
-
-      return this.state;
-    } catch (error) {
-      if (!this.isTestEnvironment) {
-        console.log('Failed to load game:', error);
-
-        // If NPC data is corrupted, try to recover by initializing empty NPC state
-        if (error.message && error.message.includes('NPC')) {
-          console.log(
-            'NPC data corrupted, continuing with fresh NPC relationships'
-          );
-          try {
-            // Try to load again with NPC data reset
-            let recoveredState = loadGameFromStorage(this.isTestEnvironment);
-            if (recoveredState && recoveredState.npcs) {
-              recoveredState.npcs = {};
-              if (recoveredState.dialogue) {
-                recoveredState.dialogue = {
-                  currentNpcId: null,
-                  currentNodeId: null,
-                  isActive: false,
-                  display: null,
-                };
-              }
-
-              // Validate and set recovered state
-              if (validateStateStructure(recoveredState)) {
-                recoveredState = addStateDefaults(
-                  recoveredState,
-                  this.starData,
-                  this.isTestEnvironment
-                );
-                this.state = recoveredState;
-
-                // Emit all state events
-                this.emit('creditsChanged', this.getPlayer().credits);
-                this.emit('debtChanged', this.getPlayer().debt);
-                this.emit('fuelChanged', this.getShip().fuel);
-                this.emit('cargoChanged', this.getShip().cargo);
-                this.emit('locationChanged', this.getPlayer().currentSystem);
-                this.emit('timeChanged', this.getPlayer().daysElapsed);
-                this.emit(
-                  'priceKnowledgeChanged',
-                  this.state.world.priceKnowledge
-                );
-                this.emit('activeEventsChanged', this.state.world.activeEvents);
-                this.emit('shipConditionChanged', {
-                  hull: this.getShip().hull,
-                  engine: this.getShip().engine,
-                  lifeSupport: this.getShip().lifeSupport,
-                });
-                this.emit('upgradesChanged', this.getShip().upgrades);
-                this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
-                this.emit('quirksChanged', this.getShip().quirks);
-
-                return this.state;
-              }
-            }
-          } catch {
-            console.log('Recovery failed, starting new game');
-          }
-        }
-      }
-      return null;
-    }
+    return this.saveLoadManager.loadGame();
   }
 
   /**
    * Check if saved game exists
+   * Delegates to SaveLoadManager
+   *
+   * @returns {boolean} True if save data exists in localStorage
    */
   hasSavedGame() {
-    return checkSavedGame();
+    return this.saveLoadManager.hasSavedGame();
   }
 
+  /**
+   * Clear saved game from localStorage
+   * Delegates to SaveLoadManager
+   *
+   * @returns {boolean} True if clear succeeded
+   */
   clearSave() {
-    return clearSaveFromStorage(this.isTestEnvironment);
+    return this.saveLoadManager.clearSave();
+  }
+
+  /**
+   * Get last save time for debouncing (for testing purposes)
+   * Delegates to SaveLoadManager
+   *
+   * @returns {number} Timestamp of last save
+   */
+  get lastSaveTime() {
+    return this.saveLoadManager.getLastSaveTime();
+  }
+
+  /**
+   * Set last save time (for testing purposes)
+   * Delegates to SaveLoadManager
+   *
+   * @param {number} timestamp - New last save time
+   */
+  set lastSaveTime(timestamp) {
+    this.saveLoadManager.setLastSaveTime(timestamp);
   }
 
   // ========================================================================

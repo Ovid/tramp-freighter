@@ -96,6 +96,8 @@ For new functionality, follow RED/GREEN/REFACTOR:
 - **Manager Architecture:** Specialized managers handle specific domains:
   - **EventSystemManager:** Event subscription and emission for Bridge Pattern integration
   - **StateManager:** Core state access and mutation operations for player, ship, and cargo
+  - **InitializationManager:** Game initialization and state creation
+  - **SaveLoadManager:** Save/load operations with debouncing, validation, and migration
   - **TradingManager:** Trading operations, market conditions, price knowledge
   - **ShipManager:** Ship condition, quirks, upgrades, cargo management
   - **NPCManager:** NPC reputation, benefits, loans, cargo storage
@@ -191,6 +193,8 @@ The GameStateManager has been refactored into focused managers:
 // Manager initialization in GameStateManager constructor
 this.eventSystemManager = new EventSystemManager(this);
 this.stateManager = new StateManager(this);
+this.initializationManager = new InitializationManager(this);
+this.saveLoadManager = new SaveLoadManager(this);
 this.tradingManager = new TradingManager(this);
 this.shipManager = new ShipManager(this);
 this.npcManager = new NPCManager(this);
