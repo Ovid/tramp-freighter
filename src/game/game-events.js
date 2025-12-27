@@ -84,8 +84,8 @@ export class EconomicEventsSystem {
       return [];
     }
 
-    const currentDay = gameState.player?.daysElapsed || 0;
-    let activeEvents = gameState.world?.activeEvents || [];
+    const currentDay = gameState.player.daysElapsed;
+    let activeEvents = gameState.world.activeEvents;
 
     // Remove expired events
     activeEvents = EconomicEventsSystem.removeExpiredEvents(

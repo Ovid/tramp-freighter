@@ -152,6 +152,7 @@ export function calculateDistanceFromSol(system) {
  */
 export const SHIP_CONFIG = {
   DEFAULT_NAME: 'Serendipity',
+  MAX_NAME_LENGTH: 50, // Maximum characters allowed in ship name
   NAME_SUGGESTIONS: [
     'Serendipity',
     'Lucky Break',
@@ -780,4 +781,7 @@ export const UI_CONFIG = {
 
   // Animation polling configuration
   ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
+
+  // Save system configuration
+  SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
 };

@@ -123,7 +123,7 @@ export class NavigationManager extends BaseManager {
     );
 
     // Persist state transition - prevents loss if player closes browser while docked
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     this.emit('docked', { systemId: currentSystemId });
 
@@ -145,7 +145,7 @@ export class NavigationManager extends BaseManager {
     const state = this.getState();
 
     // Persist state transition - prevents loss if player closes browser while undocked
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     this.emit('undocked', { systemId: state.player.currentSystem });
 

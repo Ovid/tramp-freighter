@@ -33,7 +33,7 @@ export function sanitizeShipName(name) {
   // Remove HTML tags, limit length, then trim (order matters for edge cases)
   const sanitized = name
     .replace(/<[^>]*>/g, '')
-    .substring(0, 50)
+    .substring(0, SHIP_CONFIG.MAX_NAME_LENGTH)
     .trim();
 
   return sanitized || SHIP_CONFIG.DEFAULT_NAME;

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
@@ -39,33 +40,38 @@ export function SystemInfoPanel({ onClose }) {
     );
   }
 
-  // Get connected systems
-  const connectedSystemIds =
-    gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
-  const connectedSystems = connectedSystemIds
-    .map((id) => {
-      const system = starData.find((s) => s.id === id);
-      if (!system) return null;
+  // Get connected systems (memoized to avoid recalculation on every render)
+  const connectedSystems = useMemo(() => {
+    if (!currentSystem) return [];
 
-      const distance =
-        gameStateManager.navigationSystem.calculateDistanceBetween(
-          currentSystem,
-          system
-        );
-      const fuelCost =
-        gameStateManager.navigationSystem.calculateFuelCost(distance);
-      const jumpTime =
-        gameStateManager.navigationSystem.calculateJumpTime(distance);
+    const connectedSystemIds =
+      gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
 
-      return {
-        ...system,
-        distance,
-        fuelCost,
-        jumpTime,
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.distance - b.distance);
+    return connectedSystemIds
+      .map((id) => {
+        const system = starData.find((s) => s.id === id);
+        if (!system) return null;
+
+        const distance =
+          gameStateManager.navigationSystem.calculateDistanceBetween(
+            currentSystem,
+            system
+          );
+        const fuelCost =
+          gameStateManager.navigationSystem.calculateFuelCost(distance);
+        const jumpTime =
+          gameStateManager.navigationSystem.calculateJumpTime(distance);
+
+        return {
+          ...system,
+          distance,
+          fuelCost,
+          jumpTime,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.distance - b.distance);
+  }, [currentSystem, currentSystemId, gameStateManager, starData]);
 
   // Check for active economic event (if Advanced Sensors installed)
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');

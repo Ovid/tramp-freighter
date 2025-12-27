@@ -141,7 +141,7 @@ export class ShipManager extends BaseManager {
     // Remove HTML tags, limit length, then trim (order matters for edge cases)
     const sanitized = name
       .replace(/<[^>]*>/g, '')
-      .substring(0, 50)
+      .substring(0, SHIP_CONFIG.MAX_NAME_LENGTH)
       .trim();
 
     return sanitized || SHIP_CONFIG.DEFAULT_NAME;
@@ -326,7 +326,7 @@ export class ShipManager extends BaseManager {
     this.emit('upgradesChanged', state.ship.upgrades);
 
     // Persist immediately - upgrade purchases modify credits and ship state
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     return { success: true, reason: '' };
   }
@@ -452,7 +452,7 @@ export class ShipManager extends BaseManager {
     this.gameStateManager.updateCargo(ship.cargo);
 
     // Persist immediately - cargo changes should be saved
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     return { success: true, reason: '' };
   }
@@ -504,7 +504,7 @@ export class ShipManager extends BaseManager {
     this.gameStateManager.updateCargo(ship.cargo);
 
     // Persist immediately - cargo changes should be saved
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     return { success: true, reason: '' };
   }

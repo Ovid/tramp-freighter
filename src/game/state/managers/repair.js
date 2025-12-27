@@ -104,7 +104,7 @@ export class RepairManager extends BaseManager {
     );
 
     // Persist immediately - repair modifies credits and ship condition
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     return { success: true, reason: null };
   }
@@ -239,7 +239,7 @@ export class RepairManager extends BaseManager {
     npcState.interactions += 1;
 
     // Persist immediately - free repair modifies ship condition and NPC state
-    this.saveGame();
+    this.gameStateManager.saveGame();
 
     return {
       success: true,
