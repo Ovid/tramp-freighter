@@ -39,21 +39,17 @@ Every task must leave the codebase in a working state with all tests passing. Th
 
 **Use TDD for new functionality: write the test first, then the implementation**
 
-1. **RED**: Write a failing test for functionality that doesn't exist yet
-2. **GREEN**: Write minimal code to make the test pass  
+1. **RED**: Write ONE failing test for functionality that doesn't exist yet
+2. **GREEN**: Write minimal code to make that test pass  
 3. **REFACTOR**: Improve code while keeping tests passing
+4. **REPEAT**: Go back to step 1 for the next test
+
+**CRITICAL: Complete each red/green cycle before starting the next test.** Never batch multiple failing tests. Each test should fail, then pass, before writing the next one. This keeps failures isolated and debuggable.
 
 **When to use TDD:**
 - New utility functions and calculations
 - Business logic (trading, pricing, validation)
 - State management methods
-
-**TDD Checklist:**
-- [ ] Test written before implementation
-- [ ] Test fails initially (confirms test is valid)
-- [ ] Minimal code written to pass test
-- [ ] All tests pass after implementation
-- [ ] Code refactored while tests stay green
 
 ### Self-Contained Tasks
 
