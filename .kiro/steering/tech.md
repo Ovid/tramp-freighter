@@ -1,5 +1,6 @@
 ---
-inclusion: always
+inclusion: fileMatch
+fileMatchPattern: "{package.json,vite.config.js,vitest.config.js,src/**,tests/**}"
 ---
 
 # Technology Stack

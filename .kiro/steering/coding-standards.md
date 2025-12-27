@@ -1,5 +1,6 @@
 ---
-inclusion: always
+inclusion: fileMatch
+fileMatchPattern: "{src/**,tests/**,*.js,*.mjs,*.ts,*.jsx,*.tsx}"
 ---
 
 # JavaScript Coding Standards
