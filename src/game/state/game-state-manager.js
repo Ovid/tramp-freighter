@@ -155,12 +155,25 @@ export class GameStateManager {
 
   /**
    * Initialize a new game with default values
-   * Delegates to InitializationManager
+   * Uses InitializationManager for state creation but maintains control over state assignment
    *
    * @returns {Object} Complete initial game state
    */
   initNewGame() {
-    return this.initializationManager.initNewGame();
+    // Create initial state using InitializationManager
+    const completeState = this.initializationManager.createInitialState();
+
+    // GameStateManager maintains control over its own state
+    this.state = completeState;
+
+    if (!this.isTestEnvironment) {
+      console.log('New game initialized:', completeState);
+    }
+
+    // Emit all initial state events for UI synchronization
+    this.initializationManager.emitInitialEvents(completeState);
+
+    return completeState;
   }
 
   // ========================================================================

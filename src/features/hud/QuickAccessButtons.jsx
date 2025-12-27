@@ -3,6 +3,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { useAnimationLock } from '../../hooks/useAnimationLock';
 import { useStarData } from '../../hooks/useStarData';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * QuickAccessButtons component displays quick access buttons for common actions.
@@ -63,7 +64,7 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
         if (!stillLocked) {
           clearInterval(pollInterval);
         }
-      }, 100); // Poll every 100ms
+      }, UI_CONFIG.ANIMATION_POLL_INTERVAL); // Poll every 100ms
 
       return () => clearInterval(pollInterval);
     }

@@ -24,7 +24,7 @@ export class InitializationManager {
   }
 
   /**
-   * Initialize a new game with default values
+   * Create complete initial game state
    *
    * Creates complete initial game state including:
    * - Player state (credits, debt, location, time)
@@ -35,7 +35,7 @@ export class InitializationManager {
    *
    * @returns {Object} Complete initial game state
    */
-  initNewGame() {
+  createInitialState() {
     const playerState = this.initializePlayerState();
     const shipState = this.initializeShipState();
     const worldState = this.initializeWorldState();
@@ -43,7 +43,7 @@ export class InitializationManager {
     const dialogueState = this.initializeDialogueState();
     const metaState = this.initializeMetaState();
 
-    const completeState = {
+    return {
       player: playerState,
       ship: shipState,
       world: worldState,
@@ -51,18 +51,6 @@ export class InitializationManager {
       dialogue: dialogueState,
       meta: metaState,
     };
-
-    // Set the state in the game state manager
-    this.gameStateManager.state = completeState;
-
-    if (!this.isTestEnvironment) {
-      console.log('New game initialized:', completeState);
-    }
-
-    // Emit all initial state events
-    this.emitInitialEvents();
-
-    return completeState;
   }
 
   /**
@@ -203,11 +191,11 @@ export class InitializationManager {
    *
    * Called after state initialization to ensure all UI components
    * receive the initial state values through the event system.
+   *
+   * @param {Object} state - Complete game state object
    */
-  emitInitialEvents() {
-    const player = this.gameStateManager.getPlayer();
-    const ship = this.gameStateManager.getShip();
-    const state = this.gameStateManager.getState();
+  emitInitialEvents(state) {
+    const { player, ship } = state;
 
     this.gameStateManager.emit('creditsChanged', player.credits);
     this.gameStateManager.emit('debtChanged', player.debt);
@@ -215,7 +203,10 @@ export class InitializationManager {
     this.gameStateManager.emit('cargoChanged', ship.cargo);
     this.gameStateManager.emit('locationChanged', player.currentSystem);
     this.gameStateManager.emit('timeChanged', player.daysElapsed);
-    this.gameStateManager.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+    this.gameStateManager.emit(
+      'priceKnowledgeChanged',
+      state.world.priceKnowledge
+    );
     this.gameStateManager.emit('shipConditionChanged', {
       hull: ship.hull,
       engine: ship.engine,

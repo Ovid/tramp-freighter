@@ -756,3 +756,28 @@ export const NPC_BENEFITS_CONFIG = {
     family: 25, // Up to 25% hull damage
   },
 };
+
+/**
+ * UI Configuration
+ *
+ * Configuration for user interface components including default values,
+ * repair options, coordinate display, and animation polling.
+ */
+export const UI_CONFIG = {
+  // Default fallback values for components when Bridge Pattern events haven't fired yet
+  DEFAULT_VALUES: {
+    SHIP_CONDITION: 100, // Default percentage for hull, engine, life support
+    FUEL: 100, // Default fuel percentage
+    CARGO_CAPACITY: 50, // Default cargo capacity
+    SHIP_NAME: 'Unknown Ship', // Default ship name
+  },
+
+  // Repair panel configuration
+  REPAIR_AMOUNTS: [10, 25, 50, 'full'], // Available repair percentage options
+
+  // Coordinate display configuration
+  COORDINATE_SCALE_FACTOR: 10, // Divide coordinates by this for display (map units to light-years)
+
+  // Animation polling configuration
+  ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
+};

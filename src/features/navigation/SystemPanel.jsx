@@ -3,6 +3,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * SystemPanel displays information about a system.
@@ -86,9 +87,17 @@ export function SystemPanel({
             <div className="system-property">
               <span className="label">Coordinates:</span>
               <span className="value">
-                {(viewingSystem.x / 10).toFixed(2)},{' '}
-                {(viewingSystem.y / 10).toFixed(2)},{' '}
-                {(viewingSystem.z / 10).toFixed(2)}
+                {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
+                ,{' '}
+                {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
+                ,{' '}
+                {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
               </span>
             </div>
             <div className="system-property">
@@ -198,9 +207,11 @@ export function SystemPanel({
           <div className="system-property">
             <span className="label">Coordinates:</span>
             <span className="value">
-              {(viewingSystem.x / 10).toFixed(2)},{' '}
-              {(viewingSystem.y / 10).toFixed(2)},{' '}
-              {(viewingSystem.z / 10).toFixed(2)}
+              {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
             </span>
           </div>
           <div className="system-property">

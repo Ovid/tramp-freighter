@@ -1,4 +1,5 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * ShipStatus component displays ship name, fuel, condition bars, and cargo.
@@ -21,13 +22,15 @@ export function ShipStatus() {
 
   // Bridge Pattern: Trust the events to provide correct data
   // If events haven't fired yet, component will re-render when they do
-  const hull = condition?.hull ?? 100;
-  const engine = condition?.engine ?? 100;
-  const lifeSupport = condition?.lifeSupport ?? 100;
-  const currentFuel = fuel ?? 100;
+  const hull = condition?.hull ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
+  const engine = condition?.engine ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
+  const lifeSupport =
+    condition?.lifeSupport ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
+  const currentFuel = fuel ?? UI_CONFIG.DEFAULT_VALUES.FUEL;
   const currentCargo = cargo ?? [];
-  const currentShipName = shipName ?? 'Unknown Ship';
-  const currentCargoCapacity = cargoCapacity ?? 50;
+  const currentShipName = shipName ?? UI_CONFIG.DEFAULT_VALUES.SHIP_NAME;
+  const currentCargoCapacity =
+    cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY;
 
   // Calculate cargo info from event data
   const cargoUsed = currentCargo.reduce((sum, stack) => sum + stack.qty, 0);

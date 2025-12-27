@@ -9,7 +9,7 @@ import {
   validateRepairAll,
   getSystemCondition,
 } from './repairUtils';
-import { SHIP_CONFIG } from '../../game/constants';
+import { SHIP_CONFIG, UI_CONFIG } from '../../game/constants';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
@@ -37,9 +37,9 @@ export function RepairPanel({ onClose }) {
 
   // Use Bridge Pattern to get ship condition
   const condition = shipCondition || {
-    hull: 100,
-    engine: 100,
-    lifeSupport: 100,
+    hull: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
+    engine: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
+    lifeSupport: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
   };
 
   // Get NPCs at current location for free repair checks
@@ -181,7 +181,7 @@ export function RepairPanel({ onClose }) {
 
   const renderSystemRepair = (systemType, label) => {
     const currentCondition = getSystemCondition(condition, systemType);
-    const repairAmounts = [10, 25, 50, 'full'];
+    const repairAmounts = UI_CONFIG.REPAIR_AMOUNTS;
 
     return (
       <div className="repair-system-group">
