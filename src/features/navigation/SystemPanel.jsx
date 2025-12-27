@@ -1,6 +1,7 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
 
 /**
@@ -21,6 +22,7 @@ export function SystemPanel({
   onJumpComplete,
 }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const fuel = useGameEvent('fuelChanged');
   const upgrades = useGameEvent('upgradesChanged');
@@ -28,7 +30,6 @@ export function SystemPanel({
   const { selectStarById } = useStarmap();
 
   // Get system data
-  const starData = gameStateManager.starData;
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 

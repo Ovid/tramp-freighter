@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   validateUpgradePurchase,
   formatUpgradeEffects,
@@ -25,6 +26,7 @@ import { SHIP_CONFIG } from '../../game/constants';
  */
 export function UpgradesPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const { purchaseUpgrade } = useGameAction();
@@ -215,9 +217,7 @@ export function UpgradesPanel({ onClose }) {
     (a, b) => SHIP_CONFIG.UPGRADES[a].cost - SHIP_CONFIG.UPGRADES[b].cost
   );
 
-  const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
     throw new Error(

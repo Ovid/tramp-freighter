@@ -27,6 +27,7 @@ import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
 
 /**
@@ -45,6 +46,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
   const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
@@ -189,7 +191,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         scene,
         camera,
         controls,
-        gameStateManager.starData
+        starData
       );
 
       // Register animation system with GameStateManager for useAnimationLock hook

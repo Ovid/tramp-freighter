@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   COMMODITY_TYPES,
   TRADE_CONFIG,
@@ -30,6 +31,7 @@ import {
 export function TradePanel({ onClose }) {
   // Access GameStateManager
   const gameStateManager = useGameState();
+  const starData = useStarData();
 
   // Subscribe to relevant game events
   const cargo = useGameEvent('cargoChanged');
@@ -49,9 +51,7 @@ export function TradePanel({ onClose }) {
     useGameAction();
 
   // Get current system
-  const system = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const system = starData.find((s) => s.id === currentSystemId);
 
   if (!system) {
     throw new Error(
@@ -231,7 +231,7 @@ export function TradePanel({ onClose }) {
                   stack.buySystem !== undefined &&
                   stack.buyDate !== undefined
                 ) {
-                  const purchaseSystem = gameStateManager.starData.find(
+                  const purchaseSystem = starData.find(
                     (s) => s.id === stack.buySystem
                   );
                   if (!purchaseSystem) {
@@ -341,7 +341,7 @@ export function TradePanel({ onClose }) {
                       stack.buySystem !== undefined &&
                       stack.buyDate !== undefined
                     ) {
-                      const purchaseSystem = gameStateManager.starData.find(
+                      const purchaseSystem = starData.find(
                         (s) => s.id === stack.buySystem
                       );
                       if (!purchaseSystem) {

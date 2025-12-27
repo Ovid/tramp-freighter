@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   calculateRepairCost,
   calculateRepairAllCost,
@@ -25,6 +26,7 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
  */
 export function RepairPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const shipCondition = useGameEvent('shipConditionChanged');
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
@@ -231,9 +233,7 @@ export function RepairPanel({ onClose }) {
     condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
   const repairAllDisabled = allAtMax || credits < totalCost || totalCost === 0;
 
-  const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
     throw new Error(

@@ -41,18 +41,6 @@ export class NPCManager extends BaseManager {
   }
 
   /**
-   * Validate NPC ID and get NPC data (private method for internal use)
-   *
-   * @param {string} npcId - NPC identifier
-   * @returns {Object} NPC data object
-   * @throws {Error} If NPC ID is not found
-   * @private
-   */
-  _validateAndGetNPCData(npcId) {
-    return this.validateAndGetNPCData(npcId);
-  }
-
-  /**
    * Get reputation tier classification for a reputation value
    *
    * Classifies reputation into named tiers based on numeric ranges.
@@ -83,7 +71,7 @@ export class NPCManager extends BaseManager {
    */
   getNPCState(npcId) {
     // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    const npcData = this.validateAndGetNPCData(npcId);
     const state = this.getState();
 
     // Return existing state or create default using NPC's initialRep
@@ -119,7 +107,7 @@ export class NPCManager extends BaseManager {
    */
   modifyRep(npcId, amount, reason) {
     // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    const npcData = this.validateAndGetNPCData(npcId);
 
     // Get or create NPC state
     const npcState = this.getNPCState(npcId);
@@ -178,7 +166,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    const npcData = this.validateAndGetNPCData(npcId);
 
     // Get NPC state (creates default if doesn't exist)
     const npcState = this.getNPCState(npcId);
@@ -243,7 +231,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Get NPC data and state (validation already done in canGetTip)
-    const npcData = this._validateAndGetNPCData(npcId);
+    const npcData = this.validateAndGetNPCData(npcId);
     const npcState = this.getNPCState(npcId);
 
     // Select random tip from NPC's tips array using deterministic RNG
@@ -278,7 +266,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    const npcData = this.validateAndGetNPCData(npcId);
 
     // Get NPC state (creates default if doesn't exist)
     const npcState = this.getNPCState(npcId);
@@ -326,7 +314,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
+    this.validateAndGetNPCData(npcId);
 
     // Check if NPC has been met (has state entry)
     if (!state.npcs[npcId]) {
@@ -474,7 +462,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
+    this.validateAndGetNPCData(npcId);
 
     // Get NPC state
     const npcState = this.getNPCState(npcId);
@@ -709,7 +697,7 @@ export class NPCManager extends BaseManager {
     return {
       success: true,
       stored: unitsToStore,
-      message: `Stored ${unitsToStore} cargo units with ${this._validateAndGetNPCData(npcId).name}`,
+      message: `Stored ${unitsToStore} cargo units with ${this.validateAndGetNPCData(npcId).name}`,
     };
   }
 
@@ -851,7 +839,7 @@ export class NPCManager extends BaseManager {
     }
 
     // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
+    this.validateAndGetNPCData(npcId);
 
     // Get NPC state (creates default if doesn't exist)
     const npcState = this.getNPCState(npcId);

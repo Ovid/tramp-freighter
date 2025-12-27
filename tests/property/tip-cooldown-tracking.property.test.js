@@ -59,10 +59,10 @@ describe('Tip Cooldown Tracking Property Tests', () => {
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
-    // Mock the private validation method to use test NPCs
+    // Mock the validation method to use test NPCs
     originalValidateAndGetNPCData =
-      gameStateManager.npcManager._validateAndGetNPCData;
-    gameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+      gameStateManager.npcManager.validateAndGetNPCData;
+    gameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
       // First check test NPCs
       const testNPC = testNPCs.find((npc) => npc.id === npcId);
       if (testNPC) {
@@ -79,7 +79,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
   afterEach(() => {
     // Restore original method
     if (originalValidateAndGetNPCData) {
-      gameStateManager.npcManager._validateAndGetNPCData =
+      gameStateManager.npcManager.validateAndGetNPCData =
         originalValidateAndGetNPCData;
     }
   });
@@ -103,7 +103,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         testGameStateManager.initNewGame();
 
         // Mock the validation method for this test instance
-        testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+        testGameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
           const testNPC = testNPCs.find((npc) => npc.id === npcId);
           if (testNPC) {
             return testNPC;
@@ -156,7 +156,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;
@@ -219,7 +219,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;
@@ -276,7 +276,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         testGameStateManager.initNewGame();
 
         // Mock the validation method for this test instance
-        testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+        testGameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
           const testNPC = testNPCs.find((npc) => npc.id === npcId);
           if (testNPC) {
             return testNPC;
@@ -352,7 +352,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager.validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;

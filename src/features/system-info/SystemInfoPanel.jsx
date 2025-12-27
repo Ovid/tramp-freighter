@@ -1,5 +1,6 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useStarData } from '../../hooks/useStarData';
 
 /**
  * SystemInfoPanel displays information about the current system.
@@ -14,11 +15,11 @@ import { useGameEvent } from '../../hooks/useGameEvent';
  */
 export function SystemInfoPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const upgrades = useGameEvent('upgradesChanged');
 
   // Get current system data
-  const starData = gameStateManager.starData;
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {

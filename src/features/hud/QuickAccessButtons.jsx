@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { useAnimationLock } from '../../hooks/useAnimationLock';
+import { useStarData } from '../../hooks/useStarData';
 
 /**
  * QuickAccessButtons component displays quick access buttons for common actions.
@@ -19,12 +20,12 @@ import { useAnimationLock } from '../../hooks/useAnimationLock';
  */
 export function QuickAccessButtons({ onDock, onSystemInfo }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const animationLock = useAnimationLock();
   const [isAnimationRunning, setIsAnimationRunning] = useState(false);
 
   // Get current system data
-  const starData = gameStateManager.starData;
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {

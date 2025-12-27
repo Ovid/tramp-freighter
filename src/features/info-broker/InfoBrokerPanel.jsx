@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   validateIntelligencePurchase,
   validateRumorPurchase,
@@ -29,6 +30,7 @@ import { capitalizeFirst } from '../../game/utils/string-utils';
  */
 export function InfoBrokerPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const priceKnowledge = useGameEvent('priceKnowledgeChanged');
@@ -122,7 +124,7 @@ export function InfoBrokerPanel({ onClose }) {
   const renderMarketData = () => {
     const knownSystems = getKnownSystemsSortedByStaleness(
       priceKnowledge || {},
-      gameStateManager.starData
+      starData
     );
 
     if (knownSystems.length === 0) {
@@ -168,9 +170,7 @@ export function InfoBrokerPanel({ onClose }) {
   const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
   const rumorValidation = validateRumorPurchase(credits);
 
-  const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
     throw new Error(
