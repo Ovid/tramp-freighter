@@ -33,6 +33,7 @@ import { ALL_NPCS } from '../data/npc-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
+import { NavigationManager } from './managers/navigation.js';
 
 /**
  * Sanitize ship name input
@@ -112,6 +113,7 @@ export class GameStateManager {
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(null, this.emit.bind(this));
+    this.navigationManager = new NavigationManager(this, this.starData);
   }
 
   /**
@@ -357,23 +359,14 @@ export class GameStateManager {
     return this.state.ship;
   }
 
+  /**
+   * Get current system data
+   * Delegates to NavigationManager
+   *
+   * @returns {Object} Current system object with id, name, coordinates, etc.
+   */
   getCurrentSystem() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getCurrentSystem called before game initialization'
-      );
-    }
-
-    const systemId = this.state.player.currentSystem;
-    const system = this.starData.find((s) => s.id === systemId);
-
-    if (!system) {
-      throw new Error(
-        `Invalid game state: current system ID ${systemId} not found in star data`
-      );
-    }
-
-    return system;
+    return this.navigationManager.getCurrentSystem();
   }
 
   getCargoUsed() {
@@ -403,13 +396,15 @@ export class GameStateManager {
     return this.shipManager.getFuelCapacity();
   }
 
+  /**
+   * Check if a system has been visited by the player
+   * Delegates to NavigationManager
+   *
+   * @param {number} systemId - System ID to check
+   * @returns {boolean} True if system has been visited
+   */
   isSystemVisited(systemId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: isSystemVisited called before game initialization'
-      );
-    }
-    return this.state.world.visitedSystems.includes(systemId);
+    return this.navigationManager.isSystemVisited(systemId);
   }
 
   /**
@@ -494,41 +489,14 @@ export class GameStateManager {
     this.emit('cargoChanged', newCargo);
   }
 
+  /**
+   * Update player location to a new system
+   * Delegates to NavigationManager
+   *
+   * @param {number} newSystemId - ID of the destination system
+   */
   updateLocation(newSystemId) {
-    this.state.player.currentSystem = newSystemId;
-
-    // Track exploration progress for future features (price discovery, missions)
-    if (!this.state.world.visitedSystems.includes(newSystemId)) {
-      this.state.world.visitedSystems.push(newSystemId);
-    }
-
-    // Snapshot prices at arrival to prevent intra-system arbitrage
-    // Prices are locked until player leaves the system
-    const system = this.starData.find((s) => s.id === newSystemId);
-    if (!system) {
-      throw new Error(
-        `Invalid system ID: ${newSystemId} not found in star data`
-      );
-    }
-
-    const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents;
-    const marketConditions = this.state.world.marketConditions;
-
-    const snapshotPrices = {};
-    for (const goodType of COMMODITY_TYPES) {
-      snapshotPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        system,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
-
-    this.state.world.currentSystemPrices = snapshotPrices;
-
-    this.emit('locationChanged', newSystemId);
+    return this.navigationManager.updateLocation(newSystemId);
   }
 
   /**
@@ -2139,75 +2107,22 @@ export class GameStateManager {
 
   /**
    * Dock at current system's station to access trading and refueling
+   * Delegates to NavigationManager
    *
-   * Updates price knowledge on dock:
-   * - First visit: Records current prices with lastVisit = daysElapsed
-   * - Subsequent visits: Updates prices and resets lastVisit to 0
+   * @returns {Object} { success: boolean }
    */
   dock() {
-    if (!this.state) {
-      throw new Error('Invalid state: dock called before game initialization');
-    }
-
-    const currentSystemId = this.state.player.currentSystem;
-    const currentSystem = this.starData.find((s) => s.id === currentSystemId);
-
-    if (!currentSystem) {
-      throw new Error(
-        `Invalid game state: current system ID ${currentSystemId} not found in star data`
-      );
-    }
-
-    // Calculate current prices for all commodities using dynamic pricing
-    const currentDay = this.state.player.daysElapsed;
-    const activeEvents = this.state.world.activeEvents;
-    if (!activeEvents) {
-      throw new Error('Invalid state: activeEvents missing from world state');
-    }
-    const marketConditions = this.state.world.marketConditions;
-    if (!marketConditions) {
-      throw new Error(
-        'Invalid state: marketConditions missing from world state'
-      );
-    }
-    const currentPrices = {};
-
-    for (const goodType of COMMODITY_TYPES) {
-      currentPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        currentSystem,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
-
-    // Update price knowledge (resets lastVisit to 0)
-    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
-
-    // Persist state transition - prevents loss if player closes browser while docked
-    this.saveGame();
-
-    return { success: true };
+    return this.navigationManager.dock();
   }
 
   /**
    * Undock from current system's station to resume navigation
+   * Delegates to NavigationManager
    *
-   * Currently a state transition marker for auto-save
-   * Future: Will close station UI, enable jumps, track undocked state.
+   * @returns {Object} { success: boolean }
    */
   undock() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: undock called before game initialization'
-      );
-    }
-
-    // Persist state transition - prevents loss if player closes browser while undocked
-    this.saveGame();
-
-    return { success: true };
+    return this.navigationManager.undock();
   }
 
   // ========================================================================
