@@ -1,15 +1,13 @@
 /**
- * EventSystemManager - Manages event subscription and emission for Bridge Pattern integration
+ * EventSystemManager - Bridges imperative game state with React's declarative rendering
  *
- * Handles the event system that connects the imperative GameStateManager to React's
- * declarative model. Components subscribe to state changes via useGameEvent hook,
- * which uses this manager to register callbacks and receive notifications.
+ * React components need to re-render when game state changes, but GameStateManager
+ * uses imperative mutations. This manager solves the impedance mismatch by providing
+ * an event system that React components can subscribe to via useGameEvent hook.
  *
- * Responsibilities:
- * - Maintain subscriber lists for each event type
- * - Handle subscription and unsubscription
- * - Emit events to all registered callbacks
- * - Provide error handling for subscriber callbacks
+ * Without this bridge, components would either need to poll for changes (inefficient)
+ * or GameStateManager would need React-specific knowledge (coupling violation).
+ * The event system maintains clean separation while enabling reactive UI updates.
  */
 export class EventSystemManager {
   constructor(gameStateManager) {
@@ -63,11 +61,6 @@ export class EventSystemManager {
     }
 
     this.subscribers[eventType].push(callback);
-    if (!this.gameStateManager.isTestEnvironment) {
-      console.log(
-        `Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`
-      );
-    }
   }
 
   /**
@@ -109,7 +102,7 @@ export class EventSystemManager {
 
   /**
    * Get subscribers object for testing purposes
-   * 
+   *
    * @returns {Object} The subscribers object
    */
   getSubscribers() {

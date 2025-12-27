@@ -732,6 +732,48 @@ export class GameStateManager {
   }
 
   /**
+   * Get the maximum reputation value for the tier below the current tier
+   *
+   * Used for loan default penalties to reduce reputation by exactly one tier.
+   * Returns the maximum value of the next lower tier, or applies a fixed penalty
+   * if already at the lowest tier.
+   *
+   * @param {Object} currentTier - Current reputation tier object
+   * @param {number} currentReputation - Current reputation value (needed for Hostile tier)
+   * @returns {number} New reputation value after tier reduction
+   */
+  getNextLowerTierMax(currentTier, currentReputation) {
+    const tierOrder = [
+      'Family',
+      'Trusted',
+      'Friendly',
+      'Warm',
+      'Neutral',
+      'Cold',
+      'Hostile',
+    ];
+    const currentIndex = tierOrder.indexOf(currentTier.name);
+
+    if (currentIndex === -1) {
+      throw new Error(`Unknown tier: ${currentTier.name}`);
+    }
+
+    // If already at lowest tier (Hostile), apply penalty but don't go below minimum
+    if (currentIndex === tierOrder.length - 1) {
+      return Math.max(
+        currentReputation - NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
+        REPUTATION_BOUNDS.MIN
+      );
+    }
+
+    // Get the next lower tier name and return its maximum value
+    const nextLowerTierName = tierOrder[currentIndex + 1];
+    const nextLowerTier = REPUTATION_TIERS[nextLowerTierName.toLowerCase()];
+
+    return nextLowerTier.max;
+  }
+
+  /**
    * Get or initialize NPC state
    *
    * Returns existing NPC state or creates default state with initial reputation.
@@ -1179,13 +1221,6 @@ export class GameStateManager {
     npcState.lastInteraction = this.state.player.daysElapsed;
     npcState.interactions += 1;
 
-    // Log reputation change for debugging (only in non-test environment)
-    if (!this.isTestEnvironment) {
-      console.log(
-        `Reputation change for ${npcId}: +${NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS} (emergency loan accepted) -> ${npcState.rep}`
-      );
-    }
-
     // Set lastFavorDay to current day
     npcState.lastFavorDay = this.state.player.daysElapsed;
 
@@ -1245,7 +1280,7 @@ export class GameStateManager {
     npcState.loanAmount = null;
     npcState.loanDay = null;
 
-    // Update interaction tracking
+    // Update interaction tracking (no reputation change for repayment)
     npcState.lastInteraction = this.state.player.daysElapsed;
     npcState.interactions += 1;
 
@@ -1290,56 +1325,20 @@ export class GameStateManager {
           const currentTier = this.getRepTier(npcState.rep);
           const oldRep = npcState.rep;
 
-          // Calculate new reputation based on tier reduction
-          let newReputation;
+          // Calculate new reputation using tier reduction helper
+          const newReputation = this.getNextLowerTierMax(currentTier, oldRep);
 
-          // Reduce by one tier - set to maximum value of next lower tier
-          if (currentTier.name === 'Family') {
-            // Family (90-100) -> Trusted (60-89), set to Trusted max (89)
-            newReputation = REPUTATION_BOUNDS.TRUSTED_MAX;
-          } else if (currentTier.name === 'Trusted') {
-            // Trusted (60-89) -> Friendly (30-59), set to Friendly max (59)
-            newReputation = REPUTATION_BOUNDS.FRIENDLY_MAX;
-          } else if (currentTier.name === 'Friendly') {
-            // Friendly (30-59) -> Warm (10-29), set to Warm max (29)
-            newReputation = REPUTATION_BOUNDS.WARM_MAX;
-          } else if (currentTier.name === 'Warm') {
-            // Warm (10-29) -> Neutral (-9-9), set to Neutral max (9)
-            newReputation = REPUTATION_BOUNDS.NEUTRAL_MAX;
-          } else if (currentTier.name === 'Neutral') {
-            // Neutral (-9-9) -> Cold (-49--10), set to Cold max (-10)
-            newReputation = REPUTATION_BOUNDS.COLD_MAX;
-          } else if (currentTier.name === 'Cold') {
-            // Cold (-49--10) -> Hostile (-100--50), set to Hostile max (-50)
-            newReputation = REPUTATION_BOUNDS.HOSTILE_MAX;
-          } else {
-            // Already at Hostile tier, apply penalty but don't go below minimum
-            newReputation = Math.max(
-              oldRep - NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
-              REPUTATION_BOUNDS.MIN
-            );
-          }
-
-          // Apply reputation penalty with clamping
+          // Apply reputation penalty directly (no trust modifiers for loan defaults)
           npcState.rep = Math.max(
             REPUTATION_BOUNDS.MIN,
             Math.min(REPUTATION_BOUNDS.MAX, newReputation)
           );
-
-          // Clear loan record
-          npcState.loanAmount = null;
-          npcState.loanDay = null;
-
-          // Update interaction tracking
           npcState.lastInteraction = currentDay;
           npcState.interactions += 1;
 
-          // Log reputation change for debugging (only in non-test environment)
-          if (!this.isTestEnvironment) {
-            console.log(
-              `Loan default penalty for ${npcId}: ${oldRep} -> ${npcState.rep} (loan default, tier reduction)`
-            );
-          }
+          // Clear loan record after reputation change
+          npcState.loanAmount = null;
+          npcState.loanDay = null;
         }
       }
     }
