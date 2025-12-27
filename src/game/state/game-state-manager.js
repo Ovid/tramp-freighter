@@ -10,6 +10,7 @@ import {
   NEW_GAME_DEFAULTS,
   ECONOMY_CONFIG,
   REPUTATION_TIERS,
+  REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
@@ -1287,7 +1288,7 @@ export class GameStateManager {
    * Check if NPC can provide a tip
    *
    * Validates that the NPC meets all requirements for providing a trading tip:
-   * 1. Reputation tier is Warm or higher (rep >= 10)
+   * 1. Reputation tier is Warm or higher (rep >= WARM_MIN)
    * 2. NPC has a non-empty tips array
    * 3. Tip cooldown has passed (7 days since lastTipDay)
    *
@@ -1307,9 +1308,9 @@ export class GameStateManager {
     // Get NPC state (creates default if doesn't exist)
     const npcState = this.getNPCState(npcId);
 
-    // Check reputation tier >= Warm (rep >= 10)
+    // Check reputation tier >= Warm (rep >= WARM_MIN)
     const repTier = this.getRepTier(npcState.rep);
-    if (npcState.rep < 10) {
+    if (npcState.rep < REPUTATION_BOUNDS.WARM_MIN) {
       return {
         available: false,
         reason: `Requires Warm relationship (currently ${repTier.name})`,
@@ -1423,7 +1424,8 @@ export class GameStateManager {
     const repTier = this.getRepTier(npcState.rep);
 
     // Get discount percentage based on tier
-    const discountPercentage = NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[repTier.name.toLowerCase()] || 0;
+    const discountPercentage =
+      NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[repTier.name.toLowerCase()] || 0;
 
     return {
       discount: discountPercentage,

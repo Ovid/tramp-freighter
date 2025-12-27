@@ -4,7 +4,7 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { NPC_BENEFITS_CONFIG, REPUTATION_TIERS } from '../../src/game/constants.js';
+import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
 
 /**
  * Property-based tests for tier discount calculation
@@ -32,6 +32,12 @@ describe('Tier Discount Calculation Property Tests', () => {
     gameStateManager.initNewGame();
   });
 
+  // Helper function to reset GameStateManager for each property test iteration
+  const resetGameState = () => {
+    gameStateManager.initNewGame();
+    return gameStateManager;
+  };
+
   // Generator for valid NPC IDs from the game data
   const arbNPCId = () => fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
 
@@ -39,9 +45,16 @@ describe('Tier Discount Calculation Property Tests', () => {
   const arbReputation = () => fc.integer({ min: -100, max: 100 });
 
   // Generator for service types
-  const arbServiceType = () => fc.constantFrom(
-    'repair', 'refuel', 'intel', 'docking', 'trade', 'debt', 'medical'
-  );
+  const arbServiceType = () =>
+    fc.constantFrom(
+      'repair',
+      'refuel',
+      'intel',
+      'docking',
+      'trade',
+      'debt',
+      'medical'
+    );
 
   it('should return correct discount percentage based on reputation tier', () => {
     fc.assert(
@@ -50,12 +63,8 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          testGameStateManager.initNewGame();
+          // Reset GameStateManager for this test iteration
+          const testGameStateManager = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
@@ -65,7 +74,10 @@ describe('Tier Discount Calculation Property Tests', () => {
           npcState.rep = reputation;
 
           // Get the result
-          const result = testGameStateManager.getServiceDiscount(npcId, serviceType);
+          const result = testGameStateManager.getServiceDiscount(
+            npcId,
+            serviceType
+          );
 
           // Determine expected discount
           let expectedDiscount = 0;
@@ -76,9 +88,10 @@ describe('Tier Discount Calculation Property Tests', () => {
             // Get reputation tier
             const repTier = testGameStateManager.getRepTier(reputation);
             const tierName = repTier.name.toLowerCase();
-            
+
             // Get discount from configuration
-            expectedDiscount = NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[tierName] || 0;
+            expectedDiscount =
+              NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[tierName] || 0;
             expectedNpcName = expectedDiscount > 0 ? npcData.name : null;
           }
 
@@ -92,7 +105,9 @@ describe('Tier Discount Calculation Property Tests', () => {
 
           // Verify result structure
           expect(typeof result.discount).toBe('number');
-          expect(result.npcName === null || typeof result.npcName === 'string').toBe(true);
+          expect(
+            result.npcName === null || typeof result.npcName === 'string'
+          ).toBe(true);
         }
       ),
       { numRuns: 100 }
@@ -106,12 +121,8 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          testGameStateManager.initNewGame();
+          // Reset GameStateManager for this test iteration
+          const testGameStateManager = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
@@ -122,7 +133,10 @@ describe('Tier Discount Calculation Property Tests', () => {
 
           // Only test when discountService doesn't match
           if (npcData.discountService !== serviceType) {
-            const result = testGameStateManager.getServiceDiscount(npcId, serviceType);
+            const result = testGameStateManager.getServiceDiscount(
+              npcId,
+              serviceType
+            );
 
             // Should return zero discount and null NPC name
             expect(result.discount).toBe(0);
@@ -136,52 +150,45 @@ describe('Tier Discount Calculation Property Tests', () => {
 
   it('should return correct tier-based discounts for matching service types', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        (npcId) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          testGameStateManager.initNewGame();
+      fc.property(arbNPCId(), (npcId) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC data
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+        // Get NPC data
+        const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+        const npcState = testGameStateManager.getNPCState(npcId);
 
-          // Only test NPCs that have a discountService
-          if (npcData.discountService) {
-            // Test each reputation tier
-            const tierTests = [
-              { tier: 'hostile', rep: -75, expectedDiscount: 0 },
-              { tier: 'cold', rep: -25, expectedDiscount: 0 },
-              { tier: 'neutral', rep: 0, expectedDiscount: 0 },
-              { tier: 'warm', rep: 20, expectedDiscount: 0.05 },
-              { tier: 'friendly', rep: 45, expectedDiscount: 0.10 },
-              { tier: 'trusted', rep: 75, expectedDiscount: 0.15 },
-              { tier: 'family', rep: 95, expectedDiscount: 0.20 },
-            ];
+        // Only test NPCs that have a discountService
+        if (npcData.discountService) {
+          // Test each reputation tier
+          const tierTests = [
+            { tier: 'hostile', rep: -75, expectedDiscount: 0 },
+            { tier: 'cold', rep: -25, expectedDiscount: 0 },
+            { tier: 'neutral', rep: 0, expectedDiscount: 0 },
+            { tier: 'warm', rep: 20, expectedDiscount: 0.05 },
+            { tier: 'friendly', rep: 45, expectedDiscount: 0.1 },
+            { tier: 'trusted', rep: 75, expectedDiscount: 0.15 },
+            { tier: 'family', rep: 95, expectedDiscount: 0.2 },
+          ];
 
-            for (const test of tierTests) {
-              npcState.rep = test.rep;
+          for (const test of tierTests) {
+            npcState.rep = test.rep;
 
-              const result = testGameStateManager.getServiceDiscount(
-                npcId, 
-                npcData.discountService
-              );
+            const result = testGameStateManager.getServiceDiscount(
+              npcId,
+              npcData.discountService
+            );
 
-              expect(result.discount).toBe(test.expectedDiscount);
-              
-              if (test.expectedDiscount > 0) {
-                expect(result.npcName).toBe(npcData.name);
-              } else {
-                expect(result.npcName).toBeNull();
-              }
+            expect(result.discount).toBe(test.expectedDiscount);
+
+            if (test.expectedDiscount > 0) {
+              expect(result.npcName).toBe(npcData.name);
+            } else {
+              expect(result.npcName).toBeNull();
             }
           }
         }
-      ),
+      }),
       { numRuns: 20 }
     );
   });
@@ -193,12 +200,8 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          testGameStateManager.initNewGame();
+          // Reset GameStateManager for this test iteration
+          const testGameStateManager = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
@@ -208,8 +211,14 @@ describe('Tier Discount Calculation Property Tests', () => {
           npcState.rep = reputation;
 
           // Only test NPCs with null discountService
-          if (npcData.discountService === null || npcData.discountService === undefined) {
-            const result = testGameStateManager.getServiceDiscount(npcId, serviceType);
+          if (
+            npcData.discountService === null ||
+            npcData.discountService === undefined
+          ) {
+            const result = testGameStateManager.getServiceDiscount(
+              npcId,
+              serviceType
+            );
 
             // Should always return zero discount and null NPC name
             expect(result.discount).toBe(0);
