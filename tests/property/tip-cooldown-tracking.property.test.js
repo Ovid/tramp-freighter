@@ -60,22 +60,27 @@ describe('Tip Cooldown Tracking Property Tests', () => {
     gameStateManager.initNewGame();
 
     // Mock the private validation method to use test NPCs
-    originalValidateAndGetNPCData = gameStateManager._validateAndGetNPCData;
-    gameStateManager._validateAndGetNPCData = (npcId) => {
+    originalValidateAndGetNPCData =
+      gameStateManager.npcManager._validateAndGetNPCData;
+    gameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
       // First check test NPCs
       const testNPC = testNPCs.find((npc) => npc.id === npcId);
       if (testNPC) {
         return testNPC;
       }
       // Fall back to original method for other NPCs
-      return originalValidateAndGetNPCData.call(gameStateManager, npcId);
+      return originalValidateAndGetNPCData.call(
+        gameStateManager.npcManager,
+        npcId
+      );
     };
   });
 
   afterEach(() => {
     // Restore original method
     if (originalValidateAndGetNPCData) {
-      gameStateManager._validateAndGetNPCData = originalValidateAndGetNPCData;
+      gameStateManager.npcManager._validateAndGetNPCData =
+        originalValidateAndGetNPCData;
     }
   });
 
@@ -98,13 +103,13 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         testGameStateManager.initNewGame();
 
         // Mock the validation method for this test instance
-        testGameStateManager._validateAndGetNPCData = (npcId) => {
+        testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
           const testNPC = testNPCs.find((npc) => npc.id === npcId);
           if (testNPC) {
             return testNPC;
           }
           return originalValidateAndGetNPCData.call(
-            testGameStateManager,
+            testGameStateManager.npcManager,
             npcId
           );
         };
@@ -151,13 +156,13 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;
             }
             return originalValidateAndGetNPCData.call(
-              testGameStateManager,
+              testGameStateManager.npcManager,
               npcId
             );
           };
@@ -214,13 +219,13 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;
             }
             return originalValidateAndGetNPCData.call(
-              testGameStateManager,
+              testGameStateManager.npcManager,
               npcId
             );
           };
@@ -270,14 +275,14 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         );
         testGameStateManager.initNewGame();
 
-        // Mock the validation method for this test instance too
-        testGameStateManager._validateAndGetNPCData = (npcId) => {
+        // Mock the validation method for this test instance
+        testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
           const testNPC = testNPCs.find((npc) => npc.id === npcId);
           if (testNPC) {
             return testNPC;
           }
           return originalValidateAndGetNPCData.call(
-            testGameStateManager,
+            testGameStateManager.npcManager,
             npcId
           );
         };
@@ -347,13 +352,13 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           testGameStateManager.initNewGame();
 
           // Mock the validation method for this test instance
-          testGameStateManager._validateAndGetNPCData = (npcId) => {
+          testGameStateManager.npcManager._validateAndGetNPCData = (npcId) => {
             const testNPC = testNPCs.find((npc) => npc.id === npcId);
             if (testNPC) {
               return testNPC;
             }
             return originalValidateAndGetNPCData.call(
-              testGameStateManager,
+              testGameStateManager.npcManager,
               npcId
             );
           };

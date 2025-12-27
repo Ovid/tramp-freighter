@@ -4,11 +4,7 @@ import {
   SOL_SYSTEM_ID,
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
-  REPUTATION_TIERS,
-  REPUTATION_BOUNDS,
-  NPC_BENEFITS_CONFIG,
 } from '../constants.js';
-import { SeededRandom } from '../utils/seeded-random.js';
 import { TradingSystem } from '../game-trading.js';
 import {
   saveGame as saveGameToStorage,
@@ -34,6 +30,7 @@ import { DialogueManager } from './managers/dialogue.js';
 import { EventsManager } from './managers/events.js';
 import { InfoBrokerManager } from './managers/info-broker.js';
 import { EventSystemManager } from './managers/event-system.js';
+import { StateManager } from './managers/state.js';
 
 /**
  * Sanitize ship name input
@@ -93,6 +90,7 @@ export class GameStateManager {
 
     // Initialize managers
     this.eventSystemManager = new EventSystemManager(this);
+    this.stateManager = new StateManager(this);
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(this);
@@ -252,21 +250,21 @@ export class GameStateManager {
     }
 
     // Emit all initial state events
-    this.emit('creditsChanged', this.state.player.credits);
-    this.emit('debtChanged', this.state.player.debt);
-    this.emit('fuelChanged', this.state.ship.fuel);
-    this.emit('cargoChanged', this.state.ship.cargo);
-    this.emit('locationChanged', this.state.player.currentSystem);
-    this.emit('timeChanged', this.state.player.daysElapsed);
+    this.emit('creditsChanged', this.getPlayer().credits);
+    this.emit('debtChanged', this.getPlayer().debt);
+    this.emit('fuelChanged', this.getShip().fuel);
+    this.emit('cargoChanged', this.getShip().cargo);
+    this.emit('locationChanged', this.getPlayer().currentSystem);
+    this.emit('timeChanged', this.getPlayer().daysElapsed);
     this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
     this.emit('shipConditionChanged', {
-      hull: this.state.ship.hull,
-      engine: this.state.ship.engine,
-      lifeSupport: this.state.ship.lifeSupport,
+      hull: this.getShip().hull,
+      engine: this.getShip().engine,
+      lifeSupport: this.getShip().lifeSupport,
     });
-    this.emit('upgradesChanged', this.state.ship.upgrades);
-    this.emit('cargoCapacityChanged', this.state.ship.cargoCapacity);
-    this.emit('quirksChanged', this.state.ship.quirks);
+    this.emit('upgradesChanged', this.getShip().upgrades);
+    this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
+    this.emit('quirksChanged', this.getShip().quirks);
 
     return this.state;
   }
@@ -322,26 +320,31 @@ export class GameStateManager {
   // STATE QUERIES
   // ========================================================================
 
+  /**
+   * Get complete game state
+   * Delegates to StateManager
+   * @returns {Object} Current game state
+   */
   getState() {
-    return this.state;
+    return this.stateManager.getState();
   }
 
+  /**
+   * Get player state
+   * Delegates to StateManager
+   * @returns {Object} Player state object
+   */
   getPlayer() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getPlayer called before game initialization'
-      );
-    }
-    return this.state.player;
+    return this.stateManager.getPlayer();
   }
 
+  /**
+   * Get ship state
+   * Delegates to StateManager
+   * @returns {Object} Ship state object
+   */
   getShip() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getShip called before game initialization'
-      );
-    }
-    return this.state.ship;
+    return this.stateManager.getShip();
   }
 
   /**
@@ -354,22 +357,22 @@ export class GameStateManager {
     return this.navigationManager.getCurrentSystem();
   }
 
+  /**
+   * Calculate total cargo space used
+   * Delegates to StateManager
+   * @returns {number} Total cargo units used
+   */
   getCargoUsed() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getCargoUsed called before game initialization'
-      );
-    }
-    return this.state.ship.cargo.reduce((total, stack) => total + stack.qty, 0);
+    return this.stateManager.getCargoUsed();
   }
 
+  /**
+   * Calculate remaining cargo space
+   * Delegates to StateManager
+   * @returns {number} Available cargo units
+   */
   getCargoRemaining() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getCargoRemaining called before game initialization'
-      );
-    }
-    return this.state.ship.cargoCapacity - this.getCargoUsed();
+    return this.stateManager.getCargoRemaining();
   }
 
   /**
@@ -446,32 +449,40 @@ export class GameStateManager {
   // STATE MUTATIONS
   // ========================================================================
 
+  /**
+   * Update player credits
+   * Delegates to StateManager
+   * @param {number} newCredits - New credit amount
+   */
   updateCredits(newCredits) {
-    this.state.player.credits = newCredits;
-    this.emit('creditsChanged', newCredits);
+    return this.stateManager.updateCredits(newCredits);
   }
 
+  /**
+   * Update player debt
+   * Delegates to StateManager
+   * @param {number} newDebt - New debt amount
+   */
   updateDebt(newDebt) {
-    this.state.player.debt = newDebt;
-    this.emit('debtChanged', newDebt);
+    return this.stateManager.updateDebt(newDebt);
   }
 
+  /**
+   * Update ship fuel with validation
+   * Delegates to StateManager
+   * @param {number} newFuel - New fuel percentage
+   */
   updateFuel(newFuel) {
-    const maxFuel = this.getFuelCapacity();
-
-    if (newFuel < SHIP_CONFIG.CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
-      throw new Error(
-        `Invalid fuel value: ${newFuel}. Fuel must be between ${SHIP_CONFIG.CONDITION_BOUNDS.MIN} and ${maxFuel}.`
-      );
-    }
-
-    this.state.ship.fuel = newFuel;
-    this.emit('fuelChanged', newFuel);
+    return this.stateManager.updateFuel(newFuel);
   }
 
+  /**
+   * Update ship cargo
+   * Delegates to StateManager
+   * @param {Array} newCargo - New cargo array
+   */
   updateCargo(newCargo) {
-    this.state.ship.cargo = newCargo;
-    this.emit('cargoChanged', newCargo);
+    return this.stateManager.updateCargo(newCargo);
   }
 
   /**
@@ -486,26 +497,29 @@ export class GameStateManager {
 
   /**
    * Set credits directly (dev mode only)
+   * Delegates to StateManager
    * @param {number} amount - New credit amount
    */
   setCredits(amount) {
-    this.updateCredits(amount);
+    return this.stateManager.setCredits(amount);
   }
 
   /**
    * Set debt directly (dev mode only)
+   * Delegates to StateManager
    * @param {number} amount - New debt amount
    */
   setDebt(amount) {
-    this.updateDebt(amount);
+    return this.stateManager.setDebt(amount);
   }
 
   /**
    * Set fuel directly (dev mode only)
+   * Delegates to StateManager
    * @param {number} amount - New fuel percentage (0-100)
    */
   setFuel(amount) {
-    this.updateFuel(amount);
+    return this.stateManager.setFuel(amount);
   }
 
   updateTime(newDays) {
@@ -713,155 +727,36 @@ export class GameStateManager {
 
   /**
    * Get reputation tier classification for a reputation value
-   *
-   * Classifies reputation into named tiers based on numeric ranges.
-   * Each tier has a name and min/max bounds for display purposes.
+   * Delegates to NPCManager
    *
    * @param {number} rep - Reputation value (-100 to 100)
    * @returns {Object} Tier object with name, min, max properties
    */
   getRepTier(rep) {
-    for (const tier of Object.values(REPUTATION_TIERS)) {
-      if (rep >= tier.min && rep <= tier.max) {
-        return tier;
-      }
-    }
-
-    // This should never happen with valid reputation values
-    throw new Error(`Invalid reputation value: ${rep}`);
-  }
-
-  /**
-   * Get the maximum reputation value for the tier below the current tier
-   *
-   * Used for loan default penalties to reduce reputation by exactly one tier.
-   * Returns the maximum value of the next lower tier, or applies a fixed penalty
-   * if already at the lowest tier.
-   *
-   * @param {Object} currentTier - Current reputation tier object
-   * @param {number} currentReputation - Current reputation value (needed for Hostile tier)
-   * @returns {number} New reputation value after tier reduction
-   */
-  getNextLowerTierMax(currentTier, currentReputation) {
-    const tierOrder = [
-      'Family',
-      'Trusted',
-      'Friendly',
-      'Warm',
-      'Neutral',
-      'Cold',
-      'Hostile',
-    ];
-    const currentIndex = tierOrder.indexOf(currentTier.name);
-
-    if (currentIndex === -1) {
-      throw new Error(`Unknown tier: ${currentTier.name}`);
-    }
-
-    // If already at lowest tier (Hostile), apply penalty but don't go below minimum
-    if (currentIndex === tierOrder.length - 1) {
-      return Math.max(
-        currentReputation - NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
-        REPUTATION_BOUNDS.MIN
-      );
-    }
-
-    // Get the next lower tier name and return its maximum value
-    const nextLowerTierName = tierOrder[currentIndex + 1];
-    const nextLowerTier = REPUTATION_TIERS[nextLowerTierName.toLowerCase()];
-
-    return nextLowerTier.max;
+    return this.npcManager.getRepTier(rep);
   }
 
   /**
    * Get or initialize NPC state
-   *
-   * Returns existing NPC state or creates default state with initial reputation.
-   * NPC state includes reputation, last interaction day, story flags, and interaction count.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} NPC state object
    */
   getNPCState(npcId) {
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
-
-    // Return existing state or create default using NPC's initialRep
-    if (!this.state.npcs[npcId]) {
-      this.state.npcs[npcId] = {
-        rep: npcData.initialRep,
-        lastInteraction: this.state.player.daysElapsed,
-        flags: [],
-        interactions: 0,
-        // NPC Benefits System fields
-        lastTipDay: null,
-        lastFavorDay: null,
-        loanAmount: null,
-        loanDay: null,
-        storedCargo: [],
-        lastFreeRepairDay: null,
-      };
-    }
-
-    return this.state.npcs[npcId];
+    return this.npcManager.getNPCState(npcId);
   }
 
   /**
    * Modify NPC reputation with trust modifier and quirk support
-   *
-   * Applies reputation change with NPC personality trust modifier and
-   * smooth_talker quirk bonus. Clamps final value to [-100, 100] range.
-   * Updates interaction count and timestamp.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @param {number} amount - Base reputation change amount
    * @param {string} reason - Reason for reputation change (for logging)
    */
   modifyRep(npcId, amount, reason) {
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
-
-    // Get or create NPC state
-    const npcState = this.getNPCState(npcId);
-
-    // Apply trust modifier for positive reputation gains
-    let modifiedAmount = amount;
-    if (amount > 0) {
-      modifiedAmount *= npcData.personality.trust;
-    }
-
-    // Apply smooth_talker quirk bonus for positive reputation gains
-    if (amount > 0 && this.state.ship.quirks.includes('smooth_talker')) {
-      modifiedAmount *= 1.05;
-    }
-
-    // Calculate new reputation with clamping and rounding
-    const oldRep = npcState.rep;
-    const newRep = Math.max(
-      -100,
-      Math.min(100, Math.round(oldRep + modifiedAmount))
-    );
-
-    // Log warning if clamping occurred
-    if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {
-      if (!this.isTestEnvironment) {
-        console.warn(
-          `Reputation clamped for ${npcId}: ${oldRep + modifiedAmount} -> ${newRep}`
-        );
-      }
-    }
-
-    // Update NPC state
-    npcState.rep = newRep;
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Log reputation change for debugging (only in non-test environment)
-    if (!this.isTestEnvironment) {
-      console.log(
-        `Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`
-      );
-    }
+    this.npcManager.modifyRep(npcId, amount, reason);
 
     // Persist immediately - reputation changes should be saved
     this.saveGame();
@@ -930,105 +825,31 @@ export class GameStateManager {
 
   /**
    * Check if NPC can provide a tip
-   *
-   * Validates that the NPC meets all requirements for providing a trading tip:
-   * 1. Reputation tier is Warm or higher (rep >= WARM_MIN)
-   * 2. NPC has a non-empty tips array
-   * 3. Tip cooldown has passed (7 days since lastTipDay)
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { available: boolean, reason: string | null }
    */
   canGetTip(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: canGetTip called before game initialization'
-      );
-    }
-
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
-
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.getNPCState(npcId);
-
-    // Check reputation tier >= Warm (rep >= WARM_MIN)
-    const repTier = this.getRepTier(npcState.rep);
-    if (npcState.rep < REPUTATION_BOUNDS.WARM_MIN) {
-      return {
-        available: false,
-        reason: `Requires Warm relationship (currently ${repTier.name})`,
-      };
-    }
-
-    // Check NPC has non-empty tips array
-    if (!npcData.tips || npcData.tips.length === 0) {
-      return {
-        available: false,
-        reason: 'NPC has no tips available',
-      };
-    }
-
-    // Check tip cooldown (7 days since lastTipDay)
-    if (npcState.lastTipDay !== null) {
-      const daysSinceLastTip =
-        this.state.player.daysElapsed - npcState.lastTipDay;
-      if (daysSinceLastTip < NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS) {
-        const daysRemaining =
-          NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - daysSinceLastTip;
-        return {
-          available: false,
-          reason: `Tip cooldown active (${daysRemaining} days remaining)`,
-        };
-      }
-    }
-
-    return {
-      available: true,
-      reason: null,
-    };
+    return this.npcManager.canGetTip(npcId);
   }
 
   /**
    * Get a random tip from NPC's tip pool
-   *
-   * Returns null if canGetTip() returns false. Otherwise, selects a random tip
-   * from the NPC's tips array and updates lastTipDay to current game day.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {string | null} Tip text or null if unavailable
    */
   getTip(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getTip called before game initialization'
-      );
+    const result = this.npcManager.getTip(npcId);
+
+    if (result) {
+      // Persist immediately - tip state should be saved
+      this.saveGame();
     }
 
-    // Check if tip is available
-    const availability = this.canGetTip(npcId);
-    if (!availability.available) {
-      return null;
-    }
-
-    // Get NPC data and state (validation already done in canGetTip)
-    const npcData = this._validateAndGetNPCData(npcId);
-    const npcState = this.getNPCState(npcId);
-
-    // Select random tip from NPC's tips array using deterministic RNG
-    // Use game day + npcId as seed for consistent but varied tip selection
-    const tipSeed = `tip-${npcId}-${this.state.player.daysElapsed}`;
-    const rng = new SeededRandom(tipSeed);
-    const randomIndex = rng.nextInt(0, npcData.tips.length - 1);
-    const selectedTip = npcData.tips[randomIndex];
-
-    // Update lastTipDay to current game day
-    npcState.lastTipDay = this.state.player.daysElapsed;
-
-    // Persist immediately - tip state should be saved
-    this.saveGame();
-
-    return selectedTip;
+    return result;
   }
 
   // ========================================================================
@@ -1037,47 +858,14 @@ export class GameStateManager {
 
   /**
    * Get service discount based on NPC relationship
-   *
-   * Checks if any NPC at the current system provides a discount for the specified
-   * service type. Returns the discount percentage and source NPC name if available.
-   * Only NPCs whose discountService matches the serviceType can provide discounts.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @param {string} serviceType - Service type (e.g., 'repair', 'refuel', 'intel', 'docking', 'trade', 'debt', 'medical')
    * @returns {Object} { discount: number, npcName: string | null }
    */
   getServiceDiscount(npcId, serviceType) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getServiceDiscount called before game initialization'
-      );
-    }
-
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
-
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.getNPCState(npcId);
-
-    // Check if NPC's discountService matches serviceType
-    if (!npcData.discountService || npcData.discountService !== serviceType) {
-      return {
-        discount: 0,
-        npcName: null,
-      };
-    }
-
-    // Get reputation tier
-    const repTier = this.getRepTier(npcState.rep);
-
-    // Get discount percentage based on tier
-    const discountPercentage =
-      NPC_BENEFITS_CONFIG.TIER_DISCOUNTS[repTier.name.toLowerCase()] || 0;
-
-    return {
-      discount: discountPercentage,
-      npcName: discountPercentage > 0 ? npcData.name : null,
-    };
+    return this.npcManager.getServiceDiscount(npcId, serviceType);
   }
 
   // ========================================================================
@@ -1086,262 +874,60 @@ export class GameStateManager {
 
   /**
    * Check if NPC can grant a specific favor
-   *
-   * Validates that the NPC meets all requirements for granting a favor:
-   * 1. NPC has been met (has state entry)
-   * 2. Reputation tier meets requirement (Trusted for loan, Friendly for storage)
-   * 3. Favor cooldown has passed (30 days since lastFavorDay)
-   * 4. No outstanding loan for loan requests
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @param {string} favorType - 'loan' or 'storage'
    * @returns {Object} { available: boolean, reason: string, daysRemaining?: number }
    */
   canRequestFavor(npcId, favorType) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: canRequestFavor called before game initialization'
-      );
-    }
-
-    // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
-
-    // Check if NPC has been met (has state entry)
-    if (!this.state.npcs[npcId]) {
-      return {
-        available: false,
-        reason: 'NPC not met',
-      };
-    }
-
-    // Get NPC state
-    const npcState = this.getNPCState(npcId);
-
-    // Check reputation tier requirements
-    if (favorType === 'loan') {
-      // Loan requires Trusted tier (rep >= 60)
-      if (npcState.rep < REPUTATION_BOUNDS.TRUSTED_MIN) {
-        const repTier = this.getRepTier(npcState.rep);
-        return {
-          available: false,
-          reason: `Requires Trusted relationship (currently ${repTier.name})`,
-        };
-      }
-    } else if (favorType === 'storage') {
-      // Storage requires Friendly tier (rep >= 30)
-      if (npcState.rep < REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        const repTier = this.getRepTier(npcState.rep);
-        return {
-          available: false,
-          reason: `Requires Friendly relationship (currently ${repTier.name})`,
-        };
-      }
-    } else {
-      return {
-        available: false,
-        reason: `Unknown favor type: ${favorType}`,
-      };
-    }
-
-    // Check favor cooldown (30 days since lastFavorDay)
-    if (npcState.lastFavorDay !== null) {
-      const daysSinceLastFavor =
-        this.state.player.daysElapsed - npcState.lastFavorDay;
-      if (daysSinceLastFavor < NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS) {
-        const daysRemaining =
-          NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
-        return {
-          available: false,
-          reason: `Favor used recently (wait ${daysRemaining} days)`,
-          daysRemaining: daysRemaining,
-        };
-      }
-    }
-
-    // Check no outstanding loan for loan requests
-    if (favorType === 'loan' && npcState.loanAmount !== null) {
-      return {
-        available: false,
-        reason: 'Outstanding loan must be repaid first',
-      };
-    }
-
-    return {
-      available: true,
-      reason: '',
-    };
+    return this.npcManager.canRequestFavor(npcId, favorType);
   }
 
   /**
    * Request emergency loan from NPC
-   *
-   * Validates loan request with canRequestFavor, then grants 500 credits to player,
-   * records loan details, increases NPC reputation by 5, and sets favor cooldown.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { success: boolean, message: string }
    */
   requestLoan(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: requestLoan called before game initialization'
-      );
+    const result = this.npcManager.requestLoan(npcId);
+
+    if (result.success) {
+      // Persist immediately - loan transaction modifies credits and NPC state
+      this.saveGame();
     }
 
-    // Validate with canRequestFavor
-    const availability = this.canRequestFavor(npcId, 'loan');
-    if (!availability.available) {
-      return {
-        success: false,
-        message: availability.reason,
-      };
-    }
-
-    // Get NPC state (validation already done in canRequestFavor)
-    const npcState = this.getNPCState(npcId);
-
-    // Add 500 credits to player
-    this.updateCredits(
-      this.state.player.credits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
-    );
-
-    // Set loanAmount to 500, loanDay to current day
-    npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
-    npcState.loanDay = this.state.player.daysElapsed;
-
-    // Increase NPC reputation by 5 (direct increase, no trust modifier for loan acceptance)
-    npcState.rep = Math.max(
-      -100,
-      Math.min(
-        100,
-        npcState.rep + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS
-      )
-    );
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Set lastFavorDay to current day
-    npcState.lastFavorDay = this.state.player.daysElapsed;
-
-    // Persist immediately - loan transaction modifies credits and NPC state
-    this.saveGame();
-
-    return {
-      success: true,
-      message: `Received ₡${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} emergency loan`,
-    };
+    return result;
   }
 
   /**
    * Repay outstanding loan to NPC
-   *
-   * Validates that player has sufficient credits and NPC has an outstanding loan,
-   * then deducts 500 credits from player and clears the loan record.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { success: boolean, message: string }
    */
   repayLoan(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: repayLoan called before game initialization'
-      );
+    const result = this.npcManager.repayLoan(npcId);
+
+    if (result.success) {
+      // Persist immediately - loan repayment modifies credits and NPC state
+      this.saveGame();
     }
 
-    // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
-
-    // Get NPC state
-    const npcState = this.getNPCState(npcId);
-
-    // Check if NPC has an outstanding loan
-    if (npcState.loanAmount === null) {
-      return {
-        success: false,
-        message: 'No outstanding loan',
-      };
-    }
-
-    // Check player has sufficient credits
-    if (this.state.player.credits < NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT) {
-      return {
-        success: false,
-        message: 'Insufficient credits',
-      };
-    }
-
-    // Deduct 500 credits from player
-    this.updateCredits(
-      this.state.player.credits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
-    );
-
-    // Clear loanAmount and loanDay
-    npcState.loanAmount = null;
-    npcState.loanDay = null;
-
-    // Update interaction tracking (no reputation change for repayment)
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Persist immediately - loan repayment modifies credits and NPC state
-    this.saveGame();
-
-    return {
-      success: true,
-      message: `Repaid ₡${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} loan`,
-    };
+    return result;
   }
 
   /**
    * Check for loan defaults and apply penalties
+   * Delegates to NPCManager
    *
-   * Called automatically on day advance in updateTime(). For each NPC with an
-   * outstanding loan where daysSinceLoan > 30, reduces reputation by one tier
-   * (approximately 20-30 points depending on current tier) and clears the loan record.
-   *
-   * Requirements: 3.16, 3.17
+   * Called automatically on day advance in updateTime().
    */
   checkLoanDefaults() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: checkLoanDefaults called before game initialization'
-      );
-    }
-
-    const currentDay = this.state.player.daysElapsed;
-
-    // Iterate through all NPCs with state
-    for (const npcId in this.state.npcs) {
-      const npcState = this.state.npcs[npcId];
-
-      // Check if NPC has an outstanding loan
-      if (npcState.loanAmount !== null && npcState.loanDay !== null) {
-        const daysSinceLoan = currentDay - npcState.loanDay;
-
-        // Check if loan is overdue (> 30 days)
-        if (daysSinceLoan > NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE) {
-          // Get current reputation tier
-          const currentTier = this.getRepTier(npcState.rep);
-          const oldRep = npcState.rep;
-
-          // Calculate new reputation using tier reduction helper
-          const newReputation = this.getNextLowerTierMax(currentTier, oldRep);
-
-          // Apply reputation penalty directly (no trust modifiers for loan defaults)
-          npcState.rep = Math.max(
-            REPUTATION_BOUNDS.MIN,
-            Math.min(REPUTATION_BOUNDS.MAX, newReputation)
-          );
-          npcState.lastInteraction = currentDay;
-          npcState.interactions += 1;
-
-          // Clear loan record after reputation change
-          npcState.loanAmount = null;
-          npcState.loanDay = null;
-        }
-      }
-    }
+    this.npcManager.checkLoanDefaults();
 
     // Persist immediately if any defaults were processed
     this.saveGame();
@@ -1703,22 +1289,22 @@ export class GameStateManager {
       this.state = loadedState;
 
       // Emit all state events to update UI
-      this.emit('creditsChanged', this.state.player.credits);
-      this.emit('debtChanged', this.state.player.debt);
-      this.emit('fuelChanged', this.state.ship.fuel);
-      this.emit('cargoChanged', this.state.ship.cargo);
-      this.emit('locationChanged', this.state.player.currentSystem);
-      this.emit('timeChanged', this.state.player.daysElapsed);
+      this.emit('creditsChanged', this.getPlayer().credits);
+      this.emit('debtChanged', this.getPlayer().debt);
+      this.emit('fuelChanged', this.getShip().fuel);
+      this.emit('cargoChanged', this.getShip().cargo);
+      this.emit('locationChanged', this.getPlayer().currentSystem);
+      this.emit('timeChanged', this.getPlayer().daysElapsed);
       this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
       this.emit('activeEventsChanged', this.state.world.activeEvents);
       this.emit('shipConditionChanged', {
-        hull: this.state.ship.hull,
-        engine: this.state.ship.engine,
-        lifeSupport: this.state.ship.lifeSupport,
+        hull: this.getShip().hull,
+        engine: this.getShip().engine,
+        lifeSupport: this.getShip().lifeSupport,
       });
-      this.emit('upgradesChanged', this.state.ship.upgrades);
-      this.emit('cargoCapacityChanged', this.state.ship.cargoCapacity);
-      this.emit('quirksChanged', this.state.ship.quirks);
+      this.emit('upgradesChanged', this.getShip().upgrades);
+      this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
+      this.emit('quirksChanged', this.getShip().quirks);
 
       return this.state;
     } catch (error) {
@@ -1754,28 +1340,25 @@ export class GameStateManager {
                 this.state = recoveredState;
 
                 // Emit all state events
-                this.emit('creditsChanged', this.state.player.credits);
-                this.emit('debtChanged', this.state.player.debt);
-                this.emit('fuelChanged', this.state.ship.fuel);
-                this.emit('cargoChanged', this.state.ship.cargo);
-                this.emit('locationChanged', this.state.player.currentSystem);
-                this.emit('timeChanged', this.state.player.daysElapsed);
+                this.emit('creditsChanged', this.getPlayer().credits);
+                this.emit('debtChanged', this.getPlayer().debt);
+                this.emit('fuelChanged', this.getShip().fuel);
+                this.emit('cargoChanged', this.getShip().cargo);
+                this.emit('locationChanged', this.getPlayer().currentSystem);
+                this.emit('timeChanged', this.getPlayer().daysElapsed);
                 this.emit(
                   'priceKnowledgeChanged',
                   this.state.world.priceKnowledge
                 );
                 this.emit('activeEventsChanged', this.state.world.activeEvents);
                 this.emit('shipConditionChanged', {
-                  hull: this.state.ship.hull,
-                  engine: this.state.ship.engine,
-                  lifeSupport: this.state.ship.lifeSupport,
+                  hull: this.getShip().hull,
+                  engine: this.getShip().engine,
+                  lifeSupport: this.getShip().lifeSupport,
                 });
-                this.emit('upgradesChanged', this.state.ship.upgrades);
-                this.emit(
-                  'cargoCapacityChanged',
-                  this.state.ship.cargoCapacity
-                );
-                this.emit('quirksChanged', this.state.ship.quirks);
+                this.emit('upgradesChanged', this.getShip().upgrades);
+                this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
+                this.emit('quirksChanged', this.getShip().quirks);
 
                 return this.state;
               }
@@ -1806,24 +1389,24 @@ export class GameStateManager {
 
   /**
    * Check if NPC can provide free repair
-   * Delegates to RepairManager
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { available: boolean, maxHullPercent: number, reason: string | null }
    */
   canGetFreeRepair(npcId) {
-    return this.repairManager.canGetFreeRepair(npcId);
+    return this.npcManager.canGetFreeRepair(npcId);
   }
 
   /**
    * Apply free repair from NPC
-   * Delegates to RepairManager
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @param {number} hullDamagePercent - Current hull damage percentage (0-100)
    * @returns {Object} { success: boolean, repairedPercent: number, message: string }
    */
-  applyFreeRepair(npcId, hullDamagePercent) {
-    return this.repairManager.applyFreeRepair(npcId, hullDamagePercent);
+  getFreeRepair(npcId, hullDamagePercent) {
+    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
   }
 }

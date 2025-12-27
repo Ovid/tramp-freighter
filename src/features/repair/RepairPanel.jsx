@@ -83,7 +83,7 @@ export function RepairPanel({ onClose }) {
     const hullDamagePercent = maxHull - currentHull;
 
     // Apply free repair
-    const repairResult = gameStateManager.applyFreeRepair(
+    const repairResult = gameStateManager.getFreeRepair(
       npcId,
       hullDamagePercent
     );

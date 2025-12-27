@@ -2,19 +2,28 @@
 
 This document outlines the step-by-step refactoring of the monolithic `GameStateManager` (1864 lines) into focused, maintainable modules.
 
-**STATUS: INCOMPLETE** - GameStateManager still violates Single Responsibility Principle with multiple concerns mixed together.
+**STATUS: TASK 3.2 COMPLETE** - StateManager successfully extracted with all direct state access replaced by delegation methods.
+
+**RECENT FIXES COMPLETED:**
+- Fixed NPCManager delegation: `canGetFreeRepair` and `getFreeRepair` methods were incorrectly delegating to RepairManager instead of NPCManager
+- Updated RepairPanel.jsx to use `getFreeRepair` instead of `applyFreeRepair` 
+- Fixed NPCManager's `getFreeRepair` method to actually apply hull repairs and emit ship condition change events
+- Fixed test file `tests/property/tip-cooldown-tracking.property.test.js` to use correct NPCManager method references
+- Cleaned up unused imports: `REPUTATION_TIERS`, `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG`, and `SeededRandom`
+- All tests now pass (1011/1011) with no linting warnings
 
 # Critical Components
 
 - Code needing to access state should access the GameStateManager directly
   and use its delegation methods rather than calling `src/game/state/managers/*.js` classes
 - All classes in `src/game/state/managers/*.js` should extend BaseManager
+- After moving code to managers, the GameStateManager should be slimmed down to only include code that's not yet ported
 
 ## Current Issues (Still Need Fixing)
 
-- **Event System**: `subscribe()`, `unsubscribe()`, `emit()` methods should be extracted to EventManager
-- **State Updates**: `updateCredits()`, `updateDebt()`, `updateFuel()`, `updateCargo()` should be in managers
-- **State Getters**: `getState()`, `getPlayer()`, `getShip()`, `getCargoUsed()` should be in managers  
+- **Event System**: ✅ COMPLETE - EventSystemManager extracted
+- **State Updates**: ✅ COMPLETE - StateManager extracted with proper delegation
+- **State Getters**: ✅ COMPLETE - StateManager extracted with proper delegation
 - **Game Initialization**: `initNewGame()` is massive (100+ lines) and should be broken down
 - **Save/Load Logic**: Still has save/load methods that should be in SaveLoadManager
 - **Mixed Responsibilities**: Still contains business logic that belongs in domain managers
@@ -268,22 +277,25 @@ src/game/state/
 **File**: `src/game/state/managers/state.js`
 
 **Methods to move**:
-- [ ] `getState()`
-- [ ] `getPlayer()`
-- [ ] `getShip()`
-- [ ] `getCargoUsed()`
-- [ ] `getCargoRemaining()`
-- [ ] `updateCredits(newCredits)`
-- [ ] `updateDebt(newDebt)`
-- [ ] `updateFuel(newFuel)`
-- [ ] `updateCargo(newCargo)`
-- [ ] `setCredits(amount)`
-- [ ] `setDebt(amount)`
-- [ ] `setFuel(amount)`
+- [x] `getState()`
+- [x] `getPlayer()`
+- [x] `getShip()`
+- [x] `getCargoUsed()`
+- [x] `getCargoRemaining()`
+- [x] `updateCredits(newCredits)`
+- [x] `updateDebt(newDebt)`
+- [x] `updateFuel(newFuel)`
+- [x] `updateCargo(newCargo)`
+- [x] `setCredits(amount)`
+- [x] `setDebt(amount)`
+- [x] `setFuel(amount)`
 
 **Dependencies**:
-- [ ] Core state access and mutation logic
-- [ ] Event emission for state changes
+- [x] Core state access and mutation logic
+- [x] Event emission for state changes
+
+**Tests to update**:
+- [x] All tests pass with new delegation pattern
 
 #### Task 3.3: Extract Game Initialization Manager
 **File**: `src/game/state/managers/initialization.js`
@@ -357,6 +369,8 @@ src/game/state/
 
 #### Task 6.2: Code cleanup
 - [ ] Remove any unused imports
+- [ ] Remove any methods moved to `src/game/state/managers`
+- [ ] Remove any dead code in GameStateManager
 - [ ] Standardize error messages
 - [ ] Ensure consistent coding style
 
@@ -370,7 +384,7 @@ src/game/state/
 - [ ] All existing tests pass
 - [ ] Public API remains unchanged
 - [ ] Each manager file is under 500 lines
-- [ ] Core GameStateManager reduced to under 500 lines (currently 1864 lines)
+- [ ] Core GameStateManager reduced to under 500 lines (currently 1416 lines, reduced from 1864 lines - 448 line reduction)
 - [ ] No performance regression
 - [ ] Save/load compatibility maintained
 - [ ] AGENTS.md updated with new manager structure

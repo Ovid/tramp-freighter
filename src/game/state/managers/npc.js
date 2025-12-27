@@ -5,6 +5,7 @@ import {
   NPC_BENEFITS_CONFIG,
 } from '../../constants.js';
 import { ALL_NPCS } from '../../data/npc-data.js';
+import { SeededRandom } from '../../utils/seeded-random.js';
 
 /**
  * NPCManager - Manages NPC reputation, benefits, loans, and storage
@@ -245,12 +246,15 @@ export class NPCManager extends BaseManager {
     const npcData = this._validateAndGetNPCData(npcId);
     const npcState = this.getNPCState(npcId);
 
-    // Select random tip from NPC's tips array
-    const randomIndex = Math.floor(Math.random() * npcData.tips.length);
+    // Select random tip from NPC's tips array using deterministic RNG
+    // Use game day + npcId as seed for consistent but varied tip selection
+    const tipSeed = `tip-${npcId}-${state.player.daysElapsed}`;
+    const rng = new SeededRandom(tipSeed);
+    const randomIndex = rng.nextInt(0, npcData.tips.length - 1);
     const selectedTip = npcData.tips[randomIndex];
 
     // Update lastTipDay to current game day
-    npcState.lastTipDay = this.getState().player.daysElapsed;
+    npcState.lastTipDay = state.player.daysElapsed;
 
     return selectedTip;
   }
@@ -956,6 +960,20 @@ export class NPCManager extends BaseManager {
     // Update interaction tracking
     npcState.lastInteraction = state.player.daysElapsed;
     npcState.interactions += 1;
+
+    // Apply the hull repair
+    const newHullCondition = Math.min(
+      100,
+      state.ship.hull + actualRepairPercent
+    );
+    state.ship.hull = newHullCondition;
+
+    // Emit hull condition change event
+    this.gameStateManager.emit('shipConditionChanged', {
+      hull: state.ship.hull,
+      engine: state.ship.engine,
+      lifeSupport: state.ship.lifeSupport,
+    });
 
     return {
       success: true,
