@@ -4,7 +4,7 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
 
 /**
  * Property-based tests for loan repayment effects
@@ -47,9 +47,6 @@ describe('Loan Repayment Effects Property Tests', () => {
 
   // Generator for current game day
   const arbCurrentDay = () => fc.integer({ min: 0, max: 1000 });
-
-  // Generator for loan day (must be before current day)
-  const arbLoanDay = (currentDay) => fc.integer({ min: 0, max: currentDay });
 
   it('should deduct exactly 500 credits from player when loan is repaid', () => {
     fc.assert(
@@ -149,9 +146,6 @@ describe('Loan Repayment Effects Property Tests', () => {
           const loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = loanDay;
-
-          // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
 
           // Repay loan
           const result = testGameStateManager.repayLoan(npcId);

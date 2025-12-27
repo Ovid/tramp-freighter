@@ -1460,8 +1460,8 @@ export class GameStateManager {
       );
     }
 
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    // Validate NPC ID
+    this._validateAndGetNPCData(npcId);
 
     // Check if NPC has been met (has state entry)
     if (!this.state.npcs[npcId]) {
@@ -1565,7 +1565,6 @@ export class GameStateManager {
     npcState.loanDay = this.state.player.daysElapsed;
 
     // Increase NPC reputation by 5 (direct increase, no trust modifier for loan acceptance)
-    const oldRep = npcState.rep;
     npcState.rep = Math.max(-100, Math.min(100, npcState.rep + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS));
     npcState.lastInteraction = this.state.player.daysElapsed;
     npcState.interactions += 1;
@@ -1605,8 +1604,8 @@ export class GameStateManager {
       );
     }
 
-    // Validate NPC ID and get NPC data
-    const npcData = this._validateAndGetNPCData(npcId);
+    // Validate NPC ID
+    this._validateAndGetNPCData(npcId);
 
     // Get NPC state
     const npcState = this.getNPCState(npcId);
@@ -1732,6 +1731,110 @@ export class GameStateManager {
 
     // Persist immediately if any defaults were processed
     this.saveGame();
+  }
+
+  /**
+   * Store cargo with NPC
+   *
+   * Validates storage request with canRequestFavor, then removes up to 10 cargo units
+   * from ship and adds them to NPC's storedCargo array. Sets favor cooldown.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} { success: boolean, stored: number, message: string }
+   */
+  storeCargo(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: storeCargo called before game initialization'
+      );
+    }
+
+    // Validate with canRequestFavor
+    const availability = this.canRequestFavor(npcId, 'storage');
+    if (!availability.available) {
+      return {
+        success: false,
+        stored: 0,
+        message: availability.reason,
+      };
+    }
+
+    // Get NPC state (validation already done in canRequestFavor)
+    const npcState = this.getNPCState(npcId);
+
+    // Get current ship cargo
+    const currentShipCargo = [...this.state.ship.cargo];
+    
+    // Calculate total cargo units to store (up to limit)
+    const totalCargoUnits = currentShipCargo.reduce((total, stack) => total + stack.qty, 0);
+    const unitsToStore = Math.min(totalCargoUnits, NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
+
+    if (unitsToStore === 0) {
+      return {
+        success: false,
+        stored: 0,
+        message: 'No cargo to store',
+      };
+    }
+
+    // Initialize storedCargo if it doesn't exist
+    if (!npcState.storedCargo) {
+      npcState.storedCargo = [];
+    }
+
+    // Remove cargo from ship and add to NPC storage
+    let remainingToStore = unitsToStore;
+    const newShipCargo = [];
+    const cargoToAdd = [];
+
+    for (const stack of currentShipCargo) {
+      if (remainingToStore <= 0) {
+        // No more to store, keep remaining cargo on ship
+        newShipCargo.push(stack);
+      } else if (stack.qty <= remainingToStore) {
+        // Store entire stack
+        cargoToAdd.push({ ...stack });
+        remainingToStore -= stack.qty;
+      } else {
+        // Partial stack - store some, keep rest on ship
+        const storeQty = remainingToStore;
+        const keepQty = stack.qty - storeQty;
+        
+        cargoToAdd.push({
+          ...stack,
+          qty: storeQty
+        });
+        
+        newShipCargo.push({
+          ...stack,
+          qty: keepQty
+        });
+        
+        remainingToStore = 0;
+      }
+    }
+
+    // Add stored cargo to NPC's storedCargo array
+    npcState.storedCargo.push(...cargoToAdd);
+
+    // Update ship cargo
+    this.updateCargo(newShipCargo);
+
+    // Set lastFavorDay to current day
+    npcState.lastFavorDay = this.state.player.daysElapsed;
+
+    // Update interaction tracking
+    npcState.lastInteraction = this.state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Persist immediately - cargo storage modifies ship cargo and NPC state
+    this.saveGame();
+
+    return {
+      success: true,
+      stored: unitsToStore,
+      message: `Stored ${unitsToStore} cargo units with ${this._validateAndGetNPCData(npcId).name}`,
+    };
   }
 
   // ========================================================================

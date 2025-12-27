@@ -248,10 +248,6 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.loanDay = null;
           npcState.lastFavorDay = null;
 
-          // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
-          const initialReputation = npcState.rep;
-
           // Request loan
           const result = testGameStateManager.requestLoan(npcId);
 

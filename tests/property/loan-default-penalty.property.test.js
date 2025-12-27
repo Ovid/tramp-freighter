@@ -45,9 +45,6 @@ describe('Loan Default Penalty Property Tests', () => {
   // Generator for current game day (must be at least 31 to trigger default)
   const arbCurrentDay = () => fc.integer({ min: 31, max: 1000 });
 
-  // Generator for loan day (must be more than 30 days ago)
-  const arbOverdueLoanDay = (currentDay) => fc.integer({ min: 0, max: currentDay - 31 });
-
   // Generator for initial reputation (various tiers to test tier reduction)
   const arbInitialReputation = () => fc.integer({ 
     min: REPUTATION_BOUNDS.MIN, 
