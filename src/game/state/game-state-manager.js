@@ -25,7 +25,6 @@ import {
   migrateFromV2_1ToV4,
   addStateDefaults,
 } from './state-validators.js';
-import { ALL_NPCS } from '../data/npc-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -811,9 +810,7 @@ export class GameStateManager {
 
   /**
    * Validate NPC ID and return NPC data
-   *
-   * Private method to validate NPC ID exists in game data and return the NPC data object.
-   * Used by all NPC-related methods to avoid redundant validation.
+   * Delegates to NPCManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} NPC data object
@@ -821,11 +818,7 @@ export class GameStateManager {
    * @private
    */
   _validateAndGetNPCData(npcId) {
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-    if (!npcData) {
-      throw new Error(`Unknown NPC ID: ${npcId}`);
-    }
-    return npcData;
+    return this.npcManager.validateAndGetNPCData(npcId);
   }
 
   /**
@@ -2003,144 +1996,24 @@ export class GameStateManager {
 
   /**
    * Check if NPC can provide free repair
-   *
-   * Checks if the NPC's reputation tier is Trusted or Family and if the
-   * once-per-visit limitation is satisfied (lastFreeRepairDay is not current day).
-   * Returns availability status and tier-based repair limits.
+   * Delegates to RepairManager
    *
    * @param {string} npcId - NPC identifier
    * @returns {Object} { available: boolean, maxHullPercent: number, reason: string | null }
    */
   canGetFreeRepair(npcId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: canGetFreeRepair called before game initialization'
-      );
-    }
-
-    // Validate NPC ID
-    this._validateAndGetNPCData(npcId);
-
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.getNPCState(npcId);
-
-    // Check reputation tier is Trusted or Family
-    const repTier = this.getRepTier(npcState.rep);
-    const isTrusted =
-      npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
-      npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
-    const isFamily = npcState.rep >= REPUTATION_BOUNDS.FAMILY_MIN;
-
-    if (!isTrusted && !isFamily) {
-      return {
-        available: false,
-        maxHullPercent: 0,
-        reason: `Requires Trusted relationship (currently ${repTier.name})`,
-      };
-    }
-
-    // Check once-per-visit limitation (lastFreeRepairDay is not current day)
-    const currentDay = this.state.player.daysElapsed;
-    if (
-      npcState.lastFreeRepairDay !== null &&
-      npcState.lastFreeRepairDay === currentDay
-    ) {
-      return {
-        available: false,
-        maxHullPercent: 0,
-        reason: 'Free repair already used once per visit',
-      };
-    }
-
-    // Determine max hull percent based on tier
-    let maxHullPercent;
-    if (isFamily) {
-      maxHullPercent = NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family;
-    } else if (isTrusted) {
-      maxHullPercent = NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.trusted;
-    }
-
-    return {
-      available: true,
-      maxHullPercent: maxHullPercent,
-      reason: null,
-    };
+    return this.repairManager.canGetFreeRepair(npcId);
   }
 
   /**
    * Apply free repair from NPC
-   *
-   * Validates free repair availability, then repairs up to the tier-appropriate
-   * hull damage limit. Sets lastFreeRepairDay to current day to enforce
-   * once-per-visit limitation.
+   * Delegates to RepairManager
    *
    * @param {string} npcId - NPC identifier
    * @param {number} hullDamagePercent - Current hull damage percentage (0-100)
    * @returns {Object} { success: boolean, repairedPercent: number, message: string }
    */
   applyFreeRepair(npcId, hullDamagePercent) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: applyFreeRepair called before game initialization'
-      );
-    }
-
-    // Validate with canGetFreeRepair
-    const availability = this.canGetFreeRepair(npcId);
-    if (!availability.available) {
-      return {
-        success: false,
-        repairedPercent: 0,
-        message: availability.reason,
-      };
-    }
-
-    // Validate hull damage parameter
-    if (
-      typeof hullDamagePercent !== 'number' ||
-      hullDamagePercent < 0 ||
-      hullDamagePercent > 100
-    ) {
-      return {
-        success: false,
-        repairedPercent: 0,
-        message: 'Invalid hull damage percentage',
-      };
-    }
-
-    // Calculate repair amount (up to maxHullPercent of hull damage)
-    const maxRepairPercent = availability.maxHullPercent;
-    const actualRepairPercent = Math.min(hullDamagePercent, maxRepairPercent);
-
-    // Apply repair to ship hull
-    const currentHull = this.state.ship.hull;
-    const newHull = Math.min(
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX,
-      currentHull + actualRepairPercent
-    );
-
-    // Update ship condition
-    this.updateShipCondition(
-      newHull,
-      this.state.ship.engine,
-      this.state.ship.lifeSupport
-    );
-
-    // Get NPC state and set lastFreeRepairDay to current day
-    const npcState = this.getNPCState(npcId);
-    npcState.lastFreeRepairDay = this.state.player.daysElapsed;
-
-    // Update interaction tracking
-    npcState.lastInteraction = this.state.player.daysElapsed;
-    npcState.interactions += 1;
-
-    // Persist immediately - free repair modifies ship condition and NPC state
-    this.saveGame();
-
-    return {
-      success: true,
-      repairedPercent: actualRepairPercent,
-      message: `Repaired ${actualRepairPercent}% hull damage`,
-    };
+    return this.repairManager.applyFreeRepair(npcId, hullDamagePercent);
   }
 }

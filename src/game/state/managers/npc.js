@@ -24,17 +24,31 @@ export class NPCManager extends BaseManager {
   /**
    * Validate NPC ID and get NPC data
    *
+   * Public method for validating NPC IDs and retrieving NPC data.
+   * Used by other managers that need to work with NPC data.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} NPC data object
+   * @throws {Error} If NPC ID is not found
+   */
+  validateAndGetNPCData(npcId) {
+    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+    if (!npcData) {
+      throw new Error(`Unknown NPC ID: ${npcId}`);
+    }
+    return npcData;
+  }
+
+  /**
+   * Validate NPC ID and get NPC data (private method for internal use)
+   *
    * @param {string} npcId - NPC identifier
    * @returns {Object} NPC data object
    * @throws {Error} If NPC ID is not found
    * @private
    */
   _validateAndGetNPCData(npcId) {
-    const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-    if (!npcData) {
-      throw new Error(`Unknown NPC ID: ${npcId}`);
-    }
-    return npcData;
+    return this.validateAndGetNPCData(npcId);
   }
 
   /**
