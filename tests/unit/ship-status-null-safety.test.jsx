@@ -33,6 +33,12 @@ describe('ShipStatus Null Safety', () => {
         activeEvents: [],
         flags: {},
       },
+      dialogue: {
+        currentNpcId: null,
+        currentNodeId: null,
+        isActive: false,
+        display: null,
+      },
     };
 
     mockGameStateManager = {

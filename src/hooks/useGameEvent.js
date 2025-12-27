@@ -85,6 +85,10 @@ function extractStateForEvent(eventName, state) {
     throw new Error('Invalid game state: world object missing');
   }
 
+  if (!state.dialogue) {
+    throw new Error('Invalid game state: dialogue object missing');
+  }
+
   // Map event names to state extraction logic
   // No optional chaining - properties MUST exist after initialization
   const eventStateMap = {
@@ -105,6 +109,7 @@ function extractStateForEvent(eventName, state) {
     upgradesChanged: state.ship.upgrades,
     quirksChanged: state.ship.quirks,
     conditionWarning: null, // Warnings are passed directly in event data
+    dialogueChanged: state.dialogue, // Dialogue state object
   };
 
   return eventStateMap[eventName] ?? null;

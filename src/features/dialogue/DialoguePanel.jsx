@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameAction } from '../../hooks/useGameAction';
+import { useDialogue } from '../../hooks/useDialogue';
 
 /**
  * DialoguePanel - React component for NPC dialogue interactions
@@ -16,12 +15,9 @@ import { useGameAction } from '../../hooks/useGameAction';
  * @param {Function} props.onClose - Callback to close the dialogue panel
  */
 export function DialoguePanel({ npcId, onClose }) {
-  // Bridge Pattern: Subscribe to dialogue state changes
-  const dialogueState = useGameEvent('dialogueChanged');
-
-  // Bridge Pattern: Get action methods
-  const { startDialogue, selectDialogueChoice, clearDialogue } =
-    useGameAction();
+  // Bridge Pattern: Use dialogue hook for state and actions
+  const { dialogueState, startDialogue, selectChoice, clearDialogue } =
+    useDialogue();
 
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
@@ -48,13 +44,14 @@ export function DialoguePanel({ npcId, onClose }) {
 
     try {
       // Process choice selection through Bridge Pattern
-      const nextDisplay = await selectDialogueChoice(npcId, choiceIndex);
+      const success = await selectChoice(npcId, choiceIndex);
 
-      if (!nextDisplay) {
-        // Dialogue ended, close panel
+      if (!success) {
+        // Error occurred, close panel
         onClose();
       }
-      // If nextDisplay exists, the dialogueChanged event will trigger re-render
+      // If successful, the dialogueChanged event will trigger re-render
+      // If dialogue ended, the dialogueState.isActive will become false
     } catch (err) {
       console.error('Failed to process dialogue choice:', err);
       // Clear dialogue state on error
