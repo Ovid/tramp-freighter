@@ -77,6 +77,7 @@
 
 - i18n?
 - GCT
+- Reputation change-Not more than once per day per NPC?
 - Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
