@@ -710,6 +710,9 @@ export class GameStateManager {
       // Recalculate prices with new day number (for daily fluctuations)
       this.recalculatePricesForKnownSystems();
 
+      // Check for loan defaults and apply penalties
+      this.checkLoanDefaults();
+
       // Emit event changes
       this.emit('activeEventsChanged', this.state.world.activeEvents);
     }
@@ -1431,6 +1434,304 @@ export class GameStateManager {
       discount: discountPercentage,
       npcName: discountPercentage > 0 ? npcData.name : null,
     };
+  }
+
+  // ========================================================================
+  // NPC BENEFITS SYSTEM - FAVOR SYSTEM
+  // ========================================================================
+
+  /**
+   * Check if NPC can grant a specific favor
+   *
+   * Validates that the NPC meets all requirements for granting a favor:
+   * 1. NPC has been met (has state entry)
+   * 2. Reputation tier meets requirement (Trusted for loan, Friendly for storage)
+   * 3. Favor cooldown has passed (30 days since lastFavorDay)
+   * 4. No outstanding loan for loan requests
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {string} favorType - 'loan' or 'storage'
+   * @returns {Object} { available: boolean, reason: string, daysRemaining?: number }
+   */
+  canRequestFavor(npcId, favorType) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: canRequestFavor called before game initialization'
+      );
+    }
+
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
+
+    // Check if NPC has been met (has state entry)
+    if (!this.state.npcs[npcId]) {
+      return {
+        available: false,
+        reason: 'NPC not met',
+      };
+    }
+
+    // Get NPC state
+    const npcState = this.getNPCState(npcId);
+
+    // Check reputation tier requirements
+    if (favorType === 'loan') {
+      // Loan requires Trusted tier (rep >= 60)
+      if (npcState.rep < REPUTATION_BOUNDS.TRUSTED_MIN) {
+        const repTier = this.getRepTier(npcState.rep);
+        return {
+          available: false,
+          reason: `Requires Trusted relationship (currently ${repTier.name})`,
+        };
+      }
+    } else if (favorType === 'storage') {
+      // Storage requires Friendly tier (rep >= 30)
+      if (npcState.rep < REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        const repTier = this.getRepTier(npcState.rep);
+        return {
+          available: false,
+          reason: `Requires Friendly relationship (currently ${repTier.name})`,
+        };
+      }
+    } else {
+      return {
+        available: false,
+        reason: `Unknown favor type: ${favorType}`,
+      };
+    }
+
+    // Check favor cooldown (30 days since lastFavorDay)
+    if (npcState.lastFavorDay !== null) {
+      const daysSinceLastFavor =
+        this.state.player.daysElapsed - npcState.lastFavorDay;
+      if (daysSinceLastFavor < NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS) {
+        const daysRemaining =
+          NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
+        return {
+          available: false,
+          reason: `Favor used recently (wait ${daysRemaining} days)`,
+          daysRemaining: daysRemaining,
+        };
+      }
+    }
+
+    // Check no outstanding loan for loan requests
+    if (favorType === 'loan' && npcState.loanAmount !== null) {
+      return {
+        available: false,
+        reason: 'Outstanding loan must be repaid first',
+      };
+    }
+
+    return {
+      available: true,
+      reason: '',
+    };
+  }
+
+  /**
+   * Request emergency loan from NPC
+   *
+   * Validates loan request with canRequestFavor, then grants 500 credits to player,
+   * records loan details, increases NPC reputation by 5, and sets favor cooldown.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} { success: boolean, message: string }
+   */
+  requestLoan(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: requestLoan called before game initialization'
+      );
+    }
+
+    // Validate with canRequestFavor
+    const availability = this.canRequestFavor(npcId, 'loan');
+    if (!availability.available) {
+      return {
+        success: false,
+        message: availability.reason,
+      };
+    }
+
+    // Get NPC state (validation already done in canRequestFavor)
+    const npcState = this.getNPCState(npcId);
+
+    // Add 500 credits to player
+    this.updateCredits(this.state.player.credits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+
+    // Set loanAmount to 500, loanDay to current day
+    npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
+    npcState.loanDay = this.state.player.daysElapsed;
+
+    // Increase NPC reputation by 5 (direct increase, no trust modifier for loan acceptance)
+    const oldRep = npcState.rep;
+    npcState.rep = Math.max(-100, Math.min(100, npcState.rep + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS));
+    npcState.lastInteraction = this.state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Log reputation change for debugging (only in non-test environment)
+    if (!this.isTestEnvironment) {
+      console.log(
+        `Reputation change for ${npcId}: +${NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS} (emergency loan accepted) -> ${npcState.rep}`
+      );
+    }
+
+    // Set lastFavorDay to current day
+    npcState.lastFavorDay = this.state.player.daysElapsed;
+
+    // Persist immediately - loan transaction modifies credits and NPC state
+    this.saveGame();
+
+    return {
+      success: true,
+      message: `Received ₡${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} emergency loan`,
+    };
+  }
+
+  /**
+   * Repay outstanding loan to NPC
+   *
+   * Validates that player has sufficient credits and NPC has an outstanding loan,
+   * then deducts 500 credits from player and clears the loan record.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object} { success: boolean, message: string }
+   */
+  repayLoan(npcId) {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: repayLoan called before game initialization'
+      );
+    }
+
+    // Validate NPC ID and get NPC data
+    const npcData = this._validateAndGetNPCData(npcId);
+
+    // Get NPC state
+    const npcState = this.getNPCState(npcId);
+
+    // Check if NPC has an outstanding loan
+    if (npcState.loanAmount === null) {
+      return {
+        success: false,
+        message: 'No outstanding loan',
+      };
+    }
+
+    // Check player has sufficient credits
+    if (this.state.player.credits < NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT) {
+      return {
+        success: false,
+        message: 'Insufficient credits',
+      };
+    }
+
+    // Deduct 500 credits from player
+    this.updateCredits(this.state.player.credits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+
+    // Clear loanAmount and loanDay
+    npcState.loanAmount = null;
+    npcState.loanDay = null;
+
+    // Update interaction tracking
+    npcState.lastInteraction = this.state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Persist immediately - loan repayment modifies credits and NPC state
+    this.saveGame();
+
+    return {
+      success: true,
+      message: `Repaid ₡${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} loan`,
+    };
+  }
+
+  /**
+   * Check for loan defaults and apply penalties
+   *
+   * Called automatically on day advance in updateTime(). For each NPC with an
+   * outstanding loan where daysSinceLoan > 30, reduces reputation by one tier
+   * (approximately 20-30 points depending on current tier) and clears the loan record.
+   *
+   * Requirements: 3.16, 3.17
+   */
+  checkLoanDefaults() {
+    if (!this.state) {
+      throw new Error(
+        'Invalid state: checkLoanDefaults called before game initialization'
+      );
+    }
+
+    const currentDay = this.state.player.daysElapsed;
+
+    // Iterate through all NPCs with state
+    for (const npcId in this.state.npcs) {
+      const npcState = this.state.npcs[npcId];
+
+      // Check if NPC has an outstanding loan
+      if (npcState.loanAmount !== null && npcState.loanDay !== null) {
+        const daysSinceLoan = currentDay - npcState.loanDay;
+
+        // Check if loan is overdue (> 30 days)
+        if (daysSinceLoan > NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE) {
+          // Get current reputation tier
+          const currentTier = this.getRepTier(npcState.rep);
+          const oldRep = npcState.rep;
+
+          // Calculate new reputation based on tier reduction
+          let newReputation;
+          
+          // Reduce by one tier - set to maximum value of next lower tier
+          if (currentTier.name === 'Family') {
+            // Family (90-100) -> Trusted (60-89), set to Trusted max (89)
+            newReputation = REPUTATION_BOUNDS.TRUSTED_MAX;
+          } else if (currentTier.name === 'Trusted') {
+            // Trusted (60-89) -> Friendly (30-59), set to Friendly max (59)
+            newReputation = REPUTATION_BOUNDS.FRIENDLY_MAX;
+          } else if (currentTier.name === 'Friendly') {
+            // Friendly (30-59) -> Warm (10-29), set to Warm max (29)
+            newReputation = REPUTATION_BOUNDS.WARM_MAX;
+          } else if (currentTier.name === 'Warm') {
+            // Warm (10-29) -> Neutral (-9-9), set to Neutral max (9)
+            newReputation = REPUTATION_BOUNDS.NEUTRAL_MAX;
+          } else if (currentTier.name === 'Neutral') {
+            // Neutral (-9-9) -> Cold (-49--10), set to Cold max (-10)
+            newReputation = REPUTATION_BOUNDS.COLD_MAX;
+          } else if (currentTier.name === 'Cold') {
+            // Cold (-49--10) -> Hostile (-100--50), set to Hostile max (-50)
+            newReputation = REPUTATION_BOUNDS.HOSTILE_MAX;
+          } else {
+            // Already at Hostile tier, apply penalty but don't go below minimum
+            newReputation = Math.max(
+              oldRep - (NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20),
+              REPUTATION_BOUNDS.MIN
+            );
+          }
+
+          // Apply reputation penalty with clamping
+          npcState.rep = Math.max(REPUTATION_BOUNDS.MIN, Math.min(REPUTATION_BOUNDS.MAX, newReputation));
+
+          // Clear loan record
+          npcState.loanAmount = null;
+          npcState.loanDay = null;
+
+          // Update interaction tracking
+          npcState.lastInteraction = currentDay;
+          npcState.interactions += 1;
+
+          // Log reputation change for debugging (only in non-test environment)
+          if (!this.isTestEnvironment) {
+            console.log(
+              `Loan default penalty for ${npcId}: ${oldRep} -> ${npcState.rep} (loan default, tier reduction)`
+            );
+          }
+        }
+      }
+    }
+
+    // Persist immediately if any defaults were processed
+    this.saveGame();
   }
 
   // ========================================================================

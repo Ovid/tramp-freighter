@@ -71,32 +71,32 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
   
   **RED Phase - Write failing tests first:**
   
-  - [ ] 6.1 Write property test for favor tier requirements
+  - [x] 6.1 Write property test for favor tier requirements
     - **Property 5: Favor Tier Requirements**
     - Test that loan requires Trusted tier, storage requires Friendly tier
     - Test returns unavailable with reason when tier too low
     - **Validates: Requirements 3.1, 3.2, 3.9, 3.10**
 
-  - [ ] 6.2 Write property test for favor cooldown enforcement
+  - [x] 6.2 Write property test for favor cooldown enforcement
     - **Property 6: Favor Cooldown Enforcement**
     - Test 30-day cooldown between favors
     - Test returns daysRemaining when on cooldown
     - **Validates: Requirements 3.3, 3.7**
 
-  - [ ] 6.3 Write property test for loan grant effects
+  - [x] 6.3 Write property test for loan grant effects
     - **Property 7: Loan Grant Effects**
     - Test player receives 500 credits
     - Test loanAmount and loanDay are set
     - Test NPC reputation increases by 5
     - **Validates: Requirements 3.5**
 
-  - [ ] 6.4 Write property test for loan repayment effects
+  - [x] 6.4 Write property test for loan repayment effects
     - **Property 8: Loan Repayment Effects**
     - Test 500 credits deducted from player
     - Test loanAmount and loanDay are cleared
     - **Validates: Requirements 3.14, 3.15**
 
-  - [ ] 6.5 Write property test for loan default penalty
+  - [x] 6.5 Write property test for loan default penalty
     - **Property 9: Loan Default Penalty**
     - Test reputation reduced by one tier after 30 days
     - Test loan record cleared after default
@@ -104,7 +104,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 
   **GREEN Phase - Minimal implementation to pass tests:**
 
-  - [ ] 6.6 Implement `canRequestFavor(npcId, favorType)` method
+  - [x] 6.6 Implement `canRequestFavor(npcId, favorType)` method
     - Check NPC has been met
     - Check reputation tier meets requirement (Trusted for loan, Friendly for storage)
     - Check favor cooldown (30 days since lastFavorDay)
@@ -112,7 +112,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Return `{ available: boolean, reason: string, daysRemaining?: number }`
     - _Requirements: 3.1, 3.2, 3.3, 3.8, 3.9, 3.10_
 
-  - [ ] 6.7 Implement `requestLoan(npcId)` method
+  - [x] 6.7 Implement `requestLoan(npcId)` method
     - Validate with `canRequestFavor(npcId, 'loan')`
     - Add 500 credits to player
     - Set loanAmount to 500, loanDay to current day
@@ -120,13 +120,13 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Set lastFavorDay to current day
     - _Requirements: 3.1, 3.5, 3.7_
 
-  - [ ] 6.8 Implement `repayLoan(npcId)` method
+  - [x] 6.8 Implement `repayLoan(npcId)` method
     - Check player has 500 credits
     - Deduct 500 credits from player
     - Clear loanAmount and loanDay
     - _Requirements: 3.14, 3.15_
 
-  - [ ] 6.9 Implement `checkLoanDefaults()` method
+  - [x] 6.9 Implement `checkLoanDefaults()` method
     - Called on day advance in `updateTime()`
     - For each NPC with outstanding loan where daysSinceLoan > 30
     - Reduce reputation by one tier (approximately 20-30 points)

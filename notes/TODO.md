@@ -3,6 +3,10 @@
 3. Tabs you have open fill context!
 4. Fix bad architecture FIRST!
 
+> Question: currently when you start a new task, you're at almost 50% context
+> consumed. What is causing this much context to be consumed when you start a
+> new task?
+
 > Finding 1: Missing Coverage for Requirement 1.1, 1.2, 1.3 (Hostile/Cold/Neutral Tier Behaviors)
 > Severity: Critical
 > 
