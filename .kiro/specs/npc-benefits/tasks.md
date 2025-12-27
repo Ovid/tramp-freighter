@@ -64,11 +64,47 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - **Property 12: NPC-Specific Discount Application**
     - **Validates: Requirements 11.4**
 
-- [ ] 5. Checkpoint - Ensure all tests pass
+- [x] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Implement favor system - Loans
-  - [ ] 6.1 Implement `canRequestFavor(npcId, favorType)` method
+- [ ] 6. Implement favor system - Loans (TDD)
+  
+  **RED Phase - Write failing tests first:**
+  
+  - [ ] 6.1 Write property test for favor tier requirements
+    - **Property 5: Favor Tier Requirements**
+    - Test that loan requires Trusted tier, storage requires Friendly tier
+    - Test returns unavailable with reason when tier too low
+    - **Validates: Requirements 3.1, 3.2, 3.9, 3.10**
+
+  - [ ] 6.2 Write property test for favor cooldown enforcement
+    - **Property 6: Favor Cooldown Enforcement**
+    - Test 30-day cooldown between favors
+    - Test returns daysRemaining when on cooldown
+    - **Validates: Requirements 3.3, 3.7**
+
+  - [ ] 6.3 Write property test for loan grant effects
+    - **Property 7: Loan Grant Effects**
+    - Test player receives 500 credits
+    - Test loanAmount and loanDay are set
+    - Test NPC reputation increases by 5
+    - **Validates: Requirements 3.5**
+
+  - [ ] 6.4 Write property test for loan repayment effects
+    - **Property 8: Loan Repayment Effects**
+    - Test 500 credits deducted from player
+    - Test loanAmount and loanDay are cleared
+    - **Validates: Requirements 3.14, 3.15**
+
+  - [ ] 6.5 Write property test for loan default penalty
+    - **Property 9: Loan Default Penalty**
+    - Test reputation reduced by one tier after 30 days
+    - Test loan record cleared after default
+    - **Validates: Requirements 3.16**
+
+  **GREEN Phase - Minimal implementation to pass tests:**
+
+  - [ ] 6.6 Implement `canRequestFavor(npcId, favorType)` method
     - Check NPC has been met
     - Check reputation tier meets requirement (Trusted for loan, Friendly for storage)
     - Check favor cooldown (30 days since lastFavorDay)
@@ -76,7 +112,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Return `{ available: boolean, reason: string, daysRemaining?: number }`
     - _Requirements: 3.1, 3.2, 3.3, 3.8, 3.9, 3.10_
 
-  - [ ] 6.2 Implement `requestLoan(npcId)` method
+  - [ ] 6.7 Implement `requestLoan(npcId)` method
     - Validate with `canRequestFavor(npcId, 'loan')`
     - Add 500 credits to player
     - Set loanAmount to 500, loanDay to current day
@@ -84,41 +120,42 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Set lastFavorDay to current day
     - _Requirements: 3.1, 3.5, 3.7_
 
-  - [ ] 6.3 Implement `repayLoan(npcId)` method
+  - [ ] 6.8 Implement `repayLoan(npcId)` method
     - Check player has 500 credits
     - Deduct 500 credits from player
     - Clear loanAmount and loanDay
     - _Requirements: 3.14, 3.15_
 
-  - [ ] 6.4 Implement `checkLoanDefaults()` method
+  - [ ] 6.9 Implement `checkLoanDefaults()` method
     - Called on day advance in `updateTime()`
     - For each NPC with outstanding loan where daysSinceLoan > 30
     - Reduce reputation by one tier (approximately 20-30 points)
     - Clear loan record
     - _Requirements: 3.16, 3.17_
 
-  - [ ] 6.5 Write property test for favor tier requirements
-    - **Property 5: Favor Tier Requirements**
-    - **Validates: Requirements 3.1, 3.2, 3.9, 3.10**
+  **REFACTOR Phase - Improve while keeping tests green**
 
-  - [ ] 6.6 Write property test for favor cooldown enforcement
-    - **Property 6: Favor Cooldown Enforcement**
-    - **Validates: Requirements 3.3, 3.7**
+- [ ] 7. Implement favor system - Cargo Storage (TDD)
+  
+  **RED Phase - Write failing tests first:**
 
-  - [ ] 6.7 Write property test for loan grant effects
-    - **Property 7: Loan Grant Effects**
-    - **Validates: Requirements 3.5**
+  - [ ] 7.1 Write property test for cargo storage transfer
+    - **Property 10: Cargo Storage Transfer**
+    - Test up to 10 cargo units removed from ship
+    - Test cargo added to NPC's storedCargo array
+    - Test lastFavorDay updated
+    - **Validates: Requirements 3.6**
 
-  - [ ] 6.8 Write property test for loan repayment effects
-    - **Property 8: Loan Repayment Effects**
-    - **Validates: Requirements 3.14, 3.15**
+  - [ ] 7.2 Write property test for cargo retrieval completeness
+    - **Property 11: Cargo Retrieval Completeness**
+    - Test retrieval limited by ship capacity
+    - Test partial retrieval leaves remainder in storage
+    - Test full retrieval when capacity allows
+    - **Validates: Requirements 3.11, 3.12, 3.13**
 
-  - [ ] 6.9 Write property test for loan default penalty
-    - **Property 9: Loan Default Penalty**
-    - **Validates: Requirements 3.16**
+  **GREEN Phase - Minimal implementation to pass tests:**
 
-- [ ] 7. Implement favor system - Cargo Storage
-  - [ ] 7.1 Implement `storeCargo(npcId, cargo)` method
+  - [ ] 7.3 Implement `storeCargo(npcId, cargo)` method
     - Validate with `canRequestFavor(npcId, 'storage')`
     - Remove up to 10 cargo units from ship
     - Add to NPC's storedCargo array
@@ -126,44 +163,49 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Return `{ success: boolean, stored: number, message: string }`
     - _Requirements: 3.2, 3.6, 3.7_
 
-  - [ ] 7.2 Implement `retrieveCargo(npcId)` method
+  - [ ] 7.4 Implement `retrieveCargo(npcId)` method
     - Calculate available ship capacity
     - Transfer min(storedCargo, availableCapacity) to ship
     - Leave remainder in NPC storage
     - Return `{ success: boolean, retrieved: CargoStack[], remaining: CargoStack[] }`
     - _Requirements: 3.11, 3.12, 3.13_
 
-  - [ ] 7.3 Write property test for cargo storage transfer
-    - **Property 10: Cargo Storage Transfer**
-    - **Validates: Requirements 3.6**
-
-  - [ ] 7.4 Write property test for cargo retrieval completeness
-    - **Property 11: Cargo Retrieval Completeness**
-    - **Validates: Requirements 3.11, 3.12, 3.13**
+  **REFACTOR Phase - Improve while keeping tests green**
 
 - [ ] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Implement free repair system
-  - [ ] 9.1 Implement `canGetFreeRepair(npcId)` method
+- [ ] 9. Implement free repair system (TDD)
+  
+  **RED Phase - Write failing tests first:**
+
+  - [ ] 9.1 Write property test for free repair tier limits
+    - **Property: Free Repair Tier Limits**
+    - *For any* NPC at Trusted tier, free repair SHALL be limited to 10% hull damage
+    - *For any* NPC at Family tier, free repair SHALL be limited to 25% hull damage
+    - Test returns unavailable for lower tiers
+    - Test once-per-visit limitation (lastFreeRepairDay check)
+    - **Validates: Requirements 1.6, 1.7**
+
+  **GREEN Phase - Minimal implementation to pass tests:**
+
+  - [ ] 9.2 Implement `canGetFreeRepair(npcId)` method
     - Check NPC's reputation tier is Trusted or Family
     - Check lastFreeRepairDay is not current day (once per visit)
     - Return max hull percent based on tier (10% for Trusted, 25% for Family)
     - Return `{ available: boolean, maxHullPercent: number, reason: string | null }`
     - _Requirements: 1.6, 1.7_
 
-  - [ ] 9.2 Implement `applyFreeRepair(npcId, hullDamagePercent)` method
+  - [ ] 9.3 Implement `applyFreeRepair(npcId, hullDamagePercent)` method
     - Validate with `canGetFreeRepair(npcId)`
     - Repair up to maxHullPercent of hull damage
     - Set lastFreeRepairDay to current game day
     - Return `{ success: boolean, repairedPercent: number, message: string }`
     - _Requirements: 1.6, 1.7_
 
-  - [ ] 9.3 Write property test for free repair tier limits
-    - **Property: Free Repair Tier Limits**
-    - *For any* NPC at Trusted tier, free repair SHALL be limited to 10% hull damage
-    - *For any* NPC at Family tier, free repair SHALL be limited to 25% hull damage
-    - **Validates: Requirements 1.6, 1.7**
+  **REFACTOR Phase - Improve while keeping tests green**
+
+  **UI Integration (after core logic is tested):**
 
   - [ ] 9.4 Integrate free repair into RepairPanel UI
     - Show "Free repair available" when `canGetFreeRepair()` returns available
@@ -183,59 +225,66 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Verify repair limits are enforced in UI
     - _Requirements: 1.6, 1.7_
 
-- [ ] 10. Add new NPC definitions
-  - [ ] 10.1 Add Whisper NPC definition to npc-data.js
-    - Add to Sirius A (system 2), Sirius Exchange station
-    - Include personality, speechStyle, tips array, discountService: 'intel'
-    - Include tierBenefits configuration
-    - _Requirements: 4.1-4.15_
+- [ ] 10. Add new NPC definitions (TDD)
+  
+  **RED Phase - Write failing tests first:**
 
-  - [ ] 10.2 Add Captain Vasquez NPC definition to npc-data.js
-    - Add to Epsilon Eridani (system 3), Eridani Hub station
-    - Include personality, speechStyle, tips array, discountService: null
-    - Include tierBenefits configuration
-    - _Requirements: 5.1-5.11_
-
-  - [ ] 10.3 Add Dr. Sarah Kim NPC definition to npc-data.js
-    - Add to Tau Ceti (system 5), Tau Ceti Station
-    - Include personality, speechStyle, tips array, discountService: 'docking'
-    - Include tierBenefits configuration
-    - _Requirements: 6.1-6.10_
-
-  - [ ] 10.4 Add "Rusty" Rodriguez NPC definition to npc-data.js
-    - Add to Procyon (system 6), Procyon Depot station
-    - Include personality, speechStyle, tips array, discountService: 'repair'
-    - Include tierBenefits configuration
-    - _Requirements: 7.1-7.10_
-
-  - [ ] 10.5 Add Zara Osman NPC definition to npc-data.js
-    - Add to Luyten's Star (system 7), Luyten's Outpost station
-    - Include personality, speechStyle, tips array, discountService: 'trade'
-    - Include tierBenefits configuration
-    - _Requirements: 8.1-8.10_
-
-  - [ ] 10.6 Add Station Master Kowalski NPC definition to npc-data.js
-    - Add to Alpha Centauri (system 1), Centauri Station
-    - Include personality, speechStyle, tips array, discountService: 'docking'
-    - Include tierBenefits configuration
-    - _Requirements: 9.1-9.10_
-
-  - [ ] 10.7 Add "Lucky" Liu NPC definition to npc-data.js
-    - Add to Wolf 359 (system 8), Wolf 359 Station
-    - Include personality, speechStyle, tips array, discountService: null
-    - Include tierBenefits configuration
-    - _Requirements: 10.1-10.10_
-
-  - [ ] 10.8 Write unit test for NPC data validation
+  - [ ] 10.1 Write unit test for NPC data validation
     - Verify all 7 new NPCs have required fields
     - Verify personality values match specification
     - Verify tips arrays are non-empty (except Father Okonkwo)
     - **Validates: Requirements 4.1-10.10**
 
-  - [ ] 10.9 Write property test for NPC data validation
+  - [ ] 10.2 Write property test for NPC data validation
     - **Property 13: NPC Data Validation**
     - *For all* new NPCs, verify required fields exist and values match specification ranges
     - **Validates: Requirements 4.1-4.15, 5.1-5.11, 6.1-6.10, 7.1-7.10, 8.1-8.10, 9.1-9.10, 10.1-10.10**
+
+  **GREEN Phase - Add NPC definitions to pass tests:**
+
+  - [ ] 10.3 Add Whisper NPC definition to npc-data.js
+    - Add to Sirius A (system 2), Sirius Exchange station
+    - Include personality, speechStyle, tips array, discountService: 'intel'
+    - Include tierBenefits configuration
+    - _Requirements: 4.1-4.15_
+
+  - [ ] 10.4 Add Captain Vasquez NPC definition to npc-data.js
+    - Add to Epsilon Eridani (system 3), Eridani Hub station
+    - Include personality, speechStyle, tips array, discountService: null
+    - Include tierBenefits configuration
+    - _Requirements: 5.1-5.11_
+
+  - [ ] 10.5 Add Dr. Sarah Kim NPC definition to npc-data.js
+    - Add to Tau Ceti (system 5), Tau Ceti Station
+    - Include personality, speechStyle, tips array, discountService: 'docking'
+    - Include tierBenefits configuration
+    - _Requirements: 6.1-6.10_
+
+  - [ ] 10.6 Add "Rusty" Rodriguez NPC definition to npc-data.js
+    - Add to Procyon (system 6), Procyon Depot station
+    - Include personality, speechStyle, tips array, discountService: 'repair'
+    - Include tierBenefits configuration
+    - _Requirements: 7.1-7.10_
+
+  - [ ] 10.7 Add Zara Osman NPC definition to npc-data.js
+    - Add to Luyten's Star (system 7), Luyten's Outpost station
+    - Include personality, speechStyle, tips array, discountService: 'trade'
+    - Include tierBenefits configuration
+    - _Requirements: 8.1-8.10_
+
+  - [ ] 10.8 Add Station Master Kowalski NPC definition to npc-data.js
+    - Add to Alpha Centauri (system 1), Centauri Station
+    - Include personality, speechStyle, tips array, discountService: 'docking'
+    - Include tierBenefits configuration
+    - _Requirements: 9.1-9.10_
+
+  - [ ] 10.9 Add "Lucky" Liu NPC definition to npc-data.js
+    - Add to Wolf 359 (system 8), Wolf 359 Station
+    - Include personality, speechStyle, tips array, discountService: null
+    - Include tierBenefits configuration
+    - _Requirements: 10.1-10.10_
+
+  **REFACTOR Phase - Improve while keeping tests green**
 
 - [ ] 11. Extend existing NPC definitions
   - [ ] 11.1 Add tips and benefits to Wei Chen
@@ -363,24 +412,36 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Show favor cooldown status with days remaining
     - _Requirements: 3.4, 3.17_
 
-- [ ] 17. Update save/load for new NPC state fields
-  - [ ] 17.1 Update state-validators.js for NPC benefits migration
+- [ ] 17. Update save/load for new NPC state fields (TDD)
+  
+  **RED Phase - Write failing tests first:**
+
+  - [ ] 17.1 Write unit test for save/load migration
+    - Verify old saves load with default benefit fields
+    - Verify new saves preserve all benefit state
+    - _Requirements: 2.2, 3.5, 3.6, 3.7_
+
+  **GREEN Phase - Minimal implementation to pass tests:**
+
+  - [ ] 17.2 Update state-validators.js for NPC benefits migration
     - Add migration from v4.0.0 to v4.1.0
     - Add default values for new NPC state fields
     - _Requirements: 2.2, 3.5, 3.6, 3.7_
 
-  - [ ] 17.2 Write unit test for save/load migration
-    - Verify old saves load with default benefit fields
-    - Verify new saves preserve all benefit state
-    - _Requirements: 2.2, 3.5, 3.6, 3.7_
+  **REFACTOR Phase - Improve while keeping tests green**
 
 - [ ] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
 
+- **TDD Approach**: Tasks 6, 7, 9, 10, and 17 follow RED/GREEN/REFACTOR methodology
+  - RED: Write failing tests first to define expected behavior
+  - GREEN: Write minimal implementation to pass tests
+  - REFACTOR: Improve code while keeping tests green
 - All tasks including tests are required for comprehensive coverage
 - Each task references specific requirements for traceability
 - Checkpoints ensure incremental validation
 - Property tests validate universal correctness properties
 - Unit tests validate specific examples and edge cases
+- UI integration tasks (11-16) follow traditional approach since component tests are written after implementation

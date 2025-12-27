@@ -34,6 +34,104 @@ Every task must leave the codebase in a working state with all tests passing. Th
 - New functionality integrates correctly
 - The system remains stable and deployable
 
+### RED/GREEN/REFACTOR (Test-Driven Development)
+
+**Use TDD for new functionality: write the test first, then the implementation**
+
+The RED/GREEN/REFACTOR cycle is the core rhythm of Test-Driven Development:
+
+1. **RED**: Write a test for functionality that doesn't exist yet. Run it and watch it fail. This forces you to think about what the code should do before writing it.
+
+2. **GREEN**: Write the MINIMAL code necessary to make the test pass. Don't over-engineer—just make it work.
+
+3. **REFACTOR**: Improve the code while keeping tests passing. Clean up duplication, improve naming, optimize if needed.
+
+Then repeat for the next piece of functionality.
+
+```javascript
+// STEP 1: RED - Write a failing test first
+describe('calculateDiscount', () => {
+  it('should apply 10% discount for tier 2 NPCs', () => {
+    const result = calculateDiscount(100, 2);
+    expect(result).toBe(90); // Test fails - function doesn't exist yet
+  });
+});
+
+// STEP 2: GREEN - Write minimal code to pass
+function calculateDiscount(price, tier) {
+  if (tier === 2) {
+    return price * 0.9;
+  }
+  return price;
+}
+
+// STEP 3: REFACTOR - Improve while keeping tests green
+const TIER_DISCOUNTS = {
+  1: 0,
+  2: 0.1,
+  3: 0.15,
+};
+
+function calculateDiscount(price, tier) {
+  const discountRate = TIER_DISCOUNTS[tier] || 0;
+  return Math.round(price * (1 - discountRate));
+}
+```
+
+**Benefits of TDD:**
+
+- **Comprehensive test coverage by default**: Every feature has tests because tests come first
+- **Clearer requirements**: Tests express what the code should do before implementation
+- **Better design**: Thinking about the interface before implementation leads to cleaner APIs
+- **Safer refactoring**: Immediate feedback if changes break existing functionality
+- **Faster debugging**: When a test fails, you know exactly what broke
+
+**When to use TDD:**
+
+- New utility functions and calculations
+- Business logic (trading, pricing, validation)
+- State management methods
+- Any pure function with clear inputs and outputs
+
+**When TDD may be less practical:**
+
+- UI components (use component tests after implementation)
+- Integration with external systems
+- Exploratory prototyping (but add tests before committing)
+
+**TDD Anti-Patterns to Avoid:**
+
+```javascript
+// BAD - Writing implementation first, then tests
+function calculateDiscount(price, tier) {
+  // Implementation written first
+}
+// Tests added later as an afterthought
+
+// BAD - Writing too much code in GREEN phase
+// Test asks for tier 2 discount, but you implement all tiers
+function calculateDiscount(price, tier) {
+  // Over-engineering before tests require it
+}
+
+// BAD - Skipping REFACTOR phase
+// Tests pass but code is messy - clean it up!
+
+// BAD - Testing implementation details instead of behavior
+it('should call _internalHelper', () => {
+  // Tests should verify WHAT, not HOW
+});
+```
+
+**TDD Checklist:**
+
+- [ ] Test written before implementation
+- [ ] Test fails initially (confirms test is valid)
+- [ ] Minimal code written to pass test
+- [ ] All tests pass after implementation
+- [ ] Code refactored while tests stay green
+- [ ] No implementation without a corresponding test
+
 ### Self-Contained Tasks
 
 **CRITICAL: All tasks must be self-contained and leave the system in a working or improved state**
