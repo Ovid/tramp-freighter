@@ -1558,14 +1558,22 @@ export class GameStateManager {
     const npcState = this.getNPCState(npcId);
 
     // Add 500 credits to player
-    this.updateCredits(this.state.player.credits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+    this.updateCredits(
+      this.state.player.credits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+    );
 
     // Set loanAmount to 500, loanDay to current day
     npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
     npcState.loanDay = this.state.player.daysElapsed;
 
     // Increase NPC reputation by 5 (direct increase, no trust modifier for loan acceptance)
-    npcState.rep = Math.max(-100, Math.min(100, npcState.rep + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS));
+    npcState.rep = Math.max(
+      -100,
+      Math.min(
+        100,
+        npcState.rep + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS
+      )
+    );
     npcState.lastInteraction = this.state.player.daysElapsed;
     npcState.interactions += 1;
 
@@ -1627,7 +1635,9 @@ export class GameStateManager {
     }
 
     // Deduct 500 credits from player
-    this.updateCredits(this.state.player.credits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+    this.updateCredits(
+      this.state.player.credits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+    );
 
     // Clear loanAmount and loanDay
     npcState.loanAmount = null;
@@ -1680,7 +1690,7 @@ export class GameStateManager {
 
           // Calculate new reputation based on tier reduction
           let newReputation;
-          
+
           // Reduce by one tier - set to maximum value of next lower tier
           if (currentTier.name === 'Family') {
             // Family (90-100) -> Trusted (60-89), set to Trusted max (89)
@@ -1703,13 +1713,16 @@ export class GameStateManager {
           } else {
             // Already at Hostile tier, apply penalty but don't go below minimum
             newReputation = Math.max(
-              oldRep - (NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20),
+              oldRep - NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
               REPUTATION_BOUNDS.MIN
             );
           }
 
           // Apply reputation penalty with clamping
-          npcState.rep = Math.max(REPUTATION_BOUNDS.MIN, Math.min(REPUTATION_BOUNDS.MAX, newReputation));
+          npcState.rep = Math.max(
+            REPUTATION_BOUNDS.MIN,
+            Math.min(REPUTATION_BOUNDS.MAX, newReputation)
+          );
 
           // Clear loan record
           npcState.loanAmount = null;
@@ -1749,6 +1762,12 @@ export class GameStateManager {
       );
     }
 
+    if (!npcId || typeof npcId !== 'string') {
+      throw new Error(
+        'Invalid npcId: storeCargo requires a valid NPC identifier'
+      );
+    }
+
     // Validate with canRequestFavor
     const availability = this.canRequestFavor(npcId, 'storage');
     if (!availability.available) {
@@ -1764,10 +1783,16 @@ export class GameStateManager {
 
     // Get current ship cargo
     const currentShipCargo = [...this.state.ship.cargo];
-    
+
     // Calculate total cargo units to store (up to limit)
-    const totalCargoUnits = currentShipCargo.reduce((total, stack) => total + stack.qty, 0);
-    const unitsToStore = Math.min(totalCargoUnits, NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
+    const totalCargoUnits = currentShipCargo.reduce(
+      (total, stack) => total + stack.qty,
+      0
+    );
+    const unitsToStore = Math.min(
+      totalCargoUnits,
+      NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
+    );
 
     if (unitsToStore === 0) {
       return {
@@ -1799,17 +1824,17 @@ export class GameStateManager {
         // Partial stack - store some, keep rest on ship
         const storeQty = remainingToStore;
         const keepQty = stack.qty - storeQty;
-        
+
         cargoToAdd.push({
           ...stack,
-          qty: storeQty
+          qty: storeQty,
         });
-        
+
         newShipCargo.push({
           ...stack,
-          qty: keepQty
+          qty: keepQty,
         });
-        
+
         remainingToStore = 0;
       }
     }
@@ -1853,6 +1878,12 @@ export class GameStateManager {
       );
     }
 
+    if (!npcId || typeof npcId !== 'string') {
+      throw new Error(
+        'Invalid npcId: retrieveCargo requires a valid NPC identifier'
+      );
+    }
+
     // Get NPC state
     const npcState = this.getNPCState(npcId);
 
@@ -1872,10 +1903,13 @@ export class GameStateManager {
 
     // Calculate available ship capacity
     const availableCapacity = this.getCargoRemaining();
-    
+
     // Calculate total stored cargo units
-    const totalStoredUnits = npcState.storedCargo.reduce((total, stack) => total + stack.qty, 0);
-    
+    const totalStoredUnits = npcState.storedCargo.reduce(
+      (total, stack) => total + stack.qty,
+      0
+    );
+
     // Determine how much to transfer
     const unitsToTransfer = Math.min(totalStoredUnits, availableCapacity);
 
@@ -1906,17 +1940,17 @@ export class GameStateManager {
         // Partial stack - transfer some, keep rest in storage
         const transferQty = remainingToTransfer;
         const keepQty = stack.qty - transferQty;
-        
+
         retrievedCargo.push({
           ...stack,
-          qty: transferQty
+          qty: transferQty,
         });
-        
+
         remainingStoredCargo.push({
           ...stack,
-          qty: keepQty
+          qty: keepQty,
         });
-        
+
         remainingToTransfer = 0;
       }
     }
@@ -2883,7 +2917,11 @@ export class GameStateManager {
       }
 
       // Add defaults for missing fields
-      loadedState = addStateDefaults(loadedState, this.starData);
+      loadedState = addStateDefaults(
+        loadedState,
+        this.starData,
+        this.isTestEnvironment
+      );
 
       this.state = loadedState;
 
@@ -2932,7 +2970,8 @@ export class GameStateManager {
               if (validateStateStructure(recoveredState)) {
                 recoveredState = addStateDefaults(
                   recoveredState,
-                  this.starData
+                  this.starData,
+                  this.isTestEnvironment
                 );
                 this.state = recoveredState;
 

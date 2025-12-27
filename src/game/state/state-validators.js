@@ -15,17 +15,25 @@ import { TradingSystem } from '../game-trading.js';
  * @param {Array} configIds - Array of configuration IDs to validate
  * @param {Object} validConfigs - Map of valid IDs (e.g., SHIP_CONFIG.QUIRKS)
  * @param {string} configType - Type of config for warning messages ('quirk' or 'upgrade')
+ * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses warnings)
  * @returns {Array} Filtered array containing only valid IDs
  */
-function validateShipConfigIds(configIds, validConfigs, configType) {
+function validateShipConfigIds(
+  configIds,
+  validConfigs,
+  configType,
+  isTestEnvironment
+) {
   const validatedIds = [];
   for (const configId of configIds) {
     if (validConfigs[configId]) {
       validatedIds.push(configId);
     } else {
-      console.warn(
-        `Unknown ${configType} ID: ${configId}, removing from save data`
-      );
+      if (!isTestEnvironment) {
+        console.warn(
+          `Unknown ${configType} ID: ${configId}, removing from save data`
+        );
+      }
     }
   }
   return validatedIds;
@@ -425,7 +433,8 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     state.ship.quirks = validateShipConfigIds(
       state.ship.quirks,
       SHIP_CONFIG.QUIRKS,
-      'quirk'
+      'quirk',
+      isTestEnvironment
     );
   }
 
@@ -434,7 +443,8 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
       SHIP_CONFIG.UPGRADES,
-      'upgrade'
+      'upgrade',
+      isTestEnvironment
     );
   }
 
@@ -602,9 +612,10 @@ export function migrateFromV2_1ToV4(state, isTestEnvironment) {
  * Add defaults for missing fields in loaded state
  * @param {Object} state - State to normalize
  * @param {Array} systemData - Star system data for lookups
+ * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses warnings)
  * @returns {Object} Normalized state
  */
-export function addStateDefaults(state, systemData) {
+export function addStateDefaults(state, systemData, isTestEnvironment = false) {
   // Add defaults for missing Phase 2 fields
   if (state.ship.hull === undefined) {
     state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
@@ -642,7 +653,8 @@ export function addStateDefaults(state, systemData) {
     state.ship.quirks = validateShipConfigIds(
       state.ship.quirks,
       SHIP_CONFIG.QUIRKS,
-      'quirk'
+      'quirk',
+      isTestEnvironment
     );
   }
 
@@ -651,7 +663,8 @@ export function addStateDefaults(state, systemData) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
       SHIP_CONFIG.UPGRADES,
-      'upgrade'
+      'upgrade',
+      isTestEnvironment
     );
   }
 

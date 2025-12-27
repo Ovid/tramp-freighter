@@ -50,166 +50,152 @@ describe('Favor Tier Requirements Property Tests', () => {
 
   it('should require Trusted tier (rep >= 60) for loan requests', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        arbReputation(),
-        (npcId, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), arbReputation(), (npcId, reputation) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC state and set reputation
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = reputation;
+        // Get NPC state and set reputation
+        const npcState = testGameStateManager.getNPCState(npcId);
+        npcState.rep = reputation;
 
-          // Test loan request
-          const result = testGameStateManager.canRequestFavor(npcId, 'loan');
+        // Test loan request
+        const result = testGameStateManager.canRequestFavor(npcId, 'loan');
 
-          // Should be available only if reputation >= TRUSTED_MIN (60)
-          const expectedAvailable = reputation >= REPUTATION_BOUNDS.TRUSTED_MIN;
+        // Should be available only if reputation >= TRUSTED_MIN (60)
+        const expectedAvailable = reputation >= REPUTATION_BOUNDS.TRUSTED_MIN;
 
-          expect(result.available).toBe(expectedAvailable);
+        expect(result.available).toBe(expectedAvailable);
 
-          if (!expectedAvailable) {
-            expect(result.reason).toBeTruthy();
-            expect(typeof result.reason).toBe('string');
-            expect(result.reason).toContain('Trusted relationship');
-          } else {
-            // When available, reason should be null or empty
-            expect(result.reason === null || result.reason === '').toBe(true);
-          }
-
-          // Verify result structure
-          expect(typeof result.available).toBe('boolean');
-          expect(
-            result.reason === null || typeof result.reason === 'string'
-          ).toBe(true);
+        if (!expectedAvailable) {
+          expect(result.reason).toBeTruthy();
+          expect(typeof result.reason).toBe('string');
+          expect(result.reason).toContain('Trusted relationship');
+        } else {
+          // When available, reason should be null or empty
+          expect(result.reason === null || result.reason === '').toBe(true);
         }
-      ),
+
+        // Verify result structure
+        expect(typeof result.available).toBe('boolean');
+        expect(
+          result.reason === null || typeof result.reason === 'string'
+        ).toBe(true);
+      }),
       { numRuns: 100 }
     );
   });
 
   it('should require Friendly tier (rep >= 30) for storage requests', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        arbReputation(),
-        (npcId, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), arbReputation(), (npcId, reputation) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC state and set reputation
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = reputation;
+        // Get NPC state and set reputation
+        const npcState = testGameStateManager.getNPCState(npcId);
+        npcState.rep = reputation;
 
-          // Test storage request
-          const result = testGameStateManager.canRequestFavor(npcId, 'storage');
+        // Test storage request
+        const result = testGameStateManager.canRequestFavor(npcId, 'storage');
 
-          // Should be available only if reputation >= FRIENDLY_MIN (30)
-          const expectedAvailable = reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN;
+        // Should be available only if reputation >= FRIENDLY_MIN (30)
+        const expectedAvailable = reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN;
 
-          expect(result.available).toBe(expectedAvailable);
+        expect(result.available).toBe(expectedAvailable);
 
-          if (!expectedAvailable) {
-            expect(result.reason).toBeTruthy();
-            expect(typeof result.reason).toBe('string');
-            expect(result.reason).toContain('Friendly relationship');
-          } else {
-            // When available, reason should be null or empty
-            expect(result.reason === null || result.reason === '').toBe(true);
-          }
-
-          // Verify result structure
-          expect(typeof result.available).toBe('boolean');
-          expect(
-            result.reason === null || typeof result.reason === 'string'
-          ).toBe(true);
+        if (!expectedAvailable) {
+          expect(result.reason).toBeTruthy();
+          expect(typeof result.reason).toBe('string');
+          expect(result.reason).toContain('Friendly relationship');
+        } else {
+          // When available, reason should be null or empty
+          expect(result.reason === null || result.reason === '').toBe(true);
         }
-      ),
+
+        // Verify result structure
+        expect(typeof result.available).toBe('boolean');
+        expect(
+          result.reason === null || typeof result.reason === 'string'
+        ).toBe(true);
+      }),
       { numRuns: 100 }
     );
   });
 
   it('should return unavailable with reason when tier is too low', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        arbFavorType(),
-        (npcId, favorType) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), arbFavorType(), (npcId, favorType) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC state
-          const npcState = testGameStateManager.getNPCState(npcId);
+        // Get NPC state
+        const npcState = testGameStateManager.getNPCState(npcId);
 
-          // Test with reputation below required tier
-          const requiredRep = favorType === 'loan' 
-            ? REPUTATION_BOUNDS.TRUSTED_MIN 
+        // Test with reputation below required tier
+        const requiredRep =
+          favorType === 'loan'
+            ? REPUTATION_BOUNDS.TRUSTED_MIN
             : REPUTATION_BOUNDS.FRIENDLY_MIN;
-          
-          const lowReputation = requiredRep - 1;
-          npcState.rep = lowReputation;
 
-          const result = testGameStateManager.canRequestFavor(npcId, favorType);
+        const lowReputation = requiredRep - 1;
+        npcState.rep = lowReputation;
 
-          // Should not be available
-          expect(result.available).toBe(false);
-          expect(result.reason).toBeTruthy();
-          expect(typeof result.reason).toBe('string');
+        const result = testGameStateManager.canRequestFavor(npcId, favorType);
 
-          // Should contain appropriate tier requirement message
-          if (favorType === 'loan') {
-            expect(result.reason).toContain('Trusted relationship');
-          } else {
-            expect(result.reason).toContain('Friendly relationship');
-          }
+        // Should not be available
+        expect(result.available).toBe(false);
+        expect(result.reason).toBeTruthy();
+        expect(typeof result.reason).toBe('string');
+
+        // Should contain appropriate tier requirement message
+        if (favorType === 'loan') {
+          expect(result.reason).toContain('Trusted relationship');
+        } else {
+          expect(result.reason).toContain('Friendly relationship');
         }
-      ),
+      }),
       { numRuns: 50 }
     );
   });
 
   it('should handle boundary reputation values correctly', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        (npcId) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), (npcId) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC state
-          const npcState = testGameStateManager.getNPCState(npcId);
+        // Get NPC state
+        const npcState = testGameStateManager.getNPCState(npcId);
 
-          // Test boundary cases for loan (Trusted tier)
-          const loanBoundaryTests = [
-            { rep: REPUTATION_BOUNDS.TRUSTED_MIN - 1, expectedAvailable: false },
-            { rep: REPUTATION_BOUNDS.TRUSTED_MIN, expectedAvailable: true },
-            { rep: REPUTATION_BOUNDS.TRUSTED_MAX, expectedAvailable: true },
-            { rep: REPUTATION_BOUNDS.FAMILY_MIN, expectedAvailable: true },
-          ];
+        // Test boundary cases for loan (Trusted tier)
+        const loanBoundaryTests = [
+          { rep: REPUTATION_BOUNDS.TRUSTED_MIN - 1, expectedAvailable: false },
+          { rep: REPUTATION_BOUNDS.TRUSTED_MIN, expectedAvailable: true },
+          { rep: REPUTATION_BOUNDS.TRUSTED_MAX, expectedAvailable: true },
+          { rep: REPUTATION_BOUNDS.FAMILY_MIN, expectedAvailable: true },
+        ];
 
-          for (const test of loanBoundaryTests) {
-            npcState.rep = test.rep;
-            const result = testGameStateManager.canRequestFavor(npcId, 'loan');
-            expect(result.available).toBe(test.expectedAvailable);
-          }
-
-          // Test boundary cases for storage (Friendly tier)
-          const storageBoundaryTests = [
-            { rep: REPUTATION_BOUNDS.FRIENDLY_MIN - 1, expectedAvailable: false },
-            { rep: REPUTATION_BOUNDS.FRIENDLY_MIN, expectedAvailable: true },
-            { rep: REPUTATION_BOUNDS.FRIENDLY_MAX, expectedAvailable: true },
-            { rep: REPUTATION_BOUNDS.TRUSTED_MIN, expectedAvailable: true },
-            { rep: REPUTATION_BOUNDS.FAMILY_MIN, expectedAvailable: true },
-          ];
-
-          for (const test of storageBoundaryTests) {
-            npcState.rep = test.rep;
-            const result = testGameStateManager.canRequestFavor(npcId, 'storage');
-            expect(result.available).toBe(test.expectedAvailable);
-          }
+        for (const test of loanBoundaryTests) {
+          npcState.rep = test.rep;
+          const result = testGameStateManager.canRequestFavor(npcId, 'loan');
+          expect(result.available).toBe(test.expectedAvailable);
         }
-      ),
+
+        // Test boundary cases for storage (Friendly tier)
+        const storageBoundaryTests = [
+          { rep: REPUTATION_BOUNDS.FRIENDLY_MIN - 1, expectedAvailable: false },
+          { rep: REPUTATION_BOUNDS.FRIENDLY_MIN, expectedAvailable: true },
+          { rep: REPUTATION_BOUNDS.FRIENDLY_MAX, expectedAvailable: true },
+          { rep: REPUTATION_BOUNDS.TRUSTED_MIN, expectedAvailable: true },
+          { rep: REPUTATION_BOUNDS.FAMILY_MIN, expectedAvailable: true },
+        ];
+
+        for (const test of storageBoundaryTests) {
+          npcState.rep = test.rep;
+          const result = testGameStateManager.canRequestFavor(npcId, 'storage');
+          expect(result.available).toBe(test.expectedAvailable);
+        }
+      }),
       { numRuns: 20 }
     );
   });
@@ -219,7 +205,9 @@ describe('Favor Tier Requirements Property Tests', () => {
       fc.property(
         arbNPCId(),
         arbReputation(),
-        fc.string({ minLength: 1, maxLength: 20 }).filter(s => s !== 'loan' && s !== 'storage'),
+        fc
+          .string({ minLength: 1, maxLength: 20 })
+          .filter((s) => s !== 'loan' && s !== 'storage'),
         (npcId, reputation, invalidFavorType) => {
           // Reset GameStateManager for this test iteration
           const testGameStateManager = resetGameState();
@@ -230,7 +218,10 @@ describe('Favor Tier Requirements Property Tests', () => {
 
           // Test with invalid favor type - should throw or return unavailable
           expect(() => {
-            const result = testGameStateManager.canRequestFavor(npcId, invalidFavorType);
+            const result = testGameStateManager.canRequestFavor(
+              npcId,
+              invalidFavorType
+            );
             // If it doesn't throw, it should return unavailable
             expect(result.available).toBe(false);
             expect(result.reason).toBeTruthy();
@@ -244,7 +235,9 @@ describe('Favor Tier Requirements Property Tests', () => {
   it('should handle unknown NPC IDs gracefully', () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 1, maxLength: 50 }).filter(id => !ALL_NPCS.some(npc => npc.id === id)),
+        fc
+          .string({ minLength: 1, maxLength: 50 })
+          .filter((id) => !ALL_NPCS.some((npc) => npc.id === id)),
         arbFavorType(),
         (unknownNpcId, favorType) => {
           // Reset GameStateManager for this test iteration

@@ -411,7 +411,10 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
       // Execute jump
-      const jumpResult = await navigationSystem.executeJump(gameStateManager, 1);
+      const jumpResult = await navigationSystem.executeJump(
+        gameStateManager,
+        1
+      );
 
       // If jump failed, the test should fail with a clear message
       if (!jumpResult.success) {

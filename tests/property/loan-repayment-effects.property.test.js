@@ -43,7 +43,8 @@ describe('Loan Repayment Effects Property Tests', () => {
   const arbNPCId = () => fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
 
   // Generator for initial player credits (must have at least 500 for repayment)
-  const arbSufficientCredits = () => fc.integer({ min: NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT, max: 10000 });
+  const arbSufficientCredits = () =>
+    fc.integer({ min: NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT, max: 10000 });
 
   // Generator for current game day
   const arbCurrentDay = () => fc.integer({ min: 0, max: 1000 });
@@ -68,7 +69,8 @@ describe('Loan Repayment Effects Property Tests', () => {
           npcState.loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
 
           // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
+          const initialPlayerCredits =
+            testGameStateManager.getState().player.credits;
 
           // Repay loan
           const result = testGameStateManager.repayLoan(npcId);
@@ -77,10 +79,15 @@ describe('Loan Repayment Effects Property Tests', () => {
           expect(result.success).toBe(true);
 
           // Player credits should decrease by exactly 500
-          const finalPlayerCredits = testGameStateManager.getState().player.credits;
+          const finalPlayerCredits =
+            testGameStateManager.getState().player.credits;
           const creditDecrease = initialPlayerCredits - finalPlayerCredits;
-          expect(creditDecrease).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
-          expect(finalPlayerCredits).toBe(initialCredits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(creditDecrease).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
+          expect(finalPlayerCredits).toBe(
+            initialCredits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
         }
       ),
       { numRuns: 100 }
@@ -108,7 +115,9 @@ describe('Loan Repayment Effects Property Tests', () => {
           npcState.loanDay = loanDay;
 
           // Verify loan exists before repayment
-          expect(npcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(npcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
           expect(npcState.loanDay).toBe(loanDay);
 
           // Repay loan
@@ -159,11 +168,13 @@ describe('Loan Repayment Effects Property Tests', () => {
 
           // Both effects should be applied:
           // 1. Player credits decreased by 500
-          expect(finalState.player.credits).toBe(initialCredits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
-          
+          expect(finalState.player.credits).toBe(
+            initialCredits - NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
+
           // 2. NPC loanAmount cleared
           expect(updatedNpcState.loanAmount).toBe(null);
-          
+
           // 3. NPC loanDay cleared
           expect(updatedNpcState.loanDay).toBe(null);
         }
@@ -176,7 +187,10 @@ describe('Loan Repayment Effects Property Tests', () => {
     fc.assert(
       fc.property(
         arbNPCId(),
-        fc.integer({ min: 0, max: NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT - 1 }),
+        fc.integer({
+          min: 0,
+          max: NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT - 1,
+        }),
         arbCurrentDay(),
         (npcId, insufficientCredits, currentDay) => {
           // Reset GameStateManager for this test iteration
@@ -193,7 +207,8 @@ describe('Loan Repayment Effects Property Tests', () => {
           npcState.loanDay = loanDay;
 
           // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
+          const initialPlayerCredits =
+            testGameStateManager.getState().player.credits;
 
           // Attempt to repay loan should fail
           const result = testGameStateManager.repayLoan(npcId);
@@ -208,7 +223,9 @@ describe('Loan Repayment Effects Property Tests', () => {
           const finalNpcState = testGameStateManager.getNPCState(npcId);
 
           expect(finalState.player.credits).toBe(initialPlayerCredits);
-          expect(finalNpcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(finalNpcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
           expect(finalNpcState.loanDay).toBe(loanDay);
         }
       ),
@@ -236,7 +253,8 @@ describe('Loan Repayment Effects Property Tests', () => {
           npcState.loanDay = null;
 
           // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
+          const initialPlayerCredits =
+            testGameStateManager.getState().player.credits;
 
           // Attempt to repay non-existent loan should fail
           const result = testGameStateManager.repayLoan(npcId);

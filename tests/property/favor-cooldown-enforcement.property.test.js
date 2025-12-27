@@ -4,7 +4,10 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { NPC_BENEFITS_CONFIG, REPUTATION_BOUNDS } from '../../src/game/constants.js';
+import {
+  NPC_BENEFITS_CONFIG,
+  REPUTATION_BOUNDS,
+} from '../../src/game/constants.js';
 
 /**
  * Property-based tests for favor cooldown enforcement
@@ -67,7 +70,7 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
 
           // Get NPC state and set reputation to meet tier requirements
           const npcState = testGameStateManager.getNPCState(npcId);
-          
+
           // Set reputation high enough for both loan and storage
           npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN + 10; // Above Trusted tier
 
@@ -79,7 +82,8 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
           const result = testGameStateManager.canRequestFavor(npcId, favorType);
 
           // Should be available only if daysSinceLastFavor >= FAVOR_COOLDOWN_DAYS (30)
-          const expectedAvailable = daysSinceLastFavor >= NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS;
+          const expectedAvailable =
+            daysSinceLastFavor >= NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS;
 
           expect(result.available).toBe(expectedAvailable);
 
@@ -93,15 +97,18 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
             // Should have a reason when unavailable due to cooldown
             expect(result.reason).toBeTruthy();
             expect(typeof result.reason).toBe('string');
-            
+
             // Should include daysRemaining when on cooldown
             if (result.daysRemaining !== undefined) {
               expect(typeof result.daysRemaining).toBe('number');
               expect(result.daysRemaining).toBeGreaterThan(0);
-              expect(result.daysRemaining).toBeLessThanOrEqual(NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS);
-              
+              expect(result.daysRemaining).toBeLessThanOrEqual(
+                NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS
+              );
+
               // daysRemaining should equal the remaining cooldown period
-              const expectedDaysRemaining = NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
+              const expectedDaysRemaining =
+                NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
               expect(result.daysRemaining).toBe(expectedDaysRemaining);
             }
           } else {
@@ -151,7 +158,8 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
           expect(result.daysRemaining).toBeGreaterThan(0);
 
           // daysRemaining should equal the remaining cooldown period
-          const expectedDaysRemaining = NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
+          const expectedDaysRemaining =
+            NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - daysSinceLastFavor;
           expect(result.daysRemaining).toBe(expectedDaysRemaining);
         }
       ),
@@ -161,29 +169,25 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
 
   it('should handle null lastFavorDay (never used favor before)', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        arbFavorType(),
-        (npcId, favorType) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), arbFavorType(), (npcId, favorType) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Get NPC state and set reputation to meet tier requirements
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN + 10; // Above Trusted tier
+        // Get NPC state and set reputation to meet tier requirements
+        const npcState = testGameStateManager.getNPCState(npcId);
+        npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN + 10; // Above Trusted tier
 
-          // Ensure lastFavorDay is null (never used favor before)
-          npcState.lastFavorDay = null;
+        // Ensure lastFavorDay is null (never used favor before)
+        npcState.lastFavorDay = null;
 
-          // Test favor request
-          const result = testGameStateManager.canRequestFavor(npcId, favorType);
+        // Test favor request
+        const result = testGameStateManager.canRequestFavor(npcId, favorType);
 
-          // Should be available since no previous favor was used
-          expect(result.available).toBe(true);
-          expect(result.reason === null || result.reason === '').toBe(true);
-          expect(result.daysRemaining).toBeUndefined();
-        }
-      ),
+        // Should be available since no previous favor was used
+        expect(result.available).toBe(true);
+        expect(result.reason === null || result.reason === '').toBe(true);
+        expect(result.daysRemaining).toBeUndefined();
+      }),
       { numRuns: 50 }
     );
   });
@@ -206,7 +210,8 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
           npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN + 10; // Above Trusted tier
 
           // Set lastFavorDay to exactly 30 days ago
-          const lastFavorDay = currentDay - NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS;
+          const lastFavorDay =
+            currentDay - NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS;
           npcState.lastFavorDay = lastFavorDay;
 
           // Test favor request
@@ -240,7 +245,8 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
           npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN + 10; // Above Trusted tier
 
           // Set lastFavorDay to exactly 29 days ago (still on cooldown)
-          const daysSinceLastFavor = NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - 1; // 29 days
+          const daysSinceLastFavor =
+            NPC_BENEFITS_CONFIG.FAVOR_COOLDOWN_DAYS - 1; // 29 days
           const lastFavorDay = currentDay - daysSinceLastFavor;
           npcState.lastFavorDay = lastFavorDay;
 
@@ -280,12 +286,18 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
 
           // Test both favor types - they should have the same cooldown behavior
           // since cooldown is shared between favor types (per requirements)
-          const loanResult = testGameStateManager.canRequestFavor(npcId, 'loan');
-          const storageResult = testGameStateManager.canRequestFavor(npcId, 'storage');
+          const loanResult = testGameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
+          const storageResult = testGameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
 
           // Both should have the same availability due to shared cooldown
           expect(loanResult.available).toBe(storageResult.available);
-          
+
           if (!loanResult.available) {
             expect(loanResult.daysRemaining).toBe(storageResult.daysRemaining);
           }

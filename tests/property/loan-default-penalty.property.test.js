@@ -4,7 +4,10 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+} from '../../src/game/constants.js';
 
 /**
  * Property-based tests for loan default penalty
@@ -46,10 +49,11 @@ describe('Loan Default Penalty Property Tests', () => {
   const arbCurrentDay = () => fc.integer({ min: 31, max: 1000 });
 
   // Generator for initial reputation (various tiers to test tier reduction)
-  const arbInitialReputation = () => fc.integer({ 
-    min: REPUTATION_BOUNDS.MIN, 
-    max: REPUTATION_BOUNDS.MAX 
-  });
+  const arbInitialReputation = () =>
+    fc.integer({
+      min: REPUTATION_BOUNDS.MIN,
+      max: REPUTATION_BOUNDS.MAX,
+    });
 
   // Helper function to calculate tier boundaries
   const getTierBoundaries = () => {
@@ -61,7 +65,7 @@ describe('Loan Default Penalty Property Tests', () => {
       FRIENDLY_MIN: REPUTATION_BOUNDS.FRIENDLY_MIN,
       TRUSTED_MIN: REPUTATION_BOUNDS.TRUSTED_MIN,
       FAMILY_MIN: REPUTATION_BOUNDS.FAMILY_MIN,
-      MAX: REPUTATION_BOUNDS.MAX
+      MAX: REPUTATION_BOUNDS.MAX,
     };
   };
 
@@ -81,15 +85,19 @@ describe('Loan Default Penalty Property Tests', () => {
   const getExpectedReputationAfterTierReduction = (initialReputation) => {
     const bounds = getTierBoundaries();
     const currentTier = getCurrentTier(initialReputation);
-    
+
     // Calculate one tier reduction based on current tier
     switch (currentTier) {
       case 'family':
         // Family (90-100) -> Trusted (60-89), set to Trusted max (89)
-        return bounds.TRUSTED_MIN + (bounds.FAMILY_MIN - bounds.TRUSTED_MIN - 1);
+        return (
+          bounds.TRUSTED_MIN + (bounds.FAMILY_MIN - bounds.TRUSTED_MIN - 1)
+        );
       case 'trusted':
         // Trusted (60-89) -> Friendly (30-59), set to Friendly max (59)
-        return bounds.FRIENDLY_MIN + (bounds.TRUSTED_MIN - bounds.FRIENDLY_MIN - 1);
+        return (
+          bounds.FRIENDLY_MIN + (bounds.TRUSTED_MIN - bounds.FRIENDLY_MIN - 1)
+        );
       case 'friendly':
         // Friendly (30-59) -> Warm (10-29), set to Warm max (29)
         return bounds.WARM_MIN + (bounds.FRIENDLY_MIN - bounds.WARM_MIN - 1);
@@ -105,7 +113,8 @@ describe('Loan Default Penalty Property Tests', () => {
       case 'hostile':
         // Already at lowest tier, reduce by tier penalty amount but don't go below minimum
         return Math.max(
-          initialReputation - (NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20),
+          initialReputation -
+            NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
           bounds.HOSTILE_MIN
         );
       default:
@@ -140,8 +149,9 @@ describe('Loan Default Penalty Property Tests', () => {
 
           // Verify reputation was reduced by one tier
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          const expectedReputation = getExpectedReputationAfterTierReduction(initialReputation);
-          
+          const expectedReputation =
+            getExpectedReputationAfterTierReduction(initialReputation);
+
           // The reputation should be reduced to the expected tier level
           // Only check "less than" if the expected reputation is actually different from initial
           if (expectedReputation < initialNpcReputation) {
@@ -174,7 +184,9 @@ describe('Loan Default Penalty Property Tests', () => {
           npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
 
           // Verify loan exists before default
-          expect(npcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(npcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
           expect(npcState.loanDay).toBe(currentDay - 31);
 
           // Trigger loan default check
@@ -218,7 +230,8 @@ describe('Loan Default Penalty Property Tests', () => {
 
           // Verify both effects applied together
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          const expectedReputation = getExpectedReputationAfterTierReduction(initialReputation);
+          const expectedReputation =
+            getExpectedReputationAfterTierReduction(initialReputation);
 
           // Both effects should be applied:
           // 1. Reputation reduced by one tier
@@ -227,7 +240,7 @@ describe('Loan Default Penalty Property Tests', () => {
             expect(updatedNpcState.rep).toBeLessThan(initialNpcReputation);
           }
           expect(updatedNpcState.rep).toBe(expectedReputation);
-          
+
           // 2. Loan record cleared
           expect(updatedNpcState.loanAmount).toBe(null);
           expect(updatedNpcState.loanDay).toBe(null);
@@ -265,12 +278,14 @@ describe('Loan Default Penalty Property Tests', () => {
 
           // Verify no changes were made
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          
+
           // Reputation should remain unchanged
           expect(updatedNpcState.rep).toBe(initialNpcReputation);
-          
+
           // Loan record should remain unchanged
-          expect(updatedNpcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(updatedNpcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
           expect(updatedNpcState.loanDay).toBe(loanDay);
         }
       ),
@@ -305,10 +320,10 @@ describe('Loan Default Penalty Property Tests', () => {
 
           // Verify no changes were made
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          
+
           // Reputation should remain unchanged
           expect(updatedNpcState.rep).toBe(initialNpcReputation);
-          
+
           // Loan record should remain null
           expect(updatedNpcState.loanAmount).toBe(null);
           expect(updatedNpcState.loanDay).toBe(null);
@@ -332,7 +347,7 @@ describe('Loan Default Penalty Property Tests', () => {
 
           // Remove duplicates to ensure each NPC is only processed once
           const uniqueNpcIds = [...new Set(npcIds)];
-          
+
           // Skip test if we don't have at least 2 unique NPCs after deduplication
           if (uniqueNpcIds.length < 2) {
             return true; // Skip this test case
@@ -346,11 +361,12 @@ describe('Loan Default Penalty Property Tests', () => {
             npcState.rep = initialReputation;
             npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
             npcState.loanDay = currentDay - 31; // All loans are 31 days overdue
-            
+
             initialStates.push({
               npcId,
               initialReputation,
-              expectedReputation: getExpectedReputationAfterTierReduction(initialReputation)
+              expectedReputation:
+                getExpectedReputationAfterTierReduction(initialReputation),
             });
           }
 
@@ -358,16 +374,20 @@ describe('Loan Default Penalty Property Tests', () => {
           testGameStateManager.checkLoanDefaults();
 
           // Verify all NPCs were processed correctly
-          for (const { npcId, initialReputation, expectedReputation } of initialStates) {
+          for (const {
+            npcId,
+            initialReputation,
+            expectedReputation,
+          } of initialStates) {
             const updatedNpcState = testGameStateManager.getNPCState(npcId);
-            
+
             // Reputation should be reduced by one tier
             // Only check "less than" if the expected reputation is actually different from initial
             if (expectedReputation < initialReputation) {
               expect(updatedNpcState.rep).toBeLessThan(initialReputation);
             }
             expect(updatedNpcState.rep).toBe(expectedReputation);
-            
+
             // Loan record should be cleared
             expect(updatedNpcState.loanAmount).toBe(null);
             expect(updatedNpcState.loanDay).toBe(null);
@@ -380,35 +400,33 @@ describe('Loan Default Penalty Property Tests', () => {
 
   it('should respect reputation bounds when reducing reputation', () => {
     fc.assert(
-      fc.property(
-        arbNPCId(),
-        arbCurrentDay(),
-        (npcId, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+      fc.property(arbNPCId(), arbCurrentDay(), (npcId, currentDay) => {
+        // Reset GameStateManager for this test iteration
+        const testGameStateManager = resetGameState();
 
-          // Set up current day
-          testGameStateManager.updateTime(currentDay);
+        // Set up current day
+        testGameStateManager.updateTime(currentDay);
 
-          // Test with reputation at minimum bound (hostile tier)
-          const npcState = testGameStateManager.getNPCState(npcId);
-          npcState.rep = REPUTATION_BOUNDS.MIN; // -100
-          npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
-          npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
+        // Test with reputation at minimum bound (hostile tier)
+        const npcState = testGameStateManager.getNPCState(npcId);
+        npcState.rep = REPUTATION_BOUNDS.MIN; // -100
+        npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
+        npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
 
-          // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+        // Trigger loan default check
+        testGameStateManager.checkLoanDefaults();
 
-          // Verify reputation doesn't go below minimum bound
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          expect(updatedNpcState.rep).toBeGreaterThanOrEqual(REPUTATION_BOUNDS.MIN);
-          expect(updatedNpcState.rep).toBeLessThanOrEqual(REPUTATION_BOUNDS.MAX);
-          
-          // Loan should still be cleared
-          expect(updatedNpcState.loanAmount).toBe(null);
-          expect(updatedNpcState.loanDay).toBe(null);
-        }
-      ),
+        // Verify reputation doesn't go below minimum bound
+        const updatedNpcState = testGameStateManager.getNPCState(npcId);
+        expect(updatedNpcState.rep).toBeGreaterThanOrEqual(
+          REPUTATION_BOUNDS.MIN
+        );
+        expect(updatedNpcState.rep).toBeLessThanOrEqual(REPUTATION_BOUNDS.MAX);
+
+        // Loan should still be cleared
+        expect(updatedNpcState.loanAmount).toBe(null);
+        expect(updatedNpcState.loanDay).toBe(null);
+      }),
       { numRuns: 50 }
     );
   });

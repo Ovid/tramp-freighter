@@ -4,7 +4,11 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG, COMMODITY_TYPES } from '../../src/game/constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COMMODITY_TYPES,
+} from '../../src/game/constants.js';
 
 /**
  * Property-based tests for cargo storage transfer
@@ -43,26 +47,28 @@ describe('Cargo Storage Transfer Property Tests', () => {
   const arbNPCId = () => fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
 
   // Generator for initial NPC reputation (Friendly tier or higher for storage eligibility)
-  const arbFriendlyReputation = () => fc.integer({ 
-    min: REPUTATION_BOUNDS.FRIENDLY_MIN, 
-    max: REPUTATION_BOUNDS.MAX 
-  });
+  const arbFriendlyReputation = () =>
+    fc.integer({
+      min: REPUTATION_BOUNDS.FRIENDLY_MIN,
+      max: REPUTATION_BOUNDS.MAX,
+    });
 
   // Generator for current game day
   const arbCurrentDay = () => fc.integer({ min: 0, max: 1000 });
 
   // Generator for cargo arrays (up to 20 units total, various commodities)
-  const arbCargoArray = () => fc.array(
-    fc.record({
-      good: fc.constantFrom(...COMMODITY_TYPES),
-      qty: fc.integer({ min: 1, max: 10 }),
-      buyPrice: fc.integer({ min: 50, max: 200 }),
-      buySystem: fc.integer({ min: 1, max: 8 }),
-      buySystemName: fc.constantFrom('Sol', 'Alpha Centauri', 'Sirius A'),
-      buyDate: fc.integer({ min: 0, max: 100 })
-    }),
-    { minLength: 1, maxLength: 5 }
-  );
+  const arbCargoArray = () =>
+    fc.array(
+      fc.record({
+        good: fc.constantFrom(...COMMODITY_TYPES),
+        qty: fc.integer({ min: 1, max: 10 }),
+        buyPrice: fc.integer({ min: 50, max: 200 }),
+        buySystem: fc.integer({ min: 1, max: 8 }),
+        buySystemName: fc.constantFrom('Sol', 'Alpha Centauri', 'Sirius A'),
+        buyDate: fc.integer({ min: 0, max: 100 }),
+      }),
+      { minLength: 1, maxLength: 5 }
+    );
 
   it('should remove up to 10 cargo units from ship when storeCargo is called', () => {
     fc.assert(
@@ -90,9 +96,15 @@ describe('Cargo Storage Transfer Property Tests', () => {
           testGameStateManager.updateCargo(initialShipCargo);
 
           // Calculate initial cargo quantities
-          const initialShipCargoTotal = initialShipCargo.reduce((total, stack) => total + stack.qty, 0);
+          const initialShipCargoTotal = initialShipCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
           const initialNPCStoredCargo = [...(npcState.storedCargo || [])];
-          const initialNPCStoredTotal = initialNPCStoredCargo.reduce((total, stack) => total + stack.qty, 0);
+          const initialNPCStoredTotal = initialNPCStoredCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
 
           // Store cargo with NPC
           const result = testGameStateManager.storeCargo(npcId);
@@ -106,12 +118,21 @@ describe('Cargo Storage Transfer Property Tests', () => {
           const finalNPCStoredCargo = finalNPCState.storedCargo || [];
 
           // Calculate final cargo quantities
-          const finalShipCargoTotal = finalShipCargo.reduce((total, stack) => total + stack.qty, 0);
-          const finalNPCStoredTotal = finalNPCStoredCargo.reduce((total, stack) => total + stack.qty, 0);
+          const finalShipCargoTotal = finalShipCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
+          const finalNPCStoredTotal = finalNPCStoredCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
 
           // Up to 10 cargo units should be removed from ship
           const cargoRemoved = initialShipCargoTotal - finalShipCargoTotal;
-          const expectedCargoRemoved = Math.min(initialShipCargoTotal, NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
+          const expectedCargoRemoved = Math.min(
+            initialShipCargoTotal,
+            NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
+          );
           expect(cargoRemoved).toBe(expectedCargoRemoved);
 
           // Cargo should be added to NPC's storedCargo array
@@ -119,7 +140,9 @@ describe('Cargo Storage Transfer Property Tests', () => {
           expect(cargoAdded).toBe(cargoRemoved);
 
           // Conservation: ship cargo + NPC stored cargo should equal initial ship cargo
-          expect(finalShipCargoTotal + finalNPCStoredTotal).toBe(initialShipCargoTotal + initialNPCStoredTotal);
+          expect(finalShipCargoTotal + finalNPCStoredTotal).toBe(
+            initialShipCargoTotal + initialNPCStoredTotal
+          );
         }
       ),
       { numRuns: 100 }
@@ -165,15 +188,31 @@ describe('Cargo Storage Transfer Property Tests', () => {
           const finalNPCStoredCargo = finalNPCState.storedCargo || [];
 
           // NPC should have stored cargo
-          expect(finalNPCStoredCargo.length).toBeGreaterThanOrEqual(initialNPCStoredCargo.length);
+          expect(finalNPCStoredCargo.length).toBeGreaterThanOrEqual(
+            initialNPCStoredCargo.length
+          );
 
           // Total stored cargo should not exceed what was available to store
-          const finalStoredTotal = finalNPCStoredCargo.reduce((total, stack) => total + stack.qty, 0);
-          const initialStoredTotal = initialNPCStoredCargo.reduce((total, stack) => total + stack.qty, 0);
-          const initialShipTotal = initialShipCargo.reduce((total, stack) => total + stack.qty, 0);
-          
-          const maxPossibleStored = Math.min(initialShipTotal, NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
-          expect(finalStoredTotal - initialStoredTotal).toBeLessThanOrEqual(maxPossibleStored);
+          const finalStoredTotal = finalNPCStoredCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
+          const initialStoredTotal = initialNPCStoredCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
+          const initialShipTotal = initialShipCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
+
+          const maxPossibleStored = Math.min(
+            initialShipTotal,
+            NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
+          );
+          expect(finalStoredTotal - initialStoredTotal).toBeLessThanOrEqual(
+            maxPossibleStored
+          );
         }
       ),
       { numRuns: 100 }
@@ -241,7 +280,14 @@ describe('Cargo Storage Transfer Property Tests', () => {
 
           // Create cargo with more than 10 units
           const largeCargo = [
-            { good: 'grain', qty: 15, buyPrice: 100, buySystem: 1, buySystemName: 'Sol', buyDate: 0 }
+            {
+              good: 'grain',
+              qty: 15,
+              buyPrice: 100,
+              buySystem: 1,
+              buySystemName: 'Sol',
+              buyDate: 0,
+            },
           ];
           testGameStateManager.updateCargo(largeCargo);
 
@@ -256,8 +302,13 @@ describe('Cargo Storage Transfer Property Tests', () => {
 
           // Ship should have 5 units remaining
           const finalShipCargo = testGameStateManager.getState().ship.cargo;
-          const finalShipTotal = finalShipCargo.reduce((total, stack) => total + stack.qty, 0);
-          expect(finalShipTotal).toBe(15 - NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
+          const finalShipTotal = finalShipCargo.reduce(
+            (total, stack) => total + stack.qty,
+            0
+          );
+          expect(finalShipTotal).toBe(
+            15 - NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
+          );
         }
       ),
       { numRuns: 50 }
@@ -268,7 +319,10 @@ describe('Cargo Storage Transfer Property Tests', () => {
     fc.assert(
       fc.property(
         arbNPCId(),
-        fc.integer({ min: REPUTATION_BOUNDS.MIN, max: REPUTATION_BOUNDS.FRIENDLY_MIN - 1 }),
+        fc.integer({
+          min: REPUTATION_BOUNDS.MIN,
+          max: REPUTATION_BOUNDS.FRIENDLY_MIN - 1,
+        }),
         arbCurrentDay(),
         arbCargoArray(),
         (npcId, lowReputation, currentDay, cargoToStore) => {
@@ -286,7 +340,9 @@ describe('Cargo Storage Transfer Property Tests', () => {
           testGameStateManager.updateCargo(cargoToStore);
 
           // Record initial state
-          const initialShipCargo = [...testGameStateManager.getState().ship.cargo];
+          const initialShipCargo = [
+            ...testGameStateManager.getState().ship.cargo,
+          ];
           const initialNPCStoredCargo = [...(npcState.storedCargo || [])];
 
           // Attempt to store cargo should fail

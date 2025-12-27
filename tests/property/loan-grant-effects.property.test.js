@@ -4,7 +4,10 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+} from '../../src/game/constants.js';
 
 /**
  * Property-based tests for loan grant effects
@@ -46,10 +49,11 @@ describe('Loan Grant Effects Property Tests', () => {
   const arbInitialCredits = () => fc.integer({ min: 0, max: 10000 });
 
   // Generator for initial NPC reputation (Trusted tier or higher for loan eligibility)
-  const arbTrustedReputation = () => fc.integer({ 
-    min: REPUTATION_BOUNDS.TRUSTED_MIN, 
-    max: REPUTATION_BOUNDS.MAX 
-  });
+  const arbTrustedReputation = () =>
+    fc.integer({
+      min: REPUTATION_BOUNDS.TRUSTED_MIN,
+      max: REPUTATION_BOUNDS.MAX,
+    });
 
   // Generator for current game day
   const arbCurrentDay = () => fc.integer({ min: 0, max: 1000 });
@@ -79,7 +83,8 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
+          const initialPlayerCredits =
+            testGameStateManager.getState().player.credits;
 
           // Request loan
           const result = testGameStateManager.requestLoan(npcId);
@@ -88,10 +93,15 @@ describe('Loan Grant Effects Property Tests', () => {
           expect(result.success).toBe(true);
 
           // Player credits should increase by exactly 500
-          const finalPlayerCredits = testGameStateManager.getState().player.credits;
+          const finalPlayerCredits =
+            testGameStateManager.getState().player.credits;
           const creditIncrease = finalPlayerCredits - initialPlayerCredits;
-          expect(creditIncrease).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
-          expect(finalPlayerCredits).toBe(initialCredits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(creditIncrease).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
+          expect(finalPlayerCredits).toBe(
+            initialCredits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
         }
       ),
       { numRuns: 100 }
@@ -130,7 +140,9 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // NPC state should have loan information set
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          expect(updatedNpcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+          expect(updatedNpcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
           expect(updatedNpcState.loanDay).toBe(currentDay);
         }
       ),
@@ -173,10 +185,13 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // NPC reputation should increase by 5 points, but capped at maximum
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          const expectedReputation = Math.min(REPUTATION_BOUNDS.MAX, reputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS);
+          const expectedReputation = Math.min(
+            REPUTATION_BOUNDS.MAX,
+            reputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS
+          );
           const actualIncrease = updatedNpcState.rep - initialReputation;
           const expectedIncrease = expectedReputation - initialReputation;
-          
+
           expect(actualIncrease).toBe(expectedIncrease);
           expect(updatedNpcState.rep).toBe(expectedReputation);
         }
@@ -260,18 +275,25 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // All four effects should be applied:
           // 1. Player credits increased by 500
-          expect(finalState.player.credits).toBe(initialCredits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
-          
+          expect(finalState.player.credits).toBe(
+            initialCredits + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
+
           // 2. NPC loanAmount set to 500
-          expect(updatedNpcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
-          
+          expect(updatedNpcState.loanAmount).toBe(
+            NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+          );
+
           // 3. NPC loanDay set to current day
           expect(updatedNpcState.loanDay).toBe(currentDay);
-          
+
           // 4. NPC reputation increased by 5 (but capped at maximum)
-          const expectedReputation = Math.min(REPUTATION_BOUNDS.MAX, reputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS);
+          const expectedReputation = Math.min(
+            REPUTATION_BOUNDS.MAX,
+            reputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS
+          );
           expect(updatedNpcState.rep).toBe(expectedReputation);
-          
+
           // 5. lastFavorDay set to current day
           expect(updatedNpcState.lastFavorDay).toBe(currentDay);
         }
@@ -312,8 +334,10 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // Reputation should be capped at maximum (100)
           const updatedNpcState = testGameStateManager.getNPCState(npcId);
-          expect(updatedNpcState.rep).toBeLessThanOrEqual(REPUTATION_BOUNDS.MAX);
-          
+          expect(updatedNpcState.rep).toBeLessThanOrEqual(
+            REPUTATION_BOUNDS.MAX
+          );
+
           // Should still increase by the bonus amount or cap at max, whichever is lower
           const expectedRep = Math.min(
             highReputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS,
@@ -331,7 +355,10 @@ describe('Loan Grant Effects Property Tests', () => {
       fc.property(
         arbNPCId(),
         arbInitialCredits(),
-        fc.integer({ min: REPUTATION_BOUNDS.MIN, max: REPUTATION_BOUNDS.TRUSTED_MIN - 1 }),
+        fc.integer({
+          min: REPUTATION_BOUNDS.MIN,
+          max: REPUTATION_BOUNDS.TRUSTED_MIN - 1,
+        }),
         arbCurrentDay(),
         (npcId, initialCredits, lowReputation, currentDay) => {
           // Reset GameStateManager for this test iteration
@@ -351,7 +378,8 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Record initial state
-          const initialPlayerCredits = testGameStateManager.getState().player.credits;
+          const initialPlayerCredits =
+            testGameStateManager.getState().player.credits;
           const initialReputation = npcState.rep;
 
           // Request loan should fail

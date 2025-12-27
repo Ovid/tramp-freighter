@@ -100,8 +100,10 @@ describe('Integration: App StarmapProvider Integration', () => {
 
     // Should show title screen, which doesn't need StarmapProvider
     expect(screen.getByText(/Tramp Freighter Blues/i)).toBeInTheDocument();
-    
+
     // StarmapProvider should not be in the DOM yet
-    expect(document.querySelector('.starmap-container')).not.toBeInTheDocument();
+    expect(
+      document.querySelector('.starmap-container')
+    ).not.toBeInTheDocument();
   });
 });
