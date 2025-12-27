@@ -1,6 +1,5 @@
 import {
   COMMODITY_TYPES,
-  REPAIR_CONFIG,
   SHIP_CONFIG,
   SOL_SYSTEM_ID,
   GAME_VERSION,
@@ -32,6 +31,7 @@ import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
 import { NavigationManager } from './managers/navigation.js';
 import { RefuelManager } from './managers/refuel.js';
+import { RepairManager } from './managers/repair.js';
 
 /**
  * Sanitize ship name input
@@ -114,6 +114,7 @@ export class GameStateManager {
     this.npcManager = new NPCManager(this);
     this.navigationManager = new NavigationManager(this, this.starData);
     this.refuelManager = new RefuelManager(this);
+    this.repairManager = new RepairManager(this);
   }
 
   /**
@@ -1648,8 +1649,7 @@ export class GameStateManager {
 
   /**
    * Calculate repair cost for a ship system
-   *
-   * Cost is ₡5 per 1% restored. If system is already at maximum condition, cost is 0.
+   * Delegates to RepairManager
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} amount - Percentage points to restore
@@ -1657,86 +1657,23 @@ export class GameStateManager {
    * @returns {number} Cost in credits
    */
   getRepairCost(systemType, amount, currentCondition) {
-    // If already at max, no cost
-    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return 0;
-    }
-
-    // Calculate cost at ₡5 per 1%
-    return amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    return this.repairManager.getRepairCost(
+      systemType,
+      amount,
+      currentCondition
+    );
   }
 
   /**
    * Execute repair transaction for a ship system
+   * Delegates to RepairManager
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} amount - Percentage points to restore
    * @returns {Object} { success: boolean, reason: string }
    */
   repairShipSystem(systemType, amount) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: repairShipSystem called before game initialization'
-      );
-    }
-
-    // Validate system type
-    const validSystems = ['hull', 'engine', 'lifeSupport'];
-    if (!validSystems.includes(systemType)) {
-      return { success: false, reason: 'Invalid system type' };
-    }
-
-    const currentCondition = this.state.ship[systemType];
-    const credits = this.state.player.credits;
-    const cost = this.getRepairCost(systemType, amount, currentCondition);
-
-    // Validation order matters for user experience:
-    // 1. Check for positive amount (basic input validation)
-    // 2. Check if system already at max (no repair needed)
-    // 3. Check credits (player can fix by earning money)
-    // 4. Check if would exceed max (player can fix by reducing amount)
-
-    if (amount <= 0) {
-      return { success: false, reason: 'Repair amount must be positive' };
-    }
-
-    if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return { success: false, reason: 'System already at maximum condition' };
-    }
-
-    if (cost > credits) {
-      return { success: false, reason: 'Insufficient credits for repair' };
-    }
-
-    if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return {
-        success: false,
-        reason: 'Repair would exceed maximum condition',
-      };
-    }
-
-    // Deduct credits
-    this.updateCredits(credits - cost);
-
-    // Increase condition (clamped by updateShipCondition)
-    const newConditions = {
-      hull: this.state.ship.hull,
-      engine: this.state.ship.engine,
-      lifeSupport: this.state.ship.lifeSupport,
-    };
-
-    newConditions[systemType] = currentCondition + amount;
-
-    this.updateShipCondition(
-      newConditions.hull,
-      newConditions.engine,
-      newConditions.lifeSupport
-    );
-
-    // Persist immediately - repair modifies credits and ship condition
-    this.saveGame();
-
-    return { success: true, reason: null };
+    return this.repairManager.repairShipSystem(systemType, amount);
   }
 
   // ========================================================================
