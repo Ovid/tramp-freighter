@@ -32,9 +32,16 @@ export function UpgradesPanel({ onClose }) {
   const [pendingUpgradeId, setPendingUpgradeId] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const state = gameStateManager.getState();
-  const availableUpgradeIds = getAvailableUpgrades(state);
-  const installedUpgradeIds = getInstalledUpgrades(state);
+  // Subscribe to upgrades changes to get current upgrade state
+  const installedUpgrades = useGameEvent('upgradesChanged');
+
+  // Calculate available and installed upgrades from events
+  const availableUpgradeIds = getAvailableUpgrades({
+    ship: { upgrades: installedUpgrades || [] },
+  });
+  const installedUpgradeIds = getInstalledUpgrades({
+    ship: { upgrades: installedUpgrades || [] },
+  });
 
   const handlePurchaseClick = (upgradeId) => {
     setPendingUpgradeId(upgradeId);
@@ -63,7 +70,10 @@ export function UpgradesPanel({ onClose }) {
 
     const effectsText = formatUpgradeEffects(upgrade.effects);
     const hasTradeoff = upgrade.tradeoff && upgrade.tradeoff !== 'None';
-    const validation = validateUpgradePurchase(upgradeId, state);
+    const validation = validateUpgradePurchase(upgradeId, {
+      player: { credits },
+      ship: { upgrades: installedUpgrades || [] },
+    });
 
     return (
       <div key={upgradeId} className="upgrade-card">

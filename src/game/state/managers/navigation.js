@@ -115,7 +115,12 @@ export class NavigationManager extends BaseManager {
     }
 
     // Update price knowledge (resets lastVisit to 0)
-    this.gameStateManager.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
+    this.gameStateManager.updatePriceKnowledge(
+      currentSystemId,
+      currentPrices,
+      0,
+      'visited'
+    );
 
     // Persist state transition - prevents loss if player closes browser while docked
     this.saveGame();

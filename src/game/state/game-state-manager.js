@@ -87,6 +87,7 @@ export class GameStateManager {
       debtChanged: [],
       fuelChanged: [],
       cargoChanged: [],
+      cargoCapacityChanged: [],
       locationChanged: [],
       timeChanged: [],
       priceKnowledgeChanged: [],
@@ -280,6 +281,7 @@ export class GameStateManager {
       lifeSupport: this.state.ship.lifeSupport,
     });
     this.emit('upgradesChanged', this.state.ship.upgrades);
+    this.emit('cargoCapacityChanged', this.state.ship.cargoCapacity);
     this.emit('quirksChanged', this.state.ship.quirks);
 
     return this.state;
@@ -290,9 +292,25 @@ export class GameStateManager {
   // ========================================================================
 
   /**
-   * Subscribe to state change events
-   * @param {string} eventType - One of: creditsChanged, debtChanged, fuelChanged, cargoChanged, locationChanged, timeChanged, shipConditionChanged, conditionWarning, shipNameChanged, upgradesChanged, quirksChanged
-   * @param {function} callback - Function to call when event occurs
+   * Subscribe to state change events for Bridge Pattern integration
+   *
+   * @param {string} eventType - Event type to subscribe to:
+   *   - creditsChanged: (number) - Player's current credits
+   *   - debtChanged: (number) - Player's current debt
+   *   - fuelChanged: (number) - Ship fuel percentage (0-100)
+   *   - cargoChanged: (Array<CargoStack>) - Ship cargo array with stacks
+   *   - cargoCapacityChanged: (number) - Ship cargo capacity in units
+   *   - locationChanged: (number) - Current system ID
+   *   - timeChanged: (number) - Days elapsed since game start
+   *   - priceKnowledgeChanged: (Object) - Price knowledge database
+   *   - activeEventsChanged: (Array) - Active economic events
+   *   - shipConditionChanged: (Object) - {hull, engine, lifeSupport} percentages
+   *   - conditionWarning: (Array) - Warning objects for low condition systems
+   *   - shipNameChanged: (string) - Ship name
+   *   - upgradesChanged: (Array<string>) - Installed upgrade IDs
+   *   - quirksChanged: (Array<string>) - Ship quirk IDs
+   *   - dialogueChanged: (Object) - Current dialogue state
+   * @param {function} callback - Function to call when event occurs, receives event data as parameter
    */
   subscribe(eventType, callback) {
     if (!this.subscribers[eventType]) {
@@ -595,7 +613,11 @@ export class GameStateManager {
    * @param {number} quantityDelta - Quantity change (positive for sell, negative for buy)
    */
   updateMarketConditions(systemId, goodType, quantityDelta) {
-    return this.tradingManager.updateMarketConditions(systemId, goodType, quantityDelta);
+    return this.tradingManager.updateMarketConditions(
+      systemId,
+      goodType,
+      quantityDelta
+    );
   }
 
   /**
@@ -622,7 +644,12 @@ export class GameStateManager {
    * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
   updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
-    return this.tradingManager.updatePriceKnowledge(systemId, prices, lastVisit, source);
+    return this.tradingManager.updatePriceKnowledge(
+      systemId,
+      prices,
+      lastVisit,
+      source
+    );
   }
 
   /**
@@ -1888,20 +1915,22 @@ export class GameStateManager {
 
     this.updateCredits(credits - validation.cost);
 
-    // CRITICAL: Defensive programming - refuel must NEVER reduce fuel
     // Clamp fuel to max capacity to handle floating point rounding
     // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
     const maxFuel = this.getFuelCapacity();
     const newFuel = Math.min(currentFuel + amount, maxFuel);
-    
-    // SAFETY CHECK: Ensure refuel never reduces fuel
+
+    // SAFETY CHECK: Prevent fuel reduction bug
+    // We experienced a non-reproducible bug where refueling at 100% fuel could reduce fuel.
+    // This safety check remains in place until the root cause is identified and fixed.
+    // The validation logic should prevent this, but this check provides a fail-safe.
     if (newFuel < currentFuel) {
       throw new Error(
         `CRITICAL BUG: Refuel would reduce fuel from ${currentFuel}% to ${newFuel}%. ` +
-        `Amount: ${amount}, MaxFuel: ${maxFuel}. This should never happen.`
+          `Amount: ${amount}, MaxFuel: ${maxFuel}. This should never happen.`
       );
     }
-    
+
     this.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel
@@ -2057,8 +2086,6 @@ export class GameStateManager {
   // ========================================================================
   // HIDDEN CARGO SYSTEM
   // ========================================================================
-
-
 
   /**
    * Move cargo from regular compartment to hidden compartment
@@ -2250,6 +2277,7 @@ export class GameStateManager {
         lifeSupport: this.state.ship.lifeSupport,
       });
       this.emit('upgradesChanged', this.state.ship.upgrades);
+      this.emit('cargoCapacityChanged', this.state.ship.cargoCapacity);
       this.emit('quirksChanged', this.state.ship.quirks);
 
       return this.state;
@@ -2306,6 +2334,10 @@ export class GameStateManager {
                   lifeSupport: this.state.ship.lifeSupport,
                 });
                 this.emit('upgradesChanged', this.state.ship.upgrades);
+                this.emit(
+                  'cargoCapacityChanged',
+                  this.state.ship.cargoCapacity
+                );
                 this.emit('quirksChanged', this.state.ship.quirks);
 
                 return this.state;
@@ -2360,7 +2392,9 @@ export class GameStateManager {
 
     // Check reputation tier is Trusted or Family
     const repTier = this.getRepTier(npcState.rep);
-    const isTrusted = npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN && npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
+    const isTrusted =
+      npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
+      npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
     const isFamily = npcState.rep >= REPUTATION_BOUNDS.FAMILY_MIN;
 
     if (!isTrusted && !isFamily) {
@@ -2373,7 +2407,10 @@ export class GameStateManager {
 
     // Check once-per-visit limitation (lastFreeRepairDay is not current day)
     const currentDay = this.state.player.daysElapsed;
-    if (npcState.lastFreeRepairDay !== null && npcState.lastFreeRepairDay === currentDay) {
+    if (
+      npcState.lastFreeRepairDay !== null &&
+      npcState.lastFreeRepairDay === currentDay
+    ) {
       return {
         available: false,
         maxHullPercent: 0,
@@ -2425,7 +2462,11 @@ export class GameStateManager {
     }
 
     // Validate hull damage parameter
-    if (typeof hullDamagePercent !== 'number' || hullDamagePercent < 0 || hullDamagePercent > 100) {
+    if (
+      typeof hullDamagePercent !== 'number' ||
+      hullDamagePercent < 0 ||
+      hullDamagePercent > 100
+    ) {
       return {
         success: false,
         repairedPercent: 0,
@@ -2439,10 +2480,17 @@ export class GameStateManager {
 
     // Apply repair to ship hull
     const currentHull = this.state.ship.hull;
-    const newHull = Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, currentHull + actualRepairPercent);
-    
+    const newHull = Math.min(
+      SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+      currentHull + actualRepairPercent
+    );
+
     // Update ship condition
-    this.updateShipCondition(newHull, this.state.ship.engine, this.state.ship.lifeSupport);
+    this.updateShipCondition(
+      newHull,
+      this.state.ship.engine,
+      this.state.ship.lifeSupport
+    );
 
     // Get NPC state and set lastFreeRepairDay to current day
     const npcState = this.getNPCState(npcId);

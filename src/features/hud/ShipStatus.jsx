@@ -1,5 +1,4 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameState } from '../../context/GameContext';
 
 /**
  * ShipStatus component displays ship name, fuel, condition bars, and cargo.
@@ -9,46 +8,35 @@ import { useGameState } from '../../context/GameContext';
  * - fuelChanged: Updates when ship fuel changes
  * - shipConditionChanged: Updates when ship condition changes
  * - cargoChanged: Updates when cargo changes
+ * - cargoCapacityChanged: Updates when cargo capacity changes (upgrades)
  *
  * React Migration Spec: Requirements 7.4, 24.6
  */
 export function ShipStatus() {
-  const gameStateManager = useGameState();
   const shipName = useGameEvent('shipNameChanged');
   const fuel = useGameEvent('fuelChanged');
   const condition = useGameEvent('shipConditionChanged');
   const cargo = useGameEvent('cargoChanged');
+  const cargoCapacity = useGameEvent('cargoCapacityChanged');
 
-  // Get state for fallback values when events haven't fired yet
-  const state = gameStateManager.getState();
-  
-  // Use event data with fallback to state data
-  const actualCondition = condition || {
-    hull: state.ship.hull,
-    engine: state.ship.engine,
-    lifeSupport: state.ship.lifeSupport,
-  };
-  
-  const actualFuel = fuel !== null && fuel !== undefined ? fuel : state.ship.fuel;
-  const actualCargo = cargo || state.ship.cargo;
-  const actualShipName = shipName || state.ship.name;
-
-  // Additional defensive checks for null/undefined values
-  const hull = actualCondition.hull !== null && actualCondition.hull !== undefined ? actualCondition.hull : 100;
-  const engine = actualCondition.engine !== null && actualCondition.engine !== undefined ? actualCondition.engine : 100;
-  const lifeSupport = actualCondition.lifeSupport !== null && actualCondition.lifeSupport !== undefined ? actualCondition.lifeSupport : 100;
-  const safeFuel = actualFuel !== null && actualFuel !== undefined ? actualFuel : 100;
+  // Bridge Pattern: Trust the events to provide correct data
+  // If events haven't fired yet, component will re-render when they do
+  const hull = condition?.hull ?? 100;
+  const engine = condition?.engine ?? 100;
+  const lifeSupport = condition?.lifeSupport ?? 100;
+  const currentFuel = fuel ?? 100;
+  const currentCargo = cargo ?? [];
+  const currentShipName = shipName ?? 'Unknown Ship';
+  const currentCargoCapacity = cargoCapacity ?? 50;
 
   // Calculate cargo info from event data
-  const cargoUsed = (actualCargo || []).reduce((sum, stack) => sum + stack.qty, 0);
-  const ship = gameStateManager.getShip();
-  const cargoCapacity = ship.cargoCapacity;
+  const cargoUsed = currentCargo.reduce((sum, stack) => sum + stack.qty, 0);
 
   return (
     <div className="hud-section hud-ship">
       <div className="hud-row hud-ship-name-row">
         <span id="hud-ship-name" className="hud-ship-name">
-          {actualShipName}
+          {currentShipName}
         </span>
       </div>
       <div className="hud-row">
@@ -56,9 +44,9 @@ export function ShipStatus() {
         <div className="fuel-bar-container condition-bar-container">
           <div
             className="fuel-bar condition-bar"
-            style={{ width: `${safeFuel}%` }}
+            style={{ width: `${currentFuel}%` }}
           />
-          <span className="condition-text">{safeFuel.toFixed(1)}%</span>
+          <span className="condition-text">{currentFuel.toFixed(1)}%</span>
         </div>
       </div>
       <div className="hud-row">
@@ -94,7 +82,7 @@ export function ShipStatus() {
       <div className="hud-row">
         <span className="hud-label">Cargo:</span>
         <span id="hud-cargo" className="hud-value">
-          {cargoUsed}/{cargoCapacity}
+          {cargoUsed}/{currentCargoCapacity}
         </span>
       </div>
     </div>

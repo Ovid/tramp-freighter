@@ -52,13 +52,13 @@ describe('NavigationManager Event Compatibility', () => {
       );
 
       expect(locationChangedEvents).toHaveLength(1);
-      
+
       const eventData = locationChangedEvents[0].data;
-      
+
       // CRITICAL: Event data must be a number (system ID), not an object
       expect(typeof eventData).toBe('number');
       expect(eventData).toBe(1);
-      
+
       // Ensure it's not an object with systemId property
       expect(eventData).not.toBeInstanceOf(Object);
       expect(eventData).not.toHaveProperty('systemId');
@@ -81,10 +81,10 @@ describe('NavigationManager Event Compatibility', () => {
 
       locationChangedEvents.forEach((event, index) => {
         const expectedSystemId = [1, 4, 7][index];
-        
+
         expect(typeof event.data).toBe('number');
         expect(event.data).toBe(expectedSystemId);
-        
+
         // Ensure no object properties
         expect(event.data).not.toBeInstanceOf(Object);
         expect(event.data).not.toHaveProperty('systemId');
@@ -140,7 +140,7 @@ describe('NavigationManager Event Compatibility', () => {
   describe('regression prevention', () => {
     it('should never emit locationChanged as an object with systemId property', () => {
       // This test specifically prevents the regression that occurred during extraction
-      
+
       // Act: Update location
       navigationManager.updateLocation(3);
 
@@ -167,7 +167,7 @@ describe('NavigationManager Event Compatibility', () => {
 
     it('should maintain compatibility with existing component expectations', () => {
       // This test simulates how components use the locationChanged event
-      
+
       // Act: Update location
       navigationManager.updateLocation(2);
 
@@ -181,7 +181,7 @@ describe('NavigationManager Event Compatibility', () => {
       // This is how components use the event data - should work without modification
       expect(typeof currentSystemId).toBe('number');
       expect(currentSystemId).toBeGreaterThanOrEqual(0);
-      
+
       // Should be usable directly in system lookups
       const system = STAR_DATA.find((s) => s.id === currentSystemId);
       expect(system).toBeDefined();
@@ -190,7 +190,7 @@ describe('NavigationManager Event Compatibility', () => {
 
     it('should fail if locationChanged emits the problematic object structure', () => {
       // This test documents the exact issue that was fixed and ensures it doesn't return
-      
+
       // Temporarily mock the emit function to simulate the problematic behavior
       const problematicEmit = vi.fn((eventType, data) => {
         if (eventType === 'locationChanged') {
@@ -207,7 +207,10 @@ describe('NavigationManager Event Compatibility', () => {
       });
 
       // Create a new manager with the problematic emit function
-      const problematicManager = new NavigationManager(mockGameStateManager, STAR_DATA);
+      const problematicManager = new NavigationManager(
+        mockGameStateManager,
+        STAR_DATA
+      );
       problematicManager.emit = problematicEmit;
 
       // Act: Update location with problematic manager
@@ -224,12 +227,12 @@ describe('NavigationManager Event Compatibility', () => {
       // This is what would break component expectations
       expect(typeof eventData).toBe('object');
       expect(eventData).toHaveProperty('systemId');
-      
+
       // This would cause the error: "current system ID [object Object] not found in star data"
       // because components would try to use the object directly as a system ID
       const systemLookupResult = STAR_DATA.find((s) => s.id === eventData);
       expect(systemLookupResult).toBeUndefined(); // This proves the lookup would fail
-      
+
       // The error message would show "[object Object]" because eventData.toString() returns that
       expect(eventData.toString()).toBe('[object Object]');
     });

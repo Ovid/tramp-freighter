@@ -33,24 +33,26 @@ export function RepairPanel({ onClose }) {
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
 
-  const state = gameStateManager.getState();
+  // Use Bridge Pattern to get ship condition
   const condition = shipCondition || {
-    hull: state.ship.hull,
-    engine: state.ship.engine,
-    lifeSupport: state.ship.lifeSupport,
+    hull: 100,
+    engine: 100,
+    lifeSupport: 100,
   };
 
   // Get NPCs at current location for free repair checks
   const npcsAtSystem = getNPCsAtSystem(currentSystemId);
-  
+
   // Check for available free repairs from any NPC at this location
-  const freeRepairOptions = npcsAtSystem.map(npc => {
-    const freeRepairAvailability = gameStateManager.canGetFreeRepair(npc.id);
-    return {
-      npc,
-      availability: freeRepairAvailability
-    };
-  }).filter(option => option.availability.available);
+  const freeRepairOptions = npcsAtSystem
+    .map((npc) => {
+      const freeRepairAvailability = gameStateManager.canGetFreeRepair(npc.id);
+      return {
+        npc,
+        availability: freeRepairAvailability,
+      };
+    })
+    .filter((option) => option.availability.available);
 
   const handleRepairSystem = (systemType, amountStr) => {
     let amount = 0;
@@ -81,7 +83,10 @@ export function RepairPanel({ onClose }) {
     const hullDamagePercent = maxHull - currentHull;
 
     // Apply free repair
-    const repairResult = gameStateManager.applyFreeRepair(npcId, hullDamagePercent);
+    const repairResult = gameStateManager.applyFreeRepair(
+      npcId,
+      hullDamagePercent
+    );
 
     if (repairResult.success) {
       setValidationMessage(`Free repair completed: ${repairResult.message}`);
@@ -292,22 +297,35 @@ export function RepairPanel({ onClose }) {
                 const currentHull = condition.hull;
                 const maxHull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
                 const hullDamagePercent = maxHull - currentHull;
-                const actualRepairPercent = Math.min(hullDamagePercent, availability.maxHullPercent);
-                
+                const actualRepairPercent = Math.min(
+                  hullDamagePercent,
+                  availability.maxHullPercent
+                );
+
                 return (
                   <div key={npc.id} className="free-repair-option">
                     <div className="free-repair-info">
-                      <h4>{npc.name} ({npc.role})</h4>
-                      <p>Can repair up to {availability.maxHullPercent}% hull damage</p>
+                      <h4>
+                        {npc.name} ({npc.role})
+                      </h4>
+                      <p>
+                        Can repair up to {availability.maxHullPercent}% hull
+                        damage
+                      </p>
                       {actualRepairPercent > 0 ? (
-                        <p>Will repair: {actualRepairPercent.toFixed(1)}% hull damage</p>
+                        <p>
+                          Will repair: {actualRepairPercent.toFixed(1)}% hull
+                          damage
+                        </p>
                       ) : (
                         <p>No hull damage to repair</p>
                       )}
                     </div>
                     <button
                       className="free-repair-btn"
-                      onClick={() => handleFreeRepair(npc.id, availability.maxHullPercent)}
+                      onClick={() =>
+                        handleFreeRepair(npc.id, availability.maxHullPercent)
+                      }
                       disabled={actualRepairPercent <= 0}
                     >
                       Get Free Repair

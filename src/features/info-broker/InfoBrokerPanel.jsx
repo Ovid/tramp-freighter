@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -39,18 +39,15 @@ export function InfoBrokerPanel({ onClose }) {
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
 
-  const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  // Get available intelligence options using Bridge Pattern
+  const [intelligenceOptions, setIntelligenceOptions] = useState([]);
 
-  if (!currentSystem) {
-    throw new Error(
-      `Invalid game state: current system ID ${currentSystemId} not found in star data`
-    );
-  }
+  // Update intelligence options when location or price knowledge changes
+  useEffect(() => {
+    const options = gameStateManager.listAvailableIntelligence();
+    setIntelligenceOptions(options);
+  }, [gameStateManager, currentSystemId, priceKnowledge]);
 
-  // Get available intelligence options
-  const intelligenceOptions = gameStateManager.listAvailableIntelligence();
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
   const handleBuyRumor = () => {
@@ -170,6 +167,16 @@ export function InfoBrokerPanel({ onClose }) {
 
   const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
   const rumorValidation = validateRumorPurchase(credits);
+
+  const currentSystem = gameStateManager.starData.find(
+    (s) => s.id === currentSystemId
+  );
+
+  if (!currentSystem) {
+    throw new Error(
+      `Invalid game state: current system ID ${currentSystemId} not found in star data`
+    );
+  }
 
   return (
     <div id="info-broker-panel" className="visible">

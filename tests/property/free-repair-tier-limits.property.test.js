@@ -4,7 +4,10 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+} from '../../src/game/constants.js';
 
 describe('Free Repair Tier Limits Property Tests', () => {
   let gameStateManager;
@@ -30,20 +33,17 @@ describe('Free Repair Tier Limits Property Tests', () => {
     fc.assert(
       fc.property(
         // Generate NPC ID from available NPCs
-        fc.constantFrom(...ALL_NPCS.map(npc => npc.id)),
+        fc.constantFrom(...ALL_NPCS.map((npc) => npc.id)),
         // Generate reputation values across all tiers
         fc.integer({ min: REPUTATION_BOUNDS.MIN, max: REPUTATION_BOUNDS.MAX }),
         // Generate current day
         fc.integer({ min: 0, max: 100 }),
         // Generate last free repair day (null or some day)
-        fc.oneof(
-          fc.constant(null),
-          fc.integer({ min: 0, max: 100 })
-        ),
+        fc.oneof(fc.constant(null), fc.integer({ min: 0, max: 100 })),
         (npcId, reputation, currentDay, lastFreeRepairDay) => {
           // Set up game state
           gameStateManager.state.player.daysElapsed = currentDay;
-          
+
           // Initialize NPC state with specific reputation
           const npcState = gameStateManager.getNPCState(npcId);
           npcState.rep = reputation;
@@ -53,12 +53,15 @@ describe('Free Repair Tier Limits Property Tests', () => {
           const result = gameStateManager.canGetFreeRepair(npcId);
 
           // Determine expected tier
-          const isTrusted = reputation >= REPUTATION_BOUNDS.TRUSTED_MIN && reputation <= REPUTATION_BOUNDS.TRUSTED_MAX;
+          const isTrusted =
+            reputation >= REPUTATION_BOUNDS.TRUSTED_MIN &&
+            reputation <= REPUTATION_BOUNDS.TRUSTED_MAX;
           const isFamily = reputation >= REPUTATION_BOUNDS.FAMILY_MIN;
           const isEligibleTier = isTrusted || isFamily;
 
           // Check once-per-visit restriction
-          const isOnCooldown = lastFreeRepairDay !== null && lastFreeRepairDay === currentDay;
+          const isOnCooldown =
+            lastFreeRepairDay !== null && lastFreeRepairDay === currentDay;
 
           if (!isEligibleTier) {
             // Lower tiers should not have access
@@ -72,12 +75,16 @@ describe('Free Repair Tier Limits Property Tests', () => {
             // Should be available for eligible tiers
             expect(result.available).toBe(true);
             expect(result.reason).toBeNull();
-            
+
             // Check tier-specific limits
             if (isTrusted) {
-              expect(result.maxHullPercent).toBe(NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.trusted);
+              expect(result.maxHullPercent).toBe(
+                NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.trusted
+              );
             } else if (isFamily) {
-              expect(result.maxHullPercent).toBe(NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family);
+              expect(result.maxHullPercent).toBe(
+                NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family
+              );
             }
           }
         }

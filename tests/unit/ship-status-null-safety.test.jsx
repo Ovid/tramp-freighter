@@ -107,7 +107,7 @@ describe('ShipStatus Null Safety', () => {
     // Assert: Should display default 100% values
     const conditionTexts = container.querySelectorAll('.condition-text');
     expect(conditionTexts).toHaveLength(4); // fuel, hull, engine, lifeSupport
-    
+
     conditionTexts.forEach((element) => {
       expect(element.textContent).toBe('100.0%');
     });
@@ -144,7 +144,7 @@ describe('ShipStatus Null Safety', () => {
 
   it('should handle the specific error case from the bug report', () => {
     // This test reproduces the exact scenario that caused the original error
-    
+
     // Arrange: Simulate the state that would cause "Cannot read properties of null (reading 'toFixed')"
     mockState.ship.fuel = null;
     mockState.ship.hull = null;
@@ -178,11 +178,11 @@ describe('ShipStatus Null Safety', () => {
 
     // Act & Assert: Should handle gracefully
     expect(() => renderShipStatus()).not.toThrow();
-    
+
     // Should render with default values
     const { container } = renderShipStatus();
     const conditionTexts = container.querySelectorAll('.condition-text');
-    
+
     // All condition bars should show default 100% values
     conditionTexts.forEach((element) => {
       expect(element.textContent).toBe('100.0%');

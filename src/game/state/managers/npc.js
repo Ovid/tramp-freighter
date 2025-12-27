@@ -845,7 +845,9 @@ export class NPCManager {
 
     // Check reputation tier is Trusted or Family
     const repTier = this.getRepTier(npcState.rep);
-    const isTrusted = npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN && npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
+    const isTrusted =
+      npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
+      npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
     const isFamily = npcState.rep >= REPUTATION_BOUNDS.FAMILY_MIN;
 
     if (!isTrusted && !isFamily) {
@@ -858,7 +860,10 @@ export class NPCManager {
 
     // Check once-per-visit limitation (lastFreeRepairDay is not current day)
     const currentDay = this.state.player.daysElapsed;
-    if (npcState.lastFreeRepairDay !== null && npcState.lastFreeRepairDay === currentDay) {
+    if (
+      npcState.lastFreeRepairDay !== null &&
+      npcState.lastFreeRepairDay === currentDay
+    ) {
       return {
         available: false,
         maxHullPercent: 0,
@@ -910,7 +915,11 @@ export class NPCManager {
     }
 
     // Validate hull damage parameter
-    if (typeof hullDamagePercent !== 'number' || hullDamagePercent < 0 || hullDamagePercent > 100) {
+    if (
+      typeof hullDamagePercent !== 'number' ||
+      hullDamagePercent < 0 ||
+      hullDamagePercent > 100
+    ) {
       return {
         success: false,
         repairedPercent: 0,

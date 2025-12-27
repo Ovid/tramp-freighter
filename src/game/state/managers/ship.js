@@ -312,6 +312,7 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
       state.ship.cargoCapacity = capabilities.cargoCapacity;
+      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
     }
     if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
       state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
@@ -377,7 +378,8 @@ export class ShipManager extends BaseManager {
         baseCapabilities.lifeSupportDrain *= upgrade.effects.lifeSupportDrain;
       }
       if (upgrade.effects.hiddenCargoCapacity) {
-        baseCapabilities.hiddenCargoCapacity += upgrade.effects.hiddenCargoCapacity;
+        baseCapabilities.hiddenCargoCapacity +=
+          upgrade.effects.hiddenCargoCapacity;
       }
     }
 
@@ -430,7 +432,8 @@ export class ShipManager extends BaseManager {
       (total, stack) => total + stack.qty,
       0
     );
-    const hiddenCargoRemaining = capabilities.hiddenCargoCapacity - hiddenCargoUsed;
+    const hiddenCargoRemaining =
+      capabilities.hiddenCargoCapacity - hiddenCargoUsed;
 
     if (qty > hiddenCargoRemaining) {
       return { success: false, reason: 'Not enough hidden cargo space' };
@@ -468,7 +471,9 @@ export class ShipManager extends BaseManager {
     const ship = state.ship;
 
     // Find hidden cargo stack with matching good
-    const hiddenIndex = ship.hiddenCargo.findIndex((stack) => stack.good === good);
+    const hiddenIndex = ship.hiddenCargo.findIndex(
+      (stack) => stack.good === good
+    );
     if (hiddenIndex === -1) {
       return { success: false, reason: 'Good not found in hidden cargo' };
     }
@@ -516,7 +521,8 @@ export class ShipManager extends BaseManager {
     // Find existing stack with matching good and buyPrice
     const existingIndex = cargoArray.findIndex(
       (stack) =>
-        stack.good === sourceStack.good && stack.buyPrice === sourceStack.buyPrice
+        stack.good === sourceStack.good &&
+        stack.buyPrice === sourceStack.buyPrice
     );
 
     if (existingIndex !== -1) {

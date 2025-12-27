@@ -24,13 +24,10 @@ export function CargoManifestPanel({ onClose }) {
   const cargo = useGameEvent('cargoChanged');
   const shipName = useGameEvent('shipNameChanged');
   const currentDay = useGameEvent('timeChanged');
-
-  // Get ship for cargoCapacity (non-reactive property)
-  const ship = gameStateManager.getShip();
+  const cargoCapacity = useGameEvent('cargoCapacityChanged');
 
   // Calculate cargo usage
   const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoCapacity = ship.cargoCapacity;
 
   // Calculate total value
   const totals =

@@ -240,12 +240,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       }
 
       // Initialize current system indicator
-      updateCurrentSystemIndicator(
-        scene,
-        camera,
-        stars,
-        gameStateManager.state.player.currentSystem
-      );
+      updateCurrentSystemIndicator(scene, camera, stars, currentSystem);
 
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
