@@ -1,11 +1,4 @@
-import {
-  COMMODITY_TYPES,
-  SHIP_CONFIG,
-  SOL_SYSTEM_ID,
-  GAME_VERSION,
-  NEW_GAME_DEFAULTS,
-} from '../constants.js';
-import { TradingSystem } from '../game-trading.js';
+import { GAME_VERSION, SHIP_CONFIG } from '../constants.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -31,6 +24,7 @@ import { EventsManager } from './managers/events.js';
 import { InfoBrokerManager } from './managers/info-broker.js';
 import { EventSystemManager } from './managers/event-system.js';
 import { StateManager } from './managers/state.js';
+import { InitializationManager } from './managers/initialization.js';
 
 /**
  * Sanitize ship name input
@@ -91,6 +85,7 @@ export class GameStateManager {
     // Initialize managers
     this.eventSystemManager = new EventSystemManager(this);
     this.stateManager = new StateManager(this);
+    this.initializationManager = new InitializationManager(this);
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(this);
@@ -160,113 +155,12 @@ export class GameStateManager {
 
   /**
    * Initialize a new game with default values
+   * Delegates to InitializationManager
+   *
+   * @returns {Object} Complete initial game state
    */
   initNewGame() {
-    // Get Sol's grain price for initial cargo using dynamic pricing
-    const solSystem = this.starData.find((s) => s.id === SOL_SYSTEM_ID);
-    const currentDay = 0; // Game starts at day 0
-    const activeEvents = []; // No events at game start
-    const marketConditions = {}; // No market conditions at game start
-    const solGrainPrice = TradingSystem.calculatePrice(
-      'grain',
-      solSystem,
-      currentDay,
-      activeEvents,
-      marketConditions
-    );
-
-    // Calculate all Sol prices for price knowledge initialization
-    const solPrices = {};
-    for (const goodType of COMMODITY_TYPES) {
-      solPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        solSystem,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
-
-    // Assign random quirks to the ship
-    const shipQuirks = this.assignShipQuirks();
-
-    this.state = {
-      player: {
-        credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
-        debt: NEW_GAME_DEFAULTS.STARTING_DEBT,
-        currentSystem: SOL_SYSTEM_ID,
-        daysElapsed: 0,
-      },
-      ship: {
-        name: NEW_GAME_DEFAULTS.STARTING_SHIP_NAME,
-        quirks: shipQuirks,
-        upgrades: [],
-        fuel: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
-        hull: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
-        engine: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
-        lifeSupport: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
-        cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
-        cargo: [
-          {
-            good: 'grain',
-            qty: NEW_GAME_DEFAULTS.STARTING_GRAIN_QUANTITY,
-            buyPrice: solGrainPrice,
-            buySystem: SOL_SYSTEM_ID,
-            buySystemName: 'Sol',
-            buyDate: 0,
-          },
-        ],
-        hiddenCargo: [],
-        hiddenCargoCapacity: 0,
-      },
-      world: {
-        visitedSystems: [SOL_SYSTEM_ID],
-        priceKnowledge: {
-          [SOL_SYSTEM_ID]: {
-            lastVisit: 0,
-            prices: solPrices,
-            source: 'visited',
-          },
-        },
-        activeEvents: [],
-        marketConditions: {},
-        currentSystemPrices: solPrices,
-      },
-      npcs: {},
-      dialogue: {
-        currentNpcId: null,
-        currentNodeId: null,
-        isActive: false,
-        display: null,
-      },
-      meta: {
-        version: GAME_VERSION,
-        timestamp: Date.now(),
-      },
-    };
-
-    if (!this.isTestEnvironment) {
-      console.log('New game initialized:', this.state);
-    }
-
-    // Emit all initial state events
-    this.emit('creditsChanged', this.getPlayer().credits);
-    this.emit('debtChanged', this.getPlayer().debt);
-    this.emit('fuelChanged', this.getShip().fuel);
-    this.emit('cargoChanged', this.getShip().cargo);
-    this.emit('locationChanged', this.getPlayer().currentSystem);
-    this.emit('timeChanged', this.getPlayer().daysElapsed);
-    this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
-    this.emit('shipConditionChanged', {
-      hull: this.getShip().hull,
-      engine: this.getShip().engine,
-      lifeSupport: this.getShip().lifeSupport,
-    });
-    this.emit('upgradesChanged', this.getShip().upgrades);
-    this.emit('cargoCapacityChanged', this.getShip().cargoCapacity);
-    this.emit('quirksChanged', this.getShip().quirks);
-
-    return this.state;
+    return this.initializationManager.initNewGame();
   }
 
   // ========================================================================
