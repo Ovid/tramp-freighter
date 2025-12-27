@@ -19,12 +19,28 @@ export function ShipStatus() {
   const condition = useGameEvent('shipConditionChanged');
   const cargo = useGameEvent('cargoChanged');
 
-  const hull = condition.hull;
-  const engine = condition.engine;
-  const lifeSupport = condition.lifeSupport;
+  // Get state for fallback values when events haven't fired yet
+  const state = gameStateManager.getState();
+  
+  // Use event data with fallback to state data
+  const actualCondition = condition || {
+    hull: state.ship.hull,
+    engine: state.ship.engine,
+    lifeSupport: state.ship.lifeSupport,
+  };
+  
+  const actualFuel = fuel !== null && fuel !== undefined ? fuel : state.ship.fuel;
+  const actualCargo = cargo || state.ship.cargo;
+  const actualShipName = shipName || state.ship.name;
+
+  // Additional defensive checks for null/undefined values
+  const hull = actualCondition.hull !== null && actualCondition.hull !== undefined ? actualCondition.hull : 100;
+  const engine = actualCondition.engine !== null && actualCondition.engine !== undefined ? actualCondition.engine : 100;
+  const lifeSupport = actualCondition.lifeSupport !== null && actualCondition.lifeSupport !== undefined ? actualCondition.lifeSupport : 100;
+  const safeFuel = actualFuel !== null && actualFuel !== undefined ? actualFuel : 100;
 
   // Calculate cargo info from event data
-  const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
+  const cargoUsed = (actualCargo || []).reduce((sum, stack) => sum + stack.qty, 0);
   const ship = gameStateManager.getShip();
   const cargoCapacity = ship.cargoCapacity;
 
@@ -32,7 +48,7 @@ export function ShipStatus() {
     <div className="hud-section hud-ship">
       <div className="hud-row hud-ship-name-row">
         <span id="hud-ship-name" className="hud-ship-name">
-          {shipName}
+          {actualShipName}
         </span>
       </div>
       <div className="hud-row">
@@ -40,9 +56,9 @@ export function ShipStatus() {
         <div className="fuel-bar-container condition-bar-container">
           <div
             className="fuel-bar condition-bar"
-            style={{ width: `${fuel}%` }}
+            style={{ width: `${safeFuel}%` }}
           />
-          <span className="condition-text">{fuel.toFixed(1)}%</span>
+          <span className="condition-text">{safeFuel.toFixed(1)}%</span>
         </div>
       </div>
       <div className="hud-row">

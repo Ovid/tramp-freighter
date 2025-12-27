@@ -1888,10 +1888,20 @@ export class GameStateManager {
 
     this.updateCredits(credits - validation.cost);
 
+    // CRITICAL: Defensive programming - refuel must NEVER reduce fuel
     // Clamp fuel to max capacity to handle floating point rounding
     // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
     const maxFuel = this.getFuelCapacity();
     const newFuel = Math.min(currentFuel + amount, maxFuel);
+    
+    // SAFETY CHECK: Ensure refuel never reduces fuel
+    if (newFuel < currentFuel) {
+      throw new Error(
+        `CRITICAL BUG: Refuel would reduce fuel from ${currentFuel}% to ${newFuel}%. ` +
+        `Amount: ${amount}, MaxFuel: ${maxFuel}. This should never happen.`
+      );
+    }
+    
     this.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel
