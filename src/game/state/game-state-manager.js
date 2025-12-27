@@ -33,6 +33,7 @@ import { RepairManager } from './managers/repair.js';
 import { DialogueManager } from './managers/dialogue.js';
 import { EventsManager } from './managers/events.js';
 import { InfoBrokerManager } from './managers/info-broker.js';
+import { EventSystemManager } from './managers/event-system.js';
 
 /**
  * Sanitize ship name input
@@ -80,28 +81,6 @@ export class GameStateManager {
     this.isTestEnvironment =
       typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
 
-    // Supports multiple UI components subscribing to same state changes
-    this.subscribers = {
-      creditsChanged: [],
-      debtChanged: [],
-      fuelChanged: [],
-      cargoChanged: [],
-      cargoCapacityChanged: [],
-      locationChanged: [],
-      timeChanged: [],
-      priceKnowledgeChanged: [],
-      activeEventsChanged: [],
-      shipConditionChanged: [],
-      conditionWarning: [],
-      shipNameChanged: [],
-      upgradesChanged: [],
-      quirksChanged: [],
-      dialogueChanged: [],
-    };
-
-    // Initialize with null state (will be set by initNewGame or loadGame)
-    this.state = null;
-
     // Track last save time for debouncing
     this.lastSaveTime = 0;
 
@@ -109,7 +88,11 @@ export class GameStateManager {
     // Used by useAnimationLock hook to check animation state
     this.animationSystem = null;
 
+    // Initialize with null state (will be set by initNewGame or loadGame)
+    this.state = null;
+
     // Initialize managers
+    this.eventSystemManager = new EventSystemManager(this);
     this.tradingManager = new TradingManager(this);
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(this);
@@ -294,62 +277,45 @@ export class GameStateManager {
 
   /**
    * Subscribe to state change events for Bridge Pattern integration
+   * Delegates to EventSystemManager
    *
-   * @param {string} eventType - Event type to subscribe to:
-   *   - creditsChanged: (number) - Player's current credits
-   *   - debtChanged: (number) - Player's current debt
-   *   - fuelChanged: (number) - Ship fuel percentage (0-100)
-   *   - cargoChanged: (Array<CargoStack>) - Ship cargo array with stacks
-   *   - cargoCapacityChanged: (number) - Ship cargo capacity in units
-   *   - locationChanged: (number) - Current system ID
-   *   - timeChanged: (number) - Days elapsed since game start
-   *   - priceKnowledgeChanged: (Object) - Price knowledge database
-   *   - activeEventsChanged: (Array) - Active economic events
-   *   - shipConditionChanged: (Object) - {hull, engine, lifeSupport} percentages
-   *   - conditionWarning: (Array) - Warning objects for low condition systems
-   *   - shipNameChanged: (string) - Ship name
-   *   - upgradesChanged: (Array<string>) - Installed upgrade IDs
-   *   - quirksChanged: (Array<string>) - Ship quirk IDs
-   *   - dialogueChanged: (Object) - Current dialogue state
-   * @param {function} callback - Function to call when event occurs, receives event data as parameter
+   * @param {string} eventType - Event type to subscribe to
+   * @param {function} callback - Function to call when event occurs
    */
   subscribe(eventType, callback) {
-    if (!this.subscribers[eventType]) {
-      console.warn(`Unknown event type: ${eventType}`);
-      return;
-    }
-
-    this.subscribers[eventType].push(callback);
-    if (!this.isTestEnvironment) {
-      console.log(
-        `Subscribed to ${eventType}, total subscribers: ${this.subscribers[eventType].length}`
-      );
-    }
+    return this.eventSystemManager.subscribe(eventType, callback);
   }
 
+  /**
+   * Unsubscribe from state change events
+   * Delegates to EventSystemManager
+   *
+   * @param {string} eventType - Event type to unsubscribe from
+   * @param {function} callback - Callback function to remove
+   */
   unsubscribe(eventType, callback) {
-    if (!this.subscribers[eventType]) {
-      return;
-    }
-
-    const index = this.subscribers[eventType].indexOf(callback);
-    if (index > -1) {
-      this.subscribers[eventType].splice(index, 1);
-    }
+    return this.eventSystemManager.unsubscribe(eventType, callback);
   }
 
+  /**
+   * Emit event to all registered subscribers
+   * Delegates to EventSystemManager
+   *
+   * @param {string} eventType - Event type to emit
+   * @param {*} data - Event data to pass to subscribers
+   */
   emit(eventType, data) {
-    if (!this.subscribers[eventType]) {
-      return;
-    }
+    return this.eventSystemManager.emit(eventType, data);
+  }
 
-    this.subscribers[eventType].forEach((callback) => {
-      try {
-        callback(data);
-      } catch (error) {
-        console.error(`Error in ${eventType} subscriber:`, error);
-      }
-    });
+  /**
+   * Get subscribers object for testing purposes
+   * Delegates to EventSystemManager
+   *
+   * @returns {Object} The subscribers object
+   */
+  get subscribers() {
+    return this.eventSystemManager.getSubscribers();
   }
 
   // ========================================================================

@@ -251,14 +251,18 @@ src/game/state/
 **File**: `src/game/state/managers/event-system.js`
 
 **Methods to move**:
-- [ ] `subscribe(eventType, callback)`
-- [ ] `unsubscribe(eventType, callback)`
-- [ ] `emit(eventType, data)`
-- [ ] Initialize `this.subscribers` object
+- [x] `subscribe(eventType, callback)`
+- [x] `unsubscribe(eventType, callback)`
+- [x] `emit(eventType, data)`
+- [x] Initialize `this.subscribers` object
 
 **Dependencies**:
-- [ ] Move subscriber management logic
-- [ ] Maintain Bridge Pattern compatibility
+- [x] Move subscriber management logic
+- [x] Maintain Bridge Pattern compatibility
+
+**Tests to update**:
+- [x] Update tests to use getter method for accessing subscribers
+- [x] Verify all event system functionality still works
 
 #### Task 3.2: Extract State Manager
 **File**: `src/game/state/managers/state.js`
