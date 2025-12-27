@@ -9,8 +9,6 @@ import {
   NPC_BENEFITS_CONFIG,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
-import { EconomicEventsSystem } from '../game-events.js';
-import { InformationBroker } from '../game-information-broker.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -32,6 +30,8 @@ import { NavigationManager } from './managers/navigation.js';
 import { RefuelManager } from './managers/refuel.js';
 import { RepairManager } from './managers/repair.js';
 import { DialogueManager } from './managers/dialogue.js';
+import { EventsManager } from './managers/events.js';
+import { InfoBrokerManager } from './managers/info-broker.js';
 
 /**
  * Sanitize ship name input
@@ -116,6 +116,8 @@ export class GameStateManager {
     this.refuelManager = new RefuelManager(this);
     this.repairManager = new RepairManager(this);
     this.dialogueManager = new DialogueManager(this);
+    this.eventsManager = new EventsManager(this);
+    this.infoBrokerManager = new InfoBrokerManager(this);
   }
 
   /**
@@ -540,39 +542,7 @@ export class GameStateManager {
   }
 
   updateTime(newDays) {
-    const oldDays = this.state.player.daysElapsed;
-    this.state.player.daysElapsed = newDays;
-
-    // When days advance, update price knowledge and events
-    if (newDays > oldDays) {
-      const daysPassed = newDays - oldDays;
-
-      // Increment staleness for all systems
-      this.incrementPriceKnowledgeStaleness(daysPassed);
-
-      // Clean up old intelligence data
-      InformationBroker.cleanupOldIntelligence(this.state.world.priceKnowledge);
-
-      // Apply market recovery (decay surplus/deficit over time)
-      this.applyMarketRecovery(daysPassed);
-
-      // Update economic events (trigger new events, remove expired ones)
-      this.state.world.activeEvents = EconomicEventsSystem.updateEvents(
-        this.state,
-        this.starData
-      );
-
-      // Recalculate prices with new day number (for daily fluctuations)
-      this.recalculatePricesForKnownSystems();
-
-      // Check for loan defaults and apply penalties
-      this.checkLoanDefaults();
-
-      // Emit event changes
-      this.emit('activeEventsChanged', this.state.world.activeEvents);
-    }
-
-    this.emit('timeChanged', newDays);
+    return this.eventsManager.updateTime(newDays);
   }
 
   /**
@@ -679,12 +649,7 @@ export class GameStateManager {
    * Get active events array
    */
   getActiveEvents() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: getActiveEvents called before game initialization'
-      );
-    }
-    return this.state.world.activeEvents;
+    return this.eventsManager.getActiveEvents();
   }
 
   /**
@@ -695,9 +660,7 @@ export class GameStateManager {
    * @param {Array} newEvents - Updated events array
    */
   updateActiveEvents(newEvents) {
-    // activeEvents is guaranteed to exist after initialization
-    this.state.world.activeEvents = newEvents;
-    this.emit('activeEventsChanged', newEvents);
+    return this.eventsManager.updateActiveEvents(newEvents);
   }
 
   /**
@@ -707,8 +670,7 @@ export class GameStateManager {
    * @returns {Object|null} Active event or null
    */
   getActiveEventForSystem(systemId) {
-    const activeEvents = this.getActiveEvents();
-    return activeEvents.find((event) => event.systemId === systemId) || null;
+    return this.eventsManager.getActiveEventForSystem(systemId);
   }
 
   /**
@@ -717,7 +679,7 @@ export class GameStateManager {
    * @returns {Object|null} Event type definition or null
    */
   getEventType(eventTypeKey) {
-    return EconomicEventsSystem.EVENT_TYPES[eventTypeKey] || null;
+    return this.eventsManager.getEventType(eventTypeKey);
   }
 
   // ========================================================================
@@ -731,8 +693,7 @@ export class GameStateManager {
    * @returns {number} Cost in credits
    */
   getIntelligenceCost(systemId) {
-    const priceKnowledge = this.getPriceKnowledge();
-    return InformationBroker.getIntelligenceCost(systemId, priceKnowledge);
+    return this.infoBrokerManager.getIntelligenceCost(systemId);
   }
 
   /**
@@ -742,28 +703,7 @@ export class GameStateManager {
    * @returns {Object} { success: boolean, reason: string }
    */
   purchaseIntelligence(systemId) {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: purchaseIntelligence called before game initialization'
-      );
-    }
-
-    const result = InformationBroker.purchaseIntelligence(
-      this.state,
-      systemId,
-      this.starData
-    );
-
-    if (result.success) {
-      // Emit state change events
-      this.emit('creditsChanged', this.state.player.credits);
-      this.emit('priceKnowledgeChanged', this.state.world.priceKnowledge);
-
-      // Persist immediately - intelligence purchase modifies credits and price knowledge
-      this.saveGame();
-    }
-
-    return result;
+    return this.infoBrokerManager.purchaseIntelligence(systemId);
   }
 
   /**
@@ -772,13 +712,7 @@ export class GameStateManager {
    * @returns {string} Rumor text
    */
   generateRumor() {
-    if (!this.state) {
-      throw new Error(
-        'Invalid state: generateRumor called before game initialization'
-      );
-    }
-
-    return InformationBroker.generateRumor(this.state, this.starData);
+    return this.infoBrokerManager.generateRumor();
   }
 
   /**
@@ -790,20 +724,7 @@ export class GameStateManager {
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   listAvailableIntelligence() {
-    const priceKnowledge = this.getPriceKnowledge();
-    const currentSystemId = this.state.player.currentSystem;
-    const activeEvents = this.getActiveEvents();
-    const hasAdvancedSensors =
-      this.state.ship.upgrades.includes('advanced_sensors');
-
-    return InformationBroker.listAvailableIntelligence(
-      priceKnowledge,
-      this.starData,
-      currentSystemId,
-      this.navigationSystem,
-      activeEvents,
-      hasAdvancedSensors
-    );
+    return this.infoBrokerManager.listAvailableIntelligence();
   }
 
   // ========================================================================

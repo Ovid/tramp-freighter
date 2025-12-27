@@ -55,6 +55,7 @@ src/
 ├── context/           # React Context providers
 ├── game/              # Game logic (separate from UI)
 │   ├── state/         # GameStateManager and save/load
+│   │   └── managers/  # Focused state managers by domain
 │   ├── engine/        # THREE.js scene management
 │   ├── data/          # Static game data
 │   └── utils/         # Pure utility functions
@@ -91,7 +92,17 @@ For new functionality, follow RED/GREEN/REFACTOR:
 ## Game Architecture
 
 ### State Management
-- **GameStateManager:** Single source of truth for all game state
+- **GameStateManager:** Single source of truth for all game state, now organized with focused managers
+- **Manager Architecture:** Specialized managers handle specific domains:
+  - **TradingManager:** Trading operations, market conditions, price knowledge
+  - **ShipManager:** Ship condition, quirks, upgrades, cargo management
+  - **NPCManager:** NPC reputation, benefits, loans, cargo storage
+  - **NavigationManager:** Location tracking, docking operations
+  - **RefuelManager:** Fuel pricing and refueling operations
+  - **RepairManager:** Ship repair operations and costs
+  - **DialogueManager:** Dialogue state management
+  - **EventsManager:** Economic events and time advancement coordination
+  - **InfoBrokerManager:** Intelligence trading system
 - **Bridge Pattern:** React components never duplicate game state
 - **Event System:** Components subscribe to state changes via `useGameEvent()`
 - **Actions:** Components trigger changes via `useGameAction()`
@@ -165,11 +176,29 @@ Target modern browsers:
 
 ### Adding New Game Features
 1. Define constants in `game/constants.js`
-2. Add state fields to GameStateManager
-3. Implement game logic methods
+2. Add state fields to appropriate manager or GameStateManager
+3. Implement game logic methods in the relevant manager
 4. Create React components with Bridge Pattern
 5. Add comprehensive tests
 6. Update save/load migration if needed
+
+### Manager Architecture
+The GameStateManager has been refactored into focused managers:
+
+```javascript
+// Manager initialization in GameStateManager constructor
+this.tradingManager = new TradingManager(this);
+this.shipManager = new ShipManager(this);
+this.npcManager = new NPCManager(this);
+this.navigationManager = new NavigationManager(this, this.starData);
+this.refuelManager = new RefuelManager(this);
+this.repairManager = new RepairManager(this);
+this.dialogueManager = new DialogueManager(this);
+this.eventsManager = new EventsManager(this);
+this.infoBrokerManager = new InfoBrokerManager(this);
+```
+
+Each manager handles a specific domain and maintains the same public API through delegation methods in GameStateManager.
 
 ### Property-Based Testing
 ```javascript
