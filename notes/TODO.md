@@ -7,6 +7,9 @@
 > consumed. What is causing this much context to be consumed when you start a
 > new task?
 
+With the above, I realised that my game state manager was almost 1 meg and a
+god object. When context gets out of control, it's a code smell!
+
 > Finding 1: Missing Coverage for Requirement 1.1, 1.2, 1.3 (Hostile/Cold/Neutral Tier Behaviors)
 > Severity: Critical
 > 
