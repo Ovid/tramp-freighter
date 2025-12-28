@@ -546,6 +546,181 @@ export const FATHER_OKONKWO_DIALOGUE = {
 };
 
 /**
+ * Whisper Dialogue Tree - Information Broker at Sirius A
+ *
+ * A mysterious information broker who deals in secrets and intelligence.
+ * Uses formal speech with educated vocabulary and cryptic measured tones.
+ * Provides intel discounts and trading tips based on relationship tier.
+ *
+ * Dialogue Flow:
+ * - greeting → intel_business → (intel_details | intel_prices) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const WHISPER_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "I've been expecting you. We need to talk.";
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return 'Good to see you. I have something interesting.';
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return 'Ah, a familiar face. Looking for intel?';
+      } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
+        return 'Welcome. I deal in information. What do you need?';
+      } else {
+        // Cold or Hostile
+        return 'Information costs credits.';
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about your information services.',
+        next: 'intel_business',
+      },
+      {
+        text: 'Any trading tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Nothing right now. Until next time.',
+        next: null,
+      },
+    ],
+  },
+
+  intel_business: {
+    text: 'Information is the most valuable commodity in the sector. Market conditions, shipping schedules, customs patterns... I know what moves where, and when. Knowledge properly applied becomes profit.',
+    choices: [
+      {
+        text: 'What kind of information do you have?',
+        next: 'intel_details',
+        repGain: 1,
+      },
+      {
+        text: 'How much do your services cost?',
+        next: 'intel_prices',
+      },
+      {
+        text: 'Interesting. I may be back.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  intel_details: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return 'For trusted clients, I provide advance warnings. Customs sweeps, inspection schedules, enforcement patterns. Information that keeps cargo manifests... flexible.';
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return 'Market intelligence, shipping manifests, price trends. I also hear rumors - some more reliable than others. For established clients, I share the better sources.';
+      } else {
+        return 'Basic market data, shipping schedules, general sector news. Standard intelligence package. Build a relationship with me, and access to... deeper information becomes available.';
+      }
+    },
+    choices: [
+      {
+        text: 'That could be very useful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'I prefer to gather my own information.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  intel_prices: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return 'For family... information flows freely. Consider it an investment in our mutual success.';
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return 'Trusted clients receive preferential rates. Fifteen percent below standard pricing. Trust is a rare commodity - I reward it accordingly.';
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return 'Regular clients enjoy a modest discount. Ten percent below posted rates. Loyalty has its privileges, even in the information trade.';
+      } else {
+        return 'Standard rates apply. Credits for information, information for credits. Simple transaction.';
+      }
+    },
+    choices: [
+      {
+        text: 'Fair enough. I may need your services.',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: "I'll keep that in mind.",
+        next: 'greeting',
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: 'Knowledge shared is knowledge multiplied. I have something that might interest you...',
+    flags: ['whisper_tip_requested'],
+    choices: [
+      {
+        text: 'I appreciate the information.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Useful. Thank you.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: 'An emergency loan... Five hundred credits is a significant sum. But trust, once established, must be honored. I can arrange this, with the understanding that repayment is expected within thirty days.',
+    flags: ['whisper_loan_discussed'],
+    choices: [
+      {
+        text: 'I accept those terms.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me think about it.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: 'Cargo storage... I maintain secure facilities for valued clients. Up to ten units, held safely until you return. Consider it a service between associates.',
+    flags: ['whisper_storage_discussed'],
+    choices: [
+      {
+        text: 'That would be very helpful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good to know that option exists.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
  * All dialogue trees in the game
  * Maps NPC IDs to their dialogue trees
  */
@@ -553,6 +728,7 @@ export const ALL_DIALOGUE_TREES = {
   chen_barnards: WEI_CHEN_DIALOGUE,
   cole_sol: MARCUS_COLE_DIALOGUE,
   okonkwo_ross154: FATHER_OKONKWO_DIALOGUE,
+  whisper_sirius: WHISPER_DIALOGUE,
 };
 
 /**

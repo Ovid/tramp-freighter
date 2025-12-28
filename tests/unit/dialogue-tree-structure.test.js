@@ -3,6 +3,7 @@ import {
   WEI_CHEN_DIALOGUE,
   MARCUS_COLE_DIALOGUE,
   FATHER_OKONKWO_DIALOGUE,
+  WHISPER_DIALOGUE,
   ALL_DIALOGUE_TREES,
   validateDialogueTree,
   validateDialogueNode,
@@ -223,17 +224,130 @@ describe('Dialogue Tree Structure', () => {
     });
   });
 
+  describe('Whisper Dialogue Tree', () => {
+    it('should exist and have greeting node', () => {
+      expect(WHISPER_DIALOGUE).toBeDefined();
+      expect(WHISPER_DIALOGUE.greeting).toBeDefined();
+      expect(WHISPER_DIALOGUE.greeting.text).toBeDefined();
+      expect(typeof WHISPER_DIALOGUE.greeting.text).toBe('function');
+      expect(Array.isArray(WHISPER_DIALOGUE.greeting.choices)).toBe(true);
+      expect(WHISPER_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
+    });
+
+    it('should have expected choice structure in greeting', () => {
+      const conversationChoices = WHISPER_DIALOGUE.greeting.choices.map(
+        (choice) => choice.text
+      );
+      expect(conversationChoices).toContain('Tell me about your information services.');
+      expect(conversationChoices).toContain('Any trading tips for me?');
+      expect(conversationChoices).toContain('I need an emergency loan.');
+      expect(conversationChoices).toContain('Can you store some cargo for me?');
+      expect(conversationChoices).toContain('Nothing right now. Until next time.');
+    });
+
+    it('should have tip choice with reputation condition', () => {
+      const tipChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.text === 'Any trading tips for me?'
+      );
+
+      expect(tipChoice).toBeDefined();
+      expect(tipChoice.next).toBe('ask_tip');
+      expect(typeof tipChoice.condition).toBe('function');
+
+      // Test the condition function (rep >= WARM_MIN which is 10)
+      expect(tipChoice.condition(9)).toBe(false); // Below threshold
+      expect(tipChoice.condition(10)).toBe(true); // At threshold
+      expect(tipChoice.condition(20)).toBe(true); // Above threshold
+    });
+
+    it('should have loan choice with reputation condition', () => {
+      const loanChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.text === 'I need an emergency loan.'
+      );
+
+      expect(loanChoice).toBeDefined();
+      expect(loanChoice.next).toBe('request_loan');
+      expect(typeof loanChoice.condition).toBe('function');
+
+      // Test the condition function (rep >= TRUSTED_MIN which is 60)
+      expect(loanChoice.condition(59)).toBe(false); // Below threshold
+      expect(loanChoice.condition(60)).toBe(true); // At threshold
+      expect(loanChoice.condition(70)).toBe(true); // Above threshold
+    });
+
+    it('should have storage choice with reputation condition', () => {
+      const storageChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.text === 'Can you store some cargo for me?'
+      );
+
+      expect(storageChoice).toBeDefined();
+      expect(storageChoice.next).toBe('request_storage');
+      expect(typeof storageChoice.condition).toBe('function');
+
+      // Test the condition function (rep >= FRIENDLY_MIN which is 30)
+      expect(storageChoice.condition(29)).toBe(false); // Below threshold
+      expect(storageChoice.condition(30)).toBe(true); // At threshold
+      expect(storageChoice.condition(40)).toBe(true); // Above threshold
+    });
+
+    it('should have all required dialogue nodes', () => {
+      const requiredNodes = [
+        'greeting',
+        'intel_business',
+        'intel_details',
+        'intel_prices',
+        'ask_tip',
+        'request_loan',
+        'request_storage',
+      ];
+
+      requiredNodes.forEach((nodeId) => {
+        expect(WHISPER_DIALOGUE[nodeId]).toBeDefined();
+        expect(WHISPER_DIALOGUE[nodeId].text).toBeDefined();
+        expect(Array.isArray(WHISPER_DIALOGUE[nodeId].choices)).toBe(true);
+      });
+    });
+
+    it('should have tier-based greeting text matching requirements', () => {
+      const greetingText = WHISPER_DIALOGUE.greeting.text;
+      
+      // Test specific greeting text from requirements
+      expect(greetingText(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe('Welcome. I deal in information. What do you need?');
+      expect(greetingText(REPUTATION_BOUNDS.WARM_MIN)).toBe('Ah, a familiar face. Looking for intel?');
+      expect(greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe('Good to see you. I have something interesting.');
+      expect(greetingText(REPUTATION_BOUNDS.TRUSTED_MIN)).toBe("I've been expecting you. We need to talk.");
+      expect(greetingText(REPUTATION_BOUNDS.COLD_MIN)).toBe('Information costs credits.');
+      expect(greetingText(REPUTATION_BOUNDS.MIN)).toBe('Information costs credits.');
+    });
+
+    it('should have story flags in dialogue nodes', () => {
+      expect(WHISPER_DIALOGUE.ask_tip.flags).toBeDefined();
+      expect(Array.isArray(WHISPER_DIALOGUE.ask_tip.flags)).toBe(true);
+      expect(WHISPER_DIALOGUE.ask_tip.flags).toContain('whisper_tip_requested');
+
+      expect(WHISPER_DIALOGUE.request_loan.flags).toBeDefined();
+      expect(Array.isArray(WHISPER_DIALOGUE.request_loan.flags)).toBe(true);
+      expect(WHISPER_DIALOGUE.request_loan.flags).toContain('whisper_loan_discussed');
+
+      expect(WHISPER_DIALOGUE.request_storage.flags).toBeDefined();
+      expect(Array.isArray(WHISPER_DIALOGUE.request_storage.flags)).toBe(true);
+      expect(WHISPER_DIALOGUE.request_storage.flags).toContain('whisper_storage_discussed');
+    });
+  });
+
   describe('Dialogue Tree Collection and Validation', () => {
-    it('should include all three NPCs in ALL_DIALOGUE_TREES', () => {
+    it('should include all four NPCs in ALL_DIALOGUE_TREES', () => {
       expect(ALL_DIALOGUE_TREES.chen_barnards).toBe(WEI_CHEN_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.cole_sol).toBe(MARCUS_COLE_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(FATHER_OKONKWO_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
     });
 
     it('should validate all dialogue trees without throwing errors', () => {
       expect(() => validateDialogueTree(WEI_CHEN_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(MARCUS_COLE_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(FATHER_OKONKWO_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(WHISPER_DIALOGUE)).not.toThrow();
     });
 
     it('should validate all dialogue trees using validateAllDialogueTrees function', () => {
@@ -363,6 +477,17 @@ describe('Dialogue Tree Structure', () => {
 
       expect(okonkwoHostileGreeting).not.toBe(okonkwoNeutralGreeting);
       expect(okonkwoNeutralGreeting).not.toBe(okonkwoFriendlyGreeting);
+
+      // Test Whisper's greeting function
+      const whisperGreeting = WHISPER_DIALOGUE.greeting.text;
+      const whisperHostileGreeting = whisperGreeting(REPUTATION_BOUNDS.MIN);
+      const whisperNeutralGreeting = whisperGreeting(0);
+      const whisperFriendlyGreeting = whisperGreeting(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
+
+      expect(whisperHostileGreeting).not.toBe(whisperNeutralGreeting);
+      expect(whisperNeutralGreeting).not.toBe(whisperFriendlyGreeting);
     });
 
     it('should have function-based text in backstory node for Wei Chen', () => {

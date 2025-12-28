@@ -309,7 +309,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - _Requirements: 13.9-13.11_
 
 - [ ] 12. Add dialogue trees for new NPCs
-  - [ ] 12.1 Create Whisper dialogue tree
+  - [x] 12.1 Create Whisper dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option (conditional on canGetTip)
     - Add favor dialogue options (conditional on tier)
