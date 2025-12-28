@@ -36,18 +36,18 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
     - Export the dialogue tree constant
     - _Requirements: 1.3_
 
-- [ ] 3. Extract second batch of NPC dialogue files (Whisper, Captain Vasquez, Dr. Sarah Kim)
-  - [ ] 3.1 Extract Whisper dialogue to `src/game/data/dialogue/whisper.js`
+- [x] 3. Extract second batch of NPC dialogue files (Whisper, Captain Vasquez, Dr. Sarah Kim)
+  - [x] 3.1 Extract Whisper dialogue to `src/game/data/dialogue/whisper.js`
     - Move `WHISPER_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.4_
-  - [ ] 3.2 Extract Captain Vasquez dialogue to `src/game/data/dialogue/captain-vasquez.js`
+  - [x] 3.2 Extract Captain Vasquez dialogue to `src/game/data/dialogue/captain-vasquez.js`
     - Move `CAPTAIN_VASQUEZ_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.5_
-  - [ ] 3.3 Extract Dr. Sarah Kim dialogue to `src/game/data/dialogue/dr-sarah-kim.js`
+  - [x] 3.3 Extract Dr. Sarah Kim dialogue to `src/game/data/dialogue/dr-sarah-kim.js`
     - Move `DR_SARAH_KIM_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
