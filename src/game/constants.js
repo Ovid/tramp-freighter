@@ -164,7 +164,7 @@ export const SHIP_CONFIG = {
     'Cosmic Drifter',
   ],
   FUEL_CAPACITY: 100,
-  CARGO_CAPACITY: 100,
+  CARGO_CAPACITY: 50,
   DEGRADATION: {
     HULL_PER_JUMP: 2, // Percentage points lost per jump
     ENGINE_PER_JUMP: 1, // Percentage points lost per jump

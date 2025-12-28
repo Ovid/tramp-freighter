@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { migrateFromV4ToV4_1 } from '../../src/game/state/state-validators.js';
 
 /**
  * Unit tests for NPC benefits save/load migration
@@ -90,26 +89,25 @@ describe('NPC Benefits Migration Unit Tests', () => {
       },
     };
 
-    // This should fail because migration function doesn't exist yet
     // Try to load the v4.0.0 state - should trigger migration to v4.1.0
     global.localStorage = {
       getItem: () => JSON.stringify(v4_0_0State),
       setItem: () => {},
       removeItem: () => {},
     };
-    
+
     const loadedState = gameStateManager.loadGame();
-    
+
     // Verify migration occurred
     expect(loadedState).not.toBeNull();
     expect(loadedState.meta.version).toBe('4.1.0');
-    
+
     // Verify existing NPC data is preserved
     expect(loadedState.npcs.wei_chen_sol.rep).toBe(25);
     expect(loadedState.npcs.wei_chen_sol.lastInteraction).toBe(10);
     expect(loadedState.npcs.wei_chen_sol.flags).toEqual(['met_before']);
     expect(loadedState.npcs.wei_chen_sol.interactions).toBe(3);
-    
+
     // Verify NPC benefits fields are added with defaults
     expect(loadedState.npcs.wei_chen_sol.lastTipDay).toBeNull();
     expect(loadedState.npcs.wei_chen_sol.lastFavorDay).toBeNull();
@@ -117,7 +115,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
     expect(loadedState.npcs.wei_chen_sol.loanDay).toBeNull();
     expect(loadedState.npcs.wei_chen_sol.storedCargo).toEqual([]);
     expect(loadedState.npcs.wei_chen_sol.lastFreeRepairDay).toBeNull();
-    
+
     // Verify second NPC also has benefits fields
     expect(loadedState.npcs.marcus_cole_sol.lastTipDay).toBeNull();
     expect(loadedState.npcs.marcus_cole_sol.lastFavorDay).toBeNull();
@@ -301,13 +299,13 @@ describe('NPC Benefits Migration Unit Tests', () => {
       setItem: () => {},
       removeItem: () => {},
     };
-    
+
     const loadedState = gameStateManager.loadGame();
-    
+
     // Verify migration occurred
     expect(loadedState).not.toBeNull();
     expect(loadedState.meta.version).toBe('4.1.0');
-    
+
     // Verify empty NPCs object is preserved
     expect(loadedState.npcs).toEqual({});
   });

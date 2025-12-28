@@ -811,7 +811,7 @@ export function migrateFromV4ToV4_1(state, isTestEnvironment) {
   if (state.npcs && typeof state.npcs === 'object') {
     for (const npcId in state.npcs) {
       const npcState = state.npcs[npcId];
-      
+
       // Add default values for new NPC benefits fields if they don't exist
       if (npcState.lastTipDay === undefined) {
         npcState.lastTipDay = null;

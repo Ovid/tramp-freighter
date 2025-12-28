@@ -69,7 +69,7 @@ describe('Configuration Object Structure', () => {
       expect(SHIP_CONFIG.DEFAULT_NAME).toBe('Serendipity');
       expect(Array.isArray(SHIP_CONFIG.NAME_SUGGESTIONS)).toBe(true);
       expect(SHIP_CONFIG.FUEL_CAPACITY).toBe(100);
-      expect(SHIP_CONFIG.CARGO_CAPACITY).toBe(100);
+      expect(SHIP_CONFIG.CARGO_CAPACITY).toBe(50);
 
       expect(SHIP_CONFIG.DEGRADATION).toBeDefined();
       expect(SHIP_CONFIG.DEGRADATION.HULL_PER_JUMP).toBe(2);

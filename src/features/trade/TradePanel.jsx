@@ -7,6 +7,7 @@ import {
   COMMODITY_TYPES,
   TRADE_CONFIG,
   SHIP_CONFIG,
+  UI_CONFIG,
 } from '../../game/constants.js';
 import { capitalizeFirst } from '../../game/utils/string-utils.js';
 import {
@@ -66,9 +67,10 @@ export function TradePanel({ onClose }) {
   }
 
   // Get ship data for capacity and upgrades from events
+  // Use centralized defaults to handle cases where events haven't fired yet
   const ship = {
-    cargoCapacity: cargoCapacity || 50,
-    upgrades: upgrades || [],
+    cargoCapacity: cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY,
+    upgrades: upgrades ?? [],
     hiddenCargo: [], // Will be populated from cargo event if needed
     hiddenCargoCapacity: 0, // Will be calculated from upgrades
   };
