@@ -6,7 +6,10 @@ import {
   WHISPER_DIALOGUE,
   CAPTAIN_VASQUEZ_DIALOGUE,
   DR_SARAH_KIM_DIALOGUE,
+  RUSTY_RODRIGUEZ_DIALOGUE,
   ZARA_OSMAN_DIALOGUE,
+  STATION_MASTER_KOWALSKI_DIALOGUE,
+  LUCKY_LIU_DIALOGUE,
   ALL_DIALOGUE_TREES,
   validateDialogueTree,
   validateDialogueNode,
@@ -837,14 +840,17 @@ describe('Dialogue Tree Structure', () => {
   });
 
   describe('Dialogue Tree Collection and Validation', () => {
-    it('should include all seven NPCs in ALL_DIALOGUE_TREES', () => {
+    it('should include all ten NPCs in ALL_DIALOGUE_TREES', () => {
       expect(ALL_DIALOGUE_TREES.chen_barnards).toBe(WEI_CHEN_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.cole_sol).toBe(MARCUS_COLE_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(FATHER_OKONKWO_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(CAPTAIN_VASQUEZ_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(DR_SARAH_KIM_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.rodriguez_procyon).toBe(RUSTY_RODRIGUEZ_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.osman_luyten).toBe(ZARA_OSMAN_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.kowalski_alpha_centauri).toBe(STATION_MASTER_KOWALSKI_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.liu_wolf359).toBe(LUCKY_LIU_DIALOGUE);
     });
 
     it('should validate all dialogue trees without throwing errors', () => {
@@ -856,7 +862,10 @@ describe('Dialogue Tree Structure', () => {
         validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)
       ).not.toThrow();
       expect(() => validateDialogueTree(DR_SARAH_KIM_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(RUSTY_RODRIGUEZ_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(ZARA_OSMAN_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(STATION_MASTER_KOWALSKI_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(LUCKY_LIU_DIALOGUE)).not.toThrow();
     });
 
     it('should validate all dialogue trees using validateAllDialogueTrees function', () => {

@@ -308,7 +308,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add tierBenefits configuration
     - _Requirements: 13.9-13.11_
 
-- [ ] 12. Add dialogue trees for new NPCs
+- [x] 12. Add dialogue trees for new NPCs
   - [x] 12.1 Create Whisper dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option (conditional on canGetTip)
@@ -336,12 +336,12 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add tip dialogue option
     - _Requirements: 8.6-8.10, 12.1-12.6_
 
-  - [ ] 12.6 Create Station Master Kowalski dialogue tree
+  - [x] 12.6 Create Station Master Kowalski dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - _Requirements: 9.6-9.10, 12.1-12.6_
 
-  - [ ] 12.7 Create "Lucky" Liu dialogue tree
+  - [x] 12.7 Create "Lucky" Liu dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - _Requirements: 10.6-10.10, 12.1-12.6_

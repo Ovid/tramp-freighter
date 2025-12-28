@@ -1564,6 +1564,392 @@ export const ZARA_OSMAN_DIALOGUE = {
 };
 
 /**
+ * Station Master Kowalski Dialogue Tree - Station Master at Alpha Centauri
+ *
+ * A veteran station master who has seen everything and respects competence above all.
+ * Uses gruff speech with simple vocabulary and no-nonsense direct communication.
+ * Provides station operation tips and docking-related benefits based on relationship tier.
+ *
+ * Personality: Low trust (0.3), low-moderate greed (0.4), high loyalty (0.7), high morality (0.7)
+ * Speech: Gruff greeting style, simple vocabulary, no-nonsense direct quirk
+ *
+ * Dialogue Flow:
+ * - greeting → station_business → (competence_matters | standards_important) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const STATION_MASTER_KOWALSKI_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return "Well, look who's back! You've proven yourself a real professional, captain. This station runs better with traders like you. What do you need?";
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return 'Good to see you again, captain. Your professional approach to station operations is noted. How can I help you today?';
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return "You're becoming a regular here. I appreciate traders who follow procedures and respect the station. What brings you by?";
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return "Back again, I see. You're learning how things work around here. That's good. What do you need?";
+      } else {
+        // Neutral, Cold, or Hostile
+        return 'Another trader. Docking fees paid? Good. Keep it professional and we won\'t have problems. What\'s your business?';
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about running this station.',
+        next: 'station_business',
+      },
+      {
+        text: 'Any station operation tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Nothing right now. Thanks, Station Master.',
+        next: null,
+      },
+    ],
+  },
+
+  station_business: {
+    text: "Running a station isn't glamorous work, but it's important work. We keep the lights on, the air flowing, and the docks clear. Traders come and go, but the station endures. Takes competence, discipline, and respect for proper procedures. No room for cowboys or hotshots here.",
+    choices: [
+      {
+        text: 'Competence is what matters most.',
+        next: 'competence_matters',
+        repGain: 3,
+      },
+      {
+        text: 'Standards are important for safety.',
+        next: 'standards_important',
+        repGain: 2,
+      },
+      {
+        text: 'Sounds like a lot of bureaucracy.',
+        next: 'bureaucracy_response',
+        repGain: -2,
+      },
+      {
+        text: 'I understand. Thank you.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  competence_matters: {
+    text: "Exactly. I don't care if you're young or old, human or otherwise. Can you dock without scraping the hull? Do you follow safety protocols? Do you pay your fees on time? That's what matters. Competence earns respect around here.",
+    choices: [
+      {
+        text: 'I try to be professional in all my dealings.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good standards benefit everyone.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  standards_important: {
+    text: "Right. Standards aren't about making life difficult - they're about keeping people alive. Seen too many accidents from sloppy procedures, rushed docking, ignored safety checks. Every regulation here is written in someone's blood. Remember that.",
+    choices: [
+      {
+        text: 'I never thought of it that way.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Safety should always come first.',
+        next: 'greeting',
+        repGain: 2,
+      },
+    ],
+  },
+
+  bureaucracy_response: {
+    text: "Bureaucracy? *narrows eyes* That's what amateurs call proper procedures. When your ship's life support fails and you need emergency docking, you'll be grateful for our 'bureaucracy.' It's what keeps this station running when everything else goes to hell.",
+    choices: [
+      {
+        text: "You're right. I apologize for that comment.",
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: "I didn't mean to sound dismissive.",
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'Still seems like a lot of red tape.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: "Station operations tip? Sure. Been running stations for twenty years - learned a few things about efficient operations. Here's something that might help you work better with station personnel...",
+    flags: ['kowalski_tip_requested'],
+    choices: [
+      {
+        text: 'That information is very useful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thanks for the operational advice.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: "Emergency loan? Five hundred credits... *checks records* Your operational record shows competence and reliability. I can authorize the advance, but I expect repayment within thirty days. Station policy - no exceptions.",
+    flags: ['kowalski_loan_discussed'],
+    choices: [
+      {
+        text: 'I accept those terms.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me consider the terms first.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: 'Cargo storage? We maintain secure storage for established traders. Up to ten units in our bonded warehouse. Professional service for professional traders. Standard security protocols apply.',
+    flags: ['kowalski_storage_discussed'],
+    choices: [
+      {
+        text: 'That would be very helpful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'I appreciate the professional service.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
+ * "Lucky" Liu Dialogue Tree - Gambler at Wolf 359
+ *
+ * A professional gambler and risk-taker who loves long odds and respects bold moves.
+ * Uses casual speech with slang vocabulary and gambling metaphors throughout conversation.
+ * Provides risk-taking tips and high-stakes opportunities based on relationship tier.
+ *
+ * Personality: Moderate-high trust (0.6), very high greed (0.8), low loyalty (0.4), low morality (0.3)
+ * Speech: Casual greeting style, slang vocabulary, gambling metaphors quirk
+ *
+ * Dialogue Flow:
+ * - greeting → gambling_talk → (risk_philosophy | odds_discussion) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const LUCKY_LIU_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return "Hey, high roller! Welcome back to my table. You've got the stones to play in the big leagues now. What's the action today, partner?";
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "Well, well! Look who's learned to play the odds. You're developing a real taste for the game, aren't you? What brings you to Lucky's corner?";
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return "Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?";
+      } else {
+        // Neutral, Cold, or Hostile
+        return "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about the gambling business.',
+        next: 'gambling_talk',
+      },
+      {
+        text: 'Got any risk-taking tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Nothing right now. See you around, Lucky.',
+        next: null,
+      },
+    ],
+  },
+
+  gambling_talk: {
+    text: "Gambling? Nah, that's what amateurs call it. I prefer 'calculated risk assessment with profit potential.' See, most folks play it safe - small bets, sure things, steady returns. But the real money? That's in reading the odds everyone else is too scared to touch. High risk, high reward, baby!",
+    choices: [
+      {
+        text: 'What\'s your philosophy on taking risks?',
+        next: 'risk_philosophy',
+        repGain: 2,
+      },
+      {
+        text: 'How do you calculate the odds?',
+        next: 'odds_discussion',
+        repGain: 1,
+      },
+      {
+        text: 'I prefer safer investments myself.',
+        next: 'safe_investments',
+        repGain: -1,
+      },
+      {
+        text: 'Interesting perspective.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  risk_philosophy: {
+    text: "My philosophy? Simple - scared money don't make money. You gotta be willing to lose it all to win big. But here's the kicker - it ain't about being reckless. It's about knowing when the deck's stacked in your favor and having the guts to go all-in when the moment's right.",
+    choices: [
+      {
+        text: 'When do you know the moment is right?',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'That takes real courage.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Sounds like a good way to go broke.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  odds_discussion: {
+    text: "Calculating odds? That's where most people get it wrong - they only look at the numbers. But the real odds include things you can't quantify: desperation, greed, fear, timing. A cargo run that looks like a sure loss on paper might be pure gold if you know the right people are getting desperate.",
+    choices: [
+      {
+        text: 'Information is part of the equation.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Psychology matters as much as math.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Numbers don\'t lie, though.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  safe_investments: {
+    text: "Safe investments? *chuckles* Sure, you'll make your 3% return, sleep well at night, retire comfortably at 70. But while you're playing it safe, someone else is making the big score. Life's a gamble anyway - might as well make it an interesting one.",
+    choices: [
+      {
+        text: 'Maybe I should take more chances.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'There\'s wisdom in both approaches.',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'I\'ll stick with steady returns.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: "Risk-taking tip? Oh, I got plenty of those! See, most traders think small - they're afraid to bet big when the cards are hot. But here's something that might change your perspective on opportunity...",
+    flags: ['liu_tip_requested'],
+    choices: [
+      {
+        text: 'That could be worth serious credits.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thanks for the gambling wisdom, Lucky.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: "Emergency loan? *leans back in chair* Five hundred credits... Now that's interesting. Most people come to me for stakes, not loans. But I like your style - sometimes you gotta double down when you're short on chips. Thirty days to pay it back, standard terms. You in?",
+    flags: ['liu_loan_discussed'],
+    choices: [
+      {
+        text: 'Deal. I appreciate the stake, Lucky.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me think about those odds first.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: 'Cargo storage? Sure thing, sport. I got secure space in the back - up to ten units, safe from sticky fingers and prying eyes. Consider it a favor between players. Sometimes you gotta stash your winnings before the next big game, right?',
+    flags: ['liu_storage_discussed'],
+    choices: [
+      {
+        text: 'That would really help my game.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thanks for looking out for a fellow player.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
  * All dialogue trees in the game
  * Maps NPC IDs to their dialogue trees
  */
@@ -1576,6 +1962,8 @@ export const ALL_DIALOGUE_TREES = {
   kim_tau_ceti: DR_SARAH_KIM_DIALOGUE,
   rodriguez_procyon: RUSTY_RODRIGUEZ_DIALOGUE,
   osman_luyten: ZARA_OSMAN_DIALOGUE,
+  kowalski_alpha_centauri: STATION_MASTER_KOWALSKI_DIALOGUE,
+  liu_wolf359: LUCKY_LIU_DIALOGUE,
 };
 
 /**
