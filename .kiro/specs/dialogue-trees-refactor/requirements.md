@@ -44,7 +44,7 @@ This document outlines the requirements for refactoring the monolithic `dialogue
 3. WHEN validating dialogue trees, THE Validation_Module SHALL export `validateDialogueTree()` function
 4. WHEN validating dialogue nodes, THE Validation_Module SHALL export `validateDialogueNode()` function
 5. WHEN validating dialogue choices, THE Validation_Module SHALL export `validateDialogueChoice()` function
-6. WHEN validating all dialogue trees, THE Validation_Module SHALL export `validateAllDialogueTrees()` function
+6. WHEN validating all dialogue trees, THE Aggregator_Module SHALL export `validateAllDialogueTrees()` function (remains in aggregator since it requires access to `ALL_DIALOGUE_TREES`)
 
 ### Requirement 3: Maintain Backward Compatibility
 
