@@ -15,10 +15,10 @@ import {
 import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
 
 /**
- * Unit tests for dialogue tree structure
- * Feature: npc-foundation
+ * Unit tests for dialogue tree structure validation
+ * Feature: npc-benefits
  *
- * **Validates: npc-foundation Requirements 9.4, 11.2**
+ * **Validates: Requirements 12.1-12.6**
  *
  * Verifies that dialogue trees have the correct structure, greeting nodes exist,
  * and reputation-gated choices have proper condition functions.
@@ -626,7 +626,9 @@ describe('Dialogue Tree Structure', () => {
       expect(choices.length).toBeGreaterThan(3);
 
       // Should have tip choice with reputation condition
-      const tipChoice = choices.find(choice => choice.text.includes('operational tips'));
+      const tipChoice = choices.find((choice) =>
+        choice.text.includes('operational tips')
+      );
       expect(tipChoice).toBeDefined();
       expect(tipChoice.condition).toBeDefined();
       expect(typeof tipChoice.condition).toBe('function');
@@ -634,7 +636,9 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe(false);
 
       // Should have loan choice with Trusted tier condition
-      const loanChoice = choices.find(choice => choice.text.includes('emergency loan'));
+      const loanChoice = choices.find((choice) =>
+        choice.text.includes('emergency loan')
+      );
       expect(loanChoice).toBeDefined();
       expect(loanChoice.condition).toBeDefined();
       expect(typeof loanChoice.condition).toBe('function');
@@ -642,11 +646,15 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(false);
 
       // Should have storage choice with Friendly tier condition
-      const storageChoice = choices.find(choice => choice.text.includes('store some cargo'));
+      const storageChoice = choices.find((choice) =>
+        choice.text.includes('store some cargo')
+      );
       expect(storageChoice).toBeDefined();
       expect(storageChoice.condition).toBeDefined();
       expect(typeof storageChoice.condition).toBe('function');
-      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(true);
+      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(
+        true
+      );
       expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(false);
     });
 
@@ -659,10 +667,10 @@ describe('Dialogue Tree Structure', () => {
         'regulation_defense',
         'ask_tip',
         'request_loan',
-        'request_storage'
+        'request_storage',
       ];
 
-      requiredNodes.forEach(nodeId => {
+      requiredNodes.forEach((nodeId) => {
         expect(DR_SARAH_KIM_DIALOGUE[nodeId]).toBeDefined();
         expect(DR_SARAH_KIM_DIALOGUE[nodeId].text).toBeDefined();
         expect(DR_SARAH_KIM_DIALOGUE[nodeId].choices).toBeDefined();
@@ -672,13 +680,19 @@ describe('Dialogue Tree Structure', () => {
     it('should have story flags in dialogue nodes', () => {
       // Check that tip and favor nodes have flags
       expect(DR_SARAH_KIM_DIALOGUE.ask_tip.flags).toBeDefined();
-      expect(DR_SARAH_KIM_DIALOGUE.ask_tip.flags).toContain('kim_tip_requested');
-      
+      expect(DR_SARAH_KIM_DIALOGUE.ask_tip.flags).toContain(
+        'kim_tip_requested'
+      );
+
       expect(DR_SARAH_KIM_DIALOGUE.request_loan.flags).toBeDefined();
-      expect(DR_SARAH_KIM_DIALOGUE.request_loan.flags).toContain('kim_loan_discussed');
-      
+      expect(DR_SARAH_KIM_DIALOGUE.request_loan.flags).toContain(
+        'kim_loan_discussed'
+      );
+
       expect(DR_SARAH_KIM_DIALOGUE.request_storage.flags).toBeDefined();
-      expect(DR_SARAH_KIM_DIALOGUE.request_storage.flags).toContain('kim_storage_discussed');
+      expect(DR_SARAH_KIM_DIALOGUE.request_storage.flags).toContain(
+        'kim_storage_discussed'
+      );
     });
 
     it('should reflect professional administrator personality', () => {

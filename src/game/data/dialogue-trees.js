@@ -1057,14 +1057,14 @@ export const DR_SARAH_KIM_DIALOGUE = {
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         return "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?";
+        return 'Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?';
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hello there! Your professional approach to station operations has been refreshing. How are things going for you?";
+        return 'Hello there! Your professional approach to station operations has been refreshing. How are things going for you?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
       } else {
         // Neutral, Cold, or Hostile
-        return "Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?";
+        return 'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
       }
     },
     choices: [
@@ -1173,7 +1173,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
   },
 
   ask_tip: {
-    text: 'Certainly. Operational efficiency is improved through proper planning and adherence to established protocols. Here\'s something that should help optimize your trading operations...',
+    text: "Certainly. Operational efficiency is improved through proper planning and adherence to established protocols. Here's something that should help optimize your trading operations...",
     flags: ['kim_tip_requested'],
     choices: [
       {
