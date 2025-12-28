@@ -6,6 +6,7 @@ import {
   NEW_GAME_DEFAULTS,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
+import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
 
 /**
  * InitializationManager - Handles game initialization and setup
@@ -36,6 +37,9 @@ export class InitializationManager {
    * @returns {Object} Complete initial game state
    */
   createInitialState() {
+    // Validate dialogue trees and constants during game initialization
+    validateAllDialogueTrees();
+
     const playerState = this.initializePlayerState();
     const shipState = this.initializeShipState();
     const worldState = this.initializeWorldState();

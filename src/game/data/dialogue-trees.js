@@ -1,60 +1,23 @@
 /**
  * @fileoverview Dialogue Tree Data Structures
  *
- * Defines branching conversation trees for all NPCs in the game. Each dialogue tree
- * contains nodes with NPC text and player response choices. Text can be static strings
- * or functions that generate dynamic content based on reputation. Choices can have
- * condition functions to control visibility based on relationship level.
+ * ## Why Function-Based Text Generation
  *
- * ## Architecture Integration
+ * Text functions enable reputation-responsive dialogue without duplicating content.
+ * NPCs can acknowledge relationship progression naturally, making interactions feel
+ * personal and meaningful rather than static.
  *
- * Dialogue trees integrate with the NPC reputation system through:
- * - **Dynamic Text**: Text functions receive current reputation and generate contextual responses
- * - **Conditional Choices**: Choice visibility controlled by reputation thresholds (e.g., backstory requires rep >= 30)
- * - **Reputation Changes**: Choices can modify reputation via `repGain` property
- * - **Story Flags**: Dialogue nodes can set persistent flags in NPC state for quest tracking
+ * ## Why Conditional Choice Visibility
  *
- * ## Game State Integration
+ * Reputation-gated choices create progression incentives - players must build
+ * relationships to unlock deeper conversations and story content. This supports
+ * the "You Know These People" design pillar.
  *
- * Dialogue execution affects game state through:
- * - **Reputation Modification**: Applied before advancing to next node (ensures immediate effect)
- * - **Story Flag Setting**: Flags added to NPC state before navigation (enables conditional content)
- * - **Trust Modifiers**: Reputation gains affected by NPC personality traits and ship quirks
- * - **Interaction Tracking**: Last interaction timestamp and total interaction count updated
+ * ## Why Immediate Reputation Application
  *
- * ## Usage Patterns
- *
- * ```javascript
- * // Import specific trees for dialogue engine
- * import { WEI_CHEN_DIALOGUE } from './dialogue-trees.js';
- *
- * // Import all trees for system initialization
- * import { ALL_DIALOGUE_TREES, validateAllDialogueTrees } from './dialogue-trees.js';
- *
- * // Validate tree structure during game initialization
- * validateAllDialogueTrees(); // Throws if any tree is malformed
- *
- * // Execute dialogue with reputation-based text
- * const greetingText = WEI_CHEN_DIALOGUE.greeting.text(currentReputation);
- *
- * // Filter choices by reputation conditions
- * const availableChoices = node.choices.filter(choice =>
- *   !choice.condition || choice.condition(currentReputation)
- * );
- * ```
- *
- * ## Dialogue Node Structure
- *
- * Each dialogue node contains:
- * - `text`: String or function(reputation) returning contextual NPC dialogue
- * - `choices`: Array of player response options
- * - `flags`: Optional array of story flags to set when node is visited
- *
- * Each choice contains:
- * - `text`: Player response text (always static string)
- * - `next`: Next node ID or null to end dialogue
- * - `repGain`: Optional reputation change (applied before navigation)
- * - `condition`: Optional function(reputation) controlling choice visibility
+ * Reputation changes apply before navigation to ensure conditional content
+ * becomes available immediately. This prevents confusing delays where players
+ * must exit and re-enter dialogue to see new options.
  *
  * @module DialogueTrees
  */
@@ -239,7 +202,7 @@ export function validateDialogueChoice(nodeId, choiceIndex, choice) {
  *
  * Dialogue Flow:
  * - greeting → small_talk → (boring_response | honest_work) → greeting
- * - greeting → backstory (rep >= 30) → backstory_2 → greeting
+ * - greeting → backstory (FRIENDLY_MIN tier) → backstory_2 → greeting
  */
 export const WEI_CHEN_DIALOGUE = {
   greeting: {
@@ -377,7 +340,7 @@ export const WEI_CHEN_DIALOGUE = {
  *
  * Dialogue Flow:
  * - greeting → debt_talk → (payment_plan | defiant_response) → greeting
- * - greeting → business (rep >= 0) → business_details → greeting
+ * - greeting → business (NEUTRAL_MIN tier) → business_details → greeting
  */
 export const MARCUS_COLE_DIALOGUE = {
   greeting: {
@@ -499,7 +462,7 @@ export const MARCUS_COLE_DIALOGUE = {
  *
  * Dialogue Flow:
  * - greeting → faith_talk → (agree | skeptical) → greeting
- * - greeting → help (rep >= 10) → help_details → greeting
+ * - greeting → help (WARM_MIN tier) → help_details → greeting
  */
 export const FATHER_OKONKWO_DIALOGUE = {
   greeting: {
@@ -804,7 +767,7 @@ export const WHISPER_DIALOGUE = {
  * Dialogue Flow:
  * - greeting → trading_talk → (route_advice | fuel_costs) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
- * - greeting → backstory (rep >= 30) → pavonis_hints → greeting
+ * - greeting → backstory (FRIENDLY_MIN tier) → pavonis_hints → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
  * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
  */
