@@ -38,7 +38,7 @@ import {
   validateDialogueTree,
 } from './dialogue/validation.js';
 
-// Import individual dialogue trees
+// Import individual dialogue trees for use in ALL_DIALOGUE_TREES
 import { WEI_CHEN_DIALOGUE } from './dialogue/wei-chen.js';
 import { MARCUS_COLE_DIALOGUE } from './dialogue/marcus-cole.js';
 import { FATHER_OKONKWO_DIALOGUE } from './dialogue/father-okonkwo.js';
