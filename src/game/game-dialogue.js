@@ -32,6 +32,23 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 
 // Dialogue state is now managed by GameStateManager
 
+// Special dialogue node identifiers
+const TIP_NODE_ID = 'ask_tip';
+
+/**
+ * Validates NPC ID and returns NPC data
+ * @param {string} npcId - NPC identifier to validate
+ * @returns {Object} NPC data object
+ * @throws {Error} If NPC ID is invalid
+ */
+function validateNPCId(npcId) {
+  const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
+  if (!npcData) {
+    throw new Error(`Unknown NPC ID: ${npcId}`);
+  }
+  return npcData;
+}
+
 /**
  * Display dialogue node with filtered choices
  *
@@ -50,10 +67,7 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
  */
 export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
   // Validate NPC ID exists in NPC data
-  const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-  if (!npcData) {
-    throw new Error(`Unknown NPC ID: ${npcId}`);
-  }
+  const npcData = validateNPCId(npcId);
 
   // Get dialogue tree for this NPC
   const dialogueTree = ALL_DIALOGUE_TREES[npcId];
@@ -81,13 +95,13 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
       : dialogueNode.text;
 
   // Special handling for tip nodes - append actual tip content
-  if (nodeId === 'ask_tip') {
+  if (nodeId === TIP_NODE_ID) {
     const tip = gameStateManager.getTip(npcId);
     if (tip) {
       dialogueText += `\n\n"${tip}"`;
     } else {
       // This shouldn't happen if dialogue conditions are correct, but handle gracefully
-      dialogueText += '\n\nActually, I don\'t have any tips for you right now.';
+      dialogueText += `\n\nActually, I don't have any tips for you right now.`;
     }
   }
 
@@ -158,10 +172,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  */
 export function selectChoice(npcId, choiceIndex, gameStateManager) {
   // Validate NPC ID exists in NPC data
-  const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-  if (!npcData) {
-    throw new Error(`Unknown NPC ID: ${npcId}`);
-  }
+  validateNPCId(npcId);
 
   // Get dialogue tree for this NPC
   const dialogueTree = ALL_DIALOGUE_TREES[npcId];

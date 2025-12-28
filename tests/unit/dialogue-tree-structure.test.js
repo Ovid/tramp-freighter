@@ -38,15 +38,19 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Test behavior: verify choices appear/disappear based on reputation
       const lowRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(0, mockGameStateManager, 'chen_barnards')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(0, mockGameStateManager, 'chen_barnards')
       );
       const highRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(50, mockGameStateManager, 'chen_barnards')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(50, mockGameStateManager, 'chen_barnards')
       );
 
       // High reputation should have more choices available
@@ -139,15 +143,19 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Low reputation should not have business option available
       const lowRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(-20, mockGameStateManager, 'cole_sol')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(-20, mockGameStateManager, 'cole_sol')
       );
       const highRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(10, mockGameStateManager, 'cole_sol')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(10, mockGameStateManager, 'cole_sol')
       );
 
       expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
@@ -217,15 +225,19 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Low reputation should not have help option available
       const lowRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(5, mockGameStateManager, 'okonkwo_ross154')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(5, mockGameStateManager, 'okonkwo_ross154')
       );
       const highRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(15, mockGameStateManager, 'okonkwo_ross154')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(15, mockGameStateManager, 'okonkwo_ross154')
       );
 
       expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
@@ -311,24 +323,34 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Test different reputation levels unlock different options
       const hostileRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(-50, mockGameStateManager, 'whisper_sirius')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(-50, mockGameStateManager, 'whisper_sirius')
       );
       const neutralRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(0, mockGameStateManager, 'whisper_sirius')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(0, mockGameStateManager, 'whisper_sirius')
       );
       const warmRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(15, mockGameStateManager, 'whisper_sirius')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(15, mockGameStateManager, 'whisper_sirius')
       );
       const friendlyRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(35, mockGameStateManager, 'whisper_sirius')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(35, mockGameStateManager, 'whisper_sirius')
       );
       const trustedRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(65, mockGameStateManager, 'whisper_sirius')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(65, mockGameStateManager, 'whisper_sirius')
       );
 
       // Higher reputation should unlock more options
@@ -359,13 +381,19 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Test the condition function (rep >= WARM_MIN which is 10)
-      expect(tipChoice.condition(9, mockGameStateManager, 'whisper_sirius')).toBe(false); // Below threshold
-      expect(tipChoice.condition(10, mockGameStateManager, 'whisper_sirius')).toBe(true); // At threshold
-      expect(tipChoice.condition(20, mockGameStateManager, 'whisper_sirius')).toBe(true); // Above threshold
+      expect(
+        tipChoice.condition(9, mockGameStateManager, 'whisper_sirius')
+      ).toBe(false); // Below threshold
+      expect(
+        tipChoice.condition(10, mockGameStateManager, 'whisper_sirius')
+      ).toBe(true); // At threshold
+      expect(
+        tipChoice.condition(20, mockGameStateManager, 'whisper_sirius')
+      ).toBe(true); // Above threshold
     });
 
     it('should have loan choice with reputation condition', () => {
@@ -518,24 +546,32 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Test different reputation levels unlock different options
       const neutralRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) => !choice.condition || choice.condition(0, mockGameStateManager, 'vasquez_epsilon')
+          (choice) =>
+            !choice.condition ||
+            choice.condition(0, mockGameStateManager, 'vasquez_epsilon')
         );
       const warmRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(15, mockGameStateManager, 'vasquez_epsilon')
+        (choice) =>
+          !choice.condition ||
+          choice.condition(15, mockGameStateManager, 'vasquez_epsilon')
       );
       const friendlyRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) => !choice.condition || choice.condition(35, mockGameStateManager, 'vasquez_epsilon')
+          (choice) =>
+            !choice.condition ||
+            choice.condition(35, mockGameStateManager, 'vasquez_epsilon')
         );
       const trustedRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) => !choice.condition || choice.condition(65, mockGameStateManager, 'vasquez_epsilon')
+          (choice) =>
+            !choice.condition ||
+            choice.condition(65, mockGameStateManager, 'vasquez_epsilon')
         );
 
       // Higher reputation should unlock more options
@@ -661,7 +697,7 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Should have tip choice with reputation condition
@@ -671,8 +707,20 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice).toBeDefined();
       expect(tipChoice.condition).toBeDefined();
       expect(typeof tipChoice.condition).toBe('function');
-      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockGameStateManager, 'kim_tau_ceti')).toBe(true);
-      expect(tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN, mockGameStateManager, 'kim_tau_ceti')).toBe(false);
+      expect(
+        tipChoice.condition(
+          REPUTATION_BOUNDS.WARM_MIN,
+          mockGameStateManager,
+          'kim_tau_ceti'
+        )
+      ).toBe(true);
+      expect(
+        tipChoice.condition(
+          REPUTATION_BOUNDS.NEUTRAL_MIN,
+          mockGameStateManager,
+          'kim_tau_ceti'
+        )
+      ).toBe(false);
 
       // Should have loan choice with Trusted tier condition
       const loanChoice = choices.find((choice) =>
@@ -788,7 +836,7 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition functions that need it
       const mockGameStateManager = {
-        canGetTip: () => ({ available: true })
+        canGetTip: () => ({ available: true }),
       };
 
       // Check for tip choice with reputation condition
@@ -798,8 +846,20 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice).toBeDefined();
       expect(tipChoice.condition).toBeDefined();
       expect(typeof tipChoice.condition).toBe('function');
-      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockGameStateManager, 'osman_luyten')).toBe(true);
-      expect(tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN, mockGameStateManager, 'osman_luyten')).toBe(false);
+      expect(
+        tipChoice.condition(
+          REPUTATION_BOUNDS.WARM_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(true);
+      expect(
+        tipChoice.condition(
+          REPUTATION_BOUNDS.NEUTRAL_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(false);
 
       // Check for loan choice with reputation condition
       const loanChoice = choices.find((choice) =>

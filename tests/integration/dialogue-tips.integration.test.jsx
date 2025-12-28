@@ -88,7 +88,9 @@ describe('Dialogue Tips Integration', () => {
       });
 
       // Verify tip option is not present
-      expect(screen.queryByText('Any trading tips for me?')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Any trading tips for me?')
+      ).not.toBeInTheDocument();
     });
 
     it('should hide tip option when NPC is on tip cooldown', async () => {
@@ -96,7 +98,7 @@ describe('Dialogue Tips Integration', () => {
       const npcId = 'whisper_sirius';
       const npcState = gameStateManager.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
-      
+
       // Set current day and recent tip day (within 7 days)
       const currentDay = 100;
       gameStateManager.getState().player.daysElapsed = currentDay;
@@ -114,7 +116,9 @@ describe('Dialogue Tips Integration', () => {
       });
 
       // Verify tip option is not present due to cooldown
-      expect(screen.queryByText('Any trading tips for me?')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Any trading tips for me?')
+      ).not.toBeInTheDocument();
     });
 
     it('should hide tip option when NPC has no tips', async () => {
@@ -166,16 +170,20 @@ describe('Dialogue Tips Integration', () => {
       // Wait for tip dialogue to appear
       await waitFor(() => {
         // Should show the tip dialogue text plus actual tip content
-        expect(screen.getByText(/Knowledge shared is knowledge multiplied/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Knowledge shared is knowledge multiplied/)
+        ).toBeInTheDocument();
       });
 
       // Verify that actual tip content is displayed (should be one of Whisper's tips)
-      const whisperNPC = ALL_NPCS.find(npc => npc.id === npcId);
+      const whisperNPC = ALL_NPCS.find((npc) => npc.id === npcId);
       const tipTexts = whisperNPC.tips;
-      
+
       // Check if any of the tip texts appear in the dialogue
-      const hasValidTip = tipTexts.some(tip => 
-        screen.queryByText(new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+      const hasValidTip = tipTexts.some((tip) =>
+        screen.queryByText(
+          new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        )
       );
       expect(hasValidTip).toBe(true);
     });
@@ -204,14 +212,18 @@ describe('Dialogue Tips Integration', () => {
 
       // Wait for tip dialogue and capture tip content
       await waitFor(() => {
-        expect(screen.getByText(/Been working these docks for years/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Been working these docks for years/)
+        ).toBeInTheDocument();
       });
 
       // Verify Wei Chen's tip content appears
-      const weiChenNPC = ALL_NPCS.find(npc => npc.id === weiChenId);
+      const weiChenNPC = ALL_NPCS.find((npc) => npc.id === weiChenId);
       const weiTipTexts = weiChenNPC.tips;
-      const hasWeiTip = weiTipTexts.some(tip => 
-        screen.queryByText(new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+      const hasWeiTip = weiTipTexts.some((tip) =>
+        screen.queryByText(
+          new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        )
       );
       expect(hasWeiTip).toBe(true);
 
@@ -238,14 +250,18 @@ describe('Dialogue Tips Integration', () => {
 
       // Wait for tip dialogue
       await waitFor(() => {
-        expect(screen.getByText(/Credit management is a skill/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Credit management is a skill/)
+        ).toBeInTheDocument();
       });
 
       // Verify Marcus Cole's tip content appears (different from Wei Chen's)
-      const marcusNPC = ALL_NPCS.find(npc => npc.id === marcusId);
+      const marcusNPC = ALL_NPCS.find((npc) => npc.id === marcusId);
       const marcusTipTexts = marcusNPC.tips;
-      const hasMarcusTip = marcusTipTexts.some(tip => 
-        screen.queryByText(new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+      const hasMarcusTip = marcusTipTexts.some((tip) =>
+        screen.queryByText(
+          new RegExp(tip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        )
       );
       expect(hasMarcusTip).toBe(true);
     });
@@ -256,7 +272,7 @@ describe('Dialogue Tips Integration', () => {
       const npcState = gameStateManager.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
       npcState.lastTipDay = null; // No cooldown
-      
+
       // Set current day
       const currentDay = 50;
       gameStateManager.getState().player.daysElapsed = currentDay;
@@ -278,23 +294,31 @@ describe('Dialogue Tips Integration', () => {
 
       // Wait for tip dialogue to appear
       await waitFor(() => {
-        expect(screen.getByText(/Always happy to share what I know/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Always happy to share what I know/)
+        ).toBeInTheDocument();
       });
 
       // Verify that lastTipDay was updated
       expect(npcState.lastTipDay).toBe(currentDay);
 
       // Go back to greeting and verify tip option is no longer available
-      const responseButton = screen.getByText('That information is very helpful.');
+      const responseButton = screen.getByText(
+        'That information is very helpful.'
+      );
       fireEvent.click(responseButton);
 
       // Wait for return to greeting
       await waitFor(() => {
-        expect(screen.getByText(/Good to see you're still out there making runs/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Good to see you're still out there making runs/)
+        ).toBeInTheDocument();
       });
 
       // Verify tip option is no longer available due to cooldown
-      expect(screen.queryByText('Any trading tips for me?')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Any trading tips for me?')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -303,14 +327,26 @@ describe('Dialogue Tips Integration', () => {
       // Test different NPCs have different tip option text
       const testCases = [
         { npcId: 'whisper_sirius', expectedText: 'Any trading tips for me?' },
-        { npcId: 'chen_barnards', expectedText: 'Any dock worker tips for me?' },
+        {
+          npcId: 'chen_barnards',
+          expectedText: 'Any dock worker tips for me?',
+        },
         { npcId: 'cole_sol', expectedText: 'Any financial tips for me?' },
         { npcId: 'vasquez_epsilon', expectedText: 'Any trading tips for me?' },
         { npcId: 'kim_tau_ceti', expectedText: 'Any operational tips for me?' },
-        { npcId: 'rodriguez_procyon', expectedText: 'Any maintenance tips for me?' },
+        {
+          npcId: 'rodriguez_procyon',
+          expectedText: 'Any maintenance tips for me?',
+        },
         { npcId: 'osman_luyten', expectedText: 'Got any market tips for me?' },
-        { npcId: 'kowalski_alpha_centauri', expectedText: 'Any station operation tips for me?' },
-        { npcId: 'liu_wolf359', expectedText: 'Got any risk-taking tips for me?' },
+        {
+          npcId: 'kowalski_alpha_centauri',
+          expectedText: 'Any station operation tips for me?',
+        },
+        {
+          npcId: 'liu_wolf359',
+          expectedText: 'Got any risk-taking tips for me?',
+        },
       ];
 
       for (const { npcId, expectedText } of testCases) {
@@ -329,7 +365,7 @@ describe('Dialogue Tips Integration', () => {
 
         // Wait for dialogue to initialize
         await waitFor(() => {
-          const npcData = ALL_NPCS.find(npc => npc.id === npcId);
+          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
           expect(screen.getByText(npcData.name)).toBeInTheDocument();
         });
 

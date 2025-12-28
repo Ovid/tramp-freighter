@@ -93,10 +93,7 @@ export function validateRequiredConstants() {
   }
 }
 
-// Basic module-level validation - only check existence
-if (!REPUTATION_BOUNDS) {
-  throw new Error('REPUTATION_BOUNDS must be imported from constants.js');
-}
+// Module-level validation is handled by validateRequiredConstants() during game initialization
 
 /**
  * Validates that a dialogue tree has the required structure
@@ -342,11 +339,11 @@ export const WEI_CHEN_DIALOGUE = {
   },
 
   ask_tip: {
-    text: 'Dock worker tip? Sure. Been working these docks for years - learned a few things about keeping cargo and ships safe. Here\'s something that might help you out there...',
+    text: "Dock worker tip? Sure. Been working these docks for years - learned a few things about keeping cargo and ships safe. Here's something that might help you out there...",
     flags: ['chen_tip_requested'],
     choices: [
       {
-        text: 'That\'s really helpful. Thanks!',
+        text: "That's really helpful. Thanks!",
         next: 'greeting',
         repGain: 2,
       },
@@ -491,16 +488,16 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   ask_tip: {
-    text: 'Financial advice? Very well. Credit management is a skill few traders master. Debt is a tool - dangerous in the wrong hands, powerful when properly applied. Here\'s something that might improve your financial position...',
+    text: "Financial advice? Very well. Credit management is a skill few traders master. Debt is a tool - dangerous in the wrong hands, powerful when properly applied. Here's something that might improve your financial position...",
     flags: ['cole_tip_requested'],
     choices: [
       {
-        text: 'That\'s valuable advice. Thank you.',
+        text: "That's valuable advice. Thank you.",
         next: 'greeting',
         repGain: 2,
       },
       {
-        text: 'I\'ll consider that. Thanks.',
+        text: "I'll consider that. Thanks.",
         next: 'greeting',
         repGain: 1,
       },

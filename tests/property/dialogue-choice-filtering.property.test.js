@@ -5,7 +5,7 @@
  * Validates: Requirements 9.1, 9.2, 10.6
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
@@ -57,7 +57,11 @@ describe('Dialogue Choice Filtering Properties', () => {
             // Choice has condition function - check if visibility matches condition result
             let conditionResult;
             try {
-              conditionResult = originalChoice.condition(reputation, gameStateManager, npcId);
+              conditionResult = originalChoice.condition(
+                reputation,
+                gameStateManager,
+                npcId
+              );
             } catch {
               // If condition throws, choice should be hidden
               conditionResult = false;
@@ -85,11 +89,9 @@ describe('Dialogue Choice Filtering Properties', () => {
     gameStateManager.initNewGame();
 
     // Mock console.error to capture expected error messages
-    const originalConsoleError = console.error;
-    const errorMessages = [];
-    console.error = (...args) => {
-      errorMessages.push(args);
-    };
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     // Create a mock dialogue tree with a choice that has a throwing condition
     const mockNPCId = 'chen_barnards';
@@ -141,12 +143,14 @@ describe('Dialogue Choice Filtering Properties', () => {
       );
 
       // Verify that errors were logged as expected
-      expect(errorMessages.length).toBeGreaterThan(0);
-      expect(errorMessages[0][0]).toContain('Error in condition function');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+        'Error in condition function'
+      );
     } finally {
       // Restore original greeting node and console.error
       originalTree.greeting = originalGreeting;
-      console.error = originalConsoleError;
+      consoleErrorSpy.mockRestore();
     }
   });
 
