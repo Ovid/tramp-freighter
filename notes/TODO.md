@@ -1,3 +1,29 @@
+# TODO
+
+- i18n?
+- Liskov and Law of Demeter?
+- GCT
+- Reputation change-Not more than once per day per NPC?
+- Ensure all individual js modules have unit tests
+- We no longer need the migrateFromV1toV12 code
+- Economic events: we can find them, but do they last long enough to matter?
+  Is the ship info worth it?
+- COMMODITY_TYPES duplication
+- Ability to rename ship
+- X/Y/Z should be fixed for star data. Get more star info?
+- Admin process for adjusting data for testing
+- On jump, panel not always hidden.
+- Economic events should last longer (and not have the popup every time)
+- Dead code check
+- Duplicate tests?
+- System info to show tech level?
+- Lots of HTML in tests (<div id ...). Refactor?
+- Multi-route jumps?
+- Needs a tutorial.
+- Some kind of "Achievement" system (visited all stars, for example)
+
+# Notes
+
 1. Smaller specs are better
 2. Don't skip optional tasks (TODO)
 3. Tabs you have open fill context!
@@ -75,29 +101,6 @@ god object. When context gets out of control, it's a code smell!
 > Map unique benefits to existing mechanics where possible (e.g., "free rumors" = free tip, "price hints" = tip system)
 > Defer truly unique mechanics (co-investment, star charts, 105% buy rate) to future specs
 > Recommendation: Option C - Many of these "unique" benefits can be implemented using the existing tip and discount systems. Truly unique mechanics like co-investment and star charts should be deferred to avoid scope creep.
-
-# TODO
-
-- i18n?
-- GCT
-- Reputation change-Not more than once per day per NPC?
-- Ensure all individual js modules have unit tests
-- We no longer need the migrateFromV1toV12 code
-- Economic events: we can find them, but do they last long enough to matter?
-  Is the ship info worth it?
-- COMMODITY_TYPES duplication
-- Ability to rename ship
-- X/Y/Z should be fixed for star data. Get more star info?
-- Admin process for adjusting data for testing
-- On jump, panel not always hidden.
-- Economic events should last longer (and not have the popup every time)
-- Dead code check
-- Duplicate tests?
-- System info to show tech level?
-- Lots of HTML in tests (<div id ...). Refactor?
-- Multi-route jumps?
-- Needs a tutorial.
-- Some kind of "Achievement" system (visited all stars, for example)
 
 # Notes
 
