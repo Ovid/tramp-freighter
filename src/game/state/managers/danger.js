@@ -218,6 +218,82 @@ export class DangerManager extends BaseManager {
   }
 
   // ========================================================================
+  // INSPECTION SYSTEM
+  // ========================================================================
+
+  /**
+   * Calculate the probability of a customs inspection for a given system
+   *
+   * Applies zone-specific base rates and all modifiers from restricted goods,
+   * core systems multiplier, and faction reputation. Final probability
+   * is clamped to [0, 1] range.
+   *
+   * Feature: danger-system, Property 8: Inspection Probability Scaling
+   * Validates: Requirements 5.1, 5.2, 5.12, 8.8
+   *
+   * @param {number} systemId - The destination system ID
+   * @param {Object} gameState - Current game state for modifier calculations
+   * @returns {number} Probability of customs inspection (0.0 to 1.0)
+   */
+  calculateInspectionChance(systemId, gameState) {
+    const zone = this.getDangerZone(systemId);
+
+    // Destructure all needed config values for better performance and readability
+    const {
+      ZONES,
+      CORE_SYSTEMS_INSPECTION_MULTIPLIER,
+      RESTRICTED_GOODS_INSPECTION_INCREASE,
+      FACTION_REPUTATION_SCALES: {
+        AUTHORITY_INSPECTION_REDUCTION_SCALE,
+      },
+    } = DANGER_CONFIG;
+
+    // Start with base rate for the zone type (Requirement 5.2)
+    let probability = ZONES[zone].inspectionChance;
+
+    // Apply core systems multiplier (Requirement 5.12)
+    // Core systems (Sol = 0, Alpha Centauri = 1) have doubled inspection rates
+    if (systemId === 0 || systemId === 1) {
+      probability *= CORE_SYSTEMS_INSPECTION_MULTIPLIER; // 2x for core systems
+    }
+
+    // Apply restricted goods modifier (Requirement 5.2)
+    // Modifier = 1 + (count * 0.1), so each restricted good adds 10% to inspection chance
+    const restrictedGoodsCount = this.countRestrictedGoods(gameState.ship.cargo);
+    const restrictedModifier = 1 + (restrictedGoodsCount * RESTRICTED_GOODS_INSPECTION_INCREASE);
+    probability *= restrictedModifier;
+
+    // Apply faction reputation modifier (Requirement 8.8)
+    // High authority reputation reduces inspection chance (they trust you)
+    const authorityRep = gameState.player.factions.authorities;
+    const factionModifier = 1 + (authorityRep / 100) * AUTHORITY_INSPECTION_REDUCTION_SCALE;
+    probability *= factionModifier;
+
+    // Clamp final probability to [0, 1] range
+    return Math.max(0, Math.min(1, probability));
+  }
+
+  /**
+   * Count the number of restricted goods in cargo
+   *
+   * Helper method for inspection probability calculation.
+   * For now, this is a placeholder that counts all cargo items as potentially restricted.
+   * This will be enhanced when the restricted goods system is fully implemented.
+   *
+   * @param {Array} cargo - Array of cargo objects
+   * @returns {number} Number of restricted goods in cargo
+   */
+  countRestrictedGoods(cargo) {
+    if (!cargo || !Array.isArray(cargo)) {
+      return 0;
+    }
+
+    // For now, treat all cargo as potentially restricted for testing purposes
+    // This will be replaced with actual restricted goods logic in future tasks
+    return cargo.length;
+  }
+
+  // ========================================================================
   // FACTION REPUTATION SYSTEM
   // ========================================================================
 

@@ -604,6 +604,10 @@ export class GameStateManager {
     );
   }
 
+  calculateInspectionChance(systemId, gameState) {
+    return this.dangerManager.calculateInspectionChance(systemId, gameState);
+  }
+
   getKarma() {
     return this.dangerManager.getKarma();
   }

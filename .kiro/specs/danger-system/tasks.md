@@ -88,12 +88,12 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Clamp final probability to [0, 1]
     - _Requirements: 2.7, 2.8, 2.9, 2.10, 8.8_
 
-- [ ] 6. Implement inspection probability calculation (TDD)
-  - [ ] 6.1 RED: Write property test for inspection probability scaling
+- [x] 6. Implement inspection probability calculation (TDD)
+  - [x] 6.1 RED: Write property test for inspection probability scaling
     - **Property 8: Inspection Probability Scaling**
     - Test zone rates, restricted goods modifier, core systems multiplier, faction modifier
     - **Validates: Requirements 5.2, 5.12, 8.8**
-  - [ ] 6.2 GREEN: Add calculateInspectionChance(systemId, gameState) to DangerManager
+  - [x] 6.2 GREEN: Add calculateInspectionChance(systemId, gameState) to DangerManager
     - Use zone-specific base rates from DANGER_CONFIG
     - Apply restricted goods modifier (1 + count * 0.1)
     - Apply core systems multiplier (2x for systems 0, 1)
