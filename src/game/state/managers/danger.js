@@ -71,10 +71,13 @@ export class DangerManager extends BaseManager {
   /**
    * Get the current karma value
    *
+   * Karma represents the player's moral alignment and affects random event outcomes,
+   * NPC first impressions, and success rates for various encounters.
+   *
    * Feature: danger-system, Property 12: Karma Clamping
    * Validates: Requirements 9.1
    *
-   * @returns {number} Current karma value (-100 to 100)
+   * @returns {number} Current karma value, clamped to range [-100, 100]
    */
   getKarma() {
     this.validateState();
@@ -82,16 +85,17 @@ export class DangerManager extends BaseManager {
   }
 
   /**
-   * Modify karma by a given amount with clamping
+   * Modify karma by a given amount with automatic clamping
    *
-   * Karma is clamped to the range [-100, 100] after modification.
-   * Emits 'karmaChanged' event with the new value.
+   * Karma is automatically clamped to the range [-100, 100] after modification.
+   * Emits 'karmaChanged' event with the new value for UI reactivity.
+   * Changes are automatically saved to localStorage.
    *
    * Feature: danger-system, Property 12: Karma Clamping
    * Validates: Requirements 9.1, 9.2, 9.3
    *
-   * @param {number} amount - Amount to add (positive) or subtract (negative)
-   * @param {string} reason - Description of why karma changed (for logging/UI)
+   * @param {number} amount - Amount to add (positive) or subtract (negative) from current karma
+   * @param {string} reason - Description of why karma changed (for logging and UI feedback)
    */
   modifyKarma(amount, reason) {
     this.validateState();
@@ -104,7 +108,9 @@ export class DangerManager extends BaseManager {
 
     this.getState().player.karma = newKarma;
 
-    this.log(`Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`);
+    this.log(
+      `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
+    );
     this.emit('karmaChanged', { karma: newKarma, change: amount, reason });
   }
 
@@ -115,42 +121,50 @@ export class DangerManager extends BaseManager {
   /**
    * Get the reputation value for a specific faction
    *
+   * Faction reputation affects encounter probabilities, NPC attitudes, and available
+   * dialogue options. Each faction has independent reputation tracking.
+   *
    * Feature: danger-system, Property 13: Faction Reputation Clamping
    * Validates: Requirements 8.1, 8.2
    *
    * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
-   * @returns {number} Current faction reputation (-100 to 100)
-   * @throws {Error} If faction is not valid
+   * @returns {number} Current faction reputation, clamped to range [-100, 100]
+   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
    */
   getFactionRep(faction) {
     this.validateState();
 
     if (!FACTION_CONFIG.FACTIONS.includes(faction)) {
-      throw new Error(`Invalid faction: ${faction}. Valid factions: ${FACTION_CONFIG.FACTIONS.join(', ')}`);
+      throw new Error(
+        `Invalid faction: ${faction}. Valid factions: ${FACTION_CONFIG.FACTIONS.join(', ')}`
+      );
     }
 
     return this.getState().player.factions[faction];
   }
 
   /**
-   * Modify faction reputation by a given amount with clamping
+   * Modify faction reputation by a given amount with automatic clamping
    *
-   * Faction reputation is clamped to the range [-100, 100] after modification.
-   * Emits 'factionRepChanged' event with the new value.
+   * Faction reputation is automatically clamped to the range [-100, 100] after modification.
+   * Emits 'factionRepChanged' event with the new value for UI reactivity.
+   * Changes are automatically saved to localStorage.
    *
    * Feature: danger-system, Property 13: Faction Reputation Clamping
    * Validates: Requirements 8.3
    *
    * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
-   * @param {number} amount - Amount to add (positive) or subtract (negative)
-   * @param {string} reason - Description of why reputation changed (for logging/UI)
-   * @throws {Error} If faction is not valid
+   * @param {number} amount - Amount to add (positive) or subtract (negative) from current reputation
+   * @param {string} reason - Description of why reputation changed (for logging and UI feedback)
+   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
    */
   modifyFactionRep(faction, amount, reason) {
     this.validateState();
 
     if (!FACTION_CONFIG.FACTIONS.includes(faction)) {
-      throw new Error(`Invalid faction: ${faction}. Valid factions: ${FACTION_CONFIG.FACTIONS.join(', ')}`);
+      throw new Error(
+        `Invalid faction: ${faction}. Valid factions: ${FACTION_CONFIG.FACTIONS.join(', ')}`
+      );
     }
 
     const currentRep = this.getState().player.factions[faction];
@@ -161,7 +175,14 @@ export class DangerManager extends BaseManager {
 
     this.getState().player.factions[faction] = newRep;
 
-    this.log(`${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`);
-    this.emit('factionRepChanged', { faction, rep: newRep, change: amount, reason });
+    this.log(
+      `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
+    );
+    this.emit('factionRepChanged', {
+      faction,
+      rep: newRep,
+      change: amount,
+      reason,
+    });
   }
 }

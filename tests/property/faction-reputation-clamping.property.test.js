@@ -49,17 +49,17 @@ describe('Faction Reputation Clamping Properties', () => {
         factionArb,
         fc.integer({ min: -500, max: 500 }),
         (faction, amount) => {
-          const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
           gameStateManager.initNewGame();
 
           gameStateManager.modifyFactionRep(faction, amount, 'test');
           const rep = gameStateManager.getFactionRep(faction);
 
           // Faction reputation must always be within bounds
-          return (
-            rep >= FACTION_CONFIG.MIN &&
-            rep <= FACTION_CONFIG.MAX
-          );
+          return rep >= FACTION_CONFIG.MIN && rep <= FACTION_CONFIG.MAX;
         }
       ),
       { numRuns: 100 }
@@ -71,12 +71,15 @@ describe('Faction Reputation Clamping Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.array(
-          fc.tuple(factionArb, fc.integer({ min: -200, max: 200 })),
-          { minLength: 1, maxLength: 10 }
-        ),
+        fc.array(fc.tuple(factionArb, fc.integer({ min: -200, max: 200 })), {
+          minLength: 1,
+          maxLength: 10,
+        }),
         (modifications) => {
-          const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
           gameStateManager.initNewGame();
 
           for (const [faction, amount] of modifications) {

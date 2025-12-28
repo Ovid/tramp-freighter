@@ -27,22 +27,16 @@ describe('Karma Clamping Properties', () => {
 
   it('should clamp karma within bounds after any modification', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: -500, max: 500 }),
-        (amount) => {
-          const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-          gameStateManager.initNewGame();
+      fc.property(fc.integer({ min: -500, max: 500 }), (amount) => {
+        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        gameStateManager.initNewGame();
 
-          gameStateManager.modifyKarma(amount, 'test');
-          const karma = gameStateManager.getKarma();
+        gameStateManager.modifyKarma(amount, 'test');
+        const karma = gameStateManager.getKarma();
 
-          // Karma must always be within bounds
-          return (
-            karma >= KARMA_CONFIG.MIN &&
-            karma <= KARMA_CONFIG.MAX
-          );
-        }
-      ),
+        // Karma must always be within bounds
+        return karma >= KARMA_CONFIG.MIN && karma <= KARMA_CONFIG.MAX;
+      }),
       { numRuns: 100 }
     );
   });
@@ -50,9 +44,15 @@ describe('Karma Clamping Properties', () => {
   it('should clamp karma within bounds after multiple modifications', () => {
     fc.assert(
       fc.property(
-        fc.array(fc.integer({ min: -200, max: 200 }), { minLength: 1, maxLength: 10 }),
+        fc.array(fc.integer({ min: -200, max: 200 }), {
+          minLength: 1,
+          maxLength: 10,
+        }),
         (amounts) => {
-          const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gameStateManager = new GameStateManager(
+            STAR_DATA,
+            WORMHOLE_DATA
+          );
           gameStateManager.initNewGame();
 
           for (const amount of amounts) {
@@ -62,10 +62,7 @@ describe('Karma Clamping Properties', () => {
           const karma = gameStateManager.getKarma();
 
           // Karma must always be within bounds after any sequence of modifications
-          return (
-            karma >= KARMA_CONFIG.MIN &&
-            karma <= KARMA_CONFIG.MAX
-          );
+          return karma >= KARMA_CONFIG.MIN && karma <= KARMA_CONFIG.MAX;
         }
       ),
       { numRuns: 100 }
