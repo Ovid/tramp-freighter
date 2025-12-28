@@ -80,19 +80,19 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
     - **Property 2: File Size Constraint**
     - **Validates: Requirements 1.11**
 
-- [ ] 6. Convert dialogue-trees.js to aggregator module
-  - [ ] 6.1 Replace dialogue-trees.js content with aggregator pattern
+- [x] 6. Convert dialogue-trees.js to aggregator module
+  - [x] 6.1 Replace dialogue-trees.js content with aggregator pattern
     - Remove all dialogue tree definitions and validation function implementations
     - Add re-exports for all validation functions from `./dialogue/validation.js`
     - Add re-exports for all 11 NPC dialogue trees from their individual files
     - Construct `ALL_DIALOGUE_TREES` from imported dialogue trees
     - Keep `validateAllDialogueTrees()` in aggregator (needs `ALL_DIALOGUE_TREES`)
     - _Requirements: 3.1, 3.2, 3.3, 3.5, 4.3_
-  - [ ] 6.2 Write property test for export equivalence
+  - [x] 6.2 Write property test for export equivalence
     - **Property 1: Export Equivalence**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.5, 5.1, 5.2, 5.3**
 
-- [ ] 7. Final verification checkpoint
+- [x] 7. Final verification checkpoint
   - Run full test suite to verify all existing tests pass
   - Verify no import errors in application startup
   - Ensure all tests pass, ask the user if questions arise
