@@ -4,6 +4,7 @@ import {
   KARMA_CONFIG,
   FACTION_CONFIG,
   COMBAT_CONFIG,
+  NEGOTIATION_CONFIG,
   calculateDistanceFromSol,
 } from '../../constants.js';
 
@@ -609,6 +610,237 @@ export class DangerManager extends BaseManager {
         description: 'No patrol response. Pirates attacked while you waited.',
       };
     }
+  }
+
+  // ========================================================================
+  // NEGOTIATION SYSTEM
+  // ========================================================================
+
+  /**
+   * Resolve a negotiation choice and return the outcome
+   *
+   * Implements dialogue-based pirate encounter resolution with contextual options.
+   * Each choice has specific success rates, costs, and rewards based on
+   * the NEGOTIATION_CONFIG configuration.
+   *
+   * Feature: danger-system, Property 6: Negotiation Outcomes
+   * Validates: Requirements 4.1-4.11, 8.7, 9.4, 9.10
+   *
+   * @param {Object} encounter - The pirate encounter object
+   * @param {string} choice - Negotiation choice ('counter_proposal', 'medicine_claim', 'intel_offer', 'accept_demand')
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Negotiation outcome with success, costs, rewards, and description
+   */
+  resolveNegotiation(encounter, choice, rng) {
+    this.validateState();
+
+    const gameState = this.getState();
+
+    switch (choice) {
+      case 'counter_proposal':
+        return this.resolveCounterProposal(encounter, gameState, rng);
+      case 'medicine_claim':
+        return this.resolveMedicineClaim(encounter, gameState, rng);
+      case 'intel_offer':
+        return this.resolveIntelOffer(encounter, gameState, rng);
+      case 'accept_demand':
+        return this.resolveAcceptDemand(encounter);
+      default:
+        throw new Error(`Unknown negotiation choice: ${choice}`);
+    }
+  }
+
+  /**
+   * Resolve counter-proposal negotiation choice
+   *
+   * Counter-proposal attempts to negotiate a lower payment.
+   * Success rate: 60% base chance + karma modifier
+   * Success: 10% cargo payment instead of full demand
+   * Failure: +10% enemy strength increase, forces combat
+   *
+   * @param {Object} encounter - The pirate encounter
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Negotiation outcome
+   */
+  resolveCounterProposal(encounter, gameState, rng) {
+    const { COUNTER_PROPOSAL } = NEGOTIATION_CONFIG;
+
+    // Calculate success chance with karma modifier
+    let successChance = COUNTER_PROPOSAL.BASE_CHANCE;
+    successChance += this.calculateKarmaModifier(gameState.player.karma);
+
+    // Clamp success chance to [0, 1]
+    successChance = Math.max(0, Math.min(1, successChance));
+
+    const success = rng < successChance;
+
+    if (success) {
+      return {
+        success: true,
+        costs: {
+          cargoPercent: COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT,
+        },
+        rewards: {},
+        description: 'Successfully negotiated a reduced payment with the pirates.',
+      };
+    } else {
+      return {
+        success: false,
+        costs: {
+          strengthIncrease: COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE,
+        },
+        rewards: {},
+        description: 'Negotiation failed. Pirates are now more aggressive.',
+      };
+    }
+  }
+
+  /**
+   * Resolve medicine claim negotiation choice
+   *
+   * Medicine claim attempts to gain pirate sympathy by claiming to carry medicine.
+   * Only available if medicine is actually in cargo.
+   * Success rate: 40% sympathy chance if medicine present
+   * Success: Free passage
+   * Failure: Forces combat or other consequence
+   *
+   * @param {Object} encounter - The pirate encounter
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Negotiation outcome
+   */
+  resolveMedicineClaim(encounter, gameState, rng) {
+    const { MEDICINE_CLAIM } = NEGOTIATION_CONFIG;
+
+    // Check if medicine is actually in cargo
+    const hasMedicine = gameState.ship.cargo.some(
+      (item) => item.type === 'medicine'
+    );
+
+    if (!hasMedicine) {
+      return {
+        success: false,
+        costs: {
+          strengthIncrease: 0.2, // Pirates are angry about the lie
+        },
+        rewards: {},
+        description: 'Pirates discovered you have no medicine. They are not pleased.',
+      };
+    }
+
+    // Apply karma modifier to sympathy chance
+    let sympathyChance = MEDICINE_CLAIM.SYMPATHY_CHANCE;
+    sympathyChance += this.calculateKarmaModifier(gameState.player.karma);
+
+    // Clamp sympathy chance to [0, 1]
+    sympathyChance = Math.max(0, Math.min(1, sympathyChance));
+
+    const success = rng < sympathyChance;
+
+    if (success) {
+      return {
+        success: true,
+        costs: {},
+        rewards: {},
+        description: 'Pirates showed sympathy for your medical mission and let you pass.',
+      };
+    } else {
+      return {
+        success: false,
+        costs: {
+          cargoPercent: encounter.demandPercent || 20, // Fall back to standard demand
+        },
+        rewards: {},
+        description: 'Pirates acknowledged your medicine but still demanded payment.',
+      };
+    }
+  }
+
+  /**
+   * Resolve intel offer negotiation choice
+   *
+   * Intel offer attempts to trade information about other ships for safe passage.
+   * Only available if player has acquired prior intelligence.
+   * Success: Free passage, +3 outlaw reputation for cooperating with pirates
+   * Failure: Reputation penalty if discovered, forces combat
+   *
+   * @param {Object} encounter - The pirate encounter
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Negotiation outcome
+   */
+  resolveIntelOffer(encounter, gameState, rng) {
+    const { INTEL_OFFER } = NEGOTIATION_CONFIG;
+
+    // Check if player has prior intelligence to offer
+    const hasPriorIntel = gameState.world.flags?.hasPriorIntel || false;
+
+    if (!hasPriorIntel) {
+      return {
+        success: false,
+        costs: {
+          strengthIncrease: 0.15, // Pirates are suspicious
+        },
+        rewards: {},
+        description: 'You have no useful intelligence to offer the pirates.',
+      };
+    }
+
+    // Intel offer has a high success rate but carries reputation risks
+    // Apply karma modifier to success chance
+    let successChance = 0.8; // High success rate for intel trading
+    successChance += this.calculateKarmaModifier(gameState.player.karma);
+
+    // Clamp success chance to [0, 1]
+    successChance = Math.max(0, Math.min(1, successChance));
+
+    const success = rng < successChance;
+
+    if (success) {
+      return {
+        success: true,
+        costs: {},
+        rewards: {
+          factionRep: {
+            outlaws: INTEL_OFFER.OUTLAW_REP_GAIN,
+          },
+        },
+        description: 'Pirates accepted your intelligence and let you pass. Your cooperation was noted.',
+      };
+    } else {
+      return {
+        success: false,
+        costs: {
+          reputationPenalty: INTEL_OFFER.SUCCESS_REP_PENALTY,
+        },
+        rewards: {},
+        description: 'Pirates rejected your intelligence offer and became suspicious.',
+      };
+    }
+  }
+
+  /**
+   * Resolve accept demand negotiation choice
+   *
+   * Accept demand pays the pirates' initial demand for guaranteed safe passage.
+   * Success rate: 100% (guaranteed)
+   * Cost: 20% cargo payment
+   *
+   * @param {Object} encounter - The pirate encounter
+   * @returns {Object} Negotiation outcome
+   */
+  resolveAcceptDemand(encounter) {
+    const { ACCEPT_DEMAND } = NEGOTIATION_CONFIG;
+
+    return {
+      success: true,
+      costs: {
+        cargoPercent: ACCEPT_DEMAND.CARGO_PERCENT,
+      },
+      rewards: {},
+      description: 'Paid the pirates their demanded tribute and continued safely.',
+    };
   }
 
   // ========================================================================

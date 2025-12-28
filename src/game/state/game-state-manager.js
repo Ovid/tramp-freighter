@@ -629,4 +629,8 @@ export class GameStateManager {
   resolveCombatChoice(encounter, choice) {
     return this.dangerManager.resolveCombatChoice(encounter, choice);
   }
+
+  resolveNegotiation(encounter, choice, rng) {
+    return this.dangerManager.resolveNegotiation(encounter, choice, rng);
+  }
 }

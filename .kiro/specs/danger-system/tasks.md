@@ -122,15 +122,15 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Apply karma scaling to Lucky Ship quirk effectiveness (5% base + karma * LUCKY_SHIP_KARMA_SCALE)
     - _Requirements: 3.12-3.17, 9.4, 9.6, 9.10_
 
-- [ ] 8. Checkpoint - Ensure all tests pass
+- [x] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Implement negotiation system (TDD)
-  - [ ] 9.1 RED: Write property test for negotiation outcomes
+- [x] 9. Implement negotiation system (TDD)
+  - [x] 9.1 RED: Write property test for negotiation outcomes
     - **Property 6: Negotiation Outcomes**
     - Test each negotiation choice produces valid outcomes
     - **Validates: Requirements 4.2, 4.3, 4.4, 4.6, 4.7, 4.10**
-  - [ ] 9.2 GREEN: Add resolveNegotiation(choice, gameState, rng) to DangerManager
+  - [x] 9.2 GREEN: Add resolveNegotiation(choice, gameState, rng) to DangerManager
     - Implement counter-proposal (60% base, 10% cargo on success)
     - Implement medicine claim (40% sympathy if medicine in cargo)
     - Implement intel offer (requires prior intel, +3 outlaw rep for cooperating with pirates)
