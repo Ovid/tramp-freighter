@@ -114,13 +114,17 @@ export const WEI_CHEN = {
   description:
     'A weathered dock worker with calloused hands and knowing eyes. Former ship captain.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL, // Neutral starting relationship
-  tips: [], // No tips yet - will be added in task 11.1
-  discountService: null, // No discount service yet - will be added in task 11.1
+  tips: [
+    'Heavy cargo shifts during transit. Secure it properly.',
+    'Dock fees vary by station. Sol and Alpha Centauri charge premium.',
+    'Some captains overload their holds. Bad idea in rough space.',
+  ],
+  discountService: 'docking',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Dock worker tips' },
-    friendly: { discount: 0, benefit: 'Operational advice' },
-    trusted: { discount: 0, benefit: 'Advance warnings' },
-    family: { discount: 0, benefit: 'Priority assistance' },
+    friendly: { discount: 0.05, benefit: '5% discount on docking services' },
+    trusted: { discount: 0.05, benefit: 'Advance warning about dock inspections' },
+    family: { discount: 0.10, benefit: 'Priority docking and cargo handling' },
   },
 };
 
@@ -160,13 +164,17 @@ export const MARCUS_COLE = {
   description:
     'Impeccably dressed financier with cold eyes and a calculating smile. Your creditor.',
   initialRep: NPC_INITIAL_REPUTATION.HOSTILE, // Starts cold due to player debt
-  tips: [], // No tips yet - will be added in task 11.2
-  discountService: null, // No discount service yet - will be added in task 11.2
+  tips: [
+    'Debt compounds. Pay early when you can.',
+    'Credit is a tool. Use it wisely, not desperately.',
+    'Some traders leverage debt for bigger hauls. Risky but effective.',
+  ],
+  discountService: 'debt',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Financial tips' },
-    friendly: { discount: 0, benefit: 'Debt management advice' },
-    trusted: { discount: 0, benefit: 'Favorable loan terms' },
-    family: { discount: 0, benefit: 'Emergency credit access' },
+    friendly: { discount: 0.10, benefit: '10% reduction in debt interest' },
+    trusted: { discount: 0.10, benefit: 'Debt restructuring options' },
+    family: { discount: 0.15, benefit: 'Favorable loan terms' },
   },
 };
 
@@ -208,11 +216,11 @@ export const FATHER_OKONKWO = {
     'Gentle chaplain with kind eyes and a warm smile. Offers comfort to weary travelers.',
   initialRep: NPC_INITIAL_REPUTATION.FRIENDLY, // Starts warm and welcoming
   tips: [], // No trading tips - spiritual guidance role
-  discountService: null, // No discount service yet - will be added in task 11.3
+  discountService: 'medical',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Spiritual guidance' },
-    friendly: { discount: 0, benefit: 'Medical supplies' },
-    trusted: { discount: 0, benefit: 'Sanctuary benefits' },
+    friendly: { discount: 0, benefit: 'Free medical supplies once per visit' },
+    trusted: { discount: 0, benefit: 'Sanctuary (safe harbor) benefits' },
     family: { discount: 0, benefit: 'Emergency medical care' },
   },
 };

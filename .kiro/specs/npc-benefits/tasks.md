@@ -289,20 +289,20 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - *For all* new NPCs, verify required fields exist and values match specification ranges
     - **Validates: Requirements 4.1-4.15, 5.1-5.11, 6.1-6.10, 7.1-7.10, 8.1-8.10, 9.1-9.10, 10.1-10.10**
 
-- [ ] 11. Extend existing NPC definitions
-  - [ ] 11.1 Add tips and benefits to Wei Chen
+- [x] 11. Extend existing NPC definitions
+  - [x] 11.1 Add tips and benefits to Wei Chen
     - Add tips array with dock worker tips
     - Add discountService: 'docking'
     - Add tierBenefits configuration
     - _Requirements: 13.1-13.4_
 
-  - [ ] 11.2 Add tips and benefits to Marcus Cole
+  - [x] 11.2 Add tips and benefits to Marcus Cole
     - Add tips array with financial tips
     - Add discountService: 'debt'
     - Add tierBenefits configuration
     - _Requirements: 13.5-13.8_
 
-  - [ ] 11.3 Add benefits to Father Okonkwo (no tips)
+  - [x] 11.3 Add benefits to Father Okonkwo (no tips)
     - Keep tips array empty
     - Add discountService: 'medical'
     - Add tierBenefits configuration
