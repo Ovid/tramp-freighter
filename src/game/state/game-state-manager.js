@@ -596,4 +596,22 @@ export class GameStateManager {
   getDangerZone(systemId) {
     return this.dangerManager.getDangerZone(systemId);
   }
+
+  getKarma() {
+    return this.dangerManager.getKarma();
+  }
+
+  modifyKarma(amount, reason) {
+    this.dangerManager.modifyKarma(amount, reason);
+    this.saveGame();
+  }
+
+  getFactionRep(faction) {
+    return this.dangerManager.getFactionRep(faction);
+  }
+
+  modifyFactionRep(faction, amount, reason) {
+    this.dangerManager.modifyFactionRep(faction, amount, reason);
+    this.saveGame();
+  }
 }

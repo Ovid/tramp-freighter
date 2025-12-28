@@ -791,7 +791,6 @@ export const UI_CONFIG = {
   SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
 };
 
-
 /**
  * Danger System Configuration
  *

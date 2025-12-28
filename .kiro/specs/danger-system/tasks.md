@@ -39,28 +39,28 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Add player.factions object with authorities, traders, outlaws, civilians all at 0
     - _Requirements: 8.1, 8.2_
 
-- [ ] 3. Create DangerManager base structure (TDD)
-  - [ ] 3.1 RED: Write property test for danger zone classification
+- [x] 3. Create DangerManager base structure (TDD)
+  - [x] 3.1 RED: Write property test for danger zone classification
     - **Property 1: Danger Zone Classification Consistency**
     - Test that every system maps to exactly one zone type
     - **Validates: Requirements 1.1, 1.2, 1.10, 1.11, 1.12**
-  - [ ] 3.2 GREEN: Create src/game/state/managers/danger.js with getDangerZone(systemId)
+  - [x] 3.2 GREEN: Create src/game/state/managers/danger.js with getDangerZone(systemId)
     - Extend BaseManager
     - Implement getDangerZone(systemId) using DANGER_CONFIG
     - _Requirements: 1.1, 1.2, 1.10, 1.11, 1.12_
-  - [ ] 3.3 RED: Write property test for karma clamping
+  - [x] 3.3 RED: Write property test for karma clamping
     - **Property 12: Karma Clamping**
     - Test that karma modifications stay within [-100, 100] bounds
     - **Validates: Requirements 9.1, 9.2, 9.3**
-  - [ ] 3.4 GREEN: Implement modifyKarma(amount, reason) with clamping
+  - [x] 3.4 GREEN: Implement modifyKarma(amount, reason) with clamping
     - Clamp result to [-100, 100]
     - Implement getKarma() getter
     - _Requirements: 9.1, 9.2, 9.3_
-  - [ ] 3.5 RED: Write property test for faction reputation clamping
+  - [x] 3.5 RED: Write property test for faction reputation clamping
     - **Property 13: Faction Reputation Clamping**
     - Test that faction rep modifications stay within [-100, 100] bounds
     - **Validates: Requirements 8.3**
-  - [ ] 3.6 GREEN: Implement modifyFactionRep(faction, amount, reason) with clamping
+  - [x] 3.6 GREEN: Implement modifyFactionRep(faction, amount, reason) with clamping
     - Clamp result to [-100, 100]
     - Implement getFactionRep(faction) getter
     - _Requirements: 8.3_
