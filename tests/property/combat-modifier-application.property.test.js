@@ -3,7 +3,7 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { COMBAT_CONFIG, KARMA_CONFIG } from '../../src/game/constants.js';
+import { KARMA_CONFIG } from '../../src/game/constants.js';
 
 /**
  * Property-Based Tests for Combat Modifier Application
@@ -37,20 +37,39 @@ describe('Combat Modifier Application Property Tests', () => {
         // Generate random combat encounters
         fc.record({
           id: fc.string({ minLength: 1, maxLength: 20 }),
-          threatLevel: fc.constantFrom('weak', 'moderate', 'strong', 'dangerous'),
+          threatLevel: fc.constantFrom(
+            'weak',
+            'moderate',
+            'strong',
+            'dangerous'
+          ),
           name: fc.string({ minLength: 1, maxLength: 30 }),
           demandPercent: fc.integer({ min: 10, max: 50 }),
         }),
         // Generate random combat choices
-        fc.constantFrom('evasive', 'return_fire', 'dump_cargo', 'distress_call'),
+        fc.constantFrom(
+          'evasive',
+          'return_fire',
+          'dump_cargo',
+          'distress_call'
+        ),
         // Generate random quirks and upgrades
         fc.record({
           quirks: fc.array(
-            fc.constantFrom('hot_thruster', 'lucky_ship', 'sensitive_sensors', 'leaky_seals'),
+            fc.constantFrom(
+              'hot_thruster',
+              'lucky_ship',
+              'sensitive_sensors',
+              'leaky_seals'
+            ),
             { maxLength: 4 }
           ),
           upgrades: fc.array(
-            fc.constantFrom('reinforced_hull', 'efficient_drive', 'advanced_sensors'),
+            fc.constantFrom(
+              'reinforced_hull',
+              'efficient_drive',
+              'advanced_sensors'
+            ),
             { maxLength: 3 }
           ),
         }),
@@ -66,7 +85,10 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test modifier consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
-            const outcome = gameStateManager.resolveCombatChoice(encounter, choice);
+            const outcome = gameStateManager.resolveCombatChoice(
+              encounter,
+              choice
+            );
             outcomes.push(outcome);
           }
 
@@ -74,7 +96,7 @@ describe('Combat Modifier Application Property Tests', () => {
           // Note: Since we're using random numbers, we can't test exact outcomes,
           // but we can verify the structure and that modifiers affect the results
 
-          outcomes.forEach(outcome => {
+          outcomes.forEach((outcome) => {
             // Verify outcome structure is valid
             expect(outcome).toBeDefined();
             expect(outcome).toHaveProperty('success');
@@ -137,9 +159,9 @@ describe('Combat Modifier Application Property Tests', () => {
 
           // Test that outcomes vary (due to randomness) when modifiers are present
           // This helps ensure the random number generation is working
-          const successResults = outcomes.map(o => o.success);
+          const successResults = outcomes.map((o) => o.success);
           const uniqueResults = new Set(successResults);
-          
+
           // For choices that aren't guaranteed (not dump_cargo), we should see some variation
           // in a sample of 10 outcomes, unless the success rate is 0% or 100%
           if (choice !== 'dump_cargo') {
@@ -166,7 +188,12 @@ describe('Combat Modifier Application Property Tests', () => {
         // Generate random combat encounters
         fc.record({
           id: fc.string({ minLength: 1, maxLength: 20 }),
-          threatLevel: fc.constantFrom('weak', 'moderate', 'strong', 'dangerous'),
+          threatLevel: fc.constantFrom(
+            'weak',
+            'moderate',
+            'strong',
+            'dangerous'
+          ),
           name: fc.string({ minLength: 1, maxLength: 30 }),
           demandPercent: fc.integer({ min: 10, max: 50 }),
         }),
@@ -184,12 +211,15 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test karma effect
           const outcomes = [];
           for (let i = 0; i < 20; i++) {
-            const outcome = gameStateManager.resolveCombatChoice(encounter, choice);
+            const outcome = gameStateManager.resolveCombatChoice(
+              encounter,
+              choice
+            );
             outcomes.push(outcome);
           }
 
           // Verify that karma is being applied (structure test)
-          outcomes.forEach(outcome => {
+          outcomes.forEach((outcome) => {
             expect(outcome).toBeDefined();
             expect(outcome).toHaveProperty('success');
             expect(typeof outcome.success).toBe('boolean');

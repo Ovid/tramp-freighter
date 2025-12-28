@@ -37,48 +37,28 @@ describe('Combat Resolution Outcomes Property Tests', () => {
         // Generate random combat encounters
         fc.record({
           id: fc.string({ minLength: 1, maxLength: 20 }),
-          threatLevel: fc.constantFrom('weak', 'moderate', 'strong', 'dangerous'),
+          threatLevel: fc.constantFrom(
+            'weak',
+            'moderate',
+            'strong',
+            'dangerous'
+          ),
           name: fc.string({ minLength: 1, maxLength: 30 }),
           demandPercent: fc.integer({ min: 10, max: 50 }),
         }),
         // Generate random combat choices
-        fc.constantFrom('evasive', 'return_fire', 'dump_cargo', 'distress_call'),
-        // Generate random game states with varying ship conditions
-        fc.record({
-          player: fc.record({
-            karma: fc.integer({ min: -100, max: 100 }),
-            factions: fc.record({
-              authorities: fc.integer({ min: -100, max: 100 }),
-              outlaws: fc.integer({ min: -100, max: 100 }),
-              traders: fc.integer({ min: -100, max: 100 }),
-              civilians: fc.integer({ min: -100, max: 100 }),
-            }),
-          }),
-          ship: fc.record({
-            hull: fc.integer({ min: 0, max: 100 }),
-            engine: fc.integer({ min: 0, max: 100 }),
-            fuel: fc.integer({ min: 0, max: 100 }),
-            cargo: fc.array(
-              fc.record({
-                type: fc.constantFrom('grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics'),
-                quantity: fc.integer({ min: 1, max: 50 }),
-                purchasePrice: fc.integer({ min: 5, max: 100 }),
-              }),
-              { maxLength: 10 }
-            ),
-            quirks: fc.array(
-              fc.constantFrom('hot_thruster', 'lucky_ship', 'sensitive_sensors', 'leaky_seals'),
-              { maxLength: 3 }
-            ),
-            upgrades: fc.array(
-              fc.constantFrom('reinforced_hull', 'efficient_drive', 'advanced_sensors'),
-              { maxLength: 3 }
-            ),
-          }),
-        }),
-        (encounter, choice, gameState) => {
+        fc.constantFrom(
+          'evasive',
+          'return_fire',
+          'dump_cargo',
+          'distress_call'
+        ),
+        (encounter, choice) => {
           // Resolve the combat choice using the current game state
-          const outcome = gameStateManager.resolveCombatChoice(encounter, choice);
+          const outcome = gameStateManager.resolveCombatChoice(
+            encounter,
+            choice
+          );
 
           // Verify outcome structure is valid
           expect(outcome).toBeDefined();
@@ -95,8 +75,14 @@ describe('Combat Resolution Outcomes Property Tests', () => {
               // Evasive maneuvers: 70% base chance + modifiers
               if (outcome.success) {
                 // Success: -15% fuel, -5% engine
-                expect(outcome.costs).toHaveProperty('fuel', COMBAT_CONFIG.EVASIVE.SUCCESS_FUEL_COST);
-                expect(outcome.costs).toHaveProperty('engine', COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST);
+                expect(outcome.costs).toHaveProperty(
+                  'fuel',
+                  COMBAT_CONFIG.EVASIVE.SUCCESS_FUEL_COST
+                );
+                expect(outcome.costs).toHaveProperty(
+                  'engine',
+                  COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST
+                );
               } else {
                 // Failure: hull damage (may be modified by quirks/upgrades)
                 expect(outcome.costs).toHaveProperty('hull');
@@ -111,12 +97,18 @@ describe('Combat Resolution Outcomes Property Tests', () => {
                 expect(outcome.costs).toHaveProperty('hull');
                 expect(outcome.costs.hull).toBeGreaterThan(0);
                 expect(outcome.rewards).toHaveProperty('factionRep');
-                expect(outcome.rewards.factionRep).toHaveProperty('outlaws', COMBAT_CONFIG.RETURN_FIRE.SUCCESS_OUTLAW_REP);
+                expect(outcome.rewards.factionRep).toHaveProperty(
+                  'outlaws',
+                  COMBAT_CONFIG.RETURN_FIRE.SUCCESS_OUTLAW_REP
+                );
               } else {
                 // Failure: hull damage (may be modified), lose cargo and credits
                 expect(outcome.costs).toHaveProperty('hull');
                 expect(outcome.costs.hull).toBeGreaterThan(0);
-                expect(outcome.costs).toHaveProperty('credits', COMBAT_CONFIG.RETURN_FIRE.FAILURE_CREDITS_LOSS);
+                expect(outcome.costs).toHaveProperty(
+                  'credits',
+                  COMBAT_CONFIG.RETURN_FIRE.FAILURE_CREDITS_LOSS
+                );
                 expect(outcome.costs).toHaveProperty('cargoLoss', true);
               }
               break;
@@ -124,8 +116,14 @@ describe('Combat Resolution Outcomes Property Tests', () => {
             case 'dump_cargo':
               // Dump cargo: guaranteed escape
               expect(outcome.success).toBe(true);
-              expect(outcome.costs).toHaveProperty('cargoPercent', COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT);
-              expect(outcome.costs).toHaveProperty('fuel', COMBAT_CONFIG.DUMP_CARGO.FUEL_COST);
+              expect(outcome.costs).toHaveProperty(
+                'cargoPercent',
+                COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT
+              );
+              expect(outcome.costs).toHaveProperty(
+                'fuel',
+                COMBAT_CONFIG.DUMP_CARGO.FUEL_COST
+              );
               break;
 
             case 'distress_call':
@@ -133,7 +131,10 @@ describe('Combat Resolution Outcomes Property Tests', () => {
               if (outcome.success) {
                 // Success: +5 authority reputation
                 expect(outcome.rewards).toHaveProperty('factionRep');
-                expect(outcome.rewards.factionRep).toHaveProperty('authorities', COMBAT_CONFIG.DISTRESS_CALL.SUCCESS_REP_GAIN);
+                expect(outcome.rewards.factionRep).toHaveProperty(
+                  'authorities',
+                  COMBAT_CONFIG.DISTRESS_CALL.SUCCESS_REP_GAIN
+                );
               } else {
                 // Failure: hull damage (may be modified)
                 expect(outcome.costs).toHaveProperty('hull');
@@ -150,14 +151,14 @@ describe('Combat Resolution Outcomes Property Tests', () => {
           expect(typeof outcome.rewards).toBe('object');
 
           // Verify numeric values are reasonable
-          Object.values(outcome.costs).forEach(cost => {
+          Object.values(outcome.costs).forEach((cost) => {
             if (typeof cost === 'number') {
               expect(cost).toBeGreaterThanOrEqual(0);
               expect(cost).toBeLessThanOrEqual(1000); // Reasonable upper bound for costs including credits
             }
           });
 
-          Object.values(outcome.rewards).forEach(reward => {
+          Object.values(outcome.rewards).forEach((reward) => {
             if (typeof reward === 'number') {
               expect(reward).toBeGreaterThanOrEqual(-100);
               expect(reward).toBeLessThanOrEqual(100); // Reasonable bounds for reputation

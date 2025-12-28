@@ -335,7 +335,7 @@ export class DangerManager extends BaseManager {
       case 'return_fire':
         return this.resolveReturnFire(encounter, gameState, rng);
       case 'dump_cargo':
-        return this.resolveDumpCargo(encounter, gameState);
+        return this.resolveDumpCargo();
       case 'distress_call':
         return this.resolveDistressCall(encounter, gameState, rng);
       default:
@@ -358,26 +358,32 @@ export class DangerManager extends BaseManager {
    */
   resolveEvasiveManeuvers(encounter, gameState, rng) {
     const { EVASIVE } = COMBAT_CONFIG;
-    
+
     // Calculate success chance with modifiers
     let successChance = EVASIVE.BASE_CHANCE;
-    
+
     // Apply hot_thruster quirk bonus
-    if (gameState.ship.quirks && gameState.ship.quirks.includes('hot_thruster')) {
+    if (
+      gameState.ship.quirks &&
+      gameState.ship.quirks.includes('hot_thruster')
+    ) {
       successChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
     }
-    
+
     // Apply efficient_drive upgrade bonus (affects flee attempts)
-    if (gameState.ship.upgrades && gameState.ship.upgrades.includes('efficient_drive')) {
+    if (
+      gameState.ship.upgrades &&
+      gameState.ship.upgrades.includes('efficient_drive')
+    ) {
       successChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
     }
-    
+
     // Apply karma as hidden modifier
     successChance += this.calculateKarmaModifier(gameState.player.karma);
-    
+
     // Clamp success chance to [0, 1]
     successChance = Math.max(0, Math.min(1, successChance));
-    
+
     const success = rng < successChance;
 
     if (success) {
@@ -400,21 +406,23 @@ export class DangerManager extends BaseManager {
             engine: EVASIVE.SUCCESS_ENGINE_COST,
           },
           rewards: {},
-          description: 'Lucky ship systems helped evade the pirates at the last moment.',
+          description:
+            'Lucky ship systems helped evade the pirates at the last moment.',
         };
       }
-      
+
       // Calculate hull damage with modifiers
       let hullDamage = EVASIVE.FAILURE_HULL_DAMAGE;
       hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-      
+
       return {
         success: false,
         costs: {
           hull: hullDamage,
         },
         rewards: {},
-        description: 'Evasive maneuvers failed. Pirates scored hits on your hull.',
+        description:
+          'Evasive maneuvers failed. Pirates scored hits on your hull.',
       };
     }
   }
@@ -434,23 +442,23 @@ export class DangerManager extends BaseManager {
    */
   resolveReturnFire(encounter, gameState, rng) {
     const { RETURN_FIRE } = COMBAT_CONFIG;
-    
+
     // Calculate success chance with modifiers
     let successChance = RETURN_FIRE.BASE_CHANCE;
-    
+
     // Apply karma as hidden modifier
     successChance += this.calculateKarmaModifier(gameState.player.karma);
-    
+
     // Clamp success chance to [0, 1]
     successChance = Math.max(0, Math.min(1, successChance));
-    
+
     const success = rng < successChance;
 
     if (success) {
       // Calculate hull damage with modifiers
       let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
       hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-      
+
       return {
         success: true,
         costs: {
@@ -469,7 +477,7 @@ export class DangerManager extends BaseManager {
         // Convert failure to success with lucky ship
         let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
         hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-        
+
         return {
           success: true,
           costs: {
@@ -480,14 +488,15 @@ export class DangerManager extends BaseManager {
               outlaws: RETURN_FIRE.SUCCESS_OUTLAW_REP,
             },
           },
-          description: 'Lucky ship systems turned the tide of battle in your favor.',
+          description:
+            'Lucky ship systems turned the tide of battle in your favor.',
         };
       }
-      
+
       // Calculate hull damage with modifiers
       let hullDamage = RETURN_FIRE.FAILURE_HULL_DAMAGE;
       hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-      
+
       return {
         success: false,
         costs: {
@@ -508,11 +517,9 @@ export class DangerManager extends BaseManager {
    * Success rate: 100% (guaranteed)
    * Cost: -50% cargo, -10% fuel
    *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
    * @returns {Object} Combat outcome
    */
-  resolveDumpCargo(encounter, gameState) {
+  resolveDumpCargo() {
     const { DUMP_CARGO } = COMBAT_CONFIG;
 
     return {
@@ -541,21 +548,24 @@ export class DangerManager extends BaseManager {
    */
   resolveDistressCall(encounter, gameState, rng) {
     const { DISTRESS_CALL } = COMBAT_CONFIG;
-    
+
     // Calculate success chance with modifiers
     let successChance = DISTRESS_CALL.BASE_CHANCE;
-    
+
     // Apply sensitive_sensors quirk bonus
-    if (gameState.ship.quirks && gameState.ship.quirks.includes('sensitive_sensors')) {
+    if (
+      gameState.ship.quirks &&
+      gameState.ship.quirks.includes('sensitive_sensors')
+    ) {
       successChance += COMBAT_CONFIG.MODIFIERS.sensitive_sensors.distressBonus;
     }
-    
+
     // Apply karma as hidden modifier
     successChance += this.calculateKarmaModifier(gameState.player.karma);
-    
+
     // Clamp success chance to [0, 1]
     successChance = Math.max(0, Math.min(1, successChance));
-    
+
     const success = rng < successChance;
 
     if (success) {
@@ -567,7 +577,8 @@ export class DangerManager extends BaseManager {
             authorities: DISTRESS_CALL.SUCCESS_REP_GAIN,
           },
         },
-        description: 'Patrol responded to distress call and drove off the pirates.',
+        description:
+          'Patrol responded to distress call and drove off the pirates.',
       };
     } else {
       // Apply lucky_ship quirk chance to negate bad outcome
@@ -580,14 +591,15 @@ export class DangerManager extends BaseManager {
               authorities: DISTRESS_CALL.SUCCESS_REP_GAIN,
             },
           },
-          description: 'Lucky ship systems boosted the distress signal at the last moment.',
+          description:
+            'Lucky ship systems boosted the distress signal at the last moment.',
         };
       }
-      
+
       // Calculate hull damage with modifiers
       let hullDamage = DISTRESS_CALL.FAILURE_HULL_DAMAGE;
       hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-      
+
       return {
         success: false,
         costs: {
@@ -702,18 +714,21 @@ export class DangerManager extends BaseManager {
    * @returns {boolean} True if lucky ship negates the bad outcome
    */
   checkLuckyShipNegate(gameState, rng) {
-    if (!gameState.ship.quirks || !gameState.ship.quirks.includes('lucky_ship')) {
+    if (
+      !gameState.ship.quirks ||
+      !gameState.ship.quirks.includes('lucky_ship')
+    ) {
       return false;
     }
 
     // Calculate lucky ship effectiveness with karma scaling
     const baseChance = COMBAT_CONFIG.MODIFIERS.lucky_ship.negateChanceBase;
-    const karmaBonus = gameState.player.karma * KARMA_CONFIG.LUCKY_SHIP_KARMA_SCALE;
+    const karmaBonus =
+      gameState.player.karma * KARMA_CONFIG.LUCKY_SHIP_KARMA_SCALE;
     const luckyChance = baseChance + karmaBonus;
 
-    // Use a different random number for luck check to avoid correlation
-    const luckyRng = Math.random();
-    return luckyRng < luckyChance;
+    // Use the provided random number for luck check
+    return rng < luckyChance;
   }
 
   /**
@@ -731,15 +746,21 @@ export class DangerManager extends BaseManager {
     let modifiedDamage = baseDamage;
 
     // Apply reinforced_hull upgrade (reduces damage)
-    if (gameState.ship.upgrades && gameState.ship.upgrades.includes('reinforced_hull')) {
+    if (
+      gameState.ship.upgrades &&
+      gameState.ship.upgrades.includes('reinforced_hull')
+    ) {
       const reduction = COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction;
-      modifiedDamage *= (1 - reduction);
+      modifiedDamage *= 1 - reduction;
     }
 
     // Apply leaky_seals quirk (increases damage)
-    if (gameState.ship.quirks && gameState.ship.quirks.includes('leaky_seals')) {
+    if (
+      gameState.ship.quirks &&
+      gameState.ship.quirks.includes('leaky_seals')
+    ) {
       const increase = COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease;
-      modifiedDamage *= (1 + increase);
+      modifiedDamage *= 1 + increase;
     }
 
     // Round to nearest integer and ensure minimum of 1 damage
