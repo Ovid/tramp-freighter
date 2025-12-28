@@ -1,10 +1,10 @@
 /**
  * @fileoverview Zara Osman Dialogue Tree
- * 
+ *
  * A sharp trader with connections across the sector who is competitive but fair.
  * Uses casual speech with slang vocabulary and trading jargon quirks.
  * Provides market-focused tips and trading expertise based on relationship tier.
- * 
+ *
  * @module dialogue/zara-osman
  */
 
@@ -114,7 +114,7 @@ export const ZARA_OSMAN_DIALOGUE = {
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -123,7 +123,7 @@ export const ZARA_OSMAN_DIALOGUE = {
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(

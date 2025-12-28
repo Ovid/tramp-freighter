@@ -116,12 +116,23 @@ export const DR_SARAH_KIM_DIALOGUE = {
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
+          // Fall back to reputation-only check if gameStateManager not available (e.g., in tests)
+          if (!gameStateManager || !gameStateManager.canRequestFavor)
+            return true;
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
+          return favorAvailability.available;
+        },
       },
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -130,7 +141,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(

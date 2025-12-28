@@ -1,10 +1,10 @@
 /**
  * @fileoverview "Rusty" Rodriguez Dialogue Tree
- * 
+ *
  * A gruff but skilled mechanic who loves ships more than people. Uses technical
  * vocabulary with ship personification quirks and provides repair-focused tips.
  * Offers repair service discounts based on relationship tier.
- * 
+ *
  * @module dialogue/rusty-rodriguez
  */
 
@@ -114,7 +114,7 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -123,7 +123,7 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (_rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(
