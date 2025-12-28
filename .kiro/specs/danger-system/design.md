@@ -216,7 +216,19 @@ export const DANGER_CONFIG = {
   ADVANCED_SENSORS_MODIFIER: 0.8,
   
   CORE_SYSTEMS_INSPECTION_MULTIPLIER: 2.0,
-  RESTRICTED_GOODS_INSPECTION_MODIFIER: 0.1
+  RESTRICTED_GOODS_INSPECTION_MODIFIER: 0.1,
+  
+  // Faction reputation modifiers for encounter probabilities
+  // Modifier = 1 + (reputation / 100) * SCALE
+  // At +100 rep: modifier = 1 + SCALE, At -100 rep: modifier = 1 - SCALE
+  FACTION_MODIFIERS: {
+    // High outlaw rep reduces pirate encounters (they recognize you as one of them)
+    OUTLAW_PIRATE_SCALE: -0.3,  // +100 outlaw = 0.7x pirate chance, -100 = 1.3x
+    // High authority rep reduces inspection chance (they trust you)
+    AUTHORITY_INSPECTION_SCALE: -0.4,  // +100 authority = 0.6x inspection, -100 = 1.4x
+    // Low authority rep increases pirate encounters (less patrol protection)
+    AUTHORITY_PIRATE_SCALE: 0.2  // +100 authority = 0.8x pirate chance, -100 = 1.2x
+  }
 };
 ```
 
@@ -379,7 +391,11 @@ export const KARMA_CONFIG = {
   INITIAL: 0,
   
   // Karma affects lucky_ship quirk effectiveness
-  LUCKY_SHIP_KARMA_SCALE: 0.001  // 5% base + (karma * 0.001) = 5-15% at max karma
+  LUCKY_SHIP_KARMA_SCALE: 0.001,  // 5% base + (karma * 0.001) = 5-15% at max karma
+  
+  // Karma as hidden modifier on success rates
+  // Applied to combat, negotiation, and other chance-based outcomes
+  SUCCESS_RATE_SCALE: 0.0005  // ±5% at extreme karma (karma * 0.0005)
 };
 
 export const FACTION_CONFIG = {
@@ -395,14 +411,26 @@ export const FACTION_CONFIG = {
 
 ```javascript
 export const RESTRICTED_GOODS_CONFIG = {
-  // Goods restricted in safe zones
-  SAFE_ZONE_RESTRICTED: ['weapons'],  // Future commodity
+  // Zone-based restrictions using existing commodities
+  // Restricted goods can only be sold legally in zones where they're NOT restricted
+  // In restricted zones, they can only be sold via black market contacts or hidden cargo
+  ZONE_RESTRICTIONS: {
+    safe: ['electronics'],      // High-tech goods restricted in core systems (military tech concerns)
+    contested: ['medicine'],    // Medical supplies restricted in contested zones (hoarding prevention)
+    dangerous: ['tritium']      // Fuel restricted in dangerous zones (pirate supply concerns)
+  },
   
-  // Goods restricted in core systems only
-  CORE_RESTRICTED: ['narcotics'],  // Future commodity
+  // Core systems (Sol, Alpha Centauri) have additional restrictions
+  CORE_SYSTEM_RESTRICTED: ['parts'],  // Manufactured parts restricted to protect local industry
   
-  // Premium price multiplier for legal sales
-  PREMIUM_MULTIPLIER: 1.5
+  // Premium price multiplier when selling restricted goods legally (in non-restricted zones)
+  PREMIUM_MULTIPLIER: 1.5,
+  
+  // Black market price multiplier (selling restricted goods in restricted zones via contacts)
+  BLACK_MARKET_MULTIPLIER: 2.0,
+  
+  // Penalty multiplier for attempting to sell restricted goods without contacts
+  CONFISCATION_RISK: 0.25  // 25% chance goods are confiscated if caught selling illegally
 };
 ```
 
@@ -424,9 +452,9 @@ export const RESTRICTED_GOODS_CONFIG = {
 
 ### Property 3: Encounter Probability Modifiers
 
-*For any* pirate encounter check, the probability SHALL be multiplied by 1.2 if cargo value exceeds ₡5,000, by 1.5 if cargo value exceeds ₡10,000, by 1.1 if engine condition is below 50%, and by 0.8 if advanced sensors are installed; the final probability SHALL be clamped between 0 and 1.
+*For any* pirate encounter check, the probability SHALL be multiplied by 1.2 if cargo value exceeds ₡5,000, by 1.5 if cargo value exceeds ₡10,000, by 1.1 if engine condition is below 50%, and by 0.8 if advanced sensors are installed; faction reputation SHALL modify probabilities according to FACTION_MODIFIERS scales (outlaw rep reduces pirate chance, authority rep reduces inspection chance); the final probability SHALL be clamped between 0 and 1.
 
-**Validates: Requirements 2.7, 2.8, 2.9, 2.10**
+**Validates: Requirements 2.7, 2.8, 2.9, 2.10, 8.8**
 
 ### Property 4: Combat Resolution Outcomes
 
@@ -454,9 +482,9 @@ export const RESTRICTED_GOODS_CONFIG = {
 
 ### Property 8: Inspection Probability Scaling
 
-*For any* inspection check with restricted goods, the probability SHALL be multiplied by (1 + restrictedCount * 0.1), and in core systems (0, 1) SHALL be doubled.
+*For any* inspection check with restricted goods, the probability SHALL be multiplied by (1 + restrictedCount * 0.1), and in core systems (0, 1) SHALL be doubled; faction reputation SHALL modify probability according to AUTHORITY_INSPECTION_SCALE (high authority rep reduces inspection chance).
 
-**Validates: Requirements 5.2, 5.12**
+**Validates: Requirements 5.2, 5.12, 8.8**
 
 ### Property 9: Mechanical Failure Thresholds
 
@@ -499,6 +527,12 @@ export const RESTRICTED_GOODS_CONFIG = {
 *For any* game state with karma, faction reputation, ship damage, or cargo changes from encounters, saving and loading the game SHALL preserve all values exactly.
 
 **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5**
+
+### Property 16: Restricted Goods Premium Pricing
+
+*For any* restricted good sold in a zone where it is NOT restricted, the sell price SHALL be multiplied by the PREMIUM_MULTIPLIER (1.5x); and *for any* restricted good in a zone where it IS restricted, normal trade SHALL be blocked unless the player has black market contacts.
+
+**Validates: Requirements 11.10, 11.11**
 
 ## Error Handling
 
