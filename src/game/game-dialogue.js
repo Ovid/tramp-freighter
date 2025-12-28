@@ -39,6 +39,9 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
  * are evaluated with current reputation. Choices are filtered based on condition
  * functions. Uses initialRep for uninitialized NPCs.
  *
+ * Special handling for tip nodes: When nodeId is 'ask_tip', retrieves actual tip
+ * content using getTip() and displays it in the dialogue text.
+ *
  * @param {string} npcId - NPC identifier
  * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
  * @param {GameStateManager} gameStateManager - Game state manager instance
@@ -72,10 +75,21 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
   const currentRep = npcState.rep;
 
   // Generate dialogue text (evaluate function if needed)
-  const dialogueText =
+  let dialogueText =
     typeof dialogueNode.text === 'function'
       ? dialogueNode.text(currentRep)
       : dialogueNode.text;
+
+  // Special handling for tip nodes - append actual tip content
+  if (nodeId === 'ask_tip') {
+    const tip = gameStateManager.getTip(npcId);
+    if (tip) {
+      dialogueText += `\n\n"${tip}"`;
+    } else {
+      // This shouldn't happen if dialogue conditions are correct, but handle gracefully
+      dialogueText += '\n\nActually, I don\'t have any tips for you right now.';
+    }
+  }
 
   // Filter choices based on condition functions
   const availableChoices = [];
@@ -86,7 +100,8 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     // Check condition function if present
     if (choice.condition) {
       try {
-        isVisible = choice.condition(currentRep);
+        // Pass both reputation and gameStateManager for more complex conditions
+        isVisible = choice.condition(currentRep, gameStateManager, npcId);
       } catch (error) {
         // Log error and hide choice if condition function throws
         console.error(

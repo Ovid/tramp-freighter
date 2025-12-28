@@ -371,14 +371,14 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Verify discount source NPC is shown
     - _Requirements: 11.1, 11.2_
 
-- [ ] 15. Integrate tips into DialoguePanel
-  - [ ] 15.1 Add tip dialogue option to DialoguePanel
+- [x] 15. Integrate tips into DialoguePanel
+  - [x] 15.1 Add tip dialogue option to DialoguePanel
     - Show "Ask for trading tip" option when `canGetTip()` returns true
     - Call `getTip()` when option selected
     - Display tip in dialogue
     - _Requirements: 2.1, 2.3_
 
-  - [ ] 15.2 Write integration test for dialogue tips
+  - [x] 15.2 Write integration test for dialogue tips
     - Verify tip option appears when available
     - Verify tip option hidden when unavailable
     - Verify displayed tip text comes from correct NPC's tips array

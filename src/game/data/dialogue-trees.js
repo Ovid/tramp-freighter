@@ -225,6 +225,16 @@ export const WEI_CHEN_DIALOGUE = {
         next: 'small_talk',
       },
       {
+        text: 'Any dock worker tips for me?',
+        next: 'ask_tip',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
+      },
+      {
         text: 'Tell me about yourself.',
         next: 'backstory',
         condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
@@ -330,6 +340,23 @@ export const WEI_CHEN_DIALOGUE = {
       },
     ],
   },
+
+  ask_tip: {
+    text: 'Dock worker tip? Sure. Been working these docks for years - learned a few things about keeping cargo and ships safe. Here\'s something that might help you out there...',
+    flags: ['chen_tip_requested'],
+    choices: [
+      {
+        text: 'That\'s really helpful. Thanks!',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good to know. I appreciate it.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
 };
 
 /**
@@ -359,6 +386,16 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: 'About my debt...',
         next: 'debt_talk',
+      },
+      {
+        text: 'Any financial tips for me?',
+        next: 'ask_tip',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I wanted to discuss business opportunities.',
@@ -449,6 +486,23 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: "I'll keep that in mind.",
         next: 'greeting',
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: 'Financial advice? Very well. Credit management is a skill few traders master. Debt is a tool - dangerous in the wrong hands, powerful when properly applied. Here\'s something that might improve your financial position...',
+    flags: ['cole_tip_requested'],
+    choices: [
+      {
+        text: 'That\'s valuable advice. Thank you.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'I\'ll consider that. Thanks.',
+        next: 'greeting',
+        repGain: 1,
       },
     ],
   },
@@ -619,7 +673,12 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'Any trading tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',
@@ -795,7 +854,12 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'Any trading tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'Tell me about your trading days.',
@@ -1038,7 +1102,12 @@ export const DR_SARAH_KIM_DIALOGUE = {
       {
         text: 'Any operational tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',
@@ -1226,7 +1295,12 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
       {
         text: 'Any maintenance tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',
@@ -1415,7 +1489,12 @@ export const ZARA_OSMAN_DIALOGUE = {
       {
         text: 'Got any market tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',
@@ -1603,7 +1682,12 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
       {
         text: 'Any station operation tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',
@@ -1791,7 +1875,12 @@ export const LUCKY_LIU_DIALOGUE = {
       {
         text: 'Got any risk-taking tips for me?',
         next: 'ask_tip',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and tip availability
+          if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
+          const tipAvailability = gameStateManager.canGetTip(npcId);
+          return tipAvailability.available;
+        },
       },
       {
         text: 'I need an emergency loan.',

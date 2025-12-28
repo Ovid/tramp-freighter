@@ -57,7 +57,7 @@ describe('Dialogue Choice Filtering Properties', () => {
             // Choice has condition function - check if visibility matches condition result
             let conditionResult;
             try {
-              conditionResult = originalChoice.condition(reputation);
+              conditionResult = originalChoice.condition(reputation, gameStateManager, npcId);
             } catch {
               // If condition throws, choice should be hidden
               conditionResult = false;
