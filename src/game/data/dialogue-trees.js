@@ -22,7 +22,7 @@
  * @module DialogueTrees
  */
 
-import { REPUTATION_BOUNDS } from '../constants.js';
+import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../constants.js';
 
 /**
  * Validates that all required constants are properly defined
@@ -670,16 +670,18 @@ export const WHISPER_DIALOGUE = {
         baseText = 'Information costs credits.';
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*Your loan of ₡500 is overdue. Immediate repayment is required.*';
+            baseText +=
+              '\n\n*Your loan of ₡500 is overdue. Immediate repayment is required.*';
           } else if (daysRemaining <= 5) {
             baseText += `\n\n*Reminder: Your loan of ₡500 is due in ${daysRemaining} days.*`;
           } else {
@@ -711,7 +713,10 @@ export const WHISPER_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -735,7 +740,9 @@ export const WHISPER_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -927,28 +934,35 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = "Well hello there, family! Come, sit with me. I was just thinking about the old days when traders looked out for each other. How's your ship treating you?";
+        baseText =
+          "Well hello there, family! Come, sit with me. I was just thinking about the old days when traders looked out for each other. How's your ship treating you?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = "My trusted friend! Good to see you again. You know, I've been around these routes for decades, and I can tell you're one of the good ones. What brings you by?";
+        baseText =
+          "My trusted friend! Good to see you again. You know, I've been around these routes for decades, and I can tell you're one of the good ones. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = "Hey there, friend! Always a pleasure to see a fellow trader. You're looking more confident each time I see you. Ship running well?";
+        baseText =
+          "Hey there, friend! Always a pleasure to see a fellow trader. You're looking more confident each time I see you. Ship running well?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = "Oh, it's you again! Good to see you're still out there making runs. How's the trading life treating you?";
+        baseText =
+          "Oh, it's you again! Good to see you're still out there making runs. How's the trading life treating you?";
       } else {
         // Neutral (starts at rep 5, so likely Neutral)
-        baseText = "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
+        baseText =
+          "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*Captain, your loan of ₡500 is overdue. I trust this is just an oversight?*';
+            baseText +=
+              '\n\n*Captain, your loan of ₡500 is overdue. I trust this is just an oversight?*';
           } else if (daysRemaining <= 5) {
             baseText += `\n\n*Just a friendly reminder - your loan of ₡500 is due in ${daysRemaining} days.*`;
           } else {
@@ -985,7 +999,10 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -1009,7 +1026,9 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -1263,28 +1282,35 @@ export const DR_SARAH_KIM_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
+        baseText =
+          "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = 'Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?';
+        baseText =
+          'Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?';
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = 'Hello there! Your professional approach to station operations has been refreshing. How are things going for you?';
+        baseText =
+          'Hello there! Your professional approach to station operations has been refreshing. How are things going for you?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
+        baseText =
+          "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
       } else {
         // Neutral, Cold, or Hostile
-        baseText = 'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
+        baseText =
+          'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*Per Financial Regulation 12-A, your loan of ₡500 is overdue. Immediate repayment is required.*';
+            baseText +=
+              '\n\n*Per Financial Regulation 12-A, your loan of ₡500 is overdue. Immediate repayment is required.*';
           } else if (daysRemaining <= 5) {
             baseText += `\n\n*Financial reminder: Your loan of ₡500 is due in ${daysRemaining} days per standard terms.*`;
           } else {
@@ -1316,7 +1342,10 @@ export const DR_SARAH_KIM_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -1340,7 +1369,9 @@ export const DR_SARAH_KIM_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -1544,30 +1575,37 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = "Well, well! Look who's back. Your ship's been treating you right, I hope? She's a good one - I can tell by how you care for her. What can old Rusty do for you today?";
+        baseText =
+          "Well, well! Look who's back. Your ship's been treating you right, I hope? She's a good one - I can tell by how you care for her. What can old Rusty do for you today?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = "Good to see you again, captain. Your ship's looking better each time I see her. You're learning to treat her right. What brings you to my shop?";
+        baseText =
+          "Good to see you again, captain. Your ship's looking better each time I see her. You're learning to treat her right. What brings you to my shop?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = "Hey there! Your ship's been behaving herself, I hope? I can always tell when a captain knows what they're doing. How can I help you?";
+        baseText =
+          "Hey there! Your ship's been behaving herself, I hope? I can always tell when a captain knows what they're doing. How can I help you?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = "Back again, eh? Your ship's looking decent. Better than some of the rust buckets that limp in here. What do you need?";
+        baseText =
+          "Back again, eh? Your ship's looking decent. Better than some of the rust buckets that limp in here. What do you need?";
       } else {
         // Neutral, Cold, or Hostile
-        baseText = "Another ship, another captain. Let me guess - something's broken and you need it fixed yesterday. What's the problem?";
+        baseText =
+          "Another ship, another captain. Let me guess - something's broken and you need it fixed yesterday. What's the problem?";
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*About that loan, captain... five hundred credits, and it was due yesterday. Your ship needs you to be reliable.*';
+            baseText +=
+              '\n\n*About that loan, captain... five hundred credits, and it was due yesterday. Your ship needs you to be reliable.*';
           } else if (daysRemaining <= 5) {
-            baseText += `\n\n*Don\'t forget - you owe me five hundred credits, due in ${daysRemaining} days. Your ship\'s counting on you.*`;
+            baseText += `\n\n*Don't forget - you owe me five hundred credits, due in ${daysRemaining} days. Your ship's counting on you.*`;
           } else {
             baseText += `\n\n*By the way, you still owe me five hundred credits - ${daysRemaining} days left to pay up.*`;
           }
@@ -1597,7 +1635,10 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -1607,7 +1648,10 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
           return favorAvailability.available;
         },
       },
@@ -1626,7 +1670,9 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -1831,30 +1877,37 @@ export const ZARA_OSMAN_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = 'Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?';
+        baseText =
+          'Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?';
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = "Well, well! Look who's back. You've really got the hang of this trading game, haven't you? What's the play today, hotshot?";
+        baseText =
+          "Well, well! Look who's back. You've really got the hang of this trading game, haven't you? What's the play today, hotshot?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = "Hey, good to see you again! You're starting to get a real feel for the markets. I like that in a trader. What brings you by?";
+        baseText =
+          "Hey, good to see you again! You're starting to get a real feel for the markets. I like that in a trader. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = "Back for more action, eh? I can respect that. The markets have been interesting lately. What's your angle?";
+        baseText =
+          "Back for more action, eh? I can respect that. The markets have been interesting lately. What's your angle?";
       } else {
         // Neutral, Cold, or Hostile
-        baseText = "Another trader looking to make their fortune. The sector's got room for everyone... if you know what you're doing. What do you need?";
+        baseText =
+          "Another trader looking to make their fortune. The sector's got room for everyone... if you know what you're doing. What do you need?";
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*Hey, about that loan - five hundred credits, and the clock\'s run out. Time to settle up, partner.*';
+            baseText +=
+              "\n\n*Hey, about that loan - five hundred credits, and the clock's run out. Time to settle up, partner.*";
           } else if (daysRemaining <= 5) {
-            baseText += `\n\n*Quick reminder - you owe me five hundred credits, due in ${daysRemaining} days. Don\'t let it slip, yeah?*`;
+            baseText += `\n\n*Quick reminder - you owe me five hundred credits, due in ${daysRemaining} days. Don't let it slip, yeah?*`;
           } else {
             baseText += `\n\n*Oh, and you still owe me five hundred credits - ${daysRemaining} days left on the clock.*`;
           }
@@ -1884,7 +1937,10 @@ export const ZARA_OSMAN_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -1894,7 +1950,10 @@ export const ZARA_OSMAN_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
           return favorAvailability.available;
         },
       },
@@ -1913,7 +1972,9 @@ export const ZARA_OSMAN_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -2117,28 +2178,35 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = "Well, look who's back! You've proven yourself a real professional, captain. This station runs better with traders like you. What do you need?";
+        baseText =
+          "Well, look who's back! You've proven yourself a real professional, captain. This station runs better with traders like you. What do you need?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = 'Good to see you again, captain. Your professional approach to station operations is noted. How can I help you today?';
+        baseText =
+          'Good to see you again, captain. Your professional approach to station operations is noted. How can I help you today?';
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = "You're becoming a regular here. I appreciate traders who follow procedures and respect the station. What brings you by?";
+        baseText =
+          "You're becoming a regular here. I appreciate traders who follow procedures and respect the station. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = "Back again, I see. You're learning how things work around here. That's good. What do you need?";
+        baseText =
+          "Back again, I see. You're learning how things work around here. That's good. What do you need?";
       } else {
         // Neutral, Cold, or Hostile
-        baseText = "Another trader. Docking fees paid? Good. Keep it professional and we won't have problems. What's your business?";
+        baseText =
+          "Another trader. Docking fees paid? Good. Keep it professional and we won't have problems. What's your business?";
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*Your loan of five hundred credits is overdue, captain. Station policy requires immediate repayment.*';
+            baseText +=
+              '\n\n*Your loan of five hundred credits is overdue, captain. Station policy requires immediate repayment.*';
           } else if (daysRemaining <= 5) {
             baseText += `\n\n*Reminder: Your loan of five hundred credits is due in ${daysRemaining} days. Station policy - no extensions.*`;
           } else {
@@ -2170,7 +2238,10 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -2180,7 +2251,10 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
           return favorAvailability.available;
         },
       },
@@ -2199,7 +2273,9 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {
@@ -2403,30 +2479,37 @@ export const LUCKY_LIU_DIALOGUE = {
     text: (rep, gameStateManager, npcId) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        baseText = "Hey, high roller! Welcome back to my table. You've got the stones to play in the big leagues now. What's the action today, partner?";
+        baseText =
+          "Hey, high roller! Welcome back to my table. You've got the stones to play in the big leagues now. What's the action today, partner?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        baseText = "Well, well! Look who's learned to play the odds. You're developing a real taste for the game, aren't you? What brings you to Lucky's corner?";
+        baseText =
+          "Well, well! Look who's learned to play the odds. You're developing a real taste for the game, aren't you? What brings you to Lucky's corner?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
+        baseText =
+          "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText = 'Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?';
+        baseText =
+          'Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?';
       } else {
         // Neutral, Cold, or Hostile
-        baseText = "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
+        baseText =
+          "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
       }
 
-      // Add loan status if there's an outstanding loan
+      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
           const currentDay = gameStateManager.getState().player.daysElapsed;
           const daysElapsed = currentDay - npcState.loanDay;
-          const daysRemaining = 30 - daysElapsed;
-          
+          const daysRemaining =
+            NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
+
           if (daysRemaining <= 0) {
-            baseText += '\n\n*About that stake I fronted you - five hundred credits, and the house always collects. Time to settle up, sport.*';
+            baseText +=
+              '\n\n*About that stake I fronted you - five hundred credits, and the house always collects. Time to settle up, sport.*';
           } else if (daysRemaining <= 5) {
-            baseText += `\n\n*Quick reminder about your stake - five hundred credits due in ${daysRemaining} days. Don\'t let it ride too long, yeah?*`;
+            baseText += `\n\n*Quick reminder about your stake - five hundred credits due in ${daysRemaining} days. Don't let it ride too long, yeah?*`;
           } else {
             baseText += `\n\n*Oh, and you still owe me five hundred credits from that stake - ${daysRemaining} days left on the clock.*`;
           }
@@ -2456,7 +2539,10 @@ export const LUCKY_LIU_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'loan'
+          );
           return favorAvailability.available;
         },
       },
@@ -2466,7 +2552,10 @@ export const LUCKY_LIU_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          const favorAvailability = gameStateManager.canRequestFavor(
+            npcId,
+            'storage'
+          );
           return favorAvailability.available;
         },
       },
@@ -2485,7 +2574,9 @@ export const LUCKY_LIU_DIALOGUE = {
         condition: (rep, gameStateManager, npcId) => {
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
-          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+          return Boolean(
+            npcState.storedCargo && npcState.storedCargo.length > 0
+          );
         },
       },
       {

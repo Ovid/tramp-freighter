@@ -422,16 +422,22 @@ describe('Dialogue Tree Structure', () => {
 
       // Create mock gameStateManager for condition function
       const mockGameStateManager = {
-        canRequestFavor: (npcId, favorType) => {
+        canRequestFavor: () => {
           // Mock that favor is available for Trusted tier and above
           return { available: true };
         },
       };
 
       // Test the condition function (rep >= TRUSTED_MIN which is 60)
-      expect(loanChoice.condition(59, mockGameStateManager, 'whisper_sirius')).toBe(false); // Below threshold
-      expect(loanChoice.condition(60, mockGameStateManager, 'whisper_sirius')).toBe(true); // At threshold
-      expect(loanChoice.condition(70, mockGameStateManager, 'whisper_sirius')).toBe(true); // Above threshold
+      expect(
+        loanChoice.condition(59, mockGameStateManager, 'whisper_sirius')
+      ).toBe(false); // Below threshold
+      expect(
+        loanChoice.condition(60, mockGameStateManager, 'whisper_sirius')
+      ).toBe(true); // At threshold
+      expect(
+        loanChoice.condition(70, mockGameStateManager, 'whisper_sirius')
+      ).toBe(true); // Above threshold
     });
 
     it('should have storage choice with reputation condition', () => {
@@ -758,8 +764,20 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice).toBeDefined();
       expect(loanChoice.condition).toBeDefined();
       expect(typeof loanChoice.condition).toBe('function');
-      expect(loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN, mockGameStateManager, 'kim_tau_ceti')).toBe(true);
-      expect(loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockGameStateManager, 'kim_tau_ceti')).toBe(false);
+      expect(
+        loanChoice.condition(
+          REPUTATION_BOUNDS.TRUSTED_MIN,
+          mockGameStateManager,
+          'kim_tau_ceti'
+        )
+      ).toBe(true);
+      expect(
+        loanChoice.condition(
+          REPUTATION_BOUNDS.FRIENDLY_MIN,
+          mockGameStateManager,
+          'kim_tau_ceti'
+        )
+      ).toBe(false);
 
       // Should have storage choice with Friendly tier condition
       const storageChoice = choices.find((choice) =>
@@ -900,8 +918,20 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice).toBeDefined();
       expect(loanChoice.condition).toBeDefined();
       expect(typeof loanChoice.condition).toBe('function');
-      expect(loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN, mockGameStateManager, 'osman_luyten')).toBe(true);
-      expect(loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockGameStateManager, 'osman_luyten')).toBe(false);
+      expect(
+        loanChoice.condition(
+          REPUTATION_BOUNDS.TRUSTED_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(true);
+      expect(
+        loanChoice.condition(
+          REPUTATION_BOUNDS.FRIENDLY_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(false);
 
       // Check for storage choice with reputation condition
       const storageChoice = choices.find((choice) =>
@@ -910,10 +940,20 @@ describe('Dialogue Tree Structure', () => {
       expect(storageChoice).toBeDefined();
       expect(storageChoice.condition).toBeDefined();
       expect(typeof storageChoice.condition).toBe('function');
-      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockGameStateManager, 'osman_luyten')).toBe(
-        true
-      );
-      expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockGameStateManager, 'osman_luyten')).toBe(false);
+      expect(
+        storageChoice.condition(
+          REPUTATION_BOUNDS.FRIENDLY_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(true);
+      expect(
+        storageChoice.condition(
+          REPUTATION_BOUNDS.WARM_MIN,
+          mockGameStateManager,
+          'osman_luyten'
+        )
+      ).toBe(false);
     });
 
     it('should have all required dialogue nodes', () => {

@@ -37,9 +37,13 @@ const TIP_NODE_ID = 'ask_tip';
 
 /**
  * Validates NPC ID and returns NPC data
- * @param {string} npcId - NPC identifier to validate
- * @returns {Object} NPC data object
- * @throws {Error} If NPC ID is invalid
+ *
+ * Ensures the provided NPC ID exists in the NPC data definitions.
+ * Used internally by dialogue functions to validate NPC references.
+ *
+ * @param {string} npcId - NPC identifier to validate (e.g., 'chen_barnards', 'whisper_sirius')
+ * @returns {Object} NPC data object containing id, name, role, station, and other properties
+ * @throws {Error} If NPC ID is invalid or not found in ALL_NPCS
  */
 function validateNPCId(npcId) {
   const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
@@ -59,10 +63,17 @@ function validateNPCId(npcId) {
  * Special handling for tip nodes: When nodeId is 'ask_tip', retrieves actual tip
  * content using getTip() and displays it in the dialogue text.
  *
- * @param {string} npcId - NPC identifier
- * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
- * @param {GameStateManager} gameStateManager - Game state manager instance
- * @returns {Object} Dialogue display object with text, choices, and NPC info
+ * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
+ * @param {string} [nodeId='greeting'] - Dialogue node identifier within the NPC's dialogue tree
+ * @param {GameStateManager} gameStateManager - Game state manager instance for reputation and state access
+ * @returns {Object} Dialogue display object with the following properties:
+ *   - npcId: string - The NPC identifier
+ *   - npcName: string - Display name of the NPC
+ *   - npcRole: string - Role/title of the NPC
+ *   - npcStation: string - Station where NPC is located
+ *   - reputationTier: string - Current reputation tier with this NPC
+ *   - text: string - Dialogue text to display (may include dynamic content)
+ *   - choices: Array<Object> - Available dialogue choices with index, text, next, and repGain
  * @throws {Error} If NPC ID or dialogue node is invalid
  */
 export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
@@ -163,11 +174,12 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  *
  * Applies reputation gains before advancing to next node. Adds story flags
  * to NPC state before navigation. Closes dialogue when choice has no next node.
+ * Executes any action functions associated with the choice (e.g., loan requests).
  *
- * @param {string} npcId - NPC identifier
- * @param {number} choiceIndex - Index of selected choice
- * @param {GameStateManager} gameStateManager - Game state manager instance
- * @returns {Object|null} Next dialogue display object or null if dialogue ends
+ * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
+ * @param {number} choiceIndex - Index of selected choice from the current dialogue node's choices array
+ * @param {GameStateManager} gameStateManager - Game state manager instance for state modifications
+ * @returns {Object|null} Next dialogue display object (same format as showDialogue) or null if dialogue ends
  * @throws {Error} If NPC ID is invalid or choice index is out of bounds
  */
 export function selectChoice(npcId, choiceIndex, gameStateManager) {
@@ -210,11 +222,33 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   if (selectedChoice.action && typeof selectedChoice.action === 'function') {
     try {
       const actionResult = selectedChoice.action(gameStateManager, npcId);
-      // If action returns a result object with success: false, we could handle it here
-      // For now, we'll let the action handle its own error reporting
+
+      // Handle action results that indicate failure
+      if (
+        actionResult &&
+        typeof actionResult === 'object' &&
+        actionResult.success === false
+      ) {
+        // Action failed - the action should have already provided user feedback
+        // Log for debugging but continue with dialogue flow
+        console.warn(
+          `Dialogue action failed for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`,
+          actionResult.message || 'Unknown error'
+        );
+      }
     } catch (error) {
-      console.error(`Error executing dialogue action for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`, error);
-      // Continue with dialogue flow even if action fails
+      // Unexpected error in action execution
+      console.error(
+        `Error executing dialogue action for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`,
+        error
+      );
+
+      // Provide user feedback for unexpected errors
+      // Note: In a full implementation, this would use the notification system
+      // For now, we'll let the dialogue continue but log the error
+      console.warn(
+        'An unexpected error occurred while processing your request. Please try again.'
+      );
     }
   }
 
@@ -241,11 +275,15 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
 /**
  * Get current dialogue state
  *
- * Returns the current active dialogue session information.
- * Used by UI components to track dialogue state.
+ * Returns the current active dialogue session information including which NPC
+ * is being talked to and which dialogue node is currently active.
+ * Used by UI components to track dialogue state and display appropriate interface.
  *
  * @param {GameStateManager} gameStateManager - Game state manager instance
- * @returns {Object} Current dialogue state object
+ * @returns {Object} Current dialogue state object with the following properties:
+ *   - isActive: boolean - Whether a dialogue session is currently active
+ *   - currentNpcId: string|null - ID of NPC currently in dialogue with
+ *   - currentNodeId: string|null - Current dialogue node ID
  */
 export function getCurrentDialogue(gameStateManager) {
   return gameStateManager.getDialogueState();
@@ -254,8 +292,9 @@ export function getCurrentDialogue(gameStateManager) {
 /**
  * Clear current dialogue state
  *
- * Resets the dialogue engine state. Called when dialogue is closed
- * or when starting a new dialogue session.
+ * Resets the dialogue engine state by clearing the active dialogue session.
+ * Called when dialogue is closed by the player or when starting a new dialogue
+ * session with a different NPC.
  *
  * @param {GameStateManager} gameStateManager - Game state manager instance
  */
