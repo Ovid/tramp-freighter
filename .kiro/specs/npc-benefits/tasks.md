@@ -331,7 +331,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add tip dialogue option
     - _Requirements: 7.6-7.10, 12.1-12.6_
 
-  - [ ] 12.5 Create Zara Osman dialogue tree
+  - [x] 12.5 Create Zara Osman dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - _Requirements: 8.6-8.10, 12.1-12.6_

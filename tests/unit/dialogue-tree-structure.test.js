@@ -6,6 +6,7 @@ import {
   WHISPER_DIALOGUE,
   CAPTAIN_VASQUEZ_DIALOGUE,
   DR_SARAH_KIM_DIALOGUE,
+  ZARA_OSMAN_DIALOGUE,
   ALL_DIALOGUE_TREES,
   validateDialogueTree,
   validateDialogueNode,
@@ -712,14 +713,130 @@ describe('Dialogue Tree Structure', () => {
     });
   });
 
+  describe('Zara Osman Dialogue Tree', () => {
+    it('should exist and have greeting node', () => {
+      expect(ZARA_OSMAN_DIALOGUE).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.greeting).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.greeting.text).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.greeting.choices).toBeDefined();
+      expect(Array.isArray(ZARA_OSMAN_DIALOGUE.greeting.choices)).toBe(true);
+    });
+
+    it('should have tier-based greeting text matching requirements', () => {
+      const greetingText = ZARA_OSMAN_DIALOGUE.greeting.text;
+      expect(typeof greetingText).toBe('function');
+
+      // Test different reputation tiers
+      const familyGreeting = greetingText(REPUTATION_BOUNDS.FAMILY_MIN);
+      expect(familyGreeting).toContain('partner');
+      expect(familyGreeting).toContain('family');
+
+      const trustedGreeting = greetingText(REPUTATION_BOUNDS.TRUSTED_MIN);
+      expect(trustedGreeting).toContain('hotshot');
+
+      const friendlyGreeting = greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN);
+      expect(friendlyGreeting).toContain('good to see you again');
+
+      const warmGreeting = greetingText(REPUTATION_BOUNDS.WARM_MIN);
+      expect(warmGreeting).toContain('action');
+
+      const neutralGreeting = greetingText(REPUTATION_BOUNDS.NEUTRAL_MIN);
+      expect(neutralGreeting).toContain('trader');
+    });
+
+    it('should have expected choice behavior in greeting', () => {
+      const choices = ZARA_OSMAN_DIALOGUE.greeting.choices;
+      expect(choices.length).toBeGreaterThanOrEqual(4);
+
+      // Check for tip choice with reputation condition
+      const tipChoice = choices.find((choice) =>
+        choice.text.includes('market tips')
+      );
+      expect(tipChoice).toBeDefined();
+      expect(tipChoice.condition).toBeDefined();
+      expect(typeof tipChoice.condition).toBe('function');
+      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(true);
+      expect(tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe(false);
+
+      // Check for loan choice with reputation condition
+      const loanChoice = choices.find((choice) =>
+        choice.text.includes('emergency loan')
+      );
+      expect(loanChoice).toBeDefined();
+      expect(loanChoice.condition).toBeDefined();
+      expect(typeof loanChoice.condition).toBe('function');
+      expect(loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN)).toBe(true);
+      expect(loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(false);
+
+      // Check for storage choice with reputation condition
+      const storageChoice = choices.find((choice) =>
+        choice.text.includes('store some cargo')
+      );
+      expect(storageChoice).toBeDefined();
+      expect(storageChoice.condition).toBeDefined();
+      expect(typeof storageChoice.condition).toBe('function');
+      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(true);
+      expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(false);
+    });
+
+    it('should have all required dialogue nodes', () => {
+      const requiredNodes = [
+        'greeting',
+        'trading_business',
+        'market_knowledge',
+        'competition_talk',
+        'market_unpredictable',
+        'ask_tip',
+        'request_loan',
+        'request_storage',
+      ];
+
+      requiredNodes.forEach((nodeId) => {
+        expect(ZARA_OSMAN_DIALOGUE[nodeId]).toBeDefined();
+        expect(ZARA_OSMAN_DIALOGUE[nodeId].text).toBeDefined();
+        expect(ZARA_OSMAN_DIALOGUE[nodeId].choices).toBeDefined();
+      });
+    });
+
+    it('should have story flags in dialogue nodes', () => {
+      expect(ZARA_OSMAN_DIALOGUE.ask_tip.flags).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.ask_tip.flags).toContain('osman_tip_requested');
+
+      expect(ZARA_OSMAN_DIALOGUE.request_loan.flags).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.request_loan.flags).toContain('osman_loan_discussed');
+
+      expect(ZARA_OSMAN_DIALOGUE.request_storage.flags).toBeDefined();
+      expect(ZARA_OSMAN_DIALOGUE.request_storage.flags).toContain('osman_storage_discussed');
+    });
+
+    it('should reflect trader personality with casual speech and trading jargon', () => {
+      // Check that dialogue reflects casual greeting style and trading jargon
+      const tradingText = ZARA_OSMAN_DIALOGUE.trading_business.text;
+      expect(tradingText).toContain('flow');
+      expect(tradingText).toContain('Markets');
+      expect(tradingText).toContain('patterns');
+
+      const marketText = ZARA_OSMAN_DIALOGUE.market_knowledge.text;
+      expect(marketText).toContain('connections');
+      expect(marketText).toContain('intel');
+      expect(marketText).toContain('profit');
+
+      const competitionText = ZARA_OSMAN_DIALOGUE.competition_talk.text;
+      expect(competitionText).toContain('sharp');
+      expect(competitionText).toContain('credits');
+      expect(competitionText).toContain('bottom line');
+    });
+  });
+
   describe('Dialogue Tree Collection and Validation', () => {
-    it('should include all six NPCs in ALL_DIALOGUE_TREES', () => {
+    it('should include all seven NPCs in ALL_DIALOGUE_TREES', () => {
       expect(ALL_DIALOGUE_TREES.chen_barnards).toBe(WEI_CHEN_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.cole_sol).toBe(MARCUS_COLE_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(FATHER_OKONKWO_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(CAPTAIN_VASQUEZ_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(DR_SARAH_KIM_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.osman_luyten).toBe(ZARA_OSMAN_DIALOGUE);
     });
 
     it('should validate all dialogue trees without throwing errors', () => {
@@ -730,6 +847,8 @@ describe('Dialogue Tree Structure', () => {
       expect(() =>
         validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)
       ).not.toThrow();
+      expect(() => validateDialogueTree(DR_SARAH_KIM_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(ZARA_OSMAN_DIALOGUE)).not.toThrow();
     });
 
     it('should validate all dialogue trees using validateAllDialogueTrees function', () => {
