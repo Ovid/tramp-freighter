@@ -65,18 +65,18 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
     - Export the dialogue tree constant
     - _Requirements: 1.8_
 
-- [ ] 5. Extract final batch of NPC dialogue files (Station Master Kowalski, Lucky Liu)
-  - [ ] 5.1 Extract Station Master Kowalski dialogue to `src/game/data/dialogue/station-master-kowalski.js`
+- [x] 5. Extract final batch of NPC dialogue files (Station Master Kowalski, Lucky Liu)
+  - [x] 5.1 Extract Station Master Kowalski dialogue to `src/game/data/dialogue/station-master-kowalski.js`
     - Move `STATION_MASTER_KOWALSKI_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.9_
-  - [ ] 5.2 Extract Lucky Liu dialogue to `src/game/data/dialogue/lucky-liu.js`
+  - [x] 5.2 Extract Lucky Liu dialogue to `src/game/data/dialogue/lucky-liu.js`
     - Move `LUCKY_LIU_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.10_
-  - [ ] 5.3 Write property test for file size constraint
+  - [x] 5.3 Write property test for file size constraint
     - **Property 2: File Size Constraint**
     - **Validates: Requirements 1.11**
 
