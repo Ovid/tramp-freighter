@@ -417,7 +417,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 
 - [ ] 17. Update save/load for new NPC state fields (TDD)
 
-  - [ ] 17.1 TDD: State migration for NPC benefits
+  - [x] 17.1 TDD: State migration for NPC benefits
     - **RED**: Write unit test for save/load migration
       - Verify old saves load with default benefit fields
       - Verify new saves preserve all benefit state
@@ -427,7 +427,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Add default values for new NPC state fields
       - _Requirements: 2.2, 3.5, 3.6, 3.7_
 
-- [ ] 18. Final checkpoint - Ensure all tests pass
+- [x] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

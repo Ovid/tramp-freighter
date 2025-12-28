@@ -12,6 +12,7 @@ import {
   migrateFromV1ToV2,
   migrateFromV2ToV2_1,
   migrateFromV2_1ToV4,
+  migrateFromV4ToV4_1,
   addStateDefaults,
 } from '../state-validators.js';
 
@@ -129,8 +130,8 @@ export class SaveLoadManager extends BaseManager {
   applyMigrations(loadedState) {
     let migratedState = loadedState;
 
-    // Migrate from v1.0.0 to v4.0.0 if needed
-    if (migratedState.meta?.version === '1.0.0' && GAME_VERSION === '4.0.0') {
+    // Migrate from v1.0.0 to v4.1.0 if needed
+    if (migratedState.meta?.version === '1.0.0' && GAME_VERSION === '4.1.0') {
       migratedState = migrateFromV1ToV2(
         migratedState,
         this.getStarData(),
@@ -138,17 +139,25 @@ export class SaveLoadManager extends BaseManager {
       );
     }
 
-    // Migrate from v2.0.0 to v4.0.0 if needed
-    if (migratedState.meta?.version === '2.0.0' && GAME_VERSION === '4.0.0') {
+    // Migrate from v2.0.0 to v4.1.0 if needed
+    if (migratedState.meta?.version === '2.0.0' && GAME_VERSION === '4.1.0') {
       migratedState = migrateFromV2ToV2_1(
         migratedState,
         this.isTestEnvironment
       );
     }
 
-    // Migrate from v2.1.0 to v4.0.0 if needed
-    if (migratedState.meta?.version === '2.1.0' && GAME_VERSION === '4.0.0') {
+    // Migrate from v2.1.0 to v4.1.0 if needed
+    if (migratedState.meta?.version === '2.1.0' && GAME_VERSION === '4.1.0') {
       migratedState = migrateFromV2_1ToV4(
+        migratedState,
+        this.isTestEnvironment
+      );
+    }
+
+    // Migrate from v4.0.0 to v4.1.0 if needed
+    if (migratedState.meta?.version === '4.0.0' && GAME_VERSION === '4.1.0') {
+      migratedState = migrateFromV4ToV4_1(
         migratedState,
         this.isTestEnvironment
       );

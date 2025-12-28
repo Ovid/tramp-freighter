@@ -455,8 +455,9 @@ export async function initDevMode() {
  * - 2.0.0: Added ship condition, price knowledge, events
  * - 2.1.0: Deterministic economy with market conditions
  * - 4.0.0: NPC foundation with reputation system and dialogue
+ * - 4.1.0: NPC benefits system with tips, favors, loans, and storage
  */
-export const GAME_VERSION = '4.0.0';
+export const GAME_VERSION = '4.1.0';
 
 /**
  * localStorage key for save data

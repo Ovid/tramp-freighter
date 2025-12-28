@@ -148,14 +148,17 @@ export function isVersionCompatible(saveVersion) {
   // Exact version match
   if (saveVersion === GAME_VERSION) return true;
 
-  // Support migration from v1.0.0 to v4.0.0
-  if (saveVersion === '1.0.0' && GAME_VERSION === '4.0.0') return true;
+  // Support migration from v1.0.0 to v4.1.0
+  if (saveVersion === '1.0.0' && GAME_VERSION === '4.1.0') return true;
 
-  // Support migration from v2.0.0 to v4.0.0
-  if (saveVersion === '2.0.0' && GAME_VERSION === '4.0.0') return true;
+  // Support migration from v2.0.0 to v4.1.0
+  if (saveVersion === '2.0.0' && GAME_VERSION === '4.1.0') return true;
 
-  // Support migration from v2.1.0 to v4.0.0
-  if (saveVersion === '2.1.0' && GAME_VERSION === '4.0.0') return true;
+  // Support migration from v2.1.0 to v4.1.0
+  if (saveVersion === '2.1.0' && GAME_VERSION === '4.1.0') return true;
+
+  // Support migration from v4.0.0 to v4.1.0
+  if (saveVersion === '4.0.0' && GAME_VERSION === '4.1.0') return true;
 
   return false;
 }
@@ -375,7 +378,7 @@ export function validateStateStructure(state) {
 }
 
 /**
- * Migrate save data from v1.0.0 to v4.0.0
+ * Migrate save data from v1.0.0 to v4.1.0
  *
  * Adds Phase 2 features:
  * - Ship condition (hull, engine, lifeSupport)
@@ -389,11 +392,11 @@ export function validateStateStructure(state) {
  * @param {Object} state - v1.0.0 state
  * @param {Array} systemData - Star system data for lookups
  * @param {boolean} isTestEnvironment - Whether running in test mode
- * @returns {Object} Migrated v4.0.0 state
+ * @returns {Object} Migrated v4.1.0 state
  */
 export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v1.0.0 to v4.0.0');
+    console.log('Migrating save from v1.0.0 to v4.1.0');
   }
 
   // Add ship condition fields (default to maximum)
@@ -518,7 +521,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
 }
 
 /**
- * Migrate save data from v2.0.0 to v4.0.0
+ * Migrate save data from v2.0.0 to v4.1.0
  *
  * Adds deterministic economy features:
  * - Market conditions tracking for local supply/demand effects
@@ -531,7 +534,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
  */
 export function migrateFromV2ToV2_1(state, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v2.0.0 to v4.0.0');
+    console.log('Migrating save from v2.0.0 to v4.1.0');
   }
 
   // Add market conditions (empty object for backward compatibility)
@@ -568,7 +571,7 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
  * Migrate save data from v2.1.0 to v4.0.0
  *
 /**
- * Migrate save data from v2.1.0 to v4.0.0
+ * Migrate save data from v2.1.0 to v4.1.0
  *
  * Adds NPC foundation features:
  * - NPC state tracking (reputation, flags, interactions)
@@ -576,11 +579,11 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
  *
  * @param {Object} state - v2.1.0 state
  * @param {boolean} isTestEnvironment - Whether running in test mode
- * @returns {Object} Migrated v4.0.0 state
+ * @returns {Object} Migrated v4.1.0 state
  */
 export function migrateFromV2_1ToV4(state, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v2.1.0 to v4.0.0');
+    console.log('Migrating save from v2.1.0 to v4.1.0');
   }
 
   // Add NPC state tracking (empty object for backward compatibility)
@@ -785,6 +788,57 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
       isActive: false,
       display: null,
     };
+  }
+
+  return state;
+}
+/**
+ * Migrate save data from v4.0.0 to v4.1.0
+ *
+ * Adds NPC benefits system features:
+ * - NPC benefits tracking (lastTipDay, lastFavorDay, loanAmount, loanDay, storedCargo, lastFreeRepairDay)
+ *
+ * @param {Object} state - v4.0.0 state
+ * @param {boolean} isTestEnvironment - Whether running in test mode
+ * @returns {Object} Migrated v4.1.0 state
+ */
+export function migrateFromV4ToV4_1(state, isTestEnvironment) {
+  if (!isTestEnvironment) {
+    console.log('Migrating save from v4.0.0 to v4.1.0');
+  }
+
+  // Add NPC benefits fields to existing NPC state entries
+  if (state.npcs && typeof state.npcs === 'object') {
+    for (const npcId in state.npcs) {
+      const npcState = state.npcs[npcId];
+      
+      // Add default values for new NPC benefits fields if they don't exist
+      if (npcState.lastTipDay === undefined) {
+        npcState.lastTipDay = null;
+      }
+      if (npcState.lastFavorDay === undefined) {
+        npcState.lastFavorDay = null;
+      }
+      if (npcState.loanAmount === undefined) {
+        npcState.loanAmount = null;
+      }
+      if (npcState.loanDay === undefined) {
+        npcState.loanDay = null;
+      }
+      if (npcState.storedCargo === undefined) {
+        npcState.storedCargo = [];
+      }
+      if (npcState.lastFreeRepairDay === undefined) {
+        npcState.lastFreeRepairDay = null;
+      }
+    }
+  }
+
+  // Update version
+  state.meta.version = GAME_VERSION;
+
+  if (!isTestEnvironment) {
+    console.log('Migration complete');
   }
 
   return state;
