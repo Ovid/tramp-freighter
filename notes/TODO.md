@@ -1,6 +1,7 @@
 # TODO
 
 - i18n?
+- Ensure all dialogue notes can be loaded (marcus cole, sol)
 - Liskov and Law of Demeter?
 - GCT
 - Reputation change-Not more than once per day per NPC?

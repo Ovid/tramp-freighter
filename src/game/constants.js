@@ -675,9 +675,13 @@ export const NPC_VALIDATION = {
     'speechStyle',
     'description',
     'initialRep',
+    'tips',
+    'discountService',
+    'tierBenefits',
   ],
   REQUIRED_PERSONALITY_TRAITS: ['trust', 'greed', 'loyalty', 'morality'],
   REQUIRED_SPEECH_PROPERTIES: ['greeting', 'vocabulary', 'quirk'],
+  REQUIRED_TIER_BENEFITS: ['warm', 'friendly', 'trusted', 'family'],
 };
 
 /**

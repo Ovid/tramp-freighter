@@ -169,7 +169,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
 - [x] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Implement free repair system (TDD)
+- [x] 9. Implement free repair system (TDD)
 
   - [x] 9.1 TDD: `canGetFreeRepair(npcId)` and `applyFreeRepair(npcId, hullDamagePercent)` methods
     - **RED**: Write property test for free repair tier limits
@@ -210,9 +210,9 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Verify repair limits are enforced in UI
     - _Requirements: 1.6, 1.7_
 
-- [ ] 10. Add new NPC definitions (TDD)
+- [x] 10. Add new NPC definitions (TDD)
 
-  - [ ] 10.1 TDD: Add Whisper NPC definition
+  - [x] 10.1 TDD: Add Whisper NPC definition
     - **RED**: Write unit test for Whisper NPC data validation
       - Verify required fields exist (id, name, system, station, personality, speechStyle, tips, discountService, tierBenefits)
       - Verify personality values match specification
@@ -224,7 +224,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 4.1-4.15_
 
-  - [ ] 10.2 TDD: Add Captain Vasquez NPC definition
+  - [x] 10.2 TDD: Add Captain Vasquez NPC definition
     - **RED**: Write unit test for Captain Vasquez NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 5.1-5.11**
@@ -234,7 +234,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 5.1-5.11_
 
-  - [ ] 10.3 TDD: Add Dr. Sarah Kim NPC definition
+  - [x] 10.3 TDD: Add Dr. Sarah Kim NPC definition
     - **RED**: Write unit test for Dr. Sarah Kim NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 6.1-6.10**
@@ -244,7 +244,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 6.1-6.10_
 
-  - [ ] 10.4 TDD: Add "Rusty" Rodriguez NPC definition
+  - [x] 10.4 TDD: Add "Rusty" Rodriguez NPC definition
     - **RED**: Write unit test for "Rusty" Rodriguez NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 7.1-7.10**
@@ -254,7 +254,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 7.1-7.10_
 
-  - [ ] 10.5 TDD: Add Zara Osman NPC definition
+  - [x] 10.5 TDD: Add Zara Osman NPC definition
     - **RED**: Write unit test for Zara Osman NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 8.1-8.10**
@@ -264,7 +264,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 8.1-8.10_
 
-  - [ ] 10.6 TDD: Add Station Master Kowalski NPC definition
+  - [x] 10.6 TDD: Add Station Master Kowalski NPC definition
     - **RED**: Write unit test for Station Master Kowalski NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 9.1-9.10**
@@ -274,7 +274,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 9.1-9.10_
 
-  - [ ] 10.7 TDD: Add "Lucky" Liu NPC definition
+  - [x] 10.7 TDD: Add "Lucky" Liu NPC definition
     - **RED**: Write unit test for "Lucky" Liu NPC data validation
       - Verify required fields and personality values match specification
       - **Validates: Requirements 10.1-10.10**
@@ -284,7 +284,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
       - Include tierBenefits configuration
       - _Requirements: 10.1-10.10_
 
-  - [ ] 10.8 Write property test for all NPC data validation
+  - [x] 10.8 Write property test for all NPC data validation
     - **Property 13: NPC Data Validation**
     - *For all* new NPCs, verify required fields exist and values match specification ranges
     - **Validates: Requirements 4.1-4.15, 5.1-5.11, 6.1-6.10, 7.1-7.10, 8.1-8.10, 9.1-9.10, 10.1-10.10**
