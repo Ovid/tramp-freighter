@@ -597,6 +597,10 @@ export class GameStateManager {
     return this.dangerManager.getDangerZone(systemId);
   }
 
+  calculatePirateEncounterChance(systemId, gameState) {
+    return this.dangerManager.calculatePirateEncounterChance(systemId, gameState);
+  }
+
   getKarma() {
     return this.dangerManager.getKarma();
   }

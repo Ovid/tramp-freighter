@@ -115,6 +115,86 @@ export class DangerManager extends BaseManager {
   }
 
   // ========================================================================
+  // PIRATE ENCOUNTER SYSTEM
+  // ========================================================================
+
+  /**
+   * Calculate the probability of a pirate encounter for a given system
+   *
+   * Applies zone-specific base rates and all modifiers from cargo value,
+   * engine condition, upgrades, and faction reputation. Final probability
+   * is clamped to [0, 1] range.
+   *
+   * Feature: danger-system, Property 2: Zone-Specific Encounter Rates
+   * Feature: danger-system, Property 3: Encounter Probability Modifiers
+   * Validates: Requirements 2.1, 2.7, 2.8, 2.9, 2.10, 8.8
+   *
+   * @param {number} systemId - The destination system ID
+   * @param {Object} gameState - Current game state for modifier calculations
+   * @returns {number} Probability of pirate encounter (0.0 to 1.0)
+   */
+  calculatePirateEncounterChance(systemId, gameState) {
+    const zone = this.getDangerZone(systemId);
+    const { ZONES, CARGO_VALUE_MODIFIERS, ENGINE_CONDITION_MODIFIER, 
+            ADVANCED_SENSORS_PIRATE_REDUCTION, FACTION_REPUTATION_SCALES } = DANGER_CONFIG;
+
+    // Start with base rate for the zone type
+    let probability = ZONES[zone].pirateChance;
+
+    // Apply cargo value modifiers (Requirements 2.7, 2.8)
+    const cargoValue = this.calculateCargoValue(gameState.ship.cargo);
+    if (cargoValue >= CARGO_VALUE_MODIFIERS.HIGH_VALUE_THRESHOLD) {
+      probability *= CARGO_VALUE_MODIFIERS.HIGH_VALUE_MULTIPLIER; // 1.5x for cargo > ₡10,000
+    } else if (cargoValue >= CARGO_VALUE_MODIFIERS.LOW_VALUE_THRESHOLD) {
+      probability *= CARGO_VALUE_MODIFIERS.LOW_VALUE_MULTIPLIER; // 1.2x for cargo > ₡5,000
+    }
+
+    // Apply engine condition modifier (Requirement 2.9)
+    if (gameState.ship.engine < ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD) {
+      probability *= ENGINE_CONDITION_MODIFIER.POOR_CONDITION_MULTIPLIER; // 1.1x for engine < 50%
+    }
+
+    // Apply advanced sensors modifier (Requirement 2.10)
+    if (gameState.ship.upgrades && gameState.ship.upgrades.includes('advanced_sensors')) {
+      probability *= ADVANCED_SENSORS_PIRATE_REDUCTION; // 0.8x with advanced sensors
+    }
+
+    // Apply faction reputation modifiers (Requirement 8.8)
+    const outlawRep = gameState.player.factions.outlaws;
+    const authorityRep = gameState.player.factions.authorities;
+
+    // Outlaw reputation reduces pirate encounters (they recognize you as one of them)
+    const outlawModifier = 1 + (outlawRep / 100) * FACTION_REPUTATION_SCALES.OUTLAW_PIRATE_REDUCTION_SCALE;
+    probability *= outlawModifier;
+
+    // Authority reputation affects pirate encounters (less patrol protection at low rep)
+    const authorityModifier = 1 + (authorityRep / 100) * FACTION_REPUTATION_SCALES.AUTHORITY_PIRATE_INCREASE_SCALE;
+    probability *= authorityModifier;
+
+    // Clamp final probability to [0, 1] range
+    return Math.max(0, Math.min(1, probability));
+  }
+
+  /**
+   * Calculate the total value of cargo in the ship's hold
+   *
+   * Helper method for pirate encounter probability calculation.
+   * Sums the value of all cargo based on purchase prices.
+   *
+   * @param {Array} cargo - Array of cargo objects with quantity and purchasePrice
+   * @returns {number} Total cargo value in credits
+   */
+  calculateCargoValue(cargo) {
+    if (!cargo || !Array.isArray(cargo)) {
+      return 0;
+    }
+
+    return cargo.reduce((total, item) => {
+      return total + (item.quantity * item.purchasePrice);
+    }, 0);
+  }
+
+  // ========================================================================
   // FACTION REPUTATION SYSTEM
   // ========================================================================
 

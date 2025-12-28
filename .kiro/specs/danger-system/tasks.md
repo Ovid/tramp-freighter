@@ -65,22 +65,22 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Implement getFactionRep(faction) getter
     - _Requirements: 8.3_
 
-- [ ] 4. Checkpoint - Ensure all tests pass
+- [x] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement pirate encounter probability calculation (TDD)
-  - [ ] 5.1 RED: Write property test for zone-specific encounter rates
+- [x] 5. Implement pirate encounter probability calculation (TDD)
+  - [x] 5.1 RED: Write property test for zone-specific encounter rates
     - **Property 2: Zone-Specific Encounter Rates**
     - Test that dangerous zones have higher base rates than safe zones
     - **Validates: Requirements 1.4, 1.5, 1.6**
-  - [ ] 5.2 GREEN: Add calculatePirateEncounterChance base implementation
+  - [x] 5.2 GREEN: Add calculatePirateEncounterChance base implementation
     - Use zone-specific base rates from DANGER_CONFIG
     - _Requirements: 2.1_
-  - [ ] 5.3 RED: Write property test for encounter probability modifiers
+  - [x] 5.3 RED: Write property test for encounter probability modifiers
     - **Property 3: Encounter Probability Modifiers**
     - Test cargo value, engine condition, sensors, and faction modifiers
     - **Validates: Requirements 2.7, 2.8, 2.9, 2.10, 8.8**
-  - [ ] 5.4 GREEN: Complete calculatePirateEncounterChance with all modifiers
+  - [x] 5.4 GREEN: Complete calculatePirateEncounterChance with all modifiers
     - Apply cargo value modifiers (1.2x at ₡5,000, 1.5x at ₡10,000)
     - Apply engine condition modifier (1.1x below 50%)
     - Apply advanced sensors modifier (0.8x)
