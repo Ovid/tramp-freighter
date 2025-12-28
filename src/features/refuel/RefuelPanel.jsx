@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { calculateRefuelCost, calculateDiscountedRefuelCost, calculateMaxRefuel } from './refuelUtils';
+import {
+  calculateRefuelCost,
+  calculateDiscountedRefuelCost,
+  calculateMaxRefuel,
+} from './refuelUtils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
@@ -33,7 +37,7 @@ export function RefuelPanel({ onClose }) {
   const currentSystem = useGameEvent('locationChanged');
 
   // Get action methods
-  const { refuel } = useGameAction();
+  const { refuel, validateRefuel } = useGameAction();
   const fuelPrice = gameStateManager.getFuelPrice(currentSystem);
 
   // Get NPCs at current location for refuel discounts
@@ -42,7 +46,10 @@ export function RefuelPanel({ onClose }) {
   // Get refuel service discounts from NPCs at this location
   const refuelDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = gameStateManager.getServiceDiscount(npc.id, 'refuel');
+      const discountInfo = gameStateManager.getServiceDiscount(
+        npc.id,
+        'refuel'
+      );
       return {
         npc,
         discount: discountInfo.discount,
@@ -59,23 +66,27 @@ export function RefuelPanel({ onClose }) {
 
   // Calculate values
   const totalCost = calculateRefuelCost(amount, fuelPrice);
-  const discountedTotalCost = calculateDiscountedRefuelCost(amount, fuelPrice, bestDiscount.discount);
-  const finalTotalCost = bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
+  const discountedTotalCost = calculateDiscountedRefuelCost(
+    amount,
+    fuelPrice,
+    bestDiscount.discount
+  );
+  const finalTotalCost =
+    bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
   const maxRefuel = calculateMaxRefuel(fuel, credits, fuelPrice);
 
   // Validate refuel
-  const validation = gameStateManager.validateRefuel(
-    fuel,
-    amount,
-    credits,
-    fuelPrice
-  );
+  const validation = validateRefuel(fuel, amount, credits, fuelPrice);
 
   // Override validation for discounted cost if applicable
   let finalValidation = validation;
-  if (bestDiscount.discount > 0 && !validation.valid && validation.reason.includes('Insufficient credits')) {
+  if (
+    bestDiscount.discount > 0 &&
+    !validation.valid &&
+    validation.reason.includes('Insufficient credits')
+  ) {
     // Re-validate with discounted cost
-    const discountedValidation = gameStateManager.validateRefuel(
+    const discountedValidation = validateRefuel(
       fuel,
       amount,
       credits,
@@ -184,9 +195,12 @@ export function RefuelPanel({ onClose }) {
             {bestDiscount.discount > 0 && (
               <div className="discount-row">
                 <span className="discount-label">
-                  Discount ({Math.round(bestDiscount.discount * 100)}% from {bestDiscount.npcName}):
+                  Discount ({Math.round(bestDiscount.discount * 100)}% from{' '}
+                  {bestDiscount.npcName}):
                 </span>
-                <span className="discount-value">-{totalCost - finalTotalCost} cr</span>
+                <span className="discount-value">
+                  -{totalCost - finalTotalCost} cr
+                </span>
               </div>
             )}
           </div>

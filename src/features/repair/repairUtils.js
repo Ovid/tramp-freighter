@@ -27,7 +27,11 @@ export function calculateRepairCost(amount, currentCondition) {
  * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
  * @returns {number} Discounted cost in credits
  */
-export function calculateDiscountedRepairCost(amount, currentCondition, discountPercentage) {
+export function calculateDiscountedRepairCost(
+  amount,
+  currentCondition,
+  discountPercentage
+) {
   const baseCost = calculateRepairCost(amount, currentCondition);
   return Math.round(baseCost * (1 - discountPercentage));
 }
@@ -72,7 +76,10 @@ export function calculateRepairAllCost(condition) {
  * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
  * @returns {number} Discounted total repair cost in credits
  */
-export function calculateDiscountedRepairAllCost(condition, discountPercentage) {
+export function calculateDiscountedRepairAllCost(
+  condition,
+  discountPercentage
+) {
   const baseCost = calculateRepairAllCost(condition);
   return Math.round(baseCost * (1 - discountPercentage));
 }

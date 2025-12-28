@@ -55,7 +55,10 @@ export function calculateDiscountedRumorCost(discountPercentage) {
  * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
  * @returns {number} Discounted intelligence cost
  */
-export function calculateDiscountedIntelligenceCost(baseCost, discountPercentage) {
+export function calculateDiscountedIntelligenceCost(
+  baseCost,
+  discountPercentage
+) {
   return Math.round(baseCost * (1 - discountPercentage));
 }
 

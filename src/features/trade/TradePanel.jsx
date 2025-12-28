@@ -41,14 +41,20 @@ export function TradePanel({ onClose }) {
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
   const upgrades = useGameEvent('upgradesChanged');
 
+  // Get game actions
+  const {
+    buyGood,
+    sellGood,
+    moveToHiddenCargo,
+    moveToRegularCargo,
+    recordVisitedPrices,
+    getCurrentSystemPrices,
+  } = useGameAction();
+
   // Update price knowledge when panel opens (records "Visited" data)
   useEffect(() => {
-    gameStateManager.recordVisitedPrices();
-  }, [gameStateManager]);
-
-  // Get game actions
-  const { buyGood, sellGood, moveToHiddenCargo, moveToRegularCargo } =
-    useGameAction();
+    recordVisitedPrices();
+  }, [recordVisitedPrices]);
 
   // Get current system
   const system = starData.find((s) => s.id === currentSystemId);
@@ -86,7 +92,7 @@ export function TradePanel({ onClose }) {
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
   // Get locked prices for current system (prevents intra-system arbitrage)
-  const currentSystemPrices = gameStateManager.getCurrentSystemPrices();
+  const currentSystemPrices = getCurrentSystemPrices();
 
   // Create state object for validation functions
   const state = {

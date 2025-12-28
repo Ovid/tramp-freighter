@@ -32,7 +32,7 @@ export function RepairPanel({ onClose }) {
   const shipCondition = useGameEvent('shipConditionChanged');
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
-  const { repair } = useGameAction();
+  const { repair, canGetFreeRepair, getFreeRepair } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
@@ -46,7 +46,7 @@ export function RepairPanel({ onClose }) {
   // Check for available free repairs from any NPC at this location
   const freeRepairOptions = npcsAtSystem
     .map((npc) => {
-      const freeRepairAvailability = gameStateManager.canGetFreeRepair(npc.id);
+      const freeRepairAvailability = canGetFreeRepair(npc.id);
       return {
         npc,
         availability: freeRepairAvailability,
@@ -57,7 +57,10 @@ export function RepairPanel({ onClose }) {
   // Get repair service discounts from NPCs at this location
   const repairDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = gameStateManager.getServiceDiscount(npc.id, 'repair');
+      const discountInfo = gameStateManager.getServiceDiscount(
+        npc.id,
+        'repair'
+      );
       return {
         npc,
         discount: discountInfo.discount,
@@ -101,10 +104,7 @@ export function RepairPanel({ onClose }) {
     const hullDamagePercent = maxHull - currentHull;
 
     // Apply free repair
-    const repairOutcome = gameStateManager.getFreeRepair(
-      npcId,
-      hullDamagePercent
-    );
+    const repairOutcome = getFreeRepair(npcId, hullDamagePercent);
 
     if (repairOutcome.success) {
       setValidationMessage(`Free repair completed: ${repairOutcome.message}`);
@@ -212,8 +212,12 @@ export function RepairPanel({ onClose }) {
             if (amountStr === 'full') {
               amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
               cost = calculateRepairCost(amount, currentCondition);
-              discountedCost = calculateDiscountedRepairCost(amount, currentCondition, bestDiscount.discount);
-              
+              discountedCost = calculateDiscountedRepairCost(
+                amount,
+                currentCondition,
+                bestDiscount.discount
+              );
+
               if (bestDiscount.discount > 0) {
                 buttonText = `Full (₡${discountedCost})`;
               } else {
@@ -222,8 +226,12 @@ export function RepairPanel({ onClose }) {
             } else {
               amount = amountStr;
               cost = calculateRepairCost(amount, currentCondition);
-              discountedCost = calculateDiscountedRepairCost(amount, currentCondition, bestDiscount.discount);
-              
+              discountedCost = calculateDiscountedRepairCost(
+                amount,
+                currentCondition,
+                bestDiscount.discount
+              );
+
               if (bestDiscount.discount > 0) {
                 buttonText = `+${amount}% (₡${discountedCost})`;
               } else {
@@ -257,14 +265,19 @@ export function RepairPanel({ onClose }) {
   };
 
   const totalCost = calculateRepairAllCost(condition);
-  const discountedTotalCost = calculateDiscountedRepairAllCost(condition, bestDiscount.discount);
-  const finalTotalCost = bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
-  
+  const discountedTotalCost = calculateDiscountedRepairAllCost(
+    condition,
+    bestDiscount.discount
+  );
+  const finalTotalCost =
+    bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
+
   const allAtMax =
     condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-  const repairAllDisabled = allAtMax || credits < finalTotalCost || totalCost === 0;
+  const repairAllDisabled =
+    allAtMax || credits < finalTotalCost || totalCost === 0;
 
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
@@ -345,7 +358,8 @@ export function RepairPanel({ onClose }) {
               <div className="discount-details">
                 <p>
                   <strong>{bestDiscount.npcName}</strong> is providing a{' '}
-                  <strong>{Math.round(bestDiscount.discount * 100)}%</strong> discount on repair services.
+                  <strong>{Math.round(bestDiscount.discount * 100)}%</strong>{' '}
+                  discount on repair services.
                 </p>
                 <p className="discount-note">
                   <em>All repair prices shown above include this discount.</em>
@@ -418,9 +432,7 @@ export function RepairPanel({ onClose }) {
                   <h4>Free Repair Requirements</h4>
                   <div className="npc-status-list">
                     {npcsAtSystem.map((npc) => {
-                      const availability = gameStateManager.canGetFreeRepair(
-                        npc.id
-                      );
+                      const availability = canGetFreeRepair(npc.id);
                       return (
                         <div key={npc.id} className="npc-status-item">
                           <div className="npc-info">

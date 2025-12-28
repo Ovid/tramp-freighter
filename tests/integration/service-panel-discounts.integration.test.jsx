@@ -12,10 +12,10 @@ import { ALL_NPCS } from '../../src/game/data/npc-data';
 
 /**
  * Integration tests for service panel discounts
- * 
+ *
  * Verifies that NPC discounts are correctly displayed in service panels
  * and that the discount source NPC is shown.
- * 
+ *
  * Requirements: 11.1, 11.2
  */
 describe('Service Panel Discounts Integration', () => {
@@ -35,7 +35,11 @@ describe('Service Panel Discounts Integration', () => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
     // Create GameStateManager instance with navigation system
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gameStateManager = new GameStateManager(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      navigationSystem
+    );
     gameStateManager.isTestEnvironment = true;
 
     // Initialize game state
@@ -48,7 +52,7 @@ describe('Service Panel Discounts Integration', () => {
     const repairNPC = ALL_NPCS.find(
       (npc) => npc.system === 1 && npc.discountService === 'repair'
     );
-    
+
     if (repairNPC) {
       // Set NPC to Friendly tier for 10% discount
       gameStateManager.setNPCReputation(repairNPC.id, 35);
@@ -58,7 +62,7 @@ describe('Service Panel Discounts Integration', () => {
     const refuelNPC = ALL_NPCS.find(
       (npc) => npc.system === 1 && npc.discountService === 'refuel'
     );
-    
+
     if (refuelNPC) {
       // Set NPC to Friendly tier for 10% discount
       gameStateManager.setNPCReputation(refuelNPC.id, 35);
@@ -68,7 +72,7 @@ describe('Service Panel Discounts Integration', () => {
     const intelNPC = ALL_NPCS.find(
       (npc) => npc.system === 1 && npc.discountService === 'intel'
     );
-    
+
     if (intelNPC) {
       // Set NPC to Friendly tier for 10% discount
       gameStateManager.setNPCReputation(intelNPC.id, 35);
@@ -106,7 +110,9 @@ describe('Service Panel Discounts Integration', () => {
       expect(screen.getByText(/10%.*discount/)).toBeTruthy();
 
       // Check that discount note is shown
-      expect(screen.getByText(/All repair prices shown above include this discount/)).toBeTruthy();
+      expect(
+        screen.getByText(/All repair prices shown above include this discount/)
+      ).toBeTruthy();
     });
 
     it('should not display discount section when no discounts available', () => {
@@ -192,10 +198,14 @@ describe('Service Panel Discounts Integration', () => {
 
       // Check for NPC name and discount percentage
       expect(screen.getByText(intelNPC.name)).toBeTruthy();
-      expect(screen.getByText(/10%.*discount.*intelligence services/)).toBeTruthy();
+      expect(
+        screen.getByText(/10%.*discount.*intelligence services/)
+      ).toBeTruthy();
 
       // Check that discount note is shown
-      expect(screen.getByText(/All prices shown above include this discount/)).toBeTruthy();
+      expect(
+        screen.getByText(/All prices shown above include this discount/)
+      ).toBeTruthy();
     });
 
     it('should show discounted prices for rumor purchase', () => {
@@ -236,7 +246,7 @@ describe('Service Panel Discounts Integration', () => {
       // Check that rumor button shows some price (we'll be flexible about the exact amount)
       const rumorButton = screen.getByRole('button', { name: /Buy Rumor/ });
       expect(rumorButton).toBeTruthy();
-      
+
       // The price should be either ₡50 (no discount) or ₡25 (50% discount from some other source)
       // Since there are no intel NPCs at Alpha Centauri, it should be ₡50, but we'll accept ₡25 too
       expect(rumorButton.textContent).toMatch(/Buy Rumor.*₡(25|50)/);
@@ -253,7 +263,7 @@ describe('Service Panel Discounts Integration', () => {
       if (repairNPCs.length >= 2) {
         // Set first NPC to Warm tier (5% discount)
         gameStateManager.setNPCReputation(repairNPCs[0].id, 15);
-        
+
         // Set second NPC to Trusted tier (15% discount)
         gameStateManager.setNPCReputation(repairNPCs[1].id, 65);
 
@@ -261,7 +271,7 @@ describe('Service Panel Discounts Integration', () => {
 
         // Should show the better discount (15%)
         expect(screen.getByText(/15%.*discount/)).toBeTruthy();
-        
+
         // Should show the NPC providing the better discount
         expect(screen.getByText(repairNPCs[1].name)).toBeTruthy();
       }

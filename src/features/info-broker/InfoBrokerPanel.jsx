@@ -37,7 +37,8 @@ export function InfoBrokerPanel({ onClose }) {
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const priceKnowledge = useGameEvent('priceKnowledgeChanged');
-  const { purchaseIntelligence } = useGameAction();
+  const { purchaseIntelligence, updateCredits, generateRumor } =
+    useGameAction();
 
   const [activeTab, setActiveTab] = useState('purchase');
   const [rumor, setRumor] = useState('');
@@ -78,14 +79,21 @@ export function InfoBrokerPanel({ onClose }) {
 
   const handleBuyRumor = () => {
     const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-    const discountedRumorCost = calculateDiscountedRumorCost(bestDiscount.discount);
-    const finalRumorCost = bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
-    
+    const discountedRumorCost = calculateDiscountedRumorCost(
+      bestDiscount.discount
+    );
+    const finalRumorCost =
+      bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
+
     const validation = validateRumorPurchase(credits);
-    
+
     // Override validation for discounted cost if applicable
     let finalValidation = validation;
-    if (bestDiscount.discount > 0 && !validation.valid && validation.reason.includes('Insufficient credits')) {
+    if (
+      bestDiscount.discount > 0 &&
+      !validation.valid &&
+      validation.reason.includes('Insufficient credits')
+    ) {
       finalValidation = validateIntelligencePurchase(finalRumorCost, credits);
     }
 
@@ -96,10 +104,10 @@ export function InfoBrokerPanel({ onClose }) {
     }
 
     // Deduct credits
-    gameStateManager.updateCredits(credits - finalRumorCost);
+    updateCredits(credits - finalRumorCost);
 
     // Generate and display rumor
-    const generatedRumor = gameStateManager.generateRumor();
+    const generatedRumor = generateRumor();
     setRumor(generatedRumor);
 
     // Clear validation message
@@ -130,9 +138,12 @@ export function InfoBrokerPanel({ onClose }) {
 
   const renderIntelligenceItem = (option) => {
     const baseCost = option.cost;
-    const discountedCost = calculateDiscountedIntelligenceCost(baseCost, bestDiscount.discount);
+    const discountedCost = calculateDiscountedIntelligenceCost(
+      baseCost,
+      bestDiscount.discount
+    );
     const finalCost = bestDiscount.discount > 0 ? discountedCost : baseCost;
-    
+
     const validation = validateIntelligencePurchase(finalCost, credits);
     const isCurrentSystem = option.lastVisit === 0;
 
@@ -210,8 +221,11 @@ export function InfoBrokerPanel({ onClose }) {
   };
 
   const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-  const discountedRumorCost = calculateDiscountedRumorCost(bestDiscount.discount);
-  const finalRumorCost = bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
+  const discountedRumorCost = calculateDiscountedRumorCost(
+    bestDiscount.discount
+  );
+  const finalRumorCost =
+    bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
   const rumorValidation = validateIntelligencePurchase(finalRumorCost, credits);
 
   const currentSystem = starData.find((s) => s.id === currentSystemId);
@@ -298,7 +312,8 @@ export function InfoBrokerPanel({ onClose }) {
                 <div className="discount-details">
                   <p>
                     <strong>{bestDiscount.npcName}</strong> is providing a{' '}
-                    <strong>{Math.round(bestDiscount.discount * 100)}%</strong> discount on intelligence services.
+                    <strong>{Math.round(bestDiscount.discount * 100)}%</strong>{' '}
+                    discount on intelligence services.
                   </p>
                   <p className="discount-note">
                     <em>All prices shown above include this discount.</em>
