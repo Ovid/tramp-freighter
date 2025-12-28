@@ -321,7 +321,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add backstory with Pavonis route hints
     - _Requirements: 5.6-5.11, 12.1-12.6_
 
-  - [ ] 12.3 Create Dr. Sarah Kim dialogue tree
+  - [x] 12.3 Create Dr. Sarah Kim dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - _Requirements: 6.6-6.10, 12.1-12.6_

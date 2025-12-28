@@ -5,6 +5,7 @@ import {
   FATHER_OKONKWO_DIALOGUE,
   WHISPER_DIALOGUE,
   CAPTAIN_VASQUEZ_DIALOGUE,
+  DR_SARAH_KIM_DIALOGUE,
   ALL_DIALOGUE_TREES,
   validateDialogueTree,
   validateDialogueNode,
@@ -586,13 +587,125 @@ describe('Dialogue Tree Structure', () => {
     });
   });
 
+  describe('Dr. Sarah Kim Dialogue Tree', () => {
+    it('should exist and have greeting node', () => {
+      expect(DR_SARAH_KIM_DIALOGUE).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.greeting).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.greeting.text).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.greeting.choices).toBeDefined();
+      expect(Array.isArray(DR_SARAH_KIM_DIALOGUE.greeting.choices)).toBe(true);
+    });
+
+    it('should have tier-based greeting text matching requirements', () => {
+      const greetingText = DR_SARAH_KIM_DIALOGUE.greeting.text;
+      expect(typeof greetingText).toBe('function');
+
+      // Test different reputation tiers
+      const neutralGreeting = greetingText(REPUTATION_BOUNDS.NEUTRAL_MIN);
+      const warmGreeting = greetingText(REPUTATION_BOUNDS.WARM_MIN);
+      const friendlyGreeting = greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN);
+      const trustedGreeting = greetingText(REPUTATION_BOUNDS.TRUSTED_MIN);
+      const familyGreeting = greetingText(REPUTATION_BOUNDS.FAMILY_MIN);
+
+      // All greetings should be different
+      expect(neutralGreeting).not.toBe(warmGreeting);
+      expect(warmGreeting).not.toBe(friendlyGreeting);
+      expect(friendlyGreeting).not.toBe(trustedGreeting);
+      expect(trustedGreeting).not.toBe(familyGreeting);
+
+      // Should reflect professional/formal tone
+      expect(neutralGreeting).toContain('documentation');
+      expect(warmGreeting).toContain('procedures');
+      expect(friendlyGreeting).toContain('professional');
+      expect(trustedGreeting).toContain('protocols');
+      expect(familyGreeting).toContain('exemplary');
+    });
+
+    it('should have expected choice behavior in greeting', () => {
+      const choices = DR_SARAH_KIM_DIALOGUE.greeting.choices;
+      expect(choices.length).toBeGreaterThan(3);
+
+      // Should have tip choice with reputation condition
+      const tipChoice = choices.find(choice => choice.text.includes('operational tips'));
+      expect(tipChoice).toBeDefined();
+      expect(tipChoice.condition).toBeDefined();
+      expect(typeof tipChoice.condition).toBe('function');
+      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(true);
+      expect(tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe(false);
+
+      // Should have loan choice with Trusted tier condition
+      const loanChoice = choices.find(choice => choice.text.includes('emergency loan'));
+      expect(loanChoice).toBeDefined();
+      expect(loanChoice.condition).toBeDefined();
+      expect(typeof loanChoice.condition).toBe('function');
+      expect(loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN)).toBe(true);
+      expect(loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(false);
+
+      // Should have storage choice with Friendly tier condition
+      const storageChoice = choices.find(choice => choice.text.includes('store some cargo'));
+      expect(storageChoice).toBeDefined();
+      expect(storageChoice.condition).toBeDefined();
+      expect(typeof storageChoice.condition).toBe('function');
+      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(true);
+      expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(false);
+    });
+
+    it('should have all required dialogue nodes', () => {
+      const requiredNodes = [
+        'greeting',
+        'station_operations',
+        'procedures_important',
+        'efficiency_matters',
+        'regulation_defense',
+        'ask_tip',
+        'request_loan',
+        'request_storage'
+      ];
+
+      requiredNodes.forEach(nodeId => {
+        expect(DR_SARAH_KIM_DIALOGUE[nodeId]).toBeDefined();
+        expect(DR_SARAH_KIM_DIALOGUE[nodeId].text).toBeDefined();
+        expect(DR_SARAH_KIM_DIALOGUE[nodeId].choices).toBeDefined();
+      });
+    });
+
+    it('should have story flags in dialogue nodes', () => {
+      // Check that tip and favor nodes have flags
+      expect(DR_SARAH_KIM_DIALOGUE.ask_tip.flags).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.ask_tip.flags).toContain('kim_tip_requested');
+      
+      expect(DR_SARAH_KIM_DIALOGUE.request_loan.flags).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.request_loan.flags).toContain('kim_loan_discussed');
+      
+      expect(DR_SARAH_KIM_DIALOGUE.request_storage.flags).toBeDefined();
+      expect(DR_SARAH_KIM_DIALOGUE.request_storage.flags).toContain('kim_storage_discussed');
+    });
+
+    it('should reflect professional administrator personality', () => {
+      // Check that dialogue reflects formal, technical vocabulary and regulation citations
+      const stationOpsText = DR_SARAH_KIM_DIALOGUE.station_operations.text;
+      expect(stationOpsText).toContain('Regulation');
+      expect(stationOpsText).toContain('protocols');
+      expect(stationOpsText).toContain('procedures');
+
+      const proceduresText = DR_SARAH_KIM_DIALOGUE.procedures_important.text;
+      expect(proceduresText).toContain('Regulation');
+      expect(proceduresText).toContain('systematic');
+
+      const efficiencyText = DR_SARAH_KIM_DIALOGUE.efficiency_matters.text;
+      expect(efficiencyText).toContain('efficiency');
+      expect(efficiencyText).toContain('metrics');
+    });
+  });
+
   describe('Dialogue Tree Collection and Validation', () => {
-    it('should include all five NPCs in ALL_DIALOGUE_TREES', () => {
+    it('should include all six NPCs in ALL_DIALOGUE_TREES', () => {
       expect(ALL_DIALOGUE_TREES.chen_barnards).toBe(WEI_CHEN_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.cole_sol).toBe(MARCUS_COLE_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(FATHER_OKONKWO_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(CAPTAIN_VASQUEZ_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(DR_SARAH_KIM_DIALOGUE);
     });
 
     it('should validate all dialogue trees without throwing errors', () => {

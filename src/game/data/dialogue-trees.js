@@ -1039,6 +1039,191 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
 };
 
 /**
+ * Dr. Sarah Kim Dialogue Tree - Station Administrator at Tau Ceti
+ *
+ * An efficient station administrator who values professionalism and proper procedures.
+ * Uses formal speech with technical vocabulary and frequently cites regulations.
+ * Provides operational tips and docking-related benefits based on relationship tier.
+ *
+ * Dialogue Flow:
+ * - greeting → station_operations → (procedures_important | efficiency_matters) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const DR_SARAH_KIM_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?";
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return "Hello there! Your professional approach to station operations has been refreshing. How are things going for you?";
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
+      } else {
+        // Neutral, Cold, or Hostile
+        return "Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?";
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about station operations.',
+        next: 'station_operations',
+      },
+      {
+        text: 'Any operational tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Nothing right now. Thank you.',
+        next: null,
+      },
+    ],
+  },
+
+  station_operations: {
+    text: 'Tau Ceti Station operates under strict efficiency protocols per Regulation 47-B. We maintain the highest standards for cargo handling, customs processing, and vessel maintenance. Proper documentation and adherence to procedures ensures smooth operations for everyone.',
+    choices: [
+      {
+        text: 'Procedures are important for safety.',
+        next: 'procedures_important',
+        repGain: 3,
+      },
+      {
+        text: 'Efficiency matters in trading.',
+        next: 'efficiency_matters',
+        repGain: 2,
+      },
+      {
+        text: 'Sometimes regulations slow things down.',
+        next: 'regulation_defense',
+        repGain: -2,
+      },
+      {
+        text: 'I understand. Thank you.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  procedures_important: {
+    text: 'Exactly! You understand the importance of systematic operations. Regulation 23-C clearly states that proper procedures prevent 94% of operational incidents. Professional traders like yourself make my job much easier.',
+    choices: [
+      {
+        text: 'I appreciate well-run stations.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good systems benefit everyone.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  efficiency_matters: {
+    text: 'Precisely. Efficient operations benefit all parties - reduced processing time, lower operational costs, improved safety margins. When traders follow established protocols, we can process requests 40% faster according to our latest efficiency metrics.',
+    choices: [
+      {
+        text: 'Those are impressive numbers.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: "I'll keep that in mind.",
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  regulation_defense: {
+    text: 'I understand that perspective, but consider this: Regulation 15-D exists because uncontrolled cargo transfers resulted in three major incidents in 2387. These procedures exist to protect everyone - traders, station personnel, and cargo integrity.',
+    choices: [
+      {
+        text: "I hadn't considered the safety aspect.",
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Fair point about the incidents.',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'Still seems excessive to me.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: 'Certainly. Operational efficiency is improved through proper planning and adherence to established protocols. Here\'s something that should help optimize your trading operations...',
+    flags: ['kim_tip_requested'],
+    choices: [
+      {
+        text: 'That information is very useful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thank you for the operational guidance.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: 'An emergency loan request... Per Financial Regulation 12-A, I can authorize a five hundred credit emergency advance for trusted traders with established operational records. Standard thirty-day repayment terms apply.',
+    flags: ['kim_loan_discussed'],
+    choices: [
+      {
+        text: 'I accept those terms.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me review the terms first.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: 'Cargo storage services are available under Station Protocol 8-C for established traders. We can accommodate up to ten units in our secure storage facility. All items are logged and tracked per standard inventory procedures.',
+    flags: ['kim_storage_discussed'],
+    choices: [
+      {
+        text: 'That would be very helpful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good to know that service exists.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
  * All dialogue trees in the game
  * Maps NPC IDs to their dialogue trees
  */
@@ -1048,6 +1233,7 @@ export const ALL_DIALOGUE_TREES = {
   okonkwo_ross154: FATHER_OKONKWO_DIALOGUE,
   whisper_sirius: WHISPER_DIALOGUE,
   vasquez_epsilon: CAPTAIN_VASQUEZ_DIALOGUE,
+  kim_tau_ceti: DR_SARAH_KIM_DIALOGUE,
 };
 
 /**
