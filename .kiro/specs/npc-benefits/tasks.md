@@ -326,7 +326,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add tip dialogue option
     - _Requirements: 6.6-6.10, 12.1-12.6_
 
-  - [ ] 12.4 Create "Rusty" Rodriguez dialogue tree
+  - [x] 12.4 Create "Rusty" Rodriguez dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - _Requirements: 7.6-7.10, 12.1-12.6_

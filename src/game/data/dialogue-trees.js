@@ -1224,6 +1224,195 @@ export const DR_SARAH_KIM_DIALOGUE = {
 };
 
 /**
+ * "Rusty" Rodriguez Dialogue Tree - Mechanic at Procyon
+ *
+ * A gruff but skilled mechanic who loves ships more than people. Uses technical
+ * vocabulary with ship personification quirks and provides repair-focused tips.
+ * Offers repair service discounts based on relationship tier.
+ *
+ * Personality: High trust (0.7), low-moderate greed (0.4), high loyalty (0.8), moderate morality (0.5)
+ * Speech: Gruff greeting style, technical vocabulary, ship personification quirk
+ *
+ * Dialogue Flow:
+ * - greeting → ship_talk → (ship_care | maintenance_matters) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const RUSTY_RODRIGUEZ_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return "Well, well! Look who's back. Your ship's been treating you right, I hope? She's a good one - I can tell by how you care for her. What can old Rusty do for you today?";
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "Good to see you again, captain. Your ship's looking better each time I see her. You're learning to treat her right. What brings you to my shop?";
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return "Hey there! Your ship's been behaving herself, I hope? I can always tell when a captain knows what they're doing. How can I help you?";
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return "Back again, eh? Your ship's looking decent. Better than some of the rust buckets that limp in here. What do you need?";
+      } else {
+        // Neutral, Cold, or Hostile
+        return "Another ship, another captain. Let me guess - something's broken and you need it fixed yesterday. What's the problem?";
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about ship maintenance.',
+        next: 'ship_talk',
+      },
+      {
+        text: 'Any maintenance tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Nothing right now. Thanks, Rusty.',
+        next: null,
+      },
+    ],
+  },
+
+  ship_talk: {
+    text: "Ships are living things, you know. Not literally, but... they got personalities. Quirks. Moods. Treat 'em right, and they'll get you home safe. Neglect 'em, and they'll strand you in the void when you least expect it. Your ship talks to you - you just gotta learn to listen.",
+    choices: [
+      {
+        text: 'I try to take good care of my ship.',
+        next: 'ship_care',
+        repGain: 3,
+      },
+      {
+        text: 'Regular maintenance is important.',
+        next: 'maintenance_matters',
+        repGain: 2,
+      },
+      {
+        text: "It's just a machine to me.",
+        next: 'just_machine',
+        repGain: -2,
+      },
+      {
+        text: 'Interesting perspective.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  ship_care: {
+    text: "Now that's what I like to hear! A captain who respects their ship. She'll remember that kindness when things get rough out there. I've seen ships push beyond their limits for captains who treated 'em right. It's not just maintenance - it's partnership.",
+    choices: [
+      {
+        text: 'My ship and I are a team.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'She deserves the best care I can give.',
+        next: 'greeting',
+        repGain: 2,
+      },
+    ],
+  },
+
+  maintenance_matters: {
+    text: "Exactly! Regular maintenance isn't just about preventing breakdowns - though that's important too. It's about understanding your ship's rhythms. When the engine sounds different, when the hull flexes under stress, when life support cycles change. Knowledge keeps you alive out there.",
+    choices: [
+      {
+        text: 'What should I watch for specifically?',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good advice. Thank you.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  just_machine: {
+    text: "Just a machine? *shakes head* That's where you're wrong, captain. Machines don't develop quirks that save your life. Machines don't push past their specs when you need 'em most. Your ship's more than metal and circuits - she's your lifeline. Better start treating her like one.",
+    choices: [
+      {
+        text: "Maybe you're right about that.",
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: "I'll think about what you said.",
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'Still just a machine to me.',
+        next: 'greeting',
+        repGain: -1,
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: "Sure thing, captain. Been working on ships for twenty years - learned a thing or two about keeping 'em healthy. Here's something that might save you some trouble down the line...",
+    flags: ['rusty_tip_requested'],
+    choices: [
+      {
+        text: 'That could save me a lot of trouble.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thanks for the maintenance advice.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: "Emergency loan, eh? Five hundred credits... *wipes hands on coveralls* Look, I know what it's like when your ship needs work and your wallet's empty. I can spot you the credits, but I expect it back in thirty days. Fair enough?",
+    flags: ['rusty_loan_discussed'],
+    choices: [
+      {
+        text: 'I accept those terms. Thank you.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me think about it first.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: "Cargo storage? Sure, I got secure space in the back of the shop. Up to ten units, safe from the elements and prying eyes. Consider it a favor between professionals - we mechanics gotta stick together, even if you're on the other side of the wrench.",
+    flags: ['rusty_storage_discussed'],
+    choices: [
+      {
+        text: 'That would be a huge help.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'I appreciate the offer, Rusty.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
  * All dialogue trees in the game
  * Maps NPC IDs to their dialogue trees
  */
@@ -1234,6 +1423,7 @@ export const ALL_DIALOGUE_TREES = {
   whisper_sirius: WHISPER_DIALOGUE,
   vasquez_epsilon: CAPTAIN_VASQUEZ_DIALOGUE,
   kim_tau_ceti: DR_SARAH_KIM_DIALOGUE,
+  rodriguez_procyon: RUSTY_RODRIGUEZ_DIALOGUE,
 };
 
 /**
