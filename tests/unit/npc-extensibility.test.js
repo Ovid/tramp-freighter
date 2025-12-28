@@ -56,15 +56,15 @@ describe('NPC System Extensibility', () => {
     tips: [
       'Buy low, sell high - the oldest rule in trading.',
       'Keep your cargo manifest accurate to avoid delays.',
-      'Reputation matters more than quick profits.'
+      'Reputation matters more than quick profits.',
     ],
     discountService: 'trade',
     tierBenefits: {
       warm: { discount: 0.05, benefit: 'Trading tips' },
-      friendly: { discount: 0.10, benefit: 'Market insights' },
+      friendly: { discount: 0.1, benefit: 'Market insights' },
       trusted: { discount: 0.15, benefit: 'Bulk discounts' },
-      family: { discount: 0.20, benefit: 'Exclusive deals' }
-    }
+      family: { discount: 0.2, benefit: 'Exclusive deals' },
+    },
   };
 
   // Test dialogue tree with minimal structure

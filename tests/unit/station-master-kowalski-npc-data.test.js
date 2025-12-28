@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { validateNPCDefinition } from '../../src/game/data/npc-data.js';
 import {
-  NPC_PERSONALITY_VALUES,
-  NPC_INITIAL_REPUTATION,
-} from '../../src/game/constants.js';
+  STATION_MASTER_KOWALSKI,
+  validateNPCDefinition,
+} from '../../src/game/data/npc-data.js';
+import { NPC_INITIAL_REPUTATION } from '../../src/game/constants.js';
 
 /**
  * Unit tests for Station Master Kowalski NPC data validation
@@ -18,9 +18,6 @@ import {
 describe('Station Master Kowalski NPC Data Validation', () => {
   describe('Station Master Kowalski (Station Master at Alpha Centauri)', () => {
     it('should have all required fields for NPC benefits system', () => {
-      // This test will fail initially - we need to import STATION_MASTER_KOWALSKI from npc-data.js
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       // Verify basic required fields exist
       expect(STATION_MASTER_KOWALSKI.id).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.name).toBeDefined();
@@ -31,7 +28,7 @@ describe('Station Master Kowalski NPC Data Validation', () => {
       expect(STATION_MASTER_KOWALSKI.speechStyle).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.description).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.initialRep).toBeDefined();
-      
+
       // Verify new benefits fields exist
       expect(STATION_MASTER_KOWALSKI.tips).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.discountService).toBeDefined();
@@ -39,8 +36,6 @@ describe('Station Master Kowalski NPC Data Validation', () => {
     });
 
     it('should have correct basic information', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(STATION_MASTER_KOWALSKI.id).toBe('kowalski_alpha_centauri');
       expect(STATION_MASTER_KOWALSKI.name).toBe('Station Master Kowalski');
       expect(STATION_MASTER_KOWALSKI.role).toBe('Station Master');
@@ -49,8 +44,6 @@ describe('Station Master Kowalski NPC Data Validation', () => {
     });
 
     it('should have correct personality values matching specification', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(STATION_MASTER_KOWALSKI.personality.trust).toBe(0.3);
       expect(STATION_MASTER_KOWALSKI.personality.greed).toBe(0.4);
       expect(STATION_MASTER_KOWALSKI.personality.loyalty).toBe(0.7);
@@ -58,55 +51,55 @@ describe('Station Master Kowalski NPC Data Validation', () => {
     });
 
     it('should have correct speech style', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(STATION_MASTER_KOWALSKI.speechStyle.greeting).toBe('gruff');
       expect(STATION_MASTER_KOWALSKI.speechStyle.vocabulary).toBe('simple');
-      expect(STATION_MASTER_KOWALSKI.speechStyle.quirk).toBe('no-nonsense direct');
+      expect(STATION_MASTER_KOWALSKI.speechStyle.quirk).toBe(
+        'no-nonsense direct'
+      );
     });
 
     it('should have correct initial reputation', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
-      expect(STATION_MASTER_KOWALSKI.initialRep).toBe(NPC_INITIAL_REPUTATION.NEUTRAL);
+      expect(STATION_MASTER_KOWALSKI.initialRep).toBe(
+        NPC_INITIAL_REPUTATION.NEUTRAL
+      );
     });
 
     it('should have non-empty tips array', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(Array.isArray(STATION_MASTER_KOWALSKI.tips)).toBe(true);
       expect(STATION_MASTER_KOWALSKI.tips.length).toBeGreaterThan(0);
-      
+
       // Verify specific tips from requirements
-      expect(STATION_MASTER_KOWALSKI.tips).toContain("Alpha Centauri is a hub. Good for buying and selling most goods.");
-      expect(STATION_MASTER_KOWALSKI.tips).toContain("We get a lot of traffic. Prices are competitive.");
-      expect(STATION_MASTER_KOWALSKI.tips).toContain("Keep your ship in good shape. We have standards here.");
+      expect(STATION_MASTER_KOWALSKI.tips).toContain(
+        'Alpha Centauri is a hub. Good for buying and selling most goods.'
+      );
+      expect(STATION_MASTER_KOWALSKI.tips).toContain(
+        'We get a lot of traffic. Prices are competitive.'
+      );
+      expect(STATION_MASTER_KOWALSKI.tips).toContain(
+        'Keep your ship in good shape. We have standards here.'
+      );
     });
 
     it('should have correct discount service', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(STATION_MASTER_KOWALSKI.discountService).toBe('docking');
     });
 
     it('should have correct tier benefits configuration', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
       expect(STATION_MASTER_KOWALSKI.tierBenefits).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.tierBenefits.warm).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.tierBenefits.friendly).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.tierBenefits.trusted).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.tierBenefits.family).toBeDefined();
-      
+
       // Verify tier benefit structure
       expect(STATION_MASTER_KOWALSKI.tierBenefits.warm.discount).toBeDefined();
       expect(STATION_MASTER_KOWALSKI.tierBenefits.warm.benefit).toBeDefined();
     });
 
     it('should pass NPC validation', () => {
-      const { STATION_MASTER_KOWALSKI } = require('../../src/game/data/npc-data.js');
-      
-      expect(() => validateNPCDefinition(STATION_MASTER_KOWALSKI)).not.toThrow();
+      expect(() =>
+        validateNPCDefinition(STATION_MASTER_KOWALSKI)
+      ).not.toThrow();
     });
   });
 });

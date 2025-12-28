@@ -181,8 +181,8 @@ describe('NPC Data Definitions', () => {
           warm: { discount: 0, benefit: 'test' },
           friendly: { discount: 0, benefit: 'test' },
           trusted: { discount: 0, benefit: 'test' },
-          family: { discount: 0, benefit: 'test' }
-        }
+          family: { discount: 0, benefit: 'test' },
+        },
       };
 
       expect(() => validateNPCDefinition(invalidNPC)).toThrow(
@@ -215,8 +215,8 @@ describe('NPC Data Definitions', () => {
           warm: { discount: 0, benefit: 'test' },
           friendly: { discount: 0, benefit: 'test' },
           trusted: { discount: 0, benefit: 'test' },
-          family: { discount: 0, benefit: 'test' }
-        }
+          family: { discount: 0, benefit: 'test' },
+        },
       };
 
       expect(() => validateNPCDefinition(invalidNPC)).toThrow(

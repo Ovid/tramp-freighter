@@ -1,12 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { LUCKY_LIU, validateNPCDefinition } from '../../src/game/data/npc-data.js';
+import {
+  LUCKY_LIU,
+  validateNPCDefinition,
+} from '../../src/game/data/npc-data.js';
 
 /**
  * Unit tests for "Lucky" Liu NPC data definition
  * Feature: npc-benefits
- * 
+ *
  * **Validates: Requirements 10.1-10.10**
- * 
+ *
  * Verifies that "Lucky" Liu NPC has correct personality traits, system/station assignment,
  * speech style, tips array, discount service, and tier benefits as specified in requirements.
  */
@@ -40,15 +43,23 @@ describe('"Lucky" Liu NPC Data Definition', () => {
   });
 
   it('should have correct description', () => {
-    expect(LUCKY_LIU.description).toBe('Professional gambler and risk-taker. Loves long odds. Respects bold moves.');
+    expect(LUCKY_LIU.description).toBe(
+      'Professional gambler and risk-taker. Loves long odds. Respects bold moves.'
+    );
   });
 
   it('should have correct tips array', () => {
     expect(Array.isArray(LUCKY_LIU.tips)).toBe(true);
     expect(LUCKY_LIU.tips).toHaveLength(3);
-    expect(LUCKY_LIU.tips).toContain('Sometimes you gotta take risks. Big risks, big rewards.');
-    expect(LUCKY_LIU.tips).toContain('I heard about a high-stakes cargo run. Interested?');
-    expect(LUCKY_LIU.tips).toContain("Don't play it safe all the time. Fortune favors the bold.");
+    expect(LUCKY_LIU.tips).toContain(
+      'Sometimes you gotta take risks. Big risks, big rewards.'
+    );
+    expect(LUCKY_LIU.tips).toContain(
+      'I heard about a high-stakes cargo run. Interested?'
+    );
+    expect(LUCKY_LIU.tips).toContain(
+      "Don't play it safe all the time. Fortune favors the bold."
+    );
   });
 
   it('should have correct discount service', () => {
@@ -66,15 +77,17 @@ describe('"Lucky" Liu NPC Data Definition', () => {
   it('should have correct tier benefits content', () => {
     expect(LUCKY_LIU.tierBenefits.warm.discount).toBe(0);
     expect(LUCKY_LIU.tierBenefits.warm.benefit).toBe('Risk-taking tips');
-    
+
     expect(LUCKY_LIU.tierBenefits.friendly.discount).toBe(0);
     expect(LUCKY_LIU.tierBenefits.friendly.benefit).toBe('₡500 stake mechanic');
-    
+
     expect(LUCKY_LIU.tierBenefits.trusted.discount).toBe(0);
     expect(LUCKY_LIU.tierBenefits.trusted.benefit).toBe('Insider information');
-    
+
     expect(LUCKY_LIU.tierBenefits.family.discount).toBe(0);
-    expect(LUCKY_LIU.tierBenefits.family.benefit).toBe('High-risk exclusive opportunities');
+    expect(LUCKY_LIU.tierBenefits.family.benefit).toBe(
+      'High-risk exclusive opportunities'
+    );
   });
 
   it('should pass NPC validation', () => {

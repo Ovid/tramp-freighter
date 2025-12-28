@@ -20,9 +20,14 @@ import {
 } from '../constants.js';
 
 /**
- * Validates that an NPC definition has all required fields
- * @param {Object} npc - NPC definition to validate
- * @throws {Error} If any required field is missing
+ * Validates NPC definition structure to prevent runtime errors during game initialization.
+ *
+ * This validation ensures that all NPCs have the required fields for the benefits system,
+ * preventing crashes when the game tries to access missing properties during relationship
+ * calculations, dialogue generation, or benefit application.
+ *
+ * @param {Object} npc - NPC definition object containing personality, benefits, and metadata
+ * @throws {Error} When required fields are missing - fails fast to expose data issues during development
  */
 export function validateNPCDefinition(npc) {
   for (const field of NPC_VALIDATION.REQUIRED_FIELDS) {
@@ -62,9 +67,7 @@ export function validateNPCDefinition(npc) {
 
   // Validate tips is an array
   if (!Array.isArray(npc.tips)) {
-    throw new Error(
-      `Invalid NPC definition: tips must be an array`
-    );
+    throw new Error(`Invalid NPC definition: tips must be an array`);
   }
 
   // Validate discountService is string or null
@@ -78,9 +81,18 @@ export function validateNPCDefinition(npc) {
 /**
  * Wei Chen - Dock Worker at Barnard's Star
  *
- * A former ship captain who lost her ship in a bad deal. Now works the docks
- * at Bore Station 7, helping other traders while nursing old wounds. Cautiously
- * optimistic but slow to trust after being burned before.
+ * Represents the "cautious survivor" archetype - someone who has been burned by trust
+ * but still maintains hope. Her low trust/high loyalty combination creates interesting
+ * relationship dynamics where earning her trust is difficult but extremely rewarding.
+ *
+ * Personality Design Rationale:
+ * - Low trust (0.3): Creates initial relationship challenge for players
+ * - Low greed (0.2): Makes her motivated by respect rather than profit
+ * - High loyalty (0.8): Rewards players who invest time in the relationship
+ * - Moderate morality (0.6): Allows pragmatic decisions while maintaining ethics
+ *
+ * Game Role: Provides early-game relationship tutorial and demonstrates that
+ * NPCs have depth beyond their current circumstances.
  */
 export const WEI_CHEN = {
   id: 'chen_barnards',
@@ -108,16 +120,25 @@ export const WEI_CHEN = {
     warm: { discount: 0, benefit: 'Dock worker tips' },
     friendly: { discount: 0, benefit: 'Operational advice' },
     trusted: { discount: 0, benefit: 'Advance warnings' },
-    family: { discount: 0, benefit: 'Priority assistance' }
-  }
+    family: { discount: 0, benefit: 'Priority assistance' },
+  },
 };
 
 /**
  * Marcus Cole - Loan Shark at Sol
  *
- * The player's creditor - cold, calculating, and purely business-focused.
- * Operates from Sol Central where he can keep tabs on all the major trade
- * routes. Views relationships as transactions and loyalty as a commodity.
+ * Serves as the game's primary antagonistic relationship and debt pressure system.
+ * His extreme personality values create a clear "villain" that players love to hate,
+ * while his position at Sol makes him unavoidable, maintaining constant tension.
+ *
+ * Personality Design Rationale:
+ * - Very low trust (0.1): Makes every interaction feel transactional and cold
+ * - Very high greed (0.9): Ensures he always prioritizes profit over relationships
+ * - Low loyalty (0.3): Creates unpredictable behavior that keeps players on edge
+ * - Low morality (0.2): Allows morally questionable business practices
+ *
+ * Game Role: Provides financial pressure and serves as a relationship contrast
+ * to more positive NPCs. His hostile starting reputation creates immediate stakes.
  */
 export const MARCUS_COLE = {
   id: 'cole_sol',
@@ -145,16 +166,26 @@ export const MARCUS_COLE = {
     warm: { discount: 0, benefit: 'Financial tips' },
     friendly: { discount: 0, benefit: 'Debt management advice' },
     trusted: { discount: 0, benefit: 'Favorable loan terms' },
-    family: { discount: 0, benefit: 'Emergency credit access' }
-  }
+    family: { discount: 0, benefit: 'Emergency credit access' },
+  },
 };
 
 /**
  * Father Okonkwo - Chaplain at Ross 154
  *
- * Station chaplain and medic who serves the spiritual and physical needs of
- * travelers. Genuinely caring and welcoming to all, regardless of background.
- * Sees the good in people and offers guidance without judgment.
+ * Represents unconditional positive regard and serves as the game's "moral anchor."
+ * His extreme positive values provide a safe relationship for players to experience
+ * the benefits system without risk, while his medical role makes him practically useful.
+ *
+ * Personality Design Rationale:
+ * - High trust (0.7): Immediately welcoming to all players regardless of reputation
+ * - No greed (0.0): Completely removes transactional elements from interactions
+ * - Very high loyalty (0.9): Ensures he remains supportive even if player makes mistakes
+ * - Very high morality (0.9): Provides moral guidance and represents ethical gameplay
+ *
+ * Game Role: Offers emotional respite from harsh trading world and demonstrates
+ * that not all relationships require careful management. His friendly starting
+ * reputation provides immediate positive feedback for new players.
  */
 export const FATHER_OKONKWO = {
   id: 'okonkwo_ross154',
@@ -182,16 +213,26 @@ export const FATHER_OKONKWO = {
     warm: { discount: 0, benefit: 'Spiritual guidance' },
     friendly: { discount: 0, benefit: 'Medical supplies' },
     trusted: { discount: 0, benefit: 'Sanctuary benefits' },
-    family: { discount: 0, benefit: 'Emergency medical care' }
-  }
+    family: { discount: 0, benefit: 'Emergency medical care' },
+  },
 };
 
 /**
  * Whisper - Information Broker at Sirius A
  *
- * Mysterious info broker who knows everyone's secrets. Operates from Sirius Exchange
- * where she trades in market intelligence and rumors. Formal and educated but speaks
- * in cryptic, measured tones. Specializes in intel services with tier-based discounts.
+ * Embodies the "morally ambiguous useful contact" archetype. Her balanced trust/loyalty
+ * with high greed and low morality creates a relationship where players must weigh
+ * the value of her services against the ethical implications of supporting her business.
+ *
+ * Personality Design Rationale:
+ * - Moderate trust (0.5): Neither immediately welcoming nor hostile - requires earning
+ * - High greed (0.7): Makes her services expensive but ensures she's always available for profit
+ * - Moderate loyalty (0.5): Creates uncertainty about her reliability in difficult situations
+ * - Low morality (0.4): Allows her to trade in questionable information and gray-market intel
+ *
+ * Game Role: Provides essential intelligence services while forcing players to engage
+ * with morally complex characters. Her intel discount service makes the relationship
+ * economically valuable despite ethical concerns.
  */
 export const WHISPER = {
   id: 'whisper_sirius',
@@ -214,26 +255,36 @@ export const WHISPER = {
     "Mysterious info broker. Knows everyone's secrets. Including yours.",
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
-    "Procyon is buying ore at premium prices this week.",
-    "Avoid Tau Ceti. Inspections are up 300%.",
-    "Someone at Ross 154 is looking for electronics. Big buyer."
+    'Procyon is buying ore at premium prices this week.',
+    'Avoid Tau Ceti. Inspections are up 300%.',
+    'Someone at Ross 154 is looking for electronics. Big buyer.',
   ],
   discountService: 'intel',
   tierBenefits: {
-    warm: { discount: 0.10, benefit: '10% discount on intel purchases' },
-    friendly: { discount: 0.10, benefit: 'Free rumors once per visit' },
+    warm: { discount: 0.1, benefit: '10% discount on intel purchases' },
+    friendly: { discount: 0.1, benefit: 'Free rumors once per visit' },
     trusted: { discount: 0.15, benefit: 'Advance warning of inspections' },
-    family: { discount: 0.20, benefit: 'Exclusive insider information' }
-  }
+    family: { discount: 0.2, benefit: 'Exclusive insider information' },
+  },
 };
 
 /**
  * Captain Vasquez - Retired Trader at Epsilon Eridani
  *
- * Retired freighter captain who serves as a mentor figure. Operates from Eridani Hub
- * where she shares wisdom from years of trading experience. Warm and approachable,
- * with simple vocabulary and a tendency to share trading stories. Starts with higher
- * reputation as a respected mentor figure.
+ * Functions as the game's mentor figure and positive relationship tutorial. Her
+ * higher starting reputation and balanced positive traits make her an ideal
+ * "first friend" who demonstrates the benefits of NPC relationships without
+ * requiring significant investment from new players.
+ *
+ * Personality Design Rationale:
+ * - Moderate-high trust (0.6): Welcoming but not naive - respects competent traders
+ * - Low greed (0.3): More interested in sharing knowledge than making profit
+ * - High loyalty (0.7): Becomes a reliable ally once relationship is established
+ * - High morality (0.7): Provides ethical guidance and represents honorable trading
+ *
+ * Game Role: Serves as relationship onboarding and provides valuable trading tips
+ * without service discounts. Her mentor status and starting reputation of 5 makes
+ * her immediately accessible to new players learning the relationship system.
  */
 export const CAPTAIN_VASQUEZ = {
   id: 'vasquez_epsilon',
@@ -253,29 +304,44 @@ export const CAPTAIN_VASQUEZ = {
     quirk: 'trading stories',
   },
   description:
-    "Retired freighter captain. Mentor figure. Knows the old routes.",
+    'Retired freighter captain. Mentor figure. Knows the old routes.',
   initialRep: 5, // Starts with 5 rep as mentor figure
   tips: [
     "Barnard's Star always needs ore. Mining station, you know.",
-    "Sirius A pays top credit for luxury goods. Rich folks.",
-    "The Procyon run is profitable if you can afford the fuel."
+    'Sirius A pays top credit for luxury goods. Rich folks.',
+    'The Procyon run is profitable if you can afford the fuel.',
   ],
   discountService: null, // Mentor, not service provider
   tierBenefits: {
     warm: { discount: 0, benefit: 'Trading tips and route suggestions' },
-    friendly: { discount: 0, benefit: 'Old star charts reveal profitable routes' },
-    trusted: { discount: 0, benefit: 'Co-investment opportunities (50/50 splits)' },
-    family: { discount: 0, benefit: 'Pavonis route hints (endgame content)' }
-  }
+    friendly: {
+      discount: 0,
+      benefit: 'Old star charts reveal profitable routes',
+    },
+    trusted: {
+      discount: 0,
+      benefit: 'Co-investment opportunities (50/50 splits)',
+    },
+    family: { discount: 0, benefit: 'Pavonis route hints (endgame content)' },
+  },
 };
 
 /**
  * Dr. Sarah Kim - Station Administrator at Tau Ceti
  *
- * Efficient station administrator who runs Tau Ceti Station by the book.
- * Respects professionalism and maintains strict operational standards.
- * Uses formal greeting style with technical vocabulary and frequently
- * cites regulations. Specializes in docking services with tier-based benefits.
+ * Represents the "professional bureaucrat" archetype - someone who values competence
+ * and proper procedures. Her personality creates a relationship that rewards players
+ * who demonstrate professionalism and follow proper trading protocols.
+ *
+ * Personality Design Rationale:
+ * - Low-moderate trust (0.4): Requires players to prove their competence before warming up
+ * - Moderate greed (0.5): Business-focused but not purely profit-driven
+ * - Moderate-high loyalty (0.6): Becomes reliable ally for players who respect procedures
+ * - High morality (0.8): Enforces ethical standards and rewards honest dealing
+ *
+ * Game Role: Teaches players that different NPCs value different behaviors.
+ * Her docking service discounts reward players who invest in "boring but useful"
+ * relationships, demonstrating that not all valuable NPCs are colorful characters.
  */
 export const DR_SARAH_KIM = {
   id: 'kim_tau_ceti',
@@ -295,29 +361,38 @@ export const DR_SARAH_KIM = {
     quirk: 'regulation citations',
   },
   description:
-    "Efficient station administrator. By-the-book. Respects professionalism.",
+    'Efficient station administrator. By-the-book. Respects professionalism.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
-    "We have strict customs here. Keep your cargo manifest accurate.",
-    "Medicine prices are stable at Ross 154. Good for planning.",
-    "Fuel efficiency matters on long routes. Upgrade your engine."
+    'We have strict customs here. Keep your cargo manifest accurate.',
+    'Medicine prices are stable at Ross 154. Good for planning.',
+    'Fuel efficiency matters on long routes. Upgrade your engine.',
   ],
   discountService: 'docking',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Operational tips' },
     friendly: { discount: 0, benefit: 'Docking fee waiver' },
     trusted: { discount: 0, benefit: 'Advance customs notice' },
-    family: { discount: 0, benefit: 'Priority docking clearance' }
-  }
+    family: { discount: 0, benefit: 'Priority docking clearance' },
+  },
 };
 
 /**
  * "Rusty" Rodriguez - Mechanic at Procyon
  *
- * Gruff but skilled mechanic who loves ships more than people. Operates from
- * Procyon Depot where he provides expert repair services. Uses technical
- * vocabulary with a gruff greeting style and tends to personify ships.
- * Specializes in repair services with tier-based discounts.
+ * Embodies the "gruff but golden-hearted craftsman" archetype. His high trust and
+ * loyalty combined with moderate greed creates a relationship where players are
+ * rewarded for treating him with respect rather than trying to exploit him financially.
+ *
+ * Personality Design Rationale:
+ * - High trust (0.7): Willing to give players the benefit of the doubt initially
+ * - Low-moderate greed (0.4): More interested in good work than maximum profit
+ * - Very high loyalty (0.8): Becomes fiercely protective of players who treat him well
+ * - Moderate morality (0.5): Pragmatic about ship repairs - will bend rules for good customers
+ *
+ * Game Role: Provides essential repair services while demonstrating that respectful
+ * treatment of working-class NPCs yields better results than purely transactional
+ * relationships. His repair discounts make the relationship economically significant.
  */
 export const RUSTY_RODRIGUEZ = {
   id: 'rodriguez_procyon',
@@ -336,37 +411,48 @@ export const RUSTY_RODRIGUEZ = {
     vocabulary: 'technical',
     quirk: 'ship personification',
   },
-  description:
-    "Gruff but skilled mechanic. Loves ships more than people.",
+  description: 'Gruff but skilled mechanic. Loves ships more than people.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
     "Don't let your hull drop below 50%. Expensive to fix after that.",
-    "Engine degradation is real. Budget for maintenance.",
-    "Life support is critical. Never skip those repairs."
+    'Engine degradation is real. Budget for maintenance.',
+    'Life support is critical. Never skip those repairs.',
   ],
   discountService: 'repair',
   tierBenefits: {
     warm: { discount: 0.05, benefit: '5% discount on repairs' },
     friendly: { discount: 0.15, benefit: '15% discount on repairs' },
-    trusted: { discount: 0.15, benefit: 'Maintenance tips and free diagnostics' },
-    family: { discount: 0.20, benefit: 'Priority repair service' }
-  }
+    trusted: {
+      discount: 0.15,
+      benefit: 'Maintenance tips and free diagnostics',
+    },
+    family: { discount: 0.2, benefit: 'Priority repair service' },
+  },
 };
 
 /**
  * Zara Osman - Trader at Luyten's Star
  *
- * Sharp trader with connections across the sector. Competitive but fair in her
- * dealings. Operates from Luyten's Outpost where she provides trading expertise
- * and market connections. Uses casual greeting style with slang vocabulary and
- * trading jargon. Specializes in trade services with tier-based benefits.
+ * Represents the "competitive peer" archetype - another trader who can be either
+ * rival or ally depending on player approach. Her balanced moderate values create
+ * a relationship that requires consistent positive interaction to maintain.
+ *
+ * Personality Design Rationale:
+ * - Moderate trust (0.5): Neither immediately friendly nor hostile - neutral starting point
+ * - Moderate-high greed (0.6): Profit-motivated but willing to share opportunities with allies
+ * - Moderate loyalty (0.6): Reliable business partner but not unconditionally supportive
+ * - Moderate morality (0.5): Competitive but fair - won't cheat but will take advantage
+ *
+ * Game Role: Provides trading expertise and market connections while teaching players
+ * about peer relationships in the trading community. Her trade service benefits
+ * make her valuable for players focused on commercial success.
  */
 export const ZARA_OSMAN = {
   id: 'osman_luyten',
   name: 'Zara Osman',
   role: 'Trader',
   system: 7, // Luyten's Star
-  station: 'Luyten\'s Outpost',
+  station: "Luyten's Outpost",
   personality: {
     trust: 0.5, // Moderate trust - cautious but fair
     greed: 0.6, // Moderate-high greed - profit-motivated
@@ -379,29 +465,38 @@ export const ZARA_OSMAN = {
     quirk: 'trading jargon',
   },
   description:
-    "Sharp trader with connections across the sector. Competitive but fair.",
+    'Sharp trader with connections across the sector. Competitive but fair.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
-    "Buy low at mining stations, sell high at rich systems.",
-    "Luxury goods have the best margins if you can afford the capital.",
-    "Watch for economic events. They shift prices dramatically."
+    'Buy low at mining stations, sell high at rich systems.',
+    'Luxury goods have the best margins if you can afford the capital.',
+    'Watch for economic events. They shift prices dramatically.',
   ],
   discountService: 'trade',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Market price tips' },
     friendly: { discount: 0, benefit: 'Advance price shift notice' },
     trusted: { discount: 0, benefit: 'Premium trading tips (105% buy rate)' },
-    family: { discount: 0, benefit: 'Exclusive trading partnerships' }
-  }
+    family: { discount: 0, benefit: 'Exclusive trading partnerships' },
+  },
 };
 
 /**
  * Station Master Kowalski - Station Master at Alpha Centauri
  *
- * Veteran station master who has seen everything. Respects competence and
- * maintains high operational standards. Operates from Centauri Station where
- * he oversees all station operations. Uses gruff greeting style with simple
- * vocabulary and no-nonsense direct communication. Specializes in docking services.
+ * Represents the "earned respect" archetype - someone who starts skeptical but
+ * becomes a powerful ally for players who prove their competence. His position
+ * at the major hub system makes his approval particularly valuable.
+ *
+ * Personality Design Rationale:
+ * - Low trust (0.3): Skeptical of new traders until they prove themselves reliable
+ * - Low-moderate greed (0.4): More concerned with operational efficiency than profit
+ * - High loyalty (0.7): Becomes strong supporter for traders who meet his standards
+ * - High morality (0.7): Maintains high standards and respects ethical behavior
+ *
+ * Game Role: Guards access to Alpha Centauri's hub benefits and teaches players
+ * that some relationships require proving competence over time. His docking
+ * services become valuable for players who establish themselves as reliable traders.
  */
 export const STATION_MASTER_KOWALSKI = {
   id: 'kowalski_alpha_centauri',
@@ -420,30 +515,39 @@ export const STATION_MASTER_KOWALSKI = {
     vocabulary: 'simple',
     quirk: 'no-nonsense direct',
   },
-  description:
-    "Veteran station master. Seen everything. Respects competence.",
+  description: 'Veteran station master. Seen everything. Respects competence.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
-    "Alpha Centauri is a hub. Good for buying and selling most goods.",
-    "We get a lot of traffic. Prices are competitive.",
-    "Keep your ship in good shape. We have standards here."
+    'Alpha Centauri is a hub. Good for buying and selling most goods.',
+    'We get a lot of traffic. Prices are competitive.',
+    'Keep your ship in good shape. We have standards here.',
   ],
   discountService: 'docking',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Station operation tips' },
     friendly: { discount: 0, benefit: 'Station storage access' },
     trusted: { discount: 0, benefit: 'Emergency fuel at cost' },
-    family: { discount: 0, benefit: 'Priority docking and services' }
-  }
+    family: { discount: 0, benefit: 'Priority docking and services' },
+  },
 };
 
 /**
  * "Lucky" Liu - Gambler at Wolf 359
  *
- * Professional gambler and risk-taker who loves long odds and respects bold moves.
- * Operates from Wolf 359 Station where he provides high-risk high-reward opportunities
- * and gambling connections. Uses casual greeting style with slang vocabulary and
- * gambling metaphors. No discount service but provides risk-taking tips and opportunities.
+ * Embodies the "high-risk high-reward" archetype - someone who respects bold players
+ * but can't be relied upon for consistent support. His extreme greed and low morality
+ * create opportunities for players willing to engage in questionable activities.
+ *
+ * Personality Design Rationale:
+ * - Moderate-high trust (0.6): Willing to take chances on people, like he does with bets
+ * - Very high greed (0.8): Motivated by potential for big payoffs rather than steady income
+ * - Low loyalty (0.4): Follows opportunities rather than relationships - unreliable ally
+ * - Low morality (0.3): Willing to engage in ethically questionable schemes for profit
+ *
+ * Game Role: Provides high-risk opportunities and tests player willingness to engage
+ * with morally ambiguous characters. His lack of service discounts but unique
+ * benefits create a different type of valuable relationship focused on opportunities
+ * rather than cost savings.
  */
 export const LUCKY_LIU = {
   id: 'liu_wolf359',
@@ -463,32 +567,47 @@ export const LUCKY_LIU = {
     quirk: 'gambling metaphors',
   },
   description:
-    "Professional gambler and risk-taker. Loves long odds. Respects bold moves.",
+    'Professional gambler and risk-taker. Loves long odds. Respects bold moves.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
   tips: [
-    "Sometimes you gotta take risks. Big risks, big rewards.",
-    "I heard about a high-stakes cargo run. Interested?",
-    "Don't play it safe all the time. Fortune favors the bold."
+    'Sometimes you gotta take risks. Big risks, big rewards.',
+    'I heard about a high-stakes cargo run. Interested?',
+    "Don't play it safe all the time. Fortune favors the bold.",
   ],
   discountService: null, // Gambler, not service provider
   tierBenefits: {
     warm: { discount: 0, benefit: 'Risk-taking tips' },
     friendly: { discount: 0, benefit: '₡500 stake mechanic' },
     trusted: { discount: 0, benefit: 'Insider information' },
-    family: { discount: 0, benefit: 'High-risk exclusive opportunities' }
-  }
+    family: { discount: 0, benefit: 'High-risk exclusive opportunities' },
+  },
 };
 
 /**
  * All NPCs in the game
  * Add new NPCs to this array to make them available to the game systems
  */
-export const ALL_NPCS = [WEI_CHEN, MARCUS_COLE, FATHER_OKONKWO, WHISPER, CAPTAIN_VASQUEZ, DR_SARAH_KIM, RUSTY_RODRIGUEZ, ZARA_OSMAN, STATION_MASTER_KOWALSKI, LUCKY_LIU];
+export const ALL_NPCS = [
+  WEI_CHEN,
+  MARCUS_COLE,
+  FATHER_OKONKWO,
+  WHISPER,
+  CAPTAIN_VASQUEZ,
+  DR_SARAH_KIM,
+  RUSTY_RODRIGUEZ,
+  ZARA_OSMAN,
+  STATION_MASTER_KOWALSKI,
+  LUCKY_LIU,
+];
 
 /**
- * Validates all NPC definitions in the game
- * Call this during game initialization to ensure data integrity
- * @throws {Error} If any NPC definition is invalid
+ * Validates all NPC definitions to ensure data integrity during game initialization.
+ *
+ * This function should be called during game startup to catch data errors early
+ * rather than discovering them during gameplay when an NPC interaction fails.
+ * Failing fast during initialization prevents runtime crashes and makes debugging easier.
+ *
+ * @throws {Error} When any NPC definition fails validation - includes NPC name in error message
  */
 export function validateAllNPCs() {
   ALL_NPCS.forEach((npc) => validateNPCDefinition(npc));

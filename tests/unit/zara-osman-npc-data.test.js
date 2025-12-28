@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { validateNPCDefinition } from '../../src/game/data/npc-data.js';
 import {
-  NPC_PERSONALITY_VALUES,
-  NPC_INITIAL_REPUTATION,
-} from '../../src/game/constants.js';
+  ZARA_OSMAN,
+  validateNPCDefinition,
+} from '../../src/game/data/npc-data.js';
+import { NPC_INITIAL_REPUTATION } from '../../src/game/constants.js';
 
 /**
  * Unit tests for Zara Osman NPC data validation
@@ -16,11 +16,8 @@ import {
  * tier benefits as specified in requirements.
  */
 describe('Zara Osman NPC Data Validation', () => {
-  describe('Zara Osman (Trader at Luyten\'s Star)', () => {
+  describe("Zara Osman (Trader at Luyten's Star)", () => {
     it('should have all required fields for NPC benefits system', () => {
-      // This test will fail initially - we need to import ZARA_OSMAN from npc-data.js
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       // Verify basic required fields exist
       expect(ZARA_OSMAN.id).toBeDefined();
       expect(ZARA_OSMAN.name).toBeDefined();
@@ -31,7 +28,7 @@ describe('Zara Osman NPC Data Validation', () => {
       expect(ZARA_OSMAN.speechStyle).toBeDefined();
       expect(ZARA_OSMAN.description).toBeDefined();
       expect(ZARA_OSMAN.initialRep).toBeDefined();
-      
+
       // Verify new benefits fields exist
       expect(ZARA_OSMAN.tips).toBeDefined();
       expect(ZARA_OSMAN.discountService).toBeDefined();
@@ -39,18 +36,14 @@ describe('Zara Osman NPC Data Validation', () => {
     });
 
     it('should have correct basic information', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.id).toBe('osman_luyten');
       expect(ZARA_OSMAN.name).toBe('Zara Osman');
       expect(ZARA_OSMAN.role).toBe('Trader');
       expect(ZARA_OSMAN.system).toBe(7); // Luyten's Star
-      expect(ZARA_OSMAN.station).toBe('Luyten\'s Outpost');
+      expect(ZARA_OSMAN.station).toBe("Luyten's Outpost");
     });
 
     it('should have correct personality values matching specification', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.personality.trust).toBe(0.5);
       expect(ZARA_OSMAN.personality.greed).toBe(0.6);
       expect(ZARA_OSMAN.personality.loyalty).toBe(0.6);
@@ -58,54 +51,48 @@ describe('Zara Osman NPC Data Validation', () => {
     });
 
     it('should have correct speech style', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.speechStyle.greeting).toBe('casual');
       expect(ZARA_OSMAN.speechStyle.vocabulary).toBe('slang');
       expect(ZARA_OSMAN.speechStyle.quirk).toBe('trading jargon');
     });
 
     it('should have correct initial reputation', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.initialRep).toBe(NPC_INITIAL_REPUTATION.NEUTRAL);
     });
 
     it('should have non-empty tips array', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(Array.isArray(ZARA_OSMAN.tips)).toBe(true);
       expect(ZARA_OSMAN.tips.length).toBeGreaterThan(0);
-      
+
       // Verify specific tips from requirements
-      expect(ZARA_OSMAN.tips).toContain("Buy low at mining stations, sell high at rich systems.");
-      expect(ZARA_OSMAN.tips).toContain("Luxury goods have the best margins if you can afford the capital.");
-      expect(ZARA_OSMAN.tips).toContain("Watch for economic events. They shift prices dramatically.");
+      expect(ZARA_OSMAN.tips).toContain(
+        'Buy low at mining stations, sell high at rich systems.'
+      );
+      expect(ZARA_OSMAN.tips).toContain(
+        'Luxury goods have the best margins if you can afford the capital.'
+      );
+      expect(ZARA_OSMAN.tips).toContain(
+        'Watch for economic events. They shift prices dramatically.'
+      );
     });
 
     it('should have correct discount service', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.discountService).toBe('trade');
     });
 
     it('should have correct tier benefits configuration', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(ZARA_OSMAN.tierBenefits).toBeDefined();
       expect(ZARA_OSMAN.tierBenefits.warm).toBeDefined();
       expect(ZARA_OSMAN.tierBenefits.friendly).toBeDefined();
       expect(ZARA_OSMAN.tierBenefits.trusted).toBeDefined();
       expect(ZARA_OSMAN.tierBenefits.family).toBeDefined();
-      
+
       // Verify tier benefit structure
       expect(ZARA_OSMAN.tierBenefits.warm.discount).toBeDefined();
       expect(ZARA_OSMAN.tierBenefits.warm.benefit).toBeDefined();
     });
 
     it('should pass NPC validation', () => {
-      const { ZARA_OSMAN } = require('../../src/game/data/npc-data.js');
-      
       expect(() => validateNPCDefinition(ZARA_OSMAN)).not.toThrow();
     });
   });
