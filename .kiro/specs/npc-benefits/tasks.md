@@ -385,31 +385,31 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Verify different NPCs show different tips
     - _Requirements: 2.1, 2.3, 2.4_
 
-- [ ] 16. Integrate favors into DialoguePanel
-  - [ ] 16.1 Add loan request dialogue option
+- [x] 16. Integrate favors into DialoguePanel
+  - [x] 16.1 Add loan request dialogue option
     - Show "Request emergency loan" when `canRequestFavor('loan')` returns available
     - Show cooldown message when unavailable
     - Call `requestLoan()` when confirmed
     - _Requirements: 3.1, 3.4, 3.9_
 
-  - [ ] 16.2 Add loan repayment dialogue option
+  - [x] 16.2 Add loan repayment dialogue option
     - Show "Repay loan" when NPC has outstanding loan
     - Call `repayLoan()` when confirmed
     - _Requirements: 3.14_
 
-  - [ ] 16.3 Add cargo storage dialogue option
+  - [x] 16.3 Add cargo storage dialogue option
     - Show "Store cargo" when `canRequestFavor('storage')` returns available
     - Open cargo selection UI
     - Call `storeCargo()` with selected cargo
     - _Requirements: 3.2, 3.6, 3.10_
 
-  - [ ] 16.4 Add cargo retrieval dialogue option
+  - [x] 16.4 Add cargo retrieval dialogue option
     - Show "Retrieve stored cargo" when NPC has storedCargo
     - Call `retrieveCargo()` when selected
     - Show partial retrieval message if capacity limited
     - _Requirements: 3.11, 3.12, 3.13_
 
-  - [ ] 16.5 Add loan status display to NPC dialogue
+  - [x] 16.5 Add loan status display to NPC dialogue
     - Show outstanding loan amount and days remaining for repayment
     - Display "Loan overdue" warning when past 30-day deadline
     - Show favor cooldown status with days remaining

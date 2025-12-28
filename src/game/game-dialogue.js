@@ -91,7 +91,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
   // Generate dialogue text (evaluate function if needed)
   let dialogueText =
     typeof dialogueNode.text === 'function'
-      ? dialogueNode.text(currentRep)
+      ? dialogueNode.text(currentRep, gameStateManager, npcId)
       : dialogueNode.text;
 
   // Special handling for tip nodes - append actual tip content
@@ -205,6 +205,18 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   }
 
   const selectedChoice = currentNode.choices[choiceIndex];
+
+  // Execute action if present
+  if (selectedChoice.action && typeof selectedChoice.action === 'function') {
+    try {
+      const actionResult = selectedChoice.action(gameStateManager, npcId);
+      // If action returns a result object with success: false, we could handle it here
+      // For now, we'll let the action handle its own error reporting
+    } catch (error) {
+      console.error(`Error executing dialogue action for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`, error);
+      // Continue with dialogue flow even if action fails
+    }
+  }
 
   // Apply reputation gain before advancing to next node
   if (selectedChoice.repGain && selectedChoice.repGain !== 0) {

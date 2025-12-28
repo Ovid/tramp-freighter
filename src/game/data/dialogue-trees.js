@@ -189,6 +189,13 @@ export function validateDialogueChoice(nodeId, choiceIndex, choice) {
       `Choice ${choiceIndex} in node '${nodeId}' condition must be function`
     );
   }
+
+  // action is optional but must be function if present
+  if (choice.action !== undefined && typeof choice.action !== 'function') {
+    throw new Error(
+      `Choice ${choiceIndex} in node '${nodeId}' action must be function`
+    );
+  }
 }
 
 /**
@@ -648,19 +655,40 @@ export const FATHER_OKONKWO_DIALOGUE = {
  */
 export const WHISPER_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "I've been expecting you. We need to talk.";
+        baseText = "I've been expecting you. We need to talk.";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return 'Good to see you. I have something interesting.';
+        baseText = 'Good to see you. I have something interesting.';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return 'Ah, a familiar face. Looking for intel?';
+        baseText = 'Ah, a familiar face. Looking for intel?';
       } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
-        return 'Welcome. I deal in information. What do you need?';
+        baseText = 'Welcome. I deal in information. What do you need?';
       } else {
         // Cold or Hostile
-        return 'Information costs credits.';
+        baseText = 'Information costs credits.';
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*Your loan of ₡500 is overdue. Immediate repayment is required.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Reminder: Your loan of ₡500 is due in ${daysRemaining} days.*`;
+          } else {
+            baseText += `\n\n*Outstanding loan: ₡500, ${daysRemaining} days remaining.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -680,12 +708,35 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. Until next time.',
@@ -787,6 +838,9 @@ export const WHISPER_DIALOGUE = {
         text: 'I accept those terms.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me think about it.',
@@ -803,11 +857,52 @@ export const WHISPER_DIALOGUE = {
         text: 'That would be very helpful.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'Good to know that option exists.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: 'Loan repayment... Yes, I see the record. Five hundred credits, as agreed. Your prompt attention to obligations is noted and appreciated.',
+    flags: ['whisper_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need more time to gather the credits.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: 'Cargo retrieval... Yes, I have your items secured. Let me transfer them back to your ship. Note that if your cargo hold is full, some items may need to remain in storage.',
+    flags: ['whisper_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make some space first.',
+        next: 'greeting',
       },
     ],
   },
@@ -829,19 +924,40 @@ export const WHISPER_DIALOGUE = {
  */
 export const CAPTAIN_VASQUEZ_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Well hello there, family! Come, sit with me. I was just thinking about the old days when traders looked out for each other. How's your ship treating you?";
+        baseText = "Well hello there, family! Come, sit with me. I was just thinking about the old days when traders looked out for each other. How's your ship treating you?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "My trusted friend! Good to see you again. You know, I've been around these routes for decades, and I can tell you're one of the good ones. What brings you by?";
+        baseText = "My trusted friend! Good to see you again. You know, I've been around these routes for decades, and I can tell you're one of the good ones. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hey there, friend! Always a pleasure to see a fellow trader. You're looking more confident each time I see you. Ship running well?";
+        baseText = "Hey there, friend! Always a pleasure to see a fellow trader. You're looking more confident each time I see you. Ship running well?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Oh, it's you again! Good to see you're still out there making runs. How's the trading life treating you?";
+        baseText = "Oh, it's you again! Good to see you're still out there making runs. How's the trading life treating you?";
       } else {
         // Neutral (starts at rep 5, so likely Neutral)
-        return "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
+        baseText = "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*Captain, your loan of ₡500 is overdue. I trust this is just an oversight?*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Just a friendly reminder - your loan of ₡500 is due in ${daysRemaining} days.*`;
+          } else {
+            baseText += `\n\n*By the way, you still owe me ₡500 - ${daysRemaining} days left to repay.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -866,12 +982,35 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Just checking in. Take care, Captain.',
@@ -1036,6 +1175,9 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'I accept those terms. Thank you.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me think about it first.',
@@ -1052,11 +1194,52 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'That would be a huge help.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'I appreciate the offer.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: "Loan repayment? Of course! *checks records* Five hundred credits, right on schedule. I appreciate traders who honor their commitments - it's what keeps this business running on trust.",
+    flags: ['vasquez_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits. Thanks for the help.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need a bit more time to get the credits.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: "Retrieve your cargo? Of course! *checks storage logs* I've got your items safe and sound. Let me get them transferred back to your ship. If your hold's getting full, just let me know - we can work something out.",
+    flags: ['vasquez_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make some room first.',
+        next: 'greeting',
       },
     ],
   },
@@ -1077,19 +1260,40 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
  */
 export const DR_SARAH_KIM_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
+        baseText = "Welcome back! It's always a pleasure to work with such a professional trader. Your operational standards are exemplary. How may I assist you today?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return 'Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?';
+        baseText = 'Good to see you again. Your consistent adherence to station protocols is noted and appreciated. What can I help you with?';
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return 'Hello there! Your professional approach to station operations has been refreshing. How are things going for you?';
+        baseText = 'Hello there! Your professional approach to station operations has been refreshing. How are things going for you?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
+        baseText = "Welcome back to Tau Ceti Station. I've noticed your attention to proper procedures. What brings you by today?";
       } else {
         // Neutral, Cold, or Hostile
-        return 'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
+        baseText = 'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*Per Financial Regulation 12-A, your loan of ₡500 is overdue. Immediate repayment is required.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Financial reminder: Your loan of ₡500 is due in ${daysRemaining} days per standard terms.*`;
+          } else {
+            baseText += `\n\n*Outstanding financial obligation: ₡500, ${daysRemaining} days remaining per agreement.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -1109,12 +1313,35 @@ export const DR_SARAH_KIM_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. Thank you.',
@@ -1226,6 +1453,9 @@ export const DR_SARAH_KIM_DIALOGUE = {
         text: 'I accept those terms.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me review the terms first.',
@@ -1242,11 +1472,52 @@ export const DR_SARAH_KIM_DIALOGUE = {
         text: 'That would be very helpful.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'Good to know that service exists.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: 'Loan repayment processing... Per Financial Regulation 12-A, I can confirm receipt of your five hundred credit repayment. Transaction logged and your account is now current. Thank you for your prompt attention to financial obligations.',
+    flags: ['kim_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need more time to gather the credits.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: 'Cargo retrieval request acknowledged. Per Station Protocol 8-C, I can transfer your stored items back to your vessel. Please note that transfer capacity is limited by your current cargo hold availability.',
+    flags: ['kim_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make some space first.',
+        next: 'greeting',
       },
     ],
   },
@@ -1270,19 +1541,40 @@ export const DR_SARAH_KIM_DIALOGUE = {
  */
 export const RUSTY_RODRIGUEZ_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Well, well! Look who's back. Your ship's been treating you right, I hope? She's a good one - I can tell by how you care for her. What can old Rusty do for you today?";
+        baseText = "Well, well! Look who's back. Your ship's been treating you right, I hope? She's a good one - I can tell by how you care for her. What can old Rusty do for you today?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "Good to see you again, captain. Your ship's looking better each time I see her. You're learning to treat her right. What brings you to my shop?";
+        baseText = "Good to see you again, captain. Your ship's looking better each time I see her. You're learning to treat her right. What brings you to my shop?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hey there! Your ship's been behaving herself, I hope? I can always tell when a captain knows what they're doing. How can I help you?";
+        baseText = "Hey there! Your ship's been behaving herself, I hope? I can always tell when a captain knows what they're doing. How can I help you?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Back again, eh? Your ship's looking decent. Better than some of the rust buckets that limp in here. What do you need?";
+        baseText = "Back again, eh? Your ship's looking decent. Better than some of the rust buckets that limp in here. What do you need?";
       } else {
         // Neutral, Cold, or Hostile
-        return "Another ship, another captain. Let me guess - something's broken and you need it fixed yesterday. What's the problem?";
+        baseText = "Another ship, another captain. Let me guess - something's broken and you need it fixed yesterday. What's the problem?";
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*About that loan, captain... five hundred credits, and it was due yesterday. Your ship needs you to be reliable.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Don\'t forget - you owe me five hundred credits, due in ${daysRemaining} days. Your ship\'s counting on you.*`;
+          } else {
+            baseText += `\n\n*By the way, you still owe me five hundred credits - ${daysRemaining} days left to pay up.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -1302,12 +1594,40 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          return favorAvailability.available;
+        },
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. Thanks, Rusty.',
@@ -1420,6 +1740,9 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
         text: 'I accept those terms. Thank you.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me think about it first.',
@@ -1436,11 +1759,52 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
         text: 'That would be a huge help.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'I appreciate the offer, Rusty.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: "Loan repayment? *wipes hands on coveralls* Good to see you're keeping your word, captain. Five hundred credits, right? Your ship'll be proud - she likes it when her captain's reliable.",
+    flags: ['rusty_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits. Thanks for the help.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need a bit more time to get the credits.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: "Retrieve your cargo? Sure thing, captain. *heads to the back* Got your stuff safe and sound. Let me get it loaded back onto your ship. If your hold's getting tight, just say the word - we can work something out.",
+    flags: ['rusty_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make some room first.',
+        next: 'greeting',
       },
     ],
   },
@@ -1464,19 +1828,40 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
  */
 export const ZARA_OSMAN_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return 'Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?';
+        baseText = 'Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?';
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "Well, well! Look who's back. You've really got the hang of this trading game, haven't you? What's the play today, hotshot?";
+        baseText = "Well, well! Look who's back. You've really got the hang of this trading game, haven't you? What's the play today, hotshot?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hey, good to see you again! You're starting to get a real feel for the markets. I like that in a trader. What brings you by?";
+        baseText = "Hey, good to see you again! You're starting to get a real feel for the markets. I like that in a trader. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Back for more action, eh? I can respect that. The markets have been interesting lately. What's your angle?";
+        baseText = "Back for more action, eh? I can respect that. The markets have been interesting lately. What's your angle?";
       } else {
         // Neutral, Cold, or Hostile
-        return "Another trader looking to make their fortune. The sector's got room for everyone... if you know what you're doing. What do you need?";
+        baseText = "Another trader looking to make their fortune. The sector's got room for everyone... if you know what you're doing. What do you need?";
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*Hey, about that loan - five hundred credits, and the clock\'s run out. Time to settle up, partner.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Quick reminder - you owe me five hundred credits, due in ${daysRemaining} days. Don\'t let it slip, yeah?*`;
+          } else {
+            baseText += `\n\n*Oh, and you still owe me five hundred credits - ${daysRemaining} days left on the clock.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -1496,12 +1881,40 @@ export const ZARA_OSMAN_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          return favorAvailability.available;
+        },
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. Catch you later.',
@@ -1613,6 +2026,9 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'Deal. I appreciate this, Zara.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me think about those terms.',
@@ -1629,11 +2045,52 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'That would really help me out.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'Professional courtesy appreciated.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: "Loan repayment? *checks her ledger* Right, five hundred credits. Good to see you're keeping your word - that's what separates the pros from the amateurs in this business. Reputation's everything in the trade.",
+    flags: ['osman_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits. Thanks for the stake.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need more time to get the credits together.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: "Retrieve your cargo? No problem, sport. *heads to storage* Got your stuff locked up tight - climate controlled, security monitored, the full package. Let me get it transferred back to your ship. If your hold's getting cramped, we can work something out.",
+    flags: ['osman_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me clear some space first.',
+        next: 'greeting',
       },
     ],
   },
@@ -1657,19 +2114,40 @@ export const ZARA_OSMAN_DIALOGUE = {
  */
 export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Well, look who's back! You've proven yourself a real professional, captain. This station runs better with traders like you. What do you need?";
+        baseText = "Well, look who's back! You've proven yourself a real professional, captain. This station runs better with traders like you. What do you need?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return 'Good to see you again, captain. Your professional approach to station operations is noted. How can I help you today?';
+        baseText = 'Good to see you again, captain. Your professional approach to station operations is noted. How can I help you today?';
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "You're becoming a regular here. I appreciate traders who follow procedures and respect the station. What brings you by?";
+        baseText = "You're becoming a regular here. I appreciate traders who follow procedures and respect the station. What brings you by?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Back again, I see. You're learning how things work around here. That's good. What do you need?";
+        baseText = "Back again, I see. You're learning how things work around here. That's good. What do you need?";
       } else {
         // Neutral, Cold, or Hostile
-        return "Another trader. Docking fees paid? Good. Keep it professional and we won't have problems. What's your business?";
+        baseText = "Another trader. Docking fees paid? Good. Keep it professional and we won't have problems. What's your business?";
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*Your loan of five hundred credits is overdue, captain. Station policy requires immediate repayment.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Reminder: Your loan of five hundred credits is due in ${daysRemaining} days. Station policy - no extensions.*`;
+          } else {
+            baseText += `\n\n*Outstanding loan: five hundred credits, ${daysRemaining} days remaining per station policy.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -1689,12 +2167,40 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          return favorAvailability.available;
+        },
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. Thanks, Station Master.',
@@ -1806,6 +2312,9 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'I accept those terms.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me consider the terms first.',
@@ -1822,11 +2331,52 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'That would be very helpful.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'I appreciate the professional service.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: 'Loan repayment acknowledged. *checks station records* Five hundred credits, as agreed. Your prompt attention to financial obligations is noted. Professional conduct like this keeps the station running smoothly.',
+    flags: ['kowalski_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits. Thank you for the loan.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need more time to gather the full amount.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: 'Cargo retrieval request processed. *accesses station inventory* Your items are secured in bonded storage per standard protocols. Initiating transfer to your vessel. Note that transfer capacity is limited by your current cargo hold status.',
+    flags: ['kowalski_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make room in my hold first.',
+        next: 'greeting',
       },
     ],
   },
@@ -1850,19 +2400,40 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
  */
 export const LUCKY_LIU_DIALOGUE = {
   greeting: {
-    text: (rep) => {
+    text: (rep, gameStateManager, npcId) => {
+      let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Hey, high roller! Welcome back to my table. You've got the stones to play in the big leagues now. What's the action today, partner?";
+        baseText = "Hey, high roller! Welcome back to my table. You've got the stones to play in the big leagues now. What's the action today, partner?";
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
-        return "Well, well! Look who's learned to play the odds. You're developing a real taste for the game, aren't you? What brings you to Lucky's corner?";
+        baseText = "Well, well! Look who's learned to play the odds. You're developing a real taste for the game, aren't you? What brings you to Lucky's corner?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        return "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
+        baseText = "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return 'Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?';
+        baseText = 'Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?';
       } else {
         // Neutral, Cold, or Hostile
-        return "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
+        baseText = "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
       }
+
+      // Add loan status if there's an outstanding loan
+      if (gameStateManager && npcId) {
+        const npcState = gameStateManager.getNPCState(npcId);
+        if (npcState.loanAmount && npcState.loanAmount > 0) {
+          const currentDay = gameStateManager.getState().player.daysElapsed;
+          const daysElapsed = currentDay - npcState.loanDay;
+          const daysRemaining = 30 - daysElapsed;
+          
+          if (daysRemaining <= 0) {
+            baseText += '\n\n*About that stake I fronted you - five hundred credits, and the house always collects. Time to settle up, sport.*';
+          } else if (daysRemaining <= 5) {
+            baseText += `\n\n*Quick reminder about your stake - five hundred credits due in ${daysRemaining} days. Don\'t let it ride too long, yeah?*`;
+          } else {
+            baseText += `\n\n*Oh, and you still owe me five hundred credits from that stake - ${daysRemaining} days left on the clock.*`;
+          }
+        }
+      }
+
+      return baseText;
     },
     choices: [
       {
@@ -1882,12 +2453,40 @@ export const LUCKY_LIU_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'loan');
+          return favorAvailability.available;
+        },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+        condition: (rep, gameStateManager, npcId) => {
+          // Check both reputation requirement and favor availability
+          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
+          const favorAvailability = gameStateManager.canRequestFavor(npcId, 'storage');
+          return favorAvailability.available;
+        },
+      },
+      {
+        text: 'I want to repay my loan.',
+        next: 'repay_loan',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has an outstanding loan
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
+        },
+      },
+      {
+        text: 'I want to retrieve my stored cargo.',
+        next: 'retrieve_cargo',
+        condition: (rep, gameStateManager, npcId) => {
+          // Check if NPC has stored cargo
+          const npcState = gameStateManager.getNPCState(npcId);
+          return Boolean(npcState.storedCargo && npcState.storedCargo.length > 0);
+        },
       },
       {
         text: 'Nothing right now. See you around, Lucky.',
@@ -2009,6 +2608,9 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'Deal. I appreciate the stake, Lucky.',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.requestLoan(npcId);
+        },
       },
       {
         text: 'Let me think about those odds first.',
@@ -2025,11 +2627,52 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'That would really help my game.',
         next: 'greeting',
         repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.storeCargo(npcId);
+        },
       },
       {
         text: 'Thanks for looking out for a fellow player.',
         next: 'greeting',
         repGain: 1,
+      },
+    ],
+  },
+
+  repay_loan: {
+    text: "Loan repayment? *grins and checks his ledger* Five hundred credits, right on schedule. I like a player who knows when to cash out and settle their debts. Shows you understand the game - it's not just about the big wins, it's about staying in action.",
+    flags: ['liu_loan_repaid'],
+    choices: [
+      {
+        text: 'Here are the credits. Thanks for the stake.',
+        next: 'greeting',
+        repGain: 2,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.repayLoan(npcId);
+        },
+      },
+      {
+        text: 'I need more time to get the full amount.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  retrieve_cargo: {
+    text: "Retrieve your stash? *heads to the back room* No problem, sport. Got your goods locked up tight - better security than most banks, and twice as discreet. Let me get your cargo transferred back to your ship. If your hold's getting crowded, we can work out the details.",
+    flags: ['liu_cargo_retrieved'],
+    choices: [
+      {
+        text: 'Transfer what you can to my ship.',
+        next: 'greeting',
+        repGain: 1,
+        action: (gameStateManager, npcId) => {
+          return gameStateManager.retrieveCargo(npcId);
+        },
+      },
+      {
+        text: 'Let me make some room first.',
+        next: 'greeting',
       },
     ],
   },
