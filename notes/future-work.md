@@ -20,3 +20,23 @@ This document tracks features and requirements that are out of scope for current
 - Danger system must be complete (karma tracking implemented)
 - Endgame conditions must be defined
 - Epilogue text content must be written
+
+### Dialogue Integration with Danger Flags (Requirement 10.6)
+
+**Requirement:** "WHEN displaying future NPC interactions and events, THE System SHALL reference past actions"
+
+**Status:** Deferred to dialogue enhancement spec
+
+**Notes:**
+- The danger system tracks `dangerFlags` in game state (piratesFought, civiliansSaved, inspectionsBribed, etc.)
+- These flags are persisted via save/load and available for dialogue conditions
+- Future dialogue trees should check these flags to unlock special dialogue options or modify NPC responses
+- Examples:
+  - NPCs could comment on player's reputation for helping civilians
+  - Pirates might recognize a player who has fought off many attacks
+  - Authorities might be suspicious of players who have bribed inspectors
+
+**Dependencies:**
+- Danger system must be complete (dangerFlags tracking implemented)
+- Dialogue system enhancement spec needed
+- New dialogue content must be written that references these flags

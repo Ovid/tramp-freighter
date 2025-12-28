@@ -8,7 +8,7 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "The requirements.md file has just been edited. Please analyze it for:\n\n1. Obvious omissions - missing requirements that should be included based on the context of this project \n2. Ambiguous requirements - requirements that need clarification or are unclear\n3. Any requirements not in EARS format\n\nIf you find issues:\n\n- Ask the user ONE question at a time\n- Present specific options, from best to worst. and your recommendation for fixing the issue\n- Wait for their answer before asking the next question\n- After all questions are answered, update the requirements.md file with the clarifications and additions based on the user's responses\n\nIf no issues are found, inform the user that the requirements look complete and clear."
+    "prompt": "The requirements.md file has just been edited. Please analyze it for:\n\n1. Obvious omissions - missing requirements that should be included based on the context of this project \n2. Ambiguous requirements - requirements that need clarification or are unclear\n3. Contradictory requirements\n4. Any requirements not in EARS format\n\nIf you find issues:\n\n- Ask the user ONE question at a time\n- Present specific options, from best to worst. and your recommendation for fixing the issue\n- Wait for their answer before asking the next question\n- After all questions are answered, update the requirements.md file with the clarifications and additions based on the user's responses\n\nIf no issues are found, inform the user that the requirements look complete and clear."
   },
   "workspaceFolderName": "tramp-freighter",
   "shortName": "requirements-review-hook"

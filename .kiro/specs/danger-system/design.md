@@ -314,6 +314,15 @@ export const INSPECTION_CONFIG = {
   
   HIDDEN_CARGO_DISCOVERY_CHANCE: 0.10,
   
+  // Security level multipliers for hidden cargo discovery
+  // Higher security = higher chance to find hidden compartments
+  SECURITY_LEVEL_MULTIPLIERS: {
+    core: 2.0,      // Sol, Alpha Centauri (systems 0, 1)
+    safe: 1.5,      // Other safe zone systems
+    contested: 1.0, // Contested zones (base rate)
+    dangerous: 0.5  // Dangerous zones (less thorough inspections)
+  },
+  
   REPUTATION_PENALTIES: {
     RESTRICTED_GOODS: -10,
     HIDDEN_CARGO: -20
@@ -476,9 +485,9 @@ export const RESTRICTED_GOODS_CONFIG = {
 
 ### Property 7: Inspection Outcomes
 
-*For any* inspection resolution, the outcomes SHALL match: cooperate with restricted goods costs ₡1,000 fine and -10 authority rep; hidden cargo discovery costs ₡2,000 fine and -20 authority rep; bribery costs ₡500 with 60% success chance; bribery failure adds ₡1,500 penalty.
+*For any* inspection resolution, the outcomes SHALL match: cooperate with restricted goods costs ₡1,000 fine and -10 authority rep; hidden cargo discovery has 10% base chance scaled by security level (2x core, 1.5x safe, 1x contested, 0.5x dangerous) and costs ₡2,000 fine and -20 authority rep; bribery costs ₡500 with 60% success chance; bribery failure adds ₡1,500 penalty.
 
-**Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.11**
+**Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.11, 11.8**
 
 ### Property 8: Inspection Probability Scaling
 

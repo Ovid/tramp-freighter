@@ -14,14 +14,14 @@ This implementation plan breaks down the Danger System into incremental tasks th
 
 - [ ] 1. Add danger system constants to game constants
   - Add DANGER_CONFIG with zone definitions, probabilities, and system lists
-  - Add COMBAT_CONFIG with base chances, outcomes, and quirk/upgrade modifiers
+  - Add COMBAT_CONFIG with base chances, outcomes, and quirk/upgrade modifiers (all combat modifier values must be in constants for consistency and tuning per Req 3.18)
   - Add NEGOTIATION_CONFIG with dialogue success rates and cargo percentages
-  - Add INSPECTION_CONFIG with fines, bribery costs, and reputation penalties
+  - Add INSPECTION_CONFIG with fines, bribery costs, reputation penalties, and security level multipliers
   - Add FAILURE_CONFIG with condition thresholds and repair options
   - Add DISTRESS_CONFIG with resource costs and karma/reputation values
   - Add KARMA_CONFIG and FACTION_CONFIG with bounds and initial values
   - Add RESTRICTED_GOODS_CONFIG with zone restrictions for existing commodities (electronics in safe, medicine in contested, tritium in dangerous, parts in core systems)
-  - _Requirements: 1.4-1.12, 3.2-3.18, 4.2-4.10, 5.2-5.12, 6.2-6.9, 7.7-7.10, 8.1-8.3, 9.1-9.8, 11.1, 11.2_
+  - _Requirements: 1.4-1.12, 3.2-3.18, 4.2-4.10, 5.2-5.12, 6.2-6.9, 7.7-7.10, 8.1-8.3, 9.1-9.8, 11.1, 11.2, 11.8_
 
 - [ ] 2. Extend game state with karma and faction reputation (TDD)
   - [ ] 2.1 RED: Write property test for karma initialization
@@ -107,11 +107,11 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - **Validates: Requirements 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11**
   - [ ] 7.2 GREEN: Add resolveCombatChoice base implementation
     - Implement evasive maneuvers (70% base, engine modifier)
-    - Implement return fire (45% base)
+    - Implement return fire (45% base, +5 outlaw rep on success for fighting pirates)
     - Implement dump cargo (guaranteed escape)
     - Implement distress call (30% base)
     - Return outcome object with success, costs, and rewards
-    - _Requirements: 3.1-3.11_
+    - _Requirements: 3.1-3.11, 8.7_
   - [ ] 7.3 RED: Write property test for combat modifier application
     - **Property 5: Combat Modifier Application**
     - Test quirk/upgrade modifiers and karma hidden modifier
@@ -119,7 +119,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
   - [ ] 7.4 GREEN: Add modifier application to resolveCombatChoice
     - Apply quirk/upgrade modifiers from COMBAT_CONFIG.MODIFIERS
     - Apply karma as hidden modifier on success rates (±5% at extreme karma)
-    - _Requirements: 3.12-3.17, 9.4, 9.10_
+    - Apply karma scaling to Lucky Ship quirk effectiveness (5% base + karma * LUCKY_SHIP_KARMA_SCALE)
+    - _Requirements: 3.12-3.17, 9.4, 9.6, 9.10_
 
 - [ ] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
@@ -132,24 +133,27 @@ This implementation plan breaks down the Danger System into incremental tasks th
   - [ ] 9.2 GREEN: Add resolveNegotiation(choice, gameState, rng) to DangerManager
     - Implement counter-proposal (60% base, 10% cargo on success)
     - Implement medicine claim (40% sympathy if medicine in cargo)
-    - Implement intel offer (requires prior intel)
+    - Implement intel offer (requires prior intel, +3 outlaw rep for cooperating with pirates)
     - Implement accept demand (20% cargo)
     - Apply karma as hidden modifier on negotiation success rates (±5% at extreme karma)
-    - _Requirements: 4.1-4.11, 9.4, 9.10_
+    - _Requirements: 4.1-4.11, 8.7, 9.4, 9.10_
 
 - [ ] 10. Implement inspection resolution system (TDD)
   - [ ] 10.1 RED: Write property test for inspection outcomes
     - **Property 7: Inspection Outcomes**
     - Test cooperate, hidden cargo discovery, bribery, and flee outcomes
-    - **Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.11**
+    - Test that flee triggers patrol combat encounter
+    - Test security level scaling for hidden cargo discovery (2x core, 1.5x safe, 1x contested, 0.5x dangerous)
+    - **Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11, 11.8**
   - [ ] 10.2 GREEN: Add resolveInspection(choice, gameState, rng) to DangerManager
-    - Implement cooperate (confiscate restricted, ₡1,000 fine, +5 authority rep)
-    - Implement hidden cargo discovery (10% chance, ₡2,000 fine, -20 authority rep)
-    - Implement bribery (60% success, ₡500 cost, -10 authority rep on attempt)
-    - Implement flee (trigger patrol combat, -15 authority rep)
+    - Implement cooperate (confiscate restricted, ₡1,000 fine, +5 authority rep for cooperation)
+    - Implement hidden cargo discovery (10% base chance, scaled by security level: 2x core, 1.5x safe, 1x contested, 0.5x dangerous)
+    - Hidden cargo discovery costs ₡2,000 fine, -20 authority rep
+    - Implement bribery (60% success, ₡500 cost, -10 authority rep on attempt for resisting)
+    - Implement flee (trigger patrol combat, -15 authority rep for resisting/fleeing)
     - Apply reputation penalties for restricted goods (-10 authority rep)
-    - Update outlaw rep when smuggling is discovered (+5 outlaw rep)
-    - _Requirements: 5.3-5.11, 8.4, 8.5, 8.7_
+    - Update outlaw rep when smuggling is discovered (+5 outlaw rep for smuggling activity)
+    - _Requirements: 5.3-5.11, 8.4, 8.5, 8.7, 11.8_
 
 - [ ] 11. Implement mechanical failure system (TDD)
   - [ ] 11.1 RED: Write property test for mechanical failure thresholds
@@ -184,9 +188,9 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Return distress call object or null
     - _Requirements: 7.1_
   - [ ] 13.3 GREEN: Add resolveDistressCall(choice, gameState) to DangerManager
-    - Implement respond (2 days, 15% fuel, 5% life support, +₡500, +10 civilian rep, +1 karma)
+    - Implement respond (2 days, 15% fuel, 5% life support, +₡500, +10 civilian rep for helping civilians, +1 karma)
     - Implement ignore (-1 karma)
-    - Implement loot (1 day, -3 karma, -15 civilian rep, +5 outlaw rep, cargo reward)
+    - Implement loot (1 day, -3 karma, -15 civilian rep, +5 outlaw rep for piracy, cargo reward)
     - _Requirements: 7.2-7.10, 8.6, 8.7_
 
 - [ ] 14. Extend hidden cargo system (TDD)
@@ -204,10 +208,12 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - _Requirements: 11.3, 11.4_
 
 - [ ] 15. Integrate restricted goods with trading system (TDD)
-  - [ ] 15.1 RED: Write property test for restricted goods pricing
+  - [ ] 15.1 RED: Write property test for restricted goods premium pricing
     - **Property 16: Restricted Goods Premium Pricing**
-    - Test premium multiplier and trade blocking
-    - **Validates: Requirements 11.10, 11.11**
+    - Test premium multiplier (1.5x) when selling restricted goods in legal zones
+    - Test trade blocking for restricted goods in restricted zones
+    - Test black market contact bypass for restricted zone sales
+    - **Validates: Requirements 11.10, 11.11, 11.12**
   - [ ] 15.2 GREEN: Add isGoodRestricted(goodType, systemId) to TradingManager
     - Check zone restrictions from RESTRICTED_GOODS_CONFIG
     - Check core system restrictions for systems 0, 1
@@ -256,9 +262,10 @@ This implementation plan breaks down the Danger System into incremental tasks th
 - [ ] 20. Create combat resolution panel component
   - [ ] 20.1 Create src/features/danger/CombatPanel.jsx
     - Display combat options (evasive, return fire, dump cargo, distress)
+    - Display current ship status affecting outcomes (hull, engine, fuel, upgrades, quirks)
     - Show success probabilities with modifier breakdown
     - Display potential outcomes for each choice
-    - _Requirements: 3.1, 12.1, 12.4, 12.5_
+    - _Requirements: 3.1, 12.1, 12.2, 12.4, 12.5_
 
 - [ ] 21. Create negotiation panel component
   - [ ] 21.1 Create src/features/danger/NegotiationPanel.jsx
@@ -308,7 +315,15 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display karma/reputation changes
     - _Requirements: 9.9, 12.6_
 
-- [ ] 28. Final checkpoint - Ensure all tests pass
+- [ ] 28. Integrate faction reputation and karma with dialogue system
+  - [ ] 28.1 Update dialogue condition checks to include faction reputation and karma
+    - Add faction reputation checks to dialogue choice conditions
+    - Add karma checks to influence NPC first impressions
+    - NPCs should have different attitudes based on player's faction standing and karma
+    - Unlock/lock dialogue options based on reputation and karma thresholds
+    - _Requirements: 8.9, 9.5_
+
+- [ ] 29. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
@@ -324,7 +339,5 @@ This implementation plan breaks down the Danger System into incremental tasks th
 - Property tests validate universal correctness properties
 - Unit tests validate specific examples and edge cases
 - The danger system integrates with existing navigation without modifying core jump logic
-- Requirement 8.9 (NPC dialogue affected by faction standing) integrates with the existing NPC dialogue system in src/game/data/dialogue-trees.js - faction reputation should be checked in dialogue choice conditions
-- Requirement 9.5 (NPC first impressions affected by karma) integrates with the existing NPC system - karma should influence initial dialogue options and NPC attitudes when first meeting
-- Requirement 10.6 (reference past actions in future interactions) uses dangerFlags (piratesFought, civiliansSaved, etc.) which should be checked in dialogue conditions to unlock special dialogue options or modify NPC responses
+- Requirement 10.6 (reference past actions in future interactions) uses dangerFlags (piratesFought, civiliansSaved, etc.) which should be checked in dialogue conditions to unlock special dialogue options or modify NPC responses - deferred to future dialogue enhancement spec (see notes/future-work.md)
 - Requirement 9.7 (ending epilogues based on karma) is deferred to a future endgame spec - see notes/future-work.md

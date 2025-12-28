@@ -167,7 +167,7 @@ The Danger System adds tension and risk to space travel through pirate encounter
 1. WHEN initializing game state, THE System SHALL track reputation with four factions (authorities, traders, outlaws, civilians)
 2. WHEN starting a new game, THE System SHALL initialize all faction reputations to neutral (0)
 3. WHEN modifying faction reputation, THE System SHALL clamp values between -100 and +100
-4. WHEN the player cooperates with inspections, THE System SHALL maintain or improve authority reputation
+4. WHEN the player cooperates with inspections, THE System SHALL increase authority reputation by +5
 5. WHEN the player resists inspections or bribes officials, THE System SHALL decrease authority reputation
 6. WHEN the player helps civilians in distress, THE System SHALL increase civilian reputation
 7. WHEN the player engages in piracy or smuggling, THE System SHALL increase outlaw reputation
