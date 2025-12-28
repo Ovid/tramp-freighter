@@ -1,7 +1,10 @@
 # TODO
 
 - i18n?
+- Code Coverage
+- Liskov and Law of Demeter?
 - GCT
+- Reputation change-Not more than once per day per NPC?
 - Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
@@ -19,6 +22,86 @@
 - Multi-route jumps?
 - Needs a tutorial.
 - Some kind of "Achievement" system (visited all stars, for example)
+
+# Notes
+
+1. Smaller specs are better
+2. Don't skip optional tasks (TODO)
+3. Tabs you have open fill context!
+4. Fix bad architecture FIRST!
+
+> Question: currently when you start a new task, you're at almost 50% context
+> consumed. What is causing this much context to be consumed when you start a
+> new task?
+
+With the above, I realised that my game state manager was almost 1 meg and a
+god object. When context gets out of control, it's a code smell!
+
+> Finding 1: Missing Coverage for Requirement 1.1, 1.2, 1.3 (Hostile/Cold/Neutral Tier Behaviors)
+> Severity: Critical
+> 
+> Issue: Requirements 1.1, 1.2, and 1.3 define specific behaviors for Hostile, Cold, and Neutral tiers, but there are no tasks to implement these behaviors:
+> 
+> Req 1.1: Hostile tier - "refuse service, may report smuggling, and tip off pirates"
+> Req 1.2: Cold tier - "minimal interaction, no tips, and standard prices"
+> Req 1.3: Neutral tier - "standard service and generic dialogue"
+> Current State:
+> 
+> Task 4.1 only implements discount calculation (0% for these tiers)
+> No tasks implement service refusal for Hostile NPCs
+> No tasks implement the "report smuggling" or "tip off pirates" mechanics
+> The design document's TIER_DISCOUNTS config only covers discounts, not service refusal
+> Options:
+> 
+> Option A: Add implementation tasks for negative tier behaviors
+> 
+> Add new tasks to implement service refusal for Hostile NPCs
+> Add tasks for smuggling reports and pirate tip-offs (may require new game systems)
+> Add tasks for minimal interaction behavior at Cold tier
+> Option B: Defer negative tier behaviors to a future spec
+> 
+> Update requirements to remove 1.1, 1.2, 1.3 from this spec
+> Create a note that these behaviors will be implemented in a "danger systems" or "consequences" spec
+> Keep only the discount-related aspects (0% discount for these tiers)
+> Option C: Simplify requirements to match current scope
+> 
+> Revise Req 1.1-1.3 to only specify "no discounts, no tips" for these tiers
+> Remove the smuggling/pirate mechanics from this spec entirely
+> Recommendation: Option B - These negative consequences (pirates, smuggling reports) are complex systems that likely belong in a separate "danger" spec. The current spec focuses on benefits from relationships. Update requirements to clarify that negative tier behaviors beyond "no benefits" are out of scope for this spec.
+
+> Finding 3: Missing Coverage for NPC-Specific Tier Benefits (Requirements 4.8-4.10, 5.8-5.10, etc.)
+> Severity: Important
+> 
+> Issue: Each NPC has unique tier-specific benefits beyond discounts that are not covered by tasks. For example:
+> 
+> Whisper (Req 4.8-4.10): 10% intel discount at Warm, free rumors at Friendly, advance inspection warnings at Trusted
+> Captain Vasquez (Req 5.8-5.10): Trading tips at Warm, old star charts at Friendly, co-investment at Trusted
+> Dr. Sarah Kim (Req 6.8-6.10): Expedited docking at Warm, waived docking fees at Friendly, customs inspection notice at Trusted
+> Rusty Rodriguez (Req 7.8-7.10): 5% repair discount at Warm, 15% at Friendly, free diagnostics at Trusted
+> Zara Osman (Req 8.8-8.10): Price hints at Warm, price shift notice at Friendly, 105% buy rate at Trusted
+> Station Master Kowalski (Req 9.8-9.10): Priority docking at Warm, station storage at Friendly, emergency fuel at Trusted
+> Lucky Liu (Req 10.8-10.10): Gambling tips at Warm, ₡500 stake at Friendly, insider info at Trusted
+> Current State:
+> 
+> Tasks 9.1-9.7 only cover adding NPC definitions with tierBenefits configuration
+> The design includes tierBenefits in NPC definitions but these are just descriptive strings
+> No tasks implement the actual mechanics for these unique benefits (co-investment, star charts, 105% buy rate, etc.)
+> Options:
+> 
+> Option A: Add implementation tasks for each unique benefit
+> 
+> Add tasks to implement each NPC's unique tier benefits
+> This would significantly expand the scope (potentially 20+ new tasks)
+> Option B: Defer unique benefits to future NPC-specific specs
+> 
+> Keep only the generic benefits (discounts, tips, favors) in this spec
+> Update requirements to note that unique benefits like "co-investment" and "star charts" are deferred
+> Create placeholder tierBenefits that describe future functionality
+> Option C: Simplify unique benefits to use existing systems
+> 
+> Map unique benefits to existing mechanics where possible (e.g., "free rumors" = free tip, "price hints" = tip system)
+> Defer truly unique mechanics (co-investment, star charts, 105% buy rate) to future specs
+> Recommendation: Option C - Many of these "unique" benefits can be implemented using the existing tip and discount systems. Truly unique mechanics like co-investment and star charts should be deferred to avoid scope creep.
 
 # Notes
 

@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   calculateRepairCost,
+  calculateDiscountedRepairCost,
   calculateRepairAllCost,
+  calculateDiscountedRepairAllCost,
   validateRepairAll,
   getSystemCondition,
 } from './repairUtils';
-import { SHIP_CONFIG } from '../../game/constants';
+import { SHIP_CONFIG, UI_CONFIG } from '../../game/constants';
+import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
  * RepairPanel component for repairing ship systems.
@@ -24,20 +28,52 @@ import { SHIP_CONFIG } from '../../game/constants';
  */
 export function RepairPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const shipCondition = useGameEvent('shipConditionChanged');
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
-  const { repair } = useGameAction();
+  const { repair, canGetFreeRepair, getFreeRepair } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
 
-  const state = gameStateManager.getState();
-  const condition = shipCondition || {
-    hull: state.ship.hull,
-    engine: state.ship.engine,
-    lifeSupport: state.ship.lifeSupport,
-  };
+  // Use Bridge Pattern to get ship condition
+  const condition = shipCondition;
+
+  // Get NPCs at current location for free repair checks
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId);
+
+  // Check for available free repairs from any NPC at this location
+  const freeRepairOptions = npcsAtSystem
+    .map((npc) => {
+      const freeRepairAvailability = canGetFreeRepair(npc.id);
+      return {
+        npc,
+        availability: freeRepairAvailability,
+      };
+    })
+    .filter((option) => option.availability.available);
+
+  // Get repair service discounts from NPCs at this location
+  const repairDiscounts = npcsAtSystem
+    .map((npc) => {
+      const discountInfo = gameStateManager.getServiceDiscount(
+        npc.id,
+        'repair'
+      );
+      return {
+        npc,
+        discount: discountInfo.discount,
+        npcName: discountInfo.npcName,
+      };
+    })
+    .filter((option) => option.discount > 0);
+
+  // Calculate the best discount available
+  const bestDiscount = repairDiscounts.reduce(
+    (best, current) => (current.discount > best.discount ? current : best),
+    { discount: 0, npcName: null }
+  );
 
   const handleRepairSystem = (systemType, amountStr) => {
     let amount = 0;
@@ -58,6 +94,24 @@ export function RepairPanel({ onClose }) {
     } else {
       setValidationMessage('');
       setValidationClass('');
+    }
+  };
+
+  const handleFreeRepair = (npcId, maxHullPercent) => {
+    // Calculate current hull damage percentage
+    const currentHull = condition.hull;
+    const maxHull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
+    const hullDamagePercent = maxHull - currentHull;
+
+    // Apply free repair
+    const repairOutcome = getFreeRepair(npcId, hullDamagePercent);
+
+    if (repairOutcome.success) {
+      setValidationMessage(`Free repair completed: ${repairOutcome.message}`);
+      setValidationClass('success');
+    } else {
+      setValidationMessage(`Free repair failed: ${repairOutcome.message}`);
+      setValidationClass('error');
     }
   };
 
@@ -143,7 +197,7 @@ export function RepairPanel({ onClose }) {
 
   const renderSystemRepair = (systemType, label) => {
     const currentCondition = getSystemCondition(condition, systemType);
-    const repairAmounts = [10, 25, 50, 'full'];
+    const repairAmounts = UI_CONFIG.REPAIR_AMOUNTS;
 
     return (
       <div className="repair-system-group">
@@ -152,22 +206,44 @@ export function RepairPanel({ onClose }) {
           {repairAmounts.map((amountStr) => {
             let amount = 0;
             let cost = 0;
+            let discountedCost = 0;
             let buttonText = '';
 
             if (amountStr === 'full') {
               amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
               cost = calculateRepairCost(amount, currentCondition);
-              buttonText = `Full (₡${cost})`;
+              discountedCost = calculateDiscountedRepairCost(
+                amount,
+                currentCondition,
+                bestDiscount.discount
+              );
+
+              if (bestDiscount.discount > 0) {
+                buttonText = `Full (₡${discountedCost})`;
+              } else {
+                buttonText = `Full (₡${cost})`;
+              }
             } else {
               amount = amountStr;
               cost = calculateRepairCost(amount, currentCondition);
-              buttonText = `+${amount}% (₡${cost})`;
+              discountedCost = calculateDiscountedRepairCost(
+                amount,
+                currentCondition,
+                bestDiscount.discount
+              );
+
+              if (bestDiscount.discount > 0) {
+                buttonText = `+${amount}% (₡${discountedCost})`;
+              } else {
+                buttonText = `+${amount}% (₡${cost})`;
+              }
             }
 
             const wouldExceedMax =
               currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX;
             const atMax = currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-            const notEnoughCredits = credits < cost;
+            const finalCost = bestDiscount.discount > 0 ? discountedCost : cost;
+            const notEnoughCredits = credits < finalCost;
 
             const disabled =
               atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
@@ -189,19 +265,41 @@ export function RepairPanel({ onClose }) {
   };
 
   const totalCost = calculateRepairAllCost(condition);
+  const discountedTotalCost = calculateDiscountedRepairAllCost(
+    condition,
+    bestDiscount.discount
+  );
+  const finalTotalCost =
+    bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
+
   const allAtMax =
     condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-  const repairAllDisabled = allAtMax || credits < totalCost || totalCost === 0;
+  const repairAllDisabled =
+    allAtMax || credits < finalTotalCost || totalCost === 0;
 
-  const currentSystem = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
-    throw new Error(
-      `Invalid game state: current system ID ${currentSystemId} not found in star data`
+    return (
+      <div id="repair-panel" className="visible">
+        <button className="close-btn" onClick={onClose}>
+          ×
+        </button>
+        <h2>Repairs - Error</h2>
+        <div className="repair-content">
+          <div className="validation-message error">
+            System data error: Unable to load repair panel. Please restart the
+            game.
+          </div>
+        </div>
+        <div className="repair-actions">
+          <button className="station-btn secondary" onClick={onClose}>
+            Back to Station
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -246,10 +344,130 @@ export function RepairPanel({ onClose }) {
                 onClick={handleRepairAll}
                 disabled={repairAllDisabled}
               >
-                Repair All to Full (₡{totalCost})
+                Repair All to Full (₡{finalTotalCost})
               </button>
             </div>
           </div>
+        </div>
+
+        {/* NPC Discount Section */}
+        {bestDiscount.discount > 0 && (
+          <div className="repair-section">
+            <h3>NPC Discount Applied</h3>
+            <div className="discount-info">
+              <div className="discount-details">
+                <p>
+                  <strong>{bestDiscount.npcName}</strong> is providing a{' '}
+                  <strong>{Math.round(bestDiscount.discount * 100)}%</strong>{' '}
+                  discount on repair services.
+                </p>
+                <p className="discount-note">
+                  <em>All repair prices shown above include this discount.</em>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Free Repair Section */}
+        <div className="repair-section">
+          <h3>Free Repair</h3>
+          {freeRepairOptions.length > 0 ? (
+            <div className="free-repair-options">
+              {freeRepairOptions.map(({ npc, availability }) => {
+                const currentHull = condition.hull;
+                const maxHull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
+                const hullDamagePercent = maxHull - currentHull;
+                const actualRepairPercent = Math.min(
+                  hullDamagePercent,
+                  availability.maxHullPercent
+                );
+
+                // Get tier name for display
+                const tierName =
+                  availability.maxHullPercent === 25 ? 'Family' : 'Trusted';
+
+                return (
+                  <div key={npc.id} className="free-repair-option">
+                    <div className="free-repair-info">
+                      <h4>
+                        {npc.name} ({npc.role})
+                      </h4>
+                      <div className="free-repair-details">
+                        <p className="tier-info">
+                          <strong>{tierName} Tier:</strong> Up to{' '}
+                          {availability.maxHullPercent}% hull damage repair
+                        </p>
+                        <p className="limitation-info">
+                          <em>Once per visit limitation</em>
+                        </p>
+                        {actualRepairPercent > 0 ? (
+                          <p className="repair-amount">
+                            Will repair:{' '}
+                            <strong>{actualRepairPercent.toFixed(1)}%</strong>{' '}
+                            hull damage
+                          </p>
+                        ) : (
+                          <p className="no-damage">No hull damage to repair</p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      className="free-repair-btn"
+                      onClick={() =>
+                        handleFreeRepair(npc.id, availability.maxHullPercent)
+                      }
+                      disabled={actualRepairPercent <= 0}
+                    >
+                      Get Free Repair
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="free-repair-unavailable">
+              {npcsAtSystem.length > 0 ? (
+                <div className="validation-info">
+                  <h4>Free Repair Requirements</h4>
+                  <div className="npc-status-list">
+                    {npcsAtSystem.map((npc) => {
+                      const availability = canGetFreeRepair(npc.id);
+                      return (
+                        <div key={npc.id} className="npc-status-item">
+                          <div className="npc-info">
+                            <strong>{npc.name}</strong> ({npc.role})
+                          </div>
+                          <div className="status-message">
+                            {availability.reason || 'Requirements not met'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="tier-requirements">
+                    <p>
+                      <strong>Tier Requirements:</strong>
+                    </p>
+                    <ul>
+                      <li>
+                        <strong>Trusted Tier:</strong> Up to 10% hull damage
+                        repair (once per visit)
+                      </li>
+                      <li>
+                        <strong>Family Tier:</strong> Up to 25% hull damage
+                        repair (once per visit)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <p className="no-npcs">
+                  No NPCs available at this station for free repairs.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Validation Message */}

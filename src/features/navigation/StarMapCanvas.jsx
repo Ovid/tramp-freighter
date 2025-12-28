@@ -27,7 +27,7 @@ import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { StarmapProvider } from '../../context/StarmapContext';
+import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
 
 /**
@@ -46,6 +46,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
   const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
@@ -190,7 +191,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         scene,
         camera,
         controls,
-        gameStateManager.starData
+        starData
       );
 
       // Register animation system with GameStateManager for useAnimationLock hook
@@ -232,13 +233,16 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         deselectStar: deselectStarMethod,
       };
 
+      // Notify parent that starmap methods are ready
+      if (props.onStarmapMethodsReady) {
+        props.onStarmapMethodsReady({
+          selectStarById,
+          deselectStar: deselectStarMethod,
+        });
+      }
+
       // Initialize current system indicator
-      updateCurrentSystemIndicator(
-        scene,
-        camera,
-        stars,
-        gameStateManager.state.player.currentSystem
-      );
+      updateCurrentSystemIndicator(scene, camera, stars, currentSystem);
 
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
@@ -401,7 +405,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   };
 
   return (
-    <StarmapProvider value={starmapMethods.current}>
+    <>
       <div ref={containerRef} className="starmap-container" />
       <CameraControls
         cameraState={{ autoRotationEnabled, boundaryVisible }}
@@ -410,6 +414,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         onToggleRotation={handleToggleRotation}
         onToggleBoundary={handleToggleBoundary}
       />
-    </StarmapProvider>
+    </>
   );
 });

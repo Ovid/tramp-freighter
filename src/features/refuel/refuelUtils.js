@@ -21,6 +21,23 @@ export function calculateRefuelCost(amount, pricePerPercent) {
 }
 
 /**
+ * Calculate the discounted total cost of refueling
+ *
+ * @param {number} amount - Amount to refuel (percentage points)
+ * @param {number} pricePerPercent - Fuel price per percentage point
+ * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
+ * @returns {number} Discounted total cost in credits
+ */
+export function calculateDiscountedRefuelCost(
+  amount,
+  pricePerPercent,
+  discountPercentage
+) {
+  const baseCost = calculateRefuelCost(amount, pricePerPercent);
+  return Math.round(baseCost * (1 - discountPercentage));
+}
+
+/**
  * Calculate the maximum amount that can be refueled based on credits
  *
  * @param {number} credits - Player's current credits

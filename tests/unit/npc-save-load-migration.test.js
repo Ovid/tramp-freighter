@@ -32,7 +32,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     global.localStorage = originalLocalStorage;
   });
 
-  it('should migrate version 2.1.0 save to version 4.0.0 with empty npcs object', () => {
+  it('should migrate version 2.1.0 save to version 4.1.0 with empty npcs object', () => {
     // Create a mock v2.1.0 save state
     const v2_1_0State = {
       player: {
@@ -71,7 +71,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     const migratedState = migrateFromV2_1ToV4(v2_1_0State, true);
 
     // Verify migration results
-    expect(migratedState.meta.version).toBe('4.0.0');
+    expect(migratedState.meta.version).toBe('4.1.0');
     expect(migratedState.npcs).toBeDefined();
     expect(migratedState.npcs).toEqual({});
     expect(migratedState.dialogue).toBeDefined();
@@ -88,7 +88,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     expect(migratedState.world).toEqual(v2_1_0State.world);
   });
 
-  it('should load version 2.1.0 save and migrate to version 4.0.0', () => {
+  it('should load version 2.1.0 save and migrate to version 4.1.0', () => {
     // Create a mock v2.1.0 save in localStorage
     const v2_1_0SaveData = {
       player: {
@@ -152,7 +152,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
 
     // Verify state was loaded and migrated
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('4.0.0');
+    expect(loadedState.meta.version).toBe('4.1.0');
 
     // Verify NPC fields were added
     expect(loadedState.npcs).toBeDefined();
@@ -171,12 +171,12 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     expect(loadedState.world.visitedSystems).toEqual([0, 1]);
   });
 
-  it('should include npcs field in version 4.0.0 save schema', () => {
-    // Initialize new game (creates v4.0.0 state)
+  it('should include npcs field in version 4.1.0 save schema', () => {
+    // Initialize new game (creates v4.1.0 state)
     gameStateManager.initNewGame();
 
     // Verify the state includes NPC fields
-    expect(gameStateManager.state.meta.version).toBe('4.0.0');
+    expect(gameStateManager.state.meta.version).toBe('4.1.0');
     expect(gameStateManager.state.npcs).toBeDefined();
     expect(gameStateManager.state.npcs).toEqual({});
     expect(gameStateManager.state.dialogue).toBeDefined();
@@ -213,7 +213,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     // Verify save data includes NPC fields
     expect(savedData).not.toBeNull();
     const parsedSaveData = JSON.parse(savedData);
-    expect(parsedSaveData.meta.version).toBe('4.0.0');
+    expect(parsedSaveData.meta.version).toBe('4.1.0');
     expect(parsedSaveData.npcs).toBeDefined();
     expect(parsedSaveData.npcs.test_npc).toBeDefined();
     expect(parsedSaveData.npcs.test_npc.rep).toBe(25);
@@ -258,7 +258,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
         display: null,
       },
       meta: {
-        version: '4.0.0',
+        version: '4.1.0',
         timestamp: Date.now(),
       },
     };
@@ -324,7 +324,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     const migratedState = migrateFromV2_1ToV4(v2_1_0StateWithNPCs, true);
 
     // Verify existing NPC data is preserved
-    expect(migratedState.meta.version).toBe('4.0.0');
+    expect(migratedState.meta.version).toBe('4.1.0');
     expect(migratedState.npcs).toBeDefined();
     expect(migratedState.npcs.existing_npc).toBeDefined();
     expect(migratedState.npcs.existing_npc.rep).toBe(50);

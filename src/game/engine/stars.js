@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
+import { VISUAL_CONFIG, LABEL_CONFIG, DEV_MODE } from '../constants.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
 
 // Shared texture and material caches to reduce GPU memory usage
@@ -172,7 +172,9 @@ export function createStarSystems(scene, starData) {
     stars.push(starObject);
   });
 
-  console.log(`Created ${stars.length} star systems`);
+  if (DEV_MODE) {
+    console.log(`Created ${stars.length} star systems`);
+  }
 
   return stars;
 }

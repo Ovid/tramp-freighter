@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { useAnimationLock } from '../../hooks/useAnimationLock';
+import { useStarData } from '../../hooks/useStarData';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * QuickAccessButtons component displays quick access buttons for common actions.
@@ -19,12 +21,12 @@ import { useAnimationLock } from '../../hooks/useAnimationLock';
  */
 export function QuickAccessButtons({ onDock, onSystemInfo }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const animationLock = useAnimationLock();
   const [isAnimationRunning, setIsAnimationRunning] = useState(false);
 
   // Get current system data
-  const starData = gameStateManager.starData;
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
@@ -62,7 +64,7 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
         if (!stillLocked) {
           clearInterval(pollInterval);
         }
-      }, 100); // Poll every 100ms
+      }, UI_CONFIG.ANIMATION_POLL_INTERVAL); // Poll every 100ms
 
       return () => clearInterval(pollInterval);
     }

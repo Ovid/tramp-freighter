@@ -228,10 +228,10 @@ describe('State Validators Module', () => {
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
-    it('should update version to 4.0.0', () => {
+    it('should update version to 4.1.0', () => {
       const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
 
-      expect(migrated.meta.version).toBe('4.0.0');
+      expect(migrated.meta.version).toBe('4.1.0');
     });
 
     it('should throw error if current system not found in star data', () => {
@@ -316,10 +316,10 @@ describe('State Validators Module', () => {
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
-    it('should update version to 4.0.0', () => {
+    it('should update version to 4.1.0', () => {
       const migrated = migrateFromV2ToV2_1(v2State, true);
 
-      expect(migrated.meta.version).toBe('4.0.0');
+      expect(migrated.meta.version).toBe('4.1.0');
     });
 
     it('should preserve existing state', () => {
@@ -359,7 +359,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add missing ship condition fields', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(normalized.ship.hull).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
       expect(normalized.ship.engine).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
@@ -372,7 +372,7 @@ describe('State Validators Module', () => {
       partialState.ship.hull = 75;
       partialState.ship.engine = 80;
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(normalized.ship.hull).toBe(75);
       expect(normalized.ship.engine).toBe(80);
@@ -382,7 +382,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add missing ship personality fields', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(Array.isArray(normalized.ship.quirks)).toBe(true);
       expect(Array.isArray(normalized.ship.upgrades)).toBe(true);
@@ -395,7 +395,7 @@ describe('State Validators Module', () => {
         { good: 'grain', qty: 10, purchasePrice: 100 },
       ];
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(normalized.ship.cargo[0].buyPrice).toBe(100);
       expect(normalized.ship.cargo[0].purchasePrice).toBeUndefined();
@@ -410,7 +410,7 @@ describe('State Validators Module', () => {
       console.warn = (...args) => warnings.push(args);
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
         expect(normalized.ship.cargo[0].buySystem).toBe(0);
         expect(normalized.ship.cargo[0].buySystemName).toBe('Sol');
@@ -432,7 +432,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
         // Invalid stack should still be in array but skipped during repair
         expect(normalized.ship.cargo).toHaveLength(3);
@@ -442,20 +442,20 @@ describe('State Validators Module', () => {
     });
 
     it('should initialize missing price knowledge', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(normalized.world.priceKnowledge).toBeDefined();
       expect(normalized.world.priceKnowledge[0]).toBeDefined();
     });
 
     it('should initialize missing active events', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(Array.isArray(normalized.world.activeEvents)).toBe(true);
     });
 
     it('should initialize missing market conditions', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
       expect(normalized.world.marketConditions).toBeDefined();
     });
@@ -464,7 +464,7 @@ describe('State Validators Module', () => {
       partialState.player.currentSystem = 999;
 
       expect(() => {
-        addStateDefaults(partialState, TEST_STAR_DATA);
+        addStateDefaults(partialState, TEST_STAR_DATA, true);
       }).toThrow('Load failed');
     });
 
@@ -476,7 +476,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
         expect(normalized.ship.quirks).toHaveLength(0);
       } finally {
@@ -492,7 +492,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
 
         expect(normalized.ship.upgrades).toHaveLength(0);
       } finally {

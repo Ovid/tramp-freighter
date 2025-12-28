@@ -164,30 +164,70 @@ export function useGameAction() {
       },
 
       /**
-       * Start dialogue with an NPC
+       * Check if NPC can provide free repair
        * @param {string} npcId - NPC identifier
-       * @param {string} nodeId - Dialogue node identifier (defaults to 'greeting')
-       * @returns {Promise<Object>} Dialogue display object with text, choices, and NPC info
+       * @returns {Object} { available: boolean, maxHullPercent: number, reason: string | null }
        */
-      startDialogue: async (npcId, nodeId = 'greeting') => {
-        return await gameStateManager.startDialogue(npcId, nodeId);
+      canGetFreeRepair: (npcId) => {
+        return gameStateManager.canGetFreeRepair(npcId);
       },
 
       /**
-       * Select a dialogue choice and advance conversation
+       * Apply free repair from NPC
        * @param {string} npcId - NPC identifier
-       * @param {number} choiceIndex - Index of selected choice
-       * @returns {Promise<Object|null>} Next dialogue display object or null if dialogue ended
+       * @param {number} hullDamagePercent - Hull damage percentage to repair
+       * @returns {Object} { success: boolean, repairedPercent: number, message: string }
        */
-      selectDialogueChoice: async (npcId, choiceIndex) => {
-        return await gameStateManager.selectDialogueChoice(npcId, choiceIndex);
+      getFreeRepair: (npcId, hullDamagePercent) => {
+        return gameStateManager.getFreeRepair(npcId, hullDamagePercent);
       },
 
       /**
-       * Clear current dialogue state
+       * Update player credits
+       * @param {number} newCredits - New credit amount
        */
-      clearDialogue: () => {
-        gameStateManager.clearDialogueState();
+      updateCredits: (newCredits) => {
+        gameStateManager.updateCredits(newCredits);
+      },
+
+      /**
+       * Generate a market rumor
+       * @returns {string} Generated rumor text
+       */
+      generateRumor: () => {
+        return gameStateManager.generateRumor();
+      },
+
+      /**
+       * Validate refuel transaction
+       * @param {number} currentFuel - Current fuel percentage
+       * @param {number} amount - Amount to refuel
+       * @param {number} credits - Player credits
+       * @param {number} fuelPrice - Price per fuel unit
+       * @returns {Object} { valid: boolean, reason: string }
+       */
+      validateRefuel: (currentFuel, amount, credits, fuelPrice) => {
+        return gameStateManager.validateRefuel(
+          currentFuel,
+          amount,
+          credits,
+          fuelPrice
+        );
+      },
+
+      /**
+       * Record visited prices for current system
+       */
+      recordVisitedPrices: () => {
+        gameStateManager.recordVisitedPrices();
+      },
+
+      /**
+       * Get current system prices (locked to prevent arbitrage)
+       * @returns {Object} Price data for current system
+       */
+      getCurrentSystemPrices: () => {
+        return gameStateManager.getCurrentSystemPrices();
       },
     }),
     [gameStateManager]

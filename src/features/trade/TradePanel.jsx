@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import {
   COMMODITY_TYPES,
   TRADE_CONFIG,
   SHIP_CONFIG,
+  UI_CONFIG,
 } from '../../game/constants.js';
 import { capitalizeFirst } from '../../game/utils/string-utils.js';
 import {
@@ -30,26 +32,33 @@ import {
 export function TradePanel({ onClose }) {
   // Access GameStateManager
   const gameStateManager = useGameState();
+  const starData = useStarData();
 
   // Subscribe to relevant game events
   const cargo = useGameEvent('cargoChanged');
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const currentDay = useGameEvent('timeChanged');
+  const cargoCapacity = useGameEvent('cargoCapacityChanged');
+  const upgrades = useGameEvent('upgradesChanged');
+
+  // Get game actions
+  const {
+    buyGood,
+    sellGood,
+    moveToHiddenCargo,
+    moveToRegularCargo,
+    recordVisitedPrices,
+    getCurrentSystemPrices,
+  } = useGameAction();
 
   // Update price knowledge when panel opens (records "Visited" data)
   useEffect(() => {
-    gameStateManager.recordVisitedPrices();
-  }, [gameStateManager]);
-
-  // Get game actions
-  const { buyGood, sellGood, moveToHiddenCargo, moveToRegularCargo } =
-    useGameAction();
+    recordVisitedPrices();
+  }, [recordVisitedPrices]);
 
   // Get current system
-  const system = gameStateManager.starData.find(
-    (s) => s.id === currentSystemId
-  );
+  const system = starData.find((s) => s.id === currentSystemId);
 
   if (!system) {
     throw new Error(
@@ -57,34 +66,45 @@ export function TradePanel({ onClose }) {
     );
   }
 
-  // Get ship data for capacity and upgrades
-  const ship = gameStateManager.getShip();
+  // Get ship data for capacity and upgrades from events
+  // Use centralized defaults to handle cases where events haven't fired yet
+  const ship = {
+    cargoCapacity: cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY,
+    upgrades: upgrades ?? [],
+    hiddenCargo: [], // Will be populated from cargo event if needed
+    hiddenCargoCapacity: 0, // Will be calculated from upgrades
+  };
 
   // Calculate cargo capacity
   const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoCapacity = ship.cargoCapacity;
-  const cargoRemaining = cargoCapacity - cargoUsed;
+  const cargoRemaining = ship.cargoCapacity - cargoUsed;
 
   // Check for Smuggler's Panels upgrade
-  const hasSmugglersPanel =
-    ship.upgrades && ship.upgrades.includes('smuggler_panels');
+  const hasSmugglersPanel = ship.upgrades.includes('smuggler_panels');
   const hiddenCargo = ship.hiddenCargo || [];
   const hiddenCargoUsed = hiddenCargo.reduce(
     (sum, stack) => sum + stack.qty,
     0
   );
-  const hiddenCargoCapacity =
-    ship.hiddenCargoCapacity ||
-    SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity;
+  const hiddenCargoCapacity = hasSmugglersPanel
+    ? SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity
+    : 0;
 
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
   // Get locked prices for current system (prevents intra-system arbitrage)
-  const currentSystemPrices = gameStateManager.getCurrentSystemPrices();
+  const currentSystemPrices = getCurrentSystemPrices();
 
-  // Get state for other calculations
-  const state = gameStateManager.getState();
+  // Create state object for validation functions
+  const state = {
+    player: { credits },
+    ship: {
+      cargo,
+      cargoCapacity: ship.cargoCapacity,
+      upgrades: ship.upgrades,
+    },
+  };
 
   const handleBuyGood = (goodType, quantity, price) => {
     const purchaseOutcome = buyGood(goodType, quantity, price);
@@ -199,7 +219,7 @@ export function TradePanel({ onClose }) {
           <div className="cargo-capacity-display">
             <span className="capacity-label">Capacity:</span>
             <span id="trade-cargo-used">{cargoUsed}</span> /
-            <span id="trade-cargo-capacity">{cargoCapacity}</span>
+            <span id="trade-cargo-capacity">{ship.cargoCapacity}</span>
             <span className="capacity-remaining">
               (<span id="trade-cargo-remaining">{cargoRemaining}</span>{' '}
               remaining)
@@ -219,7 +239,7 @@ export function TradePanel({ onClose }) {
                   stack.buySystem !== undefined &&
                   stack.buyDate !== undefined
                 ) {
-                  const purchaseSystem = gameStateManager.starData.find(
+                  const purchaseSystem = starData.find(
                     (s) => s.id === stack.buySystem
                   );
                   if (!purchaseSystem) {
@@ -329,7 +349,7 @@ export function TradePanel({ onClose }) {
                       stack.buySystem !== undefined &&
                       stack.buyDate !== undefined
                     ) {
-                      const purchaseSystem = gameStateManager.starData.find(
+                      const purchaseSystem = starData.find(
                         (s) => s.id === stack.buySystem
                       );
                       if (!purchaseSystem) {

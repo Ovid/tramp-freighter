@@ -1,6 +1,7 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 
 /**
  * JumpDialog displays information about a selected target system and allows jumping to it.
@@ -17,12 +18,12 @@ import { useGameAction } from '../../hooks/useGameAction';
  */
 export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const fuel = useGameEvent('fuelChanged');
   const { executeJump } = useGameAction();
 
   // Get system data
-  const starData = gameStateManager.starData;
   const targetSystem = starData.find((s) => s.id === targetSystemId);
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 

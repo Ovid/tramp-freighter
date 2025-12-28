@@ -152,6 +152,7 @@ export function calculateDistanceFromSol(system) {
  */
 export const SHIP_CONFIG = {
   DEFAULT_NAME: 'Serendipity',
+  MAX_NAME_LENGTH: 50, // Maximum characters allowed in ship name
   NAME_SUGGESTIONS: [
     'Serendipity',
     'Lucky Break',
@@ -163,7 +164,7 @@ export const SHIP_CONFIG = {
     'Cosmic Drifter',
   ],
   FUEL_CAPACITY: 100,
-  CARGO_CAPACITY: 100,
+  CARGO_CAPACITY: 50,
   DEGRADATION: {
     HULL_PER_JUMP: 2, // Percentage points lost per jump
     ENGINE_PER_JUMP: 1, // Percentage points lost per jump
@@ -454,8 +455,9 @@ export async function initDevMode() {
  * - 2.0.0: Added ship condition, price knowledge, events
  * - 2.1.0: Deterministic economy with market conditions
  * - 4.0.0: NPC foundation with reputation system and dialogue
+ * - 4.1.0: NPC benefits system with tips, favors, loans, and storage
  */
-export const GAME_VERSION = '4.0.0';
+export const GAME_VERSION = '4.1.0';
 
 /**
  * localStorage key for save data
@@ -674,9 +676,13 @@ export const NPC_VALIDATION = {
     'speechStyle',
     'description',
     'initialRep',
+    'tips',
+    'discountService',
+    'tierBenefits',
   ],
   REQUIRED_PERSONALITY_TRAITS: ['trust', 'greed', 'loyalty', 'morality'],
   REQUIRED_SPEECH_PROPERTIES: ['greeting', 'vocabulary', 'quirk'],
+  REQUIRED_TIER_BENEFITS: ['warm', 'friendly', 'trusted', 'family'],
 };
 
 /**
@@ -716,4 +722,71 @@ export const NPC_INITIAL_REPUTATION = {
   HOSTILE: -20, // Marcus Cole - starts cold due to player debt
   NEUTRAL: 0, // Wei Chen - neutral starting relationship
   FRIENDLY: 10, // Father Okonkwo - starts warm and welcoming
+};
+
+/**
+ * NPC Benefits System Configuration
+ *
+ * Configuration for tier-based benefits including trading tips, special favors,
+ * service discounts, and free repairs. These benefits reward players for building
+ * relationships with NPCs across the sector.
+ */
+export const NPC_BENEFITS_CONFIG = {
+  // Cooldown periods for NPC benefits
+  TIP_COOLDOWN_DAYS: 7, // Days between tips from same NPC
+  FAVOR_COOLDOWN_DAYS: 30, // Days between favors from same NPC
+
+  // Emergency loan configuration
+  EMERGENCY_LOAN_AMOUNT: 500, // Credits for emergency loan
+  LOAN_REPAYMENT_DEADLINE: 30, // Days to repay loan
+  LOAN_DEFAULT_TIER_PENALTY: 1, // Tiers lost on loan default
+  LOAN_ACCEPTANCE_REP_BONUS: 5, // Rep gained for accepting loan
+
+  // Cargo storage configuration
+  CARGO_STORAGE_LIMIT: 10, // Max cargo units stored per NPC
+
+  // Tier discount percentages (applied to service costs)
+  TIER_DISCOUNTS: {
+    hostile: 0, // No discount
+    cold: 0, // No discount
+    neutral: 0, // No discount
+    warm: 0.05, // 5% discount
+    friendly: 0.1, // 10% discount
+    trusted: 0.15, // 15% discount
+    family: 0.2, // 20% discount
+  },
+
+  // Free repair limits (hull percentage that can be repaired for free)
+  FREE_REPAIR_LIMITS: {
+    trusted: 10, // Up to 10% hull damage
+    family: 25, // Up to 25% hull damage
+  },
+};
+
+/**
+ * UI Configuration
+ *
+ * Configuration for user interface components including default values,
+ * repair options, coordinate display, and animation polling.
+ */
+export const UI_CONFIG = {
+  // Default fallback values for components when Bridge Pattern events haven't fired yet
+  DEFAULT_VALUES: {
+    SHIP_CONDITION: 100, // Default percentage for hull, engine, life support
+    FUEL: 100, // Default fuel percentage
+    CARGO_CAPACITY: 50, // Default cargo capacity
+    SHIP_NAME: 'Unknown Ship', // Default ship name
+  },
+
+  // Repair panel configuration
+  REPAIR_AMOUNTS: [10, 25, 50, 'full'], // Available repair percentage options
+
+  // Coordinate display configuration
+  COORDINATE_SCALE_FACTOR: 10, // Divide coordinates by this for display (map units to light-years)
+
+  // Animation polling configuration
+  ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
+
+  // Save system configuration
+  SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
 };

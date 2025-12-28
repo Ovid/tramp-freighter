@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 
 /**
@@ -34,19 +34,19 @@ export function useGameEvent(eventName) {
     return extractStateForEvent(eventName, currentState);
   });
 
-  useEffect(() => {
-    // Subscribe to event
-    const callback = (data) => {
-      setState(data);
-    };
+  // Memoized callback to prevent unnecessary re-subscriptions
+  const callback = useCallback((data) => {
+    setState(data);
+  }, []);
 
+  useEffect(() => {
     gameStateManager.subscribe(eventName, callback);
 
     // Cleanup: unsubscribe on unmount
     return () => {
       gameStateManager.unsubscribe(eventName, callback);
     };
-  }, [gameStateManager, eventName]);
+  }, [gameStateManager, eventName, callback]);
 
   return state;
 }
@@ -85,6 +85,10 @@ function extractStateForEvent(eventName, state) {
     throw new Error('Invalid game state: world object missing');
   }
 
+  if (!state.dialogue) {
+    throw new Error('Invalid game state: dialogue object missing');
+  }
+
   // Map event names to state extraction logic
   // No optional chaining - properties MUST exist after initialization
   const eventStateMap = {
@@ -105,6 +109,7 @@ function extractStateForEvent(eventName, state) {
     upgradesChanged: state.ship.upgrades,
     quirksChanged: state.ship.quirks,
     conditionWarning: null, // Warnings are passed directly in event data
+    dialogueChanged: state.dialogue, // Dialogue state object
   };
 
   return eventStateMap[eventName] ?? null;

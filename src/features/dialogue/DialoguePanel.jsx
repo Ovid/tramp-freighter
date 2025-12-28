@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameAction } from '../../hooks/useGameAction';
+import { useDialogue } from '../../hooks/useDialogue';
 
 /**
  * DialoguePanel - React component for NPC dialogue interactions
@@ -16,12 +15,9 @@ import { useGameAction } from '../../hooks/useGameAction';
  * @param {Function} props.onClose - Callback to close the dialogue panel
  */
 export function DialoguePanel({ npcId, onClose }) {
-  // Bridge Pattern: Subscribe to dialogue state changes
-  const dialogueState = useGameEvent('dialogueChanged');
-
-  // Bridge Pattern: Get action methods
-  const { startDialogue, selectDialogueChoice, clearDialogue } =
-    useGameAction();
+  // Bridge Pattern: Use dialogue hook for state and actions
+  const { dialogueState, startDialogue, selectChoice, clearDialogue } =
+    useDialogue();
 
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
@@ -35,30 +31,33 @@ export function DialoguePanel({ npcId, onClose }) {
         await startDialogue(npcId, 'greeting');
       } catch (err) {
         console.error('Failed to initialize dialogue:', err);
-        // Clear dialogue state on error
         clearDialogue();
+        onClose();
       }
     };
 
     initializeDialogue();
-  }, [npcId, startDialogue, clearDialogue]);
+  }, [npcId, startDialogue, clearDialogue, onClose]);
 
   const handleChoiceSelection = async (choiceIndex) => {
-    if (!dialogueState?.display || !npcId) return;
+    if (!dialogueState.display || !npcId) return;
 
     try {
       // Process choice selection through Bridge Pattern
-      const nextDisplay = await selectDialogueChoice(npcId, choiceIndex);
+      const success = await selectChoice(npcId, choiceIndex);
 
-      if (!nextDisplay) {
-        // Dialogue ended, close panel
+      if (!success) {
+        // Error occurred, clear dialogue state and close panel
+        clearDialogue();
         onClose();
       }
-      // If nextDisplay exists, the dialogueChanged event will trigger re-render
+      // If successful, the dialogueChanged event will trigger re-render
+      // If dialogue ended, the dialogueState.isActive will become false
     } catch (err) {
       console.error('Failed to process dialogue choice:', err);
-      // Clear dialogue state on error
+      // Clear dialogue state and close panel on error
       clearDialogue();
+      onClose();
     }
   };
 
@@ -69,7 +68,7 @@ export function DialoguePanel({ npcId, onClose }) {
   };
 
   // Loading state - dialogue not yet initialized
-  if (!dialogueState || !dialogueState.isActive || !dialogueState.display) {
+  if (!dialogueState.isActive || !dialogueState.display) {
     return (
       <div className="dialogue-panel visible">
         <button

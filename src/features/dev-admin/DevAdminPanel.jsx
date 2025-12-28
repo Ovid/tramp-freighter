@@ -13,6 +13,7 @@ export function DevAdminPanel({ onClose }) {
 
   // Subscribe to game state changes
   const credits = useGameEvent('creditsChanged');
+  const debt = useGameEvent('debtChanged');
   const fuel = useGameEvent('fuelChanged');
 
   // Local state for input fields
@@ -22,13 +23,22 @@ export function DevAdminPanel({ onClose }) {
 
   // Update input fields when game state changes
   useEffect(() => {
-    const state = gameStateManager.getState();
-    if (state) {
-      setCreditsInput(String(state.player.credits));
-      setDebtInput(String(state.player.debt));
-      setFuelInput(String(Math.round(state.ship.fuel)));
+    if (credits !== undefined) {
+      setCreditsInput(String(credits));
     }
-  }, [gameStateManager, credits, fuel]);
+  }, [credits]);
+
+  useEffect(() => {
+    if (debt !== undefined) {
+      setDebtInput(String(debt));
+    }
+  }, [debt]);
+
+  useEffect(() => {
+    if (fuel !== undefined) {
+      setFuelInput(String(Math.round(fuel)));
+    }
+  }, [fuel]);
 
   const handleSetCredits = () => {
     const amount = parseInt(creditsInput);
@@ -52,21 +62,11 @@ export function DevAdminPanel({ onClose }) {
   };
 
   const handleRepairAll = () => {
-    const state = gameStateManager.getState();
-    state.ship.hull = 100;
-    state.ship.engine = 100;
-    state.ship.lifeSupport = 100;
-    gameStateManager.emit(
-      'shipConditionChanged',
-      gameStateManager.getShipCondition()
-    );
+    gameStateManager.updateShipCondition(100, 100, 100);
   };
 
   const handleClearCargo = () => {
-    const state = gameStateManager.getState();
-    state.ship.cargo = [];
-    state.ship.hiddenCargo = [];
-    gameStateManager.emit('cargoChanged');
+    gameStateManager.updateCargo([]);
   };
 
   return (

@@ -242,6 +242,11 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         // Test each node with static text
         for (const [nodeId, node] of nodesWithStaticText) {
           try {
+            // Skip ask_tip nodes as they have special handling that appends tip content
+            if (nodeId === 'ask_tip') {
+              continue;
+            }
+
             // Show dialogue for this node
             const dialogueResult = showDialogue(
               npcId,

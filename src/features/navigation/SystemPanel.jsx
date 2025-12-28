@@ -1,7 +1,9 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * SystemPanel displays information about a system.
@@ -21,6 +23,7 @@ export function SystemPanel({
   onJumpComplete,
 }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const fuel = useGameEvent('fuelChanged');
   const upgrades = useGameEvent('upgradesChanged');
@@ -28,7 +31,6 @@ export function SystemPanel({
   const { selectStarById } = useStarmap();
 
   // Get system data
-  const starData = gameStateManager.starData;
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
@@ -85,9 +87,17 @@ export function SystemPanel({
             <div className="system-property">
               <span className="label">Coordinates:</span>
               <span className="value">
-                {(viewingSystem.x / 10).toFixed(2)},{' '}
-                {(viewingSystem.y / 10).toFixed(2)},{' '}
-                {(viewingSystem.z / 10).toFixed(2)}
+                {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
+                ,{' '}
+                {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
+                ,{' '}
+                {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
+                  2
+                )}
               </span>
             </div>
             <div className="system-property">
@@ -197,9 +207,11 @@ export function SystemPanel({
           <div className="system-property">
             <span className="label">Coordinates:</span>
             <span className="value">
-              {(viewingSystem.x / 10).toFixed(2)},{' '}
-              {(viewingSystem.y / 10).toFixed(2)},{' '}
-              {(viewingSystem.z / 10).toFixed(2)}
+              {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
             </span>
           </div>
           <div className="system-property">
@@ -240,7 +252,9 @@ export function SystemPanel({
                   key={system.id}
                   className="connection-item"
                   onClick={() => {
-                    selectStarById(system.id);
+                    if (selectStarById) {
+                      selectStarById(system.id);
+                    }
                   }}
                 >
                   <div className="connection-name">{system.name}</div>

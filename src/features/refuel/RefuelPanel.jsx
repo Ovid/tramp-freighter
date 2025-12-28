@@ -2,7 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { calculateRefuelCost, calculateMaxRefuel } from './refuelUtils';
+import {
+  calculateRefuelCost,
+  calculateDiscountedRefuelCost,
+  calculateMaxRefuel,
+} from './refuelUtils';
+import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
  * RefuelPanel - React component for refueling the ship
@@ -32,20 +37,63 @@ export function RefuelPanel({ onClose }) {
   const currentSystem = useGameEvent('locationChanged');
 
   // Get action methods
-  const { refuel } = useGameAction();
+  const { refuel, validateRefuel } = useGameAction();
   const fuelPrice = gameStateManager.getFuelPrice(currentSystem);
+
+  // Get NPCs at current location for refuel discounts
+  const npcsAtSystem = getNPCsAtSystem(currentSystem);
+
+  // Get refuel service discounts from NPCs at this location
+  const refuelDiscounts = npcsAtSystem
+    .map((npc) => {
+      const discountInfo = gameStateManager.getServiceDiscount(
+        npc.id,
+        'refuel'
+      );
+      return {
+        npc,
+        discount: discountInfo.discount,
+        npcName: discountInfo.npcName,
+      };
+    })
+    .filter((option) => option.discount > 0);
+
+  // Calculate the best discount available
+  const bestDiscount = refuelDiscounts.reduce(
+    (best, current) => (current.discount > best.discount ? current : best),
+    { discount: 0, npcName: null }
+  );
 
   // Calculate values
   const totalCost = calculateRefuelCost(amount, fuelPrice);
+  const discountedTotalCost = calculateDiscountedRefuelCost(
+    amount,
+    fuelPrice,
+    bestDiscount.discount
+  );
+  const finalTotalCost =
+    bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
   const maxRefuel = calculateMaxRefuel(fuel, credits, fuelPrice);
 
   // Validate refuel
-  const validation = gameStateManager.validateRefuel(
-    fuel,
-    amount,
-    credits,
-    fuelPrice
-  );
+  const validation = validateRefuel(fuel, amount, credits, fuelPrice);
+
+  // Override validation for discounted cost if applicable
+  let finalValidation = validation;
+  if (
+    bestDiscount.discount > 0 &&
+    !validation.valid &&
+    validation.reason.includes('Insufficient credits')
+  ) {
+    // Re-validate with discounted cost
+    const discountedValidation = validateRefuel(
+      fuel,
+      amount,
+      credits,
+      fuelPrice * (1 - bestDiscount.discount)
+    );
+    finalValidation = discountedValidation;
+  }
 
   // Initialize amount when panel opens (only on first render)
   useEffect(() => {
@@ -75,7 +123,7 @@ export function RefuelPanel({ onClose }) {
    * Confirm refuel transaction and reset slider
    */
   const handleConfirm = () => {
-    if (validation.valid && amount > 0) {
+    if (finalValidation.valid && amount > 0) {
       refuel(amount);
       // Reset amount after successful refuel
       setAmount(0);
@@ -89,8 +137,8 @@ export function RefuelPanel({ onClose }) {
   if (amount <= 0) {
     validationMessage = 'Enter an amount to refuel';
     validationClass = 'validation-message info';
-  } else if (!validation.valid) {
-    validationMessage = validation.reason;
+  } else if (!finalValidation.valid) {
+    validationMessage = finalValidation.reason;
     validationClass = 'validation-message error';
   }
 
@@ -142,8 +190,19 @@ export function RefuelPanel({ onClose }) {
           <div className="refuel-cost-display">
             <div className="cost-row">
               <span className="cost-label">Total Cost:</span>
-              <span className="cost-value">{totalCost} cr</span>
+              <span className="cost-value">{finalTotalCost} cr</span>
             </div>
+            {bestDiscount.discount > 0 && (
+              <div className="discount-row">
+                <span className="discount-label">
+                  Discount ({Math.round(bestDiscount.discount * 100)}% from{' '}
+                  {bestDiscount.npcName}):
+                </span>
+                <span className="discount-value">
+                  -{totalCost - finalTotalCost} cr
+                </span>
+              </div>
+            )}
           </div>
 
           {validationMessage && (
@@ -155,7 +214,7 @@ export function RefuelPanel({ onClose }) {
           <button
             className="station-btn"
             onClick={handleConfirm}
-            disabled={!validation.valid || amount <= 0}
+            disabled={!finalValidation.valid || amount <= 0}
           >
             Confirm Refuel
           </button>

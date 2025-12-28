@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useStarData } from '../../hooks/useStarData';
+import { UI_CONFIG } from '../../game/constants';
 
 /**
  * SystemInfoPanel displays information about the current system.
@@ -14,11 +17,11 @@ import { useGameEvent } from '../../hooks/useGameEvent';
  */
 export function SystemInfoPanel({ onClose }) {
   const gameStateManager = useGameState();
+  const starData = useStarData();
   const currentSystemId = useGameEvent('locationChanged');
   const upgrades = useGameEvent('upgradesChanged');
 
   // Get current system data
-  const starData = gameStateManager.starData;
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
@@ -37,33 +40,38 @@ export function SystemInfoPanel({ onClose }) {
     );
   }
 
-  // Get connected systems
-  const connectedSystemIds =
-    gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
-  const connectedSystems = connectedSystemIds
-    .map((id) => {
-      const system = starData.find((s) => s.id === id);
-      if (!system) return null;
+  // Get connected systems (memoized to avoid recalculation on every render)
+  const connectedSystems = useMemo(() => {
+    if (!currentSystem) return [];
 
-      const distance =
-        gameStateManager.navigationSystem.calculateDistanceBetween(
-          currentSystem,
-          system
-        );
-      const fuelCost =
-        gameStateManager.navigationSystem.calculateFuelCost(distance);
-      const jumpTime =
-        gameStateManager.navigationSystem.calculateJumpTime(distance);
+    const connectedSystemIds =
+      gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
 
-      return {
-        ...system,
-        distance,
-        fuelCost,
-        jumpTime,
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.distance - b.distance);
+    return connectedSystemIds
+      .map((id) => {
+        const system = starData.find((s) => s.id === id);
+        if (!system) return null;
+
+        const distance =
+          gameStateManager.navigationSystem.calculateDistanceBetween(
+            currentSystem,
+            system
+          );
+        const fuelCost =
+          gameStateManager.navigationSystem.calculateFuelCost(distance);
+        const jumpTime =
+          gameStateManager.navigationSystem.calculateJumpTime(distance);
+
+        return {
+          ...system,
+          distance,
+          fuelCost,
+          jumpTime,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.distance - b.distance);
+  }, [currentSystem, currentSystemId, gameStateManager, starData]);
 
   // Check for active economic event (if Advanced Sensors installed)
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');
@@ -92,8 +100,11 @@ export function SystemInfoPanel({ onClose }) {
           <div className="system-property">
             <span className="label">Coordinates:</span>
             <span className="value">
-              {currentSystem.x / 10}, {currentSystem.y / 10},{' '}
-              {currentSystem.z / 10}
+              {(currentSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(currentSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              ,{' '}
+              {(currentSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
             </span>
           </div>
           <div className="system-property">

@@ -1,7 +1,3 @@
----
-inclusion: always
----
-
 # Technology Stack
 
 ## Core Framework

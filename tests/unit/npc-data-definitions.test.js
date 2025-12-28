@@ -4,6 +4,13 @@ import {
   WEI_CHEN,
   MARCUS_COLE,
   FATHER_OKONKWO,
+  WHISPER,
+  CAPTAIN_VASQUEZ,
+  DR_SARAH_KIM,
+  RUSTY_RODRIGUEZ,
+  ZARA_OSMAN,
+  STATION_MASTER_KOWALSKI,
+  LUCKY_LIU,
   ALL_NPCS,
   validateNPCDefinition,
   validateAllNPCs,
@@ -114,11 +121,18 @@ describe('NPC Data Definitions', () => {
   });
 
   describe('NPC Collection and Validation', () => {
-    it('should include all three NPCs in ALL_NPCS array', () => {
-      expect(ALL_NPCS).toHaveLength(3);
+    it('should include all ten NPCs in ALL_NPCS array', () => {
+      expect(ALL_NPCS).toHaveLength(10);
       expect(ALL_NPCS).toContain(WEI_CHEN);
       expect(ALL_NPCS).toContain(MARCUS_COLE);
       expect(ALL_NPCS).toContain(FATHER_OKONKWO);
+      expect(ALL_NPCS).toContain(WHISPER);
+      expect(ALL_NPCS).toContain(CAPTAIN_VASQUEZ);
+      expect(ALL_NPCS).toContain(DR_SARAH_KIM);
+      expect(ALL_NPCS).toContain(RUSTY_RODRIGUEZ);
+      expect(ALL_NPCS).toContain(ZARA_OSMAN);
+      expect(ALL_NPCS).toContain(STATION_MASTER_KOWALSKI);
+      expect(ALL_NPCS).toContain(LUCKY_LIU);
     });
 
     it('should validate all NPCs without throwing errors', () => {
@@ -135,7 +149,7 @@ describe('NPC Data Definitions', () => {
       const invalidNPC = {
         id: 'test_npc',
         name: 'Test NPC',
-        // Missing other required fields
+        // Missing other required fields including tips, discountService, tierBenefits
       };
 
       expect(() => validateNPCDefinition(invalidNPC)).toThrow(
@@ -161,6 +175,14 @@ describe('NPC Data Definitions', () => {
         },
         description: 'Test description',
         initialRep: 0,
+        tips: [],
+        discountService: null,
+        tierBenefits: {
+          warm: { discount: 0, benefit: 'test' },
+          friendly: { discount: 0, benefit: 'test' },
+          trusted: { discount: 0, benefit: 'test' },
+          family: { discount: 0, benefit: 'test' },
+        },
       };
 
       expect(() => validateNPCDefinition(invalidNPC)).toThrow(
@@ -187,6 +209,14 @@ describe('NPC Data Definitions', () => {
         },
         description: 'Test description',
         initialRep: 0,
+        tips: [],
+        discountService: null,
+        tierBenefits: {
+          warm: { discount: 0, benefit: 'test' },
+          friendly: { discount: 0, benefit: 'test' },
+          trusted: { discount: 0, benefit: 'test' },
+          family: { discount: 0, benefit: 'test' },
+        },
       };
 
       expect(() => validateNPCDefinition(invalidNPC)).toThrow(
