@@ -1395,7 +1395,7 @@ export const ZARA_OSMAN_DIALOGUE = {
   greeting: {
     text: (rep) => {
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
-        return "Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?";
+        return 'Hey there, partner! Always good to see family in the trade. Business has been solid - how about you? Ready to make some serious credits together?';
       } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
         return "Well, well! Look who's back. You've really got the hang of this trading game, haven't you? What's the play today, hotshot?";
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
@@ -1546,7 +1546,7 @@ export const ZARA_OSMAN_DIALOGUE = {
   },
 
   request_storage: {
-    text: "Cargo storage? Yeah, I can swing that. Got secure space here at the outpost - up to ten units, climate controlled, the works. Consider it professional courtesy between traders. We gotta look out for each other in this business.",
+    text: 'Cargo storage? Yeah, I can swing that. Got secure space here at the outpost - up to ten units, climate controlled, the works. Consider it professional courtesy between traders. We gotta look out for each other in this business.',
     flags: ['osman_storage_discussed'],
     choices: [
       {

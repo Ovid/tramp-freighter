@@ -775,7 +775,9 @@ describe('Dialogue Tree Structure', () => {
       expect(storageChoice).toBeDefined();
       expect(storageChoice.condition).toBeDefined();
       expect(typeof storageChoice.condition).toBe('function');
-      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(true);
+      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(
+        true
+      );
       expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(false);
     });
 
@@ -800,13 +802,19 @@ describe('Dialogue Tree Structure', () => {
 
     it('should have story flags in dialogue nodes', () => {
       expect(ZARA_OSMAN_DIALOGUE.ask_tip.flags).toBeDefined();
-      expect(ZARA_OSMAN_DIALOGUE.ask_tip.flags).toContain('osman_tip_requested');
+      expect(ZARA_OSMAN_DIALOGUE.ask_tip.flags).toContain(
+        'osman_tip_requested'
+      );
 
       expect(ZARA_OSMAN_DIALOGUE.request_loan.flags).toBeDefined();
-      expect(ZARA_OSMAN_DIALOGUE.request_loan.flags).toContain('osman_loan_discussed');
+      expect(ZARA_OSMAN_DIALOGUE.request_loan.flags).toContain(
+        'osman_loan_discussed'
+      );
 
       expect(ZARA_OSMAN_DIALOGUE.request_storage.flags).toBeDefined();
-      expect(ZARA_OSMAN_DIALOGUE.request_storage.flags).toContain('osman_storage_discussed');
+      expect(ZARA_OSMAN_DIALOGUE.request_storage.flags).toContain(
+        'osman_storage_discussed'
+      );
     });
 
     it('should reflect trader personality with casual speech and trading jargon', () => {
