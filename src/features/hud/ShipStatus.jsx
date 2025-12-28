@@ -1,5 +1,4 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { UI_CONFIG } from '../../game/constants';
 
 /**
  * ShipStatus component displays ship name, fuel, condition bars, and cargo.
@@ -20,26 +19,25 @@ export function ShipStatus() {
   const cargo = useGameEvent('cargoChanged');
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
 
-  // Bridge Pattern: Trust the events to provide correct data
-  // If events haven't fired yet, component will re-render when they do
-  const hull = condition?.hull ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
-  const engine = condition?.engine ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
-  const lifeSupport =
-    condition?.lifeSupport ?? UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION;
-  const currentFuel = fuel ?? UI_CONFIG.DEFAULT_VALUES.FUEL;
-  const currentCargo = cargo ?? [];
-  const currentShipName = shipName ?? UI_CONFIG.DEFAULT_VALUES.SHIP_NAME;
-  const currentCargoCapacity =
-    cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY;
+  // Null safety: Handle corrupted save data gracefully by providing defaults
+  const safeFuel = fuel ?? 100;
+  const safeCondition = {
+    hull: condition?.hull ?? 100,
+    engine: condition?.engine ?? 100,
+    lifeSupport: condition?.lifeSupport ?? 100,
+  };
+  const safeCargo = cargo ?? [];
+  const safeCargoCapacity = cargoCapacity ?? 50;
 
-  // Calculate cargo info from event data
-  const cargoUsed = currentCargo.reduce((sum, stack) => sum + stack.qty, 0);
+  // Bridge Pattern: Trust the events to provide correct data
+  // Component will re-render when events fire, consistent with other HUD components
+  const cargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
 
   return (
     <div className="hud-section hud-ship">
       <div className="hud-row hud-ship-name-row">
         <span id="hud-ship-name" className="hud-ship-name">
-          {currentShipName}
+          {shipName}
         </span>
       </div>
       <div className="hud-row">
@@ -47,9 +45,9 @@ export function ShipStatus() {
         <div className="fuel-bar-container condition-bar-container">
           <div
             className="fuel-bar condition-bar"
-            style={{ width: `${currentFuel}%` }}
+            style={{ width: `${safeFuel}%` }}
           />
-          <span className="condition-text">{currentFuel.toFixed(1)}%</span>
+          <span className="condition-text">{safeFuel.toFixed(1)}%</span>
         </div>
       </div>
       <div className="hud-row">
@@ -57,9 +55,11 @@ export function ShipStatus() {
         <div className="hull-bar-container condition-bar-container">
           <div
             className="hull-bar condition-bar"
-            style={{ width: `${hull}%` }}
+            style={{ width: `${safeCondition.hull}%` }}
           />
-          <span className="condition-text">{hull.toFixed(1)}%</span>
+          <span className="condition-text">
+            {safeCondition.hull.toFixed(1)}%
+          </span>
         </div>
       </div>
       <div className="hud-row">
@@ -67,9 +67,11 @@ export function ShipStatus() {
         <div className="engine-bar-container condition-bar-container">
           <div
             className="engine-bar condition-bar"
-            style={{ width: `${engine}%` }}
+            style={{ width: `${safeCondition.engine}%` }}
           />
-          <span className="condition-text">{engine.toFixed(1)}%</span>
+          <span className="condition-text">
+            {safeCondition.engine.toFixed(1)}%
+          </span>
         </div>
       </div>
       <div className="hud-row">
@@ -77,15 +79,17 @@ export function ShipStatus() {
         <div className="life-support-bar-container condition-bar-container">
           <div
             className="life-support-bar condition-bar"
-            style={{ width: `${lifeSupport}%` }}
+            style={{ width: `${safeCondition.lifeSupport}%` }}
           />
-          <span className="condition-text">{lifeSupport.toFixed(1)}%</span>
+          <span className="condition-text">
+            {safeCondition.lifeSupport.toFixed(1)}%
+          </span>
         </div>
       </div>
       <div className="hud-row">
         <span className="hud-label">Cargo:</span>
         <span id="hud-cargo" className="hud-value">
-          {cargoUsed}/{currentCargoCapacity}
+          {cargoUsed}/{safeCargoCapacity}
         </span>
       </div>
     </div>

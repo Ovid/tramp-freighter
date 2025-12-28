@@ -1592,7 +1592,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         return "Back again, I see. You're learning how things work around here. That's good. What do you need?";
       } else {
         // Neutral, Cold, or Hostile
-        return 'Another trader. Docking fees paid? Good. Keep it professional and we won\'t have problems. What\'s your business?';
+        return "Another trader. Docking fees paid? Good. Keep it professional and we won't have problems. What's your business?";
       }
     },
     choices: [
@@ -1718,7 +1718,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   },
 
   request_loan: {
-    text: "Emergency loan? Five hundred credits... *checks records* Your operational record shows competence and reliability. I can authorize the advance, but I expect repayment within thirty days. Station policy - no exceptions.",
+    text: 'Emergency loan? Five hundred credits... *checks records* Your operational record shows competence and reliability. I can authorize the advance, but I expect repayment within thirty days. Station policy - no exceptions.',
     flags: ['kowalski_loan_discussed'],
     choices: [
       {
@@ -1777,7 +1777,7 @@ export const LUCKY_LIU_DIALOGUE = {
       } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
         return "Hey there, sport! Good to see someone who's not afraid to take a chance. The house always wins, but smart players know when to bet big. What's your play?";
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        return "Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?";
+        return 'Back for more action, eh? I like that in a trader. Fortune favors the bold, as they say. What can Lucky do for you?';
       } else {
         // Neutral, Cold, or Hostile
         return "Another player at the table. Question is - you here to play, or just watch from the sidelines? What's your game, captain?";
@@ -1814,7 +1814,7 @@ export const LUCKY_LIU_DIALOGUE = {
     text: "Gambling? Nah, that's what amateurs call it. I prefer 'calculated risk assessment with profit potential.' See, most folks play it safe - small bets, sure things, steady returns. But the real money? That's in reading the odds everyone else is too scared to touch. High risk, high reward, baby!",
     choices: [
       {
-        text: 'What\'s your philosophy on taking risks?',
+        text: "What's your philosophy on taking risks?",
         next: 'risk_philosophy',
         repGain: 2,
       },
@@ -1870,7 +1870,7 @@ export const LUCKY_LIU_DIALOGUE = {
         repGain: 2,
       },
       {
-        text: 'Numbers don\'t lie, though.',
+        text: "Numbers don't lie, though.",
         next: 'greeting',
         repGain: 1,
       },
@@ -1886,12 +1886,12 @@ export const LUCKY_LIU_DIALOGUE = {
         repGain: 2,
       },
       {
-        text: 'There\'s wisdom in both approaches.',
+        text: "There's wisdom in both approaches.",
         next: 'greeting',
         repGain: 1,
       },
       {
-        text: 'I\'ll stick with steady returns.',
+        text: "I'll stick with steady returns.",
         next: 'greeting',
         repGain: -1,
       },

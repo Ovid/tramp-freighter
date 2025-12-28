@@ -847,9 +847,13 @@ describe('Dialogue Tree Structure', () => {
       expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(CAPTAIN_VASQUEZ_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(DR_SARAH_KIM_DIALOGUE);
-      expect(ALL_DIALOGUE_TREES.rodriguez_procyon).toBe(RUSTY_RODRIGUEZ_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.rodriguez_procyon).toBe(
+        RUSTY_RODRIGUEZ_DIALOGUE
+      );
       expect(ALL_DIALOGUE_TREES.osman_luyten).toBe(ZARA_OSMAN_DIALOGUE);
-      expect(ALL_DIALOGUE_TREES.kowalski_alpha_centauri).toBe(STATION_MASTER_KOWALSKI_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.kowalski_alpha_centauri).toBe(
+        STATION_MASTER_KOWALSKI_DIALOGUE
+      );
       expect(ALL_DIALOGUE_TREES.liu_wolf359).toBe(LUCKY_LIU_DIALOGUE);
     });
 
@@ -862,9 +866,13 @@ describe('Dialogue Tree Structure', () => {
         validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)
       ).not.toThrow();
       expect(() => validateDialogueTree(DR_SARAH_KIM_DIALOGUE)).not.toThrow();
-      expect(() => validateDialogueTree(RUSTY_RODRIGUEZ_DIALOGUE)).not.toThrow();
+      expect(() =>
+        validateDialogueTree(RUSTY_RODRIGUEZ_DIALOGUE)
+      ).not.toThrow();
       expect(() => validateDialogueTree(ZARA_OSMAN_DIALOGUE)).not.toThrow();
-      expect(() => validateDialogueTree(STATION_MASTER_KOWALSKI_DIALOGUE)).not.toThrow();
+      expect(() =>
+        validateDialogueTree(STATION_MASTER_KOWALSKI_DIALOGUE)
+      ).not.toThrow();
       expect(() => validateDialogueTree(LUCKY_LIU_DIALOGUE)).not.toThrow();
     });
 
