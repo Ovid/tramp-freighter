@@ -14,6 +14,21 @@ import {
  * - Contested: Systems with mixed control and moderate risk
  * - Dangerous: Frontier systems with high pirate activity
  *
+ * WHY deterministic classification:
+ * - Provides predictable gameplay where players can learn system safety levels
+ * - Enables strategic route planning based on known risk/reward tradeoffs
+ * - Avoids frustrating randomness in core game mechanics
+ *
+ * WHY distance-based thresholds:
+ * - Reflects realistic decline in central authority influence over distance
+ * - Creates intuitive mental model: closer to Sol = safer, frontier = dangerous
+ * - Scales automatically with any future starmap expansions
+ *
+ * WHY these zone types:
+ * - Three tiers provide clear risk gradation without overwhelming complexity
+ * - Maps to common space opera tropes (core worlds, border systems, frontier)
+ * - Allows for distinct gameplay mechanics per zone type
+ *
  * Classification is deterministic based on:
  * 1. Explicit system lists in DANGER_CONFIG (safe, contested)
  * 2. Distance from Sol (systems beyond threshold are dangerous)
@@ -208,10 +223,6 @@ export class DangerManager extends BaseManager {
    * @returns {number} Total cargo value in credits
    */
   calculateCargoValue(cargo) {
-    if (!cargo || !Array.isArray(cargo)) {
-      return 0;
-    }
-
     return cargo.reduce((total, item) => {
       return total + item.quantity * item.purchasePrice;
     }, 0);
@@ -243,9 +254,7 @@ export class DangerManager extends BaseManager {
       ZONES,
       CORE_SYSTEMS_INSPECTION_MULTIPLIER,
       RESTRICTED_GOODS_INSPECTION_INCREASE,
-      FACTION_REPUTATION_SCALES: {
-        AUTHORITY_INSPECTION_REDUCTION_SCALE,
-      },
+      FACTION_REPUTATION_SCALES: { AUTHORITY_INSPECTION_REDUCTION_SCALE },
     } = DANGER_CONFIG;
 
     // Start with base rate for the zone type (Requirement 5.2)
@@ -259,14 +268,18 @@ export class DangerManager extends BaseManager {
 
     // Apply restricted goods modifier (Requirement 5.2)
     // Modifier = 1 + (count * 0.1), so each restricted good adds 10% to inspection chance
-    const restrictedGoodsCount = this.countRestrictedGoods(gameState.ship.cargo);
-    const restrictedModifier = 1 + (restrictedGoodsCount * RESTRICTED_GOODS_INSPECTION_INCREASE);
+    const restrictedGoodsCount = this.countRestrictedGoods(
+      gameState.ship.cargo
+    );
+    const restrictedModifier =
+      1 + restrictedGoodsCount * RESTRICTED_GOODS_INSPECTION_INCREASE;
     probability *= restrictedModifier;
 
     // Apply faction reputation modifier (Requirement 8.8)
     // High authority reputation reduces inspection chance (they trust you)
     const authorityRep = gameState.player.factions.authorities;
-    const factionModifier = 1 + (authorityRep / 100) * AUTHORITY_INSPECTION_REDUCTION_SCALE;
+    const factionModifier =
+      1 + (authorityRep / 100) * AUTHORITY_INSPECTION_REDUCTION_SCALE;
     probability *= factionModifier;
 
     // Clamp final probability to [0, 1] range
@@ -284,10 +297,6 @@ export class DangerManager extends BaseManager {
    * @returns {number} Number of restricted goods in cargo
    */
   countRestrictedGoods(cargo) {
-    if (!cargo || !Array.isArray(cargo)) {
-      return 0;
-    }
-
     // For now, treat all cargo as potentially restricted for testing purposes
     // This will be replaced with actual restricted goods logic in future tasks
     return cargo.length;
