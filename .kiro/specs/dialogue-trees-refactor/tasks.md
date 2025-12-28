@@ -19,18 +19,18 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
     - **Property 3: Validation Function Consistency**
     - **Validates: Requirements 2.2, 2.3, 2.4, 2.5, 5.4**
 
-- [ ] 2. Extract first batch of NPC dialogue files (Wei Chen, Marcus Cole, Father Okonkwo)
-  - [ ] 2.1 Extract Wei Chen dialogue to `src/game/data/dialogue/wei-chen.js`
+- [x] 2. Extract first batch of NPC dialogue files (Wei Chen, Marcus Cole, Father Okonkwo)
+  - [x] 2.1 Extract Wei Chen dialogue to `src/game/data/dialogue/wei-chen.js`
     - Move `WEI_CHEN_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.1_
-  - [ ] 2.2 Extract Marcus Cole dialogue to `src/game/data/dialogue/marcus-cole.js`
+  - [x] 2.2 Extract Marcus Cole dialogue to `src/game/data/dialogue/marcus-cole.js`
     - Move `MARCUS_COLE_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.2_
-  - [ ] 2.3 Extract Father Okonkwo dialogue to `src/game/data/dialogue/father-okonkwo.js`
+  - [x] 2.3 Extract Father Okonkwo dialogue to `src/game/data/dialogue/father-okonkwo.js`
     - Move `FATHER_OKONKWO_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS` from constants
     - Export the dialogue tree constant
