@@ -53,13 +53,13 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
     - Export the dialogue tree constant
     - _Requirements: 1.6_
 
-- [ ] 4. Extract third batch of NPC dialogue files (Rusty Rodriguez, Zara Osman)
-  - [ ] 4.1 Extract Rusty Rodriguez dialogue to `src/game/data/dialogue/rusty-rodriguez.js`
+- [x] 4. Extract third batch of NPC dialogue files (Rusty Rodriguez, Zara Osman)
+  - [x] 4.1 Extract Rusty Rodriguez dialogue to `src/game/data/dialogue/rusty-rodriguez.js`
     - Move `RUSTY_RODRIGUEZ_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
     - _Requirements: 1.7_
-  - [ ] 4.2 Extract Zara Osman dialogue to `src/game/data/dialogue/zara-osman.js`
+  - [x] 4.2 Extract Zara Osman dialogue to `src/game/data/dialogue/zara-osman.js`
     - Move `ZARA_OSMAN_DIALOGUE` constant with all nodes and JSDoc
     - Add imports for `REPUTATION_BOUNDS`, `NPC_BENEFITS_CONFIG` from constants
     - Export the dialogue tree constant
