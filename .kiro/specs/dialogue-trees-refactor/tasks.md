@@ -6,16 +6,16 @@ This plan breaks down the refactoring of `dialogue-trees.js` into incremental st
 
 ## Tasks
 
-- [ ] 1. Create dialogue subdirectory and validation module
-  - [ ] 1.1 Create `src/game/data/dialogue/` directory
+- [x] 1. Create dialogue subdirectory and validation module
+  - [x] 1.1 Create `src/game/data/dialogue/` directory
     - Create the new subdirectory for dialogue modules
     - _Requirements: 4.1_
-  - [ ] 1.2 Extract validation functions to `src/game/data/dialogue/validation.js`
+  - [x] 1.2 Extract validation functions to `src/game/data/dialogue/validation.js`
     - Move `validateRequiredConstants()`, `validateDialogueTree()`, `validateDialogueNode()`, `validateDialogueChoice()` to new file
     - Add appropriate imports for `REPUTATION_BOUNDS` from constants
     - Export all four validation functions
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
-  - [ ] 1.3 Write property test for validation function consistency
+  - [x] 1.3 Write property test for validation function consistency
     - **Property 3: Validation Function Consistency**
     - **Validates: Requirements 2.2, 2.3, 2.4, 2.5, 5.4**
 
