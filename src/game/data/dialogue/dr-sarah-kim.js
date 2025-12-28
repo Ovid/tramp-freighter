@@ -1,10 +1,10 @@
 /**
  * @fileoverview Dr. Sarah Kim Dialogue Tree
- * 
- * An efficient station administrator who values professionalism and proper procedures.
- * Uses formal speech with technical vocabulary and frequently cites regulations.
- * Provides operational tips and docking-related benefits based on relationship tier.
- * 
+ *
+ * Station Administrator at Tau Ceti - An efficient administrator who values professionalism
+ * and proper procedures. Uses formal speech with technical vocabulary and frequently cites
+ * regulations. Provides operational tips and docking-related benefits based on relationship tier.
+ *
  * @module dialogue/dr-sarah-kim
  */
 
@@ -13,9 +13,11 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 /**
  * Dr. Sarah Kim Dialogue Tree - Station Administrator at Tau Ceti
  *
- * An efficient station administrator who values professionalism and proper procedures.
- * Uses formal speech with technical vocabulary and frequently cites regulations.
- * Provides operational tips and docking-related benefits based on relationship tier.
+ * Character Profile:
+ * - Role: Station Administrator at Tau Ceti
+ * - Personality: Efficient, values professionalism and proper procedures
+ * - Speech Style: Formal vocabulary, technical terms, frequently cites regulations
+ * - Benefits: Operational tips and docking-related services based on relationship tier
  *
  * Dialogue Flow:
  * - greeting → station_operations → (procedures_important | efficiency_matters) → greeting
@@ -26,6 +28,22 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const DR_SARAH_KIM_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
+      // Validate required parameters
+      if (typeof rep !== 'number') {
+        throw new Error('Dr. Sarah Kim dialogue: reputation must be a number');
+      }
+      // Validate optional parameters when provided
+      if (gameStateManager !== undefined && !gameStateManager) {
+        throw new Error(
+          'Dr. Sarah Kim dialogue: gameStateManager cannot be null when provided'
+        );
+      }
+      if (npcId !== undefined && !npcId) {
+        throw new Error(
+          'Dr. Sarah Kim dialogue: npcId cannot be empty when provided'
+        );
+      }
+
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -45,7 +63,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
           'Welcome to Tau Ceti Station. Please ensure all documentation is in order. How may I direct you?';
       }
 
-      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
+      // Add loan status if there's an outstanding loan (when game state is available)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {

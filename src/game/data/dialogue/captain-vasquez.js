@@ -1,10 +1,10 @@
 /**
  * @fileoverview Captain Vasquez Dialogue Tree
- * 
- * A retired freighter captain who serves as a mentor figure for new traders.
- * Uses warm speech with simple vocabulary and shares trading stories from her experience.
- * Provides valuable trading tips and hints about endgame content (Pavonis route).
- * 
+ *
+ * Retired Trader at Epsilon Eridani - A retired freighter captain who serves as a mentor
+ * figure for new traders. Uses warm speech with simple vocabulary and shares trading stories
+ * from her experience. Provides valuable trading tips and hints about endgame content.
+ *
  * @module dialogue/captain-vasquez
  */
 
@@ -13,9 +13,11 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 /**
  * Captain Vasquez Dialogue Tree - Retired Trader at Epsilon Eridani
  *
- * A retired freighter captain who serves as a mentor figure for new traders.
- * Uses warm speech with simple vocabulary and shares trading stories from her experience.
- * Provides valuable trading tips and hints about endgame content (Pavonis route).
+ * Character Profile:
+ * - Role: Retired Trader at Epsilon Eridani
+ * - Personality: Mentor figure for new traders, warm and experienced
+ * - Speech Style: Warm vocabulary, simple terms, shares trading stories
+ * - Benefits: Valuable trading tips and hints about endgame content (Pavonis route)
  *
  * Dialogue Flow:
  * - greeting → trading_talk → (route_advice | fuel_costs) → greeting
@@ -27,6 +29,24 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const CAPTAIN_VASQUEZ_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
+      // Validate required parameters
+      if (typeof rep !== 'number') {
+        throw new Error(
+          'Captain Vasquez dialogue: reputation must be a number'
+        );
+      }
+      // Validate optional parameters when provided
+      if (gameStateManager !== undefined && !gameStateManager) {
+        throw new Error(
+          'Captain Vasquez dialogue: gameStateManager cannot be null when provided'
+        );
+      }
+      if (npcId !== undefined && !npcId) {
+        throw new Error(
+          'Captain Vasquez dialogue: npcId cannot be empty when provided'
+        );
+      }
+
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -46,7 +66,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
       }
 
-      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
+      // Add loan status if there's an outstanding loan (when game state is available)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {

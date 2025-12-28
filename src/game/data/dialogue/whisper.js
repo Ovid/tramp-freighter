@@ -1,10 +1,10 @@
 /**
  * @fileoverview Whisper Dialogue Tree
- * 
- * A mysterious information broker who deals in secrets and intelligence.
- * Uses formal speech with educated vocabulary and cryptic measured tones.
+ *
+ * Information Broker at Sirius A - A mysterious information broker who deals in secrets
+ * and intelligence. Uses formal speech with educated vocabulary and cryptic measured tones.
  * Provides intel discounts and trading tips based on relationship tier.
- * 
+ *
  * @module dialogue/whisper
  */
 
@@ -13,9 +13,11 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 /**
  * Whisper Dialogue Tree - Information Broker at Sirius A
  *
- * A mysterious information broker who deals in secrets and intelligence.
- * Uses formal speech with educated vocabulary and cryptic measured tones.
- * Provides intel discounts and trading tips based on relationship tier.
+ * Character Profile:
+ * - Role: Information Broker at Sirius A
+ * - Personality: Mysterious, deals in secrets and intelligence
+ * - Speech Style: Formal vocabulary, educated terms, cryptic measured tones
+ * - Benefits: Intel discounts and trading tips based on relationship tier
  *
  * Dialogue Flow:
  * - greeting → intel_business → (intel_details | intel_prices) → greeting
@@ -26,6 +28,22 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const WHISPER_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
+      // Validate required parameters
+      if (typeof rep !== 'number') {
+        throw new Error('Whisper dialogue: reputation must be a number');
+      }
+      // Validate optional parameters when provided
+      if (gameStateManager !== undefined && !gameStateManager) {
+        throw new Error(
+          'Whisper dialogue: gameStateManager cannot be null when provided'
+        );
+      }
+      if (npcId !== undefined && !npcId) {
+        throw new Error(
+          'Whisper dialogue: npcId cannot be empty when provided'
+        );
+      }
+
       let baseText;
       if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
         baseText = "I've been expecting you. We need to talk.";
@@ -40,7 +58,7 @@ export const WHISPER_DIALOGUE = {
         baseText = 'Information costs credits.';
       }
 
-      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
+      // Add loan status if there's an outstanding loan (when game state is available)
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
