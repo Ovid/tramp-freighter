@@ -36,11 +36,7 @@ export function RepairPanel({ onClose }) {
   const [validationClass, setValidationClass] = useState('');
 
   // Use Bridge Pattern to get ship condition
-  const condition = shipCondition || {
-    hull: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
-    engine: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
-    lifeSupport: UI_CONFIG.DEFAULT_VALUES.SHIP_CONDITION,
-  };
+  const condition = shipCondition;
 
   // Get NPCs at current location for free repair checks
   const npcsAtSystem = getNPCsAtSystem(currentSystemId);
@@ -85,16 +81,16 @@ export function RepairPanel({ onClose }) {
     const hullDamagePercent = maxHull - currentHull;
 
     // Apply free repair
-    const repairResult = gameStateManager.getFreeRepair(
+    const repairOutcome = gameStateManager.getFreeRepair(
       npcId,
       hullDamagePercent
     );
 
-    if (repairResult.success) {
-      setValidationMessage(`Free repair completed: ${repairResult.message}`);
+    if (repairOutcome.success) {
+      setValidationMessage(`Free repair completed: ${repairOutcome.message}`);
       setValidationClass('success');
     } else {
-      setValidationMessage(`Free repair failed: ${repairResult.message}`);
+      setValidationMessage(`Free repair failed: ${repairOutcome.message}`);
       setValidationClass('error');
     }
   };
@@ -236,8 +232,24 @@ export function RepairPanel({ onClose }) {
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
   if (!currentSystem) {
-    throw new Error(
-      `Invalid game state: current system ID ${currentSystemId} not found in star data`
+    return (
+      <div id="repair-panel" className="visible">
+        <button className="close-btn" onClick={onClose}>
+          ×
+        </button>
+        <h2>Repairs - Error</h2>
+        <div className="repair-content">
+          <div className="validation-message error">
+            System data error: Unable to load repair panel. Please restart the
+            game.
+          </div>
+        </div>
+        <div className="repair-actions">
+          <button className="station-btn secondary" onClick={onClose}>
+            Back to Station
+          </button>
+        </div>
+      </div>
     );
   }
 

@@ -22,13 +22,6 @@ vi.stubGlobal('localStorage', {
   clear: vi.fn(),
 });
 
-// Mock console methods
-vi.stubGlobal('console', {
-  log: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-});
-
 describe('RepairPanel Free Repair Integration', () => {
   let gameStateManager;
   let mockOnClose;
