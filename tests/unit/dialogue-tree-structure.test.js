@@ -4,6 +4,7 @@ import {
   MARCUS_COLE_DIALOGUE,
   FATHER_OKONKWO_DIALOGUE,
   WHISPER_DIALOGUE,
+  CAPTAIN_VASQUEZ_DIALOGUE,
   ALL_DIALOGUE_TREES,
   validateDialogueTree,
   validateDialogueNode,
@@ -428,12 +429,144 @@ describe('Dialogue Tree Structure', () => {
     });
   });
 
+  describe('Captain Vasquez Dialogue Tree', () => {
+    it('should exist and have greeting node', () => {
+      expect(CAPTAIN_VASQUEZ_DIALOGUE).toBeDefined();
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting).toBeDefined();
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting.text).toBeDefined();
+      expect(typeof CAPTAIN_VASQUEZ_DIALOGUE.greeting.text).toBe('function');
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices)).toBe(true);
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
+    });
+
+    it('should have tier-based greeting text matching requirements', () => {
+      const greetingText = CAPTAIN_VASQUEZ_DIALOGUE.greeting.text;
+
+      // Test different reputation levels generate different text
+      const neutralGreeting = greetingText(0); // Neutral
+      const warmGreeting = greetingText(REPUTATION_BOUNDS.WARM_MIN); // Warm
+      const friendlyGreeting = greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN); // Friendly
+      const trustedGreeting = greetingText(REPUTATION_BOUNDS.TRUSTED_MIN); // Trusted
+      const familyGreeting = greetingText(REPUTATION_BOUNDS.FAMILY_MIN); // Family
+
+      expect(typeof neutralGreeting).toBe('string');
+      expect(typeof warmGreeting).toBe('string');
+      expect(typeof friendlyGreeting).toBe('string');
+      expect(typeof trustedGreeting).toBe('string');
+      expect(typeof familyGreeting).toBe('string');
+
+      // Each tier should have different text
+      expect(neutralGreeting).not.toBe(warmGreeting);
+      expect(warmGreeting).not.toBe(friendlyGreeting);
+      expect(friendlyGreeting).not.toBe(trustedGreeting);
+      expect(trustedGreeting).not.toBe(familyGreeting);
+    });
+
+    it('should have expected choice behavior in greeting', () => {
+      // Test behavior: verify reputation-gated choices appear based on reputation levels
+      const tipChoice = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'ask_tip'
+      );
+      const backstoryChoice = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'backstory'
+      );
+      const loanChoice = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'request_loan'
+      );
+      const storageChoice = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'request_storage'
+      );
+
+      expect(tipChoice).toBeDefined();
+      expect(backstoryChoice).toBeDefined();
+      expect(loanChoice).toBeDefined();
+      expect(storageChoice).toBeDefined();
+
+      // Test different reputation levels unlock different options
+      const neutralRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(0)
+      );
+      const warmRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(15)
+      );
+      const friendlyRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(35)
+      );
+      const trustedRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(65)
+      );
+
+      // Higher reputation should unlock more options
+      expect(trustedRepChoices.length).toBeGreaterThan(friendlyRepChoices.length);
+      expect(friendlyRepChoices.length).toBeGreaterThan(warmRepChoices.length);
+      expect(warmRepChoices.length).toBeGreaterThan(neutralRepChoices.length);
+
+      // Should always have basic trading talk and exit options
+      const unconditionalChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition
+      );
+      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should have all required dialogue nodes', () => {
+      const requiredNodes = [
+        'greeting',
+        'trading_talk',
+        'route_advice',
+        'fuel_costs',
+        'ask_tip',
+        'backstory',
+        'pavonis_hints',
+        'range_extender_hint',
+        'retirement_story',
+        'request_loan',
+        'request_storage',
+      ];
+
+      requiredNodes.forEach((nodeId) => {
+        expect(CAPTAIN_VASQUEZ_DIALOGUE[nodeId]).toBeDefined();
+        expect(CAPTAIN_VASQUEZ_DIALOGUE[nodeId].text).toBeDefined();
+        expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE[nodeId].choices)).toBe(true);
+      });
+    });
+
+    it('should have Pavonis route hints in backstory', () => {
+      // Test that backstory has function-based text for different reputation levels
+      expect(typeof CAPTAIN_VASQUEZ_DIALOGUE.backstory.text).toBe('function');
+
+      const friendlyBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(REPUTATION_BOUNDS.FRIENDLY_MIN);
+      const trustedBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(REPUTATION_BOUNDS.TRUSTED_MIN);
+
+      expect(typeof friendlyBackstory).toBe('string');
+      expect(typeof trustedBackstory).toBe('string');
+      expect(friendlyBackstory).not.toBe(trustedBackstory);
+
+      // Trusted level should mention Pavonis
+      expect(trustedBackstory.toLowerCase()).toContain('pavonis');
+    });
+
+    it('should have story flags in dialogue nodes', () => {
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags).toBeDefined();
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags)).toBe(true);
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags).toContain('vasquez_tip_requested');
+
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags).toBeDefined();
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags)).toBe(true);
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags).toContain('vasquez_backstory_shared');
+
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags).toBeDefined();
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags)).toBe(true);
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags).toContain('vasquez_pavonis_discussed');
+    });
+  });
+
   describe('Dialogue Tree Collection and Validation', () => {
-    it('should include all four NPCs in ALL_DIALOGUE_TREES', () => {
+    it('should include all five NPCs in ALL_DIALOGUE_TREES', () => {
       expect(ALL_DIALOGUE_TREES.chen_barnards).toBe(WEI_CHEN_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.cole_sol).toBe(MARCUS_COLE_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(FATHER_OKONKWO_DIALOGUE);
       expect(ALL_DIALOGUE_TREES.whisper_sirius).toBe(WHISPER_DIALOGUE);
+      expect(ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(CAPTAIN_VASQUEZ_DIALOGUE);
     });
 
     it('should validate all dialogue trees without throwing errors', () => {
@@ -441,6 +574,7 @@ describe('Dialogue Tree Structure', () => {
       expect(() => validateDialogueTree(MARCUS_COLE_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(FATHER_OKONKWO_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(WHISPER_DIALOGUE)).not.toThrow();
+      expect(() => validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)).not.toThrow();
     });
 
     it('should validate all dialogue trees using validateAllDialogueTrees function', () => {
@@ -581,6 +715,17 @@ describe('Dialogue Tree Structure', () => {
 
       expect(whisperHostileGreeting).not.toBe(whisperNeutralGreeting);
       expect(whisperNeutralGreeting).not.toBe(whisperFriendlyGreeting);
+
+      // Test Captain Vasquez's greeting function
+      const vasquezGreeting = CAPTAIN_VASQUEZ_DIALOGUE.greeting.text;
+      const vasquezNeutralGreeting = vasquezGreeting(0);
+      const vasquezWarmGreeting = vasquezGreeting(REPUTATION_BOUNDS.WARM_MIN);
+      const vasquezFriendlyGreeting = vasquezGreeting(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
+
+      expect(vasquezNeutralGreeting).not.toBe(vasquezWarmGreeting);
+      expect(vasquezWarmGreeting).not.toBe(vasquezFriendlyGreeting);
     });
 
     it('should have function-based text in backstory node for Wei Chen', () => {

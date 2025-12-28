@@ -315,7 +315,7 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add favor dialogue options (conditional on tier)
     - _Requirements: 4.11-4.15, 12.1-12.6_
 
-  - [ ] 12.2 Create Captain Vasquez dialogue tree
+  - [x] 12.2 Create Captain Vasquez dialogue tree
     - Add tier-based greeting text (Neutral/Warm/Friendly/Trusted/Family)
     - Add tip dialogue option
     - Add backstory with Pavonis route hints

@@ -793,6 +793,250 @@ export const WHISPER_DIALOGUE = {
 };
 
 /**
+ * Captain Vasquez Dialogue Tree - Retired Trader at Epsilon Eridani
+ *
+ * A retired freighter captain who serves as a mentor figure for new traders.
+ * Uses warm speech with simple vocabulary and shares trading stories from her experience.
+ * Provides valuable trading tips and hints about endgame content (Pavonis route).
+ *
+ * Dialogue Flow:
+ * - greeting → trading_talk → (route_advice | fuel_costs) → greeting
+ * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
+ * - greeting → backstory (rep >= 30) → pavonis_hints → greeting
+ * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
+ * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ */
+export const CAPTAIN_VASQUEZ_DIALOGUE = {
+  greeting: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
+        return "Well hello there, family! Come, sit with me. I was just thinking about the old days when traders looked out for each other. How's your ship treating you?";
+      } else if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "My trusted friend! Good to see you again. You know, I've been around these routes for decades, and I can tell you're one of the good ones. What brings you by?";
+      } else if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
+        return "Hey there, friend! Always a pleasure to see a fellow trader. You're looking more confident each time I see you. Ship running well?";
+      } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        return "Oh, it's you again! Good to see you're still out there making runs. How's the trading life treating you?";
+      } else {
+        // Neutral (starts at rep 5, so likely Neutral)
+        return "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
+      }
+    },
+    choices: [
+      {
+        text: 'Tell me about trading in this sector.',
+        next: 'trading_talk',
+      },
+      {
+        text: 'Any trading tips for me?',
+        next: 'ask_tip',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.WARM_MIN,
+      },
+      {
+        text: 'Tell me about your trading days.',
+        next: 'backstory',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'I need an emergency loan.',
+        next: 'request_loan',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+      },
+      {
+        text: 'Can you store some cargo for me?',
+        next: 'request_storage',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+      },
+      {
+        text: 'Just checking in. Take care, Captain.',
+        next: null,
+      },
+    ],
+  },
+
+  trading_talk: {
+    text: "Ah, trading! Been at it for thirty years before I retired. This sector's got good bones - reliable routes, steady demand. The key is understanding each system's needs. Mining stations always want manufactured goods, rich systems pay premium for luxuries.",
+    choices: [
+      {
+        text: 'What routes do you recommend?',
+        next: 'route_advice',
+        repGain: 1,
+      },
+      {
+        text: 'Fuel costs seem high on long routes.',
+        next: 'fuel_costs',
+        repGain: 1,
+      },
+      {
+        text: 'Thanks for the insight.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  route_advice: {
+    text: "Smart question! The Barnard's-Procyon-Sirius triangle is solid for beginners. Short jumps, good margins. Once you've got capital, the Sol-Alpha Centauri luxury run pays well. But watch your fuel - nothing worse than being stranded between systems.",
+    choices: [
+      {
+        text: 'Any routes to avoid?',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'I appreciate the advice.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  fuel_costs: {
+    text: "Tell me about it! Fuel's the trader's constant enemy. Back in my day, we'd plan routes like military campaigns - every jump calculated, every ton of cargo justified. Upgrade your engine when you can. Efficiency pays for itself.",
+    choices: [
+      {
+        text: 'How do you calculate profitable routes?',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Good advice. Thank you.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  ask_tip: {
+    text: 'Of course! Always happy to share what I know with a fellow trader. Let me think of something useful...',
+    flags: ['vasquez_tip_requested'],
+    choices: [
+      {
+        text: 'That information is very helpful.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Thanks for the tip, Captain.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  backstory: {
+    text: (rep) => {
+      if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
+        return "Thirty years running freight through known space. Started with a beat-up hauler, worked my way up to a proper freighter. Seen systems bloom and fade, watched the trade routes evolve. But there's still unexplored space out there... places like Pavonis that call to the adventurous.";
+      } else {
+        return "Been trading these routes since before some of these stations were built. Started small, worked hard, saved every credit. Retired comfortable, but I miss the freedom of the void sometimes. The thrill of a good run, you know?";
+      }
+    },
+    flags: ['vasquez_backstory_shared'],
+    choices: [
+      {
+        text: 'Tell me about Pavonis.',
+        next: 'pavonis_hints',
+        condition: (rep) => rep >= REPUTATION_BOUNDS.TRUSTED_MIN,
+        repGain: 1,
+      },
+      {
+        text: 'What made you retire?',
+        next: 'retirement_story',
+        repGain: 2,
+      },
+      {
+        text: 'Sounds like quite a career.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  pavonis_hints: {
+    text: "Pavonis... now that's a name I haven't spoken in years. It's out there, beyond the known routes. They say it's rich in rare minerals, but the journey... you'd need a Range Extender to even attempt it. Most traders think it's a myth, but I've seen the old charts. Someday, someone with the right equipment and enough courage will make that run.",
+    flags: ['vasquez_pavonis_discussed'],
+    choices: [
+      {
+        text: 'Where would I find a Range Extender?',
+        next: 'range_extender_hint',
+        repGain: 2,
+      },
+      {
+        text: 'Sounds like a dangerous journey.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  range_extender_hint: {
+    text: "That's the million-credit question, isn't it? Range Extenders are military tech, highly restricted. But I've heard rumors... certain contacts in the outer systems might know someone who knows someone. Build your reputation, make the right friends, and maybe someday you'll find what you're looking for.",
+    flags: ['vasquez_range_extender_hint'],
+    choices: [
+      {
+        text: 'I appreciate you sharing this with me.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: "I'll keep that in mind.",
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  retirement_story: {
+    text: "Age, mostly. Reflexes slow down, and space doesn't forgive mistakes. Plus, I'd saved enough to live comfortably. But the real reason? I wanted to help the next generation of traders. Share what I learned, maybe save a few from the mistakes I made.",
+    choices: [
+      {
+        text: 'What mistakes should I avoid?',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: "That's very generous of you.",
+        next: 'greeting',
+        repGain: 2,
+      },
+    ],
+  },
+
+  request_loan: {
+    text: "An emergency loan? Well, I've been where you are - sometimes the void throws you a curve and you need help. Five hundred credits, to be repaid within thirty days. I trust you're good for it, or we wouldn't be having this conversation.",
+    flags: ['vasquez_loan_discussed'],
+    choices: [
+      {
+        text: 'I accept those terms. Thank you.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'Let me think about it first.',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  request_storage: {
+    text: "Cargo storage? Of course! I've got secure space here at the hub. Up to ten units, safe and sound until you return. Consider it a favor between traders - we look out for each other in this business.",
+    flags: ['vasquez_storage_discussed'],
+    choices: [
+      {
+        text: 'That would be a huge help.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: "I appreciate the offer.",
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+};
+
+/**
  * All dialogue trees in the game
  * Maps NPC IDs to their dialogue trees
  */
@@ -801,6 +1045,7 @@ export const ALL_DIALOGUE_TREES = {
   cole_sol: MARCUS_COLE_DIALOGUE,
   okonkwo_ross154: FATHER_OKONKWO_DIALOGUE,
   whisper_sirius: WHISPER_DIALOGUE,
+  vasquez_epsilon: CAPTAIN_VASQUEZ_DIALOGUE,
 };
 
 /**
