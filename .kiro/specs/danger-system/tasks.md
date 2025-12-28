@@ -23,19 +23,19 @@ This implementation plan breaks down the Danger System into incremental tasks th
   - Add RESTRICTED_GOODS_CONFIG with zone restrictions for existing commodities (electronics in safe, medicine in contested, tritium in dangerous, parts in core systems)
   - _Requirements: 1.4-1.12, 3.2-3.18, 4.2-4.10, 5.2-5.12, 6.2-6.9, 7.7-7.10, 8.1-8.3, 9.1-9.8, 11.1, 11.2, 11.8_
 
-- [ ] 2. Extend game state with karma and faction reputation (TDD)
-  - [ ] 2.1 RED: Write property test for karma initialization
+- [x] 2. Extend game state with karma and faction reputation (TDD)
+  - [x] 2.1 RED: Write property test for karma initialization
     - **Property 12: Karma Clamping (initialization)**
     - Test that karma initializes to 0 and stays within bounds
     - **Validates: Requirements 9.1, 9.8**
-  - [ ] 2.2 GREEN: Add karma field to InitializationManager.createInitialState()
+  - [x] 2.2 GREEN: Add karma field to InitializationManager.createInitialState()
     - Add player.karma initialized to 0
     - _Requirements: 9.1, 9.8_
-  - [ ] 2.3 RED: Write property test for faction initialization
+  - [x] 2.3 RED: Write property test for faction initialization
     - **Property 13: Faction Reputation Clamping (initialization)**
     - Test that all factions initialize to 0 and stay within bounds
     - **Validates: Requirements 8.1, 8.2**
-  - [ ] 2.4 GREEN: Add factions field to InitializationManager.createInitialState()
+  - [x] 2.4 GREEN: Add factions field to InitializationManager.createInitialState()
     - Add player.factions object with authorities, traders, outlaws, civilians all at 0
     - _Requirements: 8.1, 8.2_
 

@@ -12,6 +12,7 @@ import { EventSystemManager } from './managers/event-system.js';
 import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
+import { DangerManager } from './managers/danger.js';
 
 /**
  * Sanitize ship name input
@@ -88,6 +89,7 @@ export class GameStateManager {
     this.dialogueManager = new DialogueManager(this);
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
+    this.dangerManager = new DangerManager(this);
   }
 
   /**
@@ -585,5 +587,13 @@ export class GameStateManager {
 
   getFreeRepair(npcId, hullDamagePercent) {
     return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+  }
+
+  // ========================================================================
+  // DANGER SYSTEM
+  // ========================================================================
+
+  getDangerZone(systemId) {
+    return this.dangerManager.getDangerZone(systemId);
   }
 }

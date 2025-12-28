@@ -4,6 +4,8 @@ import {
   SOL_SYSTEM_ID,
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
+  KARMA_CONFIG,
+  FACTION_CONFIG,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -63,11 +65,19 @@ export class InitializationManager {
    * @returns {Object} Player state object
    */
   initializePlayerState() {
+    // Build factions object from config
+    const factions = {};
+    for (const faction of FACTION_CONFIG.FACTIONS) {
+      factions[faction] = FACTION_CONFIG.INITIAL;
+    }
+
     return {
       credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
       debt: NEW_GAME_DEFAULTS.STARTING_DEBT,
       currentSystem: SOL_SYSTEM_ID,
       daysElapsed: 0,
+      karma: KARMA_CONFIG.INITIAL,
+      factions,
     };
   }
 
