@@ -1,9 +1,9 @@
 /**
  * @fileoverview Dialogue Tree Validation Functions
- * 
+ *
  * Provides validation utilities for dialogue tree structure integrity.
  * Used during game initialization to catch configuration errors early.
- * 
+ *
  * @module dialogue/validation
  */
 

@@ -5,7 +5,7 @@
  * Validates: Requirements 2.2, 2.3, 2.4, 2.5, 5.4
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 import fc from 'fast-check';
 import {
   validateRequiredConstants,
@@ -23,7 +23,7 @@ describe('Dialogue Validation Consistency Properties', () => {
         fc.constantFrom(...Object.keys(ALL_DIALOGUE_TREES)),
         (npcId) => {
           const dialogueTree = ALL_DIALOGUE_TREES[npcId];
-          
+
           try {
             validateDialogueTree(dialogueTree);
             return true; // Validation passed
@@ -86,9 +86,11 @@ describe('Dialogue Validation Consistency Properties', () => {
             return false; // Should have thrown an error
           } catch (error) {
             // Expected behavior - validation should reject invalid nodes
-            return error instanceof Error && 
-                   error.message.length > 0 && 
-                   error.message.includes(nodeId);
+            return (
+              error instanceof Error &&
+              error.message.length > 0 &&
+              error.message.includes(nodeId)
+            );
           }
         }
       ),
@@ -121,10 +123,12 @@ describe('Dialogue Validation Consistency Properties', () => {
             return false; // Should have thrown an error
           } catch (error) {
             // Expected behavior - validation should reject invalid choices
-            return error instanceof Error && 
-                   error.message.length > 0 && 
-                   error.message.includes(nodeId) &&
-                   error.message.includes(choiceIndex.toString());
+            return (
+              error instanceof Error &&
+              error.message.length > 0 &&
+              error.message.includes(nodeId) &&
+              error.message.includes(choiceIndex.toString())
+            );
           }
         }
       ),
@@ -136,10 +140,19 @@ describe('Dialogue Validation Consistency Properties', () => {
     // Generator for valid dialogue choices
     const arbValidChoice = fc.record({
       text: fc.string({ minLength: 1, maxLength: 100 }),
-      next: fc.oneof(fc.constant(null), fc.string({ minLength: 1, maxLength: 20 })),
+      next: fc.oneof(
+        fc.constant(null),
+        fc.string({ minLength: 1, maxLength: 20 })
+      ),
       repGain: fc.option(fc.integer({ min: -10, max: 10 }), { nil: undefined }),
-      condition: fc.option(fc.constant(() => true), { nil: undefined }), // Valid function
-      action: fc.option(fc.constant(() => {}), { nil: undefined }) // Valid function
+      condition: fc.option(
+        fc.constant(() => true),
+        { nil: undefined }
+      ), // Valid function
+      action: fc.option(
+        fc.constant(() => {}),
+        { nil: undefined }
+      ), // Valid function
     });
 
     fc.assert(
@@ -153,7 +166,10 @@ describe('Dialogue Validation Consistency Properties', () => {
             return true; // Validation should pass
           } catch (error) {
             // Unexpected - valid choice should not throw
-            console.error(`Unexpected validation error for valid choice:`, error.message);
+            console.error(
+              `Unexpected validation error for valid choice:`,
+              error.message
+            );
             return false;
           }
         }
