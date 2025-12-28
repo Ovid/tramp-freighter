@@ -790,3 +790,335 @@ export const UI_CONFIG = {
   // Save system configuration
   SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
 };
+
+
+/**
+ * Danger System Configuration
+ *
+ * Configuration for the danger system including zone classifications,
+ * encounter probabilities, and faction/karma modifiers.
+ *
+ * Danger zones classify star systems based on pirate activity and law enforcement:
+ * - Safe: Core systems with strong law enforcement presence
+ * - Contested: Systems with mixed control and moderate risk
+ * - Dangerous: Frontier systems with high pirate activity
+ */
+export const DANGER_CONFIG = {
+  ZONES: {
+    safe: {
+      pirateChance: 0.05, // 5% base pirate encounter rate
+      inspectionChance: 0.1, // 10% base inspection rate
+      systems: [0, 1, 4], // Sol, Alpha Centauri, Barnard's Star
+    },
+    contested: {
+      pirateChance: 0.2, // 20% base pirate encounter rate
+      inspectionChance: 0.15, // 15% base inspection rate
+      systems: [7, 10], // Sirius, Epsilon Eridani
+    },
+    dangerous: {
+      pirateChance: 0.35, // 35% base pirate encounter rate
+      inspectionChance: 0.05, // 5% base inspection rate
+      distanceThreshold: 15, // Light years from Sol - systems beyond this are dangerous
+    },
+  },
+
+  // Cargo value modifiers for pirate encounter probability
+  CARGO_VALUE_MODIFIERS: {
+    THRESHOLD_LOW: 5000, // Credits threshold for low modifier
+    MULTIPLIER_LOW: 1.2, // 1.2x pirate chance when cargo > 5000
+    THRESHOLD_HIGH: 10000, // Credits threshold for high modifier
+    MULTIPLIER_HIGH: 1.5, // 1.5x pirate chance when cargo > 10000
+  },
+
+  // Engine condition modifier for pirate encounter probability
+  ENGINE_CONDITION_MODIFIER: {
+    THRESHOLD: 50, // Percentage below which modifier applies
+    MULTIPLIER: 1.1, // 1.1x pirate chance when engine < 50%
+  },
+
+  // Advanced sensors upgrade reduces pirate encounter chance
+  ADVANCED_SENSORS_MODIFIER: 0.8, // 0.8x pirate chance with advanced sensors
+
+  // Core systems have doubled inspection rates
+  CORE_SYSTEMS_INSPECTION_MULTIPLIER: 2.0,
+
+  // Restricted goods increase inspection probability
+  RESTRICTED_GOODS_INSPECTION_MODIFIER: 0.1, // +10% per restricted good
+
+  // Faction reputation modifiers for encounter probabilities
+  // Modifier = 1 + (reputation / 100) * SCALE
+  // At +100 rep: modifier = 1 + SCALE, At -100 rep: modifier = 1 - SCALE
+  FACTION_MODIFIERS: {
+    // High outlaw rep reduces pirate encounters (they recognize you as one of them)
+    OUTLAW_PIRATE_SCALE: -0.3, // +100 outlaw = 0.7x pirate chance, -100 = 1.3x
+    // High authority rep reduces inspection chance (they trust you)
+    AUTHORITY_INSPECTION_SCALE: -0.4, // +100 authority = 0.6x inspection, -100 = 1.4x
+    // Low authority rep increases pirate encounters (less patrol protection)
+    AUTHORITY_PIRATE_SCALE: 0.2, // +100 authority = 0.8x pirate chance, -100 = 1.2x
+  },
+};
+
+/**
+ * Combat Resolution Configuration
+ *
+ * Configuration for combat choices, success rates, and outcomes.
+ * All modifier values are centralized here for consistency and tuning.
+ */
+export const COMBAT_CONFIG = {
+  // Evasive maneuvers - attempt to flee using engine power
+  EVASIVE: {
+    BASE_CHANCE: 0.7, // 70% base success chance
+    SUCCESS_FUEL_COST: 15, // Fuel percentage consumed on success
+    SUCCESS_ENGINE_COST: 5, // Engine condition lost on success
+    FAILURE_HULL_DAMAGE: 20, // Hull damage on failure
+  },
+
+  // Return fire - engage in combat
+  RETURN_FIRE: {
+    BASE_CHANCE: 0.45, // 45% base success chance
+    SUCCESS_HULL_DAMAGE: 10, // Hull damage on success (minor)
+    SUCCESS_OUTLAW_REP: 5, // Outlaw reputation gained for fighting pirates
+    FAILURE_HULL_DAMAGE: 30, // Hull damage on failure (heavy)
+    FAILURE_CREDITS_LOSS: 500, // Credits lost on failure (boarding)
+  },
+
+  // Dump cargo - guaranteed escape but lose cargo
+  DUMP_CARGO: {
+    CARGO_LOSS_PERCENT: 50, // Percentage of cargo lost
+    FUEL_COST: 10, // Fuel percentage consumed
+  },
+
+  // Distress call - call for patrol assistance
+  DISTRESS_CALL: {
+    BASE_CHANCE: 0.3, // 30% base success chance
+    SUCCESS_REP_GAIN: 5, // Authority reputation gained on success
+    FAILURE_HULL_DAMAGE: 25, // Hull damage on failure
+  },
+
+  // Quirk and upgrade modifiers for combat resolution
+  MODIFIERS: {
+    hot_thruster: { evasiveBonus: 0.1 }, // +10% evasive success
+    lucky_ship: { negateChanceBase: 0.05 }, // 5% base chance to negate bad outcome
+    reinforced_hull: { damageReduction: 0.25 }, // 25% less hull damage taken
+    efficient_drive: { fleeBonus: 0.1 }, // +10% flee success
+    sensitive_sensors: { distressBonus: 0.05 }, // +5% distress call success
+    leaky_seals: { damageIncrease: 0.1 }, // 10% more hull damage taken
+  },
+};
+
+/**
+ * Negotiation Configuration
+ *
+ * Configuration for dialogue-based pirate encounter resolution.
+ */
+export const NEGOTIATION_CONFIG = {
+  // Counter-proposal - attempt to negotiate lower payment
+  COUNTER_PROPOSAL: {
+    BASE_CHANCE: 0.6, // 60% base success chance
+    SUCCESS_CARGO_PERCENT: 10, // Cargo percentage paid on success
+    FAILURE_STRENGTH_INCREASE: 0.1, // Enemy strength increase on failure (+10%)
+  },
+
+  // Medicine claim - claim to carry medicine for sympathy
+  MEDICINE_CLAIM: {
+    SYMPATHY_CHANCE: 0.4, // 40% chance pirates show sympathy
+  },
+
+  // Intel offer - offer information about other ships
+  INTEL_OFFER: {
+    SUCCESS_REP_PENALTY: -10, // Reputation penalty if discovered
+    OUTLAW_REP_GAIN: 3, // Outlaw reputation for cooperating with pirates
+  },
+
+  // Accept demand - pay the initial demand
+  ACCEPT_DEMAND: {
+    CARGO_PERCENT: 20, // Cargo percentage paid
+  },
+};
+
+/**
+ * Inspection Configuration
+ *
+ * Configuration for customs inspection encounters and outcomes.
+ */
+export const INSPECTION_CONFIG = {
+  // Cooperate - comply with inspection
+  COOPERATE: {
+    RESTRICTED_FINE: 1000, // Fine for restricted goods
+    HIDDEN_FINE: 2000, // Fine for hidden cargo discovery
+    AUTHORITY_REP_GAIN: 5, // Authority reputation for cooperation
+  },
+
+  // Bribery - attempt to bribe inspector
+  BRIBE: {
+    COST: 500, // Credits cost to attempt bribe
+    BASE_CHANCE: 0.6, // 60% base success chance
+    FAILURE_ADDITIONAL_FINE: 1500, // Additional fine on bribery failure
+    AUTHORITY_REP_PENALTY: -10, // Authority reputation penalty for attempting bribe
+  },
+
+  // Flee - attempt to escape inspection
+  FLEE: {
+    AUTHORITY_REP_PENALTY: -15, // Authority reputation penalty for fleeing
+  },
+
+  // Hidden cargo discovery
+  HIDDEN_CARGO_DISCOVERY_CHANCE: 0.1, // 10% base chance to discover hidden cargo
+
+  // Security level multipliers for hidden cargo discovery
+  // Higher security = higher chance to find hidden compartments
+  SECURITY_LEVEL_MULTIPLIERS: {
+    core: 2.0, // Sol, Alpha Centauri (systems 0, 1)
+    safe: 1.5, // Other safe zone systems
+    contested: 1.0, // Contested zones (base rate)
+    dangerous: 0.5, // Dangerous zones (less thorough inspections)
+  },
+
+  // Reputation penalties for violations
+  REPUTATION_PENALTIES: {
+    RESTRICTED_GOODS: -10, // Authority rep penalty for restricted goods
+    HIDDEN_CARGO: -20, // Authority rep penalty for hidden cargo
+    SMUGGLING_OUTLAW_BONUS: 5, // Outlaw rep bonus when smuggling discovered
+  },
+};
+
+/**
+ * Mechanical Failure Configuration
+ *
+ * Configuration for ship system failures based on condition levels.
+ */
+export const FAILURE_CONFIG = {
+  // Hull breach - occurs when hull condition is low
+  HULL_BREACH: {
+    CONDITION_THRESHOLD: 50, // Percentage below which failure can occur
+    CHANCE: 0.1, // 10% chance per jump when below threshold
+    HULL_DAMAGE: 5, // Additional hull damage from breach
+  },
+
+  // Engine failure - occurs when engine condition is very low
+  ENGINE_FAILURE: {
+    CONDITION_THRESHOLD: 30, // Percentage below which failure can occur
+    CHANCE: 0.15, // 15% chance per jump when below threshold
+    // Emergency restart option
+    EMERGENCY_RESTART: {
+      CHANCE: 0.5, // 50% success chance
+      ENGINE_COST: 10, // Engine condition cost
+    },
+    // Call for help option
+    CALL_FOR_HELP: {
+      CREDITS_COST: 1000, // Credits cost
+      DAYS_DELAY: 2, // Days delay
+    },
+    // Jury-rig repair option
+    JURY_RIG: {
+      CHANCE: 0.75, // 75% success chance
+      ENGINE_COST: 5, // Engine condition cost
+    },
+  },
+
+  // Life support emergency - occurs when life support is very low
+  LIFE_SUPPORT: {
+    CONDITION_THRESHOLD: 30, // Percentage below which failure can occur
+    CHANCE: 0.05, // 5% chance per jump when below threshold
+  },
+};
+
+/**
+ * Distress Call Configuration
+ *
+ * Configuration for distress call encounters and moral choices.
+ */
+export const DISTRESS_CONFIG = {
+  // Base chance to encounter a distress call during jump
+  CHANCE: 0.1, // 10% chance per jump
+
+  // Respond - help the distressed vessel
+  RESPOND: {
+    DAYS_COST: 2, // Days delay
+    FUEL_COST: 15, // Fuel percentage consumed
+    LIFE_SUPPORT_COST: 5, // Life support condition cost
+    CREDITS_REWARD: 500, // Credits reward
+    REP_REWARD: 10, // Civilian reputation reward
+    KARMA_REWARD: 1, // Karma reward
+  },
+
+  // Ignore - pass by without helping
+  IGNORE: {
+    KARMA_PENALTY: -1, // Karma penalty
+  },
+
+  // Loot - take advantage of the distressed vessel
+  LOOT: {
+    DAYS_COST: 1, // Days delay
+    KARMA_PENALTY: -3, // Karma penalty
+    REP_PENALTY: -15, // Civilian reputation penalty
+    OUTLAW_REP_GAIN: 5, // Outlaw reputation for piracy
+  },
+};
+
+/**
+ * Karma System Configuration
+ *
+ * Configuration for the moral alignment tracking system.
+ * Karma affects random event outcomes and NPC first impressions.
+ */
+export const KARMA_CONFIG = {
+  MIN: -100, // Minimum karma value
+  MAX: 100, // Maximum karma value
+  INITIAL: 0, // Starting karma for new games
+
+  // Karma affects lucky_ship quirk effectiveness
+  // Effective chance = BASE + (karma * SCALE)
+  // At karma 100: 5% + (100 * 0.001) = 15%
+  // At karma -100: 5% + (-100 * 0.001) = -5% (clamped to 0)
+  LUCKY_SHIP_KARMA_SCALE: 0.001,
+
+  // Karma as hidden modifier on success rates
+  // Applied to combat, negotiation, and other chance-based outcomes
+  // At karma 100: +5% success rate
+  // At karma -100: -5% success rate
+  SUCCESS_RATE_SCALE: 0.0005,
+};
+
+/**
+ * Faction Reputation Configuration
+ *
+ * Configuration for faction standing with different groups.
+ * Faction reputation affects encounter probabilities and NPC attitudes.
+ */
+export const FACTION_CONFIG = {
+  MIN: -100, // Minimum faction reputation
+  MAX: 100, // Maximum faction reputation
+  INITIAL: 0, // Starting reputation for new games
+
+  // List of all factions
+  FACTIONS: ['authorities', 'traders', 'outlaws', 'civilians'],
+};
+
+/**
+ * Restricted Goods Configuration
+ *
+ * Configuration for goods that are illegal or controlled in certain systems.
+ * Restricted goods can only be sold legally in zones where they're NOT restricted.
+ * In restricted zones, they can only be sold via black market contacts or hidden cargo.
+ */
+export const RESTRICTED_GOODS_CONFIG = {
+  // Zone-based restrictions using existing commodities
+  ZONE_RESTRICTIONS: {
+    safe: ['electronics'], // High-tech goods restricted in core systems (military tech concerns)
+    contested: ['medicine'], // Medical supplies restricted in contested zones (hoarding prevention)
+    dangerous: ['tritium'], // Fuel restricted in dangerous zones (pirate supply concerns)
+  },
+
+  // Core systems (Sol, Alpha Centauri) have additional restrictions
+  CORE_SYSTEM_RESTRICTED: ['parts'], // Manufactured parts restricted to protect local industry
+
+  // Premium price multiplier when selling restricted goods legally (in non-restricted zones)
+  PREMIUM_MULTIPLIER: 1.5,
+
+  // Black market price multiplier (selling restricted goods in restricted zones via contacts)
+  BLACK_MARKET_MULTIPLIER: 2.0,
+
+  // Penalty multiplier for attempting to sell restricted goods without contacts
+  CONFISCATION_RISK: 0.25, // 25% chance goods are confiscated if caught selling illegally
+};

@@ -12,7 +12,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
 
 ## Tasks
 
-- [ ] 1. Add danger system constants to game constants
+- [x] 1. Add danger system constants to game constants
   - Add DANGER_CONFIG with zone definitions, probabilities, and system lists
   - Add COMBAT_CONFIG with base chances, outcomes, and quirk/upgrade modifiers (all combat modifier values must be in constants for consistency and tuning per Req 3.18)
   - Add NEGOTIATION_CONFIG with dialogue success rates and cargo percentages
