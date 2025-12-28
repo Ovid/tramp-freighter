@@ -803,34 +803,21 @@ export const UI_CONFIG = {
  * - Dangerous: Frontier systems with high pirate activity
  */
 export const DANGER_CONFIG = {
-  // Base encounter rates for different danger zones
-  BASE_RATES: {
-    SAFE_ZONE_PIRATE_RATE: 0.05, // 5% base pirate encounter rate in safe systems
-    SAFE_ZONE_INSPECTION_RATE: 0.1, // 10% base inspection rate in safe systems
-    CONTESTED_ZONE_PIRATE_RATE: 0.2, // 20% base pirate encounter rate in contested systems
-    CONTESTED_ZONE_INSPECTION_RATE: 0.15, // 15% base inspection rate in contested systems
-    DANGEROUS_ZONE_PIRATE_RATE: 0.35, // 35% base pirate encounter rate in dangerous systems
-    DANGEROUS_ZONE_INSPECTION_RATE: 0.05, // 5% base inspection rate in dangerous systems
-  },
-
-  // Distance threshold for automatic dangerous zone classification
-  DANGEROUS_ZONE_DISTANCE_THRESHOLD: 15, // Light years from Sol - systems beyond this are dangerous
-
   ZONES: {
     safe: {
-      pirateChance: 0.05, // Uses BASE_RATES.SAFE_ZONE_PIRATE_RATE
-      inspectionChance: 0.1, // Uses BASE_RATES.SAFE_ZONE_INSPECTION_RATE
+      pirateChance: 0.05, // 5% base pirate encounter rate in safe systems
+      inspectionChance: 0.1, // 10% base inspection rate in safe systems
       systems: [0, 1, 4], // Sol, Alpha Centauri, Barnard's Star
     },
     contested: {
-      pirateChance: 0.2, // Uses BASE_RATES.CONTESTED_ZONE_PIRATE_RATE
-      inspectionChance: 0.15, // Uses BASE_RATES.CONTESTED_ZONE_INSPECTION_RATE
+      pirateChance: 0.2, // 20% base pirate encounter rate in contested systems
+      inspectionChance: 0.15, // 15% base inspection rate in contested systems
       systems: [7, 10], // Sirius, Epsilon Eridani
     },
     dangerous: {
-      pirateChance: 0.35, // Uses BASE_RATES.DANGEROUS_ZONE_PIRATE_RATE
-      inspectionChance: 0.05, // Uses BASE_RATES.DANGEROUS_ZONE_INSPECTION_RATE
-      distanceThreshold: 15, // Uses DANGEROUS_ZONE_DISTANCE_THRESHOLD
+      pirateChance: 0.35, // 35% base pirate encounter rate in dangerous systems
+      inspectionChance: 0.05, // 5% base inspection rate in dangerous systems
+      distanceThreshold: 15, // Light years from Sol - systems beyond this are dangerous
     },
   },
 

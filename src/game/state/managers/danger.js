@@ -135,27 +135,48 @@ export class DangerManager extends BaseManager {
    */
   calculatePirateEncounterChance(systemId, gameState) {
     const zone = this.getDangerZone(systemId);
-    const { ZONES, CARGO_VALUE_MODIFIERS, ENGINE_CONDITION_MODIFIER, 
-            ADVANCED_SENSORS_PIRATE_REDUCTION, FACTION_REPUTATION_SCALES } = DANGER_CONFIG;
+
+    // Destructure all needed config values for better performance and readability
+    const {
+      ZONES,
+      CARGO_VALUE_MODIFIERS: {
+        HIGH_VALUE_THRESHOLD,
+        HIGH_VALUE_MULTIPLIER,
+        LOW_VALUE_THRESHOLD,
+        LOW_VALUE_MULTIPLIER,
+      },
+      ENGINE_CONDITION_MODIFIER: {
+        POOR_CONDITION_THRESHOLD,
+        POOR_CONDITION_MULTIPLIER,
+      },
+      ADVANCED_SENSORS_PIRATE_REDUCTION,
+      FACTION_REPUTATION_SCALES: {
+        OUTLAW_PIRATE_REDUCTION_SCALE,
+        AUTHORITY_PIRATE_INCREASE_SCALE,
+      },
+    } = DANGER_CONFIG;
 
     // Start with base rate for the zone type
     let probability = ZONES[zone].pirateChance;
 
     // Apply cargo value modifiers (Requirements 2.7, 2.8)
     const cargoValue = this.calculateCargoValue(gameState.ship.cargo);
-    if (cargoValue >= CARGO_VALUE_MODIFIERS.HIGH_VALUE_THRESHOLD) {
-      probability *= CARGO_VALUE_MODIFIERS.HIGH_VALUE_MULTIPLIER; // 1.5x for cargo > ₡10,000
-    } else if (cargoValue >= CARGO_VALUE_MODIFIERS.LOW_VALUE_THRESHOLD) {
-      probability *= CARGO_VALUE_MODIFIERS.LOW_VALUE_MULTIPLIER; // 1.2x for cargo > ₡5,000
+    if (cargoValue >= HIGH_VALUE_THRESHOLD) {
+      probability *= HIGH_VALUE_MULTIPLIER; // 1.5x for cargo > ₡10,000
+    } else if (cargoValue >= LOW_VALUE_THRESHOLD) {
+      probability *= LOW_VALUE_MULTIPLIER; // 1.2x for cargo > ₡5,000
     }
 
     // Apply engine condition modifier (Requirement 2.9)
-    if (gameState.ship.engine < ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD) {
-      probability *= ENGINE_CONDITION_MODIFIER.POOR_CONDITION_MULTIPLIER; // 1.1x for engine < 50%
+    if (gameState.ship.engine < POOR_CONDITION_THRESHOLD) {
+      probability *= POOR_CONDITION_MULTIPLIER; // 1.1x for engine < 50%
     }
 
     // Apply advanced sensors modifier (Requirement 2.10)
-    if (gameState.ship.upgrades && gameState.ship.upgrades.includes('advanced_sensors')) {
+    if (
+      gameState.ship.upgrades &&
+      gameState.ship.upgrades.includes('advanced_sensors')
+    ) {
       probability *= ADVANCED_SENSORS_PIRATE_REDUCTION; // 0.8x with advanced sensors
     }
 
@@ -164,11 +185,13 @@ export class DangerManager extends BaseManager {
     const authorityRep = gameState.player.factions.authorities;
 
     // Outlaw reputation reduces pirate encounters (they recognize you as one of them)
-    const outlawModifier = 1 + (outlawRep / 100) * FACTION_REPUTATION_SCALES.OUTLAW_PIRATE_REDUCTION_SCALE;
+    const outlawModifier =
+      1 + (outlawRep / 100) * OUTLAW_PIRATE_REDUCTION_SCALE;
     probability *= outlawModifier;
 
     // Authority reputation affects pirate encounters (less patrol protection at low rep)
-    const authorityModifier = 1 + (authorityRep / 100) * FACTION_REPUTATION_SCALES.AUTHORITY_PIRATE_INCREASE_SCALE;
+    const authorityModifier =
+      1 + (authorityRep / 100) * AUTHORITY_PIRATE_INCREASE_SCALE;
     probability *= authorityModifier;
 
     // Clamp final probability to [0, 1] range
@@ -190,7 +213,7 @@ export class DangerManager extends BaseManager {
     }
 
     return cargo.reduce((total, item) => {
-      return total + (item.quantity * item.purchasePrice);
+      return total + item.quantity * item.purchasePrice;
     }, 0);
   }
 

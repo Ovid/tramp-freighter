@@ -22,18 +22,30 @@ describe('Zone-Specific Encounter Rates Properties', () => {
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
           const zone = gameStateManager.getDangerZone(systemId);
-          const baseRate = gameStateManager.calculatePirateEncounterChance(systemId, gameStateManager.getState());
+          const baseRate = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameStateManager.getState()
+          );
 
           // Test zone-specific base rates according to requirements
           if (zone === 'safe') {
             // Safe zones should have 5% base rate (Requirement 1.4)
-            expect(baseRate).toBeCloseTo(DANGER_CONFIG.ZONES.safe.pirateChance, 5);
+            expect(baseRate).toBeCloseTo(
+              DANGER_CONFIG.ZONES.safe.pirateChance,
+              5
+            );
           } else if (zone === 'contested') {
             // Contested zones should have 20% base rate (Requirement 1.5)
-            expect(baseRate).toBeCloseTo(DANGER_CONFIG.ZONES.contested.pirateChance, 5);
+            expect(baseRate).toBeCloseTo(
+              DANGER_CONFIG.ZONES.contested.pirateChance,
+              5
+            );
           } else if (zone === 'dangerous') {
             // Dangerous zones should have 35% base rate (Requirement 1.6)
-            expect(baseRate).toBeCloseTo(DANGER_CONFIG.ZONES.dangerous.pirateChance, 5);
+            expect(baseRate).toBeCloseTo(
+              DANGER_CONFIG.ZONES.dangerous.pirateChance,
+              5
+            );
           }
 
           return true;
@@ -69,7 +81,7 @@ describe('Zone-Specific Encounter Rates Properties', () => {
           // Test zone-specific inspection rates according to requirements
           if (zone === 'safe') {
             // Safe zones should have 10% inspection rate (Requirement 1.7)
-            expect(DANGER_CONFIG.ZONES.safe.inspectionChance).toBe(0.10);
+            expect(DANGER_CONFIG.ZONES.safe.inspectionChance).toBe(0.1);
           } else if (zone === 'contested') {
             // Contested zones should have 15% inspection rate (Requirement 1.8)
             expect(DANGER_CONFIG.ZONES.contested.inspectionChance).toBe(0.15);

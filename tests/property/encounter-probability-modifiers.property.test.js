@@ -10,7 +10,7 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { DANGER_CONFIG, COMMODITY_TYPES } from '../../src/game/constants.js';
+import { DANGER_CONFIG } from '../../src/game/constants.js';
 
 describe('Encounter Probability Modifiers Properties', () => {
   it('should apply cargo value modifiers correctly', () => {
@@ -24,7 +24,7 @@ describe('Encounter Probability Modifiers Properties', () => {
         (systemId, cargoValue) => {
           // Set up game state with specific cargo value
           const gameState = gameStateManager.getState();
-          
+
           // Create cargo that totals to the specified value
           gameState.ship.cargo = [];
           if (cargoValue > 0) {
@@ -35,26 +35,37 @@ describe('Encounter Probability Modifiers Properties', () => {
                 type: 'grain',
                 quantity: quantity,
                 purchasePrice: 10,
-                purchaseSystem: 0
+                purchaseSystem: 0,
               });
             }
           }
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(systemId, gameState);
+          const baseRate = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameState
+          );
           const zone = gameStateManager.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Test cargo value modifiers (Requirements 2.7, 2.8)
-          if (cargoValue >= DANGER_CONFIG.CARGO_VALUE_MODIFIERS.HIGH_VALUE_THRESHOLD) {
+          if (
+            cargoValue >=
+            DANGER_CONFIG.CARGO_VALUE_MODIFIERS.HIGH_VALUE_THRESHOLD
+          ) {
             // Should be multiplied by 1.5x for cargo > ₡10,000
             expect(baseRate).toBeCloseTo(
-              expectedBaseRate * DANGER_CONFIG.CARGO_VALUE_MODIFIERS.HIGH_VALUE_MULTIPLIER,
+              expectedBaseRate *
+                DANGER_CONFIG.CARGO_VALUE_MODIFIERS.HIGH_VALUE_MULTIPLIER,
               5
             );
-          } else if (cargoValue >= DANGER_CONFIG.CARGO_VALUE_MODIFIERS.LOW_VALUE_THRESHOLD) {
+          } else if (
+            cargoValue >=
+            DANGER_CONFIG.CARGO_VALUE_MODIFIERS.LOW_VALUE_THRESHOLD
+          ) {
             // Should be multiplied by 1.2x for cargo > ₡5,000
             expect(baseRate).toBeCloseTo(
-              expectedBaseRate * DANGER_CONFIG.CARGO_VALUE_MODIFIERS.LOW_VALUE_MULTIPLIER,
+              expectedBaseRate *
+                DANGER_CONFIG.CARGO_VALUE_MODIFIERS.LOW_VALUE_MULTIPLIER,
               5
             );
           } else {
@@ -83,15 +94,23 @@ describe('Encounter Probability Modifiers Properties', () => {
           gameState.ship.engine = engineCondition;
           gameState.ship.cargo = []; // No cargo to isolate engine modifier
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(systemId, gameState);
+          const baseRate = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameState
+          );
           const zone = gameStateManager.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Test engine condition modifier (Requirement 2.9)
-          if (engineCondition < DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD) {
+          if (
+            engineCondition <
+            DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD
+          ) {
             // Should be multiplied by 1.1x for engine < 50%
             expect(baseRate).toBeCloseTo(
-              expectedBaseRate * DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_MULTIPLIER,
+              expectedBaseRate *
+                DANGER_CONFIG.ENGINE_CONDITION_MODIFIER
+                  .POOR_CONDITION_MULTIPLIER,
               5
             );
           } else {
@@ -119,14 +138,17 @@ describe('Encounter Probability Modifiers Properties', () => {
           const gameState = gameStateManager.getState();
           gameState.ship.cargo = []; // No cargo to isolate sensors modifier
           gameState.ship.engine = 100; // Perfect engine to isolate sensors modifier
-          
+
           if (hasAdvancedSensors) {
             gameState.ship.upgrades = ['advanced_sensors'];
           } else {
             gameState.ship.upgrades = [];
           }
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(systemId, gameState);
+          const baseRate = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameState
+          );
           const zone = gameStateManager.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
@@ -134,7 +156,8 @@ describe('Encounter Probability Modifiers Properties', () => {
           if (hasAdvancedSensors) {
             // Should be multiplied by 0.8x with advanced sensors
             expect(baseRate).toBeCloseTo(
-              expectedBaseRate * DANGER_CONFIG.ADVANCED_SENSORS_PIRATE_REDUCTION,
+              expectedBaseRate *
+                DANGER_CONFIG.ADVANCED_SENSORS_PIRATE_REDUCTION,
               5
             );
           } else {
@@ -167,15 +190,29 @@ describe('Encounter Probability Modifiers Properties', () => {
           gameState.ship.engine = 100; // Perfect engine to isolate faction modifiers
           gameState.ship.upgrades = []; // No upgrades to isolate faction modifiers
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(systemId, gameState);
+          const baseRate = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameState
+          );
           const zone = gameStateManager.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Calculate expected modifiers (Requirement 8.8)
-          const outlawModifier = 1 + (outlawRep / 100) * DANGER_CONFIG.FACTION_REPUTATION_SCALES.OUTLAW_PIRATE_REDUCTION_SCALE;
-          const authorityModifier = 1 + (authorityRep / 100) * DANGER_CONFIG.FACTION_REPUTATION_SCALES.AUTHORITY_PIRATE_INCREASE_SCALE;
-          
-          const expectedRate = Math.max(0, Math.min(1, expectedBaseRate * outlawModifier * authorityModifier));
+          const outlawModifier =
+            1 +
+            (outlawRep / 100) *
+              DANGER_CONFIG.FACTION_REPUTATION_SCALES
+                .OUTLAW_PIRATE_REDUCTION_SCALE;
+          const authorityModifier =
+            1 +
+            (authorityRep / 100) *
+              DANGER_CONFIG.FACTION_REPUTATION_SCALES
+                .AUTHORITY_PIRATE_INCREASE_SCALE;
+
+          const expectedRate = Math.max(
+            0,
+            Math.min(1, expectedBaseRate * outlawModifier * authorityModifier)
+          );
 
           expect(baseRate).toBeCloseTo(expectedRate, 5);
 
@@ -203,7 +240,7 @@ describe('Encounter Probability Modifiers Properties', () => {
           gameState.player.factions.outlaws = outlawRep;
           gameState.player.factions.authorities = authorityRep;
           gameState.ship.engine = engineCondition;
-          
+
           // Create high-value cargo
           gameState.ship.cargo = [];
           if (cargoValue > 0) {
@@ -213,12 +250,15 @@ describe('Encounter Probability Modifiers Properties', () => {
                 type: 'grain',
                 quantity: quantity,
                 purchasePrice: 10,
-                purchaseSystem: 0
+                purchaseSystem: 0,
               });
             }
           }
 
-          const probability = gameStateManager.calculatePirateEncounterChance(systemId, gameState);
+          const probability = gameStateManager.calculatePirateEncounterChance(
+            systemId,
+            gameState
+          );
 
           // Probability must always be clamped to [0, 1]
           expect(probability).toBeGreaterThanOrEqual(0);

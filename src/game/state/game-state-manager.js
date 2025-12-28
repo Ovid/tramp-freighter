@@ -598,7 +598,10 @@ export class GameStateManager {
   }
 
   calculatePirateEncounterChance(systemId, gameState) {
-    return this.dangerManager.calculatePirateEncounterChance(systemId, gameState);
+    return this.dangerManager.calculatePirateEncounterChance(
+      systemId,
+      gameState
+    );
   }
 
   getKarma() {
