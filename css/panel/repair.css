@@ -218,15 +218,38 @@
 }
 
 .free-repair-info h4 {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: #00ff88;
   font-size: 14px;
 }
 
-.free-repair-info p {
-  margin: 3px 0;
-  color: #cccccc;
+.free-repair-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.free-repair-details p {
+  margin: 0;
   font-size: 12px;
+}
+
+.free-repair-details .tier-info {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.free-repair-details .limitation-info {
+  color: #ffaa00;
+  font-style: italic;
+}
+
+.free-repair-details .repair-amount {
+  color: #ffffff;
+}
+
+.free-repair-details .no-damage {
+  color: #888888;
 }
 
 .free-repair-btn {
@@ -255,6 +278,80 @@
   background-color: #222222;
   color: rgba(0, 255, 136, 0.5);
   border-color: rgba(0, 255, 136, 0.3);
+}
+
+/* Free Repair Unavailable Section */
+.free-repair-unavailable {
+  padding: 15px;
+  background-color: rgba(255, 170, 0, 0.1);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 5px;
+}
+
+.validation-info h4 {
+  margin-bottom: 12px;
+  color: #ffaa00;
+  font-size: 14px;
+}
+
+.npc-status-list {
+  margin-bottom: 15px;
+}
+
+.npc-status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 170, 0, 0.2);
+}
+
+.npc-status-item:last-child {
+  border-bottom: none;
+}
+
+.npc-info {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.status-message {
+  color: #ffaa00;
+  font-size: 11px;
+  font-style: italic;
+  text-align: right;
+  max-width: 200px;
+}
+
+.tier-requirements {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.tier-requirements p {
+  margin-bottom: 8px;
+  color: #ffaa00;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.tier-requirements ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.tier-requirements li {
+  margin-bottom: 4px;
+  color: #cccccc;
+  font-size: 11px;
+}
+
+.no-npcs {
+  color: #888888;
+  font-style: italic;
+  text-align: center;
+  margin: 0;
 }
 
 /* Validation Messages - Standardized Pattern */

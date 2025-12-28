@@ -198,13 +198,13 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Display repaired amount and remaining free repair eligibility
     - _Requirements: 1.6, 1.7_
 
-  - [ ] 9.3 Add free repair validation and feedback
+  - [x] 9.3 Add free repair validation and feedback
     - Show validation messages for free repair availability
     - Display "Once per visit" limitation clearly
     - Show tier-based repair limits (10% for Trusted, 25% for Family)
     - _Requirements: 1.6, 1.7_
 
-  - [ ] 9.4 Write integration test for free repair UI
+  - [x] 9.4 Write integration test for free repair UI
     - Verify free repair button appears when available
     - Verify free repair button hidden when unavailable
     - Verify repair limits are enforced in UI

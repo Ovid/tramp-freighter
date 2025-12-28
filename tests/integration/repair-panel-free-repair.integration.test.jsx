@@ -65,21 +65,32 @@ describe('RepairPanel Free Repair Integration', () => {
     renderRepairPanel();
 
     // Should show free repair section
-    expect(screen.getByText('Free Repair Available')).toBeInTheDocument();
+    expect(screen.getByText('Free Repair')).toBeInTheDocument();
 
     // Should show Marcus Cole as available for free repair
     expect(screen.getByText('Marcus Cole (Loan Shark)')).toBeInTheDocument();
 
     // Should show repair limit for Trusted tier
     expect(
-      screen.getByText(
-        `Can repair up to ${NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.trusted}% hull damage`
-      )
+      screen.getByText('Trusted Tier:', { exact: false })
     ).toBeInTheDocument();
+    expect(
+      screen.getByText('Up to 10% hull damage repair', { exact: false })
+    ).toBeInTheDocument();
+
+    // Should show once per visit limitation
+    expect(screen.getByText('Once per visit limitation')).toBeInTheDocument();
 
     // Should show actual repair amount (10% since hull is at 70%)
     expect(
-      screen.getByText('Will repair: 10.0% hull damage')
+      screen.getByText((content, element) => {
+        return (
+          element &&
+          element.className === 'repair-amount' &&
+          element.textContent &&
+          element.textContent.includes('Will repair: 10.0% hull damage')
+        );
+      })
     ).toBeInTheDocument();
 
     // Should have enabled free repair button
@@ -95,8 +106,12 @@ describe('RepairPanel Free Repair Integration', () => {
 
     renderRepairPanel();
 
-    // Should not show free repair section
-    expect(screen.queryByText('Free Repair Available')).not.toBeInTheDocument();
+    // Should show free repair section but with validation info
+    expect(screen.getByText('Free Repair')).toBeInTheDocument();
+
+    // Should show requirements not met
+    expect(screen.getByText('Free Repair Requirements')).toBeInTheDocument();
+    expect(screen.getByText('Marcus Cole')).toBeInTheDocument();
   });
 
   it('should apply free repair when button is clicked', () => {
@@ -143,9 +158,10 @@ describe('RepairPanel Free Repair Integration', () => {
 
     // Should show Family tier repair limit
     expect(
-      screen.getByText(
-        `Can repair up to ${NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family}% hull damage`
-      )
+      screen.getByText('Family Tier:', { exact: false })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Up to 25% hull damage repair', { exact: false })
     ).toBeInTheDocument();
   });
 
@@ -157,7 +173,11 @@ describe('RepairPanel Free Repair Integration', () => {
 
     renderRepairPanel();
 
-    // Should not show free repair section since no NPCs are available
-    expect(screen.queryByText('Free Repair Available')).not.toBeInTheDocument();
+    // Should show free repair section but with validation info
+    expect(screen.getByText('Free Repair')).toBeInTheDocument();
+
+    // Should show requirements not met
+    expect(screen.getByText('Free Repair Requirements')).toBeInTheDocument();
+    expect(screen.getByText('Marcus Cole')).toBeInTheDocument();
   });
 });

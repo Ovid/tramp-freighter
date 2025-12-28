@@ -289,9 +289,9 @@ export function RepairPanel({ onClose }) {
         </div>
 
         {/* Free Repair Section */}
-        {freeRepairOptions.length > 0 && (
-          <div className="repair-section">
-            <h3>Free Repair Available</h3>
+        <div className="repair-section">
+          <h3>Free Repair</h3>
+          {freeRepairOptions.length > 0 ? (
             <div className="free-repair-options">
               {freeRepairOptions.map(({ npc, availability }) => {
                 const currentHull = condition.hull;
@@ -302,24 +302,34 @@ export function RepairPanel({ onClose }) {
                   availability.maxHullPercent
                 );
 
+                // Get tier name for display
+                const tierName =
+                  availability.maxHullPercent === 25 ? 'Family' : 'Trusted';
+
                 return (
                   <div key={npc.id} className="free-repair-option">
                     <div className="free-repair-info">
                       <h4>
                         {npc.name} ({npc.role})
                       </h4>
-                      <p>
-                        Can repair up to {availability.maxHullPercent}% hull
-                        damage
-                      </p>
-                      {actualRepairPercent > 0 ? (
-                        <p>
-                          Will repair: {actualRepairPercent.toFixed(1)}% hull
-                          damage
+                      <div className="free-repair-details">
+                        <p className="tier-info">
+                          <strong>{tierName} Tier:</strong> Up to{' '}
+                          {availability.maxHullPercent}% hull damage repair
                         </p>
-                      ) : (
-                        <p>No hull damage to repair</p>
-                      )}
+                        <p className="limitation-info">
+                          <em>Once per visit limitation</em>
+                        </p>
+                        {actualRepairPercent > 0 ? (
+                          <p className="repair-amount">
+                            Will repair:{' '}
+                            <strong>{actualRepairPercent.toFixed(1)}%</strong>{' '}
+                            hull damage
+                          </p>
+                        ) : (
+                          <p className="no-damage">No hull damage to repair</p>
+                        )}
+                      </div>
                     </div>
                     <button
                       className="free-repair-btn"
@@ -334,8 +344,52 @@ export function RepairPanel({ onClose }) {
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="free-repair-unavailable">
+              {npcsAtSystem.length > 0 ? (
+                <div className="validation-info">
+                  <h4>Free Repair Requirements</h4>
+                  <div className="npc-status-list">
+                    {npcsAtSystem.map((npc) => {
+                      const availability = gameStateManager.canGetFreeRepair(
+                        npc.id
+                      );
+                      return (
+                        <div key={npc.id} className="npc-status-item">
+                          <div className="npc-info">
+                            <strong>{npc.name}</strong> ({npc.role})
+                          </div>
+                          <div className="status-message">
+                            {availability.reason || 'Requirements not met'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="tier-requirements">
+                    <p>
+                      <strong>Tier Requirements:</strong>
+                    </p>
+                    <ul>
+                      <li>
+                        <strong>Trusted Tier:</strong> Up to 10% hull damage
+                        repair (once per visit)
+                      </li>
+                      <li>
+                        <strong>Family Tier:</strong> Up to 25% hull damage
+                        repair (once per visit)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <p className="no-npcs">
+                  No NPCs available at this station for free repairs.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Validation Message */}
         {validationMessage && (
