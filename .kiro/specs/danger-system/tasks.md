@@ -100,23 +100,23 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Apply faction reputation modifier (authority rep reduces chance)
     - _Requirements: 5.1, 5.2, 5.12, 8.8_
 
-- [ ] 7. Implement combat resolution system (TDD)
-  - [ ] 7.1 RED: Write property test for combat resolution outcomes
+- [x] 7. Implement combat resolution system (TDD)
+  - [x] 7.1 RED: Write property test for combat resolution outcomes
     - **Property 4: Combat Resolution Outcomes**
     - Test that each choice produces valid outcome structure
     - **Validates: Requirements 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11**
-  - [ ] 7.2 GREEN: Add resolveCombatChoice base implementation
+  - [x] 7.2 GREEN: Add resolveCombatChoice base implementation
     - Implement evasive maneuvers (70% base, engine modifier)
     - Implement return fire (45% base, +5 outlaw rep on success for fighting pirates)
     - Implement dump cargo (guaranteed escape)
     - Implement distress call (30% base)
     - Return outcome object with success, costs, and rewards
     - _Requirements: 3.1-3.11, 8.7_
-  - [ ] 7.3 RED: Write property test for combat modifier application
+  - [x] 7.3 RED: Write property test for combat modifier application
     - **Property 5: Combat Modifier Application**
     - Test quirk/upgrade modifiers and karma hidden modifier
     - **Validates: Requirements 3.12, 3.13, 3.14, 3.15, 3.16, 3.17**
-  - [ ] 7.4 GREEN: Add modifier application to resolveCombatChoice
+  - [x] 7.4 GREEN: Add modifier application to resolveCombatChoice
     - Apply quirk/upgrade modifiers from COMBAT_CONFIG.MODIFIERS
     - Apply karma as hidden modifier on success rates (±5% at extreme karma)
     - Apply karma scaling to Lucky Ship quirk effectiveness (5% base + karma * LUCKY_SHIP_KARMA_SCALE)

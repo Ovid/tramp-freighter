@@ -625,4 +625,8 @@ export class GameStateManager {
     this.dangerManager.modifyFactionRep(faction, amount, reason);
     this.saveGame();
   }
+
+  resolveCombatChoice(encounter, choice) {
+    return this.dangerManager.resolveCombatChoice(encounter, choice);
+  }
 }
