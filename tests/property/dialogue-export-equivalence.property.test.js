@@ -79,15 +79,15 @@ describe('Dialogue Export Equivalence Properties', () => {
         fc.constantFrom(...Object.keys(DialogueTrees.ALL_DIALOGUE_TREES)),
         (npcId) => {
           const dialogueTree = DialogueTrees.ALL_DIALOGUE_TREES[npcId];
-          
+
           // Every dialogue tree must have a greeting node
           expect(dialogueTree.greeting).toBeDefined();
           expect(typeof dialogueTree.greeting).toBe('object');
-          
+
           // Every greeting node must have text and choices
           expect(dialogueTree.greeting.text).toBeDefined();
           expect(Array.isArray(dialogueTree.greeting.choices)).toBe(true);
-          
+
           // Every choice must have text property
           dialogueTree.greeting.choices.forEach((choice) => {
             expect(choice.text).toBeDefined();
@@ -101,16 +101,36 @@ describe('Dialogue Export Equivalence Properties', () => {
 
   it('should ensure ALL_DIALOGUE_TREES references match individual exports', () => {
     // Verify that ALL_DIALOGUE_TREES contains the same objects as individual exports
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.chen_barnards).toBe(DialogueTrees.WEI_CHEN_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.cole_sol).toBe(DialogueTrees.MARCUS_COLE_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(DialogueTrees.FATHER_OKONKWO_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.whisper_sirius).toBe(DialogueTrees.WHISPER_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(DialogueTrees.CAPTAIN_VASQUEZ_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(DialogueTrees.DR_SARAH_KIM_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.rodriguez_procyon).toBe(DialogueTrees.RUSTY_RODRIGUEZ_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.osman_luyten).toBe(DialogueTrees.ZARA_OSMAN_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.kowalski_alpha_centauri).toBe(DialogueTrees.STATION_MASTER_KOWALSKI_DIALOGUE);
-    expect(DialogueTrees.ALL_DIALOGUE_TREES.liu_wolf359).toBe(DialogueTrees.LUCKY_LIU_DIALOGUE);
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.chen_barnards).toBe(
+      DialogueTrees.WEI_CHEN_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.cole_sol).toBe(
+      DialogueTrees.MARCUS_COLE_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.okonkwo_ross154).toBe(
+      DialogueTrees.FATHER_OKONKWO_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.whisper_sirius).toBe(
+      DialogueTrees.WHISPER_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.vasquez_epsilon).toBe(
+      DialogueTrees.CAPTAIN_VASQUEZ_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.kim_tau_ceti).toBe(
+      DialogueTrees.DR_SARAH_KIM_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.rodriguez_procyon).toBe(
+      DialogueTrees.RUSTY_RODRIGUEZ_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.osman_luyten).toBe(
+      DialogueTrees.ZARA_OSMAN_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.kowalski_alpha_centauri).toBe(
+      DialogueTrees.STATION_MASTER_KOWALSKI_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.liu_wolf359).toBe(
+      DialogueTrees.LUCKY_LIU_DIALOGUE
+    );
   });
 
   it('should allow validation functions to execute without errors on valid data', () => {
@@ -119,7 +139,7 @@ describe('Dialogue Export Equivalence Properties', () => {
         fc.constantFrom(...Object.keys(DialogueTrees.ALL_DIALOGUE_TREES)),
         (npcId) => {
           const dialogueTree = DialogueTrees.ALL_DIALOGUE_TREES[npcId];
-          
+
           // Validation functions should not throw for valid dialogue trees
           expect(() => {
             DialogueTrees.validateDialogueTree(dialogueTree);

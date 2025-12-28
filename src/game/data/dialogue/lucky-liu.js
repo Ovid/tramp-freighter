@@ -29,28 +29,6 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const LUCKY_LIU_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
-      // Input validation
-      if (
-        typeof rep !== 'number' ||
-        rep < REPUTATION_BOUNDS.MIN ||
-        rep > REPUTATION_BOUNDS.MAX
-      ) {
-        throw new Error(
-          `Invalid reputation value: ${rep}. Must be number between ${REPUTATION_BOUNDS.MIN} and ${REPUTATION_BOUNDS.MAX}`
-        );
-      }
-      if (
-        !gameStateManager ||
-        typeof gameStateManager.getNPCState !== 'function'
-      ) {
-        throw new Error(
-          'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
-        );
-      }
-      if (!npcId || typeof npcId !== 'string') {
-        throw new Error(`Invalid npcId: ${npcId}. Must be non-empty string`);
-      }
-
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -100,24 +78,6 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'Got any risk-taking tips for me?',
         next: 'ask_tip',
         condition: (rep, gameStateManager, npcId) => {
-          // Input validation
-          if (typeof rep !== 'number') {
-            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
-          }
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.canGetTip !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with canGetTip method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
           const tipAvailability = gameStateManager.canGetTip(npcId);
@@ -128,24 +88,6 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I need an emergency loan.',
         next: 'request_loan',
         condition: (rep, gameStateManager, npcId) => {
-          // Input validation
-          if (typeof rep !== 'number') {
-            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
-          }
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.canRequestFavor !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -159,24 +101,6 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep, gameStateManager, npcId) => {
-          // Input validation
-          if (typeof rep !== 'number') {
-            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
-          }
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.canRequestFavor !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -190,21 +114,6 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
         condition: (rep, gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.getNPCState !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -214,21 +123,6 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
         condition: (rep, gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.getNPCState !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(
@@ -357,21 +251,6 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 3,
         action: (gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.requestLoan !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with requestLoan method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           return gameStateManager.requestLoan(npcId);
         },
       },
@@ -391,21 +270,6 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.storeCargo !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with storeCargo method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           return gameStateManager.storeCargo(npcId);
         },
       },
@@ -426,21 +290,6 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.repayLoan !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with repayLoan method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           return gameStateManager.repayLoan(npcId);
         },
       },
@@ -460,21 +309,6 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 1,
         action: (gameStateManager, npcId) => {
-          // Input validation
-          if (
-            !gameStateManager ||
-            typeof gameStateManager.retrieveCargo !== 'function'
-          ) {
-            throw new Error(
-              'Invalid gameStateManager: must provide GameStateManager instance with retrieveCargo method'
-            );
-          }
-          if (!npcId || typeof npcId !== 'string') {
-            throw new Error(
-              `Invalid npcId: ${npcId}. Must be non-empty string`
-            );
-          }
-
           return gameStateManager.retrieveCargo(npcId);
         },
       },

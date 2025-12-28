@@ -38,21 +38,11 @@ describe('Dialogue File Size Constraint Properties', () => {
           filename
         );
 
-        try {
-          const fileContent = readFileSync(filePath, 'utf-8');
-          const lineCount = fileContent.split('\n').length;
+        const fileContent = readFileSync(filePath, 'utf-8');
+        const lineCount = fileContent.split('\n').length;
 
-          // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 500 lines
-          expect(lineCount).toBeLessThan(500);
-          return true;
-        } catch (error) {
-          // If file doesn't exist or can't be read, that's a test failure
-          console.error(
-            `Failed to read dialogue file ${filename}:`,
-            error.message
-          );
-          return false;
-        }
+        // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 500 lines
+        expect(lineCount).toBeLessThan(500);
       }),
       { numRuns: 100 }
     );
@@ -85,20 +75,11 @@ describe('Dialogue File Size Constraint Properties', () => {
           filename
         );
 
-        try {
-          const fileContent = readFileSync(filePath, 'utf-8');
+        const fileContent = readFileSync(filePath, 'utf-8');
 
-          // Property: For any expected dialogue file, the file SHALL exist and be readable
-          expect(fileContent).toBeDefined();
-          expect(fileContent.length).toBeGreaterThan(0);
-          return true;
-        } catch (error) {
-          console.error(
-            `Dialogue file ${filename} is not accessible:`,
-            error.message
-          );
-          return false;
-        }
+        // Property: For any expected dialogue file, the file SHALL exist and be readable
+        expect(fileContent).toBeDefined();
+        expect(fileContent.length).toBeGreaterThan(0);
       }),
       { numRuns: 50 }
     );
@@ -131,25 +112,15 @@ describe('Dialogue File Size Constraint Properties', () => {
           filename
         );
 
-        try {
-          const fileContent = readFileSync(filePath, 'utf-8');
+        const fileContent = readFileSync(filePath, 'utf-8');
 
-          // Property: For any dialogue file, the content SHALL be valid JavaScript
-          // We verify this by checking that the file contains expected patterns
-          expect(fileContent).toMatch(/import.*from/); // Should have imports
-          expect(fileContent).toMatch(/export\s+(const|function)/); // Should have exports (const or function)
+        // Property: For any dialogue file, the content SHALL be valid JavaScript
+        // We verify this by checking that the file contains expected patterns
+        expect(fileContent).toMatch(/import.*from/); // Should have imports
+        expect(fileContent).toMatch(/export\s+(const|function)/); // Should have exports (const or function)
 
-          // Should not contain syntax errors (basic check)
-          expect(fileContent).not.toMatch(/\bexport\s+const\s+\w+\s*=\s*$/m); // Incomplete exports
-
-          return true;
-        } catch (error) {
-          console.error(
-            `Dialogue file ${filename} has syntax issues:`,
-            error.message
-          );
-          return false;
-        }
+        // Should not contain syntax errors (basic check)
+        expect(fileContent).not.toMatch(/\bexport\s+const\s+\w+\s*=\s*$/m); // Incomplete exports
       }),
       { numRuns: 50 }
     );

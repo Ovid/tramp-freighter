@@ -40,7 +40,7 @@ import {
   validateDialogueTree,
 } from './dialogue/validation.js';
 
-// Import individual dialogue trees for use in ALL_DIALOGUE_TREES
+// Import and re-export individual dialogue trees
 import { WEI_CHEN_DIALOGUE } from './dialogue/wei-chen.js';
 import { MARCUS_COLE_DIALOGUE } from './dialogue/marcus-cole.js';
 import { FATHER_OKONKWO_DIALOGUE } from './dialogue/father-okonkwo.js';
@@ -53,16 +53,18 @@ import { STATION_MASTER_KOWALSKI_DIALOGUE } from './dialogue/station-master-kowa
 import { LUCKY_LIU_DIALOGUE } from './dialogue/lucky-liu.js';
 
 // Re-export individual dialogue trees
-export { WEI_CHEN_DIALOGUE } from './dialogue/wei-chen.js';
-export { MARCUS_COLE_DIALOGUE } from './dialogue/marcus-cole.js';
-export { FATHER_OKONKWO_DIALOGUE } from './dialogue/father-okonkwo.js';
-export { WHISPER_DIALOGUE } from './dialogue/whisper.js';
-export { CAPTAIN_VASQUEZ_DIALOGUE } from './dialogue/captain-vasquez.js';
-export { DR_SARAH_KIM_DIALOGUE } from './dialogue/dr-sarah-kim.js';
-export { RUSTY_RODRIGUEZ_DIALOGUE } from './dialogue/rusty-rodriguez.js';
-export { ZARA_OSMAN_DIALOGUE } from './dialogue/zara-osman.js';
-export { STATION_MASTER_KOWALSKI_DIALOGUE } from './dialogue/station-master-kowalski.js';
-export { LUCKY_LIU_DIALOGUE } from './dialogue/lucky-liu.js';
+export {
+  WEI_CHEN_DIALOGUE,
+  MARCUS_COLE_DIALOGUE,
+  FATHER_OKONKWO_DIALOGUE,
+  WHISPER_DIALOGUE,
+  CAPTAIN_VASQUEZ_DIALOGUE,
+  DR_SARAH_KIM_DIALOGUE,
+  RUSTY_RODRIGUEZ_DIALOGUE,
+  ZARA_OSMAN_DIALOGUE,
+  STATION_MASTER_KOWALSKI_DIALOGUE,
+  LUCKY_LIU_DIALOGUE,
+};
 
 /**
  * All dialogue trees in the game
