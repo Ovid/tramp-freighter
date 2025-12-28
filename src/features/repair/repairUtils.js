@@ -20,6 +20,19 @@ export function calculateRepairCost(amount, currentCondition) {
 }
 
 /**
+ * Calculate discounted repair cost for a ship system
+ *
+ * @param {number} amount - Percentage points to restore
+ * @param {number} currentCondition - Current condition percentage
+ * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
+ * @returns {number} Discounted cost in credits
+ */
+export function calculateDiscountedRepairCost(amount, currentCondition, discountPercentage) {
+  const baseCost = calculateRepairCost(amount, currentCondition);
+  return Math.round(baseCost * (1 - discountPercentage));
+}
+
+/**
  * Calculate total cost to repair all ship systems to maximum condition
  *
  * Sums the repair costs for hull, engine, and life support to reach 100%.
@@ -50,6 +63,18 @@ export function calculateRepairAllCost(condition) {
   }
 
   return totalCost;
+}
+
+/**
+ * Calculate discounted total cost to repair all ship systems to maximum condition
+ *
+ * @param {Object} condition - Ship condition object with hull, engine, lifeSupport
+ * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
+ * @returns {number} Discounted total repair cost in credits
+ */
+export function calculateDiscountedRepairAllCost(condition, discountPercentage) {
+  const baseCost = calculateRepairAllCost(condition);
+  return Math.round(baseCost * (1 - discountPercentage));
 }
 
 /**

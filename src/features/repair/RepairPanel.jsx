@@ -5,7 +5,9 @@ import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import {
   calculateRepairCost,
+  calculateDiscountedRepairCost,
   calculateRepairAllCost,
+  calculateDiscountedRepairAllCost,
   validateRepairAll,
   getSystemCondition,
 } from './repairUtils';
@@ -51,6 +53,24 @@ export function RepairPanel({ onClose }) {
       };
     })
     .filter((option) => option.availability.available);
+
+  // Get repair service discounts from NPCs at this location
+  const repairDiscounts = npcsAtSystem
+    .map((npc) => {
+      const discountInfo = gameStateManager.getServiceDiscount(npc.id, 'repair');
+      return {
+        npc,
+        discount: discountInfo.discount,
+        npcName: discountInfo.npcName,
+      };
+    })
+    .filter((option) => option.discount > 0);
+
+  // Calculate the best discount available
+  const bestDiscount = repairDiscounts.reduce(
+    (best, current) => (current.discount > best.discount ? current : best),
+    { discount: 0, npcName: null }
+  );
 
   const handleRepairSystem = (systemType, amountStr) => {
     let amount = 0;
@@ -186,22 +206,36 @@ export function RepairPanel({ onClose }) {
           {repairAmounts.map((amountStr) => {
             let amount = 0;
             let cost = 0;
+            let discountedCost = 0;
             let buttonText = '';
 
             if (amountStr === 'full') {
               amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
               cost = calculateRepairCost(amount, currentCondition);
-              buttonText = `Full (₡${cost})`;
+              discountedCost = calculateDiscountedRepairCost(amount, currentCondition, bestDiscount.discount);
+              
+              if (bestDiscount.discount > 0) {
+                buttonText = `Full (₡${discountedCost})`;
+              } else {
+                buttonText = `Full (₡${cost})`;
+              }
             } else {
               amount = amountStr;
               cost = calculateRepairCost(amount, currentCondition);
-              buttonText = `+${amount}% (₡${cost})`;
+              discountedCost = calculateDiscountedRepairCost(amount, currentCondition, bestDiscount.discount);
+              
+              if (bestDiscount.discount > 0) {
+                buttonText = `+${amount}% (₡${discountedCost})`;
+              } else {
+                buttonText = `+${amount}% (₡${cost})`;
+              }
             }
 
             const wouldExceedMax =
               currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX;
             const atMax = currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-            const notEnoughCredits = credits < cost;
+            const finalCost = bestDiscount.discount > 0 ? discountedCost : cost;
+            const notEnoughCredits = credits < finalCost;
 
             const disabled =
               atMax || notEnoughCredits || wouldExceedMax || amount <= 0;
@@ -223,11 +257,14 @@ export function RepairPanel({ onClose }) {
   };
 
   const totalCost = calculateRepairAllCost(condition);
+  const discountedTotalCost = calculateDiscountedRepairAllCost(condition, bestDiscount.discount);
+  const finalTotalCost = bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
+  
   const allAtMax =
     condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-  const repairAllDisabled = allAtMax || credits < totalCost || totalCost === 0;
+  const repairAllDisabled = allAtMax || credits < finalTotalCost || totalCost === 0;
 
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
@@ -294,11 +331,29 @@ export function RepairPanel({ onClose }) {
                 onClick={handleRepairAll}
                 disabled={repairAllDisabled}
               >
-                Repair All to Full (₡{totalCost})
+                Repair All to Full (₡{finalTotalCost})
               </button>
             </div>
           </div>
         </div>
+
+        {/* NPC Discount Section */}
+        {bestDiscount.discount > 0 && (
+          <div className="repair-section">
+            <h3>NPC Discount Applied</h3>
+            <div className="discount-info">
+              <div className="discount-details">
+                <p>
+                  <strong>{bestDiscount.npcName}</strong> is providing a{' '}
+                  <strong>{Math.round(bestDiscount.discount * 100)}%</strong> discount on repair services.
+                </p>
+                <p className="discount-note">
+                  <em>All repair prices shown above include this discount.</em>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Free Repair Section */}
         <div className="repair-section">

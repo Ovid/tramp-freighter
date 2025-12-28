@@ -6,6 +6,8 @@ import { useStarData } from '../../hooks/useStarData';
 import {
   validateIntelligencePurchase,
   validateRumorPurchase,
+  calculateDiscountedRumorCost,
+  calculateDiscountedIntelligenceCost,
   sortIntelligenceByPriority,
   formatVisitInfo,
   formatStaleness,
@@ -14,6 +16,7 @@ import {
 } from './infoBrokerUtils';
 import { INTELLIGENCE_CONFIG, COMMODITY_TYPES } from '../../game/constants';
 import { capitalizeFirst } from '../../game/utils/string-utils';
+import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
  * InfoBrokerPanel component for purchasing market intelligence.
@@ -50,20 +53,50 @@ export function InfoBrokerPanel({ onClose }) {
     setIntelligenceOptions(options);
   }, [gameStateManager, currentSystemId, priceKnowledge]);
 
+  // Get NPCs at current location for intel discounts
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId);
+
+  // Get intel service discounts from NPCs at this location
+  const intelDiscounts = npcsAtSystem
+    .map((npc) => {
+      const discountInfo = gameStateManager.getServiceDiscount(npc.id, 'intel');
+      return {
+        npc,
+        discount: discountInfo.discount,
+        npcName: discountInfo.npcName,
+      };
+    })
+    .filter((option) => option.discount > 0);
+
+  // Calculate the best discount available
+  const bestDiscount = intelDiscounts.reduce(
+    (best, current) => (current.discount > best.discount ? current : best),
+    { discount: 0, npcName: null }
+  );
+
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
   const handleBuyRumor = () => {
     const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
+    const discountedRumorCost = calculateDiscountedRumorCost(bestDiscount.discount);
+    const finalRumorCost = bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
+    
     const validation = validateRumorPurchase(credits);
+    
+    // Override validation for discounted cost if applicable
+    let finalValidation = validation;
+    if (bestDiscount.discount > 0 && !validation.valid && validation.reason.includes('Insufficient credits')) {
+      finalValidation = validateIntelligencePurchase(finalRumorCost, credits);
+    }
 
-    if (!validation.valid) {
-      setValidationMessage(validation.reason);
+    if (!finalValidation.valid) {
+      setValidationMessage(finalValidation.reason);
       setValidationClass('error');
       return;
     }
 
     // Deduct credits
-    gameStateManager.updateCredits(credits - rumorCost);
+    gameStateManager.updateCredits(credits - finalRumorCost);
 
     // Generate and display rumor
     const generatedRumor = gameStateManager.generateRumor();
@@ -96,7 +129,11 @@ export function InfoBrokerPanel({ onClose }) {
   };
 
   const renderIntelligenceItem = (option) => {
-    const validation = validateIntelligencePurchase(option.cost, credits);
+    const baseCost = option.cost;
+    const discountedCost = calculateDiscountedIntelligenceCost(baseCost, bestDiscount.discount);
+    const finalCost = bestDiscount.discount > 0 ? discountedCost : baseCost;
+    
+    const validation = validateIntelligencePurchase(finalCost, credits);
     const isCurrentSystem = option.lastVisit === 0;
 
     return (
@@ -108,7 +145,12 @@ export function InfoBrokerPanel({ onClose }) {
           </div>
         </div>
         <div className="intelligence-actions">
-          <div className="intelligence-cost">₡{option.cost}</div>
+          <div className="intelligence-cost">
+            ₡{finalCost}
+            {bestDiscount.discount > 0 && baseCost !== finalCost && (
+              <span className="original-cost"> (was ₡{baseCost})</span>
+            )}
+          </div>
           <button
             className="info-broker-btn"
             onClick={() => handlePurchaseIntelligence(option.systemId)}
@@ -168,7 +210,9 @@ export function InfoBrokerPanel({ onClose }) {
   };
 
   const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-  const rumorValidation = validateRumorPurchase(credits);
+  const discountedRumorCost = calculateDiscountedRumorCost(bestDiscount.discount);
+  const finalRumorCost = bestDiscount.discount > 0 ? discountedRumorCost : rumorCost;
+  const rumorValidation = validateIntelligencePurchase(finalRumorCost, credits);
 
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
@@ -219,7 +263,7 @@ export function InfoBrokerPanel({ onClose }) {
                 onClick={handleBuyRumor}
                 disabled={!rumorValidation.valid}
               >
-                Buy Rumor (₡{rumorCost})
+                Buy Rumor (₡{finalRumorCost})
               </button>
             </div>
             {rumor && (
@@ -245,6 +289,24 @@ export function InfoBrokerPanel({ onClose }) {
               )}
             </div>
           </div>
+
+          {/* NPC Discount Section */}
+          {bestDiscount.discount > 0 && (
+            <div className="intelligence-section">
+              <h3>NPC Discount Applied</h3>
+              <div className="discount-info">
+                <div className="discount-details">
+                  <p>
+                    <strong>{bestDiscount.npcName}</strong> is providing a{' '}
+                    <strong>{Math.round(bestDiscount.discount * 100)}%</strong> discount on intelligence services.
+                  </p>
+                  <p className="discount-note">
+                    <em>All prices shown above include this discount.</em>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Validation Message */}
           {validationMessage && (

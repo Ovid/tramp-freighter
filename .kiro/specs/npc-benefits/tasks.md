@@ -346,27 +346,27 @@ This implementation adds tier-based benefits, trading tips, special favors, and 
     - Add tip dialogue option
     - _Requirements: 10.6-10.10, 12.1-12.6_
 
-- [ ] 13. Checkpoint - Ensure all tests pass
+- [x] 13. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Integrate discounts into service panels
-  - [ ] 14.1 Update RepairPanel to show NPC discounts
+- [x] 14. Integrate discounts into service panels
+  - [x] 14.1 Update RepairPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'repair' service
     - Display discounted price and discount percentage
     - Show source NPC name
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 14.2 Update RefuelPanel to show NPC discounts
+  - [x] 14.2 Update RefuelPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'refuel' service
     - Display discounted price and discount percentage
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 14.3 Update InfoBrokerPanel to show NPC discounts
+  - [x] 14.3 Update InfoBrokerPanel to show NPC discounts
     - Get discount from `getServiceDiscount()` for 'intel' service
     - Display discounted price and discount percentage
     - _Requirements: 11.1, 11.2_
 
-  - [ ] 14.4 Write integration test for service panel discounts
+  - [x] 14.4 Write integration test for service panel discounts
     - Verify discounts display correctly in panels
     - Verify discount source NPC is shown
     - _Requirements: 11.1, 11.2_

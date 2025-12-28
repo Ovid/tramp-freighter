@@ -38,6 +38,28 @@ export function validateRumorPurchase(credits) {
 }
 
 /**
+ * Calculate discounted rumor cost
+ *
+ * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
+ * @returns {number} Discounted rumor cost
+ */
+export function calculateDiscountedRumorCost(discountPercentage) {
+  const baseCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
+  return Math.round(baseCost * (1 - discountPercentage));
+}
+
+/**
+ * Calculate discounted intelligence cost
+ *
+ * @param {number} baseCost - Base intelligence cost
+ * @param {number} discountPercentage - Discount as decimal (e.g., 0.15 for 15%)
+ * @returns {number} Discounted intelligence cost
+ */
+export function calculateDiscountedIntelligenceCost(baseCost, discountPercentage) {
+  return Math.round(baseCost * (1 - discountPercentage));
+}
+
+/**
  * Get intelligence priority for sorting
  *
  * Prioritizes systems where intelligence is most valuable:
