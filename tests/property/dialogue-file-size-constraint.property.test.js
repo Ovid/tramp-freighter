@@ -28,32 +28,32 @@ describe('Dialogue File Size Constraint Properties', () => {
     ];
 
     fc.assert(
-      fc.property(
-        fc.constantFrom(...dialogueFiles),
-        (filename) => {
-          const filePath = join(
-            process.cwd(),
-            'src',
-            'game',
-            'data',
-            'dialogue',
-            filename
+      fc.property(fc.constantFrom(...dialogueFiles), (filename) => {
+        const filePath = join(
+          process.cwd(),
+          'src',
+          'game',
+          'data',
+          'dialogue',
+          filename
+        );
+
+        try {
+          const fileContent = readFileSync(filePath, 'utf-8');
+          const lineCount = fileContent.split('\n').length;
+
+          // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 500 lines
+          expect(lineCount).toBeLessThan(500);
+          return true;
+        } catch (error) {
+          // If file doesn't exist or can't be read, that's a test failure
+          console.error(
+            `Failed to read dialogue file ${filename}:`,
+            error.message
           );
-
-          try {
-            const fileContent = readFileSync(filePath, 'utf-8');
-            const lineCount = fileContent.split('\n').length;
-
-            // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 500 lines
-            expect(lineCount).toBeLessThan(500);
-            return true;
-          } catch (error) {
-            // If file doesn't exist or can't be read, that's a test failure
-            console.error(`Failed to read dialogue file ${filename}:`, error.message);
-            return false;
-          }
+          return false;
         }
-      ),
+      }),
       { numRuns: 100 }
     );
   });
@@ -75,31 +75,31 @@ describe('Dialogue File Size Constraint Properties', () => {
     ];
 
     fc.assert(
-      fc.property(
-        fc.constantFrom(...expectedFiles),
-        (filename) => {
-          const filePath = join(
-            process.cwd(),
-            'src',
-            'game',
-            'data',
-            'dialogue',
-            filename
-          );
+      fc.property(fc.constantFrom(...expectedFiles), (filename) => {
+        const filePath = join(
+          process.cwd(),
+          'src',
+          'game',
+          'data',
+          'dialogue',
+          filename
+        );
 
-          try {
-            const fileContent = readFileSync(filePath, 'utf-8');
-            
-            // Property: For any expected dialogue file, the file SHALL exist and be readable
-            expect(fileContent).toBeDefined();
-            expect(fileContent.length).toBeGreaterThan(0);
-            return true;
-          } catch (error) {
-            console.error(`Dialogue file ${filename} is not accessible:`, error.message);
-            return false;
-          }
+        try {
+          const fileContent = readFileSync(filePath, 'utf-8');
+
+          // Property: For any expected dialogue file, the file SHALL exist and be readable
+          expect(fileContent).toBeDefined();
+          expect(fileContent.length).toBeGreaterThan(0);
+          return true;
+        } catch (error) {
+          console.error(
+            `Dialogue file ${filename} is not accessible:`,
+            error.message
+          );
+          return false;
         }
-      ),
+      }),
       { numRuns: 50 }
     );
   });
@@ -121,36 +121,36 @@ describe('Dialogue File Size Constraint Properties', () => {
     ];
 
     fc.assert(
-      fc.property(
-        fc.constantFrom(...dialogueFiles),
-        (filename) => {
-          const filePath = join(
-            process.cwd(),
-            'src',
-            'game',
-            'data',
-            'dialogue',
-            filename
-          );
+      fc.property(fc.constantFrom(...dialogueFiles), (filename) => {
+        const filePath = join(
+          process.cwd(),
+          'src',
+          'game',
+          'data',
+          'dialogue',
+          filename
+        );
 
-          try {
-            const fileContent = readFileSync(filePath, 'utf-8');
-            
-            // Property: For any dialogue file, the content SHALL be valid JavaScript
-            // We verify this by checking that the file contains expected patterns
-            expect(fileContent).toMatch(/import.*from/); // Should have imports
-            expect(fileContent).toMatch(/export\s+(const|function)/); // Should have exports (const or function)
-            
-            // Should not contain syntax errors (basic check)
-            expect(fileContent).not.toMatch(/\bexport\s+const\s+\w+\s*=\s*$/m); // Incomplete exports
-            
-            return true;
-          } catch (error) {
-            console.error(`Dialogue file ${filename} has syntax issues:`, error.message);
-            return false;
-          }
+        try {
+          const fileContent = readFileSync(filePath, 'utf-8');
+
+          // Property: For any dialogue file, the content SHALL be valid JavaScript
+          // We verify this by checking that the file contains expected patterns
+          expect(fileContent).toMatch(/import.*from/); // Should have imports
+          expect(fileContent).toMatch(/export\s+(const|function)/); // Should have exports (const or function)
+
+          // Should not contain syntax errors (basic check)
+          expect(fileContent).not.toMatch(/\bexport\s+const\s+\w+\s*=\s*$/m); // Incomplete exports
+
+          return true;
+        } catch (error) {
+          console.error(
+            `Dialogue file ${filename} has syntax issues:`,
+            error.message
+          );
+          return false;
         }
-      ),
+      }),
       { numRuns: 50 }
     );
   });

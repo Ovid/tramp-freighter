@@ -1,10 +1,10 @@
 /**
  * @fileoverview Lucky Liu Dialogue Tree
- * 
+ *
  * A professional gambler and risk-taker who loves long odds and respects bold moves.
  * Uses casual speech with slang vocabulary and gambling metaphors throughout conversation.
  * Provides risk-taking tips and high-stakes opportunities based on relationship tier.
- * 
+ *
  * @module dialogue/lucky-liu
  */
 
@@ -29,6 +29,28 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const LUCKY_LIU_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
+      // Input validation
+      if (
+        typeof rep !== 'number' ||
+        rep < REPUTATION_BOUNDS.MIN ||
+        rep > REPUTATION_BOUNDS.MAX
+      ) {
+        throw new Error(
+          `Invalid reputation value: ${rep}. Must be number between ${REPUTATION_BOUNDS.MIN} and ${REPUTATION_BOUNDS.MAX}`
+        );
+      }
+      if (
+        !gameStateManager ||
+        typeof gameStateManager.getNPCState !== 'function'
+      ) {
+        throw new Error(
+          'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+        );
+      }
+      if (!npcId || typeof npcId !== 'string') {
+        throw new Error(`Invalid npcId: ${npcId}. Must be non-empty string`);
+      }
+
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -58,12 +80,11 @@ export const LUCKY_LIU_DIALOGUE = {
             NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
 
           if (daysRemaining <= 0) {
-            baseText +=
-              '\n\n*About that stake I fronted you - five hundred credits, and the house always collects. Time to settle up, sport.*';
+            baseText += `\n\n*About that stake I fronted you - ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, and the house always collects. Time to settle up, sport.*`;
           } else if (daysRemaining <= 5) {
-            baseText += `\n\n*Quick reminder about your stake - five hundred credits due in ${daysRemaining} days. Don't let it ride too long, yeah?*`;
+            baseText += `\n\n*Quick reminder about your stake - ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits due in ${daysRemaining} days. Don't let it ride too long, yeah?*`;
           } else {
-            baseText += `\n\n*Oh, and you still owe me five hundred credits from that stake - ${daysRemaining} days left on the clock.*`;
+            baseText += `\n\n*Oh, and you still owe me ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits from that stake - ${daysRemaining} days left on the clock.*`;
           }
         }
       }
@@ -79,6 +100,24 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'Got any risk-taking tips for me?',
         next: 'ask_tip',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canGetTip !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canGetTip method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
           const tipAvailability = gameStateManager.canGetTip(npcId);
@@ -89,6 +128,24 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I need an emergency loan.',
         next: 'request_loan',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canRequestFavor !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -102,6 +159,24 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canRequestFavor !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -115,6 +190,21 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.getNPCState !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -124,6 +214,21 @@ export const LUCKY_LIU_DIALOGUE = {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.getNPCState !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(
@@ -244,7 +349,7 @@ export const LUCKY_LIU_DIALOGUE = {
   },
 
   request_loan: {
-    text: "Emergency loan? *leans back in chair* Five hundred credits... Now that's interesting. Most people come to me for stakes, not loans. But I like your style - sometimes you gotta double down when you're short on chips. Thirty days to pay it back, standard terms. You in?",
+    text: `Emergency loan? *leans back in chair* ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits... Now that's interesting. Most people come to me for stakes, not loans. But I like your style - sometimes you gotta double down when you're short on chips. ${NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE} days to pay it back, standard terms. You in?`,
     flags: ['liu_loan_discussed'],
     choices: [
       {
@@ -252,6 +357,21 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 3,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.requestLoan !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with requestLoan method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.requestLoan(npcId);
         },
       },
@@ -263,7 +383,7 @@ export const LUCKY_LIU_DIALOGUE = {
   },
 
   request_storage: {
-    text: 'Cargo storage? Sure thing, sport. I got secure space in the back - up to ten units, safe from sticky fingers and prying eyes. Consider it a favor between players. Sometimes you gotta stash your winnings before the next big game, right?',
+    text: `Cargo storage? Sure thing, sport. I got secure space in the back - up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, safe from sticky fingers and prying eyes. Consider it a favor between players. Sometimes you gotta stash your winnings before the next big game, right?`,
     flags: ['liu_storage_discussed'],
     choices: [
       {
@@ -271,6 +391,21 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.storeCargo !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with storeCargo method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.storeCargo(npcId);
         },
       },
@@ -283,7 +418,7 @@ export const LUCKY_LIU_DIALOGUE = {
   },
 
   repay_loan: {
-    text: "Loan repayment? *grins and checks his ledger* Five hundred credits, right on schedule. I like a player who knows when to cash out and settle their debts. Shows you understand the game - it's not just about the big wins, it's about staying in action.",
+    text: `Loan repayment? *grins and checks his ledger* ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, right on schedule. I like a player who knows when to cash out and settle their debts. Shows you understand the game - it's not just about the big wins, it's about staying in action.`,
     flags: ['liu_loan_repaid'],
     choices: [
       {
@@ -291,6 +426,21 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.repayLoan !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with repayLoan method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.repayLoan(npcId);
         },
       },
@@ -310,6 +460,21 @@ export const LUCKY_LIU_DIALOGUE = {
         next: 'greeting',
         repGain: 1,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.retrieveCargo !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with retrieveCargo method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.retrieveCargo(npcId);
         },
       },

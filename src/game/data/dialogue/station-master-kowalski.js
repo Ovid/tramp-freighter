@@ -1,10 +1,10 @@
 /**
  * @fileoverview Station Master Kowalski Dialogue Tree
- * 
+ *
  * A veteran station master who has seen everything and respects competence above all.
  * Uses gruff speech with simple vocabulary and no-nonsense direct communication.
  * Provides station operation tips and docking-related benefits based on relationship tier.
- * 
+ *
  * @module dialogue/station-master-kowalski
  */
 
@@ -29,6 +29,28 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   greeting: {
     text: (rep, gameStateManager, npcId) => {
+      // Input validation
+      if (
+        typeof rep !== 'number' ||
+        rep < REPUTATION_BOUNDS.MIN ||
+        rep > REPUTATION_BOUNDS.MAX
+      ) {
+        throw new Error(
+          `Invalid reputation value: ${rep}. Must be number between ${REPUTATION_BOUNDS.MIN} and ${REPUTATION_BOUNDS.MAX}`
+        );
+      }
+      if (
+        !gameStateManager ||
+        typeof gameStateManager.getNPCState !== 'function'
+      ) {
+        throw new Error(
+          'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+        );
+      }
+      if (!npcId || typeof npcId !== 'string') {
+        throw new Error(`Invalid npcId: ${npcId}. Must be non-empty string`);
+      }
+
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -58,12 +80,11 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
             NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
 
           if (daysRemaining <= 0) {
-            baseText +=
-              '\n\n*Your loan of five hundred credits is overdue, captain. Station policy requires immediate repayment.*';
+            baseText += `\n\n*Your loan of ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits is overdue, captain. Station policy requires immediate repayment.*`;
           } else if (daysRemaining <= 5) {
-            baseText += `\n\n*Reminder: Your loan of five hundred credits is due in ${daysRemaining} days. Station policy - no extensions.*`;
+            baseText += `\n\n*Reminder: Your loan of ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits is due in ${daysRemaining} days. Station policy - no extensions.*`;
           } else {
-            baseText += `\n\n*Outstanding loan: five hundred credits, ${daysRemaining} days remaining per station policy.*`;
+            baseText += `\n\n*Outstanding loan: ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, ${daysRemaining} days remaining per station policy.*`;
           }
         }
       }
@@ -79,6 +100,24 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'Any station operation tips for me?',
         next: 'ask_tip',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canGetTip !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canGetTip method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
           const tipAvailability = gameStateManager.canGetTip(npcId);
@@ -89,6 +128,24 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'I need an emergency loan.',
         next: 'request_loan',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canRequestFavor !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -102,6 +159,24 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (typeof rep !== 'number') {
+            throw new Error(`Invalid reputation value: ${rep}. Must be number`);
+          }
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.canRequestFavor !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with canRequestFavor method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
           const favorAvailability = gameStateManager.canRequestFavor(
@@ -115,6 +190,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.getNPCState !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check if NPC has an outstanding loan
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
@@ -124,6 +214,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
         condition: (rep, gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.getNPCState !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with getNPCState method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           // Check if NPC has stored cargo
           const npcState = gameStateManager.getNPCState(npcId);
           return Boolean(
@@ -234,7 +339,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   },
 
   request_loan: {
-    text: 'Emergency loan? Five hundred credits... *checks records* Your operational record shows competence and reliability. I can authorize the advance, but I expect repayment within thirty days. Station policy - no exceptions.',
+    text: `Emergency loan? ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits... *checks records* Your operational record shows competence and reliability. I can authorize the advance, but I expect repayment within ${NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE} days. Station policy - no exceptions.`,
     flags: ['kowalski_loan_discussed'],
     choices: [
       {
@@ -242,6 +347,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         next: 'greeting',
         repGain: 3,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.requestLoan !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with requestLoan method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.requestLoan(npcId);
         },
       },
@@ -253,7 +373,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   },
 
   request_storage: {
-    text: 'Cargo storage? We maintain secure storage for established traders. Up to ten units in our bonded warehouse. Professional service for professional traders. Standard security protocols apply.',
+    text: `Cargo storage? We maintain secure storage for established traders. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units in our bonded warehouse. Professional service for professional traders. Standard security protocols apply.`,
     flags: ['kowalski_storage_discussed'],
     choices: [
       {
@@ -261,6 +381,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.storeCargo !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with storeCargo method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.storeCargo(npcId);
         },
       },
@@ -273,7 +408,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   },
 
   repay_loan: {
-    text: 'Loan repayment acknowledged. *checks station records* Five hundred credits, as agreed. Your prompt attention to financial obligations is noted. Professional conduct like this keeps the station running smoothly.',
+    text: `Loan repayment acknowledged. *checks station records* ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, as agreed. Your prompt attention to financial obligations is noted. Professional conduct like this keeps the station running smoothly.`,
     flags: ['kowalski_loan_repaid'],
     choices: [
       {
@@ -281,6 +416,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         next: 'greeting',
         repGain: 2,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.repayLoan !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with repayLoan method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.repayLoan(npcId);
         },
       },
@@ -300,6 +450,21 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
         next: 'greeting',
         repGain: 1,
         action: (gameStateManager, npcId) => {
+          // Input validation
+          if (
+            !gameStateManager ||
+            typeof gameStateManager.retrieveCargo !== 'function'
+          ) {
+            throw new Error(
+              'Invalid gameStateManager: must provide GameStateManager instance with retrieveCargo method'
+            );
+          }
+          if (!npcId || typeof npcId !== 'string') {
+            throw new Error(
+              `Invalid npcId: ${npcId}. Must be non-empty string`
+            );
+          }
+
           return gameStateManager.retrieveCargo(npcId);
         },
       },
