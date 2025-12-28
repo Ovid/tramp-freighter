@@ -62,6 +62,78 @@
 import { REPUTATION_BOUNDS } from '../constants.js';
 
 /**
+ * Validates that all required constants are properly defined
+ * Call this during module initialization to catch configuration errors early
+ * @throws {Error} If any required constants are missing or invalid
+ */
+function validateRequiredConstants() {
+  const requiredBounds = [
+    'MIN',
+    'MAX',
+    'HOSTILE_MAX',
+    'COLD_MIN',
+    'COLD_MAX',
+    'NEUTRAL_MIN',
+    'NEUTRAL_MAX',
+    'WARM_MIN',
+    'WARM_MAX',
+    'FRIENDLY_MIN',
+    'FRIENDLY_MAX',
+    'TRUSTED_MIN',
+    'TRUSTED_MAX',
+    'FAMILY_MIN',
+  ];
+
+  if (!REPUTATION_BOUNDS || typeof REPUTATION_BOUNDS !== 'object') {
+    throw new Error(
+      'REPUTATION_BOUNDS must be defined as an object in constants.js'
+    );
+  }
+
+  for (const bound of requiredBounds) {
+    if (!(bound in REPUTATION_BOUNDS)) {
+      throw new Error(
+        `Missing required reputation bound: REPUTATION_BOUNDS.${bound}`
+      );
+    }
+    if (typeof REPUTATION_BOUNDS[bound] !== 'number') {
+      throw new Error(
+        `REPUTATION_BOUNDS.${bound} must be a number, got ${typeof REPUTATION_BOUNDS[bound]}`
+      );
+    }
+  }
+
+  // Validate bounds are in logical order for tier minimums
+  const tierMins = [
+    REPUTATION_BOUNDS.MIN,
+    REPUTATION_BOUNDS.COLD_MIN,
+    REPUTATION_BOUNDS.NEUTRAL_MIN,
+    REPUTATION_BOUNDS.WARM_MIN,
+    REPUTATION_BOUNDS.FRIENDLY_MIN,
+    REPUTATION_BOUNDS.TRUSTED_MIN,
+    REPUTATION_BOUNDS.FAMILY_MIN,
+  ];
+
+  for (let i = 1; i < tierMins.length; i++) {
+    if (tierMins[i] <= tierMins[i - 1]) {
+      throw new Error(
+        `Reputation tier minimums must be in ascending order. ${tierMins[i]} <= ${tierMins[i - 1]}`
+      );
+    }
+  }
+
+  // Validate that MAX is greater than all other bounds
+  if (REPUTATION_BOUNDS.MAX <= REPUTATION_BOUNDS.FAMILY_MIN) {
+    throw new Error(
+      `REPUTATION_BOUNDS.MAX (${REPUTATION_BOUNDS.MAX}) must be greater than FAMILY_MIN (${REPUTATION_BOUNDS.FAMILY_MIN})`
+    );
+  }
+}
+
+// Validate constants during module initialization
+validateRequiredConstants();
+
+/**
  * Validates that a dialogue tree has the required structure
  * @param {Object} tree - Dialogue tree to validate
  * @throws {Error} If tree structure is invalid

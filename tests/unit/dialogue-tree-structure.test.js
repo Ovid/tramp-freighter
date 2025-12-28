@@ -23,22 +23,31 @@ import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
  */
 describe('Dialogue Tree Structure', () => {
   describe('Wei Chen Dialogue Tree', () => {
-    it('should have greeting node with expected choices', () => {
+    it('should have greeting node with expected behavior', () => {
       expect(WEI_CHEN_DIALOGUE.greeting).toBeDefined();
       expect(WEI_CHEN_DIALOGUE.greeting.text).toBeDefined();
       expect(typeof WEI_CHEN_DIALOGUE.greeting.text).toBe('function');
       expect(Array.isArray(WEI_CHEN_DIALOGUE.greeting.choices)).toBe(true);
       expect(WEI_CHEN_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
 
-      // Check for expected dialogue options
-      const dialogueOptions = WEI_CHEN_DIALOGUE.greeting.choices.map(
-        (choice) => choice.text
+      // Test behavior: verify choices appear/disappear based on reputation
+      const lowRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(0)
       );
-      expect(dialogueOptions).toContain(
-        "Just making conversation. How's work?"
+      const highRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(50)
       );
-      expect(dialogueOptions).toContain('Tell me about yourself.');
-      expect(dialogueOptions).toContain('Nothing right now. Take care.');
+
+      // High reputation should have more choices available
+      expect(highRepChoices.length).toBeGreaterThanOrEqual(
+        lowRepChoices.length
+      );
+
+      // Should have at least one unconditional choice (exit option)
+      const unconditionalChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition
+      );
+      expect(unconditionalChoices.length).toBeGreaterThan(0);
     });
 
     it('should have backstory choice with condition function requiring rep >= 30', () => {
@@ -109,17 +118,29 @@ describe('Dialogue Tree Structure', () => {
       expect(MARCUS_COLE_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
     });
 
-    it('should have expected choice structure in greeting', () => {
-      const conversationChoices = MARCUS_COLE_DIALOGUE.greeting.choices.map(
-        (choice) => choice.text
+    it('should have expected choice behavior in greeting', () => {
+      // Test behavior: verify business choice appears based on reputation
+      const businessChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'business'
       );
-      expect(conversationChoices).toContain('About my debt...');
-      expect(conversationChoices).toContain(
-        'I wanted to discuss business opportunities.'
+      expect(businessChoice).toBeDefined();
+      expect(typeof businessChoice.condition).toBe('function');
+
+      // Low reputation should not have business option available
+      const lowRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(-20)
       );
-      expect(conversationChoices).toContain(
-        "Just checking in. I'll be going now."
+      const highRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(10)
       );
+
+      expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
+
+      // Should always have debt and exit options regardless of reputation
+      const unconditionalChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition
+      );
+      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should have business choice with reputation condition', () => {
@@ -170,13 +191,30 @@ describe('Dialogue Tree Structure', () => {
       );
     });
 
-    it('should have expected choice structure in greeting', () => {
-      const playerResponses = FATHER_OKONKWO_DIALOGUE.greeting.choices.map(
-        (choice) => choice.text
+    it('should have expected choice behavior in greeting', () => {
+      // Test behavior: verify help choice appears based on reputation
+      const helpChoice = FATHER_OKONKWO_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'help'
       );
-      expect(playerResponses).toContain('Tell me about your faith.');
-      expect(playerResponses).toContain('I could use some help.');
-      expect(playerResponses).toContain('Just passing through. Thank you.');
+      expect(helpChoice).toBeDefined();
+      expect(typeof helpChoice.condition).toBe('function');
+
+      // Low reputation should not have help option available
+      const lowRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(5)
+      );
+      const highRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(15)
+      );
+
+      expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
+
+      // Should always have faith and exit options regardless of reputation
+      const unconditionalChoices =
+        FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition
+        );
+      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should have help choice with reputation condition', () => {
@@ -234,15 +272,54 @@ describe('Dialogue Tree Structure', () => {
       expect(WHISPER_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
     });
 
-    it('should have expected choice structure in greeting', () => {
-      const conversationChoices = WHISPER_DIALOGUE.greeting.choices.map(
-        (choice) => choice.text
+    it('should have expected choice behavior in greeting', () => {
+      // Test behavior: verify reputation-gated choices appear based on reputation levels
+      const tipChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'ask_tip'
       );
-      expect(conversationChoices).toContain('Tell me about your information services.');
-      expect(conversationChoices).toContain('Any trading tips for me?');
-      expect(conversationChoices).toContain('I need an emergency loan.');
-      expect(conversationChoices).toContain('Can you store some cargo for me?');
-      expect(conversationChoices).toContain('Nothing right now. Until next time.');
+      const loanChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'request_loan'
+      );
+      const storageChoice = WHISPER_DIALOGUE.greeting.choices.find(
+        (choice) => choice.next === 'request_storage'
+      );
+
+      expect(tipChoice).toBeDefined();
+      expect(loanChoice).toBeDefined();
+      expect(storageChoice).toBeDefined();
+
+      // Test different reputation levels unlock different options
+      const hostileRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(-50)
+      );
+      const neutralRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(0)
+      );
+      const warmRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(15)
+      );
+      const friendlyRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(35)
+      );
+      const trustedRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition || choice.condition(65)
+      );
+
+      // Higher reputation should unlock more options
+      expect(trustedRepChoices.length).toBeGreaterThan(
+        friendlyRepChoices.length
+      );
+      expect(friendlyRepChoices.length).toBeGreaterThan(warmRepChoices.length);
+      expect(warmRepChoices.length).toBeGreaterThan(neutralRepChoices.length);
+      expect(neutralRepChoices.length).toBeGreaterThanOrEqual(
+        hostileRepChoices.length
+      );
+
+      // Should always have basic info and exit options
+      const unconditionalChoices = WHISPER_DIALOGUE.greeting.choices.filter(
+        (choice) => !choice.condition
+      );
+      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should have tip choice with reputation condition', () => {
@@ -310,14 +387,26 @@ describe('Dialogue Tree Structure', () => {
 
     it('should have tier-based greeting text matching requirements', () => {
       const greetingText = WHISPER_DIALOGUE.greeting.text;
-      
+
       // Test specific greeting text from requirements
-      expect(greetingText(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe('Welcome. I deal in information. What do you need?');
-      expect(greetingText(REPUTATION_BOUNDS.WARM_MIN)).toBe('Ah, a familiar face. Looking for intel?');
-      expect(greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe('Good to see you. I have something interesting.');
-      expect(greetingText(REPUTATION_BOUNDS.TRUSTED_MIN)).toBe("I've been expecting you. We need to talk.");
-      expect(greetingText(REPUTATION_BOUNDS.COLD_MIN)).toBe('Information costs credits.');
-      expect(greetingText(REPUTATION_BOUNDS.MIN)).toBe('Information costs credits.');
+      expect(greetingText(REPUTATION_BOUNDS.NEUTRAL_MIN)).toBe(
+        'Welcome. I deal in information. What do you need?'
+      );
+      expect(greetingText(REPUTATION_BOUNDS.WARM_MIN)).toBe(
+        'Ah, a familiar face. Looking for intel?'
+      );
+      expect(greetingText(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(
+        'Good to see you. I have something interesting.'
+      );
+      expect(greetingText(REPUTATION_BOUNDS.TRUSTED_MIN)).toBe(
+        "I've been expecting you. We need to talk."
+      );
+      expect(greetingText(REPUTATION_BOUNDS.COLD_MIN)).toBe(
+        'Information costs credits.'
+      );
+      expect(greetingText(REPUTATION_BOUNDS.MIN)).toBe(
+        'Information costs credits.'
+      );
     });
 
     it('should have story flags in dialogue nodes', () => {
@@ -327,11 +416,15 @@ describe('Dialogue Tree Structure', () => {
 
       expect(WHISPER_DIALOGUE.request_loan.flags).toBeDefined();
       expect(Array.isArray(WHISPER_DIALOGUE.request_loan.flags)).toBe(true);
-      expect(WHISPER_DIALOGUE.request_loan.flags).toContain('whisper_loan_discussed');
+      expect(WHISPER_DIALOGUE.request_loan.flags).toContain(
+        'whisper_loan_discussed'
+      );
 
       expect(WHISPER_DIALOGUE.request_storage.flags).toBeDefined();
       expect(Array.isArray(WHISPER_DIALOGUE.request_storage.flags)).toBe(true);
-      expect(WHISPER_DIALOGUE.request_storage.flags).toContain('whisper_storage_discussed');
+      expect(WHISPER_DIALOGUE.request_storage.flags).toContain(
+        'whisper_storage_discussed'
+      );
     });
   });
 

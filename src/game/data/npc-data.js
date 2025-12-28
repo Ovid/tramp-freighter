@@ -123,8 +123,11 @@ export const WEI_CHEN = {
   tierBenefits: {
     warm: { discount: 0, benefit: 'Dock worker tips' },
     friendly: { discount: 0.05, benefit: '5% discount on docking services' },
-    trusted: { discount: 0.05, benefit: 'Advance warning about dock inspections' },
-    family: { discount: 0.10, benefit: 'Priority docking and cargo handling' },
+    trusted: {
+      discount: 0.05,
+      benefit: 'Advance warning about dock inspections',
+    },
+    family: { discount: 0.1, benefit: 'Priority docking and cargo handling' },
   },
 };
 
@@ -172,8 +175,8 @@ export const MARCUS_COLE = {
   discountService: 'debt',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Financial tips' },
-    friendly: { discount: 0.10, benefit: '10% reduction in debt interest' },
-    trusted: { discount: 0.10, benefit: 'Debt restructuring options' },
+    friendly: { discount: 0.1, benefit: '10% reduction in debt interest' },
+    trusted: { discount: 0.1, benefit: 'Debt restructuring options' },
     family: { discount: 0.15, benefit: 'Favorable loan terms' },
   },
 };
