@@ -435,8 +435,12 @@ describe('Dialogue Tree Structure', () => {
       expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting).toBeDefined();
       expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting.text).toBeDefined();
       expect(typeof CAPTAIN_VASQUEZ_DIALOGUE.greeting.text).toBe('function');
-      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices)).toBe(true);
-      expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices)).toBe(
+        true
+      );
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.length).toBeGreaterThan(
+        0
+      );
     });
 
     it('should have tier-based greeting text matching requirements', () => {
@@ -483,28 +487,34 @@ describe('Dialogue Tree Structure', () => {
       expect(storageChoice).toBeDefined();
 
       // Test different reputation levels unlock different options
-      const neutralRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(0)
-      );
+      const neutralRepChoices =
+        CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition || choice.condition(0)
+        );
       const warmRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
         (choice) => !choice.condition || choice.condition(15)
       );
-      const friendlyRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(35)
-      );
-      const trustedRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(65)
-      );
+      const friendlyRepChoices =
+        CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition || choice.condition(35)
+        );
+      const trustedRepChoices =
+        CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition || choice.condition(65)
+        );
 
       // Higher reputation should unlock more options
-      expect(trustedRepChoices.length).toBeGreaterThan(friendlyRepChoices.length);
+      expect(trustedRepChoices.length).toBeGreaterThan(
+        friendlyRepChoices.length
+      );
       expect(friendlyRepChoices.length).toBeGreaterThan(warmRepChoices.length);
       expect(warmRepChoices.length).toBeGreaterThan(neutralRepChoices.length);
 
       // Should always have basic trading talk and exit options
-      const unconditionalChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition
-      );
+      const unconditionalChoices =
+        CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition
+        );
       expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -526,7 +536,9 @@ describe('Dialogue Tree Structure', () => {
       requiredNodes.forEach((nodeId) => {
         expect(CAPTAIN_VASQUEZ_DIALOGUE[nodeId]).toBeDefined();
         expect(CAPTAIN_VASQUEZ_DIALOGUE[nodeId].text).toBeDefined();
-        expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE[nodeId].choices)).toBe(true);
+        expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE[nodeId].choices)).toBe(
+          true
+        );
       });
     });
 
@@ -534,8 +546,12 @@ describe('Dialogue Tree Structure', () => {
       // Test that backstory has function-based text for different reputation levels
       expect(typeof CAPTAIN_VASQUEZ_DIALOGUE.backstory.text).toBe('function');
 
-      const friendlyBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(REPUTATION_BOUNDS.FRIENDLY_MIN);
-      const trustedBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(REPUTATION_BOUNDS.TRUSTED_MIN);
+      const friendlyBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(
+        REPUTATION_BOUNDS.FRIENDLY_MIN
+      );
+      const trustedBackstory = CAPTAIN_VASQUEZ_DIALOGUE.backstory.text(
+        REPUTATION_BOUNDS.TRUSTED_MIN
+      );
 
       expect(typeof friendlyBackstory).toBe('string');
       expect(typeof trustedBackstory).toBe('string');
@@ -548,15 +564,25 @@ describe('Dialogue Tree Structure', () => {
     it('should have story flags in dialogue nodes', () => {
       expect(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags).toBeDefined();
       expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags)).toBe(true);
-      expect(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags).toContain('vasquez_tip_requested');
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.ask_tip.flags).toContain(
+        'vasquez_tip_requested'
+      );
 
       expect(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags).toBeDefined();
-      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags)).toBe(true);
-      expect(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags).toContain('vasquez_backstory_shared');
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags)).toBe(
+        true
+      );
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.backstory.flags).toContain(
+        'vasquez_backstory_shared'
+      );
 
       expect(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags).toBeDefined();
-      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags)).toBe(true);
-      expect(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags).toContain('vasquez_pavonis_discussed');
+      expect(Array.isArray(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags)).toBe(
+        true
+      );
+      expect(CAPTAIN_VASQUEZ_DIALOGUE.pavonis_hints.flags).toContain(
+        'vasquez_pavonis_discussed'
+      );
     });
   });
 
@@ -574,7 +600,9 @@ describe('Dialogue Tree Structure', () => {
       expect(() => validateDialogueTree(MARCUS_COLE_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(FATHER_OKONKWO_DIALOGUE)).not.toThrow();
       expect(() => validateDialogueTree(WHISPER_DIALOGUE)).not.toThrow();
-      expect(() => validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)).not.toThrow();
+      expect(() =>
+        validateDialogueTree(CAPTAIN_VASQUEZ_DIALOGUE)
+      ).not.toThrow();
     });
 
     it('should validate all dialogue trees using validateAllDialogueTrees function', () => {

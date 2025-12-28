@@ -63,10 +63,10 @@ import { REPUTATION_BOUNDS } from '../constants.js';
 
 /**
  * Validates that all required constants are properly defined
- * Call this during module initialization to catch configuration errors early
+ * Call this during game initialization to catch configuration errors early
  * @throws {Error} If any required constants are missing or invalid
  */
-function validateRequiredConstants() {
+export function validateRequiredConstants() {
   const requiredBounds = [
     'MIN',
     'MAX',
@@ -130,8 +130,10 @@ function validateRequiredConstants() {
   }
 }
 
-// Validate constants during module initialization
-validateRequiredConstants();
+// Basic module-level validation - only check existence
+if (!REPUTATION_BOUNDS) {
+  throw new Error('REPUTATION_BOUNDS must be imported from constants.js');
+}
 
 /**
  * Validates that a dialogue tree has the required structure
@@ -907,7 +909,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
   },
 
   ask_tip: {
-    text: 'Of course! Always happy to share what I know with a fellow trader. Let me think of something useful...',
+    text: "Of course! Always happy to share what I know with a fellow trader. Here's something that might help you out there...",
     flags: ['vasquez_tip_requested'],
     choices: [
       {
@@ -928,7 +930,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       if (rep >= REPUTATION_BOUNDS.TRUSTED_MIN) {
         return "Thirty years running freight through known space. Started with a beat-up hauler, worked my way up to a proper freighter. Seen systems bloom and fade, watched the trade routes evolve. But there's still unexplored space out there... places like Pavonis that call to the adventurous.";
       } else {
-        return "Been trading these routes since before some of these stations were built. Started small, worked hard, saved every credit. Retired comfortable, but I miss the freedom of the void sometimes. The thrill of a good run, you know?";
+        return 'Been trading these routes since before some of these stations were built. Started small, worked hard, saved every credit. Retired comfortable, but I miss the freedom of the void sometimes. The thrill of a good run, you know?';
       }
     },
     flags: ['vasquez_backstory_shared'],
@@ -1028,7 +1030,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         repGain: 2,
       },
       {
-        text: "I appreciate the offer.",
+        text: 'I appreciate the offer.',
         next: 'greeting',
         repGain: 1,
       },
@@ -1049,11 +1051,15 @@ export const ALL_DIALOGUE_TREES = {
 };
 
 /**
- * Validates all dialogue trees in the game
+ * Validates all dialogue trees and required constants in the game
  * Call this during game initialization to ensure data integrity
- * @throws {Error} If any dialogue tree is invalid
+ * @throws {Error} If any dialogue tree or constants are invalid
  */
 export function validateAllDialogueTrees() {
+  // Validate constants first
+  validateRequiredConstants();
+
+  // Then validate all dialogue trees
   Object.entries(ALL_DIALOGUE_TREES).forEach(([npcId, tree]) => {
     try {
       validateDialogueTree(tree);

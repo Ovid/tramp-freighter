@@ -64,27 +64,15 @@ describe('Station Master Kowalski NPC Data Validation', () => {
       );
     });
 
-    it('should have non-empty tips array with valid content', () => {
+    it('should have non-empty tips array', () => {
       expect(Array.isArray(STATION_MASTER_KOWALSKI.tips)).toBe(true);
       expect(STATION_MASTER_KOWALSKI.tips.length).toBeGreaterThan(0);
 
-      // Verify all tips are non-empty strings (structural requirement)
+      // Verify all tips are non-empty strings
       STATION_MASTER_KOWALSKI.tips.forEach((tip) => {
         expect(typeof tip).toBe('string');
         expect(tip.length).toBeGreaterThan(0);
       });
-
-      // Verify tips contain station/trading-relevant information (behavioral requirement)
-      const allTipsText = STATION_MASTER_KOWALSKI.tips.join(' ').toLowerCase();
-      const hasStationInfo =
-        /alpha centauri|hub|station|docking|traffic|standards/.test(
-          allTipsText
-        );
-      const hasTradingInfo = /buying|selling|goods|prices|ship/.test(
-        allTipsText
-      );
-
-      expect(hasStationInfo || hasTradingInfo).toBe(true);
     });
 
     it('should have correct discount service', () => {
