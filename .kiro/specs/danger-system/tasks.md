@@ -281,8 +281,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display costs and consequences for each option
     - _Requirements: 5.3, 5.13, 12.1, 12.5_
 
-- [ ] 23. Create mechanical failure panel component
-  - [ ] 23.1 Create src/features/danger/MechanicalFailurePanel.jsx
+- [x] 23. Create mechanical failure panel component
+  - [x] 23.1 Create src/features/danger/MechanicalFailurePanel.jsx
     - Display failure type and severity
     - Show repair options with success rates and costs
     - _Requirements: 6.6, 6.11, 12.1, 12.5_
