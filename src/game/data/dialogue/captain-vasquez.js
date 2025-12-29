@@ -9,6 +9,13 @@
  */
 
 import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  hasGoodKarma,
+  hasBadKarma,
+  isFriendToCivilians,
+  getKarmaFirstImpression,
+  getFactionAttitudeModifier,
+} from './faction-karma-conditions.js';
 
 /**
  * Captain Vasquez Dialogue Tree - Retired Trader at Epsilon Eridani
@@ -66,7 +73,26 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           "Welcome, captain. I'm Vasquez - used to run freight through these systems myself. What can I do for you?";
       }
 
-      // Add loan status if there's an outstanding loan (when game state is available)
+      // Add karma-based commentary for established relationships
+      if (gameStateManager && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        if (hasGoodKarma(gameStateManager)) {
+          baseText += ' I can see you\'re one of the good ones - the sector needs more traders like you.';
+        } else if (hasBadKarma(gameStateManager)) {
+          baseText += ' You\'ve got a hard edge to you now. The sector can do that to people.';
+        }
+      }
+
+      // Add karma-based first impression for new encounters
+      if (gameStateManager && rep < REPUTATION_BOUNDS.WARM_MIN) {
+        const karma = gameStateManager.getKarma();
+        const karmaModifier = getKarmaFirstImpression(karma, 'lawful');
+        baseText += karmaModifier;
+      }
+
+      // Add civilian faction appreciation
+      if (gameStateManager && isFriendToCivilians(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        baseText += ' Word is you\'ve been helping folks out there. That\'s the trader spirit I remember.';
+      }
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
         if (npcState.loanAmount && npcState.loanAmount > 0) {
@@ -160,6 +186,24 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'Just checking in. Take care, Captain.',
         next: null,
+      },
+      {
+        text: 'I try to help people when I can.',
+        next: 'good_karma_discussion',
+        condition: (rep, gameStateManager, npcId) => {
+          // Available if player has good karma and warm+ reputation
+          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
+                 gameStateManager && hasGoodKarma(gameStateManager);
+        },
+      },
+      {
+        text: 'Sometimes you have to make hard choices out there.',
+        next: 'bad_karma_discussion',
+        condition: (rep, gameStateManager, npcId) => {
+          // Available if player has bad karma and warm+ reputation
+          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
+                 gameStateManager && hasBadKarma(gameStateManager);
+        },
       },
     ],
   },
@@ -385,6 +429,45 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'Let me make some room first.',
         next: 'greeting',
+      },
+    ],
+  },
+
+  good_karma_discussion: {
+    text: "That's the spirit I like to hear! You know, back in my day, traders looked out for each other. We understood that helping others wasn't just good business - it was the right thing to do. The sector's a better place when people like you are out there.",
+    flags: ['vasquez_good_karma_discussion'],
+    choices: [
+      {
+        text: 'We all need to stick together.',
+        next: 'greeting',
+        repGain: 3,
+      },
+      {
+        text: 'It just feels right to help when I can.',
+        next: 'greeting',
+        repGain: 2,
+      },
+    ],
+  },
+
+  bad_karma_discussion: {
+    text: "I can see the weight in your eyes, captain. The sector can be cruel, and sometimes it forces us into corners we never wanted to be in. I've seen good traders make bad choices just to survive. The important thing is remembering who you want to be.",
+    flags: ['vasquez_bad_karma_discussion'],
+    choices: [
+      {
+        text: 'I do what I have to do to survive.',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'I want to do better, but it\'s not always easy.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Sometimes there are no good choices.',
+        next: 'greeting',
+        repGain: 1,
       },
     ],
   },

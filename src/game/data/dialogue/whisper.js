@@ -9,6 +9,17 @@
  */
 
 import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  hasFactionRep,
+  hasGoodKarma,
+  hasBadKarma,
+  isWantedByAuthorities,
+  isKnownToOutlaws,
+  isTrustedByAuthorities,
+  hasMixedReputation,
+  getKarmaFirstImpression,
+  getFactionAttitudeModifier,
+} from './faction-karma-conditions.js';
 
 /**
  * Whisper Dialogue Tree - Information Broker at Sirius A
@@ -56,6 +67,24 @@ export const WHISPER_DIALOGUE = {
       } else {
         // Cold or Hostile
         baseText = 'Information costs credits.';
+      }
+
+      // Add karma-based first impression for new encounters
+      if (gameStateManager && rep < REPUTATION_BOUNDS.WARM_MIN) {
+        const karma = gameStateManager.getKarma();
+        const karmaModifier = getKarmaFirstImpression(karma, 'neutral');
+        baseText += karmaModifier;
+      }
+
+      // Add faction-specific commentary based on player's reputation
+      if (gameStateManager) {
+        if (isWantedByAuthorities(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+          baseText += ' I hear the authorities have taken an interest in you.';
+        } else if (isKnownToOutlaws(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+          baseText += ' Word is you\'ve made some interesting connections in the underworld.';
+        } else if (isTrustedByAuthorities(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+          baseText += ' Your clean record opens certain doors, you know.';
+        }
       }
 
       // Add loan status if there's an outstanding loan (when game state is available)
@@ -142,6 +171,35 @@ export const WHISPER_DIALOGUE = {
           return Boolean(
             npcState.storedCargo && npcState.storedCargo.length > 0
           );
+        },
+      },
+      {
+        text: 'I need information about authority patrol patterns.',
+        next: 'authority_intel',
+        condition: (rep, gameStateManager, npcId) => {
+          // Available if player is wanted by authorities and has warm+ reputation
+          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
+                 gameStateManager && isWantedByAuthorities(gameStateManager);
+        },
+      },
+      {
+        text: 'Any intel on outlaw activities?',
+        next: 'outlaw_intel',
+        condition: (rep, gameStateManager, npcId) => {
+          // Available if player is trusted by authorities and has friendly+ reputation
+          return rep >= REPUTATION_BOUNDS.FRIENDLY_MIN && 
+                 gameStateManager && isTrustedByAuthorities(gameStateManager);
+        },
+      },
+      {
+        text: 'I hear you deal with all kinds of people.',
+        next: 'mixed_reputation_comment',
+        condition: (rep, gameStateManager, npcId) => {
+          // Available if player has mixed reputation (high with one faction, low with opposing)
+          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
+                 gameStateManager && 
+                 (hasMixedReputation('authorities', 'outlaws', gameStateManager) ||
+                  hasMixedReputation('outlaws', 'authorities', gameStateManager));
         },
       },
       {
@@ -309,6 +367,62 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'Let me make some space first.',
         next: 'greeting',
+      },
+    ],
+  },
+
+  authority_intel: {
+    text: 'Patrol patterns... Sensitive information. But for someone in your position, it could be vital. The authorities follow predictable routes - they have to, for efficiency. I can share what I know, but this information comes at a premium.',
+    flags: ['whisper_authority_intel'],
+    choices: [
+      {
+        text: 'I need all the help I can get.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Maybe I should lay low instead.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  outlaw_intel: {
+    text: 'Outlaw activities... Your clean record makes this request interesting. The authorities would pay well for such information. I can provide details on known smuggling routes and pirate havens, but consider carefully - knowledge like this changes how others see you.',
+    flags: ['whisper_outlaw_intel'],
+    choices: [
+      {
+        text: 'I need to know what threats are out there.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Perhaps ignorance is safer.',
+        next: 'greeting',
+        repGain: 1,
+      },
+    ],
+  },
+
+  mixed_reputation_comment: {
+    text: 'Indeed. Information flows from all corners of the sector. Your... complex reputation opens doors that remain closed to others. Some see you as a friend, others as an enemy. In my business, that makes you very interesting.',
+    flags: ['whisper_mixed_reputation'],
+    choices: [
+      {
+        text: 'I try to keep all my options open.',
+        next: 'greeting',
+        repGain: 2,
+      },
+      {
+        text: 'Sometimes you have to pick a side.',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: 'Reputation is just another tool.',
+        next: 'greeting',
+        repGain: 3,
       },
     ],
   },

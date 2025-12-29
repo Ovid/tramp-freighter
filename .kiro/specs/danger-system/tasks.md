@@ -315,8 +315,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display karma/reputation changes
     - _Requirements: 9.9, 12.6_
 
-- [ ] 28. Integrate faction reputation and karma with dialogue system
-  - [ ] 28.1 Update dialogue condition checks to include faction reputation and karma
+- [x] 28. Integrate faction reputation and karma with dialogue system
+  - [x] 28.1 Update dialogue condition checks to include faction reputation and karma
     - Add faction reputation checks to dialogue choice conditions
     - Add karma checks to influence NPC first impressions
     - NPCs should have different attitudes based on player's faction standing and karma
