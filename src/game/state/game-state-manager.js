@@ -643,6 +643,9 @@ export class GameStateManager {
   }
 
   resolveDistressCall(distressCall, choice) {
-    return this.dangerManager.resolveDistressCallEncounter(distressCall, choice);
+    return this.dangerManager.resolveDistressCallEncounter(
+      distressCall,
+      choice
+    );
   }
 }

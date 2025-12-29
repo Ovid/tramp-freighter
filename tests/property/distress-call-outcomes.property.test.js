@@ -32,24 +32,16 @@ describe('Distress Call Outcomes Property Tests', () => {
   it('should produce valid distress call outcomes for all choices', () => {
     fc.assert(
       fc.property(
-        // Generate random distress call encounters
-        fc.record({
-          id: fc.string({ minLength: 1, maxLength: 20 }),
-          description: fc.string({ minLength: 10, maxLength: 100 }),
-          costs: fc.record({
-            days: fc.integer({ min: 1, max: 5 }),
-            fuel: fc.integer({ min: 5, max: 20 }),
-            lifeSupport: fc.integer({ min: 1, max: 10 }),
-          }),
-          rewards: fc.record({
-            credits: fc.integer({ min: 100, max: 1000 }),
-            reputation: fc.integer({ min: 5, max: 15 }),
-            karma: fc.integer({ min: 1, max: 3 }),
-          }),
-        }),
         // Generate random distress call choices
         fc.constantFrom('respond', 'ignore', 'loot'),
-        (distressCall, choice) => {
+        (choice) => {
+          // Create a simple distress call object (only used for method signature)
+          const distressCall = {
+            id: 'test_distress',
+            type: 'civilian_distress',
+            description: 'Test distress call',
+          };
+
           // Resolve the distress call choice using the current game state
           const outcome = gameStateManager.resolveDistressCall(
             distressCall,

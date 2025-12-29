@@ -193,10 +193,7 @@ export class DangerManager extends BaseManager {
     }
 
     // Apply advanced sensors modifier (Requirement 2.10)
-    if (
-      gameState.ship.upgrades &&
-      gameState.ship.upgrades.includes('advanced_sensors')
-    ) {
+    if (gameState.ship.upgrades.includes('advanced_sensors')) {
       probability *= ADVANCED_SENSORS_PIRATE_REDUCTION; // 0.8x with advanced sensors
     }
 
@@ -367,18 +364,12 @@ export class DangerManager extends BaseManager {
     let successChance = EVASIVE.BASE_CHANCE;
 
     // Apply hot_thruster quirk bonus
-    if (
-      gameState.ship.quirks &&
-      gameState.ship.quirks.includes('hot_thruster')
-    ) {
+    if (gameState.ship.quirks.includes('hot_thruster')) {
       successChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
     }
 
     // Apply efficient_drive upgrade bonus (affects flee attempts)
-    if (
-      gameState.ship.upgrades &&
-      gameState.ship.upgrades.includes('efficient_drive')
-    ) {
+    if (gameState.ship.upgrades.includes('efficient_drive')) {
       successChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
     }
 
@@ -557,10 +548,7 @@ export class DangerManager extends BaseManager {
     let successChance = DISTRESS_CALL.BASE_CHANCE;
 
     // Apply sensitive_sensors quirk bonus
-    if (
-      gameState.ship.quirks &&
-      gameState.ship.quirks.includes('sensitive_sensors')
-    ) {
+    if (gameState.ship.quirks.includes('sensitive_sensors')) {
       successChance += COMBAT_CONFIG.MODIFIERS.sensitive_sensors.distressBonus;
     }
 
@@ -957,10 +945,7 @@ export class DangerManager extends BaseManager {
    * @returns {boolean} True if lucky ship negates the bad outcome
    */
   checkLuckyShipNegate(gameState, rng) {
-    if (
-      !gameState.ship.quirks ||
-      !gameState.ship.quirks.includes('lucky_ship')
-    ) {
+    if (!gameState.ship.quirks.includes('lucky_ship')) {
       return false;
     }
 
@@ -989,19 +974,13 @@ export class DangerManager extends BaseManager {
     let modifiedDamage = baseDamage;
 
     // Apply reinforced_hull upgrade (reduces damage)
-    if (
-      gameState.ship.upgrades &&
-      gameState.ship.upgrades.includes('reinforced_hull')
-    ) {
+    if (gameState.ship.upgrades.includes('reinforced_hull')) {
       const reduction = COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction;
       modifiedDamage *= 1 - reduction;
     }
 
     // Apply leaky_seals quirk (increases damage)
-    if (
-      gameState.ship.quirks &&
-      gameState.ship.quirks.includes('leaky_seals')
-    ) {
+    if (gameState.ship.quirks.includes('leaky_seals')) {
       const increase = COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease;
       modifiedDamage *= 1 + increase;
     }
@@ -1204,6 +1183,16 @@ export class DangerManager extends BaseManager {
    * other ships in distress, presenting moral choices about whether
    * to help, ignore, or exploit the situation.
    *
+   * WHY 10% encounter rate:
+   * - Provides regular moral choices without overwhelming the player
+   * - Balances meaningful decision frequency with gameplay flow
+   * - Creates anticipation and variety during routine jumps
+   *
+   * WHY civilian distress specifically:
+   * - Tests player's moral alignment in clear good/neutral/evil choices
+   * - Provides karma and reputation consequences that affect future encounters
+   * - Creates emergent storytelling through player moral decisions
+   *
    * Feature: danger-system
    * Validates: Requirements 7.1
    *
@@ -1213,13 +1202,14 @@ export class DangerManager extends BaseManager {
   checkDistressCall(rng) {
     this.validateState();
 
-    // Check if distress call occurs (10% chance)
+    // Check if distress call occurs
     if (rng < DISTRESS_CONFIG.CHANCE) {
       return {
         id: `distress_${Date.now()}`,
         type: 'civilian_distress',
-        description: 'A civilian vessel is broadcasting a distress signal. Their engines have failed and they need assistance.',
-        options: ['respond', 'ignore', 'loot']
+        description:
+          'A civilian vessel is broadcasting a distress signal. Their engines have failed and they need assistance.',
+        options: ['respond', 'ignore', 'loot'],
       };
     }
 
@@ -1279,7 +1269,8 @@ export class DangerManager extends BaseManager {
         },
         karma: DISTRESS_CONFIG.RESPOND.KARMA_REWARD,
       },
-      description: 'You helped the distressed vessel repair their engines. They were grateful and offered payment for your assistance.',
+      description:
+        'You helped the distressed vessel repair their engines. They were grateful and offered payment for your assistance.',
     };
   }
 
@@ -1298,7 +1289,8 @@ export class DangerManager extends BaseManager {
       rewards: {
         karma: DISTRESS_CONFIG.IGNORE.KARMA_PENALTY,
       },
-      description: 'You ignored the distress call and continued on your way. The decision weighs on your conscience.',
+      description:
+        'You ignored the distress call and continued on your way. The decision weighs on your conscience.',
     };
   }
 
@@ -1332,7 +1324,8 @@ export class DangerManager extends BaseManager {
           },
         ],
       },
-      description: 'You salvaged valuable parts from the distressed vessel. The crew will remember your betrayal.',
+      description:
+        'You salvaged valuable parts from the distressed vessel. The crew will remember your betrayal.',
     };
   }
 

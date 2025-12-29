@@ -1139,52 +1139,30 @@ export const FAILURE_CONFIG = {
  * All costs, rewards, and karma/reputation changes are centralized for balance tuning.
  */
 export const DISTRESS_CONFIG = {
-  // Base encounter rate
-  BASE_ENCOUNTER_RATE: 0.1, // 10% chance per jump to encounter distress call
-
-  // Resource costs for responding to distress calls
-  RESPONSE_COSTS: {
-    RESPOND_DAYS_COST: 2, // Days delay for responding to distress call
-    RESPOND_FUEL_COST: 15, // Fuel percentage consumed when responding
-    RESPOND_LIFE_SUPPORT_COST: 5, // Life support condition cost when responding
-    LOOT_DAYS_COST: 1, // Days delay for looting distressed vessel
-  },
-
-  // Rewards and penalties
-  OUTCOME_VALUES: {
-    RESPOND_CREDITS_REWARD: 500, // Credits reward for responding to distress call
-    RESPOND_CIVILIAN_REP_REWARD: 10, // Civilian reputation reward for helping
-    RESPOND_KARMA_REWARD: 1, // Karma reward for helping civilians
-    IGNORE_KARMA_PENALTY: -1, // Karma penalty for ignoring distress call
-    LOOT_KARMA_PENALTY: -3, // Karma penalty for looting distressed vessel
-    LOOT_CIVILIAN_REP_PENALTY: -15, // Civilian reputation penalty for looting
-    LOOT_OUTLAW_REP_GAIN: 5, // Outlaw reputation for piracy behavior
-  },
-
   // Base chance to encounter a distress call during jump
-  CHANCE: 0.1, // Uses BASE_ENCOUNTER_RATE
+  CHANCE: 0.1, // 10% chance per jump to encounter distress call
 
   // Respond - help the distressed vessel
   RESPOND: {
-    DAYS_COST: 2, // Uses RESPONSE_COSTS.RESPOND_DAYS_COST
-    FUEL_COST: 15, // Uses RESPONSE_COSTS.RESPOND_FUEL_COST
-    LIFE_SUPPORT_COST: 5, // Uses RESPONSE_COSTS.RESPOND_LIFE_SUPPORT_COST
-    CREDITS_REWARD: 500, // Uses OUTCOME_VALUES.RESPOND_CREDITS_REWARD
-    REP_REWARD: 10, // Uses OUTCOME_VALUES.RESPOND_CIVILIAN_REP_REWARD
-    KARMA_REWARD: 1, // Uses OUTCOME_VALUES.RESPOND_KARMA_REWARD
+    DAYS_COST: 2, // Days delay for responding to distress call
+    FUEL_COST: 15, // Fuel percentage consumed when responding
+    LIFE_SUPPORT_COST: 5, // Life support condition cost when responding
+    CREDITS_REWARD: 500, // Credits reward for responding to distress call
+    REP_REWARD: 10, // Civilian reputation reward for helping
+    KARMA_REWARD: 1, // Karma reward for helping civilians
   },
 
   // Ignore - pass by without helping
   IGNORE: {
-    KARMA_PENALTY: -1, // Uses OUTCOME_VALUES.IGNORE_KARMA_PENALTY
+    KARMA_PENALTY: -1, // Karma penalty for ignoring distress call
   },
 
   // Loot - take advantage of the distressed vessel
   LOOT: {
-    DAYS_COST: 1, // Uses RESPONSE_COSTS.LOOT_DAYS_COST
-    KARMA_PENALTY: -3, // Uses OUTCOME_VALUES.LOOT_KARMA_PENALTY
-    REP_PENALTY: -15, // Uses OUTCOME_VALUES.LOOT_CIVILIAN_REP_PENALTY
-    OUTLAW_REP_GAIN: 5, // Uses OUTCOME_VALUES.LOOT_OUTLAW_REP_GAIN
+    DAYS_COST: 1, // Days delay for looting distressed vessel
+    KARMA_PENALTY: -3, // Karma penalty for looting distressed vessel
+    REP_PENALTY: -15, // Civilian reputation penalty for looting
+    OUTLAW_REP_GAIN: 5, // Outlaw reputation for piracy behavior
   },
 };
 
