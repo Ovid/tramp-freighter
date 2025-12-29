@@ -1,4 +1,4 @@
-import { SAVE_KEY, SAVE_DEBOUNCE_MS } from '../constants.js';
+import { SAVE_KEY, UI_CONFIG } from '../constants.js';
 
 /**
  * Save game state to localStorage with debouncing
@@ -21,7 +21,7 @@ export function saveGame(state, lastSaveTime, isTestEnvironment) {
 
   // Debounce: skip save if less than 1 second since last save
   const now = Date.now();
-  if (now - lastSaveTime < SAVE_DEBOUNCE_MS) {
+  if (now - lastSaveTime < UI_CONFIG.SAVE_DEBOUNCE_MS) {
     if (!isTestEnvironment) {
       console.log('Save debounced (too soon since last save)');
     }

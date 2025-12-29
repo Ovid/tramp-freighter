@@ -162,6 +162,15 @@ export class InitializationManager {
       activeEvents: [],
       marketConditions: {},
       currentSystemPrices: solPrices,
+      dangerFlags: {
+        piratesFought: 0,
+        piratesNegotiated: 0,
+        civiliansSaved: 0,
+        civiliansLooted: 0,
+        inspectionsPassed: 0,
+        inspectionsBribed: 0,
+        inspectionsFled: 0,
+      },
     };
   }
 

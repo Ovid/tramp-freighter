@@ -227,16 +227,16 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Allow trade if player has black market contacts (NPC benefit)
     - _Requirements: 11.11, 11.12_
 
-- [ ] 16. Integrate DangerManager with GameStateManager (TDD)
-  - [ ] 16.1 RED: Write property test for state persistence round-trip
+- [x] 16. Integrate DangerManager with GameStateManager (TDD)
+  - [x] 16.1 RED: Write property test for state persistence round-trip
     - **Property 15: State Persistence Round-Trip**
     - Test that karma, factions, hiddenCargo, dangerFlags survive save/load
     - **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5**
-  - [ ] 16.2 GREEN: Add DangerManager to GameStateManager constructor
+  - [x] 16.2 GREEN: Add DangerManager to GameStateManager constructor
     - Import and instantiate DangerManager
     - Add delegation methods for danger operations
     - _Requirements: All_
-  - [ ] 16.3 GREEN: Update SaveLoadManager for danger state
+  - [x] 16.3 GREEN: Update SaveLoadManager for danger state
     - Add karma and factions to save/load
     - Add hiddenCargo to save/load
     - Add dangerFlags to save/load

@@ -652,4 +652,12 @@ export class GameStateManager {
       choice
     );
   }
+
+  checkMechanicalFailure(gameState, rng) {
+    return this.dangerManager.checkMechanicalFailure(gameState, rng);
+  }
+
+  resolveMechanicalFailure(failureType, choice, gameState, rng) {
+    return this.dangerManager.resolveMechanicalFailure(failureType, choice, gameState, rng);
+  }
 }
