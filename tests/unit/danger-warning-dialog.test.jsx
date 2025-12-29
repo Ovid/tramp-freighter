@@ -108,16 +108,20 @@ describe('DangerWarningDialog', () => {
   it('should call onCancel when cancel button is clicked', () => {
     const onCancel = vi.fn();
     renderWithContext({ onCancel });
-    
+
     fireEvent.click(screen.getByText('Cancel Jump'));
     expect(onCancel).toHaveBeenCalledOnce();
   });
 
   it('should show confirmation for dangerous systems', () => {
     renderWithContext();
-    
+
     fireEvent.click(screen.getByText('Accept Risk & Proceed'));
-    expect(screen.getByText('Are you sure you want to jump to this dangerous system?')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Are you sure you want to jump to this dangerous system?'
+      )
+    ).toBeInTheDocument();
     expect(screen.getByText('Yes, Proceed Anyway')).toBeInTheDocument();
     expect(screen.getByText('No, Go Back')).toBeInTheDocument();
   });
@@ -125,26 +129,26 @@ describe('DangerWarningDialog', () => {
   it('should call onProceed when confirmed for dangerous systems', () => {
     const onProceed = vi.fn();
     renderWithContext({ onProceed });
-    
+
     // Click proceed button
     fireEvent.click(screen.getByText('Accept Risk & Proceed'));
-    
+
     // Confirm the dangerous jump
     fireEvent.click(screen.getByText('Yes, Proceed Anyway'));
-    
+
     expect(onProceed).toHaveBeenCalledOnce();
   });
 
   it('should proceed directly for safe systems', () => {
     const onProceed = vi.fn();
     mockGameStateManager.dangerManager.getDangerZone.mockReturnValue('safe');
-    
-    renderWithContext({ 
+
+    renderWithContext({
       destinationSystemId: 0,
       destinationSystemName: 'Sol',
-      onProceed 
+      onProceed,
     });
-    
+
     fireEvent.click(screen.getByText('Proceed'));
     expect(onProceed).toHaveBeenCalledOnce();
   });
@@ -157,7 +161,7 @@ describe('DangerWarningDialog', () => {
   it('should call onCancel when close button is clicked', () => {
     const onCancel = vi.fn();
     renderWithContext({ onCancel });
-    
+
     fireEvent.click(screen.getByText('×'));
     expect(onCancel).toHaveBeenCalledOnce();
   });

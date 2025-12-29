@@ -378,7 +378,7 @@
     width: 90vw;
     max-width: 600px;
   }
-  
+
   .risk-grid {
     grid-template-columns: 1fr;
   }
@@ -389,19 +389,19 @@
     width: 95vw;
     padding: 15px;
   }
-  
+
   .warning-actions {
     gap: 10px;
   }
-  
+
   .warning-btn {
     width: 100%;
   }
-  
+
   .destination-name {
     font-size: 16px;
   }
-  
+
   .classification-value {
     font-size: 14px;
   }

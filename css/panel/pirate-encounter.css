@@ -385,11 +385,11 @@
     width: 90vw;
     max-width: 700px;
   }
-  
+
   .status-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .option-probabilities {
     flex-direction: column;
     gap: 8px;
@@ -401,12 +401,12 @@
     width: 95vw;
     padding: 15px;
   }
-  
+
   .encounter-actions {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .encounter-btn {
     width: 100%;
   }

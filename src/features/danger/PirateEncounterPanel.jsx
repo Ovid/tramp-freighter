@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -37,21 +37,31 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
   // Local state for selected tactical option
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // Get current game state for probability calculations
-  const gameState = gameStateManager.getState();
-
   // Calculate success probabilities for each tactical option
-  const probabilities = calculateTacticalProbabilities(
-    encounter,
-    gameState,
-    hull,
-    engine,
-    fuel,
-    lifeSupport,
-    upgrades,
-    quirks,
-    karma,
-    factions
+  const probabilities = useMemo(
+    () =>
+      calculateTacticalProbabilities(
+        encounter,
+        hull,
+        engine,
+        fuel,
+        lifeSupport,
+        upgrades,
+        quirks,
+        karma,
+        factions
+      ),
+    [
+      encounter,
+      hull,
+      engine,
+      fuel,
+      lifeSupport,
+      upgrades,
+      quirks,
+      karma,
+      factions,
+    ]
   );
 
   const handleOptionSelect = (option) => {
@@ -86,7 +96,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
           <div className="threat-info">
             <div className="threat-level">
               <span className="threat-label">Threat Level:</span>
-              <span 
+              <span
                 className={`threat-value ${threatLevel}`}
                 style={{ color: threatColor }}
               >
@@ -94,9 +104,8 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               </span>
             </div>
             <div className="pirate-description">
-              {encounter.description || 
-                `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent || 20}% of your cargo as tribute.`
-              }
+              {encounter.description ||
+                `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent || 20}% of your cargo as tribute.`}
             </div>
           </div>
         </div>
@@ -125,23 +134,25 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
             </div>
             <div className="status-item">
               <span className="status-label">Life Support:</span>
-              <span className={`status-value ${getConditionClass(lifeSupport)}`}>
+              <span
+                className={`status-value ${getConditionClass(lifeSupport)}`}
+              >
                 {Math.round(lifeSupport || 100)}%
               </span>
             </div>
           </div>
-          
+
           {/* Active Modifiers Display */}
           {(upgrades?.length > 0 || quirks?.length > 0) && (
             <div className="active-modifiers">
               <h4>Active Modifiers</h4>
               <div className="modifiers-list">
-                {upgrades?.map(upgrade => (
+                {upgrades?.map((upgrade) => (
                   <span key={upgrade} className="modifier upgrade">
                     {formatModifierName(upgrade)}
                   </span>
                 ))}
-                {quirks?.map(quirk => (
+                {quirks?.map((quirk) => (
                   <span key={quirk} className="modifier quirk">
                     {formatModifierName(quirk)}
                   </span>
@@ -156,7 +167,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
           <h3>Tactical Options</h3>
           <div className="options-list">
             {/* Fight Option */}
-            <div 
+            <div
               className={`tactical-option ${selectedOption === 'fight' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('fight')}
             >
@@ -170,12 +181,15 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               <div className="option-probabilities">
                 <div className="probability-item">
                   <span className="prob-label">Return Fire Success:</span>
-                  <span className="prob-value">{Math.round(probabilities.returnFire * 100)}%</span>
+                  <span className="prob-value">
+                    {Math.round(probabilities.returnFire * 100)}%
+                  </span>
                 </div>
               </div>
               <div className="option-consequences">
                 <div className="consequence success">
-                  Success: Minor hull damage (-10%), drive off pirates, +5 outlaw reputation
+                  Success: Minor hull damage (-10%), drive off pirates, +5
+                  outlaw reputation
                 </div>
                 <div className="consequence failure">
                   Failure: Heavy hull damage (-30%), lose all cargo and ₡500
@@ -184,7 +198,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
             </div>
 
             {/* Flee Option */}
-            <div 
+            <div
               className={`tactical-option ${selectedOption === 'flee' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('flee')}
             >
@@ -198,7 +212,9 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               <div className="option-probabilities">
                 <div className="probability-item">
                   <span className="prob-label">Evasive Success:</span>
-                  <span className="prob-value">{Math.round(probabilities.evasive * 100)}%</span>
+                  <span className="prob-value">
+                    {Math.round(probabilities.evasive * 100)}%
+                  </span>
                 </div>
               </div>
               <div className="option-consequences">
@@ -212,7 +228,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
             </div>
 
             {/* Negotiate Option */}
-            <div 
+            <div
               className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('negotiate')}
             >
@@ -221,23 +237,29 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Dialogue</span>
               </div>
               <div className="option-description">
-                Attempt to resolve the situation through conversation and bargaining.
+                Attempt to resolve the situation through conversation and
+                bargaining.
               </div>
               <div className="option-probabilities">
                 <div className="probability-item">
                   <span className="prob-label">Counter-Proposal:</span>
-                  <span className="prob-value">{Math.round(probabilities.counterProposal * 100)}%</span>
+                  <span className="prob-value">
+                    {Math.round(probabilities.counterProposal * 100)}%
+                  </span>
                 </div>
-                {cargo?.some(item => item.good === 'medicine') && (
+                {cargo?.some((item) => item.good === 'medicine') && (
                   <div className="probability-item">
                     <span className="prob-label">Medicine Sympathy:</span>
-                    <span className="prob-value">{Math.round(probabilities.medicineClaim * 100)}%</span>
+                    <span className="prob-value">
+                      {Math.round(probabilities.medicineClaim * 100)}%
+                    </span>
                   </div>
                 )}
               </div>
               <div className="option-consequences">
                 <div className="consequence success">
-                  Success: Reduced payment (10% cargo instead of {encounter.demandPercent || 20}%)
+                  Success: Reduced payment (10% cargo instead of{' '}
+                  {encounter.demandPercent || 20}%)
                 </div>
                 <div className="consequence failure">
                   Failure: Pirates become more aggressive (+10% strength)
@@ -246,7 +268,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
             </div>
 
             {/* Surrender Option */}
-            <div 
+            <div
               className={`tactical-option ${selectedOption === 'surrender' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('surrender')}
             >
@@ -255,7 +277,8 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Compliance</span>
               </div>
               <div className="option-description">
-                Accept the pirates' demands and pay their tribute for safe passage.
+                Accept the pirates' demands and pay their tribute for safe
+                passage.
               </div>
               <div className="option-probabilities">
                 <div className="probability-item">
@@ -265,7 +288,8 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               </div>
               <div className="option-consequences">
                 <div className="consequence guaranteed">
-                  Guaranteed: Pay {encounter.demandPercent || 20}% of cargo, safe passage
+                  Guaranteed: Pay {encounter.demandPercent || 20}% of cargo,
+                  safe passage
                 </div>
               </div>
             </div>
@@ -276,13 +300,12 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
         <div className="encounter-actions">
           {selectedOption && (
             <>
-              <button 
-                className="encounter-btn primary"
-                onClick={handleConfirm}
-              >
-                Confirm {selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1)}
+              <button className="encounter-btn primary" onClick={handleConfirm}>
+                Confirm{' '}
+                {selectedOption.charAt(0).toUpperCase() +
+                  selectedOption.slice(1)}
               </button>
-              <button 
+              <button
                 className="encounter-btn secondary"
                 onClick={handleCancel}
               >
@@ -303,9 +326,8 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
 
 /**
  * Calculate success probabilities for all tactical options
- * 
+ *
  * @param {Object} encounter - The pirate encounter
- * @param {Object} gameState - Current game state
  * @param {number} hull - Current hull condition
  * @param {number} engine - Current engine condition
  * @param {number} fuel - Current fuel level
@@ -318,7 +340,6 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
  */
 function calculateTacticalProbabilities(
   encounter,
-  gameState,
   hull,
   engine,
   fuel,
@@ -332,39 +353,43 @@ function calculateTacticalProbabilities(
   const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE
 
   // Calculate evasive maneuvers probability
-  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
-  
+  let evasiveChance = COMBAT_CONFIG?.EVASIVE?.BASE_CHANCE ?? 0.7;
+
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
-    evasiveChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
+    evasiveChance +=
+      COMBAT_CONFIG?.MODIFIERS?.hot_thruster?.evasiveBonus ?? 0.1;
   }
-  
+
   // Apply efficient_drive upgrade bonus
   if (upgrades.includes('efficient_drive')) {
-    evasiveChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
+    evasiveChance +=
+      COMBAT_CONFIG?.MODIFIERS?.efficient_drive?.fleeBonus ?? 0.1;
   }
-  
+
   // Apply karma modifier
   evasiveChance += karmaModifier;
-  
+
   // Clamp to [0, 1]
   evasiveChance = Math.max(0, Math.min(1, evasiveChance));
 
   // Calculate return fire probability
-  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
-  
+  let returnFireChance = COMBAT_CONFIG?.RETURN_FIRE?.BASE_CHANCE ?? 0.45;
+
   // Apply karma modifier
   returnFireChance += karmaModifier;
-  
+
   // Clamp to [0, 1]
   returnFireChance = Math.max(0, Math.min(1, returnFireChance));
 
   // Calculate negotiation probabilities
-  let counterProposalChance = NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE;
+  let counterProposalChance =
+    NEGOTIATION_CONFIG?.COUNTER_PROPOSAL?.BASE_CHANCE ?? 0.6;
   counterProposalChance += karmaModifier;
   counterProposalChance = Math.max(0, Math.min(1, counterProposalChance));
 
-  let medicineClaimChance = NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE;
+  let medicineClaimChance =
+    NEGOTIATION_CONFIG?.MEDICINE_CLAIM?.SYMPATHY_CHANCE ?? 0.4;
   medicineClaimChance += karmaModifier;
   medicineClaimChance = Math.max(0, Math.min(1, medicineClaimChance));
 
@@ -377,29 +402,30 @@ function calculateTacticalProbabilities(
 }
 
 /**
- * Get color for threat level display
- * 
- * @param {string} threatLevel - The threat level
- * @returns {string} CSS color value
+ * Get color for threat level display based on pirate encounter strength.
+ * Colors follow the game's danger hierarchy to provide immediate visual feedback.
+ *
+ * @param {string} threatLevel - The threat level (weak, moderate, strong, dangerous)
+ * @returns {string} CSS color value for the threat level
  */
 function getThreatLevelColor(threatLevel) {
   switch (threatLevel) {
     case 'weak':
-      return '#00ff88'; // Green
+      return '#00ff88'; // Green - easy encounter
     case 'moderate':
-      return '#ffaa00'; // Orange
+      return '#ffaa00'; // Orange - standard threat
     case 'strong':
-      return '#ff6b6b'; // Red
+      return '#ff6b6b'; // Red - serious danger
     case 'dangerous':
-      return '#ff0000'; // Bright red
+      return '#ff0000'; // Bright red - extreme threat
     default:
-      return '#ffffff'; // White
+      return '#ffffff'; // White - unknown threat
   }
 }
 
 /**
  * Get CSS class for condition display based on value
- * 
+ *
  * @param {number} condition - The condition value (0-100)
  * @returns {string} CSS class name
  */
@@ -412,13 +438,13 @@ function getConditionClass(condition) {
 
 /**
  * Format modifier names for display
- * 
+ *
  * @param {string} modifierName - The modifier name (snake_case)
  * @returns {string} Formatted display name
  */
 function formatModifierName(modifierName) {
   return modifierName
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }

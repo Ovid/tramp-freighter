@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { COMBAT_CONFIG } from '../../game/constants.js';
@@ -36,22 +36,33 @@ export function CombatPanel({ combat, onChoice, onClose }) {
   // Local state for selected combat option
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // Get current game state for probability calculations
-  const gameState = gameStateManager.getState();
-
   // Calculate success probabilities and modifiers for each combat option
-  const combatAnalysis = calculateCombatProbabilities(
-    combat,
-    gameState,
-    hull,
-    engine,
-    fuel,
-    lifeSupport,
-    cargo,
-    upgrades,
-    quirks,
-    karma,
-    factions
+  const combatAnalysis = useMemo(
+    () =>
+      calculateCombatProbabilities(
+        combat,
+        hull,
+        engine,
+        fuel,
+        lifeSupport,
+        cargo,
+        upgrades,
+        quirks,
+        karma,
+        factions
+      ),
+    [
+      combat,
+      hull,
+      engine,
+      fuel,
+      lifeSupport,
+      cargo,
+      upgrades,
+      quirks,
+      karma,
+      factions,
+    ]
   );
 
   const handleOptionSelect = (option) => {
@@ -73,7 +84,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
   const intensityColor = getCombatIntensityColor(intensity);
 
   return (
-    <div id="combat-panel" className="visible">
+    <div id="combat-panel" className="panel-base visible">
       <button className="close-btn" onClick={onClose}>
         ×
       </button>
@@ -86,7 +97,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
           <div className="combat-info">
             <div className="combat-intensity">
               <span className="intensity-label">Combat Intensity:</span>
-              <span 
+              <span
                 className={`intensity-value ${intensity}`}
                 style={{ color: intensityColor }}
               >
@@ -94,9 +105,8 @@ export function CombatPanel({ combat, onChoice, onClose }) {
               </span>
             </div>
             <div className="combat-description">
-              {combat.description || 
-                'You are engaged in combat. Choose your tactical response carefully.'
-              }
+              {combat.description ||
+                'You are engaged in combat. Choose your tactical response carefully.'}
             </div>
           </div>
         </div>
@@ -120,7 +130,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 {Math.round(engine || 100)}%
               </span>
               <span className="condition-impact">
-                {engine < 50 ? 'Reduced evasion capability' : 'Full power available'}
+                {engine < 50
+                  ? 'Reduced evasion capability'
+                  : 'Full power available'}
               </span>
             </div>
             <div className="condition-item">
@@ -134,11 +146,15 @@ export function CombatPanel({ combat, onChoice, onClose }) {
             </div>
             <div className="condition-item">
               <span className="condition-label">Life Support:</span>
-              <span className={`condition-value ${getConditionClass(lifeSupport)}`}>
+              <span
+                className={`condition-value ${getConditionClass(lifeSupport)}`}
+              >
                 {Math.round(lifeSupport || 100)}%
               </span>
               <span className="condition-impact">
-                {lifeSupport < 30 ? 'Emergency protocols active' : 'Stable environment'}
+                {lifeSupport < 30
+                  ? 'Emergency protocols active'
+                  : 'Stable environment'}
               </span>
             </div>
           </div>
@@ -148,24 +164,28 @@ export function CombatPanel({ combat, onChoice, onClose }) {
             <div className="combat-modifiers">
               <h4>Combat Modifiers</h4>
               <div className="modifiers-grid">
-                {upgrades?.map(upgrade => {
+                {upgrades?.map((upgrade) => {
                   const modifier = COMBAT_CONFIG.MODIFIERS[upgrade];
                   if (!modifier) return null;
                   return (
                     <div key={upgrade} className="modifier-item upgrade">
-                      <span className="modifier-name">{formatModifierName(upgrade)}</span>
+                      <span className="modifier-name">
+                        {formatModifierName(upgrade)}
+                      </span>
                       <span className="modifier-effects">
                         {getModifierEffectsText(upgrade, modifier)}
                       </span>
                     </div>
                   );
                 })}
-                {quirks?.map(quirk => {
+                {quirks?.map((quirk) => {
                   const modifier = COMBAT_CONFIG.MODIFIERS[quirk];
                   if (!modifier) return null;
                   return (
                     <div key={quirk} className="modifier-item quirk">
-                      <span className="modifier-name">{formatModifierName(quirk)}</span>
+                      <span className="modifier-name">
+                        {formatModifierName(quirk)}
+                      </span>
                       <span className="modifier-effects">
                         {getModifierEffectsText(quirk, modifier)}
                       </span>
@@ -182,7 +202,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
           <h3>Combat Options</h3>
           <div className="options-list">
             {/* Evasive Maneuvers Option */}
-            <div 
+            <div
               className={`combat-option ${selectedOption === 'evasive' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('evasive')}
             >
@@ -191,19 +211,26 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 <span className="option-type">Defensive</span>
               </div>
               <div className="option-description">
-                Use your ship's agility and engine power to avoid enemy fire and escape.
+                Use your ship's agility and engine power to avoid enemy fire and
+                escape.
               </div>
               <div className="option-analysis">
                 <div className="probability-breakdown">
                   <div className="base-chance">
                     <span className="breakdown-label">Base Success Rate:</span>
-                    <span className="breakdown-value">{Math.round(COMBAT_CONFIG.EVASIVE.BASE_CHANCE * 100)}%</span>
+                    <span className="breakdown-value">
+                      {Math.round(COMBAT_CONFIG.EVASIVE.BASE_CHANCE * 100)}%
+                    </span>
                   </div>
                   {combatAnalysis.evasive.modifiers.map((mod, index) => (
-                    <div key={index} className={`modifier-breakdown ${mod.type}`}>
+                    <div
+                      key={index}
+                      className={`modifier-breakdown ${mod.type}`}
+                    >
                       <span className="breakdown-label">{mod.name}:</span>
                       <span className="breakdown-value">
-                        {mod.value > 0 ? '+' : ''}{Math.round(mod.value * 100)}%
+                        {mod.value > 0 ? '+' : ''}
+                        {Math.round(mod.value * 100)}%
                       </span>
                     </div>
                   ))}
@@ -218,17 +245,21 @@ export function CombatPanel({ combat, onChoice, onClose }) {
               <div className="option-outcomes">
                 <div className="outcome success">
                   <span className="outcome-label">Success:</span>
-                  <span className="outcome-text">Escape combat, -15% fuel, -5% engine condition</span>
+                  <span className="outcome-text">
+                    Escape combat, -15% fuel, -5% engine condition
+                  </span>
                 </div>
                 <div className="outcome failure">
                   <span className="outcome-label">Failure:</span>
-                  <span className="outcome-text">Take hull damage (-20%), combat continues</span>
+                  <span className="outcome-text">
+                    Take hull damage (-20%), combat continues
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Return Fire Option */}
-            <div 
+            <div
               className={`combat-option ${selectedOption === 'return_fire' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('return_fire')}
             >
@@ -243,13 +274,19 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 <div className="probability-breakdown">
                   <div className="base-chance">
                     <span className="breakdown-label">Base Success Rate:</span>
-                    <span className="breakdown-value">{Math.round(COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE * 100)}%</span>
+                    <span className="breakdown-value">
+                      {Math.round(COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE * 100)}%
+                    </span>
                   </div>
                   {combatAnalysis.returnFire.modifiers.map((mod, index) => (
-                    <div key={index} className={`modifier-breakdown ${mod.type}`}>
+                    <div
+                      key={index}
+                      className={`modifier-breakdown ${mod.type}`}
+                    >
                       <span className="breakdown-label">{mod.name}:</span>
                       <span className="breakdown-value">
-                        {mod.value > 0 ? '+' : ''}{Math.round(mod.value * 100)}%
+                        {mod.value > 0 ? '+' : ''}
+                        {Math.round(mod.value * 100)}%
                       </span>
                     </div>
                   ))}
@@ -264,17 +301,21 @@ export function CombatPanel({ combat, onChoice, onClose }) {
               <div className="option-outcomes">
                 <div className="outcome success">
                   <span className="outcome-label">Success:</span>
-                  <span className="outcome-text">Drive off enemy, -10% hull, +5 outlaw reputation</span>
+                  <span className="outcome-text">
+                    Drive off enemy, -10% hull, +5 outlaw reputation
+                  </span>
                 </div>
                 <div className="outcome failure">
                   <span className="outcome-label">Failure:</span>
-                  <span className="outcome-text">Heavy damage (-30% hull), lose cargo and ₡500</span>
+                  <span className="outcome-text">
+                    Heavy damage (-30% hull), lose cargo and ₡500
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Dump Cargo Option */}
-            <div 
+            <div
               className={`combat-option ${selectedOption === 'dump_cargo' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('dump_cargo')}
             >
@@ -294,7 +335,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                   <div className="cargo-cost">
                     <span className="breakdown-label">Cargo Lost:</span>
                     <span className="breakdown-value">
-                      {cargo?.length || 0} stacks ({Math.round((cargo?.length || 0) * 100 / 10)}% of capacity)
+                      {cargo?.length || 0} stacks (
+                      {Math.round(((cargo?.length || 0) * 100) / 10)}% of
+                      capacity)
                     </span>
                   </div>
                 </div>
@@ -302,13 +345,15 @@ export function CombatPanel({ combat, onChoice, onClose }) {
               <div className="option-outcomes">
                 <div className="outcome guaranteed">
                   <span className="outcome-label">Guaranteed:</span>
-                  <span className="outcome-text">Escape combat, lose all cargo, no hull damage</span>
+                  <span className="outcome-text">
+                    Escape combat, lose all cargo, no hull damage
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Distress Call Option */}
-            <div 
+            <div
               className={`combat-option ${selectedOption === 'distress_call' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('distress_call')}
             >
@@ -323,31 +368,48 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 <div className="probability-breakdown">
                   <div className="base-chance">
                     <span className="breakdown-label">Base Success Rate:</span>
-                    <span className="breakdown-value">{Math.round(COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE * 100)}%</span>
+                    <span className="breakdown-value">
+                      {Math.round(
+                        COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE * 100
+                      )}
+                      %
+                    </span>
                   </div>
                   {combatAnalysis.distressCall.modifiers.map((mod, index) => (
-                    <div key={index} className={`modifier-breakdown ${mod.type}`}>
+                    <div
+                      key={index}
+                      className={`modifier-breakdown ${mod.type}`}
+                    >
                       <span className="breakdown-label">{mod.name}:</span>
                       <span className="breakdown-value">
-                        {mod.value > 0 ? '+' : ''}{Math.round(mod.value * 100)}%
+                        {mod.value > 0 ? '+' : ''}
+                        {Math.round(mod.value * 100)}%
                       </span>
                     </div>
                   ))}
                   <div className="final-chance">
                     <span className="breakdown-label">Final Success Rate:</span>
                     <span className="breakdown-value final">
-                      {Math.round(combatAnalysis.distressCall.finalChance * 100)}%</span>
+                      {Math.round(
+                        combatAnalysis.distressCall.finalChance * 100
+                      )}
+                      %
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="option-outcomes">
                 <div className="outcome success">
                   <span className="outcome-label">Success:</span>
-                  <span className="outcome-text">Rescue arrives, escape combat, +10 authority reputation</span>
+                  <span className="outcome-text">
+                    Rescue arrives, escape combat, +10 authority reputation
+                  </span>
                 </div>
                 <div className="outcome failure">
                   <span className="outcome-label">Failure:</span>
-                  <span className="outcome-text">No response, combat continues with -10% morale</span>
+                  <span className="outcome-text">
+                    No response, combat continues with -10% morale
+                  </span>
                 </div>
               </div>
             </div>
@@ -358,16 +420,10 @@ export function CombatPanel({ combat, onChoice, onClose }) {
         <div className="combat-actions">
           {selectedOption && (
             <>
-              <button 
-                className="combat-btn primary"
-                onClick={handleConfirm}
-              >
+              <button className="combat-btn primary" onClick={handleConfirm}>
                 Execute {formatOptionName(selectedOption)}
               </button>
-              <button 
-                className="combat-btn secondary"
-                onClick={handleCancel}
-              >
+              <button className="combat-btn secondary" onClick={handleCancel}>
                 Change Option
               </button>
             </>
@@ -385,9 +441,8 @@ export function CombatPanel({ combat, onChoice, onClose }) {
 
 /**
  * Calculate success probabilities and modifiers for all combat options
- * 
+ *
  * @param {Object} combat - The combat encounter
- * @param {Object} gameState - Current game state
  * @param {number} hull - Current hull condition
  * @param {number} engine - Current engine condition
  * @param {number} fuel - Current fuel level
@@ -401,7 +456,6 @@ export function CombatPanel({ combat, onChoice, onClose }) {
  */
 function calculateCombatProbabilities(
   combat,
-  gameState,
   hull = 100,
   engine = 100,
   fuel = 100,
@@ -417,7 +471,7 @@ function calculateCombatProbabilities(
 
   // Evasive Maneuvers Analysis
   const evasiveModifiers = [];
-  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
+  let evasiveChance = COMBAT_CONFIG?.EVASIVE?.BASE_CHANCE ?? 0.7;
 
   // Apply engine condition modifier
   if (engine < 50) {
@@ -426,29 +480,31 @@ function calculateCombatProbabilities(
     evasiveModifiers.push({
       name: 'Poor Engine Condition',
       value: enginePenalty,
-      type: 'penalty'
+      type: 'penalty',
     });
   }
 
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
-    const hotThrusterBonus = COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
+    const hotThrusterBonus =
+      COMBAT_CONFIG?.MODIFIERS?.hot_thruster?.evasiveBonus ?? 0.1;
     evasiveChance += hotThrusterBonus;
     evasiveModifiers.push({
       name: 'Hot Thruster Quirk',
       value: hotThrusterBonus,
-      type: 'bonus'
+      type: 'bonus',
     });
   }
 
   // Apply efficient_drive upgrade bonus
   if (upgrades.includes('efficient_drive')) {
-    const efficientDriveBonus = COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
+    const efficientDriveBonus =
+      COMBAT_CONFIG?.MODIFIERS?.efficient_drive?.fleeBonus ?? 0.1;
     evasiveChance += efficientDriveBonus;
     evasiveModifiers.push({
       name: 'Efficient Drive Upgrade',
       value: efficientDriveBonus,
-      type: 'bonus'
+      type: 'bonus',
     });
   }
 
@@ -458,7 +514,7 @@ function calculateCombatProbabilities(
     evasiveModifiers.push({
       name: karma > 0 ? 'Good Karma' : 'Bad Karma',
       value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty'
+      type: karma > 0 ? 'bonus' : 'penalty',
     });
   }
 
@@ -466,7 +522,7 @@ function calculateCombatProbabilities(
 
   // Return Fire Analysis
   const returnFireModifiers = [];
-  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
+  let returnFireChance = COMBAT_CONFIG?.RETURN_FIRE?.BASE_CHANCE ?? 0.45;
 
   // Apply karma modifier
   if (Math.abs(karmaModifier) > 0.001) {
@@ -474,7 +530,7 @@ function calculateCombatProbabilities(
     returnFireModifiers.push({
       name: karma > 0 ? 'Good Karma' : 'Bad Karma',
       value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty'
+      type: karma > 0 ? 'bonus' : 'penalty',
     });
   }
 
@@ -482,7 +538,7 @@ function calculateCombatProbabilities(
 
   // Distress Call Analysis
   const distressCallModifiers = [];
-  let distressCallChance = COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE;
+  let distressCallChance = COMBAT_CONFIG?.DISTRESS_CALL?.BASE_CHANCE ?? 0.3;
 
   // Apply karma modifier
   if (Math.abs(karmaModifier) > 0.001) {
@@ -490,7 +546,7 @@ function calculateCombatProbabilities(
     distressCallModifiers.push({
       name: karma > 0 ? 'Good Karma' : 'Bad Karma',
       value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty'
+      type: karma > 0 ? 'bonus' : 'penalty',
     });
   }
 
@@ -499,45 +555,48 @@ function calculateCombatProbabilities(
   return {
     evasive: {
       finalChance: evasiveChance,
-      modifiers: evasiveModifiers
+      modifiers: evasiveModifiers,
     },
     returnFire: {
       finalChance: returnFireChance,
-      modifiers: returnFireModifiers
+      modifiers: returnFireModifiers,
     },
     distressCall: {
       finalChance: distressCallChance,
-      modifiers: distressCallModifiers
-    }
+      modifiers: distressCallModifiers,
+    },
   };
 }
 
 /**
- * Get color for combat intensity display
- * 
- * @param {string} intensity - The combat intensity
- * @returns {string} CSS color value
+ * Get color for combat intensity display based on threat level.
+ * Colors follow the game's visual hierarchy: green (safe) to red (critical).
+ *
+ * @param {string} intensity - The combat intensity level
+ * @returns {string} CSS color value for the intensity level
  */
 function getCombatIntensityColor(intensity) {
   switch (intensity) {
     case 'light':
-      return '#00ff88'; // Green
+      return '#00ff88'; // Green - minimal threat
     case 'moderate':
-      return '#ffaa00'; // Orange
+      return '#ffaa00'; // Orange - standard engagement
     case 'heavy':
-      return '#ff6b6b'; // Red
+      return '#ff6b6b'; // Red - serious threat
     case 'intense':
-      return '#ff0000'; // Bright red
+      return '#ff0000'; // Bright red - maximum danger
     default:
-      return '#ffffff'; // White
+      return '#ffffff'; // White - unknown/default
   }
 }
 
 /**
- * Get CSS class for condition display based on value
- * 
- * @param {number} condition - The condition value (0-100)
- * @returns {string} CSS class name
+ * Get CSS class for ship condition display based on percentage value.
+ * Thresholds reflect game balance: 75%+ good, 50%+ fair, 25%+ poor, <25% critical.
+ * These thresholds align with gameplay mechanics where systems start failing below 50%.
+ *
+ * @param {number} condition - The condition value (0-100 percentage)
+ * @returns {string} CSS class name for styling the condition display
  */
 function getConditionClass(condition) {
   if (condition >= 75) return 'good';
@@ -547,52 +606,57 @@ function getConditionClass(condition) {
 }
 
 /**
- * Format modifier names for display
- * 
- * @param {string} modifierName - The modifier name (snake_case)
- * @returns {string} Formatted display name
+ * Format modifier names from snake_case to human-readable format.
+ * Converts internal identifier format (hot_thruster) to display format (Hot Thruster).
+ * Used for showing ship upgrades and quirks in the UI.
+ *
+ * @param {string} modifierName - The modifier name in snake_case format
+ * @returns {string} Formatted display name with proper capitalization
  */
 function formatModifierName(modifierName) {
   return modifierName
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
 /**
- * Format option names for display
- * 
- * @param {string} optionName - The option name (snake_case)
- * @returns {string} Formatted display name
+ * Format option names from snake_case to human-readable format for button labels.
+ * Converts internal action identifiers to user-facing text.
+ *
+ * @param {string} optionName - The option name in snake_case format
+ * @returns {string} Formatted display name for UI buttons
  */
 function formatOptionName(optionName) {
   return optionName
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
 /**
- * Get modifier effects text for display
- * 
- * @param {string} modifierName - The modifier name
- * @param {Object} modifier - The modifier configuration
- * @returns {string} Effects description
+ * Get modifier effects text for display in the combat modifiers section.
+ * Translates numeric bonuses into human-readable descriptions.
+ * Shows percentage bonuses for different combat actions (evasion, combat, flee).
+ *
+ * @param {string} modifierName - The modifier identifier (for debugging)
+ * @param {Object} modifier - The modifier configuration object
+ * @returns {string} Human-readable effects description or fallback text
  */
 function getModifierEffectsText(modifierName, modifier) {
   const effects = [];
-  
+
   if (modifier.evasiveBonus) {
     effects.push(`+${Math.round(modifier.evasiveBonus * 100)}% evasion`);
   }
-  
+
   if (modifier.fleeBonus) {
     effects.push(`+${Math.round(modifier.fleeBonus * 100)}% flee`);
   }
-  
+
   if (modifier.returnFireBonus) {
     effects.push(`+${Math.round(modifier.returnFireBonus * 100)}% combat`);
   }
-  
+
   return effects.join(', ') || 'Combat modifier';
 }

@@ -18,11 +18,11 @@ import { DANGER_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onProceed - Callback when player chooses to proceed
  * @param {Function} props.onCancel - Callback when player chooses to cancel
  */
-export function DangerWarningDialog({ 
-  destinationSystemId, 
-  destinationSystemName, 
-  onProceed, 
-  onCancel 
+export function DangerWarningDialog({
+  destinationSystemId,
+  destinationSystemName,
+  onProceed,
+  onCancel,
 }) {
   // Access GameStateManager
   const gameStateManager = useGameState();
@@ -36,21 +36,26 @@ export function DangerWarningDialog({
   // Local state for confirmation
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Get current game state for probability calculations
-  const gameState = gameStateManager.getState();
-
   // Get danger zone classification
   const dangerManager = gameStateManager.dangerManager;
   const dangerZone = dangerManager.getDangerZone(destinationSystemId);
 
   // Calculate encounter probabilities
   const pirateChance = dangerManager.calculatePirateEncounterChance(
-    destinationSystemId, 
-    gameState
+    destinationSystemId,
+    {
+      player: { currentSystem: destinationSystemId },
+      ship: { cargo, engine, upgrades },
+      player: { factions },
+    }
   );
   const inspectionChance = dangerManager.calculateInspectionChance(
-    destinationSystemId, 
-    gameState
+    destinationSystemId,
+    {
+      player: { currentSystem: destinationSystemId },
+      ship: { cargo },
+      player: { factions },
+    }
   );
 
   const handleProceedClick = () => {
@@ -85,21 +90,17 @@ export function DangerWarningDialog({
         <div className="warning-section destination-info">
           <h3>Destination</h3>
           <div className="destination-details">
-            <div className="destination-name">
-              {destinationSystemName}
-            </div>
+            <div className="destination-name">{destinationSystemName}</div>
             <div className="danger-classification">
               <span className="classification-label">Danger Level:</span>
-              <span 
+              <span
                 className={`classification-value ${dangerZone}`}
                 style={{ color: zoneInfo.color }}
               >
                 {zoneInfo.name}
               </span>
             </div>
-            <div className="zone-description">
-              {zoneInfo.description}
-            </div>
+            <div className="zone-description">{zoneInfo.description}</div>
           </div>
         </div>
 
@@ -118,11 +119,13 @@ export function DangerWarningDialog({
                 Probability of hostile pirate encounters during jump
               </div>
             </div>
-            
+
             <div className="risk-item">
               <div className="risk-header">
                 <span className="risk-label">Customs Inspections</span>
-                <span className={`risk-value ${getRiskLevel(inspectionChance)}`}>
+                <span
+                  className={`risk-value ${getRiskLevel(inspectionChance)}`}
+                >
                   {Math.round(inspectionChance * 100)}%
                 </span>
               </div>
@@ -133,8 +136,11 @@ export function DangerWarningDialog({
           </div>
 
           {/* Risk Factors */}
-          {(cargo?.length > 0 || engine < 50 || upgrades?.includes('advanced_sensors') || 
-            factions?.authorities !== 0 || factions?.outlaws !== 0) && (
+          {(cargo?.length > 0 ||
+            engine < 50 ||
+            upgrades?.includes('advanced_sensors') ||
+            factions?.authorities !== 0 ||
+            factions?.outlaws !== 0) && (
             <div className="risk-factors">
               <h4>Risk Modifiers</h4>
               <div className="factors-list">
@@ -233,16 +239,13 @@ export function DangerWarningDialog({
       <div className="warning-actions">
         {!showConfirmation ? (
           <>
-            <button 
+            <button
               className="warning-btn primary"
               onClick={handleProceedClick}
             >
               {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
             </button>
-            <button 
-              className="warning-btn secondary"
-              onClick={onCancel}
-            >
+            <button className="warning-btn secondary" onClick={onCancel}>
               Cancel Jump
             </button>
           </>
@@ -251,13 +254,13 @@ export function DangerWarningDialog({
             <div className="confirmation-text">
               Are you sure you want to jump to this dangerous system?
             </div>
-            <button 
+            <button
               className="warning-btn danger"
               onClick={handleConfirmProceed}
             >
               Yes, Proceed Anyway
             </button>
-            <button 
+            <button
               className="warning-btn secondary"
               onClick={handleCancelConfirmation}
             >
@@ -271,10 +274,12 @@ export function DangerWarningDialog({
 }
 
 /**
- * Get display information for a danger zone
- * 
- * @param {string} dangerZone - The danger zone type
- * @returns {Object} Display info with name, color, and description
+ * Get display information for a danger zone classification.
+ * Provides consistent naming, colors, and descriptions for each zone type.
+ * Used to inform players about the risk level of their destination.
+ *
+ * @param {string} dangerZone - The danger zone type (safe, contested, dangerous)
+ * @returns {Object} Display info with name, color, and description properties
  */
 function getZoneDisplayInfo(dangerZone) {
   switch (dangerZone) {
@@ -282,38 +287,43 @@ function getZoneDisplayInfo(dangerZone) {
       return {
         name: 'Safe',
         color: '#00ff88',
-        description: 'Core systems with strong law enforcement presence and minimal pirate activity.'
+        description:
+          'Core systems with strong law enforcement presence and minimal pirate activity.',
       };
     case 'contested':
       return {
         name: 'Contested',
         color: '#ffaa00',
-        description: 'Systems with mixed control, moderate pirate activity, and regular patrols.'
+        description:
+          'Systems with mixed control, moderate pirate activity, and regular patrols.',
       };
     case 'dangerous':
       return {
         name: 'Dangerous',
         color: '#ff6b6b',
-        description: 'Frontier systems with high pirate activity and limited law enforcement.'
+        description:
+          'Frontier systems with high pirate activity and limited law enforcement.',
       };
     default:
       return {
         name: 'Unknown',
         color: '#ffffff',
-        description: 'System classification unknown.'
+        description: 'System classification unknown.',
       };
   }
 }
 
 /**
- * Get risk level classification for probability display
- * 
- * @param {number} probability - The probability value (0-1)
- * @returns {string} Risk level class name
+ * Get risk level classification for probability display.
+ * Converts numeric probabilities to categorical risk levels for better UX.
+ * Thresholds are tuned to provide meaningful risk assessment to players.
+ *
+ * @param {number} probability - The probability value (0-1 range)
+ * @returns {string} Risk level class name for CSS styling
  */
 function getRiskLevel(probability) {
-  if (probability >= 0.3) return 'high';
-  if (probability >= 0.15) return 'moderate';
-  if (probability >= 0.05) return 'low';
-  return 'minimal';
+  if (probability >= 0.3) return 'high'; // 30%+ = high risk
+  if (probability >= 0.15) return 'moderate'; // 15-29% = moderate risk
+  if (probability >= 0.05) return 'low'; // 5-14% = low risk
+  return 'minimal'; // <5% = minimal risk
 }

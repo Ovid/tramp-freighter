@@ -1,0 +1,223 @@
+/* CSS Custom Properties for Tramp Freighter Blues */
+/* Shared variables for consistent styling across all components */
+
+:root {
+  /* Color Palette */
+  --color-primary: #00ff88;
+  --color-secondary: #ffaa00;
+  --color-danger: #ff6b6b;
+  --color-critical: #ff0000;
+  --color-warning: #ffaa00;
+  --color-success: #00ff88;
+  --color-info: #88ff00;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Background Colors */
+  --bg-panel: rgba(0, 0, 0, 0.95);
+  --bg-section-primary: rgba(255, 0, 0, 0.05);
+  --bg-section-secondary: rgba(255, 170, 0, 0.05);
+  --bg-section-success: rgba(0, 255, 136, 0.05);
+  --bg-section-danger: rgba(255, 107, 107, 0.05);
+  --bg-overlay: rgba(0, 0, 0, 0.3);
+  --bg-overlay-light: rgba(0, 0, 0, 0.2);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.4);
+  --bg-overlay-darker: rgba(0, 0, 0, 0.5);
+
+  /* Border Colors */
+  --border-primary: #00ff88;
+  --border-secondary: #ffaa00;
+  --border-danger: #ff6b6b;
+  --border-critical: #ff0000;
+  --border-warning: #ffaa00;
+  --border-light: rgba(255, 255, 255, 0.2);
+  --border-medium: rgba(255, 255, 255, 0.4);
+
+  /* Panel Dimensions */
+  --panel-width-small: 600px;
+  --panel-width-medium: 700px;
+  --panel-width-large: 800px;
+  --panel-width-xlarge: 850px;
+  --panel-max-height: 85vh;
+  --panel-padding: 20px;
+  --panel-padding-small: 15px;
+  --panel-border-width: 3px;
+  --panel-border-radius: 8px;
+
+  /* Section Spacing */
+  --section-gap: 20px;
+  --section-padding: 15px;
+  --section-border-radius: 5px;
+  --section-border-width: 1px;
+
+  /* Grid and Layout */
+  --grid-gap-small: 8px;
+  --grid-gap-medium: 12px;
+  --grid-gap-large: 15px;
+  --grid-gap-xlarge: 20px;
+
+  /* Typography */
+  --font-size-small: 11px;
+  --font-size-normal: 12px;
+  --font-size-medium: 13px;
+  --font-size-large: 14px;
+  --font-size-xlarge: 16px;
+  --font-size-xxlarge: 18px;
+  --font-size-title: 22px;
+  --font-family-mono: 'Courier New', monospace;
+
+  /* Button Dimensions */
+  --button-padding: 12px 24px;
+  --button-border-radius: 5px;
+  --button-border-width: 2px;
+  --button-min-width: 180px;
+
+  /* Animation and Timing */
+  --transition-fast: 0.3s ease;
+  --transition-medium: 0.5s ease;
+
+  /* Z-Index Layers */
+  --z-modal: 300;
+  --z-panel: 300;
+  --z-overlay: 250;
+  --z-hud: 200;
+  --z-background: 1;
+
+  /* Shadows and Effects */
+  --shadow-glow-primary: 0 0 10px rgba(0, 255, 136, 0.5);
+  --shadow-glow-secondary: 0 0 10px rgba(255, 170, 0, 0.5);
+  --shadow-glow-danger: 0 0 10px rgba(255, 107, 107, 0.5);
+  --shadow-glow-critical: 0 0 10px rgba(255, 0, 0, 0.5);
+  --shadow-text-primary: 0 0 10px rgba(255, 0, 0, 0.5);
+  --shadow-text-secondary: 0 0 10px rgba(255, 170, 0, 0.5);
+  --shadow-text-critical: 0 0 5px #ff0000;
+
+  /* Condition Status Colors */
+  --condition-good: #00ff88;
+  --condition-fair: #ffaa00;
+  --condition-poor: #ff6b6b;
+  --condition-critical: #ff0000;
+
+  /* Threat Level Colors */
+  --threat-weak: #00ff88;
+  --threat-moderate: #ffaa00;
+  --threat-strong: #ff6b6b;
+  --threat-dangerous: #ff0000;
+
+  /* Intensity Colors */
+  --intensity-light: #00ff88;
+  --intensity-moderate: #ffaa00;
+  --intensity-heavy: #ff6b6b;
+  --intensity-intense: #ff0000;
+
+  /* Risk Level Colors */
+  --risk-minimal: #00ff88;
+  --risk-low: #88ff00;
+  --risk-moderate: #ffaa00;
+  --risk-high: #ff6b6b;
+
+  /* Zone Classification Colors */
+  --zone-safe: #00ff88;
+  --zone-contested: #ffaa00;
+  --zone-dangerous: #ff6b6b;
+
+  /* Close Button */
+  --close-button-size: 24px;
+  --close-button-padding: 5px;
+  --close-button-top: 15px;
+  --close-button-right: 15px;
+
+  /* Responsive Breakpoints */
+  --breakpoint-tablet: 900px;
+  --breakpoint-mobile: 600px;
+  --breakpoint-small-mobile: 480px;
+}
+
+/* Utility Classes for Common Patterns */
+.panel-base {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border-width: var(--panel-border-width);
+  border-style: solid;
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  display: none;
+  z-index: var(--z-panel);
+  overflow-y: auto;
+}
+
+.panel-base.visible {
+  display: block;
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
+  background: none;
+  border: none;
+  font-size: var(--close-button-size);
+  cursor: pointer;
+  padding: var(--close-button-padding);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+.section-base {
+  background-color: var(--bg-section-primary);
+  border: var(--section-border-width) solid;
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+}
+
+.button-base {
+  padding: var(--button-padding);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: var(--button-border-width) solid;
+}
+
+.button-primary {
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  border-color: var(--color-primary);
+}
+
+.button-primary:hover {
+  background-color: #00cc6a;
+  border-color: #00cc6a;
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.button-secondary {
+  background-color: transparent;
+  color: var(--color-white);
+  border-color: var(--color-white);
+}
+
+.button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #cccccc;
+}
+
+.button-danger {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+  border-color: var(--color-danger);
+}
+
+.button-danger:hover {
+  background-color: #ff5252;
+  border-color: #ff5252;
+  box-shadow: var(--shadow-glow-danger);
+}

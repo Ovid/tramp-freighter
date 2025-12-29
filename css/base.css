@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import './variables.css';
+
 * {
   margin: 0;
   padding: 0;

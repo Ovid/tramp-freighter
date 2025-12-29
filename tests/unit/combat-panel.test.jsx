@@ -96,7 +96,9 @@ describe('CombatPanel', () => {
 
   it('should display combat description', () => {
     renderWithContext();
-    expect(screen.getByText('You are engaged in combat with hostile forces.')).toBeInTheDocument();
+    expect(
+      screen.getByText('You are engaged in combat with hostile forces.')
+    ).toBeInTheDocument();
   });
 
   it('should display ship condition status', () => {
@@ -133,10 +135,12 @@ describe('CombatPanel', () => {
 
   it('should allow selecting combat options', () => {
     renderWithContext();
-    
-    const evasiveOption = screen.getByText('Evasive Maneuvers').closest('.combat-option');
+
+    const evasiveOption = screen
+      .getByText('Evasive Maneuvers')
+      .closest('.combat-option');
     fireEvent.click(evasiveOption);
-    
+
     expect(evasiveOption).toHaveClass('selected');
     expect(screen.getByText('Execute Evasive')).toBeInTheDocument();
   });
@@ -144,49 +148,55 @@ describe('CombatPanel', () => {
   it('should call onChoice when confirming selection', () => {
     const onChoice = vi.fn();
     renderWithContext({ onChoice });
-    
+
     // Select evasive maneuvers
-    const evasiveOption = screen.getByText('Evasive Maneuvers').closest('.combat-option');
+    const evasiveOption = screen
+      .getByText('Evasive Maneuvers')
+      .closest('.combat-option');
     fireEvent.click(evasiveOption);
-    
+
     // Confirm selection
     fireEvent.click(screen.getByText('Execute Evasive'));
-    
+
     expect(onChoice).toHaveBeenCalledWith('evasive');
   });
 
   it('should allow changing selection', () => {
     renderWithContext();
-    
+
     // Select evasive maneuvers
-    const evasiveOption = screen.getByText('Evasive Maneuvers').closest('.combat-option');
+    const evasiveOption = screen
+      .getByText('Evasive Maneuvers')
+      .closest('.combat-option');
     fireEvent.click(evasiveOption);
-    
+
     // Change selection
     fireEvent.click(screen.getByText('Change Option'));
-    
-    expect(screen.getByText('Select a combat option to proceed')).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Select a combat option to proceed')
+    ).toBeInTheDocument();
   });
 
   it('should call onClose when close button is clicked', () => {
     const onClose = vi.fn();
     renderWithContext({ onClose });
-    
+
     fireEvent.click(screen.getByText('×'));
     expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('should display ship condition with appropriate classes', () => {
     renderWithContext();
-    
+
     // Check that all condition values have the 'good' class since they're all at 100%
     const conditionValues = screen.getAllByText('100%');
     // Filter to only the condition values (not the guaranteed success rate)
-    const shipConditionValues = conditionValues.filter(el => 
+    const shipConditionValues = conditionValues.filter((el) =>
       el.classList.contains('condition-value')
     );
     expect(shipConditionValues.length).toBeGreaterThan(0);
-    shipConditionValues.forEach(el => {
+    shipConditionValues.forEach((el) => {
       expect(el).toHaveClass('good');
     });
   });
@@ -195,7 +205,7 @@ describe('CombatPanel', () => {
     // This test would need to be restructured to work with the current mock setup
     // For now, we'll test that the component renders without modifiers
     renderWithContext();
-    
+
     // Since we're mocking empty upgrades, we shouldn't see the modifiers section
     expect(screen.queryByText('Combat Modifiers')).not.toBeInTheDocument();
   });
@@ -205,25 +215,35 @@ describe('CombatPanel', () => {
       intensity: 'intense',
       description: 'Intense combat situation.',
     };
-    
+
     renderWithContext({ combat: intenseCombat });
-    
+
     const intensityValue = screen.getByText('Intense');
     expect(intensityValue).toHaveClass('intense');
   });
 
   it('should show selection prompt when no option is selected', () => {
     renderWithContext();
-    expect(screen.getByText('Select a combat option to proceed')).toBeInTheDocument();
+    expect(
+      screen.getByText('Select a combat option to proceed')
+    ).toBeInTheDocument();
   });
 
   it('should display outcome descriptions for each option', () => {
     renderWithContext();
-    
+
     // Check for success/failure outcomes
-    expect(screen.getByText(/Escape combat, -15% fuel, -5% engine condition/)).toBeInTheDocument();
-    expect(screen.getByText(/Take hull damage \(-20%\), combat continues/)).toBeInTheDocument();
-    expect(screen.getByText(/Drive off enemy, -10% hull, \+5 outlaw reputation/)).toBeInTheDocument();
-    expect(screen.getByText(/Heavy damage \(-30% hull\), lose cargo and ₡500/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Escape combat, -15% fuel, -5% engine condition/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Take hull damage \(-20%\), combat continues/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Drive off enemy, -10% hull, \+5 outlaw reputation/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Heavy damage \(-30% hull\), lose cargo and ₡500/)
+    ).toBeInTheDocument();
   });
 });
