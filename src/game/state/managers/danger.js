@@ -644,7 +644,7 @@ export class DangerManager extends BaseManager {
       case 'intel_offer':
         return this.resolveIntelOffer(encounter, gameState, rng);
       case 'accept_demand':
-        return this.resolveAcceptDemand(encounter);
+        return this.resolveAcceptDemand();
       default:
         throw new Error(`Unknown negotiation choice: ${choice}`);
     }
@@ -682,7 +682,8 @@ export class DangerManager extends BaseManager {
           cargoPercent: COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT,
         },
         rewards: {},
-        description: 'Successfully negotiated a reduced payment with the pirates.',
+        description:
+          'Successfully negotiated a reduced payment with the pirates.',
       };
     } else {
       return {
@@ -722,10 +723,12 @@ export class DangerManager extends BaseManager {
       return {
         success: false,
         costs: {
-          strengthIncrease: 0.2, // Pirates are angry about the lie
+          strengthIncrease:
+            NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE,
         },
         rewards: {},
-        description: 'Pirates discovered you have no medicine. They are not pleased.',
+        description:
+          'Pirates discovered you have no medicine. They are not pleased.',
       };
     }
 
@@ -743,7 +746,8 @@ export class DangerManager extends BaseManager {
         success: true,
         costs: {},
         rewards: {},
-        description: 'Pirates showed sympathy for your medical mission and let you pass.',
+        description:
+          'Pirates showed sympathy for your medical mission and let you pass.',
       };
     } else {
       return {
@@ -752,7 +756,8 @@ export class DangerManager extends BaseManager {
           cargoPercent: encounter.demandPercent || 20, // Fall back to standard demand
         },
         rewards: {},
-        description: 'Pirates acknowledged your medicine but still demanded payment.',
+        description:
+          'Pirates acknowledged your medicine but still demanded payment.',
       };
     }
   }
@@ -780,7 +785,8 @@ export class DangerManager extends BaseManager {
       return {
         success: false,
         costs: {
-          strengthIncrease: 0.15, // Pirates are suspicious
+          strengthIncrease:
+            NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE,
         },
         rewards: {},
         description: 'You have no useful intelligence to offer the pirates.',
@@ -789,7 +795,7 @@ export class DangerManager extends BaseManager {
 
     // Intel offer has a high success rate but carries reputation risks
     // Apply karma modifier to success chance
-    let successChance = 0.8; // High success rate for intel trading
+    let successChance = NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE;
     successChance += this.calculateKarmaModifier(gameState.player.karma);
 
     // Clamp success chance to [0, 1]
@@ -806,7 +812,8 @@ export class DangerManager extends BaseManager {
             outlaws: INTEL_OFFER.OUTLAW_REP_GAIN,
           },
         },
-        description: 'Pirates accepted your intelligence and let you pass. Your cooperation was noted.',
+        description:
+          'Pirates accepted your intelligence and let you pass. Your cooperation was noted.',
       };
     } else {
       return {
@@ -815,7 +822,8 @@ export class DangerManager extends BaseManager {
           reputationPenalty: INTEL_OFFER.SUCCESS_REP_PENALTY,
         },
         rewards: {},
-        description: 'Pirates rejected your intelligence offer and became suspicious.',
+        description:
+          'Pirates rejected your intelligence offer and became suspicious.',
       };
     }
   }
@@ -827,10 +835,9 @@ export class DangerManager extends BaseManager {
    * Success rate: 100% (guaranteed)
    * Cost: 20% cargo payment
    *
-   * @param {Object} encounter - The pirate encounter
    * @returns {Object} Negotiation outcome
    */
-  resolveAcceptDemand(encounter) {
+  resolveAcceptDemand() {
     const { ACCEPT_DEMAND } = NEGOTIATION_CONFIG;
 
     return {
@@ -839,7 +846,8 @@ export class DangerManager extends BaseManager {
         cargoPercent: ACCEPT_DEMAND.CARGO_PERCENT,
       },
       rewards: {},
-      description: 'Paid the pirates their demanded tribute and continued safely.',
+      description:
+        'Paid the pirates their demanded tribute and continued safely.',
     };
   }
 

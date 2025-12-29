@@ -969,10 +969,13 @@ export const NEGOTIATION_CONFIG = {
   // Medicine claim - claim to carry medicine for sympathy
   MEDICINE_CLAIM: {
     SYMPATHY_CHANCE: 0.4, // Uses BASE_SUCCESS_RATES.MEDICINE_SYMPATHY_RATE
+    LIE_STRENGTH_INCREASE: 0.2, // Enemy strength increase when caught lying about medicine (+20%)
   },
 
   // Intel offer - offer information about other ships
   INTEL_OFFER: {
+    BASE_SUCCESS_RATE: 0.8, // High success rate for intel trading (80%)
+    SUSPICIOUS_STRENGTH_INCREASE: 0.15, // Enemy strength increase when suspicious of intel (+15%)
     SUCCESS_REP_PENALTY: -10, // Uses OUTCOME_VALUES.INTEL_OFFER_REP_PENALTY
     OUTLAW_REP_GAIN: 3, // Uses OUTCOME_VALUES.INTEL_OFFER_OUTLAW_REP_GAIN
   },

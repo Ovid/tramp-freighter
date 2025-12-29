@@ -46,11 +46,7 @@ describe('Negotiation Outcomes Property Tests', () => {
           demandPercent: fc.integer({ min: 10, max: 50 }),
         }),
         // Generate random negotiation choices (excluding intel_offer for now due to complexity)
-        fc.constantFrom(
-          'counter_proposal',
-          'medicine_claim',
-          'accept_demand'
-        ),
+        fc.constantFrom('counter_proposal', 'medicine_claim', 'accept_demand'),
         // Generate random cargo (including medicine for medicine claim tests)
         fc.array(
           fc.record({
@@ -113,9 +109,11 @@ describe('Negotiation Outcomes Property Tests', () => {
               }
               break;
 
-            case 'medicine_claim':
+            case 'medicine_claim': {
               // Medicine claim: 40% sympathy chance if medicine in cargo
-              const hasMedicine = cargo.some((item) => item.type === 'medicine');
+              const hasMedicine = cargo.some(
+                (item) => item.type === 'medicine'
+              );
               if (hasMedicine) {
                 // Should have a chance for sympathy
                 if (outcome.success) {
@@ -130,6 +128,7 @@ describe('Negotiation Outcomes Property Tests', () => {
                 expect(outcome.success).toBe(false);
               }
               break;
+            }
 
             case 'accept_demand':
               // Accept demand: always succeeds, 20% cargo payment
