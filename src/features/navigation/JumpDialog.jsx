@@ -38,6 +38,29 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
     fuel
   );
 
+  // Get danger zone information for the destination
+  const dangerZone = gameStateManager.getDangerZone(targetSystemId);
+  const gameState = gameStateManager.getState();
+  
+  // Calculate encounter probabilities for warning display
+  let pirateChance = 0;
+  let inspectionChance = 0;
+  
+  if (gameState) {
+    pirateChance = gameStateManager.calculatePirateEncounterChance(
+      targetSystemId,
+      gameState
+    );
+    inspectionChance = gameStateManager.calculateInspectionChance(
+      targetSystemId,
+      gameState
+    );
+  }
+
+  // Determine if we should show danger warning
+  const showDangerWarning = dangerZone === 'contested' || dangerZone === 'dangerous';
+  const isHighRisk = dangerZone === 'dangerous' || pirateChance > 0.25;
+
   const handleJump = async () => {
     if (!validation.valid) return;
 
@@ -81,6 +104,37 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
             {validation.jumpTime} day{validation.jumpTime !== 1 ? 's' : ''}
           </span>
         </div>
+
+        {showDangerWarning && (
+          <div className={`danger-warning ${isHighRisk ? 'high-risk' : 'moderate-risk'}`}>
+            <div className="danger-header">
+              <span className="danger-icon">⚠️</span>
+              <span className="danger-title">
+                {dangerZone === 'dangerous' ? 'Dangerous System' : 'Contested System'}
+              </span>
+            </div>
+            <div className="danger-details">
+              <div className="danger-info-row">
+                <span className="danger-label">Pirate Activity:</span>
+                <span className="danger-value">{Math.round(pirateChance * 100)}%</span>
+              </div>
+              <div className="danger-info-row">
+                <span className="danger-label">Inspection Risk:</span>
+                <span className="danger-value">{Math.round(inspectionChance * 100)}%</span>
+              </div>
+              {dangerZone === 'dangerous' && (
+                <div className="danger-note">
+                  Frontier system with minimal law enforcement presence.
+                </div>
+              )}
+              {dangerZone === 'contested' && (
+                <div className="danger-note">
+                  System with mixed control and moderate security.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {!validation.valid && (
           <div className="validation-message error">{validation.error}</div>

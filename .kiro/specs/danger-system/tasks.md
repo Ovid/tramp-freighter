@@ -297,13 +297,13 @@ This implementation plan breaks down the Danger System into incremental tasks th
 - [x] 25. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 26. Integrate danger system with navigation
-  - [ ] 26.1 Create useJumpEncounters hook
+- [x] 26. Integrate danger system with navigation
+  - [x] 26.1 Create useJumpEncounters hook
     - Hook into jump completion events
     - Check for pirate encounters, inspections, failures, distress calls
     - Trigger appropriate panel display
     - _Requirements: 2.1, 5.1, 6.1, 7.1_
-  - [ ] 26.2 Update JumpDialog to show danger warnings
+  - [x] 26.2 Update JumpDialog to show danger warnings
     - Check destination danger zone
     - Display warning for contested/dangerous systems
     - _Requirements: 1.3_

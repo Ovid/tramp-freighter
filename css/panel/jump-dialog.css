@@ -101,3 +101,67 @@
   border-color: #666;
   color: #666;
 }
+
+/* Danger Warning Styles */
+
+.danger-warning {
+  margin: 15px 0;
+  padding: 12px;
+  border-radius: var(--section-border-radius);
+  border: var(--section-border-width) solid;
+  font-size: var(--font-size-medium);
+}
+
+.danger-warning.moderate-risk {
+  background-color: rgba(255, 165, 0, 0.15);
+  border-color: #ffa500;
+}
+
+.danger-warning.high-risk {
+  background-color: rgba(255, 0, 0, 0.15);
+  border-color: var(--color-critical);
+}
+
+.danger-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.danger-icon {
+  font-size: 16px;
+}
+
+.danger-title {
+  font-weight: bold;
+  color: var(--color-white);
+}
+
+.danger-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.danger-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-small);
+}
+
+.danger-label {
+  color: var(--color-primary);
+}
+
+.danger-value {
+  color: var(--color-white);
+  font-weight: bold;
+}
+
+.danger-note {
+  margin-top: 6px;
+  font-size: var(--font-size-small);
+  color: #ccc;
+  font-style: italic;
+}
