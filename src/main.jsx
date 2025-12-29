@@ -29,6 +29,7 @@ import '../css/panel/distress-call.css';
 import '../css/panel/info-broker.css';
 import '../css/panel/inspection.css';
 import '../css/panel/jump-dialog.css';
+import '../css/panel/outcome.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
 import '../css/panel/ship-status.css';

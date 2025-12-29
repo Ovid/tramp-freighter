@@ -308,8 +308,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display warning for contested/dangerous systems
     - _Requirements: 1.3_
 
-- [ ] 27. Add outcome feedback system
-  - [ ] 27.1 Create src/features/danger/OutcomePanel.jsx
+- [x] 27. Add outcome feedback system
+  - [x] 27.1 Create src/features/danger/OutcomePanel.jsx
     - Display encounter outcome with explanation
     - Show what modifiers affected the result
     - Display karma/reputation changes
