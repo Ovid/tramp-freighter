@@ -160,10 +160,8 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
                   ))}
                   <div className="current-karma">
                     <span className="current-label">Current Karma:</span>
-                    <span
-                      className={`current-value ${getKarmaClass(karma || 0)}`}
-                    >
-                      {karma || 0}
+                    <span className={`current-value ${getKarmaClass(karma)}`}>
+                      {karma}
                     </span>
                   </div>
                 </div>
@@ -199,10 +197,10 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
                         </span>
                         <span
                           className={`faction-value ${getReputationClass(
-                            factions?.[faction] || 0
+                            factions[faction]
                           )}`}
                         >
-                          {factions?.[faction] || 0}
+                          {factions[faction]}
                         </span>
                       </div>
                     ))}

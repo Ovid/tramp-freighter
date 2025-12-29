@@ -6,7 +6,10 @@ import { GameProvider } from '../../src/context/GameContext.jsx';
 // Mock GameStateManager
 const mockGameStateManager = {
   getState: vi.fn(() => ({
-    player: { karma: 0, factions: { authorities: 0, traders: 0, outlaws: 0, civilians: 0 } },
+    player: {
+      karma: 0,
+      factions: { authorities: 0, traders: 0, outlaws: 0, civilians: 0 },
+    },
     ship: { hull: 100, engine: 100, fuel: 100, lifeSupport: 100 },
   })),
   on: vi.fn(),
@@ -33,7 +36,8 @@ describe('OutcomePanel', () => {
     success: true,
     encounterType: 'pirate_encounter',
     choiceMade: 'negotiate',
-    explanation: 'You successfully negotiated with the pirates and avoided combat.',
+    explanation:
+      'You successfully negotiated with the pirates and avoided combat.',
     modifiers: [
       {
         name: 'Good Karma',
@@ -108,7 +112,9 @@ describe('OutcomePanel', () => {
 
   it('should display modifiers that affected the result', () => {
     renderWithContext();
-    expect(screen.getByText('Factors That Influenced the Outcome')).toBeInTheDocument();
+    expect(
+      screen.getByText('Factors That Influenced the Outcome')
+    ).toBeInTheDocument();
     expect(screen.getByText('Good Karma')).toBeInTheDocument();
     expect(screen.getByText('+5%')).toBeInTheDocument();
   });
@@ -156,7 +162,9 @@ describe('OutcomePanel', () => {
 
     renderWithContext({ outcome: failureOutcome });
     expect(screen.getByText('Failure')).toBeInTheDocument();
-    expect(screen.getByText('The negotiation failed and combat ensued.')).toBeInTheDocument();
+    expect(
+      screen.getByText('The negotiation failed and combat ensued.')
+    ).toBeInTheDocument();
   });
 
   it('should call onContinue when continue button is clicked', () => {
@@ -190,7 +198,7 @@ describe('OutcomePanel', () => {
       ...defaultOutcome,
       consequences: {
         additionalEffects: [
-          'Your ship\'s reputation precedes you in this sector.',
+          "Your ship's reputation precedes you in this sector.",
           'Pirates in this area will be more cautious around you.',
         ],
       },
@@ -199,7 +207,7 @@ describe('OutcomePanel', () => {
     renderWithContext({ outcome: outcomeWithEffects });
     expect(screen.getByText('Additional Effects')).toBeInTheDocument();
     expect(
-      screen.getByText('Your ship\'s reputation precedes you in this sector.')
+      screen.getByText("Your ship's reputation precedes you in this sector.")
     ).toBeInTheDocument();
     expect(
       screen.getByText('Pirates in this area will be more cautious around you.')
