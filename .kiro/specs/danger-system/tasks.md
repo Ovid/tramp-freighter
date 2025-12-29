@@ -245,8 +245,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
 - [x] 17. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [-] 18. Create danger warning dialog component
-  - [ ] 18.1 Create src/features/danger/DangerWarningDialog.jsx
+- [x] 18. Create danger warning dialog component
+  - [x] 18.1 Create src/features/danger/DangerWarningDialog.jsx
     - Display danger zone classification
     - Show pirate and inspection probabilities
     - Provide proceed/cancel options
@@ -259,8 +259,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display success probabilities for each option
     - _Requirements: 2.2, 2.11, 2.12, 12.1, 12.2, 12.4, 12.5_
 
-- [ ] 20. Create combat resolution panel component
-  - [ ] 20.1 Create src/features/danger/CombatPanel.jsx
+- [x] 20. Create combat resolution panel component
+  - [x] 20.1 Create src/features/danger/CombatPanel.jsx
     - Display combat options (evasive, return fire, dump cargo, distress)
     - Display current ship status affecting outcomes (hull, engine, fuel, upgrades, quirks)
     - Show success probabilities with modifier breakdown
