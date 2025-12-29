@@ -637,4 +637,12 @@ export class GameStateManager {
   resolveInspection(choice, gameState, rng) {
     return this.dangerManager.resolveInspection(choice, gameState, rng);
   }
+
+  checkDistressCall(rng) {
+    return this.dangerManager.checkDistressCall(rng);
+  }
+
+  resolveDistressCall(distressCall, choice) {
+    return this.dangerManager.resolveDistressCallEncounter(distressCall, choice);
+  }
 }

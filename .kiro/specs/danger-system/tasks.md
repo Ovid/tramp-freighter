@@ -175,19 +175,19 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Implement engine failure options (restart, help, jury-rig)
     - _Requirements: 6.5-6.11_
 
-- [ ] 12. Checkpoint - Ensure all tests pass
+- [x] 12. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 13. Implement distress call system (TDD)
-  - [ ] 13.1 RED: Write property test for distress call outcomes
+- [x] 13. Implement distress call system (TDD)
+  - [x] 13.1 RED: Write property test for distress call outcomes
     - **Property 11: Distress Call Outcomes**
     - Test respond, ignore, and loot outcomes with karma/rep changes
     - **Validates: Requirements 7.7, 7.8, 7.9, 7.10**
-  - [ ] 13.2 GREEN: Add checkDistressCall(rng) to DangerManager
+  - [x] 13.2 GREEN: Add checkDistressCall(rng) to DangerManager
     - 10% chance to generate distress call
     - Return distress call object or null
     - _Requirements: 7.1_
-  - [ ] 13.3 GREEN: Add resolveDistressCall(choice, gameState) to DangerManager
+  - [x] 13.3 GREEN: Add resolveDistressCall(choice, gameState) to DangerManager
     - Implement respond (2 days, 15% fuel, 5% life support, +₡500, +10 civilian rep for helping civilians, +1 karma)
     - Implement ignore (-1 karma)
     - Implement loot (1 day, -3 karma, -15 civilian rep, +5 outlaw rep for piracy, cargo reward)

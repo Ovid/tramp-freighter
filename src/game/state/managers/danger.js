@@ -7,6 +7,7 @@ import {
   NEGOTIATION_CONFIG,
   INSPECTION_CONFIG,
   FAILURE_CONFIG,
+  DISTRESS_CONFIG,
   calculateDistanceFromSol,
 } from '../../constants.js';
 
@@ -1189,6 +1190,149 @@ export class DangerManager extends BaseManager {
         },
       },
       description: 'Fled from customs inspection. Patrol ships are in pursuit.',
+    };
+  }
+
+  // ========================================================================
+  // DISTRESS CALL SYSTEM
+  // ========================================================================
+
+  /**
+   * Check for distress call encounters during jump
+   *
+   * Distress calls are random encounters where the player encounters
+   * other ships in distress, presenting moral choices about whether
+   * to help, ignore, or exploit the situation.
+   *
+   * Feature: danger-system
+   * Validates: Requirements 7.1
+   *
+   * @param {number} rng - Random number (0-1) for encounter determination
+   * @returns {Object|null} Distress call object or null if no encounter
+   */
+  checkDistressCall(rng) {
+    this.validateState();
+
+    // Check if distress call occurs (10% chance)
+    if (rng < DISTRESS_CONFIG.CHANCE) {
+      return {
+        id: `distress_${Date.now()}`,
+        type: 'civilian_distress',
+        description: 'A civilian vessel is broadcasting a distress signal. Their engines have failed and they need assistance.',
+        options: ['respond', 'ignore', 'loot']
+      };
+    }
+
+    return null;
+  }
+
+  /**
+   * Resolve a distress call encounter choice and return the outcome
+   *
+   * Implements moral choice resolution for distress call encounters.
+   * Each choice has specific costs, rewards, and karma/reputation effects.
+   *
+   * Feature: danger-system, Property 11: Distress Call Outcomes
+   * Validates: Requirements 7.2-7.10, 8.6, 8.7
+   *
+   * @param {Object} distressCall - The distress call encounter object
+   * @param {string} choice - Distress call choice ('respond', 'ignore', 'loot')
+   * @returns {Object} Distress call outcome with success, costs, rewards, and description
+   */
+  resolveDistressCallEncounter(distressCall, choice) {
+    this.validateState();
+
+    switch (choice) {
+      case 'respond':
+        return this.resolveDistressRespond();
+      case 'ignore':
+        return this.resolveDistressIgnore();
+      case 'loot':
+        return this.resolveDistressLoot();
+      default:
+        throw new Error(`Unknown distress call choice: ${choice}`);
+    }
+  }
+
+  /**
+   * Resolve respond distress call choice
+   *
+   * Respond helps the distressed vessel with resource costs but provides
+   * credits, reputation, and karma rewards.
+   * Costs: 2 days, 15% fuel, 5% life support
+   * Rewards: ₡500, +10 civilian reputation, +1 karma
+   *
+   * @returns {Object} Distress call outcome
+   */
+  resolveDistressRespond() {
+    return {
+      success: true,
+      costs: {
+        days: DISTRESS_CONFIG.RESPOND.DAYS_COST,
+        fuel: DISTRESS_CONFIG.RESPOND.FUEL_COST,
+        lifeSupport: DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST,
+      },
+      rewards: {
+        credits: DISTRESS_CONFIG.RESPOND.CREDITS_REWARD,
+        factionRep: {
+          civilians: DISTRESS_CONFIG.RESPOND.REP_REWARD,
+        },
+        karma: DISTRESS_CONFIG.RESPOND.KARMA_REWARD,
+      },
+      description: 'You helped the distressed vessel repair their engines. They were grateful and offered payment for your assistance.',
+    };
+  }
+
+  /**
+   * Resolve ignore distress call choice
+   *
+   * Ignore applies karma penalty for not helping those in need.
+   * Costs: -1 karma
+   *
+   * @returns {Object} Distress call outcome
+   */
+  resolveDistressIgnore() {
+    return {
+      success: false,
+      costs: {},
+      rewards: {
+        karma: DISTRESS_CONFIG.IGNORE.KARMA_PENALTY,
+      },
+      description: 'You ignored the distress call and continued on your way. The decision weighs on your conscience.',
+    };
+  }
+
+  /**
+   * Resolve loot distress call choice
+   *
+   * Loot takes advantage of the distressed vessel for cargo rewards
+   * but applies severe karma and reputation penalties.
+   * Costs: 1 day, -3 karma, -15 civilian reputation
+   * Rewards: +5 outlaw reputation, cargo
+   *
+   * @returns {Object} Distress call outcome
+   */
+  resolveDistressLoot() {
+    return {
+      success: true,
+      costs: {
+        days: DISTRESS_CONFIG.LOOT.DAYS_COST,
+      },
+      rewards: {
+        karma: DISTRESS_CONFIG.LOOT.KARMA_PENALTY,
+        factionRep: {
+          civilians: DISTRESS_CONFIG.LOOT.REP_PENALTY,
+          outlaws: DISTRESS_CONFIG.LOOT.OUTLAW_REP_GAIN,
+        },
+        cargo: [
+          {
+            type: 'parts',
+            quantity: 2,
+            purchasePrice: 0, // Looted goods have no purchase price
+          },
+        ],
+      },
+      description: 'You salvaged valuable parts from the distressed vessel. The crew will remember your betrayal.',
     };
   }
 
