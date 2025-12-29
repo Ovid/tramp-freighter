@@ -242,18 +242,18 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Add dangerFlags to save/load
     - _Requirements: 10.1-10.5_
 
-- [ ] 17. Checkpoint - Ensure all tests pass
+- [x] 17. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 18. Create danger warning dialog component
+- [-] 18. Create danger warning dialog component
   - [ ] 18.1 Create src/features/danger/DangerWarningDialog.jsx
     - Display danger zone classification
     - Show pirate and inspection probabilities
     - Provide proceed/cancel options
     - _Requirements: 1.3, 12.3_
 
-- [ ] 19. Create pirate encounter panel component
-  - [ ] 19.1 Create src/features/danger/PirateEncounterPanel.jsx
+- [x] 19. Create pirate encounter panel component
+  - [x] 19.1 Create src/features/danger/PirateEncounterPanel.jsx
     - Display pirate threat level and ship status
     - Show tactical options (fight, flee, negotiate, surrender)
     - Display success probabilities for each option

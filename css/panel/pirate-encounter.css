@@ -1,0 +1,413 @@
+/* Pirate Encounter Panel Styling */
+#pirate-encounter-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  max-height: 85vh;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #ff6b6b;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  display: none;
+  z-index: 300;
+  overflow-y: auto;
+}
+
+#pirate-encounter-panel.visible {
+  display: block;
+}
+
+#pirate-encounter-panel h2 {
+  margin-bottom: 20px;
+  color: #ff6b6b;
+  font-size: 22px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+#pirate-encounter-panel h3 {
+  margin-bottom: 12px;
+  color: #ff6b6b;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 107, 107, 0.3);
+  padding-bottom: 5px;
+}
+
+#pirate-encounter-panel h4 {
+  margin-bottom: 8px;
+  color: #ffaa00;
+  font-size: 14px;
+}
+
+#pirate-encounter-panel .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#pirate-encounter-panel .close-btn:hover {
+  color: #ffffff;
+}
+
+.encounter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.encounter-section {
+  background-color: rgba(255, 107, 107, 0.05);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+/* Threat Assessment Section */
+.threat-assessment {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.threat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.threat-level {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.threat-label {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.threat-value {
+  font-weight: bold;
+  font-size: 16px;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.threat-value.weak {
+  color: #00ff88;
+}
+
+.threat-value.moderate {
+  color: #ffaa00;
+}
+
+.threat-value.strong {
+  color: #ff6b6b;
+}
+
+.threat-value.dangerous {
+  color: #ff0000;
+}
+
+.pirate-description {
+  color: #ffffff;
+  font-style: italic;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #ff6b6b;
+  border-radius: 3px;
+}
+
+/* Ship Status Section */
+.ship-status {
+  background-color: rgba(0, 255, 136, 0.05);
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.ship-status h3 {
+  color: #00ff88;
+  border-bottom-color: rgba(0, 255, 136, 0.3);
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.status-label {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.status-value {
+  font-weight: bold;
+}
+
+.status-value.good {
+  color: #00ff88;
+}
+
+.status-value.fair {
+  color: #ffaa00;
+}
+
+.status-value.poor {
+  color: #ff6b6b;
+}
+
+.status-value.critical {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+}
+
+.active-modifiers {
+  margin-top: 10px;
+}
+
+.modifiers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modifier {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.modifier.upgrade {
+  background-color: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+.modifier.quirk {
+  background-color: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+  border: 1px solid #ffaa00;
+}
+
+/* Tactical Options Section */
+.tactical-options {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tactical-option {
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tactical-option:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.tactical-option.selected {
+  border-color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.option-name {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.option-type {
+  color: #ffaa00;
+  font-size: 12px;
+  text-transform: uppercase;
+  background-color: rgba(255, 170, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.option-description {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.option-probabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.probability-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prob-label {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.prob-value {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.option-consequences {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.consequence {
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  border-left: 3px solid;
+}
+
+.consequence.success {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-left-color: #00ff88;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.consequence.failure {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-left-color: #ff6b6b;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.consequence.guaranteed {
+  background-color: rgba(255, 170, 0, 0.1);
+  border-left-color: #ffaa00;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Action Buttons */
+.encounter-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.encounter-btn {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid;
+}
+
+.encounter-btn.primary {
+  background-color: #00ff88;
+  color: #000000;
+  border-color: #00ff88;
+}
+
+.encounter-btn.primary:hover {
+  background-color: #00cc6a;
+  border-color: #00cc6a;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.encounter-btn.secondary {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.encounter-btn.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #cccccc;
+}
+
+.selection-prompt {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  #pirate-encounter-panel {
+    width: 90vw;
+    max-width: 700px;
+  }
+  
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .option-probabilities {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  #pirate-encounter-panel {
+    width: 95vw;
+    padding: 15px;
+  }
+  
+  .encounter-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .encounter-btn {
+    width: 100%;
+  }
+}
