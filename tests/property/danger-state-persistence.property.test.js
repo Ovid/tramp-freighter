@@ -34,35 +34,31 @@ describe('Danger System State Persistence', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
-    
+
     // Reset lastSaveTime to avoid debouncing issues in tests
     gameStateManager.saveLoadManager.setLastSaveTime(0);
   });
 
   it('should preserve karma through save/load round-trip', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: -100, max: 100 }),
-        fc.string({ minLength: 1, maxLength: 50 }),
-        (karmaValue, reason) => {
-          // Reset lastSaveTime to avoid debouncing issues between iterations
-          gameStateManager.saveLoadManager.setLastSaveTime(0);
+      fc.property(fc.integer({ min: -100, max: 100 }), (karmaValue) => {
+        // Reset lastSaveTime to avoid debouncing issues between iterations
+        gameStateManager.saveLoadManager.setLastSaveTime(0);
 
-          // Set karma to test value
-          gameStateManager.getState().player.karma = karmaValue;
+        // Set karma to test value
+        gameStateManager.getState().player.karma = karmaValue;
 
-          // Save and load
-          const saveResult = gameStateManager.saveGame();
-          expect(saveResult).toBe(true);
+        // Save and load
+        const saveResult = gameStateManager.saveGame();
+        expect(saveResult).toBe(true);
 
-          const loadResult = gameStateManager.loadGame();
-          expect(loadResult).not.toBeNull();
+        const loadResult = gameStateManager.loadGame();
+        expect(loadResult).not.toBeNull();
 
-          // Verify karma is preserved
-          const loadedKarma = gameStateManager.getState().player.karma;
-          expect(loadedKarma).toBe(karmaValue);
-        }
-      ),
+        // Verify karma is preserved
+        const loadedKarma = gameStateManager.getState().player.karma;
+        expect(loadedKarma).toBe(karmaValue);
+      }),
       { numRuns: 100 }
     );
   });
@@ -107,7 +103,13 @@ describe('Danger System State Persistence', () => {
       fc.property(
         fc.array(
           fc.record({
-            good: fc.constantFrom('grain', 'medicine', 'electronics', 'parts', 'tritium'),
+            good: fc.constantFrom(
+              'grain',
+              'medicine',
+              'electronics',
+              'parts',
+              'tritium'
+            ),
             qty: fc.integer({ min: 1, max: 10 }),
             buyPrice: fc.integer({ min: 100, max: 1000 }),
             buySystem: fc.integer({ min: 0, max: 20 }),
@@ -131,7 +133,8 @@ describe('Danger System State Persistence', () => {
           expect(loadResult).not.toBeNull();
 
           // Verify hidden cargo is preserved
-          const loadedHiddenCargo = gameStateManager.getState().ship.hiddenCargo;
+          const loadedHiddenCargo =
+            gameStateManager.getState().ship.hiddenCargo;
           expect(loadedHiddenCargo).toEqual(hiddenCargoItems);
         }
       ),
@@ -171,7 +174,8 @@ describe('Danger System State Persistence', () => {
           expect(loadResult).not.toBeNull();
 
           // Verify danger flags are preserved
-          const loadedDangerFlags = gameStateManager.getState().world.dangerFlags;
+          const loadedDangerFlags =
+            gameStateManager.getState().world.dangerFlags;
           expect(loadedDangerFlags).toEqual(dangerFlags);
         }
       ),
@@ -192,7 +196,13 @@ describe('Danger System State Persistence', () => {
           }),
           hiddenCargo: fc.array(
             fc.record({
-              good: fc.constantFrom('grain', 'medicine', 'electronics', 'parts', 'tritium'),
+              good: fc.constantFrom(
+                'grain',
+                'medicine',
+                'electronics',
+                'parts',
+                'tritium'
+              ),
               qty: fc.integer({ min: 1, max: 10 }),
               buyPrice: fc.integer({ min: 100, max: 1000 }),
               buySystem: fc.integer({ min: 0, max: 20 }),
@@ -217,14 +227,20 @@ describe('Danger System State Persistence', () => {
 
           // Set all danger system state to test values
           gameStateManager.getState().player.karma = dangerState.karma;
-          gameStateManager.getState().player.factions = { ...dangerState.factions };
-          gameStateManager.getState().ship.hiddenCargo = [...dangerState.hiddenCargo];
-          
+          gameStateManager.getState().player.factions = {
+            ...dangerState.factions,
+          };
+          gameStateManager.getState().ship.hiddenCargo = [
+            ...dangerState.hiddenCargo,
+          ];
+
           // Initialize world.dangerFlags if it doesn't exist
           if (!gameStateManager.getState().world.dangerFlags) {
             gameStateManager.getState().world.dangerFlags = {};
           }
-          gameStateManager.getState().world.dangerFlags = { ...dangerState.dangerFlags };
+          gameStateManager.getState().world.dangerFlags = {
+            ...dangerState.dangerFlags,
+          };
 
           // Save and load
           const saveResult = gameStateManager.saveGame();
@@ -238,7 +254,9 @@ describe('Danger System State Persistence', () => {
           expect(loadedState.player.karma).toBe(dangerState.karma);
           expect(loadedState.player.factions).toEqual(dangerState.factions);
           expect(loadedState.ship.hiddenCargo).toEqual(dangerState.hiddenCargo);
-          expect(loadedState.world.dangerFlags).toEqual(dangerState.dangerFlags);
+          expect(loadedState.world.dangerFlags).toEqual(
+            dangerState.dangerFlags
+          );
         }
       ),
       { numRuns: 100 }

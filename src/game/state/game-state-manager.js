@@ -658,6 +658,11 @@ export class GameStateManager {
   }
 
   resolveMechanicalFailure(failureType, choice, gameState, rng) {
-    return this.dangerManager.resolveMechanicalFailure(failureType, choice, gameState, rng);
+    return this.dangerManager.resolveMechanicalFailure(
+      failureType,
+      choice,
+      gameState,
+      rng
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { GAME_VERSION, SHIP_CONFIG, COMMODITY_TYPES, KARMA_CONFIG, FACTION_CONFIG } from '../constants.js';
+import { GAME_VERSION, SHIP_CONFIG, COMMODITY_TYPES } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 
 /**
@@ -188,11 +188,17 @@ export function validateStateStructure(state) {
   }
 
   // Check danger system fields (optional - will be initialized if missing)
-  if (state.player.karma !== undefined && typeof state.player.karma !== 'number') {
+  if (
+    state.player.karma !== undefined &&
+    typeof state.player.karma !== 'number'
+  ) {
     return false;
   }
   if (state.player.factions !== undefined) {
-    if (typeof state.player.factions !== 'object' || state.player.factions === null) {
+    if (
+      typeof state.player.factions !== 'object' ||
+      state.player.factions === null
+    ) {
       return false;
     }
     // Validate faction reputation values
@@ -303,7 +309,10 @@ export function validateStateStructure(state) {
 
   // Check danger flags (optional - will be initialized if missing)
   if (state.world.dangerFlags !== undefined) {
-    if (typeof state.world.dangerFlags !== 'object' || state.world.dangerFlags === null) {
+    if (
+      typeof state.world.dangerFlags !== 'object' ||
+      state.world.dangerFlags === null
+    ) {
       return false;
     }
     // Validate danger flag values
