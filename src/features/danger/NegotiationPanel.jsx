@@ -33,7 +33,8 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
 
   // Calculate success probabilities for negotiation options
   const negotiationAnalysis = useMemo(
-    () => calculateNegotiationProbabilities(encounter, cargo, karma, intelligence),
+    () =>
+      calculateNegotiationProbabilities(encounter, cargo, karma, intelligence),
     [encounter, cargo, karma, intelligence]
   );
 
@@ -57,7 +58,8 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
 
   // Determine negotiation context for display
   const demandPercent = encounter.demandPercent || 20;
-  const pirateDescription = encounter.description || 
+  const pirateDescription =
+    encounter.description ||
     `The pirates are demanding ${demandPercent}% of your cargo as tribute.`;
 
   return (
@@ -76,9 +78,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
               <span className="demand-label">Pirate Demand:</span>
               <span className="demand-value">{demandPercent}% of cargo</span>
             </div>
-            <div className="situation-description">
-              {pirateDescription}
-            </div>
+            <div className="situation-description">{pirateDescription}</div>
             <div className="negotiation-prompt">
               "Perhaps we can come to a more... reasonable arrangement?"
             </div>
@@ -98,12 +98,15 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
             <div className="status-item">
               <span className="status-label">Karma:</span>
               <span className={`status-value ${getKarmaClass(karma)}`}>
-                {karma > 0 ? '+' : ''}{karma || 0}
+                {karma > 0 ? '+' : ''}
+                {karma || 0}
               </span>
             </div>
             <div className="status-item">
               <span className="status-label">Outlaw Standing:</span>
-              <span className={`status-value ${getReputationClass(factions?.outlaws)}`}>
+              <span
+                className={`status-value ${getReputationClass(factions?.outlaws)}`}
+              >
                 {getReputationTier(factions?.outlaws || 0)}
               </span>
             </div>
@@ -120,7 +123,6 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
         <div className="negotiation-section options-section">
           <h3>Dialogue Options</h3>
           <div className="options-list">
-            
             {/* Counter-Proposal Option */}
             <div
               className={`negotiation-option ${selectedOption === 'counter_proposal' ? 'selected' : ''}`}
@@ -131,21 +133,28 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Bargaining</span>
               </div>
               <div className="option-dialogue">
-                "Look, I understand you need to make a living, but that's a steep price. 
-                How about we settle for something more reasonable?"
+                "Look, I understand you need to make a living, but that's a
+                steep price. How about we settle for something more reasonable?"
               </div>
               <div className="option-analysis">
                 <div className="probability-display">
                   <span className="prob-label">Success Chance:</span>
                   <span className="prob-value">
-                    {Math.round(negotiationAnalysis.counterProposal.finalChance * 100)}%
+                    {Math.round(
+                      negotiationAnalysis.counterProposal.finalChance * 100
+                    )}
+                    %
                   </span>
                 </div>
-                {negotiationAnalysis.counterProposal.modifiers.map((mod, index) => (
-                  <div key={index} className={`modifier-display ${mod.type}`}>
+                {negotiationAnalysis.counterProposal.modifiers.map((mod) => (
+                  <div
+                    key={mod.name}
+                    className={`modifier-display ${mod.type}`}
+                  >
                     <span className="modifier-label">{mod.name}:</span>
                     <span className="modifier-value">
-                      {mod.value > 0 ? '+' : ''}{Math.round(mod.value * 100)}%
+                      {mod.value > 0 ? '+' : ''}
+                      {Math.round(mod.value * 100)}%
                     </span>
                   </div>
                 ))}
@@ -154,13 +163,20 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                 <div className="outcome success">
                   <span className="outcome-label">Success:</span>
                   <span className="outcome-text">
-                    Pay only {NEGOTIATION_CONFIG.COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT}% of cargo instead of {demandPercent}%
+                    Pay only{' '}
+                    {NEGOTIATION_CONFIG.COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT}%
+                    of cargo instead of {demandPercent}%
                   </span>
                 </div>
                 <div className="outcome failure">
                   <span className="outcome-label">Failure:</span>
                   <span className="outcome-text">
-                    Pirates become more aggressive (+{Math.round(NEGOTIATION_CONFIG.COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE * 100)}% threat), combat likely
+                    Pirates become more aggressive (+
+                    {Math.round(
+                      NEGOTIATION_CONFIG.COUNTER_PROPOSAL
+                        .FAILURE_STRENGTH_INCREASE * 100
+                    )}
+                    % threat), combat likely
                   </span>
                 </div>
               </div>
@@ -177,14 +193,17 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                   <span className="option-type">Humanitarian</span>
                 </div>
                 <div className="option-dialogue">
-                  "Wait! I'm carrying medical supplies for civilians in the outer systems. 
-                  People will die if these don't get through."
+                  "Wait! I'm carrying medical supplies for civilians in the
+                  outer systems. People will die if these don't get through."
                 </div>
                 <div className="option-analysis">
                   <div className="probability-display">
                     <span className="prob-label">Sympathy Chance:</span>
                     <span className="prob-value">
-                      {Math.round(negotiationAnalysis.medicineClaim.finalChance * 100)}%
+                      {Math.round(
+                        negotiationAnalysis.medicineClaim.finalChance * 100
+                      )}
+                      %
                     </span>
                   </div>
                   <div className="conditional-note">
@@ -220,38 +239,52 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                   <span className="option-type">Information</span>
                 </div>
                 <div className="option-dialogue">
-                  "I might have information about other ships in the area... 
+                  "I might have information about other ships in the area...
                   valuable cargo routes, if you're interested in a trade."
                 </div>
                 <div className="option-analysis">
                   <div className="probability-display">
                     <span className="prob-label">Acceptance Chance:</span>
                     <span className="prob-value">
-                      {Math.round(NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE * 100)}%
+                      {Math.round(
+                        NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE * 100
+                      )}
+                      %
                     </span>
                   </div>
                   <div className="conditional-note">
                     <span className="condition-label">Requires:</span>
-                    <span className="condition-text">Market intelligence data</span>
+                    <span className="condition-text">
+                      Market intelligence data
+                    </span>
                   </div>
                 </div>
                 <div className="option-outcomes">
                   <div className="outcome success">
                     <span className="outcome-label">Success:</span>
                     <span className="outcome-text">
-                      Pirates accept intel, allow passage, +{NEGOTIATION_CONFIG.INTEL_OFFER.OUTLAW_REP_GAIN} outlaw reputation
+                      Pirates accept intel, allow passage, +
+                      {NEGOTIATION_CONFIG.INTEL_OFFER.OUTLAW_REP_GAIN} outlaw
+                      reputation
                     </span>
                   </div>
                   <div className="outcome failure">
                     <span className="outcome-label">Failure:</span>
                     <span className="outcome-text">
-                      Pirates suspicious of intel quality, +{Math.round(NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE * 100)}% threat
+                      Pirates suspicious of intel quality, +
+                      {Math.round(
+                        NEGOTIATION_CONFIG.INTEL_OFFER
+                          .SUSPICIOUS_STRENGTH_INCREASE * 100
+                      )}
+                      % threat
                     </span>
                   </div>
                   <div className="outcome warning">
                     <span className="outcome-label">Risk:</span>
                     <span className="outcome-text">
-                      If discovered later: {NEGOTIATION_CONFIG.INTEL_OFFER.SUCCESS_REP_PENALTY} reputation with authorities
+                      If discovered later:{' '}
+                      {NEGOTIATION_CONFIG.INTEL_OFFER.SUCCESS_REP_PENALTY}{' '}
+                      reputation with authorities
                     </span>
                   </div>
                 </div>
@@ -268,8 +301,8 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Compliance</span>
               </div>
               <div className="option-dialogue">
-                "Alright, you've got me. I'll pay your tribute. 
-                Just let me get on with my business."
+                "Alright, you've got me. I'll pay your tribute. Just let me get
+                on with my business."
               </div>
               <div className="option-analysis">
                 <div className="probability-display guaranteed">
@@ -281,12 +314,12 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                 <div className="outcome guaranteed">
                   <span className="outcome-label">Guaranteed:</span>
                   <span className="outcome-text">
-                    Pay {NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT}% of cargo, safe passage
+                    Pay {NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT}% of
+                    cargo, safe passage
                   </span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -294,10 +327,16 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
         <div className="negotiation-actions">
           {selectedOption && (
             <>
-              <button className="negotiation-btn primary" onClick={handleConfirm}>
+              <button
+                className="negotiation-btn primary"
+                onClick={handleConfirm}
+              >
                 Say: "{getOptionDialogue(selectedOption)}"
               </button>
-              <button className="negotiation-btn secondary" onClick={handleCancel}>
+              <button
+                className="negotiation-btn secondary"
+                onClick={handleCancel}
+              >
                 Reconsider
               </button>
             </>
@@ -322,7 +361,12 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
  * @param {Object} intelligence - Available intelligence data
  * @returns {Object} Analysis for each negotiation option
  */
-function calculateNegotiationProbabilities(encounter, cargo = [], karma = 0, intelligence = {}) {
+function calculateNegotiationProbabilities(
+  encounter,
+  cargo = [],
+  karma = 0,
+  intelligence = {}
+) {
   // Calculate karma modifier
   const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE || 0.0005);
 
@@ -380,7 +424,7 @@ function calculateCargoValue(cargo = []) {
   return cargo.reduce((total, item) => {
     // Estimate value based on quantity and typical prices
     const estimatedPrice = getEstimatedPrice(item.good);
-    return total + (item.quantity * estimatedPrice);
+    return total + item.quantity * estimatedPrice;
   }, 0);
 }
 
@@ -458,11 +502,11 @@ function getOptionDialogue(optionName) {
     case 'counter_proposal':
       return 'How about something more reasonable?';
     case 'medicine_claim':
-      return 'I\'m carrying medical supplies...';
+      return "I'm carrying medical supplies...";
     case 'intel_offer':
       return 'I have information you might want...';
     case 'accept_demand':
-      return 'Alright, you\'ve got me.';
+      return "Alright, you've got me.";
     default:
       return 'Continue negotiation';
   }

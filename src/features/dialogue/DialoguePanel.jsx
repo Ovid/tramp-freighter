@@ -79,7 +79,11 @@ export function DialoguePanel({ npcId, onClose }) {
 
   // Auto-close panel when dialogue ends (was active, now inactive)
   useEffect(() => {
-    if (wasActiveRef.current && !dialogueState.isActive && dialogueState.display === null) {
+    if (
+      wasActiveRef.current &&
+      !dialogueState.isActive &&
+      dialogueState.display === null
+    ) {
       wasActiveRef.current = false; // Reset for next time
       onClose();
     }

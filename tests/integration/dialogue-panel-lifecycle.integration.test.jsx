@@ -78,7 +78,9 @@ describe('DialoguePanel Lifecycle', () => {
       // Eventually should show dialogue content, not loading
       await waitFor(() => {
         expect(screen.getByText('Wei Chen')).toBeInTheDocument();
-        expect(screen.queryByText('Loading dialogue...')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('Loading dialogue...')
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -168,7 +170,9 @@ describe('DialoguePanel Lifecycle', () => {
       });
 
       // Find and click a conversation option (not farewell)
-      const conversationButton = screen.getByText("Just making conversation. How's work?");
+      const conversationButton = screen.getByText(
+        "Just making conversation. How's work?"
+      );
       fireEvent.click(conversationButton);
 
       // Should show next dialogue node, not close
@@ -198,7 +202,9 @@ describe('DialoguePanel Lifecycle', () => {
       });
 
       // Click conversation option
-      const conversationButton = screen.getByText("Just making conversation. How's work?");
+      const conversationButton = screen.getByText(
+        "Just making conversation. How's work?"
+      );
       fireEvent.click(conversationButton);
 
       // Should transition smoothly without showing loading

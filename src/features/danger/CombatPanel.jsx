@@ -222,9 +222,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                       {Math.round(COMBAT_CONFIG.EVASIVE.BASE_CHANCE * 100)}%
                     </span>
                   </div>
-                  {combatAnalysis.evasive.modifiers.map((mod, index) => (
+                  {combatAnalysis.evasive.modifiers.map((mod) => (
                     <div
-                      key={index}
+                      key={mod.name}
                       className={`modifier-breakdown ${mod.type}`}
                     >
                       <span className="breakdown-label">{mod.name}:</span>
@@ -278,9 +278,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                       {Math.round(COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE * 100)}%
                     </span>
                   </div>
-                  {combatAnalysis.returnFire.modifiers.map((mod, index) => (
+                  {combatAnalysis.returnFire.modifiers.map((mod) => (
                     <div
-                      key={index}
+                      key={mod.name}
                       className={`modifier-breakdown ${mod.type}`}
                     >
                       <span className="breakdown-label">{mod.name}:</span>
@@ -375,9 +375,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                       %
                     </span>
                   </div>
-                  {combatAnalysis.distressCall.modifiers.map((mod, index) => (
+                  {combatAnalysis.distressCall.modifiers.map((mod) => (
                     <div
-                      key={index}
+                      key={mod.name}
                       className={`modifier-breakdown ${mod.type}`}
                     >
                       <span className="breakdown-label">{mod.name}:</span>
@@ -471,7 +471,7 @@ function calculateCombatProbabilities(
 
   // Evasive Maneuvers Analysis
   const evasiveModifiers = [];
-  let evasiveChance = COMBAT_CONFIG?.EVASIVE?.BASE_CHANCE ?? 0.7;
+  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
 
   // Apply engine condition modifier
   if (engine < 50) {
@@ -486,8 +486,7 @@ function calculateCombatProbabilities(
 
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
-    const hotThrusterBonus =
-      COMBAT_CONFIG?.MODIFIERS?.hot_thruster?.evasiveBonus ?? 0.1;
+    const hotThrusterBonus = COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
     evasiveChance += hotThrusterBonus;
     evasiveModifiers.push({
       name: 'Hot Thruster Quirk',
@@ -499,7 +498,7 @@ function calculateCombatProbabilities(
   // Apply efficient_drive upgrade bonus
   if (upgrades.includes('efficient_drive')) {
     const efficientDriveBonus =
-      COMBAT_CONFIG?.MODIFIERS?.efficient_drive?.fleeBonus ?? 0.1;
+      COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
     evasiveChance += efficientDriveBonus;
     evasiveModifiers.push({
       name: 'Efficient Drive Upgrade',
@@ -522,7 +521,7 @@ function calculateCombatProbabilities(
 
   // Return Fire Analysis
   const returnFireModifiers = [];
-  let returnFireChance = COMBAT_CONFIG?.RETURN_FIRE?.BASE_CHANCE ?? 0.45;
+  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
 
   // Apply karma modifier
   if (Math.abs(karmaModifier) > 0.001) {
@@ -538,7 +537,7 @@ function calculateCombatProbabilities(
 
   // Distress Call Analysis
   const distressCallModifiers = [];
-  let distressCallChance = COMBAT_CONFIG?.DISTRESS_CALL?.BASE_CHANCE ?? 0.3;
+  let distressCallChance = COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE;
 
   // Apply karma modifier
   if (Math.abs(karmaModifier) > 0.001) {

@@ -9,7 +9,7 @@ import { createWrapper } from '../react-test-utils.jsx';
 
 /**
  * Test suite for Information Broker purchase feedback improvements
- * 
+ *
  * Validates that the UI provides immediate feedback when purchasing intelligence:
  * - Success messages are displayed
  * - Button states update immediately
@@ -22,7 +22,11 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   beforeEach(() => {
     // Create real game state manager for testing
     const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gameStateManager = new GameStateManager(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     // Set up test state
@@ -43,12 +47,14 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
 
     // Find and click the purchase button for a connected system
     const purchaseButtons = screen.queryAllByText('Purchase');
-    
+
     if (purchaseButtons.length > 0) {
       fireEvent.click(purchaseButtons[0]);
 
       // Verify success message appears immediately (no setTimeout delay in test)
-      expect(screen.getByText(/Intelligence purchased for/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Intelligence purchased for/)
+      ).toBeInTheDocument();
     }
   });
 
@@ -62,10 +68,10 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
 
     // Find and click the purchase button
     const purchaseButtons = screen.queryAllByText('Purchase');
-    
+
     if (purchaseButtons.length > 0) {
       const initialCallCount = listSpy.mock.calls.length;
-      
+
       fireEvent.click(purchaseButtons[0]);
 
       // Verify that listAvailableIntelligence was called again to refresh the list
@@ -83,7 +89,9 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
     fireEvent.click(buyRumorButton);
 
     // Verify success message appears immediately
-    expect(screen.getByText('Rumor purchased successfully')).toBeInTheDocument();
+    expect(
+      screen.getByText('Rumor purchased successfully')
+    ).toBeInTheDocument();
 
     // Verify the actual rumor text appears (look for specific rumor content)
     expect(screen.getByText(/Word on the street/)).toBeInTheDocument();
@@ -99,7 +107,7 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
 
     // Find and click the purchase button (should be disabled, but test error handling)
     const purchaseButtons = screen.queryAllByText('Purchase');
-    
+
     if (purchaseButtons.length > 0) {
       // Force click even if disabled to test error handling
       fireEvent.click(purchaseButtons[0]);

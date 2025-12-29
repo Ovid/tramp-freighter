@@ -179,6 +179,12 @@ export const SHIP_CONFIG = {
     ENGINE: 30,
     LIFE_SUPPORT: 20,
   },
+  UI_CONDITION_DISPLAY_THRESHOLDS: {
+    EXCELLENT: 75, // >= 75% shows as 'good'
+    FAIR: 50, // >= 50% shows as 'fair'
+    POOR: 25, // >= 25% shows as 'poor'
+    // < 25% shows as 'critical'
+  },
   ENGINE_CONDITION_PENALTIES: {
     THRESHOLD: 60, // Percentage below which penalties apply
     FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption

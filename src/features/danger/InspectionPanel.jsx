@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { INSPECTION_CONFIG, RESTRICTED_GOODS_CONFIG } from '../../game/constants.js';
+import {
+  INSPECTION_CONFIG,
+  RESTRICTED_GOODS_CONFIG,
+} from '../../game/constants.js';
 
 /**
  * InspectionPanel - React component for customs inspection resolution
@@ -19,9 +21,6 @@ import { INSPECTION_CONFIG, RESTRICTED_GOODS_CONFIG } from '../../game/constants
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function InspectionPanel({ inspection, onChoice, onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to relevant game events for inspection context
   const cargo = useGameEvent('cargoChanged');
   const hiddenCargo = useGameEvent('hiddenCargoChanged');
@@ -34,7 +33,14 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
 
   // Calculate inspection analysis and restricted goods
   const inspectionAnalysis = useMemo(
-    () => calculateInspectionAnalysis(inspection, cargo, hiddenCargo, currentSystem, credits),
+    () =>
+      calculateInspectionAnalysis(
+        inspection,
+        cargo,
+        hiddenCargo,
+        currentSystem,
+        credits
+      ),
     [inspection, cargo, hiddenCargo, currentSystem, credits]
   );
 
@@ -82,7 +88,8 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                 'Customs officials are conducting a standard cargo inspection. Cooperation is expected.'}
             </div>
             <div className="inspector-dialogue">
-              "Please prepare your cargo manifest for inspection. Any restricted items must be declared."
+              "Please prepare your cargo manifest for inspection. Any restricted
+              items must be declared."
             </div>
           </div>
         </div>
@@ -97,10 +104,11 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
               {cargo && cargo.length > 0 ? (
                 <div className="cargo-list">
                   {cargo.map((item, index) => {
-                    const isRestricted = inspectionAnalysis.restrictedItems.includes(item.good);
+                    const isRestricted =
+                      inspectionAnalysis.restrictedItems.includes(item.good);
                     return (
                       <div
-                        key={index}
+                        key={`${item.good}-${item.quantity}-${index}`}
                         className={`cargo-item ${isRestricted ? 'restricted' : 'legal'}`}
                       >
                         <div className="item-info">
@@ -113,7 +121,9 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                         </div>
                         <div className="item-status">
                           {isRestricted ? (
-                            <span className="status-restricted">RESTRICTED</span>
+                            <span className="status-restricted">
+                              RESTRICTED
+                            </span>
                           ) : (
                             <span className="status-legal">Legal</span>
                           )}
@@ -135,13 +145,17 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                 <div className="hidden-status">
                   <span className="hidden-label">Hidden Compartments:</span>
                   <span className="hidden-count">
-                    {hiddenCargo.length} concealed item{hiddenCargo.length !== 1 ? 's' : ''}
+                    {hiddenCargo.length} concealed item
+                    {hiddenCargo.length !== 1 ? 's' : ''}
                   </span>
                 </div>
                 <div className="discovery-risk">
                   <span className="risk-label">Discovery Risk:</span>
                   <span className="risk-value">
-                    {Math.round(inspectionAnalysis.hiddenCargoDiscoveryChance * 100)}%
+                    {Math.round(
+                      inspectionAnalysis.hiddenCargoDiscoveryChance * 100
+                    )}
+                    %
                   </span>
                 </div>
               </div>
@@ -152,7 +166,9 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
           <div className="inspection-summary">
             <div className="summary-item">
               <span className="summary-label">Restricted Items:</span>
-              <span className={`summary-value ${inspectionAnalysis.restrictedItems.length > 0 ? 'warning' : 'clear'}`}>
+              <span
+                className={`summary-value ${inspectionAnalysis.restrictedItems.length > 0 ? 'warning' : 'clear'}`}
+              >
                 {inspectionAnalysis.restrictedItems.length}
               </span>
             </div>
@@ -164,7 +180,9 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
             </div>
             <div className="summary-item">
               <span className="summary-label">Authority Standing:</span>
-              <span className={`summary-value ${getReputationClass(factions?.authorities)}`}>
+              <span
+                className={`summary-value ${getReputationClass(factions?.authorities)}`}
+              >
                 {getReputationTier(factions?.authorities || 0)}
               </span>
             </div>
@@ -175,7 +193,6 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
         <div className="inspection-section inspection-options">
           <h3>Response Options</h3>
           <div className="options-list">
-            
             {/* Cooperate Option */}
             <div
               className={`inspection-option ${selectedOption === 'cooperate' ? 'selected' : ''}`}
@@ -191,11 +208,15 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
               <div className="option-analysis">
                 <div className="guaranteed-outcome">
                   <span className="outcome-label">Outcome:</span>
-                  <span className="outcome-value guaranteed">Guaranteed Success</span>
+                  <span className="outcome-value guaranteed">
+                    Guaranteed Success
+                  </span>
                 </div>
                 {inspectionAnalysis.restrictedItems.length > 0 && (
                   <div className="violation-warning">
-                    <span className="warning-label">Restricted Goods Detected:</span>
+                    <span className="warning-label">
+                      Restricted Goods Detected:
+                    </span>
                     <span className="warning-text">
                       {inspectionAnalysis.restrictedItems.join(', ')}
                     </span>
@@ -205,7 +226,10 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                   <div className="hidden-risk">
                     <span className="risk-label">Hidden Cargo Discovery:</span>
                     <span className="risk-value">
-                      {Math.round(inspectionAnalysis.hiddenCargoDiscoveryChance * 100)}% chance
+                      {Math.round(
+                        inspectionAnalysis.hiddenCargoDiscoveryChance * 100
+                      )}
+                      % chance
                     </span>
                   </div>
                 )}
@@ -214,25 +238,40 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                 <div className="outcome base">
                   <span className="outcome-label">Base Result:</span>
                   <span className="outcome-text">
-                    +{INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN} authority reputation for cooperation
+                    +{INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN} authority
+                    reputation for cooperation
                   </span>
                 </div>
                 {inspectionAnalysis.restrictedItems.length > 0 && (
                   <div className="outcome penalty">
                     <span className="outcome-label">Restricted Goods:</span>
                     <span className="outcome-text">
-                      ₡{INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE.toLocaleString()} fine, 
-                      {INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS} authority reputation
+                      ₡
+                      {INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE.toLocaleString()}{' '}
+                      fine,
+                      {
+                        INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS
+                      }{' '}
+                      authority reputation
                     </span>
                   </div>
                 )}
                 {hiddenCargo && hiddenCargo.length > 0 && (
                   <div className="outcome risk">
-                    <span className="outcome-label">If Hidden Cargo Found:</span>
+                    <span className="outcome-label">
+                      If Hidden Cargo Found:
+                    </span>
                     <span className="outcome-text">
-                      ₡{INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE.toLocaleString()} fine, 
-                      {INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO} authority reputation,
-                      +{INSPECTION_CONFIG.REPUTATION_PENALTIES.SMUGGLING_OUTLAW_BONUS} outlaw reputation
+                      ₡
+                      {INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE.toLocaleString()}{' '}
+                      fine,
+                      {INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO}{' '}
+                      authority reputation, +
+                      {
+                        INSPECTION_CONFIG.REPUTATION_PENALTIES
+                          .SMUGGLING_OUTLAW_BONUS
+                      }{' '}
+                      outlaw reputation
                     </span>
                   </div>
                 )}
@@ -242,7 +281,10 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
             {/* Bribe Option */}
             <div
               className={`inspection-option ${selectedOption === 'bribe' ? 'selected' : ''} ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
-              onClick={() => credits >= INSPECTION_CONFIG.BRIBE.COST && handleOptionSelect('bribe')}
+              onClick={() =>
+                credits >= INSPECTION_CONFIG.BRIBE.COST &&
+                handleOptionSelect('bribe')
+              }
             >
               <div className="option-header">
                 <span className="option-name">Attempt Bribery</span>
@@ -274,15 +316,23 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                 <div className="outcome success">
                   <span className="outcome-label">Success:</span>
                   <span className="outcome-text">
-                    Avoid inspection, pay ₡{INSPECTION_CONFIG.BRIBE.COST.toLocaleString()}, 
-                    {INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY} authority reputation
+                    Avoid inspection, pay ₡
+                    {INSPECTION_CONFIG.BRIBE.COST.toLocaleString()},
+                    {INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY} authority
+                    reputation
                   </span>
                 </div>
                 <div className="outcome failure">
                   <span className="outcome-label">Failure:</span>
                   <span className="outcome-text">
-                    Pay ₡{(INSPECTION_CONFIG.BRIBE.COST + INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE).toLocaleString()}, 
-                    full inspection proceeds, {INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY} authority reputation
+                    Pay ₡
+                    {(
+                      INSPECTION_CONFIG.BRIBE.COST +
+                      INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE
+                    ).toLocaleString()}
+                    , full inspection proceeds,{' '}
+                    {INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY} authority
+                    reputation
                   </span>
                 </div>
               </div>
@@ -303,14 +353,17 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
               <div className="option-analysis">
                 <div className="consequence-warning">
                   <span className="warning-label">Warning:</span>
-                  <span className="warning-text">Triggers patrol combat encounter</span>
+                  <span className="warning-text">
+                    Triggers patrol combat encounter
+                  </span>
                 </div>
               </div>
               <div className="option-outcomes">
                 <div className="outcome guaranteed">
                   <span className="outcome-label">Immediate Result:</span>
                   <span className="outcome-text">
-                    {INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY} authority reputation for resisting inspection
+                    {INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY} authority
+                    reputation for resisting inspection
                   </span>
                 </div>
                 <div className="outcome combat">
@@ -321,7 +374,6 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -329,10 +381,13 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
         <div className="inspection-actions">
           {selectedOption && (
             <>
-              <button 
-                className="inspection-btn primary" 
+              <button
+                className="inspection-btn primary"
                 onClick={handleConfirm}
-                disabled={selectedOption === 'bribe' && credits < INSPECTION_CONFIG.BRIBE.COST}
+                disabled={
+                  selectedOption === 'bribe' &&
+                  credits < INSPECTION_CONFIG.BRIBE.COST
+                }
               >
                 {getActionButtonText(selectedOption)}
               </button>
@@ -365,14 +420,22 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
  * @param {number} credits - Current credits
  * @returns {Object} Analysis of the inspection situation
  */
-function calculateInspectionAnalysis(inspection, cargo = [], hiddenCargo = [], currentSystem = 0, credits = 0) {
+function calculateInspectionAnalysis(
+  inspection,
+  cargo = [],
+  hiddenCargo = [],
+  currentSystem = 0,
+  credits = 0
+) {
   // Determine danger zone for the current system
   const dangerZone = getDangerZoneForSystem(currentSystem);
-  
+
   // Find restricted items in regular cargo
   const restrictedItems = cargo
-    .filter(item => isGoodRestrictedInZone(item.good, dangerZone, currentSystem))
-    .map(item => item.good);
+    .filter((item) =>
+      isGoodRestrictedInZone(item.good, dangerZone, currentSystem)
+    )
+    .map((item) => item.good);
 
   // Calculate security level and hidden cargo discovery chance
   let securityMultiplier;
@@ -381,10 +444,11 @@ function calculateInspectionAnalysis(inspection, cargo = [], hiddenCargo = [], c
     securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
   } else {
     // Use zone-based multiplier
-    securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[dangerZone];
+    securityMultiplier =
+      INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[dangerZone];
   }
 
-  const hiddenCargoDiscoveryChance = 
+  const hiddenCargoDiscoveryChance =
     INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
 
   return {
@@ -408,12 +472,12 @@ function getDangerZoneForSystem(systemId) {
   if ([0, 1, 4].includes(systemId)) {
     return 'safe';
   }
-  
+
   // Contested systems
   if ([7, 10].includes(systemId)) {
     return 'contested';
   }
-  
+
   // For now, assume other systems are dangerous
   // In a full implementation, this would check distance from Sol
   return 'dangerous';
@@ -430,11 +494,12 @@ function getDangerZoneForSystem(systemId) {
  */
 function isGoodRestrictedInZone(goodType, dangerZone, systemId) {
   // Check zone-based restrictions
-  const zoneRestricted = 
-    RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone]?.includes(goodType) || false;
+  const zoneRestricted =
+    RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone]?.includes(goodType) ||
+    false;
 
   // Check core system restrictions
-  const coreSystemRestricted = 
+  const coreSystemRestricted =
     (systemId === 0 || systemId === 1) &&
     RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED.includes(goodType);
 

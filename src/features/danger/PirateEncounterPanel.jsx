@@ -353,18 +353,16 @@ function calculateTacticalProbabilities(
   const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE
 
   // Calculate evasive maneuvers probability
-  let evasiveChance = COMBAT_CONFIG?.EVASIVE?.BASE_CHANCE ?? 0.7;
+  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
 
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
-    evasiveChance +=
-      COMBAT_CONFIG?.MODIFIERS?.hot_thruster?.evasiveBonus ?? 0.1;
+    evasiveChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
   }
 
   // Apply efficient_drive upgrade bonus
   if (upgrades.includes('efficient_drive')) {
-    evasiveChance +=
-      COMBAT_CONFIG?.MODIFIERS?.efficient_drive?.fleeBonus ?? 0.1;
+    evasiveChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
   }
 
   // Apply karma modifier
@@ -374,7 +372,7 @@ function calculateTacticalProbabilities(
   evasiveChance = Math.max(0, Math.min(1, evasiveChance));
 
   // Calculate return fire probability
-  let returnFireChance = COMBAT_CONFIG?.RETURN_FIRE?.BASE_CHANCE ?? 0.45;
+  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
 
   // Apply karma modifier
   returnFireChance += karmaModifier;
@@ -383,13 +381,11 @@ function calculateTacticalProbabilities(
   returnFireChance = Math.max(0, Math.min(1, returnFireChance));
 
   // Calculate negotiation probabilities
-  let counterProposalChance =
-    NEGOTIATION_CONFIG?.COUNTER_PROPOSAL?.BASE_CHANCE ?? 0.6;
+  let counterProposalChance = NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE;
   counterProposalChance += karmaModifier;
   counterProposalChance = Math.max(0, Math.min(1, counterProposalChance));
 
-  let medicineClaimChance =
-    NEGOTIATION_CONFIG?.MEDICINE_CLAIM?.SYMPATHY_CHANCE ?? 0.4;
+  let medicineClaimChance = NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE;
   medicineClaimChance += karmaModifier;
   medicineClaimChance = Math.max(0, Math.min(1, medicineClaimChance));
 

@@ -131,7 +131,8 @@ export function InfoBrokerPanel({ onClose }) {
     }
 
     // Show success message
-    const systemName = starData.find(s => s.id === systemId)?.name || 'Unknown System';
+    const systemName =
+      starData.find((s) => s.id === systemId)?.name || 'Unknown System';
     setValidationMessage(`Intelligence purchased for ${systemName}`);
     setValidationClass('info');
 
