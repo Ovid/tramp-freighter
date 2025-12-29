@@ -6,7 +6,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(1);
   width: var(--panel-width-small);
   max-height: var(--panel-max-height);
   padding: var(--panel-padding);
