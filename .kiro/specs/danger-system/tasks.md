@@ -274,8 +274,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display success probabilities and consequences
     - _Requirements: 4.1, 4.5, 4.8, 4.11, 12.1, 12.5_
 
-- [ ] 22. Create inspection panel component
-  - [ ] 22.1 Create src/features/danger/InspectionPanel.jsx
+- [x] 22. Create inspection panel component
+  - [x] 22.1 Create src/features/danger/InspectionPanel.jsx
     - Display cargo manifest with restricted items marked
     - Show inspection options (cooperate, bribe, flee)
     - Display costs and consequences for each option
@@ -294,7 +294,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display costs and consequences for each choice
     - _Requirements: 7.2, 7.6, 12.1, 12.5_
 
-- [ ] 25. Checkpoint - Ensure all tests pass
+- [x] 25. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 26. Integrate danger system with navigation
@@ -323,7 +323,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Unlock/lock dialogue options based on reputation and karma thresholds
     - _Requirements: 8.9, 9.5_
 
-- [ ] 29. Final checkpoint - Ensure all tests pass
+- [x] 29. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

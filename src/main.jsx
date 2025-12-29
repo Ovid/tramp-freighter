@@ -26,6 +26,7 @@ import '../css/panel/cargo-manifest.css';
 import '../css/panel/dev-admin.css';
 import '../css/panel/dialogue.css';
 import '../css/panel/info-broker.css';
+import '../css/panel/inspection.css';
 import '../css/panel/jump-dialog.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
