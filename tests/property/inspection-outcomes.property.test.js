@@ -10,7 +10,10 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { INSPECTION_CONFIG, COMMODITY_TYPES } from '../../src/game/constants.js';
+import {
+  INSPECTION_CONFIG,
+  COMMODITY_TYPES,
+} from '../../src/game/constants.js';
 
 /**
  * Create test game state with specified overrides
@@ -44,21 +47,6 @@ function createTestGameState(baseState, overrides = {}) {
   };
 }
 
-/**
- * Create test inspection object
- *
- * @param {Object} overrides - Properties to override
- * @returns {Object} Test inspection object
- */
-function createTestInspection(overrides = {}) {
-  return {
-    id: 'test-inspection',
-    severity: 'routine',
-    hiddenCargoCheckChance: 0.1,
-    ...overrides,
-  };
-}
-
 describe('Inspection Resolution Outcomes Properties', () => {
   it('should handle cooperate choice correctly with restricted goods', () => {
     const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
@@ -85,7 +73,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
             ship: { cargo },
           });
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
             testGameState,
@@ -98,11 +85,15 @@ describe('Inspection Resolution Outcomes Properties', () => {
             'credits',
             INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE
           );
-          expect(outcome.costs).toHaveProperty('restrictedGoodsConfiscated', true);
-          
+          expect(outcome.costs).toHaveProperty(
+            'restrictedGoodsConfiscated',
+            true
+          );
+
           // Authority rep should be cooperation bonus + restricted goods penalty
-          const expectedAuthorityRep = INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN + 
-                                       INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
+          const expectedAuthorityRep =
+            INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN +
+            INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
           expect(outcome.rewards.factionRep).toHaveProperty(
             'authorities',
             expectedAuthorityRep
@@ -143,7 +134,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
             player: { currentSystem: systemId }, // Set current system for security level calculation
           });
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
             testGameState,
@@ -154,13 +144,17 @@ describe('Inspection Resolution Outcomes Properties', () => {
           let securityMultiplier;
           if (systemId === 0 || systemId === 1) {
             // Core systems (0, 1) should use core multiplier regardless of zone
-            securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
+            securityMultiplier =
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
           } else {
             // Other systems use zone-based multiplier
-            securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
+            securityMultiplier =
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
           }
-          
-          const discoveryChance = INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
+
+          const discoveryChance =
+            INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
+            securityMultiplier;
 
           if (rng < discoveryChance) {
             // Hidden cargo should be discovered (Requirement 5.5, 11.8)
@@ -168,7 +162,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
               'credits',
               INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE
             );
-            expect(outcome.costs).toHaveProperty('hiddenCargoConfiscated', true);
+            expect(outcome.costs).toHaveProperty(
+              'hiddenCargoConfiscated',
+              true
+            );
             expect(outcome.rewards.factionRep).toHaveProperty(
               'authorities',
               INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO
@@ -200,7 +197,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
           const gameState = gameStateManager.getState();
           const testGameState = createTestGameState(gameState);
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'bribe',
             testGameState,
@@ -208,10 +204,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
           );
 
           // Should always cost bribery attempt amount (Requirement 5.6)
-          expect(outcome.costs).toHaveProperty(
-            'credits',
-            expect.any(Number)
-          );
+          expect(outcome.costs).toHaveProperty('credits', expect.any(Number));
           expect(outcome.costs.credits).toBeGreaterThanOrEqual(
             INSPECTION_CONFIG.BRIBE.COST
           );
@@ -230,7 +223,8 @@ describe('Inspection Resolution Outcomes Properties', () => {
             // Bribery fails (Requirement 5.8)
             expect(outcome).toHaveProperty('success', false);
             expect(outcome.costs.credits).toBe(
-              INSPECTION_CONFIG.BRIBE.COST + INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE
+              INSPECTION_CONFIG.BRIBE.COST +
+                INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE
             );
           }
 
@@ -252,7 +246,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
           const gameState = gameStateManager.getState();
           const testGameState = createTestGameState(gameState);
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'flee',
             testGameState,
@@ -301,7 +294,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
             player: { currentSystem: systemId }, // Set current system for security level calculation
           });
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
             testGameState,
@@ -312,27 +304,39 @@ describe('Inspection Resolution Outcomes Properties', () => {
           let securityMultiplier;
           if (systemId === 0 || systemId === 1) {
             // Core systems should use core multiplier (2x) regardless of zone
-            securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
+            securityMultiplier =
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
           } else {
             // Other systems use zone-based multiplier
-            securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
+            securityMultiplier =
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
           }
-          
-          const discoveryChance = INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
+
+          const discoveryChance =
+            INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
+            securityMultiplier;
 
           // Verify security level scaling is applied correctly
           if (systemId === 0 || systemId === 1) {
             // Core systems should use core multiplier (2x)
-            expect(securityMultiplier).toBe(INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core);
+            expect(securityMultiplier).toBe(
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core
+            );
           } else if (zone === 'safe') {
             // Other safe systems should use safe multiplier (1.5x)
-            expect(securityMultiplier).toBe(INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.safe);
+            expect(securityMultiplier).toBe(
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.safe
+            );
           } else if (zone === 'contested') {
             // Contested systems should use contested multiplier (1x)
-            expect(securityMultiplier).toBe(INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.contested);
+            expect(securityMultiplier).toBe(
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.contested
+            );
           } else if (zone === 'dangerous') {
             // Dangerous systems should use dangerous multiplier (0.5x)
-            expect(securityMultiplier).toBe(INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.dangerous);
+            expect(securityMultiplier).toBe(
+              INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.dangerous
+            );
           }
 
           // Discovery should match expected probability
@@ -370,7 +374,6 @@ describe('Inspection Resolution Outcomes Properties', () => {
             ship: { cargo, hiddenCargo },
           });
 
-          const inspection = createTestInspection();
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
             testGameState,
@@ -388,8 +391,11 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           // Hidden cargo discovery depends on RNG and security level
           const zone = gameStateManager.getDangerZone(0); // Use system 0 for consistency
-          const securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
-          const discoveryChance = INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
+          const securityMultiplier =
+            INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
+          const discoveryChance =
+            INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
+            securityMultiplier;
 
           if (hasHiddenCargo && rng < discoveryChance) {
             // Should apply hidden cargo penalty and outlaw bonus (Requirement 5.11)

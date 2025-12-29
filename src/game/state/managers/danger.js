@@ -1036,7 +1036,7 @@ export class DangerManager extends BaseManager {
       case 'bribe':
         return this.resolveInspectionBribe(gameState, rng);
       case 'flee':
-        return this.resolveInspectionFlee(gameState);
+        return this.resolveInspectionFlee();
       default:
         throw new Error(`Unknown inspection choice: ${choice}`);
     }
@@ -1060,21 +1060,24 @@ export class DangerManager extends BaseManager {
     let outlawRepChange = 0;
 
     // Check for restricted goods in regular cargo
-    const hasRestrictedGoods = gameState.ship.cargo && gameState.ship.cargo.length > 0;
+    const hasRestrictedGoods =
+      gameState.ship.cargo && gameState.ship.cargo.length > 0;
     if (hasRestrictedGoods) {
       totalFine += INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE;
       restrictedGoodsConfiscated = true;
       // Apply penalty for restricted goods (this is added to the cooperation bonus)
-      authorityRepChange += INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
+      authorityRepChange +=
+        INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
     }
 
     // Check for hidden cargo discovery
-    const hasHiddenCargo = gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
+    const hasHiddenCargo =
+      gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
     if (hasHiddenCargo) {
       // Determine security level based on current system (use system 0 as default for testing)
       const currentSystem = gameState.player.currentSystem || 0;
       const zone = this.getDangerZone(currentSystem);
-      
+
       // Apply security level multiplier for hidden cargo discovery
       // Core systems (0, 1) should use core multiplier regardless of zone
       let securityMultiplier;
@@ -1083,15 +1086,18 @@ export class DangerManager extends BaseManager {
       } else {
         securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
       }
-      
-      const discoveryChance = INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
+
+      const discoveryChance =
+        INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
 
       if (rng < discoveryChance) {
         totalFine += INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE;
         hiddenCargoConfiscated = true;
         // Override with penalty for hidden cargo discovery
-        authorityRepChange = INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO;
-        outlawRepChange = INSPECTION_CONFIG.REPUTATION_PENALTIES.SMUGGLING_OUTLAW_BONUS;
+        authorityRepChange =
+          INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO;
+        outlawRepChange =
+          INSPECTION_CONFIG.REPUTATION_PENALTIES.SMUGGLING_OUTLAW_BONUS;
       }
     }
 
@@ -1136,15 +1142,17 @@ export class DangerManager extends BaseManager {
    */
   resolveInspectionBribe(gameState, rng) {
     const success = rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE;
-    
+
     let totalCost = INSPECTION_CONFIG.BRIBE.COST;
     let description = 'Attempted to bribe customs inspector.';
 
     if (success) {
-      description = 'Successfully bribed customs inspector and avoided inspection.';
+      description =
+        'Successfully bribed customs inspector and avoided inspection.';
     } else {
       totalCost += INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE;
-      description = 'Bribery attempt failed. Inspector imposed additional penalties.';
+      description =
+        'Bribery attempt failed. Inspector imposed additional penalties.';
     }
 
     return {
@@ -1167,10 +1175,9 @@ export class DangerManager extends BaseManager {
    * Flee attempts to escape the inspection by running.
    * This triggers a patrol combat encounter and applies reputation penalties.
    *
-   * @param {Object} gameState - Current game state
    * @returns {Object} Inspection outcome
    */
-  resolveInspectionFlee(gameState) {
+  resolveInspectionFlee() {
     return {
       success: false,
       triggerPatrolCombat: true,
