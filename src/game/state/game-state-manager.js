@@ -633,4 +633,8 @@ export class GameStateManager {
   resolveNegotiation(encounter, choice, rng) {
     return this.dangerManager.resolveNegotiation(encounter, choice, rng);
   }
+
+  resolveInspection(choice, gameState, rng) {
+    return this.dangerManager.resolveInspection(choice, gameState, rng);
+  }
 }

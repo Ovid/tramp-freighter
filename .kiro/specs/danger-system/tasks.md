@@ -138,14 +138,14 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Apply karma as hidden modifier on negotiation success rates (±5% at extreme karma)
     - _Requirements: 4.1-4.11, 8.7, 9.4, 9.10_
 
-- [ ] 10. Implement inspection resolution system (TDD)
-  - [ ] 10.1 RED: Write property test for inspection outcomes
+- [x] 10. Implement inspection resolution system (TDD)
+  - [x] 10.1 RED: Write property test for inspection outcomes
     - **Property 7: Inspection Outcomes**
     - Test cooperate, hidden cargo discovery, bribery, and flee outcomes
     - Test that flee triggers patrol combat encounter
     - Test security level scaling for hidden cargo discovery (2x core, 1.5x safe, 1x contested, 0.5x dangerous)
     - **Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11, 11.8**
-  - [ ] 10.2 GREEN: Add resolveInspection(choice, gameState, rng) to DangerManager
+  - [x] 10.2 GREEN: Add resolveInspection(choice, gameState, rng) to DangerManager
     - Implement cooperate (confiscate restricted, ₡1,000 fine, +5 authority rep for cooperation)
     - Implement hidden cargo discovery (10% base chance, scaled by security level: 2x core, 1.5x safe, 1x contested, 0.5x dangerous)
     - Hidden cargo discovery costs ₡2,000 fine, -20 authority rep

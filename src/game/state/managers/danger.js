@@ -5,6 +5,7 @@ import {
   FACTION_CONFIG,
   COMBAT_CONFIG,
   NEGOTIATION_CONFIG,
+  INSPECTION_CONFIG,
   calculateDistanceFromSol,
 } from '../../constants.js';
 
@@ -1005,5 +1006,181 @@ export class DangerManager extends BaseManager {
 
     // Round to nearest integer and ensure minimum of 1 damage
     return Math.max(1, Math.round(modifiedDamage));
+  }
+
+  // ========================================================================
+  // INSPECTION RESOLUTION SYSTEM
+  // ========================================================================
+
+  /**
+   * Resolve an inspection choice and return the outcome
+   *
+   * Implements customs inspection resolution with choice-driven outcomes.
+   * Each choice has specific success rates, costs, and rewards based on
+   * the INSPECTION_CONFIG configuration.
+   *
+   * Feature: danger-system, Property 7: Inspection Outcomes
+   * Validates: Requirements 5.3-5.11, 8.4, 8.5, 8.7, 11.8
+   *
+   * @param {string} choice - Inspection choice ('cooperate', 'bribe', 'flee')
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Inspection outcome with success, costs, rewards, and description
+   */
+  resolveInspection(choice, gameState, rng) {
+    this.validateState();
+
+    switch (choice) {
+      case 'cooperate':
+        return this.resolveInspectionCooperate(gameState, rng);
+      case 'bribe':
+        return this.resolveInspectionBribe(gameState, rng);
+      case 'flee':
+        return this.resolveInspectionFlee(gameState);
+      default:
+        throw new Error(`Unknown inspection choice: ${choice}`);
+    }
+  }
+
+  /**
+   * Resolve cooperate inspection choice
+   *
+   * Cooperate complies with the inspection, confiscating restricted goods
+   * and imposing fines. Hidden cargo may be discovered based on security level.
+   *
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for hidden cargo discovery
+   * @returns {Object} Inspection outcome
+   */
+  resolveInspectionCooperate(gameState, rng) {
+    let totalFine = 0;
+    let restrictedGoodsConfiscated = false;
+    let hiddenCargoConfiscated = false;
+    let authorityRepChange = INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN;
+    let outlawRepChange = 0;
+
+    // Check for restricted goods in regular cargo
+    const hasRestrictedGoods = gameState.ship.cargo && gameState.ship.cargo.length > 0;
+    if (hasRestrictedGoods) {
+      totalFine += INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE;
+      restrictedGoodsConfiscated = true;
+      // Apply penalty for restricted goods (this is added to the cooperation bonus)
+      authorityRepChange += INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
+    }
+
+    // Check for hidden cargo discovery
+    const hasHiddenCargo = gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
+    if (hasHiddenCargo) {
+      // Determine security level based on current system (use system 0 as default for testing)
+      const currentSystem = gameState.player.currentSystem || 0;
+      const zone = this.getDangerZone(currentSystem);
+      
+      // Apply security level multiplier for hidden cargo discovery
+      // Core systems (0, 1) should use core multiplier regardless of zone
+      let securityMultiplier;
+      if (currentSystem === 0 || currentSystem === 1) {
+        securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
+      } else {
+        securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
+      }
+      
+      const discoveryChance = INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
+
+      if (rng < discoveryChance) {
+        totalFine += INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE;
+        hiddenCargoConfiscated = true;
+        // Override with penalty for hidden cargo discovery
+        authorityRepChange = INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO;
+        outlawRepChange = INSPECTION_CONFIG.REPUTATION_PENALTIES.SMUGGLING_OUTLAW_BONUS;
+      }
+    }
+
+    const outcome = {
+      success: true,
+      costs: {
+        credits: totalFine,
+      },
+      rewards: {
+        factionRep: {
+          authorities: authorityRepChange,
+        },
+      },
+      description: 'Cooperated with customs inspection.',
+    };
+
+    // Add confiscation flags if applicable
+    if (restrictedGoodsConfiscated) {
+      outcome.costs.restrictedGoodsConfiscated = true;
+    }
+    if (hiddenCargoConfiscated) {
+      outcome.costs.hiddenCargoConfiscated = true;
+    }
+    if (outlawRepChange > 0) {
+      outcome.rewards.factionRep.outlaws = outlawRepChange;
+    }
+
+    return outcome;
+  }
+
+  /**
+   * Resolve bribery inspection choice
+   *
+   * Bribery attempts to avoid inspection through corruption.
+   * Success rate: 60% base chance
+   * Success: Pay bribe cost, avoid confiscation
+   * Failure: Pay bribe cost + additional fine, confiscate goods
+   *
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for bribery success
+   * @returns {Object} Inspection outcome
+   */
+  resolveInspectionBribe(gameState, rng) {
+    const success = rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE;
+    
+    let totalCost = INSPECTION_CONFIG.BRIBE.COST;
+    let description = 'Attempted to bribe customs inspector.';
+
+    if (success) {
+      description = 'Successfully bribed customs inspector and avoided inspection.';
+    } else {
+      totalCost += INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE;
+      description = 'Bribery attempt failed. Inspector imposed additional penalties.';
+    }
+
+    return {
+      success,
+      costs: {
+        credits: totalCost,
+      },
+      rewards: {
+        factionRep: {
+          authorities: INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY,
+        },
+      },
+      description,
+    };
+  }
+
+  /**
+   * Resolve flee inspection choice
+   *
+   * Flee attempts to escape the inspection by running.
+   * This triggers a patrol combat encounter and applies reputation penalties.
+   *
+   * @param {Object} gameState - Current game state
+   * @returns {Object} Inspection outcome
+   */
+  resolveInspectionFlee(gameState) {
+    return {
+      success: false,
+      triggerPatrolCombat: true,
+      costs: {},
+      rewards: {
+        factionRep: {
+          authorities: INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY,
+        },
+      },
+      description: 'Fled from customs inspection. Patrol ships are in pursuit.',
+    };
   }
 }
