@@ -1,19 +1,22 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* Ship Status Panel Styling */
 .ship-status-panel {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  max-height: 80vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  width: var(--panel-width-small);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   display: none;
-  z-index: 200;
+  z-index: var(--z-panel);
   overflow-y: auto;
 }
 
@@ -22,19 +25,19 @@
 }
 
 .ship-status-panel h2 {
-  margin-bottom: 20px;
-  color: #00ff88;
-  font-size: 24px;
+  margin-bottom: var(--section-gap);
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
 .ship-status-panel h3 {
-  margin-bottom: 12px;
-  color: #00ff88;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
   padding-bottom: 5px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -42,33 +45,34 @@
 
 .ship-status-panel .close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
-  color: #00ff88;
-  font-size: 24px;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
   cursor: pointer;
-  padding: 5px;
+  padding: var(--close-button-padding);
   line-height: 1;
+  transition: var(--transition-fast);
 }
 
 .ship-status-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .ship-status-section {
-  background-color: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.2);
-  border-radius: 5px;
-  padding: 15px;
-  margin-bottom: 20px;
+  background-color: var(--bg-section-primary);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+  margin-bottom: var(--section-gap);
 }
 
 .ship-status-conditions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--grid-gap-medium);
 }
 
 .ship-status-condition-item {
@@ -81,20 +85,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  margin-top: 8px;
-  border-top: 1px solid rgba(0, 255, 136, 0.2);
+  padding: var(--grid-gap-small) 0;
+  margin-top: var(--grid-gap-small);
+  border-top: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
 }
 
 .info-label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .info-value {
-  color: #ffffff;
-  font-size: 14px;
+  color: var(--color-white);
+  font-size: var(--font-size-large);
 }
 
 .ship-quirks-list {

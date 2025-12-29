@@ -8,9 +8,9 @@
 }
 
 body {
-  font-family: 'Courier New', monospace;
-  background-color: #000000;
-  color: #ffffff;
+  font-family: var(--font-family-mono);
+  background-color: var(--color-black);
+  color: var(--color-white);
   overflow: hidden;
 }
 

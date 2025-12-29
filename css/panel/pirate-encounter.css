@@ -1,19 +1,22 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* Pirate Encounter Panel Styling */
 #pirate-encounter-panel {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 800px;
-  max-height: 85vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #ff6b6b;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  width: var(--panel-width-large);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--color-danger);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   display: none;
-  z-index: 300;
+  z-index: var(--z-modal);
   overflow-y: auto;
 }
 
@@ -22,56 +25,57 @@
 }
 
 #pirate-encounter-panel h2 {
-  margin-bottom: 20px;
-  color: #ff6b6b;
-  font-size: 22px;
+  margin-bottom: var(--section-gap);
+  color: var(--color-danger);
+  font-size: var(--font-size-title);
   text-align: center;
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  text-shadow: var(--shadow-glow-danger);
 }
 
 #pirate-encounter-panel h3 {
-  margin-bottom: 12px;
-  color: #ff6b6b;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 107, 107, 0.3);
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-danger);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(255, 107, 107, 0.3);
   padding-bottom: 5px;
 }
 
 #pirate-encounter-panel h4 {
-  margin-bottom: 8px;
-  color: #ffaa00;
-  font-size: 14px;
+  margin-bottom: var(--grid-gap-small);
+  color: var(--color-secondary);
+  font-size: var(--font-size-large);
 }
 
 #pirate-encounter-panel .close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
-  color: #ff6b6b;
-  font-size: 24px;
+  color: var(--color-danger);
+  font-size: var(--close-button-size);
   cursor: pointer;
-  padding: 5px;
+  padding: var(--close-button-padding);
   line-height: 1;
+  transition: var(--transition-fast);
 }
 
 #pirate-encounter-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .encounter-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: var(--section-gap);
+  margin-bottom: var(--section-gap);
 }
 
 .encounter-section {
-  background-color: rgba(255, 107, 107, 0.05);
-  border: 1px solid rgba(255, 107, 107, 0.2);
-  border-radius: 5px;
-  padding: 15px;
+  background-color: var(--bg-section-danger);
+  border: var(--section-border-width) solid rgba(255, 107, 107, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
 }
 
 /* Threat Assessment Section */

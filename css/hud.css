@@ -1,16 +1,19 @@
+/* Import CSS Variables */
+@import './variables.css';
+
 /* Game HUD Overlay */
 #game-hud {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 300px;
-  background-color: rgba(0, 0, 0, 0.85);
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  padding: 15px;
-  font-family: 'Courier New', monospace;
-  color: #00ff88;
-  z-index: 100;
+  background-color: var(--bg-overlay-darker);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+  font-family: var(--font-family-mono);
+  color: var(--color-primary);
+  z-index: var(--z-hud);
   display: none;
 }
 
@@ -19,9 +22,9 @@
 }
 
 .hud-section {
-  margin-bottom: 15px;
+  margin-bottom: var(--section-padding);
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
 .hud-section:last-child {
@@ -35,16 +38,16 @@
   justify-content: space-between;
   align-items: center;
   margin: 5px 0;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .hud-label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 .hud-value {
-  color: #ffffff;
+  color: var(--color-white);
   text-align: right;
 }
 
@@ -55,9 +58,9 @@
 }
 
 .hud-ship-name {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   text-align: center;
   width: 100%;
 }
@@ -68,33 +71,33 @@
 }
 
 .hud-quick-access-label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 8px;
+  font-size: var(--font-size-medium);
+  margin-bottom: var(--grid-gap-small);
 }
 
 .hud-quick-access-buttons {
   display: flex;
-  gap: 8px;
+  gap: var(--grid-gap-small);
 }
 
 .quick-access-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: var(--grid-gap-small) var(--grid-gap-medium);
   background-color: #222222;
-  color: #00ff88;
-  border: 1px solid #00ff88;
+  color: var(--color-primary);
+  border: var(--section-border-width) solid var(--border-primary);
   border-radius: 3px;
-  font-size: 12px;
-  font-family: 'Courier New', monospace;
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-mono);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-fast);
 }
 
 .quick-access-btn:hover:not(:disabled) {
-  background-color: #00ff88;
-  color: #000000;
+  background-color: var(--color-primary);
+  color: var(--color-black);
 }
 
 .quick-access-btn:disabled {
@@ -107,7 +110,7 @@
 .condition-bar-container {
   position: relative;
   height: 20px;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--bg-overlay-darker);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -120,7 +123,7 @@
 /* Repair panel-specific: full width */
 .repair-section .condition-bar-container {
   width: 100%;
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
 .condition-bar {
@@ -128,7 +131,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  transition: width 0.3s ease;
+  transition: var(--transition-fast);
 }
 
 .condition-text {
@@ -136,8 +139,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #ffffff;
-  font-size: 12px;
+  color: var(--color-white);
+  font-size: var(--font-size-small);
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   z-index: 1;
@@ -145,15 +148,15 @@
 
 /* Distinct visual styling for each condition type in HUD */
 .fuel-bar-container {
-  border: 1px solid #00ff88;
+  border: var(--section-border-width) solid var(--color-primary);
 }
 
 .fuel-bar {
-  background-color: #00ff88;
+  background-color: var(--color-primary);
 }
 
 .hull-bar-container {
-  border: 1px solid #4a9eff;
+  border: var(--section-border-width) solid #4a9eff;
 }
 
 .hull-bar {
@@ -166,20 +169,20 @@
 }
 
 .engine-bar-container {
-  border: 1px solid #ffaa00;
+  border: var(--section-border-width) solid var(--color-secondary);
 }
 
 .engine-bar {
-  background-color: #ffaa00;
+  background-color: var(--color-secondary);
 }
 
 /* Repair panel uses gradient backgrounds */
 .repair-section .engine-bar {
-  background: linear-gradient(90deg, #ff6b6b, #ff4444);
+  background: linear-gradient(90deg, var(--color-danger), #ff4444);
 }
 
 .life-support-bar-container {
-  border: 1px solid #ff4a9e;
+  border: var(--section-border-width) solid #ff4a9e;
 }
 
 .life-support-bar {
@@ -188,7 +191,7 @@
 
 /* Repair panel uses gradient backgrounds */
 .repair-section .life-support-bar {
-  background: linear-gradient(90deg, #00ff88, #00cc66);
+  background: linear-gradient(90deg, var(--color-primary), #00cc66);
 }
 
 /* HUD Panel Styling */
@@ -197,21 +200,21 @@
   top: 20px;
   right: 20px;
   width: 280px;
-  padding: 15px;
-  background-color: rgba(0, 0, 0, 0.8);
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  color: #ffffff;
-  font-size: 14px;
+  padding: var(--section-padding);
+  background-color: var(--bg-overlay);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--section-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   line-height: 1.6;
   display: none;
-  z-index: 100;
+  z-index: var(--z-hud);
 }
 
 #hud h2 {
   margin-bottom: 10px;
-  color: #00ff88;
-  font-size: 18px;
+  color: var(--color-primary);
+  font-size: var(--font-size-xxlarge);
 }
 
 #hud .close-btn {
@@ -220,14 +223,14 @@
   right: 10px;
   background: none;
   border: none;
-  color: #00ff88;
+  color: var(--color-primary);
   font-size: 20px;
   cursor: pointer;
-  padding: 5px;
+  padding: var(--close-button-padding);
 }
 
 #hud .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 #hud .info-row {
@@ -235,31 +238,31 @@
 }
 
 #hud .label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 /* Jump Info Styling */
 .jump-info {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid rgba(0, 255, 136, 0.3);
+  margin-top: var(--section-padding);
+  padding-top: var(--section-padding);
+  border-top: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
 /* Connected Systems List */
 .connected-systems {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid rgba(0, 255, 136, 0.3);
+  margin-top: var(--section-padding);
+  padding-top: var(--section-padding);
+  border-top: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
   max-height: 200px;
   overflow-y: auto;
 }
 
 .connected-header {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
-  margin-bottom: 8px;
-  font-size: 13px;
+  margin-bottom: var(--grid-gap-small);
+  font-size: var(--font-size-medium);
 }
 
 .connected-list {
@@ -269,13 +272,13 @@
 }
 
 .connected-system-item {
-  padding: 6px 8px;
+  padding: 6px var(--grid-gap-small);
   background-color: rgba(0, 255, 255, 0.1);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  border: var(--section-border-width) solid rgba(0, 255, 255, 0.3);
   border-radius: 3px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 12px;
+  transition: var(--transition-fast);
+  font-size: var(--font-size-small);
 }
 
 .connected-system-item:hover {

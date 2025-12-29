@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* Jump Dialog Styles */
 
 .jump-dialog {
@@ -6,44 +9,35 @@
   right: 50px;
   transform: translateY(-50%);
   width: 300px;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   z-index: 150;
 }
 
 .jump-dialog-header {
   position: relative;
-  margin-bottom: 15px;
+  margin-bottom: var(--section-padding);
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
 .jump-dialog-header h3 {
-  color: #00ff88;
-  font-size: 18px;
+  color: var(--color-primary);
+  font-size: var(--font-size-xxlarge);
   margin: 0;
   padding-right: 30px;
 }
 
 .jump-dialog .close-btn {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: none;
-  border: none;
-  color: #00ff88;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
+  color: var(--color-primary);
 }
 
 .jump-dialog .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .jump-dialog-content {
@@ -59,46 +53,46 @@
 }
 
 .jump-info-row .label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 .jump-info-row .value {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .jump-dialog .validation-message {
   margin: 10px 0;
   padding: 10px;
-  border-radius: 5px;
-  font-size: 13px;
+  border-radius: var(--section-border-radius);
+  font-size: var(--font-size-medium);
 }
 
 .jump-dialog .validation-message.error {
   background-color: rgba(255, 0, 0, 0.2);
-  border: 1px solid #ff0000;
+  border: var(--section-border-width) solid var(--color-critical);
   color: #ff6666;
 }
 
 .jump-btn {
   width: 100%;
-  padding: 12px;
+  padding: var(--button-padding);
   margin-top: 10px;
   background-color: rgba(0, 255, 136, 0.1);
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  border: var(--button-border-width) solid var(--border-primary);
+  border-radius: var(--button-border-radius);
+  color: var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-fast);
 }
 
 .jump-btn:hover:not(:disabled) {
   background-color: rgba(0, 255, 136, 0.2);
-  border-color: #ffffff;
-  color: #ffffff;
+  border-color: var(--color-white);
+  color: var(--color-white);
 }
 
 .jump-btn:disabled {
