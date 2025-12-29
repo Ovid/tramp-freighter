@@ -207,22 +207,22 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Update moveToRegularCargo() to use new state structure
     - _Requirements: 11.3, 11.4_
 
-- [ ] 15. Integrate restricted goods with trading system (TDD)
-  - [ ] 15.1 RED: Write property test for restricted goods premium pricing
+- [x] 15. Integrate restricted goods with trading system (TDD)
+  - [x] 15.1 RED: Write property test for restricted goods premium pricing
     - **Property 16: Restricted Goods Premium Pricing**
     - Test premium multiplier (1.5x) when selling restricted goods in legal zones
     - Test trade blocking for restricted goods in restricted zones
     - Test black market contact bypass for restricted zone sales
     - **Validates: Requirements 11.10, 11.11, 11.12**
-  - [ ] 15.2 GREEN: Add isGoodRestricted(goodType, systemId) to TradingManager
+  - [x] 15.2 GREEN: Add isGoodRestricted(goodType, systemId) to TradingManager
     - Check zone restrictions from RESTRICTED_GOODS_CONFIG
     - Check core system restrictions for systems 0, 1
     - Return boolean indicating if good is restricted at location
     - _Requirements: 11.1, 11.2_
-  - [ ] 15.3 GREEN: Update calculateSellPrice to apply premium multiplier
+  - [x] 15.3 GREEN: Update calculateSellPrice to apply premium multiplier
     - Apply PREMIUM_MULTIPLIER (1.5x) when selling restricted goods in legal zones
     - _Requirements: 11.10_
-  - [ ] 15.4 GREEN: Add canSellGood(goodType, systemId, hasBlackMarketContact) to TradingManager
+  - [x] 15.4 GREEN: Add canSellGood(goodType, systemId, hasBlackMarketContact) to TradingManager
     - Block normal trade for restricted goods in restricted zones
     - Allow trade if player has black market contacts (NPC benefit)
     - _Requirements: 11.11, 11.12_
