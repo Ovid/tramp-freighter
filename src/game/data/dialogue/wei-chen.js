@@ -29,10 +29,12 @@ import {
  */
 export const WEI_CHEN_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager, npcId) => {
+    text: (rep, gameStateManager, _npcId) => {
+      // eslint-disable-line no-unused-vars
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
-        baseText = 'Hey there, friend! Good to see you again. Ship treating you well?';
+        baseText =
+          'Hey there, friend! Good to see you again. Ship treating you well?';
       } else if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         baseText = "Oh, it's you. How's business? Ship holding together?";
       } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MIN) {
@@ -51,7 +53,10 @@ export const WEI_CHEN_DIALOGUE = {
       }
 
       // Add faction attitude modifier if player has strong civilian reputation
-      if (gameStateManager && hasFactionRep('civilians', 50, gameStateManager)) {
+      if (
+        gameStateManager &&
+        hasFactionRep('civilians', 50, gameStateManager)
+      ) {
         baseText += getFactionAttitudeModifier('civilians', gameStateManager);
       }
 
@@ -80,29 +85,41 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'I understand the risks of bad deals.',
         next: 'bad_deal_sympathy',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Only available if player has bad karma (suggesting they've made questionable choices)
           // and at least neutral reputation with Wei Chen
-          return rep >= REPUTATION_BOUNDS.NEUTRAL_MIN && 
-                 gameStateManager && hasBadKarma(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.NEUTRAL_MIN &&
+            gameStateManager &&
+            hasBadKarma(gameStateManager)
+          );
         },
       },
       {
         text: 'Any advice for staying out of trouble with authorities?',
         next: 'authority_advice',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Only available if player is wanted by authorities and has warm+ reputation
-          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
-                 gameStateManager && isWantedByAuthorities(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.WARM_MIN &&
+            gameStateManager &&
+            isWantedByAuthorities(gameStateManager)
+          );
         },
       },
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_response',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Only available if player has good karma and neutral+ reputation
-          return rep >= REPUTATION_BOUNDS.NEUTRAL_MIN && 
-                 gameStateManager && hasGoodKarma(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.NEUTRAL_MIN &&
+            gameStateManager &&
+            hasGoodKarma(gameStateManager)
+          );
         },
       },
       {

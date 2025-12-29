@@ -38,7 +38,7 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should check faction reputation correctly', () => {
       // Set high civilian reputation
       gameStateManager.modifyFactionRep('civilians', 60, 'test');
-      
+
       expect(hasFactionRep('civilians', 50, gameStateManager)).toBe(true);
       expect(hasFactionRep('civilians', 70, gameStateManager)).toBe(false);
       expect(hasFactionRep('authorities', 50, gameStateManager)).toBe(false);
@@ -46,19 +46,23 @@ describe('Dialogue Faction and Karma Integration', () => {
 
     it('should handle invalid faction names gracefully', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
-      expect(hasFactionRep('invalid_faction', 50, gameStateManager)).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Invalid faction in dialogue condition: invalid_faction');
-      
+
+      expect(hasFactionRep('invalid_faction', 50, gameStateManager)).toBe(
+        false
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid faction in dialogue condition: invalid_faction'
+      );
+
       consoleSpy.mockRestore();
     });
 
     it('should detect when player is wanted by authorities', () => {
       // Set low authority reputation
       gameStateManager.modifyFactionRep('authorities', -30, 'test');
-      
+
       expect(isWantedByAuthorities(gameStateManager)).toBe(true);
-      
+
       // Set neutral authority reputation
       gameStateManager.modifyFactionRep('authorities', 30, 'test'); // Now at 0
       expect(isWantedByAuthorities(gameStateManager)).toBe(false);
@@ -69,13 +73,13 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should check karma levels correctly', () => {
       // Set good karma
       gameStateManager.modifyKarma(30, 'test');
-      
+
       expect(hasGoodKarma(gameStateManager)).toBe(true);
       expect(hasBadKarma(gameStateManager)).toBe(false);
-      
+
       // Set bad karma
       gameStateManager.modifyKarma(-60, 'test'); // Now at -30
-      
+
       expect(hasGoodKarma(gameStateManager)).toBe(false);
       expect(hasBadKarma(gameStateManager)).toBe(true);
     });
@@ -84,7 +88,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       const goodImpression = getKarmaFirstImpression(60, 'neutral');
       const badImpression = getKarmaFirstImpression(-60, 'neutral');
       const neutralImpression = getKarmaFirstImpression(0, 'neutral');
-      
+
       expect(goodImpression).toContain('trustworthy');
       expect(badImpression).toContain('dangerous');
       expect(neutralImpression).toBe('');
@@ -93,7 +97,7 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should vary impressions based on NPC personality', () => {
       const lawfulGoodImpression = getKarmaFirstImpression(60, 'lawful');
       const chaoticGoodImpression = getKarmaFirstImpression(60, 'chaotic');
-      
+
       expect(lawfulGoodImpression).toContain('honest');
       expect(chaoticGoodImpression).toContain('clean');
     });
@@ -103,11 +107,15 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should show faction-specific dialogue options for Wei Chen', () => {
       // Set bad karma to unlock bad deal sympathy option
       gameStateManager.modifyKarma(-30, 'test');
-      
-      const dialogue = showDialogue('chen_barnards', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'chen_barnards',
+        'greeting',
+        gameStateManager
+      );
+
       // Should have the bad deal sympathy option available
-      const badDealOption = dialogue.choices.find(choice => 
+      const badDealOption = dialogue.choices.find((choice) =>
         choice.text.includes('understand the risks of bad deals')
       );
       expect(badDealOption).toBeDefined();
@@ -117,11 +125,15 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set good karma and warm reputation
       gameStateManager.modifyKarma(30, 'test');
       gameStateManager.modifyRep('vasquez_epsilon', 15, 'test'); // Warm tier
-      
-      const dialogue = showDialogue('vasquez_epsilon', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'vasquez_epsilon',
+        'greeting',
+        gameStateManager
+      );
+
       // Should have the good karma discussion option available
-      const goodKarmaOption = dialogue.choices.find(choice => 
+      const goodKarmaOption = dialogue.choices.find((choice) =>
         choice.text.includes('try to help people')
       );
       expect(goodKarmaOption).toBeDefined();
@@ -130,9 +142,13 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should modify NPC text based on faction reputation', () => {
       // Set high civilian reputation
       gameStateManager.modifyFactionRep('civilians', 60, 'test');
-      
-      const dialogue = showDialogue('chen_barnards', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'chen_barnards',
+        'greeting',
+        gameStateManager
+      );
+
       // Text should include faction attitude modifier
       expect(dialogue.text).toContain('appreciate your support');
     });
@@ -140,9 +156,13 @@ describe('Dialogue Faction and Karma Integration', () => {
     it('should modify NPC text based on karma for new encounters', () => {
       // Set bad karma for first impression
       gameStateManager.modifyKarma(-60, 'test');
-      
-      const dialogue = showDialogue('chen_barnards', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'chen_barnards',
+        'greeting',
+        gameStateManager
+      );
+
       // Text should include karma-based first impression
       expect(dialogue.text).toContain('dangerous look');
     });
@@ -151,11 +171,15 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set player as wanted by authorities and warm reputation with Whisper
       gameStateManager.modifyFactionRep('authorities', -30, 'test');
       gameStateManager.modifyRep('whisper_sirius', 25, 'test'); // Warm tier (need at least 20)
-      
-      const dialogue = showDialogue('whisper_sirius', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'whisper_sirius',
+        'greeting',
+        gameStateManager
+      );
+
       // Should have authority intel option available
-      const authorityIntelOption = dialogue.choices.find(choice => 
+      const authorityIntelOption = dialogue.choices.find((choice) =>
         choice.text.includes('authority patrol patterns')
       );
       expect(authorityIntelOption).toBeDefined();
@@ -166,22 +190,26 @@ describe('Dialogue Faction and Karma Integration', () => {
       gameStateManager.modifyFactionRep('authorities', 60, 'test');
       // Set reputation to reach Friendly tier - need to account for starting reputation
       gameStateManager.modifyRep('whisper_sirius', 30, 'test'); // Should reach 30+ total
-      
-      const dialogue = showDialogue('whisper_sirius', 'greeting', gameStateManager);
-      
+
+      const dialogue = showDialogue(
+        'whisper_sirius',
+        'greeting',
+        gameStateManager
+      );
+
       // Check if we have the expected reputation levels
       const whisperRep = gameStateManager.getNPCState('whisper_sirius').rep;
       const authorityRep = gameStateManager.getFactionRep('authorities');
-      
+
       // If conditions are met, the option should be available
       if (whisperRep >= 30 && authorityRep >= 50) {
-        const outlawIntelOption = dialogue.choices.find(choice => 
+        const outlawIntelOption = dialogue.choices.find((choice) =>
           choice.text.includes('intel on outlaw activities')
         );
         expect(outlawIntelOption).toBeDefined();
       } else {
         // If conditions aren't met, test that the option is not available
-        const outlawIntelOption = dialogue.choices.find(choice => 
+        const outlawIntelOption = dialogue.choices.find((choice) =>
           choice.text.includes('intel on outlaw activities')
         );
         expect(outlawIntelOption).toBeUndefined();
@@ -192,10 +220,10 @@ describe('Dialogue Faction and Karma Integration', () => {
   describe('Error Handling', () => {
     it('should handle missing gameStateManager gracefully', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       expect(hasGoodKarma(null)).toBe(false);
       expect(hasFactionRep('civilians', 50, null)).toBe(false);
-      
+
       consoleSpy.mockRestore();
     });
 

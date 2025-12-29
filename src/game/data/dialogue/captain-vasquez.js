@@ -14,7 +14,6 @@ import {
   hasBadKarma,
   isFriendToCivilians,
   getKarmaFirstImpression,
-  getFactionAttitudeModifier,
 } from './faction-karma-conditions.js';
 
 /**
@@ -76,9 +75,11 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       // Add karma-based commentary for established relationships
       if (gameStateManager && rep >= REPUTATION_BOUNDS.WARM_MIN) {
         if (hasGoodKarma(gameStateManager)) {
-          baseText += ' I can see you\'re one of the good ones - the sector needs more traders like you.';
+          baseText +=
+            " I can see you're one of the good ones - the sector needs more traders like you.";
         } else if (hasBadKarma(gameStateManager)) {
-          baseText += ' You\'ve got a hard edge to you now. The sector can do that to people.';
+          baseText +=
+            " You've got a hard edge to you now. The sector can do that to people.";
         }
       }
 
@@ -90,8 +91,13 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       }
 
       // Add civilian faction appreciation
-      if (gameStateManager && isFriendToCivilians(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        baseText += ' Word is you\'ve been helping folks out there. That\'s the trader spirit I remember.';
+      if (
+        gameStateManager &&
+        isFriendToCivilians(gameStateManager) &&
+        rep >= REPUTATION_BOUNDS.WARM_MIN
+      ) {
+        baseText +=
+          " Word is you've been helping folks out there. That's the trader spirit I remember.";
       }
       if (gameStateManager && npcId) {
         const npcState = gameStateManager.getNPCState(npcId);
@@ -190,19 +196,27 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_discussion',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Available if player has good karma and warm+ reputation
-          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
-                 gameStateManager && hasGoodKarma(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.WARM_MIN &&
+            gameStateManager &&
+            hasGoodKarma(gameStateManager)
+          );
         },
       },
       {
         text: 'Sometimes you have to make hard choices out there.',
         next: 'bad_karma_discussion',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Available if player has bad karma and warm+ reputation
-          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
-                 gameStateManager && hasBadKarma(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.WARM_MIN &&
+            gameStateManager &&
+            hasBadKarma(gameStateManager)
+          );
         },
       },
     ],
@@ -460,7 +474,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         repGain: 1,
       },
       {
-        text: 'I want to do better, but it\'s not always easy.',
+        text: "I want to do better, but it's not always easy.",
         next: 'greeting',
         repGain: 2,
       },

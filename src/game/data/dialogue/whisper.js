@@ -10,15 +10,11 @@
 
 import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
 import {
-  hasFactionRep,
-  hasGoodKarma,
-  hasBadKarma,
   isWantedByAuthorities,
   isKnownToOutlaws,
   isTrustedByAuthorities,
   hasMixedReputation,
   getKarmaFirstImpression,
-  getFactionAttitudeModifier,
 } from './faction-karma-conditions.js';
 
 /**
@@ -78,11 +74,21 @@ export const WHISPER_DIALOGUE = {
 
       // Add faction-specific commentary based on player's reputation
       if (gameStateManager) {
-        if (isWantedByAuthorities(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        if (
+          isWantedByAuthorities(gameStateManager) &&
+          rep >= REPUTATION_BOUNDS.WARM_MIN
+        ) {
           baseText += ' I hear the authorities have taken an interest in you.';
-        } else if (isKnownToOutlaws(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
-          baseText += ' Word is you\'ve made some interesting connections in the underworld.';
-        } else if (isTrustedByAuthorities(gameStateManager) && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        } else if (
+          isKnownToOutlaws(gameStateManager) &&
+          rep >= REPUTATION_BOUNDS.WARM_MIN
+        ) {
+          baseText +=
+            " Word is you've made some interesting connections in the underworld.";
+        } else if (
+          isTrustedByAuthorities(gameStateManager) &&
+          rep >= REPUTATION_BOUNDS.WARM_MIN
+        ) {
           baseText += ' Your clean record opens certain doors, you know.';
         }
       }
@@ -176,30 +182,41 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'I need information about authority patrol patterns.',
         next: 'authority_intel',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Available if player is wanted by authorities and has warm+ reputation
-          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
-                 gameStateManager && isWantedByAuthorities(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.WARM_MIN &&
+            gameStateManager &&
+            isWantedByAuthorities(gameStateManager)
+          );
         },
       },
       {
         text: 'Any intel on outlaw activities?',
         next: 'outlaw_intel',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Available if player is trusted by authorities and has friendly+ reputation
-          return rep >= REPUTATION_BOUNDS.FRIENDLY_MIN && 
-                 gameStateManager && isTrustedByAuthorities(gameStateManager);
+          return (
+            rep >= REPUTATION_BOUNDS.FRIENDLY_MIN &&
+            gameStateManager &&
+            isTrustedByAuthorities(gameStateManager)
+          );
         },
       },
       {
         text: 'I hear you deal with all kinds of people.',
         next: 'mixed_reputation_comment',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, gameStateManager, _npcId) => {
+          // eslint-disable-line no-unused-vars
           // Available if player has mixed reputation (high with one faction, low with opposing)
-          return rep >= REPUTATION_BOUNDS.WARM_MIN && 
-                 gameStateManager && 
-                 (hasMixedReputation('authorities', 'outlaws', gameStateManager) ||
-                  hasMixedReputation('outlaws', 'authorities', gameStateManager));
+          return (
+            rep >= REPUTATION_BOUNDS.WARM_MIN &&
+            gameStateManager &&
+            (hasMixedReputation('authorities', 'outlaws', gameStateManager) ||
+              hasMixedReputation('outlaws', 'authorities', gameStateManager))
+          );
         },
       },
       {

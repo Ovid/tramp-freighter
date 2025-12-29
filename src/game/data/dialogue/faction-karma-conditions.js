@@ -8,7 +8,7 @@
  * @module dialogue/faction-karma-conditions
  */
 
-import { FACTION_CONFIG, KARMA_CONFIG } from '../../constants.js';
+import { FACTION_CONFIG } from '../../constants.js';
 
 /**
  * Check if player has minimum faction reputation
@@ -28,7 +28,9 @@ export function hasFactionRep(faction, minRep, gameStateManager) {
     const factionRep = gameStateManager.getFactionRep(faction);
     return factionRep >= minRep;
   } catch (error) {
-    console.warn(`Error checking faction reputation in dialogue: ${error.message}`);
+    console.warn(
+      `Error checking faction reputation in dialogue: ${error.message}`
+    );
     return false;
   }
 }
@@ -128,7 +130,9 @@ export function isWantedByAuthorities(gameStateManager) {
     const authorityRep = gameStateManager.getFactionRep('authorities');
     return authorityRep <= -25;
   } catch (error) {
-    console.warn(`Error checking authority reputation in dialogue: ${error.message}`);
+    console.warn(
+      `Error checking authority reputation in dialogue: ${error.message}`
+    );
     return false;
   }
 }
@@ -147,7 +151,9 @@ export function hasMixedReputation(highFaction, lowFaction, gameStateManager) {
     const lowRep = gameStateManager.getFactionRep(lowFaction);
     return highRep >= 25 && lowRep <= -25;
   } catch (error) {
-    console.warn(`Error checking mixed reputation in dialogue: ${error.message}`);
+    console.warn(
+      `Error checking mixed reputation in dialogue: ${error.message}`
+    );
     return false;
   }
 }
@@ -189,7 +195,7 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
       case 'lawful':
         return ' I can see trouble in your eyes.';
       case 'chaotic':
-        return ' Now here\'s someone who knows how the sector really works.';
+        return " Now here's someone who knows how the sector really works.";
       default:
         return ' You have a dangerous look about you.';
     }
@@ -201,7 +207,7 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
       case 'chaotic':
         return ' You look like you know how to bend the rules.';
       default:
-        return ' You seem like you\'ve seen some rough times.';
+        return " You seem like you've seen some rough times.";
     }
   }
 
@@ -222,13 +228,13 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
 export function getFactionAttitudeModifier(npcFaction, gameStateManager) {
   try {
     const factionRep = gameStateManager.getFactionRep(npcFaction);
-    
+
     if (factionRep >= 75) {
-      return ' You\'re a true friend to our cause.';
+      return " You're a true friend to our cause.";
     } else if (factionRep >= 50) {
       return ' We appreciate your support.';
     } else if (factionRep <= -75) {
-      return ' Your reputation precedes you, and it\'s not good.';
+      return " Your reputation precedes you, and it's not good.";
     } else if (factionRep <= -50) {
       return ' We have... concerns about your activities.';
     }
