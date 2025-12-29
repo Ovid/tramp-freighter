@@ -25,6 +25,7 @@ import '../css/system-event-info.css';
 import '../css/panel/cargo-manifest.css';
 import '../css/panel/dev-admin.css';
 import '../css/panel/dialogue.css';
+import '../css/panel/distress-call.css';
 import '../css/panel/info-broker.css';
 import '../css/panel/inspection.css';
 import '../css/panel/jump-dialog.css';

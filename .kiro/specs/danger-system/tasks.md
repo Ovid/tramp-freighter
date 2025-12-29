@@ -287,8 +287,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Show repair options with success rates and costs
     - _Requirements: 6.6, 6.11, 12.1, 12.5_
 
-- [ ] 24. Create distress call panel component
-  - [ ] 24.1 Create src/features/danger/DistressCallPanel.jsx
+- [x] 24. Create distress call panel component
+  - [x] 24.1 Create src/features/danger/DistressCallPanel.jsx
     - Display distress call description
     - Show moral choice options (respond, ignore, loot)
     - Display costs and consequences for each choice

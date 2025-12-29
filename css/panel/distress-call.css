@@ -1,0 +1,607 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
+/* Distress Call Panel Styling */
+#distress-call-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--panel-width-large);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--color-secondary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  display: none;
+  z-index: var(--z-modal);
+  overflow-y: auto;
+}
+
+#distress-call-panel.visible {
+  display: block;
+}
+
+#distress-call-panel h2 {
+  margin-bottom: var(--section-gap);
+  color: var(--color-secondary);
+  font-size: var(--font-size-title);
+  text-align: center;
+  text-shadow: var(--shadow-glow-secondary);
+}
+
+#distress-call-panel h3 {
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-secondary);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(255, 170, 0, 0.3);
+  padding-bottom: 5px;
+}
+
+#distress-call-panel h4 {
+  margin-bottom: var(--grid-gap-small);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+}
+
+#distress-call-panel h5 {
+  margin-bottom: var(--grid-gap-small);
+  color: var(--color-secondary);
+  font-size: var(--font-size-medium);
+  font-weight: bold;
+}
+
+#distress-call-panel .close-btn {
+  position: absolute;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  font-size: var(--close-button-size);
+  cursor: pointer;
+  padding: var(--close-button-padding);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+#distress-call-panel .close-btn:hover {
+  color: var(--color-white);
+}
+
+.distress-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  margin-bottom: var(--section-gap);
+}
+
+.distress-section {
+  background-color: var(--bg-section-secondary);
+  border: var(--section-border-width) solid rgba(255, 170, 0, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+}
+
+/* Call Information Section */
+.call-info {
+  background-color: rgba(255, 170, 0, 0.1);
+  border-color: rgba(255, 170, 0, 0.4);
+}
+
+.call-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.signal-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.signal-strength,
+.call-type {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signal-label,
+.type-label {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.signal-value {
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px currentColor;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.signal-value.routine {
+  color: #00ff88;
+}
+
+.signal-value.moderate {
+  color: #ffaa00;
+}
+
+.signal-value.urgent {
+  color: #ff6b6b;
+}
+
+.signal-value.critical {
+  color: #ff0000;
+}
+
+.type-value {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.distress-message {
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.message-header {
+  color: #ffaa00;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.message-text {
+  color: #ffffff;
+  font-style: italic;
+  line-height: 1.4;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 3px solid #ffaa00;
+  border-radius: 3px;
+}
+
+.signal-analysis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.analysis-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.analysis-label {
+  color: #ffaa00;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.analysis-value {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+/* Player Resources Section */
+.player-resources {
+  background-color: rgba(0, 255, 136, 0.05);
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.player-resources h3 {
+  color: #00ff88;
+  border-bottom-color: rgba(0, 255, 136, 0.3);
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.resource-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.resource-label {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.resource-value {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.resource-value.abundant {
+  color: #00ff88;
+}
+
+.resource-value.adequate {
+  color: #88ff00;
+}
+
+.resource-value.limited {
+  color: #ffaa00;
+}
+
+.resource-value.critical {
+  color: #ff6b6b;
+}
+
+.resource-value.saint {
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff;
+}
+
+.resource-value.good {
+  color: #00ff88;
+}
+
+.resource-value.neutral {
+  color: #ffffff;
+}
+
+.resource-value.bad {
+  color: #ff6b6b;
+}
+
+.resource-value.villain {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+}
+
+.resource-impact {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.moral-standing {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.reputation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.rep-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.rep-label {
+  color: #00ff88;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.rep-value {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.rep-value.trusted {
+  color: #00ffff;
+}
+
+.rep-value.friendly {
+  color: #00ff88;
+}
+
+.rep-value.warm {
+  color: #88ff00;
+}
+
+.rep-value.neutral {
+  color: #ffffff;
+}
+
+.rep-value.cold {
+  color: #ffaa00;
+}
+
+.rep-value.hostile {
+  color: #ff6b6b;
+}
+
+/* Moral Choice Options Section */
+.choice-options {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.moral-choice {
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.moral-choice.available:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.moral-choice.selected {
+  border-color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.moral-choice.unavailable {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.choice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.choice-name {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.choice-type {
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.choice-type.moral-good {
+  color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.2);
+}
+
+.choice-type.moral-neutral {
+  color: #ffaa00;
+  background-color: rgba(255, 170, 0, 0.2);
+}
+
+.choice-type.moral-evil {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.2);
+}
+
+.choice-description {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.choice-analysis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.costs-section,
+.rewards-section {
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.costs-section {
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.rewards-section {
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.cost-item,
+.reward-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.cost-label,
+.reward-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cost-value {
+  font-weight: bold;
+}
+
+.cost-value.negative {
+  color: #ff6b6b;
+}
+
+.reward-value {
+  font-weight: bold;
+}
+
+.reward-value.positive {
+  color: #00ff88;
+}
+
+.reward-value.neutral {
+  color: #ffffff;
+}
+
+.choice-restriction {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 3px;
+}
+
+.restriction-text {
+  color: #ff6b6b;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.choice-warning {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: rgba(255, 170, 0, 0.1);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 3px;
+}
+
+.warning-text {
+  color: #ffaa00;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Action Buttons */
+.distress-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.distress-btn {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid;
+}
+
+.distress-btn.primary {
+  background-color: #00ff88;
+  color: #000000;
+  border-color: #00ff88;
+}
+
+.distress-btn.primary:hover {
+  background-color: #00cc6a;
+  border-color: #00cc6a;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.distress-btn.secondary {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.distress-btn.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #cccccc;
+}
+
+.selection-prompt {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  #distress-call-panel {
+    width: 90vw;
+    max-width: 700px;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-header {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-analysis {
+    grid-template-columns: 1fr;
+  }
+
+  .choice-analysis {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  #distress-call-panel {
+    width: 95vw;
+    padding: 15px;
+  }
+
+  .distress-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .distress-btn {
+    width: 100%;
+  }
+
+  .reputation-grid {
+    grid-template-columns: 1fr;
+  }
+}
