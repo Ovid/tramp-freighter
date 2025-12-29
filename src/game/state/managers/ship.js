@@ -464,8 +464,9 @@ export class ShipManager extends BaseManager {
     // Add to hidden cargo (stacks with matching good and buyPrice)
     this._addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
-    // Emit cargo change event through GameStateManager
+    // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
+    this.emit('hiddenCargoChanged', ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
     this.gameStateManager.saveGame();
@@ -516,8 +517,9 @@ export class ShipManager extends BaseManager {
     // Add to regular cargo (stacks with matching good and buyPrice)
     this._addToCargoArray(ship.cargo, hiddenStack, qty);
 
-    // Emit cargo change event through GameStateManager
+    // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
+    this.emit('hiddenCargoChanged', ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
     this.gameStateManager.saveGame();

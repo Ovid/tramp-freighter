@@ -215,6 +215,7 @@ export class InitializationManager {
     this.gameStateManager.emit('debtChanged', player.debt);
     this.gameStateManager.emit('fuelChanged', ship.fuel);
     this.gameStateManager.emit('cargoChanged', ship.cargo);
+    this.gameStateManager.emit('hiddenCargoChanged', ship.hiddenCargo);
     this.gameStateManager.emit('locationChanged', player.currentSystem);
     this.gameStateManager.emit('timeChanged', player.daysElapsed);
     this.gameStateManager.emit(

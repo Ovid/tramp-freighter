@@ -98,6 +98,8 @@ function extractStateForEvent(eventName, state) {
     locationChanged: state.player.currentSystem,
     timeChanged: state.player.daysElapsed,
     cargoChanged: state.ship.cargo,
+    cargoCapacityChanged: state.ship.cargoCapacity,
+    hiddenCargoChanged: state.ship.hiddenCargo,
     shipConditionChanged: {
       hull: state.ship.hull,
       engine: state.ship.engine,

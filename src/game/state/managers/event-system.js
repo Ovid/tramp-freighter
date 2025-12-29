@@ -20,6 +20,7 @@ export class EventSystemManager {
       fuelChanged: [],
       cargoChanged: [],
       cargoCapacityChanged: [],
+      hiddenCargoChanged: [],
       locationChanged: [],
       timeChanged: [],
       priceKnowledgeChanged: [],
@@ -42,6 +43,7 @@ export class EventSystemManager {
    *   - fuelChanged: (number) - Ship fuel percentage (0-100)
    *   - cargoChanged: (Array<CargoStack>) - Ship cargo array with stacks
    *   - cargoCapacityChanged: (number) - Ship cargo capacity in units
+   *   - hiddenCargoChanged: (Array<CargoStack>) - Ship hidden cargo array with stacks
    *   - locationChanged: (number) - Current system ID
    *   - timeChanged: (number) - Days elapsed since game start
    *   - priceKnowledgeChanged: (Object) - Price knowledge database

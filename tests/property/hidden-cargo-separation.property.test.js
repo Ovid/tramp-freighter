@@ -62,7 +62,9 @@ describe('Hidden Cargo Separation Property Tests', () => {
           expect(retrievedRegularCargo).not.toBe(retrievedHiddenCargo);
 
           // Property 2: Changes to regular cargo don't affect hidden cargo
-          const originalHiddenCargo = JSON.parse(JSON.stringify(retrievedHiddenCargo));
+          const originalHiddenCargo = JSON.parse(
+            JSON.stringify(retrievedHiddenCargo)
+          );
           retrievedRegularCargo.push({
             good: 'grain',
             qty: 1,
@@ -74,7 +76,9 @@ describe('Hidden Cargo Separation Property Tests', () => {
           expect(retrievedHiddenCargo).toEqual(originalHiddenCargo);
 
           // Property 3: Changes to hidden cargo don't affect regular cargo
-          const originalRegularCargo = JSON.parse(JSON.stringify(retrievedRegularCargo));
+          const originalRegularCargo = JSON.parse(
+            JSON.stringify(retrievedRegularCargo)
+          );
           retrievedHiddenCargo.push({
             good: 'electronics',
             qty: 1,
@@ -86,15 +90,20 @@ describe('Hidden Cargo Separation Property Tests', () => {
           expect(retrievedRegularCargo).toEqual(originalRegularCargo);
 
           // Property 4: Hidden cargo is not included in regular cargo manifest
-          const regularCargoGoods = retrievedRegularCargo.map(stack => stack.good);
-          const hiddenCargoGoods = retrievedHiddenCargo.map(stack => stack.good);
-          
+          const hiddenCargoGoods = retrievedHiddenCargo.map(
+            (stack) => stack.good
+          );
+
           // For each good in hidden cargo, verify it's not automatically included in regular cargo
           for (const hiddenGood of hiddenCargoGoods) {
             // If the good exists in both, they should be separate stacks
-            const regularStacks = retrievedRegularCargo.filter(stack => stack.good === hiddenGood);
-            const hiddenStacks = retrievedHiddenCargo.filter(stack => stack.good === hiddenGood);
-            
+            const regularStacks = retrievedRegularCargo.filter(
+              (stack) => stack.good === hiddenGood
+            );
+            const hiddenStacks = retrievedHiddenCargo.filter(
+              (stack) => stack.good === hiddenGood
+            );
+
             // The stacks should be different objects even if they contain the same good type
             for (const regularStack of regularStacks) {
               for (const hiddenStack of hiddenStacks) {
@@ -146,15 +155,24 @@ describe('Hidden Cargo Separation Property Tests', () => {
           expect(inspectionManifest).toEqual(regularCargo);
 
           // Property 2: Inspection manifest does not contain hidden cargo
-          const manifestGoods = inspectionManifest.map(stack => `${stack.good}-${stack.buyPrice}-${stack.buySystem}`);
-          const hiddenGoods = hiddenCargo.map(stack => `${stack.good}-${stack.buyPrice}-${stack.buySystem}`);
-          
+          const hiddenGoods = hiddenCargo.map(
+            (stack) => `${stack.good}-${stack.buyPrice}-${stack.buySystem}`
+          );
+
           for (const hiddenGood of hiddenGoods) {
             // Hidden cargo should not appear in the manifest unless it's also in regular cargo
             // (in which case they would be separate stacks)
-            const hiddenStack = hiddenCargo.find(stack => `${stack.good}-${stack.buyPrice}-${stack.buySystem}` === hiddenGood);
-            const manifestStack = inspectionManifest.find(stack => `${stack.good}-${stack.buyPrice}-${stack.buySystem}` === hiddenGood);
-            
+            const hiddenStack = hiddenCargo.find(
+              (stack) =>
+                `${stack.good}-${stack.buyPrice}-${stack.buySystem}` ===
+                hiddenGood
+            );
+            const manifestStack = inspectionManifest.find(
+              (stack) =>
+                `${stack.good}-${stack.buyPrice}-${stack.buySystem}` ===
+                hiddenGood
+            );
+
             if (manifestStack && hiddenStack) {
               // If both exist, they should be different objects (separate stacks)
               expect(manifestStack).not.toBe(hiddenStack);
