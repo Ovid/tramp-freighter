@@ -122,6 +122,22 @@ export class GameStateManager {
     return this.shipManager.getUpgradeDefinition(upgradeId);
   }
 
+  addQuirk(quirkId) {
+    return this.shipManager.addQuirk(quirkId);
+  }
+
+  removeQuirk(quirkId) {
+    return this.shipManager.removeQuirk(quirkId);
+  }
+
+  addUpgrade(upgradeId) {
+    return this.shipManager.addUpgrade(upgradeId);
+  }
+
+  removeUpgrade(upgradeId) {
+    return this.shipManager.removeUpgrade(upgradeId);
+  }
+
   /**
    * Initialize a new game with default values
    * Uses InitializationManager for state creation but maintains control over state assignment
@@ -616,6 +632,11 @@ export class GameStateManager {
     return this.dangerManager.getKarma();
   }
 
+  setKarma(value) {
+    this.dangerManager.setKarma(value);
+    this.saveGame();
+  }
+
   modifyKarma(amount, reason) {
     this.dangerManager.modifyKarma(amount, reason);
     this.saveGame();
@@ -623,6 +644,11 @@ export class GameStateManager {
 
   getFactionRep(faction) {
     return this.dangerManager.getFactionRep(faction);
+  }
+
+  setFactionRep(faction, value) {
+    this.dangerManager.setFactionRep(faction, value);
+    this.saveGame();
   }
 
   modifyFactionRep(faction, amount, reason) {

@@ -107,6 +107,28 @@ export class DangerManager extends BaseManager {
   }
 
   /**
+   * Set karma to a specific value with automatic clamping
+   *
+   * Used by dev admin panel for testing. Karma is automatically clamped
+   * to the range [-100, 100]. Emits 'karmaChanged' event for UI reactivity.
+   *
+   * @param {number} value - Target karma value
+   */
+  setKarma(value) {
+    this.validateState();
+
+    const newKarma = Math.max(
+      KARMA_CONFIG.MIN,
+      Math.min(KARMA_CONFIG.MAX, value)
+    );
+
+    this.getState().player.karma = newKarma;
+
+    this.log(`Karma set to ${newKarma}`);
+    this.emit('karmaChanged', { karma: newKarma, change: 0, reason: 'dev_set' });
+  }
+
+  /**
    * Modify karma by a given amount with automatic clamping
    *
    * Karma is automatically clamped to the range [-100, 100] after modification.
@@ -871,6 +893,36 @@ export class DangerManager extends BaseManager {
     }
 
     return this.getState().player.factions[faction];
+  }
+
+  /**
+   * Set faction reputation to a specific value with automatic clamping
+   *
+   * Used by dev admin panel for testing. Reputation is automatically clamped
+   * to the range [-100, 100]. Emits 'factionRepChanged' event for UI reactivity.
+   *
+   * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
+   * @param {number} value - Target reputation value
+   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
+   */
+  setFactionRep(faction, value) {
+    this.validateState();
+
+    if (!FACTION_CONFIG.FACTIONS.includes(faction)) {
+      throw new Error(
+        `Invalid faction: ${faction}. Valid factions: ${FACTION_CONFIG.FACTIONS.join(', ')}`
+      );
+    }
+
+    const newRep = Math.max(
+      FACTION_CONFIG.MIN,
+      Math.min(FACTION_CONFIG.MAX, value)
+    );
+
+    this.getState().player.factions[faction] = newRep;
+
+    this.log(`${faction} reputation set to ${newRep}`);
+    this.emit('factionRepChanged', this.getState().player.factions);
   }
 
   /**

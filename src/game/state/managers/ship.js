@@ -95,6 +95,58 @@ export class ShipManager extends BaseManager {
   }
 
   /**
+   * Add a quirk to the ship (dev admin only)
+   *
+   * Used by dev admin panel for testing. Does not add duplicate quirks.
+   *
+   * @param {string} quirkId - Quirk identifier
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  addQuirk(quirkId) {
+    this.validateState();
+
+    const quirk = SHIP_CONFIG.QUIRKS[quirkId];
+    if (!quirk) {
+      return { success: false, reason: 'Unknown quirk' };
+    }
+
+    const state = this.getState();
+    if (state.ship.quirks.includes(quirkId)) {
+      return { success: false, reason: 'Quirk already installed' };
+    }
+
+    state.ship.quirks.push(quirkId);
+    this.emit('quirksChanged', state.ship.quirks);
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Remove a quirk from the ship (dev admin only)
+   *
+   * Used by dev admin panel for testing.
+   *
+   * @param {string} quirkId - Quirk identifier
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  removeQuirk(quirkId) {
+    this.validateState();
+
+    const state = this.getState();
+    const index = state.ship.quirks.indexOf(quirkId);
+    if (index === -1) {
+      return { success: false, reason: 'Quirk not installed' };
+    }
+
+    state.ship.quirks.splice(index, 1);
+    this.emit('quirksChanged', state.ship.quirks);
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
    * Get upgrade definition by ID
    *
    * Returns the upgrade definition object from SHIP_CONFIG.UPGRADES constant.
@@ -105,6 +157,85 @@ export class ShipManager extends BaseManager {
    */
   getUpgradeDefinition(upgradeId) {
     return SHIP_CONFIG.UPGRADES[upgradeId] || null;
+  }
+
+  /**
+   * Add an upgrade to the ship (dev admin only)
+   *
+   * Used by dev admin panel for testing. Does not charge credits.
+   * Does not add duplicate upgrades.
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  addUpgrade(upgradeId) {
+    this.validateState();
+
+    const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
+    if (!upgrade) {
+      return { success: false, reason: 'Unknown upgrade' };
+    }
+
+    const state = this.getState();
+    if (state.ship.upgrades.includes(upgradeId)) {
+      return { success: false, reason: 'Upgrade already installed' };
+    }
+
+    state.ship.upgrades.push(upgradeId);
+
+    // Apply upgrade effects to ship capabilities
+    const capabilities = this.calculateShipCapabilities();
+
+    // Update ship state with new capabilities
+    if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
+      state.ship.cargoCapacity = capabilities.cargoCapacity;
+      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
+    }
+    if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
+      state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    }
+
+    this.emit('upgradesChanged', state.ship.upgrades);
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: '' };
+  }
+
+  /**
+   * Remove an upgrade from the ship (dev admin only)
+   *
+   * Used by dev admin panel for testing.
+   *
+   * @param {string} upgradeId - Upgrade identifier
+   * @returns {Object} { success: boolean, reason: string }
+   */
+  removeUpgrade(upgradeId) {
+    this.validateState();
+
+    const state = this.getState();
+    const index = state.ship.upgrades.indexOf(upgradeId);
+    if (index === -1) {
+      return { success: false, reason: 'Upgrade not installed' };
+    }
+
+    state.ship.upgrades.splice(index, 1);
+
+    // Recalculate ship capabilities
+    const capabilities = this.calculateShipCapabilities();
+
+    // Update ship state with new capabilities
+    if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
+      state.ship.cargoCapacity = capabilities.cargoCapacity;
+      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
+    }
+    if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
+      state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    }
+
+    this.emit('upgradesChanged', state.ship.upgrades);
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: '' };
   }
 
   /**
