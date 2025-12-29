@@ -1244,13 +1244,4 @@ export const RESTRICTED_GOODS_CONFIG = {
 
   // Core systems (Sol, Alpha Centauri) have additional restrictions
   CORE_SYSTEM_RESTRICTED: ['parts'], // Manufactured parts restricted to protect local industry
-
-  // Premium price multiplier when selling restricted goods legally (in non-restricted zones)
-  PREMIUM_MULTIPLIER: 1.5, // Uses PRICE_MULTIPLIERS.PREMIUM_MULTIPLIER
-
-  // Black market price multiplier (selling restricted goods in restricted zones via contacts)
-  BLACK_MARKET_MULTIPLIER: 2.0, // Uses PRICE_MULTIPLIERS.BLACK_MARKET_MULTIPLIER
-
-  // Penalty multiplier for attempting to sell restricted goods without contacts
-  CONFISCATION_RISK: 0.25, // Uses RISK_FACTORS.CONFISCATION_RISK
 };

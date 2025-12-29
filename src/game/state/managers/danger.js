@@ -8,6 +8,8 @@ import {
   INSPECTION_CONFIG,
   FAILURE_CONFIG,
   DISTRESS_CONFIG,
+  SOL_SYSTEM_ID,
+  ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
 } from '../../constants.js';
 
@@ -263,8 +265,8 @@ export class DangerManager extends BaseManager {
     let probability = ZONES[zone].inspectionChance;
 
     // Apply core systems multiplier (Requirement 5.12)
-    // Core systems (Sol = 0, Alpha Centauri = 1) have doubled inspection rates
-    if (systemId === 0 || systemId === 1) {
+    // Core systems (Sol, Alpha Centauri) have doubled inspection rates
+    if (systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID) {
       probability *= CORE_SYSTEMS_INSPECTION_MULTIPLIER; // 2x for core systems
     }
 
