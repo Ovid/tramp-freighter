@@ -267,8 +267,8 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Display potential outcomes for each choice
     - _Requirements: 3.1, 12.1, 12.2, 12.4, 12.5_
 
-- [ ] 21. Create negotiation panel component
-  - [ ] 21.1 Create src/features/danger/NegotiationPanel.jsx
+- [x] 21. Create negotiation panel component
+  - [x] 21.1 Create src/features/danger/NegotiationPanel.jsx
     - Display contextual dialogue options
     - Show conditional options (medicine claim, intel offer)
     - Display success probabilities and consequences
