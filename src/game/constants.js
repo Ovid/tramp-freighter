@@ -1148,6 +1148,15 @@ export const DISTRESS_CONFIG = {
   // Base chance to encounter a distress call during jump
   CHANCE: 0.1, // 10% chance per jump to encounter distress call
 
+  // Severity level colors for UI display
+  SEVERITY_COLORS: {
+    routine: '#00ff88', // Green - standard maintenance call
+    moderate: '#ffaa00', // Orange - genuine emergency
+    urgent: '#ff6b6b', // Red - life-threatening situation
+    critical: '#ff0000', // Bright red - immediate danger
+    unknown: '#ffffff', // White - unknown severity
+  },
+
   // Respond - help the distressed vessel
   RESPOND: {
     DAYS_COST: 2, // Days delay for responding to distress call

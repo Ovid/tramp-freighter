@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { DISTRESS_CONFIG, KARMA_CONFIG } from '../../game/constants.js';
+import { DISTRESS_CONFIG } from '../../game/constants.js';
 
 /**
  * DistressCallPanel - React component for distress call moral choice resolution
@@ -19,16 +18,12 @@ import { DISTRESS_CONFIG, KARMA_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function DistressCallPanel({ distressCall, onChoice, onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to relevant game events for moral choice context
   const fuel = useGameEvent('fuelChanged');
   const lifeSupport = useGameEvent('lifeSupportChanged');
   const credits = useGameEvent('creditsChanged');
   const karma = useGameEvent('karmaChanged');
   const factions = useGameEvent('factionRepChanged');
-  const daysElapsed = useGameEvent('timeChanged');
 
   // Local state for selected moral choice
   const [selectedChoice, setSelectedChoice] = useState(null);
@@ -82,9 +77,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
               </div>
               <div className="call-type">
                 <span className="type-label">Emergency Type:</span>
-                <span className="type-value">
-                  {formatCallType(callType)}
-                </span>
+                <span className="type-value">{formatCallType(callType)}</span>
               </div>
             </div>
             <div className="distress-message">
@@ -173,17 +166,17 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
               <div className="rep-item">
                 <span className="rep-label">Civilians:</span>
                 <span
-                  className={`rep-value ${getReputationClass(factions?.civilians)}`}
+                  className={`rep-value ${getReputationClass(factions.civilians)}`}
                 >
-                  {getReputationTier(factions?.civilians || 0)}
+                  {getReputationTier(factions.civilians)}
                 </span>
               </div>
               <div className="rep-item">
                 <span className="rep-label">Outlaws:</span>
                 <span
-                  className={`rep-value ${getReputationClass(factions?.outlaws)}`}
+                  className={`rep-value ${getReputationClass(factions.outlaws)}`}
                 >
-                  {getReputationTier(factions?.outlaws || 0)}
+                  {getReputationTier(factions.outlaws)}
                 </span>
               </div>
             </div>
@@ -206,8 +199,8 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
                 <span className="choice-type moral-good">Heroic</span>
               </div>
               <div className="choice-description">
-                "We hear your distress call and are moving to assist. Hold tight,
-                help is on the way."
+                "We hear your distress call and are moving to assist. Hold
+                tight, help is on the way."
               </div>
               <div className="choice-analysis">
                 <div className="costs-section">
@@ -364,10 +357,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
               <button className="distress-btn primary" onClick={handleConfirm}>
                 {getChoiceActionText(selectedChoice)}
               </button>
-              <button
-                className="distress-btn secondary"
-                onClick={handleCancel}
-              >
+              <button className="distress-btn secondary" onClick={handleCancel}>
                 Reconsider
               </button>
             </>
@@ -411,8 +401,8 @@ function calculatePlayerStatus(
     lifeSupport,
     credits,
     karma,
-    civilianRep: factions.civilians || 0,
-    outlawRep: factions.outlaws || 0,
+    civilianRep: factions.civilians,
+    outlawRep: factions.outlaws,
   };
 }
 
@@ -424,18 +414,10 @@ function calculatePlayerStatus(
  * @returns {string} CSS color value for the severity level
  */
 function getDistressSeverityColor(severity) {
-  switch (severity) {
-    case 'routine':
-      return '#00ff88'; // Green - standard maintenance call
-    case 'moderate':
-      return '#ffaa00'; // Orange - genuine emergency
-    case 'urgent':
-      return '#ff6b6b'; // Red - life-threatening situation
-    case 'critical':
-      return '#ff0000'; // Bright red - immediate danger
-    default:
-      return '#ffffff'; // White - unknown severity
-  }
+  return (
+    DISTRESS_CONFIG.SEVERITY_COLORS[severity] ||
+    DISTRESS_CONFIG.SEVERITY_COLORS.unknown
+  );
 }
 
 /**
