@@ -7,10 +7,10 @@ import { FAILURE_CONFIG } from '../../src/game/constants.js';
 
 /**
  * Property-Based Tests for Engine Failure Repair Options
- * 
+ *
  * Feature: danger-system, Property 10: Engine Failure Repair Options
  * Validates: Requirements 6.7, 6.8, 6.9
- * 
+ *
  * Tests that engine failure repair options have correct mechanics:
  * - Emergency restart: 50% success with -10% engine cost
  * - Call for help: ₡1,000 cost and +2 days delay
@@ -55,23 +55,28 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve emergency restart
-          const result = gameStateManager.dangerManager.resolveMechanicalFailure(
-            failure.type, 
-            'emergency_restart', 
-            gameState, 
-            rng
-          );
+          const result =
+            gameStateManager.dangerManager.resolveMechanicalFailure(
+              failure.type,
+              'emergency_restart',
+              gameState,
+              rng
+            );
 
           if (rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE) {
             // Success case
             expect(result.success).toBe(true);
-            expect(result.costs.engine).toBe(FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST);
+            expect(result.costs.engine).toBe(
+              FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST
+            );
             expect(result.costs.credits).toBeUndefined();
             expect(result.costs.days).toBeUndefined();
           } else {
             // Failure case
             expect(result.success).toBe(false);
-            expect(result.costs.engine).toBe(FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST);
+            expect(result.costs.engine).toBe(
+              FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST
+            );
           }
         }
       ),
@@ -95,17 +100,22 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve call for help
-          const result = gameStateManager.dangerManager.resolveMechanicalFailure(
-            failure.type, 
-            'call_for_help', 
-            gameState, 
-            rng
-          );
+          const result =
+            gameStateManager.dangerManager.resolveMechanicalFailure(
+              failure.type,
+              'call_for_help',
+              gameState,
+              rng
+            );
 
           // Call for help should always succeed
           expect(result.success).toBe(true);
-          expect(result.costs.credits).toBe(FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST);
-          expect(result.costs.days).toBe(FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY);
+          expect(result.costs.credits).toBe(
+            FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST
+          );
+          expect(result.costs.days).toBe(
+            FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY
+          );
           expect(result.costs.engine).toBeUndefined(); // No engine condition cost
         }
       ),
@@ -129,23 +139,28 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve jury-rig
-          const result = gameStateManager.dangerManager.resolveMechanicalFailure(
-            failure.type, 
-            'jury_rig', 
-            gameState, 
-            rng
-          );
+          const result =
+            gameStateManager.dangerManager.resolveMechanicalFailure(
+              failure.type,
+              'jury_rig',
+              gameState,
+              rng
+            );
 
           if (rng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE) {
             // Success case
             expect(result.success).toBe(true);
-            expect(result.costs.engine).toBe(FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST);
+            expect(result.costs.engine).toBe(
+              FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST
+            );
             expect(result.costs.credits).toBeUndefined();
             expect(result.costs.days).toBeUndefined();
           } else {
             // Failure case
             expect(result.success).toBe(false);
-            expect(result.costs.engine).toBe(FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST);
+            expect(result.costs.engine).toBe(
+              FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST
+            );
           }
         }
       ),
@@ -163,22 +178,28 @@ describe('Property 10: Engine Failure Repair Options', () => {
           // Set up game state with cargo
           const gameState = gameStateManager.getState();
           gameState.ship.hull = initialHull;
-          gameState.ship.cargo = Array(cargoCount).fill({ type: 'electronics', quantity: 1 });
+          gameState.ship.cargo = Array(cargoCount).fill({
+            type: 'electronics',
+            quantity: 1,
+          });
 
           // Create hull breach failure
           const failure = { type: 'hull_breach', severity: initialHull };
 
           // Resolve hull breach (no choice needed, immediate consequence)
-          const result = gameStateManager.dangerManager.resolveMechanicalFailure(
-            failure.type, 
-            null, // Hull breach has no repair choices
-            gameState, 
-            rng
-          );
+          const result =
+            gameStateManager.dangerManager.resolveMechanicalFailure(
+              failure.type,
+              null, // Hull breach has no repair choices
+              gameState,
+              rng
+            );
 
           // Hull breach should always cause immediate damage and cargo loss
           expect(result.success).toBe(false); // Hull breach is always bad
-          expect(result.costs.hull).toBe(FAILURE_CONFIG.HULL_BREACH.HULL_DAMAGE);
+          expect(result.costs.hull).toBe(
+            FAILURE_CONFIG.HULL_BREACH.HULL_DAMAGE
+          );
           expect(result.costs.cargoLoss).toBe(true); // Some cargo should be lost
         }
       ),
@@ -197,15 +218,19 @@ describe('Property 10: Engine Failure Repair Options', () => {
           gameState.ship.lifeSupport = initialLifeSupport;
 
           // Create life support failure
-          const failure = { type: 'life_support', severity: initialLifeSupport };
+          const failure = {
+            type: 'life_support',
+            severity: initialLifeSupport,
+          };
 
           // Resolve life support emergency (no choice needed, immediate consequence)
-          const result = gameStateManager.dangerManager.resolveMechanicalFailure(
-            failure.type, 
-            null, // Life support emergency has no repair choices
-            gameState, 
-            rng
-          );
+          const result =
+            gameStateManager.dangerManager.resolveMechanicalFailure(
+              failure.type,
+              null, // Life support emergency has no repair choices
+              gameState,
+              rng
+            );
 
           // Life support emergency should always cause immediate consequences
           expect(result.success).toBe(false); // Life support emergency is always bad
@@ -220,16 +245,21 @@ describe('Property 10: Engine Failure Repair Options', () => {
   it('should throw error for unknown failure types', () => {
     fc.assert(
       fc.property(
-        fc.string().filter(s => !['hull_breach', 'engine_failure', 'life_support'].includes(s)),
+        fc
+          .string()
+          .filter(
+            (s) =>
+              !['hull_breach', 'engine_failure', 'life_support'].includes(s)
+          ),
         fc.float({ min: 0, max: 1 }),
         (unknownFailureType, rng) => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
             gameStateManager.dangerManager.resolveMechanicalFailure(
-              unknownFailureType, 
-              'emergency_restart', 
-              gameState, 
+              unknownFailureType,
+              'emergency_restart',
+              gameState,
               rng
             );
           }).toThrow();
@@ -242,16 +272,21 @@ describe('Property 10: Engine Failure Repair Options', () => {
   it('should throw error for unknown repair choices', () => {
     fc.assert(
       fc.property(
-        fc.string().filter(s => !['emergency_restart', 'call_for_help', 'jury_rig'].includes(s)),
+        fc
+          .string()
+          .filter(
+            (s) =>
+              !['emergency_restart', 'call_for_help', 'jury_rig'].includes(s)
+          ),
         fc.float({ min: 0, max: 1 }),
         (unknownChoice, rng) => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
             gameStateManager.dangerManager.resolveMechanicalFailure(
-              'engine_failure', 
-              unknownChoice, 
-              gameState, 
+              'engine_failure',
+              unknownChoice,
+              gameState,
               rng
             );
           }).toThrow();

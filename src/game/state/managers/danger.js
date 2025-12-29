@@ -1269,11 +1269,11 @@ export class DangerManager extends BaseManager {
 
     switch (failureType) {
       case 'hull_breach':
-        return this.resolveHullBreach(gameState);
+        return this.resolveHullBreach();
       case 'engine_failure':
         return this.resolveEngineFailure(choice, gameState, rng);
       case 'life_support':
-        return this.resolveLifeSupportEmergency(gameState);
+        return this.resolveLifeSupportEmergency();
       default:
         throw new Error(`Unknown failure type: ${failureType}`);
     }
@@ -1285,10 +1285,9 @@ export class DangerManager extends BaseManager {
    * Hull breach causes immediate hull damage and cargo loss.
    * No repair choices available - consequences are immediate.
    *
-   * @param {Object} gameState - Current game state
    * @returns {Object} Hull breach outcome
    */
-  resolveHullBreach(gameState) {
+  resolveHullBreach() {
     return {
       success: false,
       costs: {
@@ -1296,7 +1295,8 @@ export class DangerManager extends BaseManager {
         cargoLoss: true, // Some cargo is lost to space
       },
       rewards: {},
-      description: 'Hull breach detected! Emergency bulkheads sealed, but some cargo was lost to space.',
+      description:
+        'Hull breach detected! Emergency bulkheads sealed, but some cargo was lost to space.',
     };
   }
 
@@ -1336,7 +1336,8 @@ export class DangerManager extends BaseManager {
    * @returns {Object} Emergency restart outcome
    */
   resolveEmergencyRestart(rng) {
-    const success = rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE;
+    const success =
+      rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE;
 
     if (success) {
       return {
@@ -1345,7 +1346,8 @@ export class DangerManager extends BaseManager {
           engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
         },
         rewards: {},
-        description: 'Emergency restart successful! Engine is running again, but condition has deteriorated.',
+        description:
+          'Emergency restart successful! Engine is running again, but condition has deteriorated.',
       };
     } else {
       return {
@@ -1354,7 +1356,8 @@ export class DangerManager extends BaseManager {
           engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
         },
         rewards: {},
-        description: 'Emergency restart failed. Engine condition worsened and you remain stranded.',
+        description:
+          'Emergency restart failed. Engine condition worsened and you remain stranded.',
       };
     }
   }
@@ -1375,7 +1378,8 @@ export class DangerManager extends BaseManager {
         days: FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY,
       },
       rewards: {},
-      description: 'Rescue tug arrived and repaired your engine. Service fee charged and time lost.',
+      description:
+        'Rescue tug arrived and repaired your engine. Service fee charged and time lost.',
     };
   }
 
@@ -1398,7 +1402,8 @@ export class DangerManager extends BaseManager {
           engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
         },
         rewards: {},
-        description: 'Jury-rig repair successful! Makeshift fix got the engine running again.',
+        description:
+          'Jury-rig repair successful! Makeshift fix got the engine running again.',
       };
     } else {
       return {
@@ -1407,7 +1412,8 @@ export class DangerManager extends BaseManager {
           engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
         },
         rewards: {},
-        description: 'Jury-rig repair failed. Engine condition worsened and you remain stranded.',
+        description:
+          'Jury-rig repair failed. Engine condition worsened and you remain stranded.',
       };
     }
   }
@@ -1418,10 +1424,9 @@ export class DangerManager extends BaseManager {
    * Life support emergency causes immediate consequences.
    * No repair choices available - consequences are immediate.
    *
-   * @param {Object} gameState - Current game state
    * @returns {Object} Life support emergency outcome
    */
-  resolveLifeSupportEmergency(gameState) {
+  resolveLifeSupportEmergency() {
     return {
       success: false,
       costs: {
@@ -1430,7 +1435,8 @@ export class DangerManager extends BaseManager {
         lifeSupport: 5, // Additional 5% life support degradation
       },
       rewards: {},
-      description: 'Life support emergency! Backup systems engaged, but overall condition has deteriorated.',
+      description:
+        'Life support emergency! Backup systems engaged, but overall condition has deteriorated.',
     };
   }
 }
