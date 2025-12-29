@@ -8,6 +8,8 @@ You're a tramp freighter captain trying to make ends meet in a sector full of op
 
 Every credit counts. Every choice matters. And you know these people.
 
+![Tramp Freighter Blues Screenshot](screenshots/main.png)
+
 ## Current Features (Alpha)
 
 The game is currently in early development with the following features implemented:
