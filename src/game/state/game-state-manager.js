@@ -533,6 +533,10 @@ export class GameStateManager {
     return this.shipManager.moveToRegularCargo(good, qty);
   }
 
+  getHiddenCargo() {
+    return this.shipManager.getHiddenCargo();
+  }
+
   // ========================================================================
   // DOCK/UNDOCK OPERATIONS
   // ========================================================================

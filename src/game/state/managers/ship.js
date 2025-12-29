@@ -403,6 +403,22 @@ export class ShipManager extends BaseManager {
   }
 
   /**
+   * Get hidden cargo array
+   *
+   * Returns the ship's hidden cargo compartment contents.
+   * Hidden cargo is separate from regular cargo and not visible
+   * during customs inspections unless discovered.
+   *
+   * @returns {Array} Array of hidden cargo stacks
+   */
+  getHiddenCargo() {
+    this.validateState();
+
+    const state = this.getState();
+    return state.ship.hiddenCargo;
+  }
+
+  /**
    * Move cargo from regular cargo to hidden cargo
    *
    * @param {string} good - Good type to move

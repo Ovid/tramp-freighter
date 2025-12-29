@@ -193,15 +193,15 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Implement loot (1 day, -3 karma, -15 civilian rep, +5 outlaw rep for piracy, cargo reward)
     - _Requirements: 7.2-7.10, 8.6, 8.7_
 
-- [ ] 14. Extend hidden cargo system (TDD)
-  - [ ] 14.1 RED: Write property test for hidden cargo separation
+- [x] 14. Extend hidden cargo system (TDD)
+  - [x] 14.1 RED: Write property test for hidden cargo separation
     - **Property 14: Hidden Cargo Separation**
     - Test that hidden cargo is separate from regular cargo
     - **Validates: Requirements 11.4, 11.5, 11.6, 11.7**
-  - [ ] 14.2 GREEN: Add hiddenCargo array to ship state in InitializationManager
+  - [x] 14.2 GREEN: Add hiddenCargo array to ship state in InitializationManager
     - Separate from regular cargo array
     - _Requirements: 11.4, 11.5_
-  - [ ] 14.3 GREEN: Update ShipManager with hidden cargo methods
+  - [x] 14.3 GREEN: Update ShipManager with hidden cargo methods
     - Add getHiddenCargo() getter
     - Update moveToHiddenCargo() to use new state structure
     - Update moveToRegularCargo() to use new state structure
