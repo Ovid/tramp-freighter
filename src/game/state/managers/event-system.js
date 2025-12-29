@@ -31,6 +31,7 @@ export class EventSystemManager {
       upgradesChanged: [],
       quirksChanged: [],
       dialogueChanged: [],
+      factionRepChanged: [],
     };
   }
 
@@ -54,6 +55,7 @@ export class EventSystemManager {
    *   - upgradesChanged: (Array<string>) - Installed upgrade IDs
    *   - quirksChanged: (Array<string>) - Ship quirk IDs
    *   - dialogueChanged: (Object) - Current dialogue state
+   *   - factionRepChanged: (Object) - Faction reputation object with authorities, outlaws, etc.
    * @param {function} callback - Function to call when event occurs, receives event data as parameter
    */
   subscribe(eventType, callback) {

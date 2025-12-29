@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useDangerZone } from '../../hooks/useDangerZone';
+import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
 import { DANGER_CONFIG } from '../../game/constants.js';
 
 /**
@@ -24,9 +25,6 @@ export function DangerWarningDialog({
   onProceed,
   onCancel,
 }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to relevant game events for probability calculations
   const cargo = useGameEvent('cargoChanged');
   const engine = useGameEvent('engineChanged');
@@ -36,26 +34,19 @@ export function DangerWarningDialog({
   // Local state for confirmation
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Get danger zone classification
-  const dangerManager = gameStateManager.dangerManager;
-  const dangerZone = dangerManager.getDangerZone(destinationSystemId);
+  // Get danger zone classification using Bridge Pattern
+  const dangerZone = useDangerZone(destinationSystemId);
 
-  // Calculate encounter probabilities
-  const pirateChance = dangerManager.calculatePirateEncounterChance(
+  // Build game state object for encounter calculations
+  const gameStateForDanger = {
+    player: { currentSystem: destinationSystemId, factions },
+    ship: { cargo, engine, upgrades },
+  };
+
+  // Calculate encounter probabilities using Bridge Pattern
+  const { pirateChance, inspectionChance } = useEncounterProbabilities(
     destinationSystemId,
-    {
-      player: { currentSystem: destinationSystemId },
-      ship: { cargo, engine, upgrades },
-      player: { factions },
-    }
-  );
-  const inspectionChance = dangerManager.calculateInspectionChance(
-    destinationSystemId,
-    {
-      player: { currentSystem: destinationSystemId },
-      ship: { cargo },
-      player: { factions },
-    }
+    gameStateForDanger
   );
 
   const handleProceedClick = () => {

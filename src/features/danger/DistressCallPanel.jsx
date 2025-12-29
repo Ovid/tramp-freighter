@@ -117,7 +117,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
             <div className="resource-item">
               <span className="resource-label">Fuel Reserves:</span>
               <span className={`resource-value ${getResourceClass(fuel)}`}>
-                {Math.round(fuel || 100)}%
+                {Math.round(fuel)}%
               </span>
               <span className="resource-impact">
                 {fuel >= DISTRESS_CONFIG.RESPOND.FUEL_COST
@@ -130,7 +130,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
               <span
                 className={`resource-value ${getResourceClass(lifeSupport)}`}
               >
-                {Math.round(lifeSupport || 100)}%
+                {Math.round(lifeSupport)}%
               </span>
               <span className="resource-impact">
                 {lifeSupport >= DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST
@@ -141,7 +141,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
             <div className="resource-item">
               <span className="resource-label">Credits:</span>
               <span className="resource-value">
-                ₡{(credits || 0).toLocaleString()}
+                ₡{credits.toLocaleString()}
               </span>
               <span className="resource-impact">
                 Potential reward: ₡{DISTRESS_CONFIG.RESPOND.CREDITS_REWARD}
@@ -151,7 +151,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
               <span className="resource-label">Current Karma:</span>
               <span className={`resource-value ${getKarmaClass(karma)}`}>
                 {karma > 0 ? '+' : ''}
-                {karma || 0}
+                {karma}
               </span>
               <span className="resource-impact">
                 {getKarmaDescription(karma)}
@@ -383,13 +383,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
  * @param {Object} factions - Current faction reputation
  * @returns {Object} Player status analysis
  */
-function calculatePlayerStatus(
-  fuel = 100,
-  lifeSupport = 100,
-  credits = 0,
-  karma = 0,
-  factions = {}
-) {
+function calculatePlayerStatus(fuel, lifeSupport, credits, karma, factions) {
   // Check if player has sufficient resources to respond
   const canRespond =
     fuel >= DISTRESS_CONFIG.RESPOND.FUEL_COST &&
@@ -441,7 +435,7 @@ function getResourceClass(resource) {
  * @param {number} karma - Current karma value (-100 to +100)
  * @returns {string} CSS class name for karma display styling
  */
-function getKarmaClass(karma = 0) {
+function getKarmaClass(karma) {
   if (karma >= 50) return 'saint';
   if (karma >= 20) return 'good';
   if (karma >= -20) return 'neutral';
@@ -456,7 +450,7 @@ function getKarmaClass(karma = 0) {
  * @param {number} karma - Current karma value
  * @returns {string} Human-readable karma description
  */
-function getKarmaDescription(karma = 0) {
+function getKarmaDescription(karma) {
   if (karma >= 50) return 'Renowned for heroic deeds';
   if (karma >= 20) return 'Known for helping others';
   if (karma >= -20) return 'Morally neutral reputation';
@@ -471,7 +465,7 @@ function getKarmaDescription(karma = 0) {
  * @param {number} reputation - Current reputation value (-100 to +100)
  * @returns {string} CSS class name for reputation display styling
  */
-function getReputationClass(reputation = 0) {
+function getReputationClass(reputation) {
   if (reputation >= 60) return 'trusted';
   if (reputation >= 30) return 'friendly';
   if (reputation >= 10) return 'warm';
@@ -487,7 +481,7 @@ function getReputationClass(reputation = 0) {
  * @param {number} reputation - Current reputation value
  * @returns {string} Reputation tier name
  */
-function getReputationTier(reputation = 0) {
+function getReputationTier(reputation) {
   if (reputation >= 90) return 'Family';
   if (reputation >= 60) return 'Trusted';
   if (reputation >= 30) return 'Friendly';

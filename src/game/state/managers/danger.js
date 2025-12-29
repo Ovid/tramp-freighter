@@ -908,12 +908,9 @@ export class DangerManager extends BaseManager {
     this.log(
       `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
     );
-    this.emit('factionRepChanged', {
-      faction,
-      rep: newRep,
-      change: amount,
-      reason,
-    });
+
+    // Emit the complete factions object for Bridge Pattern compatibility
+    this.emit('factionRepChanged', this.getState().player.factions);
   }
 
   // ========================================================================
