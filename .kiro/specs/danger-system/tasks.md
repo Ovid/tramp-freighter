@@ -155,22 +155,22 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Update outlaw rep when smuggling is discovered (+5 outlaw rep for smuggling activity)
     - _Requirements: 5.3-5.11, 8.4, 8.5, 8.7, 11.8_
 
-- [ ] 11. Implement mechanical failure system (TDD)
-  - [ ] 11.1 RED: Write property test for mechanical failure thresholds
+- [x] 11. Implement mechanical failure system (TDD)
+  - [x] 11.1 RED: Write property test for mechanical failure thresholds
     - **Property 9: Mechanical Failure Thresholds**
     - Test failure chances at different condition levels
     - **Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5**
-  - [ ] 11.2 GREEN: Add checkMechanicalFailure(gameState, rng) to DangerManager
+  - [x] 11.2 GREEN: Add checkMechanicalFailure(gameState, rng) to DangerManager
     - Check hull breach (below 50%, 10% chance)
     - Check engine failure (below 30%, 15% chance)
     - Check life support emergency (below 30%, 5% chance)
     - Return failure type or null
     - _Requirements: 6.1-6.4_
-  - [ ] 11.3 RED: Write property test for engine failure repair options
+  - [x] 11.3 RED: Write property test for engine failure repair options
     - **Property 10: Engine Failure Repair Options**
     - Test restart, help, and jury-rig outcomes
     - **Validates: Requirements 6.7, 6.8, 6.9**
-  - [ ] 11.4 GREEN: Add resolveMechanicalFailure(failureType, choice, gameState, rng)
+  - [x] 11.4 GREEN: Add resolveMechanicalFailure(failureType, choice, gameState, rng)
     - Implement hull breach outcome (-5% hull, cargo loss)
     - Implement engine failure options (restart, help, jury-rig)
     - _Requirements: 6.5-6.11_

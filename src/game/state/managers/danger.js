@@ -6,6 +6,7 @@ import {
   COMBAT_CONFIG,
   NEGOTIATION_CONFIG,
   INSPECTION_CONFIG,
+  FAILURE_CONFIG,
   calculateDistanceFromSol,
 } from '../../constants.js';
 
@@ -1188,6 +1189,248 @@ export class DangerManager extends BaseManager {
         },
       },
       description: 'Fled from customs inspection. Patrol ships are in pursuit.',
+    };
+  }
+
+  // ========================================================================
+  // MECHANICAL FAILURE SYSTEM
+  // ========================================================================
+
+  /**
+   * Check for mechanical failures based on ship condition
+   *
+   * Checks for hull breach, engine failure, and life support emergency
+   * based on condition thresholds and failure probabilities.
+   * Returns the first failure that occurs, or null if no failures.
+   *
+   * Feature: danger-system, Property 9: Mechanical Failure Thresholds
+   * Validates: Requirements 6.1, 6.2, 6.3, 6.4
+   *
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for failure determination
+   * @returns {Object|null} Failure object with type and severity, or null if no failure
+   */
+  checkMechanicalFailure(gameState, rng) {
+    this.validateState();
+
+    const { ship } = gameState;
+
+    // Check hull breach (below 50%, 10% chance)
+    if (ship.hull < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
+      if (rng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
+        return {
+          type: 'hull_breach',
+          severity: ship.hull,
+        };
+      }
+    }
+
+    // Check engine failure (below 30%, 15% chance)
+    if (ship.engine < FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD) {
+      if (rng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
+        return {
+          type: 'engine_failure',
+          severity: ship.engine,
+        };
+      }
+    }
+
+    // Check life support emergency (below 30%, 5% chance)
+    if (ship.lifeSupport < FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD) {
+      if (rng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
+        return {
+          type: 'life_support',
+          severity: ship.lifeSupport,
+        };
+      }
+    }
+
+    // No failures occurred
+    return null;
+  }
+
+  /**
+   * Resolve a mechanical failure with the chosen repair option
+   *
+   * Implements mechanical failure resolution with choice-driven outcomes.
+   * Each failure type has specific repair options with success rates and costs.
+   *
+   * Feature: danger-system, Property 10: Engine Failure Repair Options
+   * Validates: Requirements 6.5, 6.6, 6.7, 6.8, 6.9, 6.10, 6.11
+   *
+   * @param {string} failureType - Type of failure ('hull_breach', 'engine_failure', 'life_support')
+   * @param {string|null} choice - Repair choice (null for immediate consequences)
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Failure resolution outcome with success, costs, and description
+   */
+  resolveMechanicalFailure(failureType, choice, gameState, rng) {
+    this.validateState();
+
+    switch (failureType) {
+      case 'hull_breach':
+        return this.resolveHullBreach(gameState);
+      case 'engine_failure':
+        return this.resolveEngineFailure(choice, gameState, rng);
+      case 'life_support':
+        return this.resolveLifeSupportEmergency(gameState);
+      default:
+        throw new Error(`Unknown failure type: ${failureType}`);
+    }
+  }
+
+  /**
+   * Resolve hull breach failure
+   *
+   * Hull breach causes immediate hull damage and cargo loss.
+   * No repair choices available - consequences are immediate.
+   *
+   * @param {Object} gameState - Current game state
+   * @returns {Object} Hull breach outcome
+   */
+  resolveHullBreach(gameState) {
+    return {
+      success: false,
+      costs: {
+        hull: FAILURE_CONFIG.HULL_BREACH.HULL_DAMAGE,
+        cargoLoss: true, // Some cargo is lost to space
+      },
+      rewards: {},
+      description: 'Hull breach detected! Emergency bulkheads sealed, but some cargo was lost to space.',
+    };
+  }
+
+  /**
+   * Resolve engine failure with repair choice
+   *
+   * Engine failure offers three repair options:
+   * - Emergency restart: 50% success, -10% engine condition
+   * - Call for help: Guaranteed success, ₡1,000 cost, +2 days delay
+   * - Jury-rig repair: 75% success, -5% engine condition
+   *
+   * @param {string} choice - Repair choice ('emergency_restart', 'call_for_help', 'jury_rig')
+   * @param {Object} gameState - Current game state
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Engine failure resolution outcome
+   */
+  resolveEngineFailure(choice, gameState, rng) {
+    switch (choice) {
+      case 'emergency_restart':
+        return this.resolveEmergencyRestart(rng);
+      case 'call_for_help':
+        return this.resolveCallForHelp();
+      case 'jury_rig':
+        return this.resolveJuryRig(rng);
+      default:
+        throw new Error(`Unknown engine failure repair choice: ${choice}`);
+    }
+  }
+
+  /**
+   * Resolve emergency restart repair option
+   *
+   * Emergency restart attempts to restart the engine with a 50% success rate.
+   * Always costs -10% engine condition regardless of success.
+   *
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Emergency restart outcome
+   */
+  resolveEmergencyRestart(rng) {
+    const success = rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE;
+
+    if (success) {
+      return {
+        success: true,
+        costs: {
+          engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
+        },
+        rewards: {},
+        description: 'Emergency restart successful! Engine is running again, but condition has deteriorated.',
+      };
+    } else {
+      return {
+        success: false,
+        costs: {
+          engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
+        },
+        rewards: {},
+        description: 'Emergency restart failed. Engine condition worsened and you remain stranded.',
+      };
+    }
+  }
+
+  /**
+   * Resolve call for help repair option
+   *
+   * Call for help guarantees success but costs ₡1,000 and adds 2 days delay.
+   * No engine condition cost.
+   *
+   * @returns {Object} Call for help outcome
+   */
+  resolveCallForHelp() {
+    return {
+      success: true,
+      costs: {
+        credits: FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST,
+        days: FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY,
+      },
+      rewards: {},
+      description: 'Rescue tug arrived and repaired your engine. Service fee charged and time lost.',
+    };
+  }
+
+  /**
+   * Resolve jury-rig repair option
+   *
+   * Jury-rig repair attempts a makeshift fix with a 75% success rate.
+   * Always costs -5% engine condition regardless of success.
+   *
+   * @param {number} rng - Random number (0-1) for success determination
+   * @returns {Object} Jury-rig outcome
+   */
+  resolveJuryRig(rng) {
+    const success = rng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE;
+
+    if (success) {
+      return {
+        success: true,
+        costs: {
+          engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
+        },
+        rewards: {},
+        description: 'Jury-rig repair successful! Makeshift fix got the engine running again.',
+      };
+    } else {
+      return {
+        success: false,
+        costs: {
+          engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
+        },
+        rewards: {},
+        description: 'Jury-rig repair failed. Engine condition worsened and you remain stranded.',
+      };
+    }
+  }
+
+  /**
+   * Resolve life support emergency
+   *
+   * Life support emergency causes immediate consequences.
+   * No repair choices available - consequences are immediate.
+   *
+   * @param {Object} gameState - Current game state
+   * @returns {Object} Life support emergency outcome
+   */
+  resolveLifeSupportEmergency(gameState) {
+    return {
+      success: false,
+      costs: {
+        // Life support emergency could cause various immediate problems
+        // For now, implement as a warning with minor consequences
+        lifeSupport: 5, // Additional 5% life support degradation
+      },
+      rewards: {},
+      description: 'Life support emergency! Backup systems engaged, but overall condition has deteriorated.',
     };
   }
 }
