@@ -829,10 +829,10 @@ export const DANGER_CONFIG = {
 
   // Cargo value modifiers for pirate encounter probability
   CARGO_VALUE_MODIFIERS: {
-    LOW_VALUE_THRESHOLD: 5000, // Credits threshold for low-value cargo modifier
-    LOW_VALUE_MULTIPLIER: 1.2, // 1.2x pirate chance when cargo value > 5000 credits
-    HIGH_VALUE_THRESHOLD: 10000, // Credits threshold for high-value cargo modifier
-    HIGH_VALUE_MULTIPLIER: 1.5, // 1.5x pirate chance when cargo value > 10000 credits
+    LOW_VALUE_THRESHOLD: 1500, // Credits threshold for low-value cargo modifier (30+ units of expensive goods)
+    LOW_VALUE_MULTIPLIER: 1.2, // 1.2x pirate chance when cargo value > 1500 credits
+    HIGH_VALUE_THRESHOLD: 2000, // Credits threshold for high-value cargo modifier (40+ units of expensive goods)
+    HIGH_VALUE_MULTIPLIER: 1.5, // 1.5x pirate chance when cargo value > 2000 credits
   },
 
   // Engine condition modifier for pirate encounter probability

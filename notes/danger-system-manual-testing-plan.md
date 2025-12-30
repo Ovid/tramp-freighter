@@ -29,7 +29,9 @@
 **Objective**: Test pirate encounter triggers and combat resolution
 
 **Test Steps**:
-1. Load cargo worth >₡5,000 (1.2x pirate chance) or >₡10,000 (1.5x pirate chance)
+1. Load cargo worth >₡1,500 (1.2x pirate chance) or >₡2,000 (1.5x pirate chance)
+   - ₡1,500 threshold: ~30 units of tritium (50 cr/unit) or ~43 units of electronics (35 cr/unit)
+   - ₡2,000 threshold: ~40 units of tritium or full cargo hold of expensive goods
 2. Damage engine below 50% condition (1.1x pirate chance)
 3. Install advanced_sensors upgrade (0.8x pirate chance reduction)
 4. Jump between systems multiple times in dangerous zones (35% base rate)
