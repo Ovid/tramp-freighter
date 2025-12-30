@@ -3,6 +3,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
 import { DANGER_CONFIG } from '../../game/constants.js';
+import '../../../css/panel/danger-warning.css';
 
 /**
  * DangerWarningDialog - React component for danger zone warnings
@@ -27,7 +28,7 @@ export function DangerWarningDialog({
 }) {
   // Subscribe to relevant game events for probability calculations
   const cargo = useGameEvent('cargoChanged');
-  const engine = useGameEvent('engineChanged');
+  const shipCondition = useGameEvent('shipConditionChanged');
   const upgrades = useGameEvent('upgradesChanged');
   const factions = useGameEvent('factionRepChanged');
 
@@ -39,8 +40,15 @@ export function DangerWarningDialog({
 
   // Build game state object for encounter calculations
   const gameStateForDanger = {
-    player: { currentSystem: destinationSystemId, factions },
-    ship: { cargo, engine, upgrades },
+    player: { 
+      currentSystem: destinationSystemId, 
+      factions: factions || { authorities: 0, traders: 0, outlaws: 0, civilians: 0 }
+    },
+    ship: { 
+      cargo: cargo || [], 
+      engine: shipCondition?.engine || 100, 
+      upgrades: upgrades || [] 
+    },
   };
 
   // Calculate encounter probabilities using Bridge Pattern
@@ -128,10 +136,10 @@ export function DangerWarningDialog({
 
           {/* Risk Factors */}
           {(cargo?.length > 0 ||
-            engine < 50 ||
+            (shipCondition?.engine && shipCondition.engine < 50) ||
             upgrades?.includes('advanced_sensors') ||
-            factions?.authorities !== 0 ||
-            factions?.outlaws !== 0) && (
+            (factions?.authorities && factions.authorities !== 0) ||
+            (factions?.outlaws && factions.outlaws !== 0)) && (
             <div className="risk-factors">
               <h4>Risk Modifiers</h4>
               <div className="factors-list">
@@ -143,7 +151,7 @@ export function DangerWarningDialog({
                     </span>
                   </div>
                 )}
-                {engine < 50 && (
+                {(shipCondition?.engine && shipCondition.engine < 50) && (
                   <div className="factor warning">
                     <span className="factor-icon">⚠️</span>
                     <span className="factor-text">

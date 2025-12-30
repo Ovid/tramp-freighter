@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
+import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { UI_CONFIG, calculateDistanceFromSol } from '../../game/constants';
 
 /**
@@ -32,6 +34,9 @@ export function SystemPanel({
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
 
+  // State for danger warning dialog
+  const [showDangerWarning, setShowDangerWarning] = useState(false);
+
   // Get system data
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
   const currentSystem = starData.find((s) => s.id === currentSystemId);
@@ -53,6 +58,19 @@ export function SystemPanel({
     const handleJump = async () => {
       if (!validation.valid) return;
 
+      // Check if this is a dangerous system that requires warning
+      const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+      
+      if (isDangerous) {
+        setShowDangerWarning(true);
+        return; // Stop here and wait for user decision
+      }
+
+      // If not dangerous, proceed directly
+      await executeJumpAfterConfirmation();
+    };
+
+    const executeJumpAfterConfirmation = async () => {
       // Close panel immediately so user can see the jump animation
       // Pass true to indicate we're jumping (don't deselect star)
       onClose(true); // true = keep selection ring visible
@@ -74,14 +92,32 @@ export function SystemPanel({
       }
     };
 
+    const handleDangerWarningProceed = () => {
+      setShowDangerWarning(false);
+      executeJumpAfterConfirmation();
+    };
+
+    const handleDangerWarningCancel = () => {
+      setShowDangerWarning(false);
+    };
+
     return (
-      <div className="system-panel">
-        <div className="system-panel-header">
-          <h3>{viewingSystem.name}</h3>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
-        </div>
+      <>
+        {showDangerWarning && (
+          <DangerWarningDialog
+            destinationSystemId={viewingSystemId}
+            destinationSystemName={viewingSystem.name}
+            onProceed={handleDangerWarningProceed}
+            onCancel={handleDangerWarningCancel}
+          />
+        )}
+        <div className="system-panel">
+          <div className="system-panel-header">
+            <h3>{viewingSystem.name}</h3>
+            <button className="close-btn" onClick={onClose}>
+              ×
+            </button>
+          </div>
 
         <div className="system-panel-content">
           {/* System Details */}
@@ -161,6 +197,7 @@ export function SystemPanel({
           </button>
         </div>
       </div>
+      </>
     );
   }
 
