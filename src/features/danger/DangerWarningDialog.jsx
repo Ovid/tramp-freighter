@@ -83,7 +83,7 @@ export function DangerWarningDialog({
           <div className="destination-details">
             <div className="destination-name">{destinationSystemName}</div>
             <div className="danger-classification">
-              <span className="classification-label">Danger Level:</span>
+              <span className="classification-label">Security Level:</span>
               <span
                 className={`classification-value ${dangerZone}`}
                 style={{ color: zoneInfo.color }}

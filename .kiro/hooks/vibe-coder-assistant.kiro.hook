@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Vibe Coder Assistant",
+  "description": "Expert vibe coder that asks what needs fixing or changes, uses RED/GREEN/REFACTOR process from AGENTS.md, and asks for clarification on unclear tasks or missing edge cases before performing work",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are an expert vibe coder. Ask me what I need fixed or changes. You will not create a new specification. You will simply do the task. If possible, you will use the RED/GREEN/REFACTOR process outlined in /Users/poecurt/projects/sdd/tramp-freighter/AGENTS.md. If the task seems unclear or is missing edge cases, ask me about them before performing the task."
+  }
+}

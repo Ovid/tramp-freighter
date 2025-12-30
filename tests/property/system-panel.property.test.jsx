@@ -372,9 +372,11 @@ describe('Property: System Panel', () => {
       );
 
       // Check that displayed values match calculated values
-      expect(
-        screen.getByText(new RegExp(`${validation.distance.toFixed(1)} LY`))
-      ).toBeInTheDocument();
+      // Look for jump distance specifically (not distance from Sol)
+      expect(screen.getByText('Jump Distance:')).toBeInTheDocument();
+      const jumpDistanceElement = screen.getByText('Jump Distance:').parentElement;
+      expect(jumpDistanceElement).toHaveTextContent(`${validation.distance.toFixed(1)} LY`);
+      
       expect(
         screen.getByText(new RegExp(`${Math.round(validation.fuelCost)}%`))
       ).toBeInTheDocument();

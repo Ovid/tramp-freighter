@@ -29,7 +29,7 @@ The Danger System adds tension and risk to space travel through pirate encounter
 #### Acceptance Criteria
 
 1. WHEN viewing a star system, THE System SHALL display its danger classification (safe, contested, dangerous)
-2. WHEN classifying a star system, THE System SHALL calculate danger levels based on distance from Sol and specific system designations
+2. WHEN classifying a star system, THE System SHALL calculate security levels based on distance from Sol and specific system designations
 3. WHEN planning a jump to a dangerous system, THE System SHALL display a warning dialog with risk information
 4. WHEN checking for pirate encounters in a safe zone, THE System SHALL use a 5% encounter rate
 5. WHEN checking for pirate encounters in a contested zone, THE System SHALL use a 20% encounter rate

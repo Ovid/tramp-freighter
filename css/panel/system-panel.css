@@ -35,7 +35,17 @@
 }
 
 .system-panel .close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
   color: var(--color-primary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  transition: var(--transition-fast);
 }
 
 .system-panel .close-btn:hover {
@@ -179,6 +189,19 @@
 .connection-details {
   color: #aaa;
   font-size: 14px;
+}
+
+/* Security Level Styling */
+.danger-safe {
+  color: #00ff88; /* Green for safe */
+}
+
+.danger-contested {
+  color: #ffaa00; /* Orange for contested */
+}
+
+.danger-dangerous {
+  color: #ff4444; /* Red for dangerous */
 }
 
 /* Validation Message */

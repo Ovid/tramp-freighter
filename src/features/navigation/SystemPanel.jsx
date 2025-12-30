@@ -3,7 +3,8 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
-import { UI_CONFIG } from '../../game/constants';
+import { useDangerZone } from '../../hooks/useDangerZone';
+import { UI_CONFIG, calculateDistanceFromSol } from '../../game/constants';
 
 /**
  * SystemPanel displays information about a system.
@@ -29,6 +30,7 @@ export function SystemPanel({
   const upgrades = useGameEvent('upgradesChanged');
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
+  const dangerZone = useDangerZone(viewingSystemId);
 
   // Get system data
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
@@ -109,6 +111,16 @@ export function SystemPanel({
               <span className="value">{viewingSystem.wh}</span>
             </div>
             <div className="system-property">
+              <span className="label">Distance from Sol:</span>
+              <span className="value">{calculateDistanceFromSol(viewingSystem).toFixed(1)} LY</span>
+            </div>
+            <div className="system-property">
+              <span className="label">Security Level:</span>
+              <span className={`value danger-${dangerZone}`}>
+                {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
+              </span>
+            </div>
+            <div className="system-property">
               <span className="label">Status:</span>
               <span className="value">
                 {viewingSystem.r === 1 ? 'Reachable' : 'Unreachable'}
@@ -121,7 +133,7 @@ export function SystemPanel({
           {/* Jump Information */}
           <div className="jump-information">
             <div className="jump-info-row">
-              <span className="label">Distance:</span>
+              <span className="label">Jump Distance:</span>
               <span className="value">{validation.distance.toFixed(1)} LY</span>
             </div>
             <div className="jump-info-row">
@@ -221,6 +233,16 @@ export function SystemPanel({
           <div className="system-property">
             <span className="label">Wormholes:</span>
             <span className="value">{viewingSystem.wh}</span>
+          </div>
+          <div className="system-property">
+            <span className="label">Distance from Sol:</span>
+            <span className="value">{calculateDistanceFromSol(viewingSystem).toFixed(1)} LY</span>
+          </div>
+          <div className="system-property">
+            <span className="label">Security Level:</span>
+            <span className={`value danger-${dangerZone}`}>
+              {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
+            </span>
           </div>
           <div className="system-property">
             <span className="label">Status:</span>
