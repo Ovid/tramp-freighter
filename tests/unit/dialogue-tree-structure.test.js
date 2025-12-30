@@ -42,6 +42,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Test behavior: verify choices appear/disappear based on reputation
@@ -150,6 +152,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Low reputation should not have business option available
@@ -235,6 +239,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Low reputation should not have help option available
@@ -336,6 +342,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Test different reputation levels unlock different options
@@ -426,6 +434,8 @@ describe('Dialogue Tree Structure', () => {
           // Mock that favor is available for Trusted tier and above
           return { available: true };
         },
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Test the condition function (rep >= TRUSTED_MIN which is 60)
@@ -579,6 +589,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Test different reputation levels unlock different options
@@ -733,6 +745,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Should have tip choice with reputation condition
@@ -887,6 +901,8 @@ describe('Dialogue Tree Structure', () => {
         canRequestFavor: () => ({ available: true }),
         getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
         getState: () => ({ player: { daysElapsed: 1 } }),
+        getKarma: () => 0,
+        getFactionRep: () => 0,
       };
 
       // Check for tip choice with reputation condition
