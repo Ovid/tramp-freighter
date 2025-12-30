@@ -275,8 +275,9 @@ export function DevAdminPanel({ onClose }) {
 
   // Encounter trigger handlers
   const handleTriggerPirate = () => {
-    // Emit event to trigger pirate encounter panel
-    gameStateManager.emit('encounterTriggered', {
+    console.log('🏴‍☠️ DevAdminPanel: Pirate button clicked');
+    
+    const encounterData = {
       type: 'pirate',
       encounter: {
         id: `pirate_dev_${Date.now()}`,
@@ -284,7 +285,14 @@ export function DevAdminPanel({ onClose }) {
         threatLevel: 'moderate',
         demandPercent: 20,
       },
-    });
+    };
+    
+    console.log('🏴‍☠️ DevAdminPanel: Emitting encounterTriggered event with data:', encounterData);
+    
+    // Emit event to trigger pirate encounter panel
+    gameStateManager.emit('encounterTriggered', encounterData);
+    
+    console.log('🏴‍☠️ DevAdminPanel: Event emitted successfully');
   };
 
   const handleTriggerInspection = () => {

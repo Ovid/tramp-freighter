@@ -8,6 +8,10 @@ import { StationMenu } from './features/station/StationMenu';
 import { PanelContainer } from './features/station/PanelContainer';
 import { DevAdminPanel } from './features/dev-admin/DevAdminPanel';
 import { SystemPanel } from './features/navigation/SystemPanel';
+import { PirateEncounterPanel } from './features/danger/PirateEncounterPanel';
+import { InspectionPanel } from './features/danger/InspectionPanel';
+import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel';
+import { DistressCallPanel } from './features/danger/DistressCallPanel';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { StarmapProvider } from './context/StarmapContext';
@@ -25,6 +29,7 @@ const VIEW_MODES = {
   ORBIT: 'ORBIT',
   STATION: 'STATION',
   PANEL: 'PANEL',
+  ENCOUNTER: 'ENCOUNTER',
 };
 
 /**
@@ -41,6 +46,7 @@ const VIEW_MODES = {
 export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
+  const encounterEvent = useGameEvent('encounterTriggered');
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -48,6 +54,7 @@ export default function App({ devMode = false }) {
   const [activePanelNpcId, setActivePanelNpcId] = useState(null);
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
+  const [currentEncounter, setCurrentEncounter] = useState(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -167,6 +174,37 @@ export default function App({ devMode = false }) {
     }
   };
 
+  // Handle encounter events from the danger system
+  const handleEncounterTriggered = (encounterData) => {
+    console.log('🎯 App: handleEncounterTriggered called with data:', encounterData);
+    setCurrentEncounter(encounterData);
+    setViewMode(VIEW_MODES.ENCOUNTER);
+    console.log('🎯 App: Set view mode to ENCOUNTER and currentEncounter to:', encounterData);
+  };
+
+  const handleEncounterChoice = (choice) => {
+    // Handle the encounter choice through the game state manager
+    // This will be implemented by the danger system managers
+    if (currentEncounter && gameStateManager.resolveEncounter) {
+      gameStateManager.resolveEncounter(currentEncounter, choice);
+    }
+    // Close encounter and return to previous view
+    setCurrentEncounter(null);
+    setViewMode(VIEW_MODES.ORBIT);
+  };
+
+  const handleEncounterClose = () => {
+    setCurrentEncounter(null);
+    setViewMode(VIEW_MODES.ORBIT);
+  };
+
+  // Listen for encounter events
+  if (encounterEvent && !currentEncounter) {
+    console.log('🎯 App: Received encounterEvent:', encounterEvent);
+    console.log('🎯 App: currentEncounter is:', currentEncounter);
+    handleEncounterTriggered(encounterEvent);
+  }
+
   return (
     <ErrorBoundary>
       <div className="app-container">
@@ -240,6 +278,40 @@ export default function App({ devMode = false }) {
                   onJumpStart={handleJumpStart}
                   onJumpComplete={handleJumpComplete}
                 />
+              )}
+
+              {/* Encounter panels (rendered when an encounter is active) */}
+              {viewMode === VIEW_MODES.ENCOUNTER && currentEncounter && (
+                <>
+                  {currentEncounter.type === 'pirate' && (
+                    <PirateEncounterPanel
+                      encounter={currentEncounter.encounter}
+                      onChoice={handleEncounterChoice}
+                      onClose={handleEncounterClose}
+                    />
+                  )}
+                  {currentEncounter.type === 'inspection' && (
+                    <InspectionPanel
+                      encounter={currentEncounter.encounter}
+                      onChoice={handleEncounterChoice}
+                      onClose={handleEncounterClose}
+                    />
+                  )}
+                  {currentEncounter.type === 'mechanical_failure' && (
+                    <MechanicalFailurePanel
+                      encounter={currentEncounter.encounter}
+                      onChoice={handleEncounterChoice}
+                      onClose={handleEncounterClose}
+                    />
+                  )}
+                  {currentEncounter.type === 'distress_call' && (
+                    <DistressCallPanel
+                      encounter={currentEncounter.encounter}
+                      onChoice={handleEncounterChoice}
+                      onClose={handleEncounterClose}
+                    />
+                  )}
+                </>
               )}
             </StarmapProvider>
           )}

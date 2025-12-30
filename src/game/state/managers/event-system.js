@@ -32,6 +32,13 @@ export class EventSystemManager {
       quirksChanged: [],
       dialogueChanged: [],
       factionRepChanged: [],
+      encounterTriggered: [],
+      hullChanged: [],
+      engineChanged: [],
+      lifeSupportChanged: [],
+      karmaChanged: [],
+      intelligenceChanged: [],
+      currentSystemChanged: [],
     };
   }
 
@@ -56,6 +63,13 @@ export class EventSystemManager {
    *   - quirksChanged: (Array<string>) - Ship quirk IDs
    *   - dialogueChanged: (Object) - Current dialogue state
    *   - factionRepChanged: (Object) - Faction reputation object with authorities, outlaws, etc.
+   *   - encounterTriggered: (Object) - Danger system encounter event with type and encounter data
+   *   - hullChanged: (number) - Ship hull condition percentage (0-100)
+   *   - engineChanged: (number) - Ship engine condition percentage (0-100)
+   *   - lifeSupportChanged: (number) - Ship life support condition percentage (0-100)
+   *   - karmaChanged: (number) - Player karma value for reputation and encounter outcomes
+   *   - intelligenceChanged: (Object) - Information broker intelligence database
+   *   - currentSystemChanged: (number) - Current system ID (alias for locationChanged)
    * @param {function} callback - Function to call when event occurs, receives event data as parameter
    */
   subscribe(eventType, callback) {
@@ -91,12 +105,21 @@ export class EventSystemManager {
    * @param {*} data - Event data to pass to subscribers
    */
   emit(eventType, data) {
+    if (eventType === 'encounterTriggered') {
+      console.log('🎯 EventSystemManager: Emitting encounterTriggered event with data:', data);
+      console.log('🎯 EventSystemManager: Subscribers for encounterTriggered:', this.subscribers[eventType]?.length || 0);
+    }
+    
     if (!this.subscribers[eventType]) {
+      console.warn(`🎯 EventSystemManager: No subscribers array for event type: ${eventType}`);
       return;
     }
 
-    this.subscribers[eventType].forEach((callback) => {
+    this.subscribers[eventType].forEach((callback, index) => {
       try {
+        if (eventType === 'encounterTriggered') {
+          console.log(`🎯 EventSystemManager: Calling subscriber ${index} for encounterTriggered`);
+        }
         callback(data);
       } catch (error) {
         console.error(`Error in ${eventType} subscriber:`, error);

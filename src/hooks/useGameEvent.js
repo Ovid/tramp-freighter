@@ -36,14 +36,23 @@ export function useGameEvent(eventName) {
 
   // Memoized callback to prevent unnecessary re-subscriptions
   const callback = useCallback((data) => {
+    if (eventName === 'encounterTriggered') {
+      console.log('🎯 useGameEvent: Received encounterTriggered event with data:', data);
+    }
     setState(data);
-  }, []);
+  }, [eventName]);
 
   useEffect(() => {
+    if (eventName === 'encounterTriggered') {
+      console.log('🎯 useGameEvent: Subscribing to encounterTriggered event');
+    }
     gameStateManager.subscribe(eventName, callback);
 
     // Cleanup: unsubscribe on unmount
     return () => {
+      if (eventName === 'encounterTriggered') {
+        console.log('🎯 useGameEvent: Unsubscribing from encounterTriggered event');
+      }
       gameStateManager.unsubscribe(eventName, callback);
     };
   }, [gameStateManager, eventName, callback]);
@@ -112,6 +121,14 @@ function extractStateForEvent(eventName, state) {
     quirksChanged: state.ship.quirks,
     conditionWarning: null, // Warnings are passed directly in event data
     dialogueChanged: state.dialogue, // Dialogue state object
+    encounterTriggered: null, // Encounter data is passed directly in event
+    hullChanged: state.ship.hull,
+    engineChanged: state.ship.engine,
+    lifeSupportChanged: state.ship.lifeSupport,
+    karmaChanged: state.player.karma || 0,
+    intelligenceChanged: state.world.intelligence || {},
+    currentSystemChanged: state.player.currentSystem,
+    factionRepChanged: state.player.factions || {},
   };
 
   return eventStateMap[eventName] ?? null;
