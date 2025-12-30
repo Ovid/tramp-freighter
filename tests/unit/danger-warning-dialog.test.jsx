@@ -202,13 +202,6 @@ describe('DangerWarningDialog', () => {
       const proceedButton = screen.getByText('Accept Risk & Proceed');
       fireEvent.click(proceedButton);
 
-      // For dangerous systems, should show confirmation dialog first
-      expect(screen.getByText('Are you sure you want to jump to this dangerous system?')).toBeInTheDocument();
-      
-      // Click final confirmation
-      const confirmButton = screen.getByText('Yes, Proceed Anyway');
-      fireEvent.click(confirmButton);
-
       expect(mockOnProceed).toHaveBeenCalledTimes(1);
     });
 
@@ -230,21 +223,6 @@ describe('DangerWarningDialog', () => {
       fireEvent.click(closeButton);
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
-    });
-
-    it('should show confirmation dialog for dangerous systems', () => {
-      renderDangerWarningDialog({
-        destinationSystemId: 73, // Dangerous system
-        destinationSystemName: '70 Ophiuchi A',
-      });
-
-      const proceedButton = screen.getByText('Accept Risk & Proceed');
-      fireEvent.click(proceedButton);
-
-      // Should show confirmation for dangerous systems
-      expect(screen.getByText('Are you sure you want to jump to this dangerous system?')).toBeInTheDocument();
-      expect(screen.getByText('Yes, Proceed Anyway')).toBeInTheDocument();
-      expect(screen.getByText('No, Go Back')).toBeInTheDocument();
     });
 
     it('should proceed directly for contested systems without confirmation', () => {
@@ -269,39 +247,13 @@ describe('DangerWarningDialog', () => {
         onProceed: mockOnProceed,
       });
 
-      // Click initial proceed button
+      // Click proceed button - should call onProceed directly
       const proceedButton = screen.getByText('Accept Risk & Proceed');
       fireEvent.click(proceedButton);
-
-      // Should show confirmation
-      expect(screen.getByText('Yes, Proceed Anyway')).toBeInTheDocument();
-
-      // Click final confirmation
-      const confirmButton = screen.getByText('Yes, Proceed Anyway');
-      fireEvent.click(confirmButton);
 
       expect(mockOnProceed).toHaveBeenCalledTimes(1);
     });
 
-    it('should cancel confirmation dialog', () => {
-      const mockOnProceed = vi.fn();
-      renderDangerWarningDialog({
-        destinationSystemId: 73, // Dangerous system
-        onProceed: mockOnProceed,
-      });
-
-      // Click initial proceed button
-      const proceedButton = screen.getByText('Accept Risk & Proceed');
-      fireEvent.click(proceedButton);
-
-      // Click "No, Go Back"
-      const goBackButton = screen.getByText('No, Go Back');
-      fireEvent.click(goBackButton);
-
-      // Should return to original dialog
-      expect(screen.getByText('Accept Risk & Proceed')).toBeInTheDocument();
-      expect(mockOnProceed).not.toHaveBeenCalled();
-    });
   });
 
   describe('Data Handling', () => {

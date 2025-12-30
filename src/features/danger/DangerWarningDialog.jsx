@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
@@ -32,8 +31,7 @@ export function DangerWarningDialog({
   const upgrades = useGameEvent('upgradesChanged');
   const factions = useGameEvent('factionRepChanged');
 
-  // Local state for confirmation
-  const [showConfirmation, setShowConfirmation] = useState(false);
+
 
   // Get danger zone classification using Bridge Pattern
   const dangerZone = useDangerZone(destinationSystemId);
@@ -58,20 +56,7 @@ export function DangerWarningDialog({
   );
 
   const handleProceedClick = () => {
-    if (dangerZone === 'dangerous') {
-      setShowConfirmation(true);
-    } else {
-      onProceed();
-    }
-  };
-
-  const handleConfirmProceed = () => {
-    setShowConfirmation(false);
     onProceed();
-  };
-
-  const handleCancelConfirmation = () => {
-    setShowConfirmation(false);
   };
 
   // Get zone display properties
@@ -236,37 +221,15 @@ export function DangerWarningDialog({
 
       {/* Action Buttons */}
       <div className="warning-actions">
-        {!showConfirmation ? (
-          <>
-            <button
-              className="warning-btn primary"
-              onClick={handleProceedClick}
-            >
-              {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
-            </button>
-            <button className="warning-btn secondary" onClick={onCancel}>
-              Cancel Jump
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="confirmation-text">
-              Are you sure you want to jump to this dangerous system?
-            </div>
-            <button
-              className="warning-btn danger"
-              onClick={handleConfirmProceed}
-            >
-              Yes, Proceed Anyway
-            </button>
-            <button
-              className="warning-btn secondary"
-              onClick={handleCancelConfirmation}
-            >
-              No, Go Back
-            </button>
-          </>
-        )}
+        <button
+          className="warning-btn primary"
+          onClick={handleProceedClick}
+        >
+          {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
+        </button>
+        <button className="warning-btn secondary" onClick={onCancel}>
+          Cancel Jump
+        </button>
       </div>
     </div>
   );

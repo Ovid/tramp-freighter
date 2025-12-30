@@ -156,18 +156,9 @@ describe('SystemPanel Danger Warning Integration', () => {
         expect(screen.getByText('Jump Warning')).toBeInTheDocument();
       });
 
-      // Click proceed button (this will show confirmation for dangerous systems)
+      // Click proceed button
       const proceedButton = screen.getByText('Accept Risk & Proceed');
       fireEvent.click(proceedButton);
-
-      // For dangerous systems, need to confirm
-      await waitFor(() => {
-        expect(screen.getByText('Yes, Proceed Anyway')).toBeInTheDocument();
-      });
-
-      // Click final confirmation
-      const confirmButton = screen.getByText('Yes, Proceed Anyway');
-      fireEvent.click(confirmButton);
 
       // Assert: Jump should execute
       await waitFor(() => {
