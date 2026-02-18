@@ -12,6 +12,8 @@ import { PirateEncounterPanel } from './features/danger/PirateEncounterPanel';
 import { InspectionPanel } from './features/danger/InspectionPanel';
 import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel';
 import { DistressCallPanel } from './features/danger/DistressCallPanel';
+import { OutcomePanel } from './features/danger/OutcomePanel';
+import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { StarmapProvider } from './context/StarmapContext';
@@ -55,6 +57,7 @@ export default function App({ devMode = false }) {
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
   const [currentEncounter, setCurrentEncounter] = useState(null);
+  const [encounterOutcome, setEncounterOutcome] = useState(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -176,21 +179,35 @@ export default function App({ devMode = false }) {
 
   // Handle encounter events from the danger system
   const handleEncounterTriggered = (encounterData) => {
-    console.log('🎯 App: handleEncounterTriggered called with data:', encounterData);
     setCurrentEncounter(encounterData);
     setViewMode(VIEW_MODES.ENCOUNTER);
-    console.log('🎯 App: Set view mode to ENCOUNTER and currentEncounter to:', encounterData);
   };
 
   const handleEncounterChoice = (choice) => {
-    // Handle the encounter choice through the game state manager
-    // This will be implemented by the danger system managers
     if (currentEncounter && gameStateManager.resolveEncounter) {
-      gameStateManager.resolveEncounter(currentEncounter, choice);
+      try {
+        const outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
+
+        // Apply the resolution outcome to game state
+        applyEncounterOutcome(outcome);
+
+        // Transform for OutcomePanel display
+        const displayOutcome = transformOutcomeForDisplay(
+          outcome,
+          currentEncounter.type,
+          choice,
+        );
+
+        // Show OutcomePanel (stay in ENCOUNTER mode)
+        setEncounterOutcome(displayOutcome);
+      } catch (error) {
+        console.error('Encounter resolution failed:', error);
+        // On error, return to orbit
+        setCurrentEncounter(null);
+        setEncounterOutcome(null);
+        setViewMode(VIEW_MODES.ORBIT);
+      }
     }
-    // Close encounter and return to previous view
-    setCurrentEncounter(null);
-    setViewMode(VIEW_MODES.ORBIT);
   };
 
   const handleEncounterClose = () => {
@@ -198,10 +215,128 @@ export default function App({ devMode = false }) {
     setViewMode(VIEW_MODES.ORBIT);
   };
 
+  const handleOutcomeContinue = () => {
+    setCurrentEncounter(null);
+    setEncounterOutcome(null);
+    setViewMode(VIEW_MODES.ORBIT);
+  };
+
+  /**
+   * Apply encounter resolution outcome to game state
+   * Handles costs (fuel, hull, credits, cargo loss) and rewards (credits, reputation, karma)
+   */
+  const applyEncounterOutcome = (outcome) => {
+    const state = gameStateManager.getState();
+    
+    // Apply costs
+    if (outcome.costs) {
+      // Handle fuel costs
+      if (outcome.costs.fuel) {
+        const newFuel = Math.max(0, state.ship.fuel - outcome.costs.fuel);
+        gameStateManager.updateFuel(newFuel);
+      }
+      
+      // Handle hull damage
+      if (outcome.costs.hull) {
+        const newHull = Math.max(0, state.ship.hull - outcome.costs.hull);
+        gameStateManager.updateShipCondition(newHull, state.ship.engine, state.ship.lifeSupport);
+      }
+      
+      // Handle engine damage
+      if (outcome.costs.engine) {
+        const newEngine = Math.max(0, state.ship.engine - outcome.costs.engine);
+        gameStateManager.updateShipCondition(state.ship.hull, newEngine, state.ship.lifeSupport);
+      }
+      
+      // Handle life support damage
+      if (outcome.costs.lifeSupport) {
+        const newLifeSupport = Math.max(0, state.ship.lifeSupport - outcome.costs.lifeSupport);
+        gameStateManager.updateShipCondition(state.ship.hull, state.ship.engine, newLifeSupport);
+      }
+      
+      // Handle credit costs
+      if (outcome.costs.credits) {
+        const newCredits = Math.max(0, state.player.credits - outcome.costs.credits);
+        gameStateManager.updateCredits(newCredits);
+      }
+      
+      // Handle cargo loss
+      if (outcome.costs.cargoLoss === true) {
+        // Lose all cargo
+        gameStateManager.updateCargo([]);
+      } else if (outcome.costs.cargoPercent) {
+        // Lose percentage of cargo
+        const cargo = [...state.ship.cargo];
+        const lossPercent = outcome.costs.cargoPercent / 100;
+        
+        cargo.forEach(item => {
+          const lostQuantity = Math.floor(item.quantity * lossPercent);
+          item.quantity = Math.max(0, item.quantity - lostQuantity);
+        });
+        
+        // Remove empty cargo stacks
+        const filteredCargo = cargo.filter(item => item.quantity > 0);
+        gameStateManager.updateCargo(filteredCargo);
+      }
+      
+      // Handle time costs
+      if (outcome.costs.days) {
+        const newDays = state.player.daysElapsed + outcome.costs.days;
+        gameStateManager.updateTime(newDays);
+      }
+    }
+    
+    // Apply rewards
+    if (outcome.rewards) {
+      // Handle credit rewards
+      if (outcome.rewards.credits) {
+        const newCredits = state.player.credits + outcome.rewards.credits;
+        gameStateManager.updateCredits(newCredits);
+      }
+      
+      // Handle karma rewards/penalties
+      if (outcome.rewards.karma) {
+        gameStateManager.modifyKarma(outcome.rewards.karma, 'encounter_resolution');
+      }
+      
+      // Handle faction reputation changes
+      if (outcome.rewards.factionRep) {
+        Object.entries(outcome.rewards.factionRep).forEach(([faction, change]) => {
+          gameStateManager.modifyFactionRep(faction, change, 'encounter_resolution');
+        });
+      }
+      
+      // Handle cargo rewards
+      if (outcome.rewards.cargo) {
+        const currentCargo = [...state.ship.cargo];
+        outcome.rewards.cargo.forEach(rewardItem => {
+          // Try to stack with existing cargo
+          const existingStack = currentCargo.find(item => 
+            item.good === rewardItem.type && 
+            item.purchasePrice === rewardItem.purchasePrice
+          );
+          
+          if (existingStack) {
+            existingStack.quantity += rewardItem.quantity;
+          } else {
+            currentCargo.push({
+              good: rewardItem.type,
+              quantity: rewardItem.quantity,
+              purchasePrice: rewardItem.purchasePrice
+            });
+          }
+        });
+        
+        gameStateManager.updateCargo(currentCargo);
+      }
+    }
+    
+    // Save game after applying changes
+    gameStateManager.saveGame();
+  };
+
   // Listen for encounter events
   if (encounterEvent && !currentEncounter) {
-    console.log('🎯 App: Received encounterEvent:', encounterEvent);
-    console.log('🎯 App: currentEncounter is:', currentEncounter);
     handleEncounterTriggered(encounterEvent);
   }
 
@@ -281,7 +416,7 @@ export default function App({ devMode = false }) {
               )}
 
               {/* Encounter panels (rendered when an encounter is active) */}
-              {viewMode === VIEW_MODES.ENCOUNTER && currentEncounter && (
+              {viewMode === VIEW_MODES.ENCOUNTER && currentEncounter && !encounterOutcome && (
                 <>
                   {currentEncounter.type === 'pirate' && (
                     <PirateEncounterPanel
@@ -313,8 +448,18 @@ export default function App({ devMode = false }) {
                   )}
                 </>
               )}
+
+              {/* Outcome panel (shown after encounter choice is resolved) */}
+              {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
+                <OutcomePanel
+                  outcome={encounterOutcome}
+                  onContinue={handleOutcomeContinue}
+                  onClose={handleOutcomeContinue}
+                />
+              )}
             </StarmapProvider>
           )}
+
       </div>
     </ErrorBoundary>
   );
