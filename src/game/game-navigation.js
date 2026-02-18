@@ -1,4 +1,4 @@
-import { NAVIGATION_CONFIG, SHIP_CONFIG } from './constants.js';
+import { NAVIGATION_CONFIG, SHIP_CONFIG, REPAIR_CONFIG } from './constants.js';
 
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
@@ -281,6 +281,7 @@ export class NavigationSystem {
    * @param {Function} applyQuirkModifiers - Function to apply quirk modifiers (optional)
    * @param {string[]} quirks - Array of quirk IDs (optional)
    * @param {number} upgradeModifier - Upgrade fuel consumption modifier (default 1.0)
+   * @param {Object|null} shipCondition - Ship condition with hull, engine, lifeSupport fields (optional)
    * @returns {Object} { valid: boolean, error: string|null, fuelCost: number, distance: number, jumpTime: number }
    */
   validateJump(
@@ -290,7 +291,8 @@ export class NavigationSystem {
     engineCondition = 100,
     applyQuirkModifiers = null,
     quirks = [],
-    upgradeModifier = 1.0
+    upgradeModifier = 1.0,
+    shipCondition = null
   ) {
     // Check wormhole connection
     if (!this.areSystemsConnected(currentSystemId, targetSystemId)) {
@@ -342,6 +344,34 @@ export class NavigationSystem {
       };
     }
 
+    // Check for critically damaged systems
+    if (shipCondition) {
+      const criticalSystems = [];
+      if (shipCondition.hull <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
+        criticalSystems.push(`Hull (${Math.round(shipCondition.hull)}%)`);
+      }
+      if (shipCondition.engine <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
+        criticalSystems.push(`Engine (${Math.round(shipCondition.engine)}%)`);
+      }
+      if (
+        shipCondition.lifeSupport <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD
+      ) {
+        criticalSystems.push(
+          `Life Support (${Math.round(shipCondition.lifeSupport)}%)`
+        );
+      }
+
+      if (criticalSystems.length > 0) {
+        return {
+          valid: false,
+          error: `${criticalSystems.join(', ')} critically damaged. Repairs required before departure.`,
+          fuelCost,
+          distance,
+          jumpTime,
+        };
+      }
+    }
+
     return {
       valid: true,
       error: null,
@@ -380,7 +410,7 @@ export class NavigationSystem {
     // Calculate ship capabilities (includes upgrade effects)
     const capabilities = gameStateManager.calculateShipCapabilities();
 
-    // Validate jump with engine condition, quirk modifiers, and upgrade effects
+    // Validate jump with engine condition, quirk modifiers, upgrade effects, and ship condition
     const validation = this.validateJump(
       currentSystemId,
       targetSystemId,
@@ -388,7 +418,12 @@ export class NavigationSystem {
       engineCondition,
       gameStateManager.applyQuirkModifiers.bind(gameStateManager),
       quirks,
-      capabilities.fuelConsumption
+      capabilities.fuelConsumption,
+      {
+        hull: state.ship.hull,
+        engine: state.ship.engine,
+        lifeSupport: state.ship.lifeSupport,
+      }
     );
 
     if (!validation.valid) {

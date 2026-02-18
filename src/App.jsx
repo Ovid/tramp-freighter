@@ -370,7 +370,11 @@ export default function App({ devMode = false }) {
   };
 
   // Listen for encounter events (only process each event once)
-  if (encounterEvent && !currentEncounter && encounterEvent !== lastHandledEncounter.current) {
+  if (
+    encounterEvent &&
+    !currentEncounter &&
+    encounterEvent !== lastHandledEncounter.current
+  ) {
     lastHandledEncounter.current = encounterEvent;
     handleEncounterTriggered(encounterEvent);
   }

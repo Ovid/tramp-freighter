@@ -521,6 +521,14 @@ export class GameStateManager {
     return this.repairManager.repairShipSystem(systemType, amount);
   }
 
+  applyEmergencyPatch(systemType) {
+    return this.repairManager.applyEmergencyPatch(systemType);
+  }
+
+  cannibalizeSystem(targetType, donations) {
+    return this.repairManager.cannibalizeSystem(targetType, donations);
+  }
+
   // ========================================================================
   // UPGRADE SYSTEM
   // ========================================================================

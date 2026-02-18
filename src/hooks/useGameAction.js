@@ -86,6 +86,25 @@ export function useGameAction() {
       },
 
       /**
+       * Apply emergency patch to a critically damaged system
+       * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+       * @returns {Object} { success: boolean, reason: string | null }
+       */
+      applyEmergencyPatch: (systemType) => {
+        return gameStateManager.applyEmergencyPatch(systemType);
+      },
+
+      /**
+       * Cannibalize donor systems to repair a critically damaged target
+       * @param {string} targetType - Target system type
+       * @param {Array<{system: string, amount: number}>} donations - Donor allocations
+       * @returns {Object} { success: boolean, reason: string | null }
+       */
+      cannibalizeSystem: (targetType, donations) => {
+        return gameStateManager.cannibalizeSystem(targetType, donations);
+      },
+
+      /**
        * Purchase an upgrade
        * @param {string} upgradeId - Upgrade identifier
        * @returns {Object} { success: boolean, reason: string }
