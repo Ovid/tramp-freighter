@@ -689,7 +689,11 @@ export function DevAdminPanel({ onClose }) {
             {Object.keys(dangerState.dangerFlags).length > 0 && (
               <div className="dev-admin-flags">
                 <span>Flags:</span>
-                <span>{Object.keys(dangerState.dangerFlags).join(', ')}</span>
+                <span>
+                  {Object.entries(dangerState.dangerFlags)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(', ')}
+                </span>
               </div>
             )}
           </div>

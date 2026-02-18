@@ -420,7 +420,8 @@ function calculateNegotiationProbabilities(
  * @param {Array} cargo - Current cargo array
  * @returns {number} Total cargo value in credits
  */
-function calculateCargoValue(cargo = []) {
+function calculateCargoValue(cargo) {
+  if (!cargo || cargo.length === 0) return 0;
   return cargo.reduce((total, item) => {
     // Estimate value based on quantity and typical prices
     const estimatedPrice = getEstimatedPrice(item.good);

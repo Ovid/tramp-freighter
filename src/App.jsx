@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleScreen } from './features/title-screen/TitleScreen';
 import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
@@ -208,10 +208,25 @@ export default function App({ devMode = false }) {
 
     if (gameStateManager.resolveEncounter) {
       try {
-        const outcome = gameStateManager.resolveEncounter(
-          currentEncounter,
-          choice
-        );
+        // Route combat/negotiation sub-choices to their specific resolvers
+        let outcome;
+        if (encounterPhase === 'combat') {
+          outcome = gameStateManager.resolveCombatChoice(
+            currentEncounter,
+            choice
+          );
+        } else if (encounterPhase === 'negotiation') {
+          outcome = gameStateManager.resolveNegotiation(
+            currentEncounter,
+            choice,
+            Math.random()
+          );
+        } else {
+          outcome = gameStateManager.resolveEncounter(
+            currentEncounter,
+            choice
+          );
+        }
 
         // Apply the resolution outcome to game state
         applyEncounterOutcome(outcome);
@@ -393,14 +408,16 @@ export default function App({ devMode = false }) {
   };
 
   // Listen for encounter events (only process each event once)
-  if (
-    encounterEvent &&
-    !currentEncounter &&
-    encounterEvent !== lastHandledEncounter.current
-  ) {
-    lastHandledEncounter.current = encounterEvent;
-    handleEncounterTriggered(encounterEvent);
-  }
+  useEffect(() => {
+    if (
+      encounterEvent &&
+      !currentEncounter &&
+      encounterEvent !== lastHandledEncounter.current
+    ) {
+      lastHandledEncounter.current = encounterEvent;
+      handleEncounterTriggered(encounterEvent);
+    }
+  }, [encounterEvent, currentEncounter]);
 
   return (
     <ErrorBoundary>
