@@ -91,6 +91,12 @@ Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@
 ### Constants
 **ALL magic numbers must go in `src/game/constants.js`.** Never hard-code numeric values in implementation files. This includes percentages, multipliers, ranges, thresholds, prices, distances, timeouts.
 
+### Numeric Display
+**Round at the calculation layer, not the display layer.** Utility functions must return integers — never raw floating-point values that will be displayed to the player.
+- **Credits (costs):** `Math.ceil()` — always round up so the player never pays less than the true cost.
+- **Percentages (conditions, capacities):** `Math.round()` — standard rounding for display clarity.
+- Never interpolate a calculation result directly into JSX without ensuring the underlying function already rounds.
+
 ### Testing
 - **Test types:** Unit (`tests/unit/`), property-based with fast-check (`tests/property/`), integration (`tests/integration/`)
 - **TDD required:** RED (one failing test) → GREEN (minimal passing code) → REFACTOR. Never batch multiple failing tests.
