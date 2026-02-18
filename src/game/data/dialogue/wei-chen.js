@@ -29,8 +29,7 @@ import {
  */
 export const WEI_CHEN_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager, _npcId) => {
-      // eslint-disable-line no-unused-vars
+    text: (rep, gameStateManager) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
         baseText =
@@ -85,8 +84,7 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'I understand the risks of bad deals.',
         next: 'bad_deal_sympathy',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Only available if player has bad karma (suggesting they've made questionable choices)
           // and at least neutral reputation with Wei Chen
           return (
@@ -99,8 +97,7 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'Any advice for staying out of trouble with authorities?',
         next: 'authority_advice',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Only available if player is wanted by authorities and has warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
@@ -112,8 +109,7 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_response',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Only available if player has good karma and neutral+ reputation
           return (
             rep >= REPUTATION_BOUNDS.NEUTRAL_MIN &&

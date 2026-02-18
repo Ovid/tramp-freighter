@@ -182,8 +182,7 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'I need information about authority patrol patterns.',
         next: 'authority_intel',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Available if player is wanted by authorities and has warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
@@ -195,8 +194,7 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'Any intel on outlaw activities?',
         next: 'outlaw_intel',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Available if player is trusted by authorities and has friendly+ reputation
           return (
             rep >= REPUTATION_BOUNDS.FRIENDLY_MIN &&
@@ -208,8 +206,7 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'I hear you deal with all kinds of people.',
         next: 'mixed_reputation_comment',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Available if player has mixed reputation (high with one faction, low with opposing)
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&

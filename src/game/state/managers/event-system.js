@@ -109,7 +109,7 @@ export class EventSystemManager {
       return;
     }
 
-    this.subscribers[eventType].forEach((callback, index) => {
+    this.subscribers[eventType].forEach((callback) => {
       try {
         callback(data);
       } catch (error) {

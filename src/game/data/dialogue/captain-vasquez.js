@@ -196,8 +196,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_discussion',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Available if player has good karma and warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
@@ -209,8 +208,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'Sometimes you have to make hard choices out there.',
         next: 'bad_karma_discussion',
-        condition: (rep, gameStateManager, _npcId) => {
-          // eslint-disable-line no-unused-vars
+        condition: (rep, gameStateManager) => {
           // Available if player has bad karma and warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
