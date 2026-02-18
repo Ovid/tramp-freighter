@@ -58,16 +58,20 @@ export function useJumpEncounters({ onEncounter } = {}) {
         );
 
       if (pirateRng < pirateChance) {
-        const encounter = {
+        const encounterData = {
           type: 'pirate',
-          systemId: destinationSystemId,
-          threatLevel: determineThreatLevel(gameState),
-          demandPercent: 20, // Standard pirate demand
+          encounter: {
+            id: `pirate_jump_${Date.now()}`,
+            type: 'pirate',
+            systemId: destinationSystemId,
+            threatLevel: determineThreatLevel(gameState),
+            demandPercent: 20,
+          },
         };
 
-        gameStateManager.emit('encounterTriggered', encounter);
+        gameStateManager.emit('encounterTriggered', encounterData);
         if (onEncounter) {
-          onEncounter(encounter);
+          onEncounter(encounterData);
         }
         return; // Only one encounter per jump
       }
@@ -80,15 +84,19 @@ export function useJumpEncounters({ onEncounter } = {}) {
         );
 
       if (inspectionRng < inspectionChance) {
-        const encounter = {
+        const encounterData = {
           type: 'inspection',
-          systemId: destinationSystemId,
-          severity: determineInspectionSeverity(gameState),
+          encounter: {
+            id: `inspection_jump_${Date.now()}`,
+            type: 'inspection',
+            systemId: destinationSystemId,
+            severity: determineInspectionSeverity(gameState),
+          },
         };
 
-        gameStateManager.emit('encounterTriggered', encounter);
+        gameStateManager.emit('encounterTriggered', encounterData);
         if (onEncounter) {
-          onEncounter(encounter);
+          onEncounter(encounterData);
         }
         return; // Only one encounter per jump
       }
@@ -100,16 +108,19 @@ export function useJumpEncounters({ onEncounter } = {}) {
       );
 
       if (failure) {
-        const encounter = {
+        const encounterData = {
           type: 'mechanical_failure',
-          systemId: destinationSystemId,
-          failureType: failure.type,
-          severity: failure.severity,
+          encounter: {
+            id: `failure_jump_${Date.now()}`,
+            type: failure.type,
+            systemId: destinationSystemId,
+            severity: failure.severity,
+          },
         };
 
-        gameStateManager.emit('encounterTriggered', encounter);
+        gameStateManager.emit('encounterTriggered', encounterData);
         if (onEncounter) {
-          onEncounter(encounter);
+          onEncounter(encounterData);
         }
         return; // Only one encounter per jump
       }
@@ -119,21 +130,19 @@ export function useJumpEncounters({ onEncounter } = {}) {
         gameStateManager.dangerManager.checkDistressCall(distressRng);
 
       if (distressCall) {
-        const encounter = {
+        const encounterData = {
           type: 'distress_call',
-          systemId: destinationSystemId,
-          distressCall,
+          encounter: distressCall,
         };
 
-        gameStateManager.emit('encounterTriggered', encounter);
+        gameStateManager.emit('encounterTriggered', encounterData);
         if (onEncounter) {
-          onEncounter(encounter);
+          onEncounter(encounterData);
         }
         return; // Only one encounter per jump
       }
 
       // No encounters occurred
-      console.log(`No encounters during jump to system ${destinationSystemId}`);
     },
     [gameStateManager, onEncounter]
   );

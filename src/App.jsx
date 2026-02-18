@@ -16,6 +16,7 @@ import { OutcomePanel } from './features/danger/OutcomePanel';
 import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
+import { useJumpEncounters } from './hooks/useJumpEncounters';
 import { StarmapProvider } from './context/StarmapContext';
 
 /**
@@ -49,6 +50,7 @@ export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const encounterEvent = useGameEvent('encounterTriggered');
+  useJumpEncounters();
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -186,7 +188,10 @@ export default function App({ devMode = false }) {
   const handleEncounterChoice = (choice) => {
     if (currentEncounter && gameStateManager.resolveEncounter) {
       try {
-        const outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
+        const outcome = gameStateManager.resolveEncounter(
+          currentEncounter,
+          choice
+        );
 
         // Apply the resolution outcome to game state
         applyEncounterOutcome(outcome);
@@ -195,7 +200,7 @@ export default function App({ devMode = false }) {
         const displayOutcome = transformOutcomeForDisplay(
           outcome,
           currentEncounter.type,
-          choice,
+          choice
         );
 
         // Show OutcomePanel (stay in ENCOUNTER mode)
@@ -227,7 +232,7 @@ export default function App({ devMode = false }) {
    */
   const applyEncounterOutcome = (outcome) => {
     const state = gameStateManager.getState();
-    
+
     // Apply costs
     if (outcome.costs) {
       // Handle fuel costs
@@ -235,31 +240,49 @@ export default function App({ devMode = false }) {
         const newFuel = Math.max(0, state.ship.fuel - outcome.costs.fuel);
         gameStateManager.updateFuel(newFuel);
       }
-      
+
       // Handle hull damage
       if (outcome.costs.hull) {
         const newHull = Math.max(0, state.ship.hull - outcome.costs.hull);
-        gameStateManager.updateShipCondition(newHull, state.ship.engine, state.ship.lifeSupport);
+        gameStateManager.updateShipCondition(
+          newHull,
+          state.ship.engine,
+          state.ship.lifeSupport
+        );
       }
-      
+
       // Handle engine damage
       if (outcome.costs.engine) {
         const newEngine = Math.max(0, state.ship.engine - outcome.costs.engine);
-        gameStateManager.updateShipCondition(state.ship.hull, newEngine, state.ship.lifeSupport);
+        gameStateManager.updateShipCondition(
+          state.ship.hull,
+          newEngine,
+          state.ship.lifeSupport
+        );
       }
-      
+
       // Handle life support damage
       if (outcome.costs.lifeSupport) {
-        const newLifeSupport = Math.max(0, state.ship.lifeSupport - outcome.costs.lifeSupport);
-        gameStateManager.updateShipCondition(state.ship.hull, state.ship.engine, newLifeSupport);
+        const newLifeSupport = Math.max(
+          0,
+          state.ship.lifeSupport - outcome.costs.lifeSupport
+        );
+        gameStateManager.updateShipCondition(
+          state.ship.hull,
+          state.ship.engine,
+          newLifeSupport
+        );
       }
-      
+
       // Handle credit costs
       if (outcome.costs.credits) {
-        const newCredits = Math.max(0, state.player.credits - outcome.costs.credits);
+        const newCredits = Math.max(
+          0,
+          state.player.credits - outcome.costs.credits
+        );
         gameStateManager.updateCredits(newCredits);
       }
-      
+
       // Handle cargo loss
       if (outcome.costs.cargoLoss === true) {
         // Lose all cargo
@@ -268,24 +291,24 @@ export default function App({ devMode = false }) {
         // Lose percentage of cargo
         const cargo = [...state.ship.cargo];
         const lossPercent = outcome.costs.cargoPercent / 100;
-        
-        cargo.forEach(item => {
+
+        cargo.forEach((item) => {
           const lostQuantity = Math.floor(item.quantity * lossPercent);
           item.quantity = Math.max(0, item.quantity - lostQuantity);
         });
-        
+
         // Remove empty cargo stacks
-        const filteredCargo = cargo.filter(item => item.quantity > 0);
+        const filteredCargo = cargo.filter((item) => item.quantity > 0);
         gameStateManager.updateCargo(filteredCargo);
       }
-      
+
       // Handle time costs
       if (outcome.costs.days) {
         const newDays = state.player.daysElapsed + outcome.costs.days;
         gameStateManager.updateTime(newDays);
       }
     }
-    
+
     // Apply rewards
     if (outcome.rewards) {
       // Handle credit rewards
@@ -293,44 +316,54 @@ export default function App({ devMode = false }) {
         const newCredits = state.player.credits + outcome.rewards.credits;
         gameStateManager.updateCredits(newCredits);
       }
-      
+
       // Handle karma rewards/penalties
       if (outcome.rewards.karma) {
-        gameStateManager.modifyKarma(outcome.rewards.karma, 'encounter_resolution');
+        gameStateManager.modifyKarma(
+          outcome.rewards.karma,
+          'encounter_resolution'
+        );
       }
-      
+
       // Handle faction reputation changes
       if (outcome.rewards.factionRep) {
-        Object.entries(outcome.rewards.factionRep).forEach(([faction, change]) => {
-          gameStateManager.modifyFactionRep(faction, change, 'encounter_resolution');
-        });
+        Object.entries(outcome.rewards.factionRep).forEach(
+          ([faction, change]) => {
+            gameStateManager.modifyFactionRep(
+              faction,
+              change,
+              'encounter_resolution'
+            );
+          }
+        );
       }
-      
+
       // Handle cargo rewards
       if (outcome.rewards.cargo) {
         const currentCargo = [...state.ship.cargo];
-        outcome.rewards.cargo.forEach(rewardItem => {
+        outcome.rewards.cargo.forEach((rewardItem) => {
           // Try to stack with existing cargo
-          const existingStack = currentCargo.find(item => 
-            item.good === rewardItem.type && 
-            item.purchasePrice === rewardItem.purchasePrice
+          const existingStack = currentCargo.find(
+            (item) =>
+              item.good === rewardItem.type &&
+              item.purchasePrice === rewardItem.purchasePrice
           );
-          
+
           if (existingStack) {
             existingStack.quantity += rewardItem.quantity;
           } else {
             currentCargo.push({
               good: rewardItem.type,
               quantity: rewardItem.quantity,
-              purchasePrice: rewardItem.purchasePrice
+              purchasePrice: rewardItem.purchasePrice,
             });
           }
         });
-        
+
         gameStateManager.updateCargo(currentCargo);
       }
     }
-    
+
     // Save game after applying changes
     gameStateManager.saveGame();
   };
@@ -416,38 +449,40 @@ export default function App({ devMode = false }) {
               )}
 
               {/* Encounter panels (rendered when an encounter is active) */}
-              {viewMode === VIEW_MODES.ENCOUNTER && currentEncounter && !encounterOutcome && (
-                <>
-                  {currentEncounter.type === 'pirate' && (
-                    <PirateEncounterPanel
-                      encounter={currentEncounter.encounter}
-                      onChoice={handleEncounterChoice}
-                      onClose={handleEncounterClose}
-                    />
-                  )}
-                  {currentEncounter.type === 'inspection' && (
-                    <InspectionPanel
-                      encounter={currentEncounter.encounter}
-                      onChoice={handleEncounterChoice}
-                      onClose={handleEncounterClose}
-                    />
-                  )}
-                  {currentEncounter.type === 'mechanical_failure' && (
-                    <MechanicalFailurePanel
-                      encounter={currentEncounter.encounter}
-                      onChoice={handleEncounterChoice}
-                      onClose={handleEncounterClose}
-                    />
-                  )}
-                  {currentEncounter.type === 'distress_call' && (
-                    <DistressCallPanel
-                      encounter={currentEncounter.encounter}
-                      onChoice={handleEncounterChoice}
-                      onClose={handleEncounterClose}
-                    />
-                  )}
-                </>
-              )}
+              {viewMode === VIEW_MODES.ENCOUNTER &&
+                currentEncounter &&
+                !encounterOutcome && (
+                  <>
+                    {currentEncounter.type === 'pirate' && (
+                      <PirateEncounterPanel
+                        encounter={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'inspection' && (
+                      <InspectionPanel
+                        inspection={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'mechanical_failure' && (
+                      <MechanicalFailurePanel
+                        failure={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'distress_call' && (
+                      <DistressCallPanel
+                        distressCall={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                  </>
+                )}
 
               {/* Outcome panel (shown after encounter choice is resolved) */}
               {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
@@ -459,7 +494,6 @@ export default function App({ devMode = false }) {
               )}
             </StarmapProvider>
           )}
-
       </div>
     </ErrorBoundary>
   );
