@@ -13,7 +13,7 @@
 export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
   const resourceChanges = {};
 
-  // Convert costs to negative resource changes
+  // Convert costs to negative resource changes (days kept positive as a delay)
   const costs = rawOutcome.costs || {};
   if (costs.hull) resourceChanges.hull = -costs.hull;
   if (costs.engine) resourceChanges.engine = -costs.engine;
