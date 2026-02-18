@@ -75,7 +75,13 @@ describe('Integration: Critical Damage Jump Feedback', () => {
     mockCurrentSystemId = 0;
     mockFuel = 100;
     mockUpgrades = [];
-    mockValidation = { valid: true, reason: null, distance: 4.3, fuelCost: 15, jumpTime: 1 };
+    mockValidation = {
+      valid: true,
+      reason: null,
+      distance: 4.3,
+      fuelCost: 15,
+      jumpTime: 1,
+    };
   });
 
   it('shows critical damage modal when viewing a target system with critical damage', () => {
@@ -181,7 +187,13 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   });
 
   it('does not show critical damage modal when validation passes', () => {
-    mockValidation = { valid: true, reason: null, distance: 4.3, fuelCost: 15, jumpTime: 1 };
+    mockValidation = {
+      valid: true,
+      reason: null,
+      distance: 4.3,
+      fuelCost: 15,
+      jumpTime: 1,
+    };
 
     render(
       <SystemPanel
