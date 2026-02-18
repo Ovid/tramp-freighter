@@ -679,6 +679,62 @@ export class GameStateManager {
     );
   }
 
+  /**
+   * Resolve encounter based on type and choice
+   * Routes to appropriate specific resolution method
+   * 
+   * @param {Object} encounterData - Full encounter data from event
+   * @param {string} choice - Player's choice
+   * @returns {Object} Resolution outcome
+   */
+  resolveEncounter(encounterData, choice) {
+    const { type, encounter } = encounterData;
+    
+    // Generate random number for resolution
+    const rng = Math.random();
+    
+    switch (type) {
+      case 'pirate':
+        return this.resolvePirateEncounter(encounter, choice, rng);
+      case 'inspection':
+        return this.resolveInspection(choice, this.getState(), rng);
+      case 'mechanical_failure':
+        return this.resolveMechanicalFailure(encounter.type, choice, this.getState(), rng);
+      case 'distress_call':
+        return this.resolveDistressCall(encounter, choice);
+      default:
+        throw new Error(`Unknown encounter type: ${type}`);
+    }
+  }
+
+  /**
+   * Resolve pirate encounter based on choice
+   * Maps UI choices to appropriate resolution methods
+   * 
+   * @param {Object} encounter - Pirate encounter data
+   * @param {string} choice - Player's choice (fight, flee, negotiate, surrender)
+   * @param {number} rng - Random number for resolution
+   * @returns {Object} Resolution outcome
+   */
+  resolvePirateEncounter(encounter, choice, rng) {
+    switch (choice) {
+      case 'fight':
+        // Fighting maps to return_fire combat choice
+        return this.resolveCombatChoice(encounter, 'return_fire');
+      case 'flee':
+        // Fleeing maps to evasive combat choice
+        return this.resolveCombatChoice(encounter, 'evasive');
+      case 'negotiate':
+        // Negotiating maps to counter_proposal negotiation choice
+        return this.resolveNegotiation(encounter, 'counter_proposal', rng);
+      case 'surrender':
+        // Surrendering maps to accept_demand negotiation choice
+        return this.resolveNegotiation(encounter, 'accept_demand', rng);
+      default:
+        throw new Error(`Unknown pirate encounter choice: ${choice}`);
+    }
+  }
+
   checkMechanicalFailure(gameState, rng) {
     return this.dangerManager.checkMechanicalFailure(gameState, rng);
   }

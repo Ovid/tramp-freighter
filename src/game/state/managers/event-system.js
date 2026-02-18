@@ -105,21 +105,12 @@ export class EventSystemManager {
    * @param {*} data - Event data to pass to subscribers
    */
   emit(eventType, data) {
-    if (eventType === 'encounterTriggered') {
-      console.log('🎯 EventSystemManager: Emitting encounterTriggered event with data:', data);
-      console.log('🎯 EventSystemManager: Subscribers for encounterTriggered:', this.subscribers[eventType]?.length || 0);
-    }
-    
     if (!this.subscribers[eventType]) {
-      console.warn(`🎯 EventSystemManager: No subscribers array for event type: ${eventType}`);
       return;
     }
 
     this.subscribers[eventType].forEach((callback, index) => {
       try {
-        if (eventType === 'encounterTriggered') {
-          console.log(`🎯 EventSystemManager: Calling subscriber ${index} for encounterTriggered`);
-        }
         callback(data);
       } catch (error) {
         console.error(`Error in ${eventType} subscriber:`, error);

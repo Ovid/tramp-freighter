@@ -36,23 +36,14 @@ export function useGameEvent(eventName) {
 
   // Memoized callback to prevent unnecessary re-subscriptions
   const callback = useCallback((data) => {
-    if (eventName === 'encounterTriggered') {
-      console.log('🎯 useGameEvent: Received encounterTriggered event with data:', data);
-    }
     setState(data);
   }, [eventName]);
 
   useEffect(() => {
-    if (eventName === 'encounterTriggered') {
-      console.log('🎯 useGameEvent: Subscribing to encounterTriggered event');
-    }
     gameStateManager.subscribe(eventName, callback);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      if (eventName === 'encounterTriggered') {
-        console.log('🎯 useGameEvent: Unsubscribing from encounterTriggered event');
-      }
       gameStateManager.unsubscribe(eventName, callback);
     };
   }, [gameStateManager, eventName, callback]);
