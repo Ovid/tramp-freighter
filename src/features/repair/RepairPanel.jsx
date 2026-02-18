@@ -475,21 +475,23 @@ export function RepairPanel({ onClose }) {
                       <div key={donorSys} className="donor-row">
                         <label>
                           {getSystemName(donorSys)} ({Math.round(donorCond)}%,
-                          max {maxDonation}%):
+                          max {maxDonation}%)
                         </label>
-                        <input
-                          type="range"
-                          min={0}
-                          max={maxDonation}
-                          value={currentAlloc}
-                          onChange={(e) =>
-                            setCannibalizeAllocation((prev) => ({
-                              ...prev,
-                              [donorSys]: parseInt(e.target.value),
-                            }))
-                          }
-                        />
-                        <span>{currentAlloc}%</span>
+                        <div className="donor-slider-group">
+                          <input
+                            type="range"
+                            min={0}
+                            max={maxDonation}
+                            value={currentAlloc}
+                            onChange={(e) =>
+                              setCannibalizeAllocation((prev) => ({
+                                ...prev,
+                                [donorSys]: parseInt(e.target.value),
+                              }))
+                            }
+                          />
+                          <span>{currentAlloc}%</span>
+                        </div>
                       </div>
                     );
                   })}
