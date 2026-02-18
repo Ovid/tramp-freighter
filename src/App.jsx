@@ -60,6 +60,7 @@ export default function App({ devMode = false }) {
   const [viewingSystemId, setViewingSystemId] = useState(null);
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [encounterOutcome, setEncounterOutcome] = useState(null);
+  const lastHandledEncounter = useRef(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -368,8 +369,9 @@ export default function App({ devMode = false }) {
     gameStateManager.saveGame();
   };
 
-  // Listen for encounter events
-  if (encounterEvent && !currentEncounter) {
+  // Listen for encounter events (only process each event once)
+  if (encounterEvent && !currentEncounter && encounterEvent !== lastHandledEncounter.current) {
+    lastHandledEncounter.current = encounterEvent;
     handleEncounterTriggered(encounterEvent);
   }
 
