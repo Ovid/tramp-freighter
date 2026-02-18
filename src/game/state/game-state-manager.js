@@ -668,6 +668,10 @@ export class GameStateManager {
     return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
   }
 
+  incrementDangerFlag(flagName) {
+    return this.dangerManager.incrementDangerFlag(flagName);
+  }
+
   resolveCombatChoice(encounter, choice) {
     return this.dangerManager.resolveCombatChoice(encounter, choice);
   }

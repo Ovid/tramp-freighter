@@ -348,6 +348,22 @@ export class DangerManager extends BaseManager {
     return cargo.filter((item) => allRestricted.includes(item.good)).length;
   }
 
+  /**
+   * Increment a specific danger flag counter
+   *
+   * @param {string} flagName - Name of the flag to increment (e.g. 'piratesFought')
+   */
+  incrementDangerFlag(flagName) {
+    this.validateState();
+    const state = this.getState();
+    if (
+      state.world.dangerFlags &&
+      typeof state.world.dangerFlags[flagName] === 'number'
+    ) {
+      state.world.dangerFlags[flagName]++;
+    }
+  }
+
   // ========================================================================
   // COMBAT RESOLUTION SYSTEM
   // ========================================================================
@@ -374,18 +390,26 @@ export class DangerManager extends BaseManager {
     // Generate random number for success determination
     const rng = Math.random();
 
+    let result;
     switch (choice) {
       case 'evasive':
-        return this.resolveEvasiveManeuvers(encounter, gameState, rng);
+        result = this.resolveEvasiveManeuvers(encounter, gameState, rng);
+        break;
       case 'return_fire':
-        return this.resolveReturnFire(encounter, gameState, rng);
+        result = this.resolveReturnFire(encounter, gameState, rng);
+        break;
       case 'dump_cargo':
-        return this.resolveDumpCargo();
+        result = this.resolveDumpCargo();
+        break;
       case 'distress_call':
-        return this.resolveDistressCall(encounter, gameState, rng);
+        result = this.resolveDistressCall(encounter, gameState, rng);
+        break;
       default:
         throw new Error(`Unknown combat choice: ${choice}`);
     }
+
+    this.incrementDangerFlag('piratesFought');
+    return result;
   }
 
   /**
@@ -671,18 +695,26 @@ export class DangerManager extends BaseManager {
 
     const gameState = this.getState();
 
+    let result;
     switch (choice) {
       case 'counter_proposal':
-        return this.resolveCounterProposal(encounter, gameState, rng);
+        result = this.resolveCounterProposal(encounter, gameState, rng);
+        break;
       case 'medicine_claim':
-        return this.resolveMedicineClaim(encounter, gameState, rng);
+        result = this.resolveMedicineClaim(encounter, gameState, rng);
+        break;
       case 'intel_offer':
-        return this.resolveIntelOffer(encounter, gameState, rng);
+        result = this.resolveIntelOffer(encounter, gameState, rng);
+        break;
       case 'accept_demand':
-        return this.resolveAcceptDemand();
+        result = this.resolveAcceptDemand();
+        break;
       default:
         throw new Error(`Unknown negotiation choice: ${choice}`);
     }
+
+    this.incrementDangerFlag('piratesNegotiated');
+    return result;
   }
 
   /**
@@ -1082,16 +1114,25 @@ export class DangerManager extends BaseManager {
   resolveInspection(choice, gameState, rng) {
     this.validateState();
 
+    let result;
     switch (choice) {
       case 'cooperate':
-        return this.resolveInspectionCooperate(gameState, rng);
+        result = this.resolveInspectionCooperate(gameState, rng);
+        this.incrementDangerFlag('inspectionsPassed');
+        break;
       case 'bribe':
-        return this.resolveInspectionBribe(gameState, rng);
+        result = this.resolveInspectionBribe(gameState, rng);
+        this.incrementDangerFlag('inspectionsBribed');
+        break;
       case 'flee':
-        return this.resolveInspectionFlee();
+        result = this.resolveInspectionFlee();
+        this.incrementDangerFlag('inspectionsFled');
+        break;
       default:
         throw new Error(`Unknown inspection choice: ${choice}`);
     }
+
+    return result;
   }
 
   /**
@@ -1303,16 +1344,24 @@ export class DangerManager extends BaseManager {
   resolveDistressCallEncounter(distressCall, choice) {
     this.validateState();
 
+    let result;
     switch (choice) {
       case 'respond':
-        return this.resolveDistressRespond();
+        result = this.resolveDistressRespond();
+        this.incrementDangerFlag('civiliansSaved');
+        break;
       case 'ignore':
-        return this.resolveDistressIgnore();
+        result = this.resolveDistressIgnore();
+        break;
       case 'loot':
-        return this.resolveDistressLoot();
+        result = this.resolveDistressLoot();
+        this.incrementDangerFlag('civiliansLooted');
+        break;
       default:
         throw new Error(`Unknown distress call choice: ${choice}`);
     }
+
+    return result;
   }
 
   /**
