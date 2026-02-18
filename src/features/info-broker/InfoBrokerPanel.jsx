@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -44,6 +44,11 @@ export function InfoBrokerPanel({ onClose }) {
   const [rumor, setRumor] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
+  const messageTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(messageTimerRef.current);
+  }, []);
 
   // Get available intelligence options using Bridge Pattern
   const [intelligenceOptions, setIntelligenceOptions] = useState([]);
@@ -115,7 +120,8 @@ export function InfoBrokerPanel({ onClose }) {
     setValidationClass('info');
 
     // Clear success message after 2 seconds
-    setTimeout(() => {
+    clearTimeout(messageTimerRef.current);
+    messageTimerRef.current = setTimeout(() => {
       setValidationMessage('');
       setValidationClass('');
     }, 2000);
@@ -137,7 +143,8 @@ export function InfoBrokerPanel({ onClose }) {
     setValidationClass('info');
 
     // Clear success message after 2 seconds
-    setTimeout(() => {
+    clearTimeout(messageTimerRef.current);
+    messageTimerRef.current = setTimeout(() => {
       setValidationMessage('');
       setValidationClass('');
     }, 2000);

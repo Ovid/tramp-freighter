@@ -248,13 +248,16 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
  */
 function formatEncounterType(encounterType) {
   switch (encounterType) {
+    case 'pirate':
     case 'pirate_encounter':
       return 'Pirate Encounter';
+    case 'inspection':
     case 'customs_inspection':
       return 'Customs Inspection';
     case 'mechanical_failure':
       return 'Mechanical Failure';
     case 'distress_call':
+    case 'civilian_distress':
       return 'Distress Call';
     case 'combat':
       return 'Combat';
