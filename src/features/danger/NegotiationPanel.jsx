@@ -425,7 +425,7 @@ function calculateCargoValue(cargo) {
   return cargo.reduce((total, item) => {
     // Estimate value based on quantity and typical prices
     const estimatedPrice = getEstimatedPrice(item.good);
-    return total + item.quantity * estimatedPrice;
+    return total + (item.qty || 0) * estimatedPrice;
   }, 0);
 }
 

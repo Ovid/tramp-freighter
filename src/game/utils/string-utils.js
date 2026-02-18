@@ -17,6 +17,7 @@ import { UI_CONFIG } from '../constants';
  * @returns {string} String with first letter capitalized
  */
 export function capitalizeFirst(str) {
+  if (!str || typeof str !== 'string') return String(str ?? '');
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 

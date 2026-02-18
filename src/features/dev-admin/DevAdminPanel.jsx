@@ -226,21 +226,22 @@ export function DevAdminPanel({ onClose }) {
     if (!isNaN(qty) && qty > 0 && selectedCommodity) {
       const state = gameStateManager.getState();
       const newCargoItem = {
-        type: selectedCommodity,
-        quantity: qty,
-        purchasePrice: 50, // Default price for testing
-        purchaseSystem: state.player.currentSystem,
-        purchaseDate: state.player.daysElapsed,
+        good: selectedCommodity,
+        qty,
+        buyPrice: 50, // Default price for testing
+        buySystem: state.player.currentSystem,
+        buySystemName: 'Dev Admin',
+        buyDate: state.player.daysElapsed,
       };
 
       if (useHiddenCargo && hasSmugglersPanel) {
         // Add to hidden cargo
         const hiddenCargo = [...(state.ship.hiddenCargo || [])];
         const existingIndex = hiddenCargo.findIndex(
-          (c) => c.type === selectedCommodity
+          (c) => c.good === selectedCommodity
         );
         if (existingIndex >= 0) {
-          hiddenCargo[existingIndex].quantity += qty;
+          hiddenCargo[existingIndex].qty += qty;
         } else {
           hiddenCargo.push(newCargoItem);
         }
@@ -250,10 +251,10 @@ export function DevAdminPanel({ onClose }) {
         // Add to regular cargo
         const newCargo = [...state.ship.cargo];
         const existingIndex = newCargo.findIndex(
-          (c) => c.type === selectedCommodity
+          (c) => c.good === selectedCommodity
         );
         if (existingIndex >= 0) {
-          newCargo[existingIndex].quantity += qty;
+          newCargo[existingIndex].qty += qty;
         } else {
           newCargo.push(newCargoItem);
         }
@@ -592,7 +593,7 @@ export function DevAdminPanel({ onClose }) {
           {currentCargo.length > 0 ? (
             currentCargo.map((item, idx) => (
               <div key={idx} className="dev-admin-cargo-item">
-                {item.type}: {item.quantity} @ ₡{item.purchasePrice}
+                {item.good}: {item.qty} @ ₡{item.buyPrice}
               </div>
             ))
           ) : (
@@ -604,7 +605,7 @@ export function DevAdminPanel({ onClose }) {
               {hiddenCargo.length > 0 ? (
                 hiddenCargo.map((item, idx) => (
                   <div key={idx} className="dev-admin-cargo-item hidden">
-                    {item.type}: {item.quantity} @ ₡{item.purchasePrice}
+                    {item.good}: {item.qty} @ ₡{item.buyPrice}
                   </div>
                 ))
               ) : (

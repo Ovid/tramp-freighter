@@ -335,9 +335,8 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                   <div className="cargo-cost">
                     <span className="breakdown-label">Cargo Lost:</span>
                     <span className="breakdown-value">
-                      {cargo?.length || 0} stacks (
-                      {Math.round(((cargo?.length || 0) * 100) / 10)}% of
-                      capacity)
+                      {COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT}% of cargo,{' '}
+                      {COMBAT_CONFIG.DUMP_CARGO.FUEL_COST}% fuel
                     </span>
                   </div>
                 </div>
@@ -346,7 +345,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 <div className="outcome guaranteed">
                   <span className="outcome-label">Guaranteed:</span>
                   <span className="outcome-text">
-                    Escape combat, lose all cargo, no hull damage
+                    Escape combat, lose {COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT}% of cargo, no hull damage
                   </span>
                 </div>
               </div>

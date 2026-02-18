@@ -412,7 +412,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
  * @returns {string} Severity level
  */
 function getFailureSeverity(failureType, severity) {
-  if (severity) return severity;
+  if (typeof severity === 'string') return severity;
 
   switch (failureType) {
     case 'hull_breach':

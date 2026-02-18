@@ -256,7 +256,7 @@ export class DangerManager extends BaseManager {
    */
   calculateCargoValue(cargo) {
     return cargo.reduce((total, item) => {
-      return total + item.quantity * item.purchasePrice;
+      return total + (item.qty || 0) * (item.buyPrice || 0);
     }, 0);
   }
 
@@ -783,7 +783,7 @@ export class DangerManager extends BaseManager {
 
     // Check if medicine is actually in cargo
     const hasMedicine = gameState.ship.cargo.some(
-      (item) => item.type === 'medicine'
+      (item) => item.good === 'medicine'
     );
 
     if (!hasMedicine) {
@@ -1153,8 +1153,14 @@ export class DangerManager extends BaseManager {
     let outlawRepChange = 0;
 
     // Check for restricted goods in regular cargo
-    const hasRestrictedGoods =
-      gameState.ship.cargo && gameState.ship.cargo.length > 0;
+    const currentSystem = gameState.player.currentSystem || 0;
+    const zone = this.getDangerZone(currentSystem);
+    const restrictedCount = this.countRestrictedGoods(
+      gameState.ship.cargo || [],
+      zone,
+      currentSystem
+    );
+    const hasRestrictedGoods = restrictedCount > 0;
     if (hasRestrictedGoods) {
       totalFine += INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE;
       restrictedGoodsConfiscated = true;
@@ -1167,10 +1173,6 @@ export class DangerManager extends BaseManager {
     const hasHiddenCargo =
       gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
     if (hasHiddenCargo) {
-      // Determine security level based on current system (use system 0 as default for testing)
-      const currentSystem = gameState.player.currentSystem || 0;
-      const zone = this.getDangerZone(currentSystem);
-
       // Apply security level multiplier for hidden cargo discovery
       // Core systems (0, 1) should use core multiplier regardless of zone
       let securityMultiplier;

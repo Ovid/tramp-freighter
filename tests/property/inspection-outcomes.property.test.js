@@ -13,6 +13,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
   INSPECTION_CONFIG,
   COMMODITY_TYPES,
+  RESTRICTED_GOODS_CONFIG,
 } from '../../src/game/constants.js';
 
 /**
@@ -59,13 +60,20 @@ describe('Inspection Resolution Outcomes Properties', () => {
         (restrictedGoodsCount, rng) => {
           const gameState = gameStateManager.getState();
 
+          // Use goods that are actually restricted at system 0 (Sol, safe zone)
+          // Safe zone restricts: electronics; core system restricts: parts
+          const restrictedGoods = [
+            ...RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.safe,
+            ...RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED,
+          ];
+
           // Create cargo with restricted goods
           const cargo = [];
           for (let i = 0; i < restrictedGoodsCount; i++) {
             cargo.push({
-              type: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
-              quantity: 1,
-              purchasePrice: 10,
+              good: restrictedGoods[i % restrictedGoods.length],
+              qty: 1,
+              buyPrice: 10,
             });
           }
 
@@ -123,9 +131,9 @@ describe('Inspection Resolution Outcomes Properties', () => {
           const hiddenCargo = [];
           for (let i = 0; i < hiddenCargoCount; i++) {
             hiddenCargo.push({
-              type: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
-              quantity: 1,
-              purchasePrice: 10,
+              good: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
+              qty: 1,
+              buyPrice: 10,
             });
           }
 
@@ -283,9 +291,9 @@ describe('Inspection Resolution Outcomes Properties', () => {
           // Create hidden cargo
           const hiddenCargo = [
             {
-              type: COMMODITY_TYPES[0],
-              quantity: 1,
-              purchasePrice: 10,
+              good: COMMODITY_TYPES[0],
+              qty: 1,
+              buyPrice: 10,
             },
           ];
 
@@ -363,11 +371,12 @@ describe('Inspection Resolution Outcomes Properties', () => {
         (hasRestrictedGoods, hasHiddenCargo, rng) => {
           const gameState = gameStateManager.getState();
 
+          // Use actually restricted goods for system 0 (Sol, safe zone)
           const cargo = hasRestrictedGoods
-            ? [{ type: COMMODITY_TYPES[0], quantity: 1, purchasePrice: 10 }]
+            ? [{ good: 'electronics', qty: 1, buyPrice: 10 }]
             : [];
           const hiddenCargo = hasHiddenCargo
-            ? [{ type: COMMODITY_TYPES[1], quantity: 1, purchasePrice: 10 }]
+            ? [{ good: COMMODITY_TYPES[1], qty: 1, buyPrice: 10 }]
             : [];
 
           const testGameState = createTestGameState(gameState, {
@@ -390,9 +399,9 @@ describe('Inspection Resolution Outcomes Properties', () => {
           }
 
           // Hidden cargo discovery depends on RNG and security level
-          const zone = gameStateManager.getDangerZone(0); // Use system 0 for consistency
+          // System 0 (Sol) is a core system, so use core multiplier
           const securityMultiplier =
-            INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
+            INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
           const discoveryChance =
             INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
             securityMultiplier;

@@ -116,7 +116,7 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                             {formatCommodityName(item.good)}
                           </span>
                           <span className="item-quantity">
-                            {item.quantity} units
+                            {item.qty} units
                           </span>
                         </div>
                         <div className="item-status">
@@ -577,6 +577,7 @@ function getReputationTier(reputation = 0) {
  * @returns {string} Formatted display name
  */
 function formatCommodityName(commodityName) {
+  if (!commodityName || typeof commodityName !== 'string') return 'Unknown';
   return commodityName.charAt(0).toUpperCase() + commodityName.slice(1);
 }
 

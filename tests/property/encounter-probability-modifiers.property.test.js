@@ -32,14 +32,18 @@ describe('Encounter Probability Modifiers Properties', () => {
             const quantity = Math.floor(cargoValue / 10);
             if (quantity > 0) {
               gameState.ship.cargo.push({
-                type: 'grain',
-                quantity: quantity,
-                purchasePrice: 10,
-                purchaseSystem: 0,
+                good: 'grain',
+                qty: quantity,
+                buyPrice: 10,
+                buySystem: 0,
               });
             }
           }
 
+          const actualCargoValue = gameState.ship.cargo.reduce(
+            (sum, item) => sum + (item.qty || 0) * (item.buyPrice || 0),
+            0
+          );
           const baseRate = gameStateManager.calculatePirateEncounterChance(
             systemId,
             gameState
@@ -49,7 +53,7 @@ describe('Encounter Probability Modifiers Properties', () => {
 
           // Test cargo value modifiers (Requirements 2.7, 2.8)
           if (
-            cargoValue >=
+            actualCargoValue >=
             DANGER_CONFIG.CARGO_VALUE_MODIFIERS.HIGH_VALUE_THRESHOLD
           ) {
             // Should be multiplied by 1.5x for cargo > ₡10,000
@@ -59,7 +63,7 @@ describe('Encounter Probability Modifiers Properties', () => {
               5
             );
           } else if (
-            cargoValue >=
+            actualCargoValue >=
             DANGER_CONFIG.CARGO_VALUE_MODIFIERS.LOW_VALUE_THRESHOLD
           ) {
             // Should be multiplied by 1.2x for cargo > ₡5,000
@@ -247,10 +251,10 @@ describe('Encounter Probability Modifiers Properties', () => {
             const quantity = Math.floor(cargoValue / 10);
             if (quantity > 0) {
               gameState.ship.cargo.push({
-                type: 'grain',
-                quantity: quantity,
-                purchasePrice: 10,
-                purchaseSystem: 0,
+                good: 'grain',
+                qty: quantity,
+                buyPrice: 10,
+                buySystem: 0,
               });
             }
           }
