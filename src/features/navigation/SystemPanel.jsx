@@ -59,8 +59,9 @@ export function SystemPanel({
       if (!validation.valid) return;
 
       // Check if this is a dangerous system that requires warning
-      const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
-      
+      const isDangerous =
+        dangerZone === 'contested' || dangerZone === 'dangerous';
+
       if (isDangerous) {
         setShowDangerWarning(true);
         return; // Stop here and wait for user decision
@@ -119,84 +120,91 @@ export function SystemPanel({
             </button>
           </div>
 
-        <div className="system-panel-content">
-          {/* System Details */}
-          <div className="system-details">
-            <div className="system-property">
-              <span className="label">Coordinates:</span>
-              <span className="value">
-                {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
-                  2
-                )}
-                ,{' '}
-                {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
-                  2
-                )}
-                ,{' '}
-                {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(
-                  2
-                )}
-              </span>
+          <div className="system-panel-content">
+            {/* System Details */}
+            <div className="system-details">
+              <div className="system-property">
+                <span className="label">Coordinates:</span>
+                <span className="value">
+                  {(
+                    viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR
+                  ).toFixed(2)}
+                  ,{' '}
+                  {(
+                    viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR
+                  ).toFixed(2)}
+                  ,{' '}
+                  {(
+                    viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className="system-property">
+                <span className="label">Spectral Class:</span>
+                <span className="value">{viewingSystem.type}</span>
+              </div>
+              <div className="system-property">
+                <span className="label">Wormholes:</span>
+                <span className="value">{viewingSystem.wh}</span>
+              </div>
+              <div className="system-property">
+                <span className="label">Distance from Sol:</span>
+                <span className="value">
+                  {calculateDistanceFromSol(viewingSystem).toFixed(1)} LY
+                </span>
+              </div>
+              <div className="system-property">
+                <span className="label">Security Level:</span>
+                <span className={`value danger-${dangerZone}`}>
+                  {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
+                </span>
+              </div>
+              <div className="system-property">
+                <span className="label">Status:</span>
+                <span className="value">
+                  {viewingSystem.r === 1 ? 'Reachable' : 'Unreachable'}
+                </span>
+              </div>
             </div>
-            <div className="system-property">
-              <span className="label">Spectral Class:</span>
-              <span className="value">{viewingSystem.type}</span>
+
+            <div className="system-divider"></div>
+
+            {/* Jump Information */}
+            <div className="jump-information">
+              <div className="jump-info-row">
+                <span className="label">Jump Distance:</span>
+                <span className="value">
+                  {validation.distance.toFixed(1)} LY
+                </span>
+              </div>
+              <div className="jump-info-row">
+                <span className="label">Fuel Cost:</span>
+                <span className="value">
+                  {Math.round(validation.fuelCost)}%
+                </span>
+              </div>
+              <div className="jump-info-row">
+                <span className="label">Jump Time:</span>
+                <span className="value">
+                  {validation.jumpTime} day
+                  {validation.jumpTime !== 1 ? 's' : ''}
+                </span>
+              </div>
             </div>
-            <div className="system-property">
-              <span className="label">Wormholes:</span>
-              <span className="value">{viewingSystem.wh}</span>
-            </div>
-            <div className="system-property">
-              <span className="label">Distance from Sol:</span>
-              <span className="value">{calculateDistanceFromSol(viewingSystem).toFixed(1)} LY</span>
-            </div>
-            <div className="system-property">
-              <span className="label">Security Level:</span>
-              <span className={`value danger-${dangerZone}`}>
-                {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
-              </span>
-            </div>
-            <div className="system-property">
-              <span className="label">Status:</span>
-              <span className="value">
-                {viewingSystem.r === 1 ? 'Reachable' : 'Unreachable'}
-              </span>
-            </div>
+
+            {!validation.valid && (
+              <div className="validation-message error">{validation.error}</div>
+            )}
+
+            <button
+              className="jump-btn"
+              onClick={handleJump}
+              disabled={!validation.valid}
+            >
+              Jump to System
+            </button>
           </div>
-
-          <div className="system-divider"></div>
-
-          {/* Jump Information */}
-          <div className="jump-information">
-            <div className="jump-info-row">
-              <span className="label">Jump Distance:</span>
-              <span className="value">{validation.distance.toFixed(1)} LY</span>
-            </div>
-            <div className="jump-info-row">
-              <span className="label">Fuel Cost:</span>
-              <span className="value">{Math.round(validation.fuelCost)}%</span>
-            </div>
-            <div className="jump-info-row">
-              <span className="label">Jump Time:</span>
-              <span className="value">
-                {validation.jumpTime} day{validation.jumpTime !== 1 ? 's' : ''}
-              </span>
-            </div>
-          </div>
-
-          {!validation.valid && (
-            <div className="validation-message error">{validation.error}</div>
-          )}
-
-          <button
-            className="jump-btn"
-            onClick={handleJump}
-            disabled={!validation.valid}
-          >
-            Jump to System
-          </button>
         </div>
-      </div>
       </>
     );
   }
@@ -273,7 +281,9 @@ export function SystemPanel({
           </div>
           <div className="system-property">
             <span className="label">Distance from Sol:</span>
-            <span className="value">{calculateDistanceFromSol(viewingSystem).toFixed(1)} LY</span>
+            <span className="value">
+              {calculateDistanceFromSol(viewingSystem).toFixed(1)} LY
+            </span>
           </div>
           <div className="system-property">
             <span className="label">Security Level:</span>

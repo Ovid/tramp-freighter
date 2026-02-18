@@ -85,7 +85,7 @@ describe('Encounter Resolution Integration', () => {
     render(
       <GameProvider gameStateManager={gameStateManager}>
         <App devMode={true} />
-      </GameProvider>,
+      </GameProvider>
     );
 
     const reachedOrbit = await navigateToOrbit();
@@ -113,7 +113,7 @@ describe('Encounter Resolution Integration', () => {
     render(
       <GameProvider gameStateManager={gameStateManager}>
         <App devMode={true} />
-      </GameProvider>,
+      </GameProvider>
     );
 
     const reachedOrbit = await navigateToOrbit();
@@ -148,7 +148,7 @@ describe('Encounter Resolution Integration', () => {
     render(
       <GameProvider gameStateManager={gameStateManager}>
         <App devMode={true} />
-      </GameProvider>,
+      </GameProvider>
     );
 
     const reachedOrbit = await navigateToOrbit();

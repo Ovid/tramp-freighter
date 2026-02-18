@@ -70,7 +70,9 @@ describe('transformOutcomeForDisplay', () => {
 
     const result = transformOutcomeForDisplay(raw, 'distress_call', 'respond');
 
-    expect(result.karmaChanges).toEqual([{ amount: 1, reason: 'distress_call' }]);
+    expect(result.karmaChanges).toEqual([
+      { amount: 1, reason: 'distress_call' },
+    ]);
   });
 
   it('should extract negative karma into karmaChanges array', () => {
@@ -83,7 +85,9 @@ describe('transformOutcomeForDisplay', () => {
 
     const result = transformOutcomeForDisplay(raw, 'distress_call', 'loot');
 
-    expect(result.karmaChanges).toEqual([{ amount: -3, reason: 'distress_call' }]);
+    expect(result.karmaChanges).toEqual([
+      { amount: -3, reason: 'distress_call' },
+    ]);
   });
 
   it('should extract factionRep into reputationChanges array', () => {

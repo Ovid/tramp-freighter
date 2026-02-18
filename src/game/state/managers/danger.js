@@ -125,7 +125,11 @@ export class DangerManager extends BaseManager {
     this.getState().player.karma = newKarma;
 
     this.log(`Karma set to ${newKarma}`);
-    this.emit('karmaChanged', { karma: newKarma, change: 0, reason: 'dev_set' });
+    this.emit('karmaChanged', {
+      karma: newKarma,
+      change: 0,
+      reason: 'dev_set',
+    });
   }
 
   /**
@@ -205,7 +209,7 @@ export class DangerManager extends BaseManager {
 
     // Apply cargo value modifiers (Requirements 2.7, 2.8)
     const cargoValue = this.calculateCargoValue(gameState.ship.cargo);
-    
+
     if (cargoValue >= HIGH_VALUE_THRESHOLD) {
       probability *= HIGH_VALUE_MULTIPLIER; // 1.5x for cargo > ₡10,000
     } else if (cargoValue >= LOW_VALUE_THRESHOLD) {
@@ -298,7 +302,7 @@ export class DangerManager extends BaseManager {
     const restrictedGoodsCount = this.countRestrictedGoods(
       gameState.ship.cargo
     );
-    
+
     const restrictedModifier =
       1 + restrictedGoodsCount * RESTRICTED_GOODS_INSPECTION_INCREASE;
     probability *= restrictedModifier;
@@ -306,7 +310,7 @@ export class DangerManager extends BaseManager {
     // Apply faction reputation modifier (Requirement 8.8)
     // High authority reputation reduces inspection chance (they trust you)
     const authorityRep = gameState.player.factions.authorities;
-    
+
     const factionModifier =
       1 + (authorityRep / 100) * AUTHORITY_INSPECTION_REDUCTION_SCALE;
     probability *= factionModifier;

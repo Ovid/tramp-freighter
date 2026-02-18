@@ -9,10 +9,10 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 /**
  * Unit tests for DangerWarningDialog component
- * 
+ *
  * Tests the DangerWarningDialog component in isolation,
  * focusing on rendering, user interactions, and data display.
- * 
+ *
  * Feature: danger-system
  * Validates: Requirements 1.3, 12.1, 12.2, 12.3, 12.4, 12.5
  */
@@ -23,7 +23,11 @@ describe('DangerWarningDialog', () => {
   beforeEach(() => {
     // Create NavigationSystem and GameStateManager properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gameStateManager = new GameStateManager(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     // Mock console.error to avoid noise in test output
@@ -102,7 +106,9 @@ describe('DangerWarningDialog', () => {
       renderDangerWarningDialog();
 
       // Should show description for dangerous zone
-      expect(screen.getByText(/Frontier systems with high pirate activity/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Frontier systems with high pirate activity/)
+      ).toBeInTheDocument();
     });
   });
 
@@ -118,7 +124,9 @@ describe('DangerWarningDialog', () => {
     it('should display inspection probability as percentage', () => {
       renderDangerWarningDialog();
 
-      expect(screen.getByText('Probability of customs inspection upon arrival')).toBeInTheDocument();
+      expect(
+        screen.getByText('Probability of customs inspection upon arrival')
+      ).toBeInTheDocument();
     });
 
     it('should show risk factors when cargo is present', () => {
@@ -129,13 +137,15 @@ describe('DangerWarningDialog', () => {
         quantity: 10,
         purchasePrice: 100,
         purchaseSystem: 4,
-        purchaseDate: 0
+        purchaseDate: 0,
       });
 
       renderDangerWarningDialog();
 
       expect(screen.getByText('Risk Modifiers')).toBeInTheDocument();
-      expect(screen.getByText('Cargo value affects pirate encounter chance')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cargo value affects pirate encounter chance')
+      ).toBeInTheDocument();
     });
 
     it('should show engine condition risk factor when engine is damaged', () => {
@@ -145,7 +155,9 @@ describe('DangerWarningDialog', () => {
       renderDangerWarningDialog();
 
       expect(screen.getByText('Risk Modifiers')).toBeInTheDocument();
-      expect(screen.getByText('Poor engine condition increases pirate risk')).toBeInTheDocument();
+      expect(
+        screen.getByText('Poor engine condition increases pirate risk')
+      ).toBeInTheDocument();
     });
 
     it('should show advanced sensors benefit when installed', () => {
@@ -156,7 +168,9 @@ describe('DangerWarningDialog', () => {
       renderDangerWarningDialog();
 
       expect(screen.getByText('Risk Modifiers')).toBeInTheDocument();
-      expect(screen.getByText('Advanced sensors reduce pirate detection')).toBeInTheDocument();
+      expect(
+        screen.getByText('Advanced sensors reduce pirate detection')
+      ).toBeInTheDocument();
     });
   });
 
@@ -168,8 +182,12 @@ describe('DangerWarningDialog', () => {
       });
 
       expect(screen.getByText('Safety Recommendations')).toBeInTheDocument();
-      expect(screen.getByText('Dangerous zone - high pirate activity expected')).toBeInTheDocument();
-      expect(screen.getByText('Ensure ship systems are in good condition')).toBeInTheDocument();
+      expect(
+        screen.getByText('Dangerous zone - high pirate activity expected')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Ensure ship systems are in good condition')
+      ).toBeInTheDocument();
     });
 
     it('should show different recommendations for contested systems', () => {
@@ -179,24 +197,32 @@ describe('DangerWarningDialog', () => {
       });
 
       expect(screen.getByText('Safety Recommendations')).toBeInTheDocument();
-      expect(screen.getByText('Contested zone - moderate risk of encounters')).toBeInTheDocument();
+      expect(
+        screen.getByText('Contested zone - moderate risk of encounters')
+      ).toBeInTheDocument();
     });
 
     it('should show general recommendations for all dangerous zones', () => {
       renderDangerWarningDialog();
 
-      expect(screen.getByText('Consider cargo value vs. risk tolerance')).toBeInTheDocument();
-      expect(screen.getByText('Alternative routes through safer systems may be available')).toBeInTheDocument();
+      expect(
+        screen.getByText('Consider cargo value vs. risk tolerance')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Alternative routes through safer systems may be available'
+        )
+      ).toBeInTheDocument();
     });
   });
 
   describe('User Interactions', () => {
     it('should call onProceed when "Accept Risk & Proceed" is clicked', () => {
       const mockOnProceed = vi.fn();
-      renderDangerWarningDialog({ 
+      renderDangerWarningDialog({
         destinationSystemId: 73, // Dangerous system
         destinationSystemName: '70 Ophiuchi A',
-        onProceed: mockOnProceed 
+        onProceed: mockOnProceed,
       });
 
       const proceedButton = screen.getByText('Accept Risk & Proceed');
@@ -253,7 +279,6 @@ describe('DangerWarningDialog', () => {
 
       expect(mockOnProceed).toHaveBeenCalledTimes(1);
     });
-
   });
 
   describe('Data Handling', () => {
@@ -287,7 +312,9 @@ describe('DangerWarningDialog', () => {
       renderDangerWarningDialog();
 
       // Should not show cargo risk factor
-      expect(screen.queryByText('Cargo value affects pirate encounter chance')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Cargo value affects pirate encounter chance')
+      ).not.toBeInTheDocument();
     });
 
     it('should handle missing upgrades array', () => {
@@ -298,7 +325,9 @@ describe('DangerWarningDialog', () => {
       renderDangerWarningDialog();
 
       // Should not show advanced sensors benefit
-      expect(screen.queryByText('Advanced sensors reduce pirate detection')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Advanced sensors reduce pirate detection')
+      ).not.toBeInTheDocument();
     });
   });
 

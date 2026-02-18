@@ -50,8 +50,10 @@ export function DevAdminPanel({ onClose }) {
   const [useHiddenCargo, setUseHiddenCargo] = useState(false);
 
   // Get current state values
-  const currentQuirks = quirks || gameStateManager.getState()?.ship?.quirks || [];
-  const currentUpgrades = upgrades || gameStateManager.getState()?.ship?.upgrades || [];
+  const currentQuirks =
+    quirks || gameStateManager.getState()?.ship?.quirks || [];
+  const currentUpgrades =
+    upgrades || gameStateManager.getState()?.ship?.upgrades || [];
   const currentCargo = cargo || gameStateManager.getState()?.ship?.cargo || [];
   const hiddenCargo = gameStateManager.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
@@ -132,7 +134,11 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(hullInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const state = gameStateManager.getState();
-      gameStateManager.updateShipCondition(amount, state.ship.engine, state.ship.lifeSupport);
+      gameStateManager.updateShipCondition(
+        amount,
+        state.ship.engine,
+        state.ship.lifeSupport
+      );
     }
   };
 
@@ -140,7 +146,11 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(engineInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const state = gameStateManager.getState();
-      gameStateManager.updateShipCondition(state.ship.hull, amount, state.ship.lifeSupport);
+      gameStateManager.updateShipCondition(
+        state.ship.hull,
+        amount,
+        state.ship.lifeSupport
+      );
     }
   };
 
@@ -148,7 +158,11 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(lifeSupportInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const state = gameStateManager.getState();
-      gameStateManager.updateShipCondition(state.ship.hull, state.ship.engine, amount);
+      gameStateManager.updateShipCondition(
+        state.ship.hull,
+        state.ship.engine,
+        amount
+      );
     }
   };
 
@@ -222,7 +236,9 @@ export function DevAdminPanel({ onClose }) {
       if (useHiddenCargo && hasSmugglersPanel) {
         // Add to hidden cargo
         const hiddenCargo = [...(state.ship.hiddenCargo || [])];
-        const existingIndex = hiddenCargo.findIndex((c) => c.type === selectedCommodity);
+        const existingIndex = hiddenCargo.findIndex(
+          (c) => c.type === selectedCommodity
+        );
         if (existingIndex >= 0) {
           hiddenCargo[existingIndex].quantity += qty;
         } else {
@@ -233,7 +249,9 @@ export function DevAdminPanel({ onClose }) {
       } else {
         // Add to regular cargo
         const newCargo = [...state.ship.cargo];
-        const existingIndex = newCargo.findIndex((c) => c.type === selectedCommodity);
+        const existingIndex = newCargo.findIndex(
+          (c) => c.type === selectedCommodity
+        );
         if (existingIndex >= 0) {
           newCargo[existingIndex].quantity += qty;
         } else {
@@ -260,8 +278,14 @@ export function DevAdminPanel({ onClose }) {
 
     const currentSystem = state.player.currentSystem;
     const dangerZone = gameStateManager.getDangerZone(currentSystem);
-    const pirateChance = gameStateManager.calculatePirateEncounterChance(currentSystem, state);
-    const inspectionChance = gameStateManager.calculateInspectionChance(currentSystem, state);
+    const pirateChance = gameStateManager.calculatePirateEncounterChance(
+      currentSystem,
+      state
+    );
+    const inspectionChance = gameStateManager.calculateInspectionChance(
+      currentSystem,
+      state
+    );
 
     return {
       dangerZone,
@@ -284,7 +308,7 @@ export function DevAdminPanel({ onClose }) {
         demandPercent: 20,
       },
     };
-    
+
     // Emit event to trigger pirate encounter panel
     gameStateManager.emit('encounterTriggered', encounterData);
   };
@@ -311,7 +335,11 @@ export function DevAdminPanel({ onClose }) {
       encounter: {
         id: `failure_dev_${Date.now()}`,
         type: failureType,
-        severity: Math.min(state.ship.hull, state.ship.engine, state.ship.lifeSupport),
+        severity: Math.min(
+          state.ship.hull,
+          state.ship.engine,
+          state.ship.lifeSupport
+        ),
       },
     });
   };
@@ -339,7 +367,9 @@ export function DevAdminPanel({ onClose }) {
 
   return (
     <div id="dev-admin-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>×</button>
+      <button className="close-btn" onClick={onClose}>
+        ×
+      </button>
       <h2>🔧 Dev Admin Panel</h2>
 
       {/* Player Resources Section */}
@@ -451,7 +481,10 @@ export function DevAdminPanel({ onClose }) {
                 type="number"
                 value={factionInputs[faction]}
                 onChange={(e) =>
-                  setFactionInputs((prev) => ({ ...prev, [faction]: e.target.value }))
+                  setFactionInputs((prev) => ({
+                    ...prev,
+                    [faction]: e.target.value,
+                  }))
                 }
                 min="-100"
                 max="100"
@@ -459,9 +492,15 @@ export function DevAdminPanel({ onClose }) {
               <button onClick={() => handleSetFactionRep(faction)}>Set</button>
             </div>
             <div className="dev-admin-quick-buttons">
-              <button onClick={() => handleQuickFactionRep(faction, -100)}>-100</button>
-              <button onClick={() => handleQuickFactionRep(faction, 0)}>0</button>
-              <button onClick={() => handleQuickFactionRep(faction, 100)}>+100</button>
+              <button onClick={() => handleQuickFactionRep(faction, -100)}>
+                -100
+              </button>
+              <button onClick={() => handleQuickFactionRep(faction, 0)}>
+                0
+              </button>
+              <button onClick={() => handleQuickFactionRep(faction, 100)}>
+                +100
+              </button>
             </div>
           </div>
         ))}
@@ -512,8 +551,12 @@ export function DevAdminPanel({ onClose }) {
             const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
             return (
               <div key={upgradeId} className="dev-admin-list-item">
-                <span title={upgrade?.description}>{upgrade?.name || upgradeId}</span>
-                <button onClick={() => handleRemoveUpgrade(upgradeId)}>×</button>
+                <span title={upgrade?.description}>
+                  {upgrade?.name || upgradeId}
+                </span>
+                <button onClick={() => handleRemoveUpgrade(upgradeId)}>
+                  ×
+                </button>
               </div>
             );
           })}
@@ -603,7 +646,10 @@ export function DevAdminPanel({ onClose }) {
             </label>
           </div>
         )}
-        <button className="dev-admin-action-btn danger" onClick={handleClearCargo}>
+        <button
+          className="dev-admin-action-btn danger"
+          onClick={handleClearCargo}
+        >
           Clear All Cargo
         </button>
       </div>
@@ -614,7 +660,9 @@ export function DevAdminPanel({ onClose }) {
         <div className="dev-admin-encounter-buttons">
           <button onClick={handleTriggerPirate}>🏴‍☠️ Pirate</button>
           <button onClick={handleTriggerInspection}>🔍 Inspection</button>
-          <button onClick={handleTriggerMechanicalFailure}>⚙️ Mech Failure</button>
+          <button onClick={handleTriggerMechanicalFailure}>
+            ⚙️ Mech Failure
+          </button>
           <button onClick={handleTriggerDistressCall}>🆘 Distress Call</button>
         </div>
       </div>

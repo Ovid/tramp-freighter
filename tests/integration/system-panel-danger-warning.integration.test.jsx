@@ -10,10 +10,10 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 /**
  * Integration tests for SystemPanel danger warning functionality
- * 
+ *
  * Tests the integration between SystemPanel and DangerWarningDialog
  * when jumping to dangerous systems.
- * 
+ *
  * Feature: danger-system
  * Validates: Requirements 1.3, 12.3
  */
@@ -25,7 +25,11 @@ describe('SystemPanel Danger Warning Integration', () => {
   beforeEach(() => {
     // Create NavigationSystem and GameStateManager properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gameStateManager = new GameStateManager(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     // Mock starmap context
@@ -72,9 +76,15 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Check for system name specifically in the danger dialog
-      const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
-      expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent('70 Ophiuchi A');
-      expect(dangerDialog.querySelector('.classification-value.dangerous')).toHaveTextContent('Dangerous');
+      const dangerDialog = screen
+        .getByText('Jump Warning')
+        .closest('#danger-warning-dialog');
+      expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent(
+        '70 Ophiuchi A'
+      );
+      expect(
+        dangerDialog.querySelector('.classification-value.dangerous')
+      ).toHaveTextContent('Dangerous');
       expect(screen.getByText('Pirate Encounters')).toBeInTheDocument();
       expect(screen.getByText('Customs Inspections')).toBeInTheDocument();
       expect(screen.getByText('Accept Risk & Proceed')).toBeInTheDocument();
@@ -99,9 +109,15 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Check for system name specifically in the danger dialog
-      const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
-      expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent('Sirius A');
-      expect(dangerDialog.querySelector('.classification-value.contested')).toHaveTextContent('Contested');
+      const dangerDialog = screen
+        .getByText('Jump Warning')
+        .closest('#danger-warning-dialog');
+      expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent(
+        'Sirius A'
+      );
+      expect(
+        dangerDialog.querySelector('.classification-value.contested')
+      ).toHaveTextContent('Contested');
       expect(screen.getByText('Proceed')).toBeInTheDocument(); // Not "Accept Risk" for contested
       expect(screen.getByText('Cancel Jump')).toBeInTheDocument();
     });
@@ -115,9 +131,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       const mockOnJumpComplete = vi.fn();
 
       // Act: Render SystemPanel viewing Alpha Centauri (safe system)
-      renderSystemPanel(1, { 
+      renderSystemPanel(1, {
         onClose: mockOnClose,
-        onJumpComplete: mockOnJumpComplete 
+        onJumpComplete: mockOnJumpComplete,
       }); // Alpha Centauri
 
       // Get the jump button and click it
@@ -143,9 +159,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       const mockOnClose = vi.fn();
       const mockOnJumpComplete = vi.fn();
 
-      renderSystemPanel(73, { 
+      renderSystemPanel(73, {
         onClose: mockOnClose,
-        onJumpComplete: mockOnJumpComplete 
+        onJumpComplete: mockOnJumpComplete,
       }); // 70 Ophiuchi A
 
       // Act: Click jump button to show dialog
@@ -181,9 +197,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       const mockOnClose = vi.fn();
       const mockOnJumpComplete = vi.fn();
 
-      renderSystemPanel(73, { 
+      renderSystemPanel(73, {
         onClose: mockOnClose,
-        onJumpComplete: mockOnJumpComplete 
+        onJumpComplete: mockOnJumpComplete,
       }); // 70 Ophiuchi A
 
       // Act: Click jump button to show dialog
@@ -226,7 +242,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Click close button (×) in the danger warning dialog
-      const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
+      const dangerDialog = screen
+        .getByText('Jump Warning')
+        .closest('#danger-warning-dialog');
       const closeButton = dangerDialog.querySelector('.close-btn');
       fireEvent.click(closeButton);
 
@@ -269,8 +287,12 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Look for "Contested" in the danger warning dialog specifically
-      const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
-      const contestedElement = dangerDialog.querySelector('.classification-value.contested');
+      const dangerDialog = screen
+        .getByText('Jump Warning')
+        .closest('#danger-warning-dialog');
+      const contestedElement = dangerDialog.querySelector(
+        '.classification-value.contested'
+      );
       expect(contestedElement).toHaveTextContent('Contested');
     });
 
@@ -280,15 +302,19 @@ describe('SystemPanel Danger Warning Integration', () => {
       gameStateManager.updateFuel(100);
 
       // Find a dangerous system that's actually connected to Barnard's Star
-      const connectedSystems = gameStateManager.navigationSystem.getConnectedSystems(4);
-      const dangerousSystems = connectedSystems.filter(systemId => {
-        const dangerZone = gameStateManager.dangerManager.getDangerZone(systemId);
+      const connectedSystems =
+        gameStateManager.navigationSystem.getConnectedSystems(4);
+      const dangerousSystems = connectedSystems.filter((systemId) => {
+        const dangerZone =
+          gameStateManager.dangerManager.getDangerZone(systemId);
         return dangerZone === 'dangerous';
       });
 
       // Skip test if no dangerous systems are connected to Barnard's Star
       if (dangerousSystems.length === 0) {
-        console.log('No dangerous systems connected to Barnard\'s Star, skipping test');
+        console.log(
+          "No dangerous systems connected to Barnard's Star, skipping test"
+        );
         return;
       }
 
@@ -303,8 +329,12 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Look for "Dangerous" in the danger warning dialog specifically
-      const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
-      const dangerousElement = dangerDialog.querySelector('.classification-value.dangerous');
+      const dangerDialog = screen
+        .getByText('Jump Warning')
+        .closest('#danger-warning-dialog');
+      const dangerousElement = dangerDialog.querySelector(
+        '.classification-value.dangerous'
+      );
       expect(dangerousElement).toHaveTextContent('Dangerous');
     });
   });
@@ -337,7 +367,7 @@ describe('SystemPanel Danger Warning Integration', () => {
       // Arrange: Add cargo to trigger risk factors
       gameStateManager.updateLocation(4); // Barnard's Star
       gameStateManager.updateFuel(100);
-      
+
       // Add some cargo to trigger risk factor display
       const state = gameStateManager.getState();
       state.ship.cargo.push({
@@ -345,7 +375,7 @@ describe('SystemPanel Danger Warning Integration', () => {
         quantity: 10,
         purchasePrice: 100,
         purchaseSystem: 4,
-        purchaseDate: 0
+        purchaseDate: 0,
       });
 
       renderSystemPanel(73); // 70 Ophiuchi A
@@ -359,7 +389,9 @@ describe('SystemPanel Danger Warning Integration', () => {
 
       // Should show risk modifiers section
       expect(screen.getByText('Risk Modifiers')).toBeInTheDocument();
-      expect(screen.getByText('Cargo value affects pirate encounter chance')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cargo value affects pirate encounter chance')
+      ).toBeInTheDocument();
     });
   });
 
@@ -378,7 +410,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       expect(screen.getByText('Safety Recommendations')).toBeInTheDocument();
-      expect(screen.getByText('Dangerous zone - high pirate activity expected')).toBeInTheDocument();
+      expect(
+        screen.getByText('Dangerous zone - high pirate activity expected')
+      ).toBeInTheDocument();
     });
 
     it('should show appropriate recommendations for contested systems', async () => {
@@ -395,7 +429,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       expect(screen.getByText('Safety Recommendations')).toBeInTheDocument();
-      expect(screen.getByText('Contested zone - moderate risk of encounters')).toBeInTheDocument();
+      expect(
+        screen.getByText('Contested zone - moderate risk of encounters')
+      ).toBeInTheDocument();
     });
   });
 
@@ -404,7 +440,7 @@ describe('SystemPanel Danger Warning Integration', () => {
       // Arrange: Corrupt faction data to test null handling
       gameStateManager.updateLocation(4); // Barnard's Star
       gameStateManager.updateFuel(100);
-      
+
       // Temporarily corrupt faction data
       const state = gameStateManager.getState();
       const originalFactions = state.player.factions;

@@ -11,10 +11,10 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 /**
  * Property-based tests for danger warning system
- * 
+ *
  * Tests universal properties that must hold for all valid inputs
  * to the danger warning system.
- * 
+ *
  * Feature: danger-system
  * Property: Danger Warning Consistency
  * Validates: Requirements 1.3, 12.3
@@ -26,7 +26,11 @@ describe('Danger Warning System Properties', () => {
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gameStateManager = new GameStateManager(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      navigationSystem
+    );
     gameStateManager.initNewGame();
 
     mockStarmapContext = {
@@ -57,18 +61,20 @@ describe('Danger Warning System Properties', () => {
   // Arbitraries for property-based testing
   const arbSystemId = () => fc.integer({ min: 0, max: 116 }); // Valid system IDs
   const arbFuelLevel = () => fc.integer({ min: 0, max: 100 });
-  const arbShipCondition = () => fc.record({
-    hull: fc.integer({ min: 0, max: 100 }),
-    engine: fc.integer({ min: 0, max: 100 }),
-    lifeSupport: fc.integer({ min: 0, max: 100 }),
-  });
+  const arbShipCondition = () =>
+    fc.record({
+      hull: fc.integer({ min: 0, max: 100 }),
+      engine: fc.integer({ min: 0, max: 100 }),
+      lifeSupport: fc.integer({ min: 0, max: 100 }),
+    });
   const arbCargoValue = () => fc.integer({ min: 0, max: 50000 });
-  const arbFactionRep = () => fc.record({
-    authorities: fc.integer({ min: -100, max: 100 }),
-    traders: fc.integer({ min: -100, max: 100 }),
-    outlaws: fc.integer({ min: -100, max: 100 }),
-    civilians: fc.integer({ min: -100, max: 100 }),
-  });
+  const arbFactionRep = () =>
+    fc.record({
+      authorities: fc.integer({ min: -100, max: 100 }),
+      traders: fc.integer({ min: -100, max: 100 }),
+      outlaws: fc.integer({ min: -100, max: 100 }),
+      civilians: fc.integer({ min: -100, max: 100 }),
+    });
 
   describe('Property: Danger Warning Consistency', () => {
     it('should show danger warning if and only if destination is contested or dangerous', () => {
@@ -86,8 +92,10 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateFuel(fuelLevel);
 
             // Get danger zone classification
-            const dangerZone = gameStateManager.dangerManager.getDangerZone(destinationSystemId);
-            const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+            const dangerZone =
+              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+            const isDangerous =
+              dangerZone === 'contested' || dangerZone === 'dangerous';
 
             // Render SystemPanel
             const { unmount } = renderSystemPanel(destinationSystemId);
@@ -95,7 +103,7 @@ describe('Danger Warning System Properties', () => {
             try {
               // Check if jump button exists and is enabled
               const jumpButton = screen.queryByText('Jump to System');
-              
+
               if (jumpButton && !jumpButton.disabled) {
                 // Click jump button
                 fireEvent.click(jumpButton);
@@ -128,14 +136,14 @@ describe('Danger Warning System Properties', () => {
 
             // Test all safe systems
             const safeSystems = [0, 1, 4]; // Sol, Alpha Centauri, Barnard's Star
-            
+
             for (const safeSystemId of safeSystems) {
               if (safeSystemId !== currentSystemId) {
                 const { unmount } = renderSystemPanel(safeSystemId);
 
                 try {
                   const jumpButton = screen.queryByText('Jump to System');
-                  
+
                   if (jumpButton && !jumpButton.disabled) {
                     fireEvent.click(jumpButton);
 
@@ -165,10 +173,13 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateFuel(fuelLevel);
 
             // Find systems beyond 15 LY from Sol
-            const distantSystems = STAR_DATA.filter(system => {
-              const distance = Math.sqrt(
-                system.x * system.x + system.y * system.y + system.z * system.z
-              ) / 10; // Convert to light years
+            const distantSystems = STAR_DATA.filter((system) => {
+              const distance =
+                Math.sqrt(
+                  system.x * system.x +
+                    system.y * system.y +
+                    system.z * system.z
+                ) / 10; // Convert to light years
               return distance > 15 && system.id !== currentSystemId;
             });
 
@@ -178,7 +189,7 @@ describe('Danger Warning System Properties', () => {
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
@@ -206,7 +217,13 @@ describe('Danger Warning System Properties', () => {
           arbShipCondition(),
           arbCargoValue(),
           arbFactionRep(),
-          (currentSystemId, destinationSystemId, shipCondition, cargoValue, factionRep) => {
+          (
+            currentSystemId,
+            destinationSystemId,
+            shipCondition,
+            cargoValue,
+            factionRep
+          ) => {
             // Skip if same system
             fc.pre(currentSystemId !== destinationSystemId);
 
@@ -225,24 +242,28 @@ describe('Danger Warning System Properties', () => {
 
             // Add cargo if specified
             if (cargoValue > 0) {
-              state.ship.cargo = [{
-                type: 'electronics',
-                quantity: Math.floor(cargoValue / 100),
-                purchasePrice: 100,
-                purchaseSystem: currentSystemId,
-                purchaseDate: 0
-              }];
+              state.ship.cargo = [
+                {
+                  type: 'electronics',
+                  quantity: Math.floor(cargoValue / 100),
+                  purchasePrice: 100,
+                  purchaseSystem: currentSystemId,
+                  purchaseDate: 0,
+                },
+              ];
             }
 
-            const dangerZone = gameStateManager.dangerManager.getDangerZone(destinationSystemId);
-            const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+            const dangerZone =
+              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+            const isDangerous =
+              dangerZone === 'contested' || dangerZone === 'dangerous';
 
             if (isDangerous) {
               const { unmount } = renderSystemPanel(destinationSystemId);
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
@@ -250,11 +271,13 @@ describe('Danger Warning System Properties', () => {
                   if (dangerWarning) {
                     // Find all percentage displays
                     const percentageElements = screen.getAllByText(/%$/);
-                    
-                    percentageElements.forEach(element => {
+
+                    percentageElements.forEach((element) => {
                       const percentText = element.textContent;
-                      const percentValue = parseInt(percentText.replace('%', ''));
-                      
+                      const percentValue = parseInt(
+                        percentText.replace('%', '')
+                      );
+
                       // Property: All percentages must be in valid range
                       expect(percentValue).toBeGreaterThanOrEqual(0);
                       expect(percentValue).toBeLessThanOrEqual(100);
@@ -282,13 +305,15 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateFuel(100);
 
             const state = gameStateManager.getState();
-            state.ship.cargo = [{
-              type: 'electronics',
-              quantity: Math.floor(cargoValue / 1000),
-              purchasePrice: 1000,
-              purchaseSystem: currentSystemId,
-              purchaseDate: 0
-            }];
+            state.ship.cargo = [
+              {
+                type: 'electronics',
+                quantity: Math.floor(cargoValue / 1000),
+                purchasePrice: 1000,
+                purchaseSystem: currentSystemId,
+                purchaseDate: 0,
+              },
+            ];
 
             // Test with a known dangerous system
             const dangerousSystemId = 73; // 70 Ophiuchi A
@@ -297,14 +322,16 @@ describe('Danger Warning System Properties', () => {
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
                   const dangerWarning = screen.queryByText('Jump Warning');
                   if (dangerWarning) {
                     // Property: High-value cargo should show risk modifier
-                    const cargoRiskText = screen.queryByText('Cargo value affects pirate encounter chance');
+                    const cargoRiskText = screen.queryByText(
+                      'Cargo value affects pirate encounter chance'
+                    );
                     expect(cargoRiskText).not.toBeNull();
                   }
                 }
@@ -336,14 +363,16 @@ describe('Danger Warning System Properties', () => {
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
                   const dangerWarning = screen.queryByText('Jump Warning');
                   if (dangerWarning) {
                     // Property: Damaged engine should show risk modifier
-                    const engineRiskText = screen.queryByText('Poor engine condition increases pirate risk');
+                    const engineRiskText = screen.queryByText(
+                      'Poor engine condition increases pirate risk'
+                    );
                     expect(engineRiskText).not.toBeNull();
                   }
                 }
@@ -372,15 +401,17 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateLocation(currentSystemId);
             gameStateManager.updateFuel(100);
 
-            const dangerZone = gameStateManager.dangerManager.getDangerZone(destinationSystemId);
-            const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+            const dangerZone =
+              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+            const isDangerous =
+              dangerZone === 'contested' || dangerZone === 'dangerous';
 
             if (isDangerous) {
               const { unmount } = renderSystemPanel(destinationSystemId);
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
@@ -389,7 +420,7 @@ describe('Danger Warning System Properties', () => {
                     // Property: Must always have proceed and cancel options
                     const proceedButton = screen.queryByText(/Proceed/);
                     const cancelButton = screen.queryByText('Cancel Jump');
-                    
+
                     expect(proceedButton).not.toBeNull();
                     expect(cancelButton).not.toBeNull();
                   }
@@ -417,23 +448,28 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateLocation(currentSystemId);
             gameStateManager.updateFuel(100);
 
-            const dangerZone = gameStateManager.dangerManager.getDangerZone(destinationSystemId);
-            const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+            const dangerZone =
+              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+            const isDangerous =
+              dangerZone === 'contested' || dangerZone === 'dangerous';
 
             if (isDangerous) {
               const { unmount } = renderSystemPanel(destinationSystemId);
 
               try {
                 const jumpButton = screen.queryByText('Jump to System');
-                
+
                 if (jumpButton && !jumpButton.disabled) {
                   fireEvent.click(jumpButton);
 
                   const dangerWarning = screen.queryByText('Jump Warning');
                   if (dangerWarning) {
                     // Property: Must always have close button in the danger dialog
-                    const dangerDialog = screen.getByText('Jump Warning').closest('#danger-warning-dialog');
-                    const closeButton = dangerDialog.querySelector('.close-btn');
+                    const dangerDialog = screen
+                      .getByText('Jump Warning')
+                      .closest('#danger-warning-dialog');
+                    const closeButton =
+                      dangerDialog.querySelector('.close-btn');
                     expect(closeButton).not.toBeNull();
                   }
                 }
@@ -457,7 +493,13 @@ describe('Danger Warning System Properties', () => {
           arbShipCondition(),
           arbFuelLevel(),
           arbFactionRep(),
-          (currentSystemId, destinationSystemId, shipCondition, fuelLevel, factionRep) => {
+          (
+            currentSystemId,
+            destinationSystemId,
+            shipCondition,
+            fuelLevel,
+            factionRep
+          ) => {
             // Skip if same system
             fc.pre(currentSystemId !== destinationSystemId);
 
@@ -476,7 +518,7 @@ describe('Danger Warning System Properties', () => {
             // Property: Should never crash regardless of input
             expect(() => {
               const { unmount } = renderSystemPanel(destinationSystemId);
-              
+
               try {
                 const jumpButton = screen.queryByText('Jump to System');
                 if (jumpButton) {
@@ -506,20 +548,25 @@ describe('Danger Warning System Properties', () => {
             gameStateManager.updateFuel(100);
 
             const state = gameStateManager.getState();
-            state.player.factions = fc.sample(fc.oneof(
-              fc.constant(null),
-              fc.constant(undefined),
-              fc.constant({})
-            ), 1)[0];
+            state.player.factions = fc.sample(
+              fc.oneof(
+                fc.constant(null),
+                fc.constant(undefined),
+                fc.constant({})
+              ),
+              1
+            )[0];
 
-            const dangerZone = gameStateManager.dangerManager.getDangerZone(destinationSystemId);
-            const isDangerous = dangerZone === 'contested' || dangerZone === 'dangerous';
+            const dangerZone =
+              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+            const isDangerous =
+              dangerZone === 'contested' || dangerZone === 'dangerous';
 
             if (isDangerous) {
               // Property: Should not crash with corrupted faction data
               expect(() => {
                 const { unmount } = renderSystemPanel(destinationSystemId);
-                
+
                 try {
                   const jumpButton = screen.queryByText('Jump to System');
                   if (jumpButton && !jumpButton.disabled) {

@@ -682,24 +682,29 @@ export class GameStateManager {
   /**
    * Resolve encounter based on type and choice
    * Routes to appropriate specific resolution method
-   * 
+   *
    * @param {Object} encounterData - Full encounter data from event
    * @param {string} choice - Player's choice
    * @returns {Object} Resolution outcome
    */
   resolveEncounter(encounterData, choice) {
     const { type, encounter } = encounterData;
-    
+
     // Generate random number for resolution
     const rng = Math.random();
-    
+
     switch (type) {
       case 'pirate':
         return this.resolvePirateEncounter(encounter, choice, rng);
       case 'inspection':
         return this.resolveInspection(choice, this.getState(), rng);
       case 'mechanical_failure':
-        return this.resolveMechanicalFailure(encounter.type, choice, this.getState(), rng);
+        return this.resolveMechanicalFailure(
+          encounter.type,
+          choice,
+          this.getState(),
+          rng
+        );
       case 'distress_call':
         return this.resolveDistressCall(encounter, choice);
       default:
@@ -710,7 +715,7 @@ export class GameStateManager {
   /**
    * Resolve pirate encounter based on choice
    * Maps UI choices to appropriate resolution methods
-   * 
+   *
    * @param {Object} encounter - Pirate encounter data
    * @param {string} choice - Player's choice (fight, flee, negotiate, surrender)
    * @param {number} rng - Random number for resolution

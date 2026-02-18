@@ -90,7 +90,7 @@
   text-transform: capitalize;
 }
 
-.dev-admin-control input[type="number"] {
+.dev-admin-control input[type='number'] {
   width: 80px;
   padding: 4px 6px;
   background: rgba(0, 0, 0, 0.5);
@@ -256,7 +256,7 @@
   cursor: pointer;
 }
 
-.dev-admin-checkbox input[type="checkbox"] {
+.dev-admin-checkbox input[type='checkbox'] {
   width: 14px;
   height: 14px;
 }
