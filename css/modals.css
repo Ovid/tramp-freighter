@@ -208,3 +208,64 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* Critical Damage Modal */
+.critical-damage-modal {
+  background-color: #1a1a1a;
+  border: var(--panel-border-width) solid var(--border-danger);
+  border-radius: var(--panel-border-radius);
+  padding: 30px;
+  max-width: 500px;
+  min-width: 350px;
+  box-shadow: var(--shadow-glow-danger);
+  font-family: var(--font-family-mono);
+}
+
+.critical-damage-modal h3 {
+  color: var(--color-danger);
+  font-size: var(--font-size-title);
+  font-weight: bold;
+  margin: 0 0 var(--section-gap) 0;
+  text-align: center;
+  text-shadow: var(--shadow-text-primary);
+}
+
+.critical-damage-modal p {
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  line-height: 1.5;
+  margin: 0 0 var(--grid-gap-medium) 0;
+  text-align: center;
+}
+
+.critical-damage-modal p:last-of-type {
+  color: #aaaaaa;
+  font-size: var(--font-size-medium);
+  font-style: italic;
+}
+
+.modal-btn {
+  display: block;
+  width: 100%;
+  margin-top: var(--section-padding);
+  padding: var(--button-padding);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  background-color: transparent;
+  color: var(--color-danger);
+  border: var(--button-border-width) solid var(--border-danger);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modal-btn:hover {
+  background-color: rgba(255, 107, 107, 0.15);
+  box-shadow: var(--shadow-glow-danger);
+}
+
+.modal-btn:focus {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+}
