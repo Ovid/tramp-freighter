@@ -5,7 +5,6 @@ import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
   FACTION_CONFIG,
-  DANGER_CONFIG,
 } from '../../game/constants.js';
 
 /**

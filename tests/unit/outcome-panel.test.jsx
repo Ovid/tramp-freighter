@@ -233,7 +233,7 @@ describe('OutcomePanel', () => {
     expect(screen.getByText('Engine Condition:')).toBeInTheDocument();
     expect(screen.getByText('Life Support:')).toBeInTheDocument();
     expect(screen.getByText('+₡500')).toBeInTheDocument();
-    expect(screen.getByText('-2 stacks')).toBeInTheDocument();
+    expect(screen.getByText('-2% cargo')).toBeInTheDocument();
     expect(screen.getByText('+3 days')).toBeInTheDocument();
   });
 });

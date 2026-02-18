@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
-import { UI_CONFIG } from '../../game/constants';
 import { formatCoordinate } from '../../game/utils/string-utils';
 
 /**
@@ -24,22 +23,6 @@ export function SystemInfoPanel({ onClose }) {
 
   // Get current system data
   const currentSystem = starData.find((s) => s.id === currentSystemId);
-
-  if (!currentSystem) {
-    return (
-      <div className="system-info-panel">
-        <div className="panel-header">
-          <h2>System Information</h2>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
-        </div>
-        <div className="panel-content">
-          <p>Error: Current system not found</p>
-        </div>
-      </div>
-    );
-  }
 
   // Get connected systems (memoized to avoid recalculation on every render)
   const connectedSystems = useMemo(() => {
@@ -73,6 +56,22 @@ export function SystemInfoPanel({ onClose }) {
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance);
   }, [currentSystem, currentSystemId, gameStateManager, starData]);
+
+  if (!currentSystem) {
+    return (
+      <div className="system-info-panel">
+        <div className="panel-header">
+          <h2>System Information</h2>
+          <button className="close-btn" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        <div className="panel-content">
+          <p>Error: Current system not found</p>
+        </div>
+      </div>
+    );
+  }
 
   // Check for active economic event (if Advanced Sensors installed)
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');

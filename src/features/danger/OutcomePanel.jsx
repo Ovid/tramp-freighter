@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { KARMA_CONFIG, FACTION_CONFIG } from '../../game/constants.js';
+import { FACTION_CONFIG } from '../../game/constants.js';
 
 /**
  * OutcomePanel - React component for displaying encounter outcomes
@@ -19,9 +18,6 @@ import { KARMA_CONFIG, FACTION_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onContinue - Callback to continue after reviewing outcome
  */
 export function OutcomePanel({ outcome, onClose, onContinue }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to current karma and faction reputation for display
   const karma = useGameEvent('karmaChanged');
   const factions = useGameEvent('factionRepChanged');
@@ -351,8 +347,9 @@ function formatResourceChange(resource, change) {
   }
 
   if (resource === 'cargo') {
-    const stacks = Math.abs(change);
-    return `${change >= 0 ? '+' : '-'}${stacks} stack${stacks !== 1 ? 's' : ''}`;
+    const percent = Math.abs(change);
+    if (percent >= 100) return 'All cargo lost';
+    return `-${percent}% cargo`;
   }
 
   // For percentage-based resources (hull, engine, fuel, lifeSupport)

@@ -404,7 +404,7 @@ describe('Property: Enter key submits ship name', () => {
       { input: 'A'.repeat(50), description: 'maximum length name' },
     ];
 
-    testCases.forEach(({ input, description }) => {
+    testCases.forEach(({ input }) => {
       cleanup();
 
       const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);

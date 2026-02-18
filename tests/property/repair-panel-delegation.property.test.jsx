@@ -41,8 +41,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
     fc.assert(
       fc.property(
         fc.constantFrom('hull', 'engine', 'lifeSupport'),
-        fc.integer({ min: 1, max: 50 }),
-        (systemType, amount) => {
+        (systemType) => {
           cleanup();
 
           const gameStateManager = new GameStateManager(

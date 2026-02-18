@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   render,
   screen,
@@ -209,7 +209,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         const wrapper = createWrapper(gameStateManager);
 
         // Render InfoBrokerPanel
-        const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {
+        render(<InfoBrokerPanel onClose={() => {}} />, {
           wrapper,
         });
 
@@ -366,7 +366,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         const wrapper = createWrapper(gameStateManager);
 
         // Render InfoBrokerPanel
-        const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {
+        render(<InfoBrokerPanel onClose={() => {}} />, {
           wrapper,
         });
 
@@ -405,7 +405,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         const wrapper = createWrapper(gameStateManager);
 
         // Render InfoBrokerPanel
-        const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {
+        render(<InfoBrokerPanel onClose={() => {}} />, {
           wrapper,
         });
 

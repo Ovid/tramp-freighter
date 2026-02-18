@@ -1,7 +1,6 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
-import { DANGER_CONFIG } from '../../game/constants.js';
 import '../../../css/panel/danger-warning.css';
 
 /**

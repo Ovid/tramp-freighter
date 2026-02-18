@@ -35,12 +35,9 @@ export function useGameEvent(eventName) {
   });
 
   // Memoized callback to prevent unnecessary re-subscriptions
-  const callback = useCallback(
-    (data) => {
-      setState(data);
-    },
-    [eventName]
-  );
+  const callback = useCallback((data) => {
+    setState(data);
+  }, []);
 
   useEffect(() => {
     gameStateManager.subscribe(eventName, callback);

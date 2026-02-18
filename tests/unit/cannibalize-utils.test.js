@@ -57,14 +57,14 @@ describe('Cannibalization Utility Functions', () => {
     });
 
     it('returns an integer when donor condition is fractional', () => {
-      // 79.3 - 21 = 58.3 → should round to 58
+      // 79.3 - 21 = 58.3 → floor to 58 (never overstate capacity)
       expect(calculateMaxDonation(79.3)).toBe(58);
       expect(Number.isInteger(calculateMaxDonation(79.3))).toBe(true);
     });
 
-    it('rounds correctly at .5 boundary', () => {
-      // 79.5 - 21 = 58.5 → should round to 59
-      expect(calculateMaxDonation(79.5)).toBe(59);
+    it('floors at .5 boundary to avoid overstating capacity', () => {
+      // 79.5 - 21 = 58.5 → floor to 58 (donating 59 would drop donor below floor)
+      expect(calculateMaxDonation(79.5)).toBe(58);
     });
   });
 

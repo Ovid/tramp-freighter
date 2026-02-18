@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useNotification } from '../../src/hooks/useNotification';
 
@@ -50,9 +50,6 @@ describe('Property 46: Notification queueing', () => {
           // Process through all notifications
           // We'll verify that notifications are displayed sequentially by checking
           // that at no point are there more than one non-fading notification
-          const maxDuration = Math.max(
-            ...notificationData.map((d) => d.duration)
-          );
           const totalTime = notificationData.reduce(
             (sum, d) => sum + d.duration + 350,
             0

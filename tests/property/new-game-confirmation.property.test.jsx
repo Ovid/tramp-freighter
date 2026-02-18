@@ -113,7 +113,7 @@ describe('Property: New game confirmation', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error(
             'Confirmation modal not displayed after New Game click'
           );
@@ -294,7 +294,7 @@ describe('Property: New game confirmation', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Confirmation modal not displayed');
           clearSave(true);
           return false;
@@ -387,7 +387,7 @@ describe('Property: New game confirmation', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Confirmation modal not displayed');
           clearSave(true);
           return false;
@@ -419,7 +419,7 @@ describe('Property: New game confirmation', () => {
             const modalAfterCancel = document.querySelector('.modal-overlay');
             expect(modalAfterCancel).toBeFalsy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Modal still displayed after cancellation');
           clearSave(true);
           return false;
@@ -483,7 +483,7 @@ describe('Property: New game confirmation', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Confirmation modal not displayed');
           clearSave(true);
           return false;
@@ -508,7 +508,7 @@ describe('Property: New game confirmation', () => {
             const modalAfterEscape = document.querySelector('.modal-overlay');
             expect(modalAfterEscape).toBeFalsy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Modal still displayed after Escape key');
           clearSave(true);
           return false;

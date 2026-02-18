@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameAction } from '../../hooks/useGameAction';
 import { COMBAT_CONFIG, NEGOTIATION_CONFIG } from '../../game/constants.js';
 
 /**
@@ -20,9 +18,6 @@ import { COMBAT_CONFIG, NEGOTIATION_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to relevant game events for ship status display
   const hull = useGameEvent('hullChanged');
   const engine = useGameEvent('engineChanged');
@@ -347,7 +342,7 @@ function calculateTacticalProbabilities(
   upgrades = [],
   quirks = [],
   karma = 0,
-  factions = {}
+  _factions = {}
 ) {
   // Calculate karma modifier
   const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE

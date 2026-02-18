@@ -7,7 +7,7 @@ import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
-import { UI_CONFIG, calculateDistanceFromSol } from '../../game/constants';
+import { calculateDistanceFromSol } from '../../game/constants';
 import { formatCoordinate } from '../../game/utils/string-utils';
 
 /**
@@ -45,9 +45,7 @@ export function SystemPanel({
   // State for critical damage modal
   const [showCriticalDamageModal, setShowCriticalDamageModal] = useState(false);
   const isCriticalDamageError =
-    validation &&
-    !validation.valid &&
-    validation.error?.includes('critically damaged');
+    validation && !validation.valid && validation.reason === 'critical_damage';
 
   // Auto-show critical damage modal when selecting a target system
   useEffect(() => {

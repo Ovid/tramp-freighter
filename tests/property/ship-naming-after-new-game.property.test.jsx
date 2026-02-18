@@ -105,7 +105,7 @@ describe('Property: Ship naming after new game', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Confirmation modal not displayed');
           clearSave(true);
           return false;
@@ -262,7 +262,7 @@ describe('Property: Ship naming after new game', () => {
             const modal = document.querySelector('.modal-overlay');
             expect(modal).toBeTruthy();
           });
-        } catch (error) {
+        } catch (_error) {
           console.error('Confirmation modal not displayed');
           clearSave(true);
           return false;

@@ -152,7 +152,7 @@ describe('Property: Error boundaries catch component errors', () => {
           cleanup(); // Clean up DOM before each test run
 
           // Render multiple boundaries - one with error, one without
-          const { container } = render(
+          render(
             <div>
               <ErrorBoundary>
                 <ThrowError message={errorMessage} />

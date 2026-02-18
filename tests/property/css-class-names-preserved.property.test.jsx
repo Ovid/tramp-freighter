@@ -57,7 +57,7 @@ describe('Property: Modal CSS class names preserved', () => {
       fc.property(fc.string({ minLength: 1, maxLength: 100 }), (content) => {
         cleanup();
 
-        const { container } = render(
+        render(
           <Modal isOpen={true} onClose={() => {}} title="Test Modal">
             {content}
           </Modal>

@@ -108,7 +108,7 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
                       inspectionAnalysis.restrictedItems.includes(item.good);
                     return (
                       <div
-                        key={`${item.good}-${item.quantity}-${index}`}
+                        key={`${item.good}-${item.qty}-${index}`}
                         className={`cargo-item ${isRestricted ? 'restricted' : 'legal'}`}
                       >
                         <div className="item-info">
@@ -423,7 +423,7 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
 function calculateInspectionAnalysis(
   inspection,
   cargo = [],
-  hiddenCargo = [],
+  _hiddenCargo = [],
   currentSystem = 0,
   credits = 0
 ) {

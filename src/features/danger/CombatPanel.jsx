@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { COMBAT_CONFIG } from '../../game/constants.js';
 
@@ -19,9 +18,6 @@ import { COMBAT_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function CombatPanel({ combat, onChoice, onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to relevant game events for ship status and modifiers
   const hull = useGameEvent('hullChanged');
   const engine = useGameEvent('engineChanged');
@@ -457,15 +453,15 @@ export function CombatPanel({ combat, onChoice, onClose }) {
  */
 function calculateCombatProbabilities(
   combat,
-  hull = 100,
+  _hull = 100,
   engine = 100,
-  fuel = 100,
-  lifeSupport = 100,
-  cargo = [],
+  _fuel = 100,
+  _lifeSupport = 100,
+  _cargo = [],
   upgrades = [],
   quirks = [],
   karma = 0,
-  factions = {}
+  _factions = {}
 ) {
   // Calculate karma modifier
   const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE

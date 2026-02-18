@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -30,8 +29,6 @@ import {
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function TradePanel({ onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
   const starData = useStarData();
 
   // Subscribe to relevant game events

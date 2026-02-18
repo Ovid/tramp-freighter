@@ -298,7 +298,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
           // During animation, Dock button should be disabled
           // Note: This test may be timing-dependent
-          const dockBtn = screen.getByText('Dock');
+          screen.getByText('Dock');
           // Button might be disabled during animation
           // After animation completes, it should be enabled again
         }

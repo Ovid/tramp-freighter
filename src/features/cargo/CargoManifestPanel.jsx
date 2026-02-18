@@ -1,4 +1,3 @@
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { TradingSystem } from '../../game/game-trading.js';
 import { capitalizeFirst } from '../../game/utils/string-utils.js';
@@ -17,9 +16,6 @@ import { formatCargoAge } from './cargoUtils';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function CargoManifestPanel({ onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to game events
   const cargo = useGameEvent('cargoChanged');
   const shipName = useGameEvent('shipNameChanged');

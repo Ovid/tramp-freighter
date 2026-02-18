@@ -48,7 +48,7 @@ describe('Panel Animation Hide Integration (React)', () => {
     gameStateManager.initNewGame();
     gameStateManager.updateFuel(100);
 
-    const { container } = render(
+    render(
       <GameProvider gameStateManager={gameStateManager}>
         <App />
       </GameProvider>

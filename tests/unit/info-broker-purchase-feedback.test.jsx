@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
@@ -114,7 +114,6 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
 
       // Since button should be disabled, no error message should appear
       // But if it did fire, it would show insufficient credits
-      const errorMessages = screen.queryAllByText(/Insufficient credits/);
       // This test verifies the button is properly disabled for insufficient credits
       expect(purchaseButtons[0]).toBeDisabled();
     }

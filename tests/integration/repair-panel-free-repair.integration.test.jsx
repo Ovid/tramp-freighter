@@ -10,7 +10,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { SHIP_CONFIG, NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 

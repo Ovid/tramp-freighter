@@ -109,7 +109,7 @@ export function RepairPanel({ onClose }) {
     }
   };
 
-  const handleFreeRepair = (npcId, maxHullPercent) => {
+  const handleFreeRepair = (npcId, _maxHullPercent) => {
     // Calculate current hull damage percentage
     const currentHull = condition.hull;
     const maxHull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
