@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
+import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { UI_CONFIG, calculateDistanceFromSol } from '../../game/constants';
 
@@ -34,8 +35,28 @@ export function SystemPanel({
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
 
+  // Jump validation via Bridge Pattern (passes shipCondition for critical damage check)
+  const validation = useJumpValidation(currentSystemId, viewingSystemId, fuel);
+
   // State for danger warning dialog
   const [showDangerWarning, setShowDangerWarning] = useState(false);
+
+  // State for critical damage modal
+  const [showCriticalDamageModal, setShowCriticalDamageModal] = useState(false);
+  const isCriticalDamageError =
+    validation &&
+    !validation.valid &&
+    validation.error?.includes('critically damaged');
+
+  // Auto-show critical damage modal when selecting a target system
+  useEffect(() => {
+    const isTargetSystem = viewingSystemId !== currentSystemId;
+    if (isTargetSystem && isCriticalDamageError) {
+      setShowCriticalDamageModal(true);
+    } else {
+      setShowCriticalDamageModal(false);
+    }
+  }, [viewingSystemId, currentSystemId, isCriticalDamageError]);
 
   // Get system data
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
@@ -49,12 +70,6 @@ export function SystemPanel({
 
   // If viewing a different system, show jump info
   if (!isCurrentSystem) {
-    const validation = gameStateManager.navigationSystem.validateJump(
-      currentSystemId,
-      viewingSystemId,
-      fuel
-    );
-
     const handleJump = async () => {
       if (!validation.valid) return;
 
@@ -111,6 +126,21 @@ export function SystemPanel({
             onProceed={handleDangerWarningProceed}
             onCancel={handleDangerWarningCancel}
           />
+        )}
+        {showCriticalDamageModal && (
+          <div className="modal-overlay">
+            <div className="modal critical-damage-modal">
+              <h3>Ship Damaged</h3>
+              <p>{validation.error}</p>
+              <p>Dock at a station for repairs before attempting a jump.</p>
+              <button
+                className="modal-btn"
+                onClick={() => setShowCriticalDamageModal(false)}
+              >
+                Understood
+              </button>
+            </div>
+          </div>
         )}
         <div className="system-panel">
           <div className="system-panel-header">
