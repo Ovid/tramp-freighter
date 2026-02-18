@@ -16,7 +16,7 @@ export function calculateRepairCost(amount, currentCondition) {
   }
 
   // Calculate cost at ₡5 per 1%
-  return amount * REPAIR_CONFIG.COST_PER_PERCENT;
+  return Math.ceil(amount * REPAIR_CONFIG.COST_PER_PERCENT);
 }
 
 /**
@@ -33,7 +33,7 @@ export function calculateDiscountedRepairCost(
   discountPercentage
 ) {
   const baseCost = calculateRepairCost(amount, currentCondition);
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
@@ -81,7 +81,7 @@ export function calculateDiscountedRepairAllCost(
   discountPercentage
 ) {
   const baseCost = calculateRepairAllCost(condition);
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
@@ -228,7 +228,7 @@ export function calculateCannibalizeRequired(currentCondition) {
  * @returns {number} Maximum percentage points available to donate
  */
 export function calculateMaxDonation(donorCondition) {
-  return Math.max(0, donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN);
+  return Math.max(0, Math.round(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN));
 }
 
 /**
@@ -241,6 +241,6 @@ export function calculateMaxDonation(donorCondition) {
 export function canAffordRepairAboveThreshold(currentCondition, credits) {
   const needed = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
   if (needed <= 0) return true;
-  const cost = needed * REPAIR_CONFIG.COST_PER_PERCENT;
+  const cost = Math.ceil(needed * REPAIR_CONFIG.COST_PER_PERCENT);
   return credits >= cost;
 }

@@ -4,6 +4,9 @@ import {
   calculateMaxDonation,
   isSystemCritical,
   canAffordRepairAboveThreshold,
+  calculateRepairCost,
+  calculateDiscountedRepairCost,
+  calculateDiscountedRepairAllCost,
 } from '../../src/features/repair/repairUtils.js';
 import { REPAIR_CONFIG } from '../../src/game/constants.js';
 
@@ -52,6 +55,17 @@ describe('Cannibalization Utility Functions', () => {
     it('returns 0 when below donor floor', () => {
       expect(calculateMaxDonation(10)).toBe(0);
     });
+
+    it('returns an integer when donor condition is fractional', () => {
+      // 79.3 - 21 = 58.3 → should round to 58
+      expect(calculateMaxDonation(79.3)).toBe(58);
+      expect(Number.isInteger(calculateMaxDonation(79.3))).toBe(true);
+    });
+
+    it('rounds correctly at .5 boundary', () => {
+      // 79.5 - 21 = 58.5 → should round to 59
+      expect(calculateMaxDonation(79.5)).toBe(59);
+    });
   });
 
   describe('canAffordRepairAboveThreshold', () => {
@@ -67,5 +81,43 @@ describe('Cannibalization Utility Functions', () => {
       const cost = needed * REPAIR_CONFIG.COST_PER_PERCENT;
       expect(canAffordRepairAboveThreshold(5, cost - 1)).toBe(false);
     });
+  });
+});
+
+describe('calculateRepairCost rounding', () => {
+  it('returns an integer when amount is fractional', () => {
+    // 20.7 * 5 = 103.5 → should ceil to 104
+    const result = calculateRepairCost(20.7, 0);
+    expect(result).toBe(104);
+    expect(Number.isInteger(result)).toBe(true);
+  });
+
+  it('returns an integer for whole-number amounts', () => {
+    const result = calculateRepairCost(10, 0);
+    expect(result).toBe(50);
+    expect(Number.isInteger(result)).toBe(true);
+  });
+
+  it('rounds up fractional costs (ceil)', () => {
+    // 10.1 * 5 = 50.5 → should ceil to 51
+    const result = calculateRepairCost(10.1, 0);
+    expect(result).toBe(51);
+  });
+});
+
+describe('Discounted repair cost rounding', () => {
+  it('calculateDiscountedRepairCost uses ceil not round', () => {
+    // 13 * 5 = 65, discount 0.12 → 65 * 0.88 = 57.2 → round would be 57, ceil = 58
+    const result = calculateDiscountedRepairCost(13, 0, 0.12);
+    expect(result).toBe(58);
+  });
+
+  it('calculateDiscountedRepairAllCost uses ceil not round', () => {
+    // hull needs 7%, engine needs 7%, LS at 100%
+    // hull cost: ceil(7*5)=35, engine: ceil(7*5)=35, total=70
+    // discount 0.15 → 70 * 0.85 = 59.5 → ceil = 60
+    const condition = { hull: 93, engine: 93, lifeSupport: 100 };
+    const result = calculateDiscountedRepairAllCost(condition, 0.15);
+    expect(result).toBe(60);
   });
 });
