@@ -190,6 +190,8 @@ export class SaveLoadManager extends BaseManager {
     this.emit('upgradesChanged', loadedState.ship.upgrades);
     this.emit('cargoCapacityChanged', loadedState.ship.cargoCapacity);
     this.emit('quirksChanged', loadedState.ship.quirks);
+    this.emit('karmaChanged', loadedState.player.karma || 0);
+    this.emit('factionRepChanged', loadedState.player.factions || {});
   }
 
   /**
