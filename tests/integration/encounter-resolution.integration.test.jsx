@@ -154,8 +154,6 @@ describe('Encounter Resolution Integration', () => {
     const reachedOrbit = await navigateToOrbit();
     if (!reachedOrbit) return;
 
-    const initialCredits = gameStateManager.getState().player.credits;
-
     await triggerPirateEncounter();
 
     // Flee (costs fuel on success or hull on failure)
