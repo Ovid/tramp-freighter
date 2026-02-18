@@ -132,7 +132,7 @@ describe('transformOutcomeForDisplay', () => {
 
     const result = transformOutcomeForDisplay(raw, 'pirate', 'fight');
 
-    expect(result.resourceChanges.cargo).toBeDefined();
+    expect(result.resourceChanges.cargo).toBe(-100);
   });
 
   it('should handle cargoPercent cost', () => {
