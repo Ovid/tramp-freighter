@@ -28,14 +28,6 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
   const upgrades = useGameEvent('upgradesChanged');
   const { executeJump } = useGameAction();
 
-  // Get system data
-  const targetSystem = starData.find((s) => s.id === targetSystemId);
-  const currentSystem = starData.find((s) => s.id === currentSystemId);
-
-  if (!targetSystem || !currentSystem) {
-    return null;
-  }
-
   // Validate jump using Bridge Pattern
   const validation = useJumpValidation(currentSystemId, targetSystemId, fuel);
 
@@ -63,6 +55,14 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
     targetSystemId,
     gameStateForDanger
   );
+
+  // Get system data
+  const targetSystem = starData.find((s) => s.id === targetSystemId);
+  const currentSystem = starData.find((s) => s.id === currentSystemId);
+
+  if (!targetSystem || !currentSystem) {
+    return null;
+  }
 
   // Determine if we should show danger warning
   const showDangerWarning =

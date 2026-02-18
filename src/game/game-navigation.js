@@ -298,6 +298,7 @@ export class NavigationSystem {
     if (!this.areSystemsConnected(currentSystemId, targetSystemId)) {
       return {
         valid: false,
+        reason: 'no_connection',
         error: 'No wormhole connection to target system',
         fuelCost: 0,
         distance: 0,
@@ -312,6 +313,7 @@ export class NavigationSystem {
     if (!currentStar || !targetStar) {
       return {
         valid: false,
+        reason: 'invalid_system',
         error: 'Invalid system ID',
         fuelCost: 0,
         distance: 0,
@@ -337,6 +339,7 @@ export class NavigationSystem {
     if (currentFuel < fuelCost) {
       return {
         valid: false,
+        reason: 'insufficient_fuel',
         error: 'Insufficient fuel for jump',
         fuelCost,
         distance,
@@ -364,6 +367,7 @@ export class NavigationSystem {
       if (criticalSystems.length > 0) {
         return {
           valid: false,
+          reason: 'critical_damage',
           error: `${criticalSystems.join(', ')} critically damaged. Repairs required before departure.`,
           fuelCost,
           distance,
@@ -374,6 +378,7 @@ export class NavigationSystem {
 
     return {
       valid: true,
+      reason: null,
       error: null,
       fuelCost,
       distance,

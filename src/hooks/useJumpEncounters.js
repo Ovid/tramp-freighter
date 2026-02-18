@@ -200,7 +200,7 @@ export function useJumpEncounters({ onEncounter } = {}) {
  */
 function determineThreatLevel(gameState) {
   const cargoValue = gameState.ship.cargo.reduce(
-    (total, item) => total + item.quantity * item.purchasePrice,
+    (total, item) => total + item.qty * item.buyPrice,
     0
   );
   const hullCondition = gameState.ship.hull;

@@ -75,12 +75,13 @@ describe('Integration: Critical Damage Jump Feedback', () => {
     mockCurrentSystemId = 0;
     mockFuel = 100;
     mockUpgrades = [];
-    mockValidation = { valid: true, distance: 4.3, fuelCost: 15, jumpTime: 1 };
+    mockValidation = { valid: true, reason: null, distance: 4.3, fuelCost: 15, jumpTime: 1 };
   });
 
   it('shows critical damage modal when viewing a target system with critical damage', () => {
     mockValidation = {
       valid: false,
+      reason: 'critical_damage',
       error: 'Hull (5%) critically damaged. Repairs required before departure.',
       distance: 4.3,
       fuelCost: 15,
@@ -111,6 +112,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   it('disables jump button when validation fails due to critical damage', () => {
     mockValidation = {
       valid: false,
+      reason: 'critical_damage',
       error: 'Hull (5%) critically damaged. Repairs required before departure.',
       distance: 4.3,
       fuelCost: 15,
@@ -133,6 +135,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   it('dismisses critical damage modal when Understood is clicked', () => {
     mockValidation = {
       valid: false,
+      reason: 'critical_damage',
       error: 'Hull (5%) critically damaged. Repairs required before departure.',
       distance: 4.3,
       fuelCost: 15,
@@ -158,6 +161,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   it('does not show critical damage modal when viewing current system', () => {
     mockValidation = {
       valid: false,
+      reason: 'critical_damage',
       error: 'Hull (5%) critically damaged. Repairs required before departure.',
       distance: 0,
       fuelCost: 0,
@@ -177,7 +181,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   });
 
   it('does not show critical damage modal when validation passes', () => {
-    mockValidation = { valid: true, distance: 4.3, fuelCost: 15, jumpTime: 1 };
+    mockValidation = { valid: true, reason: null, distance: 4.3, fuelCost: 15, jumpTime: 1 };
 
     render(
       <SystemPanel
@@ -194,6 +198,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   it('does not show critical damage modal for non-critical validation errors', () => {
     mockValidation = {
       valid: false,
+      reason: 'insufficient_fuel',
       error: 'Not enough fuel for this jump.',
       distance: 4.3,
       fuelCost: 15,
@@ -217,6 +222,7 @@ describe('Integration: Critical Damage Jump Feedback', () => {
   it('shows inline validation error alongside the modal for critical damage', () => {
     mockValidation = {
       valid: false,
+      reason: 'critical_damage',
       error: 'Hull (5%) critically damaged. Repairs required before departure.',
       distance: 4.3,
       fuelCost: 15,

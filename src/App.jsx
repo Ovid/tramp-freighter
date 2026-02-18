@@ -16,6 +16,7 @@ import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel
 import { DistressCallPanel } from './features/danger/DistressCallPanel';
 import { OutcomePanel } from './features/danger/OutcomePanel';
 import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
+import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useJumpEncounters } from './hooks/useJumpEncounters';
@@ -212,12 +213,12 @@ export default function App({ devMode = false }) {
         let outcome;
         if (encounterPhase === 'combat') {
           outcome = gameStateManager.resolveCombatChoice(
-            currentEncounter,
+            currentEncounter.encounter,
             choice
           );
         } else if (encounterPhase === 'negotiation') {
           outcome = gameStateManager.resolveNegotiation(
-            currentEncounter,
+            currentEncounter.encounter,
             choice,
             Math.random()
           );
@@ -226,7 +227,7 @@ export default function App({ devMode = false }) {
         }
 
         // Apply the resolution outcome to game state
-        applyEncounterOutcome(outcome);
+        handleApplyOutcome(outcome);
 
         // Transform for OutcomePanel display
         const displayOutcome = transformOutcomeForDisplay(
@@ -262,147 +263,8 @@ export default function App({ devMode = false }) {
     setViewMode(VIEW_MODES.ORBIT);
   };
 
-  /**
-   * Apply encounter resolution outcome to game state
-   * Handles costs (fuel, hull, credits, cargo loss) and rewards (credits, reputation, karma)
-   */
-  const applyEncounterOutcome = (outcome) => {
-    const state = gameStateManager.getState();
-
-    // Apply costs
-    if (outcome.costs) {
-      // Handle fuel costs
-      if (outcome.costs.fuel) {
-        const newFuel = Math.max(0, state.ship.fuel - outcome.costs.fuel);
-        gameStateManager.updateFuel(newFuel);
-      }
-
-      // Handle hull damage
-      if (outcome.costs.hull) {
-        const newHull = Math.max(0, state.ship.hull - outcome.costs.hull);
-        gameStateManager.updateShipCondition(
-          newHull,
-          state.ship.engine,
-          state.ship.lifeSupport
-        );
-      }
-
-      // Handle engine damage
-      if (outcome.costs.engine) {
-        const newEngine = Math.max(0, state.ship.engine - outcome.costs.engine);
-        gameStateManager.updateShipCondition(
-          state.ship.hull,
-          newEngine,
-          state.ship.lifeSupport
-        );
-      }
-
-      // Handle life support damage
-      if (outcome.costs.lifeSupport) {
-        const newLifeSupport = Math.max(
-          0,
-          state.ship.lifeSupport - outcome.costs.lifeSupport
-        );
-        gameStateManager.updateShipCondition(
-          state.ship.hull,
-          state.ship.engine,
-          newLifeSupport
-        );
-      }
-
-      // Handle credit costs
-      if (outcome.costs.credits) {
-        const newCredits = Math.max(
-          0,
-          state.player.credits - outcome.costs.credits
-        );
-        gameStateManager.updateCredits(newCredits);
-      }
-
-      // Handle cargo loss
-      if (outcome.costs.cargoLoss === true) {
-        // Lose all cargo
-        gameStateManager.updateCargo([]);
-      } else if (outcome.costs.cargoPercent) {
-        // Lose percentage of cargo
-        const lossPercent = outcome.costs.cargoPercent / 100;
-
-        const filteredCargo = state.ship.cargo
-          .map((item) => ({
-            ...item,
-            quantity: Math.max(
-              0,
-              item.quantity - Math.floor(item.quantity * lossPercent)
-            ),
-          }))
-          .filter((item) => item.quantity > 0);
-        gameStateManager.updateCargo(filteredCargo);
-      }
-
-      // Handle time costs
-      if (outcome.costs.days) {
-        const newDays = state.player.daysElapsed + outcome.costs.days;
-        gameStateManager.updateTime(newDays);
-      }
-    }
-
-    // Apply rewards
-    if (outcome.rewards) {
-      // Handle credit rewards
-      if (outcome.rewards.credits) {
-        const newCredits = state.player.credits + outcome.rewards.credits;
-        gameStateManager.updateCredits(newCredits);
-      }
-
-      // Handle karma rewards/penalties
-      if (outcome.rewards.karma) {
-        gameStateManager.modifyKarma(
-          outcome.rewards.karma,
-          'encounter_resolution'
-        );
-      }
-
-      // Handle faction reputation changes
-      if (outcome.rewards.factionRep) {
-        Object.entries(outcome.rewards.factionRep).forEach(
-          ([faction, change]) => {
-            gameStateManager.modifyFactionRep(
-              faction,
-              change,
-              'encounter_resolution'
-            );
-          }
-        );
-      }
-
-      // Handle cargo rewards
-      if (outcome.rewards.cargo) {
-        const currentCargo = [...state.ship.cargo];
-        outcome.rewards.cargo.forEach((rewardItem) => {
-          // Try to stack with existing cargo
-          const existingStack = currentCargo.find(
-            (item) =>
-              item.good === rewardItem.type &&
-              item.purchasePrice === rewardItem.purchasePrice
-          );
-
-          if (existingStack) {
-            existingStack.quantity += rewardItem.quantity;
-          } else {
-            currentCargo.push({
-              good: rewardItem.type,
-              quantity: rewardItem.quantity,
-              purchasePrice: rewardItem.purchasePrice,
-            });
-          }
-        });
-
-        gameStateManager.updateCargo(currentCargo);
-      }
-    }
-
-    // Save game after applying changes
-    gameStateManager.saveGame();
+  const handleApplyOutcome = (outcome) => {
+    applyEncounterOutcome(gameStateManager, outcome);
   };
 
   // Listen for encounter events (only process each event once)

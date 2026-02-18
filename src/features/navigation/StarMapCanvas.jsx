@@ -108,6 +108,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     if (!containerRef.current || sceneRef.current) {
       return;
     }
+    const container = containerRef.current;
 
     let scene,
       camera,
@@ -128,7 +129,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       const stars = sceneComponents.stars;
 
       // Append renderer to container
-      containerRef.current.appendChild(renderer.domElement);
+      container.appendChild(renderer.domElement);
 
       // Set up raycaster for star selection (only if stars exist)
       let handleCanvasClick = null;
@@ -338,11 +339,11 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         if (renderer) {
           // Remove renderer DOM element
           if (
-            containerRef.current &&
+            container &&
             renderer.domElement &&
-            containerRef.current.contains(renderer.domElement)
+            container.contains(renderer.domElement)
           ) {
-            containerRef.current.removeChild(renderer.domElement);
+            container.removeChild(renderer.domElement);
           }
 
           // Dispose renderer
@@ -378,7 +379,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Error will be caught by ErrorBoundary
       throw error;
     }
-  }, []); // Empty dependency array - initialize once per mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Three.js scene initializes once per mount
+  }, []);
 
   // Camera control handlers
   const handleZoomIn = () => {

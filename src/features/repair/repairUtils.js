@@ -230,7 +230,7 @@ export function calculateCannibalizeRequired(currentCondition) {
 export function calculateMaxDonation(donorCondition) {
   return Math.max(
     0,
-    Math.round(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN)
+    Math.floor(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN)
   );
 }
 

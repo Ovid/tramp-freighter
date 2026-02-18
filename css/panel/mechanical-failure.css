@@ -1,3 +1,5 @@
+@import '../variables.css';
+
 /**
  * Mechanical Failure Panel Styles
  * 
@@ -433,7 +435,7 @@
 }
 
 /* Close Button */
-.close-btn {
+#mechanical-failure-panel .close-btn {
   position: absolute;
   top: 10px;
   right: 15px;
@@ -447,7 +449,7 @@
   line-height: 1;
 }
 
-.close-btn:hover {
+#mechanical-failure-panel .close-btn:hover {
   color: #ff0000;
 }
 
