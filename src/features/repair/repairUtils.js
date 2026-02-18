@@ -228,7 +228,10 @@ export function calculateCannibalizeRequired(currentCondition) {
  * @returns {number} Maximum percentage points available to donate
  */
 export function calculateMaxDonation(donorCondition) {
-  return Math.max(0, Math.round(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN));
+  return Math.max(
+    0,
+    Math.round(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN)
+  );
 }
 
 /**

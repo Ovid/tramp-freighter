@@ -289,4 +289,36 @@ describe('Property: Repair utility functions are pure', () => {
       { numRuns: 50 }
     );
   });
+
+  it('calculateRepairCost always returns an integer', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: Math.fround(0.1), max: 100, noNaN: true }),
+        fc.float({ min: 0, max: 99, noNaN: true }),
+        (amount, currentCondition) => {
+          const result = calculateRepairCost(amount, currentCondition);
+          expect(Number.isInteger(result)).toBe(true);
+          return Number.isInteger(result);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it('calculateRepairAllCost always returns an integer', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0, max: 99, noNaN: true }),
+        fc.float({ min: 0, max: 99, noNaN: true }),
+        fc.float({ min: 0, max: 99, noNaN: true }),
+        (hull, engine, lifeSupport) => {
+          const condition = { hull, engine, lifeSupport };
+          const result = calculateRepairAllCost(condition);
+          expect(Number.isInteger(result)).toBe(true);
+          return Number.isInteger(result);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
 });
