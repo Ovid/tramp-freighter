@@ -345,7 +345,9 @@ export function CombatPanel({ combat, onChoice, onClose }) {
                 <div className="outcome guaranteed">
                   <span className="outcome-label">Guaranteed:</span>
                   <span className="outcome-text">
-                    Escape combat, lose {COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT}% of cargo, no hull damage
+                    Escape combat, lose{' '}
+                    {COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT}% of cargo, no
+                    hull damage
                   </span>
                 </div>
               </div>
