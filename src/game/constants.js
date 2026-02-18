@@ -392,6 +392,21 @@ export const REPAIR_CONFIG = {
   // Repair costs are linear: ₡5 per 1% restored for any ship system
   // Example: Repairing hull from 78% to 100% costs ₡110 (22% × ₡5)
   COST_PER_PERCENT: 5,
+
+  // Critical damage confinement: systems at or below this % block jumping
+  CRITICAL_SYSTEM_THRESHOLD: 20,
+
+  // Emergency patch restores system to this exact percentage
+  EMERGENCY_PATCH_TARGET: 21,
+
+  // Days consumed per emergency patch (advances game time)
+  EMERGENCY_PATCH_DAYS_PENALTY: 3,
+
+  // Cannibalization: donor loses 1.5x what target gains (50% waste)
+  CANNIBALIZE_WASTE_MULTIPLIER: 1.5,
+
+  // Cannibalization: donors cannot be drained below this percentage
+  CANNIBALIZE_DONOR_MIN: 21,
 };
 
 /**
