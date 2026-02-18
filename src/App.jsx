@@ -9,6 +9,8 @@ import { PanelContainer } from './features/station/PanelContainer';
 import { DevAdminPanel } from './features/dev-admin/DevAdminPanel';
 import { SystemPanel } from './features/navigation/SystemPanel';
 import { PirateEncounterPanel } from './features/danger/PirateEncounterPanel';
+import { CombatPanel } from './features/danger/CombatPanel';
+import { NegotiationPanel } from './features/danger/NegotiationPanel';
 import { InspectionPanel } from './features/danger/InspectionPanel';
 import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel';
 import { DistressCallPanel } from './features/danger/DistressCallPanel';
@@ -60,6 +62,7 @@ export default function App({ devMode = false }) {
   const [viewingSystemId, setViewingSystemId] = useState(null);
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [encounterOutcome, setEncounterOutcome] = useState(null);
+  const [encounterPhase, setEncounterPhase] = useState('initial');
   const lastHandledEncounter = useRef(null);
 
   // Starmap methods that will be provided to context
@@ -183,11 +186,27 @@ export default function App({ devMode = false }) {
   // Handle encounter events from the danger system
   const handleEncounterTriggered = (encounterData) => {
     setCurrentEncounter(encounterData);
+    setEncounterPhase('initial');
     setViewMode(VIEW_MODES.ENCOUNTER);
   };
 
   const handleEncounterChoice = (choice) => {
-    if (currentEncounter && gameStateManager.resolveEncounter) {
+    if (!currentEncounter) return;
+
+    // Two-step pirate encounter: route to sub-panels
+    if (currentEncounter.type === 'pirate' && encounterPhase === 'initial') {
+      if (choice === 'fight' || choice === 'flee') {
+        setEncounterPhase('combat');
+        return;
+      }
+      if (choice === 'negotiate') {
+        setEncounterPhase('negotiation');
+        return;
+      }
+      // Surrender resolves immediately (falls through)
+    }
+
+    if (gameStateManager.resolveEncounter) {
       try {
         const outcome = gameStateManager.resolveEncounter(
           currentEncounter,
@@ -206,11 +225,13 @@ export default function App({ devMode = false }) {
 
         // Show OutcomePanel (stay in ENCOUNTER mode)
         setEncounterOutcome(displayOutcome);
+        setEncounterPhase('initial');
       } catch (error) {
         console.error('Encounter resolution failed:', error);
         // On error, return to orbit
         setCurrentEncounter(null);
         setEncounterOutcome(null);
+        setEncounterPhase('initial');
         setViewMode(VIEW_MODES.ORBIT);
       }
     }
@@ -218,12 +239,14 @@ export default function App({ devMode = false }) {
 
   const handleEncounterClose = () => {
     setCurrentEncounter(null);
+    setEncounterPhase('initial');
     setViewMode(VIEW_MODES.ORBIT);
   };
 
   const handleOutcomeContinue = () => {
     setCurrentEncounter(null);
     setEncounterOutcome(null);
+    setEncounterPhase('initial');
     setViewMode(VIEW_MODES.ORBIT);
   };
 
@@ -459,13 +482,30 @@ export default function App({ devMode = false }) {
                 currentEncounter &&
                 !encounterOutcome && (
                   <>
-                    {currentEncounter.type === 'pirate' && (
-                      <PirateEncounterPanel
-                        encounter={currentEncounter.encounter}
-                        onChoice={handleEncounterChoice}
-                        onClose={handleEncounterClose}
-                      />
-                    )}
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'initial' && (
+                        <PirateEncounterPanel
+                          encounter={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'combat' && (
+                        <CombatPanel
+                          combat={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'negotiation' && (
+                        <NegotiationPanel
+                          encounter={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
                     {currentEncounter.type === 'inspection' && (
                       <InspectionPanel
                         inspection={currentEncounter.encounter}
