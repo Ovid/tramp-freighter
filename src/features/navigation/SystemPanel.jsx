@@ -8,6 +8,7 @@ import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { UI_CONFIG, calculateDistanceFromSol } from '../../game/constants';
+import { formatCoordinate } from '../../game/utils/string-utils';
 
 /**
  * SystemPanel displays information about a system.
@@ -156,17 +157,9 @@ export function SystemPanel({
               <div className="system-property">
                 <span className="label">Coordinates:</span>
                 <span className="value">
-                  {(
-                    viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR
-                  ).toFixed(2)}
-                  ,{' '}
-                  {(
-                    viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR
-                  ).toFixed(2)}
-                  ,{' '}
-                  {(
-                    viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR
-                  ).toFixed(2)}
+                  {formatCoordinate(viewingSystem.x)},{' '}
+                  {formatCoordinate(viewingSystem.y)},{' '}
+                  {formatCoordinate(viewingSystem.z)}
                 </span>
               </div>
               <div className="system-property">
@@ -294,11 +287,9 @@ export function SystemPanel({
           <div className="system-property">
             <span className="label">Coordinates:</span>
             <span className="value">
-              {(viewingSystem.x / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
-              ,{' '}
-              {(viewingSystem.y / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
-              ,{' '}
-              {(viewingSystem.z / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2)}
+              {formatCoordinate(viewingSystem.x)},{' '}
+              {formatCoordinate(viewingSystem.y)},{' '}
+              {formatCoordinate(viewingSystem.z)}
             </span>
           </div>
           <div className="system-property">
