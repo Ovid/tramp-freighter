@@ -31,21 +31,24 @@ export function DangerWarningDialog({
   const upgrades = useGameEvent('upgradesChanged');
   const factions = useGameEvent('factionRepChanged');
 
-
-
   // Get danger zone classification using Bridge Pattern
   const dangerZone = useDangerZone(destinationSystemId);
 
   // Build game state object for encounter calculations
   const gameStateForDanger = {
-    player: { 
-      currentSystem: destinationSystemId, 
-      factions: factions || { authorities: 0, traders: 0, outlaws: 0, civilians: 0 }
+    player: {
+      currentSystem: destinationSystemId,
+      factions: factions || {
+        authorities: 0,
+        traders: 0,
+        outlaws: 0,
+        civilians: 0,
+      },
     },
-    ship: { 
-      cargo: cargo || [], 
-      engine: shipCondition?.engine || 100, 
-      upgrades: upgrades || [] 
+    ship: {
+      cargo: cargo || [],
+      engine: shipCondition?.engine || 100,
+      upgrades: upgrades || [],
     },
   };
 
@@ -136,7 +139,7 @@ export function DangerWarningDialog({
                     </span>
                   </div>
                 )}
-                {(shipCondition?.engine && shipCondition.engine < 50) && (
+                {shipCondition?.engine != null && shipCondition.engine < 50 && (
                   <div className="factor warning">
                     <span className="factor-icon">⚠️</span>
                     <span className="factor-text">
@@ -221,10 +224,7 @@ export function DangerWarningDialog({
 
       {/* Action Buttons */}
       <div className="warning-actions">
-        <button
-          className="warning-btn primary"
-          onClick={handleProceedClick}
-        >
+        <button className="warning-btn primary" onClick={handleProceedClick}>
           {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
         </button>
         <button className="warning-btn secondary" onClick={onCancel}>
