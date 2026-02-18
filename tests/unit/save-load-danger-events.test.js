@@ -92,9 +92,7 @@ describe('Save/Load Danger Events', () => {
     manager.saveGame();
 
     // Manipulate the saved data to remove karma
-    const savedData = JSON.parse(
-      localStorage.getItem('trampFreighterSave')
-    );
+    const savedData = JSON.parse(localStorage.getItem('trampFreighterSave'));
     delete savedData.player.karma;
     localStorage.setItem('trampFreighterSave', JSON.stringify(savedData));
 
@@ -119,9 +117,7 @@ describe('Save/Load Danger Events', () => {
     manager.saveGame();
 
     // Manipulate the saved data to remove factions
-    const savedData = JSON.parse(
-      localStorage.getItem('trampFreighterSave')
-    );
+    const savedData = JSON.parse(localStorage.getItem('trampFreighterSave'));
     delete savedData.player.factions;
     localStorage.setItem('trampFreighterSave', JSON.stringify(savedData));
 

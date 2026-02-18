@@ -222,10 +222,7 @@ export default function App({ devMode = false }) {
             Math.random()
           );
         } else {
-          outcome = gameStateManager.resolveEncounter(
-            currentEncounter,
-            choice
-          );
+          outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
         }
 
         // Apply the resolution outcome to game state

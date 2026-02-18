@@ -32,7 +32,12 @@ describe('Danger Flags Increment Properties', () => {
   it('should increment piratesFought for any combat resolution', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom('evasive', 'return_fire', 'dump_cargo', 'distress_call'),
+        fc.constantFrom(
+          'evasive',
+          'return_fire',
+          'dump_cargo',
+          'distress_call'
+        ),
         (choice) => {
           gameStateManager.initNewGame();
           const before =
@@ -70,8 +75,7 @@ describe('Danger Flags Increment Properties', () => {
   });
 
   it('should increment civiliansSaved on distress respond', () => {
-    const before =
-      gameStateManager.getState().world.dangerFlags.civiliansSaved;
+    const before = gameStateManager.getState().world.dangerFlags.civiliansSaved;
 
     gameStateManager.resolveDistressCall({}, 'respond');
 
@@ -85,8 +89,7 @@ describe('Danger Flags Increment Properties', () => {
 
     gameStateManager.resolveDistressCall({}, 'loot');
 
-    const after =
-      gameStateManager.getState().world.dangerFlags.civiliansLooted;
+    const after = gameStateManager.getState().world.dangerFlags.civiliansLooted;
     expect(after).toBe(before + 1);
   });
 
@@ -115,8 +118,7 @@ describe('Danger Flags Increment Properties', () => {
       0.5
     );
 
-    const after =
-      gameStateManager.getState().world.dangerFlags.inspectionsFled;
+    const after = gameStateManager.getState().world.dangerFlags.inspectionsFled;
     expect(after).toBe(before + 1);
   });
 

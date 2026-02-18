@@ -11,24 +11,24 @@ describe('Restricted Goods Counting Properties', () => {
     gameStateManager.initNewGame();
 
     fc.assert(
-      fc.property(
-        fc.constantFrom('safe', 'contested', 'dangerous'),
-        (zone) => {
-          const restricted = RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
-          // Create cargo with only items NOT in restricted list
-          const unrestricted = ['grain', 'ore'].filter(g => !restricted.includes(g));
-          if (unrestricted.length === 0) return true; // Skip if all goods restricted
+      fc.property(fc.constantFrom('safe', 'contested', 'dangerous'), (zone) => {
+        const restricted =
+          RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+        // Create cargo with only items NOT in restricted list
+        const unrestricted = ['grain', 'ore'].filter(
+          (g) => !restricted.includes(g)
+        );
+        if (unrestricted.length === 0) return true; // Skip if all goods restricted
 
-          const cargo = unrestricted.map(good => ({
-            good,
-            quantity: 5,
-            purchasePrice: 10,
-          }));
+        const cargo = unrestricted.map((good) => ({
+          good,
+          quantity: 5,
+          purchasePrice: 10,
+        }));
 
-          const count = gameStateManager.countRestrictedGoods(cargo, zone);
-          return count === 0;
-        }
-      ),
+        const count = gameStateManager.countRestrictedGoods(cargo, zone);
+        return count === 0;
+      }),
       { numRuns: 100 }
     );
   });
@@ -38,26 +38,24 @@ describe('Restricted Goods Counting Properties', () => {
     gameStateManager.initNewGame();
 
     fc.assert(
-      fc.property(
-        fc.constantFrom('safe', 'contested', 'dangerous'),
-        (zone) => {
-          const restricted = RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
-          if (restricted.length === 0) return true;
+      fc.property(fc.constantFrom('safe', 'contested', 'dangerous'), (zone) => {
+        const restricted =
+          RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+        if (restricted.length === 0) return true;
 
-          // Create cargo with one restricted item
-          const cargo = [
-            { good: restricted[0], quantity: 5, purchasePrice: 10 },
-            { good: 'grain', quantity: 3, purchasePrice: 8 },
-          ];
+        // Create cargo with one restricted item
+        const cargo = [
+          { good: restricted[0], quantity: 5, purchasePrice: 10 },
+          { good: 'grain', quantity: 3, purchasePrice: 8 },
+        ];
 
-          const count = gameStateManager.countRestrictedGoods(cargo, zone);
-          // Should count the restricted item but not grain (unless grain is restricted)
-          const expectedCount = cargo.filter(item =>
-            restricted.includes(item.good)
-          ).length;
-          return count === expectedCount;
-        }
-      ),
+        const count = gameStateManager.countRestrictedGoods(cargo, zone);
+        // Should count the restricted item but not grain (unless grain is restricted)
+        const expectedCount = cargo.filter((item) =>
+          restricted.includes(item.good)
+        ).length;
+        return count === expectedCount;
+      }),
       { numRuns: 100 }
     );
   });
