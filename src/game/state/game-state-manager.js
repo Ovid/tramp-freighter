@@ -664,6 +664,10 @@ export class GameStateManager {
     this.saveGame();
   }
 
+  countRestrictedGoods(cargo, zone, systemId) {
+    return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
+  }
+
   resolveCombatChoice(encounter, choice) {
     return this.dangerManager.resolveCombatChoice(encounter, choice);
   }

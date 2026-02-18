@@ -10,7 +10,11 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { DANGER_CONFIG, COMMODITY_TYPES } from '../../src/game/constants.js';
+import {
+  DANGER_CONFIG,
+  COMMODITY_TYPES,
+  RESTRICTED_GOODS_CONFIG,
+} from '../../src/game/constants.js';
 
 /**
  * Create test game state with specified overrides
@@ -91,16 +95,16 @@ describe('Inspection Probability Scaling Properties', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
-        fc.integer({ min: 0, max: 5 }), // Number of restricted goods (0-5)
-        (systemId, restrictedGoodsCount) => {
+        fc.integer({ min: 0, max: 5 }), // Number of cargo items (0-5)
+        (systemId, cargoCount) => {
           const zone = gameStateManager.getDangerZone(systemId);
           const gameState = gameStateManager.getState();
 
-          // Create cargo with restricted goods
+          // Create cargo using commodity names (the 'good' field)
           const cargo = [];
-          for (let i = 0; i < restrictedGoodsCount; i++) {
+          for (let i = 0; i < cargoCount; i++) {
             cargo.push({
-              type: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
+              good: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
               quantity: 1,
               purchasePrice: 10,
             });
@@ -117,6 +121,18 @@ describe('Inspection Probability Scaling Properties', () => {
             testGameState
           );
 
+          // Calculate actual restricted count using zone-aware logic
+          const zoneRestrictions =
+            RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+          const coreRestrictions =
+            systemId === 0 || systemId === 1
+              ? RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED
+              : [];
+          const allRestricted = [...zoneRestrictions, ...coreRestrictions];
+          const actualRestrictedCount = cargo.filter((item) =>
+            allRestricted.includes(item.good)
+          ).length;
+
           // Calculate expected probability with restricted goods modifier (Requirement 5.2)
           const baseRate = DANGER_CONFIG.ZONES[zone].inspectionChance;
           const coreMultiplier =
@@ -125,7 +141,7 @@ describe('Inspection Probability Scaling Properties', () => {
               : 1.0;
           const restrictedModifier =
             1 +
-            restrictedGoodsCount *
+            actualRestrictedCount *
               DANGER_CONFIG.RESTRICTED_GOODS_INSPECTION_INCREASE;
 
           const expectedRate = baseRate * coreMultiplier * restrictedModifier;
@@ -229,11 +245,11 @@ describe('Inspection Probability Scaling Properties', () => {
         (systemId, restrictedGoodsCount, authorityRep) => {
           const gameState = gameStateManager.getState();
 
-          // Create cargo with many restricted goods to potentially exceed 1.0
+          // Create cargo with many goods to potentially exceed 1.0
           const cargo = [];
           for (let i = 0; i < restrictedGoodsCount; i++) {
             cargo.push({
-              type: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
+              good: COMMODITY_TYPES[i % COMMODITY_TYPES.length],
               quantity: 1,
               purchasePrice: 10,
             });

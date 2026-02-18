@@ -8,6 +8,7 @@ import {
   INSPECTION_CONFIG,
   FAILURE_CONFIG,
   DISTRESS_CONFIG,
+  RESTRICTED_GOODS_CONFIG,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
@@ -300,7 +301,9 @@ export class DangerManager extends BaseManager {
     // Apply restricted goods modifier (Requirement 5.2)
     // Modifier = 1 + (count * 0.1), so each restricted good adds 10% to inspection chance
     const restrictedGoodsCount = this.countRestrictedGoods(
-      gameState.ship.cargo
+      gameState.ship.cargo,
+      zone,
+      systemId
     );
 
     const restrictedModifier =
@@ -320,19 +323,29 @@ export class DangerManager extends BaseManager {
   }
 
   /**
-   * Count the number of restricted goods in cargo
+   * Count the number of restricted goods in cargo for a given zone and system
    *
-   * Helper method for inspection probability calculation.
-   * For now, this is a placeholder that counts all cargo items as potentially restricted.
-   * This will be enhanced when the restricted goods system is fully implemented.
+   * Checks cargo against zone-specific restrictions from RESTRICTED_GOODS_CONFIG.
+   * Core systems (Sol, Alpha Centauri) have additional restrictions on top of
+   * their zone restrictions.
    *
-   * @param {Array} cargo - Array of cargo objects
+   * @param {Array} cargo - Array of cargo objects with 'good' property
+   * @param {string} zone - Danger zone type ('safe', 'contested', 'dangerous')
+   * @param {number} [systemId] - Optional system ID for core system checks
    * @returns {number} Number of restricted goods in cargo
    */
-  countRestrictedGoods(cargo) {
-    // For now, treat all cargo as potentially restricted for testing purposes
-    // This will be replaced with actual restricted goods logic in future tasks
-    return cargo.length;
+  countRestrictedGoods(cargo, zone, systemId) {
+    const zoneRestrictions =
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+
+    const coreRestrictions =
+      systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID
+        ? RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED
+        : [];
+
+    const allRestricted = [...zoneRestrictions, ...coreRestrictions];
+
+    return cargo.filter((item) => allRestricted.includes(item.good)).length;
   }
 
   // ========================================================================
