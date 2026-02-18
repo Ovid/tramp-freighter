@@ -325,16 +325,17 @@ export default function App({ devMode = false }) {
         gameStateManager.updateCargo([]);
       } else if (outcome.costs.cargoPercent) {
         // Lose percentage of cargo
-        const cargo = [...state.ship.cargo];
         const lossPercent = outcome.costs.cargoPercent / 100;
 
-        cargo.forEach((item) => {
-          const lostQuantity = Math.floor(item.quantity * lossPercent);
-          item.quantity = Math.max(0, item.quantity - lostQuantity);
-        });
-
-        // Remove empty cargo stacks
-        const filteredCargo = cargo.filter((item) => item.quantity > 0);
+        const filteredCargo = state.ship.cargo
+          .map((item) => ({
+            ...item,
+            quantity: Math.max(
+              0,
+              item.quantity - Math.floor(item.quantity * lossPercent)
+            ),
+          }))
+          .filter((item) => item.quantity > 0);
         gameStateManager.updateCargo(filteredCargo);
       }
 
