@@ -7,7 +7,8 @@ import { useGameEvent } from './useGameEvent.js';
  *
  * Replaces useJumpEncounters. Listens for locationChanged (jump),
  * docked, and timeChanged events, then queries the EventEngine
- * for eligible events. If an event is found, emits encounterTriggered.
+ * for eligible events. Danger events emit encounterTriggered;
+ * narrative events emit narrativeEventTriggered.
  *
  * For jump events, computes dynamic danger probabilities from
  * DangerManager before querying the engine.
