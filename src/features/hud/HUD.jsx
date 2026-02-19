@@ -3,6 +3,7 @@ import { DateDisplay } from './DateDisplay';
 import { ShipStatus } from './ShipStatus';
 import { LocationDisplay } from './LocationDisplay';
 import { QuickAccessButtons } from './QuickAccessButtons';
+import { ActiveMissions } from './ActiveMissions.jsx';
 
 /**
  * HUD component composes all HUD sub-components.
@@ -27,6 +28,7 @@ export function HUD({ onDock, onSystemInfo }) {
       <ShipStatus />
       <LocationDisplay />
       <QuickAccessButtons onDock={onDock} onSystemInfo={onSystemInfo} />
+      <ActiveMissions />
     </div>
   );
 }
