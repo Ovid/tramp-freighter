@@ -791,6 +791,10 @@ export class GameStateManager {
     return this.missionManager.checkMissionDeadlines();
   }
 
+  removeCargoForMission(goodType, quantity) {
+    return this.shipManager.removeCargoForMission(goodType, quantity);
+  }
+
   getActiveMissions() {
     return this.missionManager.getActiveMissions();
   }

@@ -117,6 +117,14 @@ export class MissionManager extends BaseManager {
       this.gameStateManager.modifyKarma(mission.rewards.karma, 'mission');
     }
 
+    // Remove delivered cargo for delivery/fetch missions
+    if ((mission.type === 'delivery' || mission.type === 'fetch') && mission.requirements.cargo) {
+      this.gameStateManager.removeCargoForMission(
+        mission.requirements.cargo,
+        mission.requirements.quantity
+      );
+    }
+
     this.emit('missionsChanged', state.missions);
     this.gameStateManager.saveGame();
 
