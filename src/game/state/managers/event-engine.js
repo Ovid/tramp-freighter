@@ -15,6 +15,14 @@ export class EventEngineManager extends BaseManager {
   }
 
   /**
+   * Remove all registered events.
+   * Call before re-registering to prevent duplicate accumulation.
+   */
+  clearEvents() {
+    this.events = [];
+  }
+
+  /**
    * Register a single event definition.
    * @param {Object} event - Event definition object
    */

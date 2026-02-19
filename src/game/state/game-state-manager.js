@@ -157,7 +157,8 @@ export class GameStateManager {
     // GameStateManager maintains control over its own state
     this.state = completeState;
 
-    // Register event engine events
+    // Register event engine events (clear first to prevent duplicates)
+    this.eventEngineManager.clearEvents();
     this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
     this.eventEngineManager.registerEvents(DANGER_EVENTS);
 
@@ -598,6 +599,7 @@ export class GameStateManager {
   loadGame() {
     const result = this.saveLoadManager.loadGame();
     if (result) {
+      this.eventEngineManager.clearEvents();
       this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
       this.eventEngineManager.registerEvents(DANGER_EVENTS);
     }

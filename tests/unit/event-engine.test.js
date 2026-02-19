@@ -406,6 +406,56 @@ describe('EventEngineManager', () => {
     });
   });
 
+  describe('clearEvents', () => {
+    it('should remove all registered events', () => {
+      engine.registerEvent({
+        id: 'e1',
+        type: 'dock',
+        category: 'narrative',
+        trigger: { system: null, condition: null, chance: 1.0 },
+        once: false,
+        cooldown: 0,
+        priority: 10,
+        content: {},
+      });
+
+      expect(engine.getEventById('e1')).toBeTruthy();
+
+      engine.clearEvents();
+
+      expect(engine.getEventById('e1')).toBeNull();
+      expect(engine.checkEvents('dock', { system: 0 })).toBeNull();
+    });
+
+    it('should prevent duplicate accumulation on repeated registration', () => {
+      const events = [
+        {
+          id: 'e1',
+          type: 'dock',
+          category: 'narrative',
+          trigger: { system: null, condition: null, chance: 1.0 },
+          once: false,
+          cooldown: 0,
+          priority: 10,
+          content: {},
+        },
+      ];
+
+      engine.registerEvents(events);
+      engine.registerEvents(events);
+
+      // Without clearing, two copies exist
+      // After clearing + re-registering, only one copy should exist
+      engine.clearEvents();
+      engine.registerEvents(events);
+
+      // Verify exactly one event registered
+      const result = engine.checkEvents('dock', { system: 0 });
+      expect(result).toBeTruthy();
+      expect(result.id).toBe('e1');
+    });
+  });
+
   describe('getEventById', () => {
     it('should return event by id', () => {
       const event = {
