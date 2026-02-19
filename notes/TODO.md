@@ -1,5 +1,16 @@
 # TODO
-
+ 
+- After the last design doc is implemented, we need a new game to start with
+  instructions. The UI needs to have a convenient place to show them, too, so
+  players can consult. The instructions should not give away too much. The
+  goal is retirement. Space is dangerous. You have a tramp freighter. Here's
+  basic navigation. Now explore. The instructions should also mention that the
+  stars listed are real and we tried to get color and relative sizes correct,
+  aside from a minimum size limit to ensure that the smallest stars are still
+  visible. And yes, the majority of stars are red dwarfs. Until modern
+  astronomy, we didn't know they existed because they were too dim to be seen
+  by the naked eye.
+- Makes sure that information messaged don't show in logs unless .dev exists
 - i18n?
 - Code Coverage
 - Liskov and Law of Demeter?
