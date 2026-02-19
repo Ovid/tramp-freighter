@@ -31,7 +31,9 @@ describe('MissionCompleteNotifier', () => {
   it('should auto-show completion dialog when completable missions exist on dock', () => {
     render(<MissionCompleteNotifier />);
     expect(screen.getByText(/Mission Complete/i)).toBeInTheDocument();
-    expect(screen.getByText(/Cargo Run: parts to Sirius A/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Cargo Run: parts to Sirius A/)
+    ).toBeInTheDocument();
     expect(screen.getByText(/216/)).toBeInTheDocument();
   });
 

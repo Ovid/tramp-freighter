@@ -55,8 +55,7 @@ export function ActiveMissions() {
               <div
                 className={`mission-hud-cargo ${cargoProgress.complete ? 'complete' : ''}`}
               >
-                {cargoProgress.held}/{cargoProgress.needed}{' '}
-                {cargoProgress.good}
+                {cargoProgress.held}/{cargoProgress.needed} {cargoProgress.good}
                 {cargoProgress.complete ? ' \u2713' : ''}
               </div>
             )}

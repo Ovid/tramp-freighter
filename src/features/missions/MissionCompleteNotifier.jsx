@@ -43,9 +43,7 @@ export function MissionCompleteNotifier() {
           {current.rewards && (
             <div className="mission-complete-rewards">
               <h4>Rewards:</h4>
-              {current.rewards.credits && (
-                <div>₡{current.rewards.credits}</div>
-              )}
+              {current.rewards.credits && <div>₡{current.rewards.credits}</div>}
             </div>
           )}
         </div>
