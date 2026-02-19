@@ -123,6 +123,44 @@ export class MissionManager extends BaseManager {
     return { success: true, rewards: mission.rewards };
   }
 
+  checkMissionDeadlines() {
+    this.validateState();
+    const state = this.getState();
+    const currentDay = state.player.daysElapsed;
+
+    const expired = [];
+    const remaining = [];
+
+    for (const mission of state.missions.active) {
+      if (mission.deadlineDay !== undefined && currentDay > mission.deadlineDay) {
+        expired.push(mission);
+      } else {
+        remaining.push(mission);
+      }
+    }
+
+    if (expired.length === 0) return;
+
+    state.missions.active = remaining;
+
+    for (const mission of expired) {
+      state.missions.failed.push(mission.id);
+
+      if (mission.penalties && mission.penalties.failure) {
+        if (mission.penalties.failure.rep) {
+          for (const [npcId, amount] of Object.entries(mission.penalties.failure.rep)) {
+            this.gameStateManager.modifyRep(npcId, amount, 'mission_fail');
+          }
+        }
+        if (mission.penalties.failure.karma) {
+          this.gameStateManager.modifyKarma(mission.penalties.failure.karma, 'mission_fail');
+        }
+      }
+    }
+
+    this.emit('missionsChanged', state.missions);
+  }
+
   getActiveMissions() {
     this.validateState();
     return this.getState().missions.active;
