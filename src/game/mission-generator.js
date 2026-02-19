@@ -40,7 +40,7 @@ export function generateCargoRun(fromSystem, starData, wormholeData, rng = Math.
     giverSystem: fromSystem,
     requirements: { cargo: good, quantity: qty, destination: toSystem, deadline },
     rewards: { credits: reward },
-    penalties: { failure: { rep: { station_master: -2 } } },
+    penalties: { failure: {} },
   };
 }
 
