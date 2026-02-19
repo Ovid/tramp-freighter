@@ -779,6 +779,10 @@ export class GameStateManager {
     return this.missionManager.acceptMission(mission);
   }
 
+  completeMission(missionId) {
+    return this.missionManager.completeMission(missionId);
+  }
+
   getActiveMissions() {
     return this.missionManager.getActiveMissions();
   }

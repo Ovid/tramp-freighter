@@ -34,6 +34,95 @@ export class MissionManager extends BaseManager {
     return { success: true };
   }
 
+  completeMission(missionId) {
+    this.validateState();
+    const state = this.getState();
+
+    const missionIndex = state.missions.active.findIndex((m) => m.id === missionId);
+    if (missionIndex === -1) {
+      return { success: false, reason: 'Mission not found in active missions.' };
+    }
+
+    const mission = state.missions.active[missionIndex];
+
+    if (mission.type === 'delivery') {
+      if (mission.requirements.destination !== state.player.currentSystem) {
+        return { success: false, reason: 'You are not at the mission destination.' };
+      }
+      if (mission.requirements.cargo) {
+        const totalCargo = state.ship.cargo
+          .filter((c) => c.good === mission.requirements.cargo)
+          .reduce((sum, c) => sum + c.qty, 0);
+        if (totalCargo < mission.requirements.quantity) {
+          return { success: false, reason: `Not enough ${mission.requirements.cargo} in cargo.` };
+        }
+      }
+    }
+
+    if (mission.type === 'fetch') {
+      if (mission.giverSystem !== undefined && mission.giverSystem !== state.player.currentSystem) {
+        return { success: false, reason: 'You are not at the mission destination.' };
+      }
+      if (mission.requirements.cargo) {
+        const totalCargo = state.ship.cargo
+          .filter((c) => c.good === mission.requirements.cargo)
+          .reduce((sum, c) => sum + c.qty, 0);
+        if (totalCargo < mission.requirements.quantity) {
+          return { success: false, reason: `Not enough ${mission.requirements.cargo} in cargo.` };
+        }
+      }
+    }
+
+    if (mission.type === 'intel') {
+      if (mission.giverSystem !== undefined && mission.giverSystem !== state.player.currentSystem) {
+        return { success: false, reason: 'You are not at the mission destination.' };
+      }
+      if (mission.requirements.targets) {
+        const unvisited = mission.requirements.targets.filter(
+          (t) => !state.world.visitedSystems.includes(t)
+        );
+        if (unvisited.length > 0) {
+          return { success: false, reason: 'Not all target systems have been visited.' };
+        }
+      }
+    }
+
+    if (mission.type === 'passenger') {
+      if (mission.requirements.destination !== state.player.currentSystem) {
+        return { success: false, reason: 'You are not at the passenger destination.' };
+      }
+    }
+
+    state.missions.active.splice(missionIndex, 1);
+    state.missions.completed.push(missionId);
+
+    if (mission.rewards.credits) {
+      state.player.credits += mission.rewards.credits;
+      this.emit('creditsChanged', state.player.credits);
+    }
+
+    if (mission.rewards.faction) {
+      for (const [faction, amount] of Object.entries(mission.rewards.faction)) {
+        this.gameStateManager.modifyFactionRep(faction, amount, 'mission');
+      }
+    }
+
+    if (mission.rewards.rep) {
+      for (const [npcId, amount] of Object.entries(mission.rewards.rep)) {
+        this.gameStateManager.modifyRep(npcId, amount, 'mission');
+      }
+    }
+
+    if (mission.rewards.karma) {
+      this.gameStateManager.modifyKarma(mission.rewards.karma, 'mission');
+    }
+
+    this.emit('missionsChanged', state.missions);
+    this.gameStateManager.saveGame();
+
+    return { success: true, rewards: mission.rewards };
+  }
+
   getActiveMissions() {
     this.validateState();
     return this.getState().missions.active;
