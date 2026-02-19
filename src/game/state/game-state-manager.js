@@ -13,6 +13,7 @@ import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
+import { MissionManager } from './managers/mission.js';
 
 /**
  * Sanitize ship name input
@@ -90,6 +91,7 @@ export class GameStateManager {
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
     this.dangerManager = new DangerManager(this);
+    this.missionManager = new MissionManager(this);
   }
 
   /**
@@ -767,5 +769,17 @@ export class GameStateManager {
       gameState,
       rng
     );
+  }
+
+  // ========================================================================
+  // MISSION SYSTEM
+  // ========================================================================
+
+  acceptMission(mission) {
+    return this.missionManager.acceptMission(mission);
+  }
+
+  getActiveMissions() {
+    return this.missionManager.getActiveMissions();
   }
 }
