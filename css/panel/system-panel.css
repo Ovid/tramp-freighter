@@ -36,8 +36,8 @@
 
 .system-panel .close-btn {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
   color: var(--color-primary);
