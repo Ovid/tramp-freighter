@@ -248,6 +248,13 @@ export function useGameAction() {
       getCurrentSystemPrices: () => {
         return gameStateManager.getCurrentSystemPrices();
       },
+
+      acceptMission: (mission) => gameStateManager.acceptMission(mission),
+      completeMission: (missionId) => gameStateManager.completeMission(missionId),
+      abandonMission: (missionId) => gameStateManager.abandonMission(missionId),
+      refreshMissionBoard: () => gameStateManager.refreshMissionBoard(),
+      getActiveMissions: () => gameStateManager.getActiveMissions(),
+      getCompletableMissions: () => gameStateManager.getCompletableMissions(),
     }),
     [gameStateManager]
   );
