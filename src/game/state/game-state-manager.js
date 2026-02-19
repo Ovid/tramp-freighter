@@ -14,6 +14,8 @@ import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
 import { MissionManager } from './managers/mission.js';
+import { EventEngineManager } from './managers/event-engine.js';
+import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 
 /**
  * Sanitize ship name input
@@ -92,6 +94,7 @@ export class GameStateManager {
     this.infoBrokerManager = new InfoBrokerManager(this);
     this.dangerManager = new DangerManager(this);
     this.missionManager = new MissionManager(this);
+    this.eventEngineManager = new EventEngineManager(this);
   }
 
   /**
@@ -152,6 +155,9 @@ export class GameStateManager {
 
     // GameStateManager maintains control over its own state
     this.state = completeState;
+
+    // Register narrative events
+    this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
 
     if (!this.isTestEnvironment) {
       console.log('New game initialized:', completeState);
@@ -588,7 +594,11 @@ export class GameStateManager {
   }
 
   loadGame() {
-    return this.saveLoadManager.loadGame();
+    const result = this.saveLoadManager.loadGame();
+    if (result) {
+      this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
+    }
+    return result;
   }
 
   hasSavedGame() {
@@ -805,5 +815,37 @@ export class GameStateManager {
 
   getActiveMissions() {
     return this.missionManager.getActiveMissions();
+  }
+
+  // ========================================================================
+  // EVENT ENGINE
+  // ========================================================================
+
+  registerEvent(event) {
+    return this.eventEngineManager.registerEvent(event);
+  }
+
+  registerEvents(events) {
+    return this.eventEngineManager.registerEvents(events);
+  }
+
+  checkEvents(eventType, context, rng) {
+    return this.eventEngineManager.checkEvents(eventType, context, rng);
+  }
+
+  getEventById(id) {
+    return this.eventEngineManager.getEventById(id);
+  }
+
+  markEventFired(eventId) {
+    return this.eventEngineManager.markFired(eventId);
+  }
+
+  setEventCooldown(eventId, cooldownDays) {
+    return this.eventEngineManager.setCooldown(eventId, cooldownDays);
+  }
+
+  setNarrativeFlag(flagName) {
+    return this.eventEngineManager.setFlag(flagName);
   }
 }
