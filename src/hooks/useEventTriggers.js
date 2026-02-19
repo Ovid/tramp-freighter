@@ -122,7 +122,9 @@ export function useEventTriggers() {
    */
   const emitNarrativeEvent = useCallback(
     (event) => {
-      gameStateManager.emit('narrativeEventTriggered', event);
+      // Spread to create a fresh reference so React detects the update
+      // and App.jsx de-dupe guard allows repeatable events to re-fire
+      gameStateManager.emit('narrativeEventTriggered', { ...event });
     },
     [gameStateManager]
   );
