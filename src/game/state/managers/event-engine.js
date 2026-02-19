@@ -47,10 +47,14 @@ export class EventEngineManager extends BaseManager {
    *
    * @param {string} eventType - 'dock' | 'jump' | 'time' | 'condition'
    * @param {Object} context - { system, chances, ... }
-   * @param {number} rng - Random number 0-1 for chance rolls (defaults to Math.random())
+   * @param {Function|number} rngFn - RNG source: a function returning 0-1 (called per event),
+   *   or a single number for backwards compat (applied to all events). Defaults to Math.random.
    * @returns {Object|null} Winning event or null
    */
-  checkEvents(eventType, context = {}, rng = Math.random()) {
+  checkEvents(eventType, context = {}, rngFn = Math.random) {
+    // Backwards compat: if a number is passed, convert to a function
+    const rollFn = typeof rngFn === 'function' ? rngFn : () => rngFn;
+
     const state = this.getState();
     const { narrativeEvents } = state.world;
 
@@ -83,12 +87,12 @@ export class EventEngineManager extends BaseManager {
         }
       }
 
-      // Chance roll — supports static number or dynamic string lookup
+      // Chance roll — each event gets its own independent roll
       let chance = event.trigger.chance;
       if (typeof chance === 'string') {
         chance = context.chances?.[chance] ?? 0;
       }
-      if (rng >= chance) return false;
+      if (rollFn() >= chance) return false;
 
       return true;
     });

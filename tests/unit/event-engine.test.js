@@ -332,6 +332,80 @@ describe('EventEngineManager', () => {
     });
   });
 
+  describe('per-event RNG independence', () => {
+    it('should allow lower-priority event to fire when higher-priority fails its own roll', () => {
+      // Pirate: priority 100, chance 0.15
+      engine.registerEvent({
+        id: 'pirate',
+        type: 'jump',
+        category: 'danger',
+        trigger: { system: null, condition: null, chance: 'pirate_chance' },
+        once: false,
+        cooldown: 0,
+        priority: 100,
+        encounter: { generator: 'pirate' },
+      });
+
+      // Inspection: priority 80, chance 0.10
+      engine.registerEvent({
+        id: 'inspection',
+        type: 'jump',
+        category: 'danger',
+        trigger: { system: null, condition: null, chance: 'inspection_chance' },
+        once: false,
+        cooldown: 0,
+        priority: 80,
+        encounter: { generator: 'inspection' },
+      });
+
+      const context = {
+        system: 4,
+        chances: { pirate_chance: 0.15, inspection_chance: 0.1 },
+      };
+
+      // Provide per-event rolls: pirate gets 0.9 (fails), inspection gets 0.05 (passes)
+      const rolls = [0.9, 0.05];
+      let rollIndex = 0;
+      const rngFn = () => rolls[rollIndex++];
+
+      const result = engine.checkEvents('jump', context, rngFn);
+      expect(result).not.toBeNull();
+      expect(result.id).toBe('inspection');
+    });
+
+    it('should give each event its own independent roll', () => {
+      engine.registerEvent({
+        id: 'high_pri',
+        type: 'dock',
+        category: 'narrative',
+        trigger: { system: null, condition: null, chance: 0.5 },
+        once: false,
+        cooldown: 0,
+        priority: 20,
+        content: {},
+      });
+      engine.registerEvent({
+        id: 'low_pri',
+        type: 'dock',
+        category: 'narrative',
+        trigger: { system: null, condition: null, chance: 0.5 },
+        once: false,
+        cooldown: 0,
+        priority: 10,
+        content: {},
+      });
+
+      // high_pri rolls 0.8 (fails), low_pri rolls 0.2 (passes)
+      const rolls = [0.8, 0.2];
+      let rollIndex = 0;
+      const rngFn = () => rolls[rollIndex++];
+
+      const result = engine.checkEvents('dock', { system: 0 }, rngFn);
+      expect(result).not.toBeNull();
+      expect(result.id).toBe('low_pri');
+    });
+  });
+
   describe('getEventById', () => {
     it('should return event by id', () => {
       const event = {
