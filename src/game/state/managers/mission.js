@@ -200,6 +200,44 @@ export class MissionManager extends BaseManager {
     this.emit('missionsChanged', state.missions);
   }
 
+  getCompletableMissions() {
+    this.validateState();
+    const state = this.getState();
+
+    return state.missions.active.filter((mission) => {
+      if (mission.type === 'delivery') {
+        if (mission.requirements.destination !== state.player.currentSystem) return false;
+        if (mission.requirements.cargo) {
+          const totalCargo = state.ship.cargo
+            .filter((c) => c.good === mission.requirements.cargo)
+            .reduce((sum, c) => sum + c.qty, 0);
+          return totalCargo >= mission.requirements.quantity;
+        }
+        return true;
+      }
+      if (mission.type === 'fetch') {
+        if (mission.giverSystem !== state.player.currentSystem) return false;
+        if (mission.requirements.cargo) {
+          const totalCargo = state.ship.cargo
+            .filter((c) => c.good === mission.requirements.cargo)
+            .reduce((sum, c) => sum + c.qty, 0);
+          return totalCargo >= mission.requirements.quantity;
+        }
+        return true;
+      }
+      if (mission.type === 'intel') {
+        if (mission.giverSystem !== state.player.currentSystem) return false;
+        return mission.requirements.targets.every(
+          (t) => state.world.visitedSystems.includes(t)
+        );
+      }
+      if (mission.type === 'passenger') {
+        return mission.requirements.destination === state.player.currentSystem;
+      }
+      return false;
+    });
+  }
+
   getActiveMissions() {
     this.validateState();
     return this.getState().missions.active;
