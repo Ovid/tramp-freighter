@@ -68,7 +68,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     };
 
     // Migrate the state
-    const migratedState = migrateFromV2_1ToV4(v2_1_0State, true);
+    const migratedState = migrateFromV2_1ToV4(v2_1_0State);
 
     // Verify migration results
     expect(migratedState.meta.version).toBe('4.0.0');
@@ -321,7 +321,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     };
 
     // Migrate the state
-    const migratedState = migrateFromV2_1ToV4(v2_1_0StateWithNPCs, true);
+    const migratedState = migrateFromV2_1ToV4(v2_1_0StateWithNPCs);
 
     // Verify existing NPC data is preserved
     expect(migratedState.meta.version).toBe('4.0.0');

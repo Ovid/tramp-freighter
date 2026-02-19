@@ -1,4 +1,5 @@
 import { SHIP_CONFIG } from '../constants.js';
+import { devLog } from '../utils/dev-logger.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -162,9 +163,7 @@ export class GameStateManager {
     this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
     this.eventEngineManager.registerEvents(DANGER_EVENTS);
 
-    if (!this.isTestEnvironment) {
-      console.log('New game initialized:', completeState);
-    }
+    devLog('New game initialized:', completeState);
 
     // Emit all initial state events for UI synchronization
     this.initializationManager.emitInitialEvents(completeState);

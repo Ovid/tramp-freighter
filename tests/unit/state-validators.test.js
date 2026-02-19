@@ -170,7 +170,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add ship condition fields with max values', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(migrated.ship.hull).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
       expect(migrated.ship.engine).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
@@ -178,7 +178,7 @@ describe('State Validators Module', () => {
     });
 
     it('should migrate cargo field names from old to new', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       migrated.ship.cargo.forEach((stack) => {
         expect(stack.buyPrice).toBeDefined();
@@ -187,7 +187,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add cargo metadata with defaults', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       migrated.ship.cargo.forEach((stack) => {
         expect(stack.buySystem).toBe(0);
@@ -197,7 +197,7 @@ describe('State Validators Module', () => {
     });
 
     it('should initialize ship personality fields', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(Array.isArray(migrated.ship.quirks)).toBe(true);
       expect(Array.isArray(migrated.ship.upgrades)).toBe(true);
@@ -206,7 +206,7 @@ describe('State Validators Module', () => {
     });
 
     it('should initialize price knowledge', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(migrated.world.priceKnowledge).toBeDefined();
       expect(migrated.world.priceKnowledge[0]).toBeDefined();
@@ -215,21 +215,21 @@ describe('State Validators Module', () => {
     });
 
     it('should initialize active events array', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(Array.isArray(migrated.world.activeEvents)).toBe(true);
       expect(migrated.world.activeEvents).toHaveLength(0);
     });
 
     it('should initialize market conditions', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(migrated.world.marketConditions).toBeDefined();
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
     it('should update version to 2.0.0', () => {
-      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
       expect(migrated.meta.version).toBe('2.0.0');
     });
@@ -238,7 +238,7 @@ describe('State Validators Module', () => {
       v1State.player.currentSystem = 999;
 
       expect(() => {
-        migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+        migrateFromV1ToV2(v1State, TEST_STAR_DATA);
       }).toThrow('Migration failed');
     });
 
@@ -250,7 +250,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
         // Should only keep valid quirks (none in this case since we don't have real quirk IDs)
         expect(Array.isArray(migrated.ship.quirks)).toBe(true);
@@ -267,7 +267,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA, true);
+        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
         // Should only keep valid upgrades (none in this case since we don't have real upgrade IDs)
         expect(Array.isArray(migrated.ship.upgrades)).toBe(true);
@@ -310,20 +310,20 @@ describe('State Validators Module', () => {
     });
 
     it('should add market conditions', () => {
-      const migrated = migrateFromV2ToV2_1(v2State, true);
+      const migrated = migrateFromV2ToV2_1(v2State);
 
       expect(migrated.world.marketConditions).toBeDefined();
       expect(typeof migrated.world.marketConditions).toBe('object');
     });
 
     it('should update version to 2.1.0', () => {
-      const migrated = migrateFromV2ToV2_1(v2State, true);
+      const migrated = migrateFromV2ToV2_1(v2State);
 
       expect(migrated.meta.version).toBe('2.1.0');
     });
 
     it('should preserve existing state', () => {
-      const migrated = migrateFromV2ToV2_1(v2State, true);
+      const migrated = migrateFromV2ToV2_1(v2State);
 
       expect(migrated.player.credits).toBe(1000);
       expect(migrated.ship.hull).toBe(85);
@@ -359,7 +359,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add missing ship condition fields', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.ship.hull).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
       expect(normalized.ship.engine).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
@@ -372,7 +372,7 @@ describe('State Validators Module', () => {
       partialState.ship.hull = 75;
       partialState.ship.engine = 80;
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.ship.hull).toBe(75);
       expect(normalized.ship.engine).toBe(80);
@@ -382,7 +382,7 @@ describe('State Validators Module', () => {
     });
 
     it('should add missing ship personality fields', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(Array.isArray(normalized.ship.quirks)).toBe(true);
       expect(Array.isArray(normalized.ship.upgrades)).toBe(true);
@@ -395,7 +395,7 @@ describe('State Validators Module', () => {
         { good: 'grain', qty: 10, purchasePrice: 100 },
       ];
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.ship.cargo[0].buyPrice).toBe(100);
       expect(normalized.ship.cargo[0].purchasePrice).toBeUndefined();
@@ -410,7 +410,7 @@ describe('State Validators Module', () => {
       console.warn = (...args) => warnings.push(args);
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
         expect(normalized.ship.cargo[0].buySystem).toBe(0);
         expect(normalized.ship.cargo[0].buySystemName).toBe('Sol');
@@ -432,7 +432,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
         // Invalid stack should still be in array but skipped during repair
         expect(normalized.ship.cargo).toHaveLength(3);
@@ -442,20 +442,20 @@ describe('State Validators Module', () => {
     });
 
     it('should initialize missing price knowledge', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.world.priceKnowledge).toBeDefined();
       expect(normalized.world.priceKnowledge[0]).toBeDefined();
     });
 
     it('should initialize missing active events', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(Array.isArray(normalized.world.activeEvents)).toBe(true);
     });
 
     it('should initialize missing market conditions', () => {
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.world.marketConditions).toBeDefined();
     });
@@ -464,7 +464,7 @@ describe('State Validators Module', () => {
       partialState.player.currentSystem = 999;
 
       expect(() => {
-        addStateDefaults(partialState, TEST_STAR_DATA, true);
+        addStateDefaults(partialState, TEST_STAR_DATA);
       }).toThrow('Load failed');
     });
 
@@ -476,7 +476,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
         expect(normalized.ship.quirks).toHaveLength(0);
       } finally {
@@ -492,7 +492,7 @@ describe('State Validators Module', () => {
       console.warn = () => {};
 
       try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
         expect(normalized.ship.upgrades).toHaveLength(0);
       } finally {
@@ -504,7 +504,7 @@ describe('State Validators Module', () => {
       // Simulate old save: no world.narrativeEvents at all
       expect(partialState.world.narrativeEvents).toBeUndefined();
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.world.narrativeEvents).toEqual({
         fired: [],
@@ -522,7 +522,7 @@ describe('State Validators Module', () => {
         dockedSystems: [0],
       };
 
-      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
       expect(normalized.world.narrativeEvents.fired).toContain(
         'dock_sol_first'

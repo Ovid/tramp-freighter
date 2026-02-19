@@ -46,11 +46,7 @@ export class SaveLoadManager extends BaseManager {
    * @returns {boolean} True if save succeeded or was debounced, false if failed
    */
   saveGame() {
-    const result = saveGameToStorage(
-      this.getState(),
-      this.lastSaveTime,
-      this.isTestEnvironment
-    );
+    const result = saveGameToStorage(this.getState(), this.lastSaveTime);
 
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
@@ -81,7 +77,7 @@ export class SaveLoadManager extends BaseManager {
   loadGame() {
     try {
       // Load raw state from localStorage
-      let loadedState = loadGameFromStorage(this.isTestEnvironment);
+      let loadedState = loadGameFromStorage();
 
       if (!loadedState) {
         return null;
@@ -103,11 +99,7 @@ export class SaveLoadManager extends BaseManager {
       }
 
       // Add defaults for missing fields
-      loadedState = addStateDefaults(
-        loadedState,
-        this.getStarData(),
-        this.isTestEnvironment
-      );
+      loadedState = addStateDefaults(loadedState, this.getStarData());
 
       // Set the loaded state in GameStateManager
       this.gameStateManager.state = loadedState;
@@ -133,43 +125,27 @@ export class SaveLoadManager extends BaseManager {
 
     // Migrate from v1.0.0 if needed
     if (migratedState.meta.version === '1.0.0') {
-      migratedState = migrateFromV1ToV2(
-        migratedState,
-        this.getStarData(),
-        this.isTestEnvironment
-      );
+      migratedState = migrateFromV1ToV2(migratedState, this.getStarData());
     }
 
     // Migrate from v2.0.0 if needed
     if (migratedState.meta.version === '2.0.0') {
-      migratedState = migrateFromV2ToV2_1(
-        migratedState,
-        this.isTestEnvironment
-      );
+      migratedState = migrateFromV2ToV2_1(migratedState);
     }
 
     // Migrate from v2.1.0 if needed
     if (migratedState.meta.version === '2.1.0') {
-      migratedState = migrateFromV2_1ToV4(
-        migratedState,
-        this.isTestEnvironment
-      );
+      migratedState = migrateFromV2_1ToV4(migratedState);
     }
 
     // Migrate from v4.0.0 if needed
     if (migratedState.meta.version === '4.0.0') {
-      migratedState = migrateFromV4ToV4_1(
-        migratedState,
-        this.isTestEnvironment
-      );
+      migratedState = migrateFromV4ToV4_1(migratedState);
     }
 
     // Migrate from v4.1.0 to v5.0.0 if needed
     if (migratedState.meta.version === '4.1.0' && GAME_VERSION === '5.0.0') {
-      migratedState = migrateFromV4_1ToV5(
-        migratedState,
-        this.isTestEnvironment
-      );
+      migratedState = migrateFromV4_1ToV5(migratedState);
     }
 
     return migratedState;
@@ -234,7 +210,7 @@ export class SaveLoadManager extends BaseManager {
   attemptNPCRecovery() {
     try {
       // Try to load again with NPC data reset
-      let recoveredState = loadGameFromStorage(this.isTestEnvironment);
+      let recoveredState = loadGameFromStorage();
       if (recoveredState && recoveredState.npcs) {
         recoveredState.npcs = {};
         if (recoveredState.dialogue) {
@@ -250,8 +226,7 @@ export class SaveLoadManager extends BaseManager {
         if (validateStateStructure(recoveredState)) {
           recoveredState = addStateDefaults(
             recoveredState,
-            this.getStarData(),
-            this.isTestEnvironment
+            this.getStarData()
           );
           this.gameStateManager.state = recoveredState;
 
@@ -283,7 +258,7 @@ export class SaveLoadManager extends BaseManager {
    * @returns {boolean} True if clear succeeded
    */
   clearSave() {
-    return clearSaveFromStorage(this.isTestEnvironment);
+    return clearSaveFromStorage();
   }
 
   /**

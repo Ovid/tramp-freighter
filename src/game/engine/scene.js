@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { VISUAL_CONFIG, SPECTRAL_COLORS, DEV_MODE } from '../constants.js';
+import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
+import { devLog } from '../utils/dev-logger.js';
 import { createStarSystems } from './stars.js';
 import { createWormholeLines } from './wormholes.js';
 import { STAR_DATA } from '../data/star-data.js';
@@ -62,9 +63,7 @@ export function initScene() {
 
     const controls = setupCameraControls(camera, renderer);
 
-    if (DEV_MODE) {
-      console.log('Scene initialized successfully');
-    }
+    devLog('Scene initialized successfully');
 
     // Add visual content to scene
     const starfield = createStarfield(scene);
@@ -138,9 +137,7 @@ function setupCameraControls(camera, renderer) {
   // Update controls to apply initial settings
   controls.update();
 
-  if (DEV_MODE) {
-    console.log('Camera controls initialized with OrbitControls');
-  }
+  devLog('Camera controls initialized with OrbitControls');
 
   return controls;
 }
@@ -193,11 +190,9 @@ export function setupSectorBoundary(scene) {
   // Add to scene
   scene.add(sectorBoundary);
 
-  if (DEV_MODE) {
-    console.log(
-      `Sector boundary created with radius ${VISUAL_CONFIG.sectorBoundaryRadius}`
-    );
-  }
+  devLog(
+    `Sector boundary created with radius ${VISUAL_CONFIG.sectorBoundaryRadius}`
+  );
 
   return sectorBoundary;
 }
@@ -295,9 +290,7 @@ export function createStarfield(scene) {
   // Add to scene
   scene.add(starfield);
 
-  if (DEV_MODE) {
-    console.log(`Created starfield background with ${starCount} stars`);
-  }
+  devLog(`Created starfield background with ${starCount} stars`);
 
   return starfield;
 }

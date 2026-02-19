@@ -32,7 +32,7 @@ describe('save-load module', () => {
     it('should save game state to localStorage', () => {
       const testState = createTestState();
 
-      const result = saveGame(testState, 0, true);
+      const result = saveGame(testState, 0);
 
       expect(result.success).toBe(true);
       expect(result.newLastSaveTime).toBeGreaterThan(0);
@@ -43,15 +43,11 @@ describe('save-load module', () => {
       const testState = createTestState();
 
       // First save should succeed
-      const firstResult = saveGame(testState, 0, true);
+      const firstResult = saveGame(testState, 0);
       expect(firstResult.success).toBe(true);
 
       // Immediate second save should be debounced
-      const secondResult = saveGame(
-        testState,
-        firstResult.newLastSaveTime,
-        true
-      );
+      const secondResult = saveGame(testState, firstResult.newLastSaveTime);
       expect(secondResult.success).toBe(false);
       expect(secondResult.newLastSaveTime).toBe(firstResult.newLastSaveTime);
     });
@@ -62,7 +58,7 @@ describe('save-load module', () => {
       console.error = () => {};
 
       try {
-        const result = saveGame(null, 0, true);
+        const result = saveGame(null, 0);
         expect(result.success).toBe(false);
       } finally {
         console.error = originalConsoleError;
@@ -75,10 +71,10 @@ describe('save-load module', () => {
       const testState = createTestState();
 
       // Save first
-      saveGame(testState, 0, true);
+      saveGame(testState, 0);
 
       // Then load
-      const loadedState = loadGame(true);
+      const loadedState = loadGame();
 
       expect(loadedState).not.toBeNull();
       expect(loadedState.player.credits).toBe(1000);
@@ -86,13 +82,13 @@ describe('save-load module', () => {
     });
 
     it('should return null if no save exists', () => {
-      const loadedState = loadGame(true);
+      const loadedState = loadGame();
       expect(loadedState).toBeNull();
     });
 
     it('should return null if save data is corrupted', () => {
       localStorage.setItem('trampFreighterSave', 'invalid json');
-      const loadedState = loadGame(true);
+      const loadedState = loadGame();
       expect(loadedState).toBeNull();
     });
   });
@@ -101,7 +97,7 @@ describe('save-load module', () => {
     it('should return true if save exists', () => {
       const testState = createTestState();
 
-      saveGame(testState, 0, true);
+      saveGame(testState, 0);
       expect(hasSavedGame()).toBe(true);
     });
 
@@ -115,11 +111,11 @@ describe('save-load module', () => {
       const testState = createTestState();
 
       // Save first
-      saveGame(testState, 0, true);
+      saveGame(testState, 0);
       expect(hasSavedGame()).toBe(true);
 
       // Clear
-      const result = clearSave(true);
+      const result = clearSave();
       expect(result).toBe(true);
       expect(hasSavedGame()).toBe(false);
     });

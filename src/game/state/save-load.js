@@ -1,4 +1,5 @@
 import { SAVE_KEY, UI_CONFIG } from '../constants.js';
+import { devLog } from '../utils/dev-logger.js';
 
 /**
  * Save game state to localStorage with debouncing
@@ -10,10 +11,9 @@ import { SAVE_KEY, UI_CONFIG } from '../constants.js';
  *
  * @param {Object} state - Complete game state to save
  * @param {number} lastSaveTime - Timestamp of last save (milliseconds since epoch)
- * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses console output)
  * @returns {Object} { success: boolean, newLastSaveTime: number }
  */
-export function saveGame(state, lastSaveTime, isTestEnvironment) {
+export function saveGame(state, lastSaveTime) {
   if (!state) {
     console.error('Cannot save: no game state exists');
     return { success: false, newLastSaveTime: lastSaveTime };
@@ -22,9 +22,7 @@ export function saveGame(state, lastSaveTime, isTestEnvironment) {
   // Debounce: skip save if less than 1 second since last save
   const now = Date.now();
   if (now - lastSaveTime < UI_CONFIG.SAVE_DEBOUNCE_MS) {
-    if (!isTestEnvironment) {
-      console.log('Save debounced (too soon since last save)');
-    }
+    devLog('Save debounced (too soon since last save)');
     return { success: false, newLastSaveTime: lastSaveTime };
   }
 
@@ -40,9 +38,7 @@ export function saveGame(state, lastSaveTime, isTestEnvironment) {
     const saveData = JSON.stringify(stateToSave);
     localStorage.setItem(SAVE_KEY, saveData);
 
-    if (!isTestEnvironment) {
-      console.log('Game saved successfully');
-    }
+    devLog('Game saved successfully');
     return { success: true, newLastSaveTime: now };
   } catch (error) {
     console.error('Failed to save game:', error);
@@ -56,32 +52,25 @@ export function saveGame(state, lastSaveTime, isTestEnvironment) {
  * Returns the raw loaded state without validation or migration.
  * Validation and migration should be handled by the caller.
  *
- * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses console output)
  * @returns {Object|null} Loaded state or null if no save exists or load fails
  */
-export function loadGame(isTestEnvironment) {
+export function loadGame() {
   try {
     // Retrieve save data from localStorage
     const saveData = localStorage.getItem(SAVE_KEY);
 
     if (!saveData) {
-      if (!isTestEnvironment) {
-        console.log('No saved game found');
-      }
+      devLog('No saved game found');
       return null;
     }
 
     const loadedState = JSON.parse(saveData);
 
-    if (!isTestEnvironment) {
-      console.log('Game loaded successfully');
-    }
+    devLog('Game loaded successfully');
 
     return loadedState;
   } catch (error) {
-    if (!isTestEnvironment) {
-      console.log('Failed to load game:', error);
-    }
+    devLog('Failed to load game:', error);
     return null;
   }
 }
@@ -104,15 +93,12 @@ export function hasSavedGame() {
 /**
  * Clear saved game from localStorage
  *
- * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses console output)
  * @returns {boolean} True if clear succeeded
  */
-export function clearSave(isTestEnvironment) {
+export function clearSave() {
   try {
     localStorage.removeItem(SAVE_KEY);
-    if (!isTestEnvironment) {
-      console.log('Save data cleared');
-    }
+    devLog('Save data cleared');
     return true;
   } catch (error) {
     console.error('Failed to clear save:', error);

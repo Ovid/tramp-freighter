@@ -1,5 +1,6 @@
 import { GAME_VERSION, SHIP_CONFIG, COMMODITY_TYPES } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
+import { devLog, devWarn } from '../utils/dev-logger.js';
 
 /**
  * State Validators Module
@@ -15,25 +16,17 @@ import { TradingSystem } from '../game-trading.js';
  * @param {Array} configIds - Array of configuration IDs to validate
  * @param {Object} validConfigs - Map of valid IDs (e.g., SHIP_CONFIG.QUIRKS)
  * @param {string} configType - Type of config for warning messages ('quirk' or 'upgrade')
- * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses warnings)
  * @returns {Array} Filtered array containing only valid IDs
  */
-function validateShipConfigIds(
-  configIds,
-  validConfigs,
-  configType,
-  isTestEnvironment
-) {
+function validateShipConfigIds(configIds, validConfigs, configType) {
   const validatedIds = [];
   for (const configId of configIds) {
     if (validConfigs[configId]) {
       validatedIds.push(configId);
     } else {
-      if (!isTestEnvironment) {
-        console.warn(
-          `Unknown ${configType} ID: ${configId}, removing from save data`
-        );
-      }
+      devWarn(
+        `Unknown ${configType} ID: ${configId}, removing from save data`
+      );
     }
   }
   return validatedIds;
@@ -57,21 +50,21 @@ function validateAndRepairCargoStacks(
   for (const cargoStack of cargoStacks) {
     // Ensure all required fields are present
     if (!cargoStack.good || typeof cargoStack.qty !== 'number') {
-      console.warn(
+      devWarn(
         `Invalid ${compartmentType} stack found, skipping:`,
         cargoStack
       );
       continue;
     }
     if (typeof cargoStack.buyPrice !== 'number') {
-      console.warn(
+      devWarn(
         `${compartmentType} stack missing buyPrice, using 0:`,
         cargoStack.good
       );
       cargoStack.buyPrice = 0;
     }
     if (typeof cargoStack.buySystem !== 'number') {
-      console.warn(
+      devWarn(
         `${compartmentType} stack missing buySystem, using current system:`,
         cargoStack.good
       );
@@ -432,13 +425,10 @@ export function validateStateStructure(state) {
  *
  * @param {Object} state - v1.0.0 state
  * @param {Array} systemData - Star system data for lookups
- * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v4.1.0 state
  */
-export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
-  if (!isTestEnvironment) {
-    console.log('Migrating save from v1.0.0 to v4.1.0');
-  }
+export function migrateFromV1ToV2(state, systemData) {
+  devLog('Migrating save from v1.0.0 to v4.1.0');
 
   // Add ship condition fields (default to maximum)
   if (state.ship.hull === undefined) {
@@ -490,8 +480,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     state.ship.quirks = validateShipConfigIds(
       state.ship.quirks,
       SHIP_CONFIG.QUIRKS,
-      'quirk',
-      isTestEnvironment
+      'quirk'
     );
   }
 
@@ -500,8 +489,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
       SHIP_CONFIG.UPGRADES,
-      'upgrade',
-      isTestEnvironment
+      'upgrade'
     );
   }
 
@@ -567,9 +555,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
   // Step to v2.0.0 (chain continues through subsequent migrations)
   state.meta.version = '2.0.0';
 
-  if (!isTestEnvironment) {
-    console.log('Migration to v2.0.0 complete');
-  }
+  devLog('Migration to v2.0.0 complete');
 
   return state;
 }
@@ -583,13 +569,10 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
  * - Dialogue state management
  *
  * @param {Object} state - v2.0.0 state
- * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v4.0.0 state
  */
-export function migrateFromV2ToV2_1(state, isTestEnvironment) {
-  if (!isTestEnvironment) {
-    console.log('Migrating save from v2.0.0 to v2.1.0');
-  }
+export function migrateFromV2ToV2_1(state) {
+  devLog('Migrating save from v2.0.0 to v2.1.0');
 
   // Add market conditions (empty object for backward compatibility)
   if (!state.world.marketConditions) {
@@ -614,9 +597,7 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
   // Step to v2.1.0 (chain continues through subsequent migrations)
   state.meta.version = '2.1.0';
 
-  if (!isTestEnvironment) {
-    console.log('Migration to v2.1.0 complete');
-  }
+  devLog('Migration to v2.1.0 complete');
 
   return state;
 }
@@ -629,13 +610,10 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
  * - Dialogue state management
  *
  * @param {Object} state - v2.1.0 state
- * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v4.0.0 state
  */
-export function migrateFromV2_1ToV4(state, isTestEnvironment) {
-  if (!isTestEnvironment) {
-    console.log('Migrating save from v2.1.0 to v4.0.0');
-  }
+export function migrateFromV2_1ToV4(state) {
+  devLog('Migrating save from v2.1.0 to v4.0.0');
 
   // Add NPC state tracking (empty object for backward compatibility)
   if (!state.npcs) {
@@ -655,9 +633,7 @@ export function migrateFromV2_1ToV4(state, isTestEnvironment) {
   // Step to v4.0.0 (chain continues through subsequent migrations)
   state.meta.version = '4.0.0';
 
-  if (!isTestEnvironment) {
-    console.log('Migration to v4.0.0 complete');
-  }
+  devLog('Migration to v4.0.0 complete');
 
   return state;
 }
@@ -666,10 +642,9 @@ export function migrateFromV2_1ToV4(state, isTestEnvironment) {
  * Add defaults for missing fields in loaded state
  * @param {Object} state - State to normalize
  * @param {Array} systemData - Star system data for lookups
- * @param {boolean} isTestEnvironment - Whether running in test mode (suppresses warnings)
  * @returns {Object} Normalized state
  */
-export function addStateDefaults(state, systemData, isTestEnvironment = false) {
+export function addStateDefaults(state, systemData) {
   // Add defaults for missing Phase 2 fields
   if (state.ship.hull === undefined) {
     state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
@@ -707,8 +682,7 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
     state.ship.quirks = validateShipConfigIds(
       state.ship.quirks,
       SHIP_CONFIG.QUIRKS,
-      'quirk',
-      isTestEnvironment
+      'quirk'
     );
   }
 
@@ -717,8 +691,7 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
       SHIP_CONFIG.UPGRADES,
-      'upgrade',
-      isTestEnvironment
+      'upgrade'
     );
   }
 
@@ -894,13 +867,10 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
  * - NPC benefits tracking (lastTipDay, lastFavorDay, loanAmount, loanDay, storedCargo, lastFreeRepairDay)
  *
  * @param {Object} state - v4.0.0 state
- * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v4.1.0 state
  */
-export function migrateFromV4ToV4_1(state, isTestEnvironment) {
-  if (!isTestEnvironment) {
-    console.log('Migrating save from v4.0.0 to v4.1.0');
-  }
+export function migrateFromV4ToV4_1(state) {
+  devLog('Migrating save from v4.0.0 to v4.1.0');
 
   // Add NPC benefits fields to existing NPC state entries
   if (state.npcs && typeof state.npcs === 'object') {
@@ -932,9 +902,7 @@ export function migrateFromV4ToV4_1(state, isTestEnvironment) {
   // Step to v4.1.0 (next migration will bring to v5.0.0)
   state.meta.version = '4.1.0';
 
-  if (!isTestEnvironment) {
-    console.log('Migration to v4.1.0 complete');
-  }
+  devLog('Migration to v4.1.0 complete');
 
   return state;
 }
@@ -946,13 +914,10 @@ export function migrateFromV4ToV4_1(state, isTestEnvironment) {
  * - missions state (active, completed, failed, board, boardLastRefresh)
  *
  * @param {Object} state - v4.1.0 state
- * @param {boolean} isTestEnvironment - Whether running in test mode
  * @returns {Object} Migrated v5.0.0 state
  */
-export function migrateFromV4_1ToV5(state, isTestEnvironment) {
-  if (!isTestEnvironment) {
-    console.log('Migrating save from v4.1.0 to v5.0.0');
-  }
+export function migrateFromV4_1ToV5(state) {
+  devLog('Migrating save from v4.1.0 to v5.0.0');
 
   if (!state.missions) {
     state.missions = {
@@ -966,9 +931,7 @@ export function migrateFromV4_1ToV5(state, isTestEnvironment) {
 
   state.meta.version = GAME_VERSION;
 
-  if (!isTestEnvironment) {
-    console.log('Migration complete');
-  }
+  devLog('Migration complete');
 
   return state;
 }

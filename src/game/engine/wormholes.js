@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { VISUAL_CONFIG, NAVIGATION_CONFIG, DEV_MODE } from '../constants.js';
+import { VISUAL_CONFIG, NAVIGATION_CONFIG } from '../constants.js';
+import { devLog } from '../utils/dev-logger.js';
 
 // Store wormhole connection objects for dynamic color updates
 const wormholeConnections = [];
@@ -120,9 +121,7 @@ export function createWormholeLines(scene, connections, starObjects) {
     }
   });
 
-  if (DEV_MODE) {
-    console.log(`Created ${validConnections} wormhole connections`);
-  }
+  devLog(`Created ${validConnections} wormhole connections`);
   if (invalidConnections > 0) {
     console.warn(`Skipped ${invalidConnections} invalid wormhole connections`);
   }

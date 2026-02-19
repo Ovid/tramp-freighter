@@ -15,6 +15,7 @@ import { GameProvider } from './context/GameContext';
 import { STAR_DATA } from './game/data/star-data';
 import { WORMHOLE_DATA } from './game/data/wormhole-data';
 import { initDevMode } from './game/constants';
+import { devLog } from './game/utils/dev-logger';
 
 // 5. Styles (CSS imports)
 import '../css/base.css';
@@ -66,7 +67,7 @@ function initializeGameStateManager() {
   // Try to load saved game
   let savedGame = null;
   try {
-    savedGame = loadGame(false); // false = not test environment
+    savedGame = loadGame();
   } catch (loadError) {
     console.error('Failed to load saved game:', loadError);
     // Continue with new game if load fails
@@ -75,11 +76,11 @@ function initializeGameStateManager() {
   if (savedGame) {
     // Restore from saved game
     gameStateManager.state = savedGame;
-    console.log('Game loaded from save');
+    devLog('Game loaded from save');
   } else {
     // Initialize new game
     gameStateManager.initNewGame();
-    console.log('New game initialized');
+    devLog('New game initialized');
   }
 
   return gameStateManager;

@@ -1,3 +1,5 @@
+import { DEV_MODE } from '../../constants.js';
+
 /**
  * Base class for GameStateManager modules
  *
@@ -82,17 +84,17 @@ export class BaseManager {
    * @param {...*} args - Arguments to log
    */
   log(...args) {
-    if (!this.isTestEnvironment) {
+    if (DEV_MODE) {
       console.log(`[${this.constructor.name}]`, ...args);
     }
   }
 
   /**
-   * Log warning information (suppressed in test environment)
+   * Log warning information (suppressed unless dev mode is active)
    * @param {...*} args - Arguments to log
    */
   warn(...args) {
-    if (!this.isTestEnvironment) {
+    if (DEV_MODE) {
       console.warn(`[${this.constructor.name}]`, ...args);
     }
   }
