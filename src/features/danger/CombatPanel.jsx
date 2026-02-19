@@ -114,7 +114,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
             <div className="condition-item">
               <span className="condition-label">Hull Integrity:</span>
               <span className={`condition-value ${getConditionClass(hull)}`}>
-                {Math.round(hull || 100)}%
+                {Math.round(hull ?? 100)}%
               </span>
               <span className="condition-impact">
                 {hull < 50 ? 'Reduced maneuverability' : 'Normal operation'}
@@ -123,7 +123,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
             <div className="condition-item">
               <span className="condition-label">Engine Status:</span>
               <span className={`condition-value ${getConditionClass(engine)}`}>
-                {Math.round(engine || 100)}%
+                {Math.round(engine ?? 100)}%
               </span>
               <span className="condition-impact">
                 {engine < 50
@@ -134,7 +134,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
             <div className="condition-item">
               <span className="condition-label">Fuel Reserves:</span>
               <span className={`condition-value ${getConditionClass(fuel)}`}>
-                {Math.round(fuel || 100)}%
+                {Math.round(fuel ?? 100)}%
               </span>
               <span className="condition-impact">
                 {fuel < 25 ? 'Limited maneuvering' : 'Sufficient for combat'}
@@ -145,7 +145,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
               <span
                 className={`condition-value ${getConditionClass(lifeSupport)}`}
               >
-                {Math.round(lifeSupport || 100)}%
+                {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="condition-impact">
                 {lifeSupport < 30
