@@ -1287,3 +1287,37 @@ export const RESTRICTED_GOODS_CONFIG = {
   // Core systems (Sol, Alpha Centauri) have additional restrictions
   CORE_SYSTEM_RESTRICTED: ['parts'], // Manufactured parts restricted to protect local industry
 };
+
+/**
+ * Narrative Event System Configuration
+ */
+export const NARRATIVE_EVENT_CONFIG = {
+  // Danger encounter priorities (higher = checked first)
+  DANGER_PRIORITY_PIRATE: 100,
+  DANGER_PRIORITY_INSPECTION: 80,
+  DANGER_PRIORITY_MECHANICAL: 60,
+  DANGER_PRIORITY_DISTRESS: 40,
+
+  // Narrative event priority range
+  NARRATIVE_PRIORITY_HIGH: 20,
+  NARRATIVE_PRIORITY_DEFAULT: 10,
+  NARRATIVE_PRIORITY_LOW: 5,
+};
+
+/**
+ * Condition types for the event engine's enum+params system.
+ * Each key maps to a condition evaluator function.
+ */
+export const CONDITION_TYPES = {
+  FIRST_VISIT: 'first_visit',
+  DEBT_ABOVE: 'debt_above',
+  DEBT_BELOW: 'debt_below',
+  KARMA_ABOVE: 'karma_above',
+  KARMA_BELOW: 'karma_below',
+  FUEL_BELOW: 'fuel_below',
+  HULL_BELOW: 'hull_below',
+  DAYS_PAST: 'days_past',
+  HAS_VISITED: 'has_visited',
+  HAS_CARGO: 'has_cargo',
+  FLAG_SET: 'flag_set',
+};
