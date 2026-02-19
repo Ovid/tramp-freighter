@@ -1,5 +1,42 @@
 # TODO
  
+- NPC portraits?  Player have a name?
+    Images for other things? Need to create a theme that I can use
+    consistently.
+    (warm → friendly → trusted → family).
+
+	* Wei Chen - Dock Worker at Bore Station 7 (Barnard's Star)
+	    * 	Former ship captain who lost her ship in a bad deal
+	    * 	Casual, simple speech with dropped articles
+	* Marcus Cole - Loan Shark at Sol Central (Sol)
+	    * 	Your creditor with cold, calculating demeanor
+	    * 	Starts at -20 reputation (cold relationship)
+	    * 	Can become ally if debt paid honestly
+	* Father Okonkwo - Chaplain/Medic at Ross 154
+	    * 	Moral compass of the game
+	    * 	Offers no-interest loans with moral strings attached
+	* Whisper - Information Broker at Sirius Exchange (Sirius A)
+	    * 	Mysterious info broker who knows everyone's secrets
+	    * 	Provides intel discount service
+	    * 	Network hub character
+	* Captain Vasquez - Retired Trader at Epsilon Eridani
+	    * 	Mentor figure with higher starting reputation
+	    * 	Provides tips and old route maps
+	    * 	Designed as player's "first friend"
+	* Dr. Sarah Kim - Medical professional (location not specified in snippets)
+	* Rusty Rodriguez - Engineer/mechanic (provides repair service discounts)
+	* Zara Osman - Trader/merchant character
+	* Station Master Kowalski - Administrator at Tau Ceti Station
+	    * 	By-the-book, respects professionalism
+	    * 	Provides docking service discounts
+	    * 	Cites regulations
+	* Lucky Liu - Professional Gambler
+	    * 	Risk-taker who loves long odds
+	    * 	Uses gambling metaphors
+	    * 	No service discounts but offers risk-related benefits
+
+- Multiple games at once?
+- Can we make this work on mobile?
 - After the last design doc is implemented, we need a new game to start with
   instructions. The UI needs to have a convenient place to show them, too, so
   players can consult. The instructions should not give away too much. The
