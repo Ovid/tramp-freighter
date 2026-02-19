@@ -47,7 +47,9 @@ describe('Mission Flow Integration', () => {
     expect(completeResult.success).toBe(true);
 
     // 5. Verify rewards applied
-    expect(state.player.credits).toBe(creditsBefore + activeMission.rewards.credits);
+    expect(state.player.credits).toBe(
+      creditsBefore + activeMission.rewards.credits
+    );
     expect(manager.getActiveMissions()).toHaveLength(0);
     expect(state.missions.completed).toContain(activeMission.id);
   });

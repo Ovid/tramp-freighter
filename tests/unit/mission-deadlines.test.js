@@ -14,7 +14,12 @@ describe('Mission Deadline Checking', () => {
     const mission = {
       id: 'test_timed',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 5 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 5,
+      },
       rewards: { credits: 500 },
       penalties: { failure: { rep: { cole_sol: -2 } } },
     };
@@ -31,7 +36,12 @@ describe('Mission Deadline Checking', () => {
     const mission = {
       id: 'test_penalty',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 3 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 3,
+      },
       rewards: { credits: 500 },
       penalties: { failure: { karma: -1 } },
     };
@@ -46,7 +56,12 @@ describe('Mission Deadline Checking', () => {
     const mission = {
       id: 'test_safe',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 10 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 10,
+      },
       rewards: { credits: 500 },
       penalties: { failure: {} },
     };
@@ -62,7 +77,12 @@ describe('Mission Deadline Checking', () => {
     const mission = {
       id: 'test_emit',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 2 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 2,
+      },
       rewards: { credits: 500 },
       penalties: { failure: {} },
     };

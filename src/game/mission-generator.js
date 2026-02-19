@@ -14,7 +14,12 @@ function calculateDistance(star1, star2) {
   return r * NAVIGATION_CONFIG.LY_PER_UNIT;
 }
 
-export function generateCargoRun(fromSystem, starData, wormholeData, rng = Math.random) {
+export function generateCargoRun(
+  fromSystem,
+  starData,
+  wormholeData,
+  rng = Math.random
+) {
   const connectedIds = getConnectedSystems(fromSystem, wormholeData);
   if (connectedIds.length === 0) return null;
 
@@ -26,10 +31,14 @@ export function generateCargoRun(fromSystem, starData, wormholeData, rng = Math.
   const good = tradeableGoods[Math.floor(rng() * tradeableGoods.length)];
   const qty = 10 + Math.floor(rng() * 20);
 
-  const distance = fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
-  const deadline = Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+  const distance =
+    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
+  const deadline =
+    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
-  const reward = Math.ceil(qty * BASE_PRICES[good] * MISSION_CONFIG.REWARD_MARKUP);
+  const reward = Math.ceil(
+    qty * BASE_PRICES[good] * MISSION_CONFIG.REWARD_MARKUP
+  );
 
   return {
     id: `cargo_run_${Date.now()}_${Math.floor(rng() * 10000)}`,
@@ -38,13 +47,23 @@ export function generateCargoRun(fromSystem, starData, wormholeData, rng = Math.
     description: 'Standard delivery contract.',
     giver: 'station_master',
     giverSystem: fromSystem,
-    requirements: { cargo: good, quantity: qty, destination: toSystem, deadline },
+    requirements: {
+      cargo: good,
+      quantity: qty,
+      destination: toSystem,
+      deadline,
+    },
     rewards: { credits: reward },
     penalties: { failure: {} },
   };
 }
 
-export function generateMissionBoard(systemId, starData, wormholeData, rng = Math.random) {
+export function generateMissionBoard(
+  systemId,
+  starData,
+  wormholeData,
+  rng = Math.random
+) {
   const board = [];
   for (let i = 0; i < MISSION_CONFIG.BOARD_SIZE; i++) {
     const mission = generateCargoRun(systemId, starData, wormholeData, rng);

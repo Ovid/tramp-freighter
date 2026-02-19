@@ -20,7 +20,12 @@ describe('Mission Bridge Pattern', () => {
       id: 'test_bridge',
       type: 'delivery',
       title: 'Bridge Test',
-      requirements: { cargo: 'grain', quantity: 5, destination: 4, deadline: 5 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 5,
+        destination: 4,
+        deadline: 5,
+      },
       rewards: { credits: 100 },
       penalties: { failure: {} },
     });
@@ -33,7 +38,12 @@ describe('Mission Bridge Pattern', () => {
     manager.acceptMission({
       id: 'test_bridge_complete',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 5, destination: 0, deadline: 5 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 5,
+        destination: 0,
+        deadline: 5,
+      },
       rewards: { credits: 100 },
       penalties: { failure: {} },
     });

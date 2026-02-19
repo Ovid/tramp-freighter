@@ -250,7 +250,8 @@ export function useGameAction() {
       },
 
       acceptMission: (mission) => gameStateManager.acceptMission(mission),
-      completeMission: (missionId) => gameStateManager.completeMission(missionId),
+      completeMission: (missionId) =>
+        gameStateManager.completeMission(missionId),
       abandonMission: (missionId) => gameStateManager.abandonMission(missionId),
       refreshMissionBoard: () => gameStateManager.refreshMissionBoard(),
       getActiveMissions: () => gameStateManager.getActiveMissions(),

@@ -44,7 +44,10 @@ describe('MissionManager', () => {
         manager.acceptMission({ ...testMission, id: `mission_${i}` });
       }
 
-      const result = manager.acceptMission({ ...testMission, id: 'mission_overflow' });
+      const result = manager.acceptMission({
+        ...testMission,
+        id: 'mission_overflow',
+      });
       expect(result.success).toBe(false);
       expect(result.reason).toContain('maximum');
     });

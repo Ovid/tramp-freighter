@@ -22,7 +22,9 @@ export function MissionBoardPanel({ onClose }) {
 
   return (
     <div className="panel mission-board-panel">
-      <button className="close-btn" onClick={onClose}>&times;</button>
+      <button className="close-btn" onClick={onClose}>
+        &times;
+      </button>
       <h2>Mission Board</h2>
       {feedback && <div className="mission-feedback">{feedback}</div>}
       <div className="mission-list">
@@ -31,11 +33,17 @@ export function MissionBoardPanel({ onClose }) {
             <h3>{mission.title}</h3>
             <p>{mission.description}</p>
             <div className="mission-details">
-              <div>Deliver: {mission.requirements.quantity} {mission.requirements.cargo}</div>
+              <div>
+                Deliver: {mission.requirements.quantity}{' '}
+                {mission.requirements.cargo}
+              </div>
               <div>Deadline: {mission.requirements.deadline} days</div>
               <div>Reward: ₡{mission.rewards.credits}</div>
             </div>
-            <button className="accept-btn" onClick={() => handleAccept(mission)}>
+            <button
+              className="accept-btn"
+              onClick={() => handleAccept(mission)}
+            >
               Accept
             </button>
           </div>
@@ -44,7 +52,9 @@ export function MissionBoardPanel({ onClose }) {
           <p>No contracts available. Check back tomorrow.</p>
         )}
       </div>
-      <button className="station-btn" onClick={onClose}>Back</button>
+      <button className="station-btn" onClick={onClose}>
+        Back
+      </button>
     </div>
   );
 }

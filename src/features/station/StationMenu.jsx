@@ -105,7 +105,10 @@ export function StationMenu({ onOpenPanel, onUndock }) {
       )}
 
       <div className="station-actions">
-        <button className="station-btn" onClick={() => onOpenPanel('mission-board')}>
+        <button
+          className="station-btn"
+          onClick={() => onOpenPanel('mission-board')}
+        >
           Mission Board
         </button>
         <button className="station-btn" onClick={() => onOpenPanel('trade')}>

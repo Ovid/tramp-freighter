@@ -15,7 +15,12 @@ describe('Completable Mission Detection', () => {
       id: 'completable_delivery',
       type: 'delivery',
       title: 'Grain to Sol',
-      requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 10 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 0,
+        deadline: 10,
+      },
       rewards: { credits: 200 },
       penalties: { failure: {} },
     });
@@ -29,7 +34,12 @@ describe('Completable Mission Detection', () => {
     manager.acceptMission({
       id: 'wrong_dest',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 10 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 10,
+      },
       rewards: { credits: 200 },
       penalties: { failure: {} },
     });
@@ -42,7 +52,12 @@ describe('Completable Mission Detection', () => {
     manager.acceptMission({
       id: 'not_enough',
       type: 'delivery',
-      requirements: { cargo: 'medicine', quantity: 10, destination: 0, deadline: 10 },
+      requirements: {
+        cargo: 'medicine',
+        quantity: 10,
+        destination: 0,
+        deadline: 10,
+      },
       rewards: { credits: 200 },
       penalties: { failure: {} },
     });

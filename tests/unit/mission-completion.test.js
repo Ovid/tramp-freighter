@@ -15,7 +15,12 @@ describe('Mission Completion', () => {
       id: 'test_delivery',
       type: 'delivery',
       title: 'Test Delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 0,
+        deadline: 7,
+      },
       rewards: { credits: 500 },
       penalties: { failure: {} },
     };
@@ -36,7 +41,12 @@ describe('Mission Completion', () => {
     const mission = {
       id: 'test_wrong_dest',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 4, deadline: 7 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 4,
+        deadline: 7,
+      },
       rewards: { credits: 500 },
       penalties: { failure: {} },
     };
@@ -51,7 +61,12 @@ describe('Mission Completion', () => {
     const mission = {
       id: 'test_no_cargo',
       type: 'delivery',
-      requirements: { cargo: 'medicine', quantity: 10, destination: 0, deadline: 7 },
+      requirements: {
+        cargo: 'medicine',
+        quantity: 10,
+        destination: 0,
+        deadline: 7,
+      },
       rewards: { credits: 500 },
       penalties: { failure: {} },
     };
@@ -130,7 +145,12 @@ describe('Mission Completion', () => {
     const mission = {
       id: 'test_faction_rep',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 0,
+        deadline: 7,
+      },
       rewards: { credits: 500, faction: { civilians: 5 } },
       penalties: { failure: {} },
     };
@@ -143,7 +163,12 @@ describe('Mission Completion', () => {
     const mission = {
       id: 'test_npc_rep',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 0,
+        deadline: 7,
+      },
       rewards: { credits: 500, rep: { cole_sol: 10 } },
       penalties: { failure: {} },
     };
@@ -157,7 +182,12 @@ describe('Mission Completion', () => {
     const mission = {
       id: 'test_karma',
       type: 'delivery',
-      requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+      requirements: {
+        cargo: 'grain',
+        quantity: 10,
+        destination: 0,
+        deadline: 7,
+      },
       rewards: { credits: 500, karma: 2 },
       penalties: { failure: {} },
     };

@@ -5,7 +5,13 @@ describe('Mission Constants', () => {
   it('should export MISSION_CONFIG with required fields', () => {
     expect(MISSION_CONFIG).toBeDefined();
     expect(MISSION_CONFIG.TYPES).toEqual(
-      expect.arrayContaining(['delivery', 'fetch', 'passenger', 'intel', 'special'])
+      expect.arrayContaining([
+        'delivery',
+        'fetch',
+        'passenger',
+        'intel',
+        'special',
+      ])
     );
     expect(MISSION_CONFIG.MAX_ACTIVE).toBeGreaterThan(0);
     expect(MISSION_CONFIG.BOARD_SIZE).toBeGreaterThan(0);

@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { generateCargoRun, generateMissionBoard } from '../../src/game/mission-generator.js';
+import {
+  generateCargoRun,
+  generateMissionBoard,
+} from '../../src/game/mission-generator.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Mission Generator', () => {
