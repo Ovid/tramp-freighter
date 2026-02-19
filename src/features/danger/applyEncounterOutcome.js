@@ -1,7 +1,7 @@
 /**
  * Apply encounter outcome costs and rewards to game state.
  *
- * Pure mutation function: reads current state from gameStateManager,
+ * State mutation function: reads current state from gameStateManager,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days)
  * and rewards (credits, karma, factionRep, cargo), then saves.
  *
