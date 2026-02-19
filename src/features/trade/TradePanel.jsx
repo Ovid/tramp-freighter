@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -30,8 +29,6 @@ import {
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function TradePanel({ onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
   const starData = useStarData();
 
   // Subscribe to relevant game events
@@ -41,6 +38,7 @@ export function TradePanel({ onClose }) {
   const currentDay = useGameEvent('timeChanged');
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
   const upgrades = useGameEvent('upgradesChanged');
+  const hiddenCargo = useGameEvent('hiddenCargoChanged');
 
   // Get game actions
   const {
@@ -66,23 +64,21 @@ export function TradePanel({ onClose }) {
     );
   }
 
-  // Get ship data for capacity and upgrades from events
+  // Use Bridge Pattern events exclusively - no direct state access
   // Use centralized defaults to handle cases where events haven't fired yet
-  const ship = {
-    cargoCapacity: cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY,
-    upgrades: upgrades ?? [],
-    hiddenCargo: [], // Will be populated from cargo event if needed
-    hiddenCargoCapacity: 0, // Will be calculated from upgrades
-  };
+  const safeCargoCapacity =
+    cargoCapacity ?? UI_CONFIG.DEFAULT_VALUES.CARGO_CAPACITY;
+  const safeUpgrades = upgrades ?? [];
+  const safeHiddenCargo = hiddenCargo ?? [];
+  const safeCargo = cargo ?? [];
 
   // Calculate cargo capacity
-  const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoRemaining = ship.cargoCapacity - cargoUsed;
+  const cargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+  const cargoRemaining = safeCargoCapacity - cargoUsed;
 
   // Check for Smuggler's Panels upgrade
-  const hasSmugglersPanel = ship.upgrades.includes('smuggler_panels');
-  const hiddenCargo = ship.hiddenCargo || [];
-  const hiddenCargoUsed = hiddenCargo.reduce(
+  const hasSmugglersPanel = safeUpgrades.includes('smuggler_panels');
+  const hiddenCargoUsed = safeHiddenCargo.reduce(
     (sum, stack) => sum + stack.qty,
     0
   );
@@ -96,13 +92,13 @@ export function TradePanel({ onClose }) {
   // Get locked prices for current system (prevents intra-system arbitrage)
   const currentSystemPrices = getCurrentSystemPrices();
 
-  // Create state object for validation functions
+  // Create state object for validation functions using Bridge Pattern data
   const state = {
     player: { credits },
     ship: {
-      cargo,
-      cargoCapacity: ship.cargoCapacity,
-      upgrades: ship.upgrades,
+      cargo: safeCargo,
+      cargoCapacity: safeCargoCapacity,
+      upgrades: safeUpgrades,
     },
   };
 
@@ -219,17 +215,17 @@ export function TradePanel({ onClose }) {
           <div className="cargo-capacity-display">
             <span className="capacity-label">Capacity:</span>
             <span id="trade-cargo-used">{cargoUsed}</span> /
-            <span id="trade-cargo-capacity">{ship.cargoCapacity}</span>
+            <span id="trade-cargo-capacity">{safeCargoCapacity}</span>
             <span className="capacity-remaining">
               (<span id="trade-cargo-remaining">{cargoRemaining}</span>{' '}
               remaining)
             </span>
           </div>
           <div id="cargo-stacks" className="cargo-list">
-            {cargo.length === 0 ? (
+            {safeCargo.length === 0 ? (
               <div className="cargo-empty">No cargo</div>
             ) : (
-              cargo.map((stack, index) => {
+              safeCargo.map((stack, index) => {
                 const currentPrice = currentSystemPrices[stack.good];
                 const profit = calculateProfit(stack, currentPrice);
 
@@ -336,10 +332,10 @@ export function TradePanel({ onClose }) {
                 <span className="capacity-units">units</span>
               </div>
               <div id="hidden-cargo-stacks" className="cargo-list">
-                {hiddenCargo.length === 0 ? (
+                {safeHiddenCargo.length === 0 ? (
                   <div className="cargo-empty">No hidden cargo</div>
                 ) : (
-                  hiddenCargo.map((stack, index) => {
+                  safeHiddenCargo.map((stack, index) => {
                     const currentPrice = currentSystemPrices[stack.good];
                     const profit = calculateProfit(stack, currentPrice);
 

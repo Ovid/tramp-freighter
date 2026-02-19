@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -25,7 +24,6 @@ import { SHIP_CONFIG } from '../../game/constants';
  * @returns {JSX.Element} Upgrades panel component
  */
 export function UpgradesPanel({ onClose }) {
-  const gameStateManager = useGameState();
   const starData = useStarData();
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');

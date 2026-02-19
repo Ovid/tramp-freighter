@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleScreen } from './features/title-screen/TitleScreen';
 import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
@@ -8,8 +8,18 @@ import { StationMenu } from './features/station/StationMenu';
 import { PanelContainer } from './features/station/PanelContainer';
 import { DevAdminPanel } from './features/dev-admin/DevAdminPanel';
 import { SystemPanel } from './features/navigation/SystemPanel';
+import { PirateEncounterPanel } from './features/danger/PirateEncounterPanel';
+import { CombatPanel } from './features/danger/CombatPanel';
+import { NegotiationPanel } from './features/danger/NegotiationPanel';
+import { InspectionPanel } from './features/danger/InspectionPanel';
+import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel';
+import { DistressCallPanel } from './features/danger/DistressCallPanel';
+import { OutcomePanel } from './features/danger/OutcomePanel';
+import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
+import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
+import { useJumpEncounters } from './hooks/useJumpEncounters';
 import { StarmapProvider } from './context/StarmapContext';
 
 /**
@@ -25,6 +35,7 @@ const VIEW_MODES = {
   ORBIT: 'ORBIT',
   STATION: 'STATION',
   PANEL: 'PANEL',
+  ENCOUNTER: 'ENCOUNTER',
 };
 
 /**
@@ -41,6 +52,8 @@ const VIEW_MODES = {
 export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
+  const encounterEvent = useGameEvent('encounterTriggered');
+  useJumpEncounters();
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -48,6 +61,10 @@ export default function App({ devMode = false }) {
   const [activePanelNpcId, setActivePanelNpcId] = useState(null);
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
+  const [currentEncounter, setCurrentEncounter] = useState(null);
+  const [encounterOutcome, setEncounterOutcome] = useState(null);
+  const [encounterPhase, setEncounterPhase] = useState('initial');
+  const lastHandledEncounter = useRef(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -167,6 +184,101 @@ export default function App({ devMode = false }) {
     }
   };
 
+  // Handle encounter events from the danger system
+  const handleEncounterTriggered = (encounterData) => {
+    setCurrentEncounter(encounterData);
+    setEncounterPhase('initial');
+    setViewMode(VIEW_MODES.ENCOUNTER);
+  };
+
+  const handleEncounterChoice = (choice) => {
+    if (!currentEncounter) return;
+
+    // Two-step pirate encounter: route to sub-panels
+    if (currentEncounter.type === 'pirate' && encounterPhase === 'initial') {
+      if (choice === 'fight' || choice === 'flee') {
+        setEncounterPhase('combat');
+        return;
+      }
+      if (choice === 'negotiate') {
+        setEncounterPhase('negotiation');
+        return;
+      }
+      // Surrender resolves immediately (falls through)
+    }
+
+    if (gameStateManager.resolveEncounter) {
+      try {
+        // Route combat/negotiation sub-choices to their specific resolvers
+        let outcome;
+        if (encounterPhase === 'combat') {
+          outcome = gameStateManager.resolveCombatChoice(
+            currentEncounter.encounter,
+            choice
+          );
+        } else if (encounterPhase === 'negotiation') {
+          outcome = gameStateManager.resolveNegotiation(
+            currentEncounter.encounter,
+            choice,
+            Math.random()
+          );
+        } else {
+          outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
+        }
+
+        // Apply the resolution outcome to game state
+        handleApplyOutcome(outcome);
+
+        // Transform for OutcomePanel display
+        const displayOutcome = transformOutcomeForDisplay(
+          outcome,
+          currentEncounter.type,
+          choice
+        );
+
+        // Show OutcomePanel (stay in ENCOUNTER mode)
+        setEncounterOutcome(displayOutcome);
+        setEncounterPhase('initial');
+      } catch (error) {
+        console.error('Encounter resolution failed:', error);
+        // On error, return to orbit
+        setCurrentEncounter(null);
+        setEncounterOutcome(null);
+        setEncounterPhase('initial');
+        setViewMode(VIEW_MODES.ORBIT);
+      }
+    }
+  };
+
+  const handleEncounterClose = () => {
+    setCurrentEncounter(null);
+    setEncounterPhase('initial');
+    setViewMode(VIEW_MODES.ORBIT);
+  };
+
+  const handleOutcomeContinue = () => {
+    setCurrentEncounter(null);
+    setEncounterOutcome(null);
+    setEncounterPhase('initial');
+    setViewMode(VIEW_MODES.ORBIT);
+  };
+
+  const handleApplyOutcome = (outcome) => {
+    applyEncounterOutcome(gameStateManager, outcome);
+  };
+
+  // Listen for encounter events (only process each event once)
+  useEffect(() => {
+    if (
+      encounterEvent &&
+      !currentEncounter &&
+      encounterEvent !== lastHandledEncounter.current
+    ) {
+      lastHandledEncounter.current = encounterEvent;
+      handleEncounterTriggered(encounterEvent);
+    }
+  }, [encounterEvent, currentEncounter]);
+
   return (
     <ErrorBoundary>
       <div className="app-container">
@@ -239,6 +351,68 @@ export default function App({ devMode = false }) {
                   onClose={handleCloseSystemPanel}
                   onJumpStart={handleJumpStart}
                   onJumpComplete={handleJumpComplete}
+                />
+              )}
+
+              {/* Encounter panels (rendered when an encounter is active) */}
+              {viewMode === VIEW_MODES.ENCOUNTER &&
+                currentEncounter &&
+                !encounterOutcome && (
+                  <>
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'initial' && (
+                        <PirateEncounterPanel
+                          encounter={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'combat' && (
+                        <CombatPanel
+                          combat={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    {currentEncounter.type === 'pirate' &&
+                      encounterPhase === 'negotiation' && (
+                        <NegotiationPanel
+                          encounter={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    {currentEncounter.type === 'inspection' && (
+                      <InspectionPanel
+                        inspection={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'mechanical_failure' && (
+                      <MechanicalFailurePanel
+                        failure={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'distress_call' && (
+                      <DistressCallPanel
+                        distressCall={currentEncounter.encounter}
+                        onChoice={handleEncounterChoice}
+                        onClose={handleEncounterClose}
+                      />
+                    )}
+                  </>
+                )}
+
+              {/* Outcome panel (shown after encounter choice is resolved) */}
+              {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
+                <OutcomePanel
+                  outcome={encounterOutcome}
+                  onContinue={handleOutcomeContinue}
+                  onClose={handleOutcomeContinue}
                 />
               )}
             </StarmapProvider>

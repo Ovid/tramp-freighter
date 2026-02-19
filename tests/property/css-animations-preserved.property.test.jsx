@@ -38,8 +38,6 @@ describe('Property: Modal animations preserved', () => {
         // Verify animation property exists in CSS
         // Note: We can't directly test animation execution in jsdom,
         // but we can verify the element has the class that triggers animation
-        const computedStyle = window.getComputedStyle(dialog);
-
         // The animation should be defined (even if not running in jsdom)
         // We verify the class is present which would trigger the animation
         expect(dialog.classList.contains('modal-dialog')).toBe(true);

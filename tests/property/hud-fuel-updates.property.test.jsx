@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { ShipStatus } from '../../src/features/hud/ShipStatus';
 import { GameStateManager } from '../../src/game/state/game-state-manager';

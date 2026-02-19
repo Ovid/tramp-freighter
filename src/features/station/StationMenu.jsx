@@ -61,7 +61,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
         tierName: tier.name,
       };
     });
-  }, [currentSystemId, npcsAtSystem, gameStateManager]);
+  }, [npcsAtSystem, gameStateManager]);
 
   return (
     <div id="station-interface" className="visible">

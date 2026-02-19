@@ -1,11 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import App from '../../src/App';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
-import { GameProvider } from '../../src/context/GameContext';
 
 /**
  * Integration tests for navigation UX improvements (React Migration)

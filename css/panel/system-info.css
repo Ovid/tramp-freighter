@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* System Info Panel Styles */
 
 .system-info-panel {
@@ -5,26 +8,26 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  max-height: 80vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
-  z-index: 200;
+  width: var(--panel-width-small);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  z-index: var(--z-panel);
   overflow-y: auto;
 }
 
 .system-info-panel .panel-header {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: var(--section-gap);
 }
 
 .system-info-panel h2 {
-  color: #00ff88;
-  font-size: 20px;
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
   text-align: center;
   margin: 0;
 }
@@ -35,15 +38,16 @@
   right: -5px;
   background: none;
   border: none;
-  color: #00ff88;
-  font-size: 24px;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
   cursor: pointer;
-  padding: 5px;
+  padding: var(--close-button-padding);
   line-height: 1;
+  transition: var(--transition-fast);
 }
 
 .system-info-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .system-info-panel .panel-content {
@@ -51,30 +55,30 @@
 }
 
 .system-details {
-  margin-bottom: 20px;
+  margin-bottom: var(--section-gap);
 }
 
 .system-details h3 {
-  color: #00ff88;
-  font-size: 24px;
-  margin-bottom: 15px;
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
+  margin-bottom: var(--section-padding);
   text-align: center;
 }
 
 .system-property {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+  padding: var(--grid-gap-small) 0;
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
 }
 
 .system-property .label {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 .system-property .value {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* Economic Event Info */

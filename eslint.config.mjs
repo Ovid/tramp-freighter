@@ -1,11 +1,13 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
-  // 1. Global Ignores: Added 'vendor/' to the list
+  // 1. Global Ignores
   {
-    ignores: ['dist', 'coverage', 'node_modules', 'vendor', 'src/**/*.jsx'],
+    ignores: ['dist', 'coverage', 'node_modules', 'vendor'],
   },
 
   // 2. Base Javascript Recommended Rules
@@ -25,7 +27,14 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': 'off',
     },
   },
@@ -33,9 +42,18 @@ export default [
   // 3b. Configuration for React source files
   {
     files: ['src/**/*.js', 'src/**/*.jsx'],
+    plugins: {
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: {
         ...globals.browser,
         ...globals.es2021,
@@ -43,9 +61,28 @@ export default [
         process: 'readonly',
       },
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': 'off',
+      // React rules
+      'react/jsx-uses-react': 'warn',
+      'react/jsx-uses-vars': 'warn',
+      'react/no-unknown-property': 'off',
+      // React Hooks rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 
@@ -67,17 +104,33 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': 'off',
     },
   },
 
   // 4. Test files configuration
   {
-    files: ['tests/**/*.js', 'vitest.config.js'],
+    files: ['tests/**/*.js', 'tests/**/*.jsx', 'vitest.config.js'],
+    plugins: {
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: {
         ...globals.browser,
         ...globals.es2021,
@@ -94,9 +147,25 @@ export default [
         test: 'readonly',
       },
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': 'off',
+      'react/jsx-uses-react': 'warn',
+      'react/jsx-uses-vars': 'warn',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 

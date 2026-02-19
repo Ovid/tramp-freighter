@@ -110,6 +110,174 @@ export class RepairManager extends BaseManager {
   }
 
   /**
+   * Apply emergency patch to a critically damaged system
+   *
+   * Available only when the system is at or below the critical threshold and
+   * the player cannot afford standard repair. Sets the system to exactly
+   * EMERGENCY_PATCH_TARGET and advances time as a penalty.
+   *
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @returns {Object} { success: boolean, reason: string | null }
+   */
+  applyEmergencyPatch(systemType) {
+    this.validateState();
+
+    const validSystems = ['hull', 'engine', 'lifeSupport'];
+    if (!validSystems.includes(systemType)) {
+      return { success: false, reason: 'Invalid system type' };
+    }
+
+    const state = this.getState();
+    const currentCondition = state.ship[systemType];
+
+    if (currentCondition > REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
+      return {
+        success: false,
+        reason: `${systemType} is not critically damaged`,
+      };
+    }
+
+    const repairAmount =
+      REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
+    const repairCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
+
+    if (state.player.credits >= repairCost) {
+      return {
+        success: false,
+        reason: 'You can afford standard repair',
+      };
+    }
+
+    const newConditions = {
+      hull: state.ship.hull,
+      engine: state.ship.engine,
+      lifeSupport: state.ship.lifeSupport,
+    };
+    newConditions[systemType] = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET;
+
+    this.gameStateManager.updateShipCondition(
+      newConditions.hull,
+      newConditions.engine,
+      newConditions.lifeSupport
+    );
+
+    this.gameStateManager.updateTime(
+      state.player.daysElapsed + REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
+    );
+
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: null };
+  }
+
+  /**
+   * Cannibalize healthy systems to patch a critically damaged one
+   *
+   * Sacrifices condition from donor systems to bring a critical system to
+   * EMERGENCY_PATCH_TARGET. A 1.5x waste multiplier means donors lose more
+   * than the target gains, reflecting improvised field repairs.
+   *
+   * @param {string} targetType - 'hull', 'engine', or 'lifeSupport' (must be at or below 20%)
+   * @param {Array<{system: string, amount: number}>} donations - systems and amounts to take from each
+   * @returns {Object} { success: boolean, reason: string | null }
+   */
+  cannibalizeSystem(targetType, donations) {
+    this.validateState();
+
+    const validSystems = ['hull', 'engine', 'lifeSupport'];
+    const systemDisplayNames = {
+      hull: 'Hull',
+      engine: 'Engine',
+      lifeSupport: 'Life Support',
+    };
+
+    if (!validSystems.includes(targetType)) {
+      return { success: false, reason: 'Invalid system type' };
+    }
+
+    const state = this.getState();
+    const currentTargetCondition = state.ship[targetType];
+
+    if (currentTargetCondition > REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
+      return {
+        success: false,
+        reason: `${targetType} is not critically damaged`,
+      };
+    }
+
+    for (const donation of donations) {
+      if (!validSystems.includes(donation.system)) {
+        return { success: false, reason: 'Invalid donor system type' };
+      }
+
+      if (donation.system === targetType) {
+        return {
+          success: false,
+          reason: `${systemDisplayNames[donation.system]} cannot donate to itself`,
+        };
+      }
+
+      if (donation.amount <= 0) {
+        return { success: false, reason: 'Donation amount must be positive' };
+      }
+
+      const donorCondition = state.ship[donation.system];
+
+      if (donorCondition <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
+        return {
+          success: false,
+          reason: `${systemDisplayNames[donation.system]} is critically damaged and cannot donate`,
+        };
+      }
+
+      if (
+        donorCondition - donation.amount <
+        REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN
+      ) {
+        return {
+          success: false,
+          reason: `${systemDisplayNames[donation.system]} would fall below minimum safe condition`,
+        };
+      }
+    }
+
+    const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+    const amountNeeded =
+      REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentTargetCondition;
+    const requiredDonation =
+      amountNeeded * REPAIR_CONFIG.CANNIBALIZE_WASTE_MULTIPLIER;
+
+    if (totalDonated < requiredDonation) {
+      return {
+        success: false,
+        reason: `Total donated (${totalDonated}) is insufficient — need at least ${requiredDonation}`,
+      };
+    }
+
+    const newConditions = {
+      hull: state.ship.hull,
+      engine: state.ship.engine,
+      lifeSupport: state.ship.lifeSupport,
+    };
+
+    newConditions[targetType] = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET;
+
+    for (const donation of donations) {
+      newConditions[donation.system] -= donation.amount;
+    }
+
+    this.gameStateManager.updateShipCondition(
+      newConditions.hull,
+      newConditions.engine,
+      newConditions.lifeSupport
+    );
+
+    this.gameStateManager.saveGame();
+
+    return { success: true, reason: null };
+  }
+
+  /**
    * Check if NPC can provide free repair
    *
    * Checks if the NPC's reputation tier is Trusted or Family and if the

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDialogue } from '../../hooks/useDialogue';
 
 /**
@@ -66,6 +66,28 @@ export function DialoguePanel({ npcId, onClose }) {
     clearDialogue();
     onClose();
   };
+
+  // Track if dialogue was ever active (to distinguish "ended" from "not started yet")
+  const wasActiveRef = useRef(false);
+
+  // Update the ref when dialogue becomes active
+  useEffect(() => {
+    if (dialogueState.isActive) {
+      wasActiveRef.current = true;
+    }
+  }, [dialogueState.isActive]);
+
+  // Auto-close panel when dialogue ends (was active, now inactive)
+  useEffect(() => {
+    if (
+      wasActiveRef.current &&
+      !dialogueState.isActive &&
+      dialogueState.display === null
+    ) {
+      wasActiveRef.current = false; // Reset for next time
+      onClose();
+    }
+  }, [dialogueState.isActive, dialogueState.display, onClose]);
 
   // Loading state - dialogue not yet initialized
   if (!dialogueState.isActive || !dialogueState.display) {

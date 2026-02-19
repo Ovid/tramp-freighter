@@ -187,6 +187,28 @@ export function validateStateStructure(state) {
     return false;
   }
 
+  // Check danger system fields (optional - will be initialized if missing)
+  if (
+    state.player.karma !== undefined &&
+    typeof state.player.karma !== 'number'
+  ) {
+    return false;
+  }
+  if (state.player.factions !== undefined) {
+    if (
+      typeof state.player.factions !== 'object' ||
+      state.player.factions === null
+    ) {
+      return false;
+    }
+    // Validate faction reputation values
+    for (const faction in state.player.factions) {
+      if (typeof state.player.factions[faction] !== 'number') {
+        return false;
+      }
+    }
+  }
+
   // Check ship structure
   if (
     !state.ship ||
@@ -283,6 +305,22 @@ export function validateStateStructure(state) {
   // Check world structure
   if (!state.world || !Array.isArray(state.world.visitedSystems)) {
     return false;
+  }
+
+  // Check danger flags (optional - will be initialized if missing)
+  if (state.world.dangerFlags !== undefined) {
+    if (
+      typeof state.world.dangerFlags !== 'object' ||
+      state.world.dangerFlags === null
+    ) {
+      return false;
+    }
+    // Validate danger flag values
+    for (const flag in state.world.dangerFlags) {
+      if (typeof state.world.dangerFlags[flag] !== 'number') {
+        return false;
+      }
+    }
   }
 
   // priceKnowledge and activeEvents are optional - will be initialized if missing
@@ -429,6 +467,19 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
   }
   if (state.ship.hiddenCargoCapacity === undefined) {
     state.ship.hiddenCargoCapacity = 0;
+  }
+
+  // Add danger system fields
+  if (state.player.karma === undefined) {
+    state.player.karma = 0;
+  }
+  if (!state.player.factions) {
+    state.player.factions = {
+      authorities: 0,
+      traders: 0,
+      outlaws: 0,
+      civilians: 0,
+    };
   }
 
   // Validate quirk IDs and remove unknown ones
@@ -787,6 +838,30 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
       currentNodeId: null,
       isActive: false,
       display: null,
+    };
+  }
+
+  // Initialize danger system fields if missing
+  if (state.player.karma === undefined) {
+    state.player.karma = 0;
+  }
+  if (!state.player.factions) {
+    state.player.factions = {
+      authorities: 0,
+      traders: 0,
+      outlaws: 0,
+      civilians: 0,
+    };
+  }
+  if (!state.world.dangerFlags) {
+    state.world.dangerFlags = {
+      piratesFought: 0,
+      piratesNegotiated: 0,
+      civiliansSaved: 0,
+      civiliansLooted: 0,
+      inspectionsPassed: 0,
+      inspectionsBribed: 0,
+      inspectionsFled: 0,
     };
   }
 

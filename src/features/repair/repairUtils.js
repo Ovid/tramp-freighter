@@ -16,7 +16,7 @@ export function calculateRepairCost(amount, currentCondition) {
   }
 
   // Calculate cost at ₡5 per 1%
-  return amount * REPAIR_CONFIG.COST_PER_PERCENT;
+  return Math.ceil(amount * REPAIR_CONFIG.COST_PER_PERCENT);
 }
 
 /**
@@ -33,7 +33,7 @@ export function calculateDiscountedRepairCost(
   discountPercentage
 ) {
   const baseCost = calculateRepairCost(amount, currentCondition);
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
@@ -81,7 +81,7 @@ export function calculateDiscountedRepairAllCost(
   discountPercentage
 ) {
   const baseCost = calculateRepairAllCost(condition);
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
@@ -196,4 +196,54 @@ export function getSystemCondition(condition, systemType) {
     default:
       return 0;
   }
+}
+
+/**
+ * Check if a system is at or below the critical damage threshold
+ *
+ * @param {number} condition - Current condition percentage
+ * @returns {boolean} True if critically damaged
+ */
+export function isSystemCritical(condition) {
+  return condition <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD;
+}
+
+/**
+ * Calculate total donation required to bring a system from its current
+ * condition to EMERGENCY_PATCH_TARGET, accounting for waste multiplier
+ *
+ * @param {number} currentCondition - Current condition of the target system
+ * @returns {number} Total percentage points donors must sacrifice
+ */
+export function calculateCannibalizeRequired(currentCondition) {
+  const needed = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
+  if (needed <= 0) return 0;
+  return Math.ceil(needed * REPAIR_CONFIG.CANNIBALIZE_WASTE_MULTIPLIER);
+}
+
+/**
+ * Calculate maximum donation a system can give without going below donor floor
+ *
+ * @param {number} donorCondition - Current condition of donor system
+ * @returns {number} Maximum percentage points available to donate
+ */
+export function calculateMaxDonation(donorCondition) {
+  return Math.max(
+    0,
+    Math.floor(donorCondition - REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN)
+  );
+}
+
+/**
+ * Check if player can afford standard repair to get above critical threshold
+ *
+ * @param {number} currentCondition - Current system condition
+ * @param {number} credits - Player credits
+ * @returns {boolean} True if player can afford repair above threshold
+ */
+export function canAffordRepairAboveThreshold(currentCondition, credits) {
+  const needed = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
+  if (needed <= 0) return true;
+  const cost = Math.ceil(needed * REPAIR_CONFIG.COST_PER_PERCENT);
+  return credits >= cost;
 }

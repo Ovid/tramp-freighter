@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -44,6 +44,11 @@ export function InfoBrokerPanel({ onClose }) {
   const [rumor, setRumor] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
+  const messageTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(messageTimerRef.current);
+  }, []);
 
   // Get available intelligence options using Bridge Pattern
   const [intelligenceOptions, setIntelligenceOptions] = useState([]);
@@ -110,9 +115,16 @@ export function InfoBrokerPanel({ onClose }) {
     const generatedRumor = generateRumor();
     setRumor(generatedRumor);
 
-    // Clear validation message
-    setValidationMessage('');
-    setValidationClass('');
+    // Show success message
+    setValidationMessage('Rumor purchased successfully');
+    setValidationClass('info');
+
+    // Clear success message after 2 seconds
+    clearTimeout(messageTimerRef.current);
+    messageTimerRef.current = setTimeout(() => {
+      setValidationMessage('');
+      setValidationClass('');
+    }, 2000);
   };
 
   const handlePurchaseIntelligence = (systemId) => {
@@ -124,9 +136,23 @@ export function InfoBrokerPanel({ onClose }) {
       return;
     }
 
-    // Clear validation message
-    setValidationMessage('');
-    setValidationClass('');
+    // Show success message
+    const systemName =
+      starData.find((s) => s.id === systemId)?.name || 'Unknown System';
+    setValidationMessage(`Intelligence purchased for ${systemName}`);
+    setValidationClass('info');
+
+    // Clear success message after 2 seconds
+    clearTimeout(messageTimerRef.current);
+    messageTimerRef.current = setTimeout(() => {
+      setValidationMessage('');
+      setValidationClass('');
+    }, 2000);
+
+    // Refresh intelligence options to reflect the purchase
+    // This ensures the UI immediately shows the updated state
+    const updatedOptions = gameStateManager.listAvailableIntelligence();
+    setIntelligenceOptions(updatedOptions);
   };
 
   const handleTabSwitch = (tabName) => {

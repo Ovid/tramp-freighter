@@ -98,6 +98,8 @@ function extractStateForEvent(eventName, state) {
     locationChanged: state.player.currentSystem,
     timeChanged: state.player.daysElapsed,
     cargoChanged: state.ship.cargo,
+    cargoCapacityChanged: state.ship.cargoCapacity,
+    hiddenCargoChanged: state.ship.hiddenCargo,
     shipConditionChanged: {
       hull: state.ship.hull,
       engine: state.ship.engine,
@@ -110,6 +112,14 @@ function extractStateForEvent(eventName, state) {
     quirksChanged: state.ship.quirks,
     conditionWarning: null, // Warnings are passed directly in event data
     dialogueChanged: state.dialogue, // Dialogue state object
+    encounterTriggered: null, // Encounter data is passed directly in event
+    hullChanged: state.ship.hull,
+    engineChanged: state.ship.engine,
+    lifeSupportChanged: state.ship.lifeSupport,
+    karmaChanged: state.player.karma || 0,
+    intelligenceChanged: state.world.intelligence || {},
+    currentSystemChanged: state.player.currentSystem,
+    factionRepChanged: state.player.factions || {},
   };
 
   return eventStateMap[eventName] ?? null;

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { Modal, ConfirmModal } from '../../src/components/Modal.jsx';
@@ -23,18 +23,12 @@ describe('Property: Modals block underlying UI', () => {
         (modalTitle) => {
           cleanup();
 
-          let underlyingClicked = false;
           let modalClicked = false;
 
           // Render modal with underlying button
           render(
             <div>
-              <button
-                data-testid="underlying-button"
-                onClick={() => {
-                  underlyingClicked = true;
-                }}
-              >
+              <button data-testid="underlying-button" onClick={() => {}}>
                 Underlying Button
               </button>
               <Modal isOpen={true} onClose={() => {}} title={modalTitle}>

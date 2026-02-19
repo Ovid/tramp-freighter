@@ -30,7 +30,7 @@ Add tension and risk through pirates, inspections, mechanical failures, and tact
 
 ## Threat Zones
 
-### Route Danger Levels
+### Route Security Levels
 
 ```javascript
 const DANGER_ZONES = {

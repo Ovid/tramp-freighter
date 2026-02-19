@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* System Panel Styles - Unified panel for system info and jump info */
 
 .system-panel {
@@ -7,45 +10,46 @@
   transform: translateY(-50%);
   width: 350px;
   max-height: 80vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   z-index: 150;
   overflow-y: auto;
 }
 
 .system-panel-header {
   position: relative;
-  margin-bottom: 15px;
+  margin-bottom: var(--section-padding);
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
 .system-panel-header h3 {
-  color: #00ff88;
-  font-size: 20px;
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
   margin: 0;
   padding-right: 30px;
 }
 
 .system-panel .close-btn {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
-  color: #00ff88;
+  color: var(--color-primary);
   font-size: 24px;
   cursor: pointer;
   padding: 5px;
   line-height: 1;
+  transition: var(--transition-fast);
 }
 
 .system-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .system-panel-content {
@@ -185,6 +189,19 @@
 .connection-details {
   color: #aaa;
   font-size: 14px;
+}
+
+/* Security Level Styling */
+.danger-safe {
+  color: #00ff88; /* Green for safe */
+}
+
+.danger-contested {
+  color: #ffaa00; /* Orange for contested */
+}
+
+.danger-dangerous {
+  color: #ff4444; /* Red for dangerous */
 }
 
 /* Validation Message */

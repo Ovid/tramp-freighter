@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import './variables.css';
+
 /* Modal Dialog Styles */
 .modal-overlay {
   position: fixed;
@@ -5,11 +8,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: var(--bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--z-modal);
 }
 
 .modal-overlay.hidden {
@@ -18,12 +21,12 @@
 
 .modal-dialog {
   background-color: #1a1a1a;
-  border: 2px solid #00ff88;
-  border-radius: 8px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
   padding: 30px;
   max-width: 500px;
   min-width: 400px;
-  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .modal-content {
@@ -33,36 +36,36 @@
 }
 
 .modal-message {
-  color: #ffffff;
-  font-family: 'Courier New', monospace;
-  font-size: 16px;
+  color: var(--color-white);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xlarge);
   line-height: 1.5;
   text-align: center;
 }
 
 .modal-actions {
   display: flex;
-  gap: 15px;
+  gap: var(--section-padding);
   justify-content: center;
 }
 
 .modal-cancel,
 .modal-confirm {
   flex: 1;
-  padding: 12px 30px;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  padding: var(--button-padding);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
   font-weight: bold;
-  border: 2px solid #00ff88;
-  border-radius: 5px;
+  border: var(--button-border-width) solid var(--border-primary);
+  border-radius: var(--button-border-radius);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-fast);
   min-width: 120px;
 }
 
 .modal-cancel {
   background-color: transparent;
-  color: #00ff88;
+  color: var(--color-primary);
 }
 
 .modal-cancel:hover {
@@ -70,13 +73,13 @@
 }
 
 .modal-cancel:focus {
-  outline: 2px solid #00ff88;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .modal-confirm {
-  background-color: #00ff88;
-  color: #000000;
+  background-color: var(--color-primary);
+  color: var(--color-black);
 }
 
 .modal-confirm:hover {
@@ -85,41 +88,41 @@
 }
 
 .modal-confirm:focus {
-  outline: 2px solid #00ff88;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 /* Event Notification Modal Styles */
 .event-modal-title {
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  font-size: 20px;
+  color: var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-title);
   font-weight: bold;
-  margin: 0 0 15px 0;
+  margin: 0 0 var(--section-padding) 0;
   text-align: center;
 }
 
 .event-modal-description {
-  color: #ffffff;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  color: var(--color-white);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
   margin: 0 0 10px 0;
   line-height: 1.5;
 }
 
 .event-modal-duration {
   color: #aaaaaa;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
   margin: 0;
   font-style: italic;
 }
 
 /* Ship Naming Dialog Styles */
 .modal-title {
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  font-size: 20px;
+  color: var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-title);
   font-weight: bold;
   margin: 0 0 10px 0;
   text-align: center;
@@ -127,9 +130,9 @@
 
 .modal-description {
   color: #cccccc;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  margin: 0 0 20px 0;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
+  margin: 0 0 var(--section-gap) 0;
   text-align: center;
   line-height: 1.5;
 }
@@ -142,20 +145,20 @@
 
 .ship-name-input {
   width: 100%;
-  padding: 12px;
-  font-family: 'Courier New', monospace;
-  font-size: 16px;
+  padding: var(--grid-gap-medium);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xlarge);
   background-color: #0a0a0a;
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  color: #ffffff;
+  border: var(--button-border-width) solid var(--border-primary);
+  border-radius: var(--button-border-radius);
+  color: var(--color-white);
   box-sizing: border-box;
 }
 
 .ship-name-input:focus {
   outline: none;
   border-color: #00dd77;
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .ship-name-input::placeholder {
@@ -170,8 +173,8 @@
 
 .suggestions-label {
   color: #aaaaaa;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -180,19 +183,19 @@
 .suggestions-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--grid-gap-small);
 }
 
 .suggestion-btn {
-  padding: 8px 16px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
+  padding: var(--grid-gap-small) var(--grid-gap-xlarge);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
   background-color: transparent;
-  border: 1px solid #00ff88;
+  border: var(--section-border-width) solid var(--border-primary);
   border-radius: 4px;
-  color: #00ff88;
+  color: var(--color-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-fast);
 }
 
 .suggestion-btn:hover {
@@ -202,6 +205,67 @@
 }
 
 .suggestion-btn:focus {
-  outline: 2px solid #00ff88;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Critical Damage Modal */
+.critical-damage-modal {
+  background-color: #1a1a1a;
+  border: var(--panel-border-width) solid var(--border-danger);
+  border-radius: var(--panel-border-radius);
+  padding: 30px;
+  max-width: 500px;
+  min-width: 350px;
+  box-shadow: var(--shadow-glow-danger);
+  font-family: var(--font-family-mono);
+}
+
+.critical-damage-modal h3 {
+  color: var(--color-danger);
+  font-size: var(--font-size-title);
+  font-weight: bold;
+  margin: 0 0 var(--section-gap) 0;
+  text-align: center;
+  text-shadow: var(--shadow-text-primary);
+}
+
+.critical-damage-modal p {
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  line-height: 1.5;
+  margin: 0 0 var(--grid-gap-medium) 0;
+  text-align: center;
+}
+
+.critical-damage-modal p:last-of-type {
+  color: #aaaaaa;
+  font-size: var(--font-size-medium);
+  font-style: italic;
+}
+
+.modal-btn {
+  display: block;
+  width: 100%;
+  margin-top: var(--section-padding);
+  padding: var(--button-padding);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  background-color: transparent;
+  color: var(--color-danger);
+  border: var(--button-border-width) solid var(--border-danger);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modal-btn:hover {
+  background-color: rgba(255, 107, 107, 0.15);
+  box-shadow: var(--shadow-glow-danger);
+}
+
+.modal-btn:focus {
+  outline: 2px solid var(--color-danger);
   outline-offset: 2px;
 }

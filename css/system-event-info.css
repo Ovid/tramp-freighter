@@ -1,32 +1,35 @@
+/* Import CSS Variables */
+@import './variables.css';
+
 /* System Event Info Styles */
 
 .system-event-info {
-  margin: 15px 0;
-  padding: 12px;
+  margin: var(--section-padding) 0;
+  padding: var(--grid-gap-medium);
   background: rgba(100, 150, 255, 0.15);
-  border: 1px solid rgba(100, 150, 255, 0.4);
+  border: var(--section-border-width) solid rgba(100, 150, 255, 0.4);
   border-radius: 4px;
 }
 
 .event-indicator {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--grid-gap-small);
+  margin-bottom: var(--grid-gap-small);
 }
 
 .event-icon {
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
 }
 
 .event-name {
   font-weight: bold;
   color: #88ccff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .event-description {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #aaccee;
   line-height: 1.4;
 }

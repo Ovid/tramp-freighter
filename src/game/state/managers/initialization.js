@@ -4,6 +4,8 @@ import {
   SOL_SYSTEM_ID,
   GAME_VERSION,
   NEW_GAME_DEFAULTS,
+  KARMA_CONFIG,
+  FACTION_CONFIG,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -63,11 +65,19 @@ export class InitializationManager {
    * @returns {Object} Player state object
    */
   initializePlayerState() {
+    // Build factions object from config
+    const factions = {};
+    for (const faction of FACTION_CONFIG.FACTIONS) {
+      factions[faction] = FACTION_CONFIG.INITIAL;
+    }
+
     return {
       credits: NEW_GAME_DEFAULTS.STARTING_CREDITS,
       debt: NEW_GAME_DEFAULTS.STARTING_DEBT,
       currentSystem: SOL_SYSTEM_ID,
       daysElapsed: 0,
+      karma: KARMA_CONFIG.INITIAL,
+      factions,
     };
   }
 
@@ -152,6 +162,15 @@ export class InitializationManager {
       activeEvents: [],
       marketConditions: {},
       currentSystemPrices: solPrices,
+      dangerFlags: {
+        piratesFought: 0,
+        piratesNegotiated: 0,
+        civiliansSaved: 0,
+        civiliansLooted: 0,
+        inspectionsPassed: 0,
+        inspectionsBribed: 0,
+        inspectionsFled: 0,
+      },
     };
   }
 
@@ -205,6 +224,7 @@ export class InitializationManager {
     this.gameStateManager.emit('debtChanged', player.debt);
     this.gameStateManager.emit('fuelChanged', ship.fuel);
     this.gameStateManager.emit('cargoChanged', ship.cargo);
+    this.gameStateManager.emit('hiddenCargoChanged', ship.hiddenCargo);
     this.gameStateManager.emit('locationChanged', player.currentSystem);
     this.gameStateManager.emit('timeChanged', player.daysElapsed);
     this.gameStateManager.emit(

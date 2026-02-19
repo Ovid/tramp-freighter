@@ -10,8 +10,13 @@ import {
   calculateDiscountedRepairAllCost,
   validateRepairAll,
   getSystemCondition,
+  getSystemName,
+  isSystemCritical,
+  canAffordRepairAboveThreshold,
+  calculateCannibalizeRequired,
+  calculateMaxDonation,
 } from './repairUtils';
-import { SHIP_CONFIG, UI_CONFIG } from '../../game/constants';
+import { SHIP_CONFIG, UI_CONFIG, REPAIR_CONFIG } from '../../game/constants';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
@@ -32,10 +37,17 @@ export function RepairPanel({ onClose }) {
   const shipCondition = useGameEvent('shipConditionChanged');
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
-  const { repair, canGetFreeRepair, getFreeRepair } = useGameAction();
+  const {
+    repair,
+    canGetFreeRepair,
+    getFreeRepair,
+    applyEmergencyPatch,
+    cannibalizeSystem,
+  } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
+  const [cannibalizeAllocation, setCannibalizeAllocation] = useState({});
 
   // Use Bridge Pattern to get ship condition
   const condition = shipCondition;
@@ -97,7 +109,7 @@ export function RepairPanel({ onClose }) {
     }
   };
 
-  const handleFreeRepair = (npcId, maxHullPercent) => {
+  const handleFreeRepair = (npcId, _maxHullPercent) => {
     // Calculate current hull damage percentage
     const currentHull = condition.hull;
     const maxHull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
@@ -111,6 +123,37 @@ export function RepairPanel({ onClose }) {
       setValidationClass('success');
     } else {
       setValidationMessage(`Free repair failed: ${repairOutcome.message}`);
+      setValidationClass('error');
+    }
+  };
+
+  const handleEmergencyPatch = (systemType) => {
+    const result = applyEmergencyPatch(systemType);
+    if (result.success) {
+      setValidationMessage(
+        `Emergency patch applied to ${getSystemName(systemType)}. +${REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY} days.`
+      );
+      setValidationClass('warning');
+    } else {
+      setValidationMessage(`Emergency patch failed: ${result.reason}`);
+      setValidationClass('error');
+    }
+  };
+
+  const handleCannibalize = (targetType) => {
+    const donations = Object.entries(cannibalizeAllocation)
+      .filter(([, amount]) => amount > 0)
+      .map(([system, amount]) => ({ system, amount }));
+
+    const result = cannibalizeSystem(targetType, donations);
+    if (result.success) {
+      setValidationMessage(
+        `Cannibalized systems to patch ${getSystemName(targetType)}.`
+      );
+      setValidationClass('warning');
+      setCannibalizeAllocation({});
+    } else {
+      setValidationMessage(`Cannibalization failed: ${result.reason}`);
       setValidationClass('error');
     }
   };
@@ -349,6 +392,121 @@ export function RepairPanel({ onClose }) {
             </div>
           </div>
         </div>
+
+        {/* Emergency Patch Section */}
+        {['hull', 'engine', 'lifeSupport'].some(
+          (sys) =>
+            isSystemCritical(getSystemCondition(condition, sys)) &&
+            !canAffordRepairAboveThreshold(
+              getSystemCondition(condition, sys),
+              credits
+            )
+        ) && (
+          <div className="repair-section emergency-section">
+            <h3>Emergency Patch</h3>
+            <p className="emergency-warning">
+              Jury-rig repairs to minimum flight condition. Takes{' '}
+              {REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY} days per system.
+            </p>
+            {['hull', 'engine', 'lifeSupport'].map((sys) => {
+              const cond = getSystemCondition(condition, sys);
+              if (!isSystemCritical(cond)) return null;
+              if (canAffordRepairAboveThreshold(cond, credits)) return null;
+
+              return (
+                <button
+                  key={sys}
+                  className="repair-btn emergency-btn"
+                  onClick={() => handleEmergencyPatch(sys)}
+                >
+                  Emergency Patch {getSystemName(sys)} (+
+                  {REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY} days)
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Cannibalize Section */}
+        {['hull', 'engine', 'lifeSupport'].some((sys) =>
+          isSystemCritical(getSystemCondition(condition, sys))
+        ) && (
+          <div className="repair-section cannibalize-section">
+            <h3>Cannibalize Systems</h3>
+            <p className="cannibalize-warning">
+              Sacrifice parts from other systems. 50% waste penalty (1.5x cost).
+            </p>
+            {['hull', 'engine', 'lifeSupport'].map((targetSys) => {
+              const targetCond = getSystemCondition(condition, targetSys);
+              if (!isSystemCritical(targetCond)) return null;
+
+              const required = calculateCannibalizeRequired(targetCond);
+              const donorSystems = ['hull', 'engine', 'lifeSupport'].filter(
+                (s) =>
+                  s !== targetSys &&
+                  !isSystemCritical(getSystemCondition(condition, s))
+              );
+              const totalAvailable = donorSystems.reduce(
+                (sum, s) =>
+                  sum + calculateMaxDonation(getSystemCondition(condition, s)),
+                0
+              );
+
+              if (totalAvailable < required) return null;
+
+              const totalAllocated = donorSystems.reduce(
+                (sum, s) => sum + (cannibalizeAllocation[s] || 0),
+                0
+              );
+
+              return (
+                <div key={targetSys} className="cannibalize-target">
+                  <h4>
+                    Repair {getSystemName(targetSys)} ({Math.round(targetCond)}%
+                    → 21%)
+                  </h4>
+                  <p>Need {required}% from donors:</p>
+                  {donorSystems.map((donorSys) => {
+                    const donorCond = getSystemCondition(condition, donorSys);
+                    const maxDonation = calculateMaxDonation(donorCond);
+                    const currentAlloc = cannibalizeAllocation[donorSys] || 0;
+
+                    return (
+                      <div key={donorSys} className="donor-row">
+                        <label>
+                          {getSystemName(donorSys)} ({Math.round(donorCond)}%,
+                          max {maxDonation}%)
+                        </label>
+                        <div className="donor-slider-group">
+                          <input
+                            type="range"
+                            min={0}
+                            max={maxDonation}
+                            value={currentAlloc}
+                            onChange={(e) =>
+                              setCannibalizeAllocation((prev) => ({
+                                ...prev,
+                                [donorSys]: parseInt(e.target.value),
+                              }))
+                            }
+                          />
+                          <span>{currentAlloc}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button
+                    className="repair-btn cannibalize-btn"
+                    onClick={() => handleCannibalize(targetSys)}
+                    disabled={totalAllocated < required}
+                  >
+                    Cannibalize ({totalAllocated}/{required}%)
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* NPC Discount Section */}
         {bestDiscount.discount > 0 && (

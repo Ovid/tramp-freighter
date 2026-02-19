@@ -1,11 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { JumpDialog } from '../../src/features/navigation/JumpDialog';
 import { GameProvider } from '../../src/context/GameContext';
 import { GameStateManager } from '../../src/game/state/game-state-manager';

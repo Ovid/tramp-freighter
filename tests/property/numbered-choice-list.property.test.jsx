@@ -82,7 +82,7 @@ describe('Numbered Choice List Format Properties', () => {
           }
 
           return true;
-        } catch (error) {
+        } catch (_error) {
           // Skip test if dialogue system fails (e.g., missing dialogue tree)
           return true;
         } finally {
@@ -168,7 +168,7 @@ describe('Numbered Choice List Format Properties', () => {
             }
 
             return true;
-          } catch (error) {
+          } catch (_error) {
             // Skip test if dialogue system fails
             return true;
           } finally {

@@ -270,7 +270,7 @@ describe('Property: Default ship name on empty input', () => {
       { input: '  <div></div>  ', description: 'empty HTML with whitespace' },
     ];
 
-    testCases.forEach(({ input, description }) => {
+    testCases.forEach(({ input }) => {
       cleanup();
 
       const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);

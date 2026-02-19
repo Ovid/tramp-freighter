@@ -1,19 +1,22 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* Dialogue Panel Styling */
 .dialogue-panel {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  max-height: 80vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  transform: translate(-50%, -50%) scale(1);
+  width: var(--panel-width-small);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
   display: none;
-  z-index: 200;
+  z-index: var(--z-panel);
   overflow-y: auto;
 }
 
@@ -24,41 +27,42 @@
 /* Close Button */
 .dialogue-panel .close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
-  color: #00ff88;
-  font-size: 24px;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
   cursor: pointer;
-  padding: 5px;
+  padding: var(--close-button-padding);
   line-height: 1;
+  transition: var(--transition-fast);
 }
 
 .dialogue-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* Loading State */
 .dialogue-loading {
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
-  padding: 40px 20px;
+  padding: 40px var(--section-gap);
   font-style: italic;
 }
 
 /* Dialogue Header - NPC Info and Reputation Tier */
 .dialogue-header {
   margin-bottom: 25px;
-  padding-bottom: 15px;
+  padding-bottom: var(--section-padding);
   border-bottom: 2px solid rgba(0, 255, 136, 0.3);
 }
 
 .dialogue-header .npc-name {
-  color: #00ff88;
-  font-size: 22px;
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: var(--grid-gap-small);
   text-align: center;
 }
 
@@ -68,7 +72,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .dialogue-header .npc-role {

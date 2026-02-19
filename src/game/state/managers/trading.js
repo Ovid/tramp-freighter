@@ -1,6 +1,12 @@
 import { BaseManager } from './base-manager.js';
 import { TradingSystem } from '../../game-trading.js';
-import { COMMODITY_TYPES, ECONOMY_CONFIG } from '../../constants.js';
+import {
+  COMMODITY_TYPES,
+  ECONOMY_CONFIG,
+  RESTRICTED_GOODS_CONFIG,
+  SOL_SYSTEM_ID,
+  ALPHA_CENTAURI_SYSTEM_ID,
+} from '../../constants.js';
 
 /**
  * Trading Manager - Handles all trading operations and market conditions
@@ -386,5 +392,108 @@ export class TradingManager extends BaseManager {
       throw new Error('Invalid state: priceKnowledge missing from world state');
     }
     return state.world.priceKnowledge[systemId] !== undefined;
+  }
+
+  /**
+   * Check if a good is restricted anywhere in the galaxy
+   *
+   * @param {string} goodType - The type of good to check
+   * @returns {boolean} True if the good is restricted in any zone or core system
+   */
+  isGoodRestrictedAnywhere(goodType) {
+    // Check all zone restrictions
+    const zoneRestricted =
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.safe.includes(goodType) ||
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.contested.includes(goodType) ||
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.dangerous.includes(goodType);
+
+    // Check core system restrictions
+    const coreSystemRestricted =
+      RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED.includes(goodType);
+
+    return zoneRestricted || coreSystemRestricted;
+  }
+
+  /**
+   * Check if a good is restricted in a specific system
+   *
+   * @param {string} goodType - The type of good to check
+   * @param {number} systemId - The system ID to check restrictions for
+   * @returns {boolean} True if the good is restricted in this system
+   */
+  isGoodRestricted(goodType, systemId) {
+    this.validateState();
+
+    // Get the danger zone for this system
+    const dangerZone = this.gameStateManager.getDangerZone(systemId);
+
+    // Check zone-based restrictions
+    const zoneRestricted =
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone]?.includes(
+        goodType
+      ) || false;
+
+    // Check core system restrictions (Sol, Alpha Centauri)
+    const coreSystemRestricted =
+      (systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID) &&
+      RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED.includes(goodType);
+
+    return zoneRestricted || coreSystemRestricted;
+  }
+
+  /**
+   * Calculate sell price for a good in a specific system
+   *
+   * @param {string} goodType - The type of good to price
+   * @param {number} systemId - The system ID to calculate price for
+   * @param {number} basePrice - The base price before modifiers
+   * @returns {number} The final sell price including any premium multipliers
+   */
+  calculateSellPrice(goodType, systemId, basePrice) {
+    this.validateState();
+
+    // Check if this good is restricted in this system
+    const isRestricted = this.isGoodRestricted(goodType, systemId);
+
+    if (isRestricted) {
+      // In restricted zones, normal trade is blocked
+      // Price calculation is irrelevant as trade won't be allowed
+      return basePrice;
+    }
+
+    // Check if this good is restricted elsewhere (making it valuable here)
+    const isRestrictedElsewhere = this.isGoodRestrictedAnywhere(goodType);
+
+    if (isRestrictedElsewhere) {
+      // Apply premium multiplier when selling restricted goods in legal zones
+      return (
+        basePrice * RESTRICTED_GOODS_CONFIG.PRICE_MULTIPLIERS.PREMIUM_MULTIPLIER
+      );
+    }
+
+    // Normal pricing for non-restricted goods
+    return basePrice;
+  }
+
+  /**
+   * Check if a good can be sold in a specific system
+   *
+   * @param {string} goodType - The type of good to check
+   * @param {number} systemId - The system ID to check
+   * @param {boolean} hasBlackMarketContact - Whether player has black market contacts
+   * @returns {boolean} True if the good can be sold in this system
+   */
+  canSellGood(goodType, systemId, hasBlackMarketContact) {
+    this.validateState();
+
+    const isRestricted = this.isGoodRestricted(goodType, systemId);
+
+    if (isRestricted) {
+      // In restricted zones, can only sell with black market contacts
+      return hasBlackMarketContact;
+    } else {
+      // In legal zones, can always sell
+      return true;
+    }
   }
 }

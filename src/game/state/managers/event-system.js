@@ -20,6 +20,7 @@ export class EventSystemManager {
       fuelChanged: [],
       cargoChanged: [],
       cargoCapacityChanged: [],
+      hiddenCargoChanged: [],
       locationChanged: [],
       timeChanged: [],
       priceKnowledgeChanged: [],
@@ -30,6 +31,14 @@ export class EventSystemManager {
       upgradesChanged: [],
       quirksChanged: [],
       dialogueChanged: [],
+      factionRepChanged: [],
+      encounterTriggered: [],
+      hullChanged: [],
+      engineChanged: [],
+      lifeSupportChanged: [],
+      karmaChanged: [],
+      intelligenceChanged: [],
+      currentSystemChanged: [],
     };
   }
 
@@ -42,6 +51,7 @@ export class EventSystemManager {
    *   - fuelChanged: (number) - Ship fuel percentage (0-100)
    *   - cargoChanged: (Array<CargoStack>) - Ship cargo array with stacks
    *   - cargoCapacityChanged: (number) - Ship cargo capacity in units
+   *   - hiddenCargoChanged: (Array<CargoStack>) - Ship hidden cargo array with stacks
    *   - locationChanged: (number) - Current system ID
    *   - timeChanged: (number) - Days elapsed since game start
    *   - priceKnowledgeChanged: (Object) - Price knowledge database
@@ -52,6 +62,14 @@ export class EventSystemManager {
    *   - upgradesChanged: (Array<string>) - Installed upgrade IDs
    *   - quirksChanged: (Array<string>) - Ship quirk IDs
    *   - dialogueChanged: (Object) - Current dialogue state
+   *   - factionRepChanged: (Object) - Faction reputation object with authorities, outlaws, etc.
+   *   - encounterTriggered: (Object) - Danger system encounter event with type and encounter data
+   *   - hullChanged: (number) - Ship hull condition percentage (0-100)
+   *   - engineChanged: (number) - Ship engine condition percentage (0-100)
+   *   - lifeSupportChanged: (number) - Ship life support condition percentage (0-100)
+   *   - karmaChanged: (number) - Player karma value for reputation and encounter outcomes
+   *   - intelligenceChanged: (Object) - Information broker intelligence database
+   *   - currentSystemChanged: (number) - Current system ID (alias for locationChanged)
    * @param {function} callback - Function to call when event occurs, receives event data as parameter
    */
   subscribe(eventType, callback) {

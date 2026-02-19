@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
 /* Cargo Manifest Panel Styling */
 #cargo-manifest-panel {
   position: absolute;
@@ -5,11 +8,11 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  max-width: var(--panel-width-medium);
+  max-height: var(--panel-max-height);
   background: rgba(0, 20, 40, 0.98);
-  border: 2px solid #00ff88;
-  border-radius: 8px;
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
   padding: 25px;
   display: none;
   overflow-y: auto;
@@ -21,27 +24,27 @@
 }
 
 #cargo-manifest-panel h2 {
-  margin-bottom: 20px;
-  color: #00ff88;
-  font-size: 22px;
+  margin-bottom: var(--section-gap);
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
   text-align: center;
 }
 
 #cargo-manifest-panel h3 {
-  margin-bottom: 12px;
-  color: #00ff88;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
-  padding-bottom: 8px;
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+  padding-bottom: var(--grid-gap-small);
 }
 
 #cargo-manifest-panel .close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
   background: none;
   border: none;
-  color: #00ff88;
+  color: var(--color-primary);
   font-size: 28px;
   cursor: pointer;
   padding: 0;
@@ -49,10 +52,11 @@
   height: 30px;
   line-height: 30px;
   text-align: center;
+  transition: var(--transition-fast);
 }
 
 #cargo-manifest-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .cargo-manifest-content {

@@ -177,6 +177,7 @@ export class SaveLoadManager extends BaseManager {
     this.emit('debtChanged', loadedState.player.debt);
     this.emit('fuelChanged', loadedState.ship.fuel);
     this.emit('cargoChanged', loadedState.ship.cargo);
+    this.emit('hiddenCargoChanged', loadedState.ship.hiddenCargo);
     this.emit('locationChanged', loadedState.player.currentSystem);
     this.emit('timeChanged', loadedState.player.daysElapsed);
     this.emit('priceKnowledgeChanged', loadedState.world.priceKnowledge);
@@ -189,6 +190,8 @@ export class SaveLoadManager extends BaseManager {
     this.emit('upgradesChanged', loadedState.ship.upgrades);
     this.emit('cargoCapacityChanged', loadedState.ship.cargoCapacity);
     this.emit('quirksChanged', loadedState.ship.quirks);
+    this.emit('karmaChanged', loadedState.player.karma || 0);
+    this.emit('factionRepChanged', loadedState.player.factions || {});
   }
 
   /**

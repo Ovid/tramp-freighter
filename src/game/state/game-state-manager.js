@@ -12,6 +12,7 @@ import { EventSystemManager } from './managers/event-system.js';
 import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
+import { DangerManager } from './managers/danger.js';
 
 /**
  * Sanitize ship name input
@@ -88,6 +89,7 @@ export class GameStateManager {
     this.dialogueManager = new DialogueManager(this);
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
+    this.dangerManager = new DangerManager(this);
   }
 
   /**
@@ -118,6 +120,22 @@ export class GameStateManager {
 
   getUpgradeDefinition(upgradeId) {
     return this.shipManager.getUpgradeDefinition(upgradeId);
+  }
+
+  addQuirk(quirkId) {
+    return this.shipManager.addQuirk(quirkId);
+  }
+
+  removeQuirk(quirkId) {
+    return this.shipManager.removeQuirk(quirkId);
+  }
+
+  addUpgrade(upgradeId) {
+    return this.shipManager.addUpgrade(upgradeId);
+  }
+
+  removeUpgrade(upgradeId) {
+    return this.shipManager.removeUpgrade(upgradeId);
   }
 
   /**
@@ -503,6 +521,14 @@ export class GameStateManager {
     return this.repairManager.repairShipSystem(systemType, amount);
   }
 
+  applyEmergencyPatch(systemType) {
+    return this.repairManager.applyEmergencyPatch(systemType);
+  }
+
+  cannibalizeSystem(targetType, donations) {
+    return this.repairManager.cannibalizeSystem(targetType, donations);
+  }
+
   // ========================================================================
   // UPGRADE SYSTEM
   // ========================================================================
@@ -529,6 +555,10 @@ export class GameStateManager {
 
   moveToRegularCargo(good, qty) {
     return this.shipManager.moveToRegularCargo(good, qty);
+  }
+
+  getHiddenCargo() {
+    return this.shipManager.getHiddenCargo();
   }
 
   // ========================================================================
@@ -585,5 +615,157 @@ export class GameStateManager {
 
   getFreeRepair(npcId, hullDamagePercent) {
     return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+  }
+
+  // ========================================================================
+  // DANGER SYSTEM
+  // ========================================================================
+
+  getDangerZone(systemId) {
+    return this.dangerManager.getDangerZone(systemId);
+  }
+
+  calculatePirateEncounterChance(systemId, gameState) {
+    return this.dangerManager.calculatePirateEncounterChance(
+      systemId,
+      gameState
+    );
+  }
+
+  calculateInspectionChance(systemId, gameState) {
+    return this.dangerManager.calculateInspectionChance(systemId, gameState);
+  }
+
+  getKarma() {
+    return this.dangerManager.getKarma();
+  }
+
+  setKarma(value) {
+    this.dangerManager.setKarma(value);
+    this.saveGame();
+  }
+
+  modifyKarma(amount, reason) {
+    this.dangerManager.modifyKarma(amount, reason);
+    this.saveGame();
+  }
+
+  getFactionRep(faction) {
+    return this.dangerManager.getFactionRep(faction);
+  }
+
+  setFactionRep(faction, value) {
+    this.dangerManager.setFactionRep(faction, value);
+    this.saveGame();
+  }
+
+  modifyFactionRep(faction, amount, reason) {
+    this.dangerManager.modifyFactionRep(faction, amount, reason);
+    this.saveGame();
+  }
+
+  countRestrictedGoods(cargo, zone, systemId) {
+    return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
+  }
+
+  incrementDangerFlag(flagName) {
+    return this.dangerManager.incrementDangerFlag(flagName);
+  }
+
+  resolveCombatChoice(encounter, choice) {
+    return this.dangerManager.resolveCombatChoice(encounter, choice);
+  }
+
+  resolveNegotiation(encounter, choice, rng) {
+    return this.dangerManager.resolveNegotiation(encounter, choice, rng);
+  }
+
+  resolveInspection(choice, gameState, rng) {
+    return this.dangerManager.resolveInspection(choice, gameState, rng);
+  }
+
+  checkDistressCall(rng) {
+    return this.dangerManager.checkDistressCall(rng);
+  }
+
+  resolveDistressCall(distressCall, choice) {
+    return this.dangerManager.resolveDistressCallEncounter(
+      distressCall,
+      choice
+    );
+  }
+
+  /**
+   * Resolve encounter based on type and choice
+   * Routes to appropriate specific resolution method
+   *
+   * @param {Object} encounterData - Full encounter data from event
+   * @param {string} choice - Player's choice
+   * @returns {Object} Resolution outcome
+   */
+  resolveEncounter(encounterData, choice) {
+    const { type, encounter } = encounterData;
+
+    // Generate random number for resolution
+    const rng = Math.random();
+
+    switch (type) {
+      case 'pirate':
+        return this.resolvePirateEncounter(encounter, choice, rng);
+      case 'inspection':
+        return this.resolveInspection(choice, this.getState(), rng);
+      case 'mechanical_failure':
+        return this.resolveMechanicalFailure(
+          encounter.type,
+          choice,
+          this.getState(),
+          rng
+        );
+      case 'distress_call':
+        return this.resolveDistressCall(encounter, choice);
+      default:
+        throw new Error(`Unknown encounter type: ${type}`);
+    }
+  }
+
+  /**
+   * Resolve pirate encounter based on choice
+   * Maps UI choices to appropriate resolution methods
+   *
+   * @param {Object} encounter - Pirate encounter data
+   * @param {string} choice - Player's choice (fight, flee, negotiate, surrender)
+   * @param {number} rng - Random number for resolution
+   * @returns {Object} Resolution outcome
+   */
+  resolvePirateEncounter(encounter, choice, rng) {
+    switch (choice) {
+      case 'fight':
+        // Fighting maps to return_fire combat choice
+        return this.resolveCombatChoice(encounter, 'return_fire');
+      case 'flee':
+        // Fleeing maps to evasive combat choice
+        return this.resolveCombatChoice(encounter, 'evasive');
+      case 'negotiate':
+        // Negotiating maps to counter_proposal negotiation choice
+        return this.resolveNegotiation(encounter, 'counter_proposal', rng);
+      case 'surrender':
+        // Surrendering maps to accept_demand negotiation choice
+        return this.resolveNegotiation(encounter, 'accept_demand', rng);
+      default:
+        throw new Error(`Unknown pirate encounter choice: ${choice}`);
+    }
+  }
+
+  checkMechanicalFailure(gameState, rng) {
+    return this.dangerManager.checkMechanicalFailure(gameState, rng);
+  }
+
+  resolveMechanicalFailure(failureType, choice, gameState, rng) {
+    return this.dangerManager.resolveMechanicalFailure(
+      failureType,
+      choice,
+      gameState,
+      rng
+    );
   }
 }
