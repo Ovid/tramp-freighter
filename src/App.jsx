@@ -19,7 +19,8 @@ import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
-import { useJumpEncounters } from './hooks/useJumpEncounters';
+import { useEventTriggers } from './hooks/useEventTriggers';
+import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 
@@ -54,7 +55,8 @@ export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const encounterEvent = useGameEvent('encounterTriggered');
-  useJumpEncounters();
+  const narrativeEvent = useGameEvent('narrativeEventTriggered');
+  useEventTriggers();
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -66,6 +68,8 @@ export default function App({ devMode = false }) {
   const [encounterOutcome, setEncounterOutcome] = useState(null);
   const [encounterPhase, setEncounterPhase] = useState('initial');
   const lastHandledEncounter = useRef(null);
+  const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
+  const lastHandledNarrative = useRef(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -109,11 +113,13 @@ export default function App({ devMode = false }) {
       setActivePanel(null);
     } else {
       // If in orbit mode, go to station
+      gameStateManager.dock();
       setViewMode(VIEW_MODES.STATION);
     }
   };
 
   const handleUndock = () => {
+    gameStateManager.undock();
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
   };
@@ -280,6 +286,22 @@ export default function App({ devMode = false }) {
     }
   }, [encounterEvent, currentEncounter]);
 
+  // Listen for narrative events (overlay — does not change viewMode)
+  useEffect(() => {
+    if (
+      narrativeEvent &&
+      !activeNarrativeEvent &&
+      narrativeEvent !== lastHandledNarrative.current
+    ) {
+      lastHandledNarrative.current = narrativeEvent;
+      setActiveNarrativeEvent(narrativeEvent);
+    }
+  }, [narrativeEvent, activeNarrativeEvent]);
+
+  const handleNarrativeClose = () => {
+    setActiveNarrativeEvent(null);
+  };
+
   return (
     <ErrorBoundary>
       <div className="app-container">
@@ -417,6 +439,14 @@ export default function App({ devMode = false }) {
                   outcome={encounterOutcome}
                   onContinue={handleOutcomeContinue}
                   onClose={handleOutcomeContinue}
+                />
+              )}
+
+              {/* Narrative event overlay (renders on top of any view mode) */}
+              {activeNarrativeEvent && (
+                <NarrativeEventPanel
+                  event={activeNarrativeEvent}
+                  onClose={handleNarrativeClose}
                 />
               )}
             </StarmapProvider>

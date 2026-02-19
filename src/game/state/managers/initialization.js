@@ -173,6 +173,12 @@ export class InitializationManager {
         inspectionsBribed: 0,
         inspectionsFled: 0,
       },
+      narrativeEvents: {
+        fired: [],
+        cooldowns: {},
+        flags: {},
+        dockedSystems: [],
+      },
     };
   }
 

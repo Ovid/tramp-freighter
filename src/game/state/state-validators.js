@@ -875,6 +875,16 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
     };
   }
 
+  // Initialize narrative events tracking if missing (pre-narrative-events saves)
+  if (!state.world.narrativeEvents) {
+    state.world.narrativeEvents = {
+      fired: [],
+      cooldowns: {},
+      flags: {},
+      dockedSystems: [],
+    };
+  }
+
   return state;
 }
 /**

@@ -499,5 +499,37 @@ describe('State Validators Module', () => {
         console.warn = originalWarn;
       }
     });
+
+    it('should add narrativeEvents defaults when missing from world', () => {
+      // Simulate old save: no world.narrativeEvents at all
+      expect(partialState.world.narrativeEvents).toBeUndefined();
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+
+      expect(normalized.world.narrativeEvents).toEqual({
+        fired: [],
+        cooldowns: {},
+        flags: {},
+        dockedSystems: [],
+      });
+    });
+
+    it('should preserve existing narrativeEvents when present', () => {
+      partialState.world.narrativeEvents = {
+        fired: ['dock_sol_first'],
+        cooldowns: { some_event: 20 },
+        flags: { met_chen: true },
+        dockedSystems: [0],
+      };
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA, true);
+
+      expect(normalized.world.narrativeEvents.fired).toContain(
+        'dock_sol_first'
+      );
+      expect(normalized.world.narrativeEvents.cooldowns.some_event).toBe(20);
+      expect(normalized.world.narrativeEvents.flags.met_chen).toBe(true);
+      expect(normalized.world.narrativeEvents.dockedSystems).toContain(0);
+    });
   });
 });
