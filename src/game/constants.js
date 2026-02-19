@@ -481,6 +481,18 @@ export async function initDevMode() {
 export const GAME_VERSION = '4.1.0';
 
 /**
+ * Mission System Configuration
+ */
+export const MISSION_CONFIG = {
+  TYPES: ['delivery', 'fetch', 'passenger', 'intel', 'special'],
+  MAX_ACTIVE: 3,
+  BOARD_SIZE: 3,
+  BOARD_REFRESH_DAYS: 1,
+  DEADLINE_BUFFER_DAYS: 3,
+  REWARD_MARKUP: 0.3,
+};
+
+/**
  * localStorage key for save data
  */
 export const SAVE_KEY = 'trampFreighterSave';
