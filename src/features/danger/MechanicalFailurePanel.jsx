@@ -85,7 +85,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
             <div className="status-item">
               <span className="status-label">Hull Integrity:</span>
               <span className={`status-value ${getConditionClass(hull)}`}>
-                {Math.round(hull || 100)}%
+                {Math.round(hull ?? 100)}%
               </span>
               <span className="status-impact">
                 {hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
@@ -96,7 +96,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
             <div className="status-item">
               <span className="status-label">Engine Status:</span>
               <span className={`status-value ${getConditionClass(engine)}`}>
-                {Math.round(engine || 100)}%
+                {Math.round(engine ?? 100)}%
               </span>
               <span className="status-impact">
                 {engine < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE
@@ -109,7 +109,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
               <span
                 className={`status-value ${getConditionClass(lifeSupport)}`}
               >
-                {Math.round(lifeSupport || 100)}%
+                {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="status-impact">
                 {lifeSupport <
