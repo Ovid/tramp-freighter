@@ -40,6 +40,7 @@ export class EventSystemManager {
       intelligenceChanged: [],
       currentSystemChanged: [],
       missionsChanged: [],
+      docked: [],
     };
   }
 
