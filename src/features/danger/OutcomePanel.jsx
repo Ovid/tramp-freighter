@@ -20,7 +20,7 @@ import { FACTION_CONFIG } from '../../game/constants.js';
 export function OutcomePanel({ outcome, onClose, onContinue }) {
   // Subscribe to current karma and faction reputation for display
   const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const factions = useGameEvent('factionRepChanged') || {};
 
   // Process outcome data for display
   const outcomeAnalysis = useMemo(() => {
