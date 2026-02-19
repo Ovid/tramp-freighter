@@ -112,19 +112,19 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
             <div className="status-item">
               <span className="status-label">Hull:</span>
               <span className={`status-value ${getConditionClass(hull)}`}>
-                {Math.round(hull || 100)}%
+                {Math.round(hull ?? 100)}%
               </span>
             </div>
             <div className="status-item">
               <span className="status-label">Engine:</span>
               <span className={`status-value ${getConditionClass(engine)}`}>
-                {Math.round(engine || 100)}%
+                {Math.round(engine ?? 100)}%
               </span>
             </div>
             <div className="status-item">
               <span className="status-label">Fuel:</span>
               <span className={`status-value ${getConditionClass(fuel)}`}>
-                {Math.round(fuel || 100)}%
+                {Math.round(fuel ?? 100)}%
               </span>
             </div>
             <div className="status-item">
@@ -132,7 +132,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               <span
                 className={`status-value ${getConditionClass(lifeSupport)}`}
               >
-                {Math.round(lifeSupport || 100)}%
+                {Math.round(lifeSupport ?? 100)}%
               </span>
             </div>
           </div>
