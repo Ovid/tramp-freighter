@@ -46,7 +46,7 @@ export function DangerWarningDialog({
     },
     ship: {
       cargo: cargo || [],
-      engine: shipCondition?.engine || 100,
+      engine: shipCondition?.engine ?? 100,
       upgrades: upgrades || [],
     },
   };
