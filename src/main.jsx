@@ -35,6 +35,7 @@ import '../css/panel/mechanical-failure.css';
 import '../css/panel/negotiation.css';
 import '../css/panel/outcome.css';
 import '../css/panel/pirate-encounter.css';
+import '../css/panel/mission-board.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
 import '../css/panel/ship-status.css';

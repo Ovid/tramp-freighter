@@ -32,7 +32,7 @@ export class MissionManager extends BaseManager {
     };
 
     state.missions.active.push(activeMission);
-    this.emit('missionsChanged', state.missions);
+    this.emit('missionsChanged', { ...state.missions });
     this.gameStateManager.saveGame();
 
     return { success: true };
@@ -164,7 +164,7 @@ export class MissionManager extends BaseManager {
       );
     }
 
-    this.emit('missionsChanged', state.missions);
+    this.emit('missionsChanged', { ...state.missions });
     this.gameStateManager.saveGame();
 
     return { success: true, rewards: mission.rewards };
@@ -205,7 +205,7 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    this.emit('missionsChanged', state.missions);
+    this.emit('missionsChanged', { ...state.missions });
     this.gameStateManager.saveGame();
 
     return { success: true };
@@ -254,7 +254,7 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    this.emit('missionsChanged', state.missions);
+    this.emit('missionsChanged', { ...state.missions });
   }
 
   refreshMissionBoard() {
@@ -277,7 +277,7 @@ export class MissionManager extends BaseManager {
 
     state.missions.board = board;
     state.missions.boardLastRefresh = currentDay;
-    this.emit('missionsChanged', state.missions);
+    this.emit('missionsChanged', { ...state.missions });
 
     return board;
   }

@@ -21,7 +21,7 @@ export function MissionBoardPanel({ onClose }) {
   };
 
   return (
-    <div className="panel mission-board-panel">
+    <div id="mission-board-panel" className="visible">
       <button className="close-btn" onClick={onClose}>
         &times;
       </button>
