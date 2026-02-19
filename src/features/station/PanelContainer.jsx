@@ -6,6 +6,7 @@ import { InfoBrokerPanel } from '../info-broker/InfoBrokerPanel';
 import { CargoManifestPanel } from '../cargo/CargoManifestPanel';
 import { ShipStatusPanel } from '../ship-status/ShipStatusPanel';
 import { DialoguePanel } from '../dialogue/DialoguePanel';
+import { MissionBoardPanel } from '../missions/MissionBoardPanel.jsx';
 
 /**
  * Panel container component.
@@ -41,6 +42,8 @@ export function PanelContainer({ activePanel, npcId, onClose }) {
         return <ShipStatusPanel onClose={onClose} />;
       case 'dialogue':
         return <DialoguePanel npcId={npcId} onClose={onClose} />;
+      case 'mission-board':
+        return <MissionBoardPanel onClose={onClose} />;
       default:
         return null;
     }

@@ -21,6 +21,7 @@ import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useJumpEncounters } from './hooks/useJumpEncounters';
 import { StarmapProvider } from './context/StarmapContext';
+import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 
 /**
  * Application state machine modes.
@@ -313,10 +314,13 @@ export default function App({ devMode = false }) {
 
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (
-                <StationMenu
-                  onOpenPanel={handleOpenPanel}
-                  onUndock={handleUndock}
-                />
+                <>
+                  <MissionCompleteNotifier />
+                  <StationMenu
+                    onOpenPanel={handleOpenPanel}
+                    onUndock={handleUndock}
+                  />
+                </>
               )}
 
               {/* Panel container displayed when a panel is open */}

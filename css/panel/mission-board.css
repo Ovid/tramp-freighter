@@ -1,0 +1,115 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
+/* Mission Board Panel Styling */
+#mission-board-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--panel-width-medium);
+  max-height: var(--panel-max-height);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  display: none;
+  z-index: var(--z-panel);
+  overflow-y: auto;
+}
+
+#mission-board-panel.visible {
+  display: block;
+}
+
+#mission-board-panel h2 {
+  margin-bottom: var(--section-gap);
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
+  text-align: center;
+}
+
+#mission-board-panel .close-btn {
+  position: absolute;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
+  cursor: pointer;
+  padding: var(--close-button-padding);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+#mission-board-panel .close-btn:hover {
+  color: var(--color-white);
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  margin-bottom: var(--section-gap);
+}
+
+.mission-card {
+  background-color: var(--bg-section-primary);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+}
+
+.mission-card h3 {
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  margin: 0 0 var(--grid-gap-small) 0;
+}
+
+.mission-card p {
+  color: #aaaaaa;
+  font-size: var(--font-size-medium);
+  margin: 0 0 var(--grid-gap-medium) 0;
+}
+
+.mission-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-gap-small);
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-white);
+  font-size: var(--font-size-medium);
+}
+
+.accept-btn {
+  width: 100%;
+  padding: var(--button-padding);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  border: var(--button-border-width) solid var(--border-primary);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.accept-btn:hover {
+  background-color: #00dd77;
+  border-color: #00dd77;
+}
+
+.mission-feedback {
+  padding: 10px;
+  margin-bottom: var(--section-gap);
+  border-radius: var(--section-border-radius);
+  background-color: rgba(0, 255, 136, 0.1);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+  color: var(--color-primary);
+  text-align: center;
+  font-size: var(--font-size-medium);
+}

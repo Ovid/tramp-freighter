@@ -120,6 +120,13 @@ function extractStateForEvent(eventName, state) {
     intelligenceChanged: state.world.intelligence || {},
     currentSystemChanged: state.player.currentSystem,
     factionRepChanged: state.player.factions || {},
+    missionsChanged: state.missions || {
+      active: [],
+      completed: [],
+      failed: [],
+      board: [],
+      boardLastRefresh: 0,
+    },
   };
 
   return eventStateMap[eventName] ?? null;

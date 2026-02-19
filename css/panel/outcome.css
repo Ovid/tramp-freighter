@@ -366,28 +366,28 @@
   font-size: 12px;
 }
 
-/* Karma and Reputation Value Colors */
-.very-good {
+/* Karma and Reputation Value Colors (scoped to outcome panel) */
+#outcome-panel .very-good {
   color: #00ff88;
   border: 1px solid #00ff88;
 }
 
-.good {
+#outcome-panel .good {
   color: #88ff00;
   border: 1px solid #88ff00;
 }
 
-.neutral {
+#outcome-panel .neutral {
   color: #ffffff;
   border: 1px solid #ffffff;
 }
 
-.bad {
+#outcome-panel .bad {
   color: #ffaa00;
   border: 1px solid #ffaa00;
 }
 
-.very-bad {
+#outcome-panel .very-bad {
   color: #ff6b6b;
   border: 1px solid #ff6b6b;
 }

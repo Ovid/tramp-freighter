@@ -478,7 +478,19 @@ export async function initDevMode() {
  * - 4.0.0: NPC foundation with reputation system and dialogue
  * - 4.1.0: NPC benefits system with tips, favors, loans, and storage
  */
-export const GAME_VERSION = '4.1.0';
+export const GAME_VERSION = '5.0.0';
+
+/**
+ * Mission System Configuration
+ */
+export const MISSION_CONFIG = {
+  TYPES: ['delivery', 'fetch', 'passenger', 'intel', 'special'],
+  MAX_ACTIVE: 3,
+  BOARD_SIZE: 3,
+  BOARD_REFRESH_DAYS: 1,
+  DEADLINE_BUFFER_DAYS: 3,
+  REWARD_MARKUP: 0.3,
+};
 
 /**
  * localStorage key for save data

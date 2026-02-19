@@ -231,6 +231,60 @@ When docking at destination with requirements met:
 └─────────────────────────────────────────────────────────┘
 ```
 
+### Mission Abandonment
+
+Players can voluntarily abandon active missions. Abandonment applies failure penalties and marks the mission as failed.
+
+```javascript
+function abandonMission(missionId) {
+  const mission = gameState.missions.active.find((m) => m.id === missionId);
+  if (!mission) return { success: false };
+
+  // Remove from active, add to failed
+  gameState.missions.active = gameState.missions.active.filter(
+    (m) => m.id !== missionId
+  );
+  gameState.missions.failed.push(missionId);
+
+  // Apply failure penalties
+  if (mission.penalties && mission.penalties.failure) {
+    if (mission.penalties.failure.rep) {
+      for (const [npcId, amount] of Object.entries(mission.penalties.failure.rep)) {
+        modifyRep(npcId, amount);
+      }
+    }
+    if (mission.penalties.failure.karma) {
+      modifyKarma(mission.penalties.failure.karma);
+    }
+  }
+
+  // Free passenger cargo space if applicable
+  if (mission.type === 'passenger') {
+    gameState.ship.cargo = gameState.ship.cargo.filter(
+      (c) => c.passengerMissionId !== missionId
+    );
+  }
+
+  return { success: true };
+}
+```
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ABANDON MISSION?                                       │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  Medical Supplies to Ross 154                           │
+│                                                         │
+│  Penalties:                                             │
+│  • Reputation with Father Okonkwo: -5                   │
+│  • Karma: -1                                            │
+│                                                         │
+│  [ABANDON]  [CANCEL]                                    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Event System
@@ -858,12 +912,15 @@ function showEvent(event) {
 - [ ] Can accept missions from NPCs
 - [ ] Mission requirements track correctly
 - [ ] Can complete missions at destination
-- [ ] Rewards apply correctly
+- [ ] Rewards apply correctly (credits, rep, faction, karma)
 - [ ] Failed missions have consequences
 - [ ] Deadline tracking works
+- [ ] Can abandon active missions with penalties applied
+- [ ] Abandoning passenger missions frees cargo space
 - [ ] Dock events trigger on arrival
 - [ ] Jump events trigger during transit
 - [ ] Time events trigger on schedule
+- [ ] Condition events trigger on state thresholds
 - [ ] Event choices apply effects
 - [ ] Event chains work (next: "event_id")
 - [ ] Once-only events don't repeat
@@ -878,10 +935,11 @@ function showEvent(event) {
 Player can:
 
 1. Accept and complete missions for rewards
-2. Experience narrative events that add flavor
-3. Make choices that affect the story
-4. Find repeatable content for income
-5. See consequences of mission success/failure
-6. Track active missions and deadlines
+2. Abandon missions when needed (with penalties)
+3. Experience narrative events that add flavor
+4. Make choices that affect the story
+5. Find repeatable content for income
+6. See consequences of mission success/failure
+7. Track active missions and deadlines
 
 **Next Spec:** The Tanaka Sequence and endgame

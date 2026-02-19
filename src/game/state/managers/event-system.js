@@ -39,6 +39,7 @@ export class EventSystemManager {
       karmaChanged: [],
       intelligenceChanged: [],
       currentSystemChanged: [],
+      missionsChanged: [],
     };
   }
 

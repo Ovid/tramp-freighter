@@ -689,4 +689,30 @@ export class ShipManager extends BaseManager {
       });
     }
   }
+
+  removeCargoForMission(goodType, quantity) {
+    this.validateState();
+    const state = this.getState();
+    const relevantStacks = state.ship.cargo.filter((c) => c.good === goodType);
+    const totalAvailable = relevantStacks.reduce((sum, c) => sum + c.qty, 0);
+
+    if (totalAvailable < quantity) {
+      return { success: false, reason: `Not enough ${goodType}.` };
+    }
+
+    let remaining = quantity;
+    for (let i = state.ship.cargo.length - 1; i >= 0 && remaining > 0; i--) {
+      if (state.ship.cargo[i].good === goodType) {
+        const removeFromStack = Math.min(state.ship.cargo[i].qty, remaining);
+        state.ship.cargo[i].qty -= removeFromStack;
+        remaining -= removeFromStack;
+        if (state.ship.cargo[i].qty <= 0) {
+          state.ship.cargo.splice(i, 1);
+        }
+      }
+    }
+
+    this.emit('cargoChanged', state.ship.cargo);
+    return { success: true };
+  }
 }

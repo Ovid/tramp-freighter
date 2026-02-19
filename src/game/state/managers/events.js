@@ -104,6 +104,8 @@ export class EventsManager extends BaseManager {
       // Check for loan defaults and apply penalties
       this.gameStateManager.checkLoanDefaults();
 
+      this.gameStateManager.checkMissionDeadlines();
+
       // Emit event changes
       this.emit('activeEventsChanged', state.world.activeEvents);
     }
