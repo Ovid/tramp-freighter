@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { MISSION_CONFIG } from '../../constants.js';
+import { generateMissionBoard } from '../../mission-generator.js';
 
 export class MissionManager extends BaseManager {
   constructor(gameStateManager) {
@@ -198,6 +199,28 @@ export class MissionManager extends BaseManager {
     }
 
     this.emit('missionsChanged', state.missions);
+  }
+
+  refreshMissionBoard() {
+    this.validateState();
+    const state = this.getState();
+    const currentDay = Math.floor(state.player.daysElapsed);
+
+    if (state.missions.board.length > 0 && state.missions.boardLastRefresh === currentDay) {
+      return state.missions.board;
+    }
+
+    const board = generateMissionBoard(
+      state.player.currentSystem,
+      this.gameStateManager.starData,
+      this.gameStateManager.wormholeData
+    );
+
+    state.missions.board = board;
+    state.missions.boardLastRefresh = currentDay;
+    this.emit('missionsChanged', state.missions);
+
+    return board;
   }
 
   getCompletableMissions() {

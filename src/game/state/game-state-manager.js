@@ -795,6 +795,10 @@ export class GameStateManager {
     return this.shipManager.removeCargoForMission(goodType, quantity);
   }
 
+  refreshMissionBoard() {
+    return this.missionManager.refreshMissionBoard();
+  }
+
   getCompletableMissions() {
     return this.missionManager.getCompletableMissions();
   }
