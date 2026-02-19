@@ -16,6 +16,7 @@ import { DangerManager } from './managers/danger.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
+import { DANGER_EVENTS } from '../data/danger-events.js';
 
 /**
  * Sanitize ship name input
@@ -156,8 +157,9 @@ export class GameStateManager {
     // GameStateManager maintains control over its own state
     this.state = completeState;
 
-    // Register narrative events
+    // Register event engine events
     this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
+    this.eventEngineManager.registerEvents(DANGER_EVENTS);
 
     if (!this.isTestEnvironment) {
       console.log('New game initialized:', completeState);
@@ -597,6 +599,7 @@ export class GameStateManager {
     const result = this.saveLoadManager.loadGame();
     if (result) {
       this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
+      this.eventEngineManager.registerEvents(DANGER_EVENTS);
     }
     return result;
   }
