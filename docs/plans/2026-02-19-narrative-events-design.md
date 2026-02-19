@@ -58,7 +58,7 @@ game event (dock/jump/time)
 
   trigger: {
     system: 0,               // null for any system
-    condition: { type: 'first_visit' },  // enum+params, null for none
+    condition: { type: 'first_visit' },  // enum+params, array for AND, null for none
     chance: 1.0,             // 0-1, rolled after conditions pass
   },
 
@@ -108,6 +108,8 @@ game event (dock/jump/time)
 | `flag_set` | `{ flag }` | flag in `narrativeEvents.flags` |
 
 New types added by adding a case to the evaluator function.
+
+**Compound conditions:** Pass an array of condition objects for AND logic. All must be true for the condition to pass. Example: `[{ type: 'days_past', value: 30 }, { type: 'debt_above', value: 8000 }]`.
 
 ---
 

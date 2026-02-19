@@ -217,6 +217,28 @@ describe('evaluateCondition', () => {
     });
   });
 
+  describe('array of conditions (AND logic)', () => {
+    it('should return true when all conditions in array are met', () => {
+      const conditions = [
+        { type: 'debt_above', value: 8000 },
+        { type: 'days_past', value: 15 },
+      ];
+      expect(evaluateCondition(conditions, baseState)).toBe(true);
+    });
+
+    it('should return false when any condition in array is not met', () => {
+      const conditions = [
+        { type: 'debt_above', value: 8000 },
+        { type: 'days_past', value: 30 },
+      ];
+      expect(evaluateCondition(conditions, baseState)).toBe(false);
+    });
+
+    it('should return true for empty array', () => {
+      expect(evaluateCondition([], baseState)).toBe(true);
+    });
+  });
+
   describe('null condition', () => {
     it('should return true when condition is null', () => {
       expect(evaluateCondition(null, baseState)).toBe(true);
@@ -249,13 +271,18 @@ import { CONDITION_TYPES } from './constants.js';
  * Uses enum+params pattern: each condition has a `type` string
  * and optional parameters. Returns true if the condition is met.
  *
- * @param {Object|null} condition - { type, ...params } or null (always true)
+ * @param {Object|Object[]|null} condition - { type, ...params }, array of conditions (AND), or null (always true)
  * @param {Object} gameState - Current game state
  * @param {Object} context - Trigger context (e.g., { system: 4 })
  * @returns {boolean} Whether the condition is met
  */
 export function evaluateCondition(condition, gameState, context = {}) {
   if (!condition) return true;
+
+  // Array of conditions: all must pass (AND logic)
+  if (Array.isArray(condition)) {
+    return condition.every((c) => evaluateCondition(c, gameState, context));
+  }
 
   switch (condition.type) {
     case CONDITION_TYPES.FIRST_VISIT:
@@ -1089,7 +1116,10 @@ export const NARRATIVE_EVENTS = [
     category: 'narrative',
     trigger: {
       system: null,
-      condition: { type: 'debt_above', value: 8000 },
+      condition: [
+        { type: 'days_past', value: 30 },
+        { type: 'debt_above', value: 8000 },
+      ],
       chance: 1.0,
     },
     once: false,
