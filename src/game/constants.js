@@ -478,7 +478,7 @@ export async function initDevMode() {
  * - 4.0.0: NPC foundation with reputation system and dialogue
  * - 4.1.0: NPC benefits system with tips, favors, loans, and storage
  */
-export const GAME_VERSION = '4.1.0';
+export const GAME_VERSION = '5.0.0';
 
 /**
  * Mission System Configuration

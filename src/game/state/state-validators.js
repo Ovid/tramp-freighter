@@ -148,17 +148,20 @@ export function isVersionCompatible(saveVersion) {
   // Exact version match
   if (saveVersion === GAME_VERSION) return true;
 
-  // Support migration from v1.0.0 to v4.1.0
-  if (saveVersion === '1.0.0' && GAME_VERSION === '4.1.0') return true;
+  // Support migration from v1.0.0 to v5.0.0
+  if (saveVersion === '1.0.0' && GAME_VERSION === '5.0.0') return true;
 
-  // Support migration from v2.0.0 to v4.1.0
-  if (saveVersion === '2.0.0' && GAME_VERSION === '4.1.0') return true;
+  // Support migration from v2.0.0 to v5.0.0
+  if (saveVersion === '2.0.0' && GAME_VERSION === '5.0.0') return true;
 
-  // Support migration from v2.1.0 to v4.1.0
-  if (saveVersion === '2.1.0' && GAME_VERSION === '4.1.0') return true;
+  // Support migration from v2.1.0 to v5.0.0
+  if (saveVersion === '2.1.0' && GAME_VERSION === '5.0.0') return true;
 
-  // Support migration from v4.0.0 to v4.1.0
-  if (saveVersion === '4.0.0' && GAME_VERSION === '4.1.0') return true;
+  // Support migration from v4.0.0 to v5.0.0
+  if (saveVersion === '4.0.0' && GAME_VERSION === '5.0.0') return true;
+
+  // Support migration from v4.1.0 to v5.0.0
+  if (saveVersion === '4.1.0' && GAME_VERSION === '5.0.0') return true;
 
   return false;
 }
@@ -561,18 +564,18 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
     };
   }
 
-  // Update version
-  state.meta.version = GAME_VERSION;
+  // Step to v2.0.0 (chain continues through subsequent migrations)
+  state.meta.version = '2.0.0';
 
   if (!isTestEnvironment) {
-    console.log('Migration complete');
+    console.log('Migration to v2.0.0 complete');
   }
 
   return state;
 }
 
 /**
- * Migrate save data from v2.0.0 to v4.1.0
+ * Migrate save data from v2.0.0 to v2.1.0
  *
  * Adds deterministic economy features:
  * - Market conditions tracking for local supply/demand effects
@@ -585,7 +588,7 @@ export function migrateFromV1ToV2(state, systemData, isTestEnvironment) {
  */
 export function migrateFromV2ToV2_1(state, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v2.0.0 to v4.1.0');
+    console.log('Migrating save from v2.0.0 to v2.1.0');
   }
 
   // Add market conditions (empty object for backward compatibility)
@@ -608,11 +611,11 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
     };
   }
 
-  // Update version
-  state.meta.version = GAME_VERSION;
+  // Step to v2.1.0 (chain continues through subsequent migrations)
+  state.meta.version = '2.1.0';
 
   if (!isTestEnvironment) {
-    console.log('Migration complete');
+    console.log('Migration to v2.1.0 complete');
   }
 
   return state;
@@ -621,20 +624,17 @@ export function migrateFromV2ToV2_1(state, isTestEnvironment) {
 /**
  * Migrate save data from v2.1.0 to v4.0.0
  *
-/**
- * Migrate save data from v2.1.0 to v4.1.0
- *
  * Adds NPC foundation features:
  * - NPC state tracking (reputation, flags, interactions)
  * - Dialogue state management
  *
  * @param {Object} state - v2.1.0 state
  * @param {boolean} isTestEnvironment - Whether running in test mode
- * @returns {Object} Migrated v4.1.0 state
+ * @returns {Object} Migrated v4.0.0 state
  */
 export function migrateFromV2_1ToV4(state, isTestEnvironment) {
   if (!isTestEnvironment) {
-    console.log('Migrating save from v2.1.0 to v4.1.0');
+    console.log('Migrating save from v2.1.0 to v4.0.0');
   }
 
   // Add NPC state tracking (empty object for backward compatibility)
@@ -652,11 +652,11 @@ export function migrateFromV2_1ToV4(state, isTestEnvironment) {
     };
   }
 
-  // Update version
-  state.meta.version = GAME_VERSION;
+  // Step to v4.0.0 (chain continues through subsequent migrations)
+  state.meta.version = '4.0.0';
 
   if (!isTestEnvironment) {
-    console.log('Migration complete');
+    console.log('Migration to v4.0.0 complete');
   }
 
   return state;
@@ -865,6 +865,16 @@ export function addStateDefaults(state, systemData, isTestEnvironment = false) {
     };
   }
 
+  if (!state.missions) {
+    state.missions = {
+      active: [],
+      completed: [],
+      failed: [],
+      board: [],
+      boardLastRefresh: 0,
+    };
+  }
+
   return state;
 }
 /**
@@ -909,7 +919,41 @@ export function migrateFromV4ToV4_1(state, isTestEnvironment) {
     }
   }
 
-  // Update version
+  // Step to v4.1.0 (next migration will bring to v5.0.0)
+  state.meta.version = '4.1.0';
+
+  if (!isTestEnvironment) {
+    console.log('Migration to v4.1.0 complete');
+  }
+
+  return state;
+}
+
+/**
+ * Migrate save data from v4.1.0 to v5.0.0
+ *
+ * Adds mission system:
+ * - missions state (active, completed, failed, board, boardLastRefresh)
+ *
+ * @param {Object} state - v4.1.0 state
+ * @param {boolean} isTestEnvironment - Whether running in test mode
+ * @returns {Object} Migrated v5.0.0 state
+ */
+export function migrateFromV4_1ToV5(state, isTestEnvironment) {
+  if (!isTestEnvironment) {
+    console.log('Migrating save from v4.1.0 to v5.0.0');
+  }
+
+  if (!state.missions) {
+    state.missions = {
+      active: [],
+      completed: [],
+      failed: [],
+      board: [],
+      boardLastRefresh: 0,
+    };
+  }
+
   state.meta.version = GAME_VERSION;
 
   if (!isTestEnvironment) {

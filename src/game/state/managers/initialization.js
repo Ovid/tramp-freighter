@@ -47,6 +47,7 @@ export class InitializationManager {
     const worldState = this.initializeWorldState();
     const npcState = this.initializeNPCState();
     const dialogueState = this.initializeDialogueState();
+    const missionState = this.initializeMissionState();
     const metaState = this.initializeMetaState();
 
     return {
@@ -55,6 +56,7 @@ export class InitializationManager {
       world: worldState,
       npcs: npcState,
       dialogue: dialogueState,
+      missions: missionState,
       meta: metaState,
     };
   }
@@ -198,6 +200,21 @@ export class InitializationManager {
   }
 
   /**
+   * Initialize mission state (empty at game start)
+   *
+   * @returns {Object} Mission state object
+   */
+  initializeMissionState() {
+    return {
+      active: [],
+      completed: [],
+      failed: [],
+      board: [],
+      boardLastRefresh: 0,
+    };
+  }
+
+  /**
    * Initialize game metadata
    *
    * @returns {Object} Meta state object
@@ -239,5 +256,8 @@ export class InitializationManager {
     this.gameStateManager.emit('upgradesChanged', ship.upgrades);
     this.gameStateManager.emit('cargoCapacityChanged', ship.cargoCapacity);
     this.gameStateManager.emit('quirksChanged', ship.quirks);
+    if (state.missions) {
+      this.gameStateManager.emit('missionsChanged', state.missions);
+    }
   }
 }

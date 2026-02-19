@@ -13,6 +13,7 @@ import {
   migrateFromV2ToV2_1,
   migrateFromV2_1ToV4,
   migrateFromV4ToV4_1,
+  migrateFromV4_1ToV5,
   addStateDefaults,
 } from '../state-validators.js';
 
@@ -130,8 +131,8 @@ export class SaveLoadManager extends BaseManager {
   applyMigrations(loadedState) {
     let migratedState = loadedState;
 
-    // Migrate from v1.0.0 to v4.1.0 if needed
-    if (migratedState.meta.version === '1.0.0' && GAME_VERSION === '4.1.0') {
+    // Migrate from v1.0.0 if needed
+    if (migratedState.meta.version === '1.0.0') {
       migratedState = migrateFromV1ToV2(
         migratedState,
         this.getStarData(),
@@ -139,25 +140,33 @@ export class SaveLoadManager extends BaseManager {
       );
     }
 
-    // Migrate from v2.0.0 to v4.1.0 if needed
-    if (migratedState.meta.version === '2.0.0' && GAME_VERSION === '4.1.0') {
+    // Migrate from v2.0.0 if needed
+    if (migratedState.meta.version === '2.0.0') {
       migratedState = migrateFromV2ToV2_1(
         migratedState,
         this.isTestEnvironment
       );
     }
 
-    // Migrate from v2.1.0 to v4.1.0 if needed
-    if (migratedState.meta.version === '2.1.0' && GAME_VERSION === '4.1.0') {
+    // Migrate from v2.1.0 if needed
+    if (migratedState.meta.version === '2.1.0') {
       migratedState = migrateFromV2_1ToV4(
         migratedState,
         this.isTestEnvironment
       );
     }
 
-    // Migrate from v4.0.0 to v4.1.0 if needed
-    if (migratedState.meta.version === '4.0.0' && GAME_VERSION === '4.1.0') {
+    // Migrate from v4.0.0 if needed
+    if (migratedState.meta.version === '4.0.0') {
       migratedState = migrateFromV4ToV4_1(
+        migratedState,
+        this.isTestEnvironment
+      );
+    }
+
+    // Migrate from v4.1.0 to v5.0.0 if needed
+    if (migratedState.meta.version === '4.1.0' && GAME_VERSION === '5.0.0') {
+      migratedState = migrateFromV4_1ToV5(
         migratedState,
         this.isTestEnvironment
       );
@@ -192,6 +201,9 @@ export class SaveLoadManager extends BaseManager {
     this.emit('quirksChanged', loadedState.ship.quirks);
     this.emit('karmaChanged', loadedState.player.karma || 0);
     this.emit('factionRepChanged', loadedState.player.factions || {});
+    if (loadedState.missions) {
+      this.emit('missionsChanged', loadedState.missions);
+    }
   }
 
   /**

@@ -71,7 +71,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     const migratedState = migrateFromV2_1ToV4(v2_1_0State, true);
 
     // Verify migration results
-    expect(migratedState.meta.version).toBe('4.1.0');
+    expect(migratedState.meta.version).toBe('4.0.0');
     expect(migratedState.npcs).toBeDefined();
     expect(migratedState.npcs).toEqual({});
     expect(migratedState.dialogue).toBeDefined();
@@ -152,7 +152,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
 
     // Verify state was loaded and migrated
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('4.1.0');
+    expect(loadedState.meta.version).toBe('5.0.0');
 
     // Verify NPC fields were added
     expect(loadedState.npcs).toBeDefined();
@@ -176,7 +176,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     gameStateManager.initNewGame();
 
     // Verify the state includes NPC fields
-    expect(gameStateManager.state.meta.version).toBe('4.1.0');
+    expect(gameStateManager.state.meta.version).toBe('5.0.0');
     expect(gameStateManager.state.npcs).toBeDefined();
     expect(gameStateManager.state.npcs).toEqual({});
     expect(gameStateManager.state.dialogue).toBeDefined();
@@ -213,7 +213,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     // Verify save data includes NPC fields
     expect(savedData).not.toBeNull();
     const parsedSaveData = JSON.parse(savedData);
-    expect(parsedSaveData.meta.version).toBe('4.1.0');
+    expect(parsedSaveData.meta.version).toBe('5.0.0');
     expect(parsedSaveData.npcs).toBeDefined();
     expect(parsedSaveData.npcs.test_npc).toBeDefined();
     expect(parsedSaveData.npcs.test_npc.rep).toBe(25);
@@ -324,7 +324,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     const migratedState = migrateFromV2_1ToV4(v2_1_0StateWithNPCs, true);
 
     // Verify existing NPC data is preserved
-    expect(migratedState.meta.version).toBe('4.1.0');
+    expect(migratedState.meta.version).toBe('4.0.0');
     expect(migratedState.npcs).toBeDefined();
     expect(migratedState.npcs.existing_npc).toBeDefined();
     expect(migratedState.npcs.existing_npc.rep).toBe(50);

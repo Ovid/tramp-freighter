@@ -100,7 +100,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
 
     // Verify migration occurred
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('4.1.0');
+    expect(loadedState.meta.version).toBe('5.0.0');
 
     // Verify existing NPC data is preserved
     expect(loadedState.npcs.wei_chen_sol.rep).toBe(25);
@@ -224,7 +224,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
 
     // Verify state was loaded correctly
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('4.1.0');
+    expect(loadedState.meta.version).toBe('5.0.0');
 
     // Verify NPC benefits state is preserved exactly
     const weiChen = loadedState.npcs.wei_chen_sol;
@@ -304,7 +304,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
 
     // Verify migration occurred
     expect(loadedState).not.toBeNull();
-    expect(loadedState.meta.version).toBe('4.1.0');
+    expect(loadedState.meta.version).toBe('5.0.0');
 
     // Verify empty NPCs object is preserved
     expect(loadedState.npcs).toEqual({});
