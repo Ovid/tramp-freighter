@@ -791,3 +791,65 @@
   font-size: 12px;
   font-family: 'Courier New', monospace;
 }
+
+/* Active Missions HUD */
+.active-missions-hud {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+}
+
+.active-missions-hud h4 {
+  color: var(--color-primary);
+  font-size: var(--font-size-medium);
+  margin-bottom: var(--grid-gap-small);
+}
+
+.mission-hud-item {
+  padding: var(--grid-gap-small);
+  margin-bottom: var(--grid-gap-small);
+  border-left: 2px solid rgba(0, 255, 136, 0.3);
+  padding-left: 10px;
+}
+
+.mission-hud-item.urgent {
+  border-left-color: var(--color-danger);
+}
+
+.mission-hud-title {
+  color: var(--color-white);
+  font-size: var(--font-size-small);
+  margin-bottom: 2px;
+}
+
+.mission-hud-cargo {
+  color: var(--color-secondary);
+  font-size: var(--font-size-small);
+}
+
+.mission-hud-cargo.complete {
+  color: var(--color-primary);
+}
+
+.mission-hud-deadline {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: var(--font-size-small);
+  margin-bottom: 4px;
+}
+
+.mission-abandon-btn {
+  padding: 2px 8px;
+  background-color: transparent;
+  color: var(--color-danger);
+  border: var(--section-border-width) solid var(--border-danger);
+  border-radius: 3px;
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.mission-abandon-btn:hover {
+  background-color: var(--color-danger);
+  color: var(--color-black);
+}

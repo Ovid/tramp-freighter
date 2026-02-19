@@ -26,6 +26,16 @@ canvas {
   height: 100%;
 }
 
+/* Replace default browser focus ring with game-themed outline */
+button:focus-visible {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Panel Container - minimal wrapper for React panels */
 .panel-container {
   /* No positioning or styling - panels handle their own */
