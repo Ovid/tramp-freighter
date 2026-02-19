@@ -69,7 +69,8 @@ src/
 │   ├── Button.jsx
 │   ├── Modal.jsx
 │   ├── Card.jsx
-│   └── ErrorBoundary.jsx
+│   ├── ErrorBoundary.jsx
+│   └── NotificationArea.jsx
 ├── context/              # React Context providers
 │   ├── GameContext.jsx
 │   └── StarmapContext.jsx
@@ -77,7 +78,13 @@ src/
 │   ├── useGameEvent.js
 │   ├── useGameAction.js
 │   ├── useAnimationLock.js
-│   └── useNotification.js
+│   ├── useNotification.js
+│   ├── useStarData.js
+│   ├── useDialogue.js
+│   ├── useDangerZone.js
+│   ├── useEncounterProbabilities.js
+│   ├── useJumpEncounters.js
+│   └── useJumpValidation.js
 └── game/                 # Game logic (separate from UI)
     ├── constants.js      # ALL game configuration values
     ├── state/
@@ -107,6 +114,7 @@ src/
     ├── data/             # Static game data
     │   ├── star-data.js
     │   ├── wormhole-data.js
+    │   ├── npc-data.js
     │   └── dialogue-trees.js
     └── utils/            # Pure utility functions
         ├── seeded-random.js
@@ -225,10 +233,10 @@ Follow RED/GREEN/REFACTOR cycle:
 1. Hostile
 2. Cold
 3. Neutral
-4. Friendly
-5. Warm
+4. Warm
+5. Friendly
 6. Trusted
-7. Beloved
+7. Family
 
 ### Danger System
 
@@ -333,7 +341,7 @@ Components can subscribe to these events via `useGameEvent()`:
 - `priceKnowledgeChanged`: Price knowledge database (Object)
 - `activeEventsChanged`: Active economic events (Array)
 - `shipConditionChanged`: Hull/engine/life support (Object)
-- `conditionWarning`: System degradation warnings (Object)
+- `conditionWarning`: System degradation warnings (Array)
 - `shipNameChanged`: Ship name (string)
 - `upgradesChanged`: Installed upgrades (Array)
 - `quirksChanged`: Ship quirks (Array)
@@ -353,7 +361,7 @@ Components can subscribe to these events via `useGameEvent()`:
 - **Credits (costs)**: `Math.ceil()` - always round up so player never pays less than true cost
 - **Percentages (conditions)**: `Math.round()` - standard rounding for display clarity
 - **Display format**:
-  - Percentages: `.toFixed(1)` for display (e.g., "87.3%")
+  - Percentages: Integer display (e.g., "87%")
   - Credits: Integer with `₡` symbol (e.g., "₡1,234")
   - Coordinates: `.toFixed(2)` after dividing by scale factor
 
@@ -416,7 +424,7 @@ NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY = 50
 
 // Ship configuration
 SHIP_CONFIG.CONDITION_BOUNDS.MAX = 100
-SHIP_CONFIG.DEFAULT_NAME = 'SS Minnow'
+SHIP_CONFIG.DEFAULT_NAME = 'Serendipity'
 
 // Commodity types
 COMMODITY_TYPES = ['grain', 'ore', 'tritium', 'parts', 'medicine', 'electronics']
