@@ -22,8 +22,10 @@ export function NarrativeEventPanel({ event, onClose }) {
       // Apply effects if any
       if (choice.effects) {
         const hasEffects =
-          (choice.effects.costs && Object.keys(choice.effects.costs).length > 0) ||
-          (choice.effects.rewards && Object.keys(choice.effects.rewards).length > 0);
+          (choice.effects.costs &&
+            Object.keys(choice.effects.costs).length > 0) ||
+          (choice.effects.rewards &&
+            Object.keys(choice.effects.rewards).length > 0);
 
         if (hasEffects) {
           applyEncounterOutcome(gameStateManager, choice.effects);
@@ -38,7 +40,10 @@ export function NarrativeEventPanel({ event, onClose }) {
       // Mark event as fired and set cooldown
       gameStateManager.markEventFired(currentEvent.id);
       if (currentEvent.cooldown) {
-        gameStateManager.setEventCooldown(currentEvent.id, currentEvent.cooldown);
+        gameStateManager.setEventCooldown(
+          currentEvent.id,
+          currentEvent.cooldown
+        );
       }
 
       // Chain to next event if specified
@@ -60,7 +65,9 @@ export function NarrativeEventPanel({ event, onClose }) {
 
   return (
     <div id="narrative-event-panel" className="visible">
-      {content.speaker && <div className="event-speaker">{content.speaker}</div>}
+      {content.speaker && (
+        <div className="event-speaker">{content.speaker}</div>
+      )}
       <div className="event-text">
         {content.text.map((paragraph, i) => (
           <p key={i}>{paragraph}</p>

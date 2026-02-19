@@ -51,7 +51,10 @@ describe('EventEngineManager', () => {
         once: false,
         cooldown: 0,
         priority: 10,
-        content: { text: ['Hello'], choices: [{ text: 'OK', next: null, effects: {} }] },
+        content: {
+          text: ['Hello'],
+          choices: [{ text: 'OK', next: null, effects: {} }],
+        },
       };
 
       engine.registerEvent(event);
@@ -307,7 +310,9 @@ describe('EventEngineManager', () => {
       engine.markFired('test_event');
       engine.markFired('test_event');
       expect(
-        mockGSM.state.world.narrativeEvents.fired.filter((id) => id === 'test_event')
+        mockGSM.state.world.narrativeEvents.fired.filter(
+          (id) => id === 'test_event'
+        )
       ).toHaveLength(1);
     });
   });

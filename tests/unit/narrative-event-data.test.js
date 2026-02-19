@@ -16,7 +16,9 @@ describe('Narrative Event Data', () => {
     describe(`event: ${event.id}`, () => {
       it('should have required fields', () => {
         expect(event.id).toBeTruthy();
-        expect(['dock', 'jump', 'time', 'condition', 'chain']).toContain(event.type);
+        expect(['dock', 'jump', 'time', 'condition', 'chain']).toContain(
+          event.type
+        );
         expect(event.category).toBe('narrative');
         expect(typeof event.priority).toBe('number');
       });

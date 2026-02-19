@@ -24,13 +24,22 @@ export function useEventTriggers() {
       const dm = gameStateManager.dangerManager;
 
       // Compute dynamic chances from DangerManager methods
-      const pirateChance = dm.calculatePirateEncounterChance(systemId, gameState);
-      const inspectionChance = dm.calculateInspectionChance(systemId, gameState);
+      const pirateChance = dm.calculatePirateEncounterChance(
+        systemId,
+        gameState
+      );
+      const inspectionChance = dm.calculateInspectionChance(
+        systemId,
+        gameState
+      );
 
       // Mechanical failure and distress call need RNG-based checks.
       // We pre-roll and convert to a 0/1 chance for the engine.
       const mechanicalRng = Math.random();
-      const mechanicalResult = dm.checkMechanicalFailure(gameState, mechanicalRng);
+      const mechanicalResult = dm.checkMechanicalFailure(
+        gameState,
+        mechanicalRng
+      );
       const distressRng = Math.random();
       const distressResult = dm.checkDistressCall(distressRng);
 
@@ -133,7 +142,11 @@ export function useEventTriggers() {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
           const condRng = Math.random();
-          const condEvent = gameStateManager.checkEvents('condition', context, condRng);
+          const condEvent = gameStateManager.checkEvents(
+            'condition',
+            context,
+            condRng
+          );
           if (condEvent) {
             emitNarrativeEvent(condEvent);
           }
@@ -143,7 +156,11 @@ export function useEventTriggers() {
 
       if (event.category === 'danger') {
         const gameState = gameStateManager.getState();
-        const encounterData = generateDangerEncounterData(event, context, gameState);
+        const encounterData = generateDangerEncounterData(
+          event,
+          context,
+          gameState
+        );
         if (encounterData) {
           gameStateManager.emit('encounterTriggered', encounterData);
         }
@@ -184,7 +201,8 @@ export function useEventTriggers() {
     };
 
     gameStateManager.subscribe('locationChanged', handleJumpComplete);
-    return () => gameStateManager.unsubscribe('locationChanged', handleJumpComplete);
+    return () =>
+      gameStateManager.unsubscribe('locationChanged', handleJumpComplete);
   }, [gameStateManager, buildJumpContext, handleTrigger, currentSystem]);
 
   // Listen for docking

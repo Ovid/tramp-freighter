@@ -55,7 +55,9 @@
   font-family: var(--font-family-mono);
   cursor: pointer;
   text-align: left;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 #narrative-event-panel .event-choice-btn:hover {

@@ -19,12 +19,18 @@ describe('Danger Event Data', () => {
   });
 
   it('should have descending priorities: pirate > inspection > mechanical > distress', () => {
-    const pirate = DANGER_EVENTS.find((e) => e.encounter.generator === 'pirate');
-    const inspection = DANGER_EVENTS.find((e) => e.encounter.generator === 'inspection');
+    const pirate = DANGER_EVENTS.find(
+      (e) => e.encounter.generator === 'pirate'
+    );
+    const inspection = DANGER_EVENTS.find(
+      (e) => e.encounter.generator === 'inspection'
+    );
     const mechanical = DANGER_EVENTS.find(
       (e) => e.encounter.generator === 'mechanical_failure'
     );
-    const distress = DANGER_EVENTS.find((e) => e.encounter.generator === 'distress_call');
+    const distress = DANGER_EVENTS.find(
+      (e) => e.encounter.generator === 'distress_call'
+    );
 
     expect(pirate.priority).toBeGreaterThan(inspection.priority);
     expect(inspection.priority).toBeGreaterThan(mechanical.priority);
@@ -39,8 +45,12 @@ describe('Danger Event Data', () => {
   });
 
   it('should use string chance keys for dynamic calculation', () => {
-    const pirate = DANGER_EVENTS.find((e) => e.encounter.generator === 'pirate');
-    const inspection = DANGER_EVENTS.find((e) => e.encounter.generator === 'inspection');
+    const pirate = DANGER_EVENTS.find(
+      (e) => e.encounter.generator === 'pirate'
+    );
+    const inspection = DANGER_EVENTS.find(
+      (e) => e.encounter.generator === 'inspection'
+    );
     expect(typeof pirate.trigger.chance).toBe('string');
     expect(typeof inspection.trigger.chance).toBe('string');
   });

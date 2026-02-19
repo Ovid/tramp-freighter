@@ -59,7 +59,10 @@ export class EventEngineManager extends BaseManager {
       if (event.type !== eventType) return false;
 
       // System match (if specified)
-      if (event.trigger.system != null && event.trigger.system !== context.system) {
+      if (
+        event.trigger.system != null &&
+        event.trigger.system !== context.system
+      ) {
         return false;
       }
 
@@ -116,7 +119,8 @@ export class EventEngineManager extends BaseManager {
    */
   setCooldown(eventId, cooldownDays) {
     const state = this.getState();
-    state.world.narrativeEvents.cooldowns[eventId] = state.player.daysElapsed + cooldownDays;
+    state.world.narrativeEvents.cooldowns[eventId] =
+      state.player.daysElapsed + cooldownDays;
   }
 
   /**

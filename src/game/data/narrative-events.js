@@ -1,7 +1,10 @@
 import { NARRATIVE_EVENT_CONFIG } from '../constants.js';
 
-const { NARRATIVE_PRIORITY_HIGH, NARRATIVE_PRIORITY_DEFAULT, NARRATIVE_PRIORITY_LOW } =
-  NARRATIVE_EVENT_CONFIG;
+const {
+  NARRATIVE_PRIORITY_HIGH,
+  NARRATIVE_PRIORITY_DEFAULT,
+  NARRATIVE_PRIORITY_LOW,
+} = NARRATIVE_EVENT_CONFIG;
 
 /**
  * Narrative event definitions.
@@ -33,7 +36,11 @@ export const NARRATIVE_EVENTS = [
       speaker: null,
       mood: 'neutral',
       choices: [
-        { text: 'Time to get to work.', next: null, effects: { costs: {}, rewards: {} } },
+        {
+          text: 'Time to get to work.',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
       ],
     },
   },
@@ -90,7 +97,11 @@ export const NARRATIVE_EVENTS = [
       speaker: null,
       mood: 'neutral',
       choices: [
-        { text: '"Thanks for the tip."', next: null, effects: { costs: {}, rewards: {} } },
+        {
+          text: '"Thanks for the tip."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
         {
           text: '"Mind your own business."',
           next: null,
