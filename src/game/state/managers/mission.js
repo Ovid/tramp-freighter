@@ -123,6 +123,37 @@ export class MissionManager extends BaseManager {
     return { success: true, rewards: mission.rewards };
   }
 
+  abandonMission(missionId) {
+    this.validateState();
+    const state = this.getState();
+
+    const missionIndex = state.missions.active.findIndex((m) => m.id === missionId);
+    if (missionIndex === -1) {
+      return { success: false, reason: 'Mission not found in active missions.' };
+    }
+
+    const mission = state.missions.active[missionIndex];
+
+    state.missions.active.splice(missionIndex, 1);
+    state.missions.failed.push(missionId);
+
+    if (mission.penalties && mission.penalties.failure) {
+      if (mission.penalties.failure.rep) {
+        for (const [npcId, amount] of Object.entries(mission.penalties.failure.rep)) {
+          this.gameStateManager.modifyRep(npcId, amount, 'mission_abandon');
+        }
+      }
+      if (mission.penalties.failure.karma) {
+        this.gameStateManager.modifyKarma(mission.penalties.failure.karma, 'mission_abandon');
+      }
+    }
+
+    this.emit('missionsChanged', state.missions);
+    this.gameStateManager.saveGame();
+
+    return { success: true };
+  }
+
   checkMissionDeadlines() {
     this.validateState();
     const state = this.getState();

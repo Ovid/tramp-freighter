@@ -783,6 +783,10 @@ export class GameStateManager {
     return this.missionManager.completeMission(missionId);
   }
 
+  abandonMission(missionId) {
+    return this.missionManager.abandonMission(missionId);
+  }
+
   checkMissionDeadlines() {
     return this.missionManager.checkMissionDeadlines();
   }
