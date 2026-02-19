@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useGameState } from '../../context/GameContext.jsx';
 import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
-import '../../css/panel/narrative-event.css';
+import '../../../css/panel/narrative-event.css';
 
 /**
  * NarrativeEventPanel — displays narrative events with text and choices.

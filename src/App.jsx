@@ -19,7 +19,8 @@ import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
-import { useJumpEncounters } from './hooks/useJumpEncounters';
+import { useEventTriggers } from './hooks/useEventTriggers';
+import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 
@@ -54,7 +55,7 @@ export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const encounterEvent = useGameEvent('encounterTriggered');
-  useJumpEncounters();
+  useEventTriggers();
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -406,6 +407,12 @@ export default function App({ devMode = false }) {
                         distressCall={currentEncounter.encounter}
                         onChoice={handleEncounterChoice}
                         onClose={handleEncounterClose}
+                      />
+                    )}
+                    {currentEncounter.type === 'narrative' && (
+                      <NarrativeEventPanel
+                        event={currentEncounter.event}
+                        onClose={handleOutcomeContinue}
                       />
                     )}
                   </>

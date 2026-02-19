@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 
@@ -154,6 +154,9 @@ export function useEventTriggers() {
     [gameStateManager, generateDangerEncounterData, emitNarrativeEvent]
   );
 
+  // Track last system to distinguish real jumps from initial state emission
+  const lastSystemRef = useRef(null);
+
   // Listen for jump completion (locationChanged)
   useEffect(() => {
     if (!gameStateManager) return;
@@ -163,8 +166,19 @@ export function useEventTriggers() {
       if (!gameState) return;
 
       const systemId = typeof data === 'number' ? data : currentSystem;
-      if (!systemId && systemId !== 0) return;
+      if (systemId == null) return;
 
+      // Skip the initial locationChanged emission during game init —
+      // it's not a real jump, just state sync
+      if (lastSystemRef.current === null) {
+        lastSystemRef.current = systemId;
+        return;
+      }
+
+      // Skip duplicate emissions for the same system
+      if (systemId === lastSystemRef.current) return;
+
+      lastSystemRef.current = systemId;
       const context = buildJumpContext(systemId, gameState);
       handleTrigger('jump', context);
     };
