@@ -1310,6 +1310,7 @@ export const NARRATIVE_EVENT_CONFIG = {
  */
 export const CONDITION_TYPES = {
   FIRST_VISIT: 'first_visit',
+  FIRST_DOCK: 'first_dock',
   DEBT_ABOVE: 'debt_above',
   DEBT_BELOW: 'debt_below',
   KARMA_ABOVE: 'karma_above',

@@ -23,6 +23,11 @@ export function evaluateCondition(condition, gameState, context = {}) {
     case CONDITION_TYPES.FIRST_VISIT:
       return !gameState.world.visitedSystems.includes(context.system);
 
+    case CONDITION_TYPES.FIRST_DOCK: {
+      const dockedSystems = gameState.world.narrativeEvents.dockedSystems || [];
+      return !dockedSystems.includes(context.system);
+    }
+
     case CONDITION_TYPES.DEBT_ABOVE:
       return gameState.player.debt > condition.value;
 

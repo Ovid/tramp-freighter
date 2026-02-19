@@ -55,6 +55,7 @@ export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
   const currentSystemId = useGameEvent('locationChanged');
   const encounterEvent = useGameEvent('encounterTriggered');
+  const narrativeEvent = useGameEvent('narrativeEventTriggered');
   useEventTriggers();
   const starmapRef = useRef(null);
 
@@ -67,6 +68,8 @@ export default function App({ devMode = false }) {
   const [encounterOutcome, setEncounterOutcome] = useState(null);
   const [encounterPhase, setEncounterPhase] = useState('initial');
   const lastHandledEncounter = useRef(null);
+  const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
+  const lastHandledNarrative = useRef(null);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -110,11 +113,13 @@ export default function App({ devMode = false }) {
       setActivePanel(null);
     } else {
       // If in orbit mode, go to station
+      gameStateManager.dock();
       setViewMode(VIEW_MODES.STATION);
     }
   };
 
   const handleUndock = () => {
+    gameStateManager.undock();
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
   };
@@ -281,6 +286,22 @@ export default function App({ devMode = false }) {
     }
   }, [encounterEvent, currentEncounter]);
 
+  // Listen for narrative events (overlay — does not change viewMode)
+  useEffect(() => {
+    if (
+      narrativeEvent &&
+      !activeNarrativeEvent &&
+      narrativeEvent !== lastHandledNarrative.current
+    ) {
+      lastHandledNarrative.current = narrativeEvent;
+      setActiveNarrativeEvent(narrativeEvent);
+    }
+  }, [narrativeEvent, activeNarrativeEvent]);
+
+  const handleNarrativeClose = () => {
+    setActiveNarrativeEvent(null);
+  };
+
   return (
     <ErrorBoundary>
       <div className="app-container">
@@ -409,12 +430,6 @@ export default function App({ devMode = false }) {
                         onClose={handleEncounterClose}
                       />
                     )}
-                    {currentEncounter.type === 'narrative' && (
-                      <NarrativeEventPanel
-                        event={currentEncounter.event}
-                        onClose={handleOutcomeContinue}
-                      />
-                    )}
                   </>
                 )}
 
@@ -424,6 +439,14 @@ export default function App({ devMode = false }) {
                   outcome={encounterOutcome}
                   onContinue={handleOutcomeContinue}
                   onClose={handleOutcomeContinue}
+                />
+              )}
+
+              {/* Narrative event overlay (renders on top of any view mode) */}
+              {activeNarrativeEvent && (
+                <NarrativeEventPanel
+                  event={activeNarrativeEvent}
+                  onClose={handleNarrativeClose}
                 />
               )}
             </StarmapProvider>

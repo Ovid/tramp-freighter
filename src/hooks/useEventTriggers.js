@@ -116,14 +116,12 @@ export function useEventTriggers() {
 
   /**
    * Emit a narrative event for display.
+   * Uses a separate event channel so narrative events overlay
+   * the current view instead of hijacking it into ENCOUNTER mode.
    */
   const emitNarrativeEvent = useCallback(
     (event) => {
-      gameStateManager.emit('encounterTriggered', {
-        type: 'narrative',
-        category: 'narrative',
-        event,
-      });
+      gameStateManager.emit('narrativeEventTriggered', event);
     },
     [gameStateManager]
   );

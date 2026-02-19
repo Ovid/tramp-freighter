@@ -177,6 +177,7 @@ export class InitializationManager {
         fired: [],
         cooldowns: {},
         flags: {},
+        dockedSystems: [],
       },
     };
   }

@@ -127,6 +127,13 @@ export class NavigationManager extends BaseManager {
 
     this.emit('docked', { systemId: currentSystemId });
 
+    // Track docked systems for first_dock condition (after emit so
+    // the event engine sees the system as not-yet-docked during check)
+    const dockedSystems = state.world.narrativeEvents?.dockedSystems;
+    if (dockedSystems && !dockedSystems.includes(currentSystemId)) {
+      dockedSystems.push(currentSystemId);
+    }
+
     return { success: true };
   }
 

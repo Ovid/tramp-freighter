@@ -37,6 +37,39 @@ describe('evaluateCondition', () => {
     });
   });
 
+  describe('first_dock', () => {
+    it('should return true when system not in dockedSystems', () => {
+      const context = { system: 4 };
+      expect(
+        evaluateCondition({ type: 'first_dock' }, baseState, context)
+      ).toBe(true);
+    });
+
+    it('should return false when system already docked', () => {
+      const state = {
+        ...baseState,
+        world: {
+          ...baseState.world,
+          narrativeEvents: {
+            ...baseState.world.narrativeEvents,
+            dockedSystems: [0, 1],
+          },
+        },
+      };
+      const context = { system: 0 };
+      expect(evaluateCondition({ type: 'first_dock' }, state, context)).toBe(
+        false
+      );
+    });
+
+    it('should return true when dockedSystems is empty', () => {
+      const context = { system: 0 };
+      expect(
+        evaluateCondition({ type: 'first_dock' }, baseState, context)
+      ).toBe(true);
+    });
+  });
+
   describe('debt_above', () => {
     it('should return true when debt exceeds value', () => {
       expect(

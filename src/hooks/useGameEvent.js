@@ -113,6 +113,7 @@ function extractStateForEvent(eventName, state) {
     conditionWarning: null, // Warnings are passed directly in event data
     dialogueChanged: state.dialogue, // Dialogue state object
     encounterTriggered: null, // Encounter data is passed directly in event
+    narrativeEventTriggered: null, // Narrative event data is passed directly
     hullChanged: state.ship.hull,
     engineChanged: state.ship.engine,
     lifeSupportChanged: state.ship.lifeSupport,

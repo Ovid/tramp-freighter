@@ -33,6 +33,7 @@ export class EventSystemManager {
       dialogueChanged: [],
       factionRepChanged: [],
       encounterTriggered: [],
+      narrativeEventTriggered: [],
       hullChanged: [],
       engineChanged: [],
       lifeSupportChanged: [],
