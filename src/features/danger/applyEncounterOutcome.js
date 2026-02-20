@@ -83,7 +83,11 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       const { KIDNAP_FACTION_PENALTY, KIDNAP_KARMA_PENALTY } =
         PIRATE_CREDIT_DEMAND_CONFIG;
       Object.entries(KIDNAP_FACTION_PENALTY).forEach(([faction, change]) => {
-        gameStateManager.modifyFactionRep(faction, change, 'passenger_kidnapped');
+        gameStateManager.modifyFactionRep(
+          faction,
+          change,
+          'passenger_kidnapped'
+        );
       });
       gameStateManager.modifyKarma(KIDNAP_KARMA_PENALTY, 'passenger_kidnapped');
     }

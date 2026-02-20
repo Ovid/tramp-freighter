@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { TradingSystem } from '../../game/game-trading.js';
-import { capitalizeFirst } from '../../game/utils/string-utils.js';
+import {
+  capitalizeFirst,
+  pluralizeUnit,
+} from '../../game/utils/string-utils.js';
 import { PASSENGER_CONFIG } from '../../game/constants.js';
 import { formatCargoAge } from './cargoUtils';
 
@@ -67,7 +70,9 @@ export function CargoManifestPanel({ onClose }) {
         <div className="cargo-manifest-details">
           <div className="cargo-manifest-detail">
             <span className="detail-label">Quantity:</span>
-            <span className="detail-value">{cargoEntry.qty} units</span>
+            <span className="detail-value">
+              {pluralizeUnit(cargoEntry.qty)}
+            </span>
           </div>
           <div className="cargo-manifest-detail">
             <span className="detail-label">Purchased at:</span>
@@ -134,13 +139,15 @@ export function CargoManifestPanel({ onClose }) {
                       <div className="cargo-manifest-detail">
                         <span className="detail-label">Type:</span>
                         <span className="detail-value">
-                          {capitalizeFirst(mission.passenger?.type || 'unknown')}
+                          {capitalizeFirst(
+                            mission.passenger?.type || 'unknown'
+                          )}
                         </span>
                       </div>
                       <div className="cargo-manifest-detail">
                         <span className="detail-label">Cargo space:</span>
                         <span className="detail-value">
-                          {typeConfig.cargoSpace || 0} units
+                          {pluralizeUnit(typeConfig.cargoSpace || 0)}
                         </span>
                       </div>
                       <div className="cargo-manifest-detail">

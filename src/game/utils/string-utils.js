@@ -30,3 +30,13 @@ export function capitalizeFirst(str) {
 export function formatCoordinate(value) {
   return (value / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2);
 }
+
+/**
+ * Format a quantity with "unit" or "units" based on count
+ *
+ * @param {number} count - The quantity
+ * @returns {string} Formatted string like "1 unit" or "3 units"
+ */
+export function pluralizeUnit(count) {
+  return `${count} ${count === 1 ? 'unit' : 'units'}`;
+}

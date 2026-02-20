@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { capitalizeFirst } from '@game/utils/string-utils.js';
+import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
 
 export function MissionBoardPanel({ onClose }) {
   const missions = useGameEvent('missionsChanged');
@@ -43,7 +43,8 @@ export function MissionBoardPanel({ onClose }) {
                     &ldquo;{mission.passenger.dialogue}&rdquo;
                   </div>
                   <div>
-                    Space Required: {mission.requirements.cargoSpace} units
+                    Space Required:{' '}
+                    {pluralizeUnit(mission.requirements.cargoSpace)}
                   </div>
                 </>
               ) : (

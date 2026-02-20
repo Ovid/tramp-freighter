@@ -116,6 +116,10 @@ export function generatePassengerMission(
       deadline,
       cargoSpace: typeConfig.cargoSpace,
     },
+    destination: {
+      systemId: toSystem,
+      name: destStar ? destStar.name : `System ${toSystem}`,
+    },
     rewards: { credits: reward, faction: { civilians: 5 } },
     penalties: { failure: { faction: { civilians: -3 } } },
     passenger: {

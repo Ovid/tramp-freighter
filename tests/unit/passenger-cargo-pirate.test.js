@@ -6,8 +6,13 @@ import {
   PIRATE_CREDIT_DEMAND_CONFIG,
   PASSENGER_CONFIG,
 } from '../../src/game/constants.js';
-import { validateBuy, calculateMaxBuyQuantity } from '../../src/features/trade/tradeUtils.js';
+import {
+  validateBuy,
+  calculateMaxBuyQuantity,
+} from '../../src/features/trade/tradeUtils.js';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
+import { generatePassengerMission } from '../../src/game/mission-generator.js';
+import { pluralizeUnit } from '../../src/game/utils/string-utils.js';
 
 /**
  * Tests for passenger cargo space consumption and pirate credit demand fallback.
@@ -62,8 +67,14 @@ describe('Passenger Cargo Space', () => {
       state.missions.active.push(
         createPassengerMission({
           id: 'passenger-test-2',
-          passenger: { name: 'Wealthy Guest', type: 'wealthy', satisfaction: 50 },
-          requirements: { cargoSpace: PASSENGER_CONFIG.TYPES.wealthy.cargoSpace },
+          passenger: {
+            name: 'Wealthy Guest',
+            type: 'wealthy',
+            satisfaction: 50,
+          },
+          requirements: {
+            cargoSpace: PASSENGER_CONFIG.TYPES.wealthy.cargoSpace,
+          },
         })
       );
 
@@ -352,5 +363,35 @@ describe('applyEncounterOutcome - kidnap', () => {
       PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_KARMA_PENALTY,
       'passenger_kidnapped'
     );
+  });
+});
+
+describe('Passenger Display Bugs', () => {
+  describe('Bug 3: passenger mission stores destination name for display', () => {
+    it('should include destination name in generated passenger mission', () => {
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        () => 0.5
+      );
+
+      expect(mission).not.toBeNull();
+      expect(mission.destination).toBeDefined();
+      expect(mission.destination.name).toBeTruthy();
+      expect(typeof mission.destination.name).toBe('string');
+    });
+  });
+
+  describe('Bug 4: singular/plural units grammar', () => {
+    it('should return "unit" for singular values', () => {
+      expect(pluralizeUnit(1)).toBe('1 unit');
+    });
+
+    it('should return "units" for plural values', () => {
+      expect(pluralizeUnit(2)).toBe('2 units');
+      expect(pluralizeUnit(0)).toBe('0 units');
+      expect(pluralizeUnit(50)).toBe('50 units');
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -39,6 +39,7 @@ export function TradePanel({ onClose }) {
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
   const upgrades = useGameEvent('upgradesChanged');
   const hiddenCargo = useGameEvent('hiddenCargoChanged');
+  const missions = useGameEvent('missionsChanged');
 
   // Get game actions
   const {
@@ -72,8 +73,17 @@ export function TradePanel({ onClose }) {
   const safeHiddenCargo = hiddenCargo ?? [];
   const safeCargo = cargo ?? [];
 
-  // Calculate cargo capacity
-  const cargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+  // Calculate cargo capacity including passenger space
+  const tradeCargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+
+  const passengerSpace = useMemo(() => {
+    if (!missions || !missions.active) return 0;
+    return missions.active
+      .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
+      .reduce((sum, m) => sum + m.requirements.cargoSpace, 0);
+  }, [missions]);
+
+  const cargoUsed = tradeCargoUsed + passengerSpace;
   const cargoRemaining = safeCargoCapacity - cargoUsed;
 
   // Check for Smuggler's Panels upgrade
@@ -100,6 +110,7 @@ export function TradePanel({ onClose }) {
       cargoCapacity: safeCargoCapacity,
       upgrades: safeUpgrades,
     },
+    missions: missions || { active: [] },
   };
 
   const handleBuyGood = (goodType, quantity, price) => {
