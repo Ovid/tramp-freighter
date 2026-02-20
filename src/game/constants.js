@@ -493,6 +493,98 @@ export const MISSION_CONFIG = {
 };
 
 /**
+ * Passenger Mission Configuration
+ */
+export const PASSENGER_CONFIG = {
+  INITIAL_SATISFACTION: 50,
+
+  TYPES: {
+    refugee: {
+      urgency: 'high',
+      paymentTier: 'low',
+      cargoSpace: 1,
+      dialogue: [
+        'Please, I need to get away from here.',
+        'Thank you for helping me.',
+      ],
+      satisfactionWeights: { speed: 0.8, comfort: 0.2 },
+    },
+    business: {
+      urgency: 'medium',
+      paymentTier: 'medium',
+      cargoSpace: 2,
+      dialogue: ['Time is money.', 'I expect professional service.'],
+      satisfactionWeights: { speed: 0.6, comfort: 0.4 },
+    },
+    wealthy: {
+      urgency: 'low',
+      paymentTier: 'high',
+      cargoSpace: 3,
+      dialogue: [
+        'I trust the accommodations are adequate?',
+        'Money is no object.',
+      ],
+      satisfactionWeights: { speed: 0.3, comfort: 0.7 },
+    },
+    scientist: {
+      urgency: 'medium',
+      paymentTier: 'medium',
+      cargoSpace: 2,
+      dialogue: ['Fascinating ship you have.', "I'm studying stellar phenomena."],
+      satisfactionWeights: { speed: 0.5, comfort: 0.3, safety: 0.2 },
+    },
+    family: {
+      urgency: 'low',
+      paymentTier: 'low',
+      cargoSpace: 3,
+      dialogue: ['Are we there yet?', 'The children are excited.'],
+      satisfactionWeights: { speed: 0.4, comfort: 0.4, safety: 0.2 },
+    },
+  },
+
+  SATISFACTION_THRESHOLDS: {
+    VERY_SATISFIED: 80,
+    SATISFIED: 60,
+    NEUTRAL: 40,
+    DISSATISFIED: 20,
+  },
+
+  PAYMENT_MULTIPLIERS: {
+    VERY_SATISFIED: 1.3,
+    SATISFIED: 1.15,
+    NEUTRAL: 1.0,
+    DISSATISFIED: 0.7,
+    VERY_DISSATISFIED: 0.5,
+    ON_TIME_BONUS: 0.1,
+  },
+
+  SATISFACTION_IMPACTS: {
+    DELAY: 10,
+    COMBAT: 15,
+    LOW_LIFE_SUPPORT: 5,
+    LIFE_SUPPORT_THRESHOLD: 50,
+  },
+
+  PAYMENT_TIERS: {
+    low: { min: 200, max: 500 },
+    medium: { min: 500, max: 1000 },
+    high: { min: 800, max: 1500 },
+  },
+
+  FIRST_NAMES: [
+    'Ava', 'Ben', 'Clara', 'Dmitri', 'Elena', 'Felix', 'Grace', 'Hassan',
+    'Iris', 'Jun', 'Kira', 'Leo', 'Maya', 'Niko', 'Petra', 'Quinn',
+    'Rosa', 'Soren', 'Tara', 'Uri',
+  ],
+
+  LAST_NAMES: [
+    'Chen', 'Okafor', 'Singh', 'Petrov', 'Tanaka', 'Garcia', 'Bauer',
+    'Kim', 'Ali', 'Larsson', 'Costa', 'Nguyen', 'Frost', 'Amir', 'Volkov',
+    'Reyes', 'Osei', 'Dubois', 'Holm', 'Sharma',
+  ],
+};
+
+/**
  * localStorage key for save data
  */
 export const SAVE_KEY = 'trampFreighterSave';
