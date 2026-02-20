@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { capitalizeFirst } from '@game/utils/string-utils.js';
 
 export function MissionBoardPanel({ onClose }) {
   const missions = useGameEvent('missionsChanged');
@@ -33,10 +34,22 @@ export function MissionBoardPanel({ onClose }) {
             <h3>{mission.title}</h3>
             <p>{mission.description}</p>
             <div className="mission-details">
-              <div>
-                Deliver: {mission.requirements.quantity}{' '}
-                {mission.requirements.cargo}
-              </div>
+              {mission.type === 'passenger' ? (
+                <>
+                  <div className="passenger-type">
+                    {capitalizeFirst(mission.passenger.type)}
+                  </div>
+                  <div className="passenger-dialogue">
+                    &ldquo;{mission.passenger.dialogue}&rdquo;
+                  </div>
+                  <div>Space Required: {mission.requirements.cargoSpace} units</div>
+                </>
+              ) : (
+                <div>
+                  Deliver: {mission.requirements.quantity}{' '}
+                  {mission.requirements.cargo}
+                </div>
+              )}
               <div>Deadline: {mission.requirements.deadline} days</div>
               <div>Reward: ₡{mission.rewards.credits}</div>
             </div>
