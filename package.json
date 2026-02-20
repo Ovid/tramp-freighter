@@ -12,9 +12,9 @@
     "test:coverage": "vitest --coverage",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "clean": "eslint . --fix --quiet && prettier --write . --log-level warn",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix --max-warnings 0",
+    "clean": "eslint . --fix --max-warnings 0 && prettier --write . --log-level warn",
     "all": "npm run clean && npm test"
   },
   "devDependencies": {
