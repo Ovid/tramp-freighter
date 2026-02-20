@@ -33,6 +33,23 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
             destination: { systemId: 7, name: 'Tau Ceti' },
             rewards: { credits: 300 },
           },
+          {
+            id: 'delivery_003',
+            type: 'delivery',
+            title: 'Cargo Run: Unmarked Crates to Tau Ceti',
+            deadlineDay: 35,
+            requirements: {
+              destination: 7,
+              deadline: 28,
+            },
+            destination: { systemId: 7, name: 'Tau Ceti' },
+            missionCargo: {
+              good: 'unmarked_crates',
+              quantity: 5,
+              isIllegal: true,
+            },
+            rewards: { credits: 400 },
+          },
         ],
         completed: [],
         failed: [],
@@ -43,6 +60,12 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
       return [
         { good: 'parts', qty: 10 },
         { good: 'tritium', qty: 5 },
+        {
+          good: 'unmarked_crates',
+          qty: 5,
+          buyPrice: 0,
+          missionId: 'delivery_003',
+        },
       ];
     return null;
   },
@@ -69,7 +92,7 @@ describe('ActiveMissions HUD - Cargo Progress', () => {
     render(<ActiveMissions />);
     // Passenger mission has no cargo requirement - no progress line
     const missionItems = screen.getAllByText(/remaining/);
-    expect(missionItems).toHaveLength(2);
+    expect(missionItems).toHaveLength(3);
     // Only one cargo progress line should exist
     const cargoProgress = screen.queryAllByText(/\/\d+/);
     expect(cargoProgress).toHaveLength(1);
@@ -84,7 +107,7 @@ describe('ActiveMissions HUD - Abandon Mission', () => {
   it('should show an abandon button for each active mission', () => {
     render(<ActiveMissions />);
     const abandonButtons = screen.getAllByText('Abandon');
-    expect(abandonButtons).toHaveLength(2);
+    expect(abandonButtons).toHaveLength(3);
   });
 
   it('should show confirmation dialog when abandon is clicked', () => {
@@ -107,8 +130,22 @@ describe('ActiveMissions HUD - Destination Display', () => {
   it('should display destination for each active mission', () => {
     const { container } = render(<ActiveMissions />);
     const destinations = container.querySelectorAll('.mission-hud-destination');
-    expect(destinations).toHaveLength(2);
+    expect(destinations).toHaveLength(3);
     expect(destinations[0].textContent).toContain('Sirius A');
     expect(destinations[1].textContent).toContain('Tau Ceti');
+    expect(destinations[2].textContent).toContain('Tau Ceti');
+  });
+});
+
+describe('ActiveMissions HUD - Rumor Warning', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should display rumor warning for missions with illegal cargo in hold', () => {
+    const { container } = render(<ActiveMissions />);
+    const warnings = container.querySelectorAll('.mission-hud-rumor');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].textContent).toContain('Rumors spreading');
   });
 });

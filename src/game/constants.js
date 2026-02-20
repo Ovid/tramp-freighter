@@ -1007,6 +1007,9 @@ export const DANGER_CONFIG = {
     HIGH_VALUE_MULTIPLIER: 1.5, // 1.5x pirate chance when cargo value > 2000 credits
   },
 
+  // Illegal mission cargo modifier for pirate encounter probability
+  ILLEGAL_CARGO_PIRATE_MULTIPLIER: 1.3,
+
   // Engine condition modifier for pirate encounter probability
   ENGINE_CONDITION_MODIFIER: {
     POOR_CONDITION_THRESHOLD: 50, // Engine percentage below which modifier applies

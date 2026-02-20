@@ -201,6 +201,7 @@ export class DangerManager extends BaseManager {
         POOR_CONDITION_THRESHOLD,
         POOR_CONDITION_MULTIPLIER,
       },
+      ILLEGAL_CARGO_PIRATE_MULTIPLIER,
       ADVANCED_SENSORS_PIRATE_REDUCTION,
       FACTION_REPUTATION_SCALES: {
         OUTLAW_PIRATE_REDUCTION_SCALE,
@@ -243,6 +244,11 @@ export class DangerManager extends BaseManager {
     const authorityModifier =
       1 + (authorityRep / 100) * AUTHORITY_PIRATE_INCREASE_SCALE;
     probability *= authorityModifier;
+
+    // Apply illegal mission cargo modifier (rumors attract pirates)
+    if (this.hasIllegalMissionCargo(gameState.ship.cargo)) {
+      probability *= ILLEGAL_CARGO_PIRATE_MULTIPLIER;
+    }
 
     // Clamp final probability to [0, 1] range
     return Math.max(0, Math.min(1, probability));
@@ -337,6 +343,16 @@ export class DangerManager extends BaseManager {
    * @param {number} [systemId] - Optional system ID for core system checks
    * @returns {number} Number of restricted goods in cargo
    */
+  hasIllegalMissionCargo(cargo) {
+    if (!cargo) {
+      cargo = this.getState().ship.cargo;
+    }
+    return cargo.some(
+      (item) =>
+        item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good)
+    );
+  }
+
   countRestrictedGoods(cargo, zone, systemId) {
     const zoneRestrictions =
       RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];

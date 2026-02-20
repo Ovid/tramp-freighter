@@ -178,12 +178,12 @@ describe('CombatPanel', () => {
     ).toBeInTheDocument();
   });
 
-  it('should call onClose when close button is clicked', () => {
-    const onClose = vi.fn();
-    renderWithContext({ onClose });
+  it('should call onChoice with flee when close button is clicked', () => {
+    const onChoice = vi.fn();
+    renderWithContext({ onChoice });
 
     fireEvent.click(screen.getByText('×'));
-    expect(onClose).toHaveBeenCalledOnce();
+    expect(onChoice).toHaveBeenCalledWith('flee');
   });
 
   it('should display ship condition with appropriate classes', () => {

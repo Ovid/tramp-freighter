@@ -23,6 +23,7 @@ import { useEventTriggers } from './hooks/useEventTriggers';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
+import { RumorAlert } from './features/hud/RumorAlert';
 
 /**
  * Application state machine modes.
@@ -333,6 +334,7 @@ export default function App({ devMode = false }) {
 
               {/* HUD is always rendered */}
               <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              <RumorAlert />
 
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (
