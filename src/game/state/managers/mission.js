@@ -183,6 +183,21 @@ export class MissionManager extends BaseManager {
     state.missions.active.splice(missionIndex, 1);
     state.missions.completed.push(missionId);
 
+    // Record completion for route saturation
+    if (
+      mission.requirements &&
+      mission.requirements.destination !== undefined
+    ) {
+      if (!state.missions.completionHistory) {
+        state.missions.completionHistory = [];
+      }
+      state.missions.completionHistory.push({
+        from: mission.giverSystem,
+        to: mission.requirements.destination,
+        day: state.player.daysElapsed,
+      });
+    }
+
     if (mission.type === 'passenger') {
       const payment = this.calculatePassengerPayment(mission);
       state.player.credits += payment;
@@ -413,16 +428,34 @@ export class MissionManager extends BaseManager {
       return state.missions.board;
     }
 
+    // Prune stale completion history
+    if (!state.missions.completionHistory) {
+      state.missions.completionHistory = [];
+    }
+    const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
+    state.missions.completionHistory = state.missions.completionHistory
+      .filter((entry) => entry.day > windowStart)
+      .slice(-MISSION_CONFIG.SATURATION_MAX_HISTORY);
+
     const dangerZone =
       typeof this.gameStateManager.getDangerZone === 'function'
         ? this.gameStateManager.getDangerZone(state.player.currentSystem)
         : 'safe';
 
+    const destinationDangerZoneFn =
+      typeof this.gameStateManager.getDangerZone === 'function'
+        ? (systemId) => this.gameStateManager.getDangerZone(systemId)
+        : null;
+
     const board = generateMissionBoard(
       state.player.currentSystem,
       this.gameStateManager.starData,
       this.gameStateManager.wormholeData,
-      dangerZone
+      dangerZone,
+      undefined,
+      destinationDangerZoneFn,
+      state.missions.completionHistory,
+      currentDay
     );
 
     state.missions.board = board;

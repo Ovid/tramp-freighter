@@ -66,7 +66,18 @@ export function MissionBoardPanel({ onClose }) {
                 </div>
               ) : null}
               <div>Deadline: {mission.requirements.deadline} days</div>
-              <div>Reward: ₡{mission.rewards.credits}</div>
+              <div className={mission.saturated ? 'reward-saturated' : ''}>
+                Reward: ₡{mission.rewards.credits}
+                {mission.saturated && (
+                  <span
+                    className="saturation-hint"
+                    title="Haulers on this route are plentiful — reduced pay"
+                  >
+                    {' '}
+                    ▼
+                  </span>
+                )}
+              </div>
             </div>
             <button
               className="accept-btn"

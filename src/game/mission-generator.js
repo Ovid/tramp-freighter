@@ -1,10 +1,24 @@
 import {
   MISSION_CONFIG,
   MISSION_CARGO_TYPES,
-  NAVIGATION_CONFIG,
   PASSENGER_CONFIG,
 } from './constants.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
+
+export function pickWeightedDestination(reachable, rng) {
+  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+  let roll = rng() * totalWeight;
+  let chosen = reachable[0];
+  for (let i = 0; i < reachable.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      chosen = reachable[i];
+      break;
+    }
+  }
+  return chosen;
+}
 
 export function getConnectedSystems(systemId, wormholeData) {
   const connected = [];
@@ -15,9 +29,26 @@ export function getConnectedSystems(systemId, wormholeData) {
   return connected;
 }
 
-function calculateDistance(star1, star2) {
-  const r = Math.hypot(star1.x - star2.x, star1.y - star2.y, star1.z - star2.z);
-  return r * NAVIGATION_CONFIG.LY_PER_UNIT;
+export function getReachableSystems(systemId, wormholeData, maxHops) {
+  const visited = new Set([systemId]);
+  const result = [];
+  let frontier = [systemId];
+
+  for (let hop = 1; hop <= maxHops; hop++) {
+    const nextFrontier = [];
+    for (const current of frontier) {
+      for (const neighbor of getConnectedSystems(current, wormholeData)) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          result.push({ systemId: neighbor, hopCount: hop });
+          nextFrontier.push(neighbor);
+        }
+      }
+    }
+    frontier = nextFrontier;
+  }
+
+  return result;
 }
 
 export function generateCargoRun(
@@ -25,46 +56,72 @@ export function generateCargoRun(
   starData,
   wormholeData,
   dangerZone = 'safe',
-  rng = Math.random
+  rng = Math.random,
+  destinationDangerZoneFn = null,
+  completionHistory = [],
+  currentDay = 0
 ) {
-  const connectedIds = getConnectedSystems(fromSystem, wormholeData);
-  if (connectedIds.length === 0) return null;
+  const reachable = getReachableSystems(
+    fromSystem,
+    wormholeData,
+    MISSION_CONFIG.MAX_MISSION_HOPS
+  );
+  if (reachable.length === 0) return null;
 
-  const toSystem = pickRandomFrom(connectedIds, rng);
-  const fromStar = starData.find((s) => s.id === fromSystem);
+  const chosen = pickWeightedDestination(reachable, rng);
+  const toSystem = chosen.systemId;
+  const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);
 
-  const distance =
-    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
   const deadline =
-    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
-  // Determine legal vs illegal based on zone
+  // Determine legal vs illegal based on origin zone
   const illegalChance =
     MISSION_CONFIG.CARGO_RUN_ZONE_ILLEGAL_CHANCE[dangerZone] || 0.15;
   const isIllegal = rng() < illegalChance;
 
-  // Pick cargo type from the appropriate category
   const cargoPool = isIllegal
     ? MISSION_CARGO_TYPES.illegal
     : MISSION_CARGO_TYPES.legal;
   const good = pickRandomFrom(cargoPool, rng);
 
-  // Pick quantity from the appropriate range
   const qtyRange = isIllegal
     ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY
     : MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY;
   const qty =
     qtyRange.MIN + Math.floor(rng() * (qtyRange.MAX - qtyRange.MIN + 1));
 
-  // Calculate distance-based reward
+  // Risk-scaled reward
   const baseFee = isIllegal
     ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE
     : MISSION_CONFIG.CARGO_RUN_BASE_FEE;
-  const perLyRate = isIllegal
-    ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_PER_LY_RATE
-    : MISSION_CONFIG.CARGO_RUN_PER_LY_RATE;
-  const reward = Math.ceil(baseFee + distance * perLyRate);
+
+  const hopMultiplier = MISSION_CONFIG.HOP_MULTIPLIERS[hopCount] || 1.0;
+
+  const destDangerZone = destinationDangerZoneFn
+    ? destinationDangerZoneFn(toSystem)
+    : dangerZone;
+  const dangerMultiplier =
+    MISSION_CONFIG.DANGER_MULTIPLIERS[destDangerZone] || 1.0;
+
+  // Route saturation
+  const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
+  const recentCompletions = completionHistory.filter(
+    (entry) =>
+      entry.to === toSystem &&
+      entry.from === fromSystem &&
+      entry.day > windowStart
+  ).length;
+  const saturationMultiplier = Math.max(
+    MISSION_CONFIG.SATURATION_FLOOR,
+    1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
+  );
+
+  const reward = Math.ceil(
+    baseFee * hopMultiplier * dangerMultiplier * saturationMultiplier
+  );
 
   // Build faction rewards
   const faction = { traders: 2 };
@@ -72,7 +129,6 @@ export function generateCargoRun(
     faction.outlaws = 3;
   }
 
-  // Build failure penalties
   const failureFaction = { traders: -2 };
   if (isIllegal) {
     failureFaction.outlaws = -2;
@@ -91,6 +147,7 @@ export function generateCargoRun(
       : 'Standard delivery contract.',
     giver: 'station_master',
     giverSystem: fromSystem,
+    hopCount,
     requirements: {
       destination: toSystem,
       deadline,
@@ -106,6 +163,7 @@ export function generateCargoRun(
     },
     rewards: { credits: reward, faction },
     penalties: { failure: { faction: failureFaction } },
+    saturated: saturationMultiplier < 1.0,
   };
 }
 
@@ -119,13 +177,20 @@ export function generatePassengerMission(
   fromSystem,
   starData,
   wormholeData,
-  rng = Math.random
+  rng = Math.random,
+  completionHistory = [],
+  currentDay = 0
 ) {
-  const connectedIds = getConnectedSystems(fromSystem, wormholeData);
-  if (connectedIds.length === 0) return null;
+  const reachable = getReachableSystems(
+    fromSystem,
+    wormholeData,
+    MISSION_CONFIG.MAX_MISSION_HOPS
+  );
+  if (reachable.length === 0) return null;
 
-  const toSystem = pickRandomFrom(connectedIds, rng);
-  const fromStar = starData.find((s) => s.id === fromSystem);
+  const chosen = pickWeightedDestination(reachable, rng);
+  const toSystem = chosen.systemId;
+  const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);
 
   const typeNames = Object.keys(PASSENGER_CONFIG.TYPES);
@@ -135,13 +200,27 @@ export function generatePassengerMission(
   const name = generatePersonName(rng);
   const dialogue = pickRandomFrom(typeConfig.dialogue, rng);
 
-  const distance =
-    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
   const deadline =
-    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+
+  // Route saturation
+  const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
+  const recentCompletions = completionHistory.filter(
+    (entry) =>
+      entry.to === toSystem &&
+      entry.from === fromSystem &&
+      entry.day > windowStart
+  ).length;
+  const saturationMultiplier = Math.max(
+    MISSION_CONFIG.SATURATION_FLOOR,
+    1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
+  );
 
   const tier = PASSENGER_CONFIG.PAYMENT_TIERS[typeConfig.paymentTier];
-  const reward = Math.ceil(tier.min + rng() * (tier.max - tier.min));
+  const reward = Math.ceil(
+    (tier.min + rng() * (tier.max - tier.min)) * saturationMultiplier
+  );
 
   return {
     id: `passenger_${Date.now()}_${Math.floor(rng() * 10000)}`,
@@ -150,6 +229,7 @@ export function generatePassengerMission(
     description: `Transport ${name} to ${destStar ? destStar.name : `System ${toSystem}`}.`,
     giver: 'passenger',
     giverSystem: fromSystem,
+    hopCount,
     requirements: {
       destination: toSystem,
       deadline,
@@ -161,6 +241,7 @@ export function generatePassengerMission(
     },
     rewards: { credits: reward, faction: { civilians: 5 } },
     penalties: { failure: { faction: { civilians: -3 } } },
+    saturated: saturationMultiplier < 1.0,
     passenger: {
       name,
       type: typeName,
@@ -176,14 +257,39 @@ export function generateMissionBoard(
   starData,
   wormholeData,
   dangerZone = 'safe',
-  rng = Math.random
+  rng = Math.random,
+  destinationDangerZoneFn = null,
+  completionHistory = [],
+  currentDay = 0
 ) {
+  const connectionCount = getConnectedSystems(systemId, wormholeData).length;
+  const boardSize = Math.min(
+    Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
+    MISSION_CONFIG.BOARD_SIZE
+  );
+
   const board = [];
-  for (let i = 0; i < MISSION_CONFIG.BOARD_SIZE; i++) {
+  for (let i = 0; i < boardSize; i++) {
     const isPassenger = rng() < 0.3;
     const mission = isPassenger
-      ? generatePassengerMission(systemId, starData, wormholeData, rng)
-      : generateCargoRun(systemId, starData, wormholeData, dangerZone, rng);
+      ? generatePassengerMission(
+          systemId,
+          starData,
+          wormholeData,
+          rng,
+          completionHistory,
+          currentDay
+        )
+      : generateCargoRun(
+          systemId,
+          starData,
+          wormholeData,
+          dangerZone,
+          rng,
+          destinationDangerZoneFn,
+          completionHistory,
+          currentDay
+        );
     if (mission) board.push(mission);
   }
   return board;

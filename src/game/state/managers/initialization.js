@@ -217,6 +217,7 @@ export class InitializationManager {
       failed: [],
       board: [],
       boardLastRefresh: 0,
+      completionHistory: [],
     };
   }
 
