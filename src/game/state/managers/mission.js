@@ -36,6 +36,19 @@ export class MissionManager extends BaseManager {
       };
     }
 
+    // Check cargo space for cargo run missions
+    if (mission.missionCargo) {
+      if (
+        mission.missionCargo.quantity >
+        this.gameStateManager.getCargoRemaining()
+      ) {
+        return {
+          success: false,
+          reason: 'Not enough cargo space for mission cargo.',
+        };
+      }
+    }
+
     const activeMission = {
       ...mission,
       acceptedDay: state.player.daysElapsed,
@@ -43,6 +56,18 @@ export class MissionManager extends BaseManager {
     };
 
     state.missions.active.push(activeMission);
+
+    // Place mission cargo in hold for cargo run missions
+    if (mission.missionCargo) {
+      state.ship.cargo.push({
+        good: mission.missionCargo.good,
+        qty: mission.missionCargo.quantity,
+        buyPrice: 0,
+        missionId: mission.id,
+      });
+      this.emit('cargoChanged', state.ship.cargo);
+    }
+
     this.emit('missionsChanged', { ...state.missions });
     this.gameStateManager.saveGame();
 
