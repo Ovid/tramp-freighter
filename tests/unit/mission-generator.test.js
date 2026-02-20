@@ -200,7 +200,12 @@ describe('Mission Generator', () => {
     it('should pick destinations from reachable systems up to MAX_MISSION_HOPS', () => {
       const destinations = new Set();
       for (let i = 0; i < 100; i++) {
-        const mission = generateCargoRun(7, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
+        const mission = generateCargoRun(
+          7,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA,
+          'safe'
+        );
         destinations.add(mission.requirements.destination);
       }
       // System 7 is a dead-end; should reach beyond just system 0
@@ -209,24 +214,48 @@ describe('Mission Generator', () => {
 
     it('should calculate reward using hop and danger multipliers', () => {
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng
+      );
       // 1-hop safe legal: baseFee(75) * hopMult(1.0) * dangerMult(1.0) = 75
       expect(mission.rewards.credits).toBe(MISSION_CONFIG.CARGO_RUN_BASE_FEE);
     });
 
     it('should include hopCount on generated mission', () => {
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
+      );
       expect(mission.hopCount).toBeGreaterThanOrEqual(1);
-      expect(mission.hopCount).toBeLessThanOrEqual(MISSION_CONFIG.MAX_MISSION_HOPS);
+      expect(mission.hopCount).toBeLessThanOrEqual(
+        MISSION_CONFIG.MAX_MISSION_HOPS
+      );
     });
 
     it('should apply danger multiplier for dangerous destinations', () => {
       const dangerZoneFn = () => 'dangerous';
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng, dangerZoneFn);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        dangerZoneFn
+      );
       // 1-hop dangerous: 75 * 1.0 * 2.0 = 150
       expect(mission.rewards.credits).toBe(
-        Math.ceil(MISSION_CONFIG.CARGO_RUN_BASE_FEE * MISSION_CONFIG.HOP_MULTIPLIERS[1] * MISSION_CONFIG.DANGER_MULTIPLIERS.dangerous)
+        Math.ceil(
+          MISSION_CONFIG.CARGO_RUN_BASE_FEE *
+            MISSION_CONFIG.HOP_MULTIPLIERS[1] *
+            MISSION_CONFIG.DANGER_MULTIPLIERS.dangerous
+        )
       );
     });
 
@@ -237,7 +266,16 @@ describe('Mission Generator', () => {
       ];
       const dangerZoneFn = () => 'safe';
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng, dangerZoneFn, history, 15);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        dangerZoneFn,
+        history,
+        15
+      );
       // 2 completions: penalty = 0.5, mult = 0.5
       // 75 * 1.0 * 1.0 * 0.5 = 38
       expect(mission.rewards.credits).toBe(Math.ceil(75 * 1.0 * 1.0 * 0.5));
@@ -253,7 +291,16 @@ describe('Mission Generator', () => {
       ];
       const dangerZoneFn = () => 'safe';
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng, dangerZoneFn, history, 15);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        dangerZoneFn,
+        history,
+        15
+      );
       // 5 completions: penalty = 1.25, clamped to floor 0.25
       expect(mission.rewards.credits).toBe(Math.ceil(75 * 0.25));
     });
@@ -262,37 +309,71 @@ describe('Mission Generator', () => {
       const history = [{ from: 0, to: 1, day: 1 }];
       const dangerZoneFn = () => 'safe';
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng, dangerZoneFn, history, 50);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        dangerZoneFn,
+        history,
+        50
+      );
       // Entry at day 1, current day 50, window 30 => stale
       expect(mission.rewards.credits).toBe(75);
     });
 
     it('should use hop-based deadline', () => {
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
-      const expectedDeadline = mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
+      );
+      const expectedDeadline =
+        mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+        MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
       expect(mission.requirements.deadline).toBe(expectedDeadline);
     });
 
     it('should produce integer rewards', () => {
       for (let i = 0; i < 20; i++) {
-        const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
+        const mission = generateCargoRun(
+          0,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA,
+          'safe'
+        );
         expect(Number.isInteger(mission.rewards.credits)).toBe(true);
       }
     });
 
     it('should set saturated flag when saturation penalty applies', () => {
-      const history = [
-        { from: 0, to: 1, day: 5 },
-      ];
+      const history = [{ from: 0, to: 1, day: 5 }];
       const dangerZoneFn = () => 'safe';
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng, dangerZoneFn, history, 15);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        dangerZoneFn,
+        history,
+        15
+      );
       expect(mission.saturated).toBe(true);
     });
 
     it('should not set saturated flag when no saturation penalty', () => {
       const rng = makeLegalCargoRng();
-      const mission = generateCargoRun(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng);
+      const mission = generateCargoRun(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng
+      );
       expect(mission.saturated).toBe(false);
     });
   });
@@ -315,7 +396,9 @@ describe('Mission Generator', () => {
 
     it('should include hop count for each system', () => {
       const result = getReachableSystems(0, TEST_WORMHOLE_DATA, 2);
-      const byId = Object.fromEntries(result.map((r) => [r.systemId, r.hopCount]));
+      const byId = Object.fromEntries(
+        result.map((r) => [r.systemId, r.hopCount])
+      );
       expect(byId[1]).toBe(1);
       expect(byId[4]).toBe(1);
       expect(byId[7]).toBe(1);
@@ -345,20 +428,34 @@ describe('Mission Generator', () => {
     it('should pick destinations from reachable systems', () => {
       const destinations = new Set();
       for (let i = 0; i < 100; i++) {
-        const mission = generatePassengerMission(7, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+        const mission = generatePassengerMission(
+          7,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA
+        );
         destinations.add(mission.requirements.destination);
       }
       expect(destinations.size).toBeGreaterThan(1);
     });
 
     it('should include hopCount on generated mission', () => {
-      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA
+      );
       expect(mission.hopCount).toBeGreaterThanOrEqual(1);
     });
 
     it('should use hop-based deadline', () => {
-      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-      const expectedDeadline = mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA
+      );
+      const expectedDeadline =
+        mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+        MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
       expect(mission.requirements.deadline).toBe(expectedDeadline);
     });
 
@@ -369,14 +466,25 @@ describe('Mission Generator', () => {
       ];
       // Force destination to system 1 (first neighbor)
       const rng = () => 0.01;
-      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, rng, history, 15);
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        rng,
+        history,
+        15
+      );
       if (mission.requirements.destination === 1) {
         expect(mission.saturated).toBe(true);
       }
     });
 
     it('should include saturated flag', () => {
-      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA
+      );
       expect(typeof mission.saturated).toBe('boolean');
     });
   });
@@ -408,7 +516,12 @@ describe('Mission Generator', () => {
   describe('generateMissionBoard (scaled)', () => {
     it('should generate fewer missions for dead-end systems', () => {
       // System 7 has 1 connection, so board size = min(max(1+1, 1), 3) = 2
-      const board = generateMissionBoard(7, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
+      const board = generateMissionBoard(
+        7,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
+      );
       expect(board.length).toBeLessThanOrEqual(2);
     });
 
@@ -416,7 +529,9 @@ describe('Mission Generator', () => {
       // System 0 has 3 connections, board size = min(max(3+1, 1), 3) = 3
       const boards = [];
       for (let i = 0; i < 20; i++) {
-        boards.push(generateMissionBoard(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'));
+        boards.push(
+          generateMissionBoard(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe')
+        );
       }
       const maxSize = Math.max(...boards.map((b) => b.length));
       expect(maxSize).toBe(MISSION_CONFIG.BOARD_SIZE);
@@ -424,7 +539,16 @@ describe('Mission Generator', () => {
 
     it('should pass completionHistory and mark saturated missions', () => {
       const history = [{ from: 0, to: 1, day: 5 }];
-      const board = generateMissionBoard(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', Math.random, null, history, 10);
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        Math.random,
+        null,
+        history,
+        10
+      );
       const toSystem1 = board.filter((m) => m.requirements.destination === 1);
       toSystem1.forEach((m) => {
         expect(m.saturated).toBe(true);

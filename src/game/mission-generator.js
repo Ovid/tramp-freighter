@@ -5,6 +5,21 @@ import {
 } from './constants.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
 
+export function pickWeightedDestination(reachable, rng) {
+  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+  let roll = rng() * totalWeight;
+  let chosen = reachable[0];
+  for (let i = 0; i < reachable.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      chosen = reachable[i];
+      break;
+    }
+  }
+  return chosen;
+}
+
 export function getConnectedSystems(systemId, wormholeData) {
   const connected = [];
   for (const [a, b] of wormholeData) {
@@ -53,19 +68,7 @@ export function generateCargoRun(
   );
   if (reachable.length === 0) return null;
 
-  // Weighted destination selection: weight = 1 / hopCount²
-  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
-  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-  let roll = rng() * totalWeight;
-  let chosen = reachable[0];
-  for (let i = 0; i < reachable.length; i++) {
-    roll -= weights[i];
-    if (roll <= 0) {
-      chosen = reachable[i];
-      break;
-    }
-  }
-
+  const chosen = pickWeightedDestination(reachable, rng);
   const toSystem = chosen.systemId;
   const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);
@@ -185,19 +188,7 @@ export function generatePassengerMission(
   );
   if (reachable.length === 0) return null;
 
-  // Weighted destination selection: weight = 1 / hopCount²
-  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
-  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-  let roll = rng() * totalWeight;
-  let chosen = reachable[0];
-  for (let i = 0; i < reachable.length; i++) {
-    roll -= weights[i];
-    if (roll <= 0) {
-      chosen = reachable[i];
-      break;
-    }
-  }
-
+  const chosen = pickWeightedDestination(reachable, rng);
   const toSystem = chosen.systemId;
   const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);

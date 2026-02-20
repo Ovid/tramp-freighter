@@ -73,7 +73,8 @@ export function MissionBoardPanel({ onClose }) {
                     className="saturation-hint"
                     title="Haulers on this route are plentiful — reduced pay"
                   >
-                    {' '}▼
+                    {' '}
+                    ▼
                   </span>
                 )}
               </div>

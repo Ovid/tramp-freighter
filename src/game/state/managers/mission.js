@@ -184,7 +184,10 @@ export class MissionManager extends BaseManager {
     state.missions.completed.push(missionId);
 
     // Record completion for route saturation
-    if (mission.requirements && mission.requirements.destination !== undefined) {
+    if (
+      mission.requirements &&
+      mission.requirements.destination !== undefined
+    ) {
       if (!state.missions.completionHistory) {
         state.missions.completionHistory = [];
       }

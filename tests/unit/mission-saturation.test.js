@@ -26,7 +26,11 @@ describe('Mission Route Saturation', () => {
       hopCount: 1,
       requirements: { destination: 1, deadline: 10 },
       destination: { systemId: 1, name: 'Alpha Centauri A' },
-      missionCargo: { good: 'sealed_containers', quantity: 5, isIllegal: false },
+      missionCargo: {
+        good: 'sealed_containers',
+        quantity: 5,
+        isIllegal: false,
+      },
       rewards: { credits: 75, faction: { traders: 2 } },
       penalties: { failure: { faction: { traders: -2 } } },
     });
@@ -66,16 +70,18 @@ describe('Mission Route Saturation', () => {
 
   it('should cap completionHistory at SATURATION_MAX_HISTORY', () => {
     const state = gsm.getState();
-    state.missions.completionHistory = Array.from({ length: 55 }, (_, i) => ({
+    state.player.daysElapsed = 100;
+    // All 55 entries on the current day so none are pruned by the window filter
+    state.missions.completionHistory = Array.from({ length: 55 }, () => ({
       from: 0,
       to: 1,
-      day: state.player.daysElapsed - i,
+      day: 100,
     }));
     state.missions.board = [];
     state.missions.boardLastRefresh = -1;
 
     gsm.refreshMissionBoard();
 
-    expect(state.missions.completionHistory.length).toBeLessThanOrEqual(50);
+    expect(state.missions.completionHistory).toHaveLength(50);
   });
 });
