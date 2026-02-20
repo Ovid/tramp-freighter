@@ -47,46 +47,85 @@ export function generateCargoRun(
   starData,
   wormholeData,
   dangerZone = 'safe',
-  rng = Math.random
+  rng = Math.random,
+  destinationDangerZoneFn = null,
+  completionHistory = [],
+  currentDay = 0
 ) {
-  const connectedIds = getConnectedSystems(fromSystem, wormholeData);
-  if (connectedIds.length === 0) return null;
+  const reachable = getReachableSystems(
+    fromSystem,
+    wormholeData,
+    MISSION_CONFIG.MAX_MISSION_HOPS
+  );
+  if (reachable.length === 0) return null;
 
-  const toSystem = pickRandomFrom(connectedIds, rng);
+  // Weighted destination selection: weight = 1 / hopCount²
+  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+  let roll = rng() * totalWeight;
+  let chosen = reachable[0];
+  for (let i = 0; i < reachable.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      chosen = reachable[i];
+      break;
+    }
+  }
+
+  const toSystem = chosen.systemId;
+  const hopCount = chosen.hopCount;
   const fromStar = starData.find((s) => s.id === fromSystem);
   const destStar = starData.find((s) => s.id === toSystem);
 
-  const distance =
-    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
   const deadline =
-    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
-  // Determine legal vs illegal based on zone
+  // Determine legal vs illegal based on origin zone
   const illegalChance =
     MISSION_CONFIG.CARGO_RUN_ZONE_ILLEGAL_CHANCE[dangerZone] || 0.15;
   const isIllegal = rng() < illegalChance;
 
-  // Pick cargo type from the appropriate category
   const cargoPool = isIllegal
     ? MISSION_CARGO_TYPES.illegal
     : MISSION_CARGO_TYPES.legal;
   const good = pickRandomFrom(cargoPool, rng);
 
-  // Pick quantity from the appropriate range
   const qtyRange = isIllegal
     ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY
     : MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY;
   const qty =
     qtyRange.MIN + Math.floor(rng() * (qtyRange.MAX - qtyRange.MIN + 1));
 
-  // Calculate distance-based reward
+  // Risk-scaled reward
   const baseFee = isIllegal
     ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE
     : MISSION_CONFIG.CARGO_RUN_BASE_FEE;
-  const perLyRate = isIllegal
-    ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_PER_LY_RATE
-    : MISSION_CONFIG.CARGO_RUN_PER_LY_RATE;
-  const reward = Math.ceil(baseFee + distance * perLyRate);
+
+  const hopMultiplier = MISSION_CONFIG.HOP_MULTIPLIERS[hopCount] || 1.0;
+
+  const destDangerZone = destinationDangerZoneFn
+    ? destinationDangerZoneFn(toSystem)
+    : dangerZone;
+  const dangerMultiplier =
+    MISSION_CONFIG.DANGER_MULTIPLIERS[destDangerZone] || 1.0;
+
+  // Route saturation
+  const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
+  const recentCompletions = completionHistory.filter(
+    (entry) =>
+      entry.to === toSystem &&
+      entry.from === fromSystem &&
+      entry.day > windowStart
+  ).length;
+  const saturationMultiplier = Math.max(
+    MISSION_CONFIG.SATURATION_FLOOR,
+    1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
+  );
+
+  const reward = Math.ceil(
+    baseFee * hopMultiplier * dangerMultiplier * saturationMultiplier
+  );
 
   // Build faction rewards
   const faction = { traders: 2 };
@@ -94,7 +133,6 @@ export function generateCargoRun(
     faction.outlaws = 3;
   }
 
-  // Build failure penalties
   const failureFaction = { traders: -2 };
   if (isIllegal) {
     failureFaction.outlaws = -2;
@@ -113,6 +151,7 @@ export function generateCargoRun(
       : 'Standard delivery contract.',
     giver: 'station_master',
     giverSystem: fromSystem,
+    hopCount,
     requirements: {
       destination: toSystem,
       deadline,
@@ -128,6 +167,7 @@ export function generateCargoRun(
     },
     rewards: { credits: reward, faction },
     penalties: { failure: { faction: failureFaction } },
+    saturated: saturationMultiplier < 1.0,
   };
 }
 
