@@ -148,7 +148,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       outcome.rewards.cargo.forEach((rewardItem) => {
         const existingStack = currentCargo.find(
           (item) =>
-            item.good === rewardItem.type &&
+            item.good === rewardItem.good &&
             item.buyPrice === rewardItem.buyPrice
         );
 
@@ -156,9 +156,10 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
           existingStack.qty += rewardItem.qty;
         } else {
           currentCargo.push({
-            good: rewardItem.type,
+            good: rewardItem.good,
             qty: rewardItem.qty,
             buyPrice: rewardItem.buyPrice,
+            buySystemName: rewardItem.buySystemName,
           });
         }
       });

@@ -84,7 +84,7 @@ describe('applyEncounterOutcome', () => {
 
       applyEncounterOutcome(gsm, {
         rewards: {
-          cargo: [{ type: 'food', qty: 3, buyPrice: 50 }],
+          cargo: [{ good: 'food', qty: 3, buyPrice: 50 }],
         },
       });
 
@@ -98,7 +98,7 @@ describe('applyEncounterOutcome', () => {
 
       applyEncounterOutcome(gsm, {
         rewards: {
-          cargo: [{ type: 'minerals', qty: 2, buyPrice: 80 }],
+          cargo: [{ good: 'minerals', qty: 2, buyPrice: 80 }],
         },
       });
 
@@ -107,6 +107,20 @@ describe('applyEncounterOutcome', () => {
       expect(cargo[1].good).toBe('minerals');
       expect(cargo[1].qty).toBe(2);
       expect(cargo[1].buyPrice).toBe(80);
+    });
+
+    it('passes through buySystemName for salvaged cargo', () => {
+      gsm.updateCargo([]);
+
+      applyEncounterOutcome(gsm, {
+        rewards: {
+          cargo: [{ good: 'parts', qty: 2, buyPrice: 0, buySystemName: 'Salvaged' }],
+        },
+      });
+
+      const cargo = gsm.getState().ship.cargo;
+      expect(cargo).toHaveLength(1);
+      expect(cargo[0].buySystemName).toBe('Salvaged');
     });
   });
 
