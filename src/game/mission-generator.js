@@ -273,14 +273,39 @@ export function generateMissionBoard(
   starData,
   wormholeData,
   dangerZone = 'safe',
-  rng = Math.random
+  rng = Math.random,
+  destinationDangerZoneFn = null,
+  completionHistory = [],
+  currentDay = 0
 ) {
+  const connectionCount = getConnectedSystems(systemId, wormholeData).length;
+  const boardSize = Math.min(
+    Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
+    MISSION_CONFIG.BOARD_SIZE
+  );
+
   const board = [];
-  for (let i = 0; i < MISSION_CONFIG.BOARD_SIZE; i++) {
+  for (let i = 0; i < boardSize; i++) {
     const isPassenger = rng() < 0.3;
     const mission = isPassenger
-      ? generatePassengerMission(systemId, starData, wormholeData, rng)
-      : generateCargoRun(systemId, starData, wormholeData, dangerZone, rng);
+      ? generatePassengerMission(
+          systemId,
+          starData,
+          wormholeData,
+          rng,
+          completionHistory,
+          currentDay
+        )
+      : generateCargoRun(
+          systemId,
+          starData,
+          wormholeData,
+          dangerZone,
+          rng,
+          destinationDangerZoneFn,
+          completionHistory,
+          currentDay
+        );
     if (mission) board.push(mission);
   }
   return board;

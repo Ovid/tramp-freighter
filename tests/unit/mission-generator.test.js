@@ -409,4 +409,31 @@ describe('Mission Generator', () => {
       expect(new Set(ids).size).toBe(ids.length);
     });
   });
+
+  describe('generateMissionBoard (scaled)', () => {
+    it('should generate fewer missions for dead-end systems', () => {
+      // System 7 has 1 connection, so board size = min(max(1+1, 1), 3) = 2
+      const board = generateMissionBoard(7, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe');
+      expect(board.length).toBeLessThanOrEqual(2);
+    });
+
+    it('should generate full board for well-connected systems', () => {
+      // System 0 has 3 connections, board size = min(max(3+1, 1), 3) = 3
+      const boards = [];
+      for (let i = 0; i < 20; i++) {
+        boards.push(generateMissionBoard(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'));
+      }
+      const maxSize = Math.max(...boards.map((b) => b.length));
+      expect(maxSize).toBe(MISSION_CONFIG.BOARD_SIZE);
+    });
+
+    it('should pass completionHistory and mark saturated missions', () => {
+      const history = [{ from: 0, to: 1, day: 5 }];
+      const board = generateMissionBoard(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', Math.random, null, history, 10);
+      const toSystem1 = board.filter((m) => m.requirements.destination === 1);
+      toSystem1.forEach((m) => {
+        expect(m.saturated).toBe(true);
+      });
+    });
+  });
 });
