@@ -12,7 +12,7 @@ export function RumorAlert() {
   const location = useGameEvent('locationChanged');
   const cargo = useGameEvent('cargoChanged');
   const [visible, setVisible] = useState(false);
-  const prevLocationRef = useRef(null);
+  const prevLocationRef = useRef(location);
 
   useEffect(() => {
     if (location !== null && location !== prevLocationRef.current) {
