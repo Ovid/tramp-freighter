@@ -77,5 +77,22 @@ describe('MissionManager', () => {
       manager.acceptMission(testMission);
       expect(manager.getActiveMissions()).toHaveLength(1);
     });
+
+    it('should remove accepted mission from the board', () => {
+      const state = manager.getState();
+      state.missions.board = [
+        testMission,
+        {
+          ...testMission,
+          id: 'other_mission',
+          title: 'Other Mission',
+        },
+      ];
+
+      manager.acceptMission(testMission);
+
+      expect(state.missions.board).toHaveLength(1);
+      expect(state.missions.board[0].id).toBe('other_mission');
+    });
   });
 });

@@ -17,7 +17,7 @@ import { COMBAT_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onChoice - Callback when player makes a choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function CombatPanel({ combat, onChoice, onClose }) {
+export function CombatPanel({ combat, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for ship status and modifiers
   const hull = useGameEvent('hullChanged');
   const engine = useGameEvent('engineChanged');
@@ -81,7 +81,7 @@ export function CombatPanel({ combat, onChoice, onClose }) {
 
   return (
     <div id="combat-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={() => onChoice('flee')}>
         ×
       </button>
       <h2>Combat Resolution</h2>

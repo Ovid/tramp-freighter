@@ -20,7 +20,7 @@ import {
  * @param {Function} props.onChoice - Callback when player makes an inspection choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function InspectionPanel({ inspection, onChoice, onClose }) {
+export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for inspection context
   const cargo = useGameEvent('cargoChanged');
   const hiddenCargo = useGameEvent('hiddenCargoChanged');
@@ -64,7 +64,7 @@ export function InspectionPanel({ inspection, onChoice, onClose }) {
 
   return (
     <div id="inspection-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={() => onChoice('flee')}>
         ×
       </button>
       <h2>Customs Inspection</h2>

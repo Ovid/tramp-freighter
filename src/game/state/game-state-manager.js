@@ -684,6 +684,10 @@ export class GameStateManager {
     this.saveGame();
   }
 
+  hasIllegalMissionCargo() {
+    return this.dangerManager.hasIllegalMissionCargo();
+  }
+
   countRestrictedGoods(cargo, zone, systemId) {
     return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
   }

@@ -846,6 +846,16 @@
   margin-bottom: 2px;
 }
 
+.mission-hud-destination {
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+}
+
+.mission-hud-rumor {
+  color: var(--color-danger);
+  font-size: var(--font-size-small);
+}
+
 .mission-hud-cargo {
   color: var(--color-secondary);
   font-size: var(--font-size-small);
@@ -876,4 +886,19 @@
 .mission-abandon-btn:hover {
   background-color: var(--color-danger);
   color: var(--color-black);
+}
+
+.rumor-alert {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--color-danger);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--border-danger);
+  padding: 8px 16px;
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-mono);
+  z-index: var(--z-modal);
+  pointer-events: none;
 }

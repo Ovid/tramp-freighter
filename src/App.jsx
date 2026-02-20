@@ -23,6 +23,7 @@ import { useEventTriggers } from './hooks/useEventTriggers';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
+import { RumorAlert } from './features/hud/RumorAlert';
 
 /**
  * Application state machine modes.
@@ -219,16 +220,26 @@ export default function App({ devMode = false }) {
         // Route combat/negotiation sub-choices to their specific resolvers
         let outcome;
         if (encounterPhase === 'combat') {
+          // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
+          const combatChoice = choice === 'flee' ? 'evasive' : choice;
           outcome = gameStateManager.resolveCombatChoice(
             currentEncounter.encounter,
-            choice
+            combatChoice
           );
         } else if (encounterPhase === 'negotiation') {
-          outcome = gameStateManager.resolveNegotiation(
-            currentEncounter.encounter,
-            choice,
-            Math.random()
-          );
+          if (choice === 'flee') {
+            // Breaking off negotiation to flee triggers evasive maneuvers
+            outcome = gameStateManager.resolveCombatChoice(
+              currentEncounter.encounter,
+              'evasive'
+            );
+          } else {
+            outcome = gameStateManager.resolveNegotiation(
+              currentEncounter.encounter,
+              choice,
+              Math.random()
+            );
+          }
         } else {
           outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
         }
@@ -333,6 +344,7 @@ export default function App({ devMode = false }) {
 
               {/* HUD is always rendered */}
               <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              <RumorAlert />
 
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (

@@ -21,7 +21,11 @@ import {
  * @param {Function} props.onChoice - Callback when player makes a choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
+export function PirateEncounterPanel({
+  encounter,
+  onChoice,
+  onClose: _onClose,
+}) {
   // Subscribe to relevant game events for ship status display
   const hull = useGameEvent('hullChanged');
   const engine = useGameEvent('engineChanged');
@@ -86,7 +90,7 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
 
   return (
     <div id="pirate-encounter-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={() => onChoice('flee')}>
         ×
       </button>
       <h2>Pirate Encounter</h2>

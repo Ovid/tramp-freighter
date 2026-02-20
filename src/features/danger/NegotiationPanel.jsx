@@ -21,7 +21,7 @@ import {
  * @param {Function} props.onChoice - Callback when player makes a negotiation choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function NegotiationPanel({ encounter, onChoice, onClose }) {
+export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for negotiation context
   const cargo = useGameEvent('cargoChanged');
   const karma = useGameEvent('karmaChanged');
@@ -65,7 +65,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
 
   return (
     <div id="negotiation-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={() => onChoice('flee')}>
         ×
       </button>
       <h2>Negotiation</h2>

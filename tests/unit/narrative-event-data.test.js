@@ -49,4 +49,29 @@ describe('Narrative Event Data', () => {
       });
     });
   });
+
+  describe('cargo reward schema', () => {
+    const eventsWithCargo = NARRATIVE_EVENTS.flatMap((event) =>
+      event.content.choices
+        .filter((c) => c.effects?.rewards?.cargo)
+        .map((c) => ({
+          eventId: event.id,
+          choiceText: c.text,
+          cargo: c.effects.rewards.cargo,
+        }))
+    );
+
+    eventsWithCargo.forEach(({ eventId, choiceText, cargo }) => {
+      it(`${eventId} choice "${choiceText}" uses canonical cargo fields`, () => {
+        cargo.forEach((item) => {
+          expect(item).toHaveProperty('good');
+          expect(item).toHaveProperty('qty');
+          expect(item).toHaveProperty('buyPrice');
+          expect(item).not.toHaveProperty('type');
+          expect(item).not.toHaveProperty('quantity');
+          expect(item).not.toHaveProperty('purchasePrice');
+        });
+      });
+    });
+  });
 });

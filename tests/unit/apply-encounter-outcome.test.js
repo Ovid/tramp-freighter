@@ -4,6 +4,11 @@ import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome';
 
+vi.mock('../../src/game/utils/dev-logger.js', () => ({
+  devLog: (...args) => console.log(...args),
+  devWarn: (...args) => console.warn(...args),
+}));
+
 describe('applyEncounterOutcome', () => {
   let gsm;
 
@@ -84,7 +89,7 @@ describe('applyEncounterOutcome', () => {
 
       applyEncounterOutcome(gsm, {
         rewards: {
-          cargo: [{ type: 'food', qty: 3, buyPrice: 50 }],
+          cargo: [{ good: 'food', qty: 3, buyPrice: 50 }],
         },
       });
 
@@ -98,7 +103,7 @@ describe('applyEncounterOutcome', () => {
 
       applyEncounterOutcome(gsm, {
         rewards: {
-          cargo: [{ type: 'minerals', qty: 2, buyPrice: 80 }],
+          cargo: [{ good: 'minerals', qty: 2, buyPrice: 80 }],
         },
       });
 
@@ -107,6 +112,22 @@ describe('applyEncounterOutcome', () => {
       expect(cargo[1].good).toBe('minerals');
       expect(cargo[1].qty).toBe(2);
       expect(cargo[1].buyPrice).toBe(80);
+    });
+
+    it('passes through buySystemName for salvaged cargo', () => {
+      gsm.updateCargo([]);
+
+      applyEncounterOutcome(gsm, {
+        rewards: {
+          cargo: [
+            { good: 'parts', qty: 2, buyPrice: 0, buySystemName: 'Salvaged' },
+          ],
+        },
+      });
+
+      const cargo = gsm.getState().ship.cargo;
+      expect(cargo).toHaveLength(1);
+      expect(cargo[0].buySystemName).toBe('Salvaged');
     });
   });
 
@@ -210,5 +231,37 @@ describe('applyEncounterOutcome', () => {
       expect(factions.authorities).toBe(10);
       expect(factions.outlaws).toBe(-5);
     });
+  });
+});
+
+describe('updateCargo validation', () => {
+  let gsm;
+
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm.initNewGame();
+  });
+
+  it('warns on cargo items missing required fields', () => {
+    gsm.updateCargo([{ type: 'food', quantity: 5, purchasePrice: 50 }]);
+
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Cargo item 0 missing required fields'),
+      expect.stringContaining('good'),
+      expect.objectContaining({ type: 'food' })
+    );
+  });
+
+  it('does not warn on well-formed cargo items', () => {
+    gsm.updateCargo([{ good: 'food', qty: 5, buyPrice: 50 }]);
+
+    expect(console.warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Cargo item'),
+      expect.any(String),
+      expect.any(Object)
+    );
   });
 });

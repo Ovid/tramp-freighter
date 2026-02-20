@@ -17,7 +17,11 @@ import { DISTRESS_CONFIG } from '../../game/constants.js';
  * @param {Function} props.onChoice - Callback when player makes a moral choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function DistressCallPanel({ distressCall, onChoice, onClose }) {
+export function DistressCallPanel({
+  distressCall,
+  onChoice,
+  onClose: _onClose,
+}) {
   // Subscribe to relevant game events for moral choice context
   const fuel = useGameEvent('fuelChanged');
   const lifeSupport = useGameEvent('lifeSupportChanged');
@@ -55,7 +59,7 @@ export function DistressCallPanel({ distressCall, onChoice, onClose }) {
 
   return (
     <div id="distress-call-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={() => onChoice('ignore')}>
         ×
       </button>
       <h2>Distress Call</h2>
