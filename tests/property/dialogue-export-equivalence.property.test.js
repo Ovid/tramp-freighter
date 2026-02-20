@@ -40,7 +40,7 @@ describe('Dialogue Export Equivalence Properties', () => {
     });
   });
 
-  it('should export ALL_DIALOGUE_TREES with all 11 NPC mappings', () => {
+  it('should export ALL_DIALOGUE_TREES with all NPC mappings', () => {
     const expectedNPCIds = [
       'chen_barnards',
       'cole_sol',
@@ -52,6 +52,7 @@ describe('Dialogue Export Equivalence Properties', () => {
       'osman_luyten',
       'kowalski_alpha_centauri',
       'liu_wolf359',
+      'tanaka_barnards',
     ];
 
     expect(DialogueTrees.ALL_DIALOGUE_TREES).toBeDefined();
