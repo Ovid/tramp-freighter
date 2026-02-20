@@ -369,9 +369,11 @@ describe('Property: View mode changes update visibility', () => {
         expect(stationMenu).toBeTruthy();
         expect(panelContainer).toBeFalsy();
 
-        // Transition back to ORBIT mode
-        const undockButtons = screen.getAllByText('Undock');
-        fireEvent.click(undockButtons[0]);
+        // Transition back to ORBIT mode via close button
+        const stationCloseBtn = container.querySelector(
+          '#station-interface .close-btn'
+        );
+        fireEvent.click(stationCloseBtn);
 
         stationMenu = container.querySelector('#station-interface');
         panelContainer = container.querySelector('.panel-container');

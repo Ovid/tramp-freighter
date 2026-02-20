@@ -123,13 +123,13 @@ describe('Quick Access Buttons Integration (React)', () => {
         expect(screen.getByText('Refuel')).toBeInTheDocument();
       });
 
-      // Undock
-      const undockBtn = screen.getByText('Undock');
-      fireEvent.click(undockBtn);
+      // Undock via close button
+      const closeBtn = document.querySelector('#station-interface .close-btn');
+      fireEvent.click(closeBtn);
 
       // Station menu should close
       await waitFor(() => {
-        expect(screen.queryByText('Undock')).not.toBeInTheDocument();
+        expect(screen.queryByText('Trade')).not.toBeInTheDocument();
       });
 
       // Dock again
@@ -341,7 +341,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
 
       // Station interface should not be visible
-      expect(screen.queryByText('Undock')).not.toBeInTheDocument();
+      expect(screen.queryByText('Trade')).not.toBeInTheDocument();
     });
 
     it('should open station interface without affecting system info panel', async () => {

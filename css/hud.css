@@ -444,6 +444,28 @@
   font-size: 14px;
   display: none;
   z-index: 200;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00ff88 rgba(0, 255, 136, 0.1);
+}
+
+#station-interface::-webkit-scrollbar {
+  width: 6px;
+}
+
+#station-interface::-webkit-scrollbar-track {
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 3px;
+}
+
+#station-interface::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 3px;
+}
+
+#station-interface::-webkit-scrollbar-thumb:hover {
+  background: #33ffaa;
 }
 
 #station-interface.visible {
@@ -508,12 +530,12 @@
 .npc-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .npc-btn {
   width: 100%;
-  height: 50px;
+  height: 40px;
   background-color: #222222;
   color: #ffffff;
   border: 2px solid #00ff88;
@@ -525,7 +547,7 @@
   display: flex;
   justify-content: center;
   align-items: baseline;
-  padding-top: 14px;
+  padding-top: 10px;
   gap: 10px;
 }
 
@@ -592,12 +614,12 @@
 .station-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .station-btn {
   width: 100%;
-  height: 50px;
+  height: 40px;
   background-color: #222222;
   color: #ffffff;
   border: 2px solid #00ff88;

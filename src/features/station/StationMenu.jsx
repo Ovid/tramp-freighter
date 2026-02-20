@@ -10,7 +10,7 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
  *
  * Displays station information and action buttons when docked.
  * Provides access to Trade, Refuel, Repairs, Info Broker, Upgrades,
- * Cargo Manifest, Ship Status, and Undock actions.
+ * Cargo Manifest, and Ship Status actions.
  * Shows NPCs present at the current station in a "PEOPLE" section.
  *
  * React Migration Spec: Requirements 9.3
@@ -140,9 +140,6 @@ export function StationMenu({ onOpenPanel, onUndock }) {
           onClick={() => onOpenPanel('ship-status')}
         >
           Ship Status
-        </button>
-        <button className="station-btn" onClick={onUndock}>
-          Undock
         </button>
       </div>
     </div>
