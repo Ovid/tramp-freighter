@@ -2,8 +2,8 @@
  * Apply encounter outcome costs and rewards to game state.
  *
  * State mutation function: reads current state from gameStateManager,
- * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days)
- * and rewards (credits, karma, factionRep, cargo), then saves.
+ * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days, passengerSatisfaction)
+ * and rewards (credits, karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
@@ -73,6 +73,19 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       const newDays = state.player.daysElapsed + outcome.costs.days;
       gameStateManager.updateTime(newDays);
     }
+
+    if (outcome.costs.passengerSatisfaction) {
+      const activeMissions = state.missions.active;
+      for (const mission of activeMissions) {
+        if (mission.type === 'passenger' && mission.passenger) {
+          mission.passenger.satisfaction = Math.max(
+            0,
+            mission.passenger.satisfaction - outcome.costs.passengerSatisfaction
+          );
+        }
+      }
+      gameStateManager.emit('missionsChanged', { ...state.missions });
+    }
   }
 
   // Apply rewards
@@ -122,6 +135,19 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       });
 
       gameStateManager.updateCargo(currentCargo);
+    }
+
+    if (outcome.rewards.passengerSatisfaction) {
+      const activeMissions = state.missions.active;
+      for (const mission of activeMissions) {
+        if (mission.type === 'passenger' && mission.passenger) {
+          mission.passenger.satisfaction = Math.min(
+            100,
+            mission.passenger.satisfaction + outcome.rewards.passengerSatisfaction
+          );
+        }
+      }
+      gameStateManager.emit('missionsChanged', { ...state.missions });
     }
   }
 
