@@ -83,9 +83,6 @@ export class SeededRandom {
  * @returns {*} A random element
  */
 export function pickRandomFrom(array, rngFn) {
-  const index = Math.min(
-    Math.floor(rngFn() * array.length),
-    array.length - 1
-  );
+  const index = Math.min(Math.floor(rngFn() * array.length), array.length - 1);
   return array[index];
 }
