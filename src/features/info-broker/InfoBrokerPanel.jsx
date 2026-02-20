@@ -60,7 +60,7 @@ export function InfoBrokerPanel({ onClose }) {
   }, [gameStateManager, currentSystemId, priceKnowledge]);
 
   // Get NPCs at current location for intel discounts
-  const npcsAtSystem = getNPCsAtSystem(currentSystemId);
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId, gameStateManager.getState?.());
 
   // Get intel service discounts from NPCs at this location
   const intelDiscounts = npcsAtSystem

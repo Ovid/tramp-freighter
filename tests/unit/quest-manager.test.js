@@ -199,6 +199,24 @@ describe('NPC visibility', () => {
     const tanakaVisible = npcs.some((n) => n.id === 'tanaka_barnards');
     expect(tanakaVisible).toBe(false);
   });
+
+  it('reveals hidden NPC when revealFlag is set in gameState', () => {
+    const gameState = {
+      world: { narrativeEvents: { flags: { tanaka_met: true } } },
+    };
+    const npcs = getNPCsAtSystem(4, gameState);
+    const tanakaVisible = npcs.some((n) => n.id === 'tanaka_barnards');
+    expect(tanakaVisible).toBe(true);
+  });
+
+  it('keeps hidden NPC hidden when revealFlag is not set', () => {
+    const gameState = {
+      world: { narrativeEvents: { flags: {} } },
+    };
+    const npcs = getNPCsAtSystem(4, gameState);
+    const tanakaVisible = npcs.some((n) => n.id === 'tanaka_barnards');
+    expect(tanakaVisible).toBe(false);
+  });
 });
 
 describe('Quest event hooks', () => {

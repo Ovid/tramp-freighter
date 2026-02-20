@@ -637,6 +637,7 @@ export const YUKI_TANAKA = {
   },
   questId: 'tanaka',
   hidden: true,
+  revealFlag: 'tanaka_met',
 };
 
 /**

@@ -1,4 +1,4 @@
-import { NARRATIVE_EVENT_CONFIG } from '../constants.js';
+import { NARRATIVE_EVENT_CONFIG, CONDITION_TYPES } from '../constants.js';
 
 const {
   NARRATIVE_PRIORITY_HIGH,
@@ -540,6 +540,55 @@ export const NARRATIVE_EVENTS = [
           text: 'Ignore it.',
           next: null,
           effects: { costs: { passengerSatisfaction: 5 }, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  // === QUEST EVENTS ===
+
+  {
+    id: 'tanaka_intro',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: 4,
+      condition: [
+        { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+        { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 0 },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_HIGH,
+    content: {
+      text: [
+        "A woman in engineer's coveralls watches your ship dock. She approaches as you exit the airlock.",
+        '"Tanaka drive. Mark III, if I\'m not mistaken."',
+        'She circles your ship, running a hand along the hull.',
+        '"I\'m Yuki Tanaka. I designed that drive. Well, my father did. I improved it."',
+      ],
+      speaker: 'Yuki Tanaka',
+      mood: 'mysterious',
+      choices: [
+        {
+          text: '"It\'s a good drive. Reliable."',
+          next: null,
+          effects: { rewards: { karma: 1 } },
+          flags: ['tanaka_met'],
+        },
+        {
+          text: '"You\'re THE Tanaka? I\'ve heard of you."',
+          next: null,
+          effects: { rewards: { karma: 1 } },
+          flags: ['tanaka_met'],
+        },
+        {
+          text: '"What do you want?"',
+          next: null,
+          effects: {},
+          flags: ['tanaka_met'],
         },
       ],
     },

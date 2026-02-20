@@ -53,7 +53,7 @@ export function RepairPanel({ onClose }) {
   const condition = shipCondition;
 
   // Get NPCs at current location for free repair checks
-  const npcsAtSystem = getNPCsAtSystem(currentSystemId);
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId, gameStateManager.getState?.());
 
   // Check for available free repairs from any NPC at this location
   const freeRepairOptions = npcsAtSystem
