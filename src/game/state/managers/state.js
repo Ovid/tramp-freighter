@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { SHIP_CONFIG } from '../../constants.js';
+import { devWarn } from '../../utils/dev-logger.js';
 
 /**
  * StateManager - Core state access and mutation operations
@@ -137,6 +138,17 @@ export class StateManager extends BaseManager {
    */
   updateCargo(newCargo) {
     this.validateState();
+    const requiredFields = ['good', 'qty', 'buyPrice'];
+    newCargo.forEach((item, i) => {
+      const missing = requiredFields.filter((f) => item[f] === undefined);
+      if (missing.length > 0) {
+        devWarn(
+          `Cargo item ${i} missing required fields:`,
+          missing.join(', '),
+          item
+        );
+      }
+    });
     this.gameStateManager.state.ship.cargo = newCargo;
     this.emit('cargoChanged', newCargo);
   }

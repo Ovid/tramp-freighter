@@ -4,6 +4,11 @@ import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome';
 
+vi.mock('../../src/game/utils/dev-logger.js', () => ({
+  devLog: (...args) => console.log(...args),
+  devWarn: (...args) => console.warn(...args),
+}));
+
 describe('applyEncounterOutcome', () => {
   let gsm;
 
@@ -224,5 +229,37 @@ describe('applyEncounterOutcome', () => {
       expect(factions.authorities).toBe(10);
       expect(factions.outlaws).toBe(-5);
     });
+  });
+});
+
+describe('updateCargo validation', () => {
+  let gsm;
+
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm.initNewGame();
+  });
+
+  it('warns on cargo items missing required fields', () => {
+    gsm.updateCargo([{ type: 'food', quantity: 5, purchasePrice: 50 }]);
+
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Cargo item 0 missing required fields'),
+      expect.stringContaining('good'),
+      expect.objectContaining({ type: 'food' })
+    );
+  });
+
+  it('does not warn on well-formed cargo items', () => {
+    gsm.updateCargo([{ good: 'food', qty: 5, buyPrice: 50 }]);
+
+    expect(console.warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Cargo item'),
+      expect.any(String),
+      expect.any(Object)
+    );
   });
 });
