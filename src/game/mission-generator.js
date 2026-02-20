@@ -1,4 +1,9 @@
-import { BASE_PRICES, MISSION_CONFIG, NAVIGATION_CONFIG } from './constants.js';
+import {
+  BASE_PRICES,
+  MISSION_CONFIG,
+  NAVIGATION_CONFIG,
+  PASSENGER_CONFIG,
+} from './constants.js';
 
 export function getConnectedSystems(systemId, wormholeData) {
   const connected = [];
@@ -58,6 +63,71 @@ export function generateCargoRun(
   };
 }
 
+function generatePersonName(rng) {
+  const first =
+    PASSENGER_CONFIG.FIRST_NAMES[
+      Math.floor(rng() * PASSENGER_CONFIG.FIRST_NAMES.length)
+    ];
+  const last =
+    PASSENGER_CONFIG.LAST_NAMES[
+      Math.floor(rng() * PASSENGER_CONFIG.LAST_NAMES.length)
+    ];
+  return `${first} ${last}`;
+}
+
+export function generatePassengerMission(
+  fromSystem,
+  starData,
+  wormholeData,
+  rng = Math.random
+) {
+  const connectedIds = getConnectedSystems(fromSystem, wormholeData);
+  if (connectedIds.length === 0) return null;
+
+  const toSystem = connectedIds[Math.floor(rng() * connectedIds.length)];
+  const fromStar = starData.find((s) => s.id === fromSystem);
+  const destStar = starData.find((s) => s.id === toSystem);
+
+  const typeNames = Object.keys(PASSENGER_CONFIG.TYPES);
+  const typeName = typeNames[Math.floor(rng() * typeNames.length)];
+  const typeConfig = PASSENGER_CONFIG.TYPES[typeName];
+
+  const name = generatePersonName(rng);
+  const dialogue =
+    typeConfig.dialogue[Math.floor(rng() * typeConfig.dialogue.length)];
+
+  const distance =
+    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
+  const deadline =
+    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+
+  const tier = PASSENGER_CONFIG.PAYMENT_TIERS[typeConfig.paymentTier];
+  const reward = Math.ceil(tier.min + rng() * (tier.max - tier.min));
+
+  return {
+    id: `passenger_${Date.now()}_${Math.floor(rng() * 10000)}`,
+    type: 'passenger',
+    title: `Passenger: ${name}`,
+    description: `Transport ${name} to ${destStar ? destStar.name : `System ${toSystem}`}.`,
+    giver: 'passenger',
+    giverSystem: fromSystem,
+    requirements: {
+      destination: toSystem,
+      deadline,
+      cargoSpace: typeConfig.cargoSpace,
+    },
+    rewards: { credits: reward, faction: { civilians: 5 } },
+    penalties: { failure: { faction: { civilians: -3 } } },
+    passenger: {
+      name,
+      type: typeName,
+      satisfaction: PASSENGER_CONFIG.INITIAL_SATISFACTION,
+      satisfactionWeights: { ...typeConfig.satisfactionWeights },
+      dialogue,
+    },
+  };
+}
+
 export function generateMissionBoard(
   systemId,
   starData,
@@ -66,7 +136,10 @@ export function generateMissionBoard(
 ) {
   const board = [];
   for (let i = 0; i < MISSION_CONFIG.BOARD_SIZE; i++) {
-    const mission = generateCargoRun(systemId, starData, wormholeData, rng);
+    const isPassenger = rng() < 0.3;
+    const mission = isPassenger
+      ? generatePassengerMission(systemId, starData, wormholeData, rng)
+      : generateCargoRun(systemId, starData, wormholeData, rng);
     if (mission) board.push(mission);
   }
   return board;
