@@ -160,6 +160,10 @@ export class DangerManager extends BaseManager {
 
     this.getState().player.karma = newKarma;
 
+    if (this.getState().stats && amount > 0) {
+      this.getState().stats.charitableActs++;
+    }
+
     this.log(
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
     );

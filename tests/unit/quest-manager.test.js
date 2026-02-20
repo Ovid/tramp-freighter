@@ -51,3 +51,22 @@ describe('Stats tracking', () => {
     }
   });
 });
+
+describe('Karma-based stats', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+  });
+
+  it('increments charitableActs on positive karma change', () => {
+    manager.modifyKarma(5, 'helped_civilian');
+    expect(manager.state.stats.charitableActs).toBe(1);
+  });
+
+  it('does not increment charitableActs on negative karma', () => {
+    manager.modifyKarma(-5, 'looted_civilian');
+    expect(manager.state.stats.charitableActs).toBe(0);
+  });
+});
