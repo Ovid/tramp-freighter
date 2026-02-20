@@ -15,7 +15,11 @@ describe('MissionManager.acceptMission – cargo run cargo placement', () => {
       id: 'cargo_run_123',
       type: 'delivery',
       requirements: { destination: 5, deadline: 10 },
-      missionCargo: { good: 'sealed_containers', quantity: 10, isIllegal: false },
+      missionCargo: {
+        good: 'sealed_containers',
+        quantity: 10,
+        isIllegal: false,
+      },
       rewards: { credits: 200 },
       penalties: { failure: {} },
     };
@@ -36,13 +40,19 @@ describe('MissionManager.acceptMission – cargo run cargo placement', () => {
   it('should fail if not enough cargo space for mission cargo', () => {
     const state = manager.getState();
     // Fill cargo to leave only 5 remaining
-    state.ship.cargo = [{ good: 'ore', qty: state.ship.cargoCapacity - 5, buyPrice: 15 }];
+    state.ship.cargo = [
+      { good: 'ore', qty: state.ship.cargoCapacity - 5, buyPrice: 15 },
+    ];
 
     const mission = {
       id: 'cargo_run_456',
       type: 'delivery',
       requirements: { destination: 5, deadline: 10 },
-      missionCargo: { good: 'sealed_containers', quantity: 10, isIllegal: false },
+      missionCargo: {
+        good: 'sealed_containers',
+        quantity: 10,
+        isIllegal: false,
+      },
       rewards: { credits: 200 },
       penalties: { failure: {} },
     };

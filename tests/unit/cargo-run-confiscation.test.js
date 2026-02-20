@@ -15,7 +15,12 @@ describe('Cargo confiscation – mission failure', () => {
         lifeSupport: 100,
         cargo: [
           { good: 'ore', qty: 10, buyPrice: 15 },
-          { good: 'unmarked_crates', qty: 5, buyPrice: 0, missionId: 'cargo_run_99' },
+          {
+            good: 'unmarked_crates',
+            qty: 5,
+            buyPrice: 0,
+            missionId: 'cargo_run_99',
+          },
         ],
         hiddenCargo: [],
       },
@@ -24,7 +29,11 @@ describe('Cargo confiscation – mission failure', () => {
           {
             id: 'cargo_run_99',
             type: 'delivery',
-            missionCargo: { good: 'unmarked_crates', quantity: 5, isIllegal: true },
+            missionCargo: {
+              good: 'unmarked_crates',
+              quantity: 5,
+              isIllegal: true,
+            },
             penalties: { failure: { faction: { traders: -2, outlaws: -2 } } },
           },
         ],
@@ -39,7 +48,9 @@ describe('Cargo confiscation – mission failure', () => {
       updateFuel: vi.fn(),
       updateShipCondition: vi.fn(),
       updateCredits: vi.fn(),
-      updateCargo: vi.fn((newCargo) => { state.ship.cargo = newCargo; }),
+      updateCargo: vi.fn((newCargo) => {
+        state.ship.cargo = newCargo;
+      }),
       updateTime: vi.fn(),
       saveGame: vi.fn(),
       emit: vi.fn(),

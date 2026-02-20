@@ -21,7 +21,9 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
       emit: vi.fn(),
     };
 
-    const { MissionManager } = require('../../src/game/state/managers/mission.js');
+    const {
+      MissionManager,
+    } = require('../../src/game/state/managers/mission.js');
     manager = new MissionManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;
@@ -49,9 +51,7 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
   });
 
   it('should not affect cargo when abandoning non-cargo-run missions', () => {
-    state.ship.cargo = [
-      { good: 'ore', qty: 5, buyPrice: 15 },
-    ];
+    state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
     state.missions.active = [
       {
         id: 'intel_456',

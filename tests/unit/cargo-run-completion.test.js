@@ -10,7 +10,12 @@ describe('Cargo Run Mission Completion', () => {
       player: { credits: 500, daysElapsed: 10, currentSystem: 5 },
       ship: {
         cargo: [
-          { good: 'sealed_containers', qty: 10, buyPrice: 0, missionId: 'cargo_run_123' },
+          {
+            good: 'sealed_containers',
+            qty: 10,
+            buyPrice: 0,
+            missionId: 'cargo_run_123',
+          },
         ],
       },
       missions: {
@@ -20,7 +25,11 @@ describe('Cargo Run Mission Completion', () => {
             type: 'delivery',
             requirements: { destination: 5, deadline: 20 },
             deadlineDay: 20,
-            missionCargo: { good: 'sealed_containers', quantity: 10, isIllegal: false },
+            missionCargo: {
+              good: 'sealed_containers',
+              quantity: 10,
+              isIllegal: false,
+            },
             rewards: { credits: 200, faction: { traders: 2 } },
             penalties: { failure: { faction: { traders: -2 } } },
           },
@@ -42,7 +51,9 @@ describe('Cargo Run Mission Completion', () => {
       emit: vi.fn(),
     };
 
-    const { MissionManager } = require('../../src/game/state/managers/mission.js');
+    const {
+      MissionManager,
+    } = require('../../src/game/state/managers/mission.js');
     manager = new MissionManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;
@@ -67,7 +78,9 @@ describe('Cargo Run Mission Completion', () => {
   it('should award faction rep on completion', () => {
     manager.completeMission('cargo_run_123');
     expect(mockGSM.modifyFactionRep).toHaveBeenCalledWith(
-      'traders', 2, 'mission'
+      'traders',
+      2,
+      'mission'
     );
   });
 

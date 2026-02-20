@@ -29,7 +29,9 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
       emit: vi.fn(),
     };
 
-    const { MissionManager } = require('../../src/game/state/managers/mission.js');
+    const {
+      MissionManager,
+    } = require('../../src/game/state/managers/mission.js');
     manager = new MissionManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;

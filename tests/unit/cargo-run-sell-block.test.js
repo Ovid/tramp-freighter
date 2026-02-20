@@ -11,7 +11,12 @@ describe('Trading – mission cargo sell block', () => {
       ship: {
         cargo: [
           { good: 'ore', qty: 10, buyPrice: 15 },
-          { good: 'sealed_containers', qty: 8, buyPrice: 0, missionId: 'cargo_run_123' },
+          {
+            good: 'sealed_containers',
+            qty: 8,
+            buyPrice: 0,
+            missionId: 'cargo_run_123',
+          },
         ],
       },
       world: { marketConditions: {} },
@@ -28,7 +33,9 @@ describe('Trading – mission cargo sell block', () => {
       emit: vi.fn(),
     };
 
-    const { TradingManager } = require('../../src/game/state/managers/trading.js');
+    const {
+      TradingManager,
+    } = require('../../src/game/state/managers/trading.js');
     manager = new TradingManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;

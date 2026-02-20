@@ -20,9 +20,8 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
       emit: vi.fn(),
     };
 
-    const { MissionManager } = await import(
-      '../../src/game/state/managers/mission.js'
-    );
+    const { MissionManager } =
+      await import('../../src/game/state/managers/mission.js');
     manager = new MissionManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;
