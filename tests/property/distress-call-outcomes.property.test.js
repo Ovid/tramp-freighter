@@ -120,6 +120,15 @@ describe('Distress Call Outcomes Property Tests', () => {
               );
               // Should have some cargo reward
               expect(outcome.rewards).toHaveProperty('cargo');
+              outcome.rewards.cargo.forEach((item) => {
+                expect(item).toHaveProperty('good');
+                expect(item).toHaveProperty('qty');
+                expect(item).toHaveProperty('buyPrice');
+                expect(item).toHaveProperty('buySystemName', 'Salvaged');
+                expect(item).not.toHaveProperty('type');
+                expect(item).not.toHaveProperty('quantity');
+                expect(item).not.toHaveProperty('purchasePrice');
+              });
               break;
 
             default:

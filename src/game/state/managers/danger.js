@@ -1561,9 +1561,10 @@ export class DangerManager extends BaseManager {
         },
         cargo: [
           {
-            type: 'parts',
-            quantity: 2,
-            purchasePrice: 0, // Looted goods have no purchase price
+            good: 'parts',
+            qty: 2,
+            buyPrice: 0,
+            buySystemName: 'Salvaged',
           },
         ],
       },
