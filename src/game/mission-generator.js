@@ -1,6 +1,6 @@
 import {
-  BASE_PRICES,
   MISSION_CONFIG,
+  MISSION_CARGO_TYPES,
   NAVIGATION_CONFIG,
   PASSENGER_CONFIG,
 } from './constants.js';
@@ -23,6 +23,7 @@ export function generateCargoRun(
   fromSystem,
   starData,
   wormholeData,
+  dangerZone = 'safe',
   rng = Math.random
 ) {
   const connectedIds = getConnectedSystems(fromSystem, wormholeData);
@@ -32,34 +33,75 @@ export function generateCargoRun(
   const fromStar = starData.find((s) => s.id === fromSystem);
   const destStar = starData.find((s) => s.id === toSystem);
 
-  const tradeableGoods = ['grain', 'ore', 'tritium', 'parts'];
-  const good = tradeableGoods[Math.floor(rng() * tradeableGoods.length)];
-  const qty = 10 + Math.floor(rng() * 20);
-
   const distance =
     fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
   const deadline =
     Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
-  const reward = Math.ceil(
-    qty * BASE_PRICES[good] * MISSION_CONFIG.REWARD_MARKUP
-  );
+  // Determine legal vs illegal based on zone
+  const illegalChance =
+    MISSION_CONFIG.CARGO_RUN_ZONE_ILLEGAL_CHANCE[dangerZone] || 0.15;
+  const isIllegal = rng() < illegalChance;
+
+  // Pick cargo type from the appropriate category
+  const cargoPool = isIllegal
+    ? MISSION_CARGO_TYPES.illegal
+    : MISSION_CARGO_TYPES.legal;
+  const good = cargoPool[Math.floor(rng() * cargoPool.length)];
+
+  // Pick quantity from the appropriate range
+  const qtyRange = isIllegal
+    ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY
+    : MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY;
+  const qty = qtyRange.MIN + Math.floor(rng() * (qtyRange.MAX - qtyRange.MIN + 1));
+
+  // Calculate distance-based reward
+  const baseFee = isIllegal
+    ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE
+    : MISSION_CONFIG.CARGO_RUN_BASE_FEE;
+  const perLyRate = isIllegal
+    ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_PER_LY_RATE
+    : MISSION_CONFIG.CARGO_RUN_PER_LY_RATE;
+  const reward = Math.ceil(baseFee + distance * perLyRate);
+
+  // Build faction rewards
+  const faction = { traders: 2 };
+  if (isIllegal) {
+    faction.outlaws = 3;
+  }
+
+  // Build failure penalties
+  const failureFaction = { traders: -2 };
+  if (isIllegal) {
+    failureFaction.outlaws = -2;
+  }
+
+  const cargoLabel = good.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   return {
     id: `cargo_run_${Date.now()}_${Math.floor(rng() * 10000)}`,
     type: 'delivery',
-    title: `Cargo Run: ${good} to ${destStar ? destStar.name : `System ${toSystem}`}`,
-    description: 'Standard delivery contract.',
+    title: `Cargo Run: ${cargoLabel} to ${destStar ? destStar.name : `System ${toSystem}`}`,
+    description: isIllegal
+      ? 'Discreet delivery. No questions asked.'
+      : 'Standard delivery contract.',
     giver: 'station_master',
     giverSystem: fromSystem,
     requirements: {
-      cargo: good,
-      quantity: qty,
       destination: toSystem,
       deadline,
     },
-    rewards: { credits: reward },
-    penalties: { failure: {} },
+    destination: {
+      systemId: toSystem,
+      name: destStar ? destStar.name : `System ${toSystem}`,
+    },
+    missionCargo: {
+      good,
+      quantity: qty,
+      isIllegal,
+    },
+    rewards: { credits: reward, faction },
+    penalties: { failure: { faction: failureFaction } },
   };
 }
 
@@ -136,6 +178,7 @@ export function generateMissionBoard(
   systemId,
   starData,
   wormholeData,
+  dangerZone = 'safe',
   rng = Math.random
 ) {
   const board = [];
@@ -143,7 +186,7 @@ export function generateMissionBoard(
     const isPassenger = rng() < 0.3;
     const mission = isPassenger
       ? generatePassengerMission(systemId, starData, wormholeData, rng)
-      : generateCargoRun(systemId, starData, wormholeData, rng);
+      : generateCargoRun(systemId, starData, wormholeData, dangerZone, rng);
     if (mission) board.push(mission);
   }
   return board;
