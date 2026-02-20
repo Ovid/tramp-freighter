@@ -297,6 +297,14 @@ export class MissionManager extends BaseManager {
     state.missions.active.splice(missionIndex, 1);
     state.missions.failed.push(missionId);
 
+    // Remove mission cargo from hold
+    if (mission.missionCargo) {
+      state.ship.cargo = state.ship.cargo.filter(
+        (c) => c.missionId !== mission.id
+      );
+      this.emit('cargoChanged', state.ship.cargo);
+    }
+
     if (mission.penalties && mission.penalties.failure) {
       if (mission.penalties.failure.rep) {
         for (const [npcId, amount] of Object.entries(
