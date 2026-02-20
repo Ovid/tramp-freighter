@@ -42,6 +42,7 @@ export class EventSystemManager {
       currentSystemChanged: [],
       missionsChanged: [],
       docked: [],
+      questChanged: [],
     };
   }
 

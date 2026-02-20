@@ -16,6 +16,7 @@ import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
+import { QuestManager } from './managers/quest-manager.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
 
@@ -97,6 +98,7 @@ export class GameStateManager {
     this.dangerManager = new DangerManager(this);
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
+    this.questManager = new QuestManager(this);
   }
 
   /**
@@ -391,6 +393,46 @@ export class GameStateManager {
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
     this.saveGame();
+  }
+
+  // ========================================================================
+  // QUEST MANAGEMENT
+  // ========================================================================
+
+  registerQuest(questDef) {
+    this.questManager.registerQuest(questDef);
+  }
+
+  getQuestState(questId) {
+    return this.questManager.getQuestState(questId);
+  }
+
+  getQuestStage(questId) {
+    return this.questManager.getQuestStage(questId);
+  }
+
+  advanceQuest(questId) {
+    return this.questManager.advanceQuest(questId);
+  }
+
+  updateQuestData(questId, key, value) {
+    this.questManager.updateQuestData(questId, key, value);
+  }
+
+  isQuestComplete(questId) {
+    return this.questManager.isQuestComplete(questId);
+  }
+
+  getActiveQuests() {
+    return this.questManager.getActiveQuests();
+  }
+
+  canStartQuestStage(questId, stage) {
+    return this.questManager.canStartStage(questId, stage);
+  }
+
+  checkQuestObjectives(questId) {
+    return this.questManager.checkObjectivesComplete(questId);
   }
 
   // ========================================================================
