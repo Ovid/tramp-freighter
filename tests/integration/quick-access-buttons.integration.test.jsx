@@ -124,7 +124,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
 
       // Undock via close button
-      const closeBtn = screen.getAllByText('×')[0];
+      const closeBtn = document.querySelector('#station-interface .close-btn');
       fireEvent.click(closeBtn);
 
       // Station menu should close
