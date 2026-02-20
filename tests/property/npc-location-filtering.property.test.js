@@ -25,11 +25,13 @@ describe('NPC Location Filtering Properties', () => {
           (npc) => npc.system === systemId
         );
 
-        // No NPCs at the specified system should be omitted
-        const expectedNPCs = ALL_NPCS.filter((npc) => npc.system === systemId);
+        // No visible NPCs at the specified system should be omitted
+        const expectedNPCs = ALL_NPCS.filter(
+          (npc) => npc.system === systemId && !npc.hidden
+        );
         const noNPCsOmitted = npcsAtSystem.length === expectedNPCs.length;
 
-        // Verify all expected NPCs are included
+        // Verify all expected visible NPCs are included
         const allExpectedIncluded = expectedNPCs.every((expectedNpc) =>
           npcsAtSystem.some((returnedNpc) => returnedNpc.id === expectedNpc.id)
         );

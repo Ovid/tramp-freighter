@@ -30,7 +30,19 @@ export function getNPCsAtSystem(systemId) {
     throw new Error('Invalid systemId: must be a number');
   }
 
-  return ALL_NPCS.filter((npc) => npc.system === systemId);
+  return ALL_NPCS.filter((npc) => npc.system === systemId && !npc.hidden);
+}
+
+/**
+ * Reveal a hidden NPC by clearing the hidden flag
+ *
+ * @param {string} npcId - NPC ID to reveal
+ */
+export function revealNPC(npcId) {
+  const npc = ALL_NPCS.find((n) => n.id === npcId);
+  if (npc) {
+    npc.hidden = false;
+  }
 }
 
 /**

@@ -121,8 +121,8 @@ describe('NPC Data Definitions', () => {
   });
 
   describe('NPC Collection and Validation', () => {
-    it('should include all ten NPCs in ALL_NPCS array', () => {
-      expect(ALL_NPCS).toHaveLength(10);
+    it('should include all eleven NPCs in ALL_NPCS array', () => {
+      expect(ALL_NPCS).toHaveLength(11);
       expect(ALL_NPCS).toContain(WEI_CHEN);
       expect(ALL_NPCS).toContain(MARCUS_COLE);
       expect(ALL_NPCS).toContain(FATHER_OKONKWO);

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 
 describe('Stats initialization', () => {
   let manager;
@@ -187,6 +188,14 @@ describe('QuestManager', () => {
       expect(active).toHaveLength(1);
       expect(active[0]).toBe('q1');
     });
+  });
+});
+
+describe('NPC visibility', () => {
+  it('excludes hidden NPCs from getNPCsAtSystem', () => {
+    const npcs = getNPCsAtSystem(4);
+    const tanakaVisible = npcs.some((n) => n.id === 'tanaka_barnards');
+    expect(tanakaVisible).toBe(false);
   });
 });
 
