@@ -404,6 +404,9 @@ export class MissionManager extends BaseManager {
       if (mission.type === 'delivery') {
         if (mission.requirements.destination !== state.player.currentSystem)
           return false;
+        if (mission.missionCargo) {
+          return state.ship.cargo.some((c) => c.missionId === mission.id);
+        }
         if (mission.requirements.cargo) {
           const totalCargo = state.ship.cargo
             .filter((c) => c.good === mission.requirements.cargo)
