@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
+import { TANAKA_QUEST } from '../../src/game/data/quest-definitions.js';
 
 describe('Stats initialization', () => {
   let manager;
@@ -226,5 +227,33 @@ describe('Quest event hooks', () => {
   it('does not increment jump counter when quest not at tracking stage', () => {
     manager.questManager.onJump();
     expect(manager.getQuestState('test_quest').data.jumpsCompleted).toBeUndefined();
+  });
+});
+
+describe('Tanaka quest definition', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+    manager.registerQuest(TANAKA_QUEST);
+  });
+
+  it('has 5 stages', () => {
+    expect(TANAKA_QUEST.stages).toHaveLength(5);
+  });
+
+  it('starts at stage 0', () => {
+    expect(manager.getQuestStage('tanaka')).toBe(0);
+  });
+
+  it('victory stage is 6', () => {
+    expect(TANAKA_QUEST.victoryStage).toBe(6);
+  });
+
+  it('all stages have requirements', () => {
+    for (const stage of TANAKA_QUEST.stages) {
+      expect(stage.requirements).toBeDefined();
+    }
   });
 });
