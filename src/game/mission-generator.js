@@ -4,6 +4,7 @@ import {
   NAVIGATION_CONFIG,
   PASSENGER_CONFIG,
 } from './constants.js';
+import { pickRandomFrom } from './utils/seeded-random.js';
 
 export function getConnectedSystems(systemId, wormholeData) {
   const connected = [];
@@ -29,7 +30,7 @@ export function generateCargoRun(
   const connectedIds = getConnectedSystems(fromSystem, wormholeData);
   if (connectedIds.length === 0) return null;
 
-  const toSystem = connectedIds[Math.floor(rng() * connectedIds.length)];
+  const toSystem = pickRandomFrom(connectedIds, rng);
   const fromStar = starData.find((s) => s.id === fromSystem);
   const destStar = starData.find((s) => s.id === toSystem);
 
@@ -47,7 +48,7 @@ export function generateCargoRun(
   const cargoPool = isIllegal
     ? MISSION_CARGO_TYPES.illegal
     : MISSION_CARGO_TYPES.legal;
-  const good = cargoPool[Math.floor(rng() * cargoPool.length)];
+  const good = pickRandomFrom(cargoPool, rng);
 
   // Pick quantity from the appropriate range
   const qtyRange = isIllegal
@@ -109,14 +110,8 @@ export function generateCargoRun(
 }
 
 function generatePersonName(rng) {
-  const first =
-    PASSENGER_CONFIG.FIRST_NAMES[
-      Math.floor(rng() * PASSENGER_CONFIG.FIRST_NAMES.length)
-    ];
-  const last =
-    PASSENGER_CONFIG.LAST_NAMES[
-      Math.floor(rng() * PASSENGER_CONFIG.LAST_NAMES.length)
-    ];
+  const first = pickRandomFrom(PASSENGER_CONFIG.FIRST_NAMES, rng);
+  const last = pickRandomFrom(PASSENGER_CONFIG.LAST_NAMES, rng);
   return `${first} ${last}`;
 }
 
@@ -129,17 +124,16 @@ export function generatePassengerMission(
   const connectedIds = getConnectedSystems(fromSystem, wormholeData);
   if (connectedIds.length === 0) return null;
 
-  const toSystem = connectedIds[Math.floor(rng() * connectedIds.length)];
+  const toSystem = pickRandomFrom(connectedIds, rng);
   const fromStar = starData.find((s) => s.id === fromSystem);
   const destStar = starData.find((s) => s.id === toSystem);
 
   const typeNames = Object.keys(PASSENGER_CONFIG.TYPES);
-  const typeName = typeNames[Math.floor(rng() * typeNames.length)];
+  const typeName = pickRandomFrom(typeNames, rng);
   const typeConfig = PASSENGER_CONFIG.TYPES[typeName];
 
   const name = generatePersonName(rng);
-  const dialogue =
-    typeConfig.dialogue[Math.floor(rng() * typeConfig.dialogue.length)];
+  const dialogue = pickRandomFrom(typeConfig.dialogue, rng);
 
   const distance =
     fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;

@@ -15,6 +15,7 @@ import {
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
 } from '../../constants.js';
+import { pickRandomFrom } from '../../utils/seeded-random.js';
 
 /**
  * DangerManager - Handles danger zone classification and encounter mechanics
@@ -1025,7 +1026,7 @@ export class DangerManager extends BaseManager {
     );
 
     const systems = ['hull', 'engine', 'lifeSupport'];
-    const targetSystem = systems[Math.floor(rngValue * systems.length)];
+    const targetSystem = pickRandomFrom(systems, () => rngValue);
 
     const costs = {};
     costs[targetSystem] = damagePercent;

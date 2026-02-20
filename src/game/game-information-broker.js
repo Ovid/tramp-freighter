@@ -162,8 +162,7 @@ export class InformationBroker {
 
     // If there are active events, 50% chance to hint about one
     if (activeEvents.length > 0 && rng.next() < 0.5) {
-      const rumorTargetIndex = Math.floor(rng.next() * activeEvents.length);
-      const marketDisruption = activeEvents[rumorTargetIndex];
+      const marketDisruption = rng.pickRandom(activeEvents);
       const system = starData.find((s) => s.id === marketDisruption.systemId);
 
       if (system) {
@@ -183,8 +182,7 @@ export class InformationBroker {
     }
 
     // Otherwise, hint about a good price somewhere
-    const rumorCommodityIndex = Math.floor(rng.next() * COMMODITY_TYPES.length);
-    const rumorCommodity = COMMODITY_TYPES[rumorCommodityIndex];
+    const rumorCommodity = rng.pickRandom(COMMODITY_TYPES);
     const marketConditions = gameState.world.marketConditions || {};
 
     // Find a system with a good price for this commodity
