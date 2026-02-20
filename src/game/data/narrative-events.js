@@ -198,7 +198,16 @@ export const NARRATIVE_EVENTS = [
           next: null,
           effects: {
             costs: {},
-            rewards: { cargo: [{ good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvaged' }] },
+            rewards: {
+              cargo: [
+                {
+                  good: 'parts',
+                  qty: 3,
+                  buyPrice: 0,
+                  buySystemName: 'Salvaged',
+                },
+              ],
+            },
           },
         },
       ],

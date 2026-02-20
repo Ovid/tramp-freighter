@@ -119,7 +119,9 @@ describe('applyEncounterOutcome', () => {
 
       applyEncounterOutcome(gsm, {
         rewards: {
-          cargo: [{ good: 'parts', qty: 2, buyPrice: 0, buySystemName: 'Salvaged' }],
+          cargo: [
+            { good: 'parts', qty: 2, buyPrice: 0, buySystemName: 'Salvaged' },
+          ],
         },
       });
 
