@@ -630,7 +630,10 @@ export const YUKI_TANAKA = {
   tips: [],
   discountService: null,
   tierBenefits: {
-    warm: { discount: 0, benefit: 'Shares technical insights about the Tanaka Drive.' },
+    warm: {
+      discount: 0,
+      benefit: 'Shares technical insights about the Tanaka Drive.',
+    },
     friendly: { discount: 0, benefit: 'Discusses her research freely.' },
     trusted: { discount: 0, benefit: 'Reveals her true mission.' },
     family: { discount: 0, benefit: 'Partner for the Pavonis Run.' },

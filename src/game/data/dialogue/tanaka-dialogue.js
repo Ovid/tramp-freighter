@@ -13,7 +13,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         return '"Everything is in place. The Range Extender is calibrated. Your ship is ready." She meets your eyes. "Are you?"';
       }
       if (stage === 4) {
-        const delivered = gameStateManager.getQuestState('tanaka')?.data?.messageDelivered;
+        const delivered =
+          gameStateManager.getQuestState('tanaka')?.data?.messageDelivered;
         if (delivered) {
           return '"You delivered the message. Thank you." Her voice is steady, but her eyes say more. "When you are ready for the final preparations, we should talk."';
         }
@@ -23,14 +24,16 @@ export const YUKI_TANAKA_DIALOGUE = {
         return '"The prototype integration is complete. Your ship performed admirably." She pauses. "I have one more request. A personal one."';
       }
       if (stage === 2) {
-        const exotics = gameStateManager.getQuestState('tanaka')?.data?.exoticMaterials || 0;
+        const exotics =
+          gameStateManager.getQuestState('tanaka')?.data?.exoticMaterials || 0;
         if (exotics >= 5) {
           return `"You found all five samples. Excellent work." She examines them carefully. "The isotope ratios are perfect. We can proceed."`;
         }
         return `"The exotic materials search continues. You have ${exotics} of 5 samples so far." She checks her instruments. "Keep searching stations beyond 15 light-years from Sol."`;
       }
       if (stage === 1) {
-        const jumps = gameStateManager.getQuestState('tanaka')?.data?.jumpsCompleted || 0;
+        const jumps =
+          gameStateManager.getQuestState('tanaka')?.data?.jumpsCompleted || 0;
         if (jumps >= 3) {
           return '"The field test data looks excellent. The drive modifications are performing within expected parameters." She actually smiles. "I have another task for you."';
         }

@@ -5,7 +5,7 @@ import './endgame.css';
 
 const JUMP_SEQUENCE = [
   "The Range Extender hums to life. Your ship vibrates in a way you've never felt before.",
-  "Tanaka's voice crackles over the comm. \"Coordinates locked. Delta Pavonis. 27.88 light-years. Initiating jump in three... two... one...\"",
+  'Tanaka\'s voice crackles over the comm. "Coordinates locked. Delta Pavonis. 27.88 light-years. Initiating jump in three... two... one..."',
   'The stars stretch. Reality bends. Your ship screams through space in ways it was never meant to.',
   'And then... silence.',
   'Delta Pavonis burns ahead of you. Orange. Warm. Home.',

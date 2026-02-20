@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useGameState } from '../../context/GameContext.jsx';
-import { generateEpilogue, generateStats } from '../../game/data/epilogue-data.js';
+import {
+  generateEpilogue,
+  generateStats,
+} from '../../game/data/epilogue-data.js';
 import { Button } from '../../components/Button.jsx';
 import './endgame.css';
 

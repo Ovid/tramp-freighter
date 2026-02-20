@@ -15,12 +15,16 @@ export const EPILOGUE_CONFIG = {
       id: 'tanaka',
       variants: [
         {
-          condition: { npcRep: ['tanaka_barnards', REPUTATION_BOUNDS.FAMILY_MIN] },
-          text: "Tanaka's voice comes through the comm, steady as ever. \"We made it.\" A pause — the longest you've ever heard from her. \"Thank you. For everything.\" You can hear the smile she'd never show.",
+          condition: {
+            npcRep: ['tanaka_barnards', REPUTATION_BOUNDS.FAMILY_MIN],
+          },
+          text: 'Tanaka\'s voice comes through the comm, steady as ever. "We made it." A pause — the longest you\'ve ever heard from her. "Thank you. For everything." You can hear the smile she\'d never show.',
         },
         {
-          condition: { npcRep: ['tanaka_barnards', REPUTATION_BOUNDS.TRUSTED_MIN] },
-          text: "\"Successful jump confirmed,\" Tanaka reports from the engineering bay. Professional as always. But when you turn, she's staring out the viewport with tears in her eyes. \"My sister is down there. Somewhere.\"",
+          condition: {
+            npcRep: ['tanaka_barnards', REPUTATION_BOUNDS.TRUSTED_MIN],
+          },
+          text: '"Successful jump confirmed," Tanaka reports from the engineering bay. Professional as always. But when you turn, she\'s staring out the viewport with tears in her eyes. "My sister is down there. Somewhere."',
         },
       ],
     },
@@ -50,7 +54,7 @@ export const EPILOGUE_CONFIG = {
       variants: [
         {
           condition: { karmaAbove: 30 },
-          text: "You chose the harder path more often than not. Helped when you could have turned away. Gave when you could have taken. Delta Pavonis feels like something earned, not just reached.",
+          text: 'You chose the harder path more often than not. Helped when you could have turned away. Gave when you could have taken. Delta Pavonis feels like something earned, not just reached.',
         },
         {
           condition: { karmaBelow: -30 },
@@ -104,7 +108,8 @@ function evaluateEpilogueCondition(condition, gameState) {
   }
 
   if (condition.smugglingRuns != null) {
-    if ((gameState.stats?.smugglingRuns ?? 0) < condition.smugglingRuns) return false;
+    if ((gameState.stats?.smugglingRuns ?? 0) < condition.smugglingRuns)
+      return false;
   }
 
   return true;

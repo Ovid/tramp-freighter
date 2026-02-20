@@ -116,7 +116,9 @@ export class QuestManager extends BaseManager {
   getActiveQuests() {
     return Object.keys(this.questDefinitions).filter((questId) => {
       const questState = this.getQuestState(questId);
-      return questState && questState.stage > 0 && !this.isQuestComplete(questId);
+      return (
+        questState && questState.stage > 0 && !this.isQuestComplete(questId)
+      );
     });
   }
 
@@ -141,10 +143,16 @@ export class QuestManager extends BaseManager {
       if (!npcState || npcState.rep < threshold) return false;
     }
 
-    if (reqs.engineCondition != null && state.ship.engine < reqs.engineCondition) return false;
-    if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition) return false;
+    if (
+      reqs.engineCondition != null &&
+      state.ship.engine < reqs.engineCondition
+    )
+      return false;
+    if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
+      return false;
     if (reqs.debt != null && state.player.debt !== reqs.debt) return false;
-    if (reqs.credits != null && state.player.credits < reqs.credits) return false;
+    if (reqs.credits != null && state.player.credits < reqs.credits)
+      return false;
 
     return true;
   }
@@ -172,7 +180,8 @@ export class QuestManager extends BaseManager {
         (s) => s.stage === questState.stage
       );
       if (stageDef?.objectives?.jumpsCompleted != null) {
-        questState.data.jumpsCompleted = (questState.data.jumpsCompleted || 0) + 1;
+        questState.data.jumpsCompleted =
+          (questState.data.jumpsCompleted || 0) + 1;
         this.emit('questChanged', { questId, stage: questState.stage });
       }
     }
@@ -188,7 +197,9 @@ export class QuestManager extends BaseManager {
     if (!system || !sol) return;
 
     const distance = Math.sqrt(
-      (system.x - sol.x) ** 2 + (system.y - sol.y) ** 2 + (system.z - sol.z) ** 2
+      (system.x - sol.x) ** 2 +
+        (system.y - sol.y) ** 2 +
+        (system.z - sol.z) ** 2
     );
     if (distance < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
 
@@ -198,7 +209,8 @@ export class QuestManager extends BaseManager {
     if (rngFn() >= ENDGAME_CONFIG.STAGE_2_EXOTIC_CHANCE) return;
 
     tanakaState.data.exoticStations.push(systemId);
-    tanakaState.data.exoticMaterials = (tanakaState.data.exoticMaterials || 0) + 1;
+    tanakaState.data.exoticMaterials =
+      (tanakaState.data.exoticMaterials || 0) + 1;
     this.emit('questChanged', {
       questId: 'tanaka',
       stage: 2,

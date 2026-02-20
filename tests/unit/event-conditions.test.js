@@ -251,7 +251,11 @@ describe('evaluateCondition', () => {
       };
       expect(
         evaluateCondition(
-          { type: CONDITION_TYPES.NPC_REP_ABOVE, npcId: 'tanaka_barnards', value: 30 },
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
           state
         )
       ).toBe(true);
@@ -264,7 +268,11 @@ describe('evaluateCondition', () => {
       };
       expect(
         evaluateCondition(
-          { type: CONDITION_TYPES.NPC_REP_ABOVE, npcId: 'tanaka_barnards', value: 30 },
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
           state
         )
       ).toBe(false);
@@ -274,7 +282,11 @@ describe('evaluateCondition', () => {
       const state = { ...baseState, npcs: {} };
       expect(
         evaluateCondition(
-          { type: CONDITION_TYPES.NPC_REP_ABOVE, npcId: 'tanaka_barnards', value: 30 },
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
           state
         )
       ).toBe(false);
@@ -288,13 +300,19 @@ describe('evaluateCondition', () => {
         world: { ...baseState.world, visitedSystems: [0, 1, 4, 5, 7] },
       };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+          state
+        )
       ).toBe(true);
     });
 
     it('returns false when not enough systems visited', () => {
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 }, baseState)
+        evaluateCondition(
+          { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+          baseState
+        )
       ).toBe(false);
     });
   });
@@ -334,11 +352,15 @@ describe('evaluateCondition', () => {
   describe('debt_zero', () => {
     it('returns true when debt is zero', () => {
       const state = { ...baseState, player: { ...baseState.player, debt: 0 } };
-      expect(evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, state)).toBe(true);
+      expect(
+        evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, state)
+      ).toBe(true);
     });
 
     it('returns false when debt exists', () => {
-      expect(evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, baseState)).toBe(false);
+      expect(
+        evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, baseState)
+      ).toBe(false);
     });
   });
 
@@ -349,7 +371,10 @@ describe('evaluateCondition', () => {
         player: { ...baseState.player, credits: 30000 },
       };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 },
+          state
+        )
       ).toBe(true);
     });
 
@@ -359,7 +384,10 @@ describe('evaluateCondition', () => {
         player: { ...baseState.player, credits: 1000 },
       };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 },
+          state
+        )
       ).toBe(false);
     });
   });
@@ -368,14 +396,20 @@ describe('evaluateCondition', () => {
     it('returns true when hull meets threshold', () => {
       const state = { ...baseState, ship: { ...baseState.ship, hull: 85 } };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.HULL_ABOVE, value: 80 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.HULL_ABOVE, value: 80 },
+          state
+        )
       ).toBe(true);
     });
 
     it('returns false when hull below threshold', () => {
       const state = { ...baseState, ship: { ...baseState.ship, hull: 60 } };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.HULL_ABOVE, value: 80 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.HULL_ABOVE, value: 80 },
+          state
+        )
       ).toBe(false);
     });
   });
@@ -384,14 +418,20 @@ describe('evaluateCondition', () => {
     it('returns true when engine meets threshold', () => {
       const state = { ...baseState, ship: { ...baseState.ship, engine: 95 } };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 },
+          state
+        )
       ).toBe(true);
     });
 
     it('returns false when engine below threshold', () => {
       const state = { ...baseState, ship: { ...baseState.ship, engine: 70 } };
       expect(
-        evaluateCondition({ type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 }, state)
+        evaluateCondition(
+          { type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 },
+          state
+        )
       ).toBe(false);
     });
   });
@@ -400,7 +440,10 @@ describe('evaluateCondition', () => {
     it('returns true when player has the upgrade', () => {
       const state = {
         ...baseState,
-        ship: { ...baseState.ship, upgrades: ['extended_tank', 'range_extender'] },
+        ship: {
+          ...baseState.ship,
+          upgrades: ['extended_tank', 'range_extender'],
+        },
       };
       expect(
         evaluateCondition(

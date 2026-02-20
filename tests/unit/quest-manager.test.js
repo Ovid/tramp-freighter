@@ -44,7 +44,14 @@ describe('Stats tracking', () => {
 
   it('increments cargoHauled and creditsEarned on sell', () => {
     manager.state.ship.cargo = [
-      { good: 'grain', qty: 10, buyPrice: 50, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'grain',
+        qty: 10,
+        buyPrice: 50,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     manager.state.world.currentSystemPrices = { grain: 100 };
     const result = manager.sellGood(0, 5, 100);
@@ -140,13 +147,17 @@ describe('QuestManager', () => {
       manager.registerQuest({
         id: 'q1',
         npcId: 'chen_barnards',
-        stages: [{ stage: 1, name: 'S1', rewards: { rep: { chen_barnards: 15 } } }],
+        stages: [
+          { stage: 1, name: 'S1', rewards: { rep: { chen_barnards: 15 } } },
+        ],
         victoryStage: 2,
       });
       manager.getNPCState('chen_barnards');
       const startRep = manager.getNPCState('chen_barnards').rep;
       manager.advanceQuest('q1');
-      expect(manager.getNPCState('chen_barnards').rep).toBeGreaterThan(startRep);
+      expect(manager.getNPCState('chen_barnards').rep).toBeGreaterThan(
+        startRep
+      );
     });
   });
 
@@ -183,8 +194,16 @@ describe('QuestManager', () => {
 
   describe('getActiveQuests', () => {
     it('returns quests with stage > 0 and not complete', () => {
-      manager.registerQuest({ id: 'q1', stages: [{ stage: 1, rewards: {} }], victoryStage: 3 });
-      manager.registerQuest({ id: 'q2', stages: [{ stage: 1, rewards: {} }], victoryStage: 3 });
+      manager.registerQuest({
+        id: 'q1',
+        stages: [{ stage: 1, rewards: {} }],
+        victoryStage: 3,
+      });
+      manager.registerQuest({
+        id: 'q2',
+        stages: [{ stage: 1, rewards: {} }],
+        victoryStage: 3,
+      });
       manager.advanceQuest('q1');
       const active = manager.getActiveQuests();
       expect(active).toHaveLength(1);
@@ -228,7 +247,12 @@ describe('Quest event hooks', () => {
     manager.registerQuest({
       id: 'test_quest',
       stages: [
-        { stage: 1, name: 'Jump Test', objectives: { jumpsCompleted: 3 }, rewards: { credits: 100 } },
+        {
+          stage: 1,
+          name: 'Jump Test',
+          objectives: { jumpsCompleted: 3 },
+          rewards: { credits: 100 },
+        },
       ],
       victoryStage: 2,
     });
@@ -245,7 +269,9 @@ describe('Quest event hooks', () => {
 
   it('does not increment jump counter when quest not at tracking stage', () => {
     manager.questManager.onJump();
-    expect(manager.getQuestState('test_quest').data.jumpsCompleted).toBeUndefined();
+    expect(
+      manager.getQuestState('test_quest').data.jumpsCompleted
+    ).toBeUndefined();
   });
 });
 
@@ -273,7 +299,9 @@ describe('Exotic material collection', () => {
 
   it('does not collect from Sol (too close)', () => {
     manager.questManager.onDock(0);
-    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBeUndefined();
+    expect(
+      manager.getQuestState('tanaka').data.exoticMaterials
+    ).toBeUndefined();
   });
 
   it('collects from distant system when roll succeeds', () => {
@@ -292,7 +320,9 @@ describe('Exotic material collection', () => {
   it('does not collect when quest is not at stage 2', () => {
     manager.advanceQuest('tanaka'); // stage 3
     manager.questManager.onDock(4, () => 0);
-    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBeUndefined();
+    expect(
+      manager.getQuestState('tanaka').data.exoticMaterials
+    ).toBeUndefined();
   });
 });
 

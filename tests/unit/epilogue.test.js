@@ -45,7 +45,12 @@ describe('Epilogue generation', () => {
       npcs: {},
       world: { visitedSystems: [0] },
       missions: { completed: [] },
-      stats: { creditsEarned: 0, smugglingRuns: 0, cargoHauled: 0, jumpsCompleted: 0 },
+      stats: {
+        creditsEarned: 0,
+        smugglingRuns: 0,
+        cargoHauled: 0,
+        jumpsCompleted: 0,
+      },
     };
     const sections = generateEpilogue(state);
     const rep = sections.find((s) => s.id === 'reputation');
