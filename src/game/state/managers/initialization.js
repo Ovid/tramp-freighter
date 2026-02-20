@@ -57,6 +57,14 @@ export class InitializationManager {
       npcs: npcState,
       dialogue: dialogueState,
       missions: missionState,
+      stats: {
+        creditsEarned: 0,
+        jumpsCompleted: 0,
+        cargoHauled: 0,
+        smugglingRuns: 0,
+        charitableActs: 0,
+      },
+      quests: {},
       meta: metaState,
     };
   }
