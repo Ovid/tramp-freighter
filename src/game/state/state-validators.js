@@ -24,9 +24,7 @@ function validateShipConfigIds(configIds, validConfigs, configType) {
     if (validConfigs[configId]) {
       validatedIds.push(configId);
     } else {
-      devWarn(
-        `Unknown ${configType} ID: ${configId}, removing from save data`
-      );
+      devWarn(`Unknown ${configType} ID: ${configId}, removing from save data`);
     }
   }
   return validatedIds;
@@ -50,10 +48,7 @@ function validateAndRepairCargoStacks(
   for (const cargoStack of cargoStacks) {
     // Ensure all required fields are present
     if (!cargoStack.good || typeof cargoStack.qty !== 'number') {
-      devWarn(
-        `Invalid ${compartmentType} stack found, skipping:`,
-        cargoStack
-      );
+      devWarn(`Invalid ${compartmentType} stack found, skipping:`, cargoStack);
       continue;
     }
     if (typeof cargoStack.buyPrice !== 'number') {

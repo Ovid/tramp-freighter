@@ -224,10 +224,7 @@ export class SaveLoadManager extends BaseManager {
 
         // Validate and set recovered state
         if (validateStateStructure(recoveredState)) {
-          recoveredState = addStateDefaults(
-            recoveredState,
-            this.getStarData()
-          );
+          recoveredState = addStateDefaults(recoveredState, this.getStarData());
           this.gameStateManager.state = recoveredState;
 
           // Emit all state events
