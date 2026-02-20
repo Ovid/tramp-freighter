@@ -1,6 +1,7 @@
 # TODO
  
 
+- Search-easily search for a star and highlight it.
 - Verify that pirate encounters are random. They seem more common than I
   was expecting.
 - Validate that narrative messages don't imply things that aren't true (such
