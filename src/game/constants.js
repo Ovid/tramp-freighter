@@ -501,6 +501,15 @@ export const MISSION_CONFIG = {
     contested: 0.5,
     dangerous: 0.75,
   },
+  HOP_MULTIPLIERS: [1.0, 1.0, 2.0, 3.5],
+  DANGER_MULTIPLIERS: { safe: 1.0, contested: 1.5, dangerous: 2.0 },
+  MAX_MISSION_HOPS: 3,
+  MIN_BOARD_SIZE: 1,
+  DAYS_PER_HOP_ESTIMATE: 6,
+  SATURATION_WINDOW_DAYS: 30,
+  SATURATION_PENALTY_PER_RUN: 0.25,
+  SATURATION_FLOOR: 0.25,
+  SATURATION_MAX_HISTORY: 50,
 };
 
 export const MISSION_CARGO_TYPES = {
