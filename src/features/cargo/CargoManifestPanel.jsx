@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useStarData } from '../../hooks/useStarData';
 import { TradingSystem } from '../../game/game-trading.js';
 import {
   capitalizeFirst,
@@ -21,6 +22,8 @@ import { formatCargoAge } from './cargoUtils';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function CargoManifestPanel({ onClose }) {
+  const starData = useStarData();
+
   // Subscribe to game events
   const cargo = useGameEvent('cargoChanged');
   const shipName = useGameEvent('shipNameChanged');
@@ -130,6 +133,12 @@ export function CargoManifestPanel({ onClose }) {
               {passengerMissions.map((mission) => {
                 const typeConfig =
                   PASSENGER_CONFIG.TYPES[mission.passenger?.type] || {};
+                const destName =
+                  mission.destination?.name ||
+                  starData.find(
+                    (s) => s.id === mission.requirements?.destination
+                  )?.name ||
+                  'Unknown';
                 return (
                   <div key={mission.id} className="cargo-manifest-item">
                     <div className="cargo-manifest-name">
@@ -152,9 +161,7 @@ export function CargoManifestPanel({ onClose }) {
                       </div>
                       <div className="cargo-manifest-detail">
                         <span className="detail-label">Destination:</span>
-                        <span className="detail-value">
-                          {mission.destination?.name || 'Unknown'}
-                        </span>
+                        <span className="detail-value">{destName}</span>
                       </div>
                       <div className="cargo-manifest-detail">
                         <span className="detail-label">Satisfaction:</span>
