@@ -438,6 +438,10 @@ export class GameStateManager {
     return this.questManager.checkObjectivesComplete(questId);
   }
 
+  startPavonisRun() {
+    this.emit('pavonisRunTriggered', true);
+  }
+
   // ========================================================================
   // DIALOGUE STATE MANAGEMENT
   // ========================================================================

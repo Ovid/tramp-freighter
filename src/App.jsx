@@ -24,6 +24,8 @@ import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
+import { PavonisRun } from './features/endgame/PavonisRun.jsx';
+import { Epilogue } from './features/endgame/Epilogue.jsx';
 
 /**
  * Application state machine modes.
@@ -39,6 +41,8 @@ const VIEW_MODES = {
   STATION: 'STATION',
   PANEL: 'PANEL',
   ENCOUNTER: 'ENCOUNTER',
+  PAVONIS_RUN: 'PAVONIS_RUN',
+  EPILOGUE: 'EPILOGUE',
 };
 
 /**
@@ -57,6 +61,7 @@ export default function App({ devMode = false }) {
   const currentSystemId = useGameEvent('locationChanged');
   const encounterEvent = useGameEvent('encounterTriggered');
   const narrativeEvent = useGameEvent('narrativeEventTriggered');
+  const pavonisRunEvent = useGameEvent('pavonisRunTriggered');
   useEventTriggers();
   const starmapRef = useRef(null);
 
@@ -313,6 +318,28 @@ export default function App({ devMode = false }) {
     setActiveNarrativeEvent(null);
   };
 
+  const handleStartPavonisRun = () => {
+    setViewMode(VIEW_MODES.PAVONIS_RUN);
+  };
+
+  const handlePavonisComplete = () => {
+    if (gameStateManager.state.meta) {
+      gameStateManager.state.meta.victory = true;
+    }
+    gameStateManager.saveGame();
+    setViewMode(VIEW_MODES.EPILOGUE);
+  };
+
+  const handleReturnToTitle = () => {
+    setViewMode(VIEW_MODES.TITLE);
+  };
+
+  useEffect(() => {
+    if (pavonisRunEvent) {
+      handleStartPavonisRun();
+    }
+  }, [pavonisRunEvent]);
+
   return (
     <ErrorBoundary>
       <div className="app-container">
@@ -463,6 +490,19 @@ export default function App({ devMode = false }) {
               )}
             </StarmapProvider>
           )}
+
+        {/* Pavonis Run endgame sequence */}
+        {viewMode === VIEW_MODES.PAVONIS_RUN && (
+          <PavonisRun
+            onComplete={handlePavonisComplete}
+            onCancel={() => setViewMode(VIEW_MODES.STATION)}
+          />
+        )}
+
+        {/* Epilogue after Pavonis Run */}
+        {viewMode === VIEW_MODES.EPILOGUE && (
+          <Epilogue onReturnToTitle={handleReturnToTitle} />
+        )}
       </div>
     </ErrorBoundary>
   );
