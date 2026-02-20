@@ -55,10 +55,10 @@ TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
 
 ### Manager Delegation (GameStateManager)
 
-The `GameStateManager` delegates to 14+ focused domain managers in `src/game/state/managers/`:
+The `GameStateManager` delegates to 15+ focused domain managers in `src/game/state/managers/`:
 - `EventSystemManager`: Event pub/sub for Bridge Pattern
 - `StateManager`: Core state access/mutations
-- `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `InfoBrokerManager`, `DangerManager`, `NPCManager`, `SaveLoadManager`, `InitializationManager`
+- `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `EventEngineManager`, `InfoBrokerManager`, `DangerManager`, `NPCManager`, `MissionManager`, `SaveLoadManager`, `InitializationManager`
 
 Each manager extends `BaseManager` and receives the GameStateManager reference. Public API is maintained through delegation methods on GameStateManager.
 
@@ -72,18 +72,18 @@ src/
 │   ├── trade/         # TradePanel + tradeUtils
 │   ├── hud/           # HUD overlay components
 │   ├── station/       # StationMenu, PanelContainer
-│   └── [refuel|repair|upgrades|cargo|info-broker|ship-status|dialogue|title-screen|dev-admin]/
+│   └── [refuel|repair|upgrades|cargo|info-broker|ship-status|dialogue|title-screen|dev-admin|missions|narrative|system-info]/
 ├── components/        # Shared: Button, Modal, Card, ErrorBoundary
-├── hooks/             # useGameEvent, useGameAction, useAnimationLock, useNotification, etc.
+├── hooks/             # useGameEvent, useGameAction, useAnimationLock, useNotification, useDangerZone, useDialogue, useEncounterProbabilities, useEventTriggers, useJumpValidation, useStarData
 ├── context/           # GameContext, StarmapContext
 └── game/
     ├── constants.js   # ALL game configuration values (prices, capacities, thresholds)
     ├── state/
     │   ├── game-state-manager.js  # Central singleton
-    │   └── managers/              # 14+ domain managers
+    │   └── managers/              # 15+ domain managers
     ├── engine/        # Three.js: scene.js, stars.js, wormholes.js, interaction.js, game-animation.js
-    ├── data/          # star-data.js (117 systems), wormhole-data.js, dialogue-trees.js
-    └── utils/         # seeded-random.js, string-utils.js, star-visuals.js
+    ├── data/          # star-data.js (117 systems), wormhole-data.js, dialogue-trees.js, danger-events.js, narrative-events.js, npc-data.js
+    └── utils/         # seeded-random.js, string-utils.js, star-visuals.js, dev-logger.js
 ```
 
 Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@context`, `@game`, `@assets`
