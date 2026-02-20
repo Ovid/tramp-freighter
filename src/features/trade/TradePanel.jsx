@@ -280,33 +280,39 @@ export function TradePanel({ onClose }) {
                       </div>
                     </div>
 
-                    <div className="stack-actions">
-                      <button
-                        className="sell-btn"
-                        disabled={stack.qty < 1}
-                        onClick={() => handleSellStack(index, 1, currentPrice)}
-                      >
-                        Sell 1
-                      </button>
-                      <button
-                        className="sell-btn"
-                        onClick={() =>
-                          handleSellStack(index, stack.qty, currentPrice)
-                        }
-                      >
-                        Sell All ({stack.qty})
-                      </button>
-                      {hasSmugglersPanel && (
+                    {stack.missionId ? (
+                      <div className="stack-actions">
+                        <span className="mission-cargo-label">Mission Cargo</span>
+                      </div>
+                    ) : (
+                      <div className="stack-actions">
                         <button
-                          className="transfer-btn"
+                          className="sell-btn"
+                          disabled={stack.qty < 1}
+                          onClick={() => handleSellStack(index, 1, currentPrice)}
+                        >
+                          Sell 1
+                        </button>
+                        <button
+                          className="sell-btn"
                           onClick={() =>
-                            handleMoveToHidden(stack.good, stack.qty)
+                            handleSellStack(index, stack.qty, currentPrice)
                           }
                         >
-                          Move to Hidden
+                          Sell All ({stack.qty})
                         </button>
-                      )}
-                    </div>
+                        {hasSmugglersPanel && (
+                          <button
+                            className="transfer-btn"
+                            onClick={() =>
+                              handleMoveToHidden(stack.good, stack.qty)
+                            }
+                          >
+                            Move to Hidden
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })
