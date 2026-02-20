@@ -181,13 +181,32 @@ export function generatePassengerMission(
   fromSystem,
   starData,
   wormholeData,
-  rng = Math.random
+  rng = Math.random,
+  completionHistory = [],
+  currentDay = 0
 ) {
-  const connectedIds = getConnectedSystems(fromSystem, wormholeData);
-  if (connectedIds.length === 0) return null;
+  const reachable = getReachableSystems(
+    fromSystem,
+    wormholeData,
+    MISSION_CONFIG.MAX_MISSION_HOPS
+  );
+  if (reachable.length === 0) return null;
 
-  const toSystem = pickRandomFrom(connectedIds, rng);
-  const fromStar = starData.find((s) => s.id === fromSystem);
+  // Weighted destination selection: weight = 1 / hopCount²
+  const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+  let roll = rng() * totalWeight;
+  let chosen = reachable[0];
+  for (let i = 0; i < reachable.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      chosen = reachable[i];
+      break;
+    }
+  }
+
+  const toSystem = chosen.systemId;
+  const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);
 
   const typeNames = Object.keys(PASSENGER_CONFIG.TYPES);
@@ -197,13 +216,27 @@ export function generatePassengerMission(
   const name = generatePersonName(rng);
   const dialogue = pickRandomFrom(typeConfig.dialogue, rng);
 
-  const distance =
-    fromStar && destStar ? calculateDistance(fromStar, destStar) : 5;
   const deadline =
-    Math.ceil(distance * 2) + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
+    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+
+  // Route saturation
+  const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
+  const recentCompletions = completionHistory.filter(
+    (entry) =>
+      entry.to === toSystem &&
+      entry.from === fromSystem &&
+      entry.day > windowStart
+  ).length;
+  const saturationMultiplier = Math.max(
+    MISSION_CONFIG.SATURATION_FLOOR,
+    1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
+  );
 
   const tier = PASSENGER_CONFIG.PAYMENT_TIERS[typeConfig.paymentTier];
-  const reward = Math.ceil(tier.min + rng() * (tier.max - tier.min));
+  const reward = Math.ceil(
+    (tier.min + rng() * (tier.max - tier.min)) * saturationMultiplier
+  );
 
   return {
     id: `passenger_${Date.now()}_${Math.floor(rng() * 10000)}`,
@@ -212,6 +245,7 @@ export function generatePassengerMission(
     description: `Transport ${name} to ${destStar ? destStar.name : `System ${toSystem}`}.`,
     giver: 'passenger',
     giverSystem: fromSystem,
+    hopCount,
     requirements: {
       destination: toSystem,
       deadline,
@@ -223,6 +257,7 @@ export function generatePassengerMission(
     },
     rewards: { credits: reward, faction: { civilians: 5 } },
     penalties: { failure: { faction: { civilians: -3 } } },
+    saturated: saturationMultiplier < 1.0,
     passenger: {
       name,
       type: typeName,

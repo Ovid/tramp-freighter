@@ -54,13 +54,13 @@ describe('Passenger Mission Generation', () => {
       expect(mission.requirements.cargoSpace).toBe(expectedSpace);
     });
 
-    it('should generate destination that is a connected system', () => {
+    it('should generate destination that is a reachable system', () => {
       const mission = generatePassengerMission(
         0,
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA
       );
-      expect([1, 4, 7]).toContain(mission.requirements.destination);
+      expect([1, 4, 5, 7, 13]).toContain(mission.requirements.destination);
     });
 
     it('should generate integer credit rewards', () => {

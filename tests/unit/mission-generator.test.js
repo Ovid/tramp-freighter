@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   generateCargoRun,
   generateMissionBoard,
+  generatePassengerMission,
   getConnectedSystems,
   getReachableSystems,
 } from '../../src/game/mission-generator.js';
@@ -338,6 +339,50 @@ describe('Mission Generator', () => {
       const result = getReachableSystems(7, TEST_WORMHOLE_DATA, 3);
       const ids = result.map((r) => r.systemId);
       expect(ids).toEqual(expect.arrayContaining([0, 1, 4, 5, 13]));
+    });
+  });
+
+  describe('generatePassengerMission (multi-hop)', () => {
+    it('should pick destinations from reachable systems', () => {
+      const destinations = new Set();
+      for (let i = 0; i < 100; i++) {
+        const mission = generatePassengerMission(7, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+        destinations.add(mission.requirements.destination);
+      }
+      expect(destinations.size).toBeGreaterThan(1);
+    });
+
+    it('should include hopCount on generated mission', () => {
+      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+      expect(mission.hopCount).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should use hop-based deadline', () => {
+      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+      const expectedDeadline = mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+      expect(mission.requirements.deadline).toBe(expectedDeadline);
+    });
+
+    it('should apply saturation to passenger reward', () => {
+      const history = [
+        { from: 0, to: 1, day: 5 },
+        { from: 0, to: 1, day: 10 },
+      ];
+      // Force destination to system 1 (first neighbor)
+      let callIdx = 0;
+      const rng = () => {
+        callIdx++;
+        return 0.01;
+      };
+      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, rng, history, 15);
+      if (mission.requirements.destination === 1) {
+        expect(mission.saturated).toBe(true);
+      }
+    });
+
+    it('should include saturated flag', () => {
+      const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+      expect(typeof mission.saturated).toBe('boolean');
     });
   });
 
