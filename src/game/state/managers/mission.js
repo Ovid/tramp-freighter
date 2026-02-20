@@ -377,10 +377,16 @@ export class MissionManager extends BaseManager {
       return state.missions.board;
     }
 
+    const dangerZone =
+      typeof this.gameStateManager.getDangerZone === 'function'
+        ? this.gameStateManager.getDangerZone(state.player.currentSystem)
+        : 'safe';
+
     const board = generateMissionBoard(
       state.player.currentSystem,
       this.gameStateManager.starData,
-      this.gameStateManager.wormholeData
+      this.gameStateManager.wormholeData,
+      dangerZone
     );
 
     state.missions.board = board;
