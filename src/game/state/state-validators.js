@@ -72,6 +72,13 @@ function validateAndRepairCargoStacks(
     if (typeof cargoStack.buyDate !== 'number') {
       cargoStack.buyDate = 0;
     }
+
+    // missionId is optional — present on mission cargo, absent on trade cargo
+    // No validation needed beyond type check
+    if (cargoStack.missionId !== undefined && typeof cargoStack.missionId !== 'string') {
+      devWarn(`${compartmentType} stack has invalid missionId, removing:`, cargoStack.missionId);
+      delete cargoStack.missionId;
+    }
   }
 }
 
@@ -288,6 +295,12 @@ export function validateStateStructure(state) {
     if (
       stack.purchaseDay !== undefined &&
       typeof stack.purchaseDay !== 'number'
+    ) {
+      return false;
+    }
+    if (
+      stack.missionId !== undefined &&
+      typeof stack.missionId !== 'string'
     ) {
       return false;
     }
