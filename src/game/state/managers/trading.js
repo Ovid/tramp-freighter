@@ -87,6 +87,11 @@ export class TradingManager extends BaseManager {
 
     const stack = cargo[stackIndex];
 
+    // Prevent players from selling cargo assigned to active missions
+    if (stack.missionId) {
+      return { success: false, reason: 'Mission cargo cannot be sold' };
+    }
+
     if (quantity <= 0) {
       return { success: false, reason: 'Quantity must be positive' };
     }

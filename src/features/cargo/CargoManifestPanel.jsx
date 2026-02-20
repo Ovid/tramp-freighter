@@ -1,13 +1,20 @@
+import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useStarData } from '../../hooks/useStarData';
 import { TradingSystem } from '../../game/game-trading.js';
-import { capitalizeFirst } from '../../game/utils/string-utils.js';
+import {
+  capitalizeFirst,
+  formatCargoDisplayName,
+  pluralizeUnit,
+} from '../../game/utils/string-utils.js';
+import { PASSENGER_CONFIG } from '../../game/constants.js';
 import { formatCargoAge } from './cargoUtils';
 
 /**
  * CargoManifestPanel - React component for displaying cargo manifest
  *
  * Displays ship name, cargo capacity usage, all cargo stacks with purchase metadata,
- * and total cargo value. Provides a detailed view of all cargo holdings.
+ * passenger manifest with satisfaction and destination, and total cargo value.
  *
  * Architecture: react-migration
  * Validates: Requirements 8.6
@@ -16,14 +23,30 @@ import { formatCargoAge } from './cargoUtils';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function CargoManifestPanel({ onClose }) {
+  const starData = useStarData();
+
   // Subscribe to game events
   const cargo = useGameEvent('cargoChanged');
   const shipName = useGameEvent('shipNameChanged');
   const currentDay = useGameEvent('timeChanged');
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
+  const missions = useGameEvent('missionsChanged');
 
   // Calculate cargo usage
-  const cargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
+  const tradeCargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);
+
+  // Get active passenger missions
+  const passengerMissions = useMemo(() => {
+    if (!missions || !missions.active) return [];
+    return missions.active.filter((m) => m.type === 'passenger');
+  }, [missions]);
+
+  const passengerSpace = passengerMissions.reduce(
+    (sum, m) => sum + (m.requirements?.cargoSpace || 0),
+    0
+  );
+
+  const cargoUsed = tradeCargoUsed + passengerSpace;
 
   // Calculate total value
   const totals =
@@ -46,12 +69,14 @@ export function CargoManifestPanel({ onClose }) {
     return (
       <div key={index} className="cargo-manifest-item">
         <div className="cargo-manifest-name">
-          {capitalizeFirst(cargoEntry.good)}
+          {formatCargoDisplayName(cargoEntry.good)}
         </div>
         <div className="cargo-manifest-details">
           <div className="cargo-manifest-detail">
             <span className="detail-label">Quantity:</span>
-            <span className="detail-value">{cargoEntry.qty} units</span>
+            <span className="detail-value">
+              {pluralizeUnit(cargoEntry.qty)}
+            </span>
           </div>
           <div className="cargo-manifest-detail">
             <span className="detail-label">Purchased at:</span>
@@ -92,8 +117,66 @@ export function CargoManifestPanel({ onClose }) {
             <span> / </span>
             <span id="cargo-manifest-capacity">{cargoCapacity}</span>
             <span className="capacity-units"> units</span>
+            {passengerSpace > 0 && (
+              <span className="capacity-breakdown">
+                {' '}
+                ({tradeCargoUsed} cargo + {passengerSpace} passengers)
+              </span>
+            )}
           </div>
         </div>
+
+        {/* Passenger Manifest */}
+        {passengerMissions.length > 0 && (
+          <div className="cargo-manifest-section">
+            <h3>Passengers</h3>
+            <div className="cargo-manifest-list">
+              {passengerMissions.map((mission) => {
+                const typeConfig =
+                  PASSENGER_CONFIG.TYPES[mission.passenger?.type] || {};
+                const destName =
+                  mission.destination?.name ||
+                  starData.find(
+                    (s) => s.id === mission.requirements?.destination
+                  )?.name ||
+                  'Unknown';
+                return (
+                  <div key={mission.id} className="cargo-manifest-item">
+                    <div className="cargo-manifest-name">
+                      {mission.passenger?.name || 'Unknown Passenger'}
+                    </div>
+                    <div className="cargo-manifest-details">
+                      <div className="cargo-manifest-detail">
+                        <span className="detail-label">Type:</span>
+                        <span className="detail-value">
+                          {capitalizeFirst(
+                            mission.passenger?.type || 'unknown'
+                          )}
+                        </span>
+                      </div>
+                      <div className="cargo-manifest-detail">
+                        <span className="detail-label">Cargo space:</span>
+                        <span className="detail-value">
+                          {pluralizeUnit(typeConfig.cargoSpace || 0)}
+                        </span>
+                      </div>
+                      <div className="cargo-manifest-detail">
+                        <span className="detail-label">Destination:</span>
+                        <span className="detail-value">{destName}</span>
+                      </div>
+                      <div className="cargo-manifest-detail">
+                        <span className="detail-label">Satisfaction:</span>
+                        <span className="detail-value">
+                          {Math.round(mission.passenger?.satisfaction ?? 50)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Cargo List */}
         <div className="cargo-manifest-section">

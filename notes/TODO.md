@@ -1,5 +1,17 @@
 # TODO
  
+
+- Search-easily search for a star and highlight it.
+- Verify that pirate encounters are random. They seem more common than I
+  was expecting.
+- Validate that narrative messages don't imply things that aren't true (such
+  as offering to sell you something for half-price and then not letting you
+  buy)
+- Wei Chen is a notable person at Microsoft. Audit NPC names to ensure they
+  aren't notable people (and "Wei" is female, but the MS person is male)
+- Transport Cargo missions require me to pay for the cargo. This means I lose
+  a lot of money.
+
 - NPC portraits?  Player have a name?
     Images for other things? Need to create a theme that I can use
     consistently.

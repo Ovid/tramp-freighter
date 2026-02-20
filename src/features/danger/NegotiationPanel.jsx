@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { NEGOTIATION_CONFIG, KARMA_CONFIG } from '../../game/constants.js';
+import {
+  NEGOTIATION_CONFIG,
+  KARMA_CONFIG,
+  PIRATE_CREDIT_DEMAND_CONFIG,
+} from '../../game/constants.js';
 
 /**
  * NegotiationPanel - React component for pirate negotiation resolution
@@ -37,6 +41,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
   // Check for conditional options availability
   const hasMedicine = cargo?.some((item) => item.good === 'medicine') || false;
   const hasIntelligence = intelligence && Object.keys(intelligence).length > 0;
+  const hasTradeCargo = cargo?.some((item) => item.qty > 0) || false;
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
@@ -297,23 +302,48 @@ export function NegotiationPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Compliance</span>
               </div>
               <div className="option-dialogue">
-                "Alright, you've got me. I'll pay your tribute. Just let me get
-                on with my business."
+                {hasTradeCargo
+                  ? '"Alright, you\'ve got me. I\'ll pay your tribute. Just let me get on with my business."'
+                  : '"I don\'t have cargo, but I can pay in credits..."'}
               </div>
               <div className="option-analysis">
-                <div className="probability-display guaranteed">
+                <div
+                  className={`probability-display ${hasTradeCargo ? 'guaranteed' : ''}`}
+                >
                   <span className="prob-label">Success Rate:</span>
-                  <span className="prob-value guaranteed">100%</span>
+                  <span
+                    className={`prob-value ${hasTradeCargo ? 'guaranteed' : ''}`}
+                  >
+                    {hasTradeCargo ? '100%' : 'Varies'}
+                  </span>
                 </div>
               </div>
               <div className="option-outcomes">
-                <div className="outcome guaranteed">
-                  <span className="outcome-label">Guaranteed:</span>
-                  <span className="outcome-text">
-                    Pay {NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT}% of
-                    cargo, safe passage
-                  </span>
-                </div>
+                {hasTradeCargo ? (
+                  <div className="outcome guaranteed">
+                    <span className="outcome-label">Guaranteed:</span>
+                    <span className="outcome-text">
+                      Pay {NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT}% of
+                      cargo, safe passage
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="outcome guaranteed">
+                      <span className="outcome-label">Credit demand:</span>
+                      <span className="outcome-text">
+                        ₡{PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND}-₡
+                        {PIRATE_CREDIT_DEMAND_CONFIG.MAX_CREDIT_DEMAND}
+                      </span>
+                    </div>
+                    <div className="outcome failure">
+                      <span className="outcome-label">If can't pay:</span>
+                      <span className="outcome-text">
+                        Pirates may kidnap a passenger or damage the ship
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

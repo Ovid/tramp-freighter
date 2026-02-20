@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 
 /**
@@ -18,6 +19,7 @@ export function ShipStatus() {
   const condition = useGameEvent('shipConditionChanged');
   const cargo = useGameEvent('cargoChanged');
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
+  const missions = useGameEvent('missionsChanged');
 
   // Null safety: Handle corrupted save data gracefully by providing defaults
   const safeFuel = fuel ?? 100;
@@ -31,7 +33,16 @@ export function ShipStatus() {
 
   // Bridge Pattern: Trust the events to provide correct data
   // Component will re-render when events fire, consistent with other HUD components
-  const cargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+  const tradeCargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+
+  const passengerSpace = useMemo(() => {
+    if (!missions || !missions.active) return 0;
+    return missions.active
+      .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
+      .reduce((sum, m) => sum + m.requirements.cargoSpace, 0);
+  }, [missions]);
+
+  const cargoUsed = tradeCargoUsed + passengerSpace;
 
   return (
     <div className="hud-section hud-ship">

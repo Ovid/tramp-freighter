@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useGameAction } from '../../hooks/useGameAction';
 
+function getSatisfactionLabel(satisfaction) {
+  if (satisfaction >= 80) return 'Very Satisfied';
+  if (satisfaction >= 60) return 'Satisfied';
+  if (satisfaction >= 40) return 'Neutral';
+  if (satisfaction >= 20) return 'Dissatisfied';
+  return 'Very Dissatisfied';
+}
+
 export function MissionCompleteNotifier() {
   const { completeMission, getCompletableMissions } = useGameAction();
   const [completable, setCompletable] = useState([]);
@@ -40,6 +48,15 @@ export function MissionCompleteNotifier() {
         <h2 className="modal-title">Mission Complete!</h2>
         <div className="mission-complete-body">
           <p className="mission-complete-title">{current.title}</p>
+          {current.type === 'passenger' && current.passenger && (
+            <div className="passenger-delivery-info">
+              <p>{current.passenger.name} disembarks.</p>
+              <div className="passenger-satisfaction">
+                Satisfaction: {current.passenger.satisfaction}% (
+                {getSatisfactionLabel(current.passenger.satisfaction)})
+              </div>
+            </div>
+          )}
           {current.rewards && (
             <div className="mission-complete-rewards">
               <h4>Rewards:</h4>

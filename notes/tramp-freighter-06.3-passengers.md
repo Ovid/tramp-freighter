@@ -317,9 +317,11 @@ function completePassengerMission(mission, passenger) {
 
 **Cargo Space:**
 
-- Passengers occupy cargo space
+- Passengers occupy cargo space based on their type (refugee=1, business=2, scientist=2, wealthy=3, family=3)
+- Accepting a passenger reserves that space — it reduces the capacity available for buying trade goods
+- The cargo manifest shows passengers in a separate section with name, type, cargo space used, destination, and satisfaction
+- The capacity line shows a breakdown when passengers are aboard (e.g., "22/50 units (20 cargo + 2 passengers)")
 - Cannot be jettisoned (obviously)
-- Shown separately in cargo manifest
 
 **Combat:**
 
@@ -333,5 +335,33 @@ function completePassengerMission(mission, passenger) {
 - Hull damage frightens passengers
 - Clean, well-maintained ship improves satisfaction
 
+---
+
+## Pirate Encounters with Passengers
+
+When a ship carrying passengers but no trade cargo encounters pirates, the encounter plays out differently:
+
+**Surrender / Accept Demand (no trade cargo):**
+
+- Pirates demand flat credits instead of a cargo percentage (₡150-₡250 range)
+- The surrender and accept-demand UI shows the credit range and warns about consequences
+- If the player can afford the credits, they pay and continue safely
+
+**Cannot Pay:**
+
+- If the player cannot afford the credit demand, pirates escalate:
+  - **Kidnap attempt:** Pirates target the highest-value passenger. Wealthier passengers are more likely to be taken (wealthy=80%, business=60%, scientist=50%, family=30%, refugee=15%). If the kidnap succeeds, the passenger mission is abandoned (failed), and the player loses civilian faction reputation (-8) and karma (-2)
+  - **Ship damage:** If the kidnap roll fails or there are no passengers, pirates damage a random ship system (hull, engine, or life support) by 15-25%
+
+**Negotiate / Counter-Proposal (no trade cargo):**
+
+- On success, the player pays a reduced credit amount (₡75) instead of the normal 10% cargo
+- On failure, pirates become more aggressive as usual
+
+**UI Indicators:**
+
+- The pirate encounter panel and negotiation panel show different text when the ship has no trade cargo
+- Surrender option shows "Varies" success rate instead of "100%" when no trade cargo
+- A warning about passenger kidnapping and ship damage appears in the consequences
 
 **Next Spec:** The Tanaka Sequence and endgame

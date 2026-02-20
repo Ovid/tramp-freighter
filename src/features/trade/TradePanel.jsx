@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -8,7 +8,10 @@ import {
   SHIP_CONFIG,
   UI_CONFIG,
 } from '../../game/constants.js';
-import { capitalizeFirst } from '../../game/utils/string-utils.js';
+import {
+  capitalizeFirst,
+  formatCargoDisplayName,
+} from '../../game/utils/string-utils.js';
 import {
   validateBuy,
   calculateMaxBuyQuantity,
@@ -39,6 +42,7 @@ export function TradePanel({ onClose }) {
   const cargoCapacity = useGameEvent('cargoCapacityChanged');
   const upgrades = useGameEvent('upgradesChanged');
   const hiddenCargo = useGameEvent('hiddenCargoChanged');
+  const missions = useGameEvent('missionsChanged');
 
   // Get game actions
   const {
@@ -72,8 +76,17 @@ export function TradePanel({ onClose }) {
   const safeHiddenCargo = hiddenCargo ?? [];
   const safeCargo = cargo ?? [];
 
-  // Calculate cargo capacity
-  const cargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+  // Calculate cargo capacity including passenger space
+  const tradeCargoUsed = safeCargo.reduce((sum, stack) => sum + stack.qty, 0);
+
+  const passengerSpace = useMemo(() => {
+    if (!missions || !missions.active) return 0;
+    return missions.active
+      .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
+      .reduce((sum, m) => sum + m.requirements.cargoSpace, 0);
+  }, [missions]);
+
+  const cargoUsed = tradeCargoUsed + passengerSpace;
   const cargoRemaining = safeCargoCapacity - cargoUsed;
 
   // Check for Smuggler's Panels upgrade
@@ -100,6 +113,7 @@ export function TradePanel({ onClose }) {
       cargoCapacity: safeCargoCapacity,
       upgrades: safeUpgrades,
     },
+    missions: missions || { active: [] },
   };
 
   const handleBuyGood = (goodType, quantity, price) => {
@@ -261,41 +275,53 @@ export function TradePanel({ onClose }) {
                   <div key={index} className="cargo-stack">
                     <div className="stack-info">
                       <div className="stack-name">
-                        {capitalizeFirst(stack.good)}
+                        {formatCargoDisplayName(stack.good)}
                       </div>
                       <div className="stack-details">{detailsText}</div>
-                      <div className={`stack-profit ${profit.direction}`}>
-                        {profitText}
-                      </div>
-                    </div>
-
-                    <div className="stack-actions">
-                      <button
-                        className="sell-btn"
-                        disabled={stack.qty < 1}
-                        onClick={() => handleSellStack(index, 1, currentPrice)}
-                      >
-                        Sell 1
-                      </button>
-                      <button
-                        className="sell-btn"
-                        onClick={() =>
-                          handleSellStack(index, stack.qty, currentPrice)
-                        }
-                      >
-                        Sell All ({stack.qty})
-                      </button>
-                      {hasSmugglersPanel && (
-                        <button
-                          className="transfer-btn"
-                          onClick={() =>
-                            handleMoveToHidden(stack.good, stack.qty)
-                          }
-                        >
-                          Move to Hidden
-                        </button>
+                      {!stack.missionId && (
+                        <div className={`stack-profit ${profit.direction}`}>
+                          {profitText}
+                        </div>
                       )}
                     </div>
+
+                    {stack.missionId ? (
+                      <div className="stack-actions">
+                        <span className="mission-cargo-label">
+                          Mission Cargo
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="stack-actions">
+                        <button
+                          className="sell-btn"
+                          disabled={stack.qty < 1}
+                          onClick={() =>
+                            handleSellStack(index, 1, currentPrice)
+                          }
+                        >
+                          Sell 1
+                        </button>
+                        <button
+                          className="sell-btn"
+                          onClick={() =>
+                            handleSellStack(index, stack.qty, currentPrice)
+                          }
+                        >
+                          Sell All ({stack.qty})
+                        </button>
+                        {hasSmugglersPanel && (
+                          <button
+                            className="transfer-btn"
+                            onClick={() =>
+                              handleMoveToHidden(stack.good, stack.qty)
+                            }
+                          >
+                            Move to Hidden
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -371,12 +397,14 @@ export function TradePanel({ onClose }) {
                       <div key={index} className="cargo-stack">
                         <div className="stack-info">
                           <div className="stack-name">
-                            {capitalizeFirst(stack.good)}
+                            {formatCargoDisplayName(stack.good)}
                           </div>
                           <div className="stack-details">{detailsText}</div>
-                          <div className={`stack-profit ${profit.direction}`}>
-                            {profitText}
-                          </div>
+                          {!stack.missionId && (
+                            <div className={`stack-profit ${profit.direction}`}>
+                              {profitText}
+                            </div>
+                          )}
                         </div>
 
                         <div className="stack-actions">

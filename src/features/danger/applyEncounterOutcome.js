@@ -1,9 +1,12 @@
+import { PIRATE_CREDIT_DEMAND_CONFIG } from '../../game/constants.js';
+
 /**
  * Apply encounter outcome costs and rewards to game state.
  *
  * State mutation function: reads current state from gameStateManager,
- * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days)
- * and rewards (credits, karma, factionRep, cargo), then saves.
+ * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
+ * passengerSatisfaction, kidnappedPassengerId) and rewards (credits, karma,
+ * factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
@@ -69,9 +72,48 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       gameStateManager.updateCargo(filteredCargo);
     }
 
+    // Fail missions whose cargo was lost or confiscated
+    if (
+      outcome.costs.cargoLoss ||
+      outcome.costs.cargoPercent ||
+      outcome.costs.restrictedGoodsConfiscated
+    ) {
+      if (typeof gameStateManager.failMissionsDueToCargoLoss === 'function') {
+        gameStateManager.failMissionsDueToCargoLoss();
+      }
+    }
+
     if (outcome.costs.days) {
       const newDays = state.player.daysElapsed + outcome.costs.days;
       gameStateManager.updateTime(newDays);
+    }
+
+    if (outcome.costs.kidnappedPassengerId) {
+      gameStateManager.abandonMission(outcome.costs.kidnappedPassengerId);
+
+      const { KIDNAP_FACTION_PENALTY, KIDNAP_KARMA_PENALTY } =
+        PIRATE_CREDIT_DEMAND_CONFIG;
+      Object.entries(KIDNAP_FACTION_PENALTY).forEach(([faction, change]) => {
+        gameStateManager.modifyFactionRep(
+          faction,
+          change,
+          'passenger_kidnapped'
+        );
+      });
+      gameStateManager.modifyKarma(KIDNAP_KARMA_PENALTY, 'passenger_kidnapped');
+    }
+
+    if (outcome.costs.passengerSatisfaction) {
+      const activeMissions = state.missions.active;
+      for (const mission of activeMissions) {
+        if (mission.type === 'passenger' && mission.passenger) {
+          mission.passenger.satisfaction = Math.max(
+            0,
+            mission.passenger.satisfaction - outcome.costs.passengerSatisfaction
+          );
+        }
+      }
+      gameStateManager.emit('missionsChanged', { ...state.missions });
     }
   }
 
@@ -122,6 +164,20 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       });
 
       gameStateManager.updateCargo(currentCargo);
+    }
+
+    if (outcome.rewards.passengerSatisfaction) {
+      const activeMissions = state.missions.active;
+      for (const mission of activeMissions) {
+        if (mission.type === 'passenger' && mission.passenger) {
+          mission.passenger.satisfaction = Math.min(
+            100,
+            mission.passenger.satisfaction +
+              outcome.rewards.passengerSatisfaction
+          );
+        }
+      }
+      gameStateManager.emit('missionsChanged', { ...state.missions });
     }
   }
 

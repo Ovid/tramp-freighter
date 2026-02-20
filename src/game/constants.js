@@ -490,6 +490,151 @@ export const MISSION_CONFIG = {
   BOARD_REFRESH_DAYS: 1,
   DEADLINE_BUFFER_DAYS: 3,
   REWARD_MARKUP: 0.3,
+  CARGO_RUN_BASE_FEE: 75,
+  CARGO_RUN_PER_LY_RATE: 25,
+  CARGO_RUN_ILLEGAL_BASE_FEE: 150,
+  CARGO_RUN_ILLEGAL_PER_LY_RATE: 40,
+  CARGO_RUN_LEGAL_QUANTITY: { MIN: 5, MAX: 15 },
+  CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
+  CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
+    safe: 0.15,
+    contested: 0.5,
+    dangerous: 0.75,
+  },
+};
+
+export const MISSION_CARGO_TYPES = {
+  legal: ['sealed_containers', 'diplomatic_pouches', 'scientific_samples'],
+  illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
+};
+
+/**
+ * Passenger Mission Configuration
+ */
+export const PASSENGER_CONFIG = {
+  INITIAL_SATISFACTION: 50,
+
+  TYPES: {
+    refugee: {
+      urgency: 'high',
+      paymentTier: 'low',
+      cargoSpace: 1,
+      dialogue: [
+        'Please, I need to get away from here.',
+        'Thank you for helping me.',
+      ],
+      satisfactionWeights: { speed: 0.8, comfort: 0.2 },
+    },
+    business: {
+      urgency: 'medium',
+      paymentTier: 'medium',
+      cargoSpace: 2,
+      dialogue: ['Time is money.', 'I expect professional service.'],
+      satisfactionWeights: { speed: 0.6, comfort: 0.4 },
+    },
+    wealthy: {
+      urgency: 'low',
+      paymentTier: 'high',
+      cargoSpace: 3,
+      dialogue: [
+        'I trust the accommodations are adequate?',
+        'Money is no object.',
+      ],
+      satisfactionWeights: { speed: 0.3, comfort: 0.7 },
+    },
+    scientist: {
+      urgency: 'medium',
+      paymentTier: 'medium',
+      cargoSpace: 2,
+      dialogue: [
+        'Fascinating ship you have.',
+        "I'm studying stellar phenomena.",
+      ],
+      satisfactionWeights: { speed: 0.5, comfort: 0.3, safety: 0.2 },
+    },
+    family: {
+      urgency: 'low',
+      paymentTier: 'low',
+      cargoSpace: 3,
+      dialogue: ['Are we there yet?', 'The children are excited.'],
+      satisfactionWeights: { speed: 0.4, comfort: 0.4, safety: 0.2 },
+    },
+  },
+
+  SATISFACTION_THRESHOLDS: {
+    VERY_SATISFIED: 80,
+    SATISFIED: 60,
+    NEUTRAL: 40,
+    DISSATISFIED: 20,
+  },
+
+  PAYMENT_MULTIPLIERS: {
+    VERY_SATISFIED: 1.3,
+    SATISFIED: 1.15,
+    NEUTRAL: 1.0,
+    DISSATISFIED: 0.7,
+    VERY_DISSATISFIED: 0.5,
+    ON_TIME_BONUS: 0.1,
+  },
+
+  SATISFACTION_IMPACTS: {
+    DELAY: 10,
+    COMBAT: 15,
+    LOW_LIFE_SUPPORT: 5,
+    LIFE_SUPPORT_THRESHOLD: 50,
+  },
+
+  PAYMENT_TIERS: {
+    low: { min: 200, max: 500 },
+    medium: { min: 500, max: 1000 },
+    high: { min: 800, max: 1500 },
+  },
+
+  FIRST_NAMES: [
+    'Ava',
+    'Ben',
+    'Clara',
+    'Dmitri',
+    'Elena',
+    'Felix',
+    'Grace',
+    'Hassan',
+    'Iris',
+    'Jun',
+    'Kira',
+    'Leo',
+    'Maya',
+    'Niko',
+    'Petra',
+    'Quinn',
+    'Rosa',
+    'Soren',
+    'Tara',
+    'Uri',
+  ],
+
+  LAST_NAMES: [
+    'Chen',
+    'Okafor',
+    'Singh',
+    'Petrov',
+    'Tanaka',
+    'Garcia',
+    'Bauer',
+    'Kim',
+    'Ali',
+    'Larsson',
+    'Costa',
+    'Nguyen',
+    'Frost',
+    'Amir',
+    'Volkov',
+    'Reyes',
+    'Osei',
+    'Dubois',
+    'Holm',
+    'Sharma',
+  ],
 };
 
 /**
@@ -1258,6 +1403,34 @@ export const FACTION_CONFIG = {
 };
 
 /**
+ * Pirate Credit Demand Configuration
+ *
+ * When pirates encounter a ship with no trade cargo, they demand flat credits
+ * instead of a percentage of cargo. If the player can't pay, pirates may
+ * kidnap a passenger (weighted by passenger value) or damage the ship.
+ */
+export const PIRATE_CREDIT_DEMAND_CONFIG = {
+  MIN_CREDIT_DEMAND: 150,
+  MAX_CREDIT_DEMAND: 250,
+
+  KIDNAP_WEIGHTS: {
+    wealthy: 0.8,
+    business: 0.6,
+    scientist: 0.5,
+    family: 0.3,
+    refugee: 0.15,
+  },
+
+  NO_PAYMENT_SHIP_DAMAGE: {
+    MIN_PERCENT: 15,
+    MAX_PERCENT: 25,
+  },
+
+  KIDNAP_FACTION_PENALTY: { civilians: -8 },
+  KIDNAP_KARMA_PENALTY: -2,
+};
+
+/**
  * Restricted Goods Configuration
  *
  * Configuration for goods that are illegal or controlled in certain systems.
@@ -1321,4 +1494,7 @@ export const CONDITION_TYPES = {
   HAS_VISITED: 'has_visited',
   HAS_CARGO: 'has_cargo',
   FLAG_SET: 'flag_set',
+  HAS_PASSENGER: 'has_passenger',
+  HAS_WEALTHY_PASSENGER: 'has_wealthy_passenger',
+  HAS_FAMILY_PASSENGER: 'has_family_passenger',
 };

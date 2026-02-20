@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { SHIP_CONFIG, NEW_GAME_DEFAULTS } from '../../constants.js';
+import { pickRandomFrom } from '../../utils/seeded-random.js';
 
 /**
  * Ship Manager - Handles all ship-related operations
@@ -35,7 +36,7 @@ export class ShipManager extends BaseManager {
     const assigned = new Set();
 
     while (assigned.size < count) {
-      const randomId = quirkIds[Math.floor(rng() * quirkIds.length)];
+      const randomId = pickRandomFrom(quirkIds, rng);
       assigned.add(randomId);
     }
 

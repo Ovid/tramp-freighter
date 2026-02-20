@@ -256,6 +256,8 @@ export function useGameAction() {
       refreshMissionBoard: () => gameStateManager.refreshMissionBoard(),
       getActiveMissions: () => gameStateManager.getActiveMissions(),
       getCompletableMissions: () => gameStateManager.getCompletableMissions(),
+      updatePassengerSatisfaction: (missionId, event) =>
+        gameStateManager.updatePassengerSatisfaction(missionId, event),
     }),
     [gameStateManager]
   );

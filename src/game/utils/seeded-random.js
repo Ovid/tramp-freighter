@@ -60,4 +60,29 @@ export class SeededRandom {
     const range = max - min;
     return this.next() * range + min;
   }
+
+  /**
+   * Pick a random element from an array.
+   *
+   * @param {Array} array - Non-empty array to pick from
+   * @returns {*} A random element
+   */
+  pickRandom(array) {
+    return array[this.nextInt(0, array.length - 1)];
+  }
+}
+
+/**
+ * Pick a random element from an array using a plain rng function.
+ *
+ * Standalone version for call sites that use dependency-injected rng
+ * functions rather than SeededRandom instances.
+ *
+ * @param {Array} array - Non-empty array to pick from
+ * @param {Function} rngFn - Function returning a number in [0, 1)
+ * @returns {*} A random element
+ */
+export function pickRandomFrom(array, rngFn) {
+  const index = Math.min(Math.floor(rngFn() * array.length), array.length - 1);
+  return array[index];
 }

@@ -34,6 +34,7 @@ Work through each item in your test plan one at a time:
 - Interact with the UI as a real user would.
 - **Take a screenshot after each meaningful action** to capture what is actually rendered.
 - You may also read Chrome console output and server logs to support your findings, but visual confirmation is primary.
+- If you struggle to complete a task, as the user for guidance.
 - Mark each test item as ✅ PASS or ❌ FAIL with a brief note on what you observed.
 
 ## 5. Handling Failures
@@ -68,7 +69,32 @@ After a fix, you do not need to re-run the entire test plan. Instead:
 In those cases, announce that you are doing a full re-run and why, so the user can decide whether
 to let it proceed or override.
 
-## 6. Final Report
+## 6. Game Balancing
+
+Activities often involve trade-offs. Players need to be able understand them or else they will be unsatisfied.
+
+### A) Economic Sanity (always-on lens)
+For any feature that moves money/items (missions, trading, repairs, fees):
+- Capture **before/after**: cash, cargo (type/qty), and any mission terms shown.
+- Compute **Net Δ** in the notes: cash change + value/qty changes that the UI clearly implies.
+
+**Auto-FAIL** unless explicitly warned as a challenge/penalty:
+- Player **pays** for cargo, cargo is **forcibly removed**, and success yields **net loss**.
+- Surprise costs/clawbacks not disclosed at acceptance.
+
+### B) Mandatory mission test plan items (when missions involved)
+Include these in the Test Plan:
+1. Accept mission: UI clearly shows **rewards**, **up-front cost (if any)**, and ideally **net profit** (or states uncertainty).
+2. Complete mission (success path): post-completion **cash_after ≥ cash_before** (and matches advertised profit if shown).
+3. Mission cargo handling is unambiguous: either **client-provided** or **player-owned + compensated**.
+
+## 7. UAT Improvements
+
+Read the @notes/uat.md file for notes on common issues in UAT testing slow you
+down. If you find something that you think will make UAT better in the future,
+feel free to add to that file.
+
+## 8. Final Report
 
 When all tests pass (or you have reached an escalation point), produce a summary:
 ```
