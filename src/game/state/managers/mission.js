@@ -429,6 +429,54 @@ export class MissionManager extends BaseManager {
     });
   }
 
+  failMissionsDueToCargoLoss() {
+    this.validateState();
+    const state = this.getState();
+
+    const toFail = [];
+    const toKeep = [];
+
+    for (const mission of state.missions.active) {
+      if (mission.missionCargo) {
+        // Check if this mission's cargo is still in the hold
+        const hasCargo = state.ship.cargo.some(
+          (c) => c.missionId === mission.id
+        );
+        if (!hasCargo) {
+          toFail.push(mission);
+        } else {
+          toKeep.push(mission);
+        }
+      } else {
+        toKeep.push(mission);
+      }
+    }
+
+    if (toFail.length === 0) return;
+
+    state.missions.active = toKeep;
+
+    for (const mission of toFail) {
+      state.missions.failed.push(mission.id);
+
+      if (mission.penalties && mission.penalties.failure) {
+        if (mission.penalties.failure.faction) {
+          for (const [faction, amount] of Object.entries(
+            mission.penalties.failure.faction
+          )) {
+            this.gameStateManager.modifyFactionRep(
+              faction,
+              amount,
+              'mission_cargo_confiscated'
+            );
+          }
+        }
+      }
+    }
+
+    this.emit('missionsChanged', { ...state.missions });
+  }
+
   getActiveMissions() {
     this.validateState();
     return this.getState().missions.active;

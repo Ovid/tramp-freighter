@@ -72,6 +72,17 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       gameStateManager.updateCargo(filteredCargo);
     }
 
+    // Fail missions whose cargo was lost or confiscated
+    if (
+      outcome.costs.cargoLoss ||
+      outcome.costs.cargoPercent ||
+      outcome.costs.restrictedGoodsConfiscated
+    ) {
+      if (typeof gameStateManager.failMissionsDueToCargoLoss === 'function') {
+        gameStateManager.failMissionsDueToCargoLoss();
+      }
+    }
+
     if (outcome.costs.days) {
       const newDays = state.player.daysElapsed + outcome.costs.days;
       gameStateManager.updateTime(newDays);
