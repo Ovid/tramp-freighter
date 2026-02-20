@@ -859,6 +859,22 @@ export function addStateDefaults(state, systemData) {
     };
   }
 
+  // Initialize stats tracking if missing (pre-endgame saves)
+  if (!state.stats) {
+    state.stats = {
+      creditsEarned: 0,
+      jumpsCompleted: 0,
+      cargoHauled: 0,
+      smugglingRuns: 0,
+      charitableActs: 0,
+    };
+  }
+
+  // Initialize quest state if missing (pre-endgame saves)
+  if (!state.quests) {
+    state.quests = {};
+  }
+
   // Initialize narrative events tracking if missing (pre-narrative-events saves)
   if (!state.world.narrativeEvents) {
     state.world.narrativeEvents = {

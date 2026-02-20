@@ -123,4 +123,39 @@ describe('Save/Load System', () => {
     expect(savedData.ship.cargo).toHaveLength(20);
     expect(savedData.world.visitedSystems).toEqual([0, 1, 4, 5, 7, 13]);
   });
+
+  it('preserves quest state across save/load', () => {
+    manager.initNewGame();
+    manager.advanceQuest('tanaka');
+    manager.saveGame();
+
+    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const loaded = manager2.loadGame();
+    expect(loaded).not.toBeNull();
+    expect(loaded.quests.tanaka.stage).toBe(1);
+    expect(loaded.stats).toBeDefined();
+    expect(loaded.stats.creditsEarned).toBeGreaterThanOrEqual(0);
+  });
+
+  it('adds stats defaults for old saves without stats', () => {
+    manager.initNewGame();
+    delete manager.state.stats;
+    manager.saveGame();
+
+    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const loaded = manager2.loadGame();
+    expect(loaded.stats).toBeDefined();
+    expect(loaded.stats.creditsEarned).toBe(0);
+    expect(loaded.stats.jumpsCompleted).toBe(0);
+  });
+
+  it('adds quests defaults for old saves without quests', () => {
+    manager.initNewGame();
+    delete manager.state.quests;
+    manager.saveGame();
+
+    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const loaded = manager2.loadGame();
+    expect(loaded.quests).toBeDefined();
+  });
 });
