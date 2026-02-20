@@ -490,6 +490,22 @@ export const MISSION_CONFIG = {
   BOARD_REFRESH_DAYS: 1,
   DEADLINE_BUFFER_DAYS: 3,
   REWARD_MARKUP: 0.3,
+  CARGO_RUN_BASE_FEE: 75,
+  CARGO_RUN_PER_LY_RATE: 25,
+  CARGO_RUN_ILLEGAL_BASE_FEE: 150,
+  CARGO_RUN_ILLEGAL_PER_LY_RATE: 40,
+  CARGO_RUN_LEGAL_QUANTITY: { MIN: 5, MAX: 15 },
+  CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
+  CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
+    safe: 0.15,
+    contested: 0.50,
+    dangerous: 0.75,
+  },
+};
+
+export const MISSION_CARGO_TYPES = {
+  legal: ['sealed_containers', 'diplomatic_pouches', 'scientific_samples'],
+  illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
 };
 
 /**
