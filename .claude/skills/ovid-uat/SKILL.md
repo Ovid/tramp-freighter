@@ -35,9 +35,6 @@ Work through each item in your test plan one at a time:
 - **Take a screenshot after each meaningful action** to capture what is actually rendered.
 - You may also read Chrome console output and server logs to support your findings, but visual confirmation is primary.
 - Mark each test item as ✅ PASS or ❌ FAIL with a brief note on what you observed.
-- If the .dev file is present, you should have a "Dev Admin Panel" available
-  that will allow to to change credits, repair levels, trigger encounters, and
-  other actions will make UAT easier.
 
 ## 5. Handling Failures
 
@@ -90,7 +87,13 @@ Include these in the Test Plan:
 2. Complete mission (success path): post-completion **cash_after ≥ cash_before** (and matches advertised profit if shown).
 3. Mission cargo handling is unambiguous: either **client-provided** or **player-owned + compensated**.
 
-## 7. Final Report
+## 7. UAT Improvements
+
+Read the @notes/uat.md file for notes on common issues in UAT testing slow you
+down. If you find something that you think will make UAT better in the future,
+feel free to add to that file.
+
+## 8. Final Report
 
 When all tests pass (or you have reached an escalation point), produce a summary:
 ```
