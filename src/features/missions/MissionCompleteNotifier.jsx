@@ -52,7 +52,8 @@ export function MissionCompleteNotifier() {
             <div className="passenger-delivery-info">
               <p>{current.passenger.name} disembarks.</p>
               <div className="passenger-satisfaction">
-                Satisfaction: {current.passenger.satisfaction}% ({getSatisfactionLabel(current.passenger.satisfaction)})
+                Satisfaction: {current.passenger.satisfaction}% (
+                {getSatisfactionLabel(current.passenger.satisfaction)})
               </div>
             </div>
           )}

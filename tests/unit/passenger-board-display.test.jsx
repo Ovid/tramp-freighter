@@ -55,9 +55,7 @@ describe('MissionBoardPanel passenger rendering', () => {
   it('should render passenger dialogue in quotes', () => {
     useGameEvent.mockReturnValue({ board: [passengerMission] });
     render(<MissionBoardPanel onClose={vi.fn()} />);
-    expect(
-      screen.getByText(/Fascinating ship you have/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Fascinating ship you have/)).toBeInTheDocument();
   });
 
   it('should render cargo space requirement for passengers', () => {
@@ -95,9 +93,7 @@ describe('MissionBoardPanel passenger rendering', () => {
     render(<MissionBoardPanel onClose={vi.fn()} />);
     // Passenger elements
     expect(screen.getByText('Scientist')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Fascinating ship you have/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Fascinating ship you have/)).toBeInTheDocument();
     // Cargo elements present (appears in title and details)
     expect(screen.getAllByText(/grain/).length).toBeGreaterThanOrEqual(1);
   });

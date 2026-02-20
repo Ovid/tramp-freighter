@@ -143,7 +143,8 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         if (mission.type === 'passenger' && mission.passenger) {
           mission.passenger.satisfaction = Math.min(
             100,
-            mission.passenger.satisfaction + outcome.rewards.passengerSatisfaction
+            mission.passenger.satisfaction +
+              outcome.rewards.passengerSatisfaction
           );
         }
       }

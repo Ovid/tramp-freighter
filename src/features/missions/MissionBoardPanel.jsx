@@ -42,7 +42,9 @@ export function MissionBoardPanel({ onClose }) {
                   <div className="passenger-dialogue">
                     &ldquo;{mission.passenger.dialogue}&rdquo;
                   </div>
-                  <div>Space Required: {mission.requirements.cargoSpace} units</div>
+                  <div>
+                    Space Required: {mission.requirements.cargoSpace} units
+                  </div>
                 </>
               ) : (
                 <div>

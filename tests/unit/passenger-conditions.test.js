@@ -9,7 +9,12 @@ function makeState(activeMissions = []) {
     ship: { fuel: 100, hull: 100, cargo: [] },
     world: {
       visitedSystems: [],
-      narrativeEvents: { fired: [], cooldowns: {}, flags: {}, dockedSystems: [] },
+      narrativeEvents: {
+        fired: [],
+        cooldowns: {},
+        flags: {},
+        dockedSystems: [],
+      },
     },
   };
 }

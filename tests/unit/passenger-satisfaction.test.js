@@ -61,11 +61,13 @@ describe('Passenger Satisfaction & Payment', () => {
   describe('updatePassengerSatisfaction', () => {
     it('should reduce satisfaction on delay weighted by speed', () => {
       manager.acceptMission(makePassengerMission());
-      const before = manager.getState().missions.active[0].passenger.satisfaction;
+      const before =
+        manager.getState().missions.active[0].passenger.satisfaction;
 
       manager.updatePassengerSatisfaction('test_passenger_001', 'delay');
 
-      const after = manager.getState().missions.active[0].passenger.satisfaction;
+      const after =
+        manager.getState().missions.active[0].passenger.satisfaction;
       const expectedDrop = Math.round(
         PASSENGER_CONFIG.SATISFACTION_IMPACTS.DELAY * 0.5
       );
@@ -74,11 +76,13 @@ describe('Passenger Satisfaction & Payment', () => {
 
     it('should reduce satisfaction on combat weighted by safety', () => {
       manager.acceptMission(makePassengerMission());
-      const before = manager.getState().missions.active[0].passenger.satisfaction;
+      const before =
+        manager.getState().missions.active[0].passenger.satisfaction;
 
       manager.updatePassengerSatisfaction('test_passenger_001', 'combat');
 
-      const after = manager.getState().missions.active[0].passenger.satisfaction;
+      const after =
+        manager.getState().missions.active[0].passenger.satisfaction;
       const expectedDrop = Math.round(
         PASSENGER_CONFIG.SATISFACTION_IMPACTS.COMBAT * 0.2
       );

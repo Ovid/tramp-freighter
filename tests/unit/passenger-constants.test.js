@@ -4,7 +4,13 @@ import { PASSENGER_CONFIG } from '../../src/game/constants.js';
 describe('Passenger Constants', () => {
   it('should define all five passenger types', () => {
     const types = Object.keys(PASSENGER_CONFIG.TYPES);
-    expect(types).toEqual(['refugee', 'business', 'wealthy', 'scientist', 'family']);
+    expect(types).toEqual([
+      'refugee',
+      'business',
+      'wealthy',
+      'scientist',
+      'family',
+    ]);
   });
 
   it('should have satisfaction weights that sum to 1.0 for each type', () => {

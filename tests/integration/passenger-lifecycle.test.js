@@ -64,7 +64,16 @@ describe('Passenger Mission Lifecycle', () => {
 
     // Fill cargo to capacity so no space remains for the passenger
     const state = manager.getState();
-    state.ship.cargo = [{ good: 'grain', qty: 50, buyPrice: 10, buySystem: 0, buySystemName: 'Sol', buyDate: 0 }];
+    state.ship.cargo = [
+      {
+        good: 'grain',
+        qty: 50,
+        buyPrice: 10,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+    ];
 
     const result = manager.acceptMission(mission);
     expect(result.success).toBe(false);

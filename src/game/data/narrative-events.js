@@ -449,7 +449,10 @@ export const NARRATIVE_EVENTS = [
         {
           text: 'Apologize and offer refreshments.',
           next: null,
-          effects: { costs: { credits: 20 }, rewards: { passengerSatisfaction: 5 } },
+          effects: {
+            costs: { credits: 20 },
+            rewards: { passengerSatisfaction: 5 },
+          },
         },
         {
           text: "It's a freighter, not a cruise ship.",
@@ -519,7 +522,10 @@ export const NARRATIVE_EVENTS = [
         {
           text: 'Give them some snacks.',
           next: null,
-          effects: { costs: { credits: 10 }, rewards: { passengerSatisfaction: 10 } },
+          effects: {
+            costs: { credits: 10 },
+            rewards: { passengerSatisfaction: 10 },
+          },
         },
         {
           text: 'Ignore it.',
