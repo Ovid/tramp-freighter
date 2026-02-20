@@ -40,7 +40,7 @@ describe('Passenger Satisfaction & Payment', () => {
   describe('acceptMission cargo space check', () => {
     it('should reject passenger mission when insufficient cargo space', () => {
       const state = manager.getState();
-      state.ship.cargo = [{ good: 'grain', qty: 49, purchasePrice: 10 }];
+      state.ship.cargo = [{ good: 'grain', qty: 49, buyPrice: 10 }];
 
       const mission = makePassengerMission({
         requirements: { destination: 4, deadline: 10, cargoSpace: 2 },
