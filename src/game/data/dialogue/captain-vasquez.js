@@ -1,10 +1,6 @@
 /**
- * @fileoverview Captain Vasquez Dialogue Tree
- *
- * Retired Trader at Epsilon Eridani - A retired freighter captain who serves as a mentor
- * figure for new traders. Uses warm speech with simple vocabulary and shares trading stories
- * from her experience. Provides valuable trading tips and hints about endgame content.
- *
+ * Captain Vasquez Dialogue Tree
+ * Retired Trader at Epsilon Eridani - mentor figure for new traders.
  * @module dialogue/captain-vasquez
  */
 
@@ -187,6 +183,17 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           return Boolean(
             npcState.storedCargo && npcState.storedCargo.length > 0
           );
+        },
+      },
+      {
+        text: '"I have a message from Yuki Tanaka."',
+        next: 'tanaka_message',
+        condition: (rep, gsm) =>
+          gsm?.getQuestStage?.('tanaka') === 4 &&
+          !gsm?.getQuestState?.('tanaka')?.data?.messageDelivered,
+        action: (gsm) => {
+          gsm.updateQuestData('tanaka', 'messageDelivered', 1);
+          return { success: true, message: 'Message delivered.' };
         },
       },
       {
@@ -482,5 +489,10 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         repGain: 1,
       },
     ],
+  },
+
+  tanaka_message: {
+    text: 'Vasquez reads the message slowly. Their expression changes — something between sadness and understanding. "I knew Tanaka back then. Before her sister left. Tell her... tell her I\'m glad she never gave up."',
+    choices: [{ text: 'Nod and take your leave.', next: null }],
   },
 };
