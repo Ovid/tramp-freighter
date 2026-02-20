@@ -47,12 +47,24 @@ export function MissionBoardPanel({ onClose }) {
                     {pluralizeUnit(mission.requirements.cargoSpace)}
                   </div>
                 </>
-              ) : (
+              ) : mission.missionCargo ? (
+                <>
+                  <div>
+                    Cargo: {mission.missionCargo.quantity}{' '}
+                    {mission.missionCargo.good
+                      .replace(/_/g, ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                  </div>
+                  {mission.missionCargo.isIllegal && (
+                    <div className="illegal-warning">Discreet Delivery</div>
+                  )}
+                </>
+              ) : mission.requirements?.cargo ? (
                 <div>
                   Deliver: {mission.requirements.quantity}{' '}
                   {mission.requirements.cargo}
                 </div>
-              )}
+              ) : null}
               <div>Deadline: {mission.requirements.deadline} days</div>
               <div>Reward: ₡{mission.rewards.credits}</div>
             </div>
