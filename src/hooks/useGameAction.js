@@ -249,6 +249,15 @@ export function useGameAction() {
         return gameStateManager.getCurrentSystemPrices();
       },
 
+      getQuestStage: (questId) => gameStateManager.getQuestStage(questId),
+      advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
+      isQuestComplete: (questId) => gameStateManager.isQuestComplete(questId),
+      getQuestState: (questId) => gameStateManager.getQuestState(questId),
+      canStartQuestStage: (questId, stage) =>
+        gameStateManager.canStartQuestStage(questId, stage),
+      checkQuestObjectives: (questId) =>
+        gameStateManager.checkQuestObjectives(questId),
+
       acceptMission: (mission) => gameStateManager.acceptMission(mission),
       completeMission: (missionId) =>
         gameStateManager.completeMission(missionId),
