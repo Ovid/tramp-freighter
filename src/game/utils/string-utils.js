@@ -40,3 +40,17 @@ export function formatCoordinate(value) {
 export function pluralizeUnit(count) {
   return `${count} ${count === 1 ? 'unit' : 'units'}`;
 }
+
+/**
+ * Convert an underscored cargo ID to a title-cased display name
+ *
+ * @param {string} id - Cargo type ID (e.g., 'sealed_containers')
+ * @returns {string} Display name (e.g., 'Sealed Containers')
+ */
+export function formatCargoDisplayName(id) {
+  if (!id || typeof id !== 'string') return '';
+  return id
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}

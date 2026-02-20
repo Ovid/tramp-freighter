@@ -8,7 +8,10 @@ import {
   SHIP_CONFIG,
   UI_CONFIG,
 } from '../../game/constants.js';
-import { capitalizeFirst } from '../../game/utils/string-utils.js';
+import {
+  capitalizeFirst,
+  formatCargoDisplayName,
+} from '../../game/utils/string-utils.js';
 import {
   validateBuy,
   calculateMaxBuyQuantity,
@@ -272,24 +275,30 @@ export function TradePanel({ onClose }) {
                   <div key={index} className="cargo-stack">
                     <div className="stack-info">
                       <div className="stack-name">
-                        {capitalizeFirst(stack.good)}
+                        {formatCargoDisplayName(stack.good)}
                       </div>
                       <div className="stack-details">{detailsText}</div>
-                      <div className={`stack-profit ${profit.direction}`}>
-                        {profitText}
-                      </div>
+                      {!stack.missionId && (
+                        <div className={`stack-profit ${profit.direction}`}>
+                          {profitText}
+                        </div>
+                      )}
                     </div>
 
                     {stack.missionId ? (
                       <div className="stack-actions">
-                        <span className="mission-cargo-label">Mission Cargo</span>
+                        <span className="mission-cargo-label">
+                          Mission Cargo
+                        </span>
                       </div>
                     ) : (
                       <div className="stack-actions">
                         <button
                           className="sell-btn"
                           disabled={stack.qty < 1}
-                          onClick={() => handleSellStack(index, 1, currentPrice)}
+                          onClick={() =>
+                            handleSellStack(index, 1, currentPrice)
+                          }
                         >
                           Sell 1
                         </button>
@@ -388,12 +397,14 @@ export function TradePanel({ onClose }) {
                       <div key={index} className="cargo-stack">
                         <div className="stack-info">
                           <div className="stack-name">
-                            {capitalizeFirst(stack.good)}
+                            {formatCargoDisplayName(stack.good)}
                           </div>
                           <div className="stack-details">{detailsText}</div>
-                          <div className={`stack-profit ${profit.direction}`}>
-                            {profitText}
-                          </div>
+                          {!stack.missionId && (
+                            <div className={`stack-profit ${profit.direction}`}>
+                              {profitText}
+                            </div>
+                          )}
                         </div>
 
                         <div className="stack-actions">

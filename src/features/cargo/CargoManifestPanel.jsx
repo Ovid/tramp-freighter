@@ -4,6 +4,7 @@ import { useStarData } from '../../hooks/useStarData';
 import { TradingSystem } from '../../game/game-trading.js';
 import {
   capitalizeFirst,
+  formatCargoDisplayName,
   pluralizeUnit,
 } from '../../game/utils/string-utils.js';
 import { PASSENGER_CONFIG } from '../../game/constants.js';
@@ -68,7 +69,7 @@ export function CargoManifestPanel({ onClose }) {
     return (
       <div key={index} className="cargo-manifest-item">
         <div className="cargo-manifest-name">
-          {capitalizeFirst(cargoEntry.good)}
+          {formatCargoDisplayName(cargoEntry.good)}
         </div>
         <div className="cargo-manifest-details">
           <div className="cargo-manifest-detail">
