@@ -498,7 +498,7 @@ export const MISSION_CONFIG = {
   CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
   CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
     safe: 0.15,
-    contested: 0.50,
+    contested: 0.5,
     dangerous: 0.75,
   },
 };

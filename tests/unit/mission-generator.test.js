@@ -3,7 +3,10 @@ import {
   generateCargoRun,
   generateMissionBoard,
 } from '../../src/game/mission-generator.js';
-import { MISSION_CARGO_TYPES, MISSION_CONFIG } from '../../src/game/constants.js';
+import {
+  MISSION_CARGO_TYPES,
+  MISSION_CONFIG,
+} from '../../src/game/constants.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Mission Generator', () => {
@@ -15,7 +18,10 @@ describe('Mission Generator', () => {
   describe('generateCargoRun', () => {
     it('should generate a valid delivery mission with mission-only cargo', () => {
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
 
       expect(mission.id).toMatch(/^cargo_run_/);
@@ -30,7 +36,10 @@ describe('Mission Generator', () => {
     it('should use mission-only cargo types, not tradeable goods', () => {
       for (let i = 0; i < 30; i++) {
         const mission = generateCargoRun(
-          0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+          0,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA,
+          'safe'
         );
         expect(allMissionCargo).toContain(mission.missionCargo.good);
         expect(['grain', 'ore', 'tritium', 'parts']).not.toContain(
@@ -41,7 +50,10 @@ describe('Mission Generator', () => {
 
     it('should include missionCargo object with good, quantity, and isIllegal', () => {
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       expect(mission.missionCargo).toBeDefined();
       expect(mission.missionCargo.good).toBeDefined();
@@ -52,7 +64,11 @@ describe('Mission Generator', () => {
     it('should use legal quantity range for legal cargo', () => {
       const rng = () => 0.01; // low rng forces legal + low quantity
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe', rng
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng
       );
       if (!mission.missionCargo.isIllegal) {
         expect(mission.missionCargo.quantity).toBeGreaterThanOrEqual(
@@ -67,7 +83,11 @@ describe('Mission Generator', () => {
     it('should use illegal quantity range for illegal cargo', () => {
       const rng = () => 0.99; // high rng forces illegal
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'dangerous', rng
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'dangerous',
+        rng
       );
       if (mission.missionCargo.isIllegal) {
         expect(mission.missionCargo.quantity).toBeGreaterThanOrEqual(
@@ -82,7 +102,10 @@ describe('Mission Generator', () => {
     it('should calculate distance-based reward (integer)', () => {
       for (let i = 0; i < 20; i++) {
         const mission = generateCargoRun(
-          0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+          0,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA,
+          'safe'
         );
         expect(Number.isInteger(mission.rewards.credits)).toBe(true);
         expect(mission.rewards.credits).toBeGreaterThanOrEqual(
@@ -93,7 +116,10 @@ describe('Mission Generator', () => {
 
     it('should include traders faction reward', () => {
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       expect(mission.rewards.faction).toBeDefined();
       expect(mission.rewards.faction.traders).toBe(2);
@@ -103,7 +129,11 @@ describe('Mission Generator', () => {
       // Force illegal cargo
       const rng = () => 0.99;
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'dangerous', rng
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'dangerous',
+        rng
       );
       if (mission.missionCargo.isIllegal) {
         expect(mission.rewards.faction.outlaws).toBe(3);
@@ -112,7 +142,10 @@ describe('Mission Generator', () => {
 
     it('should include failure penalties', () => {
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       expect(mission.penalties.failure.faction).toBeDefined();
       expect(mission.penalties.failure.faction.traders).toBe(-2);
@@ -120,7 +153,10 @@ describe('Mission Generator', () => {
 
     it('should generate destination that is a connected system', () => {
       const mission = generateCargoRun(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       expect([1, 4, 7]).toContain(mission.requirements.destination);
     });
@@ -130,7 +166,10 @@ describe('Mission Generator', () => {
       const runs = 100;
       for (let i = 0; i < runs; i++) {
         const mission = generateCargoRun(
-          0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'dangerous'
+          0,
+          TEST_STAR_DATA,
+          TEST_WORMHOLE_DATA,
+          'dangerous'
         );
         if (mission.missionCargo.isIllegal) illegalCount++;
       }
@@ -142,7 +181,10 @@ describe('Mission Generator', () => {
   describe('generateMissionBoard', () => {
     it('should generate the configured number of missions', () => {
       const board = generateMissionBoard(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       expect(board.length).toBeGreaterThan(0);
       expect(board.length).toBeLessThanOrEqual(3);
@@ -150,7 +192,10 @@ describe('Mission Generator', () => {
 
     it('should generate unique mission IDs', () => {
       const board = generateMissionBoard(
-        0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, 'safe'
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe'
       );
       const ids = board.map((m) => m.id);
       expect(new Set(ids).size).toBe(ids.length);

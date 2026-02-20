@@ -53,7 +53,8 @@ export function generateCargoRun(
   const qtyRange = isIllegal
     ? MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY
     : MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY;
-  const qty = qtyRange.MIN + Math.floor(rng() * (qtyRange.MAX - qtyRange.MIN + 1));
+  const qty =
+    qtyRange.MIN + Math.floor(rng() * (qtyRange.MAX - qtyRange.MIN + 1));
 
   // Calculate distance-based reward
   const baseFee = isIllegal
@@ -76,7 +77,9 @@ export function generateCargoRun(
     failureFaction.outlaws = -2;
   }
 
-  const cargoLabel = good.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const cargoLabel = good
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
   return {
     id: `cargo_run_${Date.now()}_${Math.floor(rng() * 10000)}`,

@@ -17,14 +17,20 @@ describe('Cargo Run Constants', () => {
     });
 
     it('should have quantity ranges for legal and illegal cargo', () => {
-      expect(MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY).toEqual({ MIN: 5, MAX: 15 });
-      expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY).toEqual({ MIN: 5, MAX: 10 });
+      expect(MISSION_CONFIG.CARGO_RUN_LEGAL_QUANTITY).toEqual({
+        MIN: 5,
+        MAX: 15,
+      });
+      expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_QUANTITY).toEqual({
+        MIN: 5,
+        MAX: 10,
+      });
     });
 
     it('should have zone-based illegal cargo chance', () => {
       expect(MISSION_CONFIG.CARGO_RUN_ZONE_ILLEGAL_CHANCE).toEqual({
         safe: 0.15,
-        contested: 0.50,
+        contested: 0.5,
         dangerous: 0.75,
       });
     });
@@ -48,8 +54,8 @@ describe('Cargo Run Constants', () => {
     });
 
     it('should have no overlap between legal and illegal types', () => {
-      const overlap = MISSION_CARGO_TYPES.legal.filter(
-        (t) => MISSION_CARGO_TYPES.illegal.includes(t)
+      const overlap = MISSION_CARGO_TYPES.legal.filter((t) =>
+        MISSION_CARGO_TYPES.illegal.includes(t)
       );
       expect(overlap).toEqual([]);
     });
