@@ -58,6 +58,19 @@ export function evaluateCondition(condition, gameState, context = {}) {
     case CONDITION_TYPES.FLAG_SET:
       return !!gameState.world.narrativeEvents.flags[condition.flag];
 
+    case CONDITION_TYPES.HAS_PASSENGER:
+      return gameState.missions.active.some((m) => m.type === 'passenger');
+
+    case CONDITION_TYPES.HAS_WEALTHY_PASSENGER:
+      return gameState.missions.active.some(
+        (m) => m.type === 'passenger' && m.passenger?.type === 'wealthy'
+      );
+
+    case CONDITION_TYPES.HAS_FAMILY_PASSENGER:
+      return gameState.missions.active.some(
+        (m) => m.type === 'passenger' && m.passenger?.type === 'family'
+      );
+
     default:
       return false;
   }

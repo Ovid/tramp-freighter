@@ -1413,4 +1413,7 @@ export const CONDITION_TYPES = {
   HAS_VISITED: 'has_visited',
   HAS_CARGO: 'has_cargo',
   FLAG_SET: 'flag_set',
+  HAS_PASSENGER: 'has_passenger',
+  HAS_WEALTHY_PASSENGER: 'has_wealthy_passenger',
+  HAS_FAMILY_PASSENGER: 'has_family_passenger',
 };
