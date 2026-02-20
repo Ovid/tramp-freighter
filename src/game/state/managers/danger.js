@@ -10,6 +10,7 @@ import {
   DISTRESS_CONFIG,
   RESTRICTED_GOODS_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
+  MISSION_CARGO_TYPES,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
@@ -346,7 +347,13 @@ export class DangerManager extends BaseManager {
 
     const allRestricted = [...zoneRestrictions, ...coreRestrictions];
 
-    return cargo.filter((item) => allRestricted.includes(item.good)).length;
+    return cargo.filter((item) => {
+      // Illegal mission cargo is always restricted
+      if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
+        return true;
+
+      return allRestricted.includes(item.good);
+    }).length;
   }
 
   /**
