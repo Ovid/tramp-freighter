@@ -97,7 +97,19 @@ export class MissionManager extends BaseManager {
           reason: 'You are not at the mission destination.',
         };
       }
-      if (mission.requirements.cargo) {
+      // New-style cargo runs: check missionId-tagged cargo
+      if (mission.missionCargo) {
+        const hasMissionCargo = state.ship.cargo.some(
+          (c) => c.missionId === mission.id
+        );
+        if (!hasMissionCargo) {
+          return {
+            success: false,
+            reason: 'Mission cargo is no longer in your hold.',
+          };
+        }
+      } else if (mission.requirements.cargo) {
+        // Legacy: old-style cargo runs (backwards compat for existing saves)
         const totalCargo = state.ship.cargo
           .filter((c) => c.good === mission.requirements.cargo)
           .reduce((sum, c) => sum + c.qty, 0);
@@ -194,10 +206,17 @@ export class MissionManager extends BaseManager {
     }
 
     // Remove delivered cargo for delivery/fetch missions
-    if (
+    if (mission.type === 'delivery' && mission.missionCargo) {
+      // New-style: remove by missionId
+      state.ship.cargo = state.ship.cargo.filter(
+        (c) => c.missionId !== mission.id
+      );
+      this.emit('cargoChanged', state.ship.cargo);
+    } else if (
       (mission.type === 'delivery' || mission.type === 'fetch') &&
       mission.requirements.cargo
     ) {
+      // Legacy: remove by good type and quantity
       this.gameStateManager.removeCargoForMission(
         mission.requirements.cargo,
         mission.requirements.quantity
