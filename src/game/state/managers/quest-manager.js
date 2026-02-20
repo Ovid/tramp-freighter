@@ -1,10 +1,12 @@
 import { BaseManager } from './base-manager.js';
+import { ENDGAME_CONFIG } from '../../constants.js';
 
 export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
     super(gameStateManager);
     this.questDefinitions = {};
     gameStateManager.subscribe('locationChanged', () => this.onJump());
+    gameStateManager.subscribe('docked', (data) => this.onDock(data?.systemId));
   }
 
   registerQuest(questDef) {
@@ -174,5 +176,33 @@ export class QuestManager extends BaseManager {
         this.emit('questChanged', { questId, stage: questState.stage });
       }
     }
+  }
+
+  onDock(systemId, rngFn = Math.random) {
+    const tanakaState = this.getQuestState('tanaka');
+    if (!tanakaState || tanakaState.stage !== 2) return;
+
+    const starData = this.gameStateManager.starData;
+    const system = starData.find((s) => s.id === systemId);
+    const sol = starData.find((s) => s.id === 0);
+    if (!system || !sol) return;
+
+    const distance = Math.sqrt(
+      (system.x - sol.x) ** 2 + (system.y - sol.y) ** 2 + (system.z - sol.z) ** 2
+    );
+    if (distance < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
+
+    if (!tanakaState.data.exoticStations) tanakaState.data.exoticStations = [];
+    if (tanakaState.data.exoticStations.includes(systemId)) return;
+
+    if (rngFn() >= ENDGAME_CONFIG.STAGE_2_EXOTIC_CHANCE) return;
+
+    tanakaState.data.exoticStations.push(systemId);
+    tanakaState.data.exoticMaterials = (tanakaState.data.exoticMaterials || 0) + 1;
+    this.emit('questChanged', {
+      questId: 'tanaka',
+      stage: 2,
+      exoticMaterials: tanakaState.data.exoticMaterials,
+    });
   }
 }

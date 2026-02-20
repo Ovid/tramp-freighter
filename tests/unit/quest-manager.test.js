@@ -260,6 +260,42 @@ describe('Quest auto-registration', () => {
   });
 });
 
+describe('Exotic material collection', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+    // Advance Tanaka quest to stage 2
+    manager.advanceQuest('tanaka');
+    manager.advanceQuest('tanaka');
+  });
+
+  it('does not collect from Sol (too close)', () => {
+    manager.questManager.onDock(0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBeUndefined();
+  });
+
+  it('collects from distant system when roll succeeds', () => {
+    // Barnard's Star is at ~83 LY from Sol in test data, well over 15
+    // Use a fixed "random" that always succeeds (returns 0, which is < 0.6 chance)
+    manager.questManager.onDock(4, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
+  });
+
+  it('does not collect twice from the same system', () => {
+    manager.questManager.onDock(4, () => 0);
+    manager.questManager.onDock(4, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
+  });
+
+  it('does not collect when quest is not at stage 2', () => {
+    manager.advanceQuest('tanaka'); // stage 3
+    manager.questManager.onDock(4, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBeUndefined();
+  });
+});
+
 describe('Tanaka quest definition', () => {
   let manager;
 
