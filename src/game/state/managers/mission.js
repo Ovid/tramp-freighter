@@ -350,8 +350,18 @@ export class MissionManager extends BaseManager {
 
     state.missions.active = remaining;
 
+    let cargoChanged = false;
+
     for (const mission of expired) {
       state.missions.failed.push(mission.id);
+
+      // Remove mission cargo from hold
+      if (mission.missionCargo) {
+        state.ship.cargo = state.ship.cargo.filter(
+          (c) => c.missionId !== mission.id
+        );
+        cargoChanged = true;
+      }
 
       if (mission.penalties && mission.penalties.failure) {
         if (mission.penalties.failure.rep) {
@@ -367,7 +377,22 @@ export class MissionManager extends BaseManager {
             'mission_fail'
           );
         }
+        if (mission.penalties.failure.faction) {
+          for (const [faction, amount] of Object.entries(
+            mission.penalties.failure.faction
+          )) {
+            this.gameStateManager.modifyFactionRep(
+              faction,
+              amount,
+              'mission_fail'
+            );
+          }
+        }
       }
+    }
+
+    if (cargoChanged) {
+      this.emit('cargoChanged', state.ship.cargo);
     }
 
     this.emit('missionsChanged', { ...state.missions });
