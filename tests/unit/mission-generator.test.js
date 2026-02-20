@@ -539,17 +539,20 @@ describe('Mission Generator', () => {
 
     it('should pass completionHistory and mark saturated missions', () => {
       const history = [{ from: 0, to: 1, day: 5 }];
+      // Low rng forces all missions to target system 1 (nearest neighbor)
+      const rng = () => 0.01;
       const board = generateMissionBoard(
         0,
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA,
         'safe',
-        Math.random,
+        rng,
         null,
         history,
         10
       );
       const toSystem1 = board.filter((m) => m.requirements.destination === 1);
+      expect(toSystem1.length).toBeGreaterThan(0);
       toSystem1.forEach((m) => {
         expect(m.saturated).toBe(true);
       });
