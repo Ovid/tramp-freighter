@@ -19,6 +19,7 @@ import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
+import { ALL_QUESTS } from '../data/quest-definitions.js';
 
 /**
  * Sanitize ship name input
@@ -164,6 +165,8 @@ export class GameStateManager {
     this.eventEngineManager.clearEvents();
     this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
     this.eventEngineManager.registerEvents(DANGER_EVENTS);
+
+    ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
 
     devLog('New game initialized:', completeState);
 

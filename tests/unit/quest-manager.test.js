@@ -21,9 +21,10 @@ describe('Stats initialization', () => {
     expect(manager.state.stats.charitableActs).toBe(0);
   });
 
-  it('initializes state.quests as empty object', () => {
+  it('initializes state.quests with registered quest defaults', () => {
     expect(manager.state.quests).toBeDefined();
-    expect(manager.state.quests).toEqual({});
+    expect(manager.state.quests.tanaka).toBeDefined();
+    expect(manager.state.quests.tanaka.stage).toBe(0);
   });
 });
 
@@ -227,6 +228,17 @@ describe('Quest event hooks', () => {
   it('does not increment jump counter when quest not at tracking stage', () => {
     manager.questManager.onJump();
     expect(manager.getQuestState('test_quest').data.jumpsCompleted).toBeUndefined();
+  });
+});
+
+describe('Quest auto-registration', () => {
+  it('registers Tanaka quest on initNewGame', () => {
+    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+    const questState = manager.getQuestState('tanaka');
+    expect(questState).not.toBeNull();
+    expect(questState.stage).toBe(0);
+    expect(questState.data).toEqual({});
   });
 });
 
