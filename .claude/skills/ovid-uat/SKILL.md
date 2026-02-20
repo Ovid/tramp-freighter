@@ -34,6 +34,7 @@ Work through each item in your test plan one at a time:
 - Interact with the UI as a real user would.
 - **Take a screenshot after each meaningful action** to capture what is actually rendered.
 - You may also read Chrome console output and server logs to support your findings, but visual confirmation is primary.
+- If you struggle to complete a task, as the user for guidance.
 - Mark each test item as ✅ PASS or ❌ FAIL with a brief note on what you observed.
 
 ## 5. Handling Failures
