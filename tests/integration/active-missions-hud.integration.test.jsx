@@ -15,20 +15,22 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
             requirements: {
               cargo: 'parts',
               quantity: 24,
-              destination: 'Sirius A',
+              destination: 4,
               deadline: 21,
             },
+            destination: { systemId: 4, name: 'Sirius A' },
             rewards: { credits: 216 },
           },
           {
             id: 'delivery_002',
             type: 'passenger',
-            title: 'Transport passenger to Tau Ceti',
+            title: 'Passenger: Niko Garcia',
             deadlineDay: 30,
             requirements: {
-              destination: 'Tau Ceti',
+              destination: 7,
               deadline: 24,
             },
+            destination: { systemId: 7, name: 'Tau Ceti' },
             rewards: { credits: 300 },
           },
         ],
@@ -94,5 +96,19 @@ describe('ActiveMissions HUD - Abandon Mission', () => {
     expect(
       screen.getByText(/Abandon "Cargo Run: parts to Sirius A"/)
     ).toBeInTheDocument();
+  });
+});
+
+describe('ActiveMissions HUD - Destination Display', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should display destination for each active mission', () => {
+    const { container } = render(<ActiveMissions />);
+    const destinations = container.querySelectorAll('.mission-hud-destination');
+    expect(destinations).toHaveLength(2);
+    expect(destinations[0].textContent).toContain('Sirius A');
+    expect(destinations[1].textContent).toContain('Tau Ceti');
   });
 });

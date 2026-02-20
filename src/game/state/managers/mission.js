@@ -56,6 +56,9 @@ export class MissionManager extends BaseManager {
     };
 
     state.missions.active.push(activeMission);
+    state.missions.board = state.missions.board.filter(
+      (m) => m.id !== mission.id
+    );
 
     // Place mission cargo in hold for cargo run missions
     if (mission.missionCargo) {

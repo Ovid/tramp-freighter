@@ -51,6 +51,11 @@ export function ActiveMissions() {
             className={`mission-hud-item ${isUrgent ? 'urgent' : ''}`}
           >
             <div className="mission-hud-title">{mission.title}</div>
+            {mission.destination?.name && (
+              <div className="mission-hud-destination">
+                → {mission.destination.name}
+              </div>
+            )}
             {cargoProgress && (
               <div
                 className={`mission-hud-cargo ${cargoProgress.complete ? 'complete' : ''}`}
