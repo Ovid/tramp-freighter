@@ -296,6 +296,68 @@ describe('Exotic material collection', () => {
   });
 });
 
+describe('Tanaka quest end-to-end', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+  });
+
+  it('progresses through all 5 stages to victory', () => {
+    // Stage 0 → 1
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(1);
+
+    // Complete stage 1 objectives (3 jumps)
+    manager.questManager.onJump();
+    manager.questManager.onJump();
+    manager.questManager.onJump();
+    expect(manager.checkQuestObjectives('tanaka')).toBe(true);
+
+    // Stage 1 → 2
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(2);
+
+    // Complete stage 2 objectives (5 exotic materials)
+    manager.updateQuestData('tanaka', 'exoticMaterials', 5);
+    expect(manager.checkQuestObjectives('tanaka')).toBe(true);
+
+    // Stage 2 → 3
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(3);
+
+    // Stage 3 has no objectives (narrative auto-complete)
+    expect(manager.checkQuestObjectives('tanaka')).toBe(true);
+
+    // Stage 3 → 4
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(4);
+
+    // Complete stage 4 (message delivered)
+    manager.updateQuestData('tanaka', 'messageDelivered', 1);
+    expect(manager.checkQuestObjectives('tanaka')).toBe(true);
+
+    // Stage 4 → 5
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(5);
+
+    // Stage 5 has no objectives (requirements check only)
+    expect(manager.checkQuestObjectives('tanaka')).toBe(true);
+
+    // Stage 5 → 6 (victory!)
+    manager.advanceQuest('tanaka');
+    expect(manager.getQuestStage('tanaka')).toBe(6);
+    expect(manager.isQuestComplete('tanaka')).toBe(true);
+  });
+
+  it('applies credit rewards correctly', () => {
+    const startCredits = manager.state.player.credits;
+    manager.advanceQuest('tanaka'); // Stage 1: 1000cr
+    expect(manager.state.player.credits).toBe(startCredits + 1000);
+  });
+});
+
 describe('Tanaka quest definition', () => {
   let manager;
 
