@@ -105,6 +105,11 @@ export class TradingManager extends BaseManager {
 
     this.gameStateManager.updateCredits(state.player.credits + totalRevenue);
 
+    if (state.stats) {
+      state.stats.cargoHauled += quantity;
+      state.stats.creditsEarned += totalRevenue;
+    }
+
     // Remove quantity from stack; remove stack if empty
     stack.qty -= quantity;
     if (stack.qty <= 0) {

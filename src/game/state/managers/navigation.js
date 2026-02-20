@@ -64,6 +64,10 @@ export class NavigationManager extends BaseManager {
     // Store price snapshot for this system
     state.world.currentSystemPrices = snapshotPrices;
 
+    if (state.stats) {
+      state.stats.jumpsCompleted++;
+    }
+
     this.emit('locationChanged', newSystemId);
   }
 

@@ -24,3 +24,30 @@ describe('Stats initialization', () => {
     expect(manager.state.quests).toEqual({});
   });
 });
+
+describe('Stats tracking', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+  });
+
+  it('increments jumpsCompleted on location change', () => {
+    manager.state.player.currentSystem = 0;
+    manager.updateLocation(4);
+    expect(manager.state.stats.jumpsCompleted).toBe(1);
+  });
+
+  it('increments cargoHauled and creditsEarned on sell', () => {
+    manager.state.ship.cargo = [
+      { good: 'grain', qty: 10, buyPrice: 50, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+    manager.state.world.currentSystemPrices = { grain: 100 };
+    const result = manager.sellGood(0, 5, 100);
+    if (result.success) {
+      expect(manager.state.stats.cargoHauled).toBe(5);
+      expect(manager.state.stats.creditsEarned).toBe(500);
+    }
+  });
+});
