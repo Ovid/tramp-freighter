@@ -427,4 +427,106 @@ export const NARRATIVE_EVENTS = [
       ],
     },
   },
+
+  // === PASSENGER EVENTS ===
+
+  {
+    id: 'passenger_complaint_comfort',
+    type: 'jump',
+    category: 'narrative',
+    trigger: { condition: { type: 'has_passenger' }, chance: 0.15 },
+    once: false,
+    cooldown: 3,
+    priority: NARRATIVE_PRIORITY_DEFAULT,
+    content: {
+      text: [
+        'Your passenger complains about the cramped quarters.',
+        "They're clearly uncomfortable.",
+      ],
+      speaker: null,
+      mood: 'annoyed',
+      choices: [
+        {
+          text: 'Apologize and offer refreshments.',
+          next: null,
+          effects: { costs: { credits: 20 }, rewards: { passengerSatisfaction: 5 } },
+        },
+        {
+          text: "It's a freighter, not a cruise ship.",
+          next: null,
+          effects: { costs: { passengerSatisfaction: 10 }, rewards: {} },
+        },
+        {
+          text: 'Ignore the complaint.',
+          next: null,
+          effects: { costs: { passengerSatisfaction: 5 }, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'passenger_wealthy_tip',
+    type: 'dock',
+    category: 'narrative',
+    trigger: { condition: { type: 'has_wealthy_passenger' }, chance: 0.5 },
+    once: false,
+    cooldown: 5,
+    priority: NARRATIVE_PRIORITY_DEFAULT,
+    content: {
+      text: [
+        'Your wealthy passenger is impressed with your service.',
+        'They offer a generous tip.',
+      ],
+      speaker: null,
+      mood: 'pleased',
+      choices: [
+        {
+          text: 'Accept graciously.',
+          next: null,
+          effects: { costs: {}, rewards: { credits: 500 } },
+        },
+        {
+          text: 'Decline politely.',
+          next: null,
+          effects: { costs: {}, rewards: { passengerSatisfaction: 10 } },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'passenger_family_children',
+    type: 'jump',
+    category: 'narrative',
+    trigger: { condition: { type: 'has_family_passenger' }, chance: 0.2 },
+    once: false,
+    cooldown: 3,
+    priority: NARRATIVE_PRIORITY_DEFAULT,
+    content: {
+      text: [
+        'The children are getting restless.',
+        'The parents look apologetic.',
+      ],
+      speaker: null,
+      mood: 'neutral',
+      choices: [
+        {
+          text: 'Show them the cockpit.',
+          next: null,
+          effects: { costs: {}, rewards: { passengerSatisfaction: 15 } },
+        },
+        {
+          text: 'Give them some snacks.',
+          next: null,
+          effects: { costs: { credits: 10 }, rewards: { passengerSatisfaction: 10 } },
+        },
+        {
+          text: 'Ignore it.',
+          next: null,
+          effects: { costs: { passengerSatisfaction: 5 }, rewards: {} },
+        },
+      ],
+    },
+  },
 ];
