@@ -220,16 +220,26 @@ export default function App({ devMode = false }) {
         // Route combat/negotiation sub-choices to their specific resolvers
         let outcome;
         if (encounterPhase === 'combat') {
+          // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
+          const combatChoice = choice === 'flee' ? 'evasive' : choice;
           outcome = gameStateManager.resolveCombatChoice(
             currentEncounter.encounter,
-            choice
+            combatChoice
           );
         } else if (encounterPhase === 'negotiation') {
-          outcome = gameStateManager.resolveNegotiation(
-            currentEncounter.encounter,
-            choice,
-            Math.random()
-          );
+          if (choice === 'flee') {
+            // Breaking off negotiation to flee triggers evasive maneuvers
+            outcome = gameStateManager.resolveCombatChoice(
+              currentEncounter.encounter,
+              'evasive'
+            );
+          } else {
+            outcome = gameStateManager.resolveNegotiation(
+              currentEncounter.encounter,
+              choice,
+              Math.random()
+            );
+          }
         } else {
           outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
         }
