@@ -3,7 +3,11 @@ import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { NEGOTIATION_CONFIG, KARMA_CONFIG } from '../../src/game/constants.js';
+import {
+  NEGOTIATION_CONFIG,
+  KARMA_CONFIG,
+  PIRATE_CREDIT_DEMAND_CONFIG,
+} from '../../src/game/constants.js';
 
 /**
  * Property-Based Tests for Negotiation Outcomes
@@ -50,7 +54,7 @@ describe('Negotiation Outcomes Property Tests', () => {
         // Generate random cargo (including medicine for medicine claim tests)
         fc.array(
           fc.record({
-            type: fc.constantFrom(
+            good: fc.constantFrom(
               'grain',
               'ore',
               'tritium',
@@ -58,8 +62,8 @@ describe('Negotiation Outcomes Property Tests', () => {
               'medicine',
               'electronics'
             ),
-            quantity: fc.integer({ min: 1, max: 20 }),
-            purchasePrice: fc.integer({ min: 10, max: 100 }),
+            qty: fc.integer({ min: 1, max: 20 }),
+            buyPrice: fc.integer({ min: 10, max: 100 }),
           }),
           { maxLength: 10 }
         ),
@@ -92,14 +96,23 @@ describe('Negotiation Outcomes Property Tests', () => {
 
           // Verify choice-specific outcome properties
           switch (choice) {
-            case 'counter_proposal':
+            case 'counter_proposal': {
               // Counter-proposal: 60% base chance + karma modifier
+              const hasCounterCargo = cargo.some((item) => item.qty > 0);
               if (outcome.success) {
-                // Success: 10% cargo payment
-                expect(outcome.costs).toHaveProperty(
-                  'cargoPercent',
-                  NEGOTIATION_CONFIG.COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT
-                );
+                if (hasCounterCargo) {
+                  expect(outcome.costs).toHaveProperty(
+                    'cargoPercent',
+                    NEGOTIATION_CONFIG.COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT
+                  );
+                } else {
+                  expect(outcome.costs).toHaveProperty('credits');
+                  expect(outcome.costs.credits).toBe(
+                    Math.round(
+                      PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5
+                    )
+                  );
+                }
               } else {
                 // Failure: +10% enemy strength increase
                 expect(outcome.costs).toHaveProperty(
@@ -108,11 +121,12 @@ describe('Negotiation Outcomes Property Tests', () => {
                 );
               }
               break;
+            }
 
             case 'medicine_claim': {
               // Medicine claim: 40% sympathy chance if medicine in cargo
               const hasMedicine = cargo.some(
-                (item) => item.type === 'medicine'
+                (item) => item.good === 'medicine'
               );
               if (hasMedicine) {
                 // Should have a chance for sympathy
@@ -130,14 +144,20 @@ describe('Negotiation Outcomes Property Tests', () => {
               break;
             }
 
-            case 'accept_demand':
-              // Accept demand: always succeeds, 20% cargo payment
-              expect(outcome.success).toBe(true);
-              expect(outcome.costs).toHaveProperty(
-                'cargoPercent',
-                NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT
-              );
+            case 'accept_demand': {
+              const hasAcceptCargo = cargo.some((item) => item.qty > 0);
+              if (hasAcceptCargo) {
+                expect(outcome.success).toBe(true);
+                expect(outcome.costs).toHaveProperty(
+                  'cargoPercent',
+                  NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT
+                );
+              } else {
+                // No trade cargo: demands credits or escalates
+                expect(outcome).toHaveProperty('costs');
+              }
               break;
+            }
 
             default:
               throw new Error(`Unknown negotiation choice: ${choice}`);
@@ -151,7 +171,9 @@ describe('Negotiation Outcomes Property Tests', () => {
           Object.values(outcome.costs).forEach((cost) => {
             if (typeof cost === 'number') {
               expect(cost).toBeGreaterThanOrEqual(0);
-              expect(cost).toBeLessThanOrEqual(100); // Reasonable upper bound for percentages
+              expect(cost).toBeLessThanOrEqual(
+                PIRATE_CREDIT_DEMAND_CONFIG.MAX_CREDIT_DEMAND
+              );
             }
           });
 

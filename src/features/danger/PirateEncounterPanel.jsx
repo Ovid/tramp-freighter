@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { COMBAT_CONFIG, NEGOTIATION_CONFIG } from '../../game/constants.js';
+import {
+  COMBAT_CONFIG,
+  NEGOTIATION_CONFIG,
+  PIRATE_CREDIT_DEMAND_CONFIG,
+} from '../../game/constants.js';
 
 /**
  * PirateEncounterPanel - React component for pirate encounter resolution
@@ -28,6 +32,9 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
   const quirks = useGameEvent('quirksChanged');
   const karma = useGameEvent('karmaChanged');
   const factions = useGameEvent('factionRepChanged');
+
+  // Determine if ship has trade cargo for pirate tribute
+  const hasTradeCargo = cargo?.some((item) => item.qty > 0) || false;
 
   // Local state for selected tactical option
   const [selectedOption, setSelectedOption] = useState(null);
@@ -253,8 +260,9 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
               </div>
               <div className="option-consequences">
                 <div className="consequence success">
-                  Success: Reduced payment (10% cargo instead of{' '}
-                  {encounter.demandPercent || 20}%)
+                  {hasTradeCargo
+                    ? `Success: Reduced payment (10% cargo instead of ${encounter.demandPercent || 20}%)`
+                    : `Success: Reduced credit demand (₡${Math.round(PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5)})`}
                 </div>
                 <div className="consequence failure">
                   Failure: Pirates become more aggressive (+10% strength)
@@ -272,20 +280,37 @@ export function PirateEncounterPanel({ encounter, onChoice, onClose }) {
                 <span className="option-type">Compliance</span>
               </div>
               <div className="option-description">
-                Accept the pirates' demands and pay their tribute for safe
-                passage.
+                {hasTradeCargo
+                  ? "Accept the pirates' demands and pay their tribute for safe passage."
+                  : 'You have no trade cargo. Pirates will demand credits instead.'}
               </div>
               <div className="option-probabilities">
                 <div className="probability-item">
                   <span className="prob-label">Success Rate:</span>
-                  <span className="prob-value">100%</span>
+                  <span className="prob-value">
+                    {hasTradeCargo ? '100%' : 'Varies'}
+                  </span>
                 </div>
               </div>
               <div className="option-consequences">
-                <div className="consequence guaranteed">
-                  Guaranteed: Pay {encounter.demandPercent || 20}% of cargo,
-                  safe passage
-                </div>
+                {hasTradeCargo ? (
+                  <div className="consequence guaranteed">
+                    Guaranteed: Pay {encounter.demandPercent || 20}% of cargo,
+                    safe passage
+                  </div>
+                ) : (
+                  <>
+                    <div className="consequence guaranteed">
+                      Credit demand: ₡
+                      {PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND}-₡
+                      {PIRATE_CREDIT_DEMAND_CONFIG.MAX_CREDIT_DEMAND}
+                    </div>
+                    <div className="consequence failure">
+                      If you can't pay: pirates may kidnap a passenger or damage
+                      the ship
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

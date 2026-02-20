@@ -1387,6 +1387,34 @@ export const FACTION_CONFIG = {
 };
 
 /**
+ * Pirate Credit Demand Configuration
+ *
+ * When pirates encounter a ship with no trade cargo, they demand flat credits
+ * instead of a percentage of cargo. If the player can't pay, pirates may
+ * kidnap a passenger (weighted by passenger value) or damage the ship.
+ */
+export const PIRATE_CREDIT_DEMAND_CONFIG = {
+  MIN_CREDIT_DEMAND: 150,
+  MAX_CREDIT_DEMAND: 250,
+
+  KIDNAP_WEIGHTS: {
+    wealthy: 0.8,
+    business: 0.6,
+    scientist: 0.5,
+    family: 0.3,
+    refugee: 0.15,
+  },
+
+  NO_PAYMENT_SHIP_DAMAGE: {
+    MIN_PERCENT: 15,
+    MAX_PERCENT: 25,
+  },
+
+  KIDNAP_FACTION_PENALTY: { civilians: -8 },
+  KIDNAP_KARMA_PENALTY: -2,
+};
+
+/**
  * Restricted Goods Configuration
  *
  * Configuration for goods that are illegal or controlled in certain systems.

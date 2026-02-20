@@ -9,6 +9,7 @@ import {
   FAILURE_CONFIG,
   DISTRESS_CONFIG,
   RESTRICTED_GOODS_CONFIG,
+  PIRATE_CREDIT_DEMAND_CONFIG,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
@@ -707,7 +708,7 @@ export class DangerManager extends BaseManager {
         result = this.resolveIntelOffer(encounter, gameState, rng);
         break;
       case 'accept_demand':
-        result = this.resolveAcceptDemand();
+        result = this.resolveAcceptDemand(rng);
         break;
       default:
         throw new Error(`Unknown negotiation choice: ${choice}`);
@@ -743,14 +744,28 @@ export class DangerManager extends BaseManager {
     const success = rng < successChance;
 
     if (success) {
+      if (this.hasTradeCargoForPirates()) {
+        return {
+          success: true,
+          costs: {
+            cargoPercent: COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT,
+          },
+          rewards: {},
+          description:
+            'Successfully negotiated a reduced payment with the pirates.',
+        };
+      }
+
+      const reducedCredits = Math.round(
+        PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5
+      );
       return {
         success: true,
         costs: {
-          cargoPercent: COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT,
+          credits: reducedCredits,
         },
         rewards: {},
-        description:
-          'Successfully negotiated a reduced payment with the pirates.',
+        description: `Talked the pirates down to ₡${reducedCredits} in credits.`,
       };
     } else {
       return {
@@ -896,25 +911,123 @@ export class DangerManager extends BaseManager {
   }
 
   /**
+   * Check if ship has any trade cargo for pirate tribute
+   *
+   * @returns {boolean} True if ship has trade cargo with qty > 0
+   */
+  hasTradeCargoForPirates() {
+    this.validateState();
+    const cargo = this.getState().ship.cargo;
+    return cargo.some((item) => item.qty > 0);
+  }
+
+  /**
    * Resolve accept demand negotiation choice
    *
-   * Accept demand pays the pirates' initial demand for guaranteed safe passage.
-   * Success rate: 100% (guaranteed)
-   * Cost: 20% cargo payment
+   * If the ship has trade cargo, pays the standard cargo percentage.
+   * If no trade cargo, demands flat credits instead. If player can't
+   * afford credits, routes to kidnap/damage resolution.
    *
+   * @param {Function} [rng=Math.random] - Random number generator for testability
    * @returns {Object} Negotiation outcome
    */
-  resolveAcceptDemand() {
+  resolveAcceptDemand(rng = Math.random) {
     const { ACCEPT_DEMAND } = NEGOTIATION_CONFIG;
 
+    if (this.hasTradeCargoForPirates()) {
+      return {
+        success: true,
+        costs: {
+          cargoPercent: ACCEPT_DEMAND.CARGO_PERCENT,
+        },
+        rewards: {},
+        description:
+          'Paid the pirates their demanded tribute and continued safely.',
+      };
+    }
+
+    const { MIN_CREDIT_DEMAND, MAX_CREDIT_DEMAND } =
+      PIRATE_CREDIT_DEMAND_CONFIG;
+    const rngValue = typeof rng === 'function' ? rng() : rng;
+    const creditDemand = Math.round(
+      MIN_CREDIT_DEMAND + rngValue * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
+    );
+
+    const gameState = this.getState();
+    if (gameState.player.credits >= creditDemand) {
+      return {
+        success: true,
+        costs: {
+          credits: creditDemand,
+        },
+        rewards: {},
+        description: `No cargo to plunder. Pirates demanded ₡${creditDemand} in credits instead.`,
+      };
+    }
+
+    return this.resolveCannotPayPirates(rng);
+  }
+
+  /**
+   * Resolve situation when player can't pay pirate credit demand
+   *
+   * If active passenger missions exist, pirates may kidnap the highest-value
+   * passenger (weighted by type). Otherwise, pirates damage the ship.
+   *
+   * @param {Function} [rng=Math.random] - Random number generator for testability
+   * @returns {Object} Negotiation outcome with kidnap or damage costs
+   */
+  resolveCannotPayPirates(rng = Math.random) {
+    const gameState = this.getState();
+    const activeMissions = gameState.missions?.active || [];
+    const passengerMissions = activeMissions.filter(
+      (m) => m.type === 'passenger' && m.passenger
+    );
+
+    if (passengerMissions.length > 0) {
+      const sorted = [...passengerMissions].sort((a, b) => {
+        const wA =
+          PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[a.passenger.type] || 0;
+        const wB =
+          PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[b.passenger.type] || 0;
+        return wB - wA;
+      });
+
+      const target = sorted[0];
+      const weight =
+        PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[target.passenger.type] || 0;
+      const rngValue = typeof rng === 'function' ? rng() : rng;
+
+      if (rngValue < weight) {
+        return {
+          success: false,
+          costs: {
+            kidnappedPassengerId: target.id,
+          },
+          rewards: {},
+          description: `You couldn't pay. The pirates seized your passenger, ${target.passenger.name}.`,
+        };
+      }
+    }
+
+    const { MIN_PERCENT, MAX_PERCENT } =
+      PIRATE_CREDIT_DEMAND_CONFIG.NO_PAYMENT_SHIP_DAMAGE;
+    const rngValue = typeof rng === 'function' ? rng() : rng;
+    const damagePercent = Math.round(
+      MIN_PERCENT + rngValue * (MAX_PERCENT - MIN_PERCENT)
+    );
+
+    const systems = ['hull', 'engine', 'lifeSupport'];
+    const targetSystem = systems[Math.floor(rngValue * systems.length)];
+
+    const costs = {};
+    costs[targetSystem] = damagePercent;
+
     return {
-      success: true,
-      costs: {
-        cargoPercent: ACCEPT_DEMAND.CARGO_PERCENT,
-      },
+      success: false,
+      costs,
       rewards: {},
-      description:
-        'Paid the pirates their demanded tribute and continued safely.',
+      description: `You couldn't pay. Pirates damaged your ${targetSystem === 'lifeSupport' ? 'life support' : targetSystem} before leaving.`,
     };
   }
 

@@ -43,15 +43,39 @@ export class StateManager extends BaseManager {
   }
 
   /**
-   * Calculate total cargo space used
+   * Calculate total cargo space used (trade cargo + passenger space)
    * @returns {number} Total cargo units used
    */
   getCargoUsed() {
+    this.validateState();
+    const tradeCargo = this.getTradeCargoUsed();
+    const passengerSpace = this.getPassengerCargoUsed();
+    return tradeCargo + passengerSpace;
+  }
+
+  /**
+   * Calculate cargo space used by trade goods only (for pirate tribute calculations)
+   * @returns {number} Trade cargo units used
+   */
+  getTradeCargoUsed() {
     this.validateState();
     return this.gameStateManager.state.ship.cargo.reduce(
       (total, stack) => total + stack.qty,
       0
     );
+  }
+
+  /**
+   * Calculate cargo space consumed by active passenger missions
+   * @returns {number} Passenger cargo units used
+   */
+  getPassengerCargoUsed() {
+    this.validateState();
+    const missions = this.gameStateManager.state.missions;
+    if (!missions || !missions.active) return 0;
+    return missions.active
+      .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
+      .reduce((total, m) => total + m.requirements.cargoSpace, 0);
   }
 
   /**

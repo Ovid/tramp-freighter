@@ -215,6 +215,10 @@ export class GameStateManager {
     return this.stateManager.getCargoUsed();
   }
 
+  getTradeCargoUsed() {
+    return this.stateManager.getTradeCargoUsed();
+  }
+
   getCargoRemaining() {
     return this.stateManager.getCargoRemaining();
   }

@@ -40,8 +40,13 @@ export function validateBuy(goodType, quantity, price, state) {
     return { valid: false, reason: 'Insufficient credits for purchase' };
   }
 
-  const cargoUsed = state.ship.cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoRemaining = state.ship.cargoCapacity - cargoUsed;
+  const tradeCargoUsed = state.ship.cargo.reduce(
+    (sum, stack) => sum + stack.qty,
+    0
+  );
+  const passengerSpace = getPassengerCargoSpace(state);
+  const cargoRemaining =
+    state.ship.cargoCapacity - tradeCargoUsed - passengerSpace;
 
   if (cargoRemaining < quantity) {
     return { valid: false, reason: 'Insufficient cargo capacity' };
@@ -96,10 +101,15 @@ export function calculateMaxBuyQuantity(price, state) {
   }
 
   const maxAffordable = Math.floor(state.player.credits / price);
-  const cargoUsed = state.ship.cargo.reduce((sum, stack) => sum + stack.qty, 0);
-  const cargoRemaining = state.ship.cargoCapacity - cargoUsed;
+  const tradeCargoUsed = state.ship.cargo.reduce(
+    (sum, stack) => sum + stack.qty,
+    0
+  );
+  const passengerSpace = getPassengerCargoSpace(state);
+  const cargoRemaining =
+    state.ship.cargoCapacity - tradeCargoUsed - passengerSpace;
 
-  return Math.min(maxAffordable, cargoRemaining);
+  return Math.min(maxAffordable, Math.max(0, cargoRemaining));
 }
 
 /**
@@ -125,6 +135,19 @@ export function calculateProfit(stack, currentPrice) {
   }
 
   return { margin, percentage, direction };
+}
+
+/**
+ * Calculate cargo space consumed by active passenger missions
+ *
+ * @param {Object} state - The current game state
+ * @returns {number} Cargo units reserved by passengers
+ */
+function getPassengerCargoSpace(state) {
+  if (!state.missions || !state.missions.active) return 0;
+  return state.missions.active
+    .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
+    .reduce((total, m) => total + m.requirements.cargoSpace, 0);
 }
 
 /**
