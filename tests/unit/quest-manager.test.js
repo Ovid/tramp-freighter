@@ -189,3 +189,33 @@ describe('QuestManager', () => {
     });
   });
 });
+
+describe('Quest event hooks', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager.initNewGame();
+    manager.registerQuest({
+      id: 'test_quest',
+      stages: [
+        { stage: 1, name: 'Jump Test', objectives: { jumpsCompleted: 3 }, rewards: { credits: 100 } },
+      ],
+      victoryStage: 2,
+    });
+  });
+
+  it('increments jump counter when quest is at tracking stage', () => {
+    manager.advanceQuest('test_quest');
+    expect(manager.getQuestState('test_quest').stage).toBe(1);
+
+    manager.questManager.onJump();
+    manager.questManager.onJump();
+    expect(manager.getQuestState('test_quest').data.jumpsCompleted).toBe(2);
+  });
+
+  it('does not increment jump counter when quest not at tracking stage', () => {
+    manager.questManager.onJump();
+    expect(manager.getQuestState('test_quest').data.jumpsCompleted).toBeUndefined();
+  });
+});

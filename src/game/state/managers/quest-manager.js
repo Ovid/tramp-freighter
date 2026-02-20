@@ -4,6 +4,7 @@ export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
     super(gameStateManager);
     this.questDefinitions = {};
+    gameStateManager.subscribe('locationChanged', () => this.onJump());
   }
 
   registerQuest(questDef) {
@@ -158,5 +159,20 @@ export class QuestManager extends BaseManager {
       if ((questState.data[key] || 0) < target) return false;
     }
     return true;
+  }
+
+  onJump() {
+    for (const questId of Object.keys(this.questDefinitions)) {
+      const questState = this.getQuestState(questId);
+      if (!questState || questState.stage === 0) continue;
+
+      const stageDef = this.questDefinitions[questId].stages.find(
+        (s) => s.stage === questState.stage
+      );
+      if (stageDef?.objectives?.jumpsCompleted != null) {
+        questState.data.jumpsCompleted = (questState.data.jumpsCompleted || 0) + 1;
+        this.emit('questChanged', { questId, stage: questState.stage });
+      }
+    }
   }
 }
