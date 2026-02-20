@@ -1,7 +1,6 @@
 import {
   MISSION_CONFIG,
   MISSION_CARGO_TYPES,
-  NAVIGATION_CONFIG,
   PASSENGER_CONFIG,
 } from './constants.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
@@ -37,11 +36,6 @@ export function getReachableSystems(systemId, wormholeData, maxHops) {
   return result;
 }
 
-function calculateDistance(star1, star2) {
-  const r = Math.hypot(star1.x - star2.x, star1.y - star2.y, star1.z - star2.z);
-  return r * NAVIGATION_CONFIG.LY_PER_UNIT;
-}
-
 export function generateCargoRun(
   fromSystem,
   starData,
@@ -74,7 +68,6 @@ export function generateCargoRun(
 
   const toSystem = chosen.systemId;
   const hopCount = chosen.hopCount;
-  const fromStar = starData.find((s) => s.id === fromSystem);
   const destStar = starData.find((s) => s.id === toSystem);
 
   const deadline =

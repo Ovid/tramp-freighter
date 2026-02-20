@@ -3,7 +3,6 @@ import {
   generateCargoRun,
   generateMissionBoard,
   generatePassengerMission,
-  getConnectedSystems,
   getReachableSystems,
 } from '../../src/game/mission-generator.js';
 import {
@@ -369,11 +368,7 @@ describe('Mission Generator', () => {
         { from: 0, to: 1, day: 10 },
       ];
       // Force destination to system 1 (first neighbor)
-      let callIdx = 0;
-      const rng = () => {
-        callIdx++;
-        return 0.01;
-      };
+      const rng = () => 0.01;
       const mission = generatePassengerMission(0, TEST_STAR_DATA, TEST_WORMHOLE_DATA, rng, history, 15);
       if (mission.requirements.destination === 1) {
         expect(mission.saturated).toBe(true);
