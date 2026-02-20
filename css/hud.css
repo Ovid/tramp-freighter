@@ -446,6 +446,8 @@
   z-index: 200;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00ff88 rgba(0, 255, 136, 0.1);
 }
 
 #station-interface::-webkit-scrollbar {
