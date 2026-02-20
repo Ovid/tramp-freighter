@@ -6,14 +6,12 @@ import {
 
 describe('Cargo Run Constants', () => {
   describe('MISSION_CONFIG cargo run fields', () => {
-    it('should have distance-based fee constants for legal cargo', () => {
+    it('should have base fee constants for legal cargo', () => {
       expect(MISSION_CONFIG.CARGO_RUN_BASE_FEE).toBe(75);
-      expect(MISSION_CONFIG.CARGO_RUN_PER_LY_RATE).toBe(25);
     });
 
-    it('should have distance-based fee constants for illegal cargo', () => {
+    it('should have base fee constants for illegal cargo', () => {
       expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(150);
-      expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_PER_LY_RATE).toBe(40);
     });
 
     it('should have quantity ranges for legal and illegal cargo', () => {
