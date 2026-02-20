@@ -14,7 +14,7 @@ describe('Passenger Constants', () => {
   });
 
   it('should have satisfaction weights that sum to 1.0 for each type', () => {
-    for (const [typeName, config] of Object.entries(PASSENGER_CONFIG.TYPES)) {
+    for (const [, config] of Object.entries(PASSENGER_CONFIG.TYPES)) {
       const weights = config.satisfactionWeights;
       const sum = Object.values(weights).reduce((a, b) => a + b, 0);
       expect(sum).toBeCloseTo(1.0, 5);
