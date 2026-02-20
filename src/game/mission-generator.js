@@ -15,6 +15,28 @@ export function getConnectedSystems(systemId, wormholeData) {
   return connected;
 }
 
+export function getReachableSystems(systemId, wormholeData, maxHops) {
+  const visited = new Set([systemId]);
+  const result = [];
+  let frontier = [systemId];
+
+  for (let hop = 1; hop <= maxHops; hop++) {
+    const nextFrontier = [];
+    for (const current of frontier) {
+      for (const neighbor of getConnectedSystems(current, wormholeData)) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          result.push({ systemId: neighbor, hopCount: hop });
+          nextFrontier.push(neighbor);
+        }
+      }
+    }
+    frontier = nextFrontier;
+  }
+
+  return result;
+}
+
 function calculateDistance(star1, star2) {
   const r = Math.hypot(star1.x - star2.x, star1.y - star2.y, star1.z - star2.z);
   return r * NAVIGATION_CONFIG.LY_PER_UNIT;

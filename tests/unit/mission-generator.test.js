@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   generateCargoRun,
   generateMissionBoard,
+  getConnectedSystems,
+  getReachableSystems,
 } from '../../src/game/mission-generator.js';
 import {
   MISSION_CARGO_TYPES,
@@ -175,6 +177,50 @@ describe('Mission Generator', () => {
       }
       // dangerous zone = 75% illegal chance, expect at least 50% to account for randomness
       expect(illegalCount).toBeGreaterThan(runs * 0.5);
+    });
+  });
+
+  describe('getReachableSystems', () => {
+    it('should return direct neighbors at hop 1', () => {
+      const result = getReachableSystems(0, TEST_WORMHOLE_DATA, 1);
+      const ids = result.map((r) => r.systemId);
+      expect(ids).toEqual(expect.arrayContaining([1, 4, 7]));
+      expect(ids).toHaveLength(3);
+      result.forEach((r) => expect(r.hopCount).toBe(1));
+    });
+
+    it('should return systems up to 2 hops away', () => {
+      const result = getReachableSystems(0, TEST_WORMHOLE_DATA, 2);
+      const ids = result.map((r) => r.systemId);
+      expect(ids).toEqual(expect.arrayContaining([1, 4, 7, 5, 13]));
+      expect(ids).toHaveLength(5);
+    });
+
+    it('should include hop count for each system', () => {
+      const result = getReachableSystems(0, TEST_WORMHOLE_DATA, 2);
+      const byId = Object.fromEntries(result.map((r) => [r.systemId, r.hopCount]));
+      expect(byId[1]).toBe(1);
+      expect(byId[4]).toBe(1);
+      expect(byId[7]).toBe(1);
+      expect(byId[5]).toBe(2);
+      expect(byId[13]).toBe(2);
+    });
+
+    it('should not include the origin system', () => {
+      const result = getReachableSystems(0, TEST_WORMHOLE_DATA, 3);
+      const ids = result.map((r) => r.systemId);
+      expect(ids).not.toContain(0);
+    });
+
+    it('should handle dead-end systems (1 connection)', () => {
+      const result = getReachableSystems(7, TEST_WORMHOLE_DATA, 1);
+      expect(result).toEqual([{ systemId: 0, hopCount: 1 }]);
+    });
+
+    it('should find multi-hop destinations from dead-end systems', () => {
+      const result = getReachableSystems(7, TEST_WORMHOLE_DATA, 3);
+      const ids = result.map((r) => r.systemId);
+      expect(ids).toEqual(expect.arrayContaining([0, 1, 4, 5, 13]));
     });
   });
 
