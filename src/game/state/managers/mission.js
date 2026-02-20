@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { MISSION_CONFIG } from '../../constants.js';
+import { MISSION_CONFIG, PASSENGER_CONFIG } from '../../constants.js';
 import { generateMissionBoard } from '../../mission-generator.js';
 
 export class MissionManager extends BaseManager {
@@ -22,6 +22,17 @@ export class MissionManager extends BaseManager {
       return {
         success: false,
         reason: 'You already have this mission active.',
+      };
+    }
+
+    if (
+      mission.type === 'passenger' &&
+      mission.requirements.cargoSpace >
+        this.gameStateManager.getCargoRemaining()
+    ) {
+      return {
+        success: false,
+        reason: 'Not enough cargo space for this passenger.',
       };
     }
 
@@ -132,7 +143,11 @@ export class MissionManager extends BaseManager {
     state.missions.active.splice(missionIndex, 1);
     state.missions.completed.push(missionId);
 
-    if (mission.rewards.credits) {
+    if (mission.type === 'passenger') {
+      const payment = this.calculatePassengerPayment(mission);
+      state.player.credits += payment;
+      this.emit('creditsChanged', state.player.credits);
+    } else if (mission.rewards.credits) {
       state.player.credits += mission.rewards.credits;
       this.emit('creditsChanged', state.player.credits);
     }
@@ -168,6 +183,55 @@ export class MissionManager extends BaseManager {
     this.gameStateManager.saveGame();
 
     return { success: true, rewards: mission.rewards };
+  }
+
+  updatePassengerSatisfaction(missionId, event) {
+    const state = this.getState();
+    const mission = state.missions.active.find((m) => m.id === missionId);
+    if (!mission || mission.type !== 'passenger') return;
+
+    const weights = mission.passenger.satisfactionWeights;
+    const impacts = PASSENGER_CONFIG.SATISFACTION_IMPACTS;
+
+    let drop = 0;
+    if (event === 'delay') {
+      drop = Math.round(impacts.DELAY * (weights.speed || 0));
+    } else if (event === 'combat') {
+      drop = Math.round(impacts.COMBAT * (weights.safety || 0));
+    } else if (event === 'low_life_support') {
+      drop = Math.round(impacts.LOW_LIFE_SUPPORT * (weights.comfort || 0));
+    }
+
+    mission.passenger.satisfaction = Math.max(
+      0,
+      Math.min(100, mission.passenger.satisfaction - drop)
+    );
+    this.emit('missionsChanged', { ...state.missions });
+  }
+
+  calculatePassengerPayment(mission) {
+    const base = mission.rewards.credits;
+    const satisfaction = mission.passenger.satisfaction;
+    const thresholds = PASSENGER_CONFIG.SATISFACTION_THRESHOLDS;
+    const multipliers = PASSENGER_CONFIG.PAYMENT_MULTIPLIERS;
+
+    let multiplier;
+    if (satisfaction >= thresholds.VERY_SATISFIED)
+      multiplier = multipliers.VERY_SATISFIED;
+    else if (satisfaction >= thresholds.SATISFIED)
+      multiplier = multipliers.SATISFIED;
+    else if (satisfaction >= thresholds.NEUTRAL)
+      multiplier = multipliers.NEUTRAL;
+    else if (satisfaction >= thresholds.DISSATISFIED)
+      multiplier = multipliers.DISSATISFIED;
+    else multiplier = multipliers.VERY_DISSATISFIED;
+
+    const state = this.getState();
+    if (state.player.daysElapsed <= mission.deadlineDay) {
+      multiplier += multipliers.ON_TIME_BONUS;
+    }
+
+    return Math.round(base * multiplier);
   }
 
   abandonMission(missionId) {

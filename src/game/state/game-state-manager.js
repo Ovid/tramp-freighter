@@ -821,6 +821,10 @@ export class GameStateManager {
     return this.missionManager.getActiveMissions();
   }
 
+  updatePassengerSatisfaction(missionId, event) {
+    return this.missionManager.updatePassengerSatisfaction(missionId, event);
+  }
+
   // ========================================================================
   // EVENT ENGINE
   // ========================================================================

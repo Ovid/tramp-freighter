@@ -15,8 +15,8 @@ describe('Mission Flow Integration', () => {
     const board = manager.refreshMissionBoard();
     expect(board.length).toBeGreaterThan(0);
 
-    // 2. Accept first mission
-    const mission = board[0];
+    // 2. Accept first non-passenger mission (passenger missions use satisfaction-based payment)
+    const mission = board.find((m) => m.type !== 'passenger') || board[0];
     const acceptResult = manager.acceptMission(mission);
     expect(acceptResult.success).toBe(true);
     expect(manager.getActiveMissions()).toHaveLength(1);
