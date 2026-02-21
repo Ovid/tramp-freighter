@@ -50,7 +50,8 @@ export function DevAdminPanel({ onClose }) {
 
   // Get current state values (fall back to GameStateManager queries before events fire)
   const currentQuirks = quirks || gameStateManager.getShip()?.quirks || [];
-  const currentUpgrades = upgrades || gameStateManager.getShip()?.upgrades || [];
+  const currentUpgrades =
+    upgrades || gameStateManager.getShip()?.upgrades || [];
   const currentCargo = cargo || gameStateManager.getShip()?.cargo || [];
   const hiddenCargo = gameStateManager.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
@@ -279,12 +280,10 @@ export function DevAdminPanel({ onClose }) {
     if (currentSystem == null) return null;
 
     const dangerZone = gameStateManager.getDangerZone(currentSystem);
-    const pirateChance = gameStateManager.calculatePirateEncounterChance(
-      currentSystem
-    );
-    const inspectionChance = gameStateManager.calculateInspectionChance(
-      currentSystem
-    );
+    const pirateChance =
+      gameStateManager.calculatePirateEncounterChance(currentSystem);
+    const inspectionChance =
+      gameStateManager.calculateInspectionChance(currentSystem);
 
     return {
       dangerZone,

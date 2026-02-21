@@ -37,8 +37,12 @@ export function InfoBrokerPanel({ onClose }) {
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const priceKnowledge = useGameEvent('priceKnowledgeChanged');
-  const { purchaseIntelligence, updateCredits, generateRumor, getNarrativeFlags } =
-    useGameAction();
+  const {
+    purchaseIntelligence,
+    updateCredits,
+    generateRumor,
+    getNarrativeFlags,
+  } = useGameAction();
 
   const [activeTab, setActiveTab] = useState('purchase');
   const [rumor, setRumor] = useState('');
