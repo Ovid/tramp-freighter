@@ -102,5 +102,63 @@ describe('Cole Debt System', () => {
         expect(debtManager.getLienRate()).toBe(0);
       });
     });
+
+    describe('applyInterest', () => {
+      it('applies interest when period has elapsed', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.lastInterestDay = 0;
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.applyInterest();
+
+        // 10000 * 0.02 = 200, ceil = 200
+        expect(gsm.state.player.debt).toBe(10200);
+        expect(gsm.state.player.finance.lastInterestDay).toBe(30);
+      });
+
+      it('does not apply interest before period elapses', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.lastInterestDay = 0;
+        gsm.state.player.daysElapsed = 29;
+
+        debtManager.applyInterest();
+
+        expect(gsm.state.player.debt).toBe(10000);
+        expect(gsm.state.player.finance.lastInterestDay).toBe(0);
+      });
+
+      it('does not apply interest when debt is 0', () => {
+        gsm.state.player.debt = 0;
+        gsm.state.player.finance.lastInterestDay = 0;
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.applyInterest();
+
+        expect(gsm.state.player.debt).toBe(0);
+      });
+
+      it('rounds interest up with Math.ceil', () => {
+        gsm.state.player.debt = 150;
+        gsm.state.player.finance.lastInterestDay = 0;
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.applyInterest();
+
+        // 150 * 0.02 = 3, ceil = 3
+        expect(gsm.state.player.debt).toBe(153);
+      });
+
+      it('applies natural heat decay when no new borrowing in period', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 25;
+        gsm.state.player.finance.lastInterestDay = 0;
+        gsm.state.player.finance.borrowedThisPeriod = false;
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.applyInterest();
+
+        expect(gsm.state.player.finance.heat).toBe(24);
+      });
+    });
   });
 });

@@ -54,6 +54,30 @@ export class DebtManager extends BaseManager {
     this.emitFinanceChanged();
   }
 
+  applyInterest() {
+    this.validateState();
+    const state = this.getState();
+    const finance = this.getFinance();
+    const debt = this.getDebt();
+
+    if (debt === 0) return;
+
+    const daysSinceLast = state.player.daysElapsed - finance.lastInterestDay;
+    if (daysSinceLast < COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS) return;
+
+    const interest = Math.ceil(debt * finance.interestRate);
+    this.gameStateManager.updateDebt(debt + interest);
+    finance.lastInterestDay = state.player.daysElapsed;
+
+    // Natural heat decay if player hasn't borrowed this period
+    if (!finance.borrowedThisPeriod) {
+      this.updateHeat(COLE_DEBT_CONFIG.HEAT_NATURAL_DECAY);
+    }
+    finance.borrowedThisPeriod = false;
+
+    this.emitFinanceChanged();
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }
