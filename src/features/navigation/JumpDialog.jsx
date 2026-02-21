@@ -92,7 +92,7 @@ export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
     <div className="jump-dialog">
       <div className="jump-dialog-header">
         <h3>{targetSystem.name}</h3>
-        <button className="close-btn" onClick={onClose}>
+        <button className="close-btn" onClick={onClose} aria-label="Close">
           ×
         </button>
       </div>

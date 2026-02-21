@@ -5,7 +5,7 @@
 #game-hud {
   position: absolute;
   top: 20px;
-  left: 20px;
+  right: calc(50% + 223px + var(--panel-gap));
   width: 300px;
   background-color: var(--bg-overlay-darker);
   border: 2px solid var(--border-primary);
@@ -406,13 +406,13 @@
 }
 
 .camera-controls-toggle {
-  width: 100px;
+  width: 40px;
   height: 40px;
   background-color: var(--bg-button);
   color: #ffffff;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 20px;
   font-family: var(--font-family-mono);
   cursor: pointer;
   transition: all 0.2s;
@@ -432,9 +432,9 @@
 /* Station Interface Styling */
 #station-interface {
   position: absolute;
-  top: 50%;
+  top: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: 400px;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.95);

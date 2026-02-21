@@ -1,0 +1,112 @@
+/* Import CSS Variables */
+@import '../variables.css';
+
+/* Finance Panel Styling */
+#finance-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--panel-width-small);
+  padding: var(--panel-padding);
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  display: none;
+  z-index: var(--z-panel);
+}
+
+#finance-panel.visible {
+  display: block;
+}
+
+#finance-panel h2 {
+  margin-bottom: var(--section-gap);
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
+  text-align: center;
+}
+
+#finance-panel h3 {
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+  padding-bottom: 5px;
+}
+
+#finance-panel .close-btn {
+  position: absolute;
+  top: var(--close-button-top);
+  right: var(--close-button-right);
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
+  cursor: pointer;
+  padding: var(--close-button-padding);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+#finance-panel .close-btn:hover {
+  color: var(--color-white);
+}
+
+.finance-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+
+.finance-section {
+  background-color: var(--bg-section-primary);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+}
+
+.finance-section .info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--grid-gap-small) 0;
+}
+
+.finance-section .label {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.finance-section .value {
+  color: var(--color-white);
+}
+
+.finance-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.finance-buttons .station-btn {
+  flex: 1;
+  min-width: 80px;
+}
+
+.finance-warning {
+  color: #ff6b6b;
+  font-size: var(--font-size-small);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.borrow-btn {
+  border-color: #ff6b6b !important;
+  color: #ff6b6b !important;
+}
+
+.borrow-btn:hover {
+  background-color: rgba(255, 107, 107, 0.2) !important;
+}

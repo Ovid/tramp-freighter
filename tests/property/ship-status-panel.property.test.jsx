@@ -348,10 +348,7 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(
-          STAR_DATA,
-          WORMHOLE_DATA
-        );
+        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
         gameStateManager.initNewGame();
 
         const wrapper = createWrapper(gameStateManager);

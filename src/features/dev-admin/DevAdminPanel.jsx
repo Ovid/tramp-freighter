@@ -414,7 +414,7 @@ export function DevAdminPanel({ onClose }) {
 
   return (
     <div id="dev-admin-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>🔧 Dev Admin Panel</h2>
@@ -575,55 +575,56 @@ export function DevAdminPanel({ onClose }) {
               ))}
           </select>
         </div>
-        {selectedNpcId && (() => {
-          const npc = ALL_NPCS.find((n) => n.id === selectedNpcId);
-          const rep = parseInt(npcRepInputs[selectedNpcId]) || 0;
-          const tierName =
-            Object.values(REPUTATION_TIERS).find(
-              (t) => rep >= t.min && rep <= t.max
-            )?.name || 'Unknown';
-          return (
-            <div className="dev-admin-faction-row">
-              <div className="dev-admin-npc-label">
-                {npc.name}{' '}
-                <span className="dev-admin-npc-tier">
-                  {rep} ({tierName})
-                </span>
+        {selectedNpcId &&
+          (() => {
+            const npc = ALL_NPCS.find((n) => n.id === selectedNpcId);
+            const rep = parseInt(npcRepInputs[selectedNpcId]) || 0;
+            const tierName =
+              Object.values(REPUTATION_TIERS).find(
+                (t) => rep >= t.min && rep <= t.max
+              )?.name || 'Unknown';
+            return (
+              <div className="dev-admin-faction-row">
+                <div className="dev-admin-npc-label">
+                  {npc.name}{' '}
+                  <span className="dev-admin-npc-tier">
+                    {rep} ({tierName})
+                  </span>
+                </div>
+                <div className="dev-admin-control">
+                  <input
+                    type="number"
+                    value={npcRepInputs[selectedNpcId] || '0'}
+                    onChange={(e) =>
+                      setNpcRepInputs((prev) => ({
+                        ...prev,
+                        [selectedNpcId]: e.target.value,
+                      }))
+                    }
+                    min="-100"
+                    max="100"
+                  />
+                  <button onClick={() => handleSetNpcRep(selectedNpcId)}>
+                    Set
+                  </button>
+                </div>
+                <div className="dev-admin-quick-buttons npc">
+                  {Object.entries(REPUTATION_TIER_PRESETS).map(
+                    ([tierKey, presetValue]) => (
+                      <button
+                        key={tierKey}
+                        onClick={() =>
+                          handleQuickNpcRep(selectedNpcId, presetValue)
+                        }
+                      >
+                        {REPUTATION_TIERS[tierKey].name}
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
-              <div className="dev-admin-control">
-                <input
-                  type="number"
-                  value={npcRepInputs[selectedNpcId] || '0'}
-                  onChange={(e) =>
-                    setNpcRepInputs((prev) => ({
-                      ...prev,
-                      [selectedNpcId]: e.target.value,
-                    }))
-                  }
-                  min="-100"
-                  max="100"
-                />
-                <button onClick={() => handleSetNpcRep(selectedNpcId)}>
-                  Set
-                </button>
-              </div>
-              <div className="dev-admin-quick-buttons npc">
-                {Object.entries(REPUTATION_TIER_PRESETS).map(
-                  ([tierKey, presetValue]) => (
-                    <button
-                      key={tierKey}
-                      onClick={() =>
-                        handleQuickNpcRep(selectedNpcId, presetValue)
-                      }
-                    >
-                      {REPUTATION_TIERS[tierKey].name}
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
       </div>
 
       {/* Ship Quirks Section */}

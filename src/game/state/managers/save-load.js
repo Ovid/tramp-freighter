@@ -177,6 +177,9 @@ export class SaveLoadManager extends BaseManager {
     this.emit('quirksChanged', loadedState.ship.quirks);
     this.emit('karmaChanged', loadedState.player.karma || 0);
     this.emit('factionRepChanged', loadedState.player.factions || {});
+    if (loadedState.player.finance) {
+      this.emit('financeChanged', loadedState.player.finance);
+    }
     if (loadedState.missions) {
       this.emit('missionsChanged', loadedState.missions);
     }

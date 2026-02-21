@@ -233,7 +233,7 @@ describe('DialoguePanel Lifecycle', () => {
       });
 
       // Click the close button
-      const closeButton = screen.getByLabelText('Close dialogue');
+      const closeButton = screen.getByLabelText('Close');
       fireEvent.click(closeButton);
 
       // Should call onClose (may be called multiple times due to manual close + auto-close effect)
@@ -262,7 +262,7 @@ describe('DialoguePanel Lifecycle', () => {
       expect(dialogueState.isActive).toBe(true);
 
       // Click the close button
-      const closeButton = screen.getByLabelText('Close dialogue');
+      const closeButton = screen.getByLabelText('Close');
       fireEvent.click(closeButton);
 
       // Dialogue state should be cleared

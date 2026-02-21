@@ -5,9 +5,8 @@
 
 .system-panel {
   position: absolute;
-  top: 50%;
-  right: 50px;
-  transform: translateY(-50%);
+  top: 20px;
+  left: calc(50% + 223px + var(--panel-gap));
   width: 350px;
   max-height: 80vh;
   padding: var(--panel-padding);

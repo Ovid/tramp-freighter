@@ -328,7 +328,7 @@ export function RepairPanel({ onClose }) {
   if (!currentSystem) {
     return (
       <div id="repair-panel" className="visible">
-        <button className="close-btn" onClick={onClose}>
+        <button className="close-btn" onClick={onClose} aria-label="Close">
           ×
         </button>
         <h2>Repairs - Error</h2>
@@ -351,7 +351,7 @@ export function RepairPanel({ onClose }) {
 
   return (
     <div id="repair-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>

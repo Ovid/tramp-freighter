@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';

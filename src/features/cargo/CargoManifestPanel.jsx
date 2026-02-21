@@ -101,7 +101,7 @@ export function CargoManifestPanel({ onClose }) {
 
   return (
     <div id="cargo-manifest-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>

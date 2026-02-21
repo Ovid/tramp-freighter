@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * CameraControls component provides debug/camera control buttons.
@@ -29,15 +29,33 @@ export function CameraControls({
   onToggleBoundary,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [antimatter, setAntimatter] = useState(false);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
 
+  useEffect(() => {
+    if (antimatter) {
+      document.documentElement.classList.add('antimatter');
+    } else {
+      document.documentElement.classList.remove('antimatter');
+    }
+    return () => document.documentElement.classList.remove('antimatter');
+  }, [antimatter]);
+
+  const toggleAntimatter = () => {
+    setAntimatter((prev) => !prev);
+  };
+
   return (
     <div id="camera-controls" className={isExpanded ? 'expanded' : 'collapsed'}>
-      <button className="camera-controls-toggle" onClick={toggleExpanded}>
-        {isExpanded ? '◀' : '▶'} Camera
+      <button
+        className="camera-controls-toggle"
+        onClick={toggleExpanded}
+        aria-label="Toggle settings"
+      >
+        ⚙
       </button>
 
       {isExpanded && (
@@ -49,16 +67,22 @@ export function CameraControls({
             Zoom Out
           </button>
           <button
-            className={`control-btn ${cameraState.autoRotationEnabled ? 'active' : ''}`}
+            className={`control-btn ${cameraState.autoRotationEnabled ? '' : 'active'}`}
             onClick={onToggleRotation}
           >
             Toggle Rotation
           </button>
           <button
-            className={`control-btn ${cameraState.boundaryVisible ? 'active' : ''}`}
+            className={`control-btn ${cameraState.boundaryVisible ? '' : 'active'}`}
             onClick={onToggleBoundary}
           >
             Toggle Boundary
+          </button>
+          <button
+            className={`control-btn ${antimatter ? 'active' : ''}`}
+            onClick={toggleAntimatter}
+          >
+            {antimatter ? 'Matter' : 'Antimatter'}
           </button>
         </div>
       )}

@@ -144,7 +144,7 @@ export function RefuelPanel({ onClose }) {
 
   return (
     <div id="refuel-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>Refuel</h2>

@@ -97,7 +97,7 @@ export function ShipStatusPanel({ onClose }) {
 
   return (
     <div id="ship-status-panel" className="ship-status-panel visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>SHIP STATUS — {shipName}</h2>

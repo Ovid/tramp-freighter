@@ -103,7 +103,11 @@ export class TradingManager extends BaseManager {
     const totalRevenue = quantity * salePrice;
     const profitMargin = salePrice - stack.buyPrice;
 
-    this.gameStateManager.updateCredits(state.player.credits + totalRevenue);
+    // Apply Cole's lien withholding before crediting player
+    const { withheld } =
+      this.gameStateManager.applyTradeWithholding(totalRevenue);
+    const playerReceives = totalRevenue - withheld;
+    this.gameStateManager.updateCredits(state.player.credits + playerReceives);
 
     if (state.stats) {
       state.stats.cargoHauled += quantity;
@@ -128,6 +132,7 @@ export class TradingManager extends BaseManager {
     return {
       success: true,
       profitMargin: profitMargin,
+      withheld,
     };
   }
 

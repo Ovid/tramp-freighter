@@ -227,7 +227,7 @@ export function UpgradesPanel({ onClose }) {
 
   return (
     <div id="upgrades-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>

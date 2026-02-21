@@ -67,7 +67,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
 
   return (
     <div id="station-interface" className="visible">
-      <button className="close-btn" onClick={onUndock}>
+      <button className="close-btn" onClick={onUndock} aria-label="Close">
         ×
       </button>
       <h2>{system.name} Station</h2>
@@ -112,6 +112,9 @@ export function StationMenu({ onOpenPanel, onUndock }) {
           onClick={() => onOpenPanel('mission-board')}
         >
           Mission Board
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('finance')}>
+          Finance
         </button>
         <button className="station-btn" onClick={() => onOpenPanel('trade')}>
           Trade

@@ -93,11 +93,7 @@ export function DialoguePanel({ npcId, onClose }) {
   if (!dialogueState.isActive || !dialogueState.display) {
     return (
       <div className="dialogue-panel visible">
-        <button
-          className="close-btn"
-          onClick={handleClose}
-          aria-label="Close dialogue"
-        >
+        <button className="close-btn" onClick={handleClose} aria-label="Close">
           ×
         </button>
         <div className="dialogue-loading">Loading dialogue...</div>
@@ -109,11 +105,7 @@ export function DialoguePanel({ npcId, onClose }) {
 
   return (
     <div className="dialogue-panel visible">
-      <button
-        className="close-btn"
-        onClick={handleClose}
-        aria-label="Close dialogue"
-      >
+      <button className="close-btn" onClick={handleClose} aria-label="Close">
         ×
       </button>
 

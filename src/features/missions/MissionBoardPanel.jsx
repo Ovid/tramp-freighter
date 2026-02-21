@@ -23,7 +23,7 @@ export function MissionBoardPanel({ onClose }) {
 
   return (
     <div id="mission-board-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         &times;
       </button>
       <h2>Mission Board</h2>

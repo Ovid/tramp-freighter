@@ -268,7 +268,7 @@ export function InfoBrokerPanel({ onClose }) {
 
   return (
     <div id="info-broker-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>

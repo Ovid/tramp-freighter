@@ -36,6 +36,11 @@ button:focus:not(:focus-visible) {
   outline: none;
 }
 
+/* Antimatter Mode - inverts all colors */
+html.antimatter {
+  filter: invert(1);
+}
+
 /* Panel Container - minimal wrapper for React panels */
 .panel-container {
   /* No positioning or styling - panels handle their own */

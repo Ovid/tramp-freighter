@@ -38,6 +38,7 @@ The app uses a **Bridge Pattern** to connect the imperative `GameStateManager` s
 - **GameStateManager**: Single source of truth for all game state
 - **Event System**: Components subscribe via `useGameEvent`, trigger changes via `useGameAction`
 - **Manager Delegation**: GameStateManager delegates to specialized managers in `src/game/state/managers/`
+- **Event Emission Convention**: Low-level mutation helpers (e.g., `updateHeat`, `clampHeat`) intentionally do NOT emit events. Orchestrating methods (e.g., `borrow`, `makePayment`) perform all mutations first, then emit a single event at the end. This prevents double-emissions and broadcasting stale intermediate state. Do not flag missing event emissions in helper methods as bugs.
 
 ### Feature-Based Organization
 
@@ -520,6 +521,7 @@ TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
 - **useEffect cleanup**: Always clean up subscriptions, timers, Three.js resources
 - **No object creation in loops**: Cache objects in `useRef` or `useState`
 - **Three.js initialization**: Once in `useEffect` with empty deps `[]`
+- **Accessibility**: Full a11y pass is planned. New/modified components should include basic a11y: `aria-label` on icon-only buttons, semantic HTML, and keyboard-navigable controls
 
 ### Import Order
 

@@ -86,7 +86,9 @@ describe('Price locking prevents intra-system arbitrage', () => {
   });
 
   it('should prevent buy-sell arbitrage exploit', () => {
-    const initialCredits = gameStateManager.getState().player.credits;
+    const state = gameStateManager.getState();
+    const initialCredits = state.player.credits;
+    const initialDebt = state.player.debt;
 
     // Get locked prices
     const lockedPrices = gameStateManager.getCurrentSystemPrices();
@@ -101,23 +103,31 @@ describe('Price locking prevents intra-system arbitrage', () => {
     expect(creditsAfterBuy).toBe(expectedCostAfterBuy);
 
     // Immediately sell the same ore back
-    // With locked prices, this should result in break-even
-    const state = gameStateManager.getState();
+    // With locked prices, this should result in break-even (minus any debt withholding)
     const cargoStackIndex = state.ship.cargo.findIndex(
       (stack) => stack.good === 'ore'
     );
     expect(cargoStackIndex).toBeGreaterThanOrEqual(0);
 
-    gameStateManager.sellGood(cargoStackIndex, buyQuantity, orePrice);
+    const result = gameStateManager.sellGood(
+      cargoStackIndex,
+      buyQuantity,
+      orePrice
+    );
 
     const creditsAfterSell = gameStateManager.getState().player.credits;
+    const debtAfterSell = gameStateManager.getState().player.debt;
+    const withheld = result.withheld || 0;
 
-    // Should be back to initial credits (break-even)
-    expect(creditsAfterSell).toBe(initialCredits);
+    // Credits + withheld should equal initial credits (no arbitrage profit)
+    expect(creditsAfterSell + withheld).toBe(initialCredits);
+
+    // Debt should have decreased by the withheld amount
+    expect(debtAfterSell).toBe(initialDebt - withheld);
 
     // Verify no profit was made from arbitrage
     const profit = creditsAfterSell - initialCredits;
-    expect(profit).toBe(0);
+    expect(profit).toBeLessThanOrEqual(0);
   });
 
   it('should update locked prices when jumping to a new system', () => {
