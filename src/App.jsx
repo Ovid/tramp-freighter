@@ -324,7 +324,6 @@ export default function App({ devMode = false }) {
 
   const handlePavonisComplete = () => {
     gameStateManager.markVictory();
-    gameStateManager.saveGame();
     setViewMode(VIEW_MODES.EPILOGUE);
   };
 

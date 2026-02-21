@@ -950,6 +950,7 @@ export class GameStateManager {
   markVictory() {
     if (this.state.meta) {
       this.state.meta.victory = true;
+      this.saveGame();
     }
   }
 }
