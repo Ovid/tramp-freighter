@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { ENDGAME_CONFIG } from '../../constants.js';
+import { ENDGAME_CONFIG, SHIP_CONFIG } from '../../constants.js';
 
 export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
@@ -83,7 +83,7 @@ export class QuestManager extends BaseManager {
 
     if (rewards.engineRestore) {
       const state = this.getState();
-      state.ship.engine = 100;
+      state.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
       this.emit('shipConditionChanged', {
         hull: state.ship.hull,
         engine: state.ship.engine,
