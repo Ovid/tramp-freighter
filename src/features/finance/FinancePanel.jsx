@@ -80,7 +80,10 @@ export function FinancePanel({ onClose }) {
           </div>
           <div className="info-row">
             <span className="label">Interest:</span>
-            <span className="value">{interestPercent}% every {COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS} days</span>
+            <span className="value">
+              {interestPercent}% every {COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS}{' '}
+              days
+            </span>
           </div>
           <div className="info-row">
             <span className="label">Next interest:</span>
