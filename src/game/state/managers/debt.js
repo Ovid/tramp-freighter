@@ -146,7 +146,8 @@ export class DebtManager extends BaseManager {
     // Increase heat
     const heatIncrease =
       COLE_DEBT_CONFIG.HEAT_BORROW_BASE +
-      Math.floor(amount / 500) * COLE_DEBT_CONFIG.HEAT_BORROW_PER_500;
+      Math.floor(amount / COLE_DEBT_CONFIG.HEAT_BORROW_STEP) *
+        COLE_DEBT_CONFIG.HEAT_BORROW_PER_STEP;
     this.updateHeat(heatIncrease);
 
     // Accelerate next checkpoint

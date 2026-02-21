@@ -46,7 +46,8 @@ export const COLE_DEBT_CONFIG = {
 
   // Heat changes
   HEAT_BORROW_BASE: 8,
-  HEAT_BORROW_PER_500: 2,
+  HEAT_BORROW_STEP: 500,
+  HEAT_BORROW_PER_STEP: 2,
   HEAT_MISSED_CHECKPOINT: 10,
   HEAT_VOLUNTARY_PAYMENT: -3,
   HEAT_NATURAL_DECAY: -1,
@@ -634,7 +635,7 @@ borrow(amount) {
 
   // Increase heat
   const heatIncrease = COLE_DEBT_CONFIG.HEAT_BORROW_BASE +
-    Math.floor(amount / 500) * COLE_DEBT_CONFIG.HEAT_BORROW_PER_500;
+    Math.floor(amount / COLE_DEBT_CONFIG.HEAT_BORROW_STEP) * COLE_DEBT_CONFIG.HEAT_BORROW_PER_STEP;
   this.updateHeat(heatIncrease);
 
   // Accelerate next checkpoint
