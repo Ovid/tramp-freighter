@@ -38,6 +38,7 @@ The app uses a **Bridge Pattern** to connect the imperative `GameStateManager` s
 - **GameStateManager**: Single source of truth for all game state
 - **Event System**: Components subscribe via `useGameEvent`, trigger changes via `useGameAction`
 - **Manager Delegation**: GameStateManager delegates to specialized managers in `src/game/state/managers/`
+- **Event Emission Convention**: Low-level mutation helpers (e.g., `updateHeat`, `clampHeat`) intentionally do NOT emit events. Orchestrating methods (e.g., `borrow`, `makePayment`) perform all mutations first, then emit a single event at the end. This prevents double-emissions and broadcasting stale intermediate state. Do not flag missing event emissions in helper methods as bugs.
 
 ### Feature-Based Organization
 
