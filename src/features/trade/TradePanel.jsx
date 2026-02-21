@@ -137,7 +137,7 @@ export function TradePanel({ onClose }) {
 
     if (saleOutcome.withheld > 0) {
       setSaleFeedback(
-        `Revenue: ₡${saleOutcome.totalRevenue} · Cole's cut: -₡${saleOutcome.withheld} · You receive: ₡${saleOutcome.playerReceives}`
+        `Revenue: ₡${saleOutcome.totalRevenue.toLocaleString()} · Cole's cut: -₡${saleOutcome.withheld.toLocaleString()} · You receive: ₡${saleOutcome.playerReceives.toLocaleString()}`
       );
     }
   };
