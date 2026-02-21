@@ -374,6 +374,10 @@ Components can subscribe to these events via `useGameEvent()`:
 5. **State mutation**: Avoid shallow copies - use `.map()` and `.filter()` for new objects
 6. **Nullish coalescing**: Prefer `??` over `||` to handle zero values correctly
 
+### One-Shot Events Are Intentional
+
+Some events emit a constant primitive (e.g., `pavonisRunTriggered` emits `true`) because they are **designed to fire exactly once**. The Pavonis run is an irreversible endgame finale — React's deduplication of identical primitive state is irrelevant because the event cannot and should not fire twice. Do NOT flag one-shot terminal events as bugs due to primitive payload deduplication.
+
 ## Development Workflow
 
 ### Commands
