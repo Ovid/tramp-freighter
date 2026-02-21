@@ -49,6 +49,20 @@ describe('Quest dialogue reward timing', () => {
     });
   });
 
+  describe('Tanaka backstory consistency with spec', () => {
+    it('dialogue references sister leaving ten years ago, not fifteen', () => {
+      const whyPavonis = YUKI_TANAKA_DIALOGUE.why_pavonis;
+      expect(whyPavonis.text).toContain('ten years ago');
+      expect(whyPavonis.text).not.toContain('fifteen years ago');
+    });
+
+    it('sister dialogue references ten years, not fifteen', () => {
+      const sister = YUKI_TANAKA_DIALOGUE.sister;
+      expect(sister.text).toContain('ten years');
+      expect(sister.text).not.toContain('fifteen years');
+    });
+  });
+
   describe('Design Note 2: completion choices hide after rewards claimed', () => {
     const completionChoiceTexts = [
       '"The field test is complete."',

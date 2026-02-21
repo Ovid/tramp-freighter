@@ -189,7 +189,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   why_pavonis: {
-    text: '"Data suggests habitable conditions. But more than that — my sister went there. On the colony ship Meridian, fifteen years ago. One-way trip." She looks away. "I want to find her."',
+    text: '"Data suggests habitable conditions. But more than that — my sister went there. On the colony ship Meridian, ten years ago. One-way trip." She looks away. "I want to find her."',
     choices: [
       {
         text: '"I hope you find her."',
@@ -273,7 +273,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   sister: {
-    text: '"Yumi. Three years older. Brilliant biologist. She signed up for the Meridian colony mission without telling anyone. Left a note." Tanaka\'s jaw tightens. "I have not spoken to her in fifteen years. The Meridian has no communication relay back to Sol."',
+    text: '"Yumi. Three years older. Brilliant biologist. She signed up for the Meridian colony mission without telling anyone. Left a note." Tanaka\'s jaw tightens. "I have not spoken to her in ten years. The Meridian has no communication relay back to Sol."',
     choices: [
       {
         text: '"That\'s why you want to reach Delta Pavonis."',
