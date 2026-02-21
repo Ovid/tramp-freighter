@@ -1,16 +1,28 @@
 # TODO
  
+- Yuki Tanaka rep required for end game How do we improve that rep?
+    - advanced sensor array is a reward. What does that do?
+Endgame NOT FULLY TESTED (2)
+    1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
+  test endgame efficiently. Individual mission mechanics (exotic material collection,
+  prototype jump, message delivery) not gameplay-tested.
+    2. Epilogue variations — Only saw one epilogue path (moderate karma). High
+  karma/low karma/smuggler variations not tested.
 
-- Search-easily search for a star and highlight it.
-- Verify that pirate encounters are random. They seem more common than I
-  was expecting.
+- Jump animations are hidden behind encounters, such as customs or pirates. It
+  would be nice if we could see the "start" of the jump and, near the end, the
+  panel then pops up.
+- Camera -> Gear Icon
+    - Search-easily search for a star and highlight it (case insensitive and
+      partial matches might hightlight more than one star? How would that
+      work? Would it break things?)
+    - Antimatter Mode-like "light/dark mode", this toggles between
+      "Antimatter" and "Matter" (no description, let the player find out).
+      However, "Antimatter model" inverts the colors. Should create a bizarre
+      visual effect.
 - Validate that narrative messages don't imply things that aren't true (such
   as offering to sell you something for half-price and then not letting you
   buy)
-- Wei Chen is a notable person at Microsoft. Audit NPC names to ensure they
-  aren't notable people (and "Wei" is female, but the MS person is male)
-- Transport Cargo missions require me to pay for the cargo. This means I lose
-  a lot of money.
 
 - NPC portraits?  Player have a name?
     Images for other things? Need to create a theme that I can use
@@ -50,7 +62,8 @@
 - Multiple games at once?
 - Can we make this work on mobile?
 - After the last design doc is implemented, we need a new game to start with
-  instructions. The UI needs to have a convenient place to show them, too, so
+  instructions. The UI needs to have a convenient place to show them, too,
+  (see the "Camera" change) so
   players can consult. The instructions should not give away too much. The
   goal is retirement. Space is dangerous. You have a tramp freighter. Here's
   basic navigation. Now explore. The instructions should also mention that the
@@ -59,7 +72,6 @@
   visible. And yes, the majority of stars are red dwarfs. Until modern
   astronomy, we didn't know they existed because they were too dim to be seen
   by the naked eye.
-- Makes sure that information messaged don't show in logs unless .dev exists
 - i18n?
 - Code Coverage
 - Liskov and Law of Demeter?
@@ -69,19 +81,15 @@
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
   Is the ship info worth it?
-- COMMODITY_TYPES duplication
 - Ability to rename ship
 - X/Y/Z should be fixed for star data. Get more star info?
-- Admin process for adjusting data for testing
-- On jump, panel not always hidden.
 - Economic events should last longer (and not have the popup every time)
-- Dead code check
 - Duplicate tests?
 - System info to show tech level?
 - Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
-- Needs a tutorial.
 - Some kind of "Achievement" system (visited all stars, for example)
+    - It needs to validate that all achievements in the game are possible.
 
 # Notes
 

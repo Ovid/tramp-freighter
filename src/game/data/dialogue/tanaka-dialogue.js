@@ -64,8 +64,17 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 4 &&
-          gameStateManager.getQuestState('tanaka')?.data?.messageDelivered &&
+          gameStateManager.hasClaimedStageRewards('tanaka') &&
           gameStateManager.canStartQuestStage('tanaka', 5),
+      },
+      {
+        text: '"I delivered the message to Vasquez."',
+        next: 'mission_4_complete',
+        condition: (rep, gameStateManager) =>
+          gameStateManager &&
+          gameStateManager.getQuestStage('tanaka') === 4 &&
+          gameStateManager.checkQuestObjectives('tanaka') &&
+          !gameStateManager.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"About that personal request..."',
@@ -73,6 +82,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 3 &&
+          gameStateManager.hasClaimedStageRewards('tanaka') &&
           gameStateManager.canStartQuestStage('tanaka', 4),
       },
       {
@@ -81,7 +91,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 3 &&
-          gameStateManager.checkQuestObjectives('tanaka'),
+          gameStateManager.checkQuestObjectives('tanaka') &&
+          !gameStateManager.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"I\'m ready for the prototype installation."',
@@ -89,7 +100,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 2 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
+          gameStateManager.hasClaimedStageRewards('tanaka') &&
           gameStateManager.canStartQuestStage('tanaka', 3),
       },
       {
@@ -98,7 +109,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 2 &&
-          gameStateManager.checkQuestObjectives('tanaka'),
+          gameStateManager.checkQuestObjectives('tanaka') &&
+          !gameStateManager.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"I can help you find those rare materials."',
@@ -106,7 +118,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 1 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
+          gameStateManager.hasClaimedStageRewards('tanaka') &&
           gameStateManager.canStartQuestStage('tanaka', 2),
       },
       {
@@ -115,7 +127,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         condition: (rep, gameStateManager) =>
           gameStateManager &&
           gameStateManager.getQuestStage('tanaka') === 1 &&
-          gameStateManager.checkQuestObjectives('tanaka'),
+          gameStateManager.checkQuestObjectives('tanaka') &&
+          !gameStateManager.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"You mentioned needing a field test?"',
@@ -176,7 +189,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   why_pavonis: {
-    text: '"Data suggests habitable conditions. But more than that — my sister went there. On the colony ship Meridian, fifteen years ago. One-way trip." She looks away. "I want to find her."',
+    text: '"Data suggests habitable conditions. But more than that — my sister went there. On the colony ship Meridian, ten years ago. One-way trip." She looks away. "I want to find her."',
     choices: [
       {
         text: '"I hope you find her."',
@@ -260,7 +273,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   sister: {
-    text: '"Yumi. Three years older. Brilliant biologist. She signed up for the Meridian colony mission without telling anyone. Left a note." Tanaka\'s jaw tightens. "I have not spoken to her in fifteen years. The Meridian has no communication relay back to Sol."',
+    text: '"Yumi. Three years older. Brilliant biologist. She signed up for the Meridian colony mission without telling anyone. Left a note." Tanaka\'s jaw tightens. "I have not spoken to her in ten years. The Meridian has no communication relay back to Sol."',
     choices: [
       {
         text: '"That\'s why you want to reach Delta Pavonis."',
@@ -310,11 +323,17 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"What\'s next?"',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
       {
         text: '"Pleasure doing business."',
         next: null,
         repGain: 1,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
     ],
   },
@@ -354,6 +373,9 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"What comes next?"',
         next: 'greeting',
         repGain: 3,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
     ],
   },
@@ -377,7 +399,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_3_accepted: {
-    text: '"Installation complete. The Range Extender sits dormant until activation — it will not interfere with normal operations." She wipes her hands. "Two thousand credits for the installation work. And my thanks."',
+    text: '"Installation complete. The Range Extender sits dormant until activation — it will not interfere with normal operations." She wipes her hands. "Take a test flight. Come back and we will verify the readings."',
     choices: [
       {
         text: '"Thank you, Tanaka."',
@@ -388,16 +410,22 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_3_complete: {
-    text: '"All readings nominal. The prototype is stable." She looks at you differently now — with something approaching trust. "There is something else I need. Something personal."',
+    text: '"All readings nominal. The prototype is stable." She transfers your payment and looks at you differently now — with something approaching trust. "There is something else I need. Something personal."',
     choices: [
       {
         text: '"Name it."',
-        next: 'mission_4_offer',
+        next: 'greeting',
         repGain: 2,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
       {
         text: '"I\'ll hear you out."',
-        next: 'mission_4_offer',
+        next: 'greeting',
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
     ],
   },
@@ -425,11 +453,33 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_4_accepted: {
-    text: 'She hands you a sealed data chip. Her hand trembles slightly. "It is... just a letter. Fifteen years of things I should have said." She straightens. "Vasquez is at Eridani Hub. Epsilon Eridani."',
+    text: 'She hands you a sealed data chip. Her hand trembles slightly. "It is... just a letter. Ten years of things I should have said." She straightens. "Vasquez is at Eridani Hub. Epsilon Eridani."',
     choices: [
       {
         text: '"I\'ll make sure it gets there."',
         next: null,
+      },
+    ],
+  },
+
+  mission_4_complete: {
+    text: '"You delivered it." Her voice is quiet. "That message... it means everything." She composes herself. "When you are ready for the final preparations, we should talk."',
+    choices: [
+      {
+        text: '"She would want to hear from you."',
+        next: 'greeting',
+        repGain: 3,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
+      },
+      {
+        text: '"Glad I could help."',
+        next: null,
+        repGain: 1,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
     ],
   },
@@ -461,6 +511,9 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"Together."',
         next: null,
         repGain: 5,
+        action: (gameStateManager) => {
+          return gameStateManager.claimStageRewards('tanaka');
+        },
       },
     ],
   },

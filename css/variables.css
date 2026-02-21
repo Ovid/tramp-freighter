@@ -23,6 +23,7 @@
   --bg-overlay-light: rgba(0, 0, 0, 0.2);
   --bg-overlay-dark: rgba(0, 0, 0, 0.4);
   --bg-overlay-darker: rgba(0, 0, 0, 0.5);
+  --bg-button: #222222;
 
   /* Border Colors */
   --border-primary: #00ff88;

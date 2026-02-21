@@ -48,13 +48,7 @@ export class QuestManager extends BaseManager {
       questState.startedDay = state.player.daysElapsed;
     }
 
-    const stageDef = questDef.stages.find((s) => s.stage === nextStage);
-
     questState.stage = nextStage;
-
-    if (stageDef?.rewards) {
-      this._applyRewards(stageDef.rewards);
-    }
 
     if (nextStage >= questDef.victoryStage) {
       questState.completedDay = state.player.daysElapsed;
@@ -64,6 +58,44 @@ export class QuestManager extends BaseManager {
     this.gameStateManager.saveGame();
 
     return { success: true, stage: nextStage };
+  }
+
+  claimStageRewards(questId) {
+    const questDef = this.questDefinitions[questId];
+    const questState = this.getQuestState(questId);
+    if (!questDef || !questState) {
+      return { success: false, reason: 'Quest not found' };
+    }
+
+    const currentStage = questState.stage;
+    const stageDef = questDef.stages.find((s) => s.stage === currentStage);
+    if (!stageDef) {
+      return { success: false, reason: 'Invalid stage' };
+    }
+
+    if ((questState.data._rewardsClaimedStage || 0) >= currentStage) {
+      return { success: false, reason: 'Rewards already claimed' };
+    }
+
+    if (!this.checkObjectivesComplete(questId)) {
+      return { success: false, reason: 'Objectives not complete' };
+    }
+
+    if (stageDef.rewards) {
+      this._applyRewards(stageDef.rewards);
+    }
+
+    questState.data._rewardsClaimedStage = currentStage;
+    this.emit('questChanged', { ...this.getState().quests });
+    this.gameStateManager.saveGame();
+
+    return { success: true, stage: currentStage };
+  }
+
+  hasClaimedStageRewards(questId) {
+    const questState = this.getQuestState(questId);
+    if (!questState) return false;
+    return (questState.data._rewardsClaimedStage || 0) >= questState.stage;
   }
 
   _applyRewards(rewards) {

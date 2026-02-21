@@ -343,52 +343,32 @@ describe('ShipStatusPanel Property Tests', () => {
     );
   });
 
-  it('should apply correct color class based on condition level', () => {
+  it('should apply per-system color classes matching the HUD', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 0, max: 100 }),
-        fc.integer({ min: 0, max: 100 }),
-        fc.integer({ min: 0, max: 100 }),
-        (hull, engine, lifeSupport) => {
-          cleanup();
+      fc.property(fc.constant(null), () => {
+        cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+        const gameStateManager = new GameStateManager(
+          STAR_DATA,
+          WORMHOLE_DATA
+        );
+        gameStateManager.initNewGame();
 
-          // Set specific condition values
-          gameStateManager.state.ship.hull = hull;
-          gameStateManager.state.ship.engine = engine;
-          gameStateManager.state.ship.lifeSupport = lifeSupport;
+        const wrapper = createWrapper(gameStateManager);
 
-          const wrapper = createWrapper(gameStateManager);
+        const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
+          wrapper,
+        });
 
-          // Render ShipStatusPanel
-          const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
-            wrapper,
-          });
+        const conditionBars = container.querySelectorAll('.condition-bar');
+        expect(conditionBars.length).toBe(3);
 
-          // Get all condition bars
-          const conditionBars = container.querySelectorAll('.condition-bar');
-
-          // Verify each bar has appropriate color class
-          const conditions = [hull, engine, lifeSupport];
-          conditionBars.forEach((bar, index) => {
-            const value = conditions[index];
-
-            if (value < 30) {
-              expect(bar.classList.contains('critical')).toBe(true);
-            } else if (value < 60) {
-              expect(bar.classList.contains('warning')).toBe(true);
-            } else {
-              expect(bar.classList.contains('good')).toBe(true);
-            }
-          });
-        }
-      ),
-      { numRuns: 20 }
+        // Bars use per-system classes matching HUD colors
+        expect(conditionBars[0].classList.contains('hull')).toBe(true);
+        expect(conditionBars[1].classList.contains('engine')).toBe(true);
+        expect(conditionBars[2].classList.contains('life-support')).toBe(true);
+      }),
+      { numRuns: 10 }
     );
   });
 

@@ -870,6 +870,17 @@ export const REPUTATION_TIERS = {
 };
 
 /**
+ * Tier midpoints for dev admin quick-set buttons.
+ * Each value falls at the midpoint of the corresponding tier range.
+ */
+export const REPUTATION_TIER_PRESETS = Object.fromEntries(
+  Object.entries(REPUTATION_TIERS).map(([key, tier]) => [
+    key,
+    Math.round((tier.min + tier.max) / 2),
+  ])
+);
+
+/**
  * NPC Data Validation Configuration
  *
  * Required fields and properties for NPC definitions to ensure data integrity.

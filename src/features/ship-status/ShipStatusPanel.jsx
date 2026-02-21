@@ -30,19 +30,11 @@ export function ShipStatusPanel({ onClose }) {
    * @param {number} value - Condition value (0-100)
    * @returns {JSX.Element} Condition bar element
    */
-  const renderConditionBar = (label, value) => {
-    // Determine color based on condition level
-    let colorClass = 'good';
-    if (value < 30) {
-      colorClass = 'critical';
-    } else if (value < 60) {
-      colorClass = 'warning';
-    }
-
+  const renderConditionBar = (label, value, systemClass) => {
     return (
       <div className="ship-status-condition-item" key={label}>
         <div className="info-label">{label}</div>
-        <div className={`condition-bar ${colorClass}`}>
+        <div className={`condition-bar ${systemClass}`}>
           <div className="condition-fill" style={{ width: `${value}%` }}>
             <span className="condition-value">{value.toFixed(0)}%</span>
           </div>
@@ -114,9 +106,13 @@ export function ShipStatusPanel({ onClose }) {
       <div className="ship-status-section">
         <h3>Condition</h3>
         <div className="ship-status-conditions">
-          {renderConditionBar('Hull', shipCondition.hull)}
-          {renderConditionBar('Engine', shipCondition.engine)}
-          {renderConditionBar('Life Support', shipCondition.lifeSupport)}
+          {renderConditionBar('Hull', shipCondition.hull, 'hull')}
+          {renderConditionBar('Engine', shipCondition.engine, 'engine')}
+          {renderConditionBar(
+            'Life Support',
+            shipCondition.lifeSupport,
+            'life-support'
+          )}
         </div>
       </div>
 

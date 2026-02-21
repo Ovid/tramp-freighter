@@ -133,6 +133,7 @@
 /* Quick buttons for karma and faction rep */
 .dev-admin-quick-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 6px;
   margin-left: 108px;
@@ -163,6 +164,21 @@
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
+}
+
+/* NPC reputation row styling */
+.dev-admin-npc-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.dev-admin-npc-tier {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.dev-admin-quick-buttons.npc {
+  margin-left: 0;
 }
 
 /* List styling for quirks and upgrades */

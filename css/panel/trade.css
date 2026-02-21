@@ -111,7 +111,7 @@
 
 .buy-btn {
   padding: 6px var(--grid-gap-medium);
-  background-color: #222222;
+  background-color: var(--bg-button);
   color: var(--color-primary);
   border: var(--section-border-width) solid var(--border-primary);
   border-radius: 3px;
@@ -231,7 +231,7 @@
 
 .sell-btn {
   padding: 6px 12px;
-  background-color: #222222;
+  background-color: var(--bg-button);
   color: #00ff88;
   border: 1px solid #00ff88;
   border-radius: 3px;
@@ -253,7 +253,7 @@
 
 .transfer-btn {
   padding: 6px 12px;
-  background-color: #222222;
+  background-color: var(--bg-button);
   color: #ffaa00;
   border: 1px solid #ffaa00;
   border-radius: 3px;

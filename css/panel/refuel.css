@@ -127,7 +127,7 @@
 .refuel-preset-btn {
   flex: 1;
   padding: 10px;
-  background-color: #222222;
+  background-color: var(--bg-button);
   color: #00ff88;
   border: 1px solid #00ff88;
   border-radius: 3px;

@@ -81,6 +81,42 @@
   gap: 5px;
 }
 
+.ship-status-condition-item .condition-bar {
+  position: relative;
+  height: 20px;
+  background-color: var(--bg-overlay-darker);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ship-status-condition-item .condition-fill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  border-radius: 3px;
+  transition: var(--transition-fast);
+}
+
+.ship-status-condition-item .condition-bar.hull .condition-fill {
+  background-color: #4a9eff;
+}
+
+.ship-status-condition-item .condition-bar.engine .condition-fill {
+  background-color: var(--color-secondary);
+}
+
+.ship-status-condition-item .condition-bar.life-support .condition-fill {
+  background-color: #ff4a9e;
+}
+
+.ship-status-condition-item .condition-value {
+  font-size: var(--font-size-small);
+  font-weight: bold;
+  color: var(--color-black);
+}
+
 .ship-status-info-row {
   display: flex;
   justify-content: space-between;

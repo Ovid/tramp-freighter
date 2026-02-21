@@ -399,6 +399,12 @@ export class GameStateManager {
     this.saveGame();
   }
 
+  setNpcRep(npcId, value) {
+    this.npcManager.setNpcRep(npcId, value);
+    this.emit('npcsChanged', { ...this.state.npcs });
+    this.saveGame();
+  }
+
   // ========================================================================
   // QUEST MANAGEMENT
   // ========================================================================
@@ -417,6 +423,14 @@ export class GameStateManager {
 
   advanceQuest(questId) {
     return this.questManager.advanceQuest(questId);
+  }
+
+  claimStageRewards(questId) {
+    return this.questManager.claimStageRewards(questId);
+  }
+
+  hasClaimedStageRewards(questId) {
+    return this.questManager.hasClaimedStageRewards(questId);
   }
 
   updateQuestData(questId, key, value) {
