@@ -453,7 +453,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_4_accepted: {
-    text: 'She hands you a sealed data chip. Her hand trembles slightly. "It is... just a letter. Fifteen years of things I should have said." She straightens. "Vasquez is at Eridani Hub. Epsilon Eridani."',
+    text: 'She hands you a sealed data chip. Her hand trembles slightly. "It is... just a letter. Ten years of things I should have said." She straightens. "Vasquez is at Eridani Hub. Epsilon Eridani."',
     choices: [
       {
         text: '"I\'ll make sure it gets there."',
