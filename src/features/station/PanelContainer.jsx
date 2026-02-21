@@ -7,6 +7,7 @@ import { CargoManifestPanel } from '../cargo/CargoManifestPanel';
 import { ShipStatusPanel } from '../ship-status/ShipStatusPanel';
 import { DialoguePanel } from '../dialogue/DialoguePanel';
 import { MissionBoardPanel } from '../missions/MissionBoardPanel.jsx';
+import { FinancePanel } from '../finance/FinancePanel';
 
 /**
  * Panel container component.
@@ -44,6 +45,8 @@ export function PanelContainer({ activePanel, npcId, onClose }) {
         return <DialoguePanel npcId={npcId} onClose={onClose} />;
       case 'mission-board':
         return <MissionBoardPanel onClose={onClose} />;
+      case 'finance':
+        return <FinancePanel onClose={onClose} />;
       default:
         return null;
     }

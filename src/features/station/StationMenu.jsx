@@ -113,6 +113,9 @@ export function StationMenu({ onOpenPanel, onUndock }) {
         >
           Mission Board
         </button>
+        <button className="station-btn" onClick={() => onOpenPanel('finance')}>
+          Finance
+        </button>
         <button className="station-btn" onClick={() => onOpenPanel('trade')}>
           Trade
         </button>
