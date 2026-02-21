@@ -11,6 +11,7 @@ import {
   ZARA_OSMAN,
   STATION_MASTER_KOWALSKI,
   LUCKY_LIU,
+  YUKI_TANAKA,
   ALL_NPCS,
   validateNPCDefinition,
   validateAllNPCs,
@@ -133,6 +134,7 @@ describe('NPC Data Definitions', () => {
       expect(ALL_NPCS).toContain(ZARA_OSMAN);
       expect(ALL_NPCS).toContain(STATION_MASTER_KOWALSKI);
       expect(ALL_NPCS).toContain(LUCKY_LIU);
+      expect(ALL_NPCS).toContain(YUKI_TANAKA);
     });
 
     it('should validate all NPCs without throwing errors', () => {

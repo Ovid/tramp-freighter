@@ -1,5 +1,4 @@
 {
-  "entry": ["src/main.jsx"],
   "project": ["src/**/*.{js,jsx}"],
   "paths": {
     "@/*": ["./src/*"],
@@ -10,5 +9,5 @@
     "@game/*": ["./src/game/*"],
     "@assets/*": ["./src/assets/*"]
   },
-  "ignore": ["src/game/utils/dev-logger.js"]
+  "ignoreDependencies": ["http-server"]
 }
