@@ -1,9 +1,6 @@
 import { SHIP_CONFIG, FACTION_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
-import {
-  generateEpilogue,
-  generateStats,
-} from '../data/epilogue-data.js';
+import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -948,5 +945,11 @@ export class GameStateManager {
 
   getEpilogueStats() {
     return generateStats(this.state);
+  }
+
+  markVictory() {
+    if (this.state.meta) {
+      this.state.meta.victory = true;
+    }
   }
 }

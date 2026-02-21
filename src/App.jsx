@@ -323,9 +323,7 @@ export default function App({ devMode = false }) {
   };
 
   const handlePavonisComplete = () => {
-    if (gameStateManager.state.meta) {
-      gameStateManager.state.meta.victory = true;
-    }
+    gameStateManager.markVictory();
     gameStateManager.saveGame();
     setViewMode(VIEW_MODES.EPILOGUE);
   };
