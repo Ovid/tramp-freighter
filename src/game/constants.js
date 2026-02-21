@@ -421,6 +421,56 @@ export const NEW_GAME_DEFAULTS = {
 };
 
 /**
+ * Cole debt system configuration
+ * All numeric values for the loan shark mechanics
+ */
+export const COLE_DEBT_CONFIG = {
+  // Interest
+  INTEREST_RATE: 0.02, // 2% monthly interest on principal
+  INTEREST_PERIOD_DAYS: 30, // Days between interest applications
+
+  // Lien rates by heat tier
+  LIEN_RATE_LOW: 0.05, // 0-20 heat: 5% withholding
+  LIEN_RATE_MEDIUM: 0.1, // 21-45 heat: 10%
+  LIEN_RATE_HIGH: 0.15, // 46-70 heat: 15%
+  LIEN_RATE_CRITICAL: 0.2, // 71-100 heat: 20% (cap)
+
+  // Heat thresholds
+  HEAT_MIN: 0,
+  HEAT_MAX: 100,
+  HEAT_TIER_LOW_MAX: 20,
+  HEAT_TIER_MEDIUM_MAX: 45,
+  HEAT_TIER_HIGH_MAX: 70,
+
+  // Heat changes
+  HEAT_BORROW_BASE: 8,
+  HEAT_BORROW_PER_500: 2,
+  HEAT_MISSED_CHECKPOINT: 10,
+  HEAT_VOLUNTARY_PAYMENT: -3,
+  HEAT_NATURAL_DECAY: -1,
+  HEAT_DECLINE_FAVOR: 5,
+  HEAT_FAIL_MANDATORY: 15,
+
+  // Checkpoint intervals (days) by heat tier
+  CHECKPOINT_INTERVAL_LOW: 30,
+  CHECKPOINT_INTERVAL_MEDIUM: 21,
+  CHECKPOINT_INTERVAL_HIGH: 14,
+  CHECKPOINT_INTERVAL_CRITICAL: 7,
+
+  // Borrowing
+  MIN_DRAW: 100,
+  DEFAULT_DRAW: 200,
+  NET_WORTH_DRAW_PERCENT: 0.08,
+  DRAW_TIERS: [100, 250, 500],
+  BORROW_CHECKPOINT_ACCELERATION_DAYS: 7,
+
+  // Starting values
+  STARTING_LIEN_RATE: 0.05,
+  STARTING_HEAT: 0,
+  STARTING_CHECKPOINT_DAY: 30,
+};
+
+/**
  * Development mode flag
  *
  * Checks for existence of .dev file to enable dev features.
