@@ -62,7 +62,7 @@
   transition: var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .endgame-panel .btn:hover {
@@ -148,9 +148,4 @@
   font-size: var(--font-size-large);
   color: rgba(255, 255, 255, 0.5);
   letter-spacing: 1px;
-}
-
-/* Footer separator */
-.endgame-panel .btn {
-  margin-top: 1.5rem;
 }
