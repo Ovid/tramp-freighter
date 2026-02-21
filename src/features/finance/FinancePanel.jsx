@@ -94,7 +94,7 @@ export function FinancePanel({ onClose }) {
           <div className="finance-section">
             <h3>Make Payment</h3>
             <div className="finance-buttons">
-              {[100, 500, 1000].map((amount) => (
+              {COLE_DEBT_CONFIG.PAYMENT_TIERS.map((amount) => (
                 <button
                   key={amount}
                   className="station-btn"
