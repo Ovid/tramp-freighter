@@ -460,7 +460,6 @@ describe('Cole Debt System', () => {
           COLE_DEBT_CONFIG.DEFAULT_DRAW
         );
         expect(info.availableDrawTiers).toBeInstanceOf(Array);
-        expect(info.canBorrow).toBe(true);
         expect(info.canPay).toBe(true);
         expect(info.totalBorrowed).toBe(2000);
         expect(info.totalRepaid).toBe(4000);

@@ -310,7 +310,6 @@ export class DebtManager extends BaseManager {
         finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS,
       maxDraw: this.getMaxDraw(),
       availableDrawTiers: this.getAvailableDrawTiers(),
-      canBorrow: debt > 0 || true,
       canPay: debt > 0 && state.player.credits > 0,
       totalBorrowed: finance.totalBorrowed,
       totalRepaid: finance.totalRepaid,
