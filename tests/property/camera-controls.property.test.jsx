@@ -84,7 +84,7 @@ describe('Property: Camera Controls', () => {
     });
   });
 
-  it('should show active state for Toggle Rotation button when rotation enabled', async () => {
+  it('should show active state for Toggle Rotation button when rotation disabled', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -106,7 +106,7 @@ describe('Property: Camera Controls', () => {
       expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
     });
 
-    // Find Toggle Rotation button (3rd button)
+    // Find Toggle Rotation button
     const buttons = container.querySelectorAll('.control-btn');
     const rotationButton = Array.from(buttons).find((btn) =>
       btn.textContent.includes('Toggle Rotation')
@@ -114,14 +114,14 @@ describe('Property: Camera Controls', () => {
 
     expect(rotationButton).toBeTruthy();
 
-    // Initially should be active (rotation enabled)
-    expect(rotationButton.classList.contains('active')).toBe(true);
+    // Initially not active (rotation enabled = default state)
+    expect(rotationButton.classList.contains('active')).toBe(false);
 
     // Click to disable rotation
     fireEvent.click(rotationButton);
     expect(mockHandlers.onToggleRotation).toHaveBeenCalledTimes(1);
 
-    // Re-render with updated state
+    // Re-render with rotation disabled
     rerender(
       <CameraControls
         cameraState={{ autoRotationEnabled: false, boundaryVisible: true }}
@@ -129,15 +129,15 @@ describe('Property: Camera Controls', () => {
       />
     );
 
-    // Should no longer be active
+    // Should now be active (rotation off = highlighted)
     const updatedButtons = container.querySelectorAll('.control-btn');
     const updatedRotationButton = Array.from(updatedButtons).find((btn) =>
       btn.textContent.includes('Toggle Rotation')
     );
-    expect(updatedRotationButton.classList.contains('active')).toBe(false);
+    expect(updatedRotationButton.classList.contains('active')).toBe(true);
   });
 
-  it('should show active state for Toggle Boundary button when boundary visible', async () => {
+  it('should show active state for Toggle Boundary button when boundary hidden', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -159,7 +159,7 @@ describe('Property: Camera Controls', () => {
       expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
     });
 
-    // Find Toggle Boundary button (4th button)
+    // Find Toggle Boundary button
     const buttons = container.querySelectorAll('.control-btn');
     const boundaryButton = Array.from(buttons).find((btn) =>
       btn.textContent.includes('Toggle Boundary')
@@ -167,14 +167,14 @@ describe('Property: Camera Controls', () => {
 
     expect(boundaryButton).toBeTruthy();
 
-    // Initially should be active (boundary visible)
-    expect(boundaryButton.classList.contains('active')).toBe(true);
+    // Initially not active (boundary visible = default state)
+    expect(boundaryButton.classList.contains('active')).toBe(false);
 
     // Click to hide boundary
     fireEvent.click(boundaryButton);
     expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(1);
 
-    // Re-render with updated state
+    // Re-render with boundary hidden
     rerender(
       <CameraControls
         cameraState={{ autoRotationEnabled: true, boundaryVisible: false }}
@@ -182,12 +182,12 @@ describe('Property: Camera Controls', () => {
       />
     );
 
-    // Should no longer be active
+    // Should now be active (boundary off = highlighted)
     const updatedButtons = container.querySelectorAll('.control-btn');
     const updatedBoundaryButton = Array.from(updatedButtons).find((btn) =>
       btn.textContent.includes('Toggle Boundary')
     );
-    expect(updatedBoundaryButton.classList.contains('active')).toBe(false);
+    expect(updatedBoundaryButton.classList.contains('active')).toBe(true);
   });
 
   it('Property: Toggle Rotation button calls handler on each click', () => {

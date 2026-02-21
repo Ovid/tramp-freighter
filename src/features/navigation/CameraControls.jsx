@@ -60,13 +60,13 @@ export function CameraControls({
             Zoom Out
           </button>
           <button
-            className={`control-btn ${cameraState.autoRotationEnabled ? 'active' : ''}`}
+            className={`control-btn ${cameraState.autoRotationEnabled ? '' : 'active'}`}
             onClick={onToggleRotation}
           >
             Toggle Rotation
           </button>
           <button
-            className={`control-btn ${cameraState.boundaryVisible ? 'active' : ''}`}
+            className={`control-btn ${cameraState.boundaryVisible ? '' : 'active'}`}
             onClick={onToggleBoundary}
           >
             Toggle Boundary
