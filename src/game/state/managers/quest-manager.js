@@ -36,6 +36,10 @@ export class QuestManager extends BaseManager {
     if (!questDef) return { success: false, reason: 'Quest not found' };
 
     const questState = this.getQuestState(questId);
+    if (questState.completedDay != null) {
+      return { success: false, reason: 'Quest already complete' };
+    }
+
     const state = this.getState();
     const nextStage = questState.stage + 1;
 
