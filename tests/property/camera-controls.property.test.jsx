@@ -72,7 +72,7 @@ describe('Property: Camera Controls', () => {
 
     // Verify all 4 buttons are present
     const buttons = controlButtons.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(4);
+    expect(buttons.length).toBe(5);
 
     // Click to collapse
     fireEvent.click(toggleButton);
@@ -293,7 +293,7 @@ describe('Property: Camera Controls', () => {
     });
 
     const buttons = container.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(4);
+    expect(buttons.length).toBe(5);
 
     // Verify button labels
     const buttonTexts = Array.from(buttons).map((btn) =>

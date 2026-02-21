@@ -406,13 +406,13 @@
 }
 
 .camera-controls-toggle {
-  width: 100px;
+  width: 40px;
   height: 40px;
   background-color: var(--bg-button);
   color: #ffffff;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 20px;
   font-family: var(--font-family-mono);
   cursor: pointer;
   transition: all 0.2s;

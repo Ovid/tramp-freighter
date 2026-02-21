@@ -29,15 +29,26 @@ export function CameraControls({
   onToggleBoundary,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [antimatter, setAntimatter] = useState(false);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const toggleAntimatter = () => {
+    const next = !antimatter;
+    setAntimatter(next);
+    if (next) {
+      document.documentElement.classList.add('antimatter');
+    } else {
+      document.documentElement.classList.remove('antimatter');
+    }
+  };
+
   return (
     <div id="camera-controls" className={isExpanded ? 'expanded' : 'collapsed'}>
       <button className="camera-controls-toggle" onClick={toggleExpanded}>
-        {isExpanded ? '◀' : '▶'} Camera
+        ⚙
       </button>
 
       {isExpanded && (
@@ -59,6 +70,12 @@ export function CameraControls({
             onClick={onToggleBoundary}
           >
             Toggle Boundary
+          </button>
+          <button
+            className={`control-btn ${antimatter ? 'active' : ''}`}
+            onClick={toggleAntimatter}
+          >
+            {antimatter ? 'Matter' : 'Antimatter'}
           </button>
         </div>
       )}
