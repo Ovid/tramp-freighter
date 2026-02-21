@@ -98,7 +98,10 @@ export function FinancePanel({ onClose }) {
                 <button
                   key={amount}
                   className="station-btn"
-                  disabled={credits < amount || debtInfo.debt === 0}
+                  disabled={
+                    credits < Math.min(amount, debtInfo.debt) ||
+                    debtInfo.debt === 0
+                  }
                   onClick={() => handlePayment(Math.min(amount, debtInfo.debt))}
                 >
                   Pay ₡{amount}

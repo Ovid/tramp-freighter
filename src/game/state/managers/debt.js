@@ -176,12 +176,12 @@ export class DebtManager extends BaseManager {
       return { success: false, reason: 'No outstanding debt' };
     }
 
-    if (state.player.credits < amount) {
+    // Cap at actual debt before checking credits
+    const actualPayment = Math.min(amount, debt);
+
+    if (state.player.credits < actualPayment) {
       return { success: false, reason: 'Insufficient credits' };
     }
-
-    // Cap at actual debt
-    const actualPayment = Math.min(amount, debt);
 
     this.gameStateManager.updateDebt(debt - actualPayment);
     this.gameStateManager.updateCredits(state.player.credits - actualPayment);
