@@ -43,7 +43,7 @@ export function RefuelPanel({ onClose }) {
   // Get NPCs at current location for refuel discounts
   const npcsAtSystem = getNPCsAtSystem(
     currentSystem,
-    gameStateManager.getState?.()
+    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
   );
 
   // Get refuel service discounts from NPCs at this location

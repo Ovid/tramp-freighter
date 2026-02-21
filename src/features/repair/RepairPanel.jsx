@@ -55,7 +55,7 @@ export function RepairPanel({ onClose }) {
   // Get NPCs at current location for free repair checks
   const npcsAtSystem = getNPCsAtSystem(
     currentSystemId,
-    gameStateManager.getState?.()
+    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
   );
 
   // Check for available free repairs from any NPC at this location

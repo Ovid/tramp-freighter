@@ -35,10 +35,10 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   // Calculate distance from Sol
   const distance = calculateDistanceFromSol(system);
 
-  // Get NPCs at current system (pass game state to resolve quest-revealed NPCs)
+  // Get NPCs at current system (pass narrative flags to resolve quest-revealed NPCs)
   const npcsAtSystem = getNPCsAtSystem(
     currentSystemId,
-    gameStateManager.getState?.()
+    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
   );
 
   // Handle NPC selection to open dialogue
