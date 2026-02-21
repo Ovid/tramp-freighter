@@ -144,11 +144,16 @@
   line-height: 1.4;
 }
 
-/* Connected Systems */
-.connected-systems {
+/* Connected Systems - override hud.css max-height/overflow so entire panel scrolls */
+.system-panel .connected-systems {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: none;
+  overflow-y: visible;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .no-connections {
