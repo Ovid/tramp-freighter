@@ -64,7 +64,9 @@ export class QuestManager extends BaseManager {
   _applyRewards(rewards) {
     if (rewards.credits) {
       const state = this.getState();
-      this.gameStateManager.updateCredits(state.player.credits + rewards.credits);
+      this.gameStateManager.updateCredits(
+        state.player.credits + rewards.credits
+      );
       if (state.stats) {
         state.stats.creditsEarned += rewards.credits;
       }
