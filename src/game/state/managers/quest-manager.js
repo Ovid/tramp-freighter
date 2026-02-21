@@ -55,7 +55,7 @@ export class QuestManager extends BaseManager {
       questState.completedDay = state.player.daysElapsed;
     }
 
-    this.emit('questChanged', { questId, stage: nextStage });
+    this.emit('questChanged', { ...state.quests });
     this.gameStateManager.saveGame();
 
     return { success: true, stage: nextStage };
@@ -182,7 +182,7 @@ export class QuestManager extends BaseManager {
       if (stageDef?.objectives?.jumpsCompleted != null) {
         questState.data.jumpsCompleted =
           (questState.data.jumpsCompleted || 0) + 1;
-        this.emit('questChanged', { questId, stage: questState.stage });
+        this.emit('questChanged', { ...this.getState().quests });
       }
     }
   }
@@ -211,10 +211,6 @@ export class QuestManager extends BaseManager {
     tanakaState.data.exoticStations.push(systemId);
     tanakaState.data.exoticMaterials =
       (tanakaState.data.exoticMaterials || 0) + 1;
-    this.emit('questChanged', {
-      questId: 'tanaka',
-      stage: 2,
-      exoticMaterials: tanakaState.data.exoticMaterials,
-    });
+    this.emit('questChanged', { ...this.getState().quests });
   }
 }

@@ -181,7 +181,7 @@ export class SaveLoadManager extends BaseManager {
       this.emit('missionsChanged', loadedState.missions);
     }
     if (loadedState.quests) {
-      this.emit('questChanged', loadedState.quests);
+      this.emit('questChanged', { ...loadedState.quests });
     }
   }
 
