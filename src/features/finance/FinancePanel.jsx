@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { COLE_DEBT_CONFIG } from '../../game/constants';
 
 /**
  * FinancePanel - React component for Cole's credit line
@@ -79,7 +80,7 @@ export function FinancePanel({ onClose }) {
           </div>
           <div className="info-row">
             <span className="label">Interest:</span>
-            <span className="value">{interestPercent}% every 30 days</span>
+            <span className="value">{interestPercent}% every {COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS} days</span>
           </div>
           <div className="info-row">
             <span className="label">Next interest:</span>
