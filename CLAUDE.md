@@ -112,6 +112,9 @@ Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@
 - Three.js scenes initialize once in `useEffect` with empty deps; dispose on unmount
 - Never create objects in hot loops (animation frames, frequent events)
 
+### Accessibility (a11y)
+Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls.
+
 ### Style
 - ES Modules, 2-space indentation
 - `const`/`let` only, never `var`

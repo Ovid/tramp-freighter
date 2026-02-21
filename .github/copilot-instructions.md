@@ -521,6 +521,7 @@ TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
 - **useEffect cleanup**: Always clean up subscriptions, timers, Three.js resources
 - **No object creation in loops**: Cache objects in `useRef` or `useState`
 - **Three.js initialization**: Once in `useEffect` with empty deps `[]`
+- **Accessibility**: Full a11y pass is planned. New/modified components should include basic a11y: `aria-label` on icon-only buttons, semantic HTML, and keyboard-navigable controls
 
 ### Import Order
 
