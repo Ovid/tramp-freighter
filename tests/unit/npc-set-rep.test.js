@@ -64,7 +64,9 @@ describe('NPCManager.setNpcRep', () => {
 
   it('should throw for unknown NPC ID', () => {
     const gsm = createGame();
-    expect(() => gsm.setNpcRep('nonexistent_npc', 50)).toThrow('Unknown NPC ID');
+    expect(() => gsm.setNpcRep('nonexistent_npc', 50)).toThrow(
+      'Unknown NPC ID'
+    );
   });
 
   it('should save game after setting rep', () => {

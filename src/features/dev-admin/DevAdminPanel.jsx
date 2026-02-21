@@ -592,9 +592,7 @@ export function DevAdminPanel({ onClose }) {
                     ([tierKey, presetValue]) => (
                       <button
                         key={tierKey}
-                        onClick={() =>
-                          handleQuickNpcRep(npc.id, presetValue)
-                        }
+                        onClick={() => handleQuickNpcRep(npc.id, presetValue)}
                       >
                         {REPUTATION_TIERS[tierKey].name}
                       </button>
