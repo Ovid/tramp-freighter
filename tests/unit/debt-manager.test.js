@@ -587,6 +587,8 @@ describe('Cole Debt System', () => {
       expect(gsm.state.player.credits).toBe(1000);
       expect(gsm.state.player.debt).toBe(0);
       expect(result.withheld).toBe(0);
+      expect(result.totalRevenue).toBe(500);
+      expect(result.playerReceives).toBe(500);
     });
   });
 });
