@@ -32,6 +32,7 @@ export class EventSystemManager {
       quirksChanged: [],
       dialogueChanged: [],
       factionRepChanged: [],
+      financeChanged: [],
       encounterTriggered: [],
       narrativeEventTriggered: [],
       hullChanged: [],

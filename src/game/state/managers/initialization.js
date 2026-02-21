@@ -6,6 +6,7 @@ import {
   NEW_GAME_DEFAULTS,
   KARMA_CONFIG,
   FACTION_CONFIG,
+  COLE_DEBT_CONFIG,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -88,6 +89,15 @@ export class InitializationManager {
       daysElapsed: 0,
       karma: KARMA_CONFIG.INITIAL,
       factions,
+      finance: {
+        heat: COLE_DEBT_CONFIG.STARTING_HEAT,
+        lienRate: COLE_DEBT_CONFIG.STARTING_LIEN_RATE,
+        interestRate: COLE_DEBT_CONFIG.INTEREST_RATE,
+        lastInterestDay: 0,
+        nextCheckpoint: COLE_DEBT_CONFIG.STARTING_CHECKPOINT_DAY,
+        totalBorrowed: 0,
+        totalRepaid: 0,
+      },
     };
   }
 
@@ -271,6 +281,7 @@ export class InitializationManager {
     this.gameStateManager.emit('upgradesChanged', ship.upgrades);
     this.gameStateManager.emit('cargoCapacityChanged', ship.cargoCapacity);
     this.gameStateManager.emit('quirksChanged', ship.quirks);
+    this.gameStateManager.emit('financeChanged', player.finance);
     if (state.missions) {
       this.gameStateManager.emit('missionsChanged', state.missions);
     }
