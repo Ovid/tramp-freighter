@@ -104,6 +104,8 @@ export class QuestManager extends BaseManager {
     const questState = this.getQuestState(questId);
     if (!questState) return;
     questState.data[key] = value;
+    this.emit('questChanged', { ...this.getState().quests });
+    this.gameStateManager.saveGame();
   }
 
   isQuestComplete(questId) {
