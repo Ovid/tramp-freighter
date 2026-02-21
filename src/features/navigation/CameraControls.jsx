@@ -50,7 +50,11 @@ export function CameraControls({
 
   return (
     <div id="camera-controls" className={isExpanded ? 'expanded' : 'collapsed'}>
-      <button className="camera-controls-toggle" onClick={toggleExpanded}>
+      <button
+        className="camera-controls-toggle"
+        onClick={toggleExpanded}
+        aria-label="Toggle settings"
+      >
         ⚙
       </button>
 
