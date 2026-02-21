@@ -81,7 +81,11 @@ export function CombatPanel({ combat, onChoice, onClose: _onClose }) {
 
   return (
     <div id="combat-panel" className="panel-base visible">
-      <button className="close-btn" onClick={() => onChoice('flee')} aria-label="Close">
+      <button
+        className="close-btn"
+        onClick={() => onChoice('flee')}
+        aria-label="Close"
+      >
         ×
       </button>
       <h2>Combat Resolution</h2>

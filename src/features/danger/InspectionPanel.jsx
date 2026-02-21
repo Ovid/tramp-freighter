@@ -64,7 +64,11 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
 
   return (
     <div id="inspection-panel" className="panel-base visible">
-      <button className="close-btn" onClick={() => onChoice('flee')} aria-label="Close">
+      <button
+        className="close-btn"
+        onClick={() => onChoice('flee')}
+        aria-label="Close"
+      >
         ×
       </button>
       <h2>Customs Inspection</h2>

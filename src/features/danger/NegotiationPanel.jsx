@@ -65,7 +65,11 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
 
   return (
     <div id="negotiation-panel" className="panel-base visible">
-      <button className="close-btn" onClick={() => onChoice('flee')} aria-label="Close">
+      <button
+        className="close-btn"
+        onClick={() => onChoice('flee')}
+        aria-label="Close"
+      >
         ×
       </button>
       <h2>Negotiation</h2>

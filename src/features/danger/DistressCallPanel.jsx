@@ -59,7 +59,11 @@ export function DistressCallPanel({
 
   return (
     <div id="distress-call-panel" className="panel-base visible">
-      <button className="close-btn" onClick={() => onChoice('ignore')} aria-label="Close">
+      <button
+        className="close-btn"
+        onClick={() => onChoice('ignore')}
+        aria-label="Close"
+      >
         ×
       </button>
       <h2>Distress Call</h2>
