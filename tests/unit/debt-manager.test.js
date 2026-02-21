@@ -103,6 +103,95 @@ describe('Cole Debt System', () => {
       });
     });
 
+    describe('getMaxDraw', () => {
+      it('calculates max draw based on net worth', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 10000;
+        gsm.state.ship.cargo = [{ good: 'water', qty: 10, buyPrice: 50 }];
+
+        const maxDraw = debtManager.getMaxDraw();
+        // netWorth = 5000 + (10*50) - 10000 = -4500, negative
+        // max(200, round(-4500 * 0.08)) = max(200, -360) = 200
+        expect(maxDraw).toBe(200);
+      });
+
+      it('returns minimum 200 even with negative net worth', () => {
+        gsm.state.player.credits = 0;
+        gsm.state.player.debt = 50000;
+        gsm.state.ship.cargo = [];
+
+        expect(debtManager.getMaxDraw()).toBe(200);
+      });
+    });
+
+    describe('borrow', () => {
+      it('increases debt and credits by draw amount', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 0;
+        const initialDebt = gsm.state.player.debt;
+        const initialCredits = gsm.state.player.credits;
+
+        const result = debtManager.borrow(250);
+
+        expect(result.success).toBe(true);
+        expect(gsm.state.player.debt).toBe(initialDebt + 250);
+        expect(gsm.state.player.credits).toBe(initialCredits + 250);
+      });
+
+      it('increases heat by base + per-500 formula', () => {
+        gsm.state.player.finance.heat = 0;
+
+        debtManager.borrow(100);
+        // heat += 8 + floor(100/500)*2 = 8 + 0 = 8
+        expect(gsm.state.player.finance.heat).toBe(8);
+      });
+
+      it('increases heat more for larger draws', () => {
+        gsm.state.player.credits = 10000;
+        gsm.state.player.debt = 0;
+        gsm.state.player.finance.heat = 0;
+
+        debtManager.borrow(500);
+        // heat += 8 + floor(500/500)*2 = 8 + 2 = 10
+        expect(gsm.state.player.finance.heat).toBe(10);
+      });
+
+      it('accelerates next checkpoint', () => {
+        gsm.state.player.finance.nextCheckpoint = 60;
+        gsm.state.player.daysElapsed = 10;
+
+        debtManager.borrow(100);
+
+        // min(60, 10 + 7) = 17
+        expect(gsm.state.player.finance.nextCheckpoint).toBe(17);
+      });
+
+      it('tracks totalBorrowed', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 0;
+
+        debtManager.borrow(250);
+        expect(gsm.state.player.finance.totalBorrowed).toBe(250);
+
+        debtManager.borrow(100);
+        expect(gsm.state.player.finance.totalBorrowed).toBe(350);
+      });
+
+      it('rejects draw amount exceeding maxDraw', () => {
+        gsm.state.player.credits = 0;
+        gsm.state.player.debt = 50000;
+        gsm.state.ship.cargo = [];
+
+        const result = debtManager.borrow(500);
+        expect(result.success).toBe(false);
+      });
+
+      it('sets borrowedThisPeriod flag', () => {
+        debtManager.borrow(100);
+        expect(gsm.state.player.finance.borrowedThisPeriod).toBe(true);
+      });
+    });
+
     describe('applyInterest', () => {
       it('applies interest when period has elapsed', () => {
         gsm.state.player.debt = 10000;

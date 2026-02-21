@@ -78,6 +78,77 @@ export class DebtManager extends BaseManager {
     this.emitFinanceChanged();
   }
 
+  getMaxDraw() {
+    this.validateState();
+    const state = this.getState();
+    const credits = state.player.credits;
+    const debt = this.getDebt();
+
+    // Estimate cargo liquidation value
+    const cargoValue = (state.ship.cargo || []).reduce(
+      (sum, stack) => sum + stack.qty * stack.buyPrice,
+      0
+    );
+
+    const netWorth = credits + cargoValue - debt;
+    const calculated = Math.round(
+      netWorth * COLE_DEBT_CONFIG.NET_WORTH_DRAW_PERCENT
+    );
+
+    return Math.max(COLE_DEBT_CONFIG.DEFAULT_DRAW, calculated);
+  }
+
+  getAvailableDrawTiers() {
+    const maxDraw = this.getMaxDraw();
+    const tiers = COLE_DEBT_CONFIG.DRAW_TIERS.filter((t) => t <= maxDraw);
+    if (maxDraw > tiers[tiers.length - 1]) {
+      tiers.push(maxDraw);
+    }
+    return tiers;
+  }
+
+  borrow(amount) {
+    this.validateState();
+    const state = this.getState();
+    const finance = this.getFinance();
+    const maxDraw = this.getMaxDraw();
+
+    if (amount > maxDraw) {
+      return { success: false, reason: 'Amount exceeds maximum draw' };
+    }
+
+    if (amount < COLE_DEBT_CONFIG.MIN_DRAW) {
+      return { success: false, reason: 'Amount below minimum draw' };
+    }
+
+    // Increase debt
+    this.gameStateManager.updateDebt(this.getDebt() + amount);
+
+    // Give credits
+    this.gameStateManager.updateCredits(state.player.credits + amount);
+
+    // Increase heat
+    const heatIncrease =
+      COLE_DEBT_CONFIG.HEAT_BORROW_BASE +
+      Math.floor(amount / 500) * COLE_DEBT_CONFIG.HEAT_BORROW_PER_500;
+    this.updateHeat(heatIncrease);
+
+    // Accelerate next checkpoint
+    const accelerated =
+      state.player.daysElapsed +
+      COLE_DEBT_CONFIG.BORROW_CHECKPOINT_ACCELERATION_DAYS;
+    finance.nextCheckpoint = Math.min(finance.nextCheckpoint, accelerated);
+
+    // Track
+    finance.totalBorrowed += amount;
+    finance.borrowedThisPeriod = true;
+
+    this.emitFinanceChanged();
+    this.gameStateManager.saveGame();
+
+    return { success: true, amount };
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }
