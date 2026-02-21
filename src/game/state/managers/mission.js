@@ -312,6 +312,10 @@ export class MissionManager extends BaseManager {
 
     const mission = state.missions.active[missionIndex];
 
+    if (mission.abandonable === false) {
+      return { success: false, reason: 'This mission cannot be abandoned.' };
+    }
+
     state.missions.active.splice(missionIndex, 1);
     state.missions.failed.push(missionId);
 

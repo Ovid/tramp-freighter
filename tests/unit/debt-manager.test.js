@@ -457,6 +457,55 @@ describe('Cole Debt System', () => {
         expect(info.totalRepaid).toBe(4000);
       });
     });
+
+    describe('generateFavorMission', () => {
+      it('returns a mission with source cole and 0 reward', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission).toBeDefined();
+        expect(mission.source).toBe('cole');
+        expect(mission.reward).toBe(0);
+        expect(mission.abandonable).toBe(false);
+      });
+
+      it('assigns a valid destination system', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.requirements.destination).toBeDefined();
+        expect(typeof mission.requirements.destination).toBe('number');
+      });
+
+      it('assigns a destination different from current system', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.requirements.destination).not.toBe(
+          gsm.state.player.currentSystem
+        );
+      });
+
+      it('includes destination name and systemId', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.destination).toBeDefined();
+        expect(mission.destination.systemId).toBe(
+          mission.requirements.destination
+        );
+        expect(typeof mission.destination.name).toBe('string');
+      });
+
+      it('has a unique id based on template', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.id).toMatch(/^cole_/);
+      });
+
+      it('includes rewards with 0 credits', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.rewards).toBeDefined();
+        expect(mission.rewards.credits).toBe(0);
+      });
+    });
   });
 
   describe('Save/Load Compatibility', () => {

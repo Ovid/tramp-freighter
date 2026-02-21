@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { COLE_DEBT_CONFIG } from '../../constants.js';
+import { COLE_FAVOR_MISSIONS } from '../../data/cole-missions.js';
 
 export class DebtManager extends BaseManager {
   constructor(gameStateManager) {
@@ -279,7 +280,7 @@ export class DebtManager extends BaseManager {
 
     this.emitFinanceChanged();
 
-    return {
+    const result = {
       madePayments,
       tier,
       requiresFavor,
@@ -287,6 +288,12 @@ export class DebtManager extends BaseManager {
       debt,
       heat: finance.heat,
     };
+
+    if (requiresFavor) {
+      result.favorMission = this.generateFavorMission();
+    }
+
+    return result;
   }
 
   getDebtInfo() {
@@ -308,6 +315,47 @@ export class DebtManager extends BaseManager {
       totalBorrowed: finance.totalBorrowed,
       totalRepaid: finance.totalRepaid,
       nextCheckpoint: finance.nextCheckpoint,
+    };
+  }
+
+  generateFavorMission() {
+    this.validateState();
+    const state = this.getState();
+    const starData = this.getStarData();
+
+    // Pick a random template
+    const templateIndex = Math.floor(Math.random() * COLE_FAVOR_MISSIONS.length);
+    const template = COLE_FAVOR_MISSIONS[templateIndex];
+
+    // Pick a random destination different from current system
+    const currentSystem = state.player.currentSystem;
+    const reachable = starData.filter(
+      (s) => s.id !== currentSystem && s.r === 1
+    );
+    const destStar = reachable[Math.floor(Math.random() * reachable.length)];
+
+    const deadline = template.requirements.deadline;
+
+    return {
+      id: `${template.id}_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+      type: template.type,
+      source: template.source,
+      title: template.title,
+      description: template.description,
+      giverSystem: currentSystem,
+      requirements: {
+        destination: destStar.id,
+        deadline,
+        cargoSpace: template.requirements.cargoSpace,
+      },
+      destination: {
+        systemId: destStar.id,
+        name: destStar.name,
+      },
+      missionCargo: template.missionCargo || null,
+      rewards: { credits: template.reward },
+      reward: template.reward,
+      abandonable: template.abandonable,
     };
   }
 
