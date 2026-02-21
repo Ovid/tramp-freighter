@@ -540,11 +540,6 @@ export const ENDGAME_CONFIG = {
   DELTA_PAVONIS_ID: 115,
 };
 
-export const QUEST_CONFIG = {
-  STAGE_NOT_STARTED: 0,
-  MAX_STAGE: 5,
-};
-
 export const MISSION_CARGO_TYPES = {
   legal: ['sealed_containers', 'diplomatic_pouches', 'scientific_samples'],
   illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
