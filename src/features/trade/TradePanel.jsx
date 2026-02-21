@@ -157,7 +157,9 @@ export function TradePanel({ onClose }) {
     }
 
     if (saleOutcome.withheld > 0) {
-      showSaleFeedback(`Cole's cut: -${saleOutcome.withheld} cr`);
+      showSaleFeedback(
+        `Revenue: ₡${saleOutcome.totalRevenue} · Cole's cut: -₡${saleOutcome.withheld} · You receive: ₡${saleOutcome.playerReceives}`
+      );
     }
   };
 

@@ -555,6 +555,24 @@ describe('Cole Debt System', () => {
       expect(result.withheld).toBe(50);
     });
 
+    it('returns receipt data (totalRevenue, playerReceives) for trade receipt display', () => {
+      gsm.state.player.credits = 500;
+      gsm.state.player.debt = 10000;
+      gsm.state.player.finance.heat = 10; // low tier => 5% lien
+
+      gsm.state.ship.cargo = [{ good: 'water', qty: 10, buyPrice: 50 }];
+
+      const result = gsm.sellGood(0, 10, 100);
+
+      expect(result.success).toBe(true);
+      // Revenue = 10 * 100 = 1000
+      expect(result.totalRevenue).toBe(1000);
+      // Withholding = ceil(1000 * 0.05) = 50
+      expect(result.withheld).toBe(50);
+      // Player receives = 1000 - 50 = 950
+      expect(result.playerReceives).toBe(950);
+    });
+
     it('does not withhold when debt is 0', () => {
       gsm.state.player.credits = 500;
       gsm.state.player.debt = 0;
