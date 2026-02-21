@@ -1,4 +1,4 @@
-import { REPUTATION_BOUNDS } from '../../constants.js';
+import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
 
 export const YUKI_TANAKA_DIALOGUE = {
   greeting: {
@@ -34,10 +34,10 @@ export const YUKI_TANAKA_DIALOGUE = {
       if (stage === 1) {
         const jumps =
           gameStateManager.getQuestState('tanaka')?.data?.jumpsCompleted || 0;
-        if (jumps >= 3) {
+        if (jumps >= ENDGAME_CONFIG.STAGE_1_JUMPS) {
           return '"The field test data looks excellent. The drive modifications are performing within expected parameters." She actually smiles. "I have another task for you."';
         }
-        return `"The field test is in progress. ${3 - jumps} more jumps needed to calibrate the drive harmonics." She studies her readouts intently.`;
+        return `"The field test is in progress. ${ENDGAME_CONFIG.STAGE_1_JUMPS - jumps} more jumps needed to calibrate the drive harmonics." She studies her readouts intently.`;
       }
 
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
