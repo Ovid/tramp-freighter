@@ -69,6 +69,7 @@ export class NavigationManager extends BaseManager {
     }
 
     this.emit('locationChanged', newSystemId);
+    this.emit('jumpCompleted', newSystemId);
   }
 
   /**

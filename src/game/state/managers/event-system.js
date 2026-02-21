@@ -43,6 +43,7 @@ export class EventSystemManager {
       missionsChanged: [],
       docked: [],
       questChanged: [],
+      jumpCompleted: [],
       pavonisRunTriggered: [],
     };
   }

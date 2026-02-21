@@ -5,12 +5,13 @@ export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
     super(gameStateManager);
     this.questDefinitions = {};
-    gameStateManager.subscribe('locationChanged', () => this.onJump());
+    gameStateManager.subscribe('jumpCompleted', () => this.onJump());
     gameStateManager.subscribe('docked', (data) => this.onDock(data?.systemId));
   }
 
   registerQuest(questDef) {
     this.questDefinitions[questDef.id] = questDef;
+    this.getQuestState(questDef.id);
   }
 
   getQuestDefinition(questId) {
