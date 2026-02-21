@@ -5,7 +5,7 @@ import {
 } from './constants.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
 
-export function pickWeightedDestination(reachable, rng) {
+function pickWeightedDestination(reachable, rng) {
   const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
   const totalWeight = weights.reduce((sum, w) => sum + w, 0);
   let roll = rng() * totalWeight;
@@ -20,7 +20,7 @@ export function pickWeightedDestination(reachable, rng) {
   return chosen;
 }
 
-export function getConnectedSystems(systemId, wormholeData) {
+function getConnectedSystems(systemId, wormholeData) {
   const connected = [];
   for (const [a, b] of wormholeData) {
     if (a === systemId) connected.push(b);

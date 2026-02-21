@@ -680,12 +680,6 @@ export const PASSENGER_CONFIG = {
 export const SAVE_KEY = 'trampFreighterSave';
 
 /**
- * Save debouncing interval in milliseconds
- * Prevents excessive localStorage writes (max 1 save per second)
- */
-export const SAVE_DEBOUNCE_MS = 1000;
-
-/**
  * Visual configuration for starmap rendering
  *
  * Centralized visual constants ensure consistent appearance across the starmap.

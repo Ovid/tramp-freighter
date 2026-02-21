@@ -42,7 +42,7 @@ export function hasFactionRep(faction, minRep, gameStateManager) {
  * @param {GameStateManager} gameStateManager - Game state manager instance
  * @returns {boolean} True if player meets minimum karma level
  */
-export function hasKarma(minKarma, gameStateManager) {
+function hasKarma(minKarma, gameStateManager) {
   try {
     const karma = gameStateManager.getKarma();
     return karma >= minKarma;
@@ -59,7 +59,7 @@ export function hasKarma(minKarma, gameStateManager) {
  * @param {GameStateManager} gameStateManager - Game state manager instance
  * @returns {boolean} True if player is at or below maximum karma level
  */
-export function hasMaxKarma(maxKarma, gameStateManager) {
+function hasMaxKarma(maxKarma, gameStateManager) {
   try {
     const karma = gameStateManager.getKarma();
     return karma <= maxKarma;

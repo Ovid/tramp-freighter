@@ -294,6 +294,3 @@ export class InformationBroker {
       });
   }
 }
-
-// Re-export constants for testing convenience
-export { INTELLIGENCE_CONFIG };

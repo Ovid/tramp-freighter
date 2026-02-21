@@ -271,33 +271,3 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   // Advance to next dialogue node
   return showDialogue(npcId, selectedChoice.next, gameStateManager);
 }
-
-/**
- * Get current dialogue state
- *
- * Returns the current active dialogue session information including which NPC
- * is being talked to and which dialogue node is currently active.
- * Used by UI components to track dialogue state and display appropriate interface.
- *
- * @param {GameStateManager} gameStateManager - Game state manager instance
- * @returns {Object} Current dialogue state object with the following properties:
- *   - isActive: boolean - Whether a dialogue session is currently active
- *   - currentNpcId: string|null - ID of NPC currently in dialogue with
- *   - currentNodeId: string|null - Current dialogue node ID
- */
-export function getCurrentDialogue(gameStateManager) {
-  return gameStateManager.getDialogueState();
-}
-
-/**
- * Clear current dialogue state
- *
- * Resets the dialogue engine state by clearing the active dialogue session.
- * Called when dialogue is closed by the player or when starting a new dialogue
- * session with a different NPC.
- *
- * @param {GameStateManager} gameStateManager - Game state manager instance
- */
-export function clearDialogue(gameStateManager) {
-  gameStateManager.clearDialogueState();
-}
