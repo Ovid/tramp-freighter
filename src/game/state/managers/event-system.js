@@ -41,6 +41,7 @@ export class EventSystemManager {
       intelligenceChanged: [],
       currentSystemChanged: [],
       missionsChanged: [],
+      npcsChanged: [],
       docked: [],
       questChanged: [],
       jumpCompleted: [],

@@ -149,6 +149,23 @@ export class NPCManager extends BaseManager {
   }
 
   /**
+   * Set NPC reputation to an exact value (dev tool)
+   *
+   * Bypasses trust multiplier and does not update interaction tracking.
+   * Used by dev admin panel for testing tier-gated behaviors.
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} value - Target reputation value (-100 to 100)
+   */
+  setNpcRep(npcId, value) {
+    this.validateAndGetNPCData(npcId);
+    const npcState = this.getNPCState(npcId);
+    npcState.rep = Math.round(
+      Math.max(REPUTATION_BOUNDS.MIN, Math.min(REPUTATION_BOUNDS.MAX, value))
+    );
+  }
+
+  /**
    * Check if NPC can provide a tip
    *
    * Validates reputation tier (>= Warm), tip availability, and cooldown period.

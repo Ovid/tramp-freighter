@@ -399,6 +399,12 @@ export class GameStateManager {
     this.saveGame();
   }
 
+  setNpcRep(npcId, value) {
+    this.npcManager.setNpcRep(npcId, value);
+    this.emit('npcsChanged', { ...this.state.npcs });
+    this.saveGame();
+  }
+
   // ========================================================================
   // QUEST MANAGEMENT
   // ========================================================================
