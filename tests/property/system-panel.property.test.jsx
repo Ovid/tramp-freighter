@@ -409,6 +409,5 @@ describe('Property: System Panel', () => {
 
       expect(onClose).toHaveBeenCalledTimes(1);
     });
-
   });
 });

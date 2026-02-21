@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { COLE_DEBT_CONFIG, NEW_GAME_DEFAULTS } from '../../src/game/constants.js';
+import {
+  COLE_DEBT_CONFIG,
+  NEW_GAME_DEFAULTS,
+} from '../../src/game/constants.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
 
 // Suppress console output during tests
@@ -87,13 +90,17 @@ describe('Cole Debt System', () => {
         expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_LOW);
 
         gsm.state.player.finance.heat = 30;
-        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
+        expect(debtManager.getLienRate()).toBe(
+          COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM
+        );
 
         gsm.state.player.finance.heat = 50;
         expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_HIGH);
 
         gsm.state.player.finance.heat = 80;
-        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_CRITICAL);
+        expect(debtManager.getLienRate()).toBe(
+          COLE_DEBT_CONFIG.LIEN_RATE_CRITICAL
+        );
       });
 
       it('returns 0 when debt is 0', () => {
@@ -449,7 +456,9 @@ describe('Cole Debt System', () => {
         expect(info.lienRate).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
         expect(info.interestRate).toBe(COLE_DEBT_CONFIG.INTEREST_RATE);
         expect(info.nextInterestDay).toBeDefined();
-        expect(info.maxDraw).toBeGreaterThanOrEqual(COLE_DEBT_CONFIG.DEFAULT_DRAW);
+        expect(info.maxDraw).toBeGreaterThanOrEqual(
+          COLE_DEBT_CONFIG.DEFAULT_DRAW
+        );
         expect(info.availableDrawTiers).toBeInstanceOf(Array);
         expect(info.canBorrow).toBe(true);
         expect(info.canPay).toBe(true);
@@ -529,9 +538,7 @@ describe('Cole Debt System', () => {
       gsm.state.player.debt = 10000;
       gsm.state.player.finance.heat = 10; // low tier => 5% lien
 
-      gsm.state.ship.cargo = [
-        { good: 'water', qty: 10, buyPrice: 50 },
-      ];
+      gsm.state.ship.cargo = [{ good: 'water', qty: 10, buyPrice: 50 }];
 
       // sellGood uses currentSystemPrices for market condition tracking,
       // and the state must already have them set (from initNewGame)
@@ -554,9 +561,7 @@ describe('Cole Debt System', () => {
       gsm.state.player.debt = 0;
       gsm.state.player.finance.heat = 10;
 
-      gsm.state.ship.cargo = [
-        { good: 'water', qty: 5, buyPrice: 50 },
-      ];
+      gsm.state.ship.cargo = [{ good: 'water', qty: 5, buyPrice: 50 }];
 
       const result = gsm.sellGood(0, 5, 100);
 

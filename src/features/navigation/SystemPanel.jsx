@@ -355,7 +355,6 @@ export function SystemPanel({
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

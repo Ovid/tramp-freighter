@@ -324,7 +324,9 @@ export class DebtManager extends BaseManager {
     const starData = this.getStarData();
 
     // Pick a random template
-    const templateIndex = Math.floor(Math.random() * COLE_FAVOR_MISSIONS.length);
+    const templateIndex = Math.floor(
+      Math.random() * COLE_FAVOR_MISSIONS.length
+    );
     const template = COLE_FAVOR_MISSIONS[templateIndex];
 
     // Pick a random destination different from current system

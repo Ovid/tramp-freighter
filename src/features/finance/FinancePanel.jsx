@@ -26,7 +26,7 @@ export function FinancePanel({ onClose }) {
     // Re-derive when debt/finance/credits change
     if (debt === undefined || !finance) return null;
     return getDebtInfo();
-  }, [debt, finance, credits, getDebtInfo]);
+  }, [debt, finance, getDebtInfo]);
 
   if (!debtInfo) return null;
 
@@ -72,9 +72,7 @@ export function FinancePanel({ onClose }) {
           <h3>Debt Overview</h3>
           <div className="info-row">
             <span className="label">Outstanding:</span>
-            <span className="value">
-              ₡{debtInfo.debt.toLocaleString()}
-            </span>
+            <span className="value">₡{debtInfo.debt.toLocaleString()}</span>
           </div>
           <div className="info-row">
             <span className="label">Withholding:</span>
@@ -101,9 +99,7 @@ export function FinancePanel({ onClose }) {
                   key={amount}
                   className="station-btn"
                   disabled={credits < amount || debtInfo.debt === 0}
-                  onClick={() =>
-                    handlePayment(Math.min(amount, debtInfo.debt))
-                  }
+                  onClick={() => handlePayment(Math.min(amount, debtInfo.debt))}
                 >
                   Pay ₡{amount}
                 </button>

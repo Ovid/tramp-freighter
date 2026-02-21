@@ -104,7 +104,8 @@ export class TradingManager extends BaseManager {
     const profitMargin = salePrice - stack.buyPrice;
 
     // Apply Cole's lien withholding before crediting player
-    const { withheld } = this.gameStateManager.applyTradeWithholding(totalRevenue);
+    const { withheld } =
+      this.gameStateManager.applyTradeWithholding(totalRevenue);
     const playerReceives = totalRevenue - withheld;
     this.gameStateManager.updateCredits(state.player.credits + playerReceives);
 

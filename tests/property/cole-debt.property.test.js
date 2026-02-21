@@ -1,10 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
-import { COLE_DEBT_CONFIG } from '../../src/game/constants.js';
 
 vi.spyOn(console, 'log').mockImplementation(() => {});
 vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -12,19 +11,16 @@ vi.spyOn(console, 'warn').mockImplementation(() => {});
 describe('Cole Debt System Properties', () => {
   it('heat is always clamped to 0-100', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: -200, max: 200 }),
-        (delta) => {
-          const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-          gsm.initNewGame();
-          const dm = new DebtManager(gsm);
+      fc.property(fc.integer({ min: -200, max: 200 }), (delta) => {
+        const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        gsm.initNewGame();
+        const dm = new DebtManager(gsm);
 
-          dm.updateHeat(delta);
+        dm.updateHeat(delta);
 
-          const heat = gsm.state.player.finance.heat;
-          return heat >= 0 && heat <= 100;
-        }
-      ),
+        const heat = gsm.state.player.finance.heat;
+        return heat >= 0 && heat <= 100;
+      }),
       { numRuns: 100 }
     );
   });
@@ -74,19 +70,16 @@ describe('Cole Debt System Properties', () => {
 
   it('borrowing always increases debt', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 100, max: 200 }),
-        (amount) => {
-          const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-          gsm.initNewGame();
-          const initialDebt = gsm.state.player.debt;
-          const dm = new DebtManager(gsm);
+      fc.property(fc.integer({ min: 100, max: 200 }), (amount) => {
+        const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        gsm.initNewGame();
+        const initialDebt = gsm.state.player.debt;
+        const dm = new DebtManager(gsm);
 
-          const result = dm.borrow(amount);
+        const result = dm.borrow(amount);
 
-          return !result.success || gsm.state.player.debt > initialDebt;
-        }
-      ),
+        return !result.success || gsm.state.player.debt > initialDebt;
+      }),
       { numRuns: 100 }
     );
   });
