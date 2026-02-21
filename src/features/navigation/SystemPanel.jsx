@@ -144,7 +144,7 @@ export function SystemPanel({
         <div className="system-panel">
           <div className="system-panel-header">
             <h3>{viewingSystem.name}</h3>
-            <button className="close-btn" onClick={onClose}>
+            <button className="close-btn" onClick={onClose} aria-label="Close">
               ×
             </button>
           </div>
@@ -274,7 +274,7 @@ export function SystemPanel({
     <div className="system-panel">
       <div className="system-panel-header">
         <h3>{viewingSystem.name}</h3>
-        <button className="close-btn" onClick={onClose}>
+        <button className="close-btn" onClick={onClose} aria-label="Close">
           ×
         </button>
       </div>

@@ -46,7 +46,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
 
   return (
     <div id="mechanical-failure-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>Mechanical Failure</h2>

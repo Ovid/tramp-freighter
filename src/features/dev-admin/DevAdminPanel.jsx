@@ -414,7 +414,7 @@ export function DevAdminPanel({ onClose }) {
 
   return (
     <div id="dev-admin-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>🔧 Dev Admin Panel</h2>

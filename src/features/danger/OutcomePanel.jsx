@@ -51,7 +51,7 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
 
   return (
     <div id="outcome-panel" className="panel-base visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>Encounter Outcome</h2>

@@ -90,7 +90,7 @@ export function PirateEncounterPanel({
 
   return (
     <div id="pirate-encounter-panel" className="visible">
-      <button className="close-btn" onClick={() => onChoice('flee')}>
+      <button className="close-btn" onClick={() => onChoice('flee')} aria-label="Close">
         ×
       </button>
       <h2>Pirate Encounter</h2>

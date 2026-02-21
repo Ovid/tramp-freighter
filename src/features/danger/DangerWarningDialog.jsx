@@ -66,7 +66,7 @@ export function DangerWarningDialog({
 
   return (
     <div id="danger-warning-dialog" className="visible">
-      <button className="close-btn" onClick={onCancel}>
+      <button className="close-btn" onClick={onCancel} aria-label="Close">
         ×
       </button>
       <h2>Jump Warning</h2>

@@ -179,7 +179,7 @@ export function TradePanel({ onClose }) {
 
   return (
     <div id="trade-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>

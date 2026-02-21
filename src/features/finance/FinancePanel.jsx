@@ -62,7 +62,7 @@ export function FinancePanel({ onClose }) {
 
   return (
     <div id="finance-panel" className="visible">
-      <button className="close-btn" onClick={onClose}>
+      <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>Cole Credit Line</h2>

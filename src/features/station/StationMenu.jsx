@@ -67,7 +67,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
 
   return (
     <div id="station-interface" className="visible">
-      <button className="close-btn" onClick={onUndock}>
+      <button className="close-btn" onClick={onUndock} aria-label="Close">
         ×
       </button>
       <h2>{system.name} Station</h2>

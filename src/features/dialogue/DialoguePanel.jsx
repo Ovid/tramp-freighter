@@ -96,7 +96,7 @@ export function DialoguePanel({ npcId, onClose }) {
         <button
           className="close-btn"
           onClick={handleClose}
-          aria-label="Close dialogue"
+          aria-label="Close"
         >
           ×
         </button>
@@ -112,7 +112,7 @@ export function DialoguePanel({ npcId, onClose }) {
       <button
         className="close-btn"
         onClick={handleClose}
-        aria-label="Close dialogue"
+        aria-label="Close"
       >
         ×
       </button>
