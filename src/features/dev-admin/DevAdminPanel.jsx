@@ -85,7 +85,9 @@ export function DevAdminPanel({ onClose }) {
     }
   }, [shipCondition]);
 
-  // Initialize values from game state on mount
+  // Initialize values from game state on mount.
+  // Dev-only panel: getPlayer/getShip guard ensures state is initialized;
+  // getKarma/getFactionReps always return safe defaults (0 / {}).
   useEffect(() => {
     const player = gameStateManager.getPlayer();
     const ship = gameStateManager.getShip();
