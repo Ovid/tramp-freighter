@@ -163,7 +163,6 @@ export function updateConnectionColors(gameStateManager) {
   });
 }
 
-
 /**
  * Clear wormhole connections (for testing)
  */

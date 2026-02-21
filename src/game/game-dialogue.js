@@ -271,4 +271,3 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   // Advance to next dialogue node
   return showDialogue(npcId, selectedChoice.next, gameStateManager);
 }
-
