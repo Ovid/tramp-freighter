@@ -3,6 +3,7 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { COLE_DEBT_CONFIG, NEW_GAME_DEFAULTS } from '../../src/game/constants.js';
+import { DebtManager } from '../../src/game/state/managers/debt.js';
 
 // Suppress console output during tests
 vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -37,6 +38,69 @@ describe('Cole Debt System', () => {
 
     it('player.debt still exists at starting value', () => {
       expect(gsm.state.player.debt).toBe(NEW_GAME_DEFAULTS.STARTING_DEBT);
+    });
+  });
+
+  describe('DebtManager', () => {
+    let gsm;
+    let debtManager;
+
+    beforeEach(() => {
+      gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+      gsm.initNewGame();
+      debtManager = new DebtManager(gsm);
+    });
+
+    describe('getHeatTier', () => {
+      it('returns "low" for heat 0-20', () => {
+        gsm.state.player.finance.heat = 0;
+        expect(debtManager.getHeatTier()).toBe('low');
+        gsm.state.player.finance.heat = 20;
+        expect(debtManager.getHeatTier()).toBe('low');
+      });
+
+      it('returns "medium" for heat 21-45', () => {
+        gsm.state.player.finance.heat = 21;
+        expect(debtManager.getHeatTier()).toBe('medium');
+        gsm.state.player.finance.heat = 45;
+        expect(debtManager.getHeatTier()).toBe('medium');
+      });
+
+      it('returns "high" for heat 46-70', () => {
+        gsm.state.player.finance.heat = 46;
+        expect(debtManager.getHeatTier()).toBe('high');
+        gsm.state.player.finance.heat = 70;
+        expect(debtManager.getHeatTier()).toBe('high');
+      });
+
+      it('returns "critical" for heat 71-100', () => {
+        gsm.state.player.finance.heat = 71;
+        expect(debtManager.getHeatTier()).toBe('critical');
+        gsm.state.player.finance.heat = 100;
+        expect(debtManager.getHeatTier()).toBe('critical');
+      });
+    });
+
+    describe('getLienRate', () => {
+      it('returns correct lien rate for each heat tier', () => {
+        gsm.state.player.finance.heat = 10;
+        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_LOW);
+
+        gsm.state.player.finance.heat = 30;
+        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
+
+        gsm.state.player.finance.heat = 50;
+        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_HIGH);
+
+        gsm.state.player.finance.heat = 80;
+        expect(debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_CRITICAL);
+      });
+
+      it('returns 0 when debt is 0', () => {
+        gsm.state.player.debt = 0;
+        gsm.state.player.finance.heat = 80;
+        expect(debtManager.getLienRate()).toBe(0);
+      });
     });
   });
 });
