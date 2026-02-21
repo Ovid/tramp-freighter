@@ -655,6 +655,7 @@ export class GameStateManager {
       this.eventEngineManager.clearEvents();
       this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
       this.eventEngineManager.registerEvents(DANGER_EVENTS);
+      ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
     }
     return result;
   }
