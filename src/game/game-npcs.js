@@ -41,18 +41,6 @@ export function getNPCsAtSystem(systemId, gameState = null) {
 }
 
 /**
- * Reveal a hidden NPC by clearing the hidden flag
- *
- * @param {string} npcId - NPC ID to reveal
- */
-export function revealNPC(npcId) {
-  const npc = ALL_NPCS.find((n) => n.id === npcId);
-  if (npc) {
-    npc.hidden = false;
-  }
-}
-
-/**
  * Render NPC list item for display in station menu
  *
  * Formats an NPC for display with name, role, and current reputation tier.
