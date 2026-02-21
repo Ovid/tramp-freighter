@@ -32,9 +32,8 @@ export function DevAdminPanel({ onClose }) {
   const cargo = useGameEvent('cargoChanged');
   const npcs = useGameEvent('npcsChanged');
 
-  // NPC reputation section collapse state
-  const [npcSectionOpen, setNpcSectionOpen] = useState(false);
-  // NPC reputation input fields — keyed by npcId
+  // NPC reputation: selected NPC and input fields keyed by npcId
+  const [selectedNpcId, setSelectedNpcId] = useState('');
   const [npcRepInputs, setNpcRepInputs] = useState({});
 
   // Local state for input fields
@@ -204,6 +203,7 @@ export function DevAdminPanel({ onClose }) {
 
   const handleRepairAll = () => {
     gameStateManager.updateShipCondition(100, 100, 100);
+    gameStateManager.setFuel(100);
   };
 
   // Handlers for karma
@@ -555,57 +555,75 @@ export function DevAdminPanel({ onClose }) {
 
       {/* NPC Reputation Section */}
       <div className="dev-admin-section">
-        <h3
-          onClick={() => setNpcSectionOpen(!npcSectionOpen)}
-          style={{ cursor: 'pointer' }}
-        >
-          NPC Reputation {npcSectionOpen ? '▼' : '▶'}
-        </h3>
-        {npcSectionOpen &&
-          ALL_NPCS.map((npc) => {
-            const rep = parseInt(npcRepInputs[npc.id]) || 0;
-            const tierName =
-              Object.values(REPUTATION_TIERS).find(
-                (t) => rep >= t.min && rep <= t.max
-              )?.name || 'Unknown';
-            return (
-              <div key={npc.id} className="dev-admin-faction-row">
-                <div className="dev-admin-npc-label">
-                  {npc.name} — {npc.role}{' '}
-                  <span className="dev-admin-npc-tier">
-                    {rep} ({tierName})
-                  </span>
-                </div>
-                <div className="dev-admin-control">
-                  <input
-                    type="number"
-                    value={npcRepInputs[npc.id] || '0'}
-                    onChange={(e) =>
-                      setNpcRepInputs((prev) => ({
-                        ...prev,
-                        [npc.id]: e.target.value,
-                      }))
-                    }
-                    min="-100"
-                    max="100"
-                  />
-                  <button onClick={() => handleSetNpcRep(npc.id)}>Set</button>
-                </div>
-                <div className="dev-admin-quick-buttons npc">
-                  {Object.entries(REPUTATION_TIER_PRESETS).map(
-                    ([tierKey, presetValue]) => (
-                      <button
-                        key={tierKey}
-                        onClick={() => handleQuickNpcRep(npc.id, presetValue)}
-                      >
-                        {REPUTATION_TIERS[tierKey].name}
-                      </button>
-                    )
-                  )}
-                </div>
+        <h3>NPC Reputation</h3>
+        <div className="dev-admin-control">
+          <select
+            value={selectedNpcId}
+            onChange={(e) => setSelectedNpcId(e.target.value)}
+          >
+            <option value="">Select NPC...</option>
+            {[...ALL_NPCS]
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, {
+                  sensitivity: 'base',
+                })
+              )
+              .map((npc) => (
+                <option key={npc.id} value={npc.id}>
+                  {npc.name} — {npc.role}
+                </option>
+              ))}
+          </select>
+        </div>
+        {selectedNpcId && (() => {
+          const npc = ALL_NPCS.find((n) => n.id === selectedNpcId);
+          const rep = parseInt(npcRepInputs[selectedNpcId]) || 0;
+          const tierName =
+            Object.values(REPUTATION_TIERS).find(
+              (t) => rep >= t.min && rep <= t.max
+            )?.name || 'Unknown';
+          return (
+            <div className="dev-admin-faction-row">
+              <div className="dev-admin-npc-label">
+                {npc.name}{' '}
+                <span className="dev-admin-npc-tier">
+                  {rep} ({tierName})
+                </span>
               </div>
-            );
-          })}
+              <div className="dev-admin-control">
+                <input
+                  type="number"
+                  value={npcRepInputs[selectedNpcId] || '0'}
+                  onChange={(e) =>
+                    setNpcRepInputs((prev) => ({
+                      ...prev,
+                      [selectedNpcId]: e.target.value,
+                    }))
+                  }
+                  min="-100"
+                  max="100"
+                />
+                <button onClick={() => handleSetNpcRep(selectedNpcId)}>
+                  Set
+                </button>
+              </div>
+              <div className="dev-admin-quick-buttons npc">
+                {Object.entries(REPUTATION_TIER_PRESETS).map(
+                  ([tierKey, presetValue]) => (
+                    <button
+                      key={tierKey}
+                      onClick={() =>
+                        handleQuickNpcRep(selectedNpcId, presetValue)
+                      }
+                    >
+                      {REPUTATION_TIERS[tierKey].name}
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Ship Quirks Section */}
