@@ -587,7 +587,7 @@ export function DevAdminPanel({ onClose }) {
                   />
                   <button onClick={() => handleSetNpcRep(npc.id)}>Set</button>
                 </div>
-                <div className="dev-admin-quick-buttons">
+                <div className="dev-admin-quick-buttons npc">
                   {Object.entries(REPUTATION_TIER_PRESETS).map(
                     ([tierKey, presetValue]) => (
                       <button
