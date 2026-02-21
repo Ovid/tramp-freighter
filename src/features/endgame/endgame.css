@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import '../../../css/variables.css';
+
 #pavonis-run,
 #epilogue {
   position: fixed;
@@ -9,7 +12,7 @@
   align-items: center;
   justify-content: center;
   background: black;
-  color: white;
+  color: var(--color-white);
   z-index: var(--z-modal);
 }
 
@@ -18,17 +21,70 @@
 }
 
 .endgame-panel {
-  max-width: 600px;
+  max-width: var(--panel-width-small);
   text-align: center;
-  padding: 2rem;
+  padding: 40px;
+  background-color: var(--bg-panel);
+  border: var(--panel-border-width) solid var(--color-primary);
+  border-radius: var(--panel-border-radius);
+  font-family: var(--font-family-mono);
 }
 
-.jump-text {
-  font-size: 1.2rem;
+.endgame-panel h2 {
+  color: var(--color-primary);
+  font-size: 28px;
+  margin-bottom: var(--section-gap);
+  font-family: var(--font-family-mono);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.endgame-panel p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--font-size-large);
   line-height: 1.6;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
+/* Button styling within endgame panels */
+.endgame-panel .btn {
+  width: 100%;
+  max-width: 300px;
+  height: 50px;
+  background-color: #222222;
+  color: var(--color-white);
+  border: var(--button-border-width) solid var(--color-primary);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-xxlarge);
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 1rem;
+}
+
+.endgame-panel .btn:hover {
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  box-shadow: var(--shadow-glow-primary);
+  transform: scale(1.02);
+}
+
+.endgame-panel .btn:active {
+  transform: scale(0.98);
+}
+
+/* Jump sequence text (PavonisRun) */
+.jump-text {
+  font-size: var(--font-size-xlarge);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Endgame choice buttons (PavonisRun confirm/cancel) */
 .endgame-choices {
   display: flex;
   gap: 1rem;
@@ -36,26 +92,65 @@
   margin-top: 2rem;
 }
 
+.endgame-choices .btn {
+  width: auto;
+  min-width: var(--button-min-width);
+  padding: var(--button-padding);
+  height: auto;
+}
+
+/* Epilogue narrative text */
 .epilogue-text {
-  font-size: 1rem;
+  font-size: var(--font-size-large);
   line-height: 1.8;
   margin-bottom: 1.5rem;
   font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+  border-left: 2px solid rgba(0, 255, 136, 0.3);
+  padding-left: 1rem;
+  text-align: left;
 }
 
+/* Voyage statistics grid */
 .stats-grid {
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   text-align: left;
+  background-color: rgba(0, 255, 136, 0.05);
+  border: var(--section-border-width) solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+  font-size: var(--font-size-large);
 }
 
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-row span:first-child {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.stat-row span:last-child {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Credits phase */
 .credits-text {
-  margin-top: 2rem;
-  opacity: 0.6;
+  margin-top: 1.5rem;
+  font-size: var(--font-size-large);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+/* Footer separator */
+.endgame-panel .btn {
+  margin-top: 1.5rem;
 }
