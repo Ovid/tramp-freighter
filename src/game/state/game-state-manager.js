@@ -425,6 +425,14 @@ export class GameStateManager {
     return this.questManager.advanceQuest(questId);
   }
 
+  claimStageRewards(questId) {
+    return this.questManager.claimStageRewards(questId);
+  }
+
+  hasClaimedStageRewards(questId) {
+    return this.questManager.hasClaimedStageRewards(questId);
+  }
+
   updateQuestData(questId, key, value) {
     this.questManager.updateQuestData(questId, key, value);
   }

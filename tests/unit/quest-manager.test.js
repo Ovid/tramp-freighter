@@ -120,7 +120,7 @@ describe('QuestManager', () => {
   });
 
   describe('advanceStage', () => {
-    it('advances quest stage and applies credit rewards', () => {
+    it('advances quest stage without applying rewards', () => {
       manager.registerQuest({
         id: 'q1',
         stages: [{ stage: 1, name: 'S1', rewards: { credits: 1000 } }],
@@ -129,7 +129,7 @@ describe('QuestManager', () => {
       const startingCredits = manager.state.player.credits;
       manager.advanceQuest('q1');
       expect(manager.getQuestState('q1').stage).toBe(1);
-      expect(manager.state.player.credits).toBe(startingCredits + 1000);
+      expect(manager.state.player.credits).toBe(startingCredits);
     });
 
     it('sets startedDay on first advance', () => {
@@ -143,7 +143,7 @@ describe('QuestManager', () => {
       expect(manager.getQuestState('q1').startedDay).toBe(42);
     });
 
-    it('applies rep rewards', () => {
+    it('does not apply rep rewards on advance', () => {
       manager.registerQuest({
         id: 'q1',
         npcId: 'chen_barnards',
@@ -155,9 +155,144 @@ describe('QuestManager', () => {
       manager.getNPCState('chen_barnards');
       const startRep = manager.getNPCState('chen_barnards').rep;
       manager.advanceQuest('q1');
+      expect(manager.getNPCState('chen_barnards').rep).toBe(startRep);
+    });
+  });
+
+  describe('claimStageRewards', () => {
+    it('applies credit rewards when objectives are complete', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          {
+            stage: 1,
+            name: 'S1',
+            objectives: { jumpsCompleted: 2 },
+            rewards: { credits: 1000 },
+          },
+        ],
+        victoryStage: 2,
+      });
+      manager.advanceQuest('q1');
+      manager.updateQuestData('q1', 'jumpsCompleted', 2);
+      const startCredits = manager.state.player.credits;
+      const result = manager.claimStageRewards('q1');
+      expect(result.success).toBe(true);
+      expect(manager.state.player.credits).toBe(startCredits + 1000);
+    });
+
+    it('applies rep rewards when objectives are complete', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          {
+            stage: 1,
+            name: 'S1',
+            objectives: {},
+            rewards: { rep: { chen_barnards: 15 } },
+          },
+        ],
+        victoryStage: 2,
+      });
+      manager.getNPCState('chen_barnards');
+      const startRep = manager.getNPCState('chen_barnards').rep;
+      manager.advanceQuest('q1');
+      manager.claimStageRewards('q1');
       expect(manager.getNPCState('chen_barnards').rep).toBeGreaterThan(
         startRep
       );
+    });
+
+    it('fails when objectives are not complete', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          {
+            stage: 1,
+            name: 'S1',
+            objectives: { jumpsCompleted: 3 },
+            rewards: { credits: 1000 },
+          },
+        ],
+        victoryStage: 2,
+      });
+      manager.advanceQuest('q1');
+      manager.updateQuestData('q1', 'jumpsCompleted', 1);
+      const startCredits = manager.state.player.credits;
+      const result = manager.claimStageRewards('q1');
+      expect(result.success).toBe(false);
+      expect(manager.state.player.credits).toBe(startCredits);
+    });
+
+    it('prevents double-claiming rewards', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          {
+            stage: 1,
+            name: 'S1',
+            objectives: {},
+            rewards: { credits: 1000 },
+          },
+        ],
+        victoryStage: 2,
+      });
+      manager.advanceQuest('q1');
+      const startCredits = manager.state.player.credits;
+      manager.claimStageRewards('q1');
+      const afterFirstClaim = manager.state.player.credits;
+      expect(afterFirstClaim).toBe(startCredits + 1000);
+      const result = manager.claimStageRewards('q1');
+      expect(result.success).toBe(false);
+      expect(manager.state.player.credits).toBe(afterFirstClaim);
+    });
+
+    it('fails for unregistered quest', () => {
+      const result = manager.claimStageRewards('nonexistent');
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('hasClaimedStageRewards', () => {
+    it('returns false before claiming', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          { stage: 1, name: 'S1', objectives: {}, rewards: { credits: 500 } },
+        ],
+        victoryStage: 2,
+      });
+      manager.advanceQuest('q1');
+      expect(manager.hasClaimedStageRewards('q1')).toBe(false);
+    });
+
+    it('returns true after claiming', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          { stage: 1, name: 'S1', objectives: {}, rewards: { credits: 500 } },
+        ],
+        victoryStage: 2,
+      });
+      manager.advanceQuest('q1');
+      manager.claimStageRewards('q1');
+      expect(manager.hasClaimedStageRewards('q1')).toBe(true);
+    });
+
+    it('resets to false after advancing to next stage', () => {
+      manager.registerQuest({
+        id: 'q1',
+        stages: [
+          { stage: 1, name: 'S1', objectives: {}, rewards: { credits: 500 } },
+          { stage: 2, name: 'S2', objectives: {}, rewards: { credits: 800 } },
+        ],
+        victoryStage: 3,
+      });
+      manager.advanceQuest('q1');
+      manager.claimStageRewards('q1');
+      expect(manager.hasClaimedStageRewards('q1')).toBe(true);
+      manager.advanceQuest('q1');
+      expect(manager.hasClaimedStageRewards('q1')).toBe(false);
     });
   });
 
@@ -375,9 +510,20 @@ describe('Tanaka quest end-to-end', () => {
     expect(manager.isQuestComplete('tanaka')).toBe(true);
   });
 
-  it('applies credit rewards correctly', () => {
+  it('does not apply credit rewards on advance (rewards require claim)', () => {
     const startCredits = manager.state.player.credits;
-    manager.advanceQuest('tanaka'); // Stage 1: 1000cr
+    manager.advanceQuest('tanaka'); // Stage 1: no immediate reward
+    expect(manager.state.player.credits).toBe(startCredits);
+  });
+
+  it('applies credit rewards via claimStageRewards after objectives met', () => {
+    manager.advanceQuest('tanaka'); // Stage 1
+    manager.questManager.onJump();
+    manager.questManager.onJump();
+    manager.questManager.onJump();
+    const startCredits = manager.state.player.credits;
+    const result = manager.claimStageRewards('tanaka');
+    expect(result.success).toBe(true);
     expect(manager.state.player.credits).toBe(startCredits + 1000);
   });
 });
