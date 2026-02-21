@@ -7,7 +7,22 @@ export class DebtManager extends BaseManager {
   }
 
   getFinance() {
-    return this.getState().player.finance;
+    const state = this.getState();
+    if (!state.player.finance) {
+      state.player.finance = {
+        heat: COLE_DEBT_CONFIG.STARTING_HEAT,
+        lienRate: COLE_DEBT_CONFIG.STARTING_LIEN_RATE,
+        interestRate: COLE_DEBT_CONFIG.INTEREST_RATE,
+        lastInterestDay: 0,
+        nextCheckpoint:
+          state.player.daysElapsed + COLE_DEBT_CONFIG.STARTING_CHECKPOINT_DAY,
+        totalBorrowed: 0,
+        totalRepaid: 0,
+        borrowedThisPeriod: false,
+        lastCheckpointRepaid: 0,
+      };
+    }
+    return state.player.finance;
   }
 
   getDebt() {

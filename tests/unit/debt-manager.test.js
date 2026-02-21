@@ -459,6 +459,20 @@ describe('Cole Debt System', () => {
     });
   });
 
+  describe('Save/Load Compatibility', () => {
+    it('initializes finance state when loading old save without it', () => {
+      // Simulate loading an old save that lacks player.finance
+      gsm.initNewGame();
+      delete gsm.state.player.finance;
+
+      // The system should gracefully handle missing finance state
+      // by providing defaults when DebtManager methods are called
+      const info = gsm.getDebtInfo();
+      expect(info).toBeDefined();
+      expect(info.debt).toBe(gsm.state.player.debt);
+    });
+  });
+
   describe('Trading Integration', () => {
     it('applies withholding when selling goods', () => {
       // Set up trade scenario with debt and heat
