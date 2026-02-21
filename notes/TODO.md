@@ -2,9 +2,6 @@
  
 - Yuki Tanaka rep required for end game How do we improve that rep?
     - advanced sensor array is a reward. What does that do?
-- Admin panel
-    - Dev admin panel "Repair all systems to 100%" needs to also set fuel to 100%
-    - NPCs in a drop down list.
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
   test endgame efficiently. Individual mission mechanics (exotic material collection,
