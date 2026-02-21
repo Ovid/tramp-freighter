@@ -11,6 +11,10 @@ const defaultProps = {
 };
 
 describe('Settings Panel', () => {
+  afterEach(() => {
+    document.documentElement.classList.remove('antimatter');
+  });
+
   describe('Gear icon toggle', () => {
     it('should display a gear icon on the toggle button', () => {
       const { container } = render(<CameraControls {...defaultProps} />);
