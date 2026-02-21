@@ -26,7 +26,7 @@ export function FinancePanel({ onClose }) {
     // Re-derive when debt/finance/credits change
     if (debt === undefined || !finance) return null;
     return getDebtInfo();
-  }, [debt, finance, getDebtInfo]);
+  }, [debt, finance, credits, getDebtInfo]);
 
   if (!debtInfo) return null;
 
