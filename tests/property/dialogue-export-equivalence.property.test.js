@@ -31,6 +31,7 @@ describe('Dialogue Export Equivalence Properties', () => {
       'ZARA_OSMAN_DIALOGUE',
       'STATION_MASTER_KOWALSKI_DIALOGUE',
       'LUCKY_LIU_DIALOGUE',
+      'YUKI_TANAKA_DIALOGUE',
     ];
 
     expectedNPCDialogues.forEach((dialogueName) => {
@@ -40,7 +41,7 @@ describe('Dialogue Export Equivalence Properties', () => {
     });
   });
 
-  it('should export ALL_DIALOGUE_TREES with all 11 NPC mappings', () => {
+  it('should export ALL_DIALOGUE_TREES with all NPC mappings', () => {
     const expectedNPCIds = [
       'chen_barnards',
       'cole_sol',
@@ -52,6 +53,7 @@ describe('Dialogue Export Equivalence Properties', () => {
       'osman_luyten',
       'kowalski_alpha_centauri',
       'liu_wolf359',
+      'tanaka_barnards',
     ];
 
     expect(DialogueTrees.ALL_DIALOGUE_TREES).toBeDefined();
@@ -130,6 +132,9 @@ describe('Dialogue Export Equivalence Properties', () => {
     );
     expect(DialogueTrees.ALL_DIALOGUE_TREES.liu_wolf359).toBe(
       DialogueTrees.LUCKY_LIU_DIALOGUE
+    );
+    expect(DialogueTrees.ALL_DIALOGUE_TREES.tanaka_barnards).toBe(
+      DialogueTrees.YUKI_TANAKA_DIALOGUE
     );
   });
 

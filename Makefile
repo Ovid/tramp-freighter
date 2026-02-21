@@ -1,4 +1,4 @@
-.PHONY: all build test lint format clean open dev preview
+.PHONY: all build test lint format clean open dev preview knip
 
 all: lint format build test
 
@@ -24,3 +24,6 @@ dev:
 
 preview: build
 	npm run preview -- --open
+
+knip:
+	npm run knip

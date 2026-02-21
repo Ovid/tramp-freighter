@@ -22,15 +22,23 @@ if (!ALL_NPCS || !Array.isArray(ALL_NPCS)) {
  * specified system. Used by station menus to show available NPCs.
  *
  * @param {number} systemId - Star system ID to filter by
+ * @param {Object} [narrativeFlags={}] - Narrative event flags for revealing hidden NPCs
  * @returns {Array} Array of NPC definition objects at the specified system
  */
-export function getNPCsAtSystem(systemId) {
+export function getNPCsAtSystem(systemId, narrativeFlags = {}) {
   // Validate input
   if (typeof systemId !== 'number') {
     throw new Error('Invalid systemId: must be a number');
   }
 
-  return ALL_NPCS.filter((npc) => npc.system === systemId);
+  return ALL_NPCS.filter((npc) => {
+    if (npc.system !== systemId) return false;
+    if (!npc.hidden) return true;
+    if (npc.revealFlag) {
+      return !!narrativeFlags[npc.revealFlag];
+    }
+    return false;
+  });
 }
 
 /**

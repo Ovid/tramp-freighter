@@ -1,5 +1,6 @@
-import { SHIP_CONFIG } from '../constants.js';
+import { SHIP_CONFIG, FACTION_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
+import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -16,8 +17,10 @@ import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
+import { QuestManager } from './managers/quest-manager.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
+import { ALL_QUESTS } from '../data/quest-definitions.js';
 
 /**
  * Sanitize ship name input
@@ -97,6 +100,7 @@ export class GameStateManager {
     this.dangerManager = new DangerManager(this);
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
+    this.questManager = new QuestManager(this);
   }
 
   /**
@@ -162,6 +166,8 @@ export class GameStateManager {
     this.eventEngineManager.clearEvents();
     this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
     this.eventEngineManager.registerEvents(DANGER_EVENTS);
+
+    ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
 
     devLog('New game initialized:', completeState);
 
@@ -394,6 +400,50 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // QUEST MANAGEMENT
+  // ========================================================================
+
+  registerQuest(questDef) {
+    this.questManager.registerQuest(questDef);
+  }
+
+  getQuestState(questId) {
+    return this.questManager.getQuestState(questId);
+  }
+
+  getQuestStage(questId) {
+    return this.questManager.getQuestStage(questId);
+  }
+
+  advanceQuest(questId) {
+    return this.questManager.advanceQuest(questId);
+  }
+
+  updateQuestData(questId, key, value) {
+    this.questManager.updateQuestData(questId, key, value);
+  }
+
+  isQuestComplete(questId) {
+    return this.questManager.isQuestComplete(questId);
+  }
+
+  getActiveQuests() {
+    return this.questManager.getActiveQuests();
+  }
+
+  canStartQuestStage(questId, stage) {
+    return this.questManager.canStartStage(questId, stage);
+  }
+
+  checkQuestObjectives(questId) {
+    return this.questManager.checkObjectivesComplete(questId);
+  }
+
+  startPavonisRun() {
+    this.emit('pavonisRunTriggered', true);
+  }
+
+  // ========================================================================
   // DIALOGUE STATE MANAGEMENT
   // ========================================================================
 
@@ -605,6 +655,7 @@ export class GameStateManager {
       this.eventEngineManager.clearEvents();
       this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
       this.eventEngineManager.registerEvents(DANGER_EVENTS);
+      ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
     }
     return result;
   }
@@ -645,14 +696,14 @@ export class GameStateManager {
     return this.dangerManager.getDangerZone(systemId);
   }
 
-  calculatePirateEncounterChance(systemId, gameState) {
+  calculatePirateEncounterChance(systemId, gameState = this.state) {
     return this.dangerManager.calculatePirateEncounterChance(
       systemId,
       gameState
     );
   }
 
-  calculateInspectionChance(systemId, gameState) {
+  calculateInspectionChance(systemId, gameState = this.state) {
     return this.dangerManager.calculateInspectionChance(systemId, gameState);
   }
 
@@ -867,5 +918,40 @@ export class GameStateManager {
 
   setNarrativeFlag(flagName) {
     return this.eventEngineManager.setFlag(flagName);
+  }
+
+  getNarrativeFlags() {
+    return this.eventEngineManager.getFlags();
+  }
+
+  getDaysElapsed() {
+    return this.state?.player?.daysElapsed ?? 0;
+  }
+
+  getFactionReps() {
+    const reps = {};
+    for (const faction of FACTION_CONFIG.FACTIONS) {
+      reps[faction] = this.getFactionRep(faction);
+    }
+    return reps;
+  }
+
+  getDangerFlags() {
+    return this.state?.world?.dangerFlags ?? {};
+  }
+
+  getEpilogueData() {
+    return generateEpilogue(this.state);
+  }
+
+  getEpilogueStats() {
+    return generateStats(this.state);
+  }
+
+  markVictory() {
+    if (this.state.meta) {
+      this.state.meta.victory = true;
+      this.saveGame();
+    }
   }
 }

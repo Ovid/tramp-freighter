@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { evaluateCondition } from '../../src/game/event-conditions.js';
+import { CONDITION_TYPES } from '../../src/game/constants.js';
 
 describe('evaluateCondition', () => {
   const baseState = {
@@ -239,6 +240,230 @@ describe('evaluateCondition', () => {
   describe('unknown condition type', () => {
     it('should return false for unknown condition types', () => {
       expect(evaluateCondition({ type: 'bogus' }, baseState)).toBe(false);
+    });
+  });
+
+  describe('npc_rep_above', () => {
+    it('returns true when NPC rep meets threshold', () => {
+      const state = {
+        ...baseState,
+        npcs: { tanaka_barnards: { rep: 50 } },
+      };
+      expect(
+        evaluateCondition(
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when NPC rep below threshold', () => {
+      const state = {
+        ...baseState,
+        npcs: { tanaka_barnards: { rep: 10 } },
+      };
+      expect(
+        evaluateCondition(
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
+          state
+        )
+      ).toBe(false);
+    });
+
+    it('returns false when NPC state does not exist', () => {
+      const state = { ...baseState, npcs: {} };
+      expect(
+        evaluateCondition(
+          {
+            type: CONDITION_TYPES.NPC_REP_ABOVE,
+            npcId: 'tanaka_barnards',
+            value: 30,
+          },
+          state
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('systems_visited_count', () => {
+    it('returns true when enough systems visited', () => {
+      const state = {
+        ...baseState,
+        world: { ...baseState.world, visitedSystems: [0, 1, 4, 5, 7] },
+      };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when not enough systems visited', () => {
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+          baseState
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('quest_stage', () => {
+    it('returns true when quest is at specified stage', () => {
+      const state = { ...baseState, quests: { tanaka: { stage: 2 } } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 2 },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when quest not at stage', () => {
+      const state = { ...baseState, quests: { tanaka: { stage: 1 } } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 2 },
+          state
+        )
+      ).toBe(false);
+    });
+
+    it('returns false when quest does not exist', () => {
+      const state = { ...baseState, quests: {} };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 1 },
+          state
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('debt_zero', () => {
+    it('returns true when debt is zero', () => {
+      const state = { ...baseState, player: { ...baseState.player, debt: 0 } };
+      expect(
+        evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, state)
+      ).toBe(true);
+    });
+
+    it('returns false when debt exists', () => {
+      expect(
+        evaluateCondition({ type: CONDITION_TYPES.DEBT_ZERO }, baseState)
+      ).toBe(false);
+    });
+  });
+
+  describe('credits_above', () => {
+    it('returns true when credits meet threshold', () => {
+      const state = {
+        ...baseState,
+        player: { ...baseState.player, credits: 30000 },
+      };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when credits below threshold', () => {
+      const state = {
+        ...baseState,
+        player: { ...baseState.player, credits: 1000 },
+      };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.CREDITS_ABOVE, value: 25000 },
+          state
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('hull_above', () => {
+    it('returns true when hull meets threshold', () => {
+      const state = { ...baseState, ship: { ...baseState.ship, hull: 85 } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.HULL_ABOVE, value: 80 },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when hull below threshold', () => {
+      const state = { ...baseState, ship: { ...baseState.ship, hull: 60 } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.HULL_ABOVE, value: 80 },
+          state
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('engine_above', () => {
+    it('returns true when engine meets threshold', () => {
+      const state = { ...baseState, ship: { ...baseState.ship, engine: 95 } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when engine below threshold', () => {
+      const state = { ...baseState, ship: { ...baseState.ship, engine: 70 } };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.ENGINE_ABOVE, value: 90 },
+          state
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('has_upgrade', () => {
+    it('returns true when player has the upgrade', () => {
+      const state = {
+        ...baseState,
+        ship: {
+          ...baseState.ship,
+          upgrades: ['extended_tank', 'range_extender'],
+        },
+      };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.HAS_UPGRADE, upgrade: 'range_extender' },
+          state
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when player does not have the upgrade', () => {
+      const state = {
+        ...baseState,
+        ship: { ...baseState.ship, upgrades: ['extended_tank'] },
+      };
+      expect(
+        evaluateCondition(
+          { type: CONDITION_TYPES.HAS_UPGRADE, upgrade: 'range_extender' },
+          state
+        )
+      ).toBe(false);
     });
   });
 });

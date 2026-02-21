@@ -595,6 +595,55 @@ export const LUCKY_LIU = {
 };
 
 /**
+ * Yuki Tanaka - Engineer at Barnard's Star
+ *
+ * The endgame quest NPC. Hidden until the player has visited 5+ systems and
+ * docks at Barnard's Star, triggering the tanaka_intro narrative event.
+ * Her quest line leads to the Pavonis Run and game victory.
+ *
+ * Personality Design Rationale:
+ * - Low trust (0.2): Brilliant but guarded, requires proving yourself
+ * - No greed (0.1): Driven by her research, not profit
+ * - Very high loyalty (0.9): Once earned, her loyalty is absolute
+ * - High morality (0.8): Ethical researcher pursuing knowledge
+ */
+export const YUKI_TANAKA = {
+  id: 'tanaka_barnards',
+  name: 'Yuki Tanaka',
+  role: 'Engineer',
+  system: 4,
+  station: 'Bore Station 7',
+  personality: {
+    trust: 0.2,
+    greed: 0.1,
+    loyalty: 0.9,
+    morality: 0.8,
+  },
+  speechStyle: {
+    greeting: 'formal',
+    vocabulary: 'technical',
+    quirk: 'Precise, measured speech. Never wastes words.',
+  },
+  description:
+    'Brilliant engineer working on experimental drive technology. Has her own reasons for wanting to reach Delta Pavonis.',
+  initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
+  tips: [],
+  discountService: null,
+  tierBenefits: {
+    warm: {
+      discount: 0,
+      benefit: 'Shares technical insights about the Tanaka Drive.',
+    },
+    friendly: { discount: 0, benefit: 'Discusses her research freely.' },
+    trusted: { discount: 0, benefit: 'Reveals her true mission.' },
+    family: { discount: 0, benefit: 'Partner for the Pavonis Run.' },
+  },
+  questId: 'tanaka',
+  hidden: true,
+  revealFlag: 'tanaka_met',
+};
+
+/**
  * All NPCs in the game
  * Add new NPCs to this array to make them available to the game systems
  */
@@ -609,6 +658,7 @@ export const ALL_NPCS = [
   ZARA_OSMAN,
   STATION_MASTER_KOWALSKI,
   LUCKY_LIU,
+  YUKI_TANAKA,
 ];
 
 /**

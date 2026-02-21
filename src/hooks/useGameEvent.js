@@ -128,6 +128,7 @@ function extractStateForEvent(eventName, state) {
       board: [],
       boardLastRefresh: 0,
     },
+    questChanged: state.quests || {},
   };
 
   return eventStateMap[eventName] ?? null;

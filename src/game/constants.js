@@ -510,8 +510,38 @@ export const MISSION_CONFIG = {
   SATURATION_MAX_HISTORY: 50,
 };
 
+export const ENDGAME_CONFIG = {
+  VICTORY_CREDITS: 25000,
+  TANAKA_SYSTEM: 4, // Barnard's Star
+  TANAKA_UNLOCK_SYSTEMS_VISITED: 5,
+  STAGE_1_REP: 10,
+  STAGE_1_ENGINE: 80,
+  STAGE_1_JUMPS: 3,
+  STAGE_1_REWARD_CREDITS: 1000,
+  STAGE_1_REWARD_REP: 15,
+  STAGE_2_REP: 30,
+  STAGE_2_EXOTIC_NEEDED: 5,
+  STAGE_2_EXOTIC_DISTANCE: 15,
+  STAGE_2_EXOTIC_CHANCE: 0.6,
+  STAGE_2_REWARD_CREDITS: 3000,
+  STAGE_2_REWARD_REP: 15,
+  STAGE_3_REP: 50,
+  STAGE_3_HULL: 70,
+  STAGE_3_ENGINE: 80,
+  STAGE_3_REWARD_CREDITS: 2000,
+  STAGE_3_REWARD_REP: 20,
+  STAGE_4_REP: 70,
+  STAGE_4_REWARD_REP: 20,
+  STAGE_4_DELIVERY_SYSTEM: 13,
+  STAGE_5_REP: 90,
+  STAGE_5_HULL: 80,
+  STAGE_5_ENGINE: 90,
+  VICTORY_STAGE: 6,
+  DELTA_PAVONIS_ID: 115,
+};
+
 export const MISSION_CARGO_TYPES = {
-  legal: ['sealed_containers', 'diplomatic_pouches', 'scientific_samples'],
+  legal: ['registered_freight', 'diplomatic_pouches', 'scientific_samples'],
   illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
 };
 
@@ -1507,4 +1537,12 @@ export const CONDITION_TYPES = {
   HAS_PASSENGER: 'has_passenger',
   HAS_WEALTHY_PASSENGER: 'has_wealthy_passenger',
   HAS_FAMILY_PASSENGER: 'has_family_passenger',
+  NPC_REP_ABOVE: 'npc_rep_above',
+  SYSTEMS_VISITED_COUNT: 'systems_visited_count',
+  HAS_UPGRADE: 'has_upgrade',
+  QUEST_STAGE: 'quest_stage',
+  DEBT_ZERO: 'debt_zero',
+  CREDITS_ABOVE: 'credits_above',
+  HULL_ABOVE: 'hull_above',
+  ENGINE_ABOVE: 'engine_above',
 };

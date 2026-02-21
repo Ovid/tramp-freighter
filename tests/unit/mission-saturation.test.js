@@ -27,7 +27,7 @@ describe('Mission Route Saturation', () => {
       requirements: { destination: 1, deadline: 10 },
       destination: { systemId: 1, name: 'Alpha Centauri A' },
       missionCargo: {
-        good: 'sealed_containers',
+        good: 'registered_freight',
         quantity: 5,
         isIllegal: false,
       },
@@ -36,7 +36,7 @@ describe('Mission Route Saturation', () => {
     });
 
     state.ship.cargo.push({
-      good: 'sealed_containers',
+      good: 'registered_freight',
       qty: 5,
       buyPrice: 0,
       missionId: 'test_mission_1',

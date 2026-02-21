@@ -71,6 +71,34 @@ export function evaluateCondition(condition, gameState, context = {}) {
         (m) => m.type === 'passenger' && m.passenger?.type === 'family'
       );
 
+    case CONDITION_TYPES.NPC_REP_ABOVE:
+      return (
+        (gameState.npcs[condition.npcId]?.rep ?? -Infinity) >= condition.value
+      );
+
+    case CONDITION_TYPES.SYSTEMS_VISITED_COUNT:
+      return gameState.world.visitedSystems.length >= condition.value;
+
+    case CONDITION_TYPES.QUEST_STAGE:
+      return (
+        (gameState.quests?.[condition.questId]?.stage ?? -1) === condition.value
+      );
+
+    case CONDITION_TYPES.DEBT_ZERO:
+      return gameState.player.debt === 0;
+
+    case CONDITION_TYPES.CREDITS_ABOVE:
+      return gameState.player.credits >= condition.value;
+
+    case CONDITION_TYPES.HULL_ABOVE:
+      return gameState.ship.hull >= condition.value;
+
+    case CONDITION_TYPES.ENGINE_ABOVE:
+      return gameState.ship.engine >= condition.value;
+
+    case CONDITION_TYPES.HAS_UPGRADE:
+      return gameState.ship.upgrades.includes(condition.upgrade);
+
     default:
       return false;
   }

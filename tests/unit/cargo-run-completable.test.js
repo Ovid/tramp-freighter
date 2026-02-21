@@ -29,14 +29,14 @@ describe('getCompletableMissions – new cargo runs', () => {
   it('should include delivery mission when mission cargo is in hold at destination', () => {
     state.player.currentSystem = 5;
     state.ship.cargo = [
-      { good: 'sealed_containers', qty: 10, missionId: 'cargo_run_123' },
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_123' },
     ];
     state.missions.active = [
       {
         id: 'cargo_run_123',
         type: 'delivery',
         requirements: { destination: 5 },
-        missionCargo: { good: 'sealed_containers', quantity: 10 },
+        missionCargo: { good: 'registered_freight', quantity: 10 },
       },
     ];
 
@@ -53,7 +53,7 @@ describe('getCompletableMissions – new cargo runs', () => {
         id: 'cargo_run_123',
         type: 'delivery',
         requirements: { destination: 5 },
-        missionCargo: { good: 'sealed_containers', quantity: 10 },
+        missionCargo: { good: 'registered_freight', quantity: 10 },
       },
     ];
 
@@ -64,14 +64,14 @@ describe('getCompletableMissions – new cargo runs', () => {
   it('should not include delivery mission when not at destination', () => {
     state.player.currentSystem = 3; // wrong system
     state.ship.cargo = [
-      { good: 'sealed_containers', qty: 10, missionId: 'cargo_run_123' },
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_123' },
     ];
     state.missions.active = [
       {
         id: 'cargo_run_123',
         type: 'delivery',
         requirements: { destination: 5 },
-        missionCargo: { good: 'sealed_containers', quantity: 10 },
+        missionCargo: { good: 'registered_freight', quantity: 10 },
       },
     ];
 

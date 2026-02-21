@@ -37,7 +37,7 @@ describe('Cargo Run Constants', () => {
   describe('MISSION_CARGO_TYPES', () => {
     it('should define legal cargo types', () => {
       expect(MISSION_CARGO_TYPES.legal).toEqual([
-        'sealed_containers',
+        'registered_freight',
         'diplomatic_pouches',
         'scientific_samples',
       ]);

@@ -4,8 +4,8 @@ import { formatCargoDisplayName } from '../../src/game/utils/string-utils.js';
 describe('Mission Cargo Display Names', () => {
   describe('formatCargoDisplayName', () => {
     it('converts underscored mission cargo IDs to title case', () => {
-      expect(formatCargoDisplayName('sealed_containers')).toBe(
-        'Sealed Containers'
+      expect(formatCargoDisplayName('registered_freight')).toBe(
+        'Registered Freight'
       );
     });
 

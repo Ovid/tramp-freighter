@@ -11,6 +11,7 @@ import {
   ZARA_OSMAN,
   STATION_MASTER_KOWALSKI,
   LUCKY_LIU,
+  YUKI_TANAKA,
   ALL_NPCS,
   validateNPCDefinition,
   validateAllNPCs,
@@ -121,8 +122,8 @@ describe('NPC Data Definitions', () => {
   });
 
   describe('NPC Collection and Validation', () => {
-    it('should include all ten NPCs in ALL_NPCS array', () => {
-      expect(ALL_NPCS).toHaveLength(10);
+    it('should include all eleven NPCs in ALL_NPCS array', () => {
+      expect(ALL_NPCS).toHaveLength(11);
       expect(ALL_NPCS).toContain(WEI_CHEN);
       expect(ALL_NPCS).toContain(MARCUS_COLE);
       expect(ALL_NPCS).toContain(FATHER_OKONKWO);
@@ -133,6 +134,7 @@ describe('NPC Data Definitions', () => {
       expect(ALL_NPCS).toContain(ZARA_OSMAN);
       expect(ALL_NPCS).toContain(STATION_MASTER_KOWALSKI);
       expect(ALL_NPCS).toContain(LUCKY_LIU);
+      expect(ALL_NPCS).toContain(YUKI_TANAKA);
     });
 
     it('should validate all NPCs without throwing errors', () => {

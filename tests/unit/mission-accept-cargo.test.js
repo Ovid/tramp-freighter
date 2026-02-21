@@ -16,7 +16,7 @@ describe('MissionManager.acceptMission – cargo run cargo placement', () => {
       type: 'delivery',
       requirements: { destination: 5, deadline: 10 },
       missionCargo: {
-        good: 'sealed_containers',
+        good: 'registered_freight',
         quantity: 10,
         isIllegal: false,
       },
@@ -29,7 +29,7 @@ describe('MissionManager.acceptMission – cargo run cargo placement', () => {
     expect(result.success).toBe(true);
     const state = manager.getState();
     const cargoEntry = state.ship.cargo.find(
-      (c) => c.good === 'sealed_containers' && c.missionId === 'cargo_run_123'
+      (c) => c.good === 'registered_freight' && c.missionId === 'cargo_run_123'
     );
     expect(cargoEntry).toBeDefined();
     expect(cargoEntry.qty).toBe(10);
@@ -49,7 +49,7 @@ describe('MissionManager.acceptMission – cargo run cargo placement', () => {
       type: 'delivery',
       requirements: { destination: 5, deadline: 10 },
       missionCargo: {
-        good: 'sealed_containers',
+        good: 'registered_freight',
         quantity: 10,
         isIllegal: false,
       },

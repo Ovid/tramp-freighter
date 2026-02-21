@@ -1,0 +1,13 @@
+{
+  "project": ["src/**/*.{js,jsx}"],
+  "paths": {
+    "@/*": ["./src/*"],
+    "@components/*": ["./src/components/*"],
+    "@features/*": ["./src/features/*"],
+    "@hooks/*": ["./src/hooks/*"],
+    "@context/*": ["./src/context/*"],
+    "@game/*": ["./src/game/*"],
+    "@assets/*": ["./src/assets/*"]
+  },
+  "ignoreDependencies": ["http-server"]
+}

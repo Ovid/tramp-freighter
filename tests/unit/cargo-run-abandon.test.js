@@ -32,14 +32,14 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
 
   it('should remove mission cargo from hold when abandoning a cargo run', () => {
     state.ship.cargo = [
-      { good: 'sealed_containers', qty: 10, missionId: 'cargo_run_123' },
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_123' },
       { good: 'ore', qty: 5, buyPrice: 15 },
     ];
     state.missions.active = [
       {
         id: 'cargo_run_123',
         type: 'delivery',
-        missionCargo: { good: 'sealed_containers', quantity: 10 },
+        missionCargo: { good: 'registered_freight', quantity: 10 },
         penalties: { failure: {} },
       },
     ];
