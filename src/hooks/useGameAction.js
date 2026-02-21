@@ -259,6 +259,8 @@ export function useGameAction() {
         gameStateManager.checkQuestObjectives(questId),
 
       getNarrativeFlags: () => gameStateManager.getNarrativeFlags(),
+      getEpilogueData: () => gameStateManager.getEpilogueData(),
+      getEpilogueStats: () => gameStateManager.getEpilogueStats(),
 
       acceptMission: (mission) => gameStateManager.acceptMission(mission),
       completeMission: (missionId) =>

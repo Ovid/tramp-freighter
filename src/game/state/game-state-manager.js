@@ -1,5 +1,9 @@
-import { SHIP_CONFIG } from '../constants.js';
+import { SHIP_CONFIG, FACTION_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
+import {
+  generateEpilogue,
+  generateStats,
+} from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
 import { NPCManager } from './managers/npc.js';
@@ -694,14 +698,14 @@ export class GameStateManager {
     return this.dangerManager.getDangerZone(systemId);
   }
 
-  calculatePirateEncounterChance(systemId, gameState) {
+  calculatePirateEncounterChance(systemId, gameState = this.state) {
     return this.dangerManager.calculatePirateEncounterChance(
       systemId,
       gameState
     );
   }
 
-  calculateInspectionChance(systemId, gameState) {
+  calculateInspectionChance(systemId, gameState = this.state) {
     return this.dangerManager.calculateInspectionChance(systemId, gameState);
   }
 
@@ -920,5 +924,29 @@ export class GameStateManager {
 
   getNarrativeFlags() {
     return this.eventEngineManager.getFlags();
+  }
+
+  getDaysElapsed() {
+    return this.state?.player?.daysElapsed ?? 0;
+  }
+
+  getFactionReps() {
+    const reps = {};
+    for (const faction of FACTION_CONFIG.FACTIONS) {
+      reps[faction] = this.getFactionRep(faction);
+    }
+    return reps;
+  }
+
+  getDangerFlags() {
+    return this.state?.world?.dangerFlags ?? {};
+  }
+
+  getEpilogueData() {
+    return generateEpilogue(this.state);
+  }
+
+  getEpilogueStats() {
+    return generateStats(this.state);
   }
 }

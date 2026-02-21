@@ -1,21 +1,15 @@
 import { useMemo, useState } from 'react';
-import { useGameState } from '../../context/GameContext.jsx';
-import {
-  generateEpilogue,
-  generateStats,
-} from '../../game/data/epilogue-data.js';
+import { useGameAction } from '../../hooks/useGameAction.js';
 import { Button } from '../../components/Button.jsx';
 import './endgame.css';
 
 export function Epilogue({ onReturnToTitle }) {
-  const gameStateManager = useGameState();
+  const { getEpilogueData, getEpilogueStats } = useGameAction();
   const [phase, setPhase] = useState('epilogue');
 
-  // Safe to use state ref directly: it's set once at init and mutated in place
-  // (never replaced), and the game is over by the time Epilogue renders.
-  const state = gameStateManager.state;
-  const sections = useMemo(() => generateEpilogue(state), [state]);
-  const stats = useMemo(() => generateStats(state), [state]);
+  // Computed once — the game is over by the time Epilogue renders
+  const sections = useMemo(() => getEpilogueData(), [getEpilogueData]);
+  const stats = useMemo(() => getEpilogueStats(), [getEpilogueStats]);
 
   if (phase === 'credits') {
     return (

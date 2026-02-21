@@ -48,12 +48,10 @@ export function DevAdminPanel({ onClose }) {
   const [cargoQuantity, setCargoQuantity] = useState('5');
   const [useHiddenCargo, setUseHiddenCargo] = useState(false);
 
-  // Get current state values
-  const currentQuirks =
-    quirks || gameStateManager.getState()?.ship?.quirks || [];
-  const currentUpgrades =
-    upgrades || gameStateManager.getState()?.ship?.upgrades || [];
-  const currentCargo = cargo || gameStateManager.getState()?.ship?.cargo || [];
+  // Get current state values (fall back to GameStateManager queries before events fire)
+  const currentQuirks = quirks || gameStateManager.getShip()?.quirks || [];
+  const currentUpgrades = upgrades || gameStateManager.getShip()?.upgrades || [];
+  const currentCargo = cargo || gameStateManager.getShip()?.cargo || [];
   const hiddenCargo = gameStateManager.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
 
@@ -88,20 +86,22 @@ export function DevAdminPanel({ onClose }) {
 
   // Initialize values from game state on mount
   useEffect(() => {
-    const state = gameStateManager.getState();
-    if (state) {
-      setCreditsInput(String(state.player.credits));
-      setDebtInput(String(state.player.debt));
-      setFuelInput(String(Math.round(state.ship.fuel)));
-      setHullInput(String(Math.round(state.ship.hull)));
-      setEngineInput(String(Math.round(state.ship.engine)));
-      setLifeSupportInput(String(Math.round(state.ship.lifeSupport)));
-      setKarmaInput(String(state.player.karma || 0));
+    const player = gameStateManager.getPlayer();
+    const ship = gameStateManager.getShip();
+    if (player && ship) {
+      setCreditsInput(String(player.credits));
+      setDebtInput(String(player.debt));
+      setFuelInput(String(Math.round(ship.fuel)));
+      setHullInput(String(Math.round(ship.hull)));
+      setEngineInput(String(Math.round(ship.engine)));
+      setLifeSupportInput(String(Math.round(ship.lifeSupport)));
+      setKarmaInput(String(gameStateManager.getKarma()));
+      const factionReps = gameStateManager.getFactionReps();
       setFactionInputs({
-        authorities: String(state.player.factions?.authorities || 0),
-        traders: String(state.player.factions?.traders || 0),
-        outlaws: String(state.player.factions?.outlaws || 0),
-        civilians: String(state.player.factions?.civilians || 0),
+        authorities: String(factionReps.authorities || 0),
+        traders: String(factionReps.traders || 0),
+        outlaws: String(factionReps.outlaws || 0),
+        civilians: String(factionReps.civilians || 0),
       });
     }
   }, [gameStateManager]);
@@ -132,11 +132,11 @@ export function DevAdminPanel({ onClose }) {
   const handleSetHull = () => {
     const amount = parseInt(hullInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const state = gameStateManager.getState();
+      const condition = gameStateManager.getShipCondition();
       gameStateManager.updateShipCondition(
         amount,
-        state.ship.engine,
-        state.ship.lifeSupport
+        condition.engine,
+        condition.lifeSupport
       );
     }
   };
@@ -144,11 +144,11 @@ export function DevAdminPanel({ onClose }) {
   const handleSetEngine = () => {
     const amount = parseInt(engineInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const state = gameStateManager.getState();
+      const condition = gameStateManager.getShipCondition();
       gameStateManager.updateShipCondition(
-        state.ship.hull,
+        condition.hull,
         amount,
-        state.ship.lifeSupport
+        condition.lifeSupport
       );
     }
   };
@@ -156,10 +156,10 @@ export function DevAdminPanel({ onClose }) {
   const handleSetLifeSupport = () => {
     const amount = parseInt(lifeSupportInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const state = gameStateManager.getState();
+      const condition = gameStateManager.getShipCondition();
       gameStateManager.updateShipCondition(
-        state.ship.hull,
-        state.ship.engine,
+        condition.hull,
+        condition.engine,
         amount
       );
     }
@@ -223,32 +223,34 @@ export function DevAdminPanel({ onClose }) {
   const handleAddCargo = () => {
     const qty = parseInt(cargoQuantity);
     if (!isNaN(qty) && qty > 0 && selectedCommodity) {
-      const state = gameStateManager.getState();
+      const currentSystem = gameStateManager.getCurrentSystem();
+      const daysElapsed = gameStateManager.getDaysElapsed();
+      const ship = gameStateManager.getShip();
       const newCargoItem = {
         good: selectedCommodity,
         qty,
         buyPrice: 50, // Default price for testing
-        buySystem: state.player.currentSystem,
+        buySystem: currentSystem,
         buySystemName: 'Dev Admin',
-        buyDate: state.player.daysElapsed,
+        buyDate: daysElapsed,
       };
 
       if (useHiddenCargo && hasSmugglersPanel) {
         // Add to hidden cargo
-        const hiddenCargo = [...(state.ship.hiddenCargo || [])];
-        const existingIndex = hiddenCargo.findIndex(
+        const updatedHidden = [...(ship.hiddenCargo || [])];
+        const existingIndex = updatedHidden.findIndex(
           (c) => c.good === selectedCommodity
         );
         if (existingIndex >= 0) {
-          hiddenCargo[existingIndex].qty += qty;
+          updatedHidden[existingIndex].qty += qty;
         } else {
-          hiddenCargo.push(newCargoItem);
+          updatedHidden.push(newCargoItem);
         }
-        state.ship.hiddenCargo = hiddenCargo;
-        gameStateManager.emit('hiddenCargoChanged', hiddenCargo);
+        ship.hiddenCargo = updatedHidden;
+        gameStateManager.emit('hiddenCargoChanged', updatedHidden);
       } else {
         // Add to regular cargo
-        const newCargo = [...state.ship.cargo];
+        const newCargo = [...ship.cargo];
         const existingIndex = newCargo.findIndex(
           (c) => c.good === selectedCommodity
         );
@@ -265,33 +267,30 @@ export function DevAdminPanel({ onClose }) {
 
   const handleClearCargo = () => {
     gameStateManager.updateCargo([]);
-    const state = gameStateManager.getState();
-    state.ship.hiddenCargo = [];
+    const ship = gameStateManager.getShip();
+    ship.hiddenCargo = [];
     gameStateManager.emit('hiddenCargoChanged', []);
     gameStateManager.saveGame();
   };
 
   // Calculate danger state display values
   const getDangerStateDisplay = () => {
-    const state = gameStateManager.getState();
-    if (!state) return null;
+    const currentSystem = gameStateManager.getCurrentSystem();
+    if (currentSystem == null) return null;
 
-    const currentSystem = state.player.currentSystem;
     const dangerZone = gameStateManager.getDangerZone(currentSystem);
     const pirateChance = gameStateManager.calculatePirateEncounterChance(
-      currentSystem,
-      state
+      currentSystem
     );
     const inspectionChance = gameStateManager.calculateInspectionChance(
-      currentSystem,
-      state
+      currentSystem
     );
 
     return {
       dangerZone,
       pirateChance: (pirateChance * 100).toFixed(1),
       inspectionChance: (inspectionChance * 100).toFixed(1),
-      dangerFlags: state.world?.dangerFlags || {},
+      dangerFlags: gameStateManager.getDangerFlags(),
     };
   };
 
@@ -324,11 +323,11 @@ export function DevAdminPanel({ onClose }) {
   };
 
   const handleTriggerMechanicalFailure = () => {
-    const state = gameStateManager.getState();
+    const condition = gameStateManager.getShipCondition();
     // Determine failure type based on ship condition
     let failureType = 'engine_failure';
-    if (state.ship.hull < 50) failureType = 'hull_breach';
-    else if (state.ship.lifeSupport < 30) failureType = 'life_support';
+    if (condition.hull < 50) failureType = 'hull_breach';
+    else if (condition.lifeSupport < 30) failureType = 'life_support';
 
     gameStateManager.emit('encounterTriggered', {
       type: 'mechanical_failure',
@@ -336,9 +335,9 @@ export function DevAdminPanel({ onClose }) {
         id: `failure_dev_${Date.now()}`,
         type: failureType,
         severity: Math.min(
-          state.ship.hull,
-          state.ship.engine,
-          state.ship.lifeSupport
+          condition.hull,
+          condition.engine,
+          condition.lifeSupport
         ),
       },
     });
