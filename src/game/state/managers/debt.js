@@ -186,6 +186,40 @@ export class DebtManager extends BaseManager {
     return { success: true, amount: actualPayment };
   }
 
+  calculateWithholding(totalRevenue) {
+    const debt = this.getDebt();
+    if (debt === 0) {
+      return { withheld: 0, playerReceives: totalRevenue };
+    }
+
+    const lienRate = this.getLienRate();
+    let withheld = Math.ceil(totalRevenue * lienRate);
+    withheld = Math.min(withheld, debt);
+
+    return {
+      withheld,
+      playerReceives: totalRevenue - withheld,
+    };
+  }
+
+  applyWithholding(totalRevenue) {
+    const { withheld } = this.calculateWithholding(totalRevenue);
+    if (withheld === 0) return { withheld: 0 };
+
+    const finance = this.getFinance();
+    this.gameStateManager.updateDebt(this.getDebt() - withheld);
+    finance.totalRepaid += withheld;
+
+    if (this.getDebt() === 0) {
+      finance.heat = 0;
+      finance.lienRate = 0;
+    }
+
+    this.emitFinanceChanged();
+
+    return { withheld };
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }

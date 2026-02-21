@@ -262,6 +262,59 @@ describe('Cole Debt System', () => {
       });
     });
 
+    describe('calculateWithholding', () => {
+      it('calculates withholding based on current lien rate', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 10; // low tier, 5%
+
+        const result = debtManager.calculateWithholding(1000);
+
+        expect(result.withheld).toBe(50); // ceil(1000 * 0.05) = 50
+        expect(result.playerReceives).toBe(950);
+      });
+
+      it('caps withholding at current debt', () => {
+        gsm.state.player.debt = 20;
+        gsm.state.player.finance.heat = 10;
+
+        const result = debtManager.calculateWithholding(1000);
+
+        expect(result.withheld).toBe(20);
+        expect(result.playerReceives).toBe(980);
+      });
+
+      it('returns 0 withholding when debt is 0', () => {
+        gsm.state.player.debt = 0;
+
+        const result = debtManager.calculateWithholding(1000);
+
+        expect(result.withheld).toBe(0);
+        expect(result.playerReceives).toBe(1000);
+      });
+
+      it('uses higher lien rate at higher heat', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 80; // critical, 20%
+
+        const result = debtManager.calculateWithholding(1000);
+
+        expect(result.withheld).toBe(200);
+        expect(result.playerReceives).toBe(800);
+      });
+    });
+
+    describe('applyWithholding', () => {
+      it('reduces debt by withheld amount and tracks totalRepaid', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 10;
+
+        debtManager.applyWithholding(1000);
+
+        expect(gsm.state.player.debt).toBe(9950);
+        expect(gsm.state.player.finance.totalRepaid).toBe(50);
+      });
+    });
+
     describe('applyInterest', () => {
       it('applies interest when period has elapsed', () => {
         gsm.state.player.debt = 10000;
