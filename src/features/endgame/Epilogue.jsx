@@ -11,6 +11,8 @@ export function Epilogue({ onReturnToTitle }) {
   const gameStateManager = useGameState();
   const [phase, setPhase] = useState('epilogue');
 
+  // Safe to use state ref directly: it's set once at init and mutated in place
+  // (never replaced), and the game is over by the time Epilogue renders.
   const state = gameStateManager.state;
   const sections = useMemo(() => generateEpilogue(state), [state]);
   const stats = useMemo(() => generateStats(state), [state]);
