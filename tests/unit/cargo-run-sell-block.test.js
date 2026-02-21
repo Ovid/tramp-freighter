@@ -12,7 +12,7 @@ describe('Trading – mission cargo sell block', () => {
         cargo: [
           { good: 'ore', qty: 10, buyPrice: 15 },
           {
-            good: 'sealed_containers',
+            good: 'registered_freight',
             qty: 8,
             buyPrice: 0,
             missionId: 'cargo_run_123',

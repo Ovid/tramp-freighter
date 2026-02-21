@@ -541,7 +541,7 @@ export const ENDGAME_CONFIG = {
 };
 
 export const MISSION_CARGO_TYPES = {
-  legal: ['sealed_containers', 'diplomatic_pouches', 'scientific_samples'],
+  legal: ['registered_freight', 'diplomatic_pouches', 'scientific_samples'],
   illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
 };
 

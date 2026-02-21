@@ -27,7 +27,7 @@ describe('Illegal Cargo Rumors - Detection', () => {
     const state = manager.getState();
     state.ship.cargo = [
       {
-        good: 'sealed_containers',
+        good: 'registered_freight',
         qty: 5,
         buyPrice: 0,
         missionId: 'mission_1',
@@ -115,7 +115,7 @@ describe('Illegal Cargo Rumors - Pirate Probability', () => {
 
     gameState.ship.cargo = [
       {
-        good: 'sealed_containers',
+        good: 'registered_freight',
         qty: 5,
         buyPrice: 0,
         missionId: 'mission_1',

@@ -11,7 +11,7 @@ describe('Cargo Run Mission Completion', () => {
       ship: {
         cargo: [
           {
-            good: 'sealed_containers',
+            good: 'registered_freight',
             qty: 10,
             buyPrice: 0,
             missionId: 'cargo_run_123',
@@ -26,7 +26,7 @@ describe('Cargo Run Mission Completion', () => {
             requirements: { destination: 5, deadline: 20 },
             deadlineDay: 20,
             missionCargo: {
-              good: 'sealed_containers',
+              good: 'registered_freight',
               quantity: 10,
               isIllegal: false,
             },

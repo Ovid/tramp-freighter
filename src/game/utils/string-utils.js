@@ -44,7 +44,7 @@ export function pluralizeUnit(count) {
 /**
  * Convert an underscored cargo ID to a title-cased display name
  *
- * @param {string} id - Cargo type ID (e.g., 'sealed_containers')
+ * @param {string} id - Cargo type ID (e.g., 'registered_freight')
  * @returns {string} Display name (e.g., 'Sealed Containers')
  */
 export function formatCargoDisplayName(id) {

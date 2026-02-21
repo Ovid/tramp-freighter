@@ -23,10 +23,10 @@ describe('Customs – illegal mission cargo detection', () => {
 
   it('should not count legal mission cargo as restricted', () => {
     const cargo = [
-      { good: 'sealed_containers', qty: 10, missionId: 'cargo_run_2' },
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_2' },
     ];
     const count = manager.countRestrictedGoods(cargo, 'safe', 0);
-    // sealed_containers is legal, should not be counted
+    // registered_freight is legal, should not be counted
     expect(count).toBe(0);
   });
 

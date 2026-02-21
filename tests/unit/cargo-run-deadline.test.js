@@ -52,7 +52,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
   it('should not remove cargo for non-expired missions', () => {
     state.player.daysElapsed = 15; // before deadline
     state.ship.cargo = [
-      { good: 'sealed_containers', qty: 10, missionId: 'cargo_run_active' },
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_active' },
     ];
     state.missions.active = [
       {
@@ -60,7 +60,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
         type: 'delivery',
         deadlineDay: 20,
         missionCargo: {
-          good: 'sealed_containers',
+          good: 'registered_freight',
           quantity: 10,
           isIllegal: false,
         },
