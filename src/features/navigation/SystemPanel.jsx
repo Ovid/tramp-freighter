@@ -356,18 +356,6 @@ export function SystemPanel({
           )}
         </div>
 
-        {/* Dock button if station available */}
-        {viewingSystem.st > 0 && (
-          <button
-            className="dock-btn"
-            onClick={() => {
-              // Dock action will be handled by parent
-              if (onClose) onClose();
-            }}
-          >
-            Dock at Station
-          </button>
-        )}
       </div>
     </div>
   );

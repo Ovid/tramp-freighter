@@ -246,25 +246,3 @@
   border-color: #666;
   color: #666;
 }
-
-/* Dock Button */
-.dock-btn {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  background-color: rgba(0, 255, 136, 0.1);
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.dock-btn:hover {
-  background-color: rgba(0, 255, 136, 0.2);
-  border-color: #ffffff;
-  color: #ffffff;
-}

@@ -86,9 +86,8 @@ describe('Property: System Panel', () => {
       }
     });
 
-    it('should display dock button when system has station', () => {
+    it('should not display dock button', () => {
       const currentSystemId = gameStateManager.getState().player.currentSystem;
-      const currentSystem = STAR_DATA.find((s) => s.id === currentSystemId);
 
       render(
         <GameProvider gameStateManager={gameStateManager}>
@@ -101,11 +100,7 @@ describe('Property: System Panel', () => {
         </GameProvider>
       );
 
-      if (currentSystem.st > 0) {
-        expect(screen.getByText(/Dock at Station/i)).toBeInTheDocument();
-      } else {
-        expect(screen.queryByText(/Dock at Station/i)).not.toBeInTheDocument();
-      }
+      expect(screen.queryByText(/Dock at Station/i)).not.toBeInTheDocument();
     });
 
     it('should call selectStarById when connected system is clicked', () => {
@@ -415,32 +410,5 @@ describe('Property: System Panel', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('should call onClose when dock button is clicked', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
-      const currentSystem = STAR_DATA.find((s) => s.id === currentSystemId);
-
-      if (currentSystem.st === 0) {
-        // Skip test if current system has no station
-        return;
-      }
-
-      const onClose = vi.fn();
-
-      render(
-        <GameProvider gameStateManager={gameStateManager}>
-          <SystemPanel
-            viewingSystemId={currentSystemId}
-            onClose={onClose}
-            onJumpStart={() => {}}
-            onJumpComplete={() => {}}
-          />
-        </GameProvider>
-      );
-
-      const dockButton = screen.getByText(/Dock at Station/i);
-      fireEvent.click(dockButton);
-
-      expect(onClose).toHaveBeenCalledTimes(1);
-    });
   });
 });
