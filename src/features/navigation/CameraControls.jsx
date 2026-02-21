@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * CameraControls component provides debug/camera control buttons.
@@ -35,14 +35,17 @@ export function CameraControls({
     setIsExpanded(!isExpanded);
   };
 
-  const toggleAntimatter = () => {
-    const next = !antimatter;
-    setAntimatter(next);
-    if (next) {
+  useEffect(() => {
+    if (antimatter) {
       document.documentElement.classList.add('antimatter');
     } else {
       document.documentElement.classList.remove('antimatter');
     }
+    return () => document.documentElement.classList.remove('antimatter');
+  }, [antimatter]);
+
+  const toggleAntimatter = () => {
+    setAntimatter((prev) => !prev);
   };
 
   return (
