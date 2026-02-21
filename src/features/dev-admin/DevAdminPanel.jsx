@@ -5,7 +5,10 @@ import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
   FACTION_CONFIG,
+  REPUTATION_TIERS,
+  REPUTATION_TIER_PRESETS,
 } from '../../game/constants.js';
+import { ALL_NPCS } from '../../game/data/npc-data.js';
 
 /**
  * DevAdminPanel - Development admin panel for danger system testing
@@ -27,6 +30,12 @@ export function DevAdminPanel({ onClose }) {
   const quirks = useGameEvent('quirksChanged');
   const upgrades = useGameEvent('upgradesChanged');
   const cargo = useGameEvent('cargoChanged');
+  const npcs = useGameEvent('npcsChanged');
+
+  // NPC reputation section collapse state
+  const [npcSectionOpen, setNpcSectionOpen] = useState(false);
+  // NPC reputation input fields — keyed by npcId
+  const [npcRepInputs, setNpcRepInputs] = useState({});
 
   // Local state for input fields
   const [creditsInput, setCreditsInput] = useState('0');
@@ -85,6 +94,19 @@ export function DevAdminPanel({ onClose }) {
     }
   }, [shipCondition]);
 
+  useEffect(() => {
+    if (npcs) {
+      const npcInputs = {};
+      ALL_NPCS.forEach((npc) => {
+        const npcState = npcs[npc.id];
+        if (npcState) {
+          npcInputs[npc.id] = String(npcState.rep);
+        }
+      });
+      setNpcRepInputs(npcInputs);
+    }
+  }, [npcs]);
+
   // Initialize values from game state on mount.
   // Dev-only panel: getPlayer/getShip guard ensures state is initialized;
   // getKarma/getFactionReps always return safe defaults (0 / {}).
@@ -106,6 +128,14 @@ export function DevAdminPanel({ onClose }) {
         outlaws: String(factionReps.outlaws || 0),
         civilians: String(factionReps.civilians || 0),
       });
+
+      // Initialize NPC rep inputs
+      const npcInputs = {};
+      ALL_NPCS.forEach((npc) => {
+        const npcState = gameStateManager.getNPCState(npc.id);
+        npcInputs[npc.id] = String(npcState.rep);
+      });
+      setNpcRepInputs(npcInputs);
     }
   }, [gameStateManager]);
 
@@ -196,6 +226,19 @@ export function DevAdminPanel({ onClose }) {
   const handleQuickFactionRep = (faction, value) => {
     gameStateManager.setFactionRep(faction, value);
     setFactionInputs((prev) => ({ ...prev, [faction]: String(value) }));
+  };
+
+  // Handlers for NPC reputation
+  const handleSetNpcRep = (npcId) => {
+    const amount = parseInt(npcRepInputs[npcId]);
+    if (!isNaN(amount) && amount >= -100 && amount <= 100) {
+      gameStateManager.setNpcRep(npcId, amount);
+    }
+  };
+
+  const handleQuickNpcRep = (npcId, value) => {
+    gameStateManager.setNpcRep(npcId, value);
+    setNpcRepInputs((prev) => ({ ...prev, [npcId]: String(value) }));
   };
 
   // Handlers for quirks
@@ -504,6 +547,63 @@ export function DevAdminPanel({ onClose }) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* NPC Reputation Section */}
+      <div className="dev-admin-section">
+        <h3
+          onClick={() => setNpcSectionOpen(!npcSectionOpen)}
+          style={{ cursor: 'pointer' }}
+        >
+          NPC Reputation {npcSectionOpen ? '▼' : '▶'}
+        </h3>
+        {npcSectionOpen &&
+          ALL_NPCS.map((npc) => {
+            const rep = parseInt(npcRepInputs[npc.id]) || 0;
+            const tierName =
+              Object.values(REPUTATION_TIERS).find(
+                (t) => rep >= t.min && rep <= t.max
+              )?.name || 'Unknown';
+            return (
+              <div key={npc.id} className="dev-admin-faction-row">
+                <div className="dev-admin-npc-label">
+                  {npc.name} — {npc.role}{' '}
+                  <span className="dev-admin-npc-tier">
+                    {rep} ({tierName})
+                  </span>
+                </div>
+                <div className="dev-admin-control">
+                  <input
+                    type="number"
+                    value={npcRepInputs[npc.id] || '0'}
+                    onChange={(e) =>
+                      setNpcRepInputs((prev) => ({
+                        ...prev,
+                        [npc.id]: e.target.value,
+                      }))
+                    }
+                    min="-100"
+                    max="100"
+                  />
+                  <button onClick={() => handleSetNpcRep(npc.id)}>Set</button>
+                </div>
+                <div className="dev-admin-quick-buttons">
+                  {Object.entries(REPUTATION_TIER_PRESETS).map(
+                    ([tierKey, presetValue]) => (
+                      <button
+                        key={tierKey}
+                        onClick={() =>
+                          handleQuickNpcRep(npc.id, presetValue)
+                        }
+                      >
+                        {REPUTATION_TIERS[tierKey].name}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            );
+          })}
       </div>
 
       {/* Ship Quirks Section */}
