@@ -23,8 +23,7 @@ export function FinancePanel({ onClose }) {
   const [message, setMessage] = useState(null);
 
   const debtInfo = useMemo(() => {
-    // Re-derive when debt/finance/credits change
-    if (debt === undefined || !finance) return null;
+    if (debt === undefined || !finance || credits === undefined) return null;
     return getDebtInfo();
   }, [debt, finance, credits, getDebtInfo]);
 
