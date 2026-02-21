@@ -1,6 +1,7 @@
 # TODO
  
 
+- Dev admin panel should let me set NPC reputations.
 - Search-easily search for a star and highlight it.
 - Verify that pirate encounters are random. They seem more common than I
   was expecting.
