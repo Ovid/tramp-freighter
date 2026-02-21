@@ -214,5 +214,6 @@ export class QuestManager extends BaseManager {
     tanakaState.data.exoticMaterials =
       (tanakaState.data.exoticMaterials || 0) + 1;
     this.emit('questChanged', { ...this.getState().quests });
+    this.gameStateManager.saveGame();
   }
 }
