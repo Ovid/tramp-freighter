@@ -129,11 +129,15 @@ export function DevAdminPanel({ onClose }) {
         civilians: String(factionReps.civilians || 0),
       });
 
-      // Initialize NPC rep inputs
+      // Initialize NPC rep inputs from existing state only (avoid getNPCState
+      // which creates entries and sets lastInteraction as a side effect)
       const npcInputs = {};
+      const state = gameStateManager.getState();
       ALL_NPCS.forEach((npc) => {
-        const npcState = gameStateManager.getNPCState(npc.id);
-        npcInputs[npc.id] = String(npcState.rep);
+        const existingState = state.npcs[npc.id];
+        npcInputs[npc.id] = String(
+          existingState ? existingState.rep : npc.initialRep
+        );
       });
       setNpcRepInputs(npcInputs);
     }
