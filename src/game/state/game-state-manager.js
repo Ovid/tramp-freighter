@@ -18,6 +18,7 @@ import { DangerManager } from './managers/danger.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
+import { DebtManager } from './managers/debt.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
 import { ALL_QUESTS } from '../data/quest-definitions.js';
@@ -101,6 +102,7 @@ export class GameStateManager {
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
+    this.debtManager = new DebtManager(this);
   }
 
   /**
@@ -455,6 +457,35 @@ export class GameStateManager {
 
   startPavonisRun() {
     this.emit('pavonisRunTriggered', true);
+  }
+
+  // ========================================================================
+  // COLE DEBT SYSTEM
+  // ========================================================================
+
+  getDebtInfo() {
+    return this.debtManager.getDebtInfo();
+  }
+
+  borrowFromCole(amount) {
+    return this.debtManager.borrow(amount);
+  }
+
+  makeDebtPayment(amount) {
+    return this.debtManager.makePayment(amount);
+  }
+
+  calculateTradeWithholding(totalRevenue) {
+    return this.debtManager.calculateWithholding(totalRevenue);
+  }
+
+  applyTradeWithholding(totalRevenue) {
+    return this.debtManager.applyWithholding(totalRevenue);
+  }
+
+  processDebtTick() {
+    this.debtManager.applyInterest();
+    return this.debtManager.checkCheckpoint();
   }
 
   // ========================================================================

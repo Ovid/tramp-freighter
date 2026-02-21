@@ -104,6 +104,9 @@ export class EventsManager extends BaseManager {
       // Check for loan defaults and apply penalties
       this.gameStateManager.checkLoanDefaults();
 
+      // Process Cole debt: interest accrual and checkpoint checks
+      this.gameStateManager.processDebtTick();
+
       this.gameStateManager.checkMissionDeadlines();
 
       // Emit event changes

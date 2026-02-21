@@ -458,4 +458,50 @@ describe('Cole Debt System', () => {
       });
     });
   });
+
+  describe('Trading Integration', () => {
+    it('applies withholding when selling goods', () => {
+      // Set up trade scenario with debt and heat
+      gsm.state.player.credits = 500;
+      gsm.state.player.debt = 10000;
+      gsm.state.player.finance.heat = 10; // low tier => 5% lien
+
+      gsm.state.ship.cargo = [
+        { good: 'water', qty: 10, buyPrice: 50 },
+      ];
+
+      // sellGood uses currentSystemPrices for market condition tracking,
+      // and the state must already have them set (from initNewGame)
+      // We just need cargo and a valid stack index.
+
+      const result = gsm.sellGood(0, 10, 100);
+
+      expect(result.success).toBe(true);
+      // Revenue = 10 * 100 = 1000
+      // Withholding = ceil(1000 * 0.05) = 50
+      // Player gets 500 + 950 = 1450
+      expect(gsm.state.player.credits).toBe(1450);
+      // Debt reduced by 50
+      expect(gsm.state.player.debt).toBe(9950);
+      expect(result.withheld).toBe(50);
+    });
+
+    it('does not withhold when debt is 0', () => {
+      gsm.state.player.credits = 500;
+      gsm.state.player.debt = 0;
+      gsm.state.player.finance.heat = 10;
+
+      gsm.state.ship.cargo = [
+        { good: 'water', qty: 5, buyPrice: 50 },
+      ];
+
+      const result = gsm.sellGood(0, 5, 100);
+
+      expect(result.success).toBe(true);
+      // Revenue = 5 * 100 = 500, no withholding
+      expect(gsm.state.player.credits).toBe(1000);
+      expect(gsm.state.player.debt).toBe(0);
+      expect(result.withheld).toBe(0);
+    });
+  });
 });

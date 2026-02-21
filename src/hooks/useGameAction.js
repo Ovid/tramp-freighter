@@ -262,6 +262,10 @@ export function useGameAction() {
       getEpilogueData: () => gameStateManager.getEpilogueData(),
       getEpilogueStats: () => gameStateManager.getEpilogueStats(),
 
+      getDebtInfo: () => gameStateManager.getDebtInfo(),
+      borrowFromCole: (amount) => gameStateManager.borrowFromCole(amount),
+      makeDebtPayment: (amount) => gameStateManager.makeDebtPayment(amount),
+
       acceptMission: (mission) => gameStateManager.acceptMission(mission),
       completeMission: (missionId) =>
         gameStateManager.completeMission(missionId),
