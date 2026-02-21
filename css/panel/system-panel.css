@@ -21,7 +21,9 @@
 }
 
 .system-panel-header {
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   margin-bottom: var(--section-padding);
   padding-bottom: 10px;
   border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
@@ -31,21 +33,18 @@
   color: var(--color-primary);
   font-size: var(--font-size-title);
   margin: 0;
-  padding-right: 30px;
 }
 
 .system-panel .close-btn {
-  position: absolute;
-  top: 0;
-  right: var(--close-button-right);
   background: none;
   border: none;
   color: var(--color-primary);
   font-size: 24px;
   cursor: pointer;
-  padding: 5px;
+  padding: 0;
   line-height: 1;
   transition: var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .system-panel .close-btn:hover {
@@ -55,7 +54,7 @@
 .system-panel-content {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 /* System Details */
