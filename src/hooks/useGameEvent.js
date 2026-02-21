@@ -129,6 +129,7 @@ function extractStateForEvent(eventName, state) {
       boardLastRefresh: 0,
     },
     questChanged: state.quests || {},
+    financeChanged: state.player.finance || null,
   };
 
   return eventStateMap[eventName] ?? null;
