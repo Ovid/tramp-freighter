@@ -26,10 +26,10 @@ export const YUKI_TANAKA_DIALOGUE = {
       if (stage === 2) {
         const exotics =
           gameStateManager.getQuestState('tanaka')?.data?.exoticMaterials || 0;
-        if (exotics >= 5) {
-          return `"You found all five samples. Excellent work." She examines them carefully. "The isotope ratios are perfect. We can proceed."`;
+        if (exotics >= ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED) {
+          return `"You found all ${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples. Excellent work." She examines them carefully. "The isotope ratios are perfect. We can proceed."`;
         }
-        return `"The exotic materials search continues. You have ${exotics} of 5 samples so far." She checks her instruments. "Keep searching stations beyond 15 light-years from Sol."`;
+        return `"The exotic materials search continues. You have ${exotics} of ${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples so far." She checks her instruments. "Keep searching stations beyond ${ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE} light-years from Sol."`;
       }
       if (stage === 1) {
         const jumps =
