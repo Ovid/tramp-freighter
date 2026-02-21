@@ -468,10 +468,6 @@ export const COLE_DEBT_CONFIG = {
   // Payment UI
   PAYMENT_TIERS: [100, 500, 1000],
 
-  // Reputation
-  COLE_NPC_ID: 'cole_sol',
-  DEBT_PAYOFF_REP_BOOST: 250, // Base rep boost when debt reaches 0 (Cole trust 0.1 → +25 effective, from -20 to +5 NEUTRAL)
-
   // Starting values
   STARTING_LIEN_RATE: 0.05,
   STARTING_HEAT: 0,
