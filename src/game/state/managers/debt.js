@@ -149,6 +149,43 @@ export class DebtManager extends BaseManager {
     return { success: true, amount };
   }
 
+  makePayment(amount) {
+    this.validateState();
+    const state = this.getState();
+    const finance = this.getFinance();
+    const debt = this.getDebt();
+
+    if (debt === 0) {
+      return { success: false, reason: 'No outstanding debt' };
+    }
+
+    if (state.player.credits < amount) {
+      return { success: false, reason: 'Insufficient credits' };
+    }
+
+    // Cap at actual debt
+    const actualPayment = Math.min(amount, debt);
+
+    this.gameStateManager.updateDebt(debt - actualPayment);
+    this.gameStateManager.updateCredits(state.player.credits - actualPayment);
+
+    finance.totalRepaid += actualPayment;
+
+    // Heat reduction per payment action
+    this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
+
+    // If debt is now 0, reset heat
+    if (this.getDebt() === 0) {
+      finance.heat = 0;
+      finance.lienRate = 0;
+    }
+
+    this.emitFinanceChanged();
+    this.gameStateManager.saveGame();
+
+    return { success: true, amount: actualPayment };
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }

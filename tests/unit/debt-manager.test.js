@@ -192,6 +192,76 @@ describe('Cole Debt System', () => {
       });
     });
 
+    describe('makePayment', () => {
+      it('reduces debt and deducts credits', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 10000;
+
+        const result = debtManager.makePayment(1000);
+
+        expect(result.success).toBe(true);
+        expect(gsm.state.player.debt).toBe(9000);
+        expect(gsm.state.player.credits).toBe(4000);
+      });
+
+      it('reduces heat by 3 per payment action', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 30;
+
+        debtManager.makePayment(100);
+
+        expect(gsm.state.player.finance.heat).toBe(27);
+      });
+
+      it('caps payment at current debt', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 300;
+
+        debtManager.makePayment(500);
+
+        expect(gsm.state.player.debt).toBe(0);
+        expect(gsm.state.player.credits).toBe(4700);
+      });
+
+      it('resets heat to 0 when debt reaches 0', () => {
+        gsm.state.player.credits = 15000;
+        gsm.state.player.debt = 1000;
+        gsm.state.player.finance.heat = 50;
+
+        debtManager.makePayment(1000);
+
+        expect(gsm.state.player.debt).toBe(0);
+        expect(gsm.state.player.finance.heat).toBe(0);
+      });
+
+      it('rejects payment when credits insufficient', () => {
+        gsm.state.player.credits = 50;
+
+        const result = debtManager.makePayment(100);
+
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects payment when debt is 0', () => {
+        gsm.state.player.debt = 0;
+        gsm.state.player.credits = 5000;
+
+        const result = debtManager.makePayment(100);
+
+        expect(result.success).toBe(false);
+      });
+
+      it('tracks totalRepaid', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 10000;
+
+        debtManager.makePayment(500);
+
+        expect(gsm.state.player.finance.totalRepaid).toBe(500);
+      });
+    });
+
     describe('applyInterest', () => {
       it('applies interest when period has elapsed', () => {
         gsm.state.player.debt = 10000;
