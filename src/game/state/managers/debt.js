@@ -334,6 +334,11 @@ export class DebtManager extends BaseManager {
     const reachable = starData.filter(
       (s) => s.id !== currentSystem && s.r === 1
     );
+    if (reachable.length === 0) {
+      throw new Error(
+        `No reachable systems found for favor mission from system ${currentSystem}`
+      );
+    }
     const destStar = reachable[Math.floor(Math.random() * reachable.length)];
 
     const deadline = template.requirements.deadline;
