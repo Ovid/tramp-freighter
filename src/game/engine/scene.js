@@ -158,7 +158,7 @@ export function onWindowResize(camera, renderer) {
  * @param {THREE.Scene} scene - The scene to add the boundary to
  * @returns {THREE.LineSegments} The sector boundary object
  */
-export function setupSectorBoundary(scene) {
+function setupSectorBoundary(scene) {
   // Create sphere geometry
   const sphereGeometry = new THREE.SphereGeometry(
     VISUAL_CONFIG.sectorBoundaryRadius,
@@ -206,7 +206,7 @@ export function setupSectorBoundary(scene) {
  * @param {THREE.Scene} scene - The scene to add the starfield to
  * @returns {THREE.Points} The starfield object
  */
-export function createStarfield(scene) {
+function createStarfield(scene) {
   const starfieldGeometry = new THREE.BufferGeometry();
   const starCount = VISUAL_CONFIG.starfieldCount;
   const positions = new Float32Array(starCount * 3);

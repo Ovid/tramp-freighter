@@ -81,7 +81,7 @@ export class AnimationTimingCalculator {
  * Provides mathematical functions for interpolating values with different
  * acceleration/deceleration curves.
  */
-export class EasingFunctions {
+class EasingFunctions {
   /**
    * Ease-in-out cubic easing
    *
@@ -106,7 +106,7 @@ export class EasingFunctions {
  * Manages disabling and re-enabling player input during animations.
  * Prevents accidental actions while animations are playing.
  */
-export class InputLockManager {
+class InputLockManager {
   /**
    * Create input lock manager
    *
@@ -208,7 +208,7 @@ function createShipIndicatorCanvasTexture() {
  *
  * @returns {THREE.Sprite} Ship indicator sprite
  */
-export function createShipIndicatorSprite() {
+function createShipIndicatorSprite() {
   // Create texture using same pattern as star sprites
   const texture = createShipIndicatorCanvasTexture();
 
@@ -245,7 +245,7 @@ export function createShipIndicatorSprite() {
  *
  * @returns {THREE.LineLoop} Reticle line object
  */
-export function createShipReticle() {
+function createShipReticle() {
   // Create circle vertices manually
   const vertices = [];
   const segments = ANIMATION_CONFIG.RETICLE_SEGMENTS;

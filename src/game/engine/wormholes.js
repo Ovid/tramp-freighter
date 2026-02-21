@@ -163,13 +163,6 @@ export function updateConnectionColors(gameStateManager) {
   });
 }
 
-/**
- * Get wormhole connections array
- * @returns {Array} Array of wormhole connection data
- */
-export function getWormholeConnections() {
-  return wormholeConnections;
-}
 
 /**
  * Clear wormhole connections (for testing)

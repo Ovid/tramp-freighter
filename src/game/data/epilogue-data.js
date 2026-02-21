@@ -1,6 +1,6 @@
 import { REPUTATION_BOUNDS } from '../constants.js';
 
-export const EPILOGUE_CONFIG = {
+const EPILOGUE_CONFIG = {
   sections: [
     {
       id: 'arrival',
