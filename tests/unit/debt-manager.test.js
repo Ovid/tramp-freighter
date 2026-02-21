@@ -372,5 +372,66 @@ describe('Cole Debt System', () => {
         expect(gsm.state.player.finance.heat).toBe(24);
       });
     });
+
+    describe('checkCheckpoint', () => {
+      it('does not trigger before checkpoint day', () => {
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.daysElapsed = 29;
+
+        const result = debtManager.checkCheckpoint();
+
+        expect(result).toBeNull();
+      });
+
+      it('does not trigger when debt is 0', () => {
+        gsm.state.player.debt = 0;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.daysElapsed = 30;
+
+        const result = debtManager.checkCheckpoint();
+
+        expect(result).toBeNull();
+      });
+
+      it('triggers on checkpoint day with payment made', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 500;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.daysElapsed = 30;
+
+        const result = debtManager.checkCheckpoint();
+
+        expect(result).not.toBeNull();
+        expect(result.madePayments).toBe(true);
+      });
+
+      it('increases heat when no payments made since last checkpoint', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 0;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10;
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.checkCheckpoint();
+
+        expect(gsm.state.player.finance.heat).toBe(20); // +10
+      });
+
+      it('schedules next checkpoint based on heat tier', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 500;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10; // low tier
+        gsm.state.player.daysElapsed = 30;
+
+        debtManager.checkCheckpoint();
+
+        // low tier: +30 days
+        expect(gsm.state.player.finance.nextCheckpoint).toBe(60);
+      });
+    });
   });
 });

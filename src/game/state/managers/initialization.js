@@ -97,6 +97,7 @@ export class InitializationManager {
         nextCheckpoint: COLE_DEBT_CONFIG.STARTING_CHECKPOINT_DAY,
         totalBorrowed: 0,
         totalRepaid: 0,
+        lastCheckpointRepaid: 0,
         borrowedThisPeriod: false,
       },
     };

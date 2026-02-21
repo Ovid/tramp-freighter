@@ -220,6 +220,60 @@ export class DebtManager extends BaseManager {
     return { withheld };
   }
 
+  getCheckpointInterval() {
+    const tier = this.getHeatTier();
+    switch (tier) {
+      case 'low':
+        return COLE_DEBT_CONFIG.CHECKPOINT_INTERVAL_LOW;
+      case 'medium':
+        return COLE_DEBT_CONFIG.CHECKPOINT_INTERVAL_MEDIUM;
+      case 'high':
+        return COLE_DEBT_CONFIG.CHECKPOINT_INTERVAL_HIGH;
+      case 'critical':
+        return COLE_DEBT_CONFIG.CHECKPOINT_INTERVAL_CRITICAL;
+      default:
+        return COLE_DEBT_CONFIG.CHECKPOINT_INTERVAL_LOW;
+    }
+  }
+
+  checkCheckpoint() {
+    this.validateState();
+    const state = this.getState();
+    const finance = this.getFinance();
+    const debt = this.getDebt();
+
+    if (debt === 0) return null;
+    if (state.player.daysElapsed < finance.nextCheckpoint) return null;
+
+    const madePayments = finance.totalRepaid > finance.lastCheckpointRepaid;
+
+    if (!madePayments) {
+      this.updateHeat(COLE_DEBT_CONFIG.HEAT_MISSED_CHECKPOINT);
+    }
+
+    // Record repayment level at this checkpoint
+    finance.lastCheckpointRepaid = finance.totalRepaid;
+
+    // Schedule next checkpoint
+    const interval = this.getCheckpointInterval();
+    finance.nextCheckpoint = state.player.daysElapsed + interval;
+
+    const tier = this.getHeatTier();
+    const requiresFavor = tier === 'high' || tier === 'critical';
+    const favorMandatory = tier === 'critical';
+
+    this.emitFinanceChanged();
+
+    return {
+      madePayments,
+      tier,
+      requiresFavor,
+      favorMandatory,
+      debt,
+      heat: finance.heat,
+    };
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }
