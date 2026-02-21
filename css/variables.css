@@ -34,6 +34,9 @@
   --border-light: rgba(255, 255, 255, 0.2);
   --border-medium: rgba(255, 255, 255, 0.4);
 
+  /* Panel Layout (three-panel alignment) */
+  --panel-gap: clamp(24px, 3vw, 50px);
+
   /* Panel Dimensions */
   --panel-width-small: 600px;
   --panel-width-medium: 700px;

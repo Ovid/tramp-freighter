@@ -60,8 +60,8 @@ describe('Settings Panel', () => {
 
       // Now should say "Matter"
       const updatedButtons = container.querySelectorAll('.control-btn');
-      const matterBtn = Array.from(updatedButtons).find((btn) =>
-        btn.textContent.trim() === 'Matter'
+      const matterBtn = Array.from(updatedButtons).find(
+        (btn) => btn.textContent.trim() === 'Matter'
       );
       expect(matterBtn).toBeTruthy();
     });
