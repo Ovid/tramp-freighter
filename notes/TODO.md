@@ -1,11 +1,28 @@
 # TODO
  
+- Yuki Tanaka rep required for end game How do we improve that rep?
+    - advanced sensor array is a reward. What does that do?
+- Admin panel
+    - Dev admin panel "Repair all systems to 100%" needs to also set fuel to 100%
+    - NPCs in a drop down list.
+Endgame NOT FULLY TESTED (2)
+    1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
+  test endgame efficiently. Individual mission mechanics (exotic material collection,
+  prototype jump, message delivery) not gameplay-tested.
+    2. Epilogue variations — Only saw one epilogue path (moderate karma). High
+  karma/low karma/smuggler variations not tested.
 
 - Jump animations are hidden behind encounters, such as customs or pirates. It
   would be nice if we could see the "start" of the jump and, near the end, the
   panel then pops up.
 - Camera -> Gear Icon
-    - Search-easily search for a star and highlight it.
+    - Search-easily search for a star and highlight it (case insensitive and
+      partial matches might hightlight more than one star? How would that
+      work? Would it break things?)
+    - Antimatter Mode-like "light/dark mode", this toggles between
+      "Antimatter" and "Matter" (no description, let the player find out).
+      However, "Antimatter model" inverts the colors. Should create a bizarre
+      visual effect.
 - Validate that narrative messages don't imply things that aren't true (such
   as offering to sell you something for half-price and then not letting you
   buy)
@@ -75,6 +92,7 @@
 - Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
 - Some kind of "Achievement" system (visited all stars, for example)
+    - It needs to validate that all achievements in the game are possible.
 
 # Notes
 
