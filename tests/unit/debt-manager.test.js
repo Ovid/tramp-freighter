@@ -242,6 +242,23 @@ describe('Cole Debt System', () => {
         expect(gsm.state.player.finance.heat).toBe(0);
       });
 
+      it('improves Cole reputation to at least NEUTRAL when debt reaches 0 via payment', () => {
+        gsm.state.player.credits = 15000;
+        gsm.state.player.debt = 1000;
+        gsm.state.player.finance.heat = 20;
+
+        // Cole starts at rep -20 (COLD)
+        const coleBefore = gsm.getNPCState('cole_sol');
+        expect(coleBefore.rep).toBeLessThan(0);
+
+        debtManager.makePayment(1000);
+
+        expect(gsm.state.player.debt).toBe(0);
+        const coleAfter = gsm.getNPCState('cole_sol');
+        // Should be at least NEUTRAL (rep >= -9)
+        expect(coleAfter.rep).toBeGreaterThanOrEqual(-9);
+      });
+
       it('rejects payment when credits insufficient', () => {
         gsm.state.player.credits = 50;
 

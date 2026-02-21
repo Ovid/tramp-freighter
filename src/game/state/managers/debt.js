@@ -190,11 +190,7 @@ export class DebtManager extends BaseManager {
     // Heat reduction per payment action
     this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
 
-    // If debt is now 0, reset heat
-    if (this.getDebt() === 0) {
-      finance.heat = 0;
-      finance.lienRate = 0;
-    }
+    this.handleDebtCleared();
 
     this.emitFinanceChanged();
     this.gameStateManager.saveGame();
@@ -226,14 +222,28 @@ export class DebtManager extends BaseManager {
     this.gameStateManager.updateDebt(this.getDebt() - withheld);
     finance.totalRepaid += withheld;
 
-    if (this.getDebt() === 0) {
-      finance.heat = 0;
-      finance.lienRate = 0;
-    }
+    this.handleDebtCleared();
 
     this.emitFinanceChanged();
 
     return { withheld };
+  }
+
+  /**
+   * Handle debt reaching zero — reset heat/lien and improve Cole's disposition.
+   * Called from both makePayment and applyWithholding when debt clears.
+   */
+  handleDebtCleared() {
+    if (this.getDebt() !== 0) return;
+
+    const finance = this.getFinance();
+    finance.heat = 0;
+    finance.lienRate = 0;
+    this.gameStateManager.modifyRep(
+      COLE_DEBT_CONFIG.COLE_NPC_ID,
+      COLE_DEBT_CONFIG.DEBT_PAYOFF_REP_BOOST,
+      'debt_paid_off'
+    );
   }
 
   getCheckpointInterval() {
