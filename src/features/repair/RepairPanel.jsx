@@ -43,6 +43,7 @@ export function RepairPanel({ onClose }) {
     getFreeRepair,
     applyEmergencyPatch,
     cannibalizeSystem,
+    getNarrativeFlags,
   } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
@@ -53,10 +54,7 @@ export function RepairPanel({ onClose }) {
   const condition = shipCondition;
 
   // Get NPCs at current location for free repair checks
-  const npcsAtSystem = getNPCsAtSystem(
-    currentSystemId,
-    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
-  );
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId, getNarrativeFlags());
 
   // Check for available free repairs from any NPC at this location
   const freeRepairOptions = npcsAtSystem

@@ -33,6 +33,7 @@ vi.mock('../../src/hooks/useGameAction', () => ({
     getFreeRepair: vi.fn(),
     applyEmergencyPatch: vi.fn(() => ({ success: true, reason: null })),
     cannibalizeSystem: vi.fn(() => ({ success: true, reason: null })),
+    getNarrativeFlags: vi.fn(() => ({})),
   }),
 }));
 

@@ -142,4 +142,12 @@ export class EventEngineManager extends BaseManager {
   setFlag(flagName) {
     this.getState().world.narrativeEvents.flags[flagName] = true;
   }
+
+  /**
+   * Get all narrative flags.
+   * @returns {Object} Current narrative flags object
+   */
+  getFlags() {
+    return this.getState().world?.narrativeEvents?.flags ?? {};
+  }
 }

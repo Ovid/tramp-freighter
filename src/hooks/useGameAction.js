@@ -258,6 +258,8 @@ export function useGameAction() {
       checkQuestObjectives: (questId) =>
         gameStateManager.checkQuestObjectives(questId),
 
+      getNarrativeFlags: () => gameStateManager.getNarrativeFlags(),
+
       acceptMission: (mission) => gameStateManager.acceptMission(mission),
       completeMission: (missionId) =>
         gameStateManager.completeMission(missionId),

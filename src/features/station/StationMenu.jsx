@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
+import { useGameAction } from '../../hooks/useGameAction';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../hud/hudUtils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
@@ -22,6 +23,7 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
 export function StationMenu({ onOpenPanel, onUndock }) {
   const currentSystemId = useGameEvent('locationChanged');
   const gameStateManager = useGameState();
+  const { getNarrativeFlags } = useGameAction();
 
   // Get current system data
   const system = STAR_DATA.find((s) => s.id === currentSystemId);
@@ -36,10 +38,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   const distance = calculateDistanceFromSol(system);
 
   // Get NPCs at current system (pass narrative flags to resolve quest-revealed NPCs)
-  const npcsAtSystem = getNPCsAtSystem(
-    currentSystemId,
-    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
-  );
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId, getNarrativeFlags());
 
   // Handle NPC selection to open dialogue
   const handleNPCClick = (npcId) => {

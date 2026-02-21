@@ -37,14 +37,11 @@ export function RefuelPanel({ onClose }) {
   const currentSystem = useGameEvent('locationChanged');
 
   // Get action methods
-  const { refuel, validateRefuel } = useGameAction();
+  const { refuel, validateRefuel, getNarrativeFlags } = useGameAction();
   const fuelPrice = gameStateManager.getFuelPrice(currentSystem);
 
   // Get NPCs at current location for refuel discounts
-  const npcsAtSystem = getNPCsAtSystem(
-    currentSystem,
-    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
-  );
+  const npcsAtSystem = getNPCsAtSystem(currentSystem, getNarrativeFlags());
 
   // Get refuel service discounts from NPCs at this location
   const refuelDiscounts = npcsAtSystem

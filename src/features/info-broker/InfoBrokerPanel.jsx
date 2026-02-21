@@ -37,7 +37,7 @@ export function InfoBrokerPanel({ onClose }) {
   const credits = useGameEvent('creditsChanged');
   const currentSystemId = useGameEvent('locationChanged');
   const priceKnowledge = useGameEvent('priceKnowledgeChanged');
-  const { purchaseIntelligence, updateCredits, generateRumor } =
+  const { purchaseIntelligence, updateCredits, generateRumor, getNarrativeFlags } =
     useGameAction();
 
   const [activeTab, setActiveTab] = useState('purchase');
@@ -60,10 +60,7 @@ export function InfoBrokerPanel({ onClose }) {
   }, [gameStateManager, currentSystemId, priceKnowledge]);
 
   // Get NPCs at current location for intel discounts
-  const npcsAtSystem = getNPCsAtSystem(
-    currentSystemId,
-    gameStateManager.state?.world?.narrativeEvents?.flags ?? {}
-  );
+  const npcsAtSystem = getNPCsAtSystem(currentSystemId, getNarrativeFlags());
 
   // Get intel service discounts from NPCs at this location
   const intelDiscounts = npcsAtSystem

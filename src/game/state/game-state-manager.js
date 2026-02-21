@@ -917,4 +917,8 @@ export class GameStateManager {
   setNarrativeFlag(flagName) {
     return this.eventEngineManager.setFlag(flagName);
   }
+
+  getNarrativeFlags() {
+    return this.eventEngineManager.getFlags();
+  }
 }
