@@ -274,6 +274,28 @@ export class DebtManager extends BaseManager {
     };
   }
 
+  getDebtInfo() {
+    this.validateState();
+    const state = this.getState();
+    const finance = this.getFinance();
+    const debt = this.getDebt();
+
+    return {
+      debt,
+      lienRate: this.getLienRate(),
+      interestRate: finance.interestRate,
+      nextInterestDay:
+        finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS,
+      maxDraw: this.getMaxDraw(),
+      availableDrawTiers: this.getAvailableDrawTiers(),
+      canBorrow: debt > 0 || true,
+      canPay: debt > 0 && state.player.credits > 0,
+      totalBorrowed: finance.totalBorrowed,
+      totalRepaid: finance.totalRepaid,
+      nextCheckpoint: finance.nextCheckpoint,
+    };
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }

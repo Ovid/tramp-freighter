@@ -433,5 +433,29 @@ describe('Cole Debt System', () => {
         expect(gsm.state.player.finance.nextCheckpoint).toBe(60);
       });
     });
+
+    describe('getDebtInfo', () => {
+      it('returns complete debt summary for UI', () => {
+        gsm.state.player.debt = 8000;
+        gsm.state.player.credits = 3000;
+        gsm.state.player.finance.heat = 25;
+        gsm.state.player.finance.totalBorrowed = 2000;
+        gsm.state.player.finance.totalRepaid = 4000;
+        gsm.state.player.daysElapsed = 15;
+
+        const info = debtManager.getDebtInfo();
+
+        expect(info.debt).toBe(8000);
+        expect(info.lienRate).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
+        expect(info.interestRate).toBe(COLE_DEBT_CONFIG.INTEREST_RATE);
+        expect(info.nextInterestDay).toBeDefined();
+        expect(info.maxDraw).toBeGreaterThanOrEqual(COLE_DEBT_CONFIG.DEFAULT_DRAW);
+        expect(info.availableDrawTiers).toBeInstanceOf(Array);
+        expect(info.canBorrow).toBe(true);
+        expect(info.canPay).toBe(true);
+        expect(info.totalBorrowed).toBe(2000);
+        expect(info.totalRepaid).toBe(4000);
+      });
+    });
   });
 });
