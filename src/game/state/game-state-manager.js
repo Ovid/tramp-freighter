@@ -483,6 +483,10 @@ export class GameStateManager {
     return this.debtManager.applyWithholding(totalRevenue);
   }
 
+  getHeatTier() {
+    return this.debtManager.getHeatTier();
+  }
+
   processDebtTick() {
     this.debtManager.applyInterest();
     return this.debtManager.checkCheckpoint();
