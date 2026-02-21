@@ -67,7 +67,6 @@ export class DebtManager extends BaseManager {
     const finance = this.getFinance();
     finance.heat = this.clampHeat(finance.heat + delta);
     finance.lienRate = this.getLienRate();
-    this.emitFinanceChanged();
   }
 
   applyInterest() {
