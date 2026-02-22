@@ -82,6 +82,19 @@ export class SeededRandom {
  * @param {Function} rngFn - Function returning a number in [0, 1)
  * @returns {*} A random element
  */
+/**
+ * Build a deterministic seed string from game context.
+ * Same day + system + type always produces same RNG sequence.
+ *
+ * @param {number} gameDay - Current game day (daysElapsed)
+ * @param {number} systemId - Current star system ID
+ * @param {string} encounterType - Type identifier (e.g., 'combat', 'negotiation')
+ * @returns {string} Seed string for SeededRandom constructor
+ */
+export function buildEncounterSeed(gameDay, systemId, encounterType) {
+  return `${gameDay}_${systemId}_${encounterType}`;
+}
+
 export function pickRandomFrom(array, rngFn) {
   const index = Math.min(Math.floor(rngFn() * array.length), array.length - 1);
   return array[index];
