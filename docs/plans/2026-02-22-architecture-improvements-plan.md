@@ -516,7 +516,14 @@ const seededRng = new SeededRandom(seed);
 const rngValue = seededRng.next();
 ```
 
-Also update `resolveAcceptDemand` and `resolveCannotPayPirates` — they currently take `rng = Math.random` as a default parameter. Change them to generate their own SeededRandom internally using the `'negotiation_payment'` encounter type for different seed.
+Also update `resolveAcceptDemand` and `resolveCannotPayPirates`:
+
+These methods currently take `rng = Math.random` as a default parameter (a **function**, not a value) and use `typeof rng === 'function' ? rng() : rng` to call it. Replace this pattern:
+
+1. Remove the `rng` parameter entirely from both method signatures
+2. Remove all `typeof rng === 'function' ? rng() : rng` checks
+3. Create a SeededRandom instance internally with `'negotiation_payment'` encounter type
+4. Use `rng.next()` for each random value needed (credit demand calculation, kidnap chance, damage percent, system target selection)
 
 **Step 2: Run full test suite, commit**
 
@@ -609,15 +616,27 @@ const distressResult = dm.checkDistressCall();
 
 Note: `dm` here refers to `gameStateManager` accessed through context. Verify the variable name in the actual hook.
 
-**Step 4: Run full test suite**
+**Step 4: Update test files that pass rng parameters**
+
+Search test files for calls that pass `rng` arguments to the changed methods. Tests may pass fixed RNG values (e.g., `0.5`) or `Math.random()` to `resolveNegotiation`, `resolveInspection`, `checkDistressCall`, `checkMechanicalFailure`, or `resolveMechanicalFailure`. Remove those `rng` arguments from test calls to match the updated signatures.
+
+Key test files to check:
+- `tests/property/negotiation-outcomes.property.test.js` — likely passes fixed RNG to `resolveNegotiation`
+- `tests/property/inspection-outcomes.property.test.js` — likely passes RNG to `resolveInspection`
+- `tests/property/distress-call-outcomes.property.test.js` — may pass RNG to `checkDistressCall`
+- `tests/property/mechanical-failure-thresholds.property.test.js` — passes RNG to `checkMechanicalFailure`
+- `tests/property/danger-flags-increment.property.test.js` — may pass RNG to resolution methods
+- `tests/unit/passenger-cargo-pirate.test.js` — integration test, may pass RNG
+
+**Step 5: Run full test suite**
 
 Run: `npm test`
 Expected: PASS
 
-**Step 5: Commit**
+**Step 6: Commit**
 
 ```bash
-git add src/game/state/game-state-manager.js src/App.jsx src/hooks/useEventTriggers.js
+git add src/game/state/game-state-manager.js src/App.jsx src/hooks/useEventTriggers.js tests/
 git commit -m "refactor: remove rng params from encounter resolution call chain"
 ```
 
@@ -690,7 +709,7 @@ describe('SaveLoadManager debounced save', () => {
     vi.restoreAllMocks();
   });
 
-  it('markDirty should schedule a save after SAVE_DEBOUNCE_MS', async () => {
+  it('markDirty should schedule a save after MARK_DIRTY_DEBOUNCE_MS', async () => {
     // Import dynamically so localStorage stub is in place
     const { SaveLoadManager } = await import(
       '../../src/game/state/managers/save-load.js'
@@ -701,7 +720,7 @@ describe('SaveLoadManager debounced save', () => {
       isTestEnvironment: true,
     };
     const manager = new SaveLoadManager(mockGSM);
-    const saveSpy = vi.spyOn(manager, 'saveGame');
+    const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
 
@@ -724,7 +743,7 @@ describe('SaveLoadManager debounced save', () => {
       isTestEnvironment: true,
     };
     const manager = new SaveLoadManager(mockGSM);
-    const saveSpy = vi.spyOn(manager, 'saveGame');
+    const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
     vi.advanceTimersByTime(300);
@@ -750,7 +769,7 @@ describe('SaveLoadManager debounced save', () => {
       isTestEnvironment: true,
     };
     const manager = new SaveLoadManager(mockGSM);
-    const saveSpy = vi.spyOn(manager, 'saveGame');
+    const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
     manager.flushSave();
@@ -768,7 +787,7 @@ describe('SaveLoadManager debounced save', () => {
       isTestEnvironment: true,
     };
     const manager = new SaveLoadManager(mockGSM);
-    const saveSpy = vi.spyOn(manager, 'saveGame');
+    const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.flushSave();
 
@@ -782,17 +801,25 @@ describe('SaveLoadManager debounced save', () => {
 Run: `npm test -- tests/unit/save-debounce.test.js`
 Expected: FAIL — markDirty/flushSave not found
 
-**Step 3: Implement markDirty and flushSave**
+**Step 3: Add MARK_DIRTY_DEBOUNCE_MS to constants.js**
+
+Add to `src/game/constants.js` in the `UI_CONFIG` section:
+
+```javascript
+MARK_DIRTY_DEBOUNCE_MS: 500,
+```
+
+**Step 4: Implement markDirty and flushSave**
 
 Add to `src/game/state/managers/save-load.js`:
 
 ```javascript
+// Add import:
+import { UI_CONFIG } from '../../constants.js'; // if not already imported
+
 // Add to constructor:
 this._dirtyTimer = null;
 this._isDirty = false;
-
-// Add constant at top of file (or import from constants.js):
-const MARK_DIRTY_DEBOUNCE_MS = 500;
 ```
 
 ```javascript
@@ -810,8 +837,8 @@ markDirty() {
   this._dirtyTimer = setTimeout(() => {
     this._dirtyTimer = null;
     this._isDirty = false;
-    this.saveGame();
-  }, MARK_DIRTY_DEBOUNCE_MS);
+    this._forceSave();
+  }, UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS);
 }
 
 /**
@@ -827,9 +854,41 @@ flushSave() {
   }
 
   this._isDirty = false;
-  this.saveGame();
+  this._forceSave();
+}
+
+/**
+ * Save immediately, bypassing the passive debounce in saveGameToStorage.
+ * Only called from markDirty/flushSave which already handle debouncing.
+ * @private
+ */
+_forceSave() {
+  if (!this.getState()) {
+    this.error('Cannot save: no game state exists');
+    return;
+  }
+
+  try {
+    const now = Date.now();
+    const stateToSave = {
+      ...this.getState(),
+      meta: {
+        ...this.getState().meta,
+        timestamp: now,
+      },
+    };
+    const saveData = JSON.stringify(stateToSave);
+    localStorage.setItem(SAVE_KEY, saveData);
+    this.lastSaveTime = now;
+  } catch (error) {
+    this.error('Save failed - game progress may be lost', error);
+  }
 }
 ```
+
+**Why `_forceSave()` instead of `saveGame()`:** The existing `saveGame()` delegates to `saveGameToStorage()` which has its own passive 1-second debounce. If `markDirty` fires twice within 1 second (e.g., 500ms apart), the second `saveGame()` call would be silently rejected by the passive debounce, losing mutations. `_forceSave()` bypasses this — `markDirty`'s trailing timer is the only debounce needed.
+
+The existing `saveGame()` method stays unchanged for backward compatibility but should not be called by managers. `SAVE_KEY` needs to be imported from `'../../constants.js'` (or from `'../save-load.js'` if that's where it's currently referenced).
 
 **Step 4: Run test to verify it passes**
 
@@ -845,12 +904,15 @@ git commit -m "feat: add markDirty/flushSave for debounced auto-save"
 
 ---
 
-### Task 15: Add markDirty delegation and replace saveGame calls
+### Task 15: Add markDirty delegation and replace ALL saveGame calls
 
 **Files:**
-- Modify: `src/game/state/game-state-manager.js` — add markDirty delegation, replace 13 saveGame() calls
-- Modify: `src/game/state/managers/navigation.js` — replace 2 saveGame() calls, fix ordering bug
-- Modify: `src/features/danger/applyEncounterOutcome.js` — replace 1 saveGame() call
+- Modify: `src/game/state/game-state-manager.js` — add markDirty delegation, replace saveGame() calls
+- Modify: `src/game/state/managers/navigation.js` — replace saveGame() calls
+- Modify: `src/features/danger/applyEncounterOutcome.js` — replace saveGame() call
+- Potentially modify: any other manager files with saveGame() calls (trading.js, ship.js, repair.js, mission.js, refuel.js, info-broker.js, events.js — the architecture review found 22 calls across 9 files)
+
+**IMPORTANT:** Before making changes, search the entire `src/` directory for all occurrences of `saveGame()`, `this.saveGame()`, and `this.gameStateManager.saveGame()`. Replace ALL of them with `markDirty()` / `this.gameStateManager.markDirty()`. Do not rely solely on the line numbers listed below — they may be outdated.
 
 **Step 1: Add markDirty delegation to GameStateManager**
 
@@ -878,26 +940,7 @@ Replace every `this.saveGame()` with `this.markDirty()` in game-state-manager.js
 
 Replace `this.gameStateManager.saveGame()` with `this.gameStateManager.markDirty()` at lines 131 and 160.
 
-Also fix the ordering bug in dock(): move the `dockedSystems.push()` block (lines 137-140) to BEFORE the `markDirty()` call (line 131). Since markDirty is debounced, the order doesn't technically matter for correctness anymore, but it's cleaner:
-
-```javascript
-// Track docked systems for first_dock condition
-const dockedSystems = state.world.narrativeEvents?.dockedSystems;
-if (dockedSystems && !dockedSystems.includes(currentSystemId)) {
-  dockedSystems.push(currentSystemId);
-}
-
-// Update price knowledge
-this.gameStateManager.updatePriceKnowledge(
-  currentSystemId, currentPrices, 0, 'visited'
-);
-
-this.gameStateManager.markDirty();
-
-this.emit('docked', { systemId: currentSystemId });
-```
-
-Wait — check whether the `dockedSystems` mutation should stay AFTER the emit. The comment says "after emit so the event engine sees the system as not-yet-docked during check." If this ordering is intentional for the event engine, keep it after the emit but before markDirty doesn't matter since markDirty is debounced. The key fix is that markDirty (unlike saveGame) will capture the mutation regardless of call order.
+Leave the `dockedSystems.push()` ordering as-is (after the emit). The existing comment explains this is intentional: "after emit so the event engine sees the system as not-yet-docked during check." With `markDirty()`, the save happens 500ms later, so all synchronous mutations (including `dockedSystems.push()`) are captured regardless of call order. The original ordering bug (mutation after `saveGame()`) is inherently fixed by the debounced approach.
 
 **Step 4: Update applyEncounterOutcome.js**
 
@@ -1109,7 +1152,10 @@ Search for `Math.random` in `src/game/state/managers/` (excluding scene.js) and 
 
 **Step 4: Verify no remaining direct saveGame() calls in managers**
 
-Search for `this.gameStateManager.saveGame()` or `this.saveGame()` in manager files. Should only exist in SaveLoadManager's own internal methods.
+Search for `this.gameStateManager.saveGame()` or `this.saveGame()` in all source files (excluding tests). Acceptable locations:
+- `SaveLoadManager.saveGame()` method itself (public API, kept for backward compat)
+- `SaveLoadManager._forceSave()` (internal, called by markDirty/flushSave)
+- No other file should call `saveGame()` directly — all should use `markDirty()`
 
 **Step 5: Final commit if any cleanup was needed**
 
