@@ -15,6 +15,7 @@ export const COLE_FAVOR_MISSIONS = [
     },
     reward: 0,
     abandonable: false,
+    coleRepReward: 8,
   },
   {
     id: 'cole_passenger',
@@ -28,6 +29,7 @@ export const COLE_FAVOR_MISSIONS = [
     },
     reward: 0,
     abandonable: false,
+    coleRepReward: 10,
   },
   {
     id: 'cole_intimidation',
@@ -41,5 +43,6 @@ export const COLE_FAVOR_MISSIONS = [
     },
     reward: 0,
     abandonable: false,
+    coleRepReward: 12,
   },
 ];

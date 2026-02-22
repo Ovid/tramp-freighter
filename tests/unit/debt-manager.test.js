@@ -634,6 +634,44 @@ describe('Cole Debt System', () => {
     });
   });
 
+  describe('Cole Mission Reputation', () => {
+    it('completes cole mission and applies direct rep reward', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.currentSystem = 0;
+
+      // Create a Cole mission at destination = current system (so it can complete)
+      const coleMission = {
+        id: 'cole_courier_test',
+        type: 'delivery',
+        source: 'cole',
+        title: 'Sealed Package',
+        description: 'Test delivery',
+        giverSystem: 1,
+        requirements: { destination: 0, deadline: 21, cargoSpace: 1 },
+        destination: { systemId: 0, name: 'Sol' },
+        missionCargo: { good: 'sealed_package', quantity: 1 },
+        rewards: { credits: 0 },
+        reward: 0,
+        abandonable: false,
+        coleRepReward: 8,
+      };
+
+      gsm.state.missions.active.push(coleMission);
+      gsm.state.ship.cargo.push({
+        good: 'sealed_package',
+        qty: 1,
+        buyPrice: 0,
+        missionId: 'cole_courier_test',
+      });
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      gsm.completeMission('cole_courier_test');
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-12); // -20 + 8
+    });
+  });
+
   describe('Cole Reputation Constants', () => {
     it('exports all Cole reputation constants', () => {
       expect(COLE_DEBT_CONFIG.COLE_NPC_ID).toBe('cole_sol');

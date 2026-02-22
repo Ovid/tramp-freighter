@@ -219,6 +219,11 @@ export class MissionManager extends BaseManager {
       }
     }
 
+    // Cole favor missions: apply direct rep bypassing trust modifier
+    if (mission.source === 'cole' && mission.coleRepReward) {
+      this.gameStateManager.modifyColeRep(mission.coleRepReward);
+    }
+
     if (mission.rewards.karma) {
       this.gameStateManager.modifyKarma(mission.rewards.karma, 'mission');
     }
