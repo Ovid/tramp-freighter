@@ -1,5 +1,6 @@
 # TODO
- 
+
+- Test in Safari and Firefox
 - After the last design doc is implemented, we need a new game to start with
   instructions. The UI needs to have a convenient place to show them, too,
   (see the "Camera" change) so
