@@ -159,6 +159,9 @@ export class DebtManager extends BaseManager {
     finance.totalBorrowed += amount;
     finance.borrowedThisPeriod = true;
 
+    // Cole likes customers
+    this.modifyColeRep(COLE_DEBT_CONFIG.REP_BORROW_BONUS);
+
     this.emitFinanceChanged();
     this.gameStateManager.saveGame();
 

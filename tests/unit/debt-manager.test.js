@@ -197,6 +197,19 @@ describe('Cole Debt System', () => {
         debtManager.borrow(100);
         expect(gsm.state.player.finance.borrowedThisPeriod).toBe(true);
       });
+
+      it('improves Cole rep by +1 per borrow', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 0;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.borrow(100);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-19);
+
+        debtManager.borrow(250);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+      });
     });
 
     describe('makePayment', () => {
