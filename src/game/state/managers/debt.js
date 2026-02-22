@@ -1,6 +1,7 @@
 import { BaseManager } from './base-manager.js';
 import { COLE_DEBT_CONFIG } from '../../constants.js';
 import { COLE_FAVOR_MISSIONS } from '../../data/cole-missions.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 export class DebtManager extends BaseManager {
   constructor(gameStateManager) {
@@ -341,10 +342,15 @@ export class DebtManager extends BaseManager {
     const state = this.getState();
     const starData = this.getStarData();
 
-    // Pick a random template
-    const templateIndex = Math.floor(
-      Math.random() * COLE_FAVOR_MISSIONS.length
+    const seed = buildEncounterSeed(
+      state.player.daysElapsed,
+      state.player.currentSystem,
+      'favor_mission'
     );
+    const rng = new SeededRandom(seed);
+
+    // Pick a random template
+    const templateIndex = Math.floor(rng.next() * COLE_FAVOR_MISSIONS.length);
     const template = COLE_FAVOR_MISSIONS[templateIndex];
 
     // Pick a random destination different from current system
@@ -357,12 +363,12 @@ export class DebtManager extends BaseManager {
         `No reachable systems found for favor mission from system ${currentSystem}`
       );
     }
-    const destStar = reachable[Math.floor(Math.random() * reachable.length)];
+    const destStar = reachable[Math.floor(rng.next() * reachable.length)];
 
     const deadline = template.requirements.deadline;
 
     return {
-      id: `${template.id}_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+      id: `${template.id}_${Date.now()}_${Math.floor(rng.next() * 10000)}`,
       type: template.type,
       source: template.source,
       title: template.title,
