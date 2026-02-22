@@ -109,15 +109,15 @@ Combat/encounter paths use `Math.random()`, making outcomes non-reproducible acr
 
 ### Seeding Strategy
 
-Seeds constructed from game context: `"${gameDay}_${systemId}_${encounterType}"`.
+Seeds constructed from game context: `"${gameDay}_${systemId}_${encounterType}"` where `systemId` is the numeric ID from `state.player.currentSystem`.
 
 Same encounter in the same system on the same day produces identical outcomes. A fresh `SeededRandom` instance is created at each resolution call site — no long-lived RNG state to persist.
 
 Examples:
-- `"142_sol_combat"`
-- `"87_alpha-centauri_inspection"`
-- `"200_barnards-star_mechanical"`
-- `"142_sol_favor_mission"` (debt.js)
+- `"142_0_combat"` (day 142, Sol, combat)
+- `"87_1_inspection"` (day 87, Alpha Centauri, inspection)
+- `"200_5_mechanical"` (day 200, system 5, mechanical)
+- `"142_0_favor_mission"` (debt.js)
 
 ### Replacement Locations
 
@@ -164,14 +164,15 @@ mutate state -> emit event -> markDirty()
                                   |
                       [500ms trailing timer]
                                   |
-                            saveGame()
+                          _forceSave()
 ```
 
 ### Implementation
 
-**SaveLoadManager** gets two new methods:
-- `markDirty()` — clears existing timer, sets 500ms `setTimeout` to call `saveGame()`
-- `flushSave()` — immediately saves if dirty (for browser unload)
+**SaveLoadManager** gets three new methods:
+- `markDirty()` — clears existing timer, sets 500ms `setTimeout` to call `_forceSave()`
+- `flushSave()` — immediately saves if dirty (for browser unload), calls `_forceSave()`
+- `_forceSave()` — writes to localStorage directly, bypassing the passive 1-second debounce in `saveGameToStorage()`. This prevents a double-debounce conflict where `markDirty`'s trailing timer fires but `saveGame()`'s passive debounce silently rejects the save.
 
 **GameStateManager** exposes `markDirty()` as a delegation method.
 
@@ -188,7 +189,7 @@ Add `beforeunload` listener calling `flushSave()` to persist pending dirty state
 
 ### Navigation.js Bug Fix
 
-With debounced saves, the dock ordering bug resolves naturally — `dockedSystems.push()` happens synchronously, and the trailing save captures complete state. The mutation should still be reordered before the emit for clarity.
+With debounced saves, the dock ordering bug resolves naturally — `dockedSystems.push()` happens synchronously, and the trailing save captures complete state 500ms later. The existing mutation/emit ordering is intentional (the event engine needs to see the system as not-yet-docked during its check), so it stays as-is.
 
 ---
 

@@ -1042,6 +1042,12 @@ with:
 - **MechanicalFailureManager**: Ship system failure checks and repairs
 ```
 
+Also add to the Event-Driven State Management section (after the event emission convention):
+```
+- **Save Pattern**: Managers call `markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces saves with a 500ms trailing timer. Only `flushSave()` (browser unload) bypasses the debounce.
+- **Encounter RNG**: Combat/encounter paths use `SeededRandom` with deterministic seeds (`gameDay_systemId_encounterType`). Do not use `Math.random()` in gameplay paths.
+```
+
 **Step 3: Update AGENTS.md**
 
 In the manager initialization code block, add new managers after `this.dangerManager`:
@@ -1093,9 +1099,11 @@ this.gameStateManager.saveGame();
 `markDirty()` schedules a save 500ms after the last state change. `flushSave()` is only for browser unload.
 ```
 
-**Step 6: Update .kiro/specs/danger-system/design.md**
+**Step 6: Update .kiro/specs/danger-system/design.md and tasks.md**
 
-Update the architecture diagram to show split managers instead of monolithic DangerManager. Add a note that DangerManager was split per the architecture review.
+Update the architecture diagram in `design.md` to show split managers instead of monolithic DangerManager. Add a note that DangerManager was split per the architecture review.
+
+Update `tasks.md` references to DangerManager to reflect the new file structure (e.g., combat resolution tasks now live in `combat.js`, not `danger.js`).
 
 **Step 7: Update architecture-responses.md**
 
@@ -1124,7 +1132,7 @@ Expected: PASS (doc changes don't affect tests)
 **Step 9: Commit**
 
 ```bash
-git add CLAUDE.md .github/copilot-instructions.md AGENTS.md DEVELOPMENT.md .kiro/steering/coding-standards.md .kiro/specs/danger-system/design.md architecture-responses.md
+git add CLAUDE.md .github/copilot-instructions.md AGENTS.md DEVELOPMENT.md .kiro/steering/coding-standards.md .kiro/specs/danger-system/design.md .kiro/specs/danger-system/tasks.md architecture-responses.md
 git commit -m "docs: update all documentation for architecture improvements"
 ```
 
