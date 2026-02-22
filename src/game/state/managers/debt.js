@@ -233,6 +233,14 @@ export class DebtManager extends BaseManager {
     this.gameStateManager.updateDebt(this.getDebt() - withheld);
     finance.totalRepaid += withheld;
 
+    // Cole's cut: only counts if ≥ threshold
+    if (withheld >= COLE_DEBT_CONFIG.REP_WITHHOLDING_THRESHOLD) {
+      const repGain = Math.floor(
+        withheld / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR
+      );
+      this.modifyColeRep(repGain);
+    }
+
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;

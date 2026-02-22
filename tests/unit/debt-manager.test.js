@@ -340,6 +340,30 @@ describe('Cole Debt System', () => {
         expect(gsm.state.player.debt).toBe(9950);
         expect(gsm.state.player.finance.totalRepaid).toBe(50);
       });
+
+      it('does not improve Cole rep when withholding < 500', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 10;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Revenue 1000, 5% lien = 50 withheld (< 500)
+        debtManager.applyWithholding(1000);
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+      });
+
+      it('improves Cole rep by floor(withheld/500) when withholding >= 500', () => {
+        gsm.state.player.debt = 100000;
+        gsm.state.player.finance.heat = 80; // critical, 20% lien
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Revenue 5000, 20% lien = 1000 withheld → floor(1000/500) = +2
+        debtManager.applyWithholding(5000);
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+      });
     });
 
     describe('applyInterest', () => {
