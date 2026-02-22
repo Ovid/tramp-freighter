@@ -145,23 +145,23 @@ describe('Pirate Credit Demand Fallback', () => {
 
   describe('hasTradeCargoForPirates', () => {
     it('should return true when ship has trade cargo', () => {
-      expect(manager.dangerManager.hasTradeCargoForPirates()).toBe(true);
+      expect(manager.negotiationManager.hasTradeCargoForPirates()).toBe(true);
     });
 
     it('should return false when cargo is empty', () => {
       manager.getState().ship.cargo = [];
-      expect(manager.dangerManager.hasTradeCargoForPirates()).toBe(false);
+      expect(manager.negotiationManager.hasTradeCargoForPirates()).toBe(false);
     });
 
     it('should return false when all cargo has qty 0', () => {
       manager.getState().ship.cargo = [{ good: 'grain', qty: 0, buyPrice: 10 }];
-      expect(manager.dangerManager.hasTradeCargoForPirates()).toBe(false);
+      expect(manager.negotiationManager.hasTradeCargoForPirates()).toBe(false);
     });
   });
 
   describe('resolveAcceptDemand with cargo', () => {
     it('should return cargoPercent when ship has trade cargo', () => {
-      const result = manager.dangerManager.resolveAcceptDemand();
+      const result = manager.negotiationManager.resolveAcceptDemand();
       expect(result.success).toBe(true);
       expect(result.costs.cargoPercent).toBe(
         NEGOTIATION_CONFIG.ACCEPT_DEMAND.CARGO_PERCENT
@@ -177,7 +177,7 @@ describe('Pirate Credit Demand Fallback', () => {
     it('should demand credits when player can afford', () => {
       manager.getState().player.credits = 1000;
       const fixedRng = () => 0.5;
-      const result = manager.dangerManager.resolveAcceptDemand(fixedRng);
+      const result = manager.negotiationManager.resolveAcceptDemand(fixedRng);
 
       expect(result.success).toBe(true);
       expect(result.costs.credits).toBeGreaterThanOrEqual(
@@ -192,7 +192,7 @@ describe('Pirate Credit Demand Fallback', () => {
     it('should route to cannot-pay when player is broke', () => {
       manager.getState().player.credits = 0;
       const fixedRng = () => 0.5;
-      const result = manager.dangerManager.resolveAcceptDemand(fixedRng);
+      const result = manager.negotiationManager.resolveAcceptDemand(fixedRng);
 
       expect(result.success).toBe(false);
     });
@@ -201,13 +201,13 @@ describe('Pirate Credit Demand Fallback', () => {
       manager.getState().player.credits = 1000;
 
       // rng=0 should give MIN_CREDIT_DEMAND
-      const resultMin = manager.dangerManager.resolveAcceptDemand(() => 0);
+      const resultMin = manager.negotiationManager.resolveAcceptDemand(() => 0);
       expect(resultMin.costs.credits).toBe(
         PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND
       );
 
       // rng=1 should give MAX_CREDIT_DEMAND
-      const resultMax = manager.dangerManager.resolveAcceptDemand(() => 1);
+      const resultMax = manager.negotiationManager.resolveAcceptDemand(() => 1);
       expect(resultMax.costs.credits).toBe(
         PIRATE_CREDIT_DEMAND_CONFIG.MAX_CREDIT_DEMAND
       );
@@ -231,7 +231,7 @@ describe('Pirate Credit Demand Fallback', () => {
       );
 
       // rng < 0.8 (wealthy weight) should kidnap
-      const result = manager.dangerManager.resolveCannotPayPirates(() => 0.1);
+      const result = manager.negotiationManager.resolveCannotPayPirates(() => 0.1);
       expect(result.success).toBe(false);
       expect(result.costs.kidnappedPassengerId).toBe('wealthy-1');
     });
@@ -253,7 +253,7 @@ describe('Pirate Credit Demand Fallback', () => {
         })
       );
 
-      const result = manager.dangerManager.resolveCannotPayPirates(() => 0.1);
+      const result = manager.negotiationManager.resolveCannotPayPirates(() => 0.1);
       expect(result.costs.kidnappedPassengerId).toBe('wealthy-1');
     });
 
@@ -268,7 +268,7 @@ describe('Pirate Credit Demand Fallback', () => {
       );
 
       // rng=0.9 > 0.15 (refugee weight) → kidnap fails, damage ship
-      const result = manager.dangerManager.resolveCannotPayPirates(() => 0.9);
+      const result = manager.negotiationManager.resolveCannotPayPirates(() => 0.9);
       expect(result.success).toBe(false);
       expect(result.costs.kidnappedPassengerId).toBeUndefined();
 
@@ -278,7 +278,7 @@ describe('Pirate Credit Demand Fallback', () => {
     });
 
     it('should damage ship when no passengers at all', () => {
-      const result = manager.dangerManager.resolveCannotPayPirates(() => 0.5);
+      const result = manager.negotiationManager.resolveCannotPayPirates(() => 0.5);
       expect(result.success).toBe(false);
 
       const hasDamage =
@@ -287,7 +287,7 @@ describe('Pirate Credit Demand Fallback', () => {
     });
 
     it('should apply damage within configured range', () => {
-      const result = manager.dangerManager.resolveCannotPayPirates(() => 0.5);
+      const result = manager.negotiationManager.resolveCannotPayPirates(() => 0.5);
       const damageValue =
         result.costs.hull || result.costs.engine || result.costs.lifeSupport;
 
@@ -306,7 +306,7 @@ describe('Pirate Credit Demand Fallback', () => {
       const encounter = { demandPercent: 20 };
 
       // rng=0.1 < 0.6 base chance → success
-      const result = manager.dangerManager.resolveCounterProposal(
+      const result = manager.negotiationManager.resolveCounterProposal(
         encounter,
         manager.getState(),
         0.1

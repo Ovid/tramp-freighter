@@ -56,7 +56,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve emergency restart
           const result =
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'emergency_restart',
               gameState,
@@ -101,7 +101,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve call for help
           const result =
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'call_for_help',
               gameState,
@@ -140,7 +140,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve jury-rig
           const result =
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'jury_rig',
               gameState,
@@ -188,7 +188,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve hull breach (no choice needed, immediate consequence)
           const result =
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Hull breach has no repair choices
               gameState,
@@ -225,7 +225,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve life support emergency (no choice needed, immediate consequence)
           const result =
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Life support emergency has no repair choices
               gameState,
@@ -256,7 +256,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               unknownFailureType,
               'emergency_restart',
               gameState,
@@ -283,7 +283,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
-            gameStateManager.dangerManager.resolveMechanicalFailure(
+            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               'engine_failure',
               unknownChoice,
               gameState,

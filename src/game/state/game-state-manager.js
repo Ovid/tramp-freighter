@@ -15,6 +15,11 @@ import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
+import { CombatManager } from './managers/combat.js';
+import { NegotiationManager } from './managers/negotiation.js';
+import { InspectionManager } from './managers/inspection.js';
+import { DistressManager } from './managers/distress.js';
+import { MechanicalFailureManager } from './managers/mechanical-failure.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
@@ -99,6 +104,11 @@ export class GameStateManager {
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
     this.dangerManager = new DangerManager(this);
+    this.combatManager = new CombatManager(this);
+    this.negotiationManager = new NegotiationManager(this);
+    this.inspectionManager = new InspectionManager(this);
+    this.distressManager = new DistressManager(this);
+    this.mechanicalFailureManager = new MechanicalFailureManager(this);
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
@@ -801,23 +811,23 @@ export class GameStateManager {
   }
 
   resolveCombatChoice(encounter, choice) {
-    return this.dangerManager.resolveCombatChoice(encounter, choice);
+    return this.combatManager.resolveCombatChoice(encounter, choice);
   }
 
   resolveNegotiation(encounter, choice, rng) {
-    return this.dangerManager.resolveNegotiation(encounter, choice, rng);
+    return this.negotiationManager.resolveNegotiation(encounter, choice, rng);
   }
 
   resolveInspection(choice, gameState, rng) {
-    return this.dangerManager.resolveInspection(choice, gameState, rng);
+    return this.inspectionManager.resolveInspection(choice, gameState, rng);
   }
 
   checkDistressCall(rng) {
-    return this.dangerManager.checkDistressCall(rng);
+    return this.distressManager.checkDistressCall(rng);
   }
 
   resolveDistressCall(distressCall, choice) {
-    return this.dangerManager.resolveDistressCallEncounter(
+    return this.distressManager.resolveDistressCallEncounter(
       distressCall,
       choice
     );
@@ -885,11 +895,11 @@ export class GameStateManager {
   }
 
   checkMechanicalFailure(gameState, rng) {
-    return this.dangerManager.checkMechanicalFailure(gameState, rng);
+    return this.mechanicalFailureManager.checkMechanicalFailure(gameState, rng);
   }
 
   resolveMechanicalFailure(failureType, choice, gameState, rng) {
-    return this.dangerManager.resolveMechanicalFailure(
+    return this.mechanicalFailureManager.resolveMechanicalFailure(
       failureType,
       choice,
       gameState,

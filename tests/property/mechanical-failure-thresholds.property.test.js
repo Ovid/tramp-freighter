@@ -48,7 +48,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           gameState.ship.hull = hullCondition;
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
+          const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
             gameState,
             rng
           );
@@ -90,7 +90,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           gameState.ship.hull = 100; // Set hull high to avoid hull breach interference
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
+          const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
             gameState,
             rng
           );
@@ -135,7 +135,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           gameState.ship.engine = 100; // Set engine high to avoid engine failure interference
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
+          const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
             gameState,
             rng
           );
@@ -181,7 +181,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
             FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD - 1;
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
+          const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
             gameState,
             rng
           );
@@ -226,7 +226,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           gameState.ship.lifeSupport = lifeSupportCondition;
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
+          const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
             gameState,
             rng
           );
