@@ -670,6 +670,40 @@ describe('Cole Debt System', () => {
 
       expect(gsm.getNPCState('cole_sol').rep).toBe(-12); // -20 + 8
     });
+
+    it('applies -5 rep when Cole mission deadline expires', () => {
+      gsm.state.player.daysElapsed = 50;
+
+      const coleMission = {
+        id: 'cole_courier_fail_test',
+        type: 'delivery',
+        source: 'cole',
+        title: 'Sealed Package',
+        description: 'Test delivery',
+        giverSystem: 1,
+        requirements: { destination: 5, deadline: 21, cargoSpace: 1 },
+        destination: { systemId: 5, name: 'Alpha Centauri' },
+        missionCargo: { good: 'sealed_package', quantity: 1 },
+        rewards: { credits: 0 },
+        reward: 0,
+        abandonable: false,
+        deadlineDay: 40, // Already past (daysElapsed is 50)
+      };
+
+      gsm.state.missions.active.push(coleMission);
+      gsm.state.ship.cargo.push({
+        good: 'sealed_package',
+        qty: 1,
+        buyPrice: 0,
+        missionId: 'cole_courier_fail_test',
+      });
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      gsm.checkMissionDeadlines();
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-25); // -20 + (-5)
+    });
   });
 
   describe('Cole Reputation Constants', () => {
