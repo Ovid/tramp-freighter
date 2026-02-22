@@ -28,10 +28,9 @@ export class NegotiationManager extends BaseManager {
    *
    * @param {Object} encounter - The pirate encounter object
    * @param {string} choice - Negotiation choice ('counter_proposal', 'medicine_claim', 'intel_offer', 'accept_demand')
-   * @param {number} rng - Random number (0-1) for success determination
    * @returns {Object} Negotiation outcome with success, costs, rewards, and description
    */
-  resolveNegotiation(encounter, choice, rng) {
+  resolveNegotiation(encounter, choice) {
     this.validateState();
 
     const gameState = this.getState();

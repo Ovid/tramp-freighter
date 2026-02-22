@@ -28,15 +28,10 @@ export function useEventTriggers() {
       const inspectionChance =
         gameStateManager.calculateInspectionChance(systemId, gameState);
 
-      // Mechanical failure and distress call need RNG-based checks.
-      // We pre-roll and convert to a 0/1 chance for the engine.
-      const mechanicalRng = Math.random();
-      const mechanicalResult = gameStateManager.checkMechanicalFailure(
-        gameState,
-        mechanicalRng
-      );
-      const distressRng = Math.random();
-      const distressResult = gameStateManager.checkDistressCall(distressRng);
+      // Mechanical failure and distress call use internal seeded RNG.
+      // We pre-check and convert to a 0/1 chance for the engine.
+      const mechanicalResult = gameStateManager.checkMechanicalFailure(gameState);
+      const distressResult = gameStateManager.checkDistressCall();
 
       return {
         system: systemId,

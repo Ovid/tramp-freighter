@@ -75,14 +75,10 @@ describe('Negotiation Outcomes Property Tests', () => {
           currentState.ship.cargo = [...cargo];
           currentState.player.karma = karma;
 
-          // Create a mock RNG for deterministic testing
-          const mockRng = 0.5; // Fixed value for consistent testing
-
           // Resolve the negotiation choice
           const outcome = gameStateManager.resolveNegotiation(
             encounter,
-            choice,
-            mockRng
+            choice
           );
 
           // Verify outcome structure is valid
@@ -226,15 +222,13 @@ describe('Negotiation Outcomes Property Tests', () => {
 
           // Test counter-proposal which has a base success rate affected by karma
           const choice = 'counter_proposal';
-          const mockRng = 0.5; // Fixed RNG for consistent testing
 
           // Resolve negotiation multiple times to test karma effect consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
             const outcome = gameStateManager.resolveNegotiation(
               encounter,
-              choice,
-              mockRng
+              choice
             );
             outcomes.push(outcome);
           }

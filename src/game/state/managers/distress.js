@@ -19,10 +19,9 @@ export class DistressManager extends BaseManager {
   /**
    * Check for distress call encounters during jump
    *
-   * @param {number} rng - Random number (0-1) for encounter determination
    * @returns {Object|null} Distress call object or null if no encounter
    */
-  checkDistressCall(rng) {
+  checkDistressCall() {
     this.validateState();
 
     const state = this.getState();

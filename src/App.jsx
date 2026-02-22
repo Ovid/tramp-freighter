@@ -241,8 +241,7 @@ export default function App({ devMode = false }) {
           } else {
             outcome = gameStateManager.resolveNegotiation(
               currentEncounter.encounter,
-              choice,
-              Math.random()
+              choice
             );
           }
         } else {

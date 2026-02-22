@@ -21,10 +21,9 @@ export class MechanicalFailureManager extends BaseManager {
    * Check for mechanical failures based on ship condition
    *
    * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for failure determination
    * @returns {Object|null} Failure object with type and severity, or null if no failure
    */
-  checkMechanicalFailure(gameState, rng) {
+  checkMechanicalFailure(gameState) {
     this.validateState();
 
     const state = this.getState();
@@ -73,10 +72,9 @@ export class MechanicalFailureManager extends BaseManager {
    * @param {string} failureType - Type of failure ('hull_breach', 'engine_failure', 'life_support')
    * @param {string|null} choice - Repair choice (null for immediate consequences)
    * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
    * @returns {Object} Failure resolution outcome with success, costs, and description
    */
-  resolveMechanicalFailure(failureType, choice, gameState, rng) {
+  resolveMechanicalFailure(failureType, choice, gameState) {
     this.validateState();
 
     const state = this.getState();

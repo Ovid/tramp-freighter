@@ -814,16 +814,16 @@ export class GameStateManager {
     return this.combatManager.resolveCombatChoice(encounter, choice);
   }
 
-  resolveNegotiation(encounter, choice, rng) {
-    return this.negotiationManager.resolveNegotiation(encounter, choice, rng);
+  resolveNegotiation(encounter, choice) {
+    return this.negotiationManager.resolveNegotiation(encounter, choice);
   }
 
-  resolveInspection(choice, gameState, rng) {
-    return this.inspectionManager.resolveInspection(choice, gameState, rng);
+  resolveInspection(choice, gameState) {
+    return this.inspectionManager.resolveInspection(choice, gameState);
   }
 
-  checkDistressCall(rng) {
-    return this.distressManager.checkDistressCall(rng);
+  checkDistressCall() {
+    return this.distressManager.checkDistressCall();
   }
 
   resolveDistressCall(distressCall, choice) {
@@ -844,20 +844,16 @@ export class GameStateManager {
   resolveEncounter(encounterData, choice) {
     const { type, encounter } = encounterData;
 
-    // Generate random number for resolution
-    const rng = Math.random();
-
     switch (type) {
       case 'pirate':
-        return this.resolvePirateEncounter(encounter, choice, rng);
+        return this.resolvePirateEncounter(encounter, choice);
       case 'inspection':
-        return this.resolveInspection(choice, this.getState(), rng);
+        return this.resolveInspection(choice, this.getState());
       case 'mechanical_failure':
         return this.resolveMechanicalFailure(
           encounter.type,
           choice,
-          this.getState(),
-          rng
+          this.getState()
         );
       case 'distress_call':
         return this.resolveDistressCall(encounter, choice);
@@ -872,10 +868,9 @@ export class GameStateManager {
    *
    * @param {Object} encounter - Pirate encounter data
    * @param {string} choice - Player's choice (fight, flee, negotiate, surrender)
-   * @param {number} rng - Random number for resolution
    * @returns {Object} Resolution outcome
    */
-  resolvePirateEncounter(encounter, choice, rng) {
+  resolvePirateEncounter(encounter, choice) {
     switch (choice) {
       case 'fight':
         // Fighting maps to return_fire combat choice
@@ -885,25 +880,24 @@ export class GameStateManager {
         return this.resolveCombatChoice(encounter, 'evasive');
       case 'negotiate':
         // Negotiating maps to counter_proposal negotiation choice
-        return this.resolveNegotiation(encounter, 'counter_proposal', rng);
+        return this.resolveNegotiation(encounter, 'counter_proposal');
       case 'surrender':
         // Surrendering maps to accept_demand negotiation choice
-        return this.resolveNegotiation(encounter, 'accept_demand', rng);
+        return this.resolveNegotiation(encounter, 'accept_demand');
       default:
         throw new Error(`Unknown pirate encounter choice: ${choice}`);
     }
   }
 
-  checkMechanicalFailure(gameState, rng) {
-    return this.mechanicalFailureManager.checkMechanicalFailure(gameState, rng);
+  checkMechanicalFailure(gameState) {
+    return this.mechanicalFailureManager.checkMechanicalFailure(gameState);
   }
 
-  resolveMechanicalFailure(failureType, choice, gameState, rng) {
+  resolveMechanicalFailure(failureType, choice, gameState) {
     return this.mechanicalFailureManager.resolveMechanicalFailure(
       failureType,
       choice,
-      gameState,
-      rng
+      gameState
     );
   }
 

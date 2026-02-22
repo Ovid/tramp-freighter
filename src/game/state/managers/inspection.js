@@ -21,10 +21,9 @@ export class InspectionManager extends BaseManager {
    *
    * @param {string} choice - Inspection choice ('cooperate', 'bribe', 'flee')
    * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
    * @returns {Object} Inspection outcome with success, costs, rewards, and description
    */
-  resolveInspection(choice, gameState, rng) {
+  resolveInspection(choice, gameState) {
     this.validateState();
 
     const state = this.getState();

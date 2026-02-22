@@ -63,7 +63,7 @@ describe('Danger Flags Increment Properties', () => {
           const before =
             gameStateManager.getState().world.dangerFlags.piratesNegotiated;
 
-          gameStateManager.resolveNegotiation(encounter, choice, 0.5);
+          gameStateManager.resolveNegotiation(encounter, choice);
 
           const after =
             gameStateManager.getState().world.dangerFlags.piratesNegotiated;
@@ -99,8 +99,7 @@ describe('Danger Flags Increment Properties', () => {
 
     gameStateManager.resolveInspection(
       'bribe',
-      gameStateManager.getState(),
-      0.5
+      gameStateManager.getState()
     );
 
     const after =
@@ -114,8 +113,7 @@ describe('Danger Flags Increment Properties', () => {
 
     gameStateManager.resolveInspection(
       'flee',
-      gameStateManager.getState(),
-      0.5
+      gameStateManager.getState()
     );
 
     const after = gameStateManager.getState().world.dangerFlags.inspectionsFled;
@@ -129,7 +127,7 @@ describe('Danger Flags Increment Properties', () => {
 
     const before = state.world.dangerFlags.inspectionsPassed;
 
-    gameStateManager.resolveInspection('cooperate', state, 0.5);
+    gameStateManager.resolveInspection('cooperate', state);
 
     const after =
       gameStateManager.getState().world.dangerFlags.inspectionsPassed;

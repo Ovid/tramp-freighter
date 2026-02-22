@@ -78,8 +78,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'emergency_restart',
-              gameState,
-              0 // rng param ignored; manager uses internal seeded RNG
+              gameState
             );
 
           if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE) {
@@ -123,8 +122,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'call_for_help',
-              gameState,
-              rng
+              gameState
             );
 
           // Call for help should always succeed
@@ -169,8 +167,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'jury_rig',
-              gameState,
-              0 // rng param ignored; manager uses internal seeded RNG
+              gameState
             );
 
           if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE) {
@@ -217,8 +214,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Hull breach has no repair choices
-              gameState,
-              rng
+              gameState
             );
 
           // Hull breach should always cause immediate damage and cargo loss
@@ -254,8 +250,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Life support emergency has no repair choices
-              gameState,
-              rng
+              gameState
             );
 
           // Life support emergency should always cause immediate consequences
@@ -285,8 +280,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               unknownFailureType,
               'emergency_restart',
-              gameState,
-              rng
+              gameState
             );
           }).toThrow();
         }
@@ -312,8 +306,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
               'engine_failure',
               unknownChoice,
-              gameState,
-              rng
+              gameState
             );
           }).toThrow();
         }

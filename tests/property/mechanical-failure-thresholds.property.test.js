@@ -68,8 +68,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
-            gameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            gameState
           );
 
           if (hullCondition < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
@@ -117,8 +116,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
-            gameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            gameState
           );
 
           if (
@@ -169,8 +167,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
-            gameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            gameState
           );
 
           if (
@@ -222,8 +219,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
-            gameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            gameState
           );
 
           // Verify that the correct failure type occurs based on probability ranges
@@ -267,8 +263,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure = gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
-            gameState,
-            rng
+            gameState
           );
 
           // No failures should occur when all systems are above thresholds

@@ -116,8 +116,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            rng
+            testGameState
           );
 
           // Should confiscate restricted goods and impose fine (Requirement 5.4)
@@ -180,8 +179,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            testGameState
           );
 
           // Compute the seeded RNG value the manager will use
@@ -250,8 +248,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'bribe',
-            testGameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            testGameState
           );
 
           // Compute the seeded RNG value the manager will use
@@ -305,8 +302,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'flee',
-            testGameState,
-            rng
+            testGameState
           );
 
           // Should trigger patrol combat encounter (Requirement 5.9)
@@ -356,8 +352,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            testGameState
           );
 
           // Compute the seeded RNG value the manager will use
@@ -442,8 +437,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            0 // rng param ignored; manager uses internal seeded RNG
+            testGameState
           );
 
           // Compute the seeded RNG value the manager will use
