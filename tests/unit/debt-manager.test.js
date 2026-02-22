@@ -600,6 +600,15 @@ describe('Cole Debt System', () => {
         expect(mission.rewards).toBeDefined();
         expect(mission.rewards.credits).toBe(0);
       });
+
+      it('includes coleRepReward from template', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.coleRepReward).toBeDefined();
+        expect(typeof mission.coleRepReward).toBe('number');
+        expect(mission.coleRepReward).toBeGreaterThanOrEqual(8);
+        expect(mission.coleRepReward).toBeLessThanOrEqual(12);
+      });
     });
 
     describe('modifyColeRep', () => {

@@ -193,7 +193,7 @@ export class DebtManager extends BaseManager {
     // Heat reduction per payment action
     this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
 
-    // Cole respects payers: +floor(amount/divisor), min +1
+    // Cole respects payers: +floor(actualPayment/divisor), min +1
     const repGain = Math.max(
       1,
       Math.floor(actualPayment / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR)
@@ -381,6 +381,7 @@ export class DebtManager extends BaseManager {
       rewards: { credits: template.reward },
       reward: template.reward,
       abandonable: template.abandonable,
+      coleRepReward: template.coleRepReward,
     };
   }
 
