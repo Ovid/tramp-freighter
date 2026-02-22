@@ -4,7 +4,10 @@ import {
   PIRATE_CREDIT_DEMAND_CONFIG,
 } from '../../constants.js';
 import { calculateKarmaModifier } from '../../utils/danger-utils.js';
-import { pickRandomFrom } from '../../utils/seeded-random.js';
+import {
+  SeededRandom,
+  buildEncounterSeed,
+} from '../../utils/seeded-random.js';
 
 /**
  * NegotiationManager - Handles pirate negotiation resolution
@@ -33,19 +36,28 @@ export class NegotiationManager extends BaseManager {
 
     const gameState = this.getState();
 
+    // Generate deterministic RNG from game context
+    const seed = buildEncounterSeed(
+      gameState.player.daysElapsed,
+      gameState.player.currentSystem,
+      'negotiation'
+    );
+    const seededRng = new SeededRandom(seed);
+    const rngValue = seededRng.next();
+
     let result;
     switch (choice) {
       case 'counter_proposal':
-        result = this.resolveCounterProposal(encounter, gameState, rng);
+        result = this.resolveCounterProposal(encounter, gameState, rngValue);
         break;
       case 'medicine_claim':
-        result = this.resolveMedicineClaim(encounter, gameState, rng);
+        result = this.resolveMedicineClaim(encounter, gameState, rngValue);
         break;
       case 'intel_offer':
-        result = this.resolveIntelOffer(encounter, gameState, rng);
+        result = this.resolveIntelOffer(encounter, gameState, rngValue);
         break;
       case 'accept_demand':
-        result = this.resolveAcceptDemand(rng);
+        result = this.resolveAcceptDemand();
         break;
       default:
         throw new Error(`Unknown negotiation choice: ${choice}`);
@@ -251,10 +263,9 @@ export class NegotiationManager extends BaseManager {
    * If no trade cargo, demands flat credits instead. If player can't
    * afford credits, routes to kidnap/damage resolution.
    *
-   * @param {Function} [rng=Math.random] - Random number generator for testability
    * @returns {Object} Negotiation outcome
    */
-  resolveAcceptDemand(rng = Math.random) {
+  resolveAcceptDemand() {
     const { ACCEPT_DEMAND } = NEGOTIATION_CONFIG;
 
     if (this.hasTradeCargoForPirates()) {
@@ -269,15 +280,23 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    const { MIN_CREDIT_DEMAND, MAX_CREDIT_DEMAND } =
-      PIRATE_CREDIT_DEMAND_CONFIG;
-    const rngValue = typeof rng === 'function' ? rng() : rng;
-    const creditDemand = Math.round(
-      MIN_CREDIT_DEMAND + rngValue * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
+    const state = this.getState();
+    const rng = new SeededRandom(
+      buildEncounterSeed(
+        state.player.daysElapsed,
+        state.player.currentSystem,
+        'negotiation_payment'
+      )
     );
 
-    const gameState = this.getState();
-    if (gameState.player.credits >= creditDemand) {
+    const { MIN_CREDIT_DEMAND, MAX_CREDIT_DEMAND } =
+      PIRATE_CREDIT_DEMAND_CONFIG;
+    const creditDemand = Math.round(
+      MIN_CREDIT_DEMAND +
+        rng.next() * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
+    );
+
+    if (state.player.credits >= creditDemand) {
       return {
         success: true,
         costs: {
@@ -297,10 +316,21 @@ export class NegotiationManager extends BaseManager {
    * If active passenger missions exist, pirates may kidnap the highest-value
    * passenger (weighted by type). Otherwise, pirates damage the ship.
    *
-   * @param {Function} [rng=Math.random] - Random number generator for testability
+   * @param {SeededRandom} [rng] - Seeded RNG instance (created internally if not provided)
    * @returns {Object} Negotiation outcome with kidnap or damage costs
    */
-  resolveCannotPayPirates(rng = Math.random) {
+  resolveCannotPayPirates(rng) {
+    if (!rng) {
+      const state = this.getState();
+      rng = new SeededRandom(
+        buildEncounterSeed(
+          state.player.daysElapsed,
+          state.player.currentSystem,
+          'negotiation_payment'
+        )
+      );
+    }
+
     const gameState = this.getState();
     const activeMissions = gameState.missions?.active || [];
     const passengerMissions = activeMissions.filter(
@@ -319,7 +349,7 @@ export class NegotiationManager extends BaseManager {
       const target = sorted[0];
       const weight =
         PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[target.passenger.type] || 0;
-      const rngValue = typeof rng === 'function' ? rng() : rng;
+      const rngValue = rng.next();
 
       if (rngValue < weight) {
         return {
@@ -335,13 +365,13 @@ export class NegotiationManager extends BaseManager {
 
     const { MIN_PERCENT, MAX_PERCENT } =
       PIRATE_CREDIT_DEMAND_CONFIG.NO_PAYMENT_SHIP_DAMAGE;
-    const rngValue = typeof rng === 'function' ? rng() : rng;
+    const damageRng = rng.next();
     const damagePercent = Math.round(
-      MIN_PERCENT + rngValue * (MAX_PERCENT - MIN_PERCENT)
+      MIN_PERCENT + damageRng * (MAX_PERCENT - MIN_PERCENT)
     );
 
     const systems = ['hull', 'engine', 'lifeSupport'];
-    const targetSystem = pickRandomFrom(systems, () => rngValue);
+    const targetSystem = rng.pickRandom(systems);
 
     const costs = {};
     costs[targetSystem] = damagePercent;
