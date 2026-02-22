@@ -104,7 +104,7 @@ export class RepairManager extends BaseManager {
     );
 
     // Persist immediately - repair modifies credits and ship condition
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: null };
   }
@@ -165,7 +165,7 @@ export class RepairManager extends BaseManager {
       state.player.daysElapsed + REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
     );
 
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: null };
   }
@@ -272,7 +272,7 @@ export class RepairManager extends BaseManager {
       newConditions.lifeSupport
     );
 
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: null };
   }
@@ -407,7 +407,7 @@ export class RepairManager extends BaseManager {
     npcState.interactions += 1;
 
     // Persist immediately - free repair modifies ship condition and NPC state
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return {
       success: true,

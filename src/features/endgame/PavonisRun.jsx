@@ -18,7 +18,7 @@ export function PavonisRun({ onComplete, onCancel }) {
   const [textIndex, setTextIndex] = useState(0);
 
   const handleConfirm = () => {
-    gameStateManager.saveGame();
+    gameStateManager.markDirty();
     setPhase('jumping');
   };
 

@@ -408,13 +408,13 @@ export class GameStateManager {
 
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
     this.emit('npcsChanged', { ...this.state.npcs });
-    this.saveGame();
+    this.markDirty();
   }
 
   // ========================================================================
@@ -541,7 +541,7 @@ export class GameStateManager {
   getTip(npcId) {
     const result = this.npcManager.getTip(npcId);
     if (result) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -565,7 +565,7 @@ export class GameStateManager {
   requestLoan(npcId) {
     const result = this.npcManager.requestLoan(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -573,20 +573,20 @@ export class GameStateManager {
   repayLoan(npcId) {
     const result = this.npcManager.repayLoan(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
 
   checkLoanDefaults() {
     this.npcManager.checkLoanDefaults();
-    this.saveGame();
+    this.markDirty();
   }
 
   storeCargo(npcId) {
     const result = this.npcManager.storeCargo(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -594,7 +594,7 @@ export class GameStateManager {
   retrieveCargo(npcId) {
     const result = this.npcManager.retrieveCargo(npcId);
     if (result.success && result.retrieved.length > 0) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -712,6 +712,14 @@ export class GameStateManager {
     return this.saveLoadManager.saveGame();
   }
 
+  markDirty() {
+    this.saveLoadManager.markDirty();
+  }
+
+  flushSave() {
+    this.saveLoadManager.flushSave();
+  }
+
   loadGame() {
     const result = this.saveLoadManager.loadGame();
     if (result) {
@@ -776,12 +784,12 @@ export class GameStateManager {
 
   setKarma(value) {
     this.dangerManager.setKarma(value);
-    this.saveGame();
+    this.markDirty();
   }
 
   modifyKarma(amount, reason) {
     this.dangerManager.modifyKarma(amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   getFactionRep(faction) {
@@ -790,12 +798,12 @@ export class GameStateManager {
 
   setFactionRep(faction, value) {
     this.dangerManager.setFactionRep(faction, value);
-    this.saveGame();
+    this.markDirty();
   }
 
   modifyFactionRep(faction, amount, reason) {
     this.dangerManager.modifyFactionRep(faction, amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   hasIllegalMissionCargo() {
@@ -1008,7 +1016,7 @@ export class GameStateManager {
   markVictory() {
     if (this.state.meta) {
       this.state.meta.victory = true;
-      this.saveGame();
+      this.markDirty();
     }
   }
 }

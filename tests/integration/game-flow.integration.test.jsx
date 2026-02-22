@@ -127,12 +127,9 @@ describe('Complete Game Flow Integration Tests (React)', () => {
         creditsAfterPurchase - fuelPrice * refuelAmount
       );
 
-      // Step 6: Save game (wait a moment to avoid debouncing)
-      // The refuel operation already saved, so we need to wait for debounce period
-      await new Promise((resolve) => setTimeout(resolve, 1100)); // Wait 1.1 seconds
-      const saveSuccess = gameStateManager.saveGame();
+      // Step 6: Flush any pending saves to localStorage
+      gameStateManager.flushSave();
 
-      expect(saveSuccess).toBe(true);
       expect(localStorage.getItem('trampFreighterSave')).not.toBeNull();
 
       // Capture state before load
@@ -456,6 +453,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
         marketConditions
       );
       gameStateManager.sellGood(0, 10, grainPrice);
+      gameStateManager.flushSave();
 
       // Verify save exists
       const saveData = localStorage.getItem('trampFreighterSave');
@@ -477,6 +475,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
 
       // Execute refuel
       gameStateManager.refuel(20);
+      gameStateManager.flushSave();
 
       // Verify save exists
       const saveData = localStorage.getItem('trampFreighterSave');
@@ -495,6 +494,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
 
       // Execute dock
       gameStateManager.dock();
+      gameStateManager.flushSave();
 
       // Verify save exists
       let saveData = localStorage.getItem('trampFreighterSave');
@@ -510,6 +510,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
 
       // Execute undock
       gameStateManager.undock();
+      gameStateManager.flushSave();
 
       // Verify save updated
       saveData = localStorage.getItem('trampFreighterSave');

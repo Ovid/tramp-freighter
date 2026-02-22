@@ -69,12 +69,12 @@ describe('NPCManager.setNpcRep', () => {
     );
   });
 
-  it('should save game after setting rep', () => {
+  it('should mark dirty after setting rep', () => {
     const gsm = createGame();
-    const saveSpy = vi.spyOn(gsm, 'saveGame');
+    const dirtySpy = vi.spyOn(gsm, 'markDirty');
 
     gsm.setNpcRep('chen_barnards', 50);
 
-    expect(saveSpy).toHaveBeenCalled();
+    expect(dirtySpy).toHaveBeenCalled();
   });
 });

@@ -32,6 +32,7 @@ describe('executeJump passes shipCondition to validateJump', () => {
       updateLocation: vi.fn(),
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     const result = await nav.executeJump(mockGSM, 1);
@@ -69,6 +70,7 @@ describe('executeJump passes shipCondition to validateJump', () => {
       updateLocation: vi.fn(),
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     const result = await nav.executeJump(mockGSM, 1);

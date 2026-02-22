@@ -53,6 +53,7 @@ describe('Cargo confiscation – mission failure', () => {
       }),
       updateTime: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
       modifyFactionRep: vi.fn(),
       modifyKarma: vi.fn(),

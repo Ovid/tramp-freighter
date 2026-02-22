@@ -66,7 +66,7 @@ export class TradingManager extends BaseManager {
     this.updateMarketConditions(currentSystemId, goodType, -quantity);
 
     // Persist immediately - trade transactions modify credits and cargo
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true };
   }
@@ -127,7 +127,7 @@ export class TradingManager extends BaseManager {
     this.updateMarketConditions(currentSystemId, stack.good, quantity);
 
     // Persist immediately - trade transactions modify credits and cargo
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return {
       success: true,
@@ -275,7 +275,7 @@ export class TradingManager extends BaseManager {
     this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
 
     // Persist immediately - price knowledge update should be saved
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
   }
 
   /**

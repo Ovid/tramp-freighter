@@ -26,6 +26,7 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
       wormholeData: [[0, 1]],
       getDangerZone: vi.fn(() => 'safe'),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
     };
 

@@ -49,7 +49,7 @@ export class InfoBrokerManager extends BaseManager {
       this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
 
       // Persist immediately - intelligence purchase modifies credits and price knowledge
-      this.gameStateManager.saveGame();
+      this.gameStateManager.markDirty();
     }
 
     return result;

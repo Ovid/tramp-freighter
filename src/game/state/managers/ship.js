@@ -118,7 +118,7 @@ export class ShipManager extends BaseManager {
 
     state.ship.quirks.push(quirkId);
     this.emit('quirksChanged', state.ship.quirks);
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -142,7 +142,7 @@ export class ShipManager extends BaseManager {
 
     state.ship.quirks.splice(index, 1);
     this.emit('quirksChanged', state.ship.quirks);
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -197,7 +197,7 @@ export class ShipManager extends BaseManager {
     }
 
     this.emit('upgradesChanged', state.ship.upgrades);
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -234,7 +234,7 @@ export class ShipManager extends BaseManager {
     }
 
     this.emit('upgradesChanged', state.ship.upgrades);
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -458,7 +458,7 @@ export class ShipManager extends BaseManager {
     this.emit('upgradesChanged', state.ship.upgrades);
 
     // Persist immediately - upgrade purchases modify credits and ship state
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -601,7 +601,7 @@ export class ShipManager extends BaseManager {
     this.emit('hiddenCargoChanged', ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -654,7 +654,7 @@ export class ShipManager extends BaseManager {
     this.emit('hiddenCargoChanged', ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
   }

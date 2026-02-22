@@ -182,5 +182,5 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
   }
 
-  gameStateManager.saveGame();
+  gameStateManager.markDirty();
 }

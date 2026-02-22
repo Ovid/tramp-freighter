@@ -164,7 +164,7 @@ export class DebtManager extends BaseManager {
     this.modifyColeRep(COLE_DEBT_CONFIG.REP_BORROW_BONUS);
 
     this.emitFinanceChanged();
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, amount };
   }
@@ -208,7 +208,7 @@ export class DebtManager extends BaseManager {
     }
 
     this.emitFinanceChanged();
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, amount: actualPayment };
   }
