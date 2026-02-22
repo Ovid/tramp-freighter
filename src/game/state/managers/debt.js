@@ -190,6 +190,13 @@ export class DebtManager extends BaseManager {
     // Heat reduction per payment action
     this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
 
+    // Cole respects payers: +floor(amount/divisor), min +1
+    const repGain = Math.max(
+      1,
+      Math.floor(actualPayment / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR)
+    );
+    this.modifyColeRep(repGain);
+
     // If debt is now 0, reset heat
     if (this.getDebt() === 0) {
       finance.heat = 0;

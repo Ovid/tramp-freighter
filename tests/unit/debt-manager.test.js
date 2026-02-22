@@ -267,6 +267,26 @@ describe('Cole Debt System', () => {
 
         expect(gsm.state.player.finance.totalRepaid).toBe(500);
       });
+
+      it('improves Cole rep by floor(amount/500), min +1 per payment', () => {
+        gsm.state.player.credits = 15000;
+        gsm.state.player.debt = 15000;
+
+        // Cole starts at -20
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Pay 500 → floor(500/500) = 1 → +1
+        debtManager.makePayment(500);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-19);
+
+        // Pay 100 → floor(100/500) = 0, but min +1 → +1
+        debtManager.makePayment(100);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+
+        // Pay 1000 → floor(1000/500) = 2 → +2
+        debtManager.makePayment(1000);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-16);
+      });
     });
 
     describe('calculateWithholding', () => {
