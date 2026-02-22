@@ -468,6 +468,14 @@ export const COLE_DEBT_CONFIG = {
   // Payment UI
   PAYMENT_TIERS: [100, 500, 1000],
 
+  // Cole NPC reputation from debt interactions
+  COLE_NPC_ID: 'cole_sol',
+  REP_PER_CREDIT_DIVISOR: 500,
+  REP_BORROW_BONUS: 1,
+  REP_MISSED_CHECKPOINT: -3,
+  REP_WITHHOLDING_THRESHOLD: 500,
+  REP_FAVOR_FAIL: -5,
+
   // Starting values
   STARTING_LIEN_RATE: 0.05,
   STARTING_HEAT: 0,

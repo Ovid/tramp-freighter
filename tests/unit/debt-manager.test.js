@@ -516,6 +516,17 @@ describe('Cole Debt System', () => {
     });
   });
 
+  describe('Cole Reputation Constants', () => {
+    it('exports all Cole reputation constants', () => {
+      expect(COLE_DEBT_CONFIG.COLE_NPC_ID).toBe('cole_sol');
+      expect(COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR).toBe(500);
+      expect(COLE_DEBT_CONFIG.REP_BORROW_BONUS).toBe(1);
+      expect(COLE_DEBT_CONFIG.REP_MISSED_CHECKPOINT).toBe(-3);
+      expect(COLE_DEBT_CONFIG.REP_WITHHOLDING_THRESHOLD).toBe(500);
+      expect(COLE_DEBT_CONFIG.REP_FAVOR_FAIL).toBe(-5);
+    });
+  });
+
   describe('Save/Load Compatibility', () => {
     it('initializes finance state when loading old save without it', () => {
       // Simulate loading an old save that lacks player.finance
