@@ -792,4 +792,44 @@ describe('Cole Debt System', () => {
       expect(result.playerReceives).toBe(500);
     });
   });
+
+  describe('Cole Reputation Progression', () => {
+    let debtManager;
+
+    beforeEach(() => {
+      debtManager = new DebtManager(gsm);
+    });
+
+    it('paying off 10K in voluntary payments moves Cole from COLD to NEUTRAL', () => {
+      gsm.state.player.credits = 20000;
+      gsm.state.player.debt = 10000;
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      // Pay 10 x ₡1000 payments
+      for (let i = 0; i < 10; i++) {
+        debtManager.makePayment(1000);
+      }
+
+      const coleRep = gsm.getNPCState('cole_sol').rep;
+      // Each ₡1000 payment → floor(1000/500) = +2 rep → 10 * 2 = +20
+      // -20 + 20 = 0 (NEUTRAL)
+      expect(coleRep).toBe(0);
+    });
+
+    it('borrow-and-repay cycle builds rep over time', () => {
+      gsm.state.player.credits = 10000;
+      gsm.state.player.debt = 0;
+
+      gsm.setNpcRep('cole_sol', 0); // Start at NEUTRAL for this test
+
+      // Borrow 500 → +1 rep
+      debtManager.borrow(500);
+      // Repay 500 → +1 rep (floor(500/500))
+      debtManager.makePayment(500);
+
+      // +1 (borrow) + 1 (payment) = +2
+      expect(gsm.getNPCState('cole_sol').rep).toBe(2);
+    });
+  });
 });
