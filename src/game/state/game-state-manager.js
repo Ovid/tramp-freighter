@@ -113,6 +113,13 @@ export class GameStateManager {
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
+
+    // Flush pending saves when the browser tab closes
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        this.flushSave();
+      });
+    }
   }
 
   /**
