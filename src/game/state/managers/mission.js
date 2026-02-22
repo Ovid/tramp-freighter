@@ -1,5 +1,9 @@
 import { BaseManager } from './base-manager.js';
-import { MISSION_CONFIG, PASSENGER_CONFIG } from '../../constants.js';
+import {
+  COLE_DEBT_CONFIG,
+  MISSION_CONFIG,
+  PASSENGER_CONFIG,
+} from '../../constants.js';
 import { generateMissionBoard } from '../../mission-generator.js';
 
 export class MissionManager extends BaseManager {
@@ -219,6 +223,11 @@ export class MissionManager extends BaseManager {
       }
     }
 
+    // Cole favor missions: apply direct rep bypassing trust modifier
+    if (mission.source === 'cole' && mission.coleRepReward) {
+      this.gameStateManager.modifyColeRep(mission.coleRepReward);
+    }
+
     if (mission.rewards.karma) {
       this.gameStateManager.modifyKarma(mission.rewards.karma, 'mission');
     }
@@ -410,6 +419,11 @@ export class MissionManager extends BaseManager {
             );
           }
         }
+      }
+
+      // Cole favor mission failure: direct rep penalty
+      if (mission.source === 'cole') {
+        this.gameStateManager.modifyColeRep(COLE_DEBT_CONFIG.REP_FAVOR_FAIL);
       }
     }
 

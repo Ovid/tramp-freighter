@@ -197,6 +197,19 @@ describe('Cole Debt System', () => {
         debtManager.borrow(100);
         expect(gsm.state.player.finance.borrowedThisPeriod).toBe(true);
       });
+
+      it('improves Cole rep by +1 per borrow', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 0;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.borrow(100);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-19);
+
+        debtManager.borrow(250);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+      });
     });
 
     describe('makePayment', () => {
@@ -267,6 +280,26 @@ describe('Cole Debt System', () => {
 
         expect(gsm.state.player.finance.totalRepaid).toBe(500);
       });
+
+      it('improves Cole rep by floor(amount/500), min +1 per payment', () => {
+        gsm.state.player.credits = 15000;
+        gsm.state.player.debt = 15000;
+
+        // Cole starts at -20
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Pay 500 → floor(500/500) = 1 → +1
+        debtManager.makePayment(500);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-19);
+
+        // Pay 100 → floor(100/500) = 0, but min +1 → +1
+        debtManager.makePayment(100);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+
+        // Pay 1000 → floor(1000/500) = 2 → +2
+        debtManager.makePayment(1000);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-16);
+      });
     });
 
     describe('calculateWithholding', () => {
@@ -319,6 +352,30 @@ describe('Cole Debt System', () => {
 
         expect(gsm.state.player.debt).toBe(9950);
         expect(gsm.state.player.finance.totalRepaid).toBe(50);
+      });
+
+      it('does not improve Cole rep when withholding < 500', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 10;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Revenue 1000, 5% lien = 50 withheld (< 500)
+        debtManager.applyWithholding(1000);
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+      });
+
+      it('improves Cole rep by floor(withheld/500) when withholding >= 500', () => {
+        gsm.state.player.debt = 100000;
+        gsm.state.player.finance.heat = 80; // critical, 20% lien
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        // Revenue 5000, 20% lien = 1000 withheld → floor(1000/500) = +2
+        debtManager.applyWithholding(5000);
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
       });
     });
 
@@ -439,6 +496,36 @@ describe('Cole Debt System', () => {
         // low tier: +30 days
         expect(gsm.state.player.finance.nextCheckpoint).toBe(60);
       });
+
+      it('reduces Cole rep by 3 when no payments made at checkpoint', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 0;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10;
+        gsm.state.player.daysElapsed = 30;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.checkCheckpoint();
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-23);
+      });
+
+      it('does not reduce Cole rep when payments were made at checkpoint', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 500;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10;
+        gsm.state.player.daysElapsed = 30;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.checkCheckpoint();
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+      });
     });
 
     describe('getDebtInfo', () => {
@@ -513,6 +600,129 @@ describe('Cole Debt System', () => {
         expect(mission.rewards).toBeDefined();
         expect(mission.rewards.credits).toBe(0);
       });
+
+      it('includes coleRepReward from template', () => {
+        const mission = debtManager.generateFavorMission();
+
+        expect(mission.coleRepReward).toBeDefined();
+        expect(typeof mission.coleRepReward).toBe('number');
+        expect(mission.coleRepReward).toBeGreaterThanOrEqual(8);
+        expect(mission.coleRepReward).toBeLessThanOrEqual(12);
+      });
+    });
+
+    describe('modifyColeRep', () => {
+      it('changes Cole rep by delta, bypassing trust modifier', () => {
+        // Cole starts at -20 (COLD)
+        const coleBefore = gsm.getNPCState('cole_sol');
+        expect(coleBefore.rep).toBe(-20);
+
+        debtManager.modifyColeRep(5);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(-15);
+      });
+
+      it('clamps rep to [-100, 100] range', () => {
+        gsm.setNpcRep('cole_sol', 98);
+
+        debtManager.modifyColeRep(10);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(100);
+      });
+
+      it('handles negative deltas', () => {
+        gsm.setNpcRep('cole_sol', 0);
+
+        debtManager.modifyColeRep(-5);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(-5);
+      });
+    });
+  });
+
+  describe('Cole Mission Reputation', () => {
+    it('completes cole mission and applies direct rep reward', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.currentSystem = 0;
+
+      // Create a Cole mission at destination = current system (so it can complete)
+      const coleMission = {
+        id: 'cole_courier_test',
+        type: 'delivery',
+        source: 'cole',
+        title: 'Sealed Package',
+        description: 'Test delivery',
+        giverSystem: 1,
+        requirements: { destination: 0, deadline: 21, cargoSpace: 1 },
+        destination: { systemId: 0, name: 'Sol' },
+        missionCargo: { good: 'sealed_package', quantity: 1 },
+        rewards: { credits: 0 },
+        reward: 0,
+        abandonable: false,
+        coleRepReward: 8,
+      };
+
+      gsm.state.missions.active.push(coleMission);
+      gsm.state.ship.cargo.push({
+        good: 'sealed_package',
+        qty: 1,
+        buyPrice: 0,
+        missionId: 'cole_courier_test',
+      });
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      gsm.completeMission('cole_courier_test');
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-12); // -20 + 8
+    });
+
+    it('applies -5 rep when Cole mission deadline expires', () => {
+      gsm.state.player.daysElapsed = 50;
+
+      const coleMission = {
+        id: 'cole_courier_fail_test',
+        type: 'delivery',
+        source: 'cole',
+        title: 'Sealed Package',
+        description: 'Test delivery',
+        giverSystem: 1,
+        requirements: { destination: 5, deadline: 21, cargoSpace: 1 },
+        destination: { systemId: 5, name: 'Alpha Centauri' },
+        missionCargo: { good: 'sealed_package', quantity: 1 },
+        rewards: { credits: 0 },
+        reward: 0,
+        abandonable: false,
+        deadlineDay: 40, // Already past (daysElapsed is 50)
+      };
+
+      gsm.state.missions.active.push(coleMission);
+      gsm.state.ship.cargo.push({
+        good: 'sealed_package',
+        qty: 1,
+        buyPrice: 0,
+        missionId: 'cole_courier_fail_test',
+      });
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      gsm.checkMissionDeadlines();
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-25); // -20 + (-5)
+    });
+  });
+
+  describe('Cole Reputation Constants', () => {
+    it('exports all Cole reputation constants', () => {
+      expect(COLE_DEBT_CONFIG.COLE_NPC_ID).toBe('cole_sol');
+      expect(COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR).toBe(500);
+      expect(COLE_DEBT_CONFIG.REP_BORROW_BONUS).toBe(1);
+      expect(COLE_DEBT_CONFIG.REP_MISSED_CHECKPOINT).toBe(-3);
+      expect(COLE_DEBT_CONFIG.REP_WITHHOLDING_THRESHOLD).toBe(500);
+      expect(COLE_DEBT_CONFIG.REP_FAVOR_FAIL).toBe(-5);
     });
   });
 
@@ -555,6 +765,24 @@ describe('Cole Debt System', () => {
       expect(result.withheld).toBe(50);
     });
 
+    it('returns receipt data (totalRevenue, playerReceives) for trade receipt display', () => {
+      gsm.state.player.credits = 500;
+      gsm.state.player.debt = 10000;
+      gsm.state.player.finance.heat = 10; // low tier => 5% lien
+
+      gsm.state.ship.cargo = [{ good: 'water', qty: 10, buyPrice: 50 }];
+
+      const result = gsm.sellGood(0, 10, 100);
+
+      expect(result.success).toBe(true);
+      // Revenue = 10 * 100 = 1000
+      expect(result.totalRevenue).toBe(1000);
+      // Withholding = ceil(1000 * 0.05) = 50
+      expect(result.withheld).toBe(50);
+      // Player receives = 1000 - 50 = 950
+      expect(result.playerReceives).toBe(950);
+    });
+
     it('does not withhold when debt is 0', () => {
       gsm.state.player.credits = 500;
       gsm.state.player.debt = 0;
@@ -569,6 +797,48 @@ describe('Cole Debt System', () => {
       expect(gsm.state.player.credits).toBe(1000);
       expect(gsm.state.player.debt).toBe(0);
       expect(result.withheld).toBe(0);
+      expect(result.totalRevenue).toBe(500);
+      expect(result.playerReceives).toBe(500);
+    });
+  });
+
+  describe('Cole Reputation Progression', () => {
+    let debtManager;
+
+    beforeEach(() => {
+      debtManager = new DebtManager(gsm);
+    });
+
+    it('paying off 10K in voluntary payments moves Cole from COLD to NEUTRAL', () => {
+      gsm.state.player.credits = 20000;
+      gsm.state.player.debt = 10000;
+
+      expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+      // Pay 10 x ₡1000 payments
+      for (let i = 0; i < 10; i++) {
+        debtManager.makePayment(1000);
+      }
+
+      const coleRep = gsm.getNPCState('cole_sol').rep;
+      // Each ₡1000 payment → floor(1000/500) = +2 rep → 10 * 2 = +20
+      // -20 + 20 = 0 (NEUTRAL)
+      expect(coleRep).toBe(0);
+    });
+
+    it('borrow-and-repay cycle builds rep over time', () => {
+      gsm.state.player.credits = 10000;
+      gsm.state.player.debt = 0;
+
+      gsm.setNpcRep('cole_sol', 0); // Start at NEUTRAL for this test
+
+      // Borrow 500 → +1 rep
+      debtManager.borrow(500);
+      // Repay 500 → +1 rep (floor(500/500))
+      debtManager.makePayment(500);
+
+      // +1 (borrow) + 1 (payment) = +2
+      expect(gsm.getNPCState('cole_sol').rep).toBe(2);
     });
   });
 });

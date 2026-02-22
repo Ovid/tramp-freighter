@@ -159,6 +159,9 @@ export class DebtManager extends BaseManager {
     finance.totalBorrowed += amount;
     finance.borrowedThisPeriod = true;
 
+    // Cole likes customers
+    this.modifyColeRep(COLE_DEBT_CONFIG.REP_BORROW_BONUS);
+
     this.emitFinanceChanged();
     this.gameStateManager.saveGame();
 
@@ -189,6 +192,13 @@ export class DebtManager extends BaseManager {
 
     // Heat reduction per payment action
     this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
+
+    // Cole respects payers: +floor(actualPayment/divisor), min +1
+    const repGain = Math.max(
+      1,
+      Math.floor(actualPayment / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR)
+    );
+    this.modifyColeRep(repGain);
 
     // If debt is now 0, reset heat
     if (this.getDebt() === 0) {
@@ -225,6 +235,14 @@ export class DebtManager extends BaseManager {
     const finance = this.getFinance();
     this.gameStateManager.updateDebt(this.getDebt() - withheld);
     finance.totalRepaid += withheld;
+
+    // Cole's cut: only counts if ≥ threshold
+    if (withheld >= COLE_DEBT_CONFIG.REP_WITHHOLDING_THRESHOLD) {
+      const repGain = Math.floor(
+        withheld / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR
+      );
+      this.modifyColeRep(repGain);
+    }
 
     if (this.getDebt() === 0) {
       finance.heat = 0;
@@ -265,6 +283,7 @@ export class DebtManager extends BaseManager {
 
     if (!madePayments) {
       this.updateHeat(COLE_DEBT_CONFIG.HEAT_MISSED_CHECKPOINT);
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_MISSED_CHECKPOINT);
     }
 
     // Record repayment level at this checkpoint
@@ -362,7 +381,18 @@ export class DebtManager extends BaseManager {
       rewards: { credits: template.reward },
       reward: template.reward,
       abandonable: template.abandonable,
+      coleRepReward: template.coleRepReward,
     };
+  }
+
+  modifyColeRep(delta) {
+    const npcState = this.gameStateManager.getNPCState(
+      COLE_DEBT_CONFIG.COLE_NPC_ID
+    );
+    this.gameStateManager.setNpcRep(
+      COLE_DEBT_CONFIG.COLE_NPC_ID,
+      npcState.rep + delta
+    );
   }
 
   emitFinanceChanged() {

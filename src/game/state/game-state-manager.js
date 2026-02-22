@@ -487,6 +487,10 @@ export class GameStateManager {
     return this.debtManager.getHeatTier();
   }
 
+  modifyColeRep(delta) {
+    this.debtManager.modifyColeRep(delta);
+  }
+
   processDebtTick() {
     this.debtManager.applyInterest();
     return this.debtManager.checkCheckpoint();

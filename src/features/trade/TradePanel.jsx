@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -7,7 +7,6 @@ import {
   TRADE_CONFIG,
   SHIP_CONFIG,
   UI_CONFIG,
-  NOTIFICATION_CONFIG,
 } from '../../game/constants.js';
 import {
   capitalizeFirst,
@@ -104,28 +103,8 @@ export function TradePanel({ onClose }) {
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
   // Sale feedback message (e.g., Cole's withholding notice)
+  // Persists until the next sale or panel close — no auto-dismiss timer
   const [saleFeedback, setSaleFeedback] = useState(null);
-  const saleFeedbackTimerRef = useRef(null);
-
-  const showSaleFeedback = useCallback((message) => {
-    if (saleFeedbackTimerRef.current) {
-      clearTimeout(saleFeedbackTimerRef.current);
-    }
-    setSaleFeedback(message);
-    saleFeedbackTimerRef.current = setTimeout(() => {
-      setSaleFeedback(null);
-      saleFeedbackTimerRef.current = null;
-    }, NOTIFICATION_CONFIG.DEFAULT_SUCCESS_DURATION);
-  }, []);
-
-  // Clean up feedback timer on unmount
-  useEffect(() => {
-    return () => {
-      if (saleFeedbackTimerRef.current) {
-        clearTimeout(saleFeedbackTimerRef.current);
-      }
-    };
-  }, []);
 
   // Get locked prices for current system (prevents intra-system arbitrage)
   const currentSystemPrices = getCurrentSystemPrices();
@@ -157,7 +136,9 @@ export function TradePanel({ onClose }) {
     }
 
     if (saleOutcome.withheld > 0) {
-      showSaleFeedback(`Cole's cut: -${saleOutcome.withheld} cr`);
+      setSaleFeedback(
+        `Revenue: ₡${saleOutcome.totalRevenue.toLocaleString()} · Cole's cut: -₡${saleOutcome.withheld.toLocaleString()} · You receive: ₡${saleOutcome.playerReceives.toLocaleString()}`
+      );
     }
   };
 

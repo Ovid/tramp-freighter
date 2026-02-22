@@ -1,5 +1,18 @@
 # TODO
  
+- After the last design doc is implemented, we need a new game to start with
+  instructions. The UI needs to have a convenient place to show them, too,
+  (see the "Camera" change) so
+  players can consult. The instructions should not give away too much. The
+  goal is retirement. Space is dangerous. You have a tramp freighter. Here's
+  basic navigation. Now explore. The instructions should also mention that the
+  stars listed are real and we tried to get color and relative sizes correct,
+  aside from a minimum size limit to ensure that the smallest stars are still
+  visible. And yes, the majority of stars are red dwarfs. Until modern
+  astronomy, we didn't know they existed because they were too dim to be seen
+  by the naked eye.
+  This should also explain that you can make "Cole's Cut" go away by paying
+  him off.
 - Yuki Tanaka rep required for end game How do we improve that rep?
     - advanced sensor array is a reward. What does that do?
 Endgame NOT FULLY TESTED (2)
@@ -16,10 +29,6 @@ Endgame NOT FULLY TESTED (2)
     - Search-easily search for a star and highlight it (case insensitive and
       partial matches might hightlight more than one star? How would that
       work? Would it break things?)
-    - Antimatter Mode-like "light/dark mode", this toggles between
-      "Antimatter" and "Matter" (no description, let the player find out).
-      However, "Antimatter model" inverts the colors. Should create a bizarre
-      visual effect.
 - Validate that narrative messages don't imply things that aren't true (such
   as offering to sell you something for half-price and then not letting you
   buy)
@@ -61,17 +70,6 @@ Endgame NOT FULLY TESTED (2)
 
 - Multiple games at once?
 - Can we make this work on mobile?
-- After the last design doc is implemented, we need a new game to start with
-  instructions. The UI needs to have a convenient place to show them, too,
-  (see the "Camera" change) so
-  players can consult. The instructions should not give away too much. The
-  goal is retirement. Space is dangerous. You have a tramp freighter. Here's
-  basic navigation. Now explore. The instructions should also mention that the
-  stars listed are real and we tried to get color and relative sizes correct,
-  aside from a minimum size limit to ensure that the smallest stars are still
-  visible. And yes, the majority of stars are red dwarfs. Until modern
-  astronomy, we didn't know they existed because they were too dim to be seen
-  by the naked eye.
 - i18n?
 - Code Coverage
 - Liskov and Law of Demeter?

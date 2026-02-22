@@ -132,6 +132,8 @@ export class TradingManager extends BaseManager {
     return {
       success: true,
       profitMargin: profitMargin,
+      totalRevenue,
+      playerReceives,
       withheld,
     };
   }
