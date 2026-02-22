@@ -4,6 +4,18 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FAILURE_CONFIG } from '../../src/game/constants.js';
+import {
+  SeededRandom,
+  buildEncounterSeed,
+} from '../../src/game/utils/seeded-random.js';
+
+/**
+ * Compute the seeded RNG value that resolveMechanicalFailure will produce.
+ */
+function computeResolveMechanicalRng(daysElapsed, currentSystem) {
+  const seed = buildEncounterSeed(daysElapsed, currentSystem, 'resolve_mechanical');
+  return new SeededRandom(seed).next();
+}
 
 /**
  * Property-Based Tests for Engine Failure Repair Options
@@ -44,12 +56,19 @@ describe('Property 10: Engine Failure Repair Options', () => {
       fc.property(
         fc.integer({ min: 0, max: 100 }), // initial engine condition
         fc.integer({ min: 0, max: 10000 }), // initial credits
-        fc.float({ min: 0, max: 1 }), // random number
-        (initialEngine, initialCredits, rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (initialEngine, initialCredits, daysElapsed) => {
           // Set up game state
           const gameState = gameStateManager.getState();
           gameState.ship.engine = initialEngine;
           gameState.player.credits = initialCredits;
+          gameState.player.daysElapsed = daysElapsed;
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeResolveMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
+          );
 
           // Create engine failure
           const failure = { type: 'engine_failure', severity: initialEngine };
@@ -60,10 +79,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               failure.type,
               'emergency_restart',
               gameState,
-              rng
+              0 // rng param ignored; manager uses internal seeded RNG
             );
 
-          if (rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE) {
+          if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE) {
             // Success case
             expect(result.success).toBe(true);
             expect(result.costs.engine).toBe(
@@ -128,12 +147,19 @@ describe('Property 10: Engine Failure Repair Options', () => {
       fc.property(
         fc.integer({ min: 0, max: 100 }), // initial engine condition
         fc.integer({ min: 0, max: 10000 }), // initial credits
-        fc.float({ min: 0, max: 1 }), // random number
-        (initialEngine, initialCredits, rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (initialEngine, initialCredits, daysElapsed) => {
           // Set up game state
           const gameState = gameStateManager.getState();
           gameState.ship.engine = initialEngine;
           gameState.player.credits = initialCredits;
+          gameState.player.daysElapsed = daysElapsed;
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeResolveMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
+          );
 
           // Create engine failure
           const failure = { type: 'engine_failure', severity: initialEngine };
@@ -144,10 +170,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               failure.type,
               'jury_rig',
               gameState,
-              rng
+              0 // rng param ignored; manager uses internal seeded RNG
             );
 
-          if (rng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE) {
+          if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE) {
             // Success case
             expect(result.success).toBe(true);
             expect(result.costs.engine).toBe(

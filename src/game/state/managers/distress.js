@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { DISTRESS_CONFIG } from '../../constants.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 /**
  * DistressManager - Handles civilian distress call encounters
@@ -24,7 +25,15 @@ export class DistressManager extends BaseManager {
   checkDistressCall(rng) {
     this.validateState();
 
-    if (rng < DISTRESS_CONFIG.CHANCE) {
+    const state = this.getState();
+    const seed = buildEncounterSeed(
+      state.player.daysElapsed,
+      state.player.currentSystem,
+      'check_distress'
+    );
+    const seededRng = new SeededRandom(seed).next();
+
+    if (seededRng < DISTRESS_CONFIG.CHANCE) {
       return {
         id: `distress_${Date.now()}`,
         type: 'civilian_distress',

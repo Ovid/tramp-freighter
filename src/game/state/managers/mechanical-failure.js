@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { FAILURE_CONFIG } from '../../constants.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 /**
  * MechanicalFailureManager - Handles ship system failure checks and repairs
@@ -26,10 +27,18 @@ export class MechanicalFailureManager extends BaseManager {
   checkMechanicalFailure(gameState, rng) {
     this.validateState();
 
+    const state = this.getState();
+    const seed = buildEncounterSeed(
+      state.player.daysElapsed,
+      state.player.currentSystem,
+      'check_mechanical'
+    );
+    const seededRng = new SeededRandom(seed).next();
+
     const { ship } = gameState;
 
     if (ship.hull < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
+      if (seededRng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
         return {
           type: 'hull_breach',
           severity: ship.hull,
@@ -38,7 +47,7 @@ export class MechanicalFailureManager extends BaseManager {
     }
 
     if (ship.engine < FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
+      if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
         return {
           type: 'engine_failure',
           severity: ship.engine,
@@ -47,7 +56,7 @@ export class MechanicalFailureManager extends BaseManager {
     }
 
     if (ship.lifeSupport < FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
+      if (seededRng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
         return {
           type: 'life_support',
           severity: ship.lifeSupport,
@@ -70,11 +79,19 @@ export class MechanicalFailureManager extends BaseManager {
   resolveMechanicalFailure(failureType, choice, gameState, rng) {
     this.validateState();
 
+    const state = this.getState();
+    const seed = buildEncounterSeed(
+      state.player.daysElapsed,
+      state.player.currentSystem,
+      'resolve_mechanical'
+    );
+    const seededRng = new SeededRandom(seed).next();
+
     switch (failureType) {
       case 'hull_breach':
         return this.resolveHullBreach();
       case 'engine_failure':
-        return this.resolveEngineFailure(choice, gameState, rng);
+        return this.resolveEngineFailure(choice, gameState, seededRng);
       case 'life_support':
         return this.resolveLifeSupportEmergency();
       default:

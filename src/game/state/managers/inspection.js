@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { INSPECTION_CONFIG } from '../../constants.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 /**
  * InspectionManager - Handles customs inspection resolution
@@ -26,14 +27,22 @@ export class InspectionManager extends BaseManager {
   resolveInspection(choice, gameState, rng) {
     this.validateState();
 
+    const state = this.getState();
+    const seed = buildEncounterSeed(
+      state.player.daysElapsed,
+      state.player.currentSystem,
+      'inspection'
+    );
+    const seededRng = new SeededRandom(seed).next();
+
     let result;
     switch (choice) {
       case 'cooperate':
-        result = this.resolveInspectionCooperate(gameState, rng);
+        result = this.resolveInspectionCooperate(gameState, seededRng);
         this.gameStateManager.incrementDangerFlag('inspectionsPassed');
         break;
       case 'bribe':
-        result = this.resolveInspectionBribe(gameState, rng);
+        result = this.resolveInspectionBribe(gameState, seededRng);
         this.gameStateManager.incrementDangerFlag('inspectionsBribed');
         break;
       case 'flee':
