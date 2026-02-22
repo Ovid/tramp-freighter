@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { GAME_VERSION, UI_CONFIG } from '../../constants.js';
+import { GAME_VERSION, UI_CONFIG, SAVE_KEY } from '../../constants.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -33,6 +33,69 @@ export class SaveLoadManager extends BaseManager {
 
     // Track last save time for debouncing
     this.lastSaveTime = 0;
+    this._dirtyTimer = null;
+    this._isDirty = false;
+  }
+
+  /**
+   * Mark state as dirty and schedule a debounced save.
+   * Resets the timer on each call — saves 500ms after the last mutation.
+   */
+  markDirty() {
+    this._isDirty = true;
+
+    if (this._dirtyTimer) {
+      clearTimeout(this._dirtyTimer);
+    }
+
+    this._dirtyTimer = setTimeout(() => {
+      this._dirtyTimer = null;
+      this._isDirty = false;
+      this._forceSave();
+    }, UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS);
+  }
+
+  /**
+   * Immediately save if dirty. Used for browser unload.
+   * Cancels any pending debounced save.
+   */
+  flushSave() {
+    if (!this._isDirty) return;
+
+    if (this._dirtyTimer) {
+      clearTimeout(this._dirtyTimer);
+      this._dirtyTimer = null;
+    }
+
+    this._isDirty = false;
+    this._forceSave();
+  }
+
+  /**
+   * Save immediately, bypassing the passive debounce in saveGameToStorage.
+   * Only called from markDirty/flushSave which already handle debouncing.
+   * @private
+   */
+  _forceSave() {
+    if (!this.getState()) {
+      return;
+    }
+
+    try {
+      const now = Date.now();
+      const stateToSave = {
+        ...this.getState(),
+        meta: {
+          ...this.getState().meta,
+          timestamp: now,
+        },
+      };
+      const saveData = JSON.stringify(stateToSave);
+      localStorage.setItem(SAVE_KEY, saveData);
+      this.lastSaveTime = now;
+    } catch (error) {
+      this.error('Save failed - game progress may be lost', error);
+    }
   }
 
   /**
