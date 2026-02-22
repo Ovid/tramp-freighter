@@ -365,6 +365,14 @@ export class DebtManager extends BaseManager {
     };
   }
 
+  modifyColeRep(delta) {
+    const npcState = this.gameStateManager.getNPCState(COLE_DEBT_CONFIG.COLE_NPC_ID);
+    this.gameStateManager.setNpcRep(
+      COLE_DEBT_CONFIG.COLE_NPC_ID,
+      npcState.rep + delta
+    );
+  }
+
   emitFinanceChanged() {
     this.emit('financeChanged', { ...this.getFinance() });
   }

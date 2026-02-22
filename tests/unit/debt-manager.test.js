@@ -514,6 +514,37 @@ describe('Cole Debt System', () => {
         expect(mission.rewards.credits).toBe(0);
       });
     });
+
+    describe('modifyColeRep', () => {
+      it('changes Cole rep by delta, bypassing trust modifier', () => {
+        // Cole starts at -20 (COLD)
+        const coleBefore = gsm.getNPCState('cole_sol');
+        expect(coleBefore.rep).toBe(-20);
+
+        debtManager.modifyColeRep(5);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(-15);
+      });
+
+      it('clamps rep to [-100, 100] range', () => {
+        gsm.setNpcRep('cole_sol', 98);
+
+        debtManager.modifyColeRep(10);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(100);
+      });
+
+      it('handles negative deltas', () => {
+        gsm.setNpcRep('cole_sol', 0);
+
+        debtManager.modifyColeRep(-5);
+
+        const coleAfter = gsm.getNPCState('cole_sol');
+        expect(coleAfter.rep).toBe(-5);
+      });
+    });
   });
 
   describe('Cole Reputation Constants', () => {
