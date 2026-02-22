@@ -283,6 +283,7 @@ export class DebtManager extends BaseManager {
 
     if (!madePayments) {
       this.updateHeat(COLE_DEBT_CONFIG.HEAT_MISSED_CHECKPOINT);
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_MISSED_CHECKPOINT);
     }
 
     // Record repayment level at this checkpoint

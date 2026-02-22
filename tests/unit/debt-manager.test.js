@@ -496,6 +496,36 @@ describe('Cole Debt System', () => {
         // low tier: +30 days
         expect(gsm.state.player.finance.nextCheckpoint).toBe(60);
       });
+
+      it('reduces Cole rep by 3 when no payments made at checkpoint', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 0;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10;
+        gsm.state.player.daysElapsed = 30;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.checkCheckpoint();
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-23);
+      });
+
+      it('does not reduce Cole rep when payments were made at checkpoint', () => {
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.nextCheckpoint = 30;
+        gsm.state.player.finance.totalRepaid = 500;
+        gsm.state.player.finance.lastCheckpointRepaid = 0;
+        gsm.state.player.finance.heat = 10;
+        gsm.state.player.daysElapsed = 30;
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+
+        debtManager.checkCheckpoint();
+
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+      });
     });
 
     describe('getDebtInfo', () => {
