@@ -1,6 +1,7 @@
 import { BaseManager } from './base-manager.js';
 import { COMBAT_CONFIG, KARMA_CONFIG } from '../../constants.js';
 import { calculateKarmaModifier } from '../../utils/danger-utils.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 /**
  * CombatManager - Handles pirate combat resolution
@@ -28,7 +29,12 @@ export class CombatManager extends BaseManager {
 
     const gameState = this.getState();
 
-    const rng = Math.random();
+    const seed = buildEncounterSeed(
+      gameState.player.daysElapsed,
+      gameState.player.currentSystem,
+      'combat'
+    );
+    const rng = new SeededRandom(seed).next();
 
     let result;
     switch (choice) {
