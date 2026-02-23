@@ -602,6 +602,16 @@ export const ENDGAME_CONFIG = {
   DELTA_PAVONIS_ID: 115,
 };
 
+/**
+ * Tanaka Research Supply Run Configuration
+ */
+export const TANAKA_SUPPLY_CONFIG = {
+  QUANTITY: 5,
+  REP_GAIN: 1,
+  COOLDOWN_DAYS: 7,
+  GOODS: ['electronics', 'medicine'],
+};
+
 export const MISSION_CARGO_TYPES = {
   legal: ['registered_freight', 'diplomatic_pouches', 'scientific_samples'],
   illegal: ['unmarked_crates', 'prohibited_tech', 'black_market_goods'],
