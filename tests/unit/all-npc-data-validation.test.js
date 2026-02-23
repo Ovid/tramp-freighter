@@ -138,7 +138,7 @@ describe('Cross-NPC Data Validation', () => {
       fc.property(invalidNPCArb, (npc) => {
         // For all invalid NPC objects, validation should throw
         if (!npc.id || !npc.name) {
-          expect(() => validateNPCDefinition(npc)).toThrow();
+          expect(() => validateNPCDefinition(npc)).toThrow(/Invalid NPC definition/);
         }
       }),
       { numRuns: 50 }

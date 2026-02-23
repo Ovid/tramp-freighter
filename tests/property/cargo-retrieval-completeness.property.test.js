@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -17,23 +17,8 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
   let gameStateManager;
 
   beforeEach(() => {
-    // Mock localStorage with Vitest
-    const localStorageMock = {
-      getItem: vi.fn(() => null),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
-      length: 0,
-    };
-    vi.stubGlobal('localStorage', localStorageMock);
-
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   // Helper function to reset GameStateManager for each property test iteration

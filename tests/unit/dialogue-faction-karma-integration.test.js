@@ -272,8 +272,8 @@ describe('Dialogue Faction and Karma Integration', () => {
   describe('Error Handling', () => {
     it('should handle missing context gracefully', () => {
       // Null context will cause a TypeError since functions access context.karma / context.factionReps
-      expect(() => hasGoodKarma(null)).toThrow();
-      expect(() => hasFactionRep('civilians', 50, null)).toThrow();
+      expect(() => hasGoodKarma(null)).toThrow(TypeError);
+      expect(() => hasFactionRep('civilians', 50, null)).toThrow(TypeError);
     });
 
     it('should handle dialogue conditions with missing gameStateManager', () => {
@@ -281,7 +281,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // This test verifies that the error is handled gracefully
       expect(() => {
         showDialogue('chen_barnards', 'greeting');
-      }).toThrow();
+      }).toThrow(TypeError);
     });
   });
 });

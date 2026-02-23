@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as THREE from 'three';
 import {
   selectStar,
@@ -40,23 +40,12 @@ describe('Star Selection Integration', () => {
       scene.add(star.sprite);
       scene.add(star.label);
     });
-
-    // Mock window functions (namespaced bridge)
-    window.StarmapBridge = {
-      selectStarInScene: vi.fn(),
-      deselectStarInScene: vi.fn(),
-      selectStarById: vi.fn(),
-      closeSystemPanel: vi.fn(),
-    };
   });
 
   afterEach(() => {
     deselectStar();
     _resetState();
     scene.clear();
-
-    // Clean up window functions
-    delete window.StarmapBridge;
   });
 
   describe('Complete Selection Flow', () => {
@@ -113,41 +102,6 @@ describe('Star Selection Integration', () => {
 
       // Verify second star is selected
       expect(star2.selectionRing.visible).toBe(true);
-    });
-  });
-
-  describe('Window Function Integration', () => {
-    it('should expose StarmapBridge namespace', () => {
-      expect(window.StarmapBridge).toEqual(
-        expect.objectContaining({
-          selectStarInScene: expect.any(Function),
-          deselectStarInScene: expect.any(Function),
-          selectStarById: expect.any(Function),
-          closeSystemPanel: expect.any(Function),
-        })
-      );
-    });
-
-    it('should expose selectStarInScene function', () => {
-      window.StarmapBridge.selectStarInScene(stars[0]);
-      expect(window.StarmapBridge.selectStarInScene).toHaveBeenCalledWith(
-        stars[0]
-      );
-    });
-
-    it('should expose deselectStarInScene function', () => {
-      window.StarmapBridge.deselectStarInScene();
-      expect(window.StarmapBridge.deselectStarInScene).toHaveBeenCalled();
-    });
-
-    it('should expose selectStarById function', () => {
-      window.StarmapBridge.selectStarById(1);
-      expect(window.StarmapBridge.selectStarById).toHaveBeenCalledWith(1);
-    });
-
-    it('should expose closeSystemPanel function', () => {
-      window.StarmapBridge.closeSystemPanel();
-      expect(window.StarmapBridge.closeSystemPanel).toHaveBeenCalled();
     });
   });
 

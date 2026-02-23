@@ -54,7 +54,7 @@ describe('Dialogue Validation Consistency Properties', () => {
             thrownError = e;
             throw e;
           }
-        }).toThrow();
+        }).toThrow(/Dialogue tree must/);
         expect(thrownError).toBeInstanceOf(Error);
         expect(thrownError.message.length).toBeGreaterThan(0);
       }),
@@ -89,7 +89,7 @@ describe('Dialogue Validation Consistency Properties', () => {
               thrownError = e;
               throw e;
             }
-          }).toThrow();
+          }).toThrow(/Dialogue node/);
           expect(thrownError).toBeInstanceOf(Error);
           expect(thrownError.message.length).toBeGreaterThan(0);
           expect(thrownError.message).toContain(nodeId);
@@ -128,7 +128,7 @@ describe('Dialogue Validation Consistency Properties', () => {
               thrownError = e;
               throw e;
             }
-          }).toThrow();
+          }).toThrow(/Choice/);
           expect(thrownError).toBeInstanceOf(Error);
           expect(thrownError.message.length).toBeGreaterThan(0);
           expect(thrownError.message).toContain(nodeId);

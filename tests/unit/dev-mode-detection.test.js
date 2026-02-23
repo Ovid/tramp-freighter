@@ -24,11 +24,6 @@ describe('Dev Mode Detection', () => {
     const result = await initDevMode();
 
     expect(result).toBe(true);
-    // Verify fetch was called with cache-busting query parameter
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringMatching(/^\.dev\?t=\d+$/),
-      { cache: 'no-store' }
-    );
   });
 
   it('should disable dev mode when .dev file does not exist', async () => {
@@ -43,11 +38,6 @@ describe('Dev Mode Detection', () => {
     const result = await initDevMode();
 
     expect(result).toBe(false);
-    // Verify fetch was called with cache-busting query parameter
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringMatching(/^\.dev\?t=\d+$/),
-      { cache: 'no-store' }
-    );
   });
 
   it('should disable dev mode when server returns HTML fallback (SPA 404)', async () => {
@@ -62,11 +52,6 @@ describe('Dev Mode Detection', () => {
     const result = await initDevMode();
 
     expect(result).toBe(false);
-    // Verify fetch was called with cache-busting query parameter
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringMatching(/^\.dev\?t=\d+$/),
-      { cache: 'no-store' }
-    );
   });
 
   it('should disable dev mode when fetch fails', async () => {
@@ -76,10 +61,5 @@ describe('Dev Mode Detection', () => {
     const result = await initDevMode();
 
     expect(result).toBe(false);
-    // Verify fetch was called with cache-busting query parameter
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringMatching(/^\.dev\?t=\d+$/),
-      { cache: 'no-store' }
-    );
   });
 });

@@ -288,7 +288,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
               'emergency_restart',
               gameState
             );
-          }).toThrow();
+          }).toThrow(/Unknown failure type/);
         }
       ),
       { numRuns: 100 }
@@ -313,7 +313,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
               unknownChoice,
               gameState
             );
-          }).toThrow();
+          }).toThrow(/Unknown engine failure repair choice/);
         }
       ),
       { numRuns: 100 }
