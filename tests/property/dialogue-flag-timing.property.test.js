@@ -5,7 +5,7 @@
  * Validates: Requirements 10.3
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
@@ -64,15 +64,12 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             const currentFlags = gameStateManager.getNPCState(npcId).flags;
 
             for (const expectedFlag of node.flags) {
-              if (!currentFlags.includes(expectedFlag)) {
-                return false; // Flag should have been set when node was displayed
-              }
+              expect(currentFlags).toContain(expectedFlag);
             }
 
             // Verify that the dialogue was still displayed correctly
-            if (!dialogueResult || typeof dialogueResult.text !== 'string') {
-              return false; // Dialogue should still be displayed properly
-            }
+            expect(dialogueResult).toBeDefined();
+            expect(typeof dialogueResult.text).toBe('string');
           } catch {
             // Some nodes might not be accessible directly (e.g., require specific conditions)
             // This is acceptable, skip these nodes
@@ -123,15 +120,11 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           gameStateManager
         );
 
-        if (!backstoryDialogue) {
-          return false; // Should have returned backstory dialogue
-        }
+        expect(backstoryDialogue).toBeDefined();
 
         // Check that the backstory flag was set
         const currentFlags = gameStateManager.getNPCState(npcId).flags;
-        if (!currentFlags.includes('chen_backstory_1')) {
-          return false; // chen_backstory_1 flag should have been set
-        }
+        expect(currentFlags).toContain('chen_backstory_1');
 
         // Continue to backstory_2 if available
         const continueChoice = backstoryDialogue.choices.find(
@@ -148,9 +141,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           if (backstory2Dialogue) {
             // Check that the second backstory flag was set
             const updatedFlags = gameStateManager.getNPCState(npcId).flags;
-            if (!updatedFlags.includes('chen_backstory_2')) {
-              return false; // chen_backstory_2 flag should have been set
-            }
+            expect(updatedFlags).toContain('chen_backstory_2');
           }
         }
 
@@ -185,9 +176,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
               (flag) => flag === 'chen_backstory_1'
             ).length;
 
-            if (flagCount !== 1) {
-              return false; // Flag should appear exactly once, not duplicated
-            }
+            expect(flagCount).toBe(1);
           } catch {
             // If we can't access the node directly, that's fine
             break;
@@ -221,17 +210,9 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           // Check that both existing and new flags are present
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
 
-          if (!currentFlags.includes('existing_flag_1')) {
-            return false; // Existing flag should be preserved
-          }
-
-          if (!currentFlags.includes('existing_flag_2')) {
-            return false; // Existing flag should be preserved
-          }
-
-          if (!currentFlags.includes('chen_backstory_1')) {
-            return false; // New flag should be added
-          }
+          expect(currentFlags).toContain('existing_flag_1');
+          expect(currentFlags).toContain('existing_flag_2');
+          expect(currentFlags).toContain('chen_backstory_1');
         } catch {
           // If we can't access the node, that's acceptable
           return true;

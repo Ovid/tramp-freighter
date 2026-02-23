@@ -61,61 +61,30 @@ describe('Property: Ship naming after new game', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error('Confirmation modal not displayed');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Find and click the confirm button
         const confirmButton = document.querySelector('.modal-confirm');
-        if (!confirmButton) {
-          console.error('Confirm button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(confirmButton).toBeTruthy();
 
         fireEvent.click(confirmButton);
 
         // Verify onStartGame was called with true (new game)
         // This indicates the app should transition to ship naming dialog
-        if (onStartGame.mock.calls.length !== 1) {
-          console.error(
-            'onStartGame not called once after confirmation:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
-
-        if (onStartGame.mock.calls[0][0] !== true) {
-          console.error(
-            'onStartGame not called with true (new game):',
-            onStartGame.mock.calls[0][0]
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(1);
+        expect(onStartGame.mock.calls[0][0]).toBe(true);
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -152,33 +121,15 @@ describe('Property: Ship naming after new game', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Verify onStartGame was called with true (new game)
         // This indicates the app should transition to ship naming dialog
-        if (onStartGame.mock.calls.length !== 1) {
-          console.error(
-            'onStartGame not called once:',
-            onStartGame.mock.calls.length
-          );
-          return false;
-        }
-
-        if (onStartGame.mock.calls[0][0] !== true) {
-          console.error(
-            'onStartGame not called with true (new game):',
-            onStartGame.mock.calls[0][0]
-          );
-          return false;
-        }
-
-        return true;
+        expect(onStartGame.mock.calls.length).toBe(1);
+        expect(onStartGame.mock.calls[0][0]).toBe(true);
       }),
       { numRuns: 100 }
     );
@@ -218,52 +169,29 @@ describe('Property: Ship naming after new game', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error('Confirmation modal not displayed');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Find and click the cancel button
         const cancelButton = document.querySelector('.modal-cancel');
-        if (!cancelButton) {
-          console.error('Cancel button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(cancelButton).toBeTruthy();
 
         fireEvent.click(cancelButton);
 
         // Verify onStartGame was NOT called
         // Ship naming dialog should not be shown if new game is cancelled
-        if (onStartGame.mock.calls.length > 0) {
-          console.error(
-            'onStartGame called after cancellation:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(0);
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );

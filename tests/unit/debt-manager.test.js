@@ -26,7 +26,7 @@ describe('Cole Debt System', () => {
   describe('Finance State Initialization', () => {
     it('initializes player.finance with correct defaults', () => {
       const state = gsm.state;
-      expect(state.player.finance).toBeDefined();
+      expect(state.player.finance).toEqual(expect.any(Object));
       expect(state.player.finance.heat).toBe(COLE_DEBT_CONFIG.STARTING_HEAT);
       expect(state.player.finance.lienRate).toBe(
         COLE_DEBT_CONFIG.STARTING_LIEN_RATE
@@ -545,7 +545,7 @@ describe('Cole Debt System', () => {
         expect(info.debt).toBe(8000);
         expect(info.lienRate).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
         expect(info.interestRate).toBe(COLE_DEBT_CONFIG.INTEREST_RATE);
-        expect(info.nextInterestDay).toBeDefined();
+        expect(info.nextInterestDay).toEqual(expect.any(Number));
         expect(info.maxDraw).toBeGreaterThanOrEqual(
           COLE_DEBT_CONFIG.DEFAULT_DRAW
         );
@@ -560,8 +560,7 @@ describe('Cole Debt System', () => {
       it('returns a mission with source cole and 0 reward', () => {
         const mission = debtManager.generateFavorMission();
 
-        expect(mission).toBeDefined();
-        expect(mission.source).toBe('cole');
+        expect(mission).toEqual(expect.objectContaining({ source: 'cole' }));
         expect(mission.reward).toBe(0);
         expect(mission.abandonable).toBe(false);
       });
@@ -569,8 +568,7 @@ describe('Cole Debt System', () => {
       it('assigns a valid destination system', () => {
         const mission = debtManager.generateFavorMission();
 
-        expect(mission.requirements.destination).toBeDefined();
-        expect(typeof mission.requirements.destination).toBe('number');
+        expect(mission.requirements.destination).toEqual(expect.any(Number));
       });
 
       it('assigns a destination different from current system', () => {
@@ -584,11 +582,12 @@ describe('Cole Debt System', () => {
       it('includes destination name and systemId', () => {
         const mission = debtManager.generateFavorMission();
 
-        expect(mission.destination).toBeDefined();
-        expect(mission.destination.systemId).toBe(
-          mission.requirements.destination
+        expect(mission.destination).toEqual(
+          expect.objectContaining({
+            systemId: mission.requirements.destination,
+            name: expect.any(String),
+          })
         );
-        expect(typeof mission.destination.name).toBe('string');
       });
 
       it('has a unique id based on template', () => {
@@ -600,15 +599,15 @@ describe('Cole Debt System', () => {
       it('includes rewards with 0 credits', () => {
         const mission = debtManager.generateFavorMission();
 
-        expect(mission.rewards).toBeDefined();
-        expect(mission.rewards.credits).toBe(0);
+        expect(mission.rewards).toEqual(
+          expect.objectContaining({ credits: 0 })
+        );
       });
 
       it('includes coleRepReward from template', () => {
         const mission = debtManager.generateFavorMission();
 
-        expect(mission.coleRepReward).toBeDefined();
-        expect(typeof mission.coleRepReward).toBe('number');
+        expect(mission.coleRepReward).toEqual(expect.any(Number));
         expect(mission.coleRepReward).toBeGreaterThanOrEqual(8);
         expect(mission.coleRepReward).toBeLessThanOrEqual(12);
       });
@@ -738,8 +737,7 @@ describe('Cole Debt System', () => {
       // The system should gracefully handle missing finance state
       // by providing defaults when DebtManager methods are called
       const info = gsm.getDebtInfo();
-      expect(info).toBeDefined();
-      expect(info.debt).toBe(gsm.state.player.debt);
+      expect(info).toEqual(expect.objectContaining({ debt: gsm.state.player.debt }));
     });
   });
 

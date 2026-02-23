@@ -59,7 +59,8 @@ describe('Faction Reputation Clamping Properties', () => {
           const rep = gameStateManager.getFactionRep(faction);
 
           // Faction reputation must always be within bounds
-          return rep >= FACTION_CONFIG.MIN && rep <= FACTION_CONFIG.MAX;
+          expect(rep).toBeGreaterThanOrEqual(FACTION_CONFIG.MIN);
+          expect(rep).toBeLessThanOrEqual(FACTION_CONFIG.MAX);
         }
       ),
       { numRuns: 100 }
@@ -89,11 +90,9 @@ describe('Faction Reputation Clamping Properties', () => {
           // All factions must be within bounds after any sequence of modifications
           for (const faction of FACTION_CONFIG.FACTIONS) {
             const rep = gameStateManager.getFactionRep(faction);
-            if (rep < FACTION_CONFIG.MIN || rep > FACTION_CONFIG.MAX) {
-              return false;
-            }
+            expect(rep).toBeGreaterThanOrEqual(FACTION_CONFIG.MIN);
+            expect(rep).toBeLessThanOrEqual(FACTION_CONFIG.MAX);
           }
-          return true;
         }
       ),
       { numRuns: 100 }

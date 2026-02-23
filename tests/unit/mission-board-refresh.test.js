@@ -45,7 +45,6 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
 
   it('should generate a mission board without errors', () => {
     const board = manager.refreshMissionBoard();
-    expect(board).toBeDefined();
-    expect(Array.isArray(board)).toBe(true);
+    expect(board).toEqual(expect.any(Array));
   });
 });

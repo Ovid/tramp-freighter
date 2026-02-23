@@ -5,7 +5,7 @@
  * Validates: Requirements 2.3
  */
 
-import { describe, it, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
 import { render, screen, cleanup } from '@testing-library/react';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
@@ -76,12 +76,8 @@ describe('Numbered Choice List Format Properties', () => {
             const buttonText = choiceButtons[i].textContent;
 
             // Check if button text starts with the expected number
-            if (!buttonText.startsWith(expectedNumber)) {
-              return false;
-            }
+            expect(buttonText.startsWith(expectedNumber)).toBe(true);
           }
-
-          return true;
         } catch (_error) {
           // Skip test if dialogue system fails (e.g., missing dialogue tree)
           return true;
@@ -150,9 +146,7 @@ describe('Numbered Choice List Format Properties', () => {
               const expectedNumber = `${i + 1}.`;
               const buttonText = choiceButtons[i].textContent;
 
-              if (!buttonText.startsWith(expectedNumber)) {
-                return false;
-              }
+              expect(buttonText.startsWith(expectedNumber)).toBe(true);
             }
 
             // Verify no gaps in numbering (should be 1, 2, 3, ... not 1, 3, 5, ...)
@@ -162,12 +156,8 @@ describe('Numbered Choice List Format Properties', () => {
             });
 
             for (let i = 0; i < numbers.length; i++) {
-              if (numbers[i] !== i + 1) {
-                return false;
-              }
+              expect(numbers[i]).toBe(i + 1);
             }
-
-            return true;
           } catch (_error) {
             // Skip test if dialogue system fails
             return true;

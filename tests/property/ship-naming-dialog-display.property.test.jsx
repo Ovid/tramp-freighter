@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -45,101 +45,57 @@ describe('Property: Ship naming dialog displays', () => {
 
         // Verify modal overlay is displayed
         const modalOverlay = container.querySelector('.modal-overlay');
-        if (!modalOverlay) {
-          console.error('Modal overlay not found');
-          return false;
-        }
+        expect(modalOverlay).toBeTruthy();
 
         // Verify modal dialog is displayed
         const modalDialog = container.querySelector('.modal-dialog');
-        if (!modalDialog) {
-          console.error('Modal dialog not found');
-          return false;
-        }
+        expect(modalDialog).toBeTruthy();
 
         // Verify modal content is displayed
         const modalContent = container.querySelector('.modal-content');
-        if (!modalContent) {
-          console.error('Modal content not found');
-          return false;
-        }
+        expect(modalContent).toBeTruthy();
 
         // Verify title is displayed
         const title = container.querySelector('.modal-title');
-        if (!title || title.textContent !== 'Name Your Ship') {
-          console.error('Title not found or incorrect');
-          return false;
-        }
+        expect(title).toBeTruthy();
+        expect(title.textContent).toBe('Name Your Ship');
 
         // Verify description is displayed
         const description = container.querySelector('.modal-description');
-        if (
-          !description ||
-          description.textContent !== 'What will you call your vessel?'
-        ) {
-          console.error('Description not found or incorrect');
-          return false;
-        }
+        expect(description).toBeTruthy();
+        expect(description.textContent).toBe('What will you call your vessel?');
 
         // Verify input field is displayed
         const input = container.querySelector('.ship-name-input');
-        if (!input) {
-          console.error('Ship name input not found');
-          return false;
-        }
+        expect(input).toBeTruthy();
 
         // Verify input has correct attributes
-        if (input.type !== 'text') {
-          console.error('Input type is not text');
-          return false;
-        }
-
-        if (input.placeholder !== 'Enter ship name...') {
-          console.error('Input placeholder is incorrect');
-          return false;
-        }
+        expect(input.type).toBe('text');
+        expect(input.placeholder).toBe('Enter ship name...');
 
         // Verify suggestions section is displayed
         const suggestionsSection = container.querySelector(
           '.ship-name-suggestions'
         );
-        if (!suggestionsSection) {
-          console.error('Suggestions section not found');
-          return false;
-        }
+        expect(suggestionsSection).toBeTruthy();
 
         // Verify suggestions label is displayed
         const suggestionsLabel = container.querySelector('.suggestions-label');
-        if (
-          !suggestionsLabel ||
-          suggestionsLabel.textContent !== 'Suggestions:'
-        ) {
-          console.error('Suggestions label not found or incorrect');
-          return false;
-        }
+        expect(suggestionsLabel).toBeTruthy();
+        expect(suggestionsLabel.textContent).toBe('Suggestions:');
 
         // Verify suggestions list is displayed
         const suggestionsList = container.querySelector('.suggestions-list');
-        if (!suggestionsList) {
-          console.error('Suggestions list not found');
-          return false;
-        }
+        expect(suggestionsList).toBeTruthy();
 
         // Verify suggestion buttons are displayed
         const suggestionButtons = container.querySelectorAll('.suggestion-btn');
-        if (suggestionButtons.length === 0) {
-          console.error('No suggestion buttons found');
-          return false;
-        }
+        expect(suggestionButtons.length).toBeGreaterThan(0);
 
         // Verify confirm button is displayed
         const confirmButton = container.querySelector('.modal-confirm');
-        if (!confirmButton || confirmButton.textContent !== 'Confirm') {
-          console.error('Confirm button not found or incorrect');
-          return false;
-        }
-
-        return true;
+        expect(confirmButton).toBeTruthy();
+        expect(confirmButton.textContent).toBe('Confirm');
       }),
       { numRuns: 100 }
     );
@@ -166,22 +122,13 @@ describe('Property: Ship naming dialog displays', () => {
         // Verify the dialog structure is correct
         // modal-overlay > modal-dialog > modal-content
         const modalOverlay = container.querySelector('.modal-overlay');
-        if (!modalOverlay) {
-          console.error('Modal overlay not found');
-          return false;
-        }
+        expect(modalOverlay).toBeTruthy();
 
         const modalDialog = modalOverlay.querySelector('.modal-dialog');
-        if (!modalDialog) {
-          console.error('Modal dialog not found inside overlay');
-          return false;
-        }
+        expect(modalDialog).toBeTruthy();
 
         const modalContent = modalDialog.querySelector('.modal-content');
-        if (!modalContent) {
-          console.error('Modal content not found inside dialog');
-          return false;
-        }
+        expect(modalContent).toBeTruthy();
 
         // Verify modal content contains all required sections
         const title = modalContent.querySelector('.modal-title');
@@ -194,32 +141,11 @@ describe('Property: Ship naming dialog displays', () => {
         );
         const actions = modalContent.querySelector('.modal-actions');
 
-        if (!title) {
-          console.error('Title not found in modal content');
-          return false;
-        }
-
-        if (!description) {
-          console.error('Description not found in modal content');
-          return false;
-        }
-
-        if (!inputGroup) {
-          console.error('Input group not found in modal content');
-          return false;
-        }
-
-        if (!suggestions) {
-          console.error('Suggestions not found in modal content');
-          return false;
-        }
-
-        if (!actions) {
-          console.error('Actions not found in modal content');
-          return false;
-        }
-
-        return true;
+        expect(title).toBeTruthy();
+        expect(description).toBeTruthy();
+        expect(inputGroup).toBeTruthy();
+        expect(suggestions).toBeTruthy();
+        expect(actions).toBeTruthy();
       }),
       { numRuns: 100 }
     );
@@ -245,26 +171,15 @@ describe('Property: Ship naming dialog displays', () => {
 
         // Verify the dialog is immediately visible (no loading state)
         const modalOverlay = container.querySelector('.modal-overlay');
-        if (!modalOverlay) {
-          console.error('Modal overlay not displayed immediately');
-          return false;
-        }
+        expect(modalOverlay).toBeTruthy();
 
         // Verify the input field is present and ready for input
         const input = container.querySelector('.ship-name-input');
-        if (!input) {
-          console.error('Input field not displayed immediately');
-          return false;
-        }
+        expect(input).toBeTruthy();
 
         // Verify the confirm button is present and ready for interaction
         const confirmButton = container.querySelector('.modal-confirm');
-        if (!confirmButton) {
-          console.error('Confirm button not displayed immediately');
-          return false;
-        }
-
-        return true;
+        expect(confirmButton).toBeTruthy();
       }),
       { numRuns: 100 }
     );

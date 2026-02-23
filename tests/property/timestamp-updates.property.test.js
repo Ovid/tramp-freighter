@@ -5,7 +5,7 @@
  * Validates: Requirements 3.5
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -38,7 +38,7 @@ describe('Timestamp Update Properties', () => {
           // Check that lastInteraction was updated to current day
           const updatedTimestamp =
             gameStateManager.state.npcs[npcId].lastInteraction;
-          return updatedTimestamp === currentDay;
+          expect(updatedTimestamp).toBe(currentDay);
         }
       ),
       { numRuns: 100 }
@@ -70,7 +70,7 @@ describe('Timestamp Update Properties', () => {
           // Check that timestamp was updated even for negative changes
           const updatedTimestamp =
             gameStateManager.state.npcs[npcId].lastInteraction;
-          return updatedTimestamp === currentDay;
+          expect(updatedTimestamp).toBe(currentDay);
         }
       ),
       { numRuns: 100 }
@@ -106,12 +106,8 @@ describe('Timestamp Update Properties', () => {
             // After each change, timestamp should be current day
             const currentTimestamp =
               gameStateManager.state.npcs[npcId].lastInteraction;
-            if (currentTimestamp !== currentDay) {
-              return false;
-            }
+            expect(currentTimestamp).toBe(currentDay);
           }
-
-          return true;
         }
       ),
       { numRuns: 100 }
@@ -151,7 +147,8 @@ describe('Timestamp Update Properties', () => {
             gameStateManager.state.npcs[npcId].lastInteraction;
 
           // First timestamp should be start day, second should be new day
-          return firstTimestamp === startDay && secondTimestamp === newDay;
+          expect(firstTimestamp).toBe(startDay);
+          expect(secondTimestamp).toBe(newDay);
         }
       ),
       { numRuns: 100 }
@@ -196,7 +193,8 @@ describe('Timestamp Update Properties', () => {
           const npc2Timestamp =
             gameStateManager.state.npcs[npc2Id].lastInteraction;
 
-          return npc1Timestamp === day1 && npc2Timestamp === day2;
+          expect(npc1Timestamp).toBe(day1);
+          expect(npc2Timestamp).toBe(day2);
         }
       ),
       { numRuns: 100 }

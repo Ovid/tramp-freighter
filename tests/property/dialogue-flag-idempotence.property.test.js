@@ -5,7 +5,7 @@
  * Validates: Requirements 5.4
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
@@ -66,13 +66,9 @@ describe('Story Flag Idempotence Properties', () => {
               (flag) => flag === expectedFlag
             ).length;
 
-            if (flagCount !== 1) {
-              return false; // Each flag should appear exactly once
-            }
+            expect(flagCount).toBe(1);
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -122,9 +118,7 @@ describe('Story Flag Idempotence Properties', () => {
           const finalFlagCount =
             gameStateManager.getNPCState(npcId).flags.length;
 
-          if (finalFlagCount !== initialFlagCount) {
-            return false; // Flag count should not change when flags already exist
-          }
+          expect(finalFlagCount).toBe(initialFlagCount);
 
           // Verify each flag still appears exactly once
           const currentFlags = gameStateManager.getNPCState(npcId).flags;
@@ -133,13 +127,9 @@ describe('Story Flag Idempotence Properties', () => {
               (flag) => flag === expectedFlag
             ).length;
 
-            if (flagCount !== 1) {
-              return false; // Each flag should still appear exactly once
-            }
+            expect(flagCount).toBe(1);
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -192,12 +182,8 @@ describe('Story Flag Idempotence Properties', () => {
         const currentFlags = gameStateManager.getNPCState(npcId).flags;
 
         for (let i = 0; i < existingFlags.length; i++) {
-          if (currentFlags[i] !== existingFlags[i]) {
-            return false; // Existing flags should maintain their order and position
-          }
+          expect(currentFlags[i]).toBe(existingFlags[i]);
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -233,17 +219,11 @@ describe('Story Flag Idempotence Properties', () => {
             (flag) => flag === 'chen_backstory_1'
           ).length;
 
-          if (backstoryFlagCount !== 1) {
-            return false; // Should still have exactly one instance of the flag
-          }
+          expect(backstoryFlagCount).toBe(1);
 
           // Check that other existing flags are preserved
-          if (
-            !currentFlags.includes('existing_flag') ||
-            !currentFlags.includes('another_existing')
-          ) {
-            return false; // Other existing flags should be preserved
-          }
+          expect(currentFlags).toContain('existing_flag');
+          expect(currentFlags).toContain('another_existing');
 
           // Visit backstory_2 node which should add a new flag
           showDialogue(npcId, 'backstory_2', gameStateManager);
@@ -251,9 +231,7 @@ describe('Story Flag Idempotence Properties', () => {
           const finalFlags = gameStateManager.getNPCState(npcId).flags;
 
           // Should now have the new flag
-          if (!finalFlags.includes('chen_backstory_2')) {
-            return false; // New flag should be added
-          }
+          expect(finalFlags).toContain('chen_backstory_2');
 
           // Should still have exactly one of each flag
           const backstory1Count = finalFlags.filter(
@@ -263,9 +241,8 @@ describe('Story Flag Idempotence Properties', () => {
             (flag) => flag === 'chen_backstory_2'
           ).length;
 
-          if (backstory1Count !== 1 || backstory2Count !== 1) {
-            return false; // Each flag should appear exactly once
-          }
+          expect(backstory1Count).toBe(1);
+          expect(backstory2Count).toBe(1);
         } catch {
           // If we can't access the nodes, that's acceptable
           return true;

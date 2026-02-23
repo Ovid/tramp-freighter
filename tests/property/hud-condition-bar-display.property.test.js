@@ -54,75 +54,127 @@ describe('Property: HUD Condition Bar Display', () => {
     document.body.appendChild(container);
   });
 
-  it('should display all condition bars with labels and percentage values', () => {
+  /**
+   * Helper: applies generated condition values to all HUD bars so the DOM
+   * is in a realistic state before each per-system assertion.
+   */
+  function applyCondition(condition) {
+    const bars = {
+      fuel: {
+        bar: document.getElementById('fuel-bar'),
+        text: document.getElementById('hud-fuel-text'),
+      },
+      hull: {
+        bar: document.getElementById('hull-bar'),
+        text: document.getElementById('hud-hull-text'),
+      },
+      engine: {
+        bar: document.getElementById('engine-bar'),
+        text: document.getElementById('hud-engine-text'),
+      },
+      lifeSupport: {
+        bar: document.getElementById('life-support-bar'),
+        text: document.getElementById('hud-life-support-text'),
+      },
+    };
+
+    bars.fuel.bar.style.width = `${condition.fuel}%`;
+    bars.fuel.text.textContent = `${Math.round(condition.fuel)}%`;
+    bars.hull.bar.style.width = `${condition.hull}%`;
+    bars.hull.text.textContent = `${Math.round(condition.hull)}%`;
+    bars.engine.bar.style.width = `${condition.engine}%`;
+    bars.engine.text.textContent = `${Math.round(condition.engine)}%`;
+    bars.lifeSupport.bar.style.width = `${condition.lifeSupport}%`;
+    bars.lifeSupport.text.textContent = `${Math.round(condition.lifeSupport)}%`;
+
+    return bars;
+  }
+
+  const conditionArb = fc.record({
+    fuel: fc.integer({ min: 0, max: 100 }),
+    hull: fc.integer({ min: 0, max: 100 }),
+    engine: fc.integer({ min: 0, max: 100 }),
+    lifeSupport: fc.integer({ min: 0, max: 100 }),
+  });
+
+  it('should display fuel bar with correct label, percentage, and width', () => {
     fc.assert(
-      fc.property(
-        fc.record({
-          fuel: fc.integer({ min: 0, max: 100 }),
-          hull: fc.integer({ min: 0, max: 100 }),
-          engine: fc.integer({ min: 0, max: 100 }),
-          lifeSupport: fc.integer({ min: 0, max: 100 }),
-        }),
-        (condition) => {
-          // Update the HUD with the generated condition values
-          const fuelBar = document.getElementById('fuel-bar');
-          const fuelText = document.getElementById('hud-fuel-text');
-          const hullBar = document.getElementById('hull-bar');
-          const hullText = document.getElementById('hud-hull-text');
-          const engineBar = document.getElementById('engine-bar');
-          const engineText = document.getElementById('hud-engine-text');
-          const lifeSupportBar = document.getElementById('life-support-bar');
-          const lifeSupportText = document.getElementById(
-            'hud-life-support-text'
-          );
+      fc.property(conditionArb, (condition) => {
+        const bars = applyCondition(condition);
+        const labels = Array.from(container.querySelectorAll('.hud-label')).map(
+          (l) => l.textContent
+        );
 
-          // Simulate UI update
-          fuelBar.style.width = `${condition.fuel}%`;
-          fuelText.textContent = `${Math.round(condition.fuel)}%`;
-          hullBar.style.width = `${condition.hull}%`;
-          hullText.textContent = `${Math.round(condition.hull)}%`;
-          engineBar.style.width = `${condition.engine}%`;
-          engineText.textContent = `${Math.round(condition.engine)}%`;
-          lifeSupportBar.style.width = `${condition.lifeSupport}%`;
-          lifeSupportText.textContent = `${Math.round(condition.lifeSupport)}%`;
+        expect(bars.fuel.bar).toBeTruthy();
+        expect(bars.fuel.text).toBeTruthy();
+        expect(labels).toContain('Fuel:');
+        expect(bars.fuel.text.textContent).toBe(
+          `${Math.round(condition.fuel)}%`
+        );
+        expect(bars.fuel.bar.style.width).toBe(`${condition.fuel}%`);
+      }),
+      { numRuns: 100 }
+    );
+  });
 
-          // Verify all condition bars exist and are displayed
-          expect(fuelBar).toBeTruthy();
-          expect(fuelText).toBeTruthy();
-          expect(hullBar).toBeTruthy();
-          expect(hullText).toBeTruthy();
-          expect(engineBar).toBeTruthy();
-          expect(engineText).toBeTruthy();
-          expect(lifeSupportBar).toBeTruthy();
-          expect(lifeSupportText).toBeTruthy();
+  it('should display hull bar with correct label, percentage, and width', () => {
+    fc.assert(
+      fc.property(conditionArb, (condition) => {
+        const bars = applyCondition(condition);
+        const labels = Array.from(container.querySelectorAll('.hud-label')).map(
+          (l) => l.textContent
+        );
 
-          // Verify labels exist
-          const labels = container.querySelectorAll('.hud-label');
-          const labelTexts = Array.from(labels).map(
-            (label) => label.textContent
-          );
-          expect(labelTexts).toContain('Fuel:');
-          expect(labelTexts).toContain('Hull:');
-          expect(labelTexts).toContain('Engine:');
-          expect(labelTexts).toContain('Life Support:');
+        expect(bars.hull.bar).toBeTruthy();
+        expect(bars.hull.text).toBeTruthy();
+        expect(labels).toContain('Hull:');
+        expect(bars.hull.text.textContent).toBe(
+          `${Math.round(condition.hull)}%`
+        );
+        expect(bars.hull.bar.style.width).toBe(`${condition.hull}%`);
+      }),
+      { numRuns: 100 }
+    );
+  });
 
-          // Verify percentage values are displayed correctly
-          expect(fuelText.textContent).toBe(`${Math.round(condition.fuel)}%`);
-          expect(hullText.textContent).toBe(`${Math.round(condition.hull)}%`);
-          expect(engineText.textContent).toBe(
-            `${Math.round(condition.engine)}%`
-          );
-          expect(lifeSupportText.textContent).toBe(
-            `${Math.round(condition.lifeSupport)}%`
-          );
+  it('should display engine bar with correct label, percentage, and width', () => {
+    fc.assert(
+      fc.property(conditionArb, (condition) => {
+        const bars = applyCondition(condition);
+        const labels = Array.from(container.querySelectorAll('.hud-label')).map(
+          (l) => l.textContent
+        );
 
-          // Verify bar widths match condition values
-          expect(fuelBar.style.width).toBe(`${condition.fuel}%`);
-          expect(hullBar.style.width).toBe(`${condition.hull}%`);
-          expect(engineBar.style.width).toBe(`${condition.engine}%`);
-          expect(lifeSupportBar.style.width).toBe(`${condition.lifeSupport}%`);
-        }
-      ),
+        expect(bars.engine.bar).toBeTruthy();
+        expect(bars.engine.text).toBeTruthy();
+        expect(labels).toContain('Engine:');
+        expect(bars.engine.text.textContent).toBe(
+          `${Math.round(condition.engine)}%`
+        );
+        expect(bars.engine.bar.style.width).toBe(`${condition.engine}%`);
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it('should display life support bar with correct label, percentage, and width', () => {
+    fc.assert(
+      fc.property(conditionArb, (condition) => {
+        const bars = applyCondition(condition);
+        const labels = Array.from(container.querySelectorAll('.hud-label')).map(
+          (l) => l.textContent
+        );
+
+        expect(bars.lifeSupport.bar).toBeTruthy();
+        expect(bars.lifeSupport.text).toBeTruthy();
+        expect(labels).toContain('Life Support:');
+        expect(bars.lifeSupport.text.textContent).toBe(
+          `${Math.round(condition.lifeSupport)}%`
+        );
+        expect(bars.lifeSupport.bar.style.width).toBe(
+          `${condition.lifeSupport}%`
+        );
+      }),
       { numRuns: 100 }
     );
   });

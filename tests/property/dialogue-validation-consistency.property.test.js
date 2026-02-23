@@ -5,7 +5,7 @@
  * Validates: Requirements 2.2, 2.3, 2.4, 2.5, 5.4
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import {
   validateRequiredConstants,
@@ -24,14 +24,8 @@ describe('Dialogue Validation Consistency Properties', () => {
         (npcId) => {
           const dialogueTree = ALL_DIALOGUE_TREES[npcId];
 
-          try {
-            validateDialogueTree(dialogueTree);
-            return true; // Validation passed
-          } catch (error) {
-            // If validation fails, it indicates a problem with existing data
-            console.error(`Validation failed for NPC ${npcId}:`, error.message);
-            return false;
-          }
+          // Validation should pass for all existing dialogue trees
+          expect(() => validateDialogueTree(dialogueTree)).not.toThrow();
         }
       ),
       { numRuns: 100 }
@@ -51,13 +45,18 @@ describe('Dialogue Validation Consistency Properties', () => {
 
     fc.assert(
       fc.property(arbInvalidTree, (invalidTree) => {
-        try {
-          validateDialogueTree(invalidTree);
-          return false; // Should have thrown an error
-        } catch (error) {
-          // Expected behavior - validation should reject invalid trees
-          return error instanceof Error && error.message.length > 0;
-        }
+        // Should throw an Error with a non-empty message
+        let thrownError;
+        expect(() => {
+          try {
+            validateDialogueTree(invalidTree);
+          } catch (e) {
+            thrownError = e;
+            throw e;
+          }
+        }).toThrow();
+        expect(thrownError).toBeInstanceOf(Error);
+        expect(thrownError.message.length).toBeGreaterThan(0);
       }),
       { numRuns: 100 }
     );
@@ -81,17 +80,19 @@ describe('Dialogue Validation Consistency Properties', () => {
         fc.string({ minLength: 1, maxLength: 20 }), // nodeId
         arbInvalidNode,
         (nodeId, invalidNode) => {
-          try {
-            validateDialogueNode(nodeId, invalidNode);
-            return false; // Should have thrown an error
-          } catch (error) {
-            // Expected behavior - validation should reject invalid nodes
-            return (
-              error instanceof Error &&
-              error.message.length > 0 &&
-              error.message.includes(nodeId)
-            );
-          }
+          // Should throw an Error whose message includes the nodeId
+          let thrownError;
+          expect(() => {
+            try {
+              validateDialogueNode(nodeId, invalidNode);
+            } catch (e) {
+              thrownError = e;
+              throw e;
+            }
+          }).toThrow();
+          expect(thrownError).toBeInstanceOf(Error);
+          expect(thrownError.message.length).toBeGreaterThan(0);
+          expect(thrownError.message).toContain(nodeId);
         }
       ),
       { numRuns: 100 }
@@ -118,18 +119,20 @@ describe('Dialogue Validation Consistency Properties', () => {
         fc.integer({ min: 0, max: 10 }), // choiceIndex
         arbInvalidChoice,
         (nodeId, choiceIndex, invalidChoice) => {
-          try {
-            validateDialogueChoice(nodeId, choiceIndex, invalidChoice);
-            return false; // Should have thrown an error
-          } catch (error) {
-            // Expected behavior - validation should reject invalid choices
-            return (
-              error instanceof Error &&
-              error.message.length > 0 &&
-              error.message.includes(nodeId) &&
-              error.message.includes(choiceIndex.toString())
-            );
-          }
+          // Should throw an Error whose message includes nodeId and choiceIndex
+          let thrownError;
+          expect(() => {
+            try {
+              validateDialogueChoice(nodeId, choiceIndex, invalidChoice);
+            } catch (e) {
+              thrownError = e;
+              throw e;
+            }
+          }).toThrow();
+          expect(thrownError).toBeInstanceOf(Error);
+          expect(thrownError.message.length).toBeGreaterThan(0);
+          expect(thrownError.message).toContain(nodeId);
+          expect(thrownError.message).toContain(choiceIndex.toString());
         }
       ),
       { numRuns: 100 }
@@ -161,17 +164,10 @@ describe('Dialogue Validation Consistency Properties', () => {
         fc.integer({ min: 0, max: 10 }), // choiceIndex
         arbValidChoice,
         (nodeId, choiceIndex, validChoice) => {
-          try {
-            validateDialogueChoice(nodeId, choiceIndex, validChoice);
-            return true; // Validation should pass
-          } catch (error) {
-            // Unexpected - valid choice should not throw
-            console.error(
-              `Unexpected validation error for valid choice:`,
-              error.message
-            );
-            return false;
-          }
+          // Validation should pass for valid choices
+          expect(() =>
+            validateDialogueChoice(nodeId, choiceIndex, validChoice)
+          ).not.toThrow();
         }
       ),
       { numRuns: 100 }
@@ -182,14 +178,8 @@ describe('Dialogue Validation Consistency Properties', () => {
     // Test that validateRequiredConstants works with current constants
     fc.assert(
       fc.property(fc.constant(true), () => {
-        try {
-          validateRequiredConstants();
-          return true; // Validation passed
-        } catch (error) {
-          // If this fails, there's a problem with the constants configuration
-          console.error('Required constants validation failed:', error.message);
-          return false;
-        }
+        // Required constants should validate without errors
+        expect(() => validateRequiredConstants()).not.toThrow();
       }),
       { numRuns: 100 }
     );

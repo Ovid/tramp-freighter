@@ -39,8 +39,10 @@ describe('Danger Event Data', () => {
 
   it('should all have encounter.generator defined', () => {
     DANGER_EVENTS.forEach((e) => {
-      expect(e.encounter).toBeTruthy();
-      expect(e.encounter.generator).toBeTruthy();
+      expect(e.encounter).toEqual(
+        expect.objectContaining({ generator: expect.any(String) })
+      );
+      expect(e.encounter.generator.length).toBeGreaterThan(0);
     });
   });
 

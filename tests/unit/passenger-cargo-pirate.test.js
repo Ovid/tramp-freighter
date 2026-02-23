@@ -378,9 +378,10 @@ describe('Passenger Display Bugs', () => {
       );
 
       expect(mission).not.toBeNull();
-      expect(mission.destination).toBeDefined();
-      expect(mission.destination.name).toBeTruthy();
-      expect(typeof mission.destination.name).toBe('string');
+      expect(mission.destination).toEqual(
+        expect.objectContaining({ name: expect.any(String) })
+      );
+      expect(mission.destination.name.length).toBeGreaterThan(0);
     });
   });
 

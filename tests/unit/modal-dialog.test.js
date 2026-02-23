@@ -88,7 +88,7 @@ describe('Modal Dialog', () => {
     const modalOverlay = document.getElementById('modal-overlay');
     const modalMessage = document.getElementById('modal-message');
 
-    expect(modalOverlay.classList.contains('hidden')).toBe(false);
+    expect(modalOverlay.classList).not.toContain('hidden');
     expect(modalMessage.textContent).toBe(message);
 
     // Click cancel to resolve
@@ -119,24 +119,24 @@ describe('Modal Dialog', () => {
     const modalPromise = showModal('Test message');
     const modalOverlay = document.getElementById('modal-overlay');
 
-    expect(modalOverlay.classList.contains('hidden')).toBe(false);
+    expect(modalOverlay.classList).not.toContain('hidden');
 
     document.getElementById('modal-confirm').click();
     await modalPromise;
 
-    expect(modalOverlay.classList.contains('hidden')).toBe(true);
+    expect(modalOverlay.classList).toContain('hidden');
   });
 
   it('should hide modal after cancel', async () => {
     const modalPromise = showModal('Test message');
     const modalOverlay = document.getElementById('modal-overlay');
 
-    expect(modalOverlay.classList.contains('hidden')).toBe(false);
+    expect(modalOverlay.classList).not.toContain('hidden');
 
     document.getElementById('modal-cancel').click();
     await modalPromise;
 
-    expect(modalOverlay.classList.contains('hidden')).toBe(true);
+    expect(modalOverlay.classList).toContain('hidden');
   });
 
   it('should resolve to false when escape key is pressed', async () => {

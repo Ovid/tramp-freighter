@@ -5,7 +5,7 @@
  * Validates: Requirements 5.3
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -36,7 +36,7 @@ describe('Interaction Count Properties', () => {
 
           // Check that interaction count increased by exactly the number of modifications
           const finalCount = gameStateManager.state.npcs[npcId].interactions;
-          return finalCount === initialCount + numModifications;
+          expect(finalCount).toBe(initialCount + numModifications);
         }
       ),
       { numRuns: 100 }
@@ -69,7 +69,7 @@ describe('Interaction Count Properties', () => {
 
           // Check that interaction count increased by exactly the number of changes
           const finalCount = gameStateManager.state.npcs[npcId].interactions;
-          return finalCount === initialCount + reputationChanges.length;
+          expect(finalCount).toBe(initialCount + reputationChanges.length);
         }
       ),
       { numRuns: 100 }
@@ -114,7 +114,8 @@ describe('Interaction Count Properties', () => {
           const npc1Count = gameStateManager.state.npcs[npc1Id].interactions;
           const npc2Count = gameStateManager.state.npcs[npc2Id].interactions;
 
-          return npc1Count === npc1Mods && npc2Count === npc2Mods;
+          expect(npc1Count).toBe(npc1Mods);
+          expect(npc2Count).toBe(npc2Mods);
         }
       ),
       { numRuns: 100 }
@@ -149,17 +150,11 @@ describe('Interaction Count Properties', () => {
               gameStateManager.state.npcs[npcId].interactions;
 
             // Count should never decrease and should increase by exactly 1
-            if (
-              currentCount < previousCount ||
-              currentCount !== previousCount + 1
-            ) {
-              return false;
-            }
+            expect(currentCount).toBeGreaterThanOrEqual(previousCount);
+            expect(currentCount).toBe(previousCount + 1);
 
             previousCount = currentCount;
           }
-
-          return true;
         }
       ),
       { numRuns: 100 }

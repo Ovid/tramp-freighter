@@ -73,20 +73,14 @@ describe('Property: Ship name persists after submission', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
@@ -94,14 +88,7 @@ describe('Property: Ship name persists after submission', () => {
           const expectedName = sanitizeShipName(shipNameInput);
           const actualName = gameStateManager.getState().ship.name;
 
-          if (actualName !== expectedName) {
-            console.error(
-              `Game state not updated correctly. Expected "${expectedName}", got "${actualName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(actualName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -142,41 +129,25 @@ describe('Property: Ship name persists after submission', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the ship name was saved to localStorage
           const savedState = loadGame();
-          if (!savedState) {
-            console.error('No saved game found in localStorage');
-            return false;
-          }
+          expect(savedState).toBeTruthy();
 
           const expectedName = sanitizeShipName(shipNameInput);
           const savedName = savedState.ship.name;
 
-          if (savedName !== expectedName) {
-            console.error(
-              `Ship name not persisted correctly. Expected "${expectedName}", got "${savedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(savedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -217,10 +188,7 @@ describe('Property: Ship name persists after submission', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
@@ -230,24 +198,12 @@ describe('Property: Ship name persists after submission', () => {
 
           // Verify the ship name was saved to localStorage
           const savedState = loadGame();
-          if (!savedState) {
-            console.error(
-              'No saved game found in localStorage after Enter key'
-            );
-            return false;
-          }
+          expect(savedState).toBeTruthy();
 
           const expectedName = sanitizeShipName(shipNameInput);
           const savedName = savedState.ship.name;
 
-          if (savedName !== expectedName) {
-            console.error(
-              `Ship name not persisted via Enter key. Expected "${expectedName}", got "${savedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(savedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -286,41 +242,25 @@ describe('Property: Ship name persists after submission', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value to empty/whitespace
           fireEvent.change(input, { target: { value: emptyInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the default ship name was saved to localStorage
           const savedState = loadGame();
-          if (!savedState) {
-            console.error('No saved game found in localStorage');
-            return false;
-          }
+          expect(savedState).toBeTruthy();
 
           const expectedName = sanitizeShipName(emptyInput);
           const savedName = savedState.ship.name;
 
-          if (savedName !== expectedName) {
-            console.error(
-              `Default ship name not persisted correctly. Expected "${expectedName}", got "${savedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(savedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -375,22 +315,12 @@ describe('Property: Ship name persists after submission', () => {
           );
 
           const loadedState = gameStateManager2.loadGame();
-          if (!loadedState) {
-            console.error('No saved game found');
-            return false;
-          }
+          expect(loadedState).toBeTruthy();
 
           const expectedName = sanitizeShipName(shipNameInput);
           const loadedName = loadedState.ship.name;
 
-          if (loadedName !== expectedName) {
-            console.error(
-              `Ship name not loaded correctly. Expected "${expectedName}", got "${loadedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(loadedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }

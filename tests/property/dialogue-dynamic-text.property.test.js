@@ -5,7 +5,7 @@
  * Validates: Requirements 2.6, 9.3
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
@@ -78,12 +78,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
           // For function-based text, we should see at least some variation
           // across different reputation tiers (at least 2 different texts)
-          if (generatedTexts.size < 2) {
-            return false; // Should generate different text for different reputations
-          }
+          expect(generatedTexts.size).toBeGreaterThanOrEqual(2);
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -129,12 +125,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             const thirdResult = showDialogue(npcId, nodeId, gameStateManager);
 
             // Text should be consistent across multiple calls
-            if (
-              firstResult.text !== secondResult.text ||
-              secondResult.text !== thirdResult.text
-            ) {
-              return false; // Text should be consistent for same reputation
-            }
+            expect(firstResult.text).toBe(secondResult.text);
+            expect(secondResult.text).toBe(thirdResult.text);
           } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -189,13 +181,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             );
 
             // Verify text is a valid non-empty string
-            if (typeof dialogueResult.text !== 'string') {
-              return false; // Text should be a string
-            }
-
-            if (dialogueResult.text.length === 0) {
-              return false; // Text should not be empty
-            }
+            expect(typeof dialogueResult.text).toBe('string');
+            expect(dialogueResult.text.length).toBeGreaterThan(0);
           } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -255,9 +242,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             );
 
             // Text should match exactly the static text from the node
-            if (dialogueResult.text !== node.text) {
-              return false; // Static text should be used directly
-            }
+            expect(dialogueResult.text).toBe(node.text);
           } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -304,24 +289,18 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             );
 
             // Verify text is valid
-            if (
-              typeof dialogueResult.text !== 'string' ||
-              dialogueResult.text.length === 0
-            ) {
-              return false; // Should generate valid text at all boundaries
-            }
+            expect(typeof dialogueResult.text).toBe('string');
+            expect(dialogueResult.text.length).toBeGreaterThan(0);
 
             // Verify reputation tier is correct
             const expectedTier = gameStateManager.getRepTier(reputation);
-            if (dialogueResult.reputationTier.name !== expectedTier.name) {
-              return false; // Reputation tier should match
-            }
-          } catch {
-            return false; // Should not throw errors at boundary conditions
+            expect(dialogueResult.reputationTier.name).toBe(expectedTier.name);
+          } catch (error) {
+            // Re-throw expect failures, but fail on unexpected errors
+            if (error.matcherResult) throw error;
+            expect(error).toBeUndefined();
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );

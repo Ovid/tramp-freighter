@@ -3,8 +3,8 @@ import { LABEL_CONFIG, VISUAL_CONFIG } from '../../src/game/constants.js';
 
 describe('Label Opacity Visibility', () => {
   it('should define minOpacity in LABEL_CONFIG', () => {
-    expect(LABEL_CONFIG.minOpacity).toBeDefined();
-    expect(typeof LABEL_CONFIG.minOpacity).toBe('number');
+    expect(LABEL_CONFIG.minOpacity).toBeGreaterThanOrEqual(0);
+    expect(LABEL_CONFIG.minOpacity).toBeLessThanOrEqual(1);
   });
 
   it('should set minOpacity higher than 0.1 for better visibility', () => {

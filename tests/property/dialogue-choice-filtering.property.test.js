@@ -69,18 +69,12 @@ describe('Dialogue Choice Filtering Properties', () => {
               conditionResult = false;
             }
 
-            if (isAvailable !== conditionResult) {
-              return false; // Choice visibility doesn't match condition result
-            }
+            expect(isAvailable).toBe(conditionResult);
           } else {
             // Choice has no condition - should always be available
-            if (!isAvailable) {
-              return false; // Choice without condition should be visible
-            }
+            expect(isAvailable).toBe(true);
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -139,7 +133,7 @@ describe('Dialogue Choice Filtering Properties', () => {
             (choice) => choice.index === throwingChoiceIndex
           );
 
-          return !throwingChoiceAvailable; // Should be false (choice hidden)
+          expect(throwingChoiceAvailable).toBe(false);
         }),
         { numRuns: 100 }
       );
@@ -196,13 +190,9 @@ describe('Dialogue Choice Filtering Properties', () => {
             const isAvailable = availableChoices.some(
               (choice) => choice.index === i
             );
-            if (!isAvailable) {
-              return false; // Choice without condition should be visible
-            }
+            expect(isAvailable).toBe(true);
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );

@@ -15,28 +15,33 @@ describe('Narrative Event Data', () => {
   NARRATIVE_EVENTS.forEach((event) => {
     describe(`event: ${event.id}`, () => {
       it('should have required fields', () => {
-        expect(event.id).toBeTruthy();
+        expect(event.id).toEqual(expect.any(String));
+        expect(event.id.length).toBeGreaterThan(0);
         expect(['dock', 'jump', 'time', 'condition', 'chain']).toContain(
           event.type
         );
         expect(event.category).toBe('narrative');
-        expect(typeof event.priority).toBe('number');
+        expect(event.priority).toEqual(expect.any(Number));
       });
 
       it('should have a trigger with chance', () => {
         // Chain events don't need triggers
         if (event.type === 'chain') return;
-        expect(event.trigger).toBeTruthy();
-        expect(typeof event.trigger.chance).toBe('number');
+        expect(event.trigger).toEqual(
+          expect.objectContaining({ chance: expect.any(Number) })
+        );
         expect(event.trigger.chance).toBeGreaterThan(0);
         expect(event.trigger.chance).toBeLessThanOrEqual(1);
       });
 
       it('should have content with text and choices', () => {
-        expect(event.content).toBeTruthy();
-        expect(Array.isArray(event.content.text)).toBe(true);
+        expect(event.content).toEqual(
+          expect.objectContaining({
+            text: expect.any(Array),
+            choices: expect.any(Array),
+          })
+        );
         expect(event.content.text.length).toBeGreaterThan(0);
-        expect(Array.isArray(event.content.choices)).toBe(true);
         expect(event.content.choices.length).toBeGreaterThan(0);
       });
 

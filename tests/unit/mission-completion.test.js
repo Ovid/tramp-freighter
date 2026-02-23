@@ -10,31 +10,45 @@ describe('Mission Completion', () => {
     manager.initNewGame();
   });
 
-  it('should complete a delivery mission when at destination with cargo', () => {
-    const mission = {
-      id: 'test_delivery',
-      type: 'delivery',
-      title: 'Test Delivery',
-      requirements: {
-        cargo: 'grain',
-        quantity: 10,
-        destination: 0,
-        deadline: 7,
-      },
-      rewards: { credits: 500 },
-      penalties: { failure: {} },
-    };
-    manager.acceptMission(mission);
+  describe('completing a delivery mission when at destination with cargo', () => {
+    let result;
+    let creditsBefore;
 
-    const creditsBefore = manager.getState().player.credits;
-    const result = manager.completeMission('test_delivery');
-    expect(result.success).toBe(true);
-    expect(result.rewards).toEqual({ credits: 500 });
+    beforeEach(() => {
+      const mission = {
+        id: 'test_delivery',
+        type: 'delivery',
+        title: 'Test Delivery',
+        requirements: {
+          cargo: 'grain',
+          quantity: 10,
+          destination: 0,
+          deadline: 7,
+        },
+        rewards: { credits: 500 },
+        penalties: { failure: {} },
+      };
+      manager.acceptMission(mission);
+      creditsBefore = manager.getState().player.credits;
+      result = manager.completeMission('test_delivery');
+    });
 
-    const state = manager.getState();
-    expect(state.missions.active).toHaveLength(0);
-    expect(state.missions.completed).toContain('test_delivery');
-    expect(state.player.credits).toBe(creditsBefore + 500);
+    it('should return success when completing a valid mission', () => {
+      expect(result.success).toBe(true);
+      expect(result.rewards).toEqual({ credits: 500 });
+    });
+
+    it('should remove mission from active list on completion', () => {
+      expect(manager.getState().missions.active).toHaveLength(0);
+    });
+
+    it('should add mission ID to completed list', () => {
+      expect(manager.getState().missions.completed).toContain('test_delivery');
+    });
+
+    it('should award credits on completion', () => {
+      expect(manager.getState().player.credits).toBe(creditsBefore + 500);
+    });
   });
 
   it('should reject completion if not at destination', () => {
