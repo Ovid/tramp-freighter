@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TANAKA_SUPPLY_CONFIG, ENDGAME_CONFIG } from '../../src/game/constants.js';
 import { createTestGameStateManager } from '../test-utils.js';
+import { buildDialogueContext } from '../../src/game/game-dialogue.js';
 
 describe('Tanaka Supply Run constants', () => {
   it('exports TANAKA_SUPPLY_CONFIG with required fields', () => {
@@ -161,5 +162,23 @@ describe('QuestManager.contributeSupply', () => {
     manager.state.ship.cargo = []; // No cargo
     const result = manager.contributeSupply();
     expect(result.success).toBe(false);
+  });
+});
+
+describe('Dialogue context for supply runs', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGameStateManager();
+  });
+
+  it('exposes canContributeSupply on dialogue context', () => {
+    const context = buildDialogueContext(manager, 'tanaka_barnards');
+    expect(typeof context.canContributeSupply).toBe('function');
+  });
+
+  it('exposes contributeSupply on dialogue context', () => {
+    const context = buildDialogueContext(manager, 'tanaka_barnards');
+    expect(typeof context.contributeSupply).toBe('function');
   });
 });
