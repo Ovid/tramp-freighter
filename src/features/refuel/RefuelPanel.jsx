@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { EVENT_NAMES } from '../../game/constants.js';
 import {
   calculateRefuelCost,
   calculateDiscountedRefuelCost,
@@ -32,9 +33,9 @@ export function RefuelPanel({ onClose }) {
   const gameStateManager = useGameState();
 
   // Subscribe to game state changes
-  const fuel = useGameEvent('fuelChanged');
-  const credits = useGameEvent('creditsChanged');
-  const currentSystem = useGameEvent('locationChanged');
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   // Get action methods
   const { refuel, validateRefuel, getNarrativeFlags } = useGameAction();

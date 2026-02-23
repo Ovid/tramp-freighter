@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { COMBAT_CONFIG } from '../../game/constants.js';
+import { COMBAT_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * CombatPanel - React component for combat resolution
@@ -19,15 +19,15 @@ import { COMBAT_CONFIG } from '../../game/constants.js';
  */
 export function CombatPanel({ combat, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for ship status and modifiers
-  const hull = useGameEvent('hullChanged');
-  const engine = useGameEvent('engineChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const lifeSupport = useGameEvent('lifeSupportChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const quirks = useGameEvent('quirksChanged');
-  const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
+  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Local state for selected combat option
   const [selectedOption, setSelectedOption] = useState(null);

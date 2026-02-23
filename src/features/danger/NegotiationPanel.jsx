@@ -4,6 +4,7 @@ import {
   NEGOTIATION_CONFIG,
   KARMA_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
+  EVENT_NAMES,
 } from '../../game/constants.js';
 
 /**
@@ -23,10 +24,10 @@ import {
  */
 export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for negotiation context
-  const cargo = useGameEvent('cargoChanged');
-  const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged');
-  const intelligence = useGameEvent('intelligenceChanged');
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
+  const intelligence = useGameEvent(EVENT_NAMES.INTELLIGENCE_CHANGED);
 
   // Local state for selected negotiation option
   const [selectedOption, setSelectedOption] = useState(null);

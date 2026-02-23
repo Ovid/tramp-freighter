@@ -16,15 +16,16 @@
 import { REPUTATION_BOUNDS } from '../../constants.js';
 
 /**
- * Safely retrieves the heat tier from the game state manager.
- * Returns 'low' if the manager is unavailable or lacks the method.
+ * Safely retrieves the heat tier from the context object.
+ * Returns 'low' if the context is unavailable or lacks heat data.
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {Object} context - Dialogue context object
+ * @param {string} context.heat - Heat tier value
  * @returns {string} Heat tier: 'low', 'medium', 'high', or 'critical'
  */
-function safeGetHeatTier(gameStateManager) {
-  if (gameStateManager && typeof gameStateManager.getHeatTier === 'function') {
-    return gameStateManager.getHeatTier();
+function safeGetHeatTier(context) {
+  if (context && context.heat) {
+    return context.heat;
   }
   return 'low';
 }
@@ -34,11 +35,11 @@ function safeGetHeatTier(gameStateManager) {
  * Falls back to reputation-based variants within each tier.
  *
  * @param {number} rep - Current reputation with Cole
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {Object} context - Dialogue context object
  * @returns {string} Greeting text
  */
-function getGreetingText(rep, gameStateManager) {
-  const heatTier = safeGetHeatTier(gameStateManager);
+function getGreetingText(rep, context) {
+  const heatTier = safeGetHeatTier(context);
 
   switch (heatTier) {
     case 'critical':
@@ -85,7 +86,7 @@ function getGreetingText(rep, gameStateManager) {
  */
 export const MARCUS_COLE_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager) => getGreetingText(rep, gameStateManager),
+    text: (rep, context) => getGreetingText(rep, context),
     choices: [
       {
         text: 'About my debt...',
@@ -94,36 +95,35 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: 'Any financial tips for me?',
         next: 'ask_tip',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
-          const heatTier = safeGetHeatTier(gameStateManager);
+          const heatTier = safeGetHeatTier(context);
           if (heatTier !== 'low') return false;
-          const tipAvailability = gameStateManager.canGetTip(npcId);
-          return tipAvailability.available;
+          return context.canGetTip.available;
         },
       },
       {
         text: 'I wanted to discuss business opportunities.',
         next: 'business',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           if (rep < REPUTATION_BOUNDS.NEUTRAL_MIN) return false;
-          const heatTier = safeGetHeatTier(gameStateManager);
+          const heatTier = safeGetHeatTier(context);
           return heatTier === 'low' || heatTier === 'medium';
         },
       },
       {
         text: 'What kind of job?',
         next: 'cole_threat',
-        condition: (_rep, gameStateManager) => {
-          const heatTier = safeGetHeatTier(gameStateManager);
+        condition: (_rep, context) => {
+          const heatTier = safeGetHeatTier(context);
           return heatTier === 'high';
         },
       },
       {
         text: "I'm listening.",
         next: 'cole_demand',
-        condition: (_rep, gameStateManager) => {
-          const heatTier = safeGetHeatTier(gameStateManager);
+        condition: (_rep, context) => {
+          const heatTier = safeGetHeatTier(context);
           return heatTier === 'critical';
         },
       },
@@ -135,8 +135,8 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   debt_talk: {
-    text: (rep, gameStateManager) => {
-      const heatTier = safeGetHeatTier(gameStateManager);
+    text: (rep, context) => {
+      const heatTier = safeGetHeatTier(context);
 
       if (heatTier === 'critical') {
         return 'Your debt is no longer a topic of negotiation. It is a fact. And facts have consequences. The only question is whether those consequences work for you or against you.';
@@ -162,8 +162,8 @@ export const MARCUS_COLE_DIALOGUE = {
         text: 'I need more time to pay.',
         next: 'payment_plan',
         repGain: -1,
-        condition: (_rep, gameStateManager) => {
-          const heatTier = safeGetHeatTier(gameStateManager);
+        condition: (_rep, context) => {
+          const heatTier = safeGetHeatTier(context);
           return heatTier !== 'critical';
         },
       },
@@ -196,8 +196,8 @@ export const MARCUS_COLE_DIALOGUE = {
   },
 
   defiant_response: {
-    text: (rep, gameStateManager) => {
-      const heatTier = safeGetHeatTier(gameStateManager);
+    text: (rep, context) => {
+      const heatTier = safeGetHeatTier(context);
 
       if (heatTier === 'critical' || heatTier === 'high') {
         return 'Defiance. How refreshing. And how foolish. You seem to forget who holds the ledger. I could make one call and every station in the sector would freeze your accounts. Choose your next words very carefully.';

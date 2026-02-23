@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { COLE_DEBT_CONFIG } from '../../constants.js';
+import { COLE_DEBT_CONFIG, EVENT_NAMES } from '../../constants.js';
 import { COLE_FAVOR_MISSIONS } from '../../data/cole-missions.js';
 import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
@@ -402,6 +402,6 @@ export class DebtManager extends BaseManager {
   }
 
   emitFinanceChanged() {
-    this.emit('financeChanged', { ...this.getFinance() });
+    this.emit(EVENT_NAMES.FINANCE_CHANGED, { ...this.getFinance() });
   }
 }

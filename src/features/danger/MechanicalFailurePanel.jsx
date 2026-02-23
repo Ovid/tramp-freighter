@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { FAILURE_CONFIG, SHIP_CONFIG } from '../../game/constants.js';
+import {
+  FAILURE_CONFIG,
+  SHIP_CONFIG,
+  EVENT_NAMES,
+} from '../../game/constants.js';
 
 /**
  * MechanicalFailurePanel - React component for mechanical failure resolution
@@ -18,10 +22,10 @@ import { FAILURE_CONFIG, SHIP_CONFIG } from '../../game/constants.js';
  */
 export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
   // Subscribe to relevant game events for repair context
-  const hull = useGameEvent('hullChanged');
-  const engine = useGameEvent('engineChanged');
-  const lifeSupport = useGameEvent('lifeSupportChanged');
-  const credits = useGameEvent('creditsChanged');
+  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
+  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
 
   // Local state for selected repair option
   const [selectedOption, setSelectedOption] = useState(null);

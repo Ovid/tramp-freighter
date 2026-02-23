@@ -1,6 +1,6 @@
 import { BaseManager } from './base-manager.js';
-import { TradingSystem } from '../../game-trading.js';
-import { COMMODITY_TYPES } from '../../constants.js';
+import { calculateSystemPrices } from '../../utils/calculators.js';
+import { EVENT_NAMES } from '../../constants.js';
 
 /**
  * NavigationManager - Manages player location, docking, and system exploration
@@ -50,16 +50,12 @@ export class NavigationManager extends BaseManager {
     const activeEvents = state.world.activeEvents;
     const marketConditions = state.world.marketConditions;
 
-    const snapshotPrices = {};
-    for (const goodType of COMMODITY_TYPES) {
-      snapshotPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        system,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
+    const snapshotPrices = calculateSystemPrices(
+      system,
+      currentDay,
+      activeEvents,
+      marketConditions
+    );
 
     // Store price snapshot for this system
     state.world.currentSystemPrices = snapshotPrices;
@@ -68,8 +64,8 @@ export class NavigationManager extends BaseManager {
       state.stats.jumpsCompleted++;
     }
 
-    this.emit('locationChanged', newSystemId);
-    this.emit('jumpCompleted', newSystemId);
+    this.emit(EVENT_NAMES.LOCATION_CHANGED, newSystemId);
+    this.emit(EVENT_NAMES.JUMP_COMPLETED, newSystemId);
   }
 
   /**
@@ -107,17 +103,12 @@ export class NavigationManager extends BaseManager {
         'Invalid state: marketConditions missing from world state'
       );
     }
-    const currentPrices = {};
-
-    for (const goodType of COMMODITY_TYPES) {
-      currentPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        currentSystem,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
+    const currentPrices = calculateSystemPrices(
+      currentSystem,
+      currentDay,
+      activeEvents,
+      marketConditions
+    );
 
     // Update price knowledge (resets lastVisit to 0)
     this.gameStateManager.updatePriceKnowledge(
@@ -130,7 +121,7 @@ export class NavigationManager extends BaseManager {
     // Persist state transition - prevents loss if player closes browser while docked
     this.gameStateManager.markDirty();
 
-    this.emit('docked', { systemId: currentSystemId });
+    this.emit(EVENT_NAMES.DOCKED, { systemId: currentSystemId });
 
     // Track docked systems for first_dock condition (after emit so
     // the event engine sees the system as not-yet-docked during check)
@@ -159,7 +150,7 @@ export class NavigationManager extends BaseManager {
     // Persist state transition - prevents loss if player closes browser while undocked
     this.gameStateManager.markDirty();
 
-    this.emit('undocked', { systemId: state.player.currentSystem });
+    this.emit(EVENT_NAMES.UNDOCKED, { systemId: state.player.currentSystem });
 
     return { success: true };
   }

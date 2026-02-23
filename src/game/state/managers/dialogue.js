@@ -14,6 +14,7 @@
  */
 
 import { BaseManager } from './base-manager.js';
+import { EVENT_NAMES } from '../../constants.js';
 
 export class DialogueManager extends BaseManager {
   constructor(gameStateManager) {
@@ -38,7 +39,7 @@ export class DialogueManager extends BaseManager {
     state.dialogue.isActive = true;
 
     // Emit dialogue state change
-    this.emit('dialogueChanged', { ...state.dialogue });
+    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
   }
 
   /**
@@ -72,7 +73,7 @@ export class DialogueManager extends BaseManager {
     state.dialogue.display = null;
 
     // Emit dialogue state change
-    this.emit('dialogueChanged', { ...state.dialogue });
+    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
   }
 
   /**
@@ -102,7 +103,7 @@ export class DialogueManager extends BaseManager {
     state.dialogue.display = dialogueDisplay;
 
     // Emit dialogue state change
-    this.emit('dialogueChanged', { ...state.dialogue });
+    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
 
     return dialogueDisplay;
   }
@@ -137,7 +138,7 @@ export class DialogueManager extends BaseManager {
       state.dialogue.display = nextDisplay;
 
       // Emit dialogue state change
-      this.emit('dialogueChanged', { ...state.dialogue });
+      this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
 
       return nextDisplay;
     } else {
@@ -148,7 +149,7 @@ export class DialogueManager extends BaseManager {
       state.dialogue.display = null;
 
       // Emit dialogue state change
-      this.emit('dialogueChanged', { ...state.dialogue });
+      this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
 
       return null;
     }

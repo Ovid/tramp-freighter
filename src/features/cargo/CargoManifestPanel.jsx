@@ -7,7 +7,7 @@ import {
   formatCargoDisplayName,
   pluralizeUnit,
 } from '../../game/utils/string-utils.js';
-import { PASSENGER_CONFIG } from '../../game/constants.js';
+import { PASSENGER_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 import { formatCargoAge } from './cargoUtils';
 
 /**
@@ -26,11 +26,11 @@ export function CargoManifestPanel({ onClose }) {
   const starData = useStarData();
 
   // Subscribe to game events
-  const cargo = useGameEvent('cargoChanged');
-  const shipName = useGameEvent('shipNameChanged');
-  const currentDay = useGameEvent('timeChanged');
-  const cargoCapacity = useGameEvent('cargoCapacityChanged');
-  const missions = useGameEvent('missionsChanged');
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED);
+  const cargoCapacity = useGameEvent(EVENT_NAMES.CARGO_CAPACITY_CHANGED);
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
   // Calculate cargo usage
   const tradeCargoUsed = cargo.reduce((sum, stack) => sum + stack.qty, 0);

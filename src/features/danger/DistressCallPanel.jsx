@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { DISTRESS_CONFIG } from '../../game/constants.js';
+import { DISTRESS_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * DistressCallPanel - React component for distress call moral choice resolution
@@ -23,11 +23,11 @@ export function DistressCallPanel({
   onClose: _onClose,
 }) {
   // Subscribe to relevant game events for moral choice context
-  const fuel = useGameEvent('fuelChanged');
-  const lifeSupport = useGameEvent('lifeSupportChanged');
-  const credits = useGameEvent('creditsChanged');
-  const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Local state for selected moral choice
   const [selectedChoice, setSelectedChoice] = useState(null);

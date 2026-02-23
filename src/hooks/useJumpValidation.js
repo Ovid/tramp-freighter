@@ -1,5 +1,6 @@
 import { useGameState } from '../context/GameContext';
 import { useGameEvent } from './useGameEvent';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * Custom hook for jump validation
@@ -15,7 +16,7 @@ import { useGameEvent } from './useGameEvent';
  */
 export function useJumpValidation(currentSystemId, targetSystemId, fuel) {
   const gameStateManager = useGameState();
-  const shipCondition = useGameEvent('shipConditionChanged');
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
 
   return gameStateManager.navigationSystem.validateJump(
     currentSystemId,

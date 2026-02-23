@@ -8,6 +8,7 @@ import {
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
+  EVENT_NAMES,
 } from '../../constants.js';
 
 /**
@@ -94,7 +95,7 @@ export class DangerManager extends BaseManager {
     this.getState().player.karma = newKarma;
 
     this.log(`Karma set to ${newKarma}`);
-    this.emit('karmaChanged', {
+    this.emit(EVENT_NAMES.KARMA_CHANGED, {
       karma: newKarma,
       change: 0,
       reason: 'dev_set',
@@ -125,7 +126,11 @@ export class DangerManager extends BaseManager {
     this.log(
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
     );
-    this.emit('karmaChanged', { karma: newKarma, change: amount, reason });
+    this.emit(EVENT_NAMES.KARMA_CHANGED, {
+      karma: newKarma,
+      change: amount,
+      reason,
+    });
   }
 
   // ========================================================================
@@ -362,7 +367,7 @@ export class DangerManager extends BaseManager {
     this.getState().player.factions[faction] = newRep;
 
     this.log(`${faction} reputation set to ${newRep}`);
-    this.emit('factionRepChanged', this.getState().player.factions);
+    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, this.getState().player.factions);
   }
 
   /**
@@ -394,6 +399,6 @@ export class DangerManager extends BaseManager {
       `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
     );
 
-    this.emit('factionRepChanged', this.getState().player.factions);
+    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, this.getState().player.factions);
   }
 }

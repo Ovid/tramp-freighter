@@ -1,4 +1,4 @@
-import { SHIP_CONFIG, FACTION_CONFIG } from '../constants.js';
+import { SHIP_CONFIG, FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
@@ -420,7 +420,7 @@ export class GameStateManager {
 
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
-    this.emit('npcsChanged', { ...this.state.npcs });
+    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.state.npcs });
     this.markDirty();
   }
 
@@ -473,7 +473,7 @@ export class GameStateManager {
   }
 
   startPavonisRun() {
-    this.emit('pavonisRunTriggered', true);
+    this.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, true);
   }
 
   // ========================================================================

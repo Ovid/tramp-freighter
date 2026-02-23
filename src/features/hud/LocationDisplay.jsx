@@ -1,4 +1,5 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from './hudUtils';
 
@@ -11,7 +12,7 @@ import { calculateDistanceFromSol } from './hudUtils';
  * React Migration Spec: Requirements 7.1, 7.2, 24.4
  */
 export function LocationDisplay() {
-  const currentSystemId = useGameEvent('locationChanged');
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   // Get current system data
   const system = STAR_DATA.find((s) => s.id === currentSystemId);

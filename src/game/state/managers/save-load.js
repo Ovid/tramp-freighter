@@ -1,5 +1,10 @@
 import { BaseManager } from './base-manager.js';
-import { GAME_VERSION, UI_CONFIG, SAVE_KEY } from '../../constants.js';
+import {
+  GAME_VERSION,
+  UI_CONFIG,
+  SAVE_KEY,
+  EVENT_NAMES,
+} from '../../constants.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -221,33 +226,45 @@ export class SaveLoadManager extends BaseManager {
    * @private
    */
   emitLoadedStateEvents(loadedState) {
-    this.emit('creditsChanged', loadedState.player.credits);
-    this.emit('debtChanged', loadedState.player.debt);
-    this.emit('fuelChanged', loadedState.ship.fuel);
-    this.emit('cargoChanged', loadedState.ship.cargo);
-    this.emit('hiddenCargoChanged', loadedState.ship.hiddenCargo);
-    this.emit('locationChanged', loadedState.player.currentSystem);
-    this.emit('timeChanged', loadedState.player.daysElapsed);
-    this.emit('priceKnowledgeChanged', loadedState.world.priceKnowledge);
-    this.emit('activeEventsChanged', loadedState.world.activeEvents);
-    this.emit('shipConditionChanged', {
+    this.emit(EVENT_NAMES.CREDITS_CHANGED, loadedState.player.credits);
+    this.emit(EVENT_NAMES.DEBT_CHANGED, loadedState.player.debt);
+    this.emit(EVENT_NAMES.FUEL_CHANGED, loadedState.ship.fuel);
+    this.emit(EVENT_NAMES.CARGO_CHANGED, loadedState.ship.cargo);
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, loadedState.ship.hiddenCargo);
+    this.emit(EVENT_NAMES.LOCATION_CHANGED, loadedState.player.currentSystem);
+    this.emit(EVENT_NAMES.TIME_CHANGED, loadedState.player.daysElapsed);
+    this.emit(
+      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
+      loadedState.world.priceKnowledge
+    );
+    this.emit(
+      EVENT_NAMES.ACTIVE_EVENTS_CHANGED,
+      loadedState.world.activeEvents
+    );
+    this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
       hull: loadedState.ship.hull,
       engine: loadedState.ship.engine,
       lifeSupport: loadedState.ship.lifeSupport,
     });
-    this.emit('upgradesChanged', loadedState.ship.upgrades);
-    this.emit('cargoCapacityChanged', loadedState.ship.cargoCapacity);
-    this.emit('quirksChanged', loadedState.ship.quirks);
-    this.emit('karmaChanged', loadedState.player.karma || 0);
-    this.emit('factionRepChanged', loadedState.player.factions || {});
+    this.emit(EVENT_NAMES.UPGRADES_CHANGED, loadedState.ship.upgrades);
+    this.emit(
+      EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+      loadedState.ship.cargoCapacity
+    );
+    this.emit(EVENT_NAMES.QUIRKS_CHANGED, loadedState.ship.quirks);
+    this.emit(EVENT_NAMES.KARMA_CHANGED, loadedState.player.karma || 0);
+    this.emit(
+      EVENT_NAMES.FACTION_REP_CHANGED,
+      loadedState.player.factions || {}
+    );
     if (loadedState.player.finance) {
-      this.emit('financeChanged', loadedState.player.finance);
+      this.emit(EVENT_NAMES.FINANCE_CHANGED, loadedState.player.finance);
     }
     if (loadedState.missions) {
-      this.emit('missionsChanged', loadedState.missions);
+      this.emit(EVENT_NAMES.MISSIONS_CHANGED, loadedState.missions);
     }
     if (loadedState.quests) {
-      this.emit('questChanged', { ...loadedState.quests });
+      this.emit(EVENT_NAMES.QUEST_CHANGED, { ...loadedState.quests });
     }
   }
 

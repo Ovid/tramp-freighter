@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * ShipStatus component displays ship name, fuel, condition bars, and cargo.
@@ -14,12 +15,12 @@ import { useGameEvent } from '../../hooks/useGameEvent';
  * React Migration Spec: Requirements 7.4, 24.6
  */
 export function ShipStatus() {
-  const shipName = useGameEvent('shipNameChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const condition = useGameEvent('shipConditionChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const cargoCapacity = useGameEvent('cargoCapacityChanged');
-  const missions = useGameEvent('missionsChanged');
+  const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const condition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const cargoCapacity = useGameEvent(EVENT_NAMES.CARGO_CAPACITY_CHANGED);
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
   // Null safety: Handle corrupted save data gracefully by providing defaults
   const safeFuel = fuel ?? 100;

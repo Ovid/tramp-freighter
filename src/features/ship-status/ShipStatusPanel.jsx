@@ -1,5 +1,6 @@
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * ShipStatusPanel - React component for displaying ship status
@@ -18,10 +19,10 @@ export function ShipStatusPanel({ onClose }) {
   const gameStateManager = useGameState();
 
   // Subscribe to game events
-  const shipName = useGameEvent('shipNameChanged');
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const quirks = useGameEvent('quirksChanged');
+  const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
 
   /**
    * Render a single condition bar

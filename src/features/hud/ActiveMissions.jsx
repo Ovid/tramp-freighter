@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { ConfirmModal } from '../../components/Modal';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 function getCargoProgress(mission, cargo) {
   if (!mission.requirements?.cargo || !mission.requirements?.quantity) {
@@ -19,9 +20,9 @@ function getCargoProgress(mission, cargo) {
 }
 
 export function ActiveMissions() {
-  const missions = useGameEvent('missionsChanged');
-  const daysElapsed = useGameEvent('timeChanged');
-  const cargo = useGameEvent('cargoChanged');
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
+  const daysElapsed = useGameEvent(EVENT_NAMES.TIME_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const { abandonMission } = useGameAction();
   const [missionToAbandon, setMissionToAbandon] = useState(null);
 

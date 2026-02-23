@@ -1,3 +1,5 @@
+import { EVENT_NAMES } from '../../constants.js';
+
 /**
  * EventSystemManager - Bridges imperative game state with React's declarative rendering
  *
@@ -14,40 +16,11 @@ export class EventSystemManager {
     this.gameStateManager = gameStateManager;
 
     // Supports multiple UI components subscribing to same state changes
-    this.subscribers = {
-      creditsChanged: [],
-      debtChanged: [],
-      fuelChanged: [],
-      cargoChanged: [],
-      cargoCapacityChanged: [],
-      hiddenCargoChanged: [],
-      locationChanged: [],
-      timeChanged: [],
-      priceKnowledgeChanged: [],
-      activeEventsChanged: [],
-      shipConditionChanged: [],
-      conditionWarning: [],
-      shipNameChanged: [],
-      upgradesChanged: [],
-      quirksChanged: [],
-      dialogueChanged: [],
-      factionRepChanged: [],
-      financeChanged: [],
-      encounterTriggered: [],
-      narrativeEventTriggered: [],
-      hullChanged: [],
-      engineChanged: [],
-      lifeSupportChanged: [],
-      karmaChanged: [],
-      intelligenceChanged: [],
-      currentSystemChanged: [],
-      missionsChanged: [],
-      npcsChanged: [],
-      docked: [],
-      questChanged: [],
-      jumpCompleted: [],
-      pavonisRunTriggered: [],
-    };
+    // Built dynamically from EVENT_NAMES so new events only need to be added in constants.js
+    this.subscribers = {};
+    for (const eventName of Object.values(EVENT_NAMES)) {
+      this.subscribers[eventName] = [];
+    }
   }
 
   /**
@@ -114,6 +87,9 @@ export class EventSystemManager {
    */
   emit(eventType, data) {
     if (!this.subscribers[eventType]) {
+      console.warn(
+        `Unknown event type in emit(): ${eventType}. Check EVENT_NAMES in constants.js.`
+      );
       return;
     }
 

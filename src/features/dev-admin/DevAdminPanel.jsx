@@ -7,6 +7,7 @@ import {
   FACTION_CONFIG,
   REPUTATION_TIERS,
   REPUTATION_TIER_PRESETS,
+  EVENT_NAMES,
 } from '../../game/constants.js';
 import { ALL_NPCS } from '../../game/data/npc-data.js';
 
@@ -23,14 +24,14 @@ export function DevAdminPanel({ onClose }) {
   const gameStateManager = useGameState();
 
   // Subscribe to game state changes
-  const credits = useGameEvent('creditsChanged');
-  const debt = useGameEvent('debtChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const quirks = useGameEvent('quirksChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const npcs = useGameEvent('npcsChanged');
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const debt = useGameEvent(EVENT_NAMES.DEBT_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const npcs = useGameEvent(EVENT_NAMES.NPCS_CHANGED);
 
   // NPC reputation: selected NPC and input fields keyed by npcId
   const [selectedNpcId, setSelectedNpcId] = useState('');
@@ -297,7 +298,7 @@ export function DevAdminPanel({ onClose }) {
           updatedHidden.push(newCargoItem);
         }
         ship.hiddenCargo = updatedHidden;
-        gameStateManager.emit('hiddenCargoChanged', updatedHidden);
+        gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, updatedHidden);
       } else {
         // Add to regular cargo
         const newCargo = [...ship.cargo];
@@ -319,7 +320,7 @@ export function DevAdminPanel({ onClose }) {
     gameStateManager.updateCargo([]);
     const ship = gameStateManager.getShip();
     ship.hiddenCargo = [];
-    gameStateManager.emit('hiddenCargoChanged', []);
+    gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
     gameStateManager.markDirty();
   };
 
@@ -357,11 +358,11 @@ export function DevAdminPanel({ onClose }) {
     };
 
     // Emit event to trigger pirate encounter panel
-    gameStateManager.emit('encounterTriggered', encounterData);
+    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
   };
 
   const handleTriggerInspection = () => {
-    gameStateManager.emit('encounterTriggered', {
+    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
       type: 'inspection',
       encounter: {
         id: `inspection_dev_${Date.now()}`,
@@ -377,7 +378,7 @@ export function DevAdminPanel({ onClose }) {
     if (condition.hull < 50) failureType = 'hull_breach';
     else if (condition.lifeSupport < 30) failureType = 'life_support';
 
-    gameStateManager.emit('encounterTriggered', {
+    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
       type: 'mechanical_failure',
       encounter: {
         id: `failure_dev_${Date.now()}`,
@@ -394,13 +395,13 @@ export function DevAdminPanel({ onClose }) {
   const handleTriggerDistressCall = () => {
     const distressCall = gameStateManager.checkDistressCall(0); // Force trigger
     if (distressCall) {
-      gameStateManager.emit('encounterTriggered', {
+      gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
         type: 'distress_call',
         encounter: distressCall,
       });
     } else {
       // Create one manually if checkDistressCall didn't return one
-      gameStateManager.emit('encounterTriggered', {
+      gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
         type: 'distress_call',
         encounter: {
           id: `distress_dev_${Date.now()}`,

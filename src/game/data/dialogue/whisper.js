@@ -34,21 +34,10 @@ import {
  */
 export const WHISPER_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager, npcId) => {
+    text: (rep, context) => {
       // Validate required parameters
       if (typeof rep !== 'number') {
         throw new Error('Whisper dialogue: reputation must be a number');
-      }
-      // Validate optional parameters when provided
-      if (gameStateManager !== undefined && !gameStateManager) {
-        throw new Error(
-          'Whisper dialogue: gameStateManager cannot be null when provided'
-        );
-      }
-      if (npcId !== undefined && !npcId) {
-        throw new Error(
-          'Whisper dialogue: npcId cannot be empty when provided'
-        );
       }
 
       let baseText;
@@ -66,39 +55,37 @@ export const WHISPER_DIALOGUE = {
       }
 
       // Add karma-based first impression for new encounters
-      if (gameStateManager && rep < REPUTATION_BOUNDS.WARM_MIN) {
-        const karma = gameStateManager.getKarma();
-        const karmaModifier = getKarmaFirstImpression(karma, 'neutral');
+      if (context && rep < REPUTATION_BOUNDS.WARM_MIN) {
+        const karmaModifier = getKarmaFirstImpression(context.karma, 'neutral');
         baseText += karmaModifier;
       }
 
       // Add faction-specific commentary based on player's reputation
-      if (gameStateManager) {
+      if (context) {
         if (
-          isWantedByAuthorities(gameStateManager) &&
+          isWantedByAuthorities(context) &&
           rep >= REPUTATION_BOUNDS.WARM_MIN
         ) {
           baseText += ' I hear the authorities have taken an interest in you.';
         } else if (
-          isKnownToOutlaws(gameStateManager) &&
+          isKnownToOutlaws(context) &&
           rep >= REPUTATION_BOUNDS.WARM_MIN
         ) {
           baseText +=
             " Word is you've made some interesting connections in the underworld.";
         } else if (
-          isTrustedByAuthorities(gameStateManager) &&
+          isTrustedByAuthorities(context) &&
           rep >= REPUTATION_BOUNDS.WARM_MIN
         ) {
           baseText += ' Your clean record opens certain doors, you know.';
         }
       }
 
-      // Add loan status if there's an outstanding loan (when game state is available)
-      if (gameStateManager && npcId) {
-        const npcState = gameStateManager.getNPCState(npcId);
+      // Add loan status if there's an outstanding loan (when context is available)
+      if (context && context.npcState) {
+        const npcState = context.npcState;
         if (npcState.loanAmount && npcState.loanAmount > 0) {
-          const currentDay = gameStateManager.getState().player.daysElapsed;
-          const daysElapsed = currentDay - npcState.loanDay;
+          const daysElapsed = context.daysElapsed - npcState.loanDay;
           const daysRemaining =
             NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
 
@@ -123,57 +110,45 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'Any trading tips for me?',
         next: 'ask_tip',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
-          const tipAvailability = gameStateManager.canGetTip(npcId);
-          return tipAvailability.available;
+          return context.canGetTip.available;
         },
       },
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'loan'
-          );
-          return favorAvailability.available;
+          return context.canRequestLoan.available;
         },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          // Fall back to reputation-only check if gameStateManager not available (e.g., in tests)
-          if (!gameStateManager || !gameStateManager.canRequestFavor)
-            return true;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'storage'
-          );
-          return favorAvailability.available;
+          return context.canRequestStorage.available;
         },
       },
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has an outstanding loan
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has stored cargo
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(
             npcState.storedCargo && npcState.storedCargo.length > 0
           );
@@ -182,37 +157,37 @@ export const WHISPER_DIALOGUE = {
       {
         text: 'I need information about authority patrol patterns.',
         next: 'authority_intel',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Available if player is wanted by authorities and has warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
-            gameStateManager &&
-            isWantedByAuthorities(gameStateManager)
+            context &&
+            isWantedByAuthorities(context)
           );
         },
       },
       {
         text: 'Any intel on outlaw activities?',
         next: 'outlaw_intel',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Available if player is trusted by authorities and has friendly+ reputation
           return (
             rep >= REPUTATION_BOUNDS.FRIENDLY_MIN &&
-            gameStateManager &&
-            isTrustedByAuthorities(gameStateManager)
+            context &&
+            isTrustedByAuthorities(context)
           );
         },
       },
       {
         text: 'I hear you deal with all kinds of people.',
         next: 'mixed_reputation_comment',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Available if player has mixed reputation (high with one faction, low with opposing)
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
-            gameStateManager &&
-            (hasMixedReputation('authorities', 'outlaws', gameStateManager) ||
-              hasMixedReputation('outlaws', 'authorities', gameStateManager))
+            context &&
+            (hasMixedReputation('authorities', 'outlaws', context) ||
+              hasMixedReputation('outlaws', 'authorities', context))
           );
         },
       },
@@ -316,8 +291,8 @@ export const WHISPER_DIALOGUE = {
         text: 'I accept those terms.',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.requestLoan(npcId);
+        action: (context) => {
+          return context.requestLoan();
         },
       },
       {
@@ -335,8 +310,8 @@ export const WHISPER_DIALOGUE = {
         text: 'That would be very helpful.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.storeCargo(npcId);
+        action: (context) => {
+          return context.storeCargo();
         },
       },
       {
@@ -355,8 +330,8 @@ export const WHISPER_DIALOGUE = {
         text: 'Here are the credits.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.repayLoan(npcId);
+        action: (context) => {
+          return context.repayLoan();
         },
       },
       {
@@ -374,8 +349,8 @@ export const WHISPER_DIALOGUE = {
         text: 'Transfer what you can to my ship.',
         next: 'greeting',
         repGain: 1,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.retrieveCargo(npcId);
+        action: (context) => {
+          return context.retrieveCargo();
         },
       },
       {

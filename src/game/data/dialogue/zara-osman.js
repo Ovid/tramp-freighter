@@ -28,7 +28,7 @@ import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
  */
 export const ZARA_OSMAN_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager, npcId) => {
+    text: (rep, context) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FAMILY_MIN) {
         baseText =
@@ -48,12 +48,11 @@ export const ZARA_OSMAN_DIALOGUE = {
           "Another trader looking to make their fortune. The sector's got room for everyone... if you know what you're doing. What do you need?";
       }
 
-      // Add loan status if there's an outstanding loan (only if gameStateManager and npcId provided)
-      if (gameStateManager && npcId) {
-        const npcState = gameStateManager.getNPCState(npcId);
+      // Add loan status if there's an outstanding loan (only if context provided)
+      if (context && context.npcState) {
+        const npcState = context.npcState;
         if (npcState.loanAmount && npcState.loanAmount > 0) {
-          const currentDay = gameStateManager.getState().player.daysElapsed;
-          const daysElapsed = currentDay - npcState.loanDay;
+          const daysElapsed = context.daysElapsed - npcState.loanDay;
           const daysRemaining =
             NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
 
@@ -78,54 +77,45 @@ export const ZARA_OSMAN_DIALOGUE = {
       {
         text: 'Got any market tips for me?',
         next: 'ask_tip',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
-          const tipAvailability = gameStateManager.canGetTip(npcId);
-          return tipAvailability.available;
+          return context.canGetTip.available;
         },
       },
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'loan'
-          );
-          return favorAvailability.available;
+          return context.canRequestLoan.available;
         },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'storage'
-          );
-          return favorAvailability.available;
+          return context.canRequestStorage.available;
         },
       },
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has an outstanding loan
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has stored cargo
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(
             npcState.storedCargo && npcState.storedCargo.length > 0
           );
@@ -241,8 +231,8 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'Deal. I appreciate this, Zara.',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.requestLoan(npcId);
+        action: (context) => {
+          return context.requestLoan();
         },
       },
       {
@@ -260,8 +250,8 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'That would really help me out.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.storeCargo(npcId);
+        action: (context) => {
+          return context.storeCargo();
         },
       },
       {
@@ -280,8 +270,8 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'Here are the credits. Thanks for the stake.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.repayLoan(npcId);
+        action: (context) => {
+          return context.repayLoan();
         },
       },
       {
@@ -299,8 +289,8 @@ export const ZARA_OSMAN_DIALOGUE = {
         text: 'Transfer what you can to my ship.',
         next: 'greeting',
         repGain: 1,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.retrieveCargo(npcId);
+        action: (context) => {
+          return context.retrieveCargo();
         },
       },
       {

@@ -7,7 +7,7 @@ import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
-import { calculateDistanceFromSol } from '../../game/constants';
+import { calculateDistanceFromSol, EVENT_NAMES } from '../../game/constants';
 import { formatCoordinate } from '../../game/utils/string-utils';
 
 /**
@@ -29,9 +29,9 @@ export function SystemPanel({
 }) {
   const gameStateManager = useGameState();
   const starData = useStarData();
-  const currentSystemId = useGameEvent('locationChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const upgrades = useGameEvent('upgradesChanged');
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);

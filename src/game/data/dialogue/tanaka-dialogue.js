@@ -2,19 +2,19 @@ import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
 
 export const YUKI_TANAKA_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager) => {
-      if (!gameStateManager) {
+    text: (rep, context) => {
+      if (!context) {
         return 'Tanaka nods in your direction.';
       }
 
-      const stage = gameStateManager.getQuestStage('tanaka');
+      const stage = context.getQuestStage('tanaka');
 
       if (stage >= 5) {
         return '"Everything is in place. The Range Extender is calibrated. Your ship is ready." She meets your eyes. "Are you?"';
       }
       if (stage === 4) {
         const delivered =
-          gameStateManager.getQuestState('tanaka')?.data?.messageDelivered;
+          context.getQuestState('tanaka')?.data?.messageDelivered;
         if (delivered) {
           return '"You delivered the message. Thank you." Her voice is steady, but her eyes say more. "When you are ready for the final preparations, we should talk."';
         }
@@ -25,7 +25,7 @@ export const YUKI_TANAKA_DIALOGUE = {
       }
       if (stage === 2) {
         const exotics =
-          gameStateManager.getQuestState('tanaka')?.data?.exoticMaterials || 0;
+          context.getQuestState('tanaka')?.data?.exoticMaterials || 0;
         if (exotics >= ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED) {
           return `"You found all ${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples. Excellent work." She examines them carefully. "The isotope ratios are perfect. We can proceed."`;
         }
@@ -33,7 +33,7 @@ export const YUKI_TANAKA_DIALOGUE = {
       }
       if (stage === 1) {
         const jumps =
-          gameStateManager.getQuestState('tanaka')?.data?.jumpsCompleted || 0;
+          context.getQuestState('tanaka')?.data?.jumpsCompleted || 0;
         if (jumps >= ENDGAME_CONFIG.STAGE_1_JUMPS) {
           return '"The field test data looks excellent. The drive modifications are performing within expected parameters." She actually smiles. "I have another task for you."';
         }
@@ -53,90 +53,90 @@ export const YUKI_TANAKA_DIALOGUE = {
       {
         text: '"I\'m ready for the Pavonis Run."',
         next: 'pavonis_ready',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 5 &&
-          gameStateManager.canStartQuestStage('tanaka', 5),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 5 &&
+          context.canStartQuestStage('tanaka', 5),
       },
       {
         text: '"Tell me about the final preparations."',
         next: 'mission_5_offer',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 4 &&
-          gameStateManager.hasClaimedStageRewards('tanaka') &&
-          gameStateManager.canStartQuestStage('tanaka', 5),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 4 &&
+          context.hasClaimedStageRewards('tanaka') &&
+          context.canStartQuestStage('tanaka', 5),
       },
       {
         text: '"I delivered the message to Vasquez."',
         next: 'mission_4_complete',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 4 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
-          !gameStateManager.hasClaimedStageRewards('tanaka'),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 4 &&
+          context.checkQuestObjectives('tanaka') &&
+          !context.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"About that personal request..."',
         next: 'mission_4_offer',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 3 &&
-          gameStateManager.hasClaimedStageRewards('tanaka') &&
-          gameStateManager.canStartQuestStage('tanaka', 4),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 3 &&
+          context.hasClaimedStageRewards('tanaka') &&
+          context.canStartQuestStage('tanaka', 4),
       },
       {
         text: '"The prototype test went well."',
         next: 'mission_3_complete',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 3 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
-          !gameStateManager.hasClaimedStageRewards('tanaka'),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 3 &&
+          context.checkQuestObjectives('tanaka') &&
+          !context.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"I\'m ready for the prototype installation."',
         next: 'mission_3_offer',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 2 &&
-          gameStateManager.hasClaimedStageRewards('tanaka') &&
-          gameStateManager.canStartQuestStage('tanaka', 3),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 2 &&
+          context.hasClaimedStageRewards('tanaka') &&
+          context.canStartQuestStage('tanaka', 3),
       },
       {
         text: '"I have all five exotic material samples."',
         next: 'mission_2_complete',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 2 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
-          !gameStateManager.hasClaimedStageRewards('tanaka'),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 2 &&
+          context.checkQuestObjectives('tanaka') &&
+          !context.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"I can help you find those rare materials."',
         next: 'mission_2_offer',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 1 &&
-          gameStateManager.hasClaimedStageRewards('tanaka') &&
-          gameStateManager.canStartQuestStage('tanaka', 2),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 1 &&
+          context.hasClaimedStageRewards('tanaka') &&
+          context.canStartQuestStage('tanaka', 2),
       },
       {
         text: '"The field test is complete."',
         next: 'mission_1_complete',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 1 &&
-          gameStateManager.checkQuestObjectives('tanaka') &&
-          !gameStateManager.hasClaimedStageRewards('tanaka'),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 1 &&
+          context.checkQuestObjectives('tanaka') &&
+          !context.hasClaimedStageRewards('tanaka'),
       },
       {
         text: '"You mentioned needing a field test?"',
         next: 'mission_1_offer',
-        condition: (rep, gameStateManager) =>
-          gameStateManager &&
-          gameStateManager.getQuestStage('tanaka') === 0 &&
-          gameStateManager.canStartQuestStage('tanaka', 1),
+        condition: (_rep, context) =>
+          context &&
+          context.getQuestStage('tanaka') === 0 &&
+          context.canStartQuestStage('tanaka', 1),
       },
       {
         text: 'Tell me about your work.',
@@ -295,8 +295,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"I\'ll do it. Three jumps, telemetry data."',
         next: 'mission_1_accepted',
         repGain: 5,
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
       {
@@ -323,16 +323,16 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"What\'s next?"',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
       {
         text: '"Pleasure doing business."',
         next: null,
         repGain: 1,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
     ],
@@ -345,8 +345,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"I\'ll keep my eyes open on my travels."',
         next: 'mission_2_accepted',
         repGain: 5,
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
       {
@@ -373,8 +373,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"What comes next?"',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
     ],
@@ -387,8 +387,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"Install it. Let\'s see what this drive can do."',
         next: 'mission_3_accepted',
         repGain: 5,
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
       {
@@ -416,15 +416,15 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"Name it."',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
       {
         text: '"I\'ll hear you out."',
         next: 'greeting',
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
     ],
@@ -437,16 +437,16 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"Of course. I\'ll deliver it personally."',
         next: 'mission_4_accepted',
         repGain: 5,
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
       {
         text: '"I\'ll take care of it."',
         next: 'mission_4_accepted',
         repGain: 3,
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
     ],
@@ -469,16 +469,16 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"She would want to hear from you."',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
       {
         text: '"Glad I could help."',
         next: null,
         repGain: 1,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
     ],
@@ -491,10 +491,10 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"I\'m ready. Let\'s do this."',
         next: 'mission_5_accepted',
         repGain: 5,
-        condition: (rep, gameStateManager) =>
-          gameStateManager && gameStateManager.canStartQuestStage('tanaka', 5),
-        action: (gameStateManager) => {
-          return gameStateManager.advanceQuest('tanaka');
+        condition: (_rep, context) =>
+          context && context.canStartQuestStage('tanaka', 5),
+        action: (context) => {
+          return context.advanceQuest('tanaka');
         },
       },
       {
@@ -511,8 +511,8 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"Together."',
         next: null,
         repGain: 5,
-        action: (gameStateManager) => {
-          return gameStateManager.claimStageRewards('tanaka');
+        action: (context) => {
+          return context.claimStageRewards('tanaka');
         },
       },
     ],
@@ -524,8 +524,8 @@ export const YUKI_TANAKA_DIALOGUE = {
       {
         text: '"Let\'s fly."',
         next: null,
-        action: (gameStateManager) => {
-          gameStateManager.startPavonisRun();
+        action: (context) => {
+          context.startPavonisRun();
           return { success: true };
         },
       },

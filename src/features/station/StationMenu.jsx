@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext';
 import { useGameAction } from '../../hooks/useGameAction';
+import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../hud/hudUtils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
@@ -21,7 +22,7 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
  * @param {Function} onUndock - Callback to undock from station
  */
 export function StationMenu({ onOpenPanel, onUndock }) {
-  const currentSystemId = useGameEvent('locationChanged');
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const gameStateManager = useGameState();
   const { getNarrativeFlags } = useGameAction();
 

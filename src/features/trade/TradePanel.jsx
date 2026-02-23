@@ -7,6 +7,7 @@ import {
   TRADE_CONFIG,
   SHIP_CONFIG,
   UI_CONFIG,
+  EVENT_NAMES,
 } from '../../game/constants.js';
 import {
   capitalizeFirst,
@@ -35,14 +36,14 @@ export function TradePanel({ onClose }) {
   const starData = useStarData();
 
   // Subscribe to relevant game events
-  const cargo = useGameEvent('cargoChanged');
-  const credits = useGameEvent('creditsChanged');
-  const currentSystemId = useGameEvent('locationChanged');
-  const currentDay = useGameEvent('timeChanged');
-  const cargoCapacity = useGameEvent('cargoCapacityChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const hiddenCargo = useGameEvent('hiddenCargoChanged');
-  const missions = useGameEvent('missionsChanged');
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED);
+  const cargoCapacity = useGameEvent(EVENT_NAMES.CARGO_CAPACITY_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
   // Get game actions
   const {

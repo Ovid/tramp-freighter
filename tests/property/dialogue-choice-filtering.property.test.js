@@ -8,7 +8,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { showDialogue } from '../../src/game/game-dialogue.js';
+import {
+  showDialogue,
+  buildDialogueContext,
+} from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -37,6 +40,9 @@ describe('Dialogue Choice Filtering Properties', () => {
           return true; // Skip if no dialogue tree
         }
 
+        // Build context the same way showDialogue does
+        const context = buildDialogueContext(gameStateManager, npcId);
+
         // Show dialogue and get filtered choices
         const dialogueResult = showDialogue(
           npcId,
@@ -57,11 +63,7 @@ describe('Dialogue Choice Filtering Properties', () => {
             // Choice has condition function - check if visibility matches condition result
             let conditionResult;
             try {
-              conditionResult = originalChoice.condition(
-                reputation,
-                gameStateManager,
-                npcId
-              );
+              conditionResult = originalChoice.condition(reputation, context);
             } catch {
               // If condition throws, choice should be hidden
               conditionResult = false;

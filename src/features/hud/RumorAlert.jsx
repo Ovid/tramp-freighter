@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { MISSION_CARGO_TYPES } from '@game/constants.js';
+import { MISSION_CARGO_TYPES, EVENT_NAMES } from '@game/constants.js';
 
 function hasIllegalCargo(cargo) {
   return (cargo || []).some(
@@ -9,8 +9,8 @@ function hasIllegalCargo(cargo) {
 }
 
 export function RumorAlert() {
-  const location = useGameEvent('locationChanged');
-  const cargo = useGameEvent('cargoChanged');
+  const location = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const [visible, setVisible] = useState(false);
   const prevLocationRef = useRef(location);
 

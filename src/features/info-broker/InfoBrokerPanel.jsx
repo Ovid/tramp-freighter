@@ -14,7 +14,11 @@ import {
   formatSource,
   getKnownSystemsSortedByStaleness,
 } from './infoBrokerUtils';
-import { INTELLIGENCE_CONFIG, COMMODITY_TYPES } from '../../game/constants';
+import {
+  INTELLIGENCE_CONFIG,
+  COMMODITY_TYPES,
+  EVENT_NAMES,
+} from '../../game/constants';
 import { capitalizeFirst } from '../../game/utils/string-utils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
@@ -34,9 +38,9 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
 export function InfoBrokerPanel({ onClose }) {
   const gameStateManager = useGameState();
   const starData = useStarData();
-  const credits = useGameEvent('creditsChanged');
-  const currentSystemId = useGameEvent('locationChanged');
-  const priceKnowledge = useGameEvent('priceKnowledgeChanged');
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const priceKnowledge = useGameEvent(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED);
   const {
     purchaseIntelligence,
     updateCredits,

@@ -36,26 +36,23 @@ describe('Dialogue Tree Structure', () => {
       expect(Array.isArray(WEI_CHEN_DIALOGUE.greeting.choices)).toBe(true);
       expect(WEI_CHEN_DIALOGUE.greeting.choices.length).toBeGreaterThan(0);
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Test behavior: verify choices appear/disappear based on reputation
       const lowRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(0, mockGameStateManager, 'chen_barnards')
+        (choice) => !choice.condition || choice.condition(0, mockContext)
       );
       const highRepChoices = WEI_CHEN_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(50, mockGameStateManager, 'chen_barnards')
+        (choice) => !choice.condition || choice.condition(50, mockContext)
       );
 
       // High reputation should have more choices available
@@ -146,26 +143,23 @@ describe('Dialogue Tree Structure', () => {
       expect(businessChoice).toBeDefined();
       expect(typeof businessChoice.condition).toBe('function');
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Low reputation should not have business option available
       const lowRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(-20, mockGameStateManager, 'cole_sol')
+        (choice) => !choice.condition || choice.condition(-20, mockContext)
       );
       const highRepChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(10, mockGameStateManager, 'cole_sol')
+        (choice) => !choice.condition || choice.condition(10, mockContext)
       );
 
       expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
@@ -233,26 +227,23 @@ describe('Dialogue Tree Structure', () => {
       expect(helpChoice).toBeDefined();
       expect(typeof helpChoice.condition).toBe('function');
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Low reputation should not have help option available
       const lowRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(5, mockGameStateManager, 'okonkwo_ross154')
+        (choice) => !choice.condition || choice.condition(5, mockContext)
       );
       const highRepChoices = FATHER_OKONKWO_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(15, mockGameStateManager, 'okonkwo_ross154')
+        (choice) => !choice.condition || choice.condition(15, mockContext)
       );
 
       expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
@@ -336,41 +327,32 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice).toBeDefined();
       expect(storageChoice).toBeDefined();
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Test different reputation levels unlock different options
       const hostileRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(-50, mockGameStateManager, 'whisper_sirius')
+        (choice) => !choice.condition || choice.condition(-50, mockContext)
       );
       const neutralRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(0, mockGameStateManager, 'whisper_sirius')
+        (choice) => !choice.condition || choice.condition(0, mockContext)
       );
       const warmRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(15, mockGameStateManager, 'whisper_sirius')
+        (choice) => !choice.condition || choice.condition(15, mockContext)
       );
       const friendlyRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(35, mockGameStateManager, 'whisper_sirius')
+        (choice) => !choice.condition || choice.condition(35, mockContext)
       );
       const trustedRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(65, mockGameStateManager, 'whisper_sirius')
+        (choice) => !choice.condition || choice.condition(65, mockContext)
       );
 
       // Higher reputation should unlock more options
@@ -399,24 +381,21 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice.next).toBe('ask_tip');
       expect(typeof tipChoice.condition).toBe('function');
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Test the condition function (rep >= WARM_MIN which is 10)
-      expect(
-        tipChoice.condition(9, mockGameStateManager, 'whisper_sirius')
-      ).toBe(false); // Below threshold
-      expect(
-        tipChoice.condition(10, mockGameStateManager, 'whisper_sirius')
-      ).toBe(true); // At threshold
-      expect(
-        tipChoice.condition(20, mockGameStateManager, 'whisper_sirius')
-      ).toBe(true); // Above threshold
+      expect(tipChoice.condition(9, mockContext)).toBe(false); // Below threshold
+      expect(tipChoice.condition(10, mockContext)).toBe(true); // At threshold
+      expect(tipChoice.condition(20, mockContext)).toBe(true); // Above threshold
     });
 
     it('should have loan choice with reputation condition', () => {
@@ -428,26 +407,21 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice.next).toBe('request_loan');
       expect(typeof loanChoice.condition).toBe('function');
 
-      // Create mock gameStateManager for condition function
-      const mockGameStateManager = {
-        canRequestFavor: () => {
-          // Mock that favor is available for Trusted tier and above
-          return { available: true };
-        },
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition function
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Test the condition function (rep >= TRUSTED_MIN which is 60)
-      expect(
-        loanChoice.condition(59, mockGameStateManager, 'whisper_sirius')
-      ).toBe(false); // Below threshold
-      expect(
-        loanChoice.condition(60, mockGameStateManager, 'whisper_sirius')
-      ).toBe(true); // At threshold
-      expect(
-        loanChoice.condition(70, mockGameStateManager, 'whisper_sirius')
-      ).toBe(true); // Above threshold
+      expect(loanChoice.condition(59, mockContext)).toBe(false); // Below threshold
+      expect(loanChoice.condition(60, mockContext)).toBe(true); // At threshold
+      expect(loanChoice.condition(70, mockContext)).toBe(true); // Above threshold
     });
 
     it('should have storage choice with reputation condition', () => {
@@ -460,9 +434,10 @@ describe('Dialogue Tree Structure', () => {
       expect(typeof storageChoice.condition).toBe('function');
 
       // Test the condition function (rep >= FRIENDLY_MIN which is 30)
-      expect(storageChoice.condition(29)).toBe(false); // Below threshold
-      expect(storageChoice.condition(30)).toBe(true); // At threshold
-      expect(storageChoice.condition(40)).toBe(true); // Above threshold
+      const ctx = { canRequestStorage: { available: true } };
+      expect(storageChoice.condition(29, ctx)).toBe(false); // Below threshold
+      expect(storageChoice.condition(30, ctx)).toBe(true); // At threshold
+      expect(storageChoice.condition(40, ctx)).toBe(true); // Above threshold
     });
 
     it('should have all required dialogue nodes', () => {
@@ -583,39 +558,32 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice).toBeDefined();
       expect(storageChoice).toBeDefined();
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Test different reputation levels unlock different options
       const neutralRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) =>
-            !choice.condition ||
-            choice.condition(0, mockGameStateManager, 'vasquez_epsilon')
+          (choice) => !choice.condition || choice.condition(0, mockContext)
         );
       const warmRepChoices = CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-        (choice) =>
-          !choice.condition ||
-          choice.condition(15, mockGameStateManager, 'vasquez_epsilon')
+        (choice) => !choice.condition || choice.condition(15, mockContext)
       );
       const friendlyRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) =>
-            !choice.condition ||
-            choice.condition(35, mockGameStateManager, 'vasquez_epsilon')
+          (choice) => !choice.condition || choice.condition(35, mockContext)
         );
       const trustedRepChoices =
         CAPTAIN_VASQUEZ_DIALOGUE.greeting.choices.filter(
-          (choice) =>
-            !choice.condition ||
-            choice.condition(65, mockGameStateManager, 'vasquez_epsilon')
+          (choice) => !choice.condition || choice.condition(65, mockContext)
         );
 
       // Higher reputation should unlock more options
@@ -739,14 +707,15 @@ describe('Dialogue Tree Structure', () => {
       const choices = DR_SARAH_KIM_DIALOGUE.greeting.choices;
       expect(choices.length).toBeGreaterThan(3);
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Should have tip choice with reputation condition
@@ -756,19 +725,11 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice).toBeDefined();
       expect(tipChoice.condition).toBeDefined();
       expect(typeof tipChoice.condition).toBe('function');
+      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockContext)).toBe(
+        true
+      );
       expect(
-        tipChoice.condition(
-          REPUTATION_BOUNDS.WARM_MIN,
-          mockGameStateManager,
-          'kim_tau_ceti'
-        )
-      ).toBe(true);
-      expect(
-        tipChoice.condition(
-          REPUTATION_BOUNDS.NEUTRAL_MIN,
-          mockGameStateManager,
-          'kim_tau_ceti'
-        )
+        tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN, mockContext)
       ).toBe(false);
 
       // Should have loan choice with Trusted tier condition
@@ -779,18 +740,10 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice.condition).toBeDefined();
       expect(typeof loanChoice.condition).toBe('function');
       expect(
-        loanChoice.condition(
-          REPUTATION_BOUNDS.TRUSTED_MIN,
-          mockGameStateManager,
-          'kim_tau_ceti'
-        )
+        loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN, mockContext)
       ).toBe(true);
       expect(
-        loanChoice.condition(
-          REPUTATION_BOUNDS.FRIENDLY_MIN,
-          mockGameStateManager,
-          'kim_tau_ceti'
-        )
+        loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockContext)
       ).toBe(false);
 
       // Should have storage choice with Friendly tier condition
@@ -895,14 +848,15 @@ describe('Dialogue Tree Structure', () => {
       const choices = ZARA_OSMAN_DIALOGUE.greeting.choices;
       expect(choices.length).toBeGreaterThanOrEqual(4);
 
-      // Create mock gameStateManager for condition functions that need it
-      const mockGameStateManager = {
-        canGetTip: () => ({ available: true }),
-        canRequestFavor: () => ({ available: true }),
-        getNPCState: () => ({ loanAmount: 0, storedCargo: [] }),
-        getState: () => ({ player: { daysElapsed: 1 } }),
-        getKarma: () => 0,
-        getFactionRep: () => 0,
+      // Create mock context for condition functions that need it
+      const mockContext = {
+        canGetTip: { available: true },
+        canRequestLoan: { available: true },
+        canRequestStorage: { available: true },
+        npcState: { loanAmount: 0, storedCargo: [] },
+        daysElapsed: 1,
+        karma: 0,
+        factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
       // Check for tip choice with reputation condition
@@ -912,19 +866,11 @@ describe('Dialogue Tree Structure', () => {
       expect(tipChoice).toBeDefined();
       expect(tipChoice.condition).toBeDefined();
       expect(typeof tipChoice.condition).toBe('function');
+      expect(tipChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockContext)).toBe(
+        true
+      );
       expect(
-        tipChoice.condition(
-          REPUTATION_BOUNDS.WARM_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
-      ).toBe(true);
-      expect(
-        tipChoice.condition(
-          REPUTATION_BOUNDS.NEUTRAL_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
+        tipChoice.condition(REPUTATION_BOUNDS.NEUTRAL_MIN, mockContext)
       ).toBe(false);
 
       // Check for loan choice with reputation condition
@@ -935,18 +881,10 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice.condition).toBeDefined();
       expect(typeof loanChoice.condition).toBe('function');
       expect(
-        loanChoice.condition(
-          REPUTATION_BOUNDS.TRUSTED_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
+        loanChoice.condition(REPUTATION_BOUNDS.TRUSTED_MIN, mockContext)
       ).toBe(true);
       expect(
-        loanChoice.condition(
-          REPUTATION_BOUNDS.FRIENDLY_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
+        loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockContext)
       ).toBe(false);
 
       // Check for storage choice with reputation condition
@@ -957,18 +895,10 @@ describe('Dialogue Tree Structure', () => {
       expect(storageChoice.condition).toBeDefined();
       expect(typeof storageChoice.condition).toBe('function');
       expect(
-        storageChoice.condition(
-          REPUTATION_BOUNDS.FRIENDLY_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
+        storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockContext)
       ).toBe(true);
       expect(
-        storageChoice.condition(
-          REPUTATION_BOUNDS.WARM_MIN,
-          mockGameStateManager,
-          'osman_luyten'
-        )
+        storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockContext)
       ).toBe(false);
     });
 

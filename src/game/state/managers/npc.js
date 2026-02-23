@@ -3,6 +3,7 @@ import {
   REPUTATION_TIERS,
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
+  EVENT_NAMES,
 } from '../../constants.js';
 import { ALL_NPCS } from '../../data/npc-data.js';
 import { SeededRandom } from '../../utils/seeded-random.js';
@@ -974,7 +975,7 @@ export class NPCManager extends BaseManager {
     state.ship.hull = newHullCondition;
 
     // Emit hull condition change event
-    this.gameStateManager.emit('shipConditionChanged', {
+    this.gameStateManager.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
       hull: state.ship.hull,
       engine: state.ship.engine,
       lifeSupport: state.ship.lifeSupport,

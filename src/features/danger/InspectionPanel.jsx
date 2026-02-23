@@ -3,6 +3,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   INSPECTION_CONFIG,
   RESTRICTED_GOODS_CONFIG,
+  EVENT_NAMES,
 } from '../../game/constants.js';
 
 /**
@@ -22,11 +23,11 @@ import {
  */
 export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for inspection context
-  const cargo = useGameEvent('cargoChanged');
-  const hiddenCargo = useGameEvent('hiddenCargoChanged');
-  const credits = useGameEvent('creditsChanged');
-  const currentSystem = useGameEvent('currentSystemChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystem = useGameEvent(EVENT_NAMES.CURRENT_SYSTEM_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Local state for selected inspection option
   const [selectedOption, setSelectedOption] = useState(null);
