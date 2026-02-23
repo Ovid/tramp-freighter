@@ -29,3 +29,26 @@ export function calculateSystemPrices(
   }
   return prices;
 }
+
+/**
+ * Partition active missions into expired and remaining.
+ * Pure function extracted from MissionManager.checkMissionDeadlines().
+ *
+ * @param {Array} activeMissions - Active mission objects
+ * @param {number} currentDay - Current game day
+ * @returns {{ expired: Array, remaining: Array }}
+ */
+export function partitionExpiredMissions(activeMissions, currentDay) {
+  const expired = [];
+  const remaining = [];
+
+  for (const mission of activeMissions) {
+    if (mission.deadlineDay !== undefined && currentDay > mission.deadlineDay) {
+      expired.push(mission);
+    } else {
+      remaining.push(mission);
+    }
+  }
+
+  return { expired, remaining };
+}

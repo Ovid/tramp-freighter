@@ -6,6 +6,7 @@ import {
   EVENT_NAMES,
 } from '../../constants.js';
 import { generateMissionBoard } from '../../mission-generator.js';
+import { partitionExpiredMissions } from '../../utils/calculators.js';
 
 export class MissionManager extends BaseManager {
   constructor(gameStateManager) {
@@ -364,20 +365,10 @@ export class MissionManager extends BaseManager {
     const state = this.getState();
     const currentDay = state.player.daysElapsed;
 
-    const expired = [];
-    const remaining = [];
-
-    for (const mission of state.missions.active) {
-      if (
-        mission.deadlineDay !== undefined &&
-        currentDay > mission.deadlineDay
-      ) {
-        expired.push(mission);
-      } else {
-        remaining.push(mission);
-      }
-    }
-
+    const { expired, remaining } = partitionExpiredMissions(
+      state.missions.active,
+      currentDay
+    );
     if (expired.length === 0) return;
 
     state.missions.active = remaining;
