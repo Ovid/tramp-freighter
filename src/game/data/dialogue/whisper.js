@@ -131,8 +131,6 @@ export const WHISPER_DIALOGUE = {
         condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          // Fall back to reputation-only check if context not available (e.g., in tests)
-          if (!context || !context.canRequestStorage) return true;
           return context.canRequestStorage.available;
         },
       },

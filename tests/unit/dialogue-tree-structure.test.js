@@ -434,9 +434,10 @@ describe('Dialogue Tree Structure', () => {
       expect(typeof storageChoice.condition).toBe('function');
 
       // Test the condition function (rep >= FRIENDLY_MIN which is 30)
-      expect(storageChoice.condition(29)).toBe(false); // Below threshold
-      expect(storageChoice.condition(30)).toBe(true); // At threshold
-      expect(storageChoice.condition(40)).toBe(true); // Above threshold
+      const ctx = { canRequestStorage: { available: true } };
+      expect(storageChoice.condition(29, ctx)).toBe(false); // Below threshold
+      expect(storageChoice.condition(30, ctx)).toBe(true); // At threshold
+      expect(storageChoice.condition(40, ctx)).toBe(true); // Above threshold
     });
 
     it('should have all required dialogue nodes', () => {

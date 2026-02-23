@@ -267,13 +267,9 @@ describe('Dialogue Faction and Karma Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle missing context gracefully', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
       // Null context will cause a TypeError since functions access context.karma / context.factionReps
       expect(() => hasGoodKarma(null)).toThrow();
       expect(() => hasFactionRep('civilians', 50, null)).toThrow();
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle dialogue conditions with missing gameStateManager', () => {
