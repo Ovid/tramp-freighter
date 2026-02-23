@@ -36,9 +36,9 @@ CLAUDE.md requires minimum 100 iterations. 58 of 104 property tests are below th
 - [x] Standardize on `vi.spyOn(console, 'X').mockImplementation(() => {})` pattern
 - [x] Replace manual save/restore (`const original = console.error; ... finally { console.error = original }`) with `vi.spyOn`
 - [x] Replace `console.log = vi.fn()` reassignment with `vi.spyOn`
-- [ ] Audit for tests that trigger console output without mocking (155 files don't explicitly mock — most probably don't need it, but verify)
+- [x] Audit for tests that trigger console output without mocking (155 files don't explicitly mock — most probably don't need it, but verify)
 
-*Done: 31 files changed — 29 Pattern A (manual save/restore) and 1 Pattern B (vi.fn reassignment) converted to standard vi.spyOn pattern. Remaining audit item deferred (tests currently produce clean output).*
+*Done: 31 files changed — 29 Pattern A (manual save/restore) and 1 Pattern B (vi.fn reassignment) converted to standard vi.spyOn pattern. Audit confirmed: zero stdout/stderr sections in test output. The 155 unmocked files don't trigger console calls — no action needed.*
 
 ---
 
