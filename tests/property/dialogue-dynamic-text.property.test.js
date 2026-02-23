@@ -280,26 +280,20 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
           const npcState = gameStateManager.getNPCState(npcId);
           npcState.rep = reputation;
 
-          try {
-            // Show greeting dialogue
-            const dialogueResult = showDialogue(
-              npcId,
-              'greeting',
-              gameStateManager
-            );
+          // Show greeting dialogue
+          const dialogueResult = showDialogue(
+            npcId,
+            'greeting',
+            gameStateManager
+          );
 
-            // Verify text is valid
-            expect(typeof dialogueResult.text).toBe('string');
-            expect(dialogueResult.text.length).toBeGreaterThan(0);
+          // Verify text is valid
+          expect(typeof dialogueResult.text).toBe('string');
+          expect(dialogueResult.text.length).toBeGreaterThan(0);
 
-            // Verify reputation tier is correct
-            const expectedTier = gameStateManager.getRepTier(reputation);
-            expect(dialogueResult.reputationTier.name).toBe(expectedTier.name);
-          } catch (error) {
-            // Re-throw expect failures, but fail on unexpected errors
-            if (error.matcherResult) throw error;
-            expect(error).toBeUndefined();
-          }
+          // Verify reputation tier is correct
+          const expectedTier = gameStateManager.getRepTier(reputation);
+          expect(dialogueResult.reputationTier.name).toBe(expectedTier.name);
         }
       }),
       { numRuns: 100 }
