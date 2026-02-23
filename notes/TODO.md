@@ -1,5 +1,9 @@
 # TODO
 
+- Update README.md to be more current. Make it "Shareable". Also note that
+  there has been very little game balancing and the game itself is still
+  ALPHA. This was a test of what we can build, not if we have a "perfect"
+  product.
 - Test in Safari and Firefox
 - After the last design doc is implemented, we need a new game to start with
   instructions. The UI needs to have a convenient place to show them, too,
