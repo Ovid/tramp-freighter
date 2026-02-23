@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TANAKA_SUPPLY_CONFIG, ENDGAME_CONFIG } from '../../src/game/constants.js';
 import { createTestGameStateManager } from '../test-utils.js';
 import { buildDialogueContext } from '../../src/game/game-dialogue.js';
+import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
 
 describe('Tanaka Supply Run constants', () => {
   it('exports TANAKA_SUPPLY_CONFIG with required fields', () => {
@@ -162,6 +163,60 @@ describe('QuestManager.contributeSupply', () => {
     manager.state.ship.cargo = []; // No cargo
     const result = manager.contributeSupply();
     expect(result.success).toBe(false);
+  });
+});
+
+describe('research_supply dialogue node', () => {
+  it('exists in Tanaka dialogue tree', () => {
+    expect(YUKI_TANAKA_DIALOGUE.research_supply).toBeDefined();
+  });
+
+  it('has text function that returns a string', () => {
+    expect(typeof YUKI_TANAKA_DIALOGUE.research_supply.text).toBe('function');
+    const text = YUKI_TANAKA_DIALOGUE.research_supply.text(0, {});
+    expect(typeof text).toBe('string');
+    expect(text.length).toBeGreaterThan(0);
+  });
+
+  it('has a single choice that returns to greeting', () => {
+    const choices = YUKI_TANAKA_DIALOGUE.research_supply.choices;
+    expect(choices.length).toBe(1);
+    expect(choices[0].next).toBe('greeting');
+  });
+
+  it('choice action calls contributeSupply', () => {
+    let called = false;
+    const mockContext = {
+      contributeSupply: () => { called = true; return { success: true, goodDonated: 'electronics' }; },
+    };
+    YUKI_TANAKA_DIALOGUE.research_supply.choices[0].action(mockContext);
+    expect(called).toBe(true);
+  });
+});
+
+describe('greeting choices include supply run option', () => {
+  it('has a supply run choice with canContributeSupply condition', () => {
+    const supplyChoice = YUKI_TANAKA_DIALOGUE.greeting.choices.find(
+      (c) => c.next === 'research_supply'
+    );
+    expect(supplyChoice).toBeDefined();
+    expect(typeof supplyChoice.condition).toBe('function');
+  });
+
+  it('supply run choice is visible when canContributeSupply returns true', () => {
+    const supplyChoice = YUKI_TANAKA_DIALOGUE.greeting.choices.find(
+      (c) => c.next === 'research_supply'
+    );
+    const context = { canContributeSupply: () => true };
+    expect(supplyChoice.condition(0, context)).toBe(true);
+  });
+
+  it('supply run choice is hidden when canContributeSupply returns false', () => {
+    const supplyChoice = YUKI_TANAKA_DIALOGUE.greeting.choices.find(
+      (c) => c.next === 'research_supply'
+    );
+    const context = { canContributeSupply: () => false };
+    expect(supplyChoice.condition(0, context)).toBe(false);
   });
 });
 
