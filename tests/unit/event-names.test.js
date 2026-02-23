@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { EVENT_NAMES } from '../../src/game/constants.js';
+import { EventSystemManager } from '../../src/game/state/managers/event-system.js';
 
 describe('EVENT_NAMES', () => {
   it('exports a frozen object of event name constants', () => {
@@ -37,5 +38,32 @@ describe('EVENT_NAMES', () => {
     const values = Object.values(EVENT_NAMES);
     const unique = new Set(values);
     expect(unique.size).toBe(values.length);
+  });
+});
+
+describe('EventSystemManager integration with EVENT_NAMES', () => {
+  it('subscriber keys match EVENT_NAMES values exactly', () => {
+    const esm = new EventSystemManager({ state: null });
+    const subscriberKeys = Object.keys(esm.getSubscribers());
+    const eventValues = Object.values(EVENT_NAMES);
+
+    // Every subscriber key must be an EVENT_NAMES value
+    for (const key of subscriberKeys) {
+      expect(eventValues).toContain(key);
+    }
+    // Every EVENT_NAMES value must have a subscriber
+    for (const val of eventValues) {
+      expect(subscriberKeys).toContain(val);
+    }
+  });
+
+  it('warns on emit with unknown event name', () => {
+    const esm = new EventSystemManager({ state: null });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    esm.emit('totallyFakeEvent', {});
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('totallyFakeEvent')
+    );
+    warnSpy.mockRestore();
   });
 });
