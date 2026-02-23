@@ -86,18 +86,22 @@ Single test cases that verify 5+ independent behaviors.
 
 148 files independently create `new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA)` + `initNewGame()`. Multiple files define their own `createMockGameStateManager()`.
 
-- [ ] Add `createTestGameStateManager(stateOverrides?)` to `tests/test-utils.js` that handles the standard init pattern
-- [ ] Add `createMockGameStateManager(stateOverrides?)` to `tests/test-utils.js` for tests that need a mock (not real) GSM
-- [ ] Migrate highest-duplication files to use shared factories (start with unit tests that do `new GameStateManager` + `initNewGame`)
-- [ ] Deduplicate `createMinimalStarData()` — exists in both `test-data.js` and `test-utils.js`
+- [x] Add `createTestGameStateManager(stateOverrides?)` to `tests/test-utils.js` that handles the standard init pattern
+- [x] ~~Add `createMockGameStateManager(stateOverrides?)` to `tests/test-utils.js`~~ — only 1 file uses this pattern (event-engine.test.js); not worth centralizing
+- [x] Migrate highest-duplication files to use shared factories (start with unit tests that do `new GameStateManager` + `initNewGame`)
+- [x] ~~Deduplicate `createMinimalStarData()`~~ — false positive, only exists in test-utils.js
+
+*Done: 21 of 24 files migrated to shared factory. 3 save-load files intentionally skipped (separate manager/init lifecycle). 1 file skipped (uses custom test data).*
 
 ### 3B. Parameterize repeated test patterns
 
 NPC data validation tests repeat the same structure across 7+ files.
 
-- [ ] Create a parameterized NPC data validation test that iterates over all NPCs instead of per-NPC test files
-- [ ] `label-opacity-visibility.test.js` — convert 4 nearly-identical distance tests to `it.each()`
-- [ ] Identify other candidates for `it.each()` or `describe.each()`
+- [x] Create a parameterized NPC data validation test that iterates over all NPCs instead of per-NPC test files
+- [x] `label-opacity-visibility.test.js` — convert 4 nearly-identical distance tests to `it.each()`
+- [x] Identify other candidates for `it.each()` or `describe.each()`
+
+*Done: 7 per-NPC files replaced with 1 parameterized file (68 tests). Also parameterized: star-visuals (24 tests), critical-damage-constants (5 tests), distance-calculations (4 tests), economy-config-constants (6 tests), npc-data-definitions (15 tests). File count: 257→251.*
 
 ---
 
