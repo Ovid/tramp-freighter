@@ -1,6 +1,7 @@
 import { EconomicEventsSystem } from '../../game-events.js';
 import { InformationBroker } from '../../game-information-broker.js';
 import { BaseManager } from './base-manager.js';
+import { EVENT_NAMES } from '../../constants.js';
 
 /**
  * Events Manager - Handles economic events and time advancement
@@ -36,7 +37,7 @@ export class EventsManager extends BaseManager {
     const state = this.getState();
     // activeEvents is guaranteed to exist after initialization
     state.world.activeEvents = newEvents;
-    this.emit('activeEventsChanged', newEvents);
+    this.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, newEvents);
   }
 
   /**
@@ -110,9 +111,9 @@ export class EventsManager extends BaseManager {
       this.gameStateManager.checkMissionDeadlines();
 
       // Emit event changes
-      this.emit('activeEventsChanged', state.world.activeEvents);
+      this.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, state.world.activeEvents);
     }
 
-    this.emit('timeChanged', newDays);
+    this.emit(EVENT_NAMES.TIME_CHANGED, newDays);
   }
 }

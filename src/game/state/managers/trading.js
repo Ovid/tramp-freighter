@@ -6,6 +6,7 @@ import {
   RESTRICTED_GOODS_CONFIG,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
+  EVENT_NAMES,
 } from '../../constants.js';
 
 /**
@@ -297,7 +298,7 @@ export class TradingManager extends BaseManager {
       source: source,
     };
 
-    this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+    this.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, state.world.priceKnowledge);
   }
 
   /**
@@ -319,7 +320,7 @@ export class TradingManager extends BaseManager {
       state.world.priceKnowledge[systemId].lastVisit += days;
     }
 
-    this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+    this.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, state.world.priceKnowledge);
   }
 
   /**
@@ -372,7 +373,7 @@ export class TradingManager extends BaseManager {
       }
     }
 
-    this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+    this.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, state.world.priceKnowledge);
   }
 
   /**

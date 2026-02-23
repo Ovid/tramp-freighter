@@ -1,4 +1,4 @@
-import { PIRATE_CREDIT_DEMAND_CONFIG } from '../../game/constants.js';
+import { PIRATE_CREDIT_DEMAND_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * Apply encounter outcome costs and rewards to game state.
@@ -113,7 +113,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
           );
         }
       }
-      gameStateManager.emit('missionsChanged', { ...state.missions });
+      gameStateManager.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     }
   }
 
@@ -178,7 +178,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
           );
         }
       }
-      gameStateManager.emit('missionsChanged', { ...state.missions });
+      gameStateManager.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     }
   }
 

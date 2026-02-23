@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { SHIP_CONFIG } from '../../constants.js';
+import { SHIP_CONFIG, EVENT_NAMES } from '../../constants.js';
 import { devWarn } from '../../utils/dev-logger.js';
 
 /**
@@ -99,7 +99,7 @@ export class StateManager extends BaseManager {
   updateCredits(newCredits) {
     this.validateState();
     this.gameStateManager.state.player.credits = newCredits;
-    this.emit('creditsChanged', newCredits);
+    this.emit(EVENT_NAMES.CREDITS_CHANGED, newCredits);
   }
 
   /**
@@ -109,7 +109,7 @@ export class StateManager extends BaseManager {
   updateDebt(newDebt) {
     this.validateState();
     this.gameStateManager.state.player.debt = newDebt;
-    this.emit('debtChanged', newDebt);
+    this.emit(EVENT_NAMES.DEBT_CHANGED, newDebt);
   }
 
   /**
@@ -129,7 +129,7 @@ export class StateManager extends BaseManager {
     }
 
     this.gameStateManager.state.ship.fuel = newFuel;
-    this.emit('fuelChanged', newFuel);
+    this.emit(EVENT_NAMES.FUEL_CHANGED, newFuel);
   }
 
   /**
@@ -150,7 +150,7 @@ export class StateManager extends BaseManager {
       }
     });
     this.gameStateManager.state.ship.cargo = newCargo;
-    this.emit('cargoChanged', newCargo);
+    this.emit(EVENT_NAMES.CARGO_CHANGED, newCargo);
   }
 
   // ========================================================================

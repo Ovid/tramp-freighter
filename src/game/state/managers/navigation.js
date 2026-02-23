@@ -1,6 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { TradingSystem } from '../../game-trading.js';
-import { COMMODITY_TYPES } from '../../constants.js';
+import { COMMODITY_TYPES, EVENT_NAMES } from '../../constants.js';
 
 /**
  * NavigationManager - Manages player location, docking, and system exploration
@@ -68,8 +68,8 @@ export class NavigationManager extends BaseManager {
       state.stats.jumpsCompleted++;
     }
 
-    this.emit('locationChanged', newSystemId);
-    this.emit('jumpCompleted', newSystemId);
+    this.emit(EVENT_NAMES.LOCATION_CHANGED, newSystemId);
+    this.emit(EVENT_NAMES.JUMP_COMPLETED, newSystemId);
   }
 
   /**
@@ -130,7 +130,7 @@ export class NavigationManager extends BaseManager {
     // Persist state transition - prevents loss if player closes browser while docked
     this.gameStateManager.markDirty();
 
-    this.emit('docked', { systemId: currentSystemId });
+    this.emit(EVENT_NAMES.DOCKED, { systemId: currentSystemId });
 
     // Track docked systems for first_dock condition (after emit so
     // the event engine sees the system as not-yet-docked during check)
@@ -159,7 +159,7 @@ export class NavigationManager extends BaseManager {
     // Persist state transition - prevents loss if player closes browser while undocked
     this.gameStateManager.markDirty();
 
-    this.emit('undocked', { systemId: state.player.currentSystem });
+    this.emit(EVENT_NAMES.UNDOCKED, { systemId: state.player.currentSystem });
 
     return { success: true };
   }

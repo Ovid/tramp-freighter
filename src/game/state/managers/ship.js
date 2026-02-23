@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { SHIP_CONFIG, NEW_GAME_DEFAULTS } from '../../constants.js';
+import { SHIP_CONFIG, NEW_GAME_DEFAULTS, EVENT_NAMES } from '../../constants.js';
 import { pickRandomFrom } from '../../utils/seeded-random.js';
 
 /**
@@ -117,7 +117,7 @@ export class ShipManager extends BaseManager {
     }
 
     state.ship.quirks.push(quirkId);
-    this.emit('quirksChanged', state.ship.quirks);
+    this.emit(EVENT_NAMES.QUIRKS_CHANGED, state.ship.quirks);
     this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
@@ -141,7 +141,7 @@ export class ShipManager extends BaseManager {
     }
 
     state.ship.quirks.splice(index, 1);
-    this.emit('quirksChanged', state.ship.quirks);
+    this.emit(EVENT_NAMES.QUIRKS_CHANGED, state.ship.quirks);
     this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
@@ -190,13 +190,13 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
       state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
+      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
     }
     if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
       state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
 
-    this.emit('upgradesChanged', state.ship.upgrades);
+    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
     this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
@@ -227,13 +227,13 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
       state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
+      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
     }
     if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
       state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
 
-    this.emit('upgradesChanged', state.ship.upgrades);
+    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
     this.gameStateManager.markDirty();
 
     return { success: true, reason: '' };
@@ -250,7 +250,7 @@ export class ShipManager extends BaseManager {
     const sanitized = this.sanitizeShipName(newName);
     const state = this.getState();
     state.ship.name = sanitized;
-    this.emit('shipNameChanged', sanitized);
+    this.emit(EVENT_NAMES.SHIP_NAME_CHANGED, sanitized);
   }
 
   /**
@@ -308,7 +308,7 @@ export class ShipManager extends BaseManager {
       Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, lifeSupport)
     );
 
-    this.emit('shipConditionChanged', {
+    this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
       hull: state.ship.hull,
       engine: state.ship.engine,
       lifeSupport: state.ship.lifeSupport,
@@ -318,7 +318,7 @@ export class ShipManager extends BaseManager {
     const warnings = this.checkConditionWarnings();
     if (warnings.length > 0) {
       warnings.forEach((warning) => {
-        this.emit('conditionWarning', warning);
+        this.emit(EVENT_NAMES.CONDITION_WARNING, warning);
       });
     }
   }
@@ -444,7 +444,7 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
       state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit('cargoCapacityChanged', capabilities.cargoCapacity);
+      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
     }
     if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
       state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
@@ -455,7 +455,7 @@ export class ShipManager extends BaseManager {
     // are applied during calculations via calculateShipCapabilities(), not stored
 
     // Emit upgrade change event
-    this.emit('upgradesChanged', state.ship.upgrades);
+    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
 
     // Persist immediately - upgrade purchases modify credits and ship state
     this.gameStateManager.markDirty();
@@ -598,7 +598,7 @@ export class ShipManager extends BaseManager {
 
     // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
-    this.emit('hiddenCargoChanged', ship.hiddenCargo);
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
     this.gameStateManager.markDirty();
@@ -651,7 +651,7 @@ export class ShipManager extends BaseManager {
 
     // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
-    this.emit('hiddenCargoChanged', ship.hiddenCargo);
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
 
     // Persist immediately - cargo changes should be saved
     this.gameStateManager.markDirty();
@@ -713,7 +713,7 @@ export class ShipManager extends BaseManager {
       }
     }
 
-    this.emit('cargoChanged', state.ship.cargo);
+    this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
     return { success: true };
   }
 }

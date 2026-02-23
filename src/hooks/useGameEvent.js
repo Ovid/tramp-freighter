@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * Custom hook for subscribing to GameStateManager events.
@@ -92,44 +93,44 @@ function extractStateForEvent(eventName, state) {
   // Map event names to state extraction logic
   // No optional chaining - properties MUST exist after initialization
   const eventStateMap = {
-    creditsChanged: state.player.credits,
-    debtChanged: state.player.debt,
-    fuelChanged: state.ship.fuel,
-    locationChanged: state.player.currentSystem,
-    timeChanged: state.player.daysElapsed,
-    cargoChanged: state.ship.cargo,
-    cargoCapacityChanged: state.ship.cargoCapacity,
-    hiddenCargoChanged: state.ship.hiddenCargo,
-    shipConditionChanged: {
+    [EVENT_NAMES.CREDITS_CHANGED]: state.player.credits,
+    [EVENT_NAMES.DEBT_CHANGED]: state.player.debt,
+    [EVENT_NAMES.FUEL_CHANGED]: state.ship.fuel,
+    [EVENT_NAMES.LOCATION_CHANGED]: state.player.currentSystem,
+    [EVENT_NAMES.TIME_CHANGED]: state.player.daysElapsed,
+    [EVENT_NAMES.CARGO_CHANGED]: state.ship.cargo,
+    [EVENT_NAMES.CARGO_CAPACITY_CHANGED]: state.ship.cargoCapacity,
+    [EVENT_NAMES.HIDDEN_CARGO_CHANGED]: state.ship.hiddenCargo,
+    [EVENT_NAMES.SHIP_CONDITION_CHANGED]: {
       hull: state.ship.hull,
       engine: state.ship.engine,
       lifeSupport: state.ship.lifeSupport,
     },
-    priceKnowledgeChanged: state.world.priceKnowledge,
-    activeEventsChanged: state.world.activeEvents,
-    shipNameChanged: state.ship.name,
-    upgradesChanged: state.ship.upgrades,
-    quirksChanged: state.ship.quirks,
-    conditionWarning: null, // Warnings are passed directly in event data
-    dialogueChanged: state.dialogue, // Dialogue state object
-    encounterTriggered: null, // Encounter data is passed directly in event
-    narrativeEventTriggered: null, // Narrative event data is passed directly
-    hullChanged: state.ship.hull,
-    engineChanged: state.ship.engine,
-    lifeSupportChanged: state.ship.lifeSupport,
-    karmaChanged: state.player.karma || 0,
-    intelligenceChanged: state.world.intelligence || {},
-    currentSystemChanged: state.player.currentSystem,
-    factionRepChanged: state.player.factions || {},
-    missionsChanged: state.missions || {
+    [EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED]: state.world.priceKnowledge,
+    [EVENT_NAMES.ACTIVE_EVENTS_CHANGED]: state.world.activeEvents,
+    [EVENT_NAMES.SHIP_NAME_CHANGED]: state.ship.name,
+    [EVENT_NAMES.UPGRADES_CHANGED]: state.ship.upgrades,
+    [EVENT_NAMES.QUIRKS_CHANGED]: state.ship.quirks,
+    [EVENT_NAMES.CONDITION_WARNING]: null, // Warnings are passed directly in event data
+    [EVENT_NAMES.DIALOGUE_CHANGED]: state.dialogue, // Dialogue state object
+    [EVENT_NAMES.ENCOUNTER_TRIGGERED]: null, // Encounter data is passed directly in event
+    [EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED]: null, // Narrative event data is passed directly
+    [EVENT_NAMES.HULL_CHANGED]: state.ship.hull,
+    [EVENT_NAMES.ENGINE_CHANGED]: state.ship.engine,
+    [EVENT_NAMES.LIFE_SUPPORT_CHANGED]: state.ship.lifeSupport,
+    [EVENT_NAMES.KARMA_CHANGED]: state.player.karma || 0,
+    [EVENT_NAMES.INTELLIGENCE_CHANGED]: state.world.intelligence || {},
+    [EVENT_NAMES.CURRENT_SYSTEM_CHANGED]: state.player.currentSystem,
+    [EVENT_NAMES.FACTION_REP_CHANGED]: state.player.factions || {},
+    [EVENT_NAMES.MISSIONS_CHANGED]: state.missions || {
       active: [],
       completed: [],
       failed: [],
       board: [],
       boardLastRefresh: 0,
     },
-    questChanged: state.quests || {},
-    financeChanged: state.player.finance || null,
+    [EVENT_NAMES.QUEST_CHANGED]: state.quests || {},
+    [EVENT_NAMES.FINANCE_CHANGED]: state.player.finance || null,
   };
 
   return eventStateMap[eventName] ?? null;

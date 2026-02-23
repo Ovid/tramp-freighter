@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * Unified event trigger hook.
@@ -118,7 +119,7 @@ export function useEventTriggers() {
     (event) => {
       // Spread to create a fresh reference so React detects the update
       // and App.jsx de-dupe guard allows repeatable events to re-fire
-      gameStateManager.emit('narrativeEventTriggered', { ...event });
+      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, { ...event });
     },
     [gameStateManager]
   );
@@ -151,7 +152,7 @@ export function useEventTriggers() {
           gameState
         );
         if (encounterData) {
-          gameStateManager.emit('encounterTriggered', encounterData);
+          gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
         }
       } else if (event.category === 'narrative') {
         emitNarrativeEvent(event);
@@ -189,9 +190,9 @@ export function useEventTriggers() {
       handleTrigger('jump', context);
     };
 
-    gameStateManager.subscribe('locationChanged', handleJumpComplete);
+    gameStateManager.subscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
     return () =>
-      gameStateManager.unsubscribe('locationChanged', handleJumpComplete);
+      gameStateManager.unsubscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
   }, [gameStateManager, buildJumpContext, handleTrigger, currentSystem]);
 
   // Listen for docking
@@ -204,8 +205,8 @@ export function useEventTriggers() {
       handleTrigger('dock', { system: systemId });
     };
 
-    gameStateManager.subscribe('docked', handleDocked);
-    return () => gameStateManager.unsubscribe('docked', handleDocked);
+    gameStateManager.subscribe(EVENT_NAMES.DOCKED, handleDocked);
+    return () => gameStateManager.unsubscribe(EVENT_NAMES.DOCKED, handleDocked);
   }, [gameStateManager, handleTrigger]);
 
   // Listen for time changes
@@ -218,8 +219,8 @@ export function useEventTriggers() {
       handleTrigger('time', { system: gameState.player.currentSystem });
     };
 
-    gameStateManager.subscribe('timeChanged', handleTimeChanged);
-    return () => gameStateManager.unsubscribe('timeChanged', handleTimeChanged);
+    gameStateManager.subscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
+    return () => gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
   }, [gameStateManager, handleTrigger]);
 }
 

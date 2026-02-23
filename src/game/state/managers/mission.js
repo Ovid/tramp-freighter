@@ -3,6 +3,7 @@ import {
   COLE_DEBT_CONFIG,
   MISSION_CONFIG,
   PASSENGER_CONFIG,
+  EVENT_NAMES,
 } from '../../constants.js';
 import { generateMissionBoard } from '../../mission-generator.js';
 
@@ -72,10 +73,10 @@ export class MissionManager extends BaseManager {
         buyPrice: 0,
         missionId: mission.id,
       });
-      this.emit('cargoChanged', state.ship.cargo);
+      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
     }
 
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     this.gameStateManager.markDirty();
 
     return { success: true };
@@ -205,10 +206,10 @@ export class MissionManager extends BaseManager {
     if (mission.type === 'passenger') {
       const payment = this.calculatePassengerPayment(mission);
       state.player.credits += payment;
-      this.emit('creditsChanged', state.player.credits);
+      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
     } else if (mission.rewards.credits) {
       state.player.credits += mission.rewards.credits;
-      this.emit('creditsChanged', state.player.credits);
+      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
     }
 
     if (mission.rewards.faction) {
@@ -238,7 +239,7 @@ export class MissionManager extends BaseManager {
       state.ship.cargo = state.ship.cargo.filter(
         (c) => c.missionId !== mission.id
       );
-      this.emit('cargoChanged', state.ship.cargo);
+      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
     } else if (
       (mission.type === 'delivery' || mission.type === 'fetch') &&
       mission.requirements.cargo
@@ -250,7 +251,7 @@ export class MissionManager extends BaseManager {
       );
     }
 
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     this.gameStateManager.markDirty();
 
     return { success: true, rewards: mission.rewards };
@@ -277,7 +278,7 @@ export class MissionManager extends BaseManager {
       0,
       Math.min(100, mission.passenger.satisfaction - drop)
     );
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
   }
 
   calculatePassengerPayment(mission) {
@@ -333,7 +334,7 @@ export class MissionManager extends BaseManager {
       state.ship.cargo = state.ship.cargo.filter(
         (c) => c.missionId !== mission.id
       );
-      this.emit('cargoChanged', state.ship.cargo);
+      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
     }
 
     if (mission.penalties && mission.penalties.failure) {
@@ -352,7 +353,7 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     this.gameStateManager.markDirty();
 
     return { success: true };
@@ -428,10 +429,10 @@ export class MissionManager extends BaseManager {
     }
 
     if (cargoChanged) {
-      this.emit('cargoChanged', state.ship.cargo);
+      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
     }
 
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
   }
 
   refreshMissionBoard() {
@@ -478,7 +479,7 @@ export class MissionManager extends BaseManager {
 
     state.missions.board = board;
     state.missions.boardLastRefresh = currentDay;
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
 
     return board;
   }
@@ -570,7 +571,7 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    this.emit('missionsChanged', { ...state.missions });
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
   }
 
   getActiveMissions() {

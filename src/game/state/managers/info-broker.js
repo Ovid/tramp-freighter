@@ -1,5 +1,6 @@
 import { InformationBroker } from '../../game-information-broker.js';
 import { BaseManager } from './base-manager.js';
+import { EVENT_NAMES } from '../../constants.js';
 
 /**
  * Information Broker Manager - Handles intelligence trading system
@@ -45,8 +46,8 @@ export class InfoBrokerManager extends BaseManager {
 
     if (result.success) {
       // Emit state change events
-      this.emit('creditsChanged', state.player.credits);
-      this.emit('priceKnowledgeChanged', state.world.priceKnowledge);
+      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
+      this.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, state.world.priceKnowledge);
 
       // Persist immediately - intelligence purchase modifies credits and price knowledge
       this.gameStateManager.markDirty();
