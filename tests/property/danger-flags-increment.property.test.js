@@ -97,10 +97,7 @@ describe('Danger Flags Increment Properties', () => {
     const before =
       gameStateManager.getState().world.dangerFlags.inspectionsBribed;
 
-    gameStateManager.resolveInspection(
-      'bribe',
-      gameStateManager.getState()
-    );
+    gameStateManager.resolveInspection('bribe', gameStateManager.getState());
 
     const after =
       gameStateManager.getState().world.dangerFlags.inspectionsBribed;
@@ -111,10 +108,7 @@ describe('Danger Flags Increment Properties', () => {
     const before =
       gameStateManager.getState().world.dangerFlags.inspectionsFled;
 
-    gameStateManager.resolveInspection(
-      'flee',
-      gameStateManager.getState()
-    );
+    gameStateManager.resolveInspection('flee', gameStateManager.getState());
 
     const after = gameStateManager.getState().world.dangerFlags.inspectionsFled;
     expect(after).toBe(before + 1);

@@ -23,14 +23,19 @@ export function useEventTriggers() {
   const buildJumpContext = useCallback(
     (systemId, gameState) => {
       // Compute dynamic chances from manager methods
-      const pirateChance =
-        gameStateManager.calculatePirateEncounterChance(systemId, gameState);
-      const inspectionChance =
-        gameStateManager.calculateInspectionChance(systemId, gameState);
+      const pirateChance = gameStateManager.calculatePirateEncounterChance(
+        systemId,
+        gameState
+      );
+      const inspectionChance = gameStateManager.calculateInspectionChance(
+        systemId,
+        gameState
+      );
 
       // Mechanical failure and distress call use internal seeded RNG.
       // We pre-check and convert to a 0/1 chance for the engine.
-      const mechanicalResult = gameStateManager.checkMechanicalFailure(gameState);
+      const mechanicalResult =
+        gameStateManager.checkMechanicalFailure(gameState);
       const distressResult = gameStateManager.checkDistressCall();
 
       return {

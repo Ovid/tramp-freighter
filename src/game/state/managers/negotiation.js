@@ -4,10 +4,7 @@ import {
   PIRATE_CREDIT_DEMAND_CONFIG,
 } from '../../constants.js';
 import { calculateKarmaModifier } from '../../utils/danger-utils.js';
-import {
-  SeededRandom,
-  buildEncounterSeed,
-} from '../../utils/seeded-random.js';
+import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 /**
  * NegotiationManager - Handles pirate negotiation resolution
@@ -291,8 +288,7 @@ export class NegotiationManager extends BaseManager {
     const { MIN_CREDIT_DEMAND, MAX_CREDIT_DEMAND } =
       PIRATE_CREDIT_DEMAND_CONFIG;
     const creditDemand = Math.round(
-      MIN_CREDIT_DEMAND +
-        rng.next() * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
+      MIN_CREDIT_DEMAND + rng.next() * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
     );
 
     if (state.player.credits >= creditDemand) {
