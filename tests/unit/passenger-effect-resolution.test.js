@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 function makePassengerMission(id, satisfaction = 50) {
   return {
@@ -27,8 +26,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   afterEach(() => {

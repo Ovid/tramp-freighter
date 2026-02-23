@@ -178,49 +178,56 @@ describe('Property: Automatic unsubscription on unmount', () => {
  * re-render when an unrelated event fires.
  */
 describe('Property: Selective re-rendering on events', () => {
-  it('should only re-render components subscribed to the fired event', { timeout: 15000 }, async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.integer({ min: 600, max: 100000 }),
-        async (newCredits) => {
-          cleanup();
+  it(
+    'should only re-render components subscribed to the fired event',
+    { timeout: 15000 },
+    async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 600, max: 100000 }),
+          async (newCredits) => {
+            cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+            const gameStateManager = new GameStateManager(
+              STAR_DATA,
+              WORMHOLE_DATA
+            );
+            gameStateManager.initNewGame();
 
-          // Render two hooks subscribed to different events
-          const creditsHook = renderHook(() => useGameEvent('creditsChanged'), {
-            wrapper: createWrapper(gameStateManager),
-          });
+            // Render two hooks subscribed to different events
+            const creditsHook = renderHook(
+              () => useGameEvent('creditsChanged'),
+              {
+                wrapper: createWrapper(gameStateManager),
+              }
+            );
 
-          const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
-            wrapper: createWrapper(gameStateManager),
-          });
+            const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
+              wrapper: createWrapper(gameStateManager),
+            });
 
-          // Get initial values
-          const initialFuel = fuelHook.result.current;
-          expect(initialFuel).toBe(100); // New game starts with 100 fuel
+            // Get initial values
+            const initialFuel = fuelHook.result.current;
+            expect(initialFuel).toBe(100); // New game starts with 100 fuel
 
-          // Fire creditsChanged event
-          gameStateManager.updateCredits(newCredits);
+            // Fire creditsChanged event
+            gameStateManager.updateCredits(newCredits);
 
-          // Wait for credits hook to update
-          await waitFor(() => {
-            expect(creditsHook.result.current).toBe(newCredits);
-          });
+            // Wait for credits hook to update
+            await waitFor(() => {
+              expect(creditsHook.result.current).toBe(newCredits);
+            });
 
-          // Verify fuel hook did NOT update (still has initial value)
-          expect(fuelHook.result.current).toBe(initialFuel);
+            // Verify fuel hook did NOT update (still has initial value)
+            expect(fuelHook.result.current).toBe(initialFuel);
 
-          return fuelHook.result.current === initialFuel;
-        }
-      ),
-      { numRuns: 100 }
-    );
-  });
+            return fuelHook.result.current === initialFuel;
+          }
+        ),
+        { numRuns: 100 }
+      );
+    }
+  );
 });
 
 /**

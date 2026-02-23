@@ -1,13 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Mission Route Saturation', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    gsm.initNewGame();
+    gsm = createTestGameStateManager();
   });
 
   it('should initialize completionHistory as empty array', () => {

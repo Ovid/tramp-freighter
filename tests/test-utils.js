@@ -1,11 +1,30 @@
 'use strict';
 
+import { GameStateManager } from '@game/state/game-state-manager.js';
+import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from './test-data.js';
+
+export { TEST_STAR_DATA, TEST_WORMHOLE_DATA };
+
 /**
  * Test utility functions for setting up DOM environments and common test fixtures
  *
  * Centralizes test setup code to avoid duplication across test files and ensure
  * consistent test environments.
  */
+
+/**
+ * Create a fully initialized GameStateManager for testing
+ *
+ * Encapsulates the standard test setup pattern of creating a GameStateManager
+ * with TEST_STAR_DATA and TEST_WORMHOLE_DATA, then calling initNewGame().
+ *
+ * @returns {GameStateManager} An initialized GameStateManager instance
+ */
+export function createTestGameStateManager() {
+  const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+  manager.initNewGame();
+  return manager;
+}
 
 /**
  * Setup complete repair panel DOM structure for testing

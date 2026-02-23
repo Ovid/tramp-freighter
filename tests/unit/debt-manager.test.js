@@ -737,7 +737,9 @@ describe('Cole Debt System', () => {
       // The system should gracefully handle missing finance state
       // by providing defaults when DebtManager methods are called
       const info = gsm.getDebtInfo();
-      expect(info).toEqual(expect.objectContaining({ debt: gsm.state.player.debt }));
+      expect(info).toEqual(
+        expect.objectContaining({ debt: gsm.state.player.debt })
+      );
     });
   });
 

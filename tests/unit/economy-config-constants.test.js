@@ -8,51 +8,18 @@ import { ECONOMY_CONFIG } from '../../src/game/constants.js';
 
 describe('ECONOMY_CONFIG Constants', () => {
   /**
-   * Property 20: MAX_COORD_DISTANCE constant is 21
-   * Validates: Requirements 7.2
+   * Properties 20-25: Core economy configuration constants
+   * Validates: Requirements 7.2-7.7
    */
-  it('Property 20: MAX_COORD_DISTANCE should be 21', () => {
-    expect(ECONOMY_CONFIG.MAX_COORD_DISTANCE).toBe(21);
-  });
-
-  /**
-   * Property 21: MAX_TECH_LEVEL constant is 10.0
-   * Validates: Requirements 7.3
-   */
-  it('Property 21: MAX_TECH_LEVEL should be 10.0', () => {
-    expect(ECONOMY_CONFIG.MAX_TECH_LEVEL).toBe(10.0);
-  });
-
-  /**
-   * Property 22: MIN_TECH_LEVEL constant is 1.0
-   * Validates: Requirements 7.4
-   */
-  it('Property 22: MIN_TECH_LEVEL should be 1.0', () => {
-    expect(ECONOMY_CONFIG.MIN_TECH_LEVEL).toBe(1.0);
-  });
-
-  /**
-   * Property 23: MARKET_CAPACITY constant is 1000
-   * Validates: Requirements 7.5
-   */
-  it('Property 23: MARKET_CAPACITY should be 1000', () => {
-    expect(ECONOMY_CONFIG.MARKET_CAPACITY).toBe(1000);
-  });
-
-  /**
-   * Property 24: DAILY_RECOVERY_FACTOR constant is 0.90
-   * Validates: Requirements 7.6
-   */
-  it('Property 24: DAILY_RECOVERY_FACTOR should be 0.90', () => {
-    expect(ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR).toBe(0.9);
-  });
-
-  /**
-   * Property 25: TEMPORAL_WAVE_PERIOD constant is 30
-   * Validates: Requirements 7.7
-   */
-  it('Property 25: TEMPORAL_WAVE_PERIOD should be 30', () => {
-    expect(ECONOMY_CONFIG.TEMPORAL_WAVE_PERIOD).toBe(30);
+  it.each([
+    ['MAX_COORD_DISTANCE', 21],
+    ['MAX_TECH_LEVEL', 10.0],
+    ['MIN_TECH_LEVEL', 1.0],
+    ['MARKET_CAPACITY', 1000],
+    ['DAILY_RECOVERY_FACTOR', 0.9],
+    ['TEMPORAL_WAVE_PERIOD', 30],
+  ])('%s should be %s', (property, expectedValue) => {
+    expect(ECONOMY_CONFIG[property]).toBe(expectedValue);
   });
 
   /**

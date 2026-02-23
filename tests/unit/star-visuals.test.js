@@ -3,47 +3,22 @@ import { getStarVisuals } from '../../src/game/utils/star-visuals.js';
 
 describe('getStarVisuals', () => {
   describe('Main Sequence Stars', () => {
-    it('should return blue color and large radius for O-type stars', () => {
-      const result = getStarVisuals('O5');
-      expect(result.color).toBe('#9bb0ff');
-      expect(result.radius).toBe(3.0);
-    });
-
-    it('should return blue-white color and large radius for B-type stars', () => {
-      const result = getStarVisuals('B3');
-      expect(result.color).toBe('#aabfff');
-      expect(result.radius).toBe(2.2);
-    });
-
-    it('should return white color and medium-large radius for A-type stars', () => {
-      const result = getStarVisuals('A2');
-      expect(result.color).toBe('#cad7ff');
-      expect(result.radius).toBe(1.8);
-    });
-
-    it('should return yellow-white color and medium radius for F-type stars', () => {
-      const result = getStarVisuals('F5');
-      expect(result.color).toBe('#f8f7ff');
-      expect(result.radius).toBe(1.4);
-    });
-
-    it('should return yellow color and solar radius for G-type stars', () => {
-      const result = getStarVisuals('G2');
-      expect(result.color).toBe('#fff4e8');
-      expect(result.radius).toBe(1.0);
-    });
-
-    it('should return orange color and small-medium radius for K-type stars', () => {
-      const result = getStarVisuals('K5');
-      expect(result.color).toBe('#ffd2a1');
-      expect(result.radius).toBe(0.8);
-    });
-
-    it('should return red-orange color and small radius for M-type stars', () => {
-      const result = getStarVisuals('M5');
-      expect(result.color).toBe('#ff4500');
-      expect(result.radius).toBe(0.5);
-    });
+    it.each([
+      ['O-type', 'O5', '#9bb0ff', 3.0],
+      ['B-type', 'B3', '#aabfff', 2.2],
+      ['A-type', 'A2', '#cad7ff', 1.8],
+      ['F-type', 'F5', '#f8f7ff', 1.4],
+      ['G-type', 'G2', '#fff4e8', 1.0],
+      ['K-type', 'K5', '#ffd2a1', 0.8],
+      ['M-type', 'M5', '#ff4500', 0.5],
+    ])(
+      'should return correct color and radius for %s stars',
+      (label, spectralType, expectedColor, expectedRadius) => {
+        const result = getStarVisuals(spectralType);
+        expect(result.color).toBe(expectedColor);
+        expect(result.radius).toBe(expectedRadius);
+      }
+    );
   });
 
   describe('White Dwarfs', () => {
@@ -64,23 +39,18 @@ describe('getStarVisuals', () => {
   });
 
   describe('Brown Dwarfs', () => {
-    it('should return dark red color and visibility-boosted radius for L-type brown dwarfs', () => {
-      const result = getStarVisuals('L5');
-      expect(result.color).toBe('#9e2626');
-      expect(result.radius).toBe(0.3);
-    });
-
-    it('should return dark red color and visibility-boosted radius for T-type brown dwarfs', () => {
-      const result = getStarVisuals('T8');
-      expect(result.color).toBe('#9e2626');
-      expect(result.radius).toBe(0.3);
-    });
-
-    it('should return dark red color and visibility-boosted radius for Y-type brown dwarfs', () => {
-      const result = getStarVisuals('Y2');
-      expect(result.color).toBe('#9e2626');
-      expect(result.radius).toBe(0.3);
-    });
+    it.each([
+      ['L-type', 'L5'],
+      ['T-type', 'T8'],
+      ['Y-type', 'Y2'],
+    ])(
+      'should return dark red color and visibility-boosted radius for %s brown dwarfs',
+      (label, spectralType) => {
+        const result = getStarVisuals(spectralType);
+        expect(result.color).toBe('#9e2626');
+        expect(result.radius).toBe(0.3);
+      }
+    );
   });
 
   describe('Case Insensitivity', () => {
@@ -118,58 +88,30 @@ describe('getStarVisuals', () => {
   });
 
   describe('Unknown Types', () => {
-    it('should return default white color and solar radius for unknown spectral types', () => {
-      const result = getStarVisuals('X9');
-      expect(result.color).toBe('#ffffff');
-      expect(result.radius).toBe(1.0);
-    });
-
-    it('should return default values for numeric-only types', () => {
-      const result = getStarVisuals('123');
-      expect(result.color).toBe('#ffffff');
-      expect(result.radius).toBe(1.0);
-    });
-
-    it('should return default values for special characters', () => {
-      const result = getStarVisuals('!@#');
-      expect(result.color).toBe('#ffffff');
-      expect(result.radius).toBe(1.0);
-    });
+    it.each([
+      ['unknown spectral type', 'X9'],
+      ['numeric-only type', '123'],
+      ['special characters', '!@#'],
+    ])(
+      'should return default white color and solar radius for %s',
+      (label, input) => {
+        const result = getStarVisuals(input);
+        expect(result.color).toBe('#ffffff');
+        expect(result.radius).toBe(1.0);
+      }
+    );
   });
 
   describe('Input Validation', () => {
-    it('should throw error for null input', () => {
-      expect(() => getStarVisuals(null)).toThrow(
-        'Star type must be a non-empty string'
-      );
-    });
-
-    it('should throw error for undefined input', () => {
-      expect(() => getStarVisuals(undefined)).toThrow(
-        'Star type must be a non-empty string'
-      );
-    });
-
-    it('should throw error for empty string', () => {
-      expect(() => getStarVisuals('')).toThrow(
-        'Star type must be a non-empty string'
-      );
-    });
-
-    it('should throw error for non-string input', () => {
-      expect(() => getStarVisuals(123)).toThrow(
-        'Star type must be a non-empty string'
-      );
-    });
-
-    it('should throw error for object input', () => {
-      expect(() => getStarVisuals({ type: 'G2' })).toThrow(
-        'Star type must be a non-empty string'
-      );
-    });
-
-    it('should throw error for array input', () => {
-      expect(() => getStarVisuals(['G2'])).toThrow(
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+      ['empty string', ''],
+      ['number', 123],
+      ['object', { type: 'G2' }],
+      ['array', ['G2']],
+    ])('should throw error for %s input', (label, input) => {
+      expect(() => getStarVisuals(input)).toThrow(
         'Star type must be a non-empty string'
       );
     });
@@ -265,34 +207,19 @@ describe('getStarVisuals', () => {
   });
 
   describe('Real Star Examples', () => {
-    it('should handle Sol (G2V)', () => {
-      const result = getStarVisuals('G2V');
-      expect(result.color).toBe('#fff4e8');
-      expect(result.radius).toBe(1.0);
-    });
-
-    it('should handle Sirius A (A1V)', () => {
-      const result = getStarVisuals('A1V');
-      expect(result.color).toBe('#cad7ff');
-      expect(result.radius).toBe(1.8);
-    });
-
-    it('should handle Proxima Centauri (M5.5Ve)', () => {
-      const result = getStarVisuals('M5.5Ve');
-      expect(result.color).toBe('#ff4500');
-      expect(result.radius).toBe(0.5);
-    });
-
-    it('should handle Procyon A (F5IV-V)', () => {
-      const result = getStarVisuals('F5IV-V');
-      expect(result.color).toBe('#f8f7ff');
-      expect(result.radius).toBe(1.4);
-    });
-
-    it('should handle Sirius B (DA2)', () => {
-      const result = getStarVisuals('DA2');
-      expect(result.color).toBe('#e0f0ff');
-      expect(result.radius).toBe(0.35);
-    });
+    it.each([
+      ['Sol', 'G2V', '#fff4e8', 1.0],
+      ['Sirius A', 'A1V', '#cad7ff', 1.8],
+      ['Proxima Centauri', 'M5.5Ve', '#ff4500', 0.5],
+      ['Procyon A', 'F5IV-V', '#f8f7ff', 1.4],
+      ['Sirius B', 'DA2', '#e0f0ff', 0.35],
+    ])(
+      'should handle %s (%s)',
+      (starName, spectralType, expectedColor, expectedRadius) => {
+        const result = getStarVisuals(spectralType);
+        expect(result.color).toBe(expectedColor);
+        expect(result.radius).toBe(expectedRadius);
+      }
+    );
   });
 });

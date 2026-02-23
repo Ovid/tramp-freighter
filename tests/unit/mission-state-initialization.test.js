@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Mission State Initialization', () => {
   it('should initialize missions state in new game', () => {
-    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    const state = manager.initNewGame();
+    const manager = createTestGameStateManager();
+    const state = manager.getState();
 
     expect(state.missions).toBeDefined();
     expect(state.missions.active).toEqual([]);

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { REPAIR_CONFIG } from '../../src/game/constants.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Critical Damage Delegation', () => {
   let gsm;
@@ -10,8 +9,7 @@ describe('Critical Damage Delegation', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    gsm.initNewGame();
+    gsm = createTestGameStateManager();
 
     // Set up a critically damaged hull (at or below threshold) with 0 credits
     // so emergency patch is available
