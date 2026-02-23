@@ -1144,6 +1144,25 @@ export const DANGER_CONFIG = {
 };
 
 /**
+ * Thresholds for determineThreatLevel() — pirate encounter threat classification.
+ */
+export const THREAT_LEVEL_CONFIG = {
+  CARGO_VALUE_DANGEROUS: 10000,
+  CARGO_VALUE_STRONG: 5000,
+  HULL_CRITICAL: 30,
+  HULL_WARNING: 60,
+  OUTLAW_REP_STRONG: 50,
+  OUTLAW_REP_WEAK: 50,
+};
+
+/**
+ * Thresholds for determineInspectionSeverity() — customs inspection classification.
+ */
+export const INSPECTION_SEVERITY_CONFIG = {
+  AUTHORITY_REP_THOROUGH: -25,
+};
+
+/**
  * Combat Resolution Configuration
  *
  * Configuration for combat choices, success rates, and outcomes.
