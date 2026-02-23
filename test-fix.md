@@ -111,20 +111,24 @@ NPC data validation tests repeat the same structure across 7+ files.
 
 7+ core managers have zero or minimal direct tests. These are tested indirectly through GameStateManager delegation, but direct tests catch bugs earlier.
 
-- [ ] `RefuelManager` — add unit tests for fuel calculation, refuel costs, partial refueling
-- [ ] `ShipManager` — add unit tests for ship configuration, upgrade effects, system status
-- [ ] `NavigationManager` — add unit tests for jump validation, route calculation, wormhole traversal
-- [ ] `InspectionManager` — add unit tests for customs inspection resolution (cooperate, bribe, flee)
-- [ ] `DistressManager` — add unit tests for civilian distress call encounters
-- [ ] `NegotiationManager` — add unit tests for pirate negotiation resolution
-- [ ] `InfoBrokerManager` — add unit tests for intelligence purchase, price data management
-- [ ] `EventSystemManager` — add unit tests for subscribe/unsubscribe, event dispatch, cleanup
+- [x] `RefuelManager` — add unit tests for fuel calculation, refuel costs, partial refueling
+- [x] `ShipManager` — add unit tests for ship configuration, upgrade effects, system status
+- [x] `NavigationManager` — add unit tests for jump validation, route calculation, wormhole traversal
+- [x] `InspectionManager` — add unit tests for customs inspection resolution (cooperate, bribe, flee)
+- [x] `DistressManager` — add unit tests for civilian distress call encounters
+- [x] `NegotiationManager` — add unit tests for pirate negotiation resolution
+- [x] `InfoBrokerManager` — add unit tests for intelligence purchase, price data management
+- [x] `EventSystemManager` — add unit tests for subscribe/unsubscribe, event dispatch, cleanup
+
+*Done: 8 new test files created (202 tests total). RefuelManager (21), ShipManager (42), NavigationManager (21), InspectionManager (25), DistressManager (36), NegotiationManager (32), InfoBrokerManager (14), EventSystemManager (11). File count: 251→259.*
 
 ### 4B. Edge case gaps
 
-- [ ] Audit `danger/` feature tests — encounter system is core gameplay but has fewer tests than trading/missions
-- [ ] Add negative/error tests for managers that only have happy-path coverage
-- [ ] Add boundary tests for numeric values (0, max, overflow) in finance/trading calculations
+- [x] Audit `danger/` feature tests — encounter system is core gameplay but has fewer tests than trading/missions
+- [x] Add negative/error tests for managers that only have happy-path coverage
+- [x] Add boundary tests for numeric values (0, max, overflow) in finance/trading calculations
+
+*Done: 2 new test files. danger-edge-cases.test.js (15 tests): combat with empty cargo, negotiation with 0 cargo/credits, inspection with stacked violations, distress with minimal state, reputation boundaries. finance-boundary-tests.test.js (36 tests): trading buy/sell at capacity limits, refuel epsilon tolerance, repair at 0%/100%, debt heat tier boundaries, payment edge cases. File count: 259→261. Total tests: 2303.*
 
 ---
 

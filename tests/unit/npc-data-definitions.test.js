@@ -35,61 +35,110 @@ describe('NPC Data Definitions', () => {
     {
       label: "Wei Chen (Dock Worker at Barnard's Star)",
       npc: WEI_CHEN,
-      expectedBasic: { id: 'chen_barnards', name: 'Wei Chen', role: 'Dock Worker' },
-      expectedPersonality: { trust: 0.3, greed: 0.2, loyalty: 0.8, morality: 0.6 },
+      expectedBasic: {
+        id: 'chen_barnards',
+        name: 'Wei Chen',
+        role: 'Dock Worker',
+      },
+      expectedPersonality: {
+        trust: 0.3,
+        greed: 0.2,
+        loyalty: 0.8,
+        morality: 0.6,
+      },
       expectedLocation: { system: 4, station: 'Bore Station 7' },
-      expectedSpeechStyle: { greeting: 'casual', vocabulary: 'simple', quirk: 'drops articles' },
+      expectedSpeechStyle: {
+        greeting: 'casual',
+        vocabulary: 'simple',
+        quirk: 'drops articles',
+      },
       expectedInitialRep: 0,
     },
     {
       label: 'Marcus Cole (Loan Shark at Sol)',
       npc: MARCUS_COLE,
-      expectedBasic: { id: 'cole_sol', name: 'Marcus Cole', role: 'Loan Shark' },
-      expectedPersonality: { trust: 0.1, greed: 0.9, loyalty: 0.3, morality: 0.2 },
+      expectedBasic: {
+        id: 'cole_sol',
+        name: 'Marcus Cole',
+        role: 'Loan Shark',
+      },
+      expectedPersonality: {
+        trust: 0.1,
+        greed: 0.9,
+        loyalty: 0.3,
+        morality: 0.2,
+      },
       expectedLocation: { system: 0, station: 'Sol Central' },
-      expectedSpeechStyle: { greeting: 'formal', vocabulary: 'educated', quirk: 'short clipped sentences' },
+      expectedSpeechStyle: {
+        greeting: 'formal',
+        vocabulary: 'educated',
+        quirk: 'short clipped sentences',
+      },
       expectedInitialRep: -20,
     },
     {
       label: 'Father Okonkwo (Chaplain at Ross 154)',
       npc: FATHER_OKONKWO,
-      expectedBasic: { id: 'okonkwo_ross154', name: 'Father Okonkwo', role: 'Chaplain' },
-      expectedPersonality: { trust: 0.7, greed: 0.0, loyalty: 0.9, morality: 0.9 },
+      expectedBasic: {
+        id: 'okonkwo_ross154',
+        name: 'Father Okonkwo',
+        role: 'Chaplain',
+      },
+      expectedPersonality: {
+        trust: 0.7,
+        greed: 0.0,
+        loyalty: 0.9,
+        morality: 0.9,
+      },
       expectedLocation: { system: 11, station: 'Ross 154 Medical' },
-      expectedSpeechStyle: { greeting: 'warm', vocabulary: 'educated', quirk: 'religious metaphors' },
+      expectedSpeechStyle: {
+        greeting: 'warm',
+        vocabulary: 'educated',
+        quirk: 'religious metaphors',
+      },
       expectedInitialRep: 10,
     },
   ];
 
-  describe.each(FOUNDATION_NPC_CASES)('$label', ({ npc, expectedBasic, expectedPersonality, expectedLocation, expectedSpeechStyle, expectedInitialRep }) => {
-    it('should have correct personality traits', () => {
-      expect(npc.personality.trust).toBe(expectedPersonality.trust);
-      expect(npc.personality.greed).toBe(expectedPersonality.greed);
-      expect(npc.personality.loyalty).toBe(expectedPersonality.loyalty);
-      expect(npc.personality.morality).toBe(expectedPersonality.morality);
-    });
+  describe.each(FOUNDATION_NPC_CASES)(
+    '$label',
+    ({
+      npc,
+      expectedBasic,
+      expectedPersonality,
+      expectedLocation,
+      expectedSpeechStyle,
+      expectedInitialRep,
+    }) => {
+      it('should have correct personality traits', () => {
+        expect(npc.personality.trust).toBe(expectedPersonality.trust);
+        expect(npc.personality.greed).toBe(expectedPersonality.greed);
+        expect(npc.personality.loyalty).toBe(expectedPersonality.loyalty);
+        expect(npc.personality.morality).toBe(expectedPersonality.morality);
+      });
 
-    it('should have correct initial reputation', () => {
-      expect(npc.initialRep).toBe(expectedInitialRep);
-    });
+      it('should have correct initial reputation', () => {
+        expect(npc.initialRep).toBe(expectedInitialRep);
+      });
 
-    it('should be assigned to correct system and station', () => {
-      expect(npc.system).toBe(expectedLocation.system);
-      expect(npc.station).toBe(expectedLocation.station);
-    });
+      it('should be assigned to correct system and station', () => {
+        expect(npc.system).toBe(expectedLocation.system);
+        expect(npc.station).toBe(expectedLocation.station);
+      });
 
-    it('should have correct basic information', () => {
-      expect(npc.id).toBe(expectedBasic.id);
-      expect(npc.name).toBe(expectedBasic.name);
-      expect(npc.role).toBe(expectedBasic.role);
-    });
+      it('should have correct basic information', () => {
+        expect(npc.id).toBe(expectedBasic.id);
+        expect(npc.name).toBe(expectedBasic.name);
+        expect(npc.role).toBe(expectedBasic.role);
+      });
 
-    it('should have correct speech style', () => {
-      expect(npc.speechStyle.greeting).toBe(expectedSpeechStyle.greeting);
-      expect(npc.speechStyle.vocabulary).toBe(expectedSpeechStyle.vocabulary);
-      expect(npc.speechStyle.quirk).toBe(expectedSpeechStyle.quirk);
-    });
-  });
+      it('should have correct speech style', () => {
+        expect(npc.speechStyle.greeting).toBe(expectedSpeechStyle.greeting);
+        expect(npc.speechStyle.vocabulary).toBe(expectedSpeechStyle.vocabulary);
+        expect(npc.speechStyle.quirk).toBe(expectedSpeechStyle.quirk);
+      });
+    }
+  );
 
   describe('NPC Collection and Validation', () => {
     it('should include all eleven NPCs in ALL_NPCS array', () => {

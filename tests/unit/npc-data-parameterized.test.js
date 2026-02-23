@@ -43,7 +43,12 @@ const NPC_TEST_CASES = [
       system: 2,
       station: 'Sirius Exchange',
     },
-    expectedPersonality: { trust: 0.5, greed: 0.7, loyalty: 0.5, morality: 0.4 },
+    expectedPersonality: {
+      trust: 0.5,
+      greed: 0.7,
+      loyalty: 0.5,
+      morality: 0.4,
+    },
     expectedSpeechStyle: {
       greeting: 'formal',
       vocabulary: 'educated',
@@ -63,7 +68,12 @@ const NPC_TEST_CASES = [
       system: 3,
       station: 'Eridani Hub',
     },
-    expectedPersonality: { trust: 0.6, greed: 0.3, loyalty: 0.7, morality: 0.7 },
+    expectedPersonality: {
+      trust: 0.6,
+      greed: 0.3,
+      loyalty: 0.7,
+      morality: 0.7,
+    },
     expectedSpeechStyle: {
       greeting: 'warm',
       vocabulary: 'simple',
@@ -87,7 +97,12 @@ const NPC_TEST_CASES = [
       system: 5,
       station: 'Tau Ceti Station',
     },
-    expectedPersonality: { trust: 0.4, greed: 0.5, loyalty: 0.6, morality: 0.8 },
+    expectedPersonality: {
+      trust: 0.4,
+      greed: 0.5,
+      loyalty: 0.6,
+      morality: 0.8,
+    },
     expectedSpeechStyle: {
       greeting: 'formal',
       vocabulary: 'technical',
@@ -111,7 +126,12 @@ const NPC_TEST_CASES = [
       system: 6,
       station: 'Procyon Depot',
     },
-    expectedPersonality: { trust: 0.7, greed: 0.4, loyalty: 0.8, morality: 0.5 },
+    expectedPersonality: {
+      trust: 0.7,
+      greed: 0.4,
+      loyalty: 0.8,
+      morality: 0.5,
+    },
     expectedSpeechStyle: {
       greeting: 'gruff',
       vocabulary: 'technical',
@@ -135,7 +155,12 @@ const NPC_TEST_CASES = [
       system: 7,
       station: "Luyten's Outpost",
     },
-    expectedPersonality: { trust: 0.5, greed: 0.6, loyalty: 0.6, morality: 0.5 },
+    expectedPersonality: {
+      trust: 0.5,
+      greed: 0.6,
+      loyalty: 0.6,
+      morality: 0.5,
+    },
     expectedSpeechStyle: {
       greeting: 'casual',
       vocabulary: 'slang',
@@ -159,7 +184,12 @@ const NPC_TEST_CASES = [
       system: 1,
       station: 'Centauri Station',
     },
-    expectedPersonality: { trust: 0.3, greed: 0.4, loyalty: 0.7, morality: 0.7 },
+    expectedPersonality: {
+      trust: 0.3,
+      greed: 0.4,
+      loyalty: 0.7,
+      morality: 0.7,
+    },
     expectedSpeechStyle: {
       greeting: 'gruff',
       vocabulary: 'simple',
@@ -179,7 +209,12 @@ const NPC_TEST_CASES = [
       system: 8,
       station: 'Wolf 359 Station',
     },
-    expectedPersonality: { trust: 0.6, greed: 0.8, loyalty: 0.4, morality: 0.3 },
+    expectedPersonality: {
+      trust: 0.6,
+      greed: 0.8,
+      loyalty: 0.4,
+      morality: 0.3,
+    },
     expectedSpeechStyle: {
       greeting: 'casual',
       vocabulary: 'slang',
@@ -196,82 +231,93 @@ const NPC_TEST_CASES = [
 ];
 
 describe('NPC Data Validation (Parameterized)', () => {
-  describe.each(NPC_TEST_CASES)('$label', ({ npc, expectedBasic, expectedPersonality, expectedSpeechStyle, expectedInitialRep, expectedDiscountService, expectedTipSamples }) => {
-    it('should have all required fields for NPC benefits system', () => {
-      expect(npc.id).toBeDefined();
-      expect(npc.name).toBeDefined();
-      expect(npc.role).toBeDefined();
-      expect(npc.system).toBeDefined();
-      expect(npc.station).toBeDefined();
-      expect(npc.personality).toBeDefined();
-      expect(npc.speechStyle).toBeDefined();
-      expect(npc.description).toBeDefined();
-      expect(npc.initialRep).toBeDefined();
-      expect(npc.tips).toBeDefined();
-      expect(npc.discountService).toBeDefined();
-      expect(npc.tierBenefits).toBeDefined();
-    });
-
-    it('should have correct basic information', () => {
-      expect(npc.id).toBe(expectedBasic.id);
-      expect(npc.name).toBe(expectedBasic.name);
-      expect(npc.role).toBe(expectedBasic.role);
-      expect(npc.system).toBe(expectedBasic.system);
-      expect(npc.station).toBe(expectedBasic.station);
-    });
-
-    it('should have correct personality values matching specification', () => {
-      expect(npc.personality.trust).toBe(expectedPersonality.trust);
-      expect(npc.personality.greed).toBe(expectedPersonality.greed);
-      expect(npc.personality.loyalty).toBe(expectedPersonality.loyalty);
-      expect(npc.personality.morality).toBe(expectedPersonality.morality);
-    });
-
-    it('should have correct speech style', () => {
-      expect(npc.speechStyle.greeting).toBe(expectedSpeechStyle.greeting);
-      expect(npc.speechStyle.vocabulary).toBe(expectedSpeechStyle.vocabulary);
-      expect(npc.speechStyle.quirk).toBe(expectedSpeechStyle.quirk);
-    });
-
-    it('should have correct initial reputation', () => {
-      expect(npc.initialRep).toBe(expectedInitialRep);
-    });
-
-    it('should have non-empty tips array with valid strings', () => {
-      expect(Array.isArray(npc.tips)).toBe(true);
-      expect(npc.tips.length).toBeGreaterThan(0);
-
-      npc.tips.forEach((tip) => {
-        expect(typeof tip).toBe('string');
-        expect(tip.length).toBeGreaterThan(0);
+  describe.each(NPC_TEST_CASES)(
+    '$label',
+    ({
+      npc,
+      expectedBasic,
+      expectedPersonality,
+      expectedSpeechStyle,
+      expectedInitialRep,
+      expectedDiscountService,
+      expectedTipSamples,
+    }) => {
+      it('should have all required fields for NPC benefits system', () => {
+        expect(npc.id).toBeDefined();
+        expect(npc.name).toBeDefined();
+        expect(npc.role).toBeDefined();
+        expect(npc.system).toBeDefined();
+        expect(npc.station).toBeDefined();
+        expect(npc.personality).toBeDefined();
+        expect(npc.speechStyle).toBeDefined();
+        expect(npc.description).toBeDefined();
+        expect(npc.initialRep).toBeDefined();
+        expect(npc.tips).toBeDefined();
+        expect(npc.discountService).toBeDefined();
+        expect(npc.tierBenefits).toBeDefined();
       });
-    });
 
-    if (expectedTipSamples.length > 0) {
-      it('should contain expected tip samples', () => {
-        expectedTipSamples.forEach((tip) => {
-          expect(npc.tips).toContain(tip);
+      it('should have correct basic information', () => {
+        expect(npc.id).toBe(expectedBasic.id);
+        expect(npc.name).toBe(expectedBasic.name);
+        expect(npc.role).toBe(expectedBasic.role);
+        expect(npc.system).toBe(expectedBasic.system);
+        expect(npc.station).toBe(expectedBasic.station);
+      });
+
+      it('should have correct personality values matching specification', () => {
+        expect(npc.personality.trust).toBe(expectedPersonality.trust);
+        expect(npc.personality.greed).toBe(expectedPersonality.greed);
+        expect(npc.personality.loyalty).toBe(expectedPersonality.loyalty);
+        expect(npc.personality.morality).toBe(expectedPersonality.morality);
+      });
+
+      it('should have correct speech style', () => {
+        expect(npc.speechStyle.greeting).toBe(expectedSpeechStyle.greeting);
+        expect(npc.speechStyle.vocabulary).toBe(expectedSpeechStyle.vocabulary);
+        expect(npc.speechStyle.quirk).toBe(expectedSpeechStyle.quirk);
+      });
+
+      it('should have correct initial reputation', () => {
+        expect(npc.initialRep).toBe(expectedInitialRep);
+      });
+
+      it('should have non-empty tips array with valid strings', () => {
+        expect(Array.isArray(npc.tips)).toBe(true);
+        expect(npc.tips.length).toBeGreaterThan(0);
+
+        npc.tips.forEach((tip) => {
+          expect(typeof tip).toBe('string');
+          expect(tip.length).toBeGreaterThan(0);
         });
       });
+
+      if (expectedTipSamples.length > 0) {
+        it('should contain expected tip samples', () => {
+          expectedTipSamples.forEach((tip) => {
+            expect(npc.tips).toContain(tip);
+          });
+        });
+      }
+
+      it('should have correct discount service', () => {
+        expect(npc.discountService).toBe(expectedDiscountService);
+      });
+
+      it('should have correct tier benefits configuration', () => {
+        expect(npc.tierBenefits).toBeDefined();
+        expect(npc.tierBenefits.warm).toBeDefined();
+        expect(npc.tierBenefits.friendly).toBeDefined();
+        expect(npc.tierBenefits.trusted).toBeDefined();
+        expect(npc.tierBenefits.family).toBeDefined();
+
+        expect(npc.tierBenefits.warm.discount).toBeDefined();
+        expect(npc.tierBenefits.warm.benefit).toBeDefined();
+      });
+
+      it('should pass NPC validation', () => {
+        expect(() => validateNPCDefinition(npc)).not.toThrow();
+      });
     }
-
-    it('should have correct discount service', () => {
-      expect(npc.discountService).toBe(expectedDiscountService);
-    });
-
-    it('should have correct tier benefits configuration', () => {
-      expect(npc.tierBenefits).toBeDefined();
-      expect(npc.tierBenefits.warm).toBeDefined();
-      expect(npc.tierBenefits.friendly).toBeDefined();
-      expect(npc.tierBenefits.trusted).toBeDefined();
-      expect(npc.tierBenefits.family).toBeDefined();
-
-      expect(npc.tierBenefits.warm.discount).toBeDefined();
-      expect(npc.tierBenefits.warm.benefit).toBeDefined();
-    });
-
-    it('should pass NPC validation', () => {
-      expect(() => validateNPCDefinition(npc)).not.toThrow();
-    });
-  });
+  );
 });
