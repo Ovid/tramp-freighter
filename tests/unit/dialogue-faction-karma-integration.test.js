@@ -5,7 +5,7 @@
  * and that NPCs respond appropriately to player's moral alignment and faction standing.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -32,6 +32,10 @@ describe('Dialogue Faction and Karma Integration', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Faction Reputation Conditions', () => {

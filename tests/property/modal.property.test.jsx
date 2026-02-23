@@ -60,7 +60,7 @@ describe('Property: Modals block underlying UI', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -92,7 +92,7 @@ describe('Property: Modals block underlying UI', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -129,7 +129,7 @@ describe('Property: Modals block underlying UI', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -167,7 +167,7 @@ describe('Property: Modals block underlying UI', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -205,7 +205,7 @@ describe('Property: Modals block underlying UI', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -248,7 +248,7 @@ describe("Property: Modals don't block state updates", () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -275,7 +275,7 @@ describe("Property: Modals don't block state updates", () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -321,7 +321,7 @@ describe('ConfirmModal component', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -362,7 +362,7 @@ describe('ConfirmModal component', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

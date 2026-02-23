@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
@@ -29,6 +29,10 @@ describe('Passenger Satisfaction Effect Resolution', () => {
 
     manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     manager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('passengerSatisfaction as cost', () => {

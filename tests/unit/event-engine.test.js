@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 
 function createMockGameStateManager(stateOverrides = {}) {
@@ -40,6 +40,10 @@ describe('EventEngineManager', () => {
   beforeEach(() => {
     mockGSM = createMockGameStateManager();
     engine = new EventEngineManager(mockGSM);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('registerEvent', () => {

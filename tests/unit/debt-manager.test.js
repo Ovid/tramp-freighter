@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -8,16 +8,19 @@ import {
 } from '../../src/game/constants.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
 
-// Suppress console output during tests
-vi.spyOn(console, 'log').mockImplementation(() => {});
-vi.spyOn(console, 'warn').mockImplementation(() => {});
-
 describe('Cole Debt System', () => {
   let gsm;
 
   beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
     gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Finance State Initialization', () => {

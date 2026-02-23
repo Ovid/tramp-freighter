@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
@@ -39,6 +39,10 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     // Mock console.error to avoid noise in test output
     vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const renderSystemPanel = (viewingSystemId, props = {}) => {

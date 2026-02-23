@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   render,
   screen,
@@ -20,19 +20,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  * not auto-dismiss on a timer. Players need time to read financial details.
  */
 describe('Trade receipt persistence', () => {
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (message.includes('act(')) return;
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('Cole withholding receipt persists after DEFAULT_SUCCESS_DURATION', () => {

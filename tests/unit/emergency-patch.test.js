@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RepairManager } from '../../src/game/state/managers/repair.js';
 import { REPAIR_CONFIG } from '../../src/game/constants.js';
 
@@ -24,6 +24,10 @@ describe('Emergency Patch', () => {
     repairManager = new RepairManager(mockGSM);
     repairManager.getState = () => mockState;
     repairManager.validateState = () => {};
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should set system to EMERGENCY_PATCH_TARGET (21%)', () => {

@@ -232,7 +232,7 @@ describe('Combat Modifier Application Property Tests', () => {
           expect(karma).toBeLessThanOrEqual(KARMA_CONFIG.MAX);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { HUD } from '../../src/features/hud/HUD';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -40,6 +40,10 @@ describe('HUD Animation State Integration', () => {
       },
     };
     gameStateManager.setAnimationSystem(mockAnimationSystem);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should update HUD before animation begins', async () => {

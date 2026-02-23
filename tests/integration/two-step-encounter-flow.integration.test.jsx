@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -23,6 +23,10 @@ describe('Two-Step Encounter Flow', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   async function navigateToOrbit() {

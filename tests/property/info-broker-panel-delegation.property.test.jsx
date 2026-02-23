@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   render,
   screen,
@@ -15,24 +15,12 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress React act() warnings for property tests
-let originalConsoleError;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('act(') || message.includes('Warning: ReactDOM.render'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -93,7 +81,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -137,7 +125,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -186,7 +174,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -227,7 +215,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -277,7 +265,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
           return true;
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -343,7 +331,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -382,7 +370,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -417,7 +405,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -466,7 +454,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

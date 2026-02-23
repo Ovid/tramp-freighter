@@ -1,4 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+} from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -10,53 +17,14 @@ import { saveGame, loadGame } from '../../src/game/state/save-load.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings and logs during tests
-let originalConsoleError;
-let originalConsoleWarn;
-let originalConsoleLog;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-  originalConsoleLog = console.log;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return;
-    }
-    originalConsoleWarn(...args);
-  };
-
-  console.log = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Game saved successfully') ||
-        message.includes('Game loaded successfully'))
-    ) {
-      return;
-    }
-    originalConsoleLog(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'log').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
-  console.log = originalConsoleLog;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 beforeEach(() => {

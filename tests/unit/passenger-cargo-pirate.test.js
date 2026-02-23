@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import {
@@ -325,6 +325,10 @@ describe('applyEncounterOutcome - kidnap', () => {
     manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     manager.initNewGame();
     vi.spyOn(manager, 'saveGame').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should abandon mission and apply penalties on kidnap', () => {

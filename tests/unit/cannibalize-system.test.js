@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RepairManager } from '../../src/game/state/managers/repair.js';
 
 describe('System Cannibalization', () => {
@@ -22,6 +22,10 @@ describe('System Cannibalization', () => {
     repairManager = new RepairManager(mockGSM);
     repairManager.getState = () => mockState;
     repairManager.validateState = () => {};
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should raise target to EMERGENCY_PATCH_TARGET', () => {

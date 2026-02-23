@@ -1,19 +1,16 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ErrorBoundary } from '../../src/components/ErrorBoundary.jsx';
 
 // Suppress console.error during error boundary tests
 // These errors are expected when testing error handling
-let originalConsoleError;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  console.error = () => {}; // Suppress all console.error during tests
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -63,7 +60,7 @@ describe('Property: Error boundaries catch component errors', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -96,7 +93,7 @@ describe('Property: Error boundaries catch component errors', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -107,35 +104,34 @@ describe('Property: Error boundaries catch component errors', () => {
         (errorMessage) => {
           cleanup(); // Clean up DOM before each test run
 
-          // Track console.error calls
+          // Track console.error calls by switching mock to capture mode
           const errorLogs = [];
-          console.error = (...args) => {
+          console.error.mockImplementation((...args) => {
             errorLogs.push(args);
-          };
+          });
 
-          try {
-            // Render component that throws error
-            render(
-              <ErrorBoundary>
-                <ThrowError message={errorMessage} />
-              </ErrorBoundary>
-            );
+          // Render component that throws error
+          render(
+            <ErrorBoundary>
+              <ThrowError message={errorMessage} />
+            </ErrorBoundary>
+          );
 
-            // Verify error was logged (at least one log entry)
-            expect(errorLogs.length).toBeGreaterThan(0);
+          // Verify error was logged (at least one log entry)
+          expect(errorLogs.length).toBeGreaterThan(0);
 
-            // Verify log contains error information
-            // The ErrorBoundary logs with console.error('Error caught by ErrorBoundary:', error, errorInfo)
-            const allLogs = errorLogs.flat().join(' ');
-            expect(allLogs).toContain('Error caught by ErrorBoundary');
+          // Verify log contains error information
+          // The ErrorBoundary logs with console.error('Error caught by ErrorBoundary:', error, errorInfo)
+          const allLogs = errorLogs.flat().join(' ');
+          expect(allLogs).toContain('Error caught by ErrorBoundary');
 
-            return true;
-          } finally {
-            console.error = () => {}; // Reset to suppress errors
-          }
+          // Reset mock to suppress mode for remaining property iterations
+          console.error.mockImplementation(() => {});
+
+          return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -175,7 +171,7 @@ describe('Property: Error boundaries catch component errors', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

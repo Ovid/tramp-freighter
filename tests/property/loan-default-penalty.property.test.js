@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -33,6 +33,10 @@ describe('Loan Default Penalty Property Tests', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // Helper function to reset GameStateManager for each property test iteration
@@ -329,7 +333,7 @@ describe('Loan Default Penalty Property Tests', () => {
           expect(updatedNpcState.loanDay).toBe(null);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -394,7 +398,7 @@ describe('Loan Default Penalty Property Tests', () => {
           }
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -427,7 +431,7 @@ describe('Loan Default Penalty Property Tests', () => {
         expect(updatedNpcState.loanAmount).toBe(null);
         expect(updatedNpcState.loanDay).toBe(null);
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

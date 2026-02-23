@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('Cargo Run Mission Completion', () => {
   let manager;
@@ -59,6 +59,10 @@ describe('Cargo Run Mission Completion', () => {
     manager.validateState = vi.fn();
     manager.getState = () => state;
     manager.emit = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should remove mission cargo by missionId on completion', () => {

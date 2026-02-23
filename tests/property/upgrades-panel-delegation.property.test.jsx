@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { UpgradesPanel } from '../../src/features/upgrades/UpgradesPanel.jsx';
@@ -18,24 +18,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('Property: Upgrades panel delegates to GameStateManager', () => {
   // Suppress React act() warnings for property tests
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (
-        message.includes('act(') ||
-        message.includes('Warning: ReactDOM.render')
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should display available upgrades', () => {
@@ -63,7 +51,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -94,7 +82,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -131,7 +119,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -162,7 +150,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -194,7 +182,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -229,7 +217,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -260,7 +248,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -302,7 +290,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -338,7 +326,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -377,7 +365,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -428,7 +416,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -475,7 +463,7 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

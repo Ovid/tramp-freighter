@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -23,6 +23,10 @@ describe('Quick Access Buttons Integration', () => {
       },
     };
     gameStateManager.setAnimationSystem(mockAnimationSystem);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Complete User Workflow', () => {

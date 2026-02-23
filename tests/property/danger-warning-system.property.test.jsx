@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
@@ -40,6 +40,10 @@ describe('Danger Warning System Properties', () => {
     // Mock console methods to avoid test noise
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const renderSystemPanel = (viewingSystemId, props = {}) => {
@@ -158,7 +162,7 @@ describe('Danger Warning System Properties', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 100 }
       );
     });
 
@@ -203,7 +207,7 @@ describe('Danger Warning System Properties', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 100 }
       );
     });
   });
@@ -341,7 +345,7 @@ describe('Danger Warning System Properties', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 100 }
       );
     });
 
@@ -382,7 +386,7 @@ describe('Danger Warning System Properties', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 100 }
       );
     });
   });
@@ -579,7 +583,7 @@ describe('Danger Warning System Properties', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 100 }
       );
     });
   });

@@ -191,7 +191,7 @@ describe('Dialogue Validation Consistency Properties', () => {
           return false;
         }
       }),
-      { numRuns: 10 } // Only need to run this a few times since constants don't change
+      { numRuns: 100 }
     );
   });
 });

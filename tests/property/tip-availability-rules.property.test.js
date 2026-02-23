@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -30,6 +30,10 @@ describe('Tip Availability Rules Property Tests', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // Generator for valid NPC IDs from the game data
@@ -145,7 +149,7 @@ describe('Tip Availability Rules Property Tests', () => {
           }
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -189,7 +193,7 @@ describe('Tip Availability Rules Property Tests', () => {
           }
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -233,7 +237,7 @@ describe('Tip Availability Rules Property Tests', () => {
           }
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -286,7 +290,7 @@ describe('Tip Availability Rules Property Tests', () => {
           }
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });

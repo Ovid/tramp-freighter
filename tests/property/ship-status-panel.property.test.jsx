@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipStatusPanel } from '../../src/features/ship-status/ShipStatusPanel.jsx';
@@ -18,24 +18,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('ShipStatusPanel Property Tests', () => {
   // Suppress React act() warnings for property tests
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (
-        message.includes('act(') ||
-        message.includes('Warning: ReactDOM.render')
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should render as a React component with all sections', () => {
@@ -81,7 +69,7 @@ describe('ShipStatusPanel Property Tests', () => {
         ).find((section) => section.textContent.includes('Ship Quirks'));
         expect(quirksSection).toBeTruthy();
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -106,7 +94,7 @@ describe('ShipStatusPanel Property Tests', () => {
         expect(header.textContent).toContain(shipName);
         expect(header.textContent).toContain('SHIP STATUS');
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -147,7 +135,7 @@ describe('ShipStatusPanel Property Tests', () => {
         expect(labels).toContain('Engine');
         expect(labels).toContain('Life Support');
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -198,7 +186,7 @@ describe('ShipStatusPanel Property Tests', () => {
           });
         }
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -249,7 +237,7 @@ describe('ShipStatusPanel Property Tests', () => {
           });
         }
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -290,7 +278,7 @@ describe('ShipStatusPanel Property Tests', () => {
           });
         }
       ),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -339,7 +327,7 @@ describe('ShipStatusPanel Property Tests', () => {
           });
         }
       ),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -365,7 +353,7 @@ describe('ShipStatusPanel Property Tests', () => {
         expect(conditionBars[1].classList.contains('engine')).toBe(true);
         expect(conditionBars[2].classList.contains('life-support')).toBe(true);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -401,7 +389,7 @@ describe('ShipStatusPanel Property Tests', () => {
           gameStateManager.state.ship.quirks.length - 1
         );
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -437,7 +425,7 @@ describe('ShipStatusPanel Property Tests', () => {
           gameStateManager.state.ship.upgrades.length - 1
         );
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -467,7 +455,7 @@ describe('ShipStatusPanel Property Tests', () => {
           gameStateManager.subscribers.upgradesChanged.length;
         expect(subscriberCount).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

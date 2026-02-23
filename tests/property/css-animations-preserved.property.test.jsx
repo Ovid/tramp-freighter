@@ -44,7 +44,7 @@ describe('Property: Modal animations preserved', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -78,7 +78,7 @@ describe('Property: Notification animations preserved', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -116,7 +116,7 @@ describe('Property: Animation class names preserved', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -149,7 +149,7 @@ describe('Property: Portal rendering preserves animations', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -184,7 +184,7 @@ describe('Property: Animation structure preserved', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });

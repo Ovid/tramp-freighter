@@ -92,7 +92,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           expect(result.reason).toBe('Upgrade already installed');
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -115,7 +115,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           expect(result.reason).toBe('Insufficient credits');
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -137,7 +137,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           expect(result.valid).toBe(true);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -175,7 +175,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           });
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -225,7 +225,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           });
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -294,7 +294,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           expect(result).toBe(currentCredits - upgrade.cost);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -315,7 +315,7 @@ describe('Property: Upgrade utility functions are pure', () => {
           expect(result).toBe(currentCredits);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

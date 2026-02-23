@@ -141,7 +141,7 @@ describe('Property: Scene initialization', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -198,7 +198,7 @@ describe('Property: Scene initialization', () => {
           return true;
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });

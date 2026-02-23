@@ -238,7 +238,7 @@ describe('Property: Info broker utility functions are pure', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 

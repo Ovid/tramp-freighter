@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
@@ -7,40 +7,14 @@ import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
 
-// Suppress React act() warnings in property-based tests
-let originalConsoleError;
-let originalConsoleLog;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleLog = console.log;
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('was not wrapped in act'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-  // Suppress "System info clicked" logs
-  console.log = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      message.includes('System info clicked')
-    ) {
-      return;
-    }
-    originalConsoleLog(...args);
-  };
+// Suppress React act() warnings and "System info clicked" logs in property-based tests
+beforeEach(() => {
+  vi.spyOn(console, 'log').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.log = originalConsoleLog;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -103,7 +77,7 @@ describe('Property 48: Quick access button state updates', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -152,7 +126,7 @@ describe('Property 48: Quick access button state updates', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

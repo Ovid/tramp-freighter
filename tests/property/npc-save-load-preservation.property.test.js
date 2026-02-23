@@ -145,7 +145,7 @@ describe('NPC Save/Load Preservation Property Tests', () => {
         // Verify empty NPC states are preserved
         expect(newGameStateManager.state.npcs).toEqual({});
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -211,7 +211,7 @@ describe('NPC Save/Load Preservation Property Tests', () => {
           expect(testNpcState.flags).toEqual(npcStates.testNpc.flags);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

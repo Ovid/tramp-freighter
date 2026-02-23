@@ -98,7 +98,7 @@ describe('NPC Location Filtering Properties', () => {
           return threwError;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

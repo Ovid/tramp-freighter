@@ -90,7 +90,7 @@ describe('Numbered Choice List Format Properties', () => {
           cleanup();
         }
       }),
-      { numRuns: 20 } // Reduced runs for faster testing
+      { numRuns: 100 }
     );
   });
 
@@ -177,7 +177,7 @@ describe('Numbered Choice List Format Properties', () => {
           }
         }
       ),
-      { numRuns: 20 } // Reduced runs for faster testing
+      { numRuns: 100 }
     );
   });
 });

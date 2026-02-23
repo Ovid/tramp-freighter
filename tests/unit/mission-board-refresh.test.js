@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
   let manager;
@@ -37,6 +37,10 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
     manager.validateState = vi.fn();
     manager.getState = () => state;
     manager.emit = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should generate a mission board without errors', () => {

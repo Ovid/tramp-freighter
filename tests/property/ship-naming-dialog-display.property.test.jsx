@@ -1,4 +1,4 @@
-import { describe, it, beforeAll, afterAll } from 'vitest';
+import { describe, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -8,42 +8,13 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-// React Testing Library warnings that are expected in property-based tests:
-// - "Warning: An update to" - React state updates outside act() are expected in fast-check
-// - "act()" - Property tests intentionally trigger updates without act() wrapper
-// - "Not implemented: HTMLFormElement.prototype.submit" - jsdom limitation, not a real error
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return; // Suppress expected warnings listed above
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return; // Suppress jsdom "Not implemented" warnings (browser API limitations)
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**

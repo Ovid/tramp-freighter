@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -10,38 +10,13 @@ import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return;
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**

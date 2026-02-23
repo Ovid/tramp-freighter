@@ -47,7 +47,7 @@ describe('Property: Card title rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -64,7 +64,7 @@ describe('Property: Card title rendering', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -101,7 +101,7 @@ describe('Property: Card custom header rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -140,7 +140,7 @@ describe('Property: Card custom header rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -177,7 +177,7 @@ describe('Property: Card footer rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -194,7 +194,7 @@ describe('Property: Card footer rendering', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -224,7 +224,7 @@ describe('Property: Card body rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -257,7 +257,7 @@ describe('Property: Card body rendering', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -294,7 +294,7 @@ describe('Property: Card className merging', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -315,7 +315,7 @@ describe('Property: Card className merging', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -352,7 +352,7 @@ describe('Property: Card rest props spreading', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -400,7 +400,7 @@ describe('Property: Card structure consistency', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -424,7 +424,7 @@ describe('Property: Card structure consistency', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });

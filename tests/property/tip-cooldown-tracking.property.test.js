@@ -137,7 +137,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         const updatedNpcState = testGameStateManager.getNPCState(npcId);
         expect(updatedNpcState.lastTipDay).toBe(currentDay);
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -197,7 +197,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           expect(updatedNpcState.lastTipDay).toBe(initialDay);
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -261,7 +261,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           expect(updatedNpcState.lastTipDay).toBe(newDay);
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -333,7 +333,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         expect(testGameStateManager.canGetTip(npcId1).available).toBe(false);
         expect(testGameStateManager.canGetTip(npcId2).available).toBe(false);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -383,7 +383,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
           expect(updatedNpcState.lastTipDay).toBeNull();
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });
