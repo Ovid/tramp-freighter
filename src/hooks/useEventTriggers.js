@@ -2,6 +2,10 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 import { EVENT_NAMES } from '../game/constants.js';
+import {
+  determineThreatLevel,
+  determineInspectionSeverity,
+} from '../game/utils/calculators.js';
 
 /**
  * Unified event trigger hook.
@@ -233,38 +237,3 @@ export function useEventTriggers() {
   }, [gameStateManager, handleTrigger]);
 }
 
-/**
- * Determine pirate threat level based on game state.
- * (Moved from useJumpEncounters — identical logic)
- */
-function determineThreatLevel(gameState) {
-  const cargoValue = gameState.ship.cargo.reduce(
-    (total, item) => total + item.qty * item.buyPrice,
-    0
-  );
-  const hullCondition = gameState.ship.hull;
-  const outlawRep = gameState.player.factions.outlaws;
-
-  if (cargoValue > 10000) return 'dangerous';
-  if (cargoValue > 5000) return 'strong';
-  if (hullCondition < 30) return 'strong';
-  if (hullCondition < 60) return 'moderate';
-  if (outlawRep > 50) return 'strong';
-  if (outlawRep < -50) return 'weak';
-  return 'moderate';
-}
-
-/**
- * Determine inspection severity based on game state.
- * (Moved from useJumpEncounters — identical logic)
- */
-function determineInspectionSeverity(gameState) {
-  const hasRestrictedGoods = gameState.ship.cargo.length > 0;
-  const hasHiddenCargo =
-    gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
-  const authorityRep = gameState.player.factions.authorities;
-
-  if (hasRestrictedGoods && hasHiddenCargo) return 'thorough';
-  if (authorityRep < -25) return 'thorough';
-  return 'routine';
-}
