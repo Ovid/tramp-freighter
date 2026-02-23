@@ -5,6 +5,11 @@
  * These functions can be used in dialogue choice conditions to unlock/lock options
  * based on the player's standing with different factions and moral alignment.
  *
+ * All functions that need game state accept a context object with:
+ * - karma {number} - Player's current karma value
+ * - factionReps {object} - Faction reputation values keyed by faction name
+ *   (authorities, traders, outlaws, civilians)
+ *
  * @module dialogue/faction-karma-conditions
  */
 
@@ -15,126 +20,104 @@ import { FACTION_CONFIG } from '../../constants.js';
  *
  * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
  * @param {number} minRep - Minimum reputation required
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
+ * @param {number} context.karma - Player's current karma
+ * @param {object} context.factionReps - Faction reputation values keyed by faction name
  * @returns {boolean} True if player meets minimum faction reputation
  */
-export function hasFactionRep(faction, minRep, gameStateManager) {
+export function hasFactionRep(faction, minRep, context) {
   if (!FACTION_CONFIG.FACTIONS.includes(faction)) {
     console.warn(`Invalid faction in dialogue condition: ${faction}`);
     return false;
   }
 
-  try {
-    const factionRep = gameStateManager.getFactionRep(faction);
-    return factionRep >= minRep;
-  } catch (error) {
-    console.warn(
-      `Error checking faction reputation in dialogue: ${error.message}`
-    );
-    return false;
-  }
+  const factionRep = context.factionReps[faction] || 0;
+  return factionRep >= minRep;
 }
 
 /**
  * Check if player has minimum karma level
  *
  * @param {number} minKarma - Minimum karma required
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
+ * @param {number} context.karma - Player's current karma
  * @returns {boolean} True if player meets minimum karma level
  */
-function hasKarma(minKarma, gameStateManager) {
-  try {
-    const karma = gameStateManager.getKarma();
-    return karma >= minKarma;
-  } catch (error) {
-    console.warn(`Error checking karma in dialogue: ${error.message}`);
-    return false;
-  }
+export function hasKarma(minKarma, context) {
+  return context.karma >= minKarma;
 }
 
 /**
  * Check if player has maximum karma level (for negative karma checks)
  *
  * @param {number} maxKarma - Maximum karma allowed
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
+ * @param {number} context.karma - Player's current karma
  * @returns {boolean} True if player is at or below maximum karma level
  */
-function hasMaxKarma(maxKarma, gameStateManager) {
-  try {
-    const karma = gameStateManager.getKarma();
-    return karma <= maxKarma;
-  } catch (error) {
-    console.warn(`Error checking karma in dialogue: ${error.message}`);
-    return false;
-  }
+export function hasMaxKarma(maxKarma, context) {
+  return context.karma <= maxKarma;
 }
 
 /**
  * Check if player is trusted by authorities (high authority reputation)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has high authority reputation (>=50)
  */
-export function isTrustedByAuthorities(gameStateManager) {
-  return hasFactionRep('authorities', 50, gameStateManager);
+export function isTrustedByAuthorities(context) {
+  return hasFactionRep('authorities', 50, context);
 }
 
 /**
  * Check if player is known to outlaws (high outlaw reputation)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has high outlaw reputation (>=50)
  */
-export function isKnownToOutlaws(gameStateManager) {
-  return hasFactionRep('outlaws', 50, gameStateManager);
+export function isKnownToOutlaws(context) {
+  return hasFactionRep('outlaws', 50, context);
 }
 
 /**
  * Check if player is a friend to civilians (high civilian reputation)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has high civilian reputation (>=50)
  */
-export function isFriendToCivilians(gameStateManager) {
-  return hasFactionRep('civilians', 50, gameStateManager);
+export function isFriendToCivilians(context) {
+  return hasFactionRep('civilians', 50, context);
 }
 
 /**
  * Check if player has good karma (positive moral alignment)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has good karma (>=25)
  */
-export function hasGoodKarma(gameStateManager) {
-  return hasKarma(25, gameStateManager);
+export function hasGoodKarma(context) {
+  return hasKarma(25, context);
 }
 
 /**
  * Check if player has bad karma (negative moral alignment)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has bad karma (<=-25)
  */
-export function hasBadKarma(gameStateManager) {
-  return hasMaxKarma(-25, gameStateManager);
+export function hasBadKarma(context) {
+  return hasMaxKarma(-25, context);
 }
 
 /**
  * Check if player is wanted by authorities (low authority reputation)
  *
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has low authority reputation (<=-25)
  */
-export function isWantedByAuthorities(gameStateManager) {
-  try {
-    const authorityRep = gameStateManager.getFactionRep('authorities');
-    return authorityRep <= -25;
-  } catch (error) {
-    console.warn(
-      `Error checking authority reputation in dialogue: ${error.message}`
-    );
-    return false;
-  }
+export function isWantedByAuthorities(context) {
+  const authorityRep = context.factionReps.authorities || 0;
+  return authorityRep <= -25;
 }
 
 /**
@@ -142,20 +125,13 @@ export function isWantedByAuthorities(gameStateManager) {
  *
  * @param {string} highFaction - Faction that should have high reputation
  * @param {string} lowFaction - Faction that should have low reputation
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {boolean} True if player has high rep with one faction and low with the other
  */
-export function hasMixedReputation(highFaction, lowFaction, gameStateManager) {
-  try {
-    const highRep = gameStateManager.getFactionRep(highFaction);
-    const lowRep = gameStateManager.getFactionRep(lowFaction);
-    return highRep >= 25 && lowRep <= -25;
-  } catch (error) {
-    console.warn(
-      `Error checking mixed reputation in dialogue: ${error.message}`
-    );
-    return false;
-  }
+export function hasMixedReputation(highFaction, lowFaction, context) {
+  const highRep = context.factionReps[highFaction] || 0;
+  const lowRep = context.factionReps[lowFaction] || 0;
+  return highRep >= 25 && lowRep <= -25;
 }
 
 /**
@@ -222,26 +198,21 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
  * their attitude based on the player's faction standing.
  *
  * @param {string} npcFaction - The faction this NPC belongs to or sympathizes with
- * @param {GameStateManager} gameStateManager - Game state manager instance
+ * @param {object} context - Context object with karma and factionReps
  * @returns {string} Text modifier to append to dialogue
  */
-export function getFactionAttitudeModifier(npcFaction, gameStateManager) {
-  try {
-    const factionRep = gameStateManager.getFactionRep(npcFaction);
+export function getFactionAttitudeModifier(npcFaction, context) {
+  const factionRep = context.factionReps[npcFaction] || 0;
 
-    if (factionRep >= 75) {
-      return " You're a true friend to our cause.";
-    } else if (factionRep >= 50) {
-      return ' We appreciate your support.';
-    } else if (factionRep <= -75) {
-      return " Your reputation precedes you, and it's not good.";
-    } else if (factionRep <= -50) {
-      return ' We have... concerns about your activities.';
-    }
-
-    return '';
-  } catch (error) {
-    console.warn(`Error getting faction attitude modifier: ${error.message}`);
-    return '';
+  if (factionRep >= 75) {
+    return " You're a true friend to our cause.";
+  } else if (factionRep >= 50) {
+    return ' We appreciate your support.';
+  } else if (factionRep <= -75) {
+    return " Your reputation precedes you, and it's not good.";
+  } else if (factionRep <= -50) {
+    return ' We have... concerns about your activities.';
   }
+
+  return '';
 }
