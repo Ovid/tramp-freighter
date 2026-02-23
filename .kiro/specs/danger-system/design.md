@@ -12,10 +12,17 @@ The system follows the existing manager-based architecture, introducing a new `D
 
 The Danger System integrates with the existing architecture through:
 
-1. **DangerManager**: New manager class handling all danger-related logic
-2. **NavigationManager Integration**: Hook into jump events to trigger encounters
-3. **GameStateManager Extensions**: New state fields for karma, faction reputation, and hidden cargo
-4. **UI Components**: React panels for encounter resolution
+1. **DangerManager**: Coordinator for danger zones, karma, faction reputation, encounter probability calculations (~280 lines)
+2. **CombatManager**: Pirate combat resolution (evasive, return fire, dump cargo, distress call)
+3. **NegotiationManager**: Pirate negotiation resolution (counter-proposal, medicine, intel, surrender)
+4. **InspectionManager**: Customs inspection resolution (cooperate, bribe, flee)
+5. **DistressManager**: Civilian distress call encounters (respond, ignore, loot)
+6. **MechanicalFailureManager**: Ship system failure checks and repair options
+7. **NavigationManager Integration**: Hook into jump events to trigger encounters
+8. **GameStateManager Extensions**: New state fields for karma, faction reputation, and hidden cargo
+9. **UI Components**: React panels for encounter resolution
+
+**Note:** DangerManager was split from a monolithic 1843-line file into 5 focused managers per architecture review (item #8). Shared `calculateKarmaModifier` extracted to `src/game/utils/danger-utils.js`.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -24,7 +31,14 @@ The Danger System integrates with the existing architecture through:
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │ Navigation  │──│   Danger    │──│  State (karma, factions)│  │
 │  │  Manager    │  │   Manager   │  │                         │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+│  └─────────────┘  └──────┬──────┘  └─────────────────────────┘  │
+│                          │                                       │
+│         ┌────────┬───────┼────────┬──────────┐                  │
+│         ▼        ▼       ▼        ▼          ▼                  │
+│  ┌─────────┐┌────────┐┌──────┐┌────────┐┌──────────┐           │
+│  │ Combat  ││Negotia-││Inspec││Distress││Mechanical│           │
+│  │ Manager ││tion Mgr││ Mgr  ││ Manager││Failure   │           │
+│  └─────────┘└────────┘└──────┘└────────┘└──────────┘           │
 │         │                │                      │                │
 │         ▼                ▼                      ▼                │
 │  ┌─────────────────────────────────────────────────────────────┐│
@@ -85,34 +99,19 @@ New fields added to game state:
 
 ## Components and Interfaces
 
-### DangerManager
+### DangerManager (Coordinator)
 
-The central manager for all danger-related operations.
+Retains danger zone classification, karma, faction reputation, and encounter probability calculations (~280 lines). Resolution logic is delegated to focused managers.
 
 ```javascript
 class DangerManager extends BaseManager {
   // Danger zone classification
   getDangerZone(systemId): 'safe' | 'contested' | 'dangerous'
-  
-  // Encounter checks (called during jump)
+
+  // Encounter probability calculations
   checkForPirateEncounter(fromSystem, toSystem): PirateEncounter | null
   checkForInspection(systemId): Inspection | null
-  checkForMechanicalFailure(): MechanicalFailure | null
-  checkForDistressCall(): DistressCall | null
-  
-  // Combat resolution
-  resolveCombatChoice(encounter, choice): CombatResult
-  resolveNegotiation(encounter, choice): NegotiationResult
-  
-  // Inspection resolution
-  resolveInspection(inspection, choice): InspectionResult
-  
-  // Distress call resolution
-  resolveDistressCall(distressCall, choice): DistressResult
-  
-  // Mechanical failure resolution
-  resolveMechanicalFailure(failure, choice): FailureResult
-  
+
   // Karma and faction management
   modifyKarma(amount, reason): void
   modifyFactionRep(faction, amount, reason): void
@@ -120,6 +119,62 @@ class DangerManager extends BaseManager {
   getFactionRep(faction): number
 }
 ```
+
+### CombatManager
+
+Pirate combat resolution (evasive, return fire, dump cargo, distress call).
+
+```javascript
+class CombatManager extends BaseManager {
+  resolveCombatChoice(encounter, choice): CombatResult
+}
+```
+
+### NegotiationManager
+
+Pirate negotiation resolution (counter-proposal, medicine, intel, surrender).
+
+```javascript
+class NegotiationManager extends BaseManager {
+  resolveNegotiation(encounter, choice): NegotiationResult
+}
+```
+
+### InspectionManager
+
+Customs inspection resolution (cooperate, bribe, flee).
+
+```javascript
+class InspectionManager extends BaseManager {
+  resolveInspection(inspection, choice): InspectionResult
+}
+```
+
+### DistressManager
+
+Civilian distress call encounters (respond, ignore, loot).
+
+```javascript
+class DistressManager extends BaseManager {
+  checkForDistressCall(): DistressCall | null
+  resolveDistressCall(distressCall, choice): DistressResult
+}
+```
+
+### MechanicalFailureManager
+
+Ship system failure checks and repair options.
+
+```javascript
+class MechanicalFailureManager extends BaseManager {
+  checkForMechanicalFailure(): MechanicalFailure | null
+  resolveMechanicalFailure(failure, choice): FailureResult
+}
+```
+
+### Shared Utilities
+
+`calculateKarmaModifier` extracted to `src/game/utils/danger-utils.js` for use across all encounter managers.
 
 ### Encounter Types
 

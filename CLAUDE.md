@@ -58,9 +58,19 @@ TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
 The `GameStateManager` delegates to 15+ focused domain managers in `src/game/state/managers/`:
 - `EventSystemManager`: Event pub/sub for Bridge Pattern
 - `StateManager`: Core state access/mutations
-- `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `EventEngineManager`, `InfoBrokerManager`, `DangerManager`, `NPCManager`, `MissionManager`, `SaveLoadManager`, `InitializationManager`
+- `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `EventEngineManager`, `InfoBrokerManager`, `NPCManager`, `MissionManager`, `SaveLoadManager`, `InitializationManager`
+- `DangerManager`: Danger zones, karma, faction reputation, encounter probability calculations
+- `CombatManager`: Pirate combat resolution (evasive, return fire, dump cargo, distress call)
+- `NegotiationManager`: Pirate negotiation resolution (counter-proposal, medicine, intel, surrender)
+- `InspectionManager`: Customs inspection resolution (cooperate, bribe, flee)
+- `DistressManager`: Civilian distress call encounters (respond, ignore, loot)
+- `MechanicalFailureManager`: Ship system failure checks and repair options
 
 Each manager extends `BaseManager` and receives the GameStateManager reference. Public API is maintained through delegation methods on GameStateManager.
+
+**Save pattern:** Managers call `this.gameStateManager.markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces saves with a 500ms trailing timer.
+
+**Encounter RNG:** Combat/encounter paths use `SeededRandom` with deterministic seeds (`gameDay_systemId_encounterType`). Do not use `Math.random()` in gameplay paths.
 
 ### Source Organization
 

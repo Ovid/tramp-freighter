@@ -284,6 +284,12 @@ The React migration uses a **Bridge Pattern** to connect the imperative GameStat
 │   Trading    │   │  Navigation  │   │   Events     │
 │   Logic      │   │    Logic     │   │   System     │
 └──────────────┘   └──────────────┘   └──────────────┘
+         │                  │                   │
+         ▼                  ▼                   ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│   Danger     │   │   Combat /   │   │  Inspection  │
+│   Manager    │   │ Negotiation  │   │  / Distress  │
+└──────────────┘   └──────────────┘   └──────────────┘
 ```
 
 ### Bridge Pattern Components

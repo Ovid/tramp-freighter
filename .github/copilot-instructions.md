@@ -105,7 +105,12 @@ src/
     │       ├── dialogue.js
     │       ├── events.js
     │       ├── info-broker.js
-    │       └── danger.js
+    │       ├── danger.js
+    │       ├── combat.js
+    │       ├── negotiation.js
+    │       ├── inspection.js
+    │       ├── distress.js
+    │       └── mechanical-failure.js
     ├── engine/           # Three.js scene management
     │   ├── scene.js
     │   ├── stars.js
@@ -324,7 +329,16 @@ GameStateManager is the **single source of truth** with this state structure:
 - **DialogueManager**: Dialogue state management
 - **EventsManager**: Economic events and time advancement
 - **InfoBrokerManager**: Intelligence trading system
-- **DangerManager**: Encounter system (pirates, inspections, etc.)
+- **DangerManager**: Danger zones, karma, faction reputation, encounter probability calculations
+- **CombatManager**: Pirate combat resolution (evasive, return fire, dump cargo, distress call)
+- **NegotiationManager**: Pirate negotiation resolution (counter-proposal, medicine, intel, surrender)
+- **InspectionManager**: Customs inspection resolution (cooperate, bribe, flee)
+- **DistressManager**: Civilian distress call encounters (respond, ignore, loot)
+- **MechanicalFailureManager**: Ship system failure checks and repair options
+
+**Save pattern:** Managers call `this.gameStateManager.markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces saves with a 500ms trailing timer.
+
+**Encounter RNG:** Combat/encounter paths use `SeededRandom` with deterministic seeds (`gameDay_systemId_encounterType`). Do not use `Math.random()` in gameplay paths.
 
 ### Event Types
 
