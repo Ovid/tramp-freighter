@@ -89,8 +89,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 5 }), // Number of restricted goods
-        fc.float({ min: 0, max: 1 }), // Random number for outcome
-        (restrictedGoodsCount, rng) => {
+        (restrictedGoodsCount) => {
           const gameState = gameStateManager.getState();
 
           // Use goods that are actually restricted at system 0 (Sol, safe zone)
@@ -295,8 +294,8 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.float({ min: 0, max: 1 }), // Random number (not used for flee outcome)
-        (rng) => {
+        fc.constant(0), // placeholder for property-based test structure
+        () => {
           const gameState = gameStateManager.getState();
           const testGameState = createTestGameState(gameState);
 

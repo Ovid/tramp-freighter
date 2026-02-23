@@ -17,9 +17,8 @@ describe('SaveLoadManager debounced save', () => {
   });
 
   it('markDirty should schedule a save after MARK_DIRTY_DEBOUNCE_MS', async () => {
-    const { SaveLoadManager } = await import(
-      '../../src/game/state/managers/save-load.js'
-    );
+    const { SaveLoadManager } =
+      await import('../../src/game/state/managers/save-load.js');
 
     const mockGSM = {
       state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
@@ -40,9 +39,8 @@ describe('SaveLoadManager debounced save', () => {
   });
 
   it('markDirty should reset timer on repeated calls', async () => {
-    const { SaveLoadManager } = await import(
-      '../../src/game/state/managers/save-load.js'
-    );
+    const { SaveLoadManager } =
+      await import('../../src/game/state/managers/save-load.js');
 
     const mockGSM = {
       state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
@@ -66,9 +64,8 @@ describe('SaveLoadManager debounced save', () => {
   });
 
   it('flushSave should save immediately if dirty', async () => {
-    const { SaveLoadManager } = await import(
-      '../../src/game/state/managers/save-load.js'
-    );
+    const { SaveLoadManager } =
+      await import('../../src/game/state/managers/save-load.js');
 
     const mockGSM = {
       state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
@@ -84,9 +81,8 @@ describe('SaveLoadManager debounced save', () => {
   });
 
   it('flushSave should be a no-op if not dirty', async () => {
-    const { SaveLoadManager } = await import(
-      '../../src/game/state/managers/save-load.js'
-    );
+    const { SaveLoadManager } =
+      await import('../../src/game/state/managers/save-load.js');
 
     const mockGSM = {
       state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },

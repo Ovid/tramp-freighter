@@ -13,7 +13,11 @@ import {
  * Compute the seeded RNG value that resolveMechanicalFailure will produce.
  */
 function computeResolveMechanicalRng(daysElapsed, currentSystem) {
-  const seed = buildEncounterSeed(daysElapsed, currentSystem, 'resolve_mechanical');
+  const seed = buildEncounterSeed(
+    daysElapsed,
+    currentSystem,
+    'resolve_mechanical'
+  );
   return new SeededRandom(seed).next();
 }
 
@@ -81,7 +85,9 @@ describe('Property 10: Engine Failure Repair Options', () => {
               gameState
             );
 
-          if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE) {
+          if (
+            seededRng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE
+          ) {
             // Success case
             expect(result.success).toBe(true);
             expect(result.costs.engine).toBe(
@@ -107,8 +113,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
       fc.property(
         fc.integer({ min: 0, max: 100 }), // initial engine condition
         fc.integer({ min: 1000, max: 10000 }), // initial credits (ensure enough for cost)
-        fc.float({ min: 0, max: 1 }), // random number (should not affect outcome)
-        (initialEngine, initialCredits, rng) => {
+        (initialEngine, initialCredits) => {
           // Set up game state
           const gameState = gameStateManager.getState();
           gameState.ship.engine = initialEngine;
@@ -196,8 +201,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
       fc.property(
         fc.integer({ min: 0, max: 100 }), // initial hull condition
         fc.integer({ min: 1, max: 10 }), // cargo count
-        fc.float({ min: 0, max: 1 }), // random number (should not affect outcome)
-        (initialHull, cargoCount, rng) => {
+        (initialHull, cargoCount) => {
           // Set up game state with cargo
           const gameState = gameStateManager.getState();
           gameState.ship.hull = initialHull;
@@ -233,8 +237,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 100 }), // initial life support condition
-        fc.float({ min: 0, max: 1 }), // random number (should not affect outcome)
-        (initialLifeSupport, rng) => {
+        (initialLifeSupport) => {
           // Set up game state
           const gameState = gameStateManager.getState();
           gameState.ship.lifeSupport = initialLifeSupport;
@@ -272,8 +275,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             (s) =>
               !['hull_breach', 'engine_failure', 'life_support'].includes(s)
           ),
-        fc.float({ min: 0, max: 1 }),
-        (unknownFailureType, rng) => {
+        (unknownFailureType) => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
@@ -298,8 +300,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
             (s) =>
               !['emergency_restart', 'call_for_help', 'jury_rig'].includes(s)
           ),
-        fc.float({ min: 0, max: 1 }),
-        (unknownChoice, rng) => {
+        (unknownChoice) => {
           const gameState = gameStateManager.getState();
 
           expect(() => {
