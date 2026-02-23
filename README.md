@@ -1,155 +1,91 @@
 # Tramp Freighter Blues
 
-A character-driven space trading survival game set in the Sol Sector - 117 star systems within 20 light-years of Earth, connected by a network of wormholes.
+**A full game, built entirely with AI — to find out where AI coding actually breaks.**
 
-## What Is This?
+Tramp Freighter Blues is a space trading survival game: 117 real star systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-You're a tramp freighter captain trying to make ends meet in a sector full of opportunities and dangers. Buy low, sell high, manage your ship's resources, and navigate the complex web of relationships that define life among the stars.
+It's not a polished product. It's alpha — minimal game balancing, rough edges everywhere. That was never the point. The point was to push AI-assisted development as far as it goes and document where it fails.
 
-Every credit counts. Every choice matters. And you know these people.
+What I found: four problems. I call them PAAD.
 
-![Tramp Freighter Blues Screenshot](screenshots/main.png)
+![Tramp Freighter Blues](screenshots/main.png)
 
-## Current Features (Alpha)
+## PAAD: The Four Problems with AI Coding
 
-The game is currently in early development with the following features implemented:
+**PAAD = Pushback · Alignment · Architecture · Degradation**
 
-### Core Gameplay
+### Pushback
 
-- **3D Starmap Navigation**: Explore 117 real star systems within 20 light-years of Sol using an interactive 3D starmap powered by Three.js
-- **Wormhole Network**: Travel between systems via wormhole connections - no faster-than-light drives here
-- **Commodity Trading**: Buy and sell goods at stations with dynamic pricing based on spectral class
-- **Resource Management**: Monitor and manage fuel, hull integrity, engine condition, and life support systems
-- **Financial Pressure**: Start with debt and recurring costs that create meaningful economic decisions
+AI tends to agree with whatever you say. It doesn't push back, ask clarifying questions, or tell you your idea has problems. Systems that attempt this don't do it well.
 
-### Ship Systems
+**Status:** Largely solved. Specialized hooks and review workflows force the AI to challenge assumptions before writing code.
 
-- **Fuel Management**: Consume fuel for jumps, refuel at stations
-- **Ship Condition**: Track hull, engine, and life support degradation over time
-- **Repairs**: Fix damaged systems at station repair bays
-- **Upgrades**: Improve your ship with better fuel tanks, cargo holds, and more
-- **Cargo Management**: Track your inventory with detailed cargo manifest
+### Alignment
 
-### Economy
+For larger tasks, AI "understands" the assignment — then implements most of it, plus things you didn't ask for. Scope creep from the machine.
 
-- **Dynamic Prices**: Commodity prices vary by system spectral class and fluctuate daily
-- **Price Discovery**: Only see prices for systems you've visited
-- **Information Broker**: Purchase intelligence about prices in other systems
-- **Economic Events**: Random events affect prices and create opportunities
+**Status:** Largely solved. The same hook-based workflows keep implementation tightly scoped to what was actually requested.
 
-### Persistence
+### Architecture
 
-- **Save/Load System**: Your progress is automatically saved to browser storage
-- **Ship Naming**: Give your ship a name and make it yours
-- **Visited Systems**: Track where you've been and what you've learned
+AI is often bad at architecture. When a feature is hard to implement because the architecture is wrong, AI forces the feature through instead of recognizing the structural problem. It builds around bad foundations.
 
-## How to Play
+**Status:** Partially solved. Pausing between tasks to run specialized architectural review catches issues, but requires diligence and is still risky at scale.
 
-1. **Navigate**: Click on star systems in the 3D starmap to view details
-2. **Jump**: Select a connected system and jump via wormhole (costs fuel)
-3. **Dock**: Arrive at a station to access trading, refueling, repairs, and upgrades
-4. **Trade**: Buy goods where they're cheap, sell where they're expensive
-5. **Manage**: Keep your ship fueled, repaired, and operational
-6. **Survive**: Pay off your debt and make a living among the stars
+### Degradation
 
-## Controls
+A broad category. As software grows, complexity creates edge cases — security holes, subtle logic bugs, weird interactions. AI can't see these patterns. Humans struggle to articulate them clearly enough to teach AI what to watch for.
 
-- **Mouse**: Rotate camera around starmap
-- **Scroll**: Zoom in/out
-- **Click**: Select star systems
-- **UI Buttons**: Access station services and ship functions
+**Status:** Unsolved. This is the hard problem. Some promising work (like Anthropic's zero-day bug research) may help, but cost and scalability are open questions.
 
-## Planned Features
+## The Game
 
-The following features are planned for future releases:
+The result of this experiment is a playable (if unbalanced) space trading survival game.
 
-### Coming Soon
+You're a broke freighter captain hauling cargo through wormhole networks, dodging pirates, bribing customs officials, and trying to keep your ship from falling apart.
 
-**NPCs & Relationships** (Spec 04)
+**What's in it:**
 
-- Memorable NPCs at each station who remember you
-- Relationship system with benefits for building friendships
-- Branching dialogue with meaningful choices
-- NPC-specific tips, favors, and storylines
+- 117 real star systems within 20 light-years of Sol, rendered in an interactive 3D starmap
+- Commodity trading with dynamic prices, economic events, and information brokers
+- Ship systems that degrade — fuel, hull, engines, life support — all need managing
+- NPCs at stations who remember you and build relationships over time
+- Pirate encounters, customs inspections, distress calls, mechanical failures
+- A branching mission system with delivery, fetch, and passenger contracts
+- A multi-stage quest line with an endgame sequence
+- 2,300+ tests across 261 test files
 
-**Danger & Combat** (Spec 05)
+**What's not in it:** Game balance. This is alpha. Prices may be off, difficulty curves are untested, and some encounters are rougher than others. The goal was to build it, not perfect it.
 
-- Pirate encounters with tactical choices
-- Customs inspections (watch that contraband!)
-- Mechanical failures and emergency repairs
-- Distress calls with moral choices
-- Faction reputation system
+## Try It
 
-**Missions & Events** (Spec 06)
+*Online version coming soon.*
 
-- Structured mission system (delivery, fetch, passenger, intel)
-- Rich narrative events at docks and during jumps
-- Time-based story beats
-- Mission board with repeatable contracts
+To run locally:
 
-**The Tanaka Sequence & Endgame** (Spec 07)
+```bash
+git clone <repo-url>
+cd tramp-freighter
+npm install
+npm run dev
+```
 
-- Main questline with Yuki Tanaka
-- Range Extender technology unlock
-- The Pavonis Run - journey to the most distant system
-- Multiple victory conditions
-- Personalized epilogue
-
-**Polish & Content** (Spec 08)
-
-- Expanded NPC roster (15+ characters)
-- 50+ narrative events
-- Balance tuning and difficulty options
-- Accessibility features
-- Performance optimizations
+Open `http://localhost:5173` in your browser.
 
 ## Technical Details
 
-- **Platform**: Browser-based (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- **Storage**: All saves stored locally in browser localStorage
-- **No Server Required**: Fully client-side application
-- **Framework**: React 18+ with Three.js for 3D rendering
-- **Build Tool**: Vite
-
-## Development Status
-
-This game is in active development. Current phase: **Alpha** (Core systems complete)
-
-See the [Development Notes](notes/tramp-freighter-00-index.md) for detailed roadmap and progress.
-
-## Installation
-
-### Play Online
-
-Coming soon - the game will be hosted on GitHub Pages.
-
-### Run Locally
-
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Start development server: `npm run dev`
-4. Open browser to `http://localhost:5173`
-
-### Build for Production
-
-```bash
-npm run build
-npm run preview
-```
+- **Stack:** React 18, Three.js, Vite
+- **Platform:** Browser-based, no server required
+- **Storage:** All saves in browser localStorage
+- **Tests:** Vitest with property-based testing (fast-check)
 
 ## Contributing
 
 This is a personal project, but feedback and bug reports are welcome! Please open an issue if you encounter problems or have suggestions.
 
-## Credits
-
-- **Star Data**: Based on real astronomical data from the HYG Database
-- **Three.js**: 3D rendering library
-- **React**: UI framework
-
 ## License
 
-MIT License - see [LICENSE.md](LICENSE.md) for details.
+MIT License — see [LICENSE.md](LICENSE.md) for details.
 
 ---
 
