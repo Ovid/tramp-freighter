@@ -237,3 +237,45 @@ describe('Dialogue context for supply runs', () => {
     expect(typeof context.contributeSupply).toBe('function');
   });
 });
+
+describe('Full supply run flow (integration)', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGameStateManager();
+    const npcState = manager.getNPCState('tanaka_barnards');
+    npcState.flags.push('tanaka_met');
+    manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
+    manager.state.player.daysElapsed = 20;
+    manager.state.ship.cargo = [
+      { good: 'electronics', qty: 10, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+  });
+
+  it('completes a supply run: eligible → donate → cooldown → ineligible → wait → eligible again', () => {
+    // 1. Eligible
+    expect(manager.canContributeSupply()).toBe(true);
+
+    // 2. Donate
+    const result = manager.contributeSupply();
+    expect(result.success).toBe(true);
+    expect(result.goodDonated).toBe('electronics');
+
+    // 3. Cargo reduced by 5
+    const cargoLeft = manager.state.ship.cargo
+      .filter((c) => c.good === 'electronics')
+      .reduce((sum, c) => sum + c.qty, 0);
+    expect(cargoLeft).toBe(5);
+
+    // 4. On cooldown — not eligible
+    expect(manager.canContributeSupply()).toBe(false);
+
+    // 5. Advance time past cooldown
+    manager.state.player.daysElapsed = 28; // 8 days later, cooldown is 7
+    expect(manager.canContributeSupply()).toBe(true);
+
+    // 6. Second donation works
+    const result2 = manager.contributeSupply();
+    expect(result2.success).toBe(true);
+  });
+});
