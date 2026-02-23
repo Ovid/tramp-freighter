@@ -476,6 +476,10 @@ export class GameStateManager {
     return this.questManager.canContributeSupply();
   }
 
+  contributeSupply() {
+    return this.questManager.contributeSupply();
+  }
+
   startPavonisRun() {
     this.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, true);
   }

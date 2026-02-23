@@ -90,3 +90,76 @@ describe('QuestManager.canContributeSupply', () => {
     expect(result).toBe(true);
   });
 });
+
+describe('QuestManager.contributeSupply', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGameStateManager();
+    const npcState = manager.getNPCState('tanaka_barnards');
+    npcState.flags.push('tanaka_met');
+    manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
+  });
+
+  it('deducts 5 electronics and adds 1 rep on success', () => {
+    manager.state.ship.cargo = [
+      { good: 'electronics', qty: 8, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+    const repBefore = manager.getNPCState('tanaka_barnards').rep;
+    const result = manager.contributeSupply();
+    expect(result.success).toBe(true);
+    expect(result.goodDonated).toBe('electronics');
+
+    // Cargo reduced
+    const remaining = manager.state.ship.cargo
+      .filter((c) => c.good === 'electronics')
+      .reduce((sum, c) => sum + c.qty, 0);
+    expect(remaining).toBe(3);
+
+    // Rep increased
+    expect(manager.getNPCState('tanaka_barnards').rep).toBe(repBefore + 1);
+  });
+
+  it('sets lastSupplyDay cooldown on success', () => {
+    manager.state.player.daysElapsed = 42;
+    manager.state.ship.cargo = [
+      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+    manager.contributeSupply();
+    expect(manager.state.quests.tanaka.data.lastSupplyDay).toBe(42);
+  });
+
+  it('prefers electronics over medicine when both available', () => {
+    manager.state.ship.cargo = [
+      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      { good: 'medicine', qty: 5, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+    const result = manager.contributeSupply();
+    expect(result.goodDonated).toBe('electronics');
+
+    // Electronics deducted, medicine untouched
+    const electronicsLeft = manager.state.ship.cargo
+      .filter((c) => c.good === 'electronics')
+      .reduce((sum, c) => sum + c.qty, 0);
+    const medicineLeft = manager.state.ship.cargo
+      .filter((c) => c.good === 'medicine')
+      .reduce((sum, c) => sum + c.qty, 0);
+    expect(electronicsLeft).toBe(0);
+    expect(medicineLeft).toBe(5);
+  });
+
+  it('falls back to medicine when electronics insufficient', () => {
+    manager.state.ship.cargo = [
+      { good: 'electronics', qty: 2, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      { good: 'medicine', qty: 6, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+    ];
+    const result = manager.contributeSupply();
+    expect(result.goodDonated).toBe('medicine');
+  });
+
+  it('fails when not eligible', () => {
+    manager.state.ship.cargo = []; // No cargo
+    const result = manager.contributeSupply();
+    expect(result.success).toBe(false);
+  });
+});
