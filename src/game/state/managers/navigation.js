@@ -1,6 +1,6 @@
 import { BaseManager } from './base-manager.js';
-import { TradingSystem } from '../../game-trading.js';
-import { COMMODITY_TYPES, EVENT_NAMES } from '../../constants.js';
+import { calculateSystemPrices } from '../../utils/calculators.js';
+import { EVENT_NAMES } from '../../constants.js';
 
 /**
  * NavigationManager - Manages player location, docking, and system exploration
@@ -50,16 +50,7 @@ export class NavigationManager extends BaseManager {
     const activeEvents = state.world.activeEvents;
     const marketConditions = state.world.marketConditions;
 
-    const snapshotPrices = {};
-    for (const goodType of COMMODITY_TYPES) {
-      snapshotPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        system,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
+    const snapshotPrices = calculateSystemPrices(system, currentDay, activeEvents, marketConditions);
 
     // Store price snapshot for this system
     state.world.currentSystemPrices = snapshotPrices;
@@ -107,17 +98,7 @@ export class NavigationManager extends BaseManager {
         'Invalid state: marketConditions missing from world state'
       );
     }
-    const currentPrices = {};
-
-    for (const goodType of COMMODITY_TYPES) {
-      currentPrices[goodType] = TradingSystem.calculatePrice(
-        goodType,
-        currentSystem,
-        currentDay,
-        activeEvents,
-        marketConditions
-      );
-    }
+    const currentPrices = calculateSystemPrices(currentSystem, currentDay, activeEvents, marketConditions);
 
     // Update price knowledge (resets lastVisit to 0)
     this.gameStateManager.updatePriceKnowledge(
