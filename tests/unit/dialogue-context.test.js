@@ -19,7 +19,7 @@ describe('buildDialogueContext', () => {
     canGetTip: (id) => ({ available: true }),
     canRequestFavor: (id, type) => ({ available: type === 'loan' }),
     getFactionRep: (f) =>
-      ({ authorities: 10, outlaws: -5, civilians: 20 }[f] || 0),
+      ({ authorities: 10, outlaws: -5, civilians: 20 })[f] || 0,
     getQuestStage: () => 0,
     getQuestState: () => null,
     canStartQuestStage: () => false,

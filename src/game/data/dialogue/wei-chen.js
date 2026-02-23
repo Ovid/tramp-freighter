@@ -29,7 +29,7 @@ import {
  */
 export const WEI_CHEN_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager) => {
+    text: (rep, context) => {
       let baseText;
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
         baseText =
@@ -45,18 +45,14 @@ export const WEI_CHEN_DIALOGUE = {
       }
 
       // Add karma-based first impression for new or low-reputation encounters
-      if (gameStateManager && rep < REPUTATION_BOUNDS.WARM_MIN) {
-        const karma = gameStateManager.getKarma();
-        const karmaModifier = getKarmaFirstImpression(karma, 'neutral');
+      if (context && rep < REPUTATION_BOUNDS.WARM_MIN) {
+        const karmaModifier = getKarmaFirstImpression(context.karma, 'neutral');
         baseText += karmaModifier;
       }
 
       // Add faction attitude modifier if player has strong civilian reputation
-      if (
-        gameStateManager &&
-        hasFactionRep('civilians', 50, gameStateManager)
-      ) {
-        baseText += getFactionAttitudeModifier('civilians', gameStateManager);
+      if (context && hasFactionRep('civilians', 50, context)) {
+        baseText += getFactionAttitudeModifier('civilians', context);
       }
 
       return baseText;
@@ -69,11 +65,10 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'Any dock worker tips for me?',
         next: 'ask_tip',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
-          const tipAvailability = gameStateManager.canGetTip(npcId);
-          return tipAvailability.available;
+          return context.canGetTip.available;
         },
       },
       {
@@ -84,37 +79,37 @@ export const WEI_CHEN_DIALOGUE = {
       {
         text: 'I understand the risks of bad deals.',
         next: 'bad_deal_sympathy',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Only available if player has bad karma (suggesting they've made questionable choices)
           // and at least neutral reputation with Wei Chen
           return (
             rep >= REPUTATION_BOUNDS.NEUTRAL_MIN &&
-            gameStateManager &&
-            hasBadKarma(gameStateManager)
+            context &&
+            hasBadKarma(context)
           );
         },
       },
       {
         text: 'Any advice for staying out of trouble with authorities?',
         next: 'authority_advice',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Only available if player is wanted by authorities and has warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
-            gameStateManager &&
-            isWantedByAuthorities(gameStateManager)
+            context &&
+            isWantedByAuthorities(context)
           );
         },
       },
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_response',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Only available if player has good karma and neutral+ reputation
           return (
             rep >= REPUTATION_BOUNDS.NEUTRAL_MIN &&
-            gameStateManager &&
-            hasGoodKarma(gameStateManager)
+            context &&
+            hasGoodKarma(context)
           );
         },
       },

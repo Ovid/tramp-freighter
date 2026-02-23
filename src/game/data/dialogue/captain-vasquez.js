@@ -30,22 +30,11 @@ import {
  */
 export const CAPTAIN_VASQUEZ_DIALOGUE = {
   greeting: {
-    text: (rep, gameStateManager, npcId) => {
+    text: (rep, context) => {
       // Validate required parameters
       if (typeof rep !== 'number') {
         throw new Error(
           'Captain Vasquez dialogue: reputation must be a number'
-        );
-      }
-      // Validate optional parameters when provided
-      if (gameStateManager !== undefined && !gameStateManager) {
-        throw new Error(
-          'Captain Vasquez dialogue: gameStateManager cannot be null when provided'
-        );
-      }
-      if (npcId !== undefined && !npcId) {
-        throw new Error(
-          'Captain Vasquez dialogue: npcId cannot be empty when provided'
         );
       }
 
@@ -69,37 +58,35 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       }
 
       // Add karma-based commentary for established relationships
-      if (gameStateManager && rep >= REPUTATION_BOUNDS.WARM_MIN) {
-        if (hasGoodKarma(gameStateManager)) {
+      if (context && rep >= REPUTATION_BOUNDS.WARM_MIN) {
+        if (hasGoodKarma(context)) {
           baseText +=
             " I can see you're one of the good ones - the sector needs more traders like you.";
-        } else if (hasBadKarma(gameStateManager)) {
+        } else if (hasBadKarma(context)) {
           baseText +=
             " You've got a hard edge to you now. The sector can do that to people.";
         }
       }
 
       // Add karma-based first impression for new encounters
-      if (gameStateManager && rep < REPUTATION_BOUNDS.WARM_MIN) {
-        const karma = gameStateManager.getKarma();
-        const karmaModifier = getKarmaFirstImpression(karma, 'lawful');
+      if (context && rep < REPUTATION_BOUNDS.WARM_MIN) {
+        const karmaModifier = getKarmaFirstImpression(context.karma, 'lawful');
         baseText += karmaModifier;
       }
 
       // Add civilian faction appreciation
       if (
-        gameStateManager &&
-        isFriendToCivilians(gameStateManager) &&
+        context &&
+        isFriendToCivilians(context) &&
         rep >= REPUTATION_BOUNDS.WARM_MIN
       ) {
         baseText +=
           " Word is you've been helping folks out there. That's the trader spirit I remember.";
       }
-      if (gameStateManager && npcId) {
-        const npcState = gameStateManager.getNPCState(npcId);
+      if (context && context.npcState) {
+        const npcState = context.npcState;
         if (npcState.loanAmount && npcState.loanAmount > 0) {
-          const currentDay = gameStateManager.getState().player.daysElapsed;
-          const daysElapsed = currentDay - npcState.loanDay;
+          const daysElapsed = context.daysElapsed - npcState.loanDay;
           const daysRemaining =
             NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - daysElapsed;
 
@@ -124,11 +111,10 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'Any trading tips for me?',
         next: 'ask_tip',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and tip availability
           if (rep < REPUTATION_BOUNDS.WARM_MIN) return false;
-          const tipAvailability = gameStateManager.canGetTip(npcId);
-          return tipAvailability.available;
+          return context.canGetTip.available;
         },
       },
       {
@@ -139,47 +125,38 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'I need an emergency loan.',
         next: 'request_loan',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.TRUSTED_MIN) return false;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'loan'
-          );
-          return favorAvailability.available;
+          return context.canRequestLoan.available;
         },
       },
       {
         text: 'Can you store some cargo for me?',
         next: 'request_storage',
-        condition: (rep, gameStateManager, npcId) => {
+        condition: (rep, context) => {
           // Check both reputation requirement and favor availability
           if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          // Fall back to reputation-only check if gameStateManager not available (e.g., in tests)
-          if (!gameStateManager || !gameStateManager.canRequestFavor)
-            return true;
-          const favorAvailability = gameStateManager.canRequestFavor(
-            npcId,
-            'storage'
-          );
-          return favorAvailability.available;
+          // Fall back to reputation-only check if context not available (e.g., in tests)
+          if (!context || !context.canRequestStorage) return true;
+          return context.canRequestStorage.available;
         },
       },
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has an outstanding loan
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
       {
         text: 'I want to retrieve my stored cargo.',
         next: 'retrieve_cargo',
-        condition: (_rep, gameStateManager, npcId) => {
+        condition: (_rep, context) => {
           // Check if NPC has stored cargo
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = context.npcState;
           return Boolean(
             npcState.storedCargo && npcState.storedCargo.length > 0
           );
@@ -188,11 +165,11 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: '"I have a message from Yuki Tanaka."',
         next: 'tanaka_message',
-        condition: (rep, gsm) =>
-          gsm?.getQuestStage?.('tanaka') === 4 &&
-          !gsm?.getQuestState?.('tanaka')?.data?.messageDelivered,
-        action: (gsm) => {
-          gsm.updateQuestData('tanaka', 'messageDelivered', 1);
+        condition: (_rep, context) =>
+          context?.getQuestStage?.('tanaka') === 4 &&
+          !context?.getQuestState?.('tanaka')?.data?.messageDelivered,
+        action: (context) => {
+          context.updateQuestData('tanaka', 'messageDelivered', 1);
           return { success: true, message: 'Message delivered.' };
         },
       },
@@ -203,24 +180,22 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: 'I try to help people when I can.',
         next: 'good_karma_discussion',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Available if player has good karma and warm+ reputation
           return (
             rep >= REPUTATION_BOUNDS.WARM_MIN &&
-            gameStateManager &&
-            hasGoodKarma(gameStateManager)
+            context &&
+            hasGoodKarma(context)
           );
         },
       },
       {
         text: 'Sometimes you have to make hard choices out there.',
         next: 'bad_karma_discussion',
-        condition: (rep, gameStateManager) => {
+        condition: (rep, context) => {
           // Available if player has bad karma and warm+ reputation
           return (
-            rep >= REPUTATION_BOUNDS.WARM_MIN &&
-            gameStateManager &&
-            hasBadKarma(gameStateManager)
+            rep >= REPUTATION_BOUNDS.WARM_MIN && context && hasBadKarma(context)
           );
         },
       },
@@ -383,8 +358,8 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'I accept those terms. Thank you.',
         next: 'greeting',
         repGain: 3,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.requestLoan(npcId);
+        action: (context) => {
+          return context.requestLoan();
         },
       },
       {
@@ -402,8 +377,8 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'That would be a huge help.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.storeCargo(npcId);
+        action: (context) => {
+          return context.storeCargo();
         },
       },
       {
@@ -422,8 +397,8 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'Here are the credits. Thanks for the help.',
         next: 'greeting',
         repGain: 2,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.repayLoan(npcId);
+        action: (context) => {
+          return context.repayLoan();
         },
       },
       {
@@ -441,8 +416,8 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         text: 'Transfer what you can to my ship.',
         next: 'greeting',
         repGain: 1,
-        action: (gameStateManager, npcId) => {
-          return gameStateManager.retrieveCargo(npcId);
+        action: (context) => {
+          return context.retrieveCargo();
         },
       },
       {

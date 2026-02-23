@@ -41,14 +41,10 @@ describe('faction-karma-conditions with context object', () => {
 
   it('isTrustedByAuthorities checks authority rep >= 50', () => {
     expect(
-      isTrustedByAuthorities(
-        makeContext({ factionReps: { authorities: 50 } })
-      )
+      isTrustedByAuthorities(makeContext({ factionReps: { authorities: 50 } }))
     ).toBe(true);
     expect(
-      isTrustedByAuthorities(
-        makeContext({ factionReps: { authorities: 49 } })
-      )
+      isTrustedByAuthorities(makeContext({ factionReps: { authorities: 49 } }))
     ).toBe(false);
   });
 
@@ -76,14 +72,10 @@ describe('faction-karma-conditions with context object', () => {
 
   it('isWantedByAuthorities checks authority rep <= -25', () => {
     expect(
-      isWantedByAuthorities(
-        makeContext({ factionReps: { authorities: -25 } })
-      )
+      isWantedByAuthorities(makeContext({ factionReps: { authorities: -25 } }))
     ).toBe(true);
     expect(
-      isWantedByAuthorities(
-        makeContext({ factionReps: { authorities: -24 } })
-      )
+      isWantedByAuthorities(makeContext({ factionReps: { authorities: -24 } }))
     ).toBe(false);
   });
 

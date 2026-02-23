@@ -78,8 +78,7 @@ export function buildDialogueContext(gameStateManager, npcId) {
     repayLoan: () => gameStateManager.repayLoan(npcId),
     retrieveCargo: () => gameStateManager.retrieveCargo(npcId),
     advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
-    claimStageRewards: (questId) =>
-      gameStateManager.claimStageRewards(questId),
+    claimStageRewards: (questId) => gameStateManager.claimStageRewards(questId),
     startPavonisRun: () => gameStateManager.startPavonisRun(),
     updateQuestData: (...args) => gameStateManager.updateQuestData(...args),
     modifyColeRep: (...args) => gameStateManager.modifyColeRep(...args),
