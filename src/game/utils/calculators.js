@@ -85,7 +85,8 @@ export function determineThreatLevel(gameState) {
   const hullCondition = gameState.ship.hull;
   const outlawRep = gameState.player.factions.outlaws;
 
-  if (cargoValue > THREAT_LEVEL_CONFIG.CARGO_VALUE_DANGEROUS) return 'dangerous';
+  if (cargoValue > THREAT_LEVEL_CONFIG.CARGO_VALUE_DANGEROUS)
+    return 'dangerous';
   if (cargoValue > THREAT_LEVEL_CONFIG.CARGO_VALUE_STRONG) return 'strong';
   if (hullCondition < THREAT_LEVEL_CONFIG.HULL_CRITICAL) return 'strong';
   if (hullCondition < THREAT_LEVEL_CONFIG.HULL_WARNING) return 'moderate';
@@ -108,6 +109,7 @@ export function determineInspectionSeverity(gameState) {
   const authorityRep = gameState.player.factions.authorities;
 
   if (hasRestrictedGoods && hasHiddenCargo) return 'thorough';
-  if (authorityRep < INSPECTION_SEVERITY_CONFIG.AUTHORITY_REP_THOROUGH) return 'thorough';
+  if (authorityRep < INSPECTION_SEVERITY_CONFIG.AUTHORITY_REP_THOROUGH)
+    return 'thorough';
   return 'routine';
 }

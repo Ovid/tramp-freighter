@@ -236,4 +236,3 @@ export function useEventTriggers() {
       gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
   }, [gameStateManager, handleTrigger]);
 }
-

@@ -107,7 +107,9 @@ describe('determineThreatLevel', () => {
   it('returns "dangerous" when cargo value exceeds high threshold', () => {
     const state = makeState({
       ship: {
-        cargo: [{ qty: 100, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_DANGEROUS + 1 }],
+        cargo: [
+          { qty: 100, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_DANGEROUS + 1 },
+        ],
         hull: 100,
       },
     });
@@ -117,7 +119,9 @@ describe('determineThreatLevel', () => {
   it('returns "strong" when cargo value exceeds medium threshold', () => {
     const state = makeState({
       ship: {
-        cargo: [{ qty: 1, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_STRONG + 1 }],
+        cargo: [
+          { qty: 1, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_STRONG + 1 },
+        ],
         hull: 100,
       },
     });
