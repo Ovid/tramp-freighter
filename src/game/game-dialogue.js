@@ -36,6 +36,57 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 const TIP_NODE_ID = 'ask_tip';
 
 /**
+ * Build a flat context object for dialogue text/condition/action functions.
+ * Replaces direct gameStateManager access in dialogue data files.
+ *
+ * @param {Object} gameStateManager - The game state manager instance
+ * @param {string} npcId - NPC identifier for NPC-specific data
+ * @returns {Object} Context object with data properties and action callbacks
+ */
+export function buildDialogueContext(gameStateManager, npcId) {
+  const state = gameStateManager.getState();
+  return {
+    // Read-only data
+    karma: gameStateManager.getKarma(),
+    heat: gameStateManager.getHeatTier(),
+    npcState: gameStateManager.getNPCState(npcId),
+    daysElapsed: state.player.daysElapsed,
+    credits: state.player.credits,
+    cargo: state.ship.cargo,
+    canGetTip: gameStateManager.canGetTip(npcId),
+    canRequestLoan: gameStateManager.canRequestFavor(npcId, 'loan'),
+    canRequestStorage: gameStateManager.canRequestFavor(npcId, 'storage'),
+    factionReps: {
+      authorities: gameStateManager.getFactionRep('authorities'),
+      outlaws: gameStateManager.getFactionRep('outlaws'),
+      civilians: gameStateManager.getFactionRep('civilians'),
+    },
+
+    // Quest accessors (kept as functions since they take parameters)
+    getQuestStage: (questId) => gameStateManager.getQuestStage(questId),
+    getQuestState: (questId) => gameStateManager.getQuestState(questId),
+    canStartQuestStage: (questId, stage) =>
+      gameStateManager.canStartQuestStage(questId, stage),
+    checkQuestObjectives: (questId) =>
+      gameStateManager.checkQuestObjectives(questId),
+    hasClaimedStageRewards: (questId) =>
+      gameStateManager.hasClaimedStageRewards(questId),
+
+    // Action callbacks (bound to npcId where appropriate)
+    requestLoan: () => gameStateManager.requestLoan(npcId),
+    storeCargo: () => gameStateManager.storeCargo(npcId),
+    repayLoan: () => gameStateManager.repayLoan(npcId),
+    retrieveCargo: () => gameStateManager.retrieveCargo(npcId),
+    advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
+    claimStageRewards: (questId) =>
+      gameStateManager.claimStageRewards(questId),
+    startPavonisRun: () => gameStateManager.startPavonisRun(),
+    updateQuestData: (...args) => gameStateManager.updateQuestData(...args),
+    modifyColeRep: (...args) => gameStateManager.modifyColeRep(...args),
+  };
+}
+
+/**
  * Validates NPC ID and returns NPC data
  *
  * Ensures the provided NPC ID exists in the NPC data definitions.
@@ -99,10 +150,13 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
   const npcState = gameStateManager.getNPCState(npcId);
   const currentRep = npcState.rep;
 
+  // Build context for dialogue data file functions
+  const context = buildDialogueContext(gameStateManager, npcId);
+
   // Generate dialogue text (evaluate function if needed)
   let dialogueText =
     typeof dialogueNode.text === 'function'
-      ? dialogueNode.text(currentRep, gameStateManager, npcId)
+      ? dialogueNode.text(currentRep, context)
       : dialogueNode.text;
 
   // Special handling for tip nodes - append actual tip content
@@ -125,8 +179,8 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     // Check condition function if present
     if (choice.condition) {
       try {
-        // Pass both reputation and gameStateManager for more complex conditions
-        isVisible = choice.condition(currentRep, gameStateManager, npcId);
+        // Pass both reputation and context for more complex conditions
+        isVisible = choice.condition(currentRep, context);
       } catch (error) {
         // Log error and hide choice if condition function throws
         console.error(
@@ -218,10 +272,13 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
 
   const selectedChoice = currentNode.choices[choiceIndex];
 
+  // Build context for dialogue data file functions
+  const context = buildDialogueContext(gameStateManager, npcId);
+
   // Execute action if present
   if (selectedChoice.action && typeof selectedChoice.action === 'function') {
     try {
-      const actionResult = selectedChoice.action(gameStateManager, npcId);
+      const actionResult = selectedChoice.action(context);
 
       // Handle action results that indicate failure
       if (
