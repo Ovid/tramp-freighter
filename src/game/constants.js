@@ -1614,3 +1614,72 @@ export const CONDITION_TYPES = {
   HULL_ABOVE: 'hull_above',
   ENGINE_ABOVE: 'engine_above',
 };
+
+/**
+ * Event names for the Bridge Pattern event system.
+ * Used by EventSystemManager, all managers with emit() calls,
+ * and React hooks (useGameEvent, useEventTriggers).
+ *
+ * Keys are UPPER_SNAKE_CASE, values are the camelCase strings
+ * that flow through the event system.
+ */
+export const EVENT_NAMES = Object.freeze({
+  // Player resources
+  CREDITS_CHANGED: 'creditsChanged',
+  DEBT_CHANGED: 'debtChanged',
+  FINANCE_CHANGED: 'financeChanged',
+
+  // Ship systems
+  FUEL_CHANGED: 'fuelChanged',
+  SHIP_CONDITION_CHANGED: 'shipConditionChanged',
+  HULL_CHANGED: 'hullChanged',
+  ENGINE_CHANGED: 'engineChanged',
+  LIFE_SUPPORT_CHANGED: 'lifeSupportChanged',
+  SHIP_NAME_CHANGED: 'shipNameChanged',
+  CONDITION_WARNING: 'conditionWarning',
+
+  // Cargo & inventory
+  CARGO_CHANGED: 'cargoChanged',
+  CARGO_CAPACITY_CHANGED: 'cargoCapacityChanged',
+  HIDDEN_CARGO_CHANGED: 'hiddenCargoChanged',
+
+  // Navigation & location
+  LOCATION_CHANGED: 'locationChanged',
+  CURRENT_SYSTEM_CHANGED: 'currentSystemChanged',
+  DOCKED: 'docked',
+  UNDOCKED: 'undocked',
+  JUMP_COMPLETED: 'jumpCompleted',
+
+  // Time & events
+  TIME_CHANGED: 'timeChanged',
+  ACTIVE_EVENTS_CHANGED: 'activeEventsChanged',
+
+  // Economy & trading
+  PRICE_KNOWLEDGE_CHANGED: 'priceKnowledgeChanged',
+
+  // Upgrades & quirks
+  UPGRADES_CHANGED: 'upgradesChanged',
+  QUIRKS_CHANGED: 'quirksChanged',
+
+  // Dialogue & NPCs
+  DIALOGUE_CHANGED: 'dialogueChanged',
+  NPCS_CHANGED: 'npcsChanged',
+
+  // Factions & karma
+  FACTION_REP_CHANGED: 'factionRepChanged',
+  KARMA_CHANGED: 'karmaChanged',
+
+  // Missions & quests
+  MISSIONS_CHANGED: 'missionsChanged',
+  QUEST_CHANGED: 'questChanged',
+
+  // Intelligence
+  INTELLIGENCE_CHANGED: 'intelligenceChanged',
+
+  // Encounters & narrative
+  ENCOUNTER_TRIGGERED: 'encounterTriggered',
+  NARRATIVE_EVENT_TRIGGERED: 'narrativeEventTriggered',
+
+  // Special
+  PAVONIS_RUN_TRIGGERED: 'pavonisRunTriggered',
+});
