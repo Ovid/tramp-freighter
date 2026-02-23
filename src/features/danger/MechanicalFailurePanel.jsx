@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { FAILURE_CONFIG, SHIP_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  FAILURE_CONFIG,
+  SHIP_CONFIG,
+  EVENT_NAMES,
+} from '../../game/constants.js';
 
 /**
  * MechanicalFailurePanel - React component for mechanical failure resolution
