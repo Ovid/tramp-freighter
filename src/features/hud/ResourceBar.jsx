@@ -1,4 +1,5 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * ResourceBar component displays player credits and debt.
@@ -10,8 +11,8 @@ import { useGameEvent } from '../../hooks/useGameEvent';
  * React Migration Spec: Requirements 7.1, 7.2, 24.4
  */
 export function ResourceBar() {
-  const credits = useGameEvent('creditsChanged');
-  const debt = useGameEvent('debtChanged');
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const debt = useGameEvent(EVENT_NAMES.DEBT_CHANGED);
 
   return (
     <div className="hud-section hud-finances">

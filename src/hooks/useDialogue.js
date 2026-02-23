@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * Custom hook for dialogue system interactions.
@@ -34,7 +35,7 @@ import { useGameEvent } from './useGameEvent.js';
  */
 export function useDialogue() {
   const gameStateManager = useGameState();
-  const dialogueState = useGameEvent('dialogueChanged');
+  const dialogueState = useGameEvent(EVENT_NAMES.DIALOGUE_CHANGED);
 
   /**
    * Start dialogue with an NPC

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { COLE_DEBT_CONFIG } from '../../game/constants';
+import { COLE_DEBT_CONFIG, EVENT_NAMES } from '../../game/constants';
 
 /**
  * FinancePanel - React component for Cole's credit line
@@ -14,10 +14,10 @@ import { COLE_DEBT_CONFIG } from '../../game/constants';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function FinancePanel({ onClose }) {
-  const debt = useGameEvent('debtChanged');
-  const credits = useGameEvent('creditsChanged');
-  const finance = useGameEvent('financeChanged');
-  const currentDay = useGameEvent('timeChanged');
+  const debt = useGameEvent(EVENT_NAMES.DEBT_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const finance = useGameEvent(EVENT_NAMES.FINANCE_CHANGED);
+  const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
   const { getDebtInfo, borrowFromCole, makeDebtPayment } = useGameAction();
 

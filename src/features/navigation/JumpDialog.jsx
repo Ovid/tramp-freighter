@@ -4,6 +4,7 @@ import { useStarData } from '../../hooks/useStarData';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * JumpDialog displays information about a selected target system and allows jumping to it.
@@ -20,12 +21,12 @@ import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities
  */
 export function JumpDialog({ targetSystemId, onClose, onJumpComplete }) {
   const starData = useStarData();
-  const currentSystemId = useGameEvent('locationChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const factionRep = useGameEvent('factionRepChanged');
-  const upgrades = useGameEvent('upgradesChanged');
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const factionRep = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const { executeJump } = useGameAction();
 
   // Validate jump using Bridge Pattern

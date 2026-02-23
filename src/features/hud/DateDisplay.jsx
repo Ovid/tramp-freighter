@@ -1,4 +1,5 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * DateDisplay component displays the current game time.
@@ -9,7 +10,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
  * React Migration Spec: Requirements 7.3, 24.5
  */
 export function DateDisplay() {
-  const daysElapsed = useGameEvent('timeChanged');
+  const daysElapsed = useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
   return (
     <div className="hud-section hud-time">

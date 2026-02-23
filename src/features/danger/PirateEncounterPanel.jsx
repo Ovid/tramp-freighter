@@ -4,6 +4,7 @@ import {
   COMBAT_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
+  EVENT_NAMES,
 } from '../../game/constants.js';
 
 /**
@@ -27,15 +28,15 @@ export function PirateEncounterPanel({
   onClose: _onClose,
 }) {
   // Subscribe to relevant game events for ship status display
-  const hull = useGameEvent('hullChanged');
-  const engine = useGameEvent('engineChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const lifeSupport = useGameEvent('lifeSupportChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const quirks = useGameEvent('quirksChanged');
-  const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
+  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Determine if ship has trade cargo for pirate tribute
   const hasTradeCargo = cargo?.some((item) => item.qty > 0) || false;

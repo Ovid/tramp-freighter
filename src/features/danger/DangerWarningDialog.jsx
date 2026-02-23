@@ -1,6 +1,7 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
+import { EVENT_NAMES } from '../../game/constants.js';
 import '../../../css/panel/danger-warning.css';
 
 /**
@@ -25,10 +26,10 @@ export function DangerWarningDialog({
   onCancel,
 }) {
   // Subscribe to relevant game events for probability calculations
-  const cargo = useGameEvent('cargoChanged');
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const factions = useGameEvent('factionRepChanged');
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Get danger zone classification using Bridge Pattern
   const dangerZone = useDangerZone(destinationSystemId);

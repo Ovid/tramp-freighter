@@ -16,7 +16,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  */
 export function useEventTriggers() {
   const gameStateManager = useGameState();
-  const currentSystem = useGameEvent('locationChanged');
+  const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   /**
    * Build context with dynamic danger chances for jump events.

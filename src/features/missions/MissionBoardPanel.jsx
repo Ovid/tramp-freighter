@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { EVENT_NAMES } from '../../game/constants.js';
 import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
 
 export function MissionBoardPanel({ onClose }) {
-  const missions = useGameEvent('missionsChanged');
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const { acceptMission, refreshMissionBoard } = useGameAction();
   const [feedback, setFeedback] = useState(null);
 

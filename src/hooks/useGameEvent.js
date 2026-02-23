@@ -21,8 +21,8 @@ import { EVENT_NAMES } from '../game/constants.js';
  *
  * @example
  * function ResourceBar() {
- *   const credits = useGameEvent('creditsChanged');
- *   const fuel = useGameEvent('fuelChanged');
+ *   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+ *   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
  *   return <div>Credits: {credits}, Fuel: {fuel}</div>;
  * }
  */

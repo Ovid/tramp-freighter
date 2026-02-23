@@ -20,6 +20,7 @@ import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
+import { EVENT_NAMES } from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
@@ -58,10 +59,10 @@ const VIEW_MODES = {
  */
 export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
-  const currentSystemId = useGameEvent('locationChanged');
-  const encounterEvent = useGameEvent('encounterTriggered');
-  const narrativeEvent = useGameEvent('narrativeEventTriggered');
-  const pavonisRunEvent = useGameEvent('pavonisRunTriggered');
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
+  const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
+  const pavonisRunEvent = useGameEvent(EVENT_NAMES.PAVONIS_RUN_TRIGGERED);
   useEventTriggers();
   const starmapRef = useRef(null);
 

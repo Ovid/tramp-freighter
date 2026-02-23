@@ -16,7 +16,12 @@ import {
   calculateCannibalizeRequired,
   calculateMaxDonation,
 } from './repairUtils';
-import { SHIP_CONFIG, UI_CONFIG, REPAIR_CONFIG } from '../../game/constants';
+import {
+  SHIP_CONFIG,
+  UI_CONFIG,
+  REPAIR_CONFIG,
+  EVENT_NAMES,
+} from '../../game/constants';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
 /**
@@ -34,9 +39,9 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
 export function RepairPanel({ onClose }) {
   const gameStateManager = useGameState();
   const starData = useStarData();
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const credits = useGameEvent('creditsChanged');
-  const currentSystemId = useGameEvent('locationChanged');
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const {
     repair,
     canGetFreeRepair,

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { FACTION_CONFIG } from '../../game/constants.js';
+import { FACTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * OutcomePanel - React component for displaying encounter outcomes
@@ -19,8 +19,8 @@ import { FACTION_CONFIG } from '../../game/constants.js';
  */
 export function OutcomePanel({ outcome, onClose, onContinue }) {
   // Subscribe to current karma and faction reputation for display
-  const karma = useGameEvent('karmaChanged');
-  const factions = useGameEvent('factionRepChanged') || {};
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED) || {};
 
   // Process outcome data for display
   const outcomeAnalysis = useMemo(() => {

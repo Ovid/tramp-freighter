@@ -24,7 +24,7 @@ import {
   updateSelectionRingAnimations,
 } from '../../game/engine/interaction';
 import { updateLabelScale } from '../../game/engine/stars';
-import { VISUAL_CONFIG } from '../../game/constants';
+import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
 import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
@@ -52,8 +52,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
   // Subscribe to fuel changes to update wormhole connection colors
-  const fuel = useGameEvent('fuelChanged');
-  const currentSystem = useGameEvent('locationChanged');
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   // Starmap interaction methods for context
   const starmapMethods = useRef({

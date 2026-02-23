@@ -24,14 +24,14 @@ export function DevAdminPanel({ onClose }) {
   const gameStateManager = useGameState();
 
   // Subscribe to game state changes
-  const credits = useGameEvent('creditsChanged');
-  const debt = useGameEvent('debtChanged');
-  const fuel = useGameEvent('fuelChanged');
-  const shipCondition = useGameEvent('shipConditionChanged');
-  const quirks = useGameEvent('quirksChanged');
-  const upgrades = useGameEvent('upgradesChanged');
-  const cargo = useGameEvent('cargoChanged');
-  const npcs = useGameEvent('npcsChanged');
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const debt = useGameEvent(EVENT_NAMES.DEBT_CHANGED);
+  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
+  const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const npcs = useGameEvent(EVENT_NAMES.NPCS_CHANGED);
 
   // NPC reputation: selected NPC and input fields keyed by npcId
   const [selectedNpcId, setSelectedNpcId] = useState('');

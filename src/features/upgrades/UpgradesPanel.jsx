@@ -9,7 +9,7 @@ import {
   getInstalledUpgrades,
   calculateCreditsAfterPurchase,
 } from './upgradesUtils';
-import { SHIP_CONFIG } from '../../game/constants';
+import { SHIP_CONFIG, EVENT_NAMES } from '../../game/constants';
 
 /**
  * UpgradesPanel component for purchasing ship upgrades.
@@ -25,15 +25,15 @@ import { SHIP_CONFIG } from '../../game/constants';
  */
 export function UpgradesPanel({ onClose }) {
   const starData = useStarData();
-  const credits = useGameEvent('creditsChanged');
-  const currentSystemId = useGameEvent('locationChanged');
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const { purchaseUpgrade } = useGameAction();
 
   const [pendingUpgradeId, setPendingUpgradeId] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Subscribe to upgrades changes to get current upgrade state
-  const installedUpgrades = useGameEvent('upgradesChanged');
+  const installedUpgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
 
   // Calculate available and installed upgrades from events
   const availableUpgradeIds = getAvailableUpgrades({
