@@ -350,8 +350,9 @@ describe('Visited price recording', () => {
     const state = gameStateManager.getState();
     const currentSystemId = state.player.currentSystem;
 
-    // Record visited prices (this calls saveGame internally)
+    // Record visited prices (this calls markDirty internally)
     gameStateManager.recordVisitedPrices();
+    gameStateManager.flushSave();
 
     // Create new game state manager and load
     const newGameStateManager = new GameStateManager(

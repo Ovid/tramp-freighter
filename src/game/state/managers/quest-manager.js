@@ -55,7 +55,7 @@ export class QuestManager extends BaseManager {
     }
 
     this.emit('questChanged', { ...state.quests });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, stage: nextStage };
   }
@@ -87,7 +87,7 @@ export class QuestManager extends BaseManager {
 
     questState.data._rewardsClaimedStage = currentStage;
     this.emit('questChanged', { ...this.getState().quests });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, stage: currentStage };
   }
@@ -143,7 +143,7 @@ export class QuestManager extends BaseManager {
     if (!questState) return;
     questState.data[key] = value;
     this.emit('questChanged', { ...this.getState().quests });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
   }
 
   isQuestComplete(questId) {
@@ -252,6 +252,6 @@ export class QuestManager extends BaseManager {
     tanakaState.data.exoticMaterials =
       (tanakaState.data.exoticMaterials || 0) + 1;
     this.emit('questChanged', { ...this.getState().quests });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
   }
 }

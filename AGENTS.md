@@ -107,6 +107,14 @@ For new functionality, follow RED/GREEN/REFACTOR:
   - **DialogueManager:** Dialogue state management
   - **EventsManager:** Economic events and time advancement coordination
   - **InfoBrokerManager:** Intelligence trading system
+  - **DangerManager:** Danger zones, karma, faction reputation, encounter probability calculations
+  - **CombatManager:** Pirate combat resolution (evasive, return fire, dump cargo, distress call)
+  - **NegotiationManager:** Pirate negotiation resolution (counter-proposal, medicine, intel, surrender)
+  - **InspectionManager:** Customs inspection resolution (cooperate, bribe, flee)
+  - **DistressManager:** Civilian distress call encounters (respond, ignore, loot)
+  - **MechanicalFailureManager:** Ship system failure checks and repair options
+- **Save Pattern:** Managers call `markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces with 500ms trailing timer.
+- **Encounter RNG:** Combat/encounter paths use `SeededRandom` with deterministic seeds (`gameDay_systemId_encounterType`). Do not use `Math.random()` in gameplay paths.
 - **Bridge Pattern:** React components never duplicate game state
 - **Event System:** Components subscribe to state changes via `useGameEvent()`
 - **Actions:** Components trigger changes via `useGameAction()`
@@ -204,6 +212,12 @@ this.repairManager = new RepairManager(this);
 this.dialogueManager = new DialogueManager(this);
 this.eventsManager = new EventsManager(this);
 this.infoBrokerManager = new InfoBrokerManager(this);
+this.dangerManager = new DangerManager(this);
+this.combatManager = new CombatManager(this);
+this.negotiationManager = new NegotiationManager(this);
+this.inspectionManager = new InspectionManager(this);
+this.distressManager = new DistressManager(this);
+this.mechanicalFailureManager = new MechanicalFailureManager(this);
 ```
 
 Each manager handles a specific domain and maintains the same public API through delegation methods in GameStateManager.

@@ -18,6 +18,7 @@ describe('Emergency Patch', () => {
       updateShipCondition: vi.fn(),
       updateTime: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     repairManager = new RepairManager(mockGSM);
@@ -70,6 +71,6 @@ describe('Emergency Patch', () => {
   it('should save game after successful patch', () => {
     repairManager.applyEmergencyPatch('hull');
 
-    expect(mockGSM.saveGame).toHaveBeenCalled();
+    expect(mockGSM.markDirty).toHaveBeenCalled();
   });
 });

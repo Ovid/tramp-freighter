@@ -15,6 +15,11 @@ import { StateManager } from './managers/state.js';
 import { InitializationManager } from './managers/initialization.js';
 import { SaveLoadManager } from './managers/save-load.js';
 import { DangerManager } from './managers/danger.js';
+import { CombatManager } from './managers/combat.js';
+import { NegotiationManager } from './managers/negotiation.js';
+import { InspectionManager } from './managers/inspection.js';
+import { DistressManager } from './managers/distress.js';
+import { MechanicalFailureManager } from './managers/mechanical-failure.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
@@ -99,10 +104,22 @@ export class GameStateManager {
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
     this.dangerManager = new DangerManager(this);
+    this.combatManager = new CombatManager(this);
+    this.negotiationManager = new NegotiationManager(this);
+    this.inspectionManager = new InspectionManager(this);
+    this.distressManager = new DistressManager(this);
+    this.mechanicalFailureManager = new MechanicalFailureManager(this);
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
+
+    // Flush pending saves when the browser tab closes
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        this.flushSave();
+      });
+    }
   }
 
   /**
@@ -398,13 +415,13 @@ export class GameStateManager {
 
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
     this.emit('npcsChanged', { ...this.state.npcs });
-    this.saveGame();
+    this.markDirty();
   }
 
   // ========================================================================
@@ -531,7 +548,7 @@ export class GameStateManager {
   getTip(npcId) {
     const result = this.npcManager.getTip(npcId);
     if (result) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -555,7 +572,7 @@ export class GameStateManager {
   requestLoan(npcId) {
     const result = this.npcManager.requestLoan(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -563,20 +580,20 @@ export class GameStateManager {
   repayLoan(npcId) {
     const result = this.npcManager.repayLoan(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
 
   checkLoanDefaults() {
     this.npcManager.checkLoanDefaults();
-    this.saveGame();
+    this.markDirty();
   }
 
   storeCargo(npcId) {
     const result = this.npcManager.storeCargo(npcId);
     if (result.success) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -584,7 +601,7 @@ export class GameStateManager {
   retrieveCargo(npcId) {
     const result = this.npcManager.retrieveCargo(npcId);
     if (result.success && result.retrieved.length > 0) {
-      this.saveGame();
+      this.markDirty();
     }
     return result;
   }
@@ -702,6 +719,14 @@ export class GameStateManager {
     return this.saveLoadManager.saveGame();
   }
 
+  markDirty() {
+    this.saveLoadManager.markDirty();
+  }
+
+  flushSave() {
+    this.saveLoadManager.flushSave();
+  }
+
   loadGame() {
     const result = this.saveLoadManager.loadGame();
     if (result) {
@@ -766,12 +791,12 @@ export class GameStateManager {
 
   setKarma(value) {
     this.dangerManager.setKarma(value);
-    this.saveGame();
+    this.markDirty();
   }
 
   modifyKarma(amount, reason) {
     this.dangerManager.modifyKarma(amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   getFactionRep(faction) {
@@ -780,12 +805,12 @@ export class GameStateManager {
 
   setFactionRep(faction, value) {
     this.dangerManager.setFactionRep(faction, value);
-    this.saveGame();
+    this.markDirty();
   }
 
   modifyFactionRep(faction, amount, reason) {
     this.dangerManager.modifyFactionRep(faction, amount, reason);
-    this.saveGame();
+    this.markDirty();
   }
 
   hasIllegalMissionCargo() {
@@ -801,23 +826,23 @@ export class GameStateManager {
   }
 
   resolveCombatChoice(encounter, choice) {
-    return this.dangerManager.resolveCombatChoice(encounter, choice);
+    return this.combatManager.resolveCombatChoice(encounter, choice);
   }
 
-  resolveNegotiation(encounter, choice, rng) {
-    return this.dangerManager.resolveNegotiation(encounter, choice, rng);
+  resolveNegotiation(encounter, choice) {
+    return this.negotiationManager.resolveNegotiation(encounter, choice);
   }
 
-  resolveInspection(choice, gameState, rng) {
-    return this.dangerManager.resolveInspection(choice, gameState, rng);
+  resolveInspection(choice, gameState) {
+    return this.inspectionManager.resolveInspection(choice, gameState);
   }
 
-  checkDistressCall(rng) {
-    return this.dangerManager.checkDistressCall(rng);
+  checkDistressCall() {
+    return this.distressManager.checkDistressCall();
   }
 
   resolveDistressCall(distressCall, choice) {
-    return this.dangerManager.resolveDistressCallEncounter(
+    return this.distressManager.resolveDistressCallEncounter(
       distressCall,
       choice
     );
@@ -834,20 +859,16 @@ export class GameStateManager {
   resolveEncounter(encounterData, choice) {
     const { type, encounter } = encounterData;
 
-    // Generate random number for resolution
-    const rng = Math.random();
-
     switch (type) {
       case 'pirate':
-        return this.resolvePirateEncounter(encounter, choice, rng);
+        return this.resolvePirateEncounter(encounter, choice);
       case 'inspection':
-        return this.resolveInspection(choice, this.getState(), rng);
+        return this.resolveInspection(choice, this.getState());
       case 'mechanical_failure':
         return this.resolveMechanicalFailure(
           encounter.type,
           choice,
-          this.getState(),
-          rng
+          this.getState()
         );
       case 'distress_call':
         return this.resolveDistressCall(encounter, choice);
@@ -862,10 +883,9 @@ export class GameStateManager {
    *
    * @param {Object} encounter - Pirate encounter data
    * @param {string} choice - Player's choice (fight, flee, negotiate, surrender)
-   * @param {number} rng - Random number for resolution
    * @returns {Object} Resolution outcome
    */
-  resolvePirateEncounter(encounter, choice, rng) {
+  resolvePirateEncounter(encounter, choice) {
     switch (choice) {
       case 'fight':
         // Fighting maps to return_fire combat choice
@@ -875,25 +895,24 @@ export class GameStateManager {
         return this.resolveCombatChoice(encounter, 'evasive');
       case 'negotiate':
         // Negotiating maps to counter_proposal negotiation choice
-        return this.resolveNegotiation(encounter, 'counter_proposal', rng);
+        return this.resolveNegotiation(encounter, 'counter_proposal');
       case 'surrender':
         // Surrendering maps to accept_demand negotiation choice
-        return this.resolveNegotiation(encounter, 'accept_demand', rng);
+        return this.resolveNegotiation(encounter, 'accept_demand');
       default:
         throw new Error(`Unknown pirate encounter choice: ${choice}`);
     }
   }
 
-  checkMechanicalFailure(gameState, rng) {
-    return this.dangerManager.checkMechanicalFailure(gameState, rng);
+  checkMechanicalFailure(gameState) {
+    return this.mechanicalFailureManager.checkMechanicalFailure(gameState);
   }
 
-  resolveMechanicalFailure(failureType, choice, gameState, rng) {
-    return this.dangerManager.resolveMechanicalFailure(
+  resolveMechanicalFailure(failureType, choice, gameState) {
+    return this.mechanicalFailureManager.resolveMechanicalFailure(
       failureType,
       choice,
-      gameState,
-      rng
+      gameState
     );
   }
 
@@ -1004,7 +1023,7 @@ export class GameStateManager {
   markVictory() {
     if (this.state.meta) {
       this.state.meta.victory = true;
-      this.saveGame();
+      this.markDirty();
     }
   }
 }

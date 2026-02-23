@@ -29,6 +29,7 @@ function createMockGameStateManager(stateOverrides = {}) {
       return this.state;
     },
     saveGame: vi.fn(),
+    markDirty: vi.fn(),
   };
 }
 

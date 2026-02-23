@@ -18,6 +18,7 @@ describe('Property: Cannibalization invariants', () => {
       state: mockState,
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
     const mgr = new RepairManager(mockGSM);
     mgr.getState = () => mockState;

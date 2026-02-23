@@ -15,6 +15,7 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
       state,
       getState: () => state,
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),
       modifyFactionRep: vi.fn(),

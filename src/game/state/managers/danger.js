@@ -3,46 +3,24 @@ import {
   DANGER_CONFIG,
   KARMA_CONFIG,
   FACTION_CONFIG,
-  COMBAT_CONFIG,
-  NEGOTIATION_CONFIG,
-  INSPECTION_CONFIG,
-  FAILURE_CONFIG,
-  DISTRESS_CONFIG,
   RESTRICTED_GOODS_CONFIG,
-  PIRATE_CREDIT_DEMAND_CONFIG,
   MISSION_CARGO_TYPES,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   calculateDistanceFromSol,
 } from '../../constants.js';
-import { pickRandomFrom } from '../../utils/seeded-random.js';
 
 /**
- * DangerManager - Handles danger zone classification and encounter mechanics
+ * DangerManager - Handles danger zone classification and shared encounter state
  *
  * Danger zones classify star systems based on pirate activity and law enforcement:
  * - Safe: Core systems with strong law enforcement presence
  * - Contested: Systems with mixed control and moderate risk
  * - Dangerous: Frontier systems with high pirate activity
  *
- * WHY deterministic classification:
- * - Provides predictable gameplay where players can learn system safety levels
- * - Enables strategic route planning based on known risk/reward tradeoffs
- * - Avoids frustrating randomness in core game mechanics
- *
- * WHY distance-based thresholds:
- * - Reflects realistic decline in central authority influence over distance
- * - Creates intuitive mental model: closer to Sol = safer, frontier = dangerous
- * - Scales automatically with any future starmap expansions
- *
- * WHY these zone types:
- * - Three tiers provide clear risk gradation without overwhelming complexity
- * - Maps to common space opera tropes (core worlds, border systems, frontier)
- * - Allows for distinct gameplay mechanics per zone type
- *
- * Classification is deterministic based on:
- * 1. Explicit system lists in DANGER_CONFIG (safe, contested)
- * 2. Distance from Sol (systems beyond threshold are dangerous)
+ * This manager retains shared state (karma, faction reputation, danger zones)
+ * used by the focused encounter managers: CombatManager, NegotiationManager,
+ * InspectionManager, DistressManager, MechanicalFailureManager.
  *
  * Feature: danger-system
  * Validates: Requirements 1.1, 1.2, 1.10, 1.11, 1.12, 8.3, 9.1, 9.2, 9.3
@@ -67,17 +45,14 @@ export class DangerManager extends BaseManager {
   getDangerZone(systemId) {
     const { ZONES } = DANGER_CONFIG;
 
-    // Check explicit safe systems first
     if (ZONES.safe.systems.includes(systemId)) {
       return 'safe';
     }
 
-    // Check explicit contested systems
     if (ZONES.contested.systems.includes(systemId)) {
       return 'contested';
     }
 
-    // Check distance-based dangerous classification
     const system = this.getStarData().find((s) => s.id === systemId);
     if (system) {
       const distance = calculateDistanceFromSol(system);
@@ -86,7 +61,6 @@ export class DangerManager extends BaseManager {
       }
     }
 
-    // Default to contested for unlisted systems within threshold
     return 'contested';
   }
 
@@ -97,12 +71,6 @@ export class DangerManager extends BaseManager {
   /**
    * Get the current karma value
    *
-   * Karma represents the player's moral alignment and affects random event outcomes,
-   * NPC first impressions, and success rates for various encounters.
-   *
-   * Feature: danger-system, Property 12: Karma Clamping
-   * Validates: Requirements 9.1
-   *
    * @returns {number} Current karma value, clamped to range [-100, 100]
    */
   getKarma() {
@@ -112,9 +80,6 @@ export class DangerManager extends BaseManager {
 
   /**
    * Set karma to a specific value with automatic clamping
-   *
-   * Used by dev admin panel for testing. Karma is automatically clamped
-   * to the range [-100, 100]. Emits 'karmaChanged' event for UI reactivity.
    *
    * @param {number} value - Target karma value
    */
@@ -139,15 +104,8 @@ export class DangerManager extends BaseManager {
   /**
    * Modify karma by a given amount with automatic clamping
    *
-   * Karma is automatically clamped to the range [-100, 100] after modification.
-   * Emits 'karmaChanged' event with the new value for UI reactivity.
-   * Changes are automatically saved to localStorage.
-   *
-   * Feature: danger-system, Property 12: Karma Clamping
-   * Validates: Requirements 9.1, 9.2, 9.3
-   *
-   * @param {number} amount - Amount to add (positive) or subtract (negative) from current karma
-   * @param {string} reason - Description of why karma changed (for logging and UI feedback)
+   * @param {number} amount - Amount to add (positive) or subtract (negative)
+   * @param {string} reason - Description of why karma changed
    */
   modifyKarma(amount, reason) {
     this.validateState();
@@ -177,14 +135,6 @@ export class DangerManager extends BaseManager {
   /**
    * Calculate the probability of a pirate encounter for a given system
    *
-   * Applies zone-specific base rates and all modifiers from cargo value,
-   * engine condition, upgrades, and faction reputation. Final probability
-   * is clamped to [0, 1] range.
-   *
-   * Feature: danger-system, Property 2: Zone-Specific Encounter Rates
-   * Feature: danger-system, Property 3: Encounter Probability Modifiers
-   * Validates: Requirements 2.1, 2.7, 2.8, 2.9, 2.10, 8.8
-   *
    * @param {number} systemId - The destination system ID
    * @param {Object} gameState - Current game state for modifier calculations
    * @returns {number} Probability of pirate encounter (0.0 to 1.0)
@@ -192,7 +142,6 @@ export class DangerManager extends BaseManager {
   calculatePirateEncounterChance(systemId, gameState) {
     const zone = this.getDangerZone(systemId);
 
-    // Destructure all needed config values for better performance and readability
     const {
       ZONES,
       CARGO_VALUE_MODIFIERS: {
@@ -213,56 +162,44 @@ export class DangerManager extends BaseManager {
       },
     } = DANGER_CONFIG;
 
-    // Start with base rate for the zone type
     let probability = ZONES[zone].pirateChance;
 
-    // Apply cargo value modifiers (Requirements 2.7, 2.8)
     const cargoValue = this.calculateCargoValue(gameState.ship.cargo);
 
     if (cargoValue >= HIGH_VALUE_THRESHOLD) {
-      probability *= HIGH_VALUE_MULTIPLIER; // 1.5x for cargo > ₡10,000
+      probability *= HIGH_VALUE_MULTIPLIER;
     } else if (cargoValue >= LOW_VALUE_THRESHOLD) {
-      probability *= LOW_VALUE_MULTIPLIER; // 1.2x for cargo > ₡5,000
+      probability *= LOW_VALUE_MULTIPLIER;
     }
 
-    // Apply engine condition modifier (Requirement 2.9)
     if (gameState.ship.engine < POOR_CONDITION_THRESHOLD) {
-      probability *= POOR_CONDITION_MULTIPLIER; // 1.1x for engine < 50%
+      probability *= POOR_CONDITION_MULTIPLIER;
     }
 
-    // Apply advanced sensors modifier (Requirement 2.10)
     if (gameState.ship.upgrades.includes('advanced_sensors')) {
-      probability *= ADVANCED_SENSORS_PIRATE_REDUCTION; // 0.8x with advanced sensors
+      probability *= ADVANCED_SENSORS_PIRATE_REDUCTION;
     }
 
-    // Apply faction reputation modifiers (Requirement 8.8)
     const outlawRep = gameState.player.factions.outlaws;
     const authorityRep = gameState.player.factions.authorities;
 
-    // Outlaw reputation reduces pirate encounters (they recognize you as one of them)
     const outlawModifier =
       1 + (outlawRep / 100) * OUTLAW_PIRATE_REDUCTION_SCALE;
     probability *= outlawModifier;
 
-    // Authority reputation affects pirate encounters (less patrol protection at low rep)
     const authorityModifier =
       1 + (authorityRep / 100) * AUTHORITY_PIRATE_INCREASE_SCALE;
     probability *= authorityModifier;
 
-    // Apply illegal mission cargo modifier (rumors attract pirates)
     if (this.hasIllegalMissionCargo(gameState.ship.cargo)) {
       probability *= ILLEGAL_CARGO_PIRATE_MULTIPLIER;
     }
 
-    // Clamp final probability to [0, 1] range
     return Math.max(0, Math.min(1, probability));
   }
 
   /**
    * Calculate the total value of cargo in the ship's hold
-   *
-   * Helper method for pirate encounter probability calculation.
-   * Sums the value of all cargo based on purchase prices.
    *
    * @param {Array} cargo - Array of cargo objects with quantity and purchasePrice
    * @returns {number} Total cargo value in credits
@@ -280,13 +217,6 @@ export class DangerManager extends BaseManager {
   /**
    * Calculate the probability of a customs inspection for a given system
    *
-   * Applies zone-specific base rates and all modifiers from restricted goods,
-   * core systems multiplier, and faction reputation. Final probability
-   * is clamped to [0, 1] range.
-   *
-   * Feature: danger-system, Property 8: Inspection Probability Scaling
-   * Validates: Requirements 5.1, 5.2, 5.12, 8.8
-   *
    * @param {number} systemId - The destination system ID
    * @param {Object} gameState - Current game state for modifier calculations
    * @returns {number} Probability of customs inspection (0.0 to 1.0)
@@ -294,7 +224,6 @@ export class DangerManager extends BaseManager {
   calculateInspectionChance(systemId, gameState) {
     const zone = this.getDangerZone(systemId);
 
-    // Destructure all needed config values for better performance and readability
     const {
       ZONES,
       CORE_SYSTEMS_INSPECTION_MULTIPLIER,
@@ -302,17 +231,12 @@ export class DangerManager extends BaseManager {
       FACTION_REPUTATION_SCALES: { AUTHORITY_INSPECTION_REDUCTION_SCALE },
     } = DANGER_CONFIG;
 
-    // Start with base rate for the zone type (Requirement 5.2)
     let probability = ZONES[zone].inspectionChance;
 
-    // Apply core systems multiplier (Requirement 5.12)
-    // Core systems (Sol, Alpha Centauri) have doubled inspection rates
     if (systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID) {
-      probability *= CORE_SYSTEMS_INSPECTION_MULTIPLIER; // 2x for core systems
+      probability *= CORE_SYSTEMS_INSPECTION_MULTIPLIER;
     }
 
-    // Apply restricted goods modifier (Requirement 5.2)
-    // Modifier = 1 + (count * 0.1), so each restricted good adds 10% to inspection chance
     const restrictedGoodsCount = this.countRestrictedGoods(
       gameState.ship.cargo,
       zone,
@@ -323,29 +247,20 @@ export class DangerManager extends BaseManager {
       1 + restrictedGoodsCount * RESTRICTED_GOODS_INSPECTION_INCREASE;
     probability *= restrictedModifier;
 
-    // Apply faction reputation modifier (Requirement 8.8)
-    // High authority reputation reduces inspection chance (they trust you)
     const authorityRep = gameState.player.factions.authorities;
 
     const factionModifier =
       1 + (authorityRep / 100) * AUTHORITY_INSPECTION_REDUCTION_SCALE;
     probability *= factionModifier;
 
-    // Clamp final probability to [0, 1] range
     return Math.max(0, Math.min(1, probability));
   }
 
   /**
-   * Count the number of restricted goods in cargo for a given zone and system
+   * Check if cargo contains illegal mission cargo
    *
-   * Checks cargo against zone-specific restrictions from RESTRICTED_GOODS_CONFIG.
-   * Core systems (Sol, Alpha Centauri) have additional restrictions on top of
-   * their zone restrictions.
-   *
-   * @param {Array} cargo - Array of cargo objects with 'good' property
-   * @param {string} zone - Danger zone type ('safe', 'contested', 'dangerous')
-   * @param {number} [systemId] - Optional system ID for core system checks
-   * @returns {number} Number of restricted goods in cargo
+   * @param {Array} cargo - Array of cargo objects
+   * @returns {boolean} True if illegal mission cargo is present
    */
   hasIllegalMissionCargo(cargo) {
     if (!cargo) {
@@ -357,6 +272,14 @@ export class DangerManager extends BaseManager {
     );
   }
 
+  /**
+   * Count the number of restricted goods in cargo for a given zone and system
+   *
+   * @param {Array} cargo - Array of cargo objects with 'good' property
+   * @param {string} zone - Danger zone type ('safe', 'contested', 'dangerous')
+   * @param {number} [systemId] - Optional system ID for core system checks
+   * @returns {number} Number of restricted goods in cargo
+   */
   countRestrictedGoods(cargo, zone, systemId) {
     const zoneRestrictions =
       RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
@@ -369,7 +292,6 @@ export class DangerManager extends BaseManager {
     const allRestricted = [...zoneRestrictions, ...coreRestrictions];
 
     return cargo.filter((item) => {
-      // Illegal mission cargo is always restricted
       if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
         return true;
 
@@ -394,687 +316,15 @@ export class DangerManager extends BaseManager {
   }
 
   // ========================================================================
-  // COMBAT RESOLUTION SYSTEM
-  // ========================================================================
-
-  /**
-   * Resolve a combat choice and return the outcome
-   *
-   * Implements tactical combat resolution with choice-driven outcomes.
-   * Each choice has specific success rates, costs, and rewards based on
-   * the COMBAT_CONFIG configuration.
-   *
-   * Feature: danger-system, Property 4: Combat Resolution Outcomes
-   * Validates: Requirements 3.1-3.11, 8.7
-   *
-   * @param {Object} encounter - The pirate encounter object
-   * @param {string} choice - Combat choice ('evasive', 'return_fire', 'dump_cargo', 'distress_call')
-   * @returns {Object} Combat outcome with success, costs, rewards, and description
-   */
-  resolveCombatChoice(encounter, choice) {
-    this.validateState();
-
-    const gameState = this.getState();
-
-    // Generate random number for success determination
-    const rng = Math.random();
-
-    let result;
-    switch (choice) {
-      case 'evasive':
-        result = this.resolveEvasiveManeuvers(encounter, gameState, rng);
-        break;
-      case 'return_fire':
-        result = this.resolveReturnFire(encounter, gameState, rng);
-        break;
-      case 'dump_cargo':
-        result = this.resolveDumpCargo();
-        break;
-      case 'distress_call':
-        result = this.resolveDistressCall(encounter, gameState, rng);
-        break;
-      default:
-        throw new Error(`Unknown combat choice: ${choice}`);
-    }
-
-    this.incrementDangerFlag('piratesFought');
-    return result;
-  }
-
-  /**
-   * Resolve evasive maneuvers combat choice
-   *
-   * Evasive maneuvers attempt to flee using engine power.
-   * Success rate: 70% base chance + modifiers
-   * Success: -15% fuel, -5% engine condition
-   * Failure: -20% hull damage (modified by hull quirks/upgrades)
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Combat outcome
-   */
-  resolveEvasiveManeuvers(encounter, gameState, rng) {
-    const { EVASIVE } = COMBAT_CONFIG;
-
-    // Calculate success chance with modifiers
-    let successChance = EVASIVE.BASE_CHANCE;
-
-    // Apply hot_thruster quirk bonus
-    if (gameState.ship.quirks.includes('hot_thruster')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
-    }
-
-    // Apply efficient_drive upgrade bonus (affects flee attempts)
-    if (gameState.ship.upgrades.includes('efficient_drive')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
-    }
-
-    // Apply karma as hidden modifier
-    successChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp success chance to [0, 1]
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {
-          fuel: EVASIVE.SUCCESS_FUEL_COST,
-          engine: EVASIVE.SUCCESS_ENGINE_COST,
-        },
-        rewards: {},
-        description: 'Successfully evaded the pirates using evasive maneuvers.',
-      };
-    } else {
-      // Apply lucky_ship quirk chance to negate bad outcome
-      if (this.checkLuckyShipNegate(gameState, rng)) {
-        return {
-          success: true,
-          costs: {
-            fuel: EVASIVE.SUCCESS_FUEL_COST,
-            engine: EVASIVE.SUCCESS_ENGINE_COST,
-          },
-          rewards: {},
-          description:
-            'Lucky ship systems helped evade the pirates at the last moment.',
-        };
-      }
-
-      // Calculate hull damage with modifiers
-      let hullDamage = EVASIVE.FAILURE_HULL_DAMAGE;
-      hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-
-      return {
-        success: false,
-        costs: {
-          hull: hullDamage,
-        },
-        rewards: {},
-        description:
-          'Evasive maneuvers failed. Pirates scored hits on your hull.',
-      };
-    }
-  }
-
-  /**
-   * Resolve return fire combat choice
-   *
-   * Return fire engages in direct combat with the pirates.
-   * Success rate: 45% base chance
-   * Success: -10% hull damage, +5 outlaw reputation
-   * Failure: -30% hull damage, lose all cargo and ₡500 credits
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Combat outcome
-   */
-  resolveReturnFire(encounter, gameState, rng) {
-    const { RETURN_FIRE } = COMBAT_CONFIG;
-
-    // Calculate success chance with modifiers
-    let successChance = RETURN_FIRE.BASE_CHANCE;
-
-    // Apply karma as hidden modifier
-    successChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp success chance to [0, 1]
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
-
-    if (success) {
-      // Calculate hull damage with modifiers
-      let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
-      hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-
-      return {
-        success: true,
-        costs: {
-          hull: hullDamage,
-        },
-        rewards: {
-          factionRep: {
-            outlaws: RETURN_FIRE.SUCCESS_OUTLAW_REP,
-          },
-        },
-        description: 'Successfully drove off the pirates with return fire.',
-      };
-    } else {
-      // Apply lucky_ship quirk chance to negate bad outcome
-      if (this.checkLuckyShipNegate(gameState, rng)) {
-        // Convert failure to success with lucky ship
-        let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
-        hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-
-        return {
-          success: true,
-          costs: {
-            hull: hullDamage,
-          },
-          rewards: {
-            factionRep: {
-              outlaws: RETURN_FIRE.SUCCESS_OUTLAW_REP,
-            },
-          },
-          description:
-            'Lucky ship systems turned the tide of battle in your favor.',
-        };
-      }
-
-      // Calculate hull damage with modifiers
-      let hullDamage = RETURN_FIRE.FAILURE_HULL_DAMAGE;
-      hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-
-      return {
-        success: false,
-        costs: {
-          hull: hullDamage,
-          credits: RETURN_FIRE.FAILURE_CREDITS_LOSS,
-          cargoLoss: true, // Indicates all cargo is lost
-        },
-        rewards: {},
-        description: 'Return fire failed. Pirates boarded and took everything.',
-      };
-    }
-  }
-
-  /**
-   * Resolve dump cargo combat choice
-   *
-   * Dump cargo guarantees escape but loses cargo and fuel.
-   * Success rate: 100% (guaranteed)
-   * Cost: -50% cargo, -10% fuel
-   *
-   * @returns {Object} Combat outcome
-   */
-  resolveDumpCargo() {
-    const { DUMP_CARGO } = COMBAT_CONFIG;
-
-    return {
-      success: true,
-      costs: {
-        cargoPercent: DUMP_CARGO.CARGO_LOSS_PERCENT,
-        fuel: DUMP_CARGO.FUEL_COST,
-      },
-      rewards: {},
-      description: 'Dumped cargo to distract pirates and escaped safely.',
-    };
-  }
-
-  /**
-   * Resolve distress call combat choice
-   *
-   * Distress call attempts to summon patrol assistance.
-   * Success rate: 30% base chance
-   * Success: +5 authority reputation (patrol arrives)
-   * Failure: -25% hull damage (pirates attack while waiting)
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Combat outcome
-   */
-  resolveDistressCall(encounter, gameState, rng) {
-    const { DISTRESS_CALL } = COMBAT_CONFIG;
-
-    // Calculate success chance with modifiers
-    let successChance = DISTRESS_CALL.BASE_CHANCE;
-
-    // Apply sensitive_sensors quirk bonus
-    if (gameState.ship.quirks.includes('sensitive_sensors')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.sensitive_sensors.distressBonus;
-    }
-
-    // Apply karma as hidden modifier
-    successChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp success chance to [0, 1]
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {},
-        rewards: {
-          factionRep: {
-            authorities: DISTRESS_CALL.SUCCESS_REP_GAIN,
-          },
-        },
-        description:
-          'Patrol responded to distress call and drove off the pirates.',
-      };
-    } else {
-      // Apply lucky_ship quirk chance to negate bad outcome
-      if (this.checkLuckyShipNegate(gameState, rng)) {
-        return {
-          success: true,
-          costs: {},
-          rewards: {
-            factionRep: {
-              authorities: DISTRESS_CALL.SUCCESS_REP_GAIN,
-            },
-          },
-          description:
-            'Lucky ship systems boosted the distress signal at the last moment.',
-        };
-      }
-
-      // Calculate hull damage with modifiers
-      let hullDamage = DISTRESS_CALL.FAILURE_HULL_DAMAGE;
-      hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
-
-      return {
-        success: false,
-        costs: {
-          hull: hullDamage,
-        },
-        rewards: {},
-        description: 'No patrol response. Pirates attacked while you waited.',
-      };
-    }
-  }
-
-  // ========================================================================
-  // NEGOTIATION SYSTEM
-  // ========================================================================
-
-  /**
-   * Resolve a negotiation choice and return the outcome
-   *
-   * Implements dialogue-based pirate encounter resolution with contextual options.
-   * Each choice has specific success rates, costs, and rewards based on
-   * the NEGOTIATION_CONFIG configuration.
-   *
-   * Feature: danger-system, Property 6: Negotiation Outcomes
-   * Validates: Requirements 4.1-4.11, 8.7, 9.4, 9.10
-   *
-   * @param {Object} encounter - The pirate encounter object
-   * @param {string} choice - Negotiation choice ('counter_proposal', 'medicine_claim', 'intel_offer', 'accept_demand')
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Negotiation outcome with success, costs, rewards, and description
-   */
-  resolveNegotiation(encounter, choice, rng) {
-    this.validateState();
-
-    const gameState = this.getState();
-
-    let result;
-    switch (choice) {
-      case 'counter_proposal':
-        result = this.resolveCounterProposal(encounter, gameState, rng);
-        break;
-      case 'medicine_claim':
-        result = this.resolveMedicineClaim(encounter, gameState, rng);
-        break;
-      case 'intel_offer':
-        result = this.resolveIntelOffer(encounter, gameState, rng);
-        break;
-      case 'accept_demand':
-        result = this.resolveAcceptDemand(rng);
-        break;
-      default:
-        throw new Error(`Unknown negotiation choice: ${choice}`);
-    }
-
-    this.incrementDangerFlag('piratesNegotiated');
-    return result;
-  }
-
-  /**
-   * Resolve counter-proposal negotiation choice
-   *
-   * Counter-proposal attempts to negotiate a lower payment.
-   * Success rate: 60% base chance + karma modifier
-   * Success: 10% cargo payment instead of full demand
-   * Failure: +10% enemy strength increase, forces combat
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Negotiation outcome
-   */
-  resolveCounterProposal(encounter, gameState, rng) {
-    const { COUNTER_PROPOSAL } = NEGOTIATION_CONFIG;
-
-    // Calculate success chance with karma modifier
-    let successChance = COUNTER_PROPOSAL.BASE_CHANCE;
-    successChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp success chance to [0, 1]
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
-
-    if (success) {
-      if (this.hasTradeCargoForPirates()) {
-        return {
-          success: true,
-          costs: {
-            cargoPercent: COUNTER_PROPOSAL.SUCCESS_CARGO_PERCENT,
-          },
-          rewards: {},
-          description:
-            'Successfully negotiated a reduced payment with the pirates.',
-        };
-      }
-
-      const reducedCredits = Math.round(
-        PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5
-      );
-      return {
-        success: true,
-        costs: {
-          credits: reducedCredits,
-        },
-        rewards: {},
-        description: `Talked the pirates down to ₡${reducedCredits} in credits.`,
-      };
-    } else {
-      return {
-        success: false,
-        costs: {
-          strengthIncrease: COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE,
-        },
-        rewards: {},
-        description: 'Negotiation failed. Pirates are now more aggressive.',
-      };
-    }
-  }
-
-  /**
-   * Resolve medicine claim negotiation choice
-   *
-   * Medicine claim attempts to gain pirate sympathy by claiming to carry medicine.
-   * Only available if medicine is actually in cargo.
-   * Success rate: 40% sympathy chance if medicine present
-   * Success: Free passage
-   * Failure: Forces combat or other consequence
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Negotiation outcome
-   */
-  resolveMedicineClaim(encounter, gameState, rng) {
-    const { MEDICINE_CLAIM } = NEGOTIATION_CONFIG;
-
-    // Check if medicine is actually in cargo
-    const hasMedicine = gameState.ship.cargo.some(
-      (item) => item.good === 'medicine'
-    );
-
-    if (!hasMedicine) {
-      return {
-        success: false,
-        costs: {
-          strengthIncrease:
-            NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE,
-        },
-        rewards: {},
-        description:
-          'Pirates discovered you have no medicine. They are not pleased.',
-      };
-    }
-
-    // Apply karma modifier to sympathy chance
-    let sympathyChance = MEDICINE_CLAIM.SYMPATHY_CHANCE;
-    sympathyChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp sympathy chance to [0, 1]
-    sympathyChance = Math.max(0, Math.min(1, sympathyChance));
-
-    const success = rng < sympathyChance;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {},
-        rewards: {},
-        description:
-          'Pirates showed sympathy for your medical mission and let you pass.',
-      };
-    } else {
-      return {
-        success: false,
-        costs: {
-          cargoPercent: encounter.demandPercent || 20, // Fall back to standard demand
-        },
-        rewards: {},
-        description:
-          'Pirates acknowledged your medicine but still demanded payment.',
-      };
-    }
-  }
-
-  /**
-   * Resolve intel offer negotiation choice
-   *
-   * Intel offer attempts to trade information about other ships for safe passage.
-   * Only available if player has acquired prior intelligence.
-   * Success: Free passage, +3 outlaw reputation for cooperating with pirates
-   * Failure: Reputation penalty if discovered, forces combat
-   *
-   * @param {Object} encounter - The pirate encounter
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Negotiation outcome
-   */
-  resolveIntelOffer(encounter, gameState, rng) {
-    const { INTEL_OFFER } = NEGOTIATION_CONFIG;
-
-    // Check if player has prior intelligence to offer
-    const hasPriorIntel = gameState.world.flags?.hasPriorIntel || false;
-
-    if (!hasPriorIntel) {
-      return {
-        success: false,
-        costs: {
-          strengthIncrease:
-            NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE,
-        },
-        rewards: {},
-        description: 'You have no useful intelligence to offer the pirates.',
-      };
-    }
-
-    // Intel offer has a high success rate but carries reputation risks
-    // Apply karma modifier to success chance
-    let successChance = NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE;
-    successChance += this.calculateKarmaModifier(gameState.player.karma);
-
-    // Clamp success chance to [0, 1]
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {},
-        rewards: {
-          factionRep: {
-            outlaws: INTEL_OFFER.OUTLAW_REP_GAIN,
-          },
-        },
-        description:
-          'Pirates accepted your intelligence and let you pass. Your cooperation was noted.',
-      };
-    } else {
-      return {
-        success: false,
-        costs: {
-          reputationPenalty: INTEL_OFFER.SUCCESS_REP_PENALTY,
-        },
-        rewards: {},
-        description:
-          'Pirates rejected your intelligence offer and became suspicious.',
-      };
-    }
-  }
-
-  /**
-   * Check if ship has any trade cargo for pirate tribute
-   *
-   * @returns {boolean} True if ship has trade cargo with qty > 0
-   */
-  hasTradeCargoForPirates() {
-    this.validateState();
-    const cargo = this.getState().ship.cargo;
-    return cargo.some((item) => item.qty > 0);
-  }
-
-  /**
-   * Resolve accept demand negotiation choice
-   *
-   * If the ship has trade cargo, pays the standard cargo percentage.
-   * If no trade cargo, demands flat credits instead. If player can't
-   * afford credits, routes to kidnap/damage resolution.
-   *
-   * @param {Function} [rng=Math.random] - Random number generator for testability
-   * @returns {Object} Negotiation outcome
-   */
-  resolveAcceptDemand(rng = Math.random) {
-    const { ACCEPT_DEMAND } = NEGOTIATION_CONFIG;
-
-    if (this.hasTradeCargoForPirates()) {
-      return {
-        success: true,
-        costs: {
-          cargoPercent: ACCEPT_DEMAND.CARGO_PERCENT,
-        },
-        rewards: {},
-        description:
-          'Paid the pirates their demanded tribute and continued safely.',
-      };
-    }
-
-    const { MIN_CREDIT_DEMAND, MAX_CREDIT_DEMAND } =
-      PIRATE_CREDIT_DEMAND_CONFIG;
-    const rngValue = typeof rng === 'function' ? rng() : rng;
-    const creditDemand = Math.round(
-      MIN_CREDIT_DEMAND + rngValue * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
-    );
-
-    const gameState = this.getState();
-    if (gameState.player.credits >= creditDemand) {
-      return {
-        success: true,
-        costs: {
-          credits: creditDemand,
-        },
-        rewards: {},
-        description: `No cargo to plunder. Pirates demanded ₡${creditDemand} in credits instead.`,
-      };
-    }
-
-    return this.resolveCannotPayPirates(rng);
-  }
-
-  /**
-   * Resolve situation when player can't pay pirate credit demand
-   *
-   * If active passenger missions exist, pirates may kidnap the highest-value
-   * passenger (weighted by type). Otherwise, pirates damage the ship.
-   *
-   * @param {Function} [rng=Math.random] - Random number generator for testability
-   * @returns {Object} Negotiation outcome with kidnap or damage costs
-   */
-  resolveCannotPayPirates(rng = Math.random) {
-    const gameState = this.getState();
-    const activeMissions = gameState.missions?.active || [];
-    const passengerMissions = activeMissions.filter(
-      (m) => m.type === 'passenger' && m.passenger
-    );
-
-    if (passengerMissions.length > 0) {
-      const sorted = [...passengerMissions].sort((a, b) => {
-        const wA =
-          PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[a.passenger.type] || 0;
-        const wB =
-          PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[b.passenger.type] || 0;
-        return wB - wA;
-      });
-
-      const target = sorted[0];
-      const weight =
-        PIRATE_CREDIT_DEMAND_CONFIG.KIDNAP_WEIGHTS[target.passenger.type] || 0;
-      const rngValue = typeof rng === 'function' ? rng() : rng;
-
-      if (rngValue < weight) {
-        return {
-          success: false,
-          costs: {
-            kidnappedPassengerId: target.id,
-          },
-          rewards: {},
-          description: `You couldn't pay. The pirates seized your passenger, ${target.passenger.name}.`,
-        };
-      }
-    }
-
-    const { MIN_PERCENT, MAX_PERCENT } =
-      PIRATE_CREDIT_DEMAND_CONFIG.NO_PAYMENT_SHIP_DAMAGE;
-    const rngValue = typeof rng === 'function' ? rng() : rng;
-    const damagePercent = Math.round(
-      MIN_PERCENT + rngValue * (MAX_PERCENT - MIN_PERCENT)
-    );
-
-    const systems = ['hull', 'engine', 'lifeSupport'];
-    const targetSystem = pickRandomFrom(systems, () => rngValue);
-
-    const costs = {};
-    costs[targetSystem] = damagePercent;
-
-    return {
-      success: false,
-      costs,
-      rewards: {},
-      description: `You couldn't pay. Pirates damaged your ${targetSystem === 'lifeSupport' ? 'life support' : targetSystem} before leaving.`,
-    };
-  }
-
-  // ========================================================================
   // FACTION REPUTATION SYSTEM
   // ========================================================================
 
   /**
    * Get the reputation value for a specific faction
    *
-   * Faction reputation affects encounter probabilities, NPC attitudes, and available
-   * dialogue options. Each faction has independent reputation tracking.
-   *
-   * Feature: danger-system, Property 13: Faction Reputation Clamping
-   * Validates: Requirements 8.1, 8.2
-   *
    * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
    * @returns {number} Current faction reputation, clamped to range [-100, 100]
-   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
+   * @throws {Error} If faction name is not valid
    */
   getFactionRep(faction) {
     this.validateState();
@@ -1091,12 +341,9 @@ export class DangerManager extends BaseManager {
   /**
    * Set faction reputation to a specific value with automatic clamping
    *
-   * Used by dev admin panel for testing. Reputation is automatically clamped
-   * to the range [-100, 100]. Emits 'factionRepChanged' event for UI reactivity.
-   *
    * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
    * @param {number} value - Target reputation value
-   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
+   * @throws {Error} If faction name is not valid
    */
   setFactionRep(faction, value) {
     this.validateState();
@@ -1121,17 +368,10 @@ export class DangerManager extends BaseManager {
   /**
    * Modify faction reputation by a given amount with automatic clamping
    *
-   * Faction reputation is automatically clamped to the range [-100, 100] after modification.
-   * Emits 'factionRepChanged' event with the new value for UI reactivity.
-   * Changes are automatically saved to localStorage.
-   *
-   * Feature: danger-system, Property 13: Faction Reputation Clamping
-   * Validates: Requirements 8.3
-   *
    * @param {string} faction - Faction name (authorities, traders, outlaws, civilians)
-   * @param {number} amount - Amount to add (positive) or subtract (negative) from current reputation
-   * @param {string} reason - Description of why reputation changed (for logging and UI feedback)
-   * @throws {Error} If faction name is not valid (not in FACTION_CONFIG.FACTIONS)
+   * @param {number} amount - Amount to add (positive) or subtract (negative)
+   * @param {string} reason - Description of why reputation changed
+   * @throws {Error} If faction name is not valid
    */
   modifyFactionRep(faction, amount, reason) {
     this.validateState();
@@ -1154,690 +394,6 @@ export class DangerManager extends BaseManager {
       `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
     );
 
-    // Emit the complete factions object for Bridge Pattern compatibility
     this.emit('factionRepChanged', this.getState().player.factions);
-  }
-
-  // ========================================================================
-  // COMBAT MODIFIER HELPERS
-  // ========================================================================
-
-  /**
-   * Calculate karma modifier for success rates
-   *
-   * Karma provides a hidden modifier to success rates, giving players with
-   * high karma slightly better odds and players with low karma slightly worse odds.
-   * The effect is subtle (±5% at extreme karma) to avoid making karma overpowered.
-   *
-   * @param {number} karma - Current karma value (-100 to +100)
-   * @returns {number} Modifier to add to success rate (-0.05 to +0.05)
-   */
-  calculateKarmaModifier(karma) {
-    // Karma affects success rates: ±5% at extreme karma
-    return karma * KARMA_CONFIG.SUCCESS_RATE_SCALE;
-  }
-
-  /**
-   * Check if lucky_ship quirk negates a bad outcome
-   *
-   * Lucky ship provides a chance to negate bad combat outcomes.
-   * Base chance is 5%, scaled by karma (higher karma = better luck).
-   * This represents the ship's systems working in the player's favor.
-   *
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for luck determination
-   * @returns {boolean} True if lucky ship negates the bad outcome
-   */
-  checkLuckyShipNegate(gameState, rng) {
-    if (!gameState.ship.quirks.includes('lucky_ship')) {
-      return false;
-    }
-
-    // Calculate lucky ship effectiveness with karma scaling
-    const baseChance = COMBAT_CONFIG.MODIFIERS.lucky_ship.negateChanceBase;
-    const karmaBonus =
-      gameState.player.karma * KARMA_CONFIG.LUCKY_SHIP_KARMA_SCALE;
-    const luckyChance = baseChance + karmaBonus;
-
-    // Use the provided random number for luck check
-    return rng < luckyChance;
-  }
-
-  /**
-   * Apply hull damage modifiers from quirks and upgrades
-   *
-   * Modifies hull damage based on ship quirks and upgrades:
-   * - reinforced_hull: Reduces damage by 25%
-   * - leaky_seals: Increases damage by 10%
-   *
-   * @param {number} baseDamage - Base hull damage amount
-   * @param {Object} gameState - Current game state
-   * @returns {number} Modified hull damage amount
-   */
-  applyHullDamageModifiers(baseDamage, gameState) {
-    let modifiedDamage = baseDamage;
-
-    // Apply reinforced_hull upgrade (reduces damage)
-    if (gameState.ship.upgrades.includes('reinforced_hull')) {
-      const reduction = COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction;
-      modifiedDamage *= 1 - reduction;
-    }
-
-    // Apply leaky_seals quirk (increases damage)
-    if (gameState.ship.quirks.includes('leaky_seals')) {
-      const increase = COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease;
-      modifiedDamage *= 1 + increase;
-    }
-
-    // Round to nearest integer and ensure minimum of 1 damage
-    return Math.max(1, Math.round(modifiedDamage));
-  }
-
-  // ========================================================================
-  // INSPECTION RESOLUTION SYSTEM
-  // ========================================================================
-
-  /**
-   * Resolve an inspection choice and return the outcome
-   *
-   * Implements customs inspection resolution with choice-driven outcomes.
-   * Each choice has specific success rates, costs, and rewards based on
-   * the INSPECTION_CONFIG configuration.
-   *
-   * Feature: danger-system, Property 7: Inspection Outcomes
-   * Validates: Requirements 5.3-5.11, 8.4, 8.5, 8.7, 11.8
-   *
-   * @param {string} choice - Inspection choice ('cooperate', 'bribe', 'flee')
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Inspection outcome with success, costs, rewards, and description
-   */
-  resolveInspection(choice, gameState, rng) {
-    this.validateState();
-
-    let result;
-    switch (choice) {
-      case 'cooperate':
-        result = this.resolveInspectionCooperate(gameState, rng);
-        this.incrementDangerFlag('inspectionsPassed');
-        break;
-      case 'bribe':
-        result = this.resolveInspectionBribe(gameState, rng);
-        this.incrementDangerFlag('inspectionsBribed');
-        break;
-      case 'flee':
-        result = this.resolveInspectionFlee();
-        this.incrementDangerFlag('inspectionsFled');
-        break;
-      default:
-        throw new Error(`Unknown inspection choice: ${choice}`);
-    }
-
-    return result;
-  }
-
-  /**
-   * Resolve cooperate inspection choice
-   *
-   * Cooperate complies with the inspection, confiscating restricted goods
-   * and imposing fines. Hidden cargo may be discovered based on security level.
-   *
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for hidden cargo discovery
-   * @returns {Object} Inspection outcome
-   */
-  resolveInspectionCooperate(gameState, rng) {
-    let totalFine = 0;
-    let restrictedGoodsConfiscated = false;
-    let hiddenCargoConfiscated = false;
-    let authorityRepChange = INSPECTION_CONFIG.COOPERATE.AUTHORITY_REP_GAIN;
-    let outlawRepChange = 0;
-
-    // Check for restricted goods in regular cargo
-    const currentSystem = gameState.player.currentSystem || 0;
-    const zone = this.getDangerZone(currentSystem);
-    const restrictedCount = this.countRestrictedGoods(
-      gameState.ship.cargo || [],
-      zone,
-      currentSystem
-    );
-    const hasRestrictedGoods = restrictedCount > 0;
-    if (hasRestrictedGoods) {
-      totalFine += INSPECTION_CONFIG.COOPERATE.RESTRICTED_FINE;
-      restrictedGoodsConfiscated = true;
-      // Apply penalty for restricted goods (this is added to the cooperation bonus)
-      authorityRepChange +=
-        INSPECTION_CONFIG.REPUTATION_PENALTIES.RESTRICTED_GOODS;
-    }
-
-    // Check for hidden cargo discovery
-    const hasHiddenCargo =
-      gameState.ship.hiddenCargo && gameState.ship.hiddenCargo.length > 0;
-    if (hasHiddenCargo) {
-      // Apply security level multiplier for hidden cargo discovery
-      // Core systems (0, 1) should use core multiplier regardless of zone
-      let securityMultiplier;
-      if (currentSystem === 0 || currentSystem === 1) {
-        securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
-      } else {
-        securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[zone];
-      }
-
-      const discoveryChance =
-        INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
-
-      if (rng < discoveryChance) {
-        totalFine += INSPECTION_CONFIG.COOPERATE.HIDDEN_FINE;
-        hiddenCargoConfiscated = true;
-        // Override with penalty for hidden cargo discovery
-        authorityRepChange =
-          INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO;
-        outlawRepChange =
-          INSPECTION_CONFIG.REPUTATION_PENALTIES.SMUGGLING_OUTLAW_BONUS;
-      }
-    }
-
-    const outcome = {
-      success: true,
-      costs: {
-        credits: totalFine,
-      },
-      rewards: {
-        factionRep: {
-          authorities: authorityRepChange,
-        },
-      },
-      description: 'Cooperated with customs inspection.',
-    };
-
-    // Add confiscation flags if applicable
-    if (restrictedGoodsConfiscated) {
-      outcome.costs.restrictedGoodsConfiscated = true;
-    }
-    if (hiddenCargoConfiscated) {
-      outcome.costs.hiddenCargoConfiscated = true;
-    }
-    if (outlawRepChange > 0) {
-      outcome.rewards.factionRep.outlaws = outlawRepChange;
-    }
-
-    return outcome;
-  }
-
-  /**
-   * Resolve bribery inspection choice
-   *
-   * Bribery attempts to avoid inspection through corruption.
-   * Success rate: 60% base chance
-   * Success: Pay bribe cost, avoid confiscation
-   * Failure: Pay bribe cost + additional fine, confiscate goods
-   *
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for bribery success
-   * @returns {Object} Inspection outcome
-   */
-  resolveInspectionBribe(gameState, rng) {
-    const success = rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE;
-
-    let totalCost = INSPECTION_CONFIG.BRIBE.COST;
-    let description = 'Attempted to bribe customs inspector.';
-
-    if (success) {
-      description =
-        'Successfully bribed customs inspector and avoided inspection.';
-    } else {
-      totalCost += INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE;
-      description =
-        'Bribery attempt failed. Inspector imposed additional penalties.';
-    }
-
-    return {
-      success,
-      costs: {
-        credits: totalCost,
-      },
-      rewards: {
-        factionRep: {
-          authorities: INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY,
-        },
-      },
-      description,
-    };
-  }
-
-  /**
-   * Resolve flee inspection choice
-   *
-   * Flee attempts to escape the inspection by running.
-   * This triggers a patrol combat encounter and applies reputation penalties.
-   *
-   * @returns {Object} Inspection outcome
-   */
-  resolveInspectionFlee() {
-    return {
-      success: false,
-      triggerPatrolCombat: true,
-      costs: {},
-      rewards: {
-        factionRep: {
-          authorities: INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY,
-        },
-      },
-      description: 'Fled from customs inspection. Patrol ships are in pursuit.',
-    };
-  }
-
-  // ========================================================================
-  // DISTRESS CALL SYSTEM
-  // ========================================================================
-
-  /**
-   * Check for distress call encounters during jump
-   *
-   * Distress calls are random encounters where the player encounters
-   * other ships in distress, presenting moral choices about whether
-   * to help, ignore, or exploit the situation.
-   *
-   * WHY 10% encounter rate:
-   * - Provides regular moral choices without overwhelming the player
-   * - Balances meaningful decision frequency with gameplay flow
-   * - Creates anticipation and variety during routine jumps
-   *
-   * WHY civilian distress specifically:
-   * - Tests player's moral alignment in clear good/neutral/evil choices
-   * - Provides karma and reputation consequences that affect future encounters
-   * - Creates emergent storytelling through player moral decisions
-   *
-   * Feature: danger-system
-   * Validates: Requirements 7.1
-   *
-   * @param {number} rng - Random number (0-1) for encounter determination
-   * @returns {Object|null} Distress call object or null if no encounter
-   */
-  checkDistressCall(rng) {
-    this.validateState();
-
-    // Check if distress call occurs
-    if (rng < DISTRESS_CONFIG.CHANCE) {
-      return {
-        id: `distress_${Date.now()}`,
-        type: 'civilian_distress',
-        description:
-          'A civilian vessel is broadcasting a distress signal. Their engines have failed and they need assistance.',
-        options: ['respond', 'ignore', 'loot'],
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Resolve a distress call encounter choice and return the outcome
-   *
-   * Implements moral choice resolution for distress call encounters.
-   * Each choice has specific costs, rewards, and karma/reputation effects.
-   *
-   * Feature: danger-system, Property 11: Distress Call Outcomes
-   * Validates: Requirements 7.2-7.10, 8.6, 8.7
-   *
-   * @param {Object} distressCall - The distress call encounter object
-   * @param {string} choice - Distress call choice ('respond', 'ignore', 'loot')
-   * @returns {Object} Distress call outcome with success, costs, rewards, and description
-   */
-  resolveDistressCallEncounter(distressCall, choice) {
-    this.validateState();
-
-    let result;
-    switch (choice) {
-      case 'respond':
-        result = this.resolveDistressRespond();
-        this.incrementDangerFlag('civiliansSaved');
-        break;
-      case 'ignore':
-        result = this.resolveDistressIgnore();
-        break;
-      case 'loot':
-        result = this.resolveDistressLoot();
-        this.incrementDangerFlag('civiliansLooted');
-        break;
-      default:
-        throw new Error(`Unknown distress call choice: ${choice}`);
-    }
-
-    return result;
-  }
-
-  /**
-   * Resolve respond distress call choice
-   *
-   * Respond helps the distressed vessel with resource costs but provides
-   * credits, reputation, and karma rewards.
-   * Costs: 2 days, 15% fuel, 5% life support
-   * Rewards: ₡500, +10 civilian reputation, +1 karma
-   *
-   * @returns {Object} Distress call outcome
-   */
-  resolveDistressRespond() {
-    return {
-      success: true,
-      costs: {
-        days: DISTRESS_CONFIG.RESPOND.DAYS_COST,
-        fuel: DISTRESS_CONFIG.RESPOND.FUEL_COST,
-        lifeSupport: DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST,
-      },
-      rewards: {
-        credits: DISTRESS_CONFIG.RESPOND.CREDITS_REWARD,
-        factionRep: {
-          civilians: DISTRESS_CONFIG.RESPOND.REP_REWARD,
-        },
-        karma: DISTRESS_CONFIG.RESPOND.KARMA_REWARD,
-      },
-      description:
-        'You helped the distressed vessel repair their engines. They were grateful and offered payment for your assistance.',
-    };
-  }
-
-  /**
-   * Resolve ignore distress call choice
-   *
-   * Ignore applies karma penalty for not helping those in need.
-   * Costs: -1 karma
-   *
-   * @returns {Object} Distress call outcome
-   */
-  resolveDistressIgnore() {
-    return {
-      success: false,
-      costs: {},
-      rewards: {
-        karma: DISTRESS_CONFIG.IGNORE.KARMA_PENALTY,
-      },
-      description:
-        'You ignored the distress call and continued on your way. The decision weighs on your conscience.',
-    };
-  }
-
-  /**
-   * Resolve loot distress call choice
-   *
-   * Loot takes advantage of the distressed vessel for cargo rewards
-   * but applies severe karma and reputation penalties.
-   * Costs: 1 day, -3 karma, -15 civilian reputation
-   * Rewards: +5 outlaw reputation, cargo
-   *
-   * @returns {Object} Distress call outcome
-   */
-  resolveDistressLoot() {
-    return {
-      success: true,
-      costs: {
-        days: DISTRESS_CONFIG.LOOT.DAYS_COST,
-      },
-      rewards: {
-        karma: DISTRESS_CONFIG.LOOT.KARMA_PENALTY,
-        factionRep: {
-          civilians: DISTRESS_CONFIG.LOOT.REP_PENALTY,
-          outlaws: DISTRESS_CONFIG.LOOT.OUTLAW_REP_GAIN,
-        },
-        cargo: [
-          {
-            good: 'parts',
-            qty: 2,
-            buyPrice: 0,
-            buySystemName: 'Salvaged',
-          },
-        ],
-      },
-      description:
-        'You salvaged valuable parts from the distressed vessel. The crew will remember your betrayal.',
-    };
-  }
-
-  // ========================================================================
-  // MECHANICAL FAILURE SYSTEM
-  // ========================================================================
-
-  /**
-   * Check for mechanical failures based on ship condition
-   *
-   * Checks for hull breach, engine failure, and life support emergency
-   * based on condition thresholds and failure probabilities.
-   * Returns the first failure that occurs, or null if no failures.
-   *
-   * Feature: danger-system, Property 9: Mechanical Failure Thresholds
-   * Validates: Requirements 6.1, 6.2, 6.3, 6.4
-   *
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for failure determination
-   * @returns {Object|null} Failure object with type and severity, or null if no failure
-   */
-  checkMechanicalFailure(gameState, rng) {
-    this.validateState();
-
-    const { ship } = gameState;
-
-    // Check hull breach (below 50%, 10% chance)
-    if (ship.hull < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
-        return {
-          type: 'hull_breach',
-          severity: ship.hull,
-        };
-      }
-    }
-
-    // Check engine failure (below 30%, 15% chance)
-    if (ship.engine < FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
-        return {
-          type: 'engine_failure',
-          severity: ship.engine,
-        };
-      }
-    }
-
-    // Check life support emergency (below 30%, 5% chance)
-    if (ship.lifeSupport < FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD) {
-      if (rng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
-        return {
-          type: 'life_support',
-          severity: ship.lifeSupport,
-        };
-      }
-    }
-
-    // No failures occurred
-    return null;
-  }
-
-  /**
-   * Resolve a mechanical failure with the chosen repair option
-   *
-   * Implements mechanical failure resolution with choice-driven outcomes.
-   * Each failure type has specific repair options with success rates and costs.
-   *
-   * Feature: danger-system, Property 10: Engine Failure Repair Options
-   * Validates: Requirements 6.5, 6.6, 6.7, 6.8, 6.9, 6.10, 6.11
-   *
-   * @param {string} failureType - Type of failure ('hull_breach', 'engine_failure', 'life_support')
-   * @param {string|null} choice - Repair choice (null for immediate consequences)
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Failure resolution outcome with success, costs, and description
-   */
-  resolveMechanicalFailure(failureType, choice, gameState, rng) {
-    this.validateState();
-
-    switch (failureType) {
-      case 'hull_breach':
-        return this.resolveHullBreach();
-      case 'engine_failure':
-        return this.resolveEngineFailure(choice, gameState, rng);
-      case 'life_support':
-        return this.resolveLifeSupportEmergency();
-      default:
-        throw new Error(`Unknown failure type: ${failureType}`);
-    }
-  }
-
-  /**
-   * Resolve hull breach failure
-   *
-   * Hull breach causes immediate hull damage and cargo loss.
-   * No repair choices available - consequences are immediate.
-   *
-   * @returns {Object} Hull breach outcome
-   */
-  resolveHullBreach() {
-    return {
-      success: false,
-      costs: {
-        hull: FAILURE_CONFIG.HULL_BREACH.HULL_DAMAGE,
-        cargoLoss: true, // Some cargo is lost to space
-      },
-      rewards: {},
-      description:
-        'Hull breach detected! Emergency bulkheads sealed, but some cargo was lost to space.',
-    };
-  }
-
-  /**
-   * Resolve engine failure with repair choice
-   *
-   * Engine failure offers three repair options:
-   * - Emergency restart: 50% success, -10% engine condition
-   * - Call for help: Guaranteed success, ₡1,000 cost, +2 days delay
-   * - Jury-rig repair: 75% success, -5% engine condition
-   *
-   * @param {string} choice - Repair choice ('emergency_restart', 'call_for_help', 'jury_rig')
-   * @param {Object} gameState - Current game state
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Engine failure resolution outcome
-   */
-  resolveEngineFailure(choice, gameState, rng) {
-    switch (choice) {
-      case 'emergency_restart':
-        return this.resolveEmergencyRestart(rng);
-      case 'call_for_help':
-        return this.resolveCallForHelp();
-      case 'jury_rig':
-        return this.resolveJuryRig(rng);
-      default:
-        throw new Error(`Unknown engine failure repair choice: ${choice}`);
-    }
-  }
-
-  /**
-   * Resolve emergency restart repair option
-   *
-   * Emergency restart attempts to restart the engine with a 50% success rate.
-   * Always costs -10% engine condition regardless of success.
-   *
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Emergency restart outcome
-   */
-  resolveEmergencyRestart(rng) {
-    const success =
-      rng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {
-          engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
-        },
-        rewards: {},
-        description:
-          'Emergency restart successful! Engine is running again, but condition has deteriorated.',
-      };
-    } else {
-      return {
-        success: false,
-        costs: {
-          engine: FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.ENGINE_COST,
-        },
-        rewards: {},
-        description:
-          'Emergency restart failed. Engine condition worsened and you remain stranded.',
-      };
-    }
-  }
-
-  /**
-   * Resolve call for help repair option
-   *
-   * Call for help guarantees success but costs ₡1,000 and adds 2 days delay.
-   * No engine condition cost.
-   *
-   * @returns {Object} Call for help outcome
-   */
-  resolveCallForHelp() {
-    return {
-      success: true,
-      costs: {
-        credits: FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST,
-        days: FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY,
-      },
-      rewards: {},
-      description:
-        'Rescue tug arrived and repaired your engine. Service fee charged and time lost.',
-    };
-  }
-
-  /**
-   * Resolve jury-rig repair option
-   *
-   * Jury-rig repair attempts a makeshift fix with a 75% success rate.
-   * Always costs -5% engine condition regardless of success.
-   *
-   * @param {number} rng - Random number (0-1) for success determination
-   * @returns {Object} Jury-rig outcome
-   */
-  resolveJuryRig(rng) {
-    const success = rng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE;
-
-    if (success) {
-      return {
-        success: true,
-        costs: {
-          engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
-        },
-        rewards: {},
-        description:
-          'Jury-rig repair successful! Makeshift fix got the engine running again.',
-      };
-    } else {
-      return {
-        success: false,
-        costs: {
-          engine: FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST,
-        },
-        rewards: {},
-        description:
-          'Jury-rig repair failed. Engine condition worsened and you remain stranded.',
-      };
-    }
-  }
-
-  /**
-   * Resolve life support emergency
-   *
-   * Life support emergency causes immediate consequences.
-   * No repair choices available - consequences are immediate.
-   *
-   * @returns {Object} Life support emergency outcome
-   */
-  resolveLifeSupportEmergency() {
-    return {
-      success: false,
-      costs: {
-        // Life support emergency could cause various immediate problems
-        // For now, implement as a warning with minor consequences
-        lifeSupport: 5, // Additional 5% life support degradation
-      },
-      rewards: {},
-      description:
-        'Life support emergency! Backup systems engaged, but overall condition has deteriorated.',
-    };
   }
 }

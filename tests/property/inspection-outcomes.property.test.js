@@ -15,16 +15,23 @@ import {
   COMMODITY_TYPES,
   RESTRICTED_GOODS_CONFIG,
 } from '../../src/game/constants.js';
+import {
+  SeededRandom,
+  buildEncounterSeed,
+} from '../../src/game/utils/seeded-random.js';
 
 /**
- * Create test game state with specified overrides
+ * Create test game state with specified overrides.
+ * Also patches the actual internal game state so that the seeded RNG
+ * inside the manager reads consistent daysElapsed and currentSystem.
  *
  * @param {Object} baseState - Base game state from GameStateManager
  * @param {Object} overrides - Properties to override
+ * @param {Object} [gameStateManager] - Optional GameStateManager to patch internal state
  * @returns {Object} Modified game state for testing
  */
-function createTestGameState(baseState, overrides = {}) {
-  return {
+function createTestGameState(baseState, overrides = {}, gameStateManager) {
+  const result = {
     ...baseState,
     ship: {
       ...baseState.ship,
@@ -46,6 +53,32 @@ function createTestGameState(baseState, overrides = {}) {
     },
     ...overrides,
   };
+
+  // Sync internal state so seeded RNG reads consistent values
+  if (gameStateManager) {
+    const internalState = gameStateManager.getState();
+    if (overrides.player?.currentSystem !== undefined) {
+      internalState.player.currentSystem = overrides.player.currentSystem;
+    }
+    if (overrides.player?.daysElapsed !== undefined) {
+      internalState.player.daysElapsed = overrides.player.daysElapsed;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Compute the seeded RNG value that the inspection manager will produce
+ * for a given game state.
+ *
+ * @param {number} daysElapsed - Current days elapsed
+ * @param {number} currentSystem - Current system ID
+ * @returns {number} The seeded RNG value (0-1)
+ */
+function computeInspectionRng(daysElapsed, currentSystem) {
+  const seed = buildEncounterSeed(daysElapsed, currentSystem, 'inspection');
+  return new SeededRandom(seed).next();
 }
 
 describe('Inspection Resolution Outcomes Properties', () => {
@@ -56,8 +89,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 5 }), // Number of restricted goods
-        fc.float({ min: 0, max: 1 }), // Random number for outcome
-        (restrictedGoodsCount, rng) => {
+        (restrictedGoodsCount) => {
           const gameState = gameStateManager.getState();
 
           // Use goods that are actually restricted at system 0 (Sol, safe zone)
@@ -83,8 +115,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            rng
+            testGameState
           );
 
           // Should confiscate restricted goods and impose fine (Requirement 5.4)
@@ -122,8 +153,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }), // System ID
         fc.integer({ min: 1, max: 3 }), // Number of hidden cargo items
-        fc.float({ min: 0, max: 1 }), // Random number for discovery
-        (systemId, hiddenCargoCount, rng) => {
+        (systemId, hiddenCargoCount) => {
           const gameState = gameStateManager.getState();
           const zone = gameStateManager.getDangerZone(systemId);
 
@@ -137,15 +167,24 @@ describe('Inspection Resolution Outcomes Properties', () => {
             });
           }
 
-          const testGameState = createTestGameState(gameState, {
-            ship: { hiddenCargo },
-            player: { currentSystem: systemId }, // Set current system for security level calculation
-          });
+          const testGameState = createTestGameState(
+            gameState,
+            {
+              ship: { hiddenCargo },
+              player: { currentSystem: systemId },
+            },
+            gameStateManager
+          );
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            rng
+            testGameState
+          );
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeInspectionRng(
+            gameState.player.daysElapsed,
+            systemId
           );
 
           // Calculate expected discovery chance based on security level (same logic as implementation)
@@ -164,7 +203,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
             securityMultiplier;
 
-          if (rng < discoveryChance) {
+          if (seededRng < discoveryChance) {
             // Hidden cargo should be discovered (Requirement 5.5, 11.8)
             expect(outcome.costs).toHaveProperty(
               'credits',
@@ -200,15 +239,21 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.float({ min: 0, max: 1 }), // Random number for bribery success
-        (rng) => {
+        fc.integer({ min: 0, max: 500 }), // Vary daysElapsed to get different seeded RNG values
+        (daysElapsed) => {
           const gameState = gameStateManager.getState();
+          gameState.player.daysElapsed = daysElapsed;
           const testGameState = createTestGameState(gameState);
 
           const outcome = gameStateManager.resolveInspection(
             'bribe',
-            testGameState,
-            rng
+            testGameState
+          );
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeInspectionRng(
+            daysElapsed,
+            gameState.player.currentSystem
           );
 
           // Should always cost bribery attempt amount (Requirement 5.6)
@@ -223,7 +268,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY
           );
 
-          if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
+          if (seededRng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
             // Bribery succeeds (Requirement 5.7)
             expect(outcome).toHaveProperty('success', true);
             expect(outcome.costs.credits).toBe(INSPECTION_CONFIG.BRIBE.COST);
@@ -249,15 +294,14 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
     fc.assert(
       fc.property(
-        fc.float({ min: 0, max: 1 }), // Random number (not used for flee outcome)
-        (rng) => {
+        fc.constant(0), // placeholder for property-based test structure
+        () => {
           const gameState = gameStateManager.getState();
           const testGameState = createTestGameState(gameState);
 
           const outcome = gameStateManager.resolveInspection(
             'flee',
-            testGameState,
-            rng
+            testGameState
           );
 
           // Should trigger patrol combat encounter (Requirement 5.9)
@@ -283,8 +327,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }), // System ID
-        fc.float({ min: 0, max: 1 }), // Random number for discovery
-        (systemId, rng) => {
+        (systemId) => {
           const gameState = gameStateManager.getState();
           const zone = gameStateManager.getDangerZone(systemId);
 
@@ -297,15 +340,24 @@ describe('Inspection Resolution Outcomes Properties', () => {
             },
           ];
 
-          const testGameState = createTestGameState(gameState, {
-            ship: { hiddenCargo },
-            player: { currentSystem: systemId }, // Set current system for security level calculation
-          });
+          const testGameState = createTestGameState(
+            gameState,
+            {
+              ship: { hiddenCargo },
+              player: { currentSystem: systemId },
+            },
+            gameStateManager
+          );
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            rng
+            testGameState
+          );
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeInspectionRng(
+            gameState.player.daysElapsed,
+            systemId
           );
 
           // Calculate expected discovery chance based on security level (Requirement 11.8)
@@ -347,8 +399,8 @@ describe('Inspection Resolution Outcomes Properties', () => {
             );
           }
 
-          // Discovery should match expected probability
-          const shouldDiscover = rng < discoveryChance;
+          // Discovery should match expected probability using seeded RNG
+          const shouldDiscover = seededRng < discoveryChance;
           const wasDiscovered = outcome.costs?.hiddenCargoConfiscated === true;
           expect(wasDiscovered).toBe(shouldDiscover);
 
@@ -367,8 +419,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
       fc.property(
         fc.boolean(), // Has restricted goods
         fc.boolean(), // Has hidden cargo
-        fc.float({ min: 0, max: 1 }), // Random number
-        (hasRestrictedGoods, hasHiddenCargo, rng) => {
+        (hasRestrictedGoods, hasHiddenCargo) => {
           const gameState = gameStateManager.getState();
 
           // Use actually restricted goods for system 0 (Sol, safe zone)
@@ -385,8 +436,13 @@ describe('Inspection Resolution Outcomes Properties', () => {
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
-            testGameState,
-            rng
+            testGameState
+          );
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeInspectionRng(
+            gameState.player.daysElapsed,
+            gameState.player.currentSystem
           );
 
           // Check reputation penalties are applied correctly
@@ -398,7 +454,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             );
           }
 
-          // Hidden cargo discovery depends on RNG and security level
+          // Hidden cargo discovery depends on seeded RNG and security level
           // System 0 (Sol) is a core system, so use core multiplier
           const securityMultiplier =
             INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
@@ -406,7 +462,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE *
             securityMultiplier;
 
-          if (hasHiddenCargo && rng < discoveryChance) {
+          if (hasHiddenCargo && seededRng < discoveryChance) {
             // Should apply hidden cargo penalty and outlaw bonus (Requirement 5.11)
             expect(outcome.rewards.factionRep.authorities).toBe(
               INSPECTION_CONFIG.REPUTATION_PENALTIES.HIDDEN_CARGO

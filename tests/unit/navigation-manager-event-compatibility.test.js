@@ -30,6 +30,7 @@ describe('NavigationManager Event Compatibility', () => {
       isTestEnvironment: true,
       updatePriceKnowledge: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     // Mock emit function to capture events

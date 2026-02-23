@@ -31,6 +31,7 @@ describe('Trading – mission cargo sell block', () => {
       getCargoRemaining: () => 30,
       applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
     };
 

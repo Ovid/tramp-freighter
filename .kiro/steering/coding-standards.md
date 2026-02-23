@@ -1047,6 +1047,34 @@ function saveGame(gameState) {
 }
 ```
 
+## Save Debouncing
+
+**CRITICAL: Managers must call `markDirty()`, never `saveGame()` directly.**
+
+After any state mutation in a manager, call `this.gameStateManager.markDirty()` to schedule a debounced save. The `SaveLoadManager` handles the actual persistence with a 500ms trailing timer (`MARK_DIRTY_DEBOUNCE_MS`).
+
+```javascript
+// GOOD - Let the debounce system handle saves
+modifySomeState(value) {
+  const state = this.gameStateManager.getState();
+  state.player.someField = value;
+  this.gameStateManager.emit('someFieldChanged', value);
+  this.gameStateManager.markDirty();
+}
+
+// BAD - Direct saveGame() calls bypass debouncing
+modifySomeState(value) {
+  const state = this.gameStateManager.getState();
+  state.player.someField = value;
+  this.gameStateManager.emit('someFieldChanged', value);
+  this.gameStateManager.saveGame(); // Don't do this
+}
+```
+
+**Exceptions:**
+- `flushSave()` is used only in `beforeunload` handlers to ensure pending saves are written before the page closes.
+- `_forceSave()` bypasses the debounce for critical operations (e.g., new game creation).
+
 ## Code Review Checklist
 
 Before committing code, verify:

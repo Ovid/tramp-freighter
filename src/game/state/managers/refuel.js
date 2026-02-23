@@ -161,7 +161,7 @@ export class RefuelManager extends BaseManager {
     this.gameStateManager.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, reason: null };
   }

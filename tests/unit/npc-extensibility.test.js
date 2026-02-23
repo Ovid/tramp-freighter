@@ -259,6 +259,9 @@ describe('NPC System Extensibility', () => {
         expect(npcState.rep).toBe(10); // 5 initial + (10 * 0.5 trust) = 10
         expect(npcState.interactions).toBe(1);
 
+        // Flush pending saves to localStorage
+        gameStateManager.flushSave();
+
         // Verify save data includes the test NPC
         expect(savedData).not.toBeNull();
         const parsedSaveData = JSON.parse(savedData);
@@ -314,6 +317,9 @@ describe('NPC System Extensibility', () => {
 
         // Test NPC: 8 * 0.5 (trust) = 4, so 5 + 4 = 9
         gameStateManager.modifyRep(TEST_NPC.id, 8, 'test');
+
+        // Flush pending saves to localStorage
+        gameStateManager.flushSave();
 
         // Verify save data includes both NPCs
         expect(savedData).not.toBeNull();
@@ -382,6 +388,9 @@ describe('NPC System Extensibility', () => {
         const npcState = gameStateManager.getNPCState(TEST_NPC.id);
         expect(npcState.rep).toBe(8); // 5 initial + (5 * 0.5 trust) rounded = 8
 
+        // Flush pending saves to localStorage
+        gameStateManager.flushSave();
+
         // Test save/load works
         expect(savedData).not.toBeNull();
         const parsedSaveData = JSON.parse(savedData);
@@ -433,6 +442,9 @@ describe('NPC System Extensibility', () => {
 
         // Test NPC: 7 * 0.5 (trust) = 3.5, rounded = 4, so 5 + 4 = 9
         gameStateManager.modifyRep(TEST_NPC.id, 7, 'test');
+
+        // Flush pending saves to localStorage
+        gameStateManager.flushSave();
 
         // Verify all states are correct
         const chenState = gameStateManager.getNPCState('chen_barnards');

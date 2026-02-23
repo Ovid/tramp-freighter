@@ -44,6 +44,7 @@ describe('Cargo Run Mission Completion', () => {
       state,
       getState: () => state,
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
       modifyFactionRep: vi.fn(),
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),

@@ -47,6 +47,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
   - [x] 3.2 GREEN: Create src/game/state/managers/danger.js with getDangerZone(systemId)
     - Extend BaseManager
     - Implement getDangerZone(systemId) using DANGER_CONFIG
+    - _Note: DangerManager was later split into focused managers (combat.js, negotiation.js, inspection.js, distress.js, mechanical-failure.js). DangerManager retains zones, karma, faction rep._
     - _Requirements: 1.1, 1.2, 1.10, 1.11, 1.12_
   - [x] 3.3 RED: Write property test for karma clamping
     - **Property 12: Karma Clamping**
@@ -105,7 +106,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - **Property 4: Combat Resolution Outcomes**
     - Test that each choice produces valid outcome structure
     - **Validates: Requirements 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11**
-  - [x] 7.2 GREEN: Add resolveCombatChoice base implementation
+  - [x] 7.2 GREEN: Add resolveCombatChoice base implementation (now in CombatManager - src/game/state/managers/combat.js)
     - Implement evasive maneuvers (70% base, engine modifier)
     - Implement return fire (45% base, +5 outlaw rep on success for fighting pirates)
     - Implement dump cargo (guaranteed escape)
@@ -130,7 +131,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - **Property 6: Negotiation Outcomes**
     - Test each negotiation choice produces valid outcomes
     - **Validates: Requirements 4.2, 4.3, 4.4, 4.6, 4.7, 4.10**
-  - [x] 9.2 GREEN: Add resolveNegotiation(choice, gameState, rng) to DangerManager
+  - [x] 9.2 GREEN: Add resolveNegotiation(choice, gameState, rng) (now in NegotiationManager - src/game/state/managers/negotiation.js)
     - Implement counter-proposal (60% base, 10% cargo on success)
     - Implement medicine claim (40% sympathy if medicine in cargo)
     - Implement intel offer (requires prior intel, +3 outlaw rep for cooperating with pirates)
@@ -145,7 +146,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - Test that flee triggers patrol combat encounter
     - Test security level scaling for hidden cargo discovery (2x core, 1.5x safe, 1x contested, 0.5x dangerous)
     - **Validates: Requirements 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11, 11.8**
-  - [x] 10.2 GREEN: Add resolveInspection(choice, gameState, rng) to DangerManager
+  - [x] 10.2 GREEN: Add resolveInspection(choice, gameState, rng) (now in InspectionManager - src/game/state/managers/inspection.js)
     - Implement cooperate (confiscate restricted, ₡1,000 fine, +5 authority rep for cooperation)
     - Implement hidden cargo discovery (10% base chance, scaled by security level: 2x core, 1.5x safe, 1x contested, 0.5x dangerous)
     - Hidden cargo discovery costs ₡2,000 fine, -20 authority rep
@@ -160,7 +161,7 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - **Property 9: Mechanical Failure Thresholds**
     - Test failure chances at different condition levels
     - **Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5**
-  - [x] 11.2 GREEN: Add checkMechanicalFailure(gameState, rng) to DangerManager
+  - [x] 11.2 GREEN: Add checkMechanicalFailure(gameState, rng) (now in MechanicalFailureManager - src/game/state/managers/mechanical-failure.js)
     - Check hull breach (below 50%, 10% chance)
     - Check engine failure (below 30%, 15% chance)
     - Check life support emergency (below 30%, 5% chance)
@@ -183,11 +184,11 @@ This implementation plan breaks down the Danger System into incremental tasks th
     - **Property 11: Distress Call Outcomes**
     - Test respond, ignore, and loot outcomes with karma/rep changes
     - **Validates: Requirements 7.7, 7.8, 7.9, 7.10**
-  - [x] 13.2 GREEN: Add checkDistressCall(rng) to DangerManager
+  - [x] 13.2 GREEN: Add checkDistressCall(rng) (now in DistressManager - src/game/state/managers/distress.js)
     - 10% chance to generate distress call
     - Return distress call object or null
     - _Requirements: 7.1_
-  - [x] 13.3 GREEN: Add resolveDistressCall(choice, gameState) to DangerManager
+  - [x] 13.3 GREEN: Add resolveDistressCall(choice, gameState) (now in DistressManager - src/game/state/managers/distress.js)
     - Implement respond (2 days, 15% fuel, 5% life support, +₡500, +10 civilian rep for helping civilians, +1 karma)
     - Implement ignore (-1 karma)
     - Implement loot (1 day, -3 karma, -15 civilian rep, +5 outlaw rep for piracy, cargo reward)

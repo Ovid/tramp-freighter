@@ -47,7 +47,7 @@ export function NarrativeEventPanel({ event, onClose }) {
       }
 
       // Persist narrative event state (fired, cooldowns, flags)
-      gameStateManager.saveGame();
+      gameStateManager.markDirty();
 
       // Chain to next event if specified
       if (choice.next) {

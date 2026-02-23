@@ -76,7 +76,7 @@ export class MissionManager extends BaseManager {
     }
 
     this.emit('missionsChanged', { ...state.missions });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true };
   }
@@ -251,7 +251,7 @@ export class MissionManager extends BaseManager {
     }
 
     this.emit('missionsChanged', { ...state.missions });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true, rewards: mission.rewards };
   }
@@ -353,7 +353,7 @@ export class MissionManager extends BaseManager {
     }
 
     this.emit('missionsChanged', { ...state.missions });
-    this.gameStateManager.saveGame();
+    this.gameStateManager.markDirty();
 
     return { success: true };
   }

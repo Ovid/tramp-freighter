@@ -311,7 +311,7 @@ export function DevAdminPanel({ onClose }) {
         }
         gameStateManager.updateCargo(newCargo);
       }
-      gameStateManager.saveGame();
+      gameStateManager.markDirty();
     }
   };
 
@@ -320,7 +320,7 @@ export function DevAdminPanel({ onClose }) {
     const ship = gameStateManager.getShip();
     ship.hiddenCargo = [];
     gameStateManager.emit('hiddenCargoChanged', []);
-    gameStateManager.saveGame();
+    gameStateManager.markDirty();
   };
 
   // Calculate danger state display values

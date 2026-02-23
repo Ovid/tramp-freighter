@@ -4,6 +4,22 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FAILURE_CONFIG } from '../../src/game/constants.js';
+import {
+  SeededRandom,
+  buildEncounterSeed,
+} from '../../src/game/utils/seeded-random.js';
+
+/**
+ * Compute the seeded RNG value that checkMechanicalFailure will produce.
+ */
+function computeCheckMechanicalRng(daysElapsed, currentSystem) {
+  const seed = buildEncounterSeed(
+    daysElapsed,
+    currentSystem,
+    'check_mechanical'
+  );
+  return new SeededRandom(seed).next();
+}
 
 /**
  * Property-Based Tests for Mechanical Failure Thresholds
@@ -41,21 +57,28 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 100 }), // hull condition
-        fc.float({ min: 0, max: 1 }), // random number
-        (hullCondition, rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (hullCondition, daysElapsed) => {
           // Set up game state with specific hull condition
           const gameState = gameStateManager.getState();
           gameState.ship.hull = hullCondition;
+          gameState.player.daysElapsed = daysElapsed;
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeCheckMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
+          );
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
-            gameState,
-            rng
-          );
+          const failure =
+            gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
+              gameState
+            );
 
           if (hullCondition < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
             // Below threshold: hull breach should be possible
-            if (rng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
+            if (seededRng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
               expect(failure).toEqual({
                 type: 'hull_breach',
                 severity: hullCondition,
@@ -82,24 +105,31 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 100 }), // engine condition
-        fc.float({ min: 0, max: 1 }), // random number
-        (engineCondition, rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (engineCondition, daysElapsed) => {
           // Set up game state with specific engine condition
           const gameState = gameStateManager.getState();
           gameState.ship.engine = engineCondition;
           gameState.ship.hull = 100; // Set hull high to avoid hull breach interference
+          gameState.player.daysElapsed = daysElapsed;
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeCheckMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
+          );
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
-            gameState,
-            rng
-          );
+          const failure =
+            gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
+              gameState
+            );
 
           if (
             engineCondition < FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD
           ) {
             // Below threshold: engine failure should be possible
-            if (rng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
+            if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
               expect(failure).toEqual({
                 type: 'engine_failure',
                 severity: engineCondition,
@@ -126,26 +156,33 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 100 }), // life support condition
-        fc.float({ min: 0, max: 1 }), // random number
-        (lifeSupportCondition, rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (lifeSupportCondition, daysElapsed) => {
           // Set up game state with specific life support condition
           const gameState = gameStateManager.getState();
           gameState.ship.lifeSupport = lifeSupportCondition;
           gameState.ship.hull = 100; // Set hull high to avoid hull breach interference
           gameState.ship.engine = 100; // Set engine high to avoid engine failure interference
+          gameState.player.daysElapsed = daysElapsed;
+
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeCheckMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
+          );
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
-            gameState,
-            rng
-          );
+          const failure =
+            gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
+              gameState
+            );
 
           if (
             lifeSupportCondition <
             FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD
           ) {
             // Below threshold: life support failure should be possible
-            if (rng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
+            if (seededRng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
               expect(failure).toEqual({
                 type: 'life_support',
                 severity: lifeSupportCondition,
@@ -169,8 +206,8 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
   it('should use correct failure probabilities for each failure type', () => {
     fc.assert(
       fc.property(
-        fc.float({ min: 0, max: 1 }), // random number
-        (rng) => {
+        fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
+        (daysElapsed) => {
           // Set up game state with all systems below thresholds
           const gameState = gameStateManager.getState();
           gameState.ship.hull =
@@ -179,19 +216,26 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
             FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD - 1;
           gameState.ship.lifeSupport =
             FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD - 1;
+          gameState.player.daysElapsed = daysElapsed;
 
-          // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
-            gameState,
-            rng
+          // Compute the seeded RNG value the manager will use
+          const seededRng = computeCheckMechanicalRng(
+            daysElapsed,
+            gameState.player.currentSystem
           );
 
+          // Check for mechanical failure
+          const failure =
+            gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
+              gameState
+            );
+
           // Verify that the correct failure type occurs based on probability ranges
-          if (rng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
+          if (seededRng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
             expect(failure?.type).toBe('hull_breach');
-          } else if (rng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
+          } else if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.CHANCE) {
             expect(failure?.type).toBe('engine_failure');
-          } else if (rng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
+          } else if (seededRng < FAILURE_CONFIG.LIFE_SUPPORT.CHANCE) {
             expect(failure?.type).toBe('life_support');
           } else {
             expect(failure).toBe(null);
@@ -217,8 +261,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           min: FAILURE_CONFIG.LIFE_SUPPORT.CONDITION_THRESHOLD,
           max: 100,
         }), // life support above threshold
-        fc.float({ min: 0, max: 1 }), // random number
-        (hullCondition, engineCondition, lifeSupportCondition, rng) => {
+        (hullCondition, engineCondition, lifeSupportCondition) => {
           // Set up game state with all systems above thresholds
           const gameState = gameStateManager.getState();
           gameState.ship.hull = hullCondition;
@@ -226,10 +269,10 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
           gameState.ship.lifeSupport = lifeSupportCondition;
 
           // Check for mechanical failure
-          const failure = gameStateManager.dangerManager.checkMechanicalFailure(
-            gameState,
-            rng
-          );
+          const failure =
+            gameStateManager.mechanicalFailureManager.checkMechanicalFailure(
+              gameState
+            );
 
           // No failures should occur when all systems are above thresholds
           expect(failure).toBe(null);

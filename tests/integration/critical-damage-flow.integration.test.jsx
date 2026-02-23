@@ -44,6 +44,7 @@ describe('Integration: Critical Damage Confinement Flow', () => {
         mockState.player.daysElapsed = d;
       }),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     const repairMgr = new RepairManager(mockGSM);
@@ -99,6 +100,7 @@ describe('Integration: Critical Damage Confinement Flow', () => {
         mockState.ship.lifeSupport = ls;
       }),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     const repairMgr = new RepairManager(mockGSM);

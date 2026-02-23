@@ -16,6 +16,7 @@ describe('System Cannibalization', () => {
       state: mockState,
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      markDirty: vi.fn(),
     };
 
     repairManager = new RepairManager(mockGSM);
@@ -95,6 +96,6 @@ describe('System Cannibalization', () => {
   it('should save game after successful cannibalization', () => {
     repairManager.cannibalizeSystem('hull', [{ system: 'engine', amount: 24 }]);
 
-    expect(mockGSM.saveGame).toHaveBeenCalled();
+    expect(mockGSM.markDirty).toHaveBeenCalled();
   });
 });
