@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { ENDGAME_CONFIG, SHIP_CONFIG, EVENT_NAMES } from '../../constants.js';
+import { ENDGAME_CONFIG, SHIP_CONFIG, EVENT_NAMES, TANAKA_SUPPLY_CONFIG } from '../../constants.js';
 
 export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
@@ -211,6 +211,34 @@ export class QuestManager extends BaseManager {
       if ((questState.data[key] || 0) < target) return false;
     }
     return true;
+  }
+
+  canContributeSupply() {
+    const state = this.getState();
+
+    // Must be at Barnard's Star
+    if (state.player.currentSystem !== ENDGAME_CONFIG.TANAKA_SYSTEM) return false;
+
+    // Must have met Tanaka
+    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
+    if (!npcState || !npcState.flags.includes('tanaka_met')) return false;
+
+    // Check cooldown
+    const questState = this.getQuestState('tanaka');
+    if (questState?.data?.lastSupplyDay != null) {
+      const daysSince = state.player.daysElapsed - questState.data.lastSupplyDay;
+      if (daysSince < TANAKA_SUPPLY_CONFIG.COOLDOWN_DAYS) return false;
+    }
+
+    // Check cargo - need QUANTITY of any qualifying good
+    for (const goodType of TANAKA_SUPPLY_CONFIG.GOODS) {
+      const total = state.ship.cargo
+        .filter((c) => c.good === goodType)
+        .reduce((sum, c) => sum + c.qty, 0);
+      if (total >= TANAKA_SUPPLY_CONFIG.QUANTITY) return true;
+    }
+
+    return false;
   }
 
   onJump() {

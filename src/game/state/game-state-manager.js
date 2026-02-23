@@ -472,6 +472,10 @@ export class GameStateManager {
     return this.questManager.checkObjectivesComplete(questId);
   }
 
+  canContributeSupply() {
+    return this.questManager.canContributeSupply();
+  }
+
   startPavonisRun() {
     this.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, true);
   }
