@@ -50,7 +50,12 @@ export class NavigationManager extends BaseManager {
     const activeEvents = state.world.activeEvents;
     const marketConditions = state.world.marketConditions;
 
-    const snapshotPrices = calculateSystemPrices(system, currentDay, activeEvents, marketConditions);
+    const snapshotPrices = calculateSystemPrices(
+      system,
+      currentDay,
+      activeEvents,
+      marketConditions
+    );
 
     // Store price snapshot for this system
     state.world.currentSystemPrices = snapshotPrices;
@@ -98,7 +103,12 @@ export class NavigationManager extends BaseManager {
         'Invalid state: marketConditions missing from world state'
       );
     }
-    const currentPrices = calculateSystemPrices(currentSystem, currentDay, activeEvents, marketConditions);
+    const currentPrices = calculateSystemPrices(
+      currentSystem,
+      currentDay,
+      activeEvents,
+      marketConditions
+    );
 
     // Update price knowledge (resets lastVisit to 0)
     this.gameStateManager.updatePriceKnowledge(

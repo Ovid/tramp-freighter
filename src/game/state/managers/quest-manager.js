@@ -6,7 +6,9 @@ export class QuestManager extends BaseManager {
     super(gameStateManager);
     this.questDefinitions = {};
     gameStateManager.subscribe(EVENT_NAMES.JUMP_COMPLETED, () => this.onJump());
-    gameStateManager.subscribe(EVENT_NAMES.DOCKED, (data) => this.onDock(data?.systemId));
+    gameStateManager.subscribe(EVENT_NAMES.DOCKED, (data) =>
+      this.onDock(data?.systemId)
+    );
   }
 
   registerQuest(questDef) {

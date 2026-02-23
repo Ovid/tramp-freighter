@@ -1,4 +1,5 @@
 import { COMMODITY_TYPES } from '../constants.js';
+import { EconomicEventsSystem } from '../game-events.js';
 import { TradingSystem } from '../game-trading.js';
 
 /**
@@ -51,4 +52,16 @@ export function partitionExpiredMissions(activeMissions, currentDay) {
   }
 
   return { expired, remaining };
+}
+
+/**
+ * Calculate updated economic events based on current state.
+ * Pure wrapper around EconomicEventsSystem.updateEvents().
+ *
+ * @param {Object} state - Game state with player.daysElapsed and world.activeEvents
+ * @param {Array} starData - Star system data
+ * @returns {Array} Updated active events array
+ */
+export function calculateUpdatedEvents(state, starData) {
+  return EconomicEventsSystem.updateEvents(state, starData);
 }

@@ -1,5 +1,9 @@
 import { BaseManager } from './base-manager.js';
-import { SHIP_CONFIG, NEW_GAME_DEFAULTS, EVENT_NAMES } from '../../constants.js';
+import {
+  SHIP_CONFIG,
+  NEW_GAME_DEFAULTS,
+  EVENT_NAMES,
+} from '../../constants.js';
 import { pickRandomFrom } from '../../utils/seeded-random.js';
 
 /**

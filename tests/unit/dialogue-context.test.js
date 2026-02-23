@@ -9,14 +9,14 @@ describe('buildDialogueContext', () => {
     }),
     getKarma: () => 15,
     getHeatTier: () => 'low',
-    getNPCState: (id) => ({
+    getNPCState: (_id) => ({
       rep: 50,
       loanAmount: 0,
       loanDay: null,
       storedCargo: [],
       flags: [],
     }),
-    canGetTip: (id) => ({ available: true }),
+    canGetTip: (_id) => ({ available: true }),
     canRequestFavor: (id, type) => ({ available: type === 'loan' }),
     getFactionRep: (f) =>
       ({ authorities: 10, outlaws: -5, civilians: 20 })[f] || 0,

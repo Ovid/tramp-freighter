@@ -1,5 +1,6 @@
 import { EconomicEventsSystem } from '../../game-events.js';
 import { InformationBroker } from '../../game-information-broker.js';
+import { calculateUpdatedEvents } from '../../utils/calculators.js';
 import { BaseManager } from './base-manager.js';
 import { EVENT_NAMES } from '../../constants.js';
 
@@ -94,10 +95,7 @@ export class EventsManager extends BaseManager {
       this.gameStateManager.applyMarketRecovery(daysPassed);
 
       // Update economic events (trigger new events, remove expired ones)
-      state.world.activeEvents = EconomicEventsSystem.updateEvents(
-        state,
-        this.starData
-      );
+      state.world.activeEvents = calculateUpdatedEvents(state, this.starData);
 
       // Recalculate prices with new day number (for daily fluctuations)
       this.gameStateManager.recalculatePricesForKnownSystems();

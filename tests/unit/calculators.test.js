@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   calculateSystemPrices,
+  calculateUpdatedEvents,
   partitionExpiredMissions,
 } from '../../src/game/utils/calculators.js';
 import { COMMODITY_TYPES } from '../../src/game/constants.js';
@@ -76,5 +77,17 @@ describe('partitionExpiredMissions', () => {
     const result = partitionExpiredMissions([], 100);
     expect(result.expired).toEqual([]);
     expect(result.remaining).toEqual([]);
+  });
+});
+
+describe('calculateUpdatedEvents', () => {
+  it('returns array of active events', () => {
+    const mockState = {
+      player: { daysElapsed: 50 },
+      world: { activeEvents: [], marketConditions: {} },
+    };
+    const mockStarData = [{ id: 1, x: 0, y: 0, z: 0 }];
+    const result = calculateUpdatedEvents(mockState, mockStarData);
+    expect(Array.isArray(result)).toBe(true);
   });
 });

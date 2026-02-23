@@ -269,8 +269,14 @@ export class InitializationManager {
     this.gameStateManager.emit(EVENT_NAMES.DEBT_CHANGED, player.debt);
     this.gameStateManager.emit(EVENT_NAMES.FUEL_CHANGED, ship.fuel);
     this.gameStateManager.emit(EVENT_NAMES.CARGO_CHANGED, ship.cargo);
-    this.gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
-    this.gameStateManager.emit(EVENT_NAMES.LOCATION_CHANGED, player.currentSystem);
+    this.gameStateManager.emit(
+      EVENT_NAMES.HIDDEN_CARGO_CHANGED,
+      ship.hiddenCargo
+    );
+    this.gameStateManager.emit(
+      EVENT_NAMES.LOCATION_CHANGED,
+      player.currentSystem
+    );
     this.gameStateManager.emit(EVENT_NAMES.TIME_CHANGED, player.daysElapsed);
     this.gameStateManager.emit(
       EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
@@ -282,7 +288,10 @@ export class InitializationManager {
       lifeSupport: ship.lifeSupport,
     });
     this.gameStateManager.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
-    this.gameStateManager.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, ship.cargoCapacity);
+    this.gameStateManager.emit(
+      EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+      ship.cargoCapacity
+    );
     this.gameStateManager.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
     this.gameStateManager.emit(EVENT_NAMES.FINANCE_CHANGED, player.finance);
     if (state.missions) {

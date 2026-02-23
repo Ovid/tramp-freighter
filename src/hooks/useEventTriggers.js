@@ -119,7 +119,9 @@ export function useEventTriggers() {
     (event) => {
       // Spread to create a fresh reference so React detects the update
       // and App.jsx de-dupe guard allows repeatable events to re-fire
-      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, { ...event });
+      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, {
+        ...event,
+      });
     },
     [gameStateManager]
   );
@@ -190,9 +192,15 @@ export function useEventTriggers() {
       handleTrigger('jump', context);
     };
 
-    gameStateManager.subscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
+    gameStateManager.subscribe(
+      EVENT_NAMES.LOCATION_CHANGED,
+      handleJumpComplete
+    );
     return () =>
-      gameStateManager.unsubscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
+      gameStateManager.unsubscribe(
+        EVENT_NAMES.LOCATION_CHANGED,
+        handleJumpComplete
+      );
   }, [gameStateManager, buildJumpContext, handleTrigger, currentSystem]);
 
   // Listen for docking
@@ -220,7 +228,8 @@ export function useEventTriggers() {
     };
 
     gameStateManager.subscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
-    return () => gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
+    return () =>
+      gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
   }, [gameStateManager, handleTrigger]);
 }
 
