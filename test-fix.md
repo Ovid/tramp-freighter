@@ -134,23 +134,29 @@ NPC data validation tests repeat the same structure across 7+ files.
 
 Generic `.toThrow()` without type/message checking.
 
-- [ ] `all-npc-data-validation.test.js` — change `.toThrow()` to `.toThrow(/specific message/)` or `.toThrow(ErrorType)`
-- [ ] Scan for other bare `.toThrow()` calls and add specificity
+- [x] `all-npc-data-validation.test.js` — change `.toThrow()` to `.toThrow(/specific message/)` or `.toThrow(ErrorType)`
+- [x] Scan for other bare `.toThrow()` calls and add specificity
+
+*Done: 4 files fixed. all-npc-data-validation (/Invalid NPC definition/), dialogue-validation-consistency (/Dialogue tree must/, /Dialogue node/, /Choice/), dialogue-faction-karma-integration (TypeError), engine-failure-repair-options (/Unknown failure type/, /Unknown engine failure repair choice/).*
 
 ### 5B. Over-mocking
 
 Some tests mock things unnecessarily or test mock behavior rather than real behavior.
 
-- [ ] `dev-mode-detection.test.js` — tests verify fetch call structure rather than behavioral outcome; consider testing "dev mode detected when .dev file exists" instead
-- [ ] `star-selection-integration.test.js` — tests mock StarmapBridge then verify the mock exists; consider testing actual bridge behavior
-- [ ] `cargo-retrieval-completeness.property.test.js` — mocks localStorage but never asserts on it; remove unnecessary mock or add assertion
+- [x] `dev-mode-detection.test.js` — removed fetch call-structure assertions, kept behavioral outcome assertions
+- [x] `star-selection-integration.test.js` — removed 5 mock-verifying-mock tests and unused StarmapBridge mock (StarmapBridge doesn't exist in production code)
+- [x] `cargo-retrieval-completeness.property.test.js` — removed unnecessary localStorage mock (debounced save never fires in synchronous tests)
+
+*Done: 3 files fixed. Net -5 tests (all were testing mock fixtures, not production code).*
 
 ### 5C. Global afterEach safety net
 
 No global `afterEach` in `setup.js` to catch stray mocks.
 
-- [ ] Add `afterEach(() => { vi.clearAllMocks(); })` to `tests/setup.js` as a safety net
-- [ ] Verify this doesn't interfere with tests that manage their own mock lifecycle
+- [x] Add `afterEach(() => { vi.clearAllMocks(); })` to `tests/setup.js` as a safety net
+- [x] Verify this doesn't interfere with tests that manage their own mock lifecycle
+
+*Done: Added to setup.js. Uses clearAllMocks (not restoreAllMocks) to preserve module-level vi.mock() declarations. All 251 files pass.*
 
 ---
 
