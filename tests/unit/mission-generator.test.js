@@ -57,10 +57,14 @@ describe('Mission Generator', () => {
         TEST_WORMHOLE_DATA,
         'safe'
       );
-      expect(mission.missionCargo).toBeDefined();
-      expect(mission.missionCargo.good).toBeDefined();
+      expect(mission.missionCargo).toEqual(
+        expect.objectContaining({
+          good: expect.any(String),
+          quantity: expect.any(Number),
+          isIllegal: expect.any(Boolean),
+        })
+      );
       expect(mission.missionCargo.quantity).toBeGreaterThan(0);
-      expect(typeof mission.missionCargo.isIllegal).toBe('boolean');
     });
 
     it('should use legal quantity range for legal cargo', () => {
@@ -121,8 +125,9 @@ describe('Mission Generator', () => {
         TEST_WORMHOLE_DATA,
         'safe'
       );
-      expect(mission.rewards.faction).toBeDefined();
-      expect(mission.rewards.faction.traders).toBe(2);
+      expect(mission.rewards.faction).toEqual(
+        expect.objectContaining({ traders: 2 })
+      );
     });
 
     it('should include outlaws faction reward for illegal cargo', () => {
@@ -147,8 +152,9 @@ describe('Mission Generator', () => {
         TEST_WORMHOLE_DATA,
         'safe'
       );
-      expect(mission.penalties.failure.faction).toBeDefined();
-      expect(mission.penalties.failure.faction.traders).toBe(-2);
+      expect(mission.penalties.failure.faction).toEqual(
+        expect.objectContaining({ traders: -2 })
+      );
     });
 
     it('should generate destination that is a reachable system', () => {

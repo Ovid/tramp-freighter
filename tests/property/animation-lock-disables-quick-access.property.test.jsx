@@ -68,7 +68,7 @@ describe('Property 49: Animation lock disables quick access', () => {
           // (tested separately in quick-access-button-state test)
         }
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 

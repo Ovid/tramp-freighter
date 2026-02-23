@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TitleScreen } from '../../src/features/title-screen/TitleScreen';
@@ -9,42 +9,13 @@ import { clearSave } from '../../src/game/state/save-load.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-// React Testing Library warnings that are expected in property-based tests:
-// - "Warning: An update to" - React state updates outside act() are expected in fast-check
-// - "act()" - Property tests intentionally trigger updates without act() wrapper
-// - "Not implemented: HTMLFormElement.prototype.submit" - jsdom limitation, not a real error
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return; // Suppress expected warnings listed above
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return; // Suppress jsdom "Not implemented" warnings (browser API limitations)
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -95,38 +66,17 @@ describe('Property: Game initialization on continue', () => {
           (btn) => btn.textContent === 'Continue Game'
         );
 
-        if (!continueButton) {
-          console.error('Continue Game button not found when save exists');
-          clearSave(true);
-          return false;
-        }
+        expect(continueButton).toBeTruthy();
 
         // Click Continue Game button
         fireEvent.click(continueButton);
 
         // Verify onStartGame was called with false (load existing game)
-        if (onStartGame.mock.calls.length !== 1) {
-          console.error(
-            'onStartGame not called once:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
-
-        if (onStartGame.mock.calls[0][0] !== false) {
-          console.error(
-            'onStartGame not called with false (continue game):',
-            onStartGame.mock.calls[0][0]
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(1);
+        expect(onStartGame.mock.calls[0][0]).toBe(false);
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -194,65 +144,23 @@ describe('Property: Game initialization on continue', () => {
             (btn) => btn.textContent === 'Continue Game'
           );
 
-          if (!continueButton) {
-            console.error('Continue Game button not found when save exists');
-            clearSave(true);
-            return false;
-          }
+          expect(continueButton).toBeTruthy();
 
           // Click Continue Game button
           fireEvent.click(continueButton);
 
           // Verify onStartGame was called
-          if (onStartGame.mock.calls.length !== 1) {
-            console.error(
-              'onStartGame not called once:',
-              onStartGame.mock.calls.length
-            );
-            clearSave(true);
-            return false;
-          }
+          expect(onStartGame.mock.calls.length).toBe(1);
 
           // Verify the loaded state matches the saved state
           const loadedState = gameStateManager2.getState();
 
-          if (loadedState.player.credits !== credits) {
-            console.error(
-              'Credits not preserved:',
-              loadedState.player.credits,
-              'expected:',
-              credits
-            );
-            clearSave(true);
-            return false;
-          }
-
-          if (loadedState.player.daysElapsed !== daysElapsed) {
-            console.error(
-              'Days elapsed not preserved:',
-              loadedState.player.daysElapsed,
-              'expected:',
-              daysElapsed
-            );
-            clearSave(true);
-            return false;
-          }
-
-          if (loadedState.ship.fuel !== fuel) {
-            console.error(
-              'Fuel not preserved:',
-              loadedState.ship.fuel,
-              'expected:',
-              fuel
-            );
-            clearSave(true);
-            return false;
-          }
+          expect(loadedState.player.credits).toBe(credits);
+          expect(loadedState.player.daysElapsed).toBe(daysElapsed);
+          expect(loadedState.ship.fuel).toBe(fuel);
 
           // Clean up
           clearSave(true);
-
-          return true;
         }
       ),
       { numRuns: 100 }
@@ -331,11 +239,7 @@ describe('Property: Game initialization on continue', () => {
             (btn) => btn.textContent === 'Continue Game'
           );
 
-          if (!continueButton) {
-            console.error('Continue Game button not found when save exists');
-            clearSave(true);
-            return false;
-          }
+          expect(continueButton).toBeTruthy();
 
           // Click Continue Game button
           fireEvent.click(continueButton);
@@ -343,85 +247,29 @@ describe('Property: Game initialization on continue', () => {
           // Verify the loaded state matches the saved state
           const loadedState = gameStateManager2.getState();
 
-          // Check if loadGame failed
-          if (!loadedState) {
-            console.error('loadGame returned null');
-            clearSave(true);
-            return false;
-          }
+          expect(loadedState).toBeTruthy();
 
           // Verify cargo is preserved
-          if (loadedState.ship.cargo.length !== cargo.length) {
-            console.error(
-              'Cargo length not preserved:',
-              loadedState.ship.cargo.length,
-              'expected:',
-              cargo.length
-            );
-            clearSave(true);
-            return false;
-          }
+          expect(loadedState.ship.cargo.length).toBe(cargo.length);
 
           for (let i = 0; i < cargo.length; i++) {
             const loadedItem = loadedState.ship.cargo[i];
             const expectedItem = cargo[i];
 
-            if (
-              loadedItem.good !== expectedItem.good ||
-              loadedItem.qty !== expectedItem.qty ||
-              loadedItem.buyPrice !== expectedItem.buyPrice ||
-              loadedItem.buySystem !== expectedItem.buySystem ||
-              loadedItem.buyDate !== expectedItem.buyDate
-            ) {
-              console.error(
-                'Cargo item not preserved:',
-                loadedItem,
-                'expected:',
-                expectedItem
-              );
-              clearSave(true);
-              return false;
-            }
+            expect(loadedItem.good).toBe(expectedItem.good);
+            expect(loadedItem.qty).toBe(expectedItem.qty);
+            expect(loadedItem.buyPrice).toBe(expectedItem.buyPrice);
+            expect(loadedItem.buySystem).toBe(expectedItem.buySystem);
+            expect(loadedItem.buyDate).toBe(expectedItem.buyDate);
           }
 
           // Verify ship condition is preserved
-          if (loadedState.ship.hull !== shipCondition.hull) {
-            console.error(
-              'Hull condition not preserved:',
-              loadedState.ship.hull,
-              'expected:',
-              shipCondition.hull
-            );
-            clearSave(true);
-            return false;
-          }
-
-          if (loadedState.ship.engine !== shipCondition.engine) {
-            console.error(
-              'Engine condition not preserved:',
-              loadedState.ship.engine,
-              'expected:',
-              shipCondition.engine
-            );
-            clearSave(true);
-            return false;
-          }
-
-          if (loadedState.ship.lifeSupport !== shipCondition.lifeSupport) {
-            console.error(
-              'Life support condition not preserved:',
-              loadedState.ship.lifeSupport,
-              'expected:',
-              shipCondition.lifeSupport
-            );
-            clearSave(true);
-            return false;
-          }
+          expect(loadedState.ship.hull).toBe(shipCondition.hull);
+          expect(loadedState.ship.engine).toBe(shipCondition.engine);
+          expect(loadedState.ship.lifeSupport).toBe(shipCondition.lifeSupport);
 
           // Clean up
           clearSave(true);
-
-          return true;
         }
       ),
       { numRuns: 100 }

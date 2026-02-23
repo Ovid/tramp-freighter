@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
   let manager;
@@ -39,9 +39,12 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
     manager.emit = vi.fn();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should generate a mission board without errors', () => {
     const board = manager.refreshMissionBoard();
-    expect(board).toBeDefined();
-    expect(Array.isArray(board)).toBe(true);
+    expect(board).toEqual(expect.any(Array));
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { ShipStatus } from '../../src/features/hud/ShipStatus.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
@@ -63,6 +63,10 @@ describe('ShipStatus Null Safety', () => {
       subscribe: vi.fn(),
       unsubscribe: vi.fn(),
     };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const renderShipStatus = () => {

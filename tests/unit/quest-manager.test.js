@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { TANAKA_QUEST } from '../../src/game/data/quest-definitions.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Stats initialization', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('initializes state.stats with zero counters', () => {
@@ -32,8 +30,7 @@ describe('Stats tracking', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('increments jumpsCompleted on location change', () => {
@@ -66,8 +63,7 @@ describe('Karma-based stats', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('increments charitableActs on positive karma change', () => {
@@ -85,8 +81,7 @@ describe('QuestManager', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   describe('registerQuest', () => {
@@ -371,8 +366,7 @@ describe('Quest event hooks', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
     manager.registerQuest({
       id: 'test_quest',
       stages: [
@@ -406,8 +400,7 @@ describe('Quest event hooks', () => {
 
 describe('Quest auto-registration', () => {
   it('registers Tanaka quest on initNewGame', () => {
-    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    const manager = createTestGameStateManager();
     const questState = manager.getQuestState('tanaka');
     expect(questState).not.toBeNull();
     expect(questState.stage).toBe(0);
@@ -419,8 +412,7 @@ describe('Exotic material collection', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
     // Advance Tanaka quest to stage 2
     manager.advanceQuest('tanaka');
     manager.advanceQuest('tanaka');
@@ -459,8 +451,7 @@ describe('Tanaka quest end-to-end', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('progresses through all 5 stages to victory', () => {
@@ -532,8 +523,7 @@ describe('Tanaka quest definition', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
     manager.registerQuest(TANAKA_QUEST);
   });
 

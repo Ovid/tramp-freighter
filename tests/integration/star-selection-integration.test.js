@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as THREE from 'three';
 import {
   selectStar,
@@ -40,23 +40,12 @@ describe('Star Selection Integration', () => {
       scene.add(star.sprite);
       scene.add(star.label);
     });
-
-    // Mock window functions (namespaced bridge)
-    window.StarmapBridge = {
-      selectStarInScene: vi.fn(),
-      deselectStarInScene: vi.fn(),
-      selectStarById: vi.fn(),
-      closeSystemPanel: vi.fn(),
-    };
   });
 
   afterEach(() => {
     deselectStar();
     _resetState();
     scene.clear();
-
-    // Clean up window functions
-    delete window.StarmapBridge;
   });
 
   describe('Complete Selection Flow', () => {
@@ -69,9 +58,10 @@ describe('Star Selection Integration', () => {
       // Verify star is selected
       expect(getSelectedStar()).toBe(star);
 
-      // Verify reticle is created and visible
-      expect(star.selectionRing).not.toBeNull();
-      expect(star.selectionRing.visible).toBe(true);
+      // Verify reticle is created with expected properties and visible
+      expect(star.selectionRing).toEqual(
+        expect.objectContaining({ visible: true })
+      );
 
       // Verify reticle is in scene
       expect(scene.children).toContain(star.selectionRing);
@@ -115,29 +105,6 @@ describe('Star Selection Integration', () => {
     });
   });
 
-  describe('Window Function Integration', () => {
-    it('should expose StarmapBridge namespace', () => {
-      expect(window.StarmapBridge).toBeDefined();
-      expect(typeof window.StarmapBridge).toBe('object');
-    });
-
-    it('should expose selectStarInScene function', () => {
-      expect(typeof window.StarmapBridge.selectStarInScene).toBe('function');
-    });
-
-    it('should expose deselectStarInScene function', () => {
-      expect(typeof window.StarmapBridge.deselectStarInScene).toBe('function');
-    });
-
-    it('should expose selectStarById function', () => {
-      expect(typeof window.StarmapBridge.selectStarById).toBe('function');
-    });
-
-    it('should expose closeSystemPanel function', () => {
-      expect(typeof window.StarmapBridge.closeSystemPanel).toBe('function');
-    });
-  });
-
   describe('System Panel Integration', () => {
     it('should select star when system info panel opens', () => {
       const star = stars[0];
@@ -147,8 +114,9 @@ describe('Star Selection Integration', () => {
 
       // Verify star is selected with reticle
       expect(getSelectedStar()).toBe(star);
-      expect(star.selectionRing).not.toBeNull();
-      expect(star.selectionRing.visible).toBe(true);
+      expect(star.selectionRing).toEqual(
+        expect.objectContaining({ visible: true })
+      );
     });
 
     it('should deselect star when system panel closes', () => {

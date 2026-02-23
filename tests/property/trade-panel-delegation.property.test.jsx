@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
@@ -17,24 +17,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('Property 24: Trade panel delegates to GameStateManager', () => {
   // Suppress React act() warnings for property tests
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (
-        message.includes('act(') ||
-        message.includes('Warning: ReactDOM.render')
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should call gameStateManager.buyGood when buying goods', () => {
@@ -76,7 +64,7 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
         expect(buyGoodArgs.quantity).toBe(1);
         expect(buyGoodArgs.price).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -129,7 +117,7 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
         expect(sellGoodArgs.quantity).toBe(1);
         expect(sellGoodArgs.salePrice).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -158,7 +146,7 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
           expect(element.textContent).toMatch(/\d+ cr\/unit/);
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -194,7 +182,7 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
         cargoDisplay = container.querySelector('#cargo-stacks');
         expect(cargoDisplay.textContent).not.toContain('No cargo');
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -231,7 +219,7 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
         );
         expect(validationMessages.length).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

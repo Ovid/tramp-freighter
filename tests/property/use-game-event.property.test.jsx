@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useGameEvent } from '../../src/hooks/useGameEvent.js';
@@ -9,25 +9,12 @@ import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress React act() warnings in property-based tests
 // These warnings are expected when testing hooks in isolation
-let originalConsoleError;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      message.includes('Warning: An update to') &&
-      message.includes('was not wrapped in act')
-    ) {
-      return; // Suppress expected act() warnings
-    }
-    originalConsoleError(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -75,7 +62,7 @@ describe('Property: useGameEvent subscription correctness', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -88,7 +75,7 @@ describe('Property: useGameEvent subscription correctness', () => {
  * its local state and return the updated value to the component.
  */
 describe('Property: useGameEvent state updates', () => {
-  it('should update state when event fires', async () => {
+  it('should update state when event fires', { timeout: 15000 }, async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 600, max: 100000 }),
@@ -121,7 +108,7 @@ describe('Property: useGameEvent state updates', () => {
           return result.current === newCredits;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -177,7 +164,7 @@ describe('Property: Automatic unsubscription on unmount', () => {
           return afterUnmountCount === initialCount;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -191,49 +178,56 @@ describe('Property: Automatic unsubscription on unmount', () => {
  * re-render when an unrelated event fires.
  */
 describe('Property: Selective re-rendering on events', () => {
-  it('should only re-render components subscribed to the fired event', async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.integer({ min: 600, max: 100000 }),
-        async (newCredits) => {
-          cleanup();
+  it(
+    'should only re-render components subscribed to the fired event',
+    { timeout: 15000 },
+    async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 600, max: 100000 }),
+          async (newCredits) => {
+            cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+            const gameStateManager = new GameStateManager(
+              STAR_DATA,
+              WORMHOLE_DATA
+            );
+            gameStateManager.initNewGame();
 
-          // Render two hooks subscribed to different events
-          const creditsHook = renderHook(() => useGameEvent('creditsChanged'), {
-            wrapper: createWrapper(gameStateManager),
-          });
+            // Render two hooks subscribed to different events
+            const creditsHook = renderHook(
+              () => useGameEvent('creditsChanged'),
+              {
+                wrapper: createWrapper(gameStateManager),
+              }
+            );
 
-          const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
-            wrapper: createWrapper(gameStateManager),
-          });
+            const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
+              wrapper: createWrapper(gameStateManager),
+            });
 
-          // Get initial values
-          const initialFuel = fuelHook.result.current;
-          expect(initialFuel).toBe(100); // New game starts with 100 fuel
+            // Get initial values
+            const initialFuel = fuelHook.result.current;
+            expect(initialFuel).toBe(100); // New game starts with 100 fuel
 
-          // Fire creditsChanged event
-          gameStateManager.updateCredits(newCredits);
+            // Fire creditsChanged event
+            gameStateManager.updateCredits(newCredits);
 
-          // Wait for credits hook to update
-          await waitFor(() => {
-            expect(creditsHook.result.current).toBe(newCredits);
-          });
+            // Wait for credits hook to update
+            await waitFor(() => {
+              expect(creditsHook.result.current).toBe(newCredits);
+            });
 
-          // Verify fuel hook did NOT update (still has initial value)
-          expect(fuelHook.result.current).toBe(initialFuel);
+            // Verify fuel hook did NOT update (still has initial value)
+            expect(fuelHook.result.current).toBe(initialFuel);
 
-          return fuelHook.result.current === initialFuel;
-        }
-      ),
-      { numRuns: 50 }
-    );
-  });
+            return fuelHook.result.current === initialFuel;
+          }
+        ),
+        { numRuns: 100 }
+      );
+    }
+  );
 });
 
 /**
@@ -287,7 +281,7 @@ describe('Property: All subscribers notified', () => {
 
         return afterEventCount === subscriberCount;
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });

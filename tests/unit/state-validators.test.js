@@ -5,7 +5,7 @@
  * These functions handle cargo normalization, config ID validation, and cargo repair.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isVersionCompatible,
   validateStateStructure,
@@ -22,6 +22,10 @@ const TEST_STAR_DATA = [
 ];
 
 describe('State Validators Module', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('isVersionCompatible', () => {
     it('should return true for exact version match', () => {
       expect(isVersionCompatible('2.1.0')).toBe(true);
@@ -245,35 +249,23 @@ describe('State Validators Module', () => {
     it('should filter out unknown quirk IDs', () => {
       v1State.ship.quirks = ['valid_quirk', 'unknown_quirk'];
 
-      // Mock console.warn to suppress expected warning
-      const originalWarn = console.warn;
-      console.warn = () => {};
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
-        // Should only keep valid quirks (none in this case since we don't have real quirk IDs)
-        expect(Array.isArray(migrated.ship.quirks)).toBe(true);
-      } finally {
-        console.warn = originalWarn;
-      }
+      // Should only keep valid quirks (none in this case since we don't have real quirk IDs)
+      expect(Array.isArray(migrated.ship.quirks)).toBe(true);
     });
 
     it('should filter out unknown upgrade IDs', () => {
       v1State.ship.upgrades = ['valid_upgrade', 'unknown_upgrade'];
 
-      // Mock console.warn to suppress expected warning
-      const originalWarn = console.warn;
-      console.warn = () => {};
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
+      const migrated = migrateFromV1ToV2(v1State, TEST_STAR_DATA);
 
-        // Should only keep valid upgrades (none in this case since we don't have real upgrade IDs)
-        expect(Array.isArray(migrated.ship.upgrades)).toBe(true);
-      } finally {
-        console.warn = originalWarn;
-      }
+      // Should only keep valid upgrades (none in this case since we don't have real upgrade IDs)
+      expect(Array.isArray(migrated.ship.upgrades)).toBe(true);
     });
   });
 
@@ -404,20 +396,13 @@ describe('State Validators Module', () => {
     it('should repair cargo with missing metadata', () => {
       partialState.ship.cargo = [{ good: 'grain', qty: 10, buyPrice: 100 }];
 
-      // Mock console.warn to suppress expected warnings
-      const originalWarn = console.warn;
-      const warnings = [];
-      console.warn = (...args) => warnings.push(args);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
-        expect(normalized.ship.cargo[0].buySystem).toBe(0);
-        expect(normalized.ship.cargo[0].buySystemName).toBe('Sol');
-        expect(normalized.ship.cargo[0].buyDate).toBe(0);
-      } finally {
-        console.warn = originalWarn;
-      }
+      expect(normalized.ship.cargo[0].buySystem).toBe(0);
+      expect(normalized.ship.cargo[0].buySystemName).toBe('Sol');
+      expect(normalized.ship.cargo[0].buyDate).toBe(0);
     });
 
     it('should skip invalid cargo stacks', () => {
@@ -427,18 +412,12 @@ describe('State Validators Module', () => {
         { good: 'ore', qty: 5, buyPrice: 200 },
       ];
 
-      // Mock console.warn to suppress expected warnings
-      const originalWarn = console.warn;
-      console.warn = () => {};
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
-        // Invalid stack should still be in array but skipped during repair
-        expect(normalized.ship.cargo).toHaveLength(3);
-      } finally {
-        console.warn = originalWarn;
-      }
+      // Invalid stack should still be in array but skipped during repair
+      expect(normalized.ship.cargo).toHaveLength(3);
     });
 
     it('should initialize missing price knowledge', () => {
@@ -471,33 +450,21 @@ describe('State Validators Module', () => {
     it('should filter out unknown quirk IDs', () => {
       partialState.ship.quirks = ['unknown_quirk'];
 
-      // Mock console.warn to suppress expected warning
-      const originalWarn = console.warn;
-      console.warn = () => {};
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
-        expect(normalized.ship.quirks).toHaveLength(0);
-      } finally {
-        console.warn = originalWarn;
-      }
+      expect(normalized.ship.quirks).toHaveLength(0);
     });
 
     it('should filter out unknown upgrade IDs', () => {
       partialState.ship.upgrades = ['unknown_upgrade'];
 
-      // Mock console.warn to suppress expected warning
-      const originalWarn = console.warn;
-      console.warn = () => {};
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      try {
-        const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
-        expect(normalized.ship.upgrades).toHaveLength(0);
-      } finally {
-        console.warn = originalWarn;
-      }
+      expect(normalized.ship.upgrades).toHaveLength(0);
     });
 
     it('should add narrativeEvents defaults when missing from world', () => {

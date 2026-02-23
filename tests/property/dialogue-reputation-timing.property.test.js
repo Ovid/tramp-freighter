@@ -5,7 +5,7 @@
  * Validates: Requirements 10.2
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
@@ -69,9 +69,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
             gameStateManager
           );
 
-          if (!nextDialogue) {
-            return false; // Should have returned next dialogue
-          }
+          expect(nextDialogue).toBeDefined();
 
           // Check that reputation was updated
           const finalRep = gameStateManager.getNPCState(npcId).rep;
@@ -100,9 +98,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
           // Allow for small floating point differences
           const repDifference = Math.abs(finalRep - expectedFinalRep);
-          if (repDifference > 0.01) {
-            return false; // Reputation should have been updated correctly
-          }
+          expect(repDifference).toBeLessThanOrEqual(0.01);
 
           // The key test: verify that the next dialogue node reflects the updated reputation
           // If the next node has reputation-dependent text, it should use the new reputation
@@ -113,19 +109,13 @@ describe('Dialogue Reputation Update Timing Properties', () => {
             // Generate text with the new reputation
             const expectedText = nextNode.text(finalRep);
 
-            if (nextDialogue.text !== expectedText) {
-              return false; // Next dialogue should use updated reputation
-            }
+            expect(nextDialogue.text).toBe(expectedText);
           }
 
           // Verify reputation tier in next dialogue reflects updated reputation
           const expectedTier = gameStateManager.getRepTier(finalRep);
-          if (nextDialogue.reputationTier.name !== expectedTier.name) {
-            return false; // Reputation tier should reflect updated reputation
-          }
+          expect(nextDialogue.reputationTier.name).toBe(expectedTier.name);
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -168,9 +158,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
           gameStateManager
         );
 
-        if (!nextDialogue) {
-          return false; // Should have returned next dialogue
-        }
+        expect(nextDialogue).toBeDefined();
 
         // Check if reputation increased enough to potentially unlock backstory
         const finalRep = gameStateManager.getNPCState(npcId).rep;
@@ -186,12 +174,8 @@ describe('Dialogue Reputation Update Timing Properties', () => {
             c.text.includes('Tell me about yourself')
           );
 
-          if (!backstoryChoice) {
-            return false; // Backstory choice should be available with rep >= 30
-          }
+          expect(backstoryChoice).toBeDefined();
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );

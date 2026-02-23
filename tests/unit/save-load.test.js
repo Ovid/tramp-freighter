@@ -133,7 +133,7 @@ describe('Save/Load System', () => {
     const loaded = manager2.loadGame();
     expect(loaded).not.toBeNull();
     expect(loaded.quests.tanaka.stage).toBe(1);
-    expect(loaded.stats).toBeDefined();
+    expect(loaded.stats).toEqual(expect.any(Object));
     expect(loaded.stats.creditsEarned).toBeGreaterThanOrEqual(0);
   });
 
@@ -144,9 +144,9 @@ describe('Save/Load System', () => {
 
     const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     const loaded = manager2.loadGame();
-    expect(loaded.stats).toBeDefined();
-    expect(loaded.stats.creditsEarned).toBe(0);
-    expect(loaded.stats.jumpsCompleted).toBe(0);
+    expect(loaded.stats).toEqual(
+      expect.objectContaining({ creditsEarned: 0, jumpsCompleted: 0 })
+    );
   });
 
   it('adds quests defaults for old saves without quests', () => {
@@ -156,6 +156,6 @@ describe('Save/Load System', () => {
 
     const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     const loaded = manager2.loadGame();
-    expect(loaded.quests).toBeDefined();
+    expect(loaded.quests).toEqual(expect.any(Object));
   });
 });

@@ -99,32 +99,15 @@ describe('Distance Calculations', () => {
       });
     });
 
-    it('should calculate Alpha Centauri A at ~4.37 LY', () => {
-      const alphaCen = TEST_STAR_DATA.find(
-        (s) => s.name === 'Alpha Centauri A'
-      );
-      const distance = calculateDistanceFromSol(alphaCen);
-      expect(distance).toBeCloseTo(4.37, 1);
-    });
-
-    it('should calculate Proxima Centauri C at ~4.25 LY', () => {
-      const proxima = TEST_STAR_DATA.find(
-        (s) => s.name === 'Proxima Centauri C'
-      );
-      const distance = calculateDistanceFromSol(proxima);
-      expect(distance).toBeCloseTo(4.25, 1);
-    });
-
-    it("should calculate Barnard's Star at ~5.96 LY", () => {
-      const barnard = TEST_STAR_DATA.find((s) => s.name === "Barnard's Star");
-      const distance = calculateDistanceFromSol(barnard);
-      expect(distance).toBeCloseTo(5.96, 1);
-    });
-
-    it('should calculate Wolf 1481 (farthest) at ~20 LY', () => {
-      const wolf1481 = TEST_STAR_DATA.find((s) => s.name === 'Wolf 1481');
-      const distance = calculateDistanceFromSol(wolf1481);
-      expect(distance).toBeCloseTo(20.0, 1);
+    it.each([
+      ['Alpha Centauri A', 4.37],
+      ['Proxima Centauri C', 4.25],
+      ["Barnard's Star", 5.96],
+      ['Wolf 1481', 20.0],
+    ])('should calculate %s at ~%s LY', (starName, expectedLY) => {
+      const star = TEST_STAR_DATA.find((s) => s.name === starName);
+      const distance = calculateDistanceFromSol(star);
+      expect(distance).toBeCloseTo(expectedLY, 1);
     });
   });
 

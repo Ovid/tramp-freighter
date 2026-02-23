@@ -31,7 +31,7 @@ describe('Property: Button variant classes', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -47,7 +47,7 @@ describe('Property: Button variant classes', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -90,7 +90,7 @@ describe('Property: Button disabled state', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -126,7 +126,7 @@ describe('Property: Button disabled state', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -168,7 +168,7 @@ describe('Property: Button className merging', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -197,7 +197,7 @@ describe('Property: Button className merging', () => {
           return true;
         }
       ),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -223,7 +223,7 @@ describe('Property: Button type attribute', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -239,7 +239,7 @@ describe('Property: Button type attribute', () => {
 
         return true;
       }),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -275,7 +275,7 @@ describe('Property: Button rest props spreading', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -298,7 +298,7 @@ describe('Property: Button children rendering', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -323,7 +323,7 @@ describe('Property: Button children rendering', () => {
           return true;
         }
       ),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -358,7 +358,7 @@ describe('Property: Button onClick event', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

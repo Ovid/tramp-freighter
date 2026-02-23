@@ -74,7 +74,7 @@ describe('Property 46: Notification queueing', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -114,7 +114,7 @@ describe('Property 46: Notification queueing', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -165,7 +165,7 @@ describe('Property 46: Notification queueing', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -224,7 +224,7 @@ describe('Property 47: Notification expiration', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -255,7 +255,7 @@ describe('Property 47: Notification expiration', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -299,7 +299,7 @@ describe('Property 47: Notification expiration', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -341,7 +341,7 @@ describe('Property 47: Notification expiration', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

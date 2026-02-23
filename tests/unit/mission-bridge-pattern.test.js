@@ -1,13 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Mission Bridge Pattern', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('should emit missionsChanged when mission is accepted', () => {

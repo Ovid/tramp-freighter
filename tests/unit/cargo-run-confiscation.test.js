@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 
 describe('Cargo confiscation – mission failure', () => {
@@ -60,6 +60,10 @@ describe('Cargo confiscation – mission failure', () => {
       abandonMission: vi.fn(),
       failMissionsDueToCargoLoss: vi.fn(),
     };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should call failMissionsDueToCargoLoss after cargo loss', () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MISSION_CARGO_TYPES } from '../../src/game/constants.js';
 import { DangerManager } from '../../src/game/state/managers/danger.js';
 
@@ -11,6 +11,10 @@ describe('Customs – illegal mission cargo detection', () => {
       emit: vi.fn(),
       isTestEnvironment: true,
     });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should count illegal mission cargo as restricted', () => {

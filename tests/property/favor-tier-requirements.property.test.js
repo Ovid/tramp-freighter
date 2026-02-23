@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -30,6 +30,10 @@ describe('Favor Tier Requirements Property Tests', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // Helper function to reset GameStateManager for each property test iteration
@@ -154,7 +158,7 @@ describe('Favor Tier Requirements Property Tests', () => {
           expect(result.reason).toContain('Friendly relationship');
         }
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -196,7 +200,7 @@ describe('Favor Tier Requirements Property Tests', () => {
           expect(result.available).toBe(test.expectedAvailable);
         }
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -228,7 +232,7 @@ describe('Favor Tier Requirements Property Tests', () => {
           }).not.toThrow(); // We expect graceful handling, not throwing
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -249,7 +253,7 @@ describe('Favor Tier Requirements Property Tests', () => {
           }).toThrow('Unknown NPC ID');
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });

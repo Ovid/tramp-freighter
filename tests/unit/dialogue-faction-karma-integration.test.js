@@ -5,7 +5,7 @@
  * and that NPCs respond appropriately to player's moral alignment and faction standing.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -32,6 +32,10 @@ describe('Dialogue Faction and Karma Integration', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Faction Reputation Conditions', () => {
@@ -268,8 +272,8 @@ describe('Dialogue Faction and Karma Integration', () => {
   describe('Error Handling', () => {
     it('should handle missing context gracefully', () => {
       // Null context will cause a TypeError since functions access context.karma / context.factionReps
-      expect(() => hasGoodKarma(null)).toThrow();
-      expect(() => hasFactionRep('civilians', 50, null)).toThrow();
+      expect(() => hasGoodKarma(null)).toThrow(TypeError);
+      expect(() => hasFactionRep('civilians', 50, null)).toThrow(TypeError);
     });
 
     it('should handle dialogue conditions with missing gameStateManager', () => {
@@ -277,7 +281,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // This test verifies that the error is handled gracefully
       expect(() => {
         showDialogue('chen_barnards', 'greeting');
-      }).toThrow();
+      }).toThrow(TypeError);
     });
   });
 });

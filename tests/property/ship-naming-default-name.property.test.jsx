@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -12,38 +12,13 @@ import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return;
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -95,32 +70,19 @@ describe('Property: Default ship name on empty input', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value to empty/whitespace
           fireEvent.change(input, { target: { value: emptyInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the submitted name is the default ship name
-          if (submittedName !== SHIP_CONFIG.DEFAULT_NAME) {
-            console.error(
-              `Expected default name "${SHIP_CONFIG.DEFAULT_NAME}", got "${submittedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(SHIP_CONFIG.DEFAULT_NAME);
         }
       ),
       { numRuns: 100 }
@@ -158,10 +120,7 @@ describe('Property: Default ship name on empty input', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value to empty/whitespace
           fireEvent.change(input, { target: { value: emptyInput } });
@@ -170,14 +129,7 @@ describe('Property: Default ship name on empty input', () => {
           fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
           // Verify the submitted name is the default ship name
-          if (submittedName !== SHIP_CONFIG.DEFAULT_NAME) {
-            console.error(
-              `Expected default name "${SHIP_CONFIG.DEFAULT_NAME}" on Enter, got "${submittedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(SHIP_CONFIG.DEFAULT_NAME);
         }
       ),
       { numRuns: 100 }
@@ -224,33 +176,20 @@ describe('Property: Default ship name on empty input', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value to HTML-only content
           fireEvent.change(input, { target: { value: htmlOnlyInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the submitted name is the default ship name
           // (HTML tags are removed, leaving empty string, which defaults)
-          if (submittedName !== SHIP_CONFIG.DEFAULT_NAME) {
-            console.error(
-              `Expected default name "${SHIP_CONFIG.DEFAULT_NAME}" for HTML-only input, got "${submittedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(SHIP_CONFIG.DEFAULT_NAME);
         }
       ),
       { numRuns: 100 }
@@ -332,40 +271,24 @@ describe('Property: Default ship name on empty input', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value to valid content
           fireEvent.change(input, { target: { value: validInput } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the submitted name is NOT the default
           // The submitted name should be the sanitized input
           const expectedName = sanitizeShipName(validInput);
-          if (submittedName !== expectedName) {
-            console.error(`Expected "${expectedName}", got "${submittedName}"`);
-            return false;
-          }
+          expect(submittedName).toBe(expectedName);
 
           // Verify it's not the default name (filter should have excluded those)
-          if (submittedName === SHIP_CONFIG.DEFAULT_NAME) {
-            console.error(
-              `Should not use default name for valid input "${validInput}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).not.toBe(SHIP_CONFIG.DEFAULT_NAME);
         }
       ),
       { numRuns: 100 }

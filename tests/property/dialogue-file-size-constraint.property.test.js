@@ -81,7 +81,7 @@ describe('Dialogue File Size Constraint Properties', () => {
         expect(fileContent).toBeDefined();
         expect(fileContent.length).toBeGreaterThan(0);
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -122,7 +122,7 @@ describe('Dialogue File Size Constraint Properties', () => {
         // Should not contain syntax errors (basic check)
         expect(fileContent).not.toMatch(/\bexport\s+const\s+\w+\s*=\s*$/m); // Incomplete exports
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

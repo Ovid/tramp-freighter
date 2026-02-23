@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { DateDisplay } from '../../src/features/hud/DateDisplay';
@@ -8,25 +8,12 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
 
 // Suppress React act() warnings in property-based tests
-let originalConsoleError;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('was not wrapped in act'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**

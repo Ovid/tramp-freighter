@@ -4,8 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Property 0: New Game Initialization', () => {
   /**
@@ -16,11 +15,8 @@ describe('Property 0: New Game Initialization', () => {
    * - Meta: version and timestamp
    */
   it('should initialize with correct default values', () => {
-    // Create a new game state manager
-    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-
-    // Initialize new game
-    const state = manager.initNewGame();
+    const manager = createTestGameStateManager();
+    const state = manager.getState();
 
     // Verify player state
     expect(state.player.credits).toBe(500);
@@ -59,8 +55,8 @@ describe('Property 0: New Game Initialization', () => {
     const states = [];
 
     for (let i = 0; i < 5; i++) {
-      const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-      const state = manager.initNewGame();
+      const manager = createTestGameStateManager();
+      const state = manager.getState();
       states.push(state);
     }
 
@@ -91,8 +87,8 @@ describe('Property 0: New Game Initialization', () => {
   });
 
   it('should initialize with cargo that does not exceed capacity', () => {
-    const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    const state = manager.initNewGame();
+    const manager = createTestGameStateManager();
+    const state = manager.getState();
 
     const totalCargo = state.ship.cargo.reduce(
       (sum, stack) => sum + stack.qty,

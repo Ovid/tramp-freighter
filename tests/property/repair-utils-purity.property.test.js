@@ -47,7 +47,7 @@ describe('Property: Repair utility functions are pure', () => {
         expect(result).toBe(0);
         return result === 0;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -216,7 +216,7 @@ describe('Property: Repair utility functions are pure', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -239,7 +239,7 @@ describe('Property: Repair utility functions are pure', () => {
           return !result.valid;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -266,7 +266,7 @@ describe('Property: Repair utility functions are pure', () => {
           return !result.valid;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -286,7 +286,7 @@ describe('Property: Repair utility functions are pure', () => {
 
         return !result.valid;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 

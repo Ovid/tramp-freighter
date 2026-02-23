@@ -1,6 +1,6 @@
 'use strict';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   saveGame,
   loadGame,
@@ -28,6 +28,10 @@ describe('save-load module', () => {
     localStorage.clear();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('saveGame', () => {
     it('should save game state to localStorage', () => {
       const testState = createTestState();
@@ -53,16 +57,10 @@ describe('save-load module', () => {
     });
 
     it('should return false if state is null', () => {
-      // Mock console.error to suppress expected error message
-      const originalConsoleError = console.error;
-      console.error = () => {};
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      try {
-        const result = saveGame(null, 0);
-        expect(result.success).toBe(false);
-      } finally {
-        console.error = originalConsoleError;
-      }
+      const result = saveGame(null, 0);
+      expect(result.success).toBe(false);
     });
   });
 

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { PASSENGER_CONFIG } from '../../src/game/constants.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { createTestGameStateManager } from '../test-utils.js';
 
 function makePassengerMission(overrides = {}) {
   return {
@@ -33,8 +32,7 @@ describe('Passenger Satisfaction & Payment', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   describe('acceptMission cargo space check', () => {

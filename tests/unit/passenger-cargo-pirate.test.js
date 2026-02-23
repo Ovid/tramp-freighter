@@ -1,6 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
@@ -14,6 +12,11 @@ import {
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 import { generatePassengerMission } from '../../src/game/mission-generator.js';
 import { pluralizeUnit } from '../../src/game/utils/string-utils.js';
+import {
+  createTestGameStateManager,
+  TEST_STAR_DATA,
+  TEST_WORMHOLE_DATA,
+} from '../test-utils.js';
 
 /**
  * Tests for passenger cargo space consumption and pirate credit demand fallback.
@@ -44,8 +47,7 @@ describe('Passenger Cargo Space', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   describe('getCargoUsed / getTradeCargoUsed', () => {
@@ -140,8 +142,7 @@ describe('Pirate Credit Demand Fallback', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   describe('hasTradeCargoForPirates', () => {
@@ -322,9 +323,12 @@ describe('applyEncounterOutcome - kidnap', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
     vi.spyOn(manager, 'saveGame').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should abandon mission and apply penalties on kidnap', () => {
@@ -374,9 +378,10 @@ describe('Passenger Display Bugs', () => {
       );
 
       expect(mission).not.toBeNull();
-      expect(mission.destination).toBeDefined();
-      expect(mission.destination.name).toBeTruthy();
-      expect(typeof mission.destination.name).toBe('string');
+      expect(mission.destination).toEqual(
+        expect.objectContaining({ name: expect.any(String) })
+      );
+      expect(mission.destination.name.length).toBeGreaterThan(0);
     });
   });
 

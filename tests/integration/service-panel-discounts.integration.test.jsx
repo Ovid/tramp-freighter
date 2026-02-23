@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { RepairPanel } from '../../src/features/repair/RepairPanel';
@@ -31,7 +31,6 @@ describe('Service Panel Discounts Integration', () => {
       clear: vi.fn(),
     });
 
-    // Create NavigationSystem instance
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
     // Create GameStateManager instance with navigation system
@@ -77,6 +76,10 @@ describe('Service Panel Discounts Integration', () => {
       // Set NPC to Friendly tier for 10% discount
       gameStateManager.setNPCReputation(intelNPC.id, 35);
     }
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const renderWithGameContext = (component) => {

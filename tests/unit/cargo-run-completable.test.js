@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('getCompletableMissions – new cargo runs', () => {
   let manager;
@@ -24,6 +24,10 @@ describe('getCompletableMissions – new cargo runs', () => {
     manager = new MissionManager(mockGSM);
     manager.validateState = vi.fn();
     manager.getState = () => state;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should include delivery mission when mission cargo is in hold at destination', () => {

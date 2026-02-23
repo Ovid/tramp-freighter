@@ -31,95 +31,114 @@ import {
  * system/station assignments, and speech styles as specified in requirements.
  */
 describe('NPC Data Definitions', () => {
-  describe("Wei Chen (Dock Worker at Barnard's Star)", () => {
-    it('should have correct personality traits', () => {
-      expect(WEI_CHEN.personality.trust).toBe(0.3);
-      expect(WEI_CHEN.personality.greed).toBe(0.2);
-      expect(WEI_CHEN.personality.loyalty).toBe(0.8);
-      expect(WEI_CHEN.personality.morality).toBe(0.6);
-    });
+  const FOUNDATION_NPC_CASES = [
+    {
+      label: "Wei Chen (Dock Worker at Barnard's Star)",
+      npc: WEI_CHEN,
+      expectedBasic: {
+        id: 'chen_barnards',
+        name: 'Wei Chen',
+        role: 'Dock Worker',
+      },
+      expectedPersonality: {
+        trust: 0.3,
+        greed: 0.2,
+        loyalty: 0.8,
+        morality: 0.6,
+      },
+      expectedLocation: { system: 4, station: 'Bore Station 7' },
+      expectedSpeechStyle: {
+        greeting: 'casual',
+        vocabulary: 'simple',
+        quirk: 'drops articles',
+      },
+      expectedInitialRep: 0,
+    },
+    {
+      label: 'Marcus Cole (Loan Shark at Sol)',
+      npc: MARCUS_COLE,
+      expectedBasic: {
+        id: 'cole_sol',
+        name: 'Marcus Cole',
+        role: 'Loan Shark',
+      },
+      expectedPersonality: {
+        trust: 0.1,
+        greed: 0.9,
+        loyalty: 0.3,
+        morality: 0.2,
+      },
+      expectedLocation: { system: 0, station: 'Sol Central' },
+      expectedSpeechStyle: {
+        greeting: 'formal',
+        vocabulary: 'educated',
+        quirk: 'short clipped sentences',
+      },
+      expectedInitialRep: -20,
+    },
+    {
+      label: 'Father Okonkwo (Chaplain at Ross 154)',
+      npc: FATHER_OKONKWO,
+      expectedBasic: {
+        id: 'okonkwo_ross154',
+        name: 'Father Okonkwo',
+        role: 'Chaplain',
+      },
+      expectedPersonality: {
+        trust: 0.7,
+        greed: 0.0,
+        loyalty: 0.9,
+        morality: 0.9,
+      },
+      expectedLocation: { system: 11, station: 'Ross 154 Medical' },
+      expectedSpeechStyle: {
+        greeting: 'warm',
+        vocabulary: 'educated',
+        quirk: 'religious metaphors',
+      },
+      expectedInitialRep: 10,
+    },
+  ];
 
-    it('should have correct initial reputation', () => {
-      expect(WEI_CHEN.initialRep).toBe(0);
-    });
+  describe.each(FOUNDATION_NPC_CASES)(
+    '$label',
+    ({
+      npc,
+      expectedBasic,
+      expectedPersonality,
+      expectedLocation,
+      expectedSpeechStyle,
+      expectedInitialRep,
+    }) => {
+      it('should have correct personality traits', () => {
+        expect(npc.personality.trust).toBe(expectedPersonality.trust);
+        expect(npc.personality.greed).toBe(expectedPersonality.greed);
+        expect(npc.personality.loyalty).toBe(expectedPersonality.loyalty);
+        expect(npc.personality.morality).toBe(expectedPersonality.morality);
+      });
 
-    it('should be assigned to correct system and station', () => {
-      expect(WEI_CHEN.system).toBe(4); // Barnard's Star
-      expect(WEI_CHEN.station).toBe('Bore Station 7');
-    });
+      it('should have correct initial reputation', () => {
+        expect(npc.initialRep).toBe(expectedInitialRep);
+      });
 
-    it('should have correct basic information', () => {
-      expect(WEI_CHEN.id).toBe('chen_barnards');
-      expect(WEI_CHEN.name).toBe('Wei Chen');
-      expect(WEI_CHEN.role).toBe('Dock Worker');
-    });
+      it('should be assigned to correct system and station', () => {
+        expect(npc.system).toBe(expectedLocation.system);
+        expect(npc.station).toBe(expectedLocation.station);
+      });
 
-    it('should have correct speech style', () => {
-      expect(WEI_CHEN.speechStyle.greeting).toBe('casual');
-      expect(WEI_CHEN.speechStyle.vocabulary).toBe('simple');
-      expect(WEI_CHEN.speechStyle.quirk).toBe('drops articles');
-    });
-  });
+      it('should have correct basic information', () => {
+        expect(npc.id).toBe(expectedBasic.id);
+        expect(npc.name).toBe(expectedBasic.name);
+        expect(npc.role).toBe(expectedBasic.role);
+      });
 
-  describe('Marcus Cole (Loan Shark at Sol)', () => {
-    it('should have correct personality traits', () => {
-      expect(MARCUS_COLE.personality.trust).toBe(0.1);
-      expect(MARCUS_COLE.personality.greed).toBe(0.9);
-      expect(MARCUS_COLE.personality.loyalty).toBe(0.3);
-      expect(MARCUS_COLE.personality.morality).toBe(0.2);
-    });
-
-    it('should have correct initial reputation', () => {
-      expect(MARCUS_COLE.initialRep).toBe(-20);
-    });
-
-    it('should be assigned to correct system and station', () => {
-      expect(MARCUS_COLE.system).toBe(0); // Sol
-      expect(MARCUS_COLE.station).toBe('Sol Central');
-    });
-
-    it('should have correct basic information', () => {
-      expect(MARCUS_COLE.id).toBe('cole_sol');
-      expect(MARCUS_COLE.name).toBe('Marcus Cole');
-      expect(MARCUS_COLE.role).toBe('Loan Shark');
-    });
-
-    it('should have correct speech style', () => {
-      expect(MARCUS_COLE.speechStyle.greeting).toBe('formal');
-      expect(MARCUS_COLE.speechStyle.vocabulary).toBe('educated');
-      expect(MARCUS_COLE.speechStyle.quirk).toBe('short clipped sentences');
-    });
-  });
-
-  describe('Father Okonkwo (Chaplain at Ross 154)', () => {
-    it('should have correct personality traits', () => {
-      expect(FATHER_OKONKWO.personality.trust).toBe(0.7);
-      expect(FATHER_OKONKWO.personality.greed).toBe(0.0);
-      expect(FATHER_OKONKWO.personality.loyalty).toBe(0.9);
-      expect(FATHER_OKONKWO.personality.morality).toBe(0.9);
-    });
-
-    it('should have correct initial reputation', () => {
-      expect(FATHER_OKONKWO.initialRep).toBe(10);
-    });
-
-    it('should be assigned to correct system and station', () => {
-      expect(FATHER_OKONKWO.system).toBe(11); // Ross 154
-      expect(FATHER_OKONKWO.station).toBe('Ross 154 Medical');
-    });
-
-    it('should have correct basic information', () => {
-      expect(FATHER_OKONKWO.id).toBe('okonkwo_ross154');
-      expect(FATHER_OKONKWO.name).toBe('Father Okonkwo');
-      expect(FATHER_OKONKWO.role).toBe('Chaplain');
-    });
-
-    it('should have correct speech style', () => {
-      expect(FATHER_OKONKWO.speechStyle.greeting).toBe('warm');
-      expect(FATHER_OKONKWO.speechStyle.vocabulary).toBe('educated');
-      expect(FATHER_OKONKWO.speechStyle.quirk).toBe('religious metaphors');
-    });
-  });
+      it('should have correct speech style', () => {
+        expect(npc.speechStyle.greeting).toBe(expectedSpeechStyle.greeting);
+        expect(npc.speechStyle.vocabulary).toBe(expectedSpeechStyle.vocabulary);
+        expect(npc.speechStyle.quirk).toBe(expectedSpeechStyle.quirk);
+      });
+    }
+  );
 
   describe('NPC Collection and Validation', () => {
     it('should include all eleven NPCs in ALL_NPCS array', () => {

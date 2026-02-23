@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
@@ -33,6 +33,10 @@ describe('System Info Accessible With Panels Open', () => {
       },
     };
     gameStateManager.setAnimationSystem(mockAnimationSystem);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should allow System Info callback to be triggered when animation is running', () => {

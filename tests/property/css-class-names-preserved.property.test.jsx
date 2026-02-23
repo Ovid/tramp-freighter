@@ -41,7 +41,7 @@ describe('Property: Button CSS class names preserved', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -77,7 +77,7 @@ describe('Property: Modal CSS class names preserved', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -101,7 +101,7 @@ describe('Property: Card CSS class names preserved', () => {
 
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -122,7 +122,7 @@ describe('Property: Card CSS class names preserved', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

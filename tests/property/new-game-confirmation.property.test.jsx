@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TitleScreen } from '../../src/features/title-screen/TitleScreen';
@@ -9,42 +9,13 @@ import { clearSave } from '../../src/game/state/save-load.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-// React Testing Library warnings that are expected in property-based tests:
-// - "Warning: An update to" - React state updates outside act() are expected in fast-check
-// - "act()" - Property tests intentionally trigger updates without act() wrapper
-// - "Not implemented: HTMLFormElement.prototype.submit" - jsdom limitation, not a real error
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return; // Suppress expected warnings listed above
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return; // Suppress jsdom "Not implemented" warnings (browser API limitations)
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -86,11 +57,7 @@ describe('Property: New game confirmation', () => {
 
         // Verify no modal is displayed initially
         const initialModal = document.querySelector('.modal-overlay');
-        if (initialModal) {
-          console.error('Modal displayed before New Game button clicked');
-          clearSave(true);
-          return false;
-        }
+        expect(initialModal).toBeFalsy();
 
         // Find and click the New Game button
         const buttons = Array.from(container.querySelectorAll('.menu-btn'));
@@ -98,77 +65,37 @@ describe('Property: New game confirmation', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error(
-            'Confirmation modal not displayed after New Game click'
-          );
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Verify modal contains confirmation message
         const modalMessage = document.querySelector('.modal-message');
-        if (!modalMessage) {
-          console.error('Modal message not found');
-          clearSave(true);
-          return false;
-        }
+        expect(modalMessage).toBeTruthy();
 
         const messageText = modalMessage.textContent;
-        if (
-          !messageText.includes('overwrite') ||
-          !messageText.includes('save')
-        ) {
-          console.error(
-            'Modal message does not mention overwriting save:',
-            messageText
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(messageText).toContain('overwrite');
+        expect(messageText).toContain('save');
 
         // Verify modal has confirm and cancel buttons
         const confirmButton = document.querySelector('.modal-confirm');
         const cancelButton = document.querySelector('.modal-cancel');
 
-        if (!confirmButton) {
-          console.error('Confirm button not found in modal');
-          clearSave(true);
-          return false;
-        }
-
-        if (!cancelButton) {
-          console.error('Cancel button not found in modal');
-          clearSave(true);
-          return false;
-        }
+        expect(confirmButton).toBeTruthy();
+        expect(cancelButton).toBeTruthy();
 
         // Verify onStartGame was NOT called yet (waiting for confirmation)
-        if (onStartGame.mock.calls.length > 0) {
-          console.error('onStartGame called before confirmation');
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(0);
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -205,41 +132,18 @@ describe('Property: New game confirmation', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Verify confirmation modal is NOT displayed (check document, not container)
         const modal = document.querySelector('.modal-overlay');
-        if (modal) {
-          console.error(
-            'Confirmation modal displayed when no save exists (should start game directly)'
-          );
-          return false;
-        }
+        expect(modal).toBeFalsy();
 
         // Verify onStartGame was called with true (new game)
-        if (onStartGame.mock.calls.length !== 1) {
-          console.error(
-            'onStartGame not called once:',
-            onStartGame.mock.calls.length
-          );
-          return false;
-        }
-
-        if (onStartGame.mock.calls[0][0] !== true) {
-          console.error(
-            'onStartGame not called with true (new game):',
-            onStartGame.mock.calls[0][0]
-          );
-          return false;
-        }
-
-        return true;
+        expect(onStartGame.mock.calls.length).toBe(1);
+        expect(onStartGame.mock.calls[0][0]).toBe(true);
       }),
       { numRuns: 100 }
     );
@@ -279,60 +183,29 @@ describe('Property: New game confirmation', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error('Confirmation modal not displayed');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Find and click the confirm button
         const confirmButton = document.querySelector('.modal-confirm');
-        if (!confirmButton) {
-          console.error('Confirm button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(confirmButton).toBeTruthy();
 
         fireEvent.click(confirmButton);
 
         // Verify onStartGame was called with true (new game)
-        if (onStartGame.mock.calls.length !== 1) {
-          console.error(
-            'onStartGame not called once after confirmation:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
-
-        if (onStartGame.mock.calls[0][0] !== true) {
-          console.error(
-            'onStartGame not called with true (new game):',
-            onStartGame.mock.calls[0][0]
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(1);
+        expect(onStartGame.mock.calls[0][0]).toBe(true);
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -372,63 +245,34 @@ describe('Property: New game confirmation', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error('Confirmation modal not displayed');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Find and click the cancel button
         const cancelButton = document.querySelector('.modal-cancel');
-        if (!cancelButton) {
-          console.error('Cancel button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(cancelButton).toBeTruthy();
 
         fireEvent.click(cancelButton);
 
         // Verify onStartGame was NOT called
-        if (onStartGame.mock.calls.length > 0) {
-          console.error(
-            'onStartGame called after cancellation:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(0);
 
         // Wait for modal to close
-        try {
-          await waitFor(() => {
-            const modalAfterCancel = document.querySelector('.modal-overlay');
-            expect(modalAfterCancel).toBeFalsy();
-          });
-        } catch (_error) {
-          console.error('Modal still displayed after cancellation');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modalAfterCancel = document.querySelector('.modal-overlay');
+          expect(modalAfterCancel).toBeFalsy();
+        });
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -468,58 +312,33 @@ describe('Property: New game confirmation', () => {
           (btn) => btn.textContent === 'New Game'
         );
 
-        if (!newGameButton) {
-          console.error('New Game button not found');
-          clearSave(true);
-          return false;
-        }
+        expect(newGameButton).toBeTruthy();
 
         // Click New Game button
         fireEvent.click(newGameButton);
 
         // Wait for modal to appear
-        try {
-          await waitFor(() => {
-            const modal = document.querySelector('.modal-overlay');
-            expect(modal).toBeTruthy();
-          });
-        } catch (_error) {
-          console.error('Confirmation modal not displayed');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modal = document.querySelector('.modal-overlay');
+          expect(modal).toBeTruthy();
+        });
 
         // Press Escape key
         fireEvent.keyDown(document, { key: 'Escape' });
 
         // Verify onStartGame was NOT called
-        if (onStartGame.mock.calls.length > 0) {
-          console.error(
-            'onStartGame called after Escape:',
-            onStartGame.mock.calls.length
-          );
-          clearSave(true);
-          return false;
-        }
+        expect(onStartGame.mock.calls.length).toBe(0);
 
         // Wait for modal to close
-        try {
-          await waitFor(() => {
-            const modalAfterEscape = document.querySelector('.modal-overlay');
-            expect(modalAfterEscape).toBeFalsy();
-          });
-        } catch (_error) {
-          console.error('Modal still displayed after Escape key');
-          clearSave(true);
-          return false;
-        }
+        await waitFor(() => {
+          const modalAfterEscape = document.querySelector('.modal-overlay');
+          expect(modalAfterEscape).toBeFalsy();
+        });
 
         // Clean up
         clearSave(true);
-
-        return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 
 function createMockGameStateManager(stateOverrides = {}) {
@@ -42,6 +42,10 @@ describe('EventEngineManager', () => {
     engine = new EventEngineManager(mockGSM);
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('registerEvent', () => {
     it('should register an event', () => {
       const event = {
@@ -79,8 +83,12 @@ describe('EventEngineManager', () => {
         priority: 10,
         content: {},
       });
-      expect(engine.getEventById('e1')).toBeTruthy();
-      expect(engine.getEventById('e2')).toBeTruthy();
+      expect(engine.getEventById('e1')).toEqual(
+        expect.objectContaining({ id: 'e1' })
+      );
+      expect(engine.getEventById('e2')).toEqual(
+        expect.objectContaining({ id: 'e2' })
+      );
     });
   });
 
@@ -105,8 +113,12 @@ describe('EventEngineManager', () => {
         },
       ];
       engine.registerEvents(events);
-      expect(engine.getEventById('e1')).toBeTruthy();
-      expect(engine.getEventById('e2')).toBeTruthy();
+      expect(engine.getEventById('e1')).toEqual(
+        expect.objectContaining({ id: 'e1' })
+      );
+      expect(engine.getEventById('e2')).toEqual(
+        expect.objectContaining({ id: 'e2' })
+      );
     });
   });
 
@@ -160,7 +172,9 @@ describe('EventEngineManager', () => {
         content: {},
       });
 
-      expect(engine.checkEvents('dock', { system: 0 })).toBeTruthy();
+      expect(engine.checkEvents('dock', { system: 0 })).toEqual(
+        expect.objectContaining({ id: 'sol_only' })
+      );
       expect(engine.checkEvents('dock', { system: 4 })).toBeNull();
     });
 
@@ -240,7 +254,9 @@ describe('EventEngineManager', () => {
         content: {},
       });
 
-      expect(engine.checkEvents('dock', { system: 0 })).toBeTruthy();
+      expect(engine.checkEvents('dock', { system: 0 })).toEqual(
+        expect.objectContaining({ id: 'cd_event' })
+      );
     });
 
     it('should evaluate trigger conditions', () => {
@@ -256,7 +272,9 @@ describe('EventEngineManager', () => {
       });
 
       // System 4 not visited yet
-      expect(engine.checkEvents('dock', { system: 4 })).toBeTruthy();
+      expect(engine.checkEvents('dock', { system: 4 })).toEqual(
+        expect.objectContaining({ id: 'first_visit_event' })
+      );
 
       // Mark as visited
       mockGSM.state.world.visitedSystems.push(4);
@@ -276,7 +294,9 @@ describe('EventEngineManager', () => {
       });
 
       // rng = 0.05 < 0.1 → should fire
-      expect(engine.checkEvents('dock', { system: 0 }, 0.05)).toBeTruthy();
+      expect(engine.checkEvents('dock', { system: 0 }, 0.05)).toEqual(
+        expect.objectContaining({ id: 'rare_event' })
+      );
       // rng = 0.5 > 0.1 → should not fire
       expect(engine.checkEvents('dock', { system: 0 }, 0.5)).toBeNull();
     });
@@ -295,7 +315,9 @@ describe('EventEngineManager', () => {
 
       const context = { system: 4, chances: { pirate_chance: 0.3 } };
       // rng = 0.1 < 0.3 → fire
-      expect(engine.checkEvents('jump', context, 0.1)).toBeTruthy();
+      expect(engine.checkEvents('jump', context, 0.1)).toEqual(
+        expect.objectContaining({ id: 'dynamic_event' })
+      );
       // rng = 0.5 > 0.3 → skip
       expect(engine.checkEvents('jump', context, 0.5)).toBeNull();
     });
@@ -420,7 +442,9 @@ describe('EventEngineManager', () => {
         content: {},
       });
 
-      expect(engine.getEventById('e1')).toBeTruthy();
+      expect(engine.getEventById('e1')).toEqual(
+        expect.objectContaining({ id: 'e1' })
+      );
 
       engine.clearEvents();
 
@@ -452,8 +476,7 @@ describe('EventEngineManager', () => {
 
       // Verify exactly one event registered
       const result = engine.checkEvents('dock', { system: 0 });
-      expect(result).toBeTruthy();
-      expect(result.id).toBe('e1');
+      expect(result).toEqual(expect.objectContaining({ id: 'e1' }));
     });
   });
 

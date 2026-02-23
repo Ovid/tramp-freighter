@@ -70,7 +70,7 @@ describe('Property 44: Animation loop outside React', () => {
           // not through reactive state updates
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -120,7 +120,7 @@ describe('Property 45: useAnimationLock disables interactions', () => {
           mockAnimationSystem.inputLockManager.isInputLocked
         ).toHaveBeenCalled();
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 

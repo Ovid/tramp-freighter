@@ -1,15 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { PASSENGER_CONFIG } from '../../src/game/constants.js';
-import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
+import {
+  createTestGameStateManager,
+  TEST_STAR_DATA,
+  TEST_WORMHOLE_DATA,
+} from '../test-utils.js';
 import { generatePassengerMission } from '../../src/game/mission-generator.js';
 
 describe('Passenger Mission Lifecycle', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-    manager.initNewGame();
+    manager = createTestGameStateManager();
   });
 
   it('should complete full passenger lifecycle with satisfaction tracking', () => {

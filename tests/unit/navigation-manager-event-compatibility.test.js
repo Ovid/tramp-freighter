@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NavigationManager } from '../../src/game/state/managers/navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 
@@ -40,6 +40,10 @@ describe('NavigationManager Event Compatibility', () => {
 
     navigationManager = new NavigationManager(mockGameStateManager, STAR_DATA);
     navigationManager.emit = mockEmit;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('locationChanged event compatibility', () => {

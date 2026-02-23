@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -53,6 +53,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should resolve emergency restart with correct success rate and engine cost', () => {
@@ -284,10 +288,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               'emergency_restart',
               gameState
             );
-          }).toThrow();
+          }).toThrow(/Unknown failure type/);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -309,10 +313,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               unknownChoice,
               gameState
             );
-          }).toThrow();
+          }).toThrow(/Unknown engine failure repair choice/);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

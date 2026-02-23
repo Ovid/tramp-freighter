@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
@@ -17,24 +17,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('Property 23: Panels rendered as React components', () => {
   // Suppress React act() warnings for property tests
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (
-        message.includes('act(') ||
-        message.includes('Warning: ReactDOM.render')
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('TradePanel should render as a React component', () => {
@@ -64,7 +52,7 @@ describe('Property 23: Panels rendered as React components', () => {
         expect(tradePanel.querySelector('#market-goods')).toBeTruthy();
         expect(tradePanel.querySelector('#cargo-stacks')).toBeTruthy();
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -101,7 +89,7 @@ describe('Property 23: Panels rendered as React components', () => {
           expect(item.querySelector('.good-actions')).toBeTruthy();
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -155,7 +143,7 @@ describe('Property 23: Panels rendered as React components', () => {
           expect(item.querySelector('.stack-actions')).toBeTruthy();
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -205,7 +193,7 @@ describe('Property 23: Panels rendered as React components', () => {
           expect(cargoStacks.textContent).toContain('Electronics');
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

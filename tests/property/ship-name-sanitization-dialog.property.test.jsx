@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -10,38 +10,13 @@ import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return;
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -101,78 +76,41 @@ describe('Property: Ship name sanitization', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: inputName } });
 
           // Find and click the confirm button
           const confirmButton = container.querySelector('.modal-confirm');
-          if (!confirmButton) {
-            console.error('Confirm button not found');
-            return false;
-          }
+          expect(confirmButton).toBeTruthy();
 
           fireEvent.click(confirmButton);
 
           // Verify the submitted name matches what sanitizeShipName would produce
           const expectedSanitized = sanitizeShipName(inputName);
-
-          if (submittedName !== expectedSanitized) {
-            console.error(
-              `Sanitization mismatch: expected "${expectedSanitized}", got "${submittedName}"`
-            );
-            return false;
-          }
+          expect(submittedName).toBe(expectedSanitized);
 
           // Verify sanitization properties
           // Property 1: Empty or whitespace-only inputs result in default name
           if (!inputName || inputName.trim().length === 0) {
-            if (submittedName !== SHIP_CONFIG.DEFAULT_NAME) {
-              console.error(
-                `Empty input should result in default name, got "${submittedName}"`
-              );
-              return false;
-            }
+            expect(submittedName).toBe(SHIP_CONFIG.DEFAULT_NAME);
           }
 
           // Property 2: Result should not contain HTML tags
-          if (/<[^>]*>/.test(submittedName)) {
-            console.error(
-              `Submitted name contains HTML tags: "${submittedName}"`
-            );
-            return false;
-          }
+          expect(/<[^>]*>/.test(submittedName)).toBe(false);
 
           // Property 3: Result should be trimmed (no leading/trailing whitespace)
-          if (submittedName !== submittedName.trim()) {
-            console.error(`Submitted name not trimmed: "${submittedName}"`);
-            return false;
-          }
+          expect(submittedName).toBe(submittedName.trim());
 
           // Property 4: Result should be at most 50 characters
-          if (submittedName.length > 50) {
-            console.error(
-              `Submitted name exceeds 50 characters: ${submittedName.length}`
-            );
-            return false;
-          }
+          expect(submittedName.length).toBeLessThanOrEqual(50);
 
           // Property 5: If sanitization results in empty string, should use default
           const sanitizedWithoutTags = inputName.replace(/<[^>]*>/g, '').trim();
           if (sanitizedWithoutTags.length === 0) {
-            if (submittedName !== SHIP_CONFIG.DEFAULT_NAME) {
-              console.error(
-                `HTML-only input should result in default name, got "${submittedName}"`
-              );
-              return false;
-            }
+            expect(submittedName).toBe(SHIP_CONFIG.DEFAULT_NAME);
           }
-
-          return true;
         }
       ),
       { numRuns: 100 }
@@ -214,10 +152,7 @@ describe('Property: Ship name sanitization', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: inputName } });
@@ -227,15 +162,7 @@ describe('Property: Ship name sanitization', () => {
 
           // Verify the submitted name matches what sanitizeShipName would produce
           const expectedSanitized = sanitizeShipName(inputName);
-
-          if (submittedName !== expectedSanitized) {
-            console.error(
-              `Sanitization mismatch on Enter: expected "${expectedSanitized}", got "${submittedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(expectedSanitized);
         }
       ),
       { numRuns: 100 }

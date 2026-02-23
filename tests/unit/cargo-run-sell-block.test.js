@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('Trading – mission cargo sell block', () => {
   let manager;
@@ -42,6 +42,10 @@ describe('Trading – mission cargo sell block', () => {
     manager.validateState = vi.fn();
     manager.getState = () => state;
     manager.emit = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should block selling cargo with a missionId', () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { GameProvider, useGameState } from '../../src/context/GameContext.jsx';
@@ -7,28 +7,12 @@ import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 // Suppress expected React error messages when testing error cases
-let originalConsoleError;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  console.error = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string') {
-      // Suppress expected error boundary messages
-      if (
-        message.includes('useGameState must be used within GameProvider') ||
-        message.includes('The above error occurred in the') ||
-        message.includes('Consider adding an error boundary')
-      ) {
-        return;
-      }
-    }
-    originalConsoleError(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -87,7 +71,7 @@ describe('Property: GameContext provides valid instance', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -114,7 +98,7 @@ describe('Property: GameContext provides valid instance', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

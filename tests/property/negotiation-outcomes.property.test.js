@@ -247,7 +247,7 @@ describe('Negotiation Outcomes Property Tests', () => {
           expect(karma).toBeLessThanOrEqual(KARMA_CONFIG.MAX);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

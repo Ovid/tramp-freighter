@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
@@ -9,15 +9,9 @@ import { createWrapper } from '../react-test-utils.jsx';
 
 describe('DevAdminPanel', () => {
   let gameStateManager;
-  let originalConsoleError;
 
   beforeEach(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (message.includes('act(')) return;
-      originalConsoleError(...args);
-    };
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
@@ -25,7 +19,7 @@ describe('DevAdminPanel', () => {
 
   afterEach(() => {
     cleanup();
-    console.error = originalConsoleError;
+    vi.restoreAllMocks();
   });
 
   describe('Repair All button', () => {

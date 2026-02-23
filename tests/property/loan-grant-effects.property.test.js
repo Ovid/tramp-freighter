@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -33,6 +33,10 @@ describe('Loan Grant Effects Property Tests', () => {
 
     gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // Helper function to reset GameStateManager for each property test iteration
@@ -346,7 +350,7 @@ describe('Loan Grant Effects Property Tests', () => {
           expect(updatedNpcState.rep).toBe(expectedRep);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -401,7 +405,7 @@ describe('Loan Grant Effects Property Tests', () => {
           expect(finalNpcState.lastFavorDay).toBe(null);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });

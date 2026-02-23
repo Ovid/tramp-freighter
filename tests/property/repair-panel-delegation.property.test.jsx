@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
@@ -17,24 +17,12 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('Property: Repair panel delegates to GameStateManager', () => {
   // Suppress React act() warnings for property tests
-  let originalConsoleError;
-
-  beforeAll(() => {
-    originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args[0]?.toString() || '';
-      if (
-        message.includes('act(') ||
-        message.includes('Warning: ReactDOM.render')
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    console.error = originalConsoleError;
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should call gameStateManager.repair when repairing a system', () => {
@@ -94,7 +82,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
           return true;
         }
       ),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -135,7 +123,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
         // (This is tested implicitly - if subscription doesn't work, buttons won't update)
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -169,7 +157,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
         // (This is tested implicitly - if subscription doesn't work, buttons won't update)
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -204,7 +192,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -239,7 +227,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -282,7 +270,7 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

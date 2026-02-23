@@ -5,7 +5,7 @@
  * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -20,21 +20,14 @@ describe('Reputation Tier Classification Properties', () => {
         const tier = gameStateManager.getRepTier(reputation);
 
         // Tier should exist and have required properties
-        if (
-          !tier ||
-          typeof tier.name !== 'string' ||
-          typeof tier.min !== 'number' ||
-          typeof tier.max !== 'number'
-        ) {
-          return false;
-        }
+        expect(tier).toBeDefined();
+        expect(typeof tier.name).toBe('string');
+        expect(typeof tier.min).toBe('number');
+        expect(typeof tier.max).toBe('number');
 
         // Reputation should be within tier bounds
-        if (reputation < tier.min || reputation > tier.max) {
-          return false;
-        }
-
-        return true;
+        expect(reputation).toBeGreaterThanOrEqual(tier.min);
+        expect(reputation).toBeLessThanOrEqual(tier.max);
       }),
       { numRuns: 100 }
     );
@@ -46,7 +39,8 @@ describe('Reputation Tier Classification Properties', () => {
     fc.assert(
       fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
         const tier = gameStateManager.getRepTier(reputation);
-        return reputation >= tier.min && reputation <= tier.max;
+        expect(reputation).toBeGreaterThanOrEqual(tier.min);
+        expect(reputation).toBeLessThanOrEqual(tier.max);
       }),
       { numRuns: 100 }
     );
@@ -60,11 +54,9 @@ describe('Reputation Tier Classification Properties', () => {
         const tier1 = gameStateManager.getRepTier(reputation);
         const tier2 = gameStateManager.getRepTier(reputation);
 
-        return (
-          tier1.name === tier2.name &&
-          tier1.min === tier2.min &&
-          tier1.max === tier2.max
-        );
+        expect(tier1.name).toBe(tier2.name);
+        expect(tier1.min).toBe(tier2.min);
+        expect(tier1.max).toBe(tier2.max);
       }),
       { numRuns: 100 }
     );

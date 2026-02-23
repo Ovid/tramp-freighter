@@ -5,7 +5,7 @@
  * Validates: Requirements 2.4, 10.4
  */
 
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
@@ -62,38 +62,24 @@ describe('Dialogue Navigation Properties', () => {
               gameStateManager
             );
 
-            if (!nextDialogue) {
-              return false; // Should have returned dialogue for next node
-            }
+            expect(nextDialogue).toBeDefined();
 
             // Verify we're now at the expected node by checking if the dialogue tree has that node
             const expectedNode = dialogueTree[choice.next];
-            if (!expectedNode) {
-              return false; // Next node should exist in dialogue tree
-            }
+            expect(expectedNode).toBeDefined();
 
             // Verify the dialogue text is valid (string)
-            if (
-              typeof nextDialogue.text !== 'string' ||
-              nextDialogue.text.length === 0
-            ) {
-              return false; // Should have valid text
-            }
+            expect(typeof nextDialogue.text).toBe('string');
+            expect(nextDialogue.text.length).toBeGreaterThan(0);
 
             // Verify the choices are properly formatted
-            if (!Array.isArray(nextDialogue.choices)) {
-              return false; // Should have choices array
-            }
+            expect(Array.isArray(nextDialogue.choices)).toBe(true);
           } else {
             // Choice has no next node - should end dialogue
             const result = selectChoice(npcId, choice.index, gameStateManager);
-            if (result !== null) {
-              return false; // Should return null to end dialogue
-            }
+            expect(result).toBeNull();
           }
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -141,12 +127,8 @@ describe('Dialogue Navigation Properties', () => {
         // Test each ending choice
         for (const choice of endingChoices) {
           const result = selectChoice(npcId, choice.index, gameStateManager);
-          if (result !== null) {
-            return false; // Should return null to end dialogue
-          }
+          expect(result).toBeNull();
         }
-
-        return true;
       }),
       { numRuns: 100 }
     );
@@ -182,34 +164,18 @@ describe('Dialogue Navigation Properties', () => {
         );
 
         // Verify dialogue state consistency
-        if (initialDialogue.npcId !== npcId) {
-          return false; // NPC ID should match
-        }
+        expect(initialDialogue.npcId).toBe(npcId);
 
         const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-        if (!npcData) {
-          return false; // NPC data should exist
-        }
+        expect(npcData).toBeDefined();
 
-        if (initialDialogue.npcName !== npcData.name) {
-          return false; // NPC name should match
-        }
-
-        if (initialDialogue.npcRole !== npcData.role) {
-          return false; // NPC role should match
-        }
-
-        if (initialDialogue.npcStation !== npcData.station) {
-          return false; // NPC station should match
-        }
+        expect(initialDialogue.npcName).toBe(npcData.name);
+        expect(initialDialogue.npcRole).toBe(npcData.role);
+        expect(initialDialogue.npcStation).toBe(npcData.station);
 
         // Reputation tier should be consistent with current reputation
         const expectedTier = gameStateManager.getRepTier(reputation);
-        if (initialDialogue.reputationTier.name !== expectedTier.name) {
-          return false; // Reputation tier should match
-        }
-
-        return true;
+        expect(initialDialogue.reputationTier.name).toBe(expectedTier.name);
       }),
       { numRuns: 100 }
     );

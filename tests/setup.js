@@ -34,6 +34,12 @@ beforeEach(() => {
   global.localStorage.clear();
 });
 
+// Safety net: clear mock call history after each test
+// Uses clearAllMocks (not restoreAllMocks) to avoid undoing module-level vi.mock() calls
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
 // Mock canvas for tests that create textures
 class CanvasRenderingContext2DMock {
   constructor() {

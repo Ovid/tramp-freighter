@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
@@ -9,38 +9,13 @@ import { sanitizeShipName } from '../../src/game/state/game-state-manager.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
-let originalConsoleError;
-let originalConsoleWarn;
-
-beforeAll(() => {
-  originalConsoleError = console.error;
-  originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args[0];
-    if (
-      typeof message === 'string' &&
-      (message.includes('Warning: An update to') ||
-        message.includes('act()') ||
-        message.includes('Not implemented: HTMLFormElement.prototype.submit'))
-    ) {
-      return;
-    }
-    originalConsoleError(...args);
-  };
-
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && message.includes('Not implemented')) {
-      return;
-    }
-    originalConsoleWarn(...args);
-  };
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 /**
@@ -84,10 +59,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
@@ -97,12 +69,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Verify the submitted name matches the sanitized input
           const expectedName = sanitizeShipName(shipNameInput);
-          if (submittedName !== expectedName) {
-            console.error(`Expected "${expectedName}", got "${submittedName}"`);
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -148,10 +115,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
@@ -161,14 +125,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Verify the submitted name matches the sanitized input
           const expectedName = sanitizeShipName(shipNameInput);
-          if (submittedName !== expectedName) {
-            console.error(
-              `Expected "${expectedName}", got "${submittedName}" for key event ${JSON.stringify(keyEventProps)}`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }
@@ -216,10 +173,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
@@ -228,14 +182,7 @@ describe('Property: Enter key submits ship name', () => {
           fireEvent.keyDown(input, keyEventProps);
 
           // Verify the name was NOT submitted
-          if (submittedName !== null) {
-            console.error(
-              `Name should not be submitted for key ${keyEventProps.key}, but got "${submittedName}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBeNull();
         }
       ),
       { numRuns: 100 }
@@ -306,14 +253,7 @@ describe('Property: Enter key submits ship name', () => {
           fireEvent.click(confirmButton);
 
           // Verify both methods produce the same result
-          if (submittedNameViaEnter !== submittedNameViaButton) {
-            console.error(
-              `Enter key submission "${submittedNameViaEnter}" does not match button submission "${submittedNameViaButton}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedNameViaEnter).toBe(submittedNameViaButton);
         }
       ),
       { numRuns: 100 }
@@ -361,10 +301,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Find the input field
           const input = container.querySelector('.ship-name-input');
-          if (!input) {
-            console.error('Ship name input not found');
-            return false;
-          }
+          expect(input).toBeTruthy();
 
           // Set the input value
           fireEvent.change(input, { target: { value: shipNameInput } });
@@ -374,14 +311,7 @@ describe('Property: Enter key submits ship name', () => {
 
           // Verify the submitted name matches the sanitized input
           const expectedName = sanitizeShipName(shipNameInput);
-          if (submittedName !== expectedName) {
-            console.error(
-              `Expected "${expectedName}", got "${submittedName}" for input "${shipNameInput}"`
-            );
-            return false;
-          }
-
-          return true;
+          expect(submittedName).toBe(expectedName);
         }
       ),
       { numRuns: 100 }

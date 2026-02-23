@@ -46,8 +46,9 @@ describe('Passenger Narrative Events', () => {
       expect(event.content.text.length).toBeGreaterThan(0);
       expect(event.content.choices.length).toBeGreaterThan(0);
       for (const choice of event.content.choices) {
-        expect(choice.text).toBeTruthy();
-        expect(choice.effects).toBeDefined();
+        expect(choice.text).toEqual(expect.any(String));
+        expect(choice.text.length).toBeGreaterThan(0);
+        expect(choice).toHaveProperty('effects');
       }
     }
   });

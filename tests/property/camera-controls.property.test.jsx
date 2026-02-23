@@ -226,7 +226,7 @@ describe('Property: Camera Controls', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -266,7 +266,7 @@ describe('Property: Camera Controls', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -371,7 +371,7 @@ describe('Property: Camera Controls', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 
@@ -408,7 +408,7 @@ describe('Property: Camera Controls', () => {
 
         return true;
       }),
-      { numRuns: 10 }
+      { numRuns: 100 }
     );
   });
 });

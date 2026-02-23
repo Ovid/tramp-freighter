@@ -40,7 +40,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
         refuelSpy.mockRestore();
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -77,7 +77,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
           return true;
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -119,7 +119,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
           return true;
         }
       ),
-      { numRuns: 30 }
+      { numRuns: 100 }
     );
   });
 });
@@ -169,7 +169,7 @@ describe('Property: Actions trigger events', () => {
         // If refuel failed, that's okay - just return true
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 
@@ -210,7 +210,7 @@ describe('Property: Actions trigger events', () => {
         // If refuel failed, that's okay - just return true
         return true;
       }),
-      { numRuns: 50 }
+      { numRuns: 100 }
     );
   });
 });
@@ -258,7 +258,7 @@ describe('Property: useGameAction consistency', () => {
           keys1.every((key) => typeof hook1.result.current[key] === 'function')
         );
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -289,7 +289,7 @@ describe('Property: useGameAction consistency', () => {
 
         return initialActions === afterRerenderActions;
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });

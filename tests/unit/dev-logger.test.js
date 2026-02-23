@@ -4,19 +4,12 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 let devLog, devWarn;
 
 describe('Dev Logger', () => {
-  let originalConsoleLog;
-  let originalConsoleWarn;
-
   beforeEach(() => {
-    originalConsoleLog = console.log;
-    originalConsoleWarn = console.warn;
-    console.log = vi.fn();
-    console.warn = vi.fn();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    console.log = originalConsoleLog;
-    console.warn = originalConsoleWarn;
     vi.restoreAllMocks();
   });
 

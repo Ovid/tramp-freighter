@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -18,6 +18,10 @@ describe('applyEncounterOutcome', () => {
 
     gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('cargo percent loss', () => {
@@ -243,6 +247,10 @@ describe('updateCargo validation', () => {
 
     gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('warns on cargo items missing required fields', () => {

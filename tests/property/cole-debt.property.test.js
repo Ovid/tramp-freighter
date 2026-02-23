@@ -1,14 +1,19 @@
-import { describe, it, vi } from 'vitest';
+import { describe, it, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
 
-vi.spyOn(console, 'log').mockImplementation(() => {});
-vi.spyOn(console, 'warn').mockImplementation(() => {});
-
 describe('Cole Debt System Properties', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   it('heat is always clamped to 0-100', () => {
     fc.assert(
       fc.property(fc.integer({ min: -200, max: 200 }), (delta) => {
