@@ -1,4 +1,9 @@
-import { NAVIGATION_CONFIG, SHIP_CONFIG, REPAIR_CONFIG } from './constants.js';
+import {
+  NAVIGATION_CONFIG,
+  SHIP_CONFIG,
+  REPAIR_CONFIG,
+  EVENT_NAMES,
+} from './constants.js';
 
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
@@ -490,10 +495,14 @@ export class NavigationSystem {
 
     // Play animation if animation system is provided
     if (animationSystem) {
+      const onTravelNearEnd = () => {
+        gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
+      };
       try {
         await animationSystem.playJumpAnimation(
           currentSystemId,
-          targetSystemId
+          targetSystemId,
+          onTravelNearEnd
         );
       } finally {
         // Restore UI panels after animation completes (or fails)

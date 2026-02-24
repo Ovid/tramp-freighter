@@ -75,6 +75,8 @@ export default function App({ devMode = false }) {
   const [encounterOutcome, setEncounterOutcome] = useState(null);
   const [encounterPhase, setEncounterPhase] = useState('initial');
   const lastHandledEncounter = useRef(null);
+  const jumpInProgressRef = useRef(false);
+  const pendingEncounterRef = useRef(null);
   const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
   const lastHandledNarrative = useRef(null);
 
@@ -185,16 +187,23 @@ export default function App({ devMode = false }) {
   const handleJumpStart = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
+    jumpInProgressRef.current = true;
     // Don't deselect star - keep selection ring visible during jump
   };
 
   // After jump, deselect star so only current system indicator is visible.
   const handleJumpComplete = () => {
     setViewingSystemId(null);
+    jumpInProgressRef.current = false;
     // Deselect star after jump completes - we've arrived at destination
     // Only the current system indicator (green) should be visible
     if (starmapRef.current) {
       starmapRef.current.deselectStar();
+    }
+    // Safety fallback: show any encounter that wasn't revealed by near-end event
+    if (pendingEncounterRef.current) {
+      handleEncounterTriggered(pendingEncounterRef.current);
+      pendingEncounterRef.current = null;
     }
   };
 
@@ -291,6 +300,7 @@ export default function App({ devMode = false }) {
   };
 
   // Listen for encounter events (only process each event once)
+  // During jump animations, buffer the encounter and wait for the near-end signal
   useEffect(() => {
     if (
       encounterEvent &&
@@ -298,9 +308,36 @@ export default function App({ devMode = false }) {
       encounterEvent !== lastHandledEncounter.current
     ) {
       lastHandledEncounter.current = encounterEvent;
-      handleEncounterTriggered(encounterEvent);
+      if (jumpInProgressRef.current) {
+        // Buffer encounter — will be shown when animation nears completion
+        pendingEncounterRef.current = encounterEvent;
+      } else {
+        handleEncounterTriggered(encounterEvent);
+      }
     }
   }, [encounterEvent, currentEncounter]);
+
+  // Reveal buffered encounter when jump animation nears completion
+  useEffect(() => {
+    if (!gameStateManager) return;
+
+    const handleAnimationNearEnd = () => {
+      if (pendingEncounterRef.current) {
+        handleEncounterTriggered(pendingEncounterRef.current);
+        pendingEncounterRef.current = null;
+      }
+    };
+
+    gameStateManager.subscribe(
+      EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
+      handleAnimationNearEnd
+    );
+    return () =>
+      gameStateManager.unsubscribe(
+        EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
+        handleAnimationNearEnd
+      );
+  }, [gameStateManager]);
 
   // Listen for narrative events (overlay — does not change viewMode)
   useEffect(() => {
