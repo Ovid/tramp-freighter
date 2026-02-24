@@ -142,7 +142,9 @@ export const YUKI_TANAKA_DIALOGUE = {
         text: '"I brought supplies for your research."',
         next: 'research_supply',
         condition: (_rep, context) =>
-          context && typeof context.canContributeSupply === 'function' && context.canContributeSupply(),
+          context &&
+          typeof context.canContributeSupply === 'function' &&
+          context.canContributeSupply(),
       },
       {
         text: 'Tell me about your work.',
@@ -530,7 +532,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         '"Electronics. Good quality. These will work for the coupling array."',
         '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
         '"I can use these. The drive prototype consumes components faster than I projected."',
-        '"You didn\'t have to do this. But I won\'t pretend it doesn\'t help."',
+        "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
         '"Every delivery gets me closer. I won\'t forget that."',
         '"This saves me weeks of requisition paperwork. Appreciated."',
       ];

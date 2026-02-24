@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TANAKA_SUPPLY_CONFIG, ENDGAME_CONFIG } from '../../src/game/constants.js';
+import {
+  TANAKA_SUPPLY_CONFIG,
+  ENDGAME_CONFIG,
+} from '../../src/game/constants.js';
 import { createTestGameStateManager } from '../test-utils.js';
 import { buildDialogueContext } from '../../src/game/game-dialogue.js';
 import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
@@ -26,24 +29,52 @@ describe('QuestManager.canContributeSupply', () => {
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
   });
 
-  it('returns true when player has 5+ electronics, is at Barnard\'s Star, tanaka_met, and no cooldown', () => {
+  it("returns true when player has 5+ electronics, is at Barnard's Star, tanaka_met, and no cooldown", () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(true);
   });
 
   it('returns true when player has 5+ medicine', () => {
     manager.state.ship.cargo = [
-      { good: 'medicine', qty: 7, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'medicine',
+        qty: 7,
+        buyPrice: 40,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(true);
   });
 
   it('returns false when player has fewer than 5 of any qualifying good', () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 3, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
-      { good: 'medicine', qty: 4, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 3,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+      {
+        good: 'medicine',
+        qty: 4,
+        buyPrice: 40,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(false);
   });
@@ -52,15 +83,29 @@ describe('QuestManager.canContributeSupply', () => {
     const npcState = manager.getNPCState('tanaka_barnards');
     npcState.flags = [];
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(false);
   });
 
-  it('returns false when not at Barnard\'s Star', () => {
+  it("returns false when not at Barnard's Star", () => {
     manager.state.player.currentSystem = 0; // Sol
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(false);
   });
@@ -69,7 +114,14 @@ describe('QuestManager.canContributeSupply', () => {
     manager.state.player.daysElapsed = 10;
     manager.state.quests.tanaka.data.lastSupplyDay = 5; // 5 days ago, cooldown is 7
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(false);
   });
@@ -78,15 +130,36 @@ describe('QuestManager.canContributeSupply', () => {
     manager.state.player.daysElapsed = 15;
     manager.state.quests.tanaka.data.lastSupplyDay = 5; // 10 days ago, cooldown is 7
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     expect(manager.canContributeSupply()).toBe(true);
   });
 
   it('prefers electronics when both goods are available', () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
-      { good: 'medicine', qty: 5, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+      {
+        good: 'medicine',
+        qty: 5,
+        buyPrice: 40,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     const result = manager.canContributeSupply();
     expect(result).toBe(true);
@@ -105,7 +178,14 @@ describe('QuestManager.contributeSupply', () => {
 
   it('deducts 5 electronics and adds 1 rep on success', () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 8, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 8,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     const repBefore = manager.getNPCState('tanaka_barnards').rep;
     const result = manager.contributeSupply();
@@ -125,7 +205,14 @@ describe('QuestManager.contributeSupply', () => {
   it('sets lastSupplyDay cooldown on success', () => {
     manager.state.player.daysElapsed = 42;
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     manager.contributeSupply();
     expect(manager.state.quests.tanaka.data.lastSupplyDay).toBe(42);
@@ -133,8 +220,22 @@ describe('QuestManager.contributeSupply', () => {
 
   it('prefers electronics over medicine when both available', () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 5, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
-      { good: 'medicine', qty: 5, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+      {
+        good: 'medicine',
+        qty: 5,
+        buyPrice: 40,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     const result = manager.contributeSupply();
     expect(result.goodDonated).toBe('electronics');
@@ -152,8 +253,22 @@ describe('QuestManager.contributeSupply', () => {
 
   it('falls back to medicine when electronics insufficient', () => {
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 2, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
-      { good: 'medicine', qty: 6, buyPrice: 40, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 2,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+      {
+        good: 'medicine',
+        qty: 6,
+        buyPrice: 40,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
     const result = manager.contributeSupply();
     expect(result.goodDonated).toBe('medicine');
@@ -187,7 +302,10 @@ describe('research_supply dialogue node', () => {
   it('choice action calls contributeSupply', () => {
     let called = false;
     const mockContext = {
-      contributeSupply: () => { called = true; return { success: true, goodDonated: 'electronics' }; },
+      contributeSupply: () => {
+        called = true;
+        return { success: true, goodDonated: 'electronics' };
+      },
     };
     YUKI_TANAKA_DIALOGUE.research_supply.choices[0].action(mockContext);
     expect(called).toBe(true);
@@ -248,7 +366,14 @@ describe('Full supply run flow (integration)', () => {
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
     manager.state.player.daysElapsed = 20;
     manager.state.ship.cargo = [
-      { good: 'electronics', qty: 10, buyPrice: 30, buySystem: 0, buySystemName: 'Sol', buyDate: 0 },
+      {
+        good: 'electronics',
+        qty: 10,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
     ];
   });
 
