@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { STAR_DATA } from '../../src/game/data/star-data';
