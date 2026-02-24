@@ -139,6 +139,14 @@ export const YUKI_TANAKA_DIALOGUE = {
           context.canStartQuestStage('tanaka', 1),
       },
       {
+        text: '"I brought supplies for your research."',
+        next: 'research_supply',
+        condition: (_rep, context) =>
+          context &&
+          typeof context.canContributeSupply === 'function' &&
+          context.canContributeSupply(),
+      },
+      {
         text: 'Tell me about your work.',
         next: 'about_work',
       },
@@ -513,6 +521,29 @@ export const YUKI_TANAKA_DIALOGUE = {
         repGain: 5,
         action: (context) => {
           return context.claimStageRewards('tanaka');
+        },
+      },
+    ],
+  },
+
+  research_supply: {
+    text: (_rep, _context) => {
+      const lines = [
+        '"Electronics. Good quality. These will work for the coupling array."',
+        '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
+        '"I can use these. The drive prototype consumes components faster than I projected."',
+        "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
+        '"Every delivery gets me closer. I won\'t forget that."',
+        '"This saves me weeks of requisition paperwork. Appreciated."',
+      ];
+      return lines[Math.floor(Math.random() * lines.length)];
+    },
+    choices: [
+      {
+        text: '"Glad to help."',
+        next: 'greeting',
+        action: (context) => {
+          return context.contributeSupply();
         },
       },
     ],

@@ -82,6 +82,8 @@ export function buildDialogueContext(gameStateManager, npcId) {
     startPavonisRun: () => gameStateManager.startPavonisRun(),
     updateQuestData: (...args) => gameStateManager.updateQuestData(...args),
     modifyColeRep: (...args) => gameStateManager.modifyColeRep(...args),
+    contributeSupply: () => gameStateManager.contributeSupply(),
+    canContributeSupply: () => gameStateManager.canContributeSupply(),
   };
 }
 

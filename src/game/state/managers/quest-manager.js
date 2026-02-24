@@ -1,5 +1,10 @@
 import { BaseManager } from './base-manager.js';
-import { ENDGAME_CONFIG, SHIP_CONFIG, EVENT_NAMES } from '../../constants.js';
+import {
+  ENDGAME_CONFIG,
+  SHIP_CONFIG,
+  EVENT_NAMES,
+  TANAKA_SUPPLY_CONFIG,
+} from '../../constants.js';
 
 export class QuestManager extends BaseManager {
   constructor(gameStateManager) {
@@ -211,6 +216,84 @@ export class QuestManager extends BaseManager {
       if ((questState.data[key] || 0) < target) return false;
     }
     return true;
+  }
+
+  canContributeSupply() {
+    const state = this.getState();
+
+    // Must be at Barnard's Star
+    if (state.player.currentSystem !== ENDGAME_CONFIG.TANAKA_SYSTEM)
+      return false;
+
+    // Must have met Tanaka
+    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
+    if (!npcState || !npcState.flags.includes('tanaka_met')) return false;
+
+    // Check cooldown
+    const questState = this.getQuestState('tanaka');
+    if (questState?.data?.lastSupplyDay != null) {
+      const daysSince =
+        state.player.daysElapsed - questState.data.lastSupplyDay;
+      if (daysSince < TANAKA_SUPPLY_CONFIG.COOLDOWN_DAYS) return false;
+    }
+
+    // Check cargo - need QUANTITY of any qualifying good
+    for (const goodType of TANAKA_SUPPLY_CONFIG.GOODS) {
+      const total = state.ship.cargo
+        .filter((c) => c.good === goodType)
+        .reduce((sum, c) => sum + c.qty, 0);
+      if (total >= TANAKA_SUPPLY_CONFIG.QUANTITY) return true;
+    }
+
+    return false;
+  }
+
+  contributeSupply() {
+    if (!this.canContributeSupply()) {
+      return { success: false, reason: 'Not eligible' };
+    }
+
+    const state = this.getState();
+
+    // Find first qualifying good with enough quantity (GOODS array order = preference)
+    let goodToDonate = null;
+    for (const goodType of TANAKA_SUPPLY_CONFIG.GOODS) {
+      const total = state.ship.cargo
+        .filter((c) => c.good === goodType)
+        .reduce((sum, c) => sum + c.qty, 0);
+      if (total >= TANAKA_SUPPLY_CONFIG.QUANTITY) {
+        goodToDonate = goodType;
+        break;
+      }
+    }
+
+    if (!goodToDonate) {
+      return { success: false, reason: 'No qualifying cargo' };
+    }
+
+    // Deduct cargo
+    this.gameStateManager.removeCargoForMission(
+      goodToDonate,
+      TANAKA_SUPPLY_CONFIG.QUANTITY
+    );
+
+    // Add rep (flat gain, bypasses trust modifier so the reward is guaranteed)
+    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
+    this.gameStateManager.setNpcRep(
+      'tanaka_barnards',
+      npcState.rep + TANAKA_SUPPLY_CONFIG.REP_GAIN
+    );
+    npcState.lastInteraction = state.player.daysElapsed;
+    npcState.interactions += 1;
+
+    // Set cooldown
+    const questState = this.getQuestState('tanaka');
+    questState.data.lastSupplyDay = state.player.daysElapsed;
+
+    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
+    this.gameStateManager.markDirty();
+
+    return { success: true, goodDonated: goodToDonate };
   }
 
   onJump() {

@@ -1,9 +1,5 @@
 # TODO
 
-- Update README.md to be more current. Make it "Shareable". Also note that
-  there has been very little game balancing and the game itself is still
-  ALPHA. This was a test of what we can build, not if we have a "perfect"
-  product.
 - Test in Safari and Firefox
 - After the last design doc is implemented, we need a new game to start with
   instructions. The UI needs to have a convenient place to show them, too,
@@ -18,8 +14,6 @@
   by the naked eye.
   This should also explain that you can make "Cole's Cut" go away by paying
   him off.
-- Yuki Tanaka rep required for end game How do we improve that rep?
-    - advanced sensor array is a reward. What does that do?
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
   test endgame efficiently. Individual mission mechanics (exotic material collection,
