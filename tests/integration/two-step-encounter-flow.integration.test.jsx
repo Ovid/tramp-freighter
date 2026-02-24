@@ -6,6 +6,75 @@ import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import App from '../../src/App';
 
+// Mock scene to avoid WebGL in jsdom
+vi.mock('../../src/game/engine/scene', () => {
+  const mockRenderer = {
+    domElement: document.createElement('canvas'),
+    setSize: vi.fn(),
+    setPixelRatio: vi.fn(),
+    render: vi.fn(),
+    dispose: vi.fn(),
+  };
+  const mockControls = { update: vi.fn() };
+  const mockScene = {
+    background: null,
+    fog: null,
+    add: vi.fn(),
+    traverse: vi.fn(),
+  };
+  const mockCamera = {
+    aspect: 1,
+    position: { set: vi.fn() },
+    lookAt: vi.fn(),
+    updateProjectionMatrix: vi.fn(),
+  };
+  const mockLights = {
+    ambientLight: {},
+    directionalLight: {
+      position: { set: vi.fn().mockReturnThis(), normalize: vi.fn() },
+    },
+  };
+  const mockStars = [
+    {
+      data: { id: 1 },
+      position: { x: 0, y: 0, z: 0 },
+      sprite: { material: { color: { setHex: vi.fn() } } },
+      originalColor: 0xffffff,
+    },
+  ];
+
+  return {
+    initScene: vi.fn(() => ({
+      scene: mockScene,
+      camera: mockCamera,
+      renderer: mockRenderer,
+      controls: mockControls,
+      lights: mockLights,
+      stars: mockStars,
+      sectorBoundary: { visible: true },
+    })),
+    onWindowResize: vi.fn(),
+    zoomIn: vi.fn(),
+    zoomOut: vi.fn(),
+    toggleBoundary: vi.fn(() => true),
+  };
+});
+
+// Mock animation system
+vi.mock('../../src/game/engine/game-animation', () => {
+  return {
+    JumpAnimationSystem: vi.fn().mockImplementation(() => ({
+      isAnimating: false,
+      inputLockManager: {
+        isInputLocked: vi.fn(() => false),
+        lock: vi.fn(),
+        unlock: vi.fn(),
+      },
+      playJumpAnimation: vi.fn(),
+    })),
+  };
+});
+
 describe('Two-Step Encounter Flow', () => {
   let gameStateManager;
 
@@ -36,15 +105,13 @@ describe('Two-Step Encounter Flow', () => {
     fireEvent.change(shipNameInput, { target: { value: 'Test Ship' } });
     fireEvent.keyDown(shipNameInput, { key: 'Enter' });
     await waitFor(() => {
-      const devButton = screen.queryByText('⚙');
-      const errorBoundary = screen.queryByText('Something went wrong');
-      expect(devButton || errorBoundary).toBeTruthy();
+      expect(document.querySelector('#dev-admin-btn')).toBeTruthy();
     });
-    return !screen.queryByText('Something went wrong');
+    expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
   }
 
   async function triggerPirateEncounter() {
-    const devAdminButton = screen.getByText('⚙');
+    const devAdminButton = document.querySelector('#dev-admin-btn');
     fireEvent.click(devAdminButton);
     await waitFor(() => {
       expect(screen.getByText('🏴‍☠️ Pirate')).toBeInTheDocument();
@@ -62,8 +129,7 @@ describe('Two-Step Encounter Flow', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     await triggerPirateEncounter();
 
@@ -88,8 +154,7 @@ describe('Two-Step Encounter Flow', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     await triggerPirateEncounter();
 
@@ -112,8 +177,7 @@ describe('Two-Step Encounter Flow', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     await triggerPirateEncounter();
 

@@ -498,9 +498,11 @@ export class JumpAnimationSystem {
    * @param {THREE.Vector3} originPos - Origin star position
    * @param {THREE.Vector3} destPos - Destination star position
    * @param {number} distance - Distance between stars in light years
+   * @param {Function|null} onNearEnd - Optional callback invoked once when travel
+   *   progress reaches the configured encounter reveal threshold
    * @returns {Promise<void>} Resolves when travel animation completes
    */
-  animateShipTravel(originPos, destPos, distance) {
+  animateShipTravel(originPos, destPos, distance, onNearEnd = null) {
     return new Promise((resolve) => {
       // Calculate travel duration based on distance with bounds
       const duration =
@@ -519,11 +521,24 @@ export class JumpAnimationSystem {
       // Reuse temp vector for interpolated position (avoid allocations in loop)
       const currentPosition = this._tempVec1;
 
+      // Track whether onNearEnd has been fired (fire only once)
+      let nearEndFired = false;
+
       const startTime = performance.now();
 
       const animateShipFrame = () => {
         const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
         const progress = Math.min(elapsed / duration, 1.0);
+
+        // Fire near-end callback once when travel reaches encounter reveal threshold
+        if (
+          !nearEndFired &&
+          onNearEnd &&
+          progress >= ANIMATION_CONFIG.ENCOUNTER_REVEAL_PROGRESS
+        ) {
+          nearEndFired = true;
+          onNearEnd();
+        }
 
         // Apply linear interpolation for constant velocity ship movement
         // No easing function - ship travels at constant speed
@@ -592,9 +607,15 @@ export class JumpAnimationSystem {
    *
    * @param {number} originSystemId - Origin star system ID
    * @param {number} destinationSystemId - Destination star system ID
+   * @param {Function|null} onTravelNearEnd - Optional callback invoked once when
+   *   ship travel progress reaches the encounter reveal threshold
    * @returns {Promise<void>} Resolves when animation completes
    */
-  async playJumpAnimation(originSystemId, destinationSystemId) {
+  async playJumpAnimation(
+    originSystemId,
+    destinationSystemId,
+    onTravelNearEnd = null
+  ) {
     // Prevent overlapping animations
     if (this.isAnimating) {
       console.warn('Animation already in progress, ignoring request');
@@ -674,7 +695,8 @@ export class JumpAnimationSystem {
         await this.animateShipTravel(
           this._jumpOriginPos,
           this._jumpDestPos,
-          distance
+          distance,
+          onTravelNearEnd
         );
       } catch (error) {
         console.error('Error during ship travel phase:', error);

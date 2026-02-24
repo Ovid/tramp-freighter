@@ -876,6 +876,9 @@ export const ANIMATION_CONFIG = {
 
   // Animation timeout for error recovery
   ANIMATION_TIMEOUT: 10000, // milliseconds - force completion if animation hangs
+
+  // Encounter reveal timing during jump animation
+  ENCOUNTER_REVEAL_PROGRESS: 0.75, // fraction of ship travel before encounter panel appears
 };
 
 /**
@@ -1708,6 +1711,9 @@ export const EVENT_NAMES = Object.freeze({
   // Encounters & narrative
   ENCOUNTER_TRIGGERED: 'encounterTriggered',
   NARRATIVE_EVENT_TRIGGERED: 'narrativeEventTriggered',
+
+  // Animation coordination
+  JUMP_ANIMATION_NEAR_END: 'jumpAnimationNearEnd',
 
   // Special
   PAVONIS_RUN_TRIGGERED: 'pavonisRunTriggered',

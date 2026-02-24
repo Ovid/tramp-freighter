@@ -95,15 +95,13 @@ export function SystemPanel({
       }
 
       try {
-        const result = await executeJump(viewingSystemId);
-        if (result.success) {
-          if (onJumpComplete) {
-            // Pass the destination system ID to the complete handler
-            onJumpComplete(viewingSystemId);
-          }
-        }
+        await executeJump(viewingSystemId);
       } catch (error) {
         console.error('Jump failed:', error);
+      } finally {
+        if (onJumpComplete) {
+          onJumpComplete();
+        }
       }
     };
 
