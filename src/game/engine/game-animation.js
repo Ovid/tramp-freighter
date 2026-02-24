@@ -498,6 +498,8 @@ export class JumpAnimationSystem {
    * @param {THREE.Vector3} originPos - Origin star position
    * @param {THREE.Vector3} destPos - Destination star position
    * @param {number} distance - Distance between stars in light years
+   * @param {Function|null} onNearEnd - Optional callback invoked once when travel
+   *   progress reaches the configured encounter reveal threshold
    * @returns {Promise<void>} Resolves when travel animation completes
    */
   animateShipTravel(originPos, destPos, distance, onNearEnd = null) {
@@ -605,6 +607,8 @@ export class JumpAnimationSystem {
    *
    * @param {number} originSystemId - Origin star system ID
    * @param {number} destinationSystemId - Destination star system ID
+   * @param {Function|null} onTravelNearEnd - Optional callback invoked once when
+   *   ship travel progress reaches the encounter reveal threshold
    * @returns {Promise<void>} Resolves when animation completes
    */
   async playJumpAnimation(
