@@ -128,11 +128,9 @@ describe('Encounter Buffering During Jump Animations', () => {
     fireEvent.change(shipNameInput, { target: { value: 'Test Ship' } });
     fireEvent.keyDown(shipNameInput, { key: 'Enter' });
     await waitFor(() => {
-      const devButton = document.querySelector('#dev-admin-btn');
-      const errorBoundary = screen.queryByText('Something went wrong');
-      expect(devButton || errorBoundary).toBeTruthy();
+      expect(document.querySelector('#dev-admin-btn')).toBeTruthy();
     });
-    return !screen.queryByText('Something went wrong');
+    expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
   }
 
   const pirateEncounterData = {
@@ -157,8 +155,7 @@ describe('Encounter Buffering During Jump Animations', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     // Emit encounter event directly (no jump in progress)
     act(() => {
@@ -181,8 +178,7 @@ describe('Encounter Buffering During Jump Animations', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     // Emit near-end event with no pending encounter — should be a safe no-op
     act(() => {
@@ -201,8 +197,7 @@ describe('Encounter Buffering During Jump Animations', () => {
       </GameProvider>
     );
 
-    const reachedOrbit = await navigateToOrbit();
-    if (!reachedOrbit) return;
+    await navigateToOrbit();
 
     // Trigger and fully resolve an encounter
     act(() => {
