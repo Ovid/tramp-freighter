@@ -18,13 +18,9 @@ import App from '../../src/App';
  *
  * Validates that:
  * - Encounters show immediately when no jump is in progress
+ * - Encounters are buffered during jump and revealed on JUMP_ANIMATION_NEAR_END
  * - JUMP_ANIMATION_NEAR_END subscription is wired up and cleaned up
  * - Near-end event with no pending encounter is a safe no-op
- *
- * Note: The buffering path (jumpInProgressRef === true) cannot be tested
- * here because handleJumpStart is only callable from SystemPanel props,
- * which requires full starmap context. That path is covered by the unit
- * tests in encounter-animation-timing.test.js.
  *
  * Feature: encounter-animation-timing
  */
@@ -98,6 +94,17 @@ vi.mock('../../src/game/engine/game-animation', () => {
   };
 });
 
+// Mock SystemPanel to expose onJumpStart without needing full starmap context
+vi.mock('../../src/features/navigation/SystemPanel', () => ({
+  SystemPanel: ({ onJumpStart }) => (
+    <div data-testid="mock-system-panel">
+      <button onClick={onJumpStart} data-testid="mock-jump-start">
+        Mock Jump Start
+      </button>
+    </div>
+  ),
+}));
+
 describe('Encounter Buffering During Jump Animations', () => {
   let gameStateManager;
 
@@ -166,6 +173,46 @@ describe('Encounter Buffering During Jump Animations', () => {
     });
 
     // Encounter should appear immediately
+    await waitFor(() => {
+      expect(screen.getByText('Pirate Encounter')).toBeInTheDocument();
+    });
+  });
+
+  it('should buffer encounter during jump and reveal on JUMP_ANIMATION_NEAR_END', async () => {
+    render(
+      <GameProvider gameStateManager={gameStateManager}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+
+    // Open SystemPanel via System Info button
+    const systemInfoBtn = screen.getByText('System Info');
+    fireEvent.click(systemInfoBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-system-panel')).toBeInTheDocument();
+    });
+
+    // Trigger jump start (sets jumpInProgressRef = true)
+    fireEvent.click(screen.getByTestId('mock-jump-start'));
+
+    // Emit encounter while jump is in progress — should be buffered, not shown
+    act(() => {
+      gameStateManager.emit(
+        EVENT_NAMES.ENCOUNTER_TRIGGERED,
+        pirateEncounterData
+      );
+    });
+
+    expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
+
+    // Emit near-end event — buffered encounter should now be revealed
+    act(() => {
+      gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
+    });
+
     await waitFor(() => {
       expect(screen.getByText('Pirate Encounter')).toBeInTheDocument();
     });

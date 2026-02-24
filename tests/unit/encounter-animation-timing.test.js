@@ -22,6 +22,7 @@ describe('EVENT_NAMES.JUMP_ANIMATION_NEAR_END', () => {
   it('exists as a frozen event name', () => {
     expect(EVENT_NAMES.JUMP_ANIMATION_NEAR_END).toBeDefined();
     expect(typeof EVENT_NAMES.JUMP_ANIMATION_NEAR_END).toBe('string');
+    expect(Object.isFrozen(EVENT_NAMES)).toBe(true);
   });
 });
 
