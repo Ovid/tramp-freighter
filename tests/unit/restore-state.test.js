@@ -17,7 +17,10 @@ describe('GameStateManager.restoreState', () => {
 
   it('restores valid current-version state and returns success', () => {
     // Generate valid state from a separate manager to avoid direct .state mutation
-    const sourceManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const sourceManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
     sourceManager.initNewGame();
     const validState = structuredClone(sourceManager.state);
 
@@ -79,7 +82,10 @@ describe('GameStateManager.restoreState', () => {
   });
 
   it('emits UI state events after restore', () => {
-    const sourceManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const sourceManager = new GameStateManager(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
     sourceManager.initNewGame();
     const validState = structuredClone(sourceManager.state);
 
