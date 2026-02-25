@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 
 // 2. Internal modules (game logic, state management)
 import { GameStateManager } from './game/state/game-state-manager';
-import { loadGame } from './game/state/save-load';
 import { NavigationSystem } from './game/game-navigation';
 
 // 3. Components
@@ -55,31 +54,20 @@ import '../css/panel/upgrades.css';
  * @throws {Error} If initialization fails
  */
 function initializeGameStateManager() {
-  // Create navigation system
   const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
-  // Create GameStateManager instance
   const gameStateManager = new GameStateManager(
     STAR_DATA,
     WORMHOLE_DATA,
     navigationSystem
   );
 
-  // Try to load saved game
-  let savedGame = null;
-  try {
-    savedGame = loadGame();
-  } catch (loadError) {
-    console.error('Failed to load saved game:', loadError);
-    // Continue with new game if load fails
-  }
+  // Try to load saved game through the manager's canonical restore path
+  const loaded = gameStateManager.loadGame();
 
-  if (savedGame) {
-    // Restore from saved game
-    gameStateManager.state = savedGame;
+  if (loaded) {
     devLog('Game loaded from save');
   } else {
-    // Initialize new game
     gameStateManager.initNewGame();
     devLog('New game initialized');
   }
