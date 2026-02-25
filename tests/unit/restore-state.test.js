@@ -16,10 +16,12 @@ describe('GameStateManager.restoreState', () => {
   });
 
   it('restores valid current-version state and returns success', () => {
-    manager.initNewGame();
-    const validState = structuredClone(manager.state);
-    manager.state = null;
+    // Generate valid state from a separate manager to avoid direct .state mutation
+    const sourceManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    sourceManager.initNewGame();
+    const validState = structuredClone(sourceManager.state);
 
+    // manager starts with null state from constructor
     const result = manager.restoreState(validState);
 
     expect(result.success).toBe(true);
@@ -77,9 +79,9 @@ describe('GameStateManager.restoreState', () => {
   });
 
   it('emits UI state events after restore', () => {
-    manager.initNewGame();
-    const validState = structuredClone(manager.state);
-    manager.state = null;
+    const sourceManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    sourceManager.initNewGame();
+    const validState = structuredClone(sourceManager.state);
 
     const emittedEvents = [];
     const originalEmit = manager.emit.bind(manager);
@@ -88,6 +90,7 @@ describe('GameStateManager.restoreState', () => {
       originalEmit(eventType, data);
     };
 
+    // manager starts with null state from constructor
     manager.restoreState(validState);
 
     expect(emittedEvents).toContain('creditsChanged');
