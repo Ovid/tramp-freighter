@@ -7,7 +7,6 @@ import {
   KARMA_CONFIG,
   FACTION_CONFIG,
   COLE_DEBT_CONFIG,
-  EVENT_NAMES,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -252,50 +251,5 @@ export class InitializationManager {
       version: GAME_VERSION,
       timestamp: Date.now(),
     };
-  }
-
-  /**
-   * Emit all initial state events for UI synchronization
-   *
-   * Called after state initialization to ensure all UI components
-   * receive the initial state values through the event system.
-   *
-   * @param {Object} state - Complete game state object
-   */
-  emitInitialEvents(state) {
-    const { player, ship } = state;
-
-    this.gameStateManager.emit(EVENT_NAMES.CREDITS_CHANGED, player.credits);
-    this.gameStateManager.emit(EVENT_NAMES.DEBT_CHANGED, player.debt);
-    this.gameStateManager.emit(EVENT_NAMES.FUEL_CHANGED, ship.fuel);
-    this.gameStateManager.emit(EVENT_NAMES.CARGO_CHANGED, ship.cargo);
-    this.gameStateManager.emit(
-      EVENT_NAMES.HIDDEN_CARGO_CHANGED,
-      ship.hiddenCargo
-    );
-    this.gameStateManager.emit(
-      EVENT_NAMES.LOCATION_CHANGED,
-      player.currentSystem
-    );
-    this.gameStateManager.emit(EVENT_NAMES.TIME_CHANGED, player.daysElapsed);
-    this.gameStateManager.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      state.world.priceKnowledge
-    );
-    this.gameStateManager.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
-      hull: ship.hull,
-      engine: ship.engine,
-      lifeSupport: ship.lifeSupport,
-    });
-    this.gameStateManager.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
-    this.gameStateManager.emit(
-      EVENT_NAMES.CARGO_CAPACITY_CHANGED,
-      ship.cargoCapacity
-    );
-    this.gameStateManager.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
-    this.gameStateManager.emit(EVENT_NAMES.FINANCE_CHANGED, player.finance);
-    if (state.missions) {
-      this.gameStateManager.emit(EVENT_NAMES.MISSIONS_CHANGED, state.missions);
-    }
   }
 }
