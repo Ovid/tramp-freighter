@@ -223,7 +223,10 @@ export class GameStateManager {
     let migratedState = this._applyMigrations(rawState);
 
     if (!validateStateStructure(migratedState)) {
-      return { success: false, reason: 'Save data failed structure validation' };
+      return {
+        success: false,
+        reason: 'Save data failed structure validation',
+      };
     }
 
     migratedState = addStateDefaults(migratedState, this.starData);
