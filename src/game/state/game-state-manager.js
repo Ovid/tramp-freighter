@@ -185,27 +185,18 @@ export class GameStateManager {
    * @returns {Object} Complete initial game state
    */
   initNewGame() {
-    // Create initial state using InitializationManager
     const completeState = this.initializationManager.createInitialState();
 
-    // GameStateManager maintains control over its own state
     this.state = completeState;
 
-    // Register event engine events (clear first to prevent duplicates)
-    this.eventEngineManager.clearEvents();
-    this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
-    this.eventEngineManager.registerEvents(DANGER_EVENTS);
-
-    ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
+    this._registerEventEngine();
 
     devLog('New game initialized:', completeState);
 
-    // Emit all initial state events for UI synchronization
-    this.initializationManager.emitInitialEvents(completeState);
+    this._emitAllStateEvents(completeState);
 
     return completeState;
   }
-
 
   /**
    * Restore game state from raw save data
@@ -867,14 +858,7 @@ export class GameStateManager {
   }
 
   loadGame() {
-    const result = this.saveLoadManager.loadGame();
-    if (result) {
-      this.eventEngineManager.clearEvents();
-      this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
-      this.eventEngineManager.registerEvents(DANGER_EVENTS);
-      ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
-    }
-    return result;
+    return this.saveLoadManager.loadGame();
   }
 
   hasSavedGame() {
