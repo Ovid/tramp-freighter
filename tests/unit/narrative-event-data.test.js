@@ -55,6 +55,17 @@ describe('Narrative Event Data', () => {
     });
   });
 
+  describe('dock_cheap_fuel event', () => {
+    const cheapFuel = NARRATIVE_EVENTS.find((e) => e.id === 'dock_cheap_fuel');
+
+    it('Deal choice should reward fuel when costing credits', () => {
+      const dealChoice = cheapFuel.content.choices.find(
+        (c) => c.effects.costs.credits > 0
+      );
+      expect(dealChoice.effects.rewards.fuelMinimum).toBeGreaterThan(0);
+    });
+  });
+
   describe('cargo reward schema', () => {
     const eventsWithCargo = NARRATIVE_EVENTS.flatMap((event) =>
       event.content.choices

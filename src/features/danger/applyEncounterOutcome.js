@@ -8,8 +8,8 @@ import {
  *
  * State mutation function: reads current state from gameStateManager,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
- * passengerSatisfaction, kidnappedPassengerId) and rewards (credits, karma,
- * factionRep, cargo, passengerSatisfaction), then saves.
+ * passengerSatisfaction, kidnappedPassengerId) and rewards (credits, fuelMinimum,
+ * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
@@ -127,6 +127,11 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     if (outcome.rewards.credits) {
       const newCredits = state.player.credits + outcome.rewards.credits;
       gameStateManager.updateCredits(newCredits);
+    }
+
+    if (outcome.rewards.fuelMinimum) {
+      const newFuel = Math.max(state.ship.fuel, outcome.rewards.fuelMinimum);
+      gameStateManager.updateFuel(newFuel);
     }
 
     if (outcome.rewards.karma) {

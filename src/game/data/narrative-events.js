@@ -138,7 +138,7 @@ export const NARRATIVE_EVENTS = [
         {
           text: '"Deal."',
           next: null,
-          effects: { costs: { credits: 50 }, rewards: {} },
+          effects: { costs: { credits: 50 }, rewards: { fuelMinimum: 30 } },
         },
         {
           text: '"No thanks, I like living dangerously."',

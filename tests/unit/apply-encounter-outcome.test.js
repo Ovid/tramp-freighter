@@ -213,6 +213,32 @@ describe('applyEncounterOutcome', () => {
     });
   });
 
+  describe('fuelMinimum reward', () => {
+    it('sets fuel to minimum when current fuel is below', () => {
+      gsm.updateFuel(15);
+      applyEncounterOutcome(gsm, {
+        rewards: { fuelMinimum: 30 },
+      });
+      expect(gsm.getState().ship.fuel).toBe(30);
+    });
+
+    it('does not reduce fuel when current fuel is above minimum', () => {
+      gsm.updateFuel(50);
+      applyEncounterOutcome(gsm, {
+        rewards: { fuelMinimum: 30 },
+      });
+      expect(gsm.getState().ship.fuel).toBe(50);
+    });
+
+    it('handles fuelMinimum at exactly current fuel', () => {
+      gsm.updateFuel(30);
+      applyEncounterOutcome(gsm, {
+        rewards: { fuelMinimum: 30 },
+      });
+      expect(gsm.getState().ship.fuel).toBe(30);
+    });
+  });
+
   describe('karma and faction reputation', () => {
     it('modifies karma', () => {
       const before = gsm.getState().player.karma || 0;
