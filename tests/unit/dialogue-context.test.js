@@ -4,8 +4,13 @@ import { buildDialogueContext } from '../../src/game/game-dialogue.js';
 describe('buildDialogueContext', () => {
   const mockGSM = {
     getState: () => ({
-      player: { daysElapsed: 42, credits: 1000 },
-      ship: { cargo: [{ type: 'food', quantity: 5 }] },
+      player: { daysElapsed: 42, credits: 1000, debt: 5000 },
+      ship: {
+        cargo: [{ type: 'food', quantity: 5 }],
+        hull: 85,
+        engine: 90,
+      },
+      world: { visitedSystems: [0, 1, 4] },
     }),
     getKarma: () => 15,
     getHeatTier: () => 'low',
@@ -25,6 +30,7 @@ describe('buildDialogueContext', () => {
     canStartQuestStage: () => false,
     checkQuestObjectives: () => ({}),
     hasClaimedStageRewards: () => false,
+    getNarrativeFlags: () => ({ tanaka_met: true }),
     requestLoan: () => ({ success: true }),
     storeCargo: () => ({ success: true }),
     repayLoan: () => ({ success: true }),
@@ -63,5 +69,26 @@ describe('buildDialogueContext', () => {
     const ctx = buildDialogueContext(mockGSM, 'test_npc');
     expect(typeof ctx.getQuestStage).toBe('function');
     expect(typeof ctx.getQuestState).toBe('function');
+  });
+
+  it('includes systemsVisited count', () => {
+    const ctx = buildDialogueContext(mockGSM, 'test_npc');
+    expect(ctx.systemsVisited).toBe(3);
+  });
+
+  it('includes narrativeFlags', () => {
+    const ctx = buildDialogueContext(mockGSM, 'test_npc');
+    expect(ctx.narrativeFlags).toEqual({ tanaka_met: true });
+  });
+
+  it('includes ship hull and engine conditions', () => {
+    const ctx = buildDialogueContext(mockGSM, 'test_npc');
+    expect(ctx.shipHull).toBe(85);
+    expect(ctx.shipEngine).toBe(90);
+  });
+
+  it('includes player debt', () => {
+    const ctx = buildDialogueContext(mockGSM, 'test_npc');
+    expect(ctx.debt).toBe(5000);
   });
 });
