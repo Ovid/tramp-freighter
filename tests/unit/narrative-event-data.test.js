@@ -66,6 +66,17 @@ describe('Narrative Event Data', () => {
     });
   });
 
+  describe('time_debt_warning text', () => {
+    const debtWarning = NARRATIVE_EVENTS.find(
+      (e) => e.id === 'time_debt_warning'
+    );
+
+    it('should not threaten actions that are not implemented', () => {
+      const fullText = debtWarning.content.text.join(' ');
+      expect(fullText).not.toMatch(/come looking|come find|hunt you/i);
+    });
+  });
+
   describe('cargo reward schema', () => {
     const eventsWithCargo = NARRATIVE_EVENTS.flatMap((event) =>
       event.content.choices

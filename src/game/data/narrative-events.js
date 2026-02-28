@@ -325,7 +325,7 @@ export const NARRATIVE_EVENTS = [
     content: {
       text: [
         'A message from Marcus Cole.',
-        '"Grace period\'s over. Interest starts accruing. Don\'t make me come looking for you."',
+        '"Grace period\'s over. Interest starts accruing. And the lien on your trades just got heavier."',
       ],
       speaker: 'Marcus Cole',
       mood: 'threatening',
