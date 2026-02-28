@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { InspectionManager } from '@game/state/managers/inspection.js';
 import { INSPECTION_CONFIG } from '@game/constants.js';
 
