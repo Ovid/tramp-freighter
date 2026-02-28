@@ -7,7 +7,7 @@ const EPILOGUE_CONFIG = {
       variants: [
         {
           condition: null,
-          text: 'Delta Pavonis fills your viewport — an orange sun, warmer than Sol, somehow welcoming despite the impossible distance. The Range Extender sputters and dies, its single purpose spent. Twenty-seven light-years from everything you knew.',
+          text: 'Delta Pavonis fills your viewport — an orange sun, warmer than Sol, somehow welcoming despite the impossible distance. The Range Extender sputters and dies, its single purpose spent. Twenty light-years from everything you knew.',
         },
       ],
     },
@@ -33,7 +33,7 @@ const EPILOGUE_CONFIG = {
       variants: [
         {
           condition: { karmaAbove: 50, trustedNPCs: 3 },
-          text: "Word spreads fast, even 27 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. You're not forgotten.",
+          text: "Word spreads fast, even 20 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. You're not forgotten.",
         },
         {
           condition: { karmaBelow: -50 },

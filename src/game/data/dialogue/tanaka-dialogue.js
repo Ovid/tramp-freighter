@@ -178,7 +178,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   range_extender: {
-    text: '"Delta Pavonis. Twenty-seven point eight-eight light-years from Sol. No wormhole connection. No one has ever made the jump." Her eyes light up — the only sign of emotion you\'ve seen from her. "One jump. One way. The Range Extender makes it possible."',
+    text: '"Delta Pavonis. Nineteen point eight-nine light-years from Sol. No wormhole connection. No one has ever made the jump." Her eyes light up — the only sign of emotion you\'ve seen from her. "One jump. One way. The Range Extender makes it possible."',
     choices: [
       {
         text: '"Why Delta Pavonis?"',
@@ -228,7 +228,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   one_way: {
-    text: '"Yes. The Range Extender is single-use. The energy requirements for a 27-light-year jump are... considerable. There is no return unless Delta Pavonis has wormhole infrastructure." She shrugs. "It probably does not."',
+    text: '"Yes. The Range Extender is single-use. The energy requirements for a 20-light-year jump are... considerable. There is no return unless Delta Pavonis has wormhole infrastructure." She shrugs. "It probably does not."',
     choices: [
       {
         text: '"And you\'d make that jump?"',
@@ -550,7 +550,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   pavonis_ready: {
-    text: '"The coordinates are locked. Delta Pavonis. Twenty-seven point eight-eight light-years." She stands at the airlock. "Once we activate the Range Extender, there is no coming back. The jump is one-way." Her voice is perfectly steady. "Are you certain?"',
+    text: '"The coordinates are locked. Delta Pavonis. Nineteen point eight-nine light-years." She stands at the airlock. "Once we activate the Range Extender, there is no coming back. The jump is one-way." Her voice is perfectly steady. "Are you certain?"',
     choices: [
       {
         text: '"Let\'s fly."',

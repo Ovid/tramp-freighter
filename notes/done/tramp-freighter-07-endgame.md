@@ -206,7 +206,7 @@ Reveals Tanaka's backstory — her sister went to Delta Pavonis 10 years ago as 
 **Dialogue:**
 
 ```
-"You've helped me more than you know. The Range Extender is ready. I can install it on your ship. But this is it — the real thing. Delta Pavonis. 27.88 light-years. One way. Are you ready?"
+"You've helped me more than you know. The Range Extender is ready. I can install it on your ship. But this is it — the real thing. Delta Pavonis. 19.89 light-years. One way. Are you ready?"
 ```
 
 **Requirements Check:**
@@ -303,7 +303,7 @@ Narrative sequence (not gameplay):
 ```
 The Range Extender hums to life. Your ship vibrates in a way you've never felt before.
 
-Tanaka's voice crackles over the comm. "Coordinates locked. Delta Pavonis. 27.88 light-years. Initiating jump in three... two... one..."
+Tanaka's voice crackles over the comm. "Coordinates locked. Delta Pavonis. 19.89 light-years. Initiating jump in three... two... one..."
 
 The stars stretch. Reality bends. Your ship screams through space in ways it was never meant to.
 
@@ -386,7 +386,7 @@ const epilogueData = {
 **High Karma, Many Friends:**
 
 ```
-"Word spreads fast, even 27 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. Chen sends messages. Okonkwo prays for you. Vasquez tells stories about you to young captains.
+"Word spreads fast, even 20 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. Chen sends messages. Okonkwo prays for you. Vasquez tells stories about you to young captains.
 
 You're not forgotten."
 ```
@@ -418,7 +418,7 @@ Add to STAR_DATA (currently unreachable):
   id: 116,
   name: "Delta Pavonis",
   type: "G8V",
-  x: 178,  // 27.88 LY from Sol
+  x: 178,  // 19.89 LY from Sol
   y: -145,
   z: 89,
   wh: 0,   // No wormhole connections
