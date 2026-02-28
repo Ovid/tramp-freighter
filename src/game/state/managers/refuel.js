@@ -72,7 +72,7 @@ export class RefuelManager extends BaseManager {
    * @returns {Object} { valid: boolean, reason: string, cost: number }
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-    const totalCost = amount * pricePerPercent;
+    const totalCost = Math.ceil(amount * pricePerPercent);
     const maxFuel = this.gameStateManager.getFuelCapacity();
 
     if (amount <= 0) {
