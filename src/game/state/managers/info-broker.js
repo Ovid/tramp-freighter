@@ -33,15 +33,17 @@ export class InfoBrokerManager extends BaseManager {
    * Purchase market intelligence for a system
    *
    * @param {number} systemId - Target system ID
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.15 for 15% off
    * @returns {Object} { success: boolean, reason: string }
    */
-  purchaseIntelligence(systemId) {
+  purchaseIntelligence(systemId, discount = 0) {
     const state = this.getState();
 
     const result = InformationBroker.purchaseIntelligence(
       state,
       systemId,
-      this.starData
+      this.starData,
+      discount
     );
 
     if (result.success) {

@@ -22,21 +22,26 @@ export class RepairManager extends BaseManager {
   /**
    * Calculate repair cost for a ship system
    *
-   * Cost is ₡5 per 1% restored. If system is already at maximum condition, cost is 0.
+   * Cost is ₡5 per 1% restored, rounded up. If system is already at maximum
+   * condition, cost is 0.
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} amount - Percentage points to restore
    * @param {number} currentCondition - Current condition percentage
-   * @returns {number} Cost in credits
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.1 for 10% off
+   * @returns {number} Cost in credits (ceiled integer)
    */
-  getRepairCost(systemType, amount, currentCondition) {
+  getRepairCost(systemType, amount, currentCondition, discount = 0) {
     // If already at max, no cost
     if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
       return 0;
     }
 
     // Calculate cost at ₡5 per 1%
-    return amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    const baseCost = amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    return discount > 0
+      ? Math.ceil(baseCost * (1 - discount))
+      : Math.ceil(baseCost);
   }
 
   /**
@@ -44,9 +49,10 @@ export class RepairManager extends BaseManager {
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
    * @param {number} amount - Percentage points to restore
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.1 for 10% off
    * @returns {Object} { success: boolean, reason: string }
    */
-  repairShipSystem(systemType, amount) {
+  repairShipSystem(systemType, amount, discount = 0) {
     this.validateState();
 
     // Validate system type
@@ -58,7 +64,12 @@ export class RepairManager extends BaseManager {
     const state = this.getState();
     const currentCondition = state.ship[systemType];
     const credits = state.player.credits;
-    const cost = this.getRepairCost(systemType, amount, currentCondition);
+    const cost = this.getRepairCost(
+      systemType,
+      amount,
+      currentCondition,
+      discount
+    );
 
     // Validation order matters for user experience:
     // 1. Check for positive amount (basic input validation)

@@ -34,7 +34,7 @@ export function calculateDiscountedRefuelCost(
   discountPercentage
 ) {
   const baseCost = calculateRefuelCost(amount, pricePerPercent);
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**

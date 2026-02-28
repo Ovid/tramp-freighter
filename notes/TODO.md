@@ -1,11 +1,13 @@
 # TODO
 
-- Gear menu should link o github repo
 - We need to have gear menu link to "achievements"
+    (visited all stars, for example)
+    System needs to validate that all achievements in the game are possible.
 - Need to show additional stats, like reputation.
 - If a mission run fails because you ran out of time, there should be
   consequences (I failed a mission hauling illegal goods, but there was no
   consequence)
+- Players should be able to save and restart up to 3 games
 - Test in Safari and Firefox
 
 Endgame NOT FULLY TESTED (2)
@@ -14,10 +16,6 @@ Endgame NOT FULLY TESTED (2)
   prototype jump, message delivery) not gameplay-tested.
     2. Epilogue variations — Only saw one epilogue path (moderate karma). High
   karma/low karma/smuggler variations not tested.
-
-- Validate that narrative messages don't imply things that aren't true (such
-  as offering to sell you something for half-price and then not letting you
-  buy)
 
 - NPC portraits?  Player have a name?
     Images for other things? Need to create a theme that I can use
@@ -54,26 +52,18 @@ Endgame NOT FULLY TESTED (2)
 	    * 	Uses gambling metaphors
 	    * 	No service discounts but offers risk-related benefits
 
-- Multiple games at once?
 - Can we make this work on mobile?
 - i18n?
 - Code Coverage
 - Liskov and Law of Demeter?
 - GCT
-- Reputation change-Not more than once per day per NPC?
-- Ensure all individual js modules have unit tests
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
-  Is the ship info worth it?
-- Ability to rename ship
 - X/Y/Z should be fixed for star data. Get more star info?
 - Economic events should last longer (and not have the popup every time)
 - Duplicate tests?
-- System info to show tech level?
 - Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
-- Some kind of "Achievement" system (visited all stars, for example)
-    - It needs to validate that all achievements in the game are possible.
 
 # Notes
 

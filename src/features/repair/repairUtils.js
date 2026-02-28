@@ -32,7 +32,10 @@ export function calculateDiscountedRepairCost(
   currentCondition,
   discountPercentage
 ) {
-  const baseCost = calculateRepairCost(amount, currentCondition);
+  if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
+    return 0;
+  }
+  const baseCost = amount * REPAIR_CONFIG.COST_PER_PERCENT;
   return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
@@ -80,8 +83,15 @@ export function calculateDiscountedRepairAllCost(
   condition,
   discountPercentage
 ) {
-  const baseCost = calculateRepairAllCost(condition);
-  return Math.ceil(baseCost * (1 - discountPercentage));
+  let rawBaseCost = 0;
+  const systems = ['hull', 'engine', 'lifeSupport'];
+  for (const sys of systems) {
+    const amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition[sys];
+    if (amount > 0) {
+      rawBaseCost += amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    }
+  }
+  return Math.ceil(rawBaseCost * (1 - discountPercentage));
 }
 
 /**
@@ -95,7 +105,7 @@ export function calculateDiscountedRepairAllCost(
 export function validateRepair(systemType, amount, state) {
   const currentCondition = state.ship[systemType];
   const credits = state.player.credits;
-  const cost = calculateRepairCost(systemType, amount, currentCondition);
+  const cost = calculateRepairCost(amount, currentCondition);
 
   // Validation order matters for user experience:
   // 1. Check for positive amount (basic input validation)

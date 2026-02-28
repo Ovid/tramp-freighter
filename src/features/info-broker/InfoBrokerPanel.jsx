@@ -136,7 +136,10 @@ export function InfoBrokerPanel({ onClose }) {
   };
 
   const handlePurchaseIntelligence = (systemId) => {
-    const intelligenceOutcome = purchaseIntelligence(systemId);
+    const intelligenceOutcome = purchaseIntelligence(
+      systemId,
+      bestDiscount.discount
+    );
 
     if (!intelligenceOutcome.success) {
       setValidationMessage(intelligenceOutcome.reason);

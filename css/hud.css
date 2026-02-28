@@ -374,6 +374,11 @@
   font-family: var(--font-family-mono);
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .control-btn:hover {

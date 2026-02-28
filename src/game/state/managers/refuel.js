@@ -72,7 +72,7 @@ export class RefuelManager extends BaseManager {
    * @returns {Object} { valid: boolean, reason: string, cost: number }
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
-    const totalCost = amount * pricePerPercent;
+    const totalCost = Math.ceil(amount * pricePerPercent);
     const maxFuel = this.gameStateManager.getFuelCapacity();
 
     if (amount <= 0) {
@@ -117,10 +117,11 @@ export class RefuelManager extends BaseManager {
    * Includes safety checks to prevent fuel reduction bugs.
    *
    * @param {number} amount - Amount to refuel (percentage points)
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.1 for 10% off. Cost is ceiled after discount.
    * @returns {Object} { success: boolean, reason: string }
    * @throws {Error} If refuel would reduce fuel (critical bug detection)
    */
-  refuel(amount) {
+  refuel(amount, discount = 0) {
     this.validateState();
 
     const state = this.getState();
@@ -128,12 +129,14 @@ export class RefuelManager extends BaseManager {
     const credits = state.player.credits;
     const systemId = state.player.currentSystem;
     const pricePerPercent = this.getFuelPrice(systemId);
+    const effectivePrice =
+      discount > 0 ? pricePerPercent * (1 - discount) : pricePerPercent;
 
     const validation = this.validateRefuel(
       currentFuel,
       amount,
       credits,
-      pricePerPercent
+      effectivePrice
     );
 
     if (!validation.valid) {

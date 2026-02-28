@@ -8,8 +8,8 @@ import {
  *
  * State mutation function: reads current state from gameStateManager,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
- * passengerSatisfaction, kidnappedPassengerId) and rewards (credits, karma,
- * factionRep, cargo, passengerSatisfaction), then saves.
+ * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated) and rewards (credits, fuelMinimum,
+ * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
@@ -75,11 +75,17 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       gameStateManager.updateCargo(filteredCargo);
     }
 
+    if (outcome.costs.hiddenCargoConfiscated) {
+      state.ship.hiddenCargo = [];
+      gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    }
+
     // Fail missions whose cargo was lost or confiscated
     if (
       outcome.costs.cargoLoss ||
       outcome.costs.cargoPercent ||
-      outcome.costs.restrictedGoodsConfiscated
+      outcome.costs.restrictedGoodsConfiscated ||
+      outcome.costs.hiddenCargoConfiscated
     ) {
       if (typeof gameStateManager.failMissionsDueToCargoLoss === 'function') {
         gameStateManager.failMissionsDueToCargoLoss();
@@ -125,8 +131,15 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
   // Apply rewards
   if (outcome.rewards) {
     if (outcome.rewards.credits) {
-      const newCredits = state.player.credits + outcome.rewards.credits;
+      const currentCredits = gameStateManager.getState().player.credits;
+      const newCredits = currentCredits + outcome.rewards.credits;
       gameStateManager.updateCredits(newCredits);
+    }
+
+    if (outcome.rewards.fuelMinimum) {
+      const currentFuel = gameStateManager.getState().ship.fuel;
+      const newFuel = Math.max(currentFuel, outcome.rewards.fuelMinimum);
+      gameStateManager.updateFuel(newFuel);
     }
 
     if (outcome.rewards.karma) {
@@ -149,7 +162,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.rewards.cargo) {
-      const currentCargo = [...state.ship.cargo];
+      const currentCargo = [...gameStateManager.getState().ship.cargo];
       outcome.rewards.cargo.forEach((rewardItem) => {
         const existingStack = currentCargo.find(
           (item) =>

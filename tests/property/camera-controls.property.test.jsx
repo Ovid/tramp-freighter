@@ -70,9 +70,9 @@ describe('Property: Camera Controls', () => {
       expect(controlButtons).toBeTruthy();
     });
 
-    // Verify all 6 buttons are present
+    // Verify all 7 controls are present (GitHub link + 6 buttons)
     const buttons = controlButtons.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(6);
+    expect(buttons.length).toBe(7);
 
     // Click to collapse
     fireEvent.click(toggleButton);
@@ -270,6 +270,39 @@ describe('Property: Camera Controls', () => {
     );
   });
 
+  it('should render GitHub link as first item when expanded', async () => {
+    const mockHandlers = {
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      onToggleRotation: vi.fn(),
+      onToggleBoundary: vi.fn(),
+    };
+
+    const { container } = render(
+      <CameraControls
+        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        {...mockHandlers}
+      />
+    );
+
+    const toggleButton = container.querySelector('.camera-controls-toggle');
+    fireEvent.click(toggleButton);
+
+    await waitFor(() => {
+      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+    });
+
+    const githubLink = container.querySelector('a[href="https://github.com/Ovid/tramp-freighter/"]');
+    expect(githubLink).toBeTruthy();
+    expect(githubLink.getAttribute('target')).toBe('_blank');
+    expect(githubLink.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(githubLink.textContent.trim()).toBe('GitHub');
+
+    // Should be the first child in the buttons container
+    const buttonsContainer = container.querySelector('.camera-controls-buttons');
+    expect(buttonsContainer.firstElementChild).toBe(githubLink);
+  });
+
   it('should have all 6 control buttons when expanded', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
@@ -293,12 +326,13 @@ describe('Property: Camera Controls', () => {
     });
 
     const buttons = container.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(6);
+    expect(buttons.length).toBe(7);
 
     // Verify button labels
     const buttonTexts = Array.from(buttons).map((btn) =>
       btn.textContent.trim()
     );
+    expect(buttonTexts).toContain('GitHub');
     expect(buttonTexts).toContain('Zoom In');
     expect(buttonTexts).toContain('Zoom Out');
     expect(buttonTexts).toContain('Toggle Rotation');

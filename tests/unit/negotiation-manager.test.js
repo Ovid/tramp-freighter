@@ -141,7 +141,7 @@ describe('NegotiationManager', () => {
       expect(result.costs.credits).toBe(75);
     });
 
-    it('returns failure with strengthIncrease on RNG failure', () => {
+    it('returns failure with empty costs on RNG failure', () => {
       const state = gsm.getState();
       state.ship.cargo = [
         {
@@ -162,15 +162,12 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE
-      );
-      expect(result.costs.strengthIncrease).toBe(0.1);
+      expect(result.costs).toEqual({});
     });
   });
 
   describe('medicine_claim', () => {
-    it('returns failure with strengthIncrease when no medicine in cargo', () => {
+    it('returns failure with empty costs when no medicine in cargo', () => {
       const state = gsm.getState();
       state.ship.cargo = [
         {
@@ -190,13 +187,10 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE
-      );
-      expect(result.costs.strengthIncrease).toBe(0.2);
+      expect(result.costs).toEqual({});
     });
 
-    it('returns failure with strengthIncrease when cargo is empty', () => {
+    it('returns failure with empty costs when cargo is empty', () => {
       const state = gsm.getState();
       state.ship.cargo = [];
 
@@ -207,9 +201,7 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE
-      );
+      expect(result.costs).toEqual({});
     });
 
     it('returns success with no costs when has medicine and RNG triggers sympathy', () => {
@@ -289,7 +281,7 @@ describe('NegotiationManager', () => {
   });
 
   describe('intel_offer', () => {
-    it('returns failure with strengthIncrease when no hasPriorIntel flag', () => {
+    it('returns failure with empty costs when no hasPriorIntel flag', () => {
       const state = gsm.getState();
       // Ensure no intel flag
       state.world.flags = {};
@@ -301,13 +293,10 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE
-      );
-      expect(result.costs.strengthIncrease).toBe(0.15);
+      expect(result.costs).toEqual({});
     });
 
-    it('returns failure with strengthIncrease when flags is undefined', () => {
+    it('returns failure with empty costs when flags is undefined', () => {
       const state = gsm.getState();
       state.world.flags = undefined;
 
@@ -318,9 +307,7 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE
-      );
+      expect(result.costs).toEqual({});
     });
 
     it('returns success with factionRep outlaws gain when has intel and RNG succeeds', () => {
@@ -342,7 +329,7 @@ describe('NegotiationManager', () => {
       expect(result.rewards.factionRep.outlaws).toBe(3);
     });
 
-    it('returns failure with reputationPenalty when has intel but RNG fails', () => {
+    it('returns failure with factionRep authority penalty when has intel but RNG fails', () => {
       const state = gsm.getState();
       state.world.flags = { hasPriorIntel: true };
 
@@ -354,10 +341,10 @@ describe('NegotiationManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.reputationPenalty).toBe(
+      expect(result.costs).toEqual({});
+      expect(result.rewards.factionRep.authorities).toBe(
         NEGOTIATION_CONFIG.INTEL_OFFER.SUCCESS_REP_PENALTY
       );
-      expect(result.costs.reputationPenalty).toBe(-10);
     });
   });
 

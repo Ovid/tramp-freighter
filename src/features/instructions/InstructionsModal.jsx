@@ -25,9 +25,10 @@ export function InstructionsModal({ isOpen, onClose }) {
           <h3>Navigation</h3>
           <p>
             The starmap shows 117 real star systems connected by wormhole lanes.
-            To travel, click the <strong>System Info</strong> button in the Quick
-            Access panel to view a system's details, wormhole connections, and
-            the option to jump there. Every jump costs fuel and advances time.
+            To travel, click the <strong>System Info</strong> button in the
+            Quick Access panel to view a system's details, wormhole connections,
+            and the option to jump there. Every jump costs fuel and advances
+            time.
           </p>
         </section>
 
@@ -37,18 +38,18 @@ export function InstructionsModal({ isOpen, onClose }) {
             When you're in a system with a station, click the{' '}
             <strong>Dock</strong> button in the Quick Access panel to go aboard.
             From there you can trade goods, refuel, and repair your ship. Each
-            system has different prices — buy low, sell high. Keep an eye on your
-            credits and cargo hold.
+            system has different prices — buy low, sell high. Keep an eye on
+            your credits and cargo hold.
           </p>
         </section>
 
         <section className="instructions-section">
           <h3>The Science</h3>
           <p>
-            The stars in this game are real systems within 20 light-years of Sol.
-            Their colors and relative sizes are as accurate as we could make
-            them, with a minimum size so the smallest remain visible. Most are
-            red dwarfs — too dim to see with the naked eye. Until modern
+            The stars in this game are real systems within 20 light-years of
+            Sol. Their colors and relative sizes are as accurate as we could
+            make them, with a minimum size so the smallest remain visible. Most
+            are red dwarfs — too dim to see with the naked eye. Until modern
             astronomy, we didn't even know they existed.
           </p>
           <p>

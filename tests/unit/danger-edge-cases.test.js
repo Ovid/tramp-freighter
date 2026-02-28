@@ -192,9 +192,7 @@ describe('Danger Edge Cases', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE
-      );
+      expect(result.costs).toEqual({});
       expect(result.description).toBeTypeOf('string');
       expect(result.description.length).toBeGreaterThan(0);
     });
@@ -233,14 +231,16 @@ describe('Danger Edge Cases', () => {
       expect(outcome.costs.hiddenCargoConfiscated).toBe(true);
     });
 
-    it('flee always returns triggerPatrolCombat: true regardless of cargo state', () => {
+    it('flee returns fuel and hull costs regardless of cargo state', () => {
       // Test with empty cargo
       const state1 = gsm.getState();
       state1.ship.cargo = [];
       state1.ship.hiddenCargo = [];
       const outcome1 = gsm.resolveInspection('flee', state1);
-      expect(outcome1.triggerPatrolCombat).toBe(true);
       expect(outcome1.success).toBe(false);
+      expect(outcome1.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
+      expect(outcome1.costs.hull).toBe(INSPECTION_CONFIG.FLEE.HULL_COST);
+      expect(outcome1).not.toHaveProperty('triggerPatrolCombat');
 
       // Test with loaded cargo
       const state2 = gsm.getState();
@@ -250,8 +250,10 @@ describe('Danger Edge Cases', () => {
       ];
       state2.ship.hiddenCargo = [{ good: 'tritium', qty: 3, buyPrice: 200 }];
       const outcome2 = gsm.resolveInspection('flee', state2);
-      expect(outcome2.triggerPatrolCombat).toBe(true);
       expect(outcome2.success).toBe(false);
+      expect(outcome2.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
+      expect(outcome2.costs.hull).toBe(INSPECTION_CONFIG.FLEE.HULL_COST);
+      expect(outcome2).not.toHaveProperty('triggerPatrolCombat');
     });
 
     it('unknown choice throws Error with descriptive message', () => {

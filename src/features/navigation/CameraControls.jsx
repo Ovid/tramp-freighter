@@ -62,6 +62,14 @@ export function CameraControls({
 
       {isExpanded && (
         <div className="camera-controls-buttons">
+          <a
+            className="control-btn"
+            href="https://github.com/Ovid/tramp-freighter/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
           <button className="control-btn" onClick={onZoomIn}>
             Zoom In
           </button>

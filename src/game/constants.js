@@ -1353,6 +1353,8 @@ export const INSPECTION_CONFIG = {
   // Flee - attempt to escape inspection
   FLEE: {
     AUTHORITY_REP_PENALTY: -15, // Uses REPUTATION_CHANGES.FLEEING_AUTHORITY_REP_PENALTY
+    FUEL_COST: 5, // Emergency burn fuel cost
+    HULL_COST: 5, // Hull stress from hard maneuver
   },
 
   // Hidden cargo discovery

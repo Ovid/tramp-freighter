@@ -375,4 +375,12 @@ describe('NPC Data Definitions', () => {
       );
     });
   });
+
+  describe('NPC tips completeness', () => {
+    ALL_NPCS.forEach((npc) => {
+      it(`${npc.name} should have at least one tip`, () => {
+        expect(npc.tips.length).toBeGreaterThan(0);
+      });
+    });
+  });
 });

@@ -104,7 +104,7 @@ export function RepairPanel({ onClose }) {
     }
 
     // Execute repair
-    const repairOutcome = repair(systemType, amount);
+    const repairOutcome = repair(systemType, amount, bestDiscount.discount);
 
     if (!repairOutcome.success) {
       setValidationMessage(`Repair failed: ${repairOutcome.reason}`);
@@ -179,7 +179,7 @@ export function RepairPanel({ onClose }) {
     // Repair hull
     const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
     if (hullAmount > 0) {
-      const repairOutcome = repair('hull', hullAmount);
+      const repairOutcome = repair('hull', hullAmount, bestDiscount.discount);
       if (repairOutcome.success) {
         repairCount++;
       } else {
@@ -190,7 +190,11 @@ export function RepairPanel({ onClose }) {
     // Repair engine
     const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
     if (engineAmount > 0) {
-      const repairOutcome = repair('engine', engineAmount);
+      const repairOutcome = repair(
+        'engine',
+        engineAmount,
+        bestDiscount.discount
+      );
       if (repairOutcome.success) {
         repairCount++;
       } else {
@@ -202,7 +206,11 @@ export function RepairPanel({ onClose }) {
     const lifeSupportAmount =
       SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
     if (lifeSupportAmount > 0) {
-      const repairOutcome = repair('lifeSupport', lifeSupportAmount);
+      const repairOutcome = repair(
+        'lifeSupport',
+        lifeSupportAmount,
+        bestDiscount.discount
+      );
       if (repairOutcome.success) {
         repairCount++;
       } else {

@@ -110,11 +110,8 @@ describe('Negotiation Outcomes Property Tests', () => {
                   );
                 }
               } else {
-                // Failure: +10% enemy strength increase
-                expect(outcome.costs).toHaveProperty(
-                  'strengthIncrease',
-                  NEGOTIATION_CONFIG.COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE
-                );
+                // Failure: no costs (strengthIncrease was removed as dead field)
+                expect(outcome.costs).toEqual({});
               }
               break;
             }

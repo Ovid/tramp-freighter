@@ -112,11 +112,9 @@ export class NegotiationManager extends BaseManager {
     } else {
       return {
         success: false,
-        costs: {
-          strengthIncrease: COUNTER_PROPOSAL.FAILURE_STRENGTH_INCREASE,
-        },
+        costs: {},
         rewards: {},
-        description: 'Negotiation failed. Pirates are now more aggressive.',
+        description: "The pirates don't take kindly to your offer.",
       };
     }
   }
@@ -143,13 +141,10 @@ export class NegotiationManager extends BaseManager {
     if (!hasMedicine) {
       return {
         success: false,
-        costs: {
-          strengthIncrease:
-            NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE,
-        },
+        costs: {},
         rewards: {},
         description:
-          'Pirates discovered you have no medicine. They are not pleased.',
+          'Pirates discovered you have no medicine. They see through the lie.',
       };
     }
 
@@ -200,12 +195,9 @@ export class NegotiationManager extends BaseManager {
     if (!hasPriorIntel) {
       return {
         success: false,
-        costs: {
-          strengthIncrease:
-            NEGOTIATION_CONFIG.INTEL_OFFER.SUSPICIOUS_STRENGTH_INCREASE,
-        },
+        costs: {},
         rewards: {},
-        description: 'You have no useful intelligence to offer the pirates.',
+        description: 'You have nothing the pirates want.',
       };
     }
 
@@ -231,10 +223,12 @@ export class NegotiationManager extends BaseManager {
     } else {
       return {
         success: false,
-        costs: {
-          reputationPenalty: INTEL_OFFER.SUCCESS_REP_PENALTY,
+        costs: {},
+        rewards: {
+          factionRep: {
+            authorities: INTEL_OFFER.SUCCESS_REP_PENALTY,
+          },
         },
-        rewards: {},
         description:
           'Pirates rejected your intelligence offer and became suspicious.',
       };

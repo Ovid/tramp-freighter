@@ -110,6 +110,20 @@ export class InspectionManager extends BaseManager {
       }
     }
 
+    let description;
+    if (restrictedGoodsConfiscated || hiddenCargoConfiscated) {
+      if (hiddenCargoConfiscated) {
+        description =
+          'They found the hidden compartment. This is going to be expensive.';
+      } else {
+        description =
+          "The inspector's expression hardens. Restricted goods. There will be a fine.";
+      }
+    } else {
+      description =
+        'Inspection complete. Everything checks out. The inspector nods approvingly.';
+    }
+
     const outcome = {
       success: true,
       costs: {
@@ -120,7 +134,7 @@ export class InspectionManager extends BaseManager {
           authorities: authorityRepChange,
         },
       },
-      description: 'Cooperated with customs inspection.',
+      description,
     };
 
     if (restrictedGoodsConfiscated) {
@@ -155,7 +169,7 @@ export class InspectionManager extends BaseManager {
 
     if (success) {
       description =
-        'Successfully bribed customs inspector and avoided inspection.';
+        'The inspector pockets your credits and waves you through. You doubt this stays off the books.';
     } else {
       totalCost += INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE;
       description =
@@ -179,21 +193,25 @@ export class InspectionManager extends BaseManager {
   /**
    * Resolve flee inspection choice
    *
-   * Triggers a patrol combat encounter and applies reputation penalties.
+   * Applies fuel and hull costs from an emergency burn, plus authority
+   * reputation penalties.
    *
    * @returns {Object} Inspection outcome
    */
   resolveInspectionFlee() {
     return {
       success: false,
-      triggerPatrolCombat: true,
-      costs: {},
+      costs: {
+        fuel: INSPECTION_CONFIG.FLEE.FUEL_COST,
+        hull: INSPECTION_CONFIG.FLEE.HULL_COST,
+      },
       rewards: {
         factionRep: {
           authorities: INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY,
         },
       },
-      description: 'Fled from customs inspection. Patrol ships are in pursuit.',
+      description:
+        'You punch the throttle and break away. The emergency burn costs fuel and rattles the hull.',
     };
   }
 }

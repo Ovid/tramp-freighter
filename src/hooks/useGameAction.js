@@ -69,20 +69,22 @@ export function useGameAction() {
       /**
        * Refuel the ship
        * @param {number} amount - Amount to refuel (percentage points)
+       * @param {number} discount - NPC discount fraction (0-1)
        * @returns {Object} { success: boolean, reason: string }
        */
-      refuel: (amount) => {
-        return gameStateManager.refuel(amount);
+      refuel: (amount, discount) => {
+        return gameStateManager.refuel(amount, discount);
       },
 
       /**
        * Repair a ship system
        * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
        * @param {number} amount - Percentage points to restore
+       * @param {number} discount - NPC discount fraction (0-1)
        * @returns {Object} { success: boolean, reason: string }
        */
-      repair: (systemType, amount) => {
-        return gameStateManager.repairShipSystem(systemType, amount);
+      repair: (systemType, amount, discount) => {
+        return gameStateManager.repairShipSystem(systemType, amount, discount);
       },
 
       /**
@@ -116,10 +118,11 @@ export function useGameAction() {
       /**
        * Purchase market intelligence
        * @param {number} systemId - Target system ID
+       * @param {number} discount - NPC discount fraction (0-1)
        * @returns {Object} { success: boolean, reason: string }
        */
-      purchaseIntelligence: (systemId) => {
-        return gameStateManager.purchaseIntelligence(systemId);
+      purchaseIntelligence: (systemId, discount) => {
+        return gameStateManager.purchaseIntelligence(systemId, discount);
       },
 
       /**
