@@ -12,6 +12,7 @@ import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { addStateDefaults } from '../../src/game/state/state-validators.js';
+import { getKarmaLabel, getFactionLabel } from '../../src/features/achievements/StatsSection';
 
 describe('Achievement Constants', () => {
   it('should define achievement tier thresholds for all categories', () => {
@@ -294,5 +295,25 @@ describe('Save Compatibility', () => {
 
     const migrated = addStateDefaults(stateWithAchievements, STAR_DATA);
     expect(migrated.achievements.survival_1.unlocked).toBe(true);
+  });
+});
+
+describe('Label Functions', () => {
+  it('should return correct karma labels', () => {
+    expect(getKarmaLabel(80)).toBe('Saint');
+    expect(getKarmaLabel(50)).toBe('Virtuous');
+    expect(getKarmaLabel(25)).toBe('Decent');
+    expect(getKarmaLabel(0)).toBe('Neutral');
+    expect(getKarmaLabel(-30)).toBe('Shady');
+    expect(getKarmaLabel(-50)).toBe('Ruthless');
+    expect(getKarmaLabel(-80)).toBe('Villain');
+  });
+
+  it('should return correct faction labels', () => {
+    expect(getFactionLabel(80)).toBe('Allied');
+    expect(getFactionLabel(50)).toBe('Respected');
+    expect(getFactionLabel(0)).toBe('Neutral');
+    expect(getFactionLabel(-50)).toBe('Hostile');
+    expect(getFactionLabel(-80)).toBe('Enemy');
   });
 });
