@@ -12,7 +12,7 @@ Add a breadcrumb trail through **Wei Chen** and **Captain Vasquez** dialogue tre
 
 ### Phase 1: Pre-Discovery Breadcrumbs
 
-Before the player meets Yuki (`tanaka_met` flag NOT set), Wei Chen and Vasquez hint at her existence. Hints adapt based on eligibility (systems visited vs `TANAKA_SYSTEMS_REQUIRED` from constants).
+Before the player meets Yuki (`tanaka_met` flag NOT set), Wei Chen and Vasquez hint at her existence. Hints adapt based on eligibility (systems visited vs `ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED` from constants).
 
 **Wei Chen** (same station as Yuki — strongest hint):
 - New dialogue choice: casual station gossip about the engineer in the back bay
@@ -66,13 +66,13 @@ After meeting Yuki but before starting her first quest stage, Wei Chen and Vasqu
 
 ### Eligibility Threshold Change
 
-The Tanaka intro narrative event currently requires 5 systems visited. This is changing to **10 systems**, controlled by a new `TANAKA_SYSTEMS_REQUIRED` constant in `constants.js`. Both the narrative event and NPC hints reference this constant.
+The Tanaka intro narrative event currently requires 5 systems visited. This is changing to **10 systems**, controlled by `ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED` in `constants.js`. Both the narrative event and NPC hints reference this constant.
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/game/constants.js` | Add `TANAKA_SYSTEMS_REQUIRED: 10` |
+| `src/game/constants.js` | Update `ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED` from 5 to 10 |
 | `src/game/data/narrative-events.js` | Update `tanaka_intro` to use constant (currently hardcoded 5, now 10) |
 | `src/game/data/dialogue/wei-chen.js` | Add `station_gossip`, `tanaka_gossip`, `tanaka_progress` nodes |
 | `src/game/data/dialogue/captain-vasquez.js` | Add `barnards_engineer`, `tanaka_advice`, `tanaka_patience`, `pavonis_prep` nodes |
