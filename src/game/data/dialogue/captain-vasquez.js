@@ -4,7 +4,11 @@
  * @module dialogue/captain-vasquez
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  ENDGAME_CONFIG,
+} from '../../constants.js';
 import {
   hasGoodKarma,
   hasBadKarma,
@@ -171,6 +175,58 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         action: (context) => {
           context.updateQuestData('tanaka', 'messageDelivered', 1);
           return { success: true, message: 'Message delivered.' };
+        },
+      },
+      {
+        text: '"I\'m still pretty green out here."',
+        next: 'explore_more',
+        condition: (_rep, context) => {
+          if (!context || context.narrativeFlags?.tanaka_met) return false;
+          return (
+            context.systemsVisited <
+            ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED
+          );
+        },
+      },
+      {
+        text: '"Know anyone interesting at Barnard\'s?"',
+        next: 'barnards_engineer',
+        condition: (_rep, context) => {
+          if (!context || context.narrativeFlags?.tanaka_met) return false;
+          return (
+            context.systemsVisited >=
+            ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED
+          );
+        },
+      },
+      {
+        text: '"I met that engineer at Barnard\'s. She barely talked to me."',
+        next: 'tanaka_advice',
+        condition: (_rep, context) => {
+          if (!context || !context.narrativeFlags?.tanaka_met) return false;
+          return context.getQuestStage('tanaka') === 0;
+        },
+      },
+      {
+        text: '"Any advice on building trust with Tanaka?"',
+        next: 'tanaka_patience',
+        condition: (_rep, context) => {
+          if (!context || !context.narrativeFlags?.tanaka_met) return false;
+          const stage = context.getQuestStage('tanaka');
+          if (stage < 1 || stage >= 4) return false;
+          const nextStage = stage + 1;
+          return !context.canStartQuestStage('tanaka', nextStage);
+        },
+      },
+      {
+        text: '"Tanaka says she\'s ready when I am."',
+        next: 'pavonis_prep',
+        condition: (_rep, context) => {
+          if (!context || !context.narrativeFlags?.tanaka_met) return false;
+          const stage = context.getQuestStage('tanaka');
+          if (stage !== 4) return false;
+          if (!context.hasClaimedStageRewards?.('tanaka')) return false;
+          return !context.canStartQuestStage('tanaka', 5);
         },
       },
       {
@@ -469,5 +525,95 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
   tanaka_message: {
     text: 'Vasquez reads the message slowly. Their expression changes — something between sadness and understanding. "I knew Tanaka back then. Before her sister left. Tell her... tell her I\'m glad she never gave up."',
     choices: [{ text: 'Nod and take your leave.', next: null }],
+  },
+
+  explore_more: {
+    text: '"You\'re still green. Get a few more systems under your belt — see how the network flows. There are interesting people out there, but they want to see you\'ve earned your stripes first."',
+    choices: [
+      {
+        text: '"Any systems you\'d recommend?"',
+        next: 'route_advice',
+        repGain: 1,
+      },
+      {
+        text: '"I\'ll get out there."',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  barnards_engineer: {
+    text: '"Your ship\'s got a Tanaka Mark III drive, doesn\'t it? Heard the designer\'s daughter works at Barnard\'s. Engineer named Tanaka — does something with drive modifications." He leans in. "Engineers like that don\'t grow on trees. Worth introducing yourself."',
+    choices: [
+      {
+        text: '"I\'ll look her up next time I\'m at Barnard\'s."',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: '"Thanks for the tip, Captain."',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  tanaka_advice: {
+    text: '"Tanaka? Yeah, she doesn\'t hand out trust for free. Bring her research supplies — electronics or medicine. Five units at a time." He taps the bar. "Show up consistently. She\'ll come around when she sees you\'re serious."',
+    choices: [
+      {
+        text: '"That\'s helpful. Thanks, Captain."',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: '"I\'ll keep bringing her supplies."',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  tanaka_patience: {
+    text: '"Building trust with someone like Tanaka takes time. Keep showing up, keep helping with her research. Bring supplies when you can — electronics, medicine. That\'s how it works with the stubborn ones."',
+    choices: [
+      {
+        text: '"Patience isn\'t my strong suit, but I hear you."',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: '"I\'ll keep at it."',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  pavonis_prep: {
+    text: '"She\'s ready when you are. But a run like that — you\'ll need your ship in top shape. Hull solid, engine running near perfect, enough credits for fuel and supplies, and no debts hanging over you. Get your house in order first."',
+    choices: [
+      {
+        text: '"I\'ll make sure everything\'s squared away."',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: '"How much credits are we talking?"',
+        next: 'pavonis_prep_credits',
+      },
+    ],
+  },
+
+  pavonis_prep_credits: {
+    text: '"Twenty-five thousand, at least. That\'s fuel, supplies, and margin for the unexpected. Plus your ship needs to be debt-free. No lender\'s going to let you fly off into the void owing them money."',
+    choices: [
+      {
+        text: '"That\'s a lot. I\'d better get trading."',
+        next: 'greeting',
+        repGain: 1,
+      },
+      {
+        text: '"Got it. Thanks, Captain."',
+        next: 'greeting',
+      },
+    ],
   },
 };

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { WEI_CHEN_DIALOGUE } from '../../src/game/data/dialogue/wei-chen.js';
+import { CAPTAIN_VASQUEZ_DIALOGUE } from '../../src/game/data/dialogue/captain-vasquez.js';
 import { ENDGAME_CONFIG } from '../../src/game/constants.js';
 
 /**
@@ -145,6 +146,137 @@ describe('Wei Chen Tanaka Breadcrumbs', () => {
       const raw = WEI_CHEN_DIALOGUE.tanaka_progress.text;
       const text = typeof raw === 'function' ? raw(0) : raw;
       expect(text).toMatch(/supplies|electronics|medicine/i);
+    });
+  });
+});
+
+describe('Captain Vasquez Tanaka Breadcrumbs', () => {
+  const greeting = CAPTAIN_VASQUEZ_DIALOGUE.greeting;
+
+  function findChoice(text, rep, context) {
+    return greeting.choices.find((c) => {
+      if (!c.text.includes(text)) return false;
+      if (c.condition) return c.condition(rep, context);
+      return true;
+    });
+  }
+
+  describe('Pre-Discovery: barnards_engineer choice', () => {
+    it('appears when systems >= threshold and tanaka_met NOT set', () => {
+      const ctx = makeContext({
+        systemsVisited: ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED,
+      });
+      const choice = findChoice('Barnard', 5, ctx);
+      expect(choice).toBeDefined();
+    });
+
+    it('shows exploration nudge when systems < threshold', () => {
+      const ctx = makeContext({ systemsVisited: 3 });
+      const choice = findChoice('green', 5, ctx);
+      expect(choice).toBeDefined();
+    });
+
+    it('disappears once tanaka_met is set', () => {
+      const ctx = makeContext({
+        systemsVisited: ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED,
+        narrativeFlags: { tanaka_met: true },
+      });
+      const choices = greeting.choices.filter((c) => {
+        if (c.next !== 'barnards_engineer' && c.next !== 'explore_more')
+          return false;
+        if (c.condition) return c.condition(5, ctx);
+        return true;
+      });
+      expect(choices).toHaveLength(0);
+    });
+  });
+
+  describe('Post-Meeting: tanaka_advice choice', () => {
+    it('appears when tanaka_met AND quest stage 0', () => {
+      const ctx = makeContext({
+        narrativeFlags: { tanaka_met: true },
+        getQuestStage: () => 0,
+      });
+      const choice = findChoice('engineer', 5, ctx);
+      expect(choice).toBeDefined();
+    });
+
+    it('disappears when quest stage > 0', () => {
+      const ctx = makeContext({
+        narrativeFlags: { tanaka_met: true },
+        getQuestStage: () => 1,
+      });
+      const choices = greeting.choices.filter((c) => {
+        if (c.next !== 'tanaka_advice') return false;
+        if (c.condition) return c.condition(5, ctx);
+        return true;
+      });
+      expect(choices).toHaveLength(0);
+    });
+  });
+
+  describe('tanaka_advice node text', () => {
+    it('mentions supplies, electronics, or medicine', () => {
+      const text = CAPTAIN_VASQUEZ_DIALOGUE.tanaka_advice.text;
+      const resolved = typeof text === 'function' ? text(5) : text;
+      expect(resolved).toMatch(/supplies|electronics|medicine/i);
+    });
+  });
+
+  describe('Mid-Quest: tanaka_patience choice', () => {
+    it('appears when quest active but next stage blocked', () => {
+      const ctx = makeContext({
+        narrativeFlags: { tanaka_met: true },
+        getQuestStage: () => 2,
+        canStartQuestStage: () => false,
+      });
+      const choice = findChoice('Tanaka', 5, ctx);
+      expect(choice).toBeDefined();
+    });
+  });
+
+  describe('Stage 5 prep: pavonis_prep choice', () => {
+    it('appears when quest stage 4 complete but material requirements not met', () => {
+      const ctx = makeContext({
+        narrativeFlags: { tanaka_met: true },
+        getQuestStage: () => 4,
+        hasClaimedStageRewards: () => true,
+        canStartQuestStage: () => false,
+        shipHull: 50,
+        shipEngine: 60,
+        debt: 10000,
+        credits: 5000,
+      });
+      const choice = findChoice('ready', 5, ctx);
+      expect(choice).toBeDefined();
+    });
+
+    it('disappears when player can start stage 5', () => {
+      const ctx = makeContext({
+        narrativeFlags: { tanaka_met: true },
+        getQuestStage: () => 4,
+        hasClaimedStageRewards: () => true,
+        canStartQuestStage: () => true,
+        shipHull: 90,
+        shipEngine: 95,
+        debt: 0,
+        credits: 30000,
+      });
+      const choices = greeting.choices.filter((c) => {
+        if (c.next !== 'pavonis_prep') return false;
+        if (c.condition) return c.condition(5, ctx);
+        return true;
+      });
+      expect(choices).toHaveLength(0);
+    });
+  });
+
+  describe('pavonis_prep node text', () => {
+    it('mentions ship condition, credits, and debt', () => {
+      const text = CAPTAIN_VASQUEZ_DIALOGUE.pavonis_prep.text;
+      const resolved = typeof text === 'function' ? text(5) : text;
+      expect(resolved).toMatch(/ship|hull|engine/i);
+      expect(resolved).toMatch(/debt|credit|money/i);
     });
   });
 });
