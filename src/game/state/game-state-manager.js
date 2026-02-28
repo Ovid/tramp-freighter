@@ -24,6 +24,7 @@ import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { DebtManager } from './managers/debt.js';
+import { AchievementsManager } from './managers/achievements.js';
 import {
   isVersionCompatible,
   validateStateStructure,
@@ -123,6 +124,7 @@ export class GameStateManager {
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
+    this.achievementsManager = new AchievementsManager(this);
 
     // Flush pending saves when the browser tab closes
     if (typeof window !== 'undefined') {

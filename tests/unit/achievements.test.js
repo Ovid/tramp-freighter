@@ -1,10 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   ACHIEVEMENTS_CONFIG,
   EVENT_NAMES,
   SOL_SYSTEM_ID,
   KARMA_CONFIG,
 } from '../../src/game/constants.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES } from '../../src/game/data/achievements-data.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -142,5 +143,95 @@ describe('Achievement Target Validation', () => {
       const root = achievement.statPath.split('.')[0];
       expect(validRoots).toContain(root);
     }
+  });
+});
+
+describe('AchievementsManager', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    manager.initNewGame();
+  });
+
+  it('should initialize with empty achievements state', () => {
+    expect(manager.state.achievements).toEqual({});
+  });
+
+  it('should resolve simple statPath from game state', () => {
+    const value = manager.achievementsManager.resolveStatPath('stats.jumpsCompleted');
+    expect(value).toBe(0);
+  });
+
+  it('should resolve computed.trustedNPCCount', () => {
+    const value = manager.achievementsManager.resolveStatPath('computed.trustedNPCCount');
+    expect(value).toBe(0);
+  });
+
+  it('should resolve computed.totalDangerEncounters', () => {
+    const value = manager.achievementsManager.resolveStatPath('computed.totalDangerEncounters');
+    expect(value).toBe(0);
+  });
+
+  it('should resolve computed.karmaAbsolute', () => {
+    manager.state.player.karma = -42;
+    const value = manager.achievementsManager.resolveStatPath('computed.karmaAbsolute');
+    expect(value).toBe(42);
+  });
+
+  it('should unlock an achievement when target is met', () => {
+    manager.state.stats.jumpsCompleted = 10;
+    manager.achievementsManager.checkAchievements();
+    expect(manager.state.achievements['survival_1']).toBeDefined();
+    expect(manager.state.achievements['survival_1'].unlocked).toBe(true);
+  });
+
+  it('should not re-unlock an already unlocked achievement', () => {
+    manager.state.stats.jumpsCompleted = 10;
+    manager.achievementsManager.checkAchievements();
+    const firstDay = manager.state.achievements['survival_1'].unlockedOnDay;
+
+    manager.state.player.daysElapsed = 50;
+    manager.achievementsManager.checkAchievements();
+    expect(manager.state.achievements['survival_1'].unlockedOnDay).toBe(firstDay);
+  });
+
+  it('should emit achievementUnlocked event on unlock', () => {
+    const unlocked = [];
+    manager.subscribe('achievementUnlocked', (data) => unlocked.push(data));
+
+    manager.state.stats.jumpsCompleted = 10;
+    manager.achievementsManager.checkAchievements();
+
+    expect(unlocked.length).toBe(1);
+    expect(unlocked[0].id).toBe('survival_1');
+  });
+
+  it('should emit achievementsChanged event on unlock', () => {
+    let changed = false;
+    manager.subscribe('achievementsChanged', () => { changed = true; });
+
+    manager.state.stats.jumpsCompleted = 10;
+    manager.achievementsManager.checkAchievements();
+
+    expect(changed).toBe(true);
+  });
+
+  it('should not emit events when no achievements unlock', () => {
+    let emitted = false;
+    manager.subscribe('achievementUnlocked', () => { emitted = true; });
+
+    manager.achievementsManager.checkAchievements();
+    expect(emitted).toBe(false);
+  });
+
+  it('should return progress for all achievements', () => {
+    manager.state.stats.jumpsCompleted = 7;
+    const progress = manager.achievementsManager.getProgress();
+
+    const survival1 = progress.find((p) => p.id === 'survival_1');
+    expect(survival1.current).toBe(7);
+    expect(survival1.target).toBe(10);
+    expect(survival1.unlocked).toBe(false);
   });
 });

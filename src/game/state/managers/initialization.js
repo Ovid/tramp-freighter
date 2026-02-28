@@ -66,6 +66,7 @@ export class InitializationManager {
         charitableActs: 0,
       },
       quests: {},
+      achievements: {},
       meta: metaState,
     };
   }
