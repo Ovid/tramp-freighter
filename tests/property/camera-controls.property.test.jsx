@@ -270,7 +270,7 @@ describe('Property: Camera Controls', () => {
     );
   });
 
-  it('should have all 4 control buttons when expanded', async () => {
+  it('should have all 6 control buttons when expanded', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
