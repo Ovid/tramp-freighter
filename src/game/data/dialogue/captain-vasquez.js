@@ -8,6 +8,7 @@ import {
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
   ENDGAME_CONFIG,
+  TANAKA_SUPPLY_CONFIG,
 } from '../../constants.js';
 import {
   hasGoodKarma,
@@ -558,7 +559,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
   },
 
   tanaka_advice: {
-    text: '"Tanaka? Yeah, she doesn\'t hand out trust for free. Bring her research supplies — electronics or medicine. Five units at a time." He taps the bar. "Show up consistently. She\'ll come around when she sees you\'re serious."',
+    text: `"Tanaka? Yeah, she doesn't hand out trust for free. Bring her research supplies — electronics or medicine. ${TANAKA_SUPPLY_CONFIG.QUANTITY} units at a time." He taps the bar. "Show up consistently. She'll come around when she sees you're serious."`,
     choices: [
       {
         text: '"That\'s helpful. Thanks, Captain."',

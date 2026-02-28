@@ -7,7 +7,11 @@
  * @module dialogue/wei-chen
  */
 
-import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  ENDGAME_CONFIG,
+  TANAKA_SUPPLY_CONFIG,
+} from '../../constants.js';
 import {
   hasFactionRep,
   hasGoodKarma,
@@ -336,14 +340,14 @@ export const WEI_CHEN_DIALOGUE = {
   },
 
   tanaka_gossip: {
-    text: '"She\'s always short on supplies for her research. Electronics, medicine — that kind of thing. Bring her five units of either and she\'ll notice." Wei Chen lowers her voice. "Not the type to ask for help, but she won\'t turn it down."',
+    text: `"She's always short on supplies for her research. Electronics, medicine — that kind of thing. Bring her ${TANAKA_SUPPLY_CONFIG.QUANTITY} units of either and she'll notice." Wei Chen lowers her voice. "Not the type to ask for help, but she won't turn it down."`,
     choices: [
       {
         text: '"Good to know. Thanks."',
         next: 'greeting',
       },
       {
-        text: '"Five units? I can manage that."',
+        text: `"${TANAKA_SUPPLY_CONFIG.QUANTITY} units? I can manage that."`,
         next: 'greeting',
       },
     ],
