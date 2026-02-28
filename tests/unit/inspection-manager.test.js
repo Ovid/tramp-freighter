@@ -431,12 +431,14 @@ describe('InspectionManager', () => {
       expect(outcome.success).toBe(false);
     });
 
-    it('sets triggerPatrolCombat: true', () => {
+    it('applies fuel and hull costs for emergency burn', () => {
       const state = gsm.getState();
 
       const outcome = gsm.resolveInspection('flee', state);
 
-      expect(outcome.triggerPatrolCombat).toBe(true);
+      expect(outcome.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
+      expect(outcome.costs.hull).toBe(INSPECTION_CONFIG.FLEE.HULL_COST);
+      expect(outcome).not.toHaveProperty('triggerPatrolCombat');
     });
 
     it('applies authority rep penalty of -15', () => {

@@ -186,14 +186,17 @@ export class InspectionManager extends BaseManager {
   resolveInspectionFlee() {
     return {
       success: false,
-      triggerPatrolCombat: true,
-      costs: {},
+      costs: {
+        fuel: INSPECTION_CONFIG.FLEE.FUEL_COST,
+        hull: INSPECTION_CONFIG.FLEE.HULL_COST,
+      },
       rewards: {
         factionRep: {
           authorities: INSPECTION_CONFIG.FLEE.AUTHORITY_REP_PENALTY,
         },
       },
-      description: 'Fled from customs inspection. Patrol ships are in pursuit.',
+      description:
+        'You punch the throttle and break away. The emergency burn costs fuel and rattles the hull.',
     };
   }
 }

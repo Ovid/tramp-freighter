@@ -304,8 +304,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
             testGameState
           );
 
-          // Should trigger patrol combat encounter (Requirement 5.9)
-          expect(outcome).toHaveProperty('triggerPatrolCombat', true);
+          // Should apply fuel and hull costs (Requirement 5.9)
+          expect(outcome.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
+          expect(outcome.costs.hull).toBe(INSPECTION_CONFIG.FLEE.HULL_COST);
+          expect(outcome).not.toHaveProperty('triggerPatrolCombat');
 
           // Should apply authority reputation penalty for fleeing (Requirement 5.9)
           expect(outcome.rewards.factionRep).toHaveProperty(
