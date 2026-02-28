@@ -40,6 +40,12 @@ describe('Achievement Constants', () => {
   it('should define faction standing labels', () => {
     expect(ACHIEVEMENTS_CONFIG.FACTION_LABELS).toBeDefined();
     expect(ACHIEVEMENTS_CONFIG.FACTION_LABELS.length).toBeGreaterThan(0);
+    // Labels should be sorted by threshold descending
+    for (let i = 0; i < ACHIEVEMENTS_CONFIG.FACTION_LABELS.length - 1; i++) {
+      expect(ACHIEVEMENTS_CONFIG.FACTION_LABELS[i].min).toBeGreaterThan(
+        ACHIEVEMENTS_CONFIG.FACTION_LABELS[i + 1].min
+      );
+    }
   });
 
   it('should define toast display duration', () => {
