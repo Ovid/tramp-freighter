@@ -45,15 +45,18 @@ export class InformationBroker {
    * @param {Array} starData - Star system data
    * @returns {Object} { success: boolean, reason: string }
    */
-  static purchaseIntelligence(gameState, systemId, starData) {
+  static purchaseIntelligence(gameState, systemId, starData, discount = 0) {
     const priceKnowledge = gameState.world.priceKnowledge || {};
     const credits = gameState.player.credits;
 
     // Calculate cost
-    const cost = InformationBroker.getIntelligenceCost(
+    let cost = InformationBroker.getIntelligenceCost(
       systemId,
       priceKnowledge
     );
+    if (discount > 0) {
+      cost = Math.ceil(cost * (1 - discount));
+    }
 
     // Validate purchase
     const validation = InformationBroker.validatePurchase(cost, credits);
