@@ -2,8 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   ACHIEVEMENTS_CONFIG,
   EVENT_NAMES,
+  SOL_SYSTEM_ID,
+  KARMA_CONFIG,
 } from '../../src/game/constants.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES } from '../../src/game/data/achievements-data.js';
+import { NavigationSystem } from '../../src/game/game-navigation.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
+import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 describe('Achievement Constants', () => {
   it('should define achievement tier thresholds for all categories', () => {
@@ -94,6 +100,47 @@ describe('Achievement Definitions', () => {
       for (let i = 1; i < sorted.length; i++) {
         expect(sorted[i].target).toBeGreaterThan(sorted[i - 1].target);
       }
+    }
+  });
+});
+
+describe('Achievement Target Validation', () => {
+  it('exploration tier 4 target should equal reachable systems from Sol + 1 (Delta Pavonis)', () => {
+    const nav = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+    const reachable = new Set();
+    const queue = [SOL_SYSTEM_ID];
+    reachable.add(SOL_SYSTEM_ID);
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      const connected = nav.getConnectedSystems(current);
+      for (const systemId of connected) {
+        if (!reachable.has(systemId)) {
+          reachable.add(systemId);
+          queue.push(systemId);
+        }
+      }
+    }
+
+    // 47 reachable via wormholes + 1 Delta Pavonis (endgame quest)
+    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.EXPLORATION_TIER_4).toBe(reachable.size + 1);
+  });
+
+  it('social tier 4 target should not exceed total NPC count', () => {
+    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.SOCIAL_TIER_4).toBeLessThanOrEqual(ALL_NPCS.length);
+  });
+
+  it('moral tier 4 target should not exceed karma bounds', () => {
+    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.MORAL_TIER_4).toBeLessThanOrEqual(
+      KARMA_CONFIG.MAX
+    );
+  });
+
+  it('every statPath should reference a resolvable game state field or computed value', () => {
+    const validRoots = ['world', 'stats', 'player', 'computed'];
+    for (const achievement of ACHIEVEMENTS) {
+      const root = achievement.statPath.split('.')[0];
+      expect(validRoots).toContain(root);
     }
   });
 });
