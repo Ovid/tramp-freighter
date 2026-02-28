@@ -73,6 +73,8 @@ export class AchievementsManager extends BaseManager {
       }
     }
 
+    // Only emit on unlock — progress bars are computed live via getProgress()
+    // each time the modal opens, so stale mid-session values aren't visible.
     if (anyUnlocked) {
       this.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, { ...state.achievements });
       this.gameStateManager.markDirty();
