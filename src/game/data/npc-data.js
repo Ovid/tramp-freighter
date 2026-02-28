@@ -218,7 +218,11 @@ export const FATHER_OKONKWO = {
   description:
     'Gentle chaplain with kind eyes and a warm smile. Offers comfort to weary travelers.',
   initialRep: NPC_INITIAL_REPUTATION.FRIENDLY, // Starts warm and welcoming
-  tips: [], // No trading tips - spiritual guidance role
+  tips: [
+    'The frontier stations pay more for medicine than you might think. Compassion and commerce are not always at odds.',
+    'Many traders overlook grain as unprofitable. But hungry miners at the outer systems will pay what they must.',
+    'If you must carry restricted goods, know that the authorities are less watchful beyond the core systems.',
+  ],
   discountService: 'medical',
   tierBenefits: {
     warm: { discount: 0, benefit: 'Spiritual guidance' },
@@ -627,7 +631,11 @@ export const YUKI_TANAKA = {
   description:
     'Brilliant engineer working on experimental drive technology. Has her own reasons for wanting to reach Delta Pavonis.',
   initialRep: NPC_INITIAL_REPUTATION.NEUTRAL,
-  tips: [],
+  tips: [
+    'Your drive runs more efficiently when hull integrity is high. A damaged ship wastes fuel compensating for structural drag.',
+    'The wormhole network has patterns. Some routes see less traffic, which means fewer pirates but also fewer rescue options.',
+    'Parts are cheap at the core systems where they are manufactured. The further out you go, the more they cost.',
+  ],
   discountService: null,
   tierBenefits: {
     warm: {
