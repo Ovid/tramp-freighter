@@ -125,12 +125,14 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
   // Apply rewards
   if (outcome.rewards) {
     if (outcome.rewards.credits) {
-      const newCredits = state.player.credits + outcome.rewards.credits;
+      const currentCredits = gameStateManager.getState().player.credits;
+      const newCredits = currentCredits + outcome.rewards.credits;
       gameStateManager.updateCredits(newCredits);
     }
 
     if (outcome.rewards.fuelMinimum) {
-      const newFuel = Math.max(state.ship.fuel, outcome.rewards.fuelMinimum);
+      const currentFuel = gameStateManager.getState().ship.fuel;
+      const newFuel = Math.max(currentFuel, outcome.rewards.fuelMinimum);
       gameStateManager.updateFuel(newFuel);
     }
 
@@ -154,7 +156,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.rewards.cargo) {
-      const currentCargo = [...state.ship.cargo];
+      const currentCargo = [...gameStateManager.getState().ship.cargo];
       outcome.rewards.cargo.forEach((rewardItem) => {
         const existingStack = currentCargo.find(
           (item) =>
