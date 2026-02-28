@@ -43,6 +43,7 @@ export class InformationBroker {
    * @param {Object} gameState - Current game state
    * @param {number} systemId - Target system ID
    * @param {Array} starData - Star system data
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.15 for 15% off
    * @returns {Object} { success: boolean, reason: string }
    */
   static purchaseIntelligence(gameState, systemId, starData, discount = 0) {

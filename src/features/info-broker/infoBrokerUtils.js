@@ -45,7 +45,7 @@ export function validateRumorPurchase(credits) {
  */
 export function calculateDiscountedRumorCost(discountPercentage) {
   const baseCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
@@ -59,7 +59,7 @@ export function calculateDiscountedIntelligenceCost(
   baseCost,
   discountPercentage
 ) {
-  return Math.round(baseCost * (1 - discountPercentage));
+  return Math.ceil(baseCost * (1 - discountPercentage));
 }
 
 /**
