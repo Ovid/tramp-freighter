@@ -193,7 +193,8 @@ export class InspectionManager extends BaseManager {
   /**
    * Resolve flee inspection choice
    *
-   * Triggers a patrol combat encounter and applies reputation penalties.
+   * Applies fuel and hull costs from an emergency burn, plus authority
+   * reputation penalties.
    *
    * @returns {Object} Inspection outcome
    */

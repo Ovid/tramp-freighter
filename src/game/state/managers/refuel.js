@@ -117,6 +117,7 @@ export class RefuelManager extends BaseManager {
    * Includes safety checks to prevent fuel reduction bugs.
    *
    * @param {number} amount - Amount to refuel (percentage points)
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.1 for 10% off. Cost is ceiled after discount.
    * @returns {Object} { success: boolean, reason: string }
    * @throws {Error} If refuel would reduce fuel (critical bug detection)
    */

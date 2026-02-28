@@ -17,14 +17,13 @@ describe('Outcome text honesty', () => {
         ship: { quirks: [], upgrades: [] },
       };
 
-      // Force success with low rng
+      // Force success with low rng (well below BASE_CHANCE)
       const result = manager.resolveReturnFire(encounter, gameState, 0.01);
 
-      if (result.success) {
-        expect(result.description.toLowerCase()).toMatch(
-          /hull|hits|damage|scoring/
-        );
-      }
+      expect(result.success).toBe(true);
+      expect(result.description.toLowerCase()).toMatch(
+        /hull|hits|damage|scoring/
+      );
     });
   });
 
@@ -32,14 +31,13 @@ describe('Outcome text honesty', () => {
     it('should hint at reputation consequences', () => {
       const manager = new InspectionManager({ getState: () => ({}) });
 
-      // Force bribe success
+      // Force bribe success (rng well below BRIBE.BASE_CHANCE)
       const result = manager.resolveInspectionBribe({}, 0.01);
 
-      if (result.success) {
-        expect(result.description.toLowerCase()).toMatch(
-          /books|noted|reputation|record/
-        );
-      }
+      expect(result.success).toBe(true);
+      expect(result.description.toLowerCase()).toMatch(
+        /books|noted|reputation|record/
+      );
     });
   });
 
