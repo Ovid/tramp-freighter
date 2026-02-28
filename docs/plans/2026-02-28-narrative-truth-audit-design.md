@@ -1,6 +1,7 @@
 # Narrative Truth Audit — Design Document
 
 Date: 2026-02-28
+Status: **IMPLEMENTED** — All 12 findings resolved on branch `ovid/narrative-messages-are-real`
 
 ## Problem
 
@@ -186,3 +187,16 @@ Tips must be mechanically truthful — reference real game systems (tech levels,
 - Dead code removal: test that negotiation/inspection outcomes don't contain unhandled fields
 - Dynamic rumor: test that generated text references real market conditions
 - NPC tips: test that each NPC has non-empty tips array
+
+## Implementation Notes
+
+All fixes implemented with TDD (test first, then implementation). Full test suite passes (274 files, 2410 tests).
+
+New test files:
+- `tests/unit/refuel-npc-discount.test.js`
+- `tests/unit/repair-npc-discount.test.js`
+- `tests/unit/intel-npc-discount.test.js`
+- `tests/unit/negotiation-outcomes.test.js`
+- `tests/unit/inspection-flee-costs.test.js`
+- `tests/unit/outcome-text-honesty.test.js`
+- `tests/unit/dynamic-rumor.test.js`
