@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
+import { AchievementsModal } from '../achievements/AchievementsModal';
 
 /**
  * CameraControls component provides debug/camera control buttons.
@@ -32,6 +33,7 @@ export function CameraControls({
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -70,6 +72,12 @@ export function CameraControls({
           >
             GitHub
           </a>
+          <button
+            className="control-btn"
+            onClick={() => setShowAchievements(true)}
+          >
+            Achievements
+          </button>
           <button className="control-btn" onClick={onZoomIn}>
             Zoom In
           </button>
@@ -106,6 +114,10 @@ export function CameraControls({
       <InstructionsModal
         isOpen={showInstructions}
         onClose={() => setShowInstructions(false)}
+      />
+      <AchievementsModal
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
       />
     </div>
   );
