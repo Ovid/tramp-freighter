@@ -7,28 +7,6 @@ import {
 } from '../../game/constants';
 
 /**
- * Extract numeric karma value from useGameEvent data.
- *
- * The KARMA_CHANGED event payload is inconsistent across emitters:
- * - game-state-manager emits a plain number
- * - danger.js emits { karma, change, reason }
- * - extractStateForEvent initializes as state.player.karma (number)
- *
- * This helper normalizes both shapes to a numeric value.
- *
- * @param {number|Object|null} karmaData - Raw data from useGameEvent
- * @returns {number} Numeric karma value
- */
-function extractKarma(karmaData) {
-  if (karmaData == null) return 0;
-  if (typeof karmaData === 'number') return karmaData;
-  if (typeof karmaData === 'object' && typeof karmaData.karma === 'number') {
-    return karmaData.karma;
-  }
-  return 0;
-}
-
-/**
  * Get karma label from numeric value.
  *
  * Iterates KARMA_LABELS top-to-bottom; first entry where
@@ -93,7 +71,7 @@ const DANGER_FLAG_LABELS = {
  */
 export function StatsSection() {
   const gameStateManager = useGameState();
-  const karmaData = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
+  const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED) ?? 0;
   const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED) ?? {};
 
   // These two events cover all remaining stats: jump counters, visited
@@ -102,8 +80,6 @@ export function StatsSection() {
   // because the modal must be closed to trade, and it remounts fresh.
   useGameEvent(EVENT_NAMES.JUMP_COMPLETED);
   useGameEvent(EVENT_NAMES.TIME_CHANGED);
-
-  const karma = extractKarma(karmaData);
 
   // Read current state for gameplay counters and danger history
   const state = gameStateManager.getState();

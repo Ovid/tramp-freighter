@@ -95,11 +95,7 @@ export class DangerManager extends BaseManager {
     this.getState().player.karma = newKarma;
 
     this.log(`Karma set to ${newKarma}`);
-    this.emit(EVENT_NAMES.KARMA_CHANGED, {
-      karma: newKarma,
-      change: 0,
-      reason: 'dev_set',
-    });
+    this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
   }
 
   /**
@@ -126,11 +122,7 @@ export class DangerManager extends BaseManager {
     this.log(
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
     );
-    this.emit(EVENT_NAMES.KARMA_CHANGED, {
-      karma: newKarma,
-      change: amount,
-      reason,
-    });
+    this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
     this.gameStateManager.achievementsManager.checkAchievements();
   }
 
