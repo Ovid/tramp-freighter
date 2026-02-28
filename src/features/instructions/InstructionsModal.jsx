@@ -43,13 +43,20 @@ export function InstructionsModal({ isOpen, onClose }) {
         </section>
 
         <section className="instructions-section">
-          <h3>The Stars</h3>
+          <h3>The Science</h3>
           <p>
             The stars in this game are real systems within 20 light-years of Sol.
             Their colors and relative sizes are as accurate as we could make
             them, with a minimum size so the smallest remain visible. Most are
             red dwarfs — too dim to see with the naked eye. Until modern
             astronomy, we didn't even know they existed.
+          </p>
+          <p>
+            The antimatter view in the settings menu simply inverts the colors.
+            In reality, an antimatter universe would probably look much the same
+            as ours — light is its own antiparticle, after all. The difference
+            is that if you were actually there, every atom of your body would
+            annihilate on contact. So enjoy the view from this side.
           </p>
         </section>
       </div>

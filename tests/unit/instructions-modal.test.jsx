@@ -18,7 +18,7 @@ describe('InstructionsModal', () => {
     expect(screen.getByText('Your Goal')).toBeInTheDocument();
     expect(screen.getByText('Navigation')).toBeInTheDocument();
     expect(screen.getByText('Stations')).toBeInTheDocument();
-    expect(screen.getByText('The Stars')).toBeInTheDocument();
+    expect(screen.getByText('The Science')).toBeInTheDocument();
   });
 
   it('should call onClose when close button is clicked', () => {
