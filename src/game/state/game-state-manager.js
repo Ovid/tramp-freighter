@@ -24,6 +24,16 @@ import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { DebtManager } from './managers/debt.js';
+import {
+  isVersionCompatible,
+  validateStateStructure,
+  migrateFromV1ToV2,
+  migrateFromV2ToV2_1,
+  migrateFromV2_1ToV4,
+  migrateFromV4ToV4_1,
+  migrateFromV4_1ToV5,
+  addStateDefaults,
+} from './state-validators.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
 import { ALL_QUESTS } from '../data/quest-definitions.js';
@@ -175,25 +185,140 @@ export class GameStateManager {
    * @returns {Object} Complete initial game state
    */
   initNewGame() {
-    // Create initial state using InitializationManager
     const completeState = this.initializationManager.createInitialState();
 
-    // GameStateManager maintains control over its own state
     this.state = completeState;
 
-    // Register event engine events (clear first to prevent duplicates)
-    this.eventEngineManager.clearEvents();
-    this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
-    this.eventEngineManager.registerEvents(DANGER_EVENTS);
-
-    ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
+    this._registerEventEngine();
 
     devLog('New game initialized:', completeState);
 
-    // Emit all initial state events for UI synchronization
-    this.initializationManager.emitInitialEvents(completeState);
+    this._emitAllStateEvents(completeState);
 
     return completeState;
+  }
+
+  /**
+   * Restore game state from raw save data
+   *
+   * Single canonical path for state restoration. Validates, migrates,
+   * adds defaults, assigns state, registers event engine, and emits
+   * UI events.
+   *
+   * @param {Object} rawState - Raw state data (e.g., from localStorage parse)
+   * @returns {{ success: boolean, state?: Object, reason?: string }}
+   */
+  restoreState(rawState) {
+    if (!rawState) {
+      return { success: false, reason: 'No state data provided' };
+    }
+
+    if (!isVersionCompatible(rawState.meta?.version)) {
+      return {
+        success: false,
+        reason: `Incompatible save version: ${rawState.meta?.version}`,
+      };
+    }
+
+    let migratedState = this._applyMigrations(rawState);
+
+    if (!validateStateStructure(migratedState)) {
+      return {
+        success: false,
+        reason: 'Save data failed structure validation',
+      };
+    }
+
+    migratedState = addStateDefaults(migratedState, this.starData);
+
+    this.state = migratedState;
+
+    this._registerEventEngine();
+
+    this._emitAllStateEvents(migratedState);
+
+    devLog('State restored successfully');
+
+    return { success: true, state: migratedState };
+  }
+
+  /**
+   * Apply version migration chain to raw state
+   * @param {Object} state - State to migrate
+   * @returns {Object} Migrated state
+   * @private
+   */
+  _applyMigrations(state) {
+    let migrated = state;
+
+    if (migrated.meta.version === '1.0.0') {
+      migrated = migrateFromV1ToV2(migrated, this.starData);
+    }
+    if (migrated.meta.version === '2.0.0') {
+      migrated = migrateFromV2ToV2_1(migrated);
+    }
+    if (migrated.meta.version === '2.1.0') {
+      migrated = migrateFromV2_1ToV4(migrated);
+    }
+    if (migrated.meta.version === '4.0.0') {
+      migrated = migrateFromV4ToV4_1(migrated);
+    }
+    if (migrated.meta.version === '4.1.0') {
+      migrated = migrateFromV4_1ToV5(migrated);
+    }
+
+    return migrated;
+  }
+
+  /**
+   * Register narrative events, danger events, and quests with the event engine.
+   * Shared by initNewGame() and restoreState().
+   * @private
+   */
+  _registerEventEngine() {
+    this.eventEngineManager.clearEvents();
+    this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
+    this.eventEngineManager.registerEvents(DANGER_EVENTS);
+    ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
+  }
+
+  /**
+   * Emit all state events for UI synchronization.
+   * Shared by initNewGame() and restoreState().
+   * @param {Object} state - Complete game state
+   * @private
+   */
+  _emitAllStateEvents(state) {
+    const { player, ship, world } = state;
+
+    this.emit(EVENT_NAMES.CREDITS_CHANGED, player.credits);
+    this.emit(EVENT_NAMES.DEBT_CHANGED, player.debt);
+    this.emit(EVENT_NAMES.FUEL_CHANGED, ship.fuel);
+    this.emit(EVENT_NAMES.CARGO_CHANGED, ship.cargo);
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    this.emit(EVENT_NAMES.LOCATION_CHANGED, player.currentSystem);
+    this.emit(EVENT_NAMES.TIME_CHANGED, player.daysElapsed);
+    this.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, world.priceKnowledge);
+    this.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, world.activeEvents);
+    this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
+      hull: ship.hull,
+      engine: ship.engine,
+      lifeSupport: ship.lifeSupport,
+    });
+    this.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, ship.cargoCapacity);
+    this.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.emit(EVENT_NAMES.KARMA_CHANGED, player.karma || 0);
+    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, player.factions || {});
+    if (player.finance) {
+      this.emit(EVENT_NAMES.FINANCE_CHANGED, player.finance);
+    }
+    if (state.missions) {
+      this.emit(EVENT_NAMES.MISSIONS_CHANGED, state.missions);
+    }
+    if (state.quests) {
+      this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
+    }
   }
 
   // ========================================================================
@@ -736,14 +861,7 @@ export class GameStateManager {
   }
 
   loadGame() {
-    const result = this.saveLoadManager.loadGame();
-    if (result) {
-      this.eventEngineManager.clearEvents();
-      this.eventEngineManager.registerEvents(NARRATIVE_EVENTS);
-      this.eventEngineManager.registerEvents(DANGER_EVENTS);
-      ALL_QUESTS.forEach((quest) => this.questManager.registerQuest(quest));
-    }
-    return result;
+    return this.saveLoadManager.loadGame();
   }
 
   hasSavedGame() {

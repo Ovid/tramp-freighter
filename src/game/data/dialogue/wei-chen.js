@@ -7,7 +7,11 @@
  * @module dialogue/wei-chen
  */
 
-import { REPUTATION_BOUNDS } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  ENDGAME_CONFIG,
+  TANAKA_SUPPLY_CONFIG,
+} from '../../constants.js';
 import {
   hasFactionRep,
   hasGoodKarma,
@@ -111,6 +115,31 @@ export const WEI_CHEN_DIALOGUE = {
             context &&
             hasGoodKarma(context)
           );
+        },
+      },
+      {
+        text: '"What\'s the deal with Bore Station 7?"',
+        next: 'station_gossip',
+        condition: (_rep, context) =>
+          context && !context.narrativeFlags?.tanaka_met,
+      },
+      {
+        text: '"Know anything about Tanaka?"',
+        next: 'tanaka_gossip',
+        condition: (_rep, context) => {
+          if (!context || !context.narrativeFlags?.tanaka_met) return false;
+          return context.getQuestStage('tanaka') === 0;
+        },
+      },
+      {
+        text: '"How\'s Tanaka doing these days?"',
+        next: 'tanaka_progress',
+        condition: (_rep, context) => {
+          if (!context || !context.narrativeFlags?.tanaka_met) return false;
+          const stage = context.getQuestStage('tanaka');
+          if (stage < 1 || stage >= 5) return false;
+          const nextStage = stage + 1;
+          return !context.canStartQuestStage('tanaka', nextStage);
         },
       },
       {
@@ -284,6 +313,56 @@ export const WEI_CHEN_DIALOGUE = {
         text: 'It feels like the right thing to do.',
         next: 'greeting',
         repGain: 2,
+      },
+    ],
+  },
+
+  station_gossip: {
+    text: (_rep, context) => {
+      if (
+        context &&
+        context.systemsVisited >= ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED
+      ) {
+        return '"Engineer works in the back bay. Tanaka. Keeps to herself mostly. Does something with drive systems — way over my head." She glances toward the engineering section. "You\'ve been around enough, she might actually talk to you. Worth checking in next time you dock."';
+      }
+      return '"Engineer works in the back bay. Tanaka. Keeps to herself mostly. Does something with drive systems — way over my head." She shrugs. "Doesn\'t talk to just anyone though. Wants to see you\'ve actually been around the network before she\'ll give you the time of day. Can\'t blame her."';
+    },
+    choices: [
+      {
+        text: '"I\'ll keep that in mind."',
+        next: 'greeting',
+      },
+      {
+        text: '"What kind of drive systems?"',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  tanaka_gossip: {
+    text: `"She's always short on supplies for her research. Electronics, medicine — that kind of thing. Bring her ${TANAKA_SUPPLY_CONFIG.QUANTITY} units of either and she'll notice." Wei Chen lowers her voice. "Not the type to ask for help, but she won't turn it down."`,
+    choices: [
+      {
+        text: '"Good to know. Thanks."',
+        next: 'greeting',
+      },
+      {
+        text: `"${TANAKA_SUPPLY_CONFIG.QUANTITY} units? I can manage that."`,
+        next: 'greeting',
+      },
+    ],
+  },
+
+  tanaka_progress: {
+    text: "\"Tanaka's been mentioning your name. She's warming up, but she's careful. Keep bringing her research supplies — electronics or medicine. She notices, even if she doesn't say it.\"",
+    choices: [
+      {
+        text: '"I\'ll keep at it."',
+        next: 'greeting',
+      },
+      {
+        text: '"Thanks for the heads up."',
+        next: 'greeting',
       },
     ],
   },

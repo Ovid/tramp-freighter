@@ -45,6 +45,15 @@ describe('Dialogue Tree Structure', () => {
         daysElapsed: 1,
         karma: 0,
         factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
+        narrativeFlags: {},
+        systemsVisited: 5,
+        getQuestStage: () => 0,
+        getQuestState: () => null,
+        canStartQuestStage: () => false,
+        hasClaimedStageRewards: () => false,
+        shipHull: 100,
+        shipEngine: 100,
+        debt: 0,
       };
 
       // Test behavior: verify choices appear/disappear based on reputation
@@ -567,6 +576,15 @@ describe('Dialogue Tree Structure', () => {
         daysElapsed: 1,
         karma: 0,
         factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
+        narrativeFlags: {},
+        systemsVisited: 5,
+        getQuestStage: () => 0,
+        getQuestState: () => null,
+        canStartQuestStage: () => false,
+        hasClaimedStageRewards: () => false,
+        shipHull: 100,
+        shipEngine: 100,
+        debt: 0,
       };
 
       // Test different reputation levels unlock different options

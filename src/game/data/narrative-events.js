@@ -1,4 +1,8 @@
-import { NARRATIVE_EVENT_CONFIG, CONDITION_TYPES } from '../constants.js';
+import {
+  NARRATIVE_EVENT_CONFIG,
+  CONDITION_TYPES,
+  ENDGAME_CONFIG,
+} from '../constants.js';
 
 const {
   NARRATIVE_PRIORITY_HIGH,
@@ -554,7 +558,10 @@ export const NARRATIVE_EVENTS = [
     trigger: {
       system: 4,
       condition: [
-        { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: 5 },
+        {
+          type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT,
+          value: ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED,
+        },
         { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 0 },
       ],
       chance: 1.0,

@@ -22,6 +22,7 @@ import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
 import { EVENT_NAMES } from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
+import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
@@ -70,6 +71,7 @@ export default function App({ devMode = false }) {
   const [activePanel, setActivePanel] = useState(null);
   const [activePanelNpcId, setActivePanelNpcId] = useState(null);
   const [showDevAdmin, setShowDevAdmin] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [encounterOutcome, setEncounterOutcome] = useState(null);
@@ -113,6 +115,7 @@ export default function App({ devMode = false }) {
     gameStateManager.saveGame();
     // Transition to game
     setViewMode(VIEW_MODES.ORBIT);
+    setShowInstructions(true);
   };
 
   const handleDock = () => {
@@ -522,6 +525,11 @@ export default function App({ devMode = false }) {
                   onClose={handleNarrativeClose}
                 />
               )}
+
+              <InstructionsModal
+                isOpen={showInstructions}
+                onClose={() => setShowInstructions(false)}
+              />
             </StarmapProvider>
           )}
 

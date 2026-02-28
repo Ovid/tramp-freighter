@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-**Tramp Freighter Blues** is a single-player space trading survival game built on top of the existing Sol Sector Starmap. Players take on the role of an independent freighter captain working to pay off debt, build relationships across the sector, and ultimately reach the distant colony at **Delta Pavonis** — a star system 27.88 light-years from Sol with no wormhole connections to the main network.
+**Tramp Freighter Blues** is a single-player space trading survival game built on top of the existing Sol Sector Starmap. Players take on the role of an independent freighter captain working to pay off debt, build relationships across the sector, and ultimately reach the distant colony at **Delta Pavonis** — a star system 19.89 light-years from Sol with no wormhole connections to the main network.
 
 The game emphasizes character-driven narrative, financial tension, and the feeling of being part of distinct human communities scattered across the stars. The tone is **scrappy but hopeful** — players struggle, but the universe rewards persistence and good relationships.
 
@@ -39,7 +39,7 @@ Time passes. Prices change. NPCs pursue their own goals. The sector feels alive 
 
 ### 3.1 Narrative Frame
 
-The player begins with a specific motivation: reaching **Delta Pavonis**, where [player-chosen reason: family member, promised land, fresh start, old debt to repay] awaits. Delta Pavonis is 27.88 light-years from Sol — the farthest inhabited system in the sector — and has no wormhole connections. Reaching it requires extraordinary preparation.
+The player begins with a specific motivation: reaching **Delta Pavonis**, where [player-chosen reason: family member, promised land, fresh start, old debt to repay] awaits. Delta Pavonis is 19.89 light-years from Sol — the farthest inhabited system in the sector — and has no wormhole connections. Reaching it requires extraordinary preparation.
 
 ### 3.2 Victory Requirements
 
@@ -1235,7 +1235,7 @@ New:
 | Lalande 21185      | 11.64         | Yes       | 1         |
 | Sirius A           | 12.06         | Yes       | 4         |
 | ...                | ...           | ...       | ...       |
-| Delta Pavonis      | 27.88         | No        | 0         |
+| Delta Pavonis      | 19.89         | No        | 0         |
 | Wolf 1481          | 27.93         | No        | 0         |
 
 _(Full table to be generated from STAR_DATA)_

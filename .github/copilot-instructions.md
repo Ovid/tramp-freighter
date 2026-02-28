@@ -9,7 +9,7 @@ This file provides comprehensive custom instructions for GitHub Copilot when wor
 - **Genre**: Single-player space trading survival game
 - **Platform**: Browser-based (React 18 + Three.js + Vite)
 - **Setting**: 117 real star systems within 20 light-years of Sol, connected by wormholes
-- **Goal**: Reach Delta Pavonis (27.88 LY from Sol) with 25,000 credits and "Trusted" reputation with Yuki Tanaka
+- **Goal**: Reach Delta Pavonis (19.89 LY from Sol) with 25,000 credits and "Trusted" reputation with Yuki Tanaka
 - **Emphasis**: Financial pressure, NPC relationships, ship character/personality
 
 ## Technology Stack
@@ -271,7 +271,7 @@ Cargo stacks use this shape (ALWAYS):
 
 ### Win Condition
 
-- Reach **Delta Pavonis** system (27.88 LY from Sol)
+- Reach **Delta Pavonis** system (19.89 LY from Sol)
 - Accumulate **25,000 credits**
 - Achieve **"Trusted"** reputation with **Yuki Tanaka** NPC
 

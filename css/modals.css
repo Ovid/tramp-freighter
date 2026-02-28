@@ -35,6 +35,32 @@
   gap: 25px;
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--close-button-size);
+  cursor: pointer;
+  padding: var(--close-button-padding);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: #00dd77;
+}
+
+.modal-close:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .modal-message {
   color: var(--color-white);
   font-family: var(--font-family-mono);

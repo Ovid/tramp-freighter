@@ -138,6 +138,11 @@ describe('Encounter Buffering During Jump Animations', () => {
       expect(document.querySelector('#dev-admin-btn')).toBeTruthy();
     });
     expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+    // Dismiss the auto-shown instructions modal
+    const closeModal = screen.queryByLabelText('Close modal');
+    if (closeModal) {
+      fireEvent.click(closeModal);
+    }
   }
 
   const pirateEncounterData = {

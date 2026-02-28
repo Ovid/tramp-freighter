@@ -1,19 +1,13 @@
 # TODO
 
+- Gear menu should link o github repo
+- We need to have gear menu link to "achievements"
+- Need to show additional stats, like reputation.
+- If a mission run fails because you ran out of time, there should be
+  consequences (I failed a mission hauling illegal goods, but there was no
+  consequence)
 - Test in Safari and Firefox
-- After the last design doc is implemented, we need a new game to start with
-  instructions. The UI needs to have a convenient place to show them, too,
-  (see the "Camera" change) so
-  players can consult. The instructions should not give away too much. The
-  goal is retirement. Space is dangerous. You have a tramp freighter. Here's
-  basic navigation. Now explore. The instructions should also mention that the
-  stars listed are real and we tried to get color and relative sizes correct,
-  aside from a minimum size limit to ensure that the smallest stars are still
-  visible. And yes, the majority of stars are red dwarfs. Until modern
-  astronomy, we didn't know they existed because they were too dim to be seen
-  by the naked eye.
-  This should also explain that you can make "Cole's Cut" go away by paying
-  him off.
+
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
   test endgame efficiently. Individual mission mechanics (exotic material collection,
@@ -21,13 +15,6 @@ Endgame NOT FULLY TESTED (2)
     2. Epilogue variations — Only saw one epilogue path (moderate karma). High
   karma/low karma/smuggler variations not tested.
 
-- Jump animations are hidden behind encounters, such as customs or pirates. It
-  would be nice if we could see the "start" of the jump and, near the end, the
-  panel then pops up.
-- Camera -> Gear Icon
-    - Search-easily search for a star and highlight it (case insensitive and
-      partial matches might hightlight more than one star? How would that
-      work? Would it break things?)
 - Validate that narrative messages don't imply things that aren't true (such
   as offering to sell you something for half-price and then not letting you
   buy)

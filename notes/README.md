@@ -97,7 +97,7 @@ From the original spec:
 
 ## Victory Condition
 
-Reach **Delta Pavonis** (27.88 LY from Sol) by:
+Reach **Delta Pavonis** (19.89 LY from Sol) by:
 
 1. Paying off debt (₡10,000)
 2. Saving credits (₡25,000)

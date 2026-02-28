@@ -5,7 +5,7 @@
 #game-hud {
   position: absolute;
   top: 20px;
-  right: calc(50% + 223px + var(--panel-gap));
+  left: 20px;
   width: 300px;
   background-color: var(--bg-overlay-darker);
   border: 2px solid var(--border-primary);

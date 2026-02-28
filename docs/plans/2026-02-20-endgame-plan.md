@@ -1856,7 +1856,7 @@ import { Button } from '../../components/Button.jsx';
 
 const JUMP_SEQUENCE = [
   "The Range Extender hums to life. Your ship vibrates in a way you've never felt before.",
-  "Tanaka's voice crackles over the comm. \"Coordinates locked. Delta Pavonis. 27.88 light-years. Initiating jump in three... two... one...\"",
+  "Tanaka's voice crackles over the comm. \"Coordinates locked. Delta Pavonis. 19.89 light-years. Initiating jump in three... two... one...\"",
   'The stars stretch. Reality bends. Your ship screams through space in ways it was never meant to.',
   'And then... silence.',
   'Delta Pavonis burns ahead of you. Orange. Warm. Home.',
@@ -1987,7 +1987,7 @@ export const EPILOGUE_CONFIG = {
       variants: [
         {
           condition: null,
-          text: 'Delta Pavonis fills your viewport — an orange sun, warmer than Sol, somehow welcoming despite the impossible distance. The Range Extender sputters and dies, its single purpose spent. Twenty-seven light-years from everything you knew.',
+          text: 'Delta Pavonis fills your viewport — an orange sun, warmer than Sol, somehow welcoming despite the impossible distance. The Range Extender sputters and dies, its single purpose spent. Twenty light-years from everything you knew.',
         },
       ],
     },
@@ -2009,7 +2009,7 @@ export const EPILOGUE_CONFIG = {
       variants: [
         {
           condition: { karmaAbove: 50, trustedNPCs: 3 },
-          text: "Word spreads fast, even 27 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. You're not forgotten.",
+          text: "Word spreads fast, even 20 light-years from Sol. They remember you in the network — the trader who kept their word, who helped when it mattered. You're not forgotten.",
         },
         {
           condition: { karmaBelow: -50 },

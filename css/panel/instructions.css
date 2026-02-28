@@ -1,0 +1,41 @@
+@import '../variables.css';
+
+.instructions-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.instructions-section {
+  margin-bottom: 20px;
+}
+
+.instructions-section:last-child {
+  margin-bottom: 0;
+}
+
+.instructions-section h3 {
+  color: var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.instructions-section p {
+  color: var(--color-white);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-medium);
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.instructions-section p:last-child {
+  margin-bottom: 0;
+}
+
+.instructions-section strong {
+  color: var(--color-primary);
+}
