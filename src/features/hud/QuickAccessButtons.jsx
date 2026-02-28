@@ -91,17 +91,17 @@ export function QuickAccessButtons({ onDock, onSystemInfo }) {
       <div className="hud-quick-access-buttons">
         <button
           className="quick-access-btn"
-          onClick={handleSystemInfo}
-          disabled={false}
-        >
-          System Info
-        </button>
-        <button
-          className="quick-access-btn"
           onClick={handleDock}
           disabled={!canDock || isAnimationRunning}
         >
           Dock
+        </button>
+        <button
+          className="quick-access-btn"
+          onClick={handleSystemInfo}
+          disabled={false}
+        >
+          System Info
         </button>
       </div>
     </div>

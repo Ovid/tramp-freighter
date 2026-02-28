@@ -30,6 +30,18 @@ describe('QuickAccessButtons Component', () => {
     gameStateManager.initNewGame();
   });
 
+  it('should render Dock button before System Info button', () => {
+    render(
+      <GameProvider gameStateManager={gameStateManager}>
+        <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
+      </GameProvider>
+    );
+
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0].textContent).toBe('Dock');
+    expect(buttons[1].textContent).toBe('System Info');
+  });
+
   it('should render System Info and Dock buttons', () => {
     render(
       <GameProvider gameStateManager={gameStateManager}>
