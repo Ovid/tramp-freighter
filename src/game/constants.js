@@ -1650,6 +1650,76 @@ export const CONDITION_TYPES = {
 };
 
 /**
+ * Achievements System Configuration
+ *
+ * Defines achievement tier thresholds, karma/faction labels, and toast timing.
+ * All numeric thresholds are centralized here — never hard-code in other files.
+ */
+export const ACHIEVEMENTS_CONFIG = {
+  THRESHOLDS: {
+    // Exploration: systems visited (max reachable = 47 via wormholes + 1 Delta Pavonis quest)
+    EXPLORATION_TIER_1: 5,
+    EXPLORATION_TIER_2: 15,
+    EXPLORATION_TIER_3: 30,
+    EXPLORATION_TIER_4: 48,
+
+    // Trading: credits earned lifetime
+    TRADING_TIER_1: 5000,
+    TRADING_TIER_2: 25000,
+    TRADING_TIER_3: 100000,
+    TRADING_TIER_4: 500000,
+
+    // Social: count of NPCs at Trusted tier or above
+    SOCIAL_TIER_1: 1,
+    SOCIAL_TIER_2: 3,
+    SOCIAL_TIER_3: 5,
+    SOCIAL_TIER_4: 8,
+
+    // Survival: jumps completed
+    SURVIVAL_TIER_1: 10,
+    SURVIVAL_TIER_2: 50,
+    SURVIVAL_TIER_3: 150,
+    SURVIVAL_TIER_4: 300,
+
+    // Danger: total danger encounters resolved (sum of all dangerFlags)
+    DANGER_TIER_1: 3,
+    DANGER_TIER_2: 10,
+    DANGER_TIER_3: 25,
+    DANGER_TIER_4: 50,
+
+    // Moral: karma thresholds (absolute value — works for both good and evil)
+    MORAL_TIER_1: 15,
+    MORAL_TIER_2: 35,
+    MORAL_TIER_3: 60,
+    MORAL_TIER_4: 85,
+  },
+
+  // Karma display labels (evaluated top-to-bottom, first match wins)
+  KARMA_LABELS: [
+    { min: 75, label: 'Saint' },
+    { min: 50, label: 'Virtuous' },
+    { min: 25, label: 'Decent' },
+    { min: -24, label: 'Neutral' },
+    { min: -49, label: 'Shady' },
+    { min: -74, label: 'Ruthless' },
+    { min: -100, label: 'Villain' },
+  ],
+
+  // Faction standing labels (evaluated top-to-bottom, first match wins)
+  FACTION_LABELS: [
+    { min: 75, label: 'Allied' },
+    { min: 50, label: 'Respected' },
+    { min: 25, label: 'Favorable' },
+    { min: -24, label: 'Neutral' },
+    { min: -49, label: 'Suspicious' },
+    { min: -74, label: 'Hostile' },
+    { min: -100, label: 'Enemy' },
+  ],
+
+  TOAST_DURATION: 4000,
+};
+
+/**
  * Event names for the Bridge Pattern event system.
  * Used by EventSystemManager, all managers with emit() calls,
  * and React hooks (useGameEvent, useEventTriggers).
@@ -1719,4 +1789,8 @@ export const EVENT_NAMES = Object.freeze({
 
   // Special
   PAVONIS_RUN_TRIGGERED: 'pavonisRunTriggered',
+
+  // Achievements
+  ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
+  ACHIEVEMENTS_CHANGED: 'achievementsChanged',
 });
