@@ -321,6 +321,9 @@ export class GameStateManager {
     if (state.quests) {
       this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
     }
+    if (state.achievements) {
+      this.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, { ...state.achievements });
+    }
   }
 
   // ========================================================================
@@ -646,6 +649,14 @@ export class GameStateManager {
   processDebtTick() {
     this.debtManager.applyInterest();
     return this.debtManager.checkCheckpoint();
+  }
+
+  // ========================================================================
+  // ACHIEVEMENTS SYSTEM
+  // ========================================================================
+
+  getAchievementProgress() {
+    return this.achievementsManager.getProgress();
   }
 
   // ========================================================================
