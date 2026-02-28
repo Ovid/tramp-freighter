@@ -1,29 +1,20 @@
-name: Claude PR Review
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
 jobs:
   review:
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Claude review
-        uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          direct_prompt: |
+          label_trigger: "claude-review"
+          prompt: |
             Review this pull request like a senior engineer.
             Focus on: correctness, security, edge cases, tests, maintainability, and architecture.
             Call out high-risk changes and suggest concrete diffs when helpful.
