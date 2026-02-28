@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NARRATIVE_EVENTS } from '@game/data/narrative-events.js';
 
 describe('dock_generic_rumor', () => {
@@ -7,6 +7,10 @@ describe('dock_generic_rumor', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should have a generateContent function', () => {

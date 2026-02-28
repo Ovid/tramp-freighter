@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
 import { REPAIR_CONFIG } from '@game/constants.js';
 
@@ -12,6 +12,10 @@ describe('Repair NPC discount', () => {
     // Damage hull to allow repair
     const state = gsm.getState();
     gsm.updateShipCondition(50, state.ship.engine, state.ship.lifeSupport);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('applies discount to repair cost when discount is provided', () => {

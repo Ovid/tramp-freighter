@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { InformationBroker } from '@game/game-information-broker.js';
 import { INTELLIGENCE_CONFIG } from '@game/constants.js';
 
@@ -6,6 +6,10 @@ describe('Intelligence NPC discount', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('applies discount to intelligence purchase cost', () => {

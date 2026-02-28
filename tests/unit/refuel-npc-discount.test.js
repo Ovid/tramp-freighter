@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Refuel NPC discount', () => {
@@ -10,6 +10,10 @@ describe('Refuel NPC discount', () => {
     gsm = createTestGameStateManager();
     // Reduce fuel so there's room to refuel
     gsm.updateFuel(50);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('applies discount to refuel cost when discount is provided', () => {

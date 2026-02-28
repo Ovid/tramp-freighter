@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { InspectionManager } from '@game/state/managers/inspection.js';
 import { INSPECTION_CONFIG } from '@game/constants.js';
 
@@ -6,6 +6,10 @@ describe('Inspection flee outcome', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should have fuel and hull costs for fleeing', () => {

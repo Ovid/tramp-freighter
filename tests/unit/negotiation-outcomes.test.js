@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NegotiationManager } from '@game/state/managers/negotiation.js';
 
 const HANDLED_COST_FIELDS = [
@@ -32,6 +32,10 @@ describe('Negotiation outcome schema', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     manager = new NegotiationManager({ getState: () => ({}) });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('counter-proposal failure should not return unhandled cost fields', () => {

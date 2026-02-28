@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { CombatManager } from '@game/state/managers/combat.js';
 import { InspectionManager } from '@game/state/managers/inspection.js';
 
@@ -6,6 +6,10 @@ describe('Outcome text honesty', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('combat return fire success', () => {
