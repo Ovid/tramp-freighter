@@ -8,7 +8,7 @@ import {
  *
  * State mutation function: reads current state from gameStateManager,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
- * passengerSatisfaction, kidnappedPassengerId) and rewards (credits, fuelMinimum,
+ * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated) and rewards (credits, fuelMinimum,
  * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance
@@ -75,11 +75,17 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       gameStateManager.updateCargo(filteredCargo);
     }
 
+    if (outcome.costs.hiddenCargoConfiscated) {
+      state.ship.hiddenCargo = [];
+      gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    }
+
     // Fail missions whose cargo was lost or confiscated
     if (
       outcome.costs.cargoLoss ||
       outcome.costs.cargoPercent ||
-      outcome.costs.restrictedGoodsConfiscated
+      outcome.costs.restrictedGoodsConfiscated ||
+      outcome.costs.hiddenCargoConfiscated
     ) {
       if (typeof gameStateManager.failMissionsDueToCargoLoss === 'function') {
         gameStateManager.failMissionsDueToCargoLoss();

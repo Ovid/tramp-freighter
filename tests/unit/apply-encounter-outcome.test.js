@@ -239,6 +239,46 @@ describe('applyEncounterOutcome', () => {
     });
   });
 
+  describe('hidden cargo confiscation', () => {
+    it('clears hidden cargo when hiddenCargoConfiscated is true', () => {
+      const state = gsm.getState();
+      state.ship.hiddenCargo = [{ good: 'water', qty: 3, buyPrice: 10 }];
+
+      applyEncounterOutcome(gsm, {
+        costs: { hiddenCargoConfiscated: true },
+      });
+
+      expect(gsm.getState().ship.hiddenCargo).toEqual([]);
+    });
+
+    it('emits hiddenCargoChanged event when hidden cargo is confiscated', () => {
+      const state = gsm.getState();
+      state.ship.hiddenCargo = [{ good: 'water', qty: 3, buyPrice: 10 }];
+
+      const listener = vi.fn();
+      gsm.subscribe('hiddenCargoChanged', listener);
+
+      applyEncounterOutcome(gsm, {
+        costs: { hiddenCargoConfiscated: true },
+      });
+
+      expect(listener).toHaveBeenCalledWith([]);
+    });
+
+    it('does not clear hidden cargo when flag is absent', () => {
+      const state = gsm.getState();
+      state.ship.hiddenCargo = [{ good: 'water', qty: 3, buyPrice: 10 }];
+
+      applyEncounterOutcome(gsm, {
+        costs: { credits: 100 },
+      });
+
+      expect(gsm.getState().ship.hiddenCargo).toEqual([
+        { good: 'water', qty: 3, buyPrice: 10 },
+      ]);
+    });
+  });
+
   describe('karma and faction reputation', () => {
     it('modifies karma', () => {
       const before = gsm.getState().player.karma || 0;
