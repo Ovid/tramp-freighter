@@ -97,7 +97,8 @@ describe('Wei Chen Tanaka Breadcrumbs', () => {
       });
       // Should not match the tanaka_gossip choice (stage 0 only)
       const choices = greeting.choices.filter((c) => {
-        if (!c.text.includes('Tanaka') || !c.text.includes('know')) return false;
+        if (!c.text.includes('Tanaka') || !c.text.includes('know'))
+          return false;
         if (c.condition) return c.condition(0, ctx);
         return true;
       });

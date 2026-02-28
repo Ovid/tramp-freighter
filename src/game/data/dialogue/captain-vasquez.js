@@ -543,10 +543,10 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
   },
 
   barnards_engineer: {
-    text: '"Your ship\'s got a Tanaka Mark III drive, doesn\'t it? Heard the designer\'s daughter works at Barnard\'s. Engineer named Tanaka — does something with drive modifications." He leans in. "Engineers like that don\'t grow on trees. Worth introducing yourself."',
+    text: "\"Your ship's got a Tanaka Mark III drive, doesn't it? Heard the designer's daughter works at Barnard's. Engineer named Tanaka — does something with drive modifications.\" He leans in. \"Engineers like that don't grow on trees. Worth introducing yourself.\"",
     choices: [
       {
-        text: '"I\'ll look her up next time I\'m at Barnard\'s."',
+        text: "\"I'll look her up next time I'm at Barnard's.\"",
         next: 'greeting',
         repGain: 1,
       },

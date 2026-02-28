@@ -317,8 +317,7 @@ export const WEI_CHEN_DIALOGUE = {
     text: (_rep, context) => {
       if (
         context &&
-        context.systemsVisited >=
-          ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED
+        context.systemsVisited >= ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED
       ) {
         return '"Engineer works in the back bay. Tanaka. Keeps to herself mostly. Does something with drive systems — way over my head." She glances toward the engineering section. "You\'ve been around enough, she might actually talk to you. Worth checking in next time you dock."';
       }
@@ -351,7 +350,7 @@ export const WEI_CHEN_DIALOGUE = {
   },
 
   tanaka_progress: {
-    text: '"Tanaka\'s been mentioning your name. She\'s warming up, but she\'s careful. Keep bringing her research supplies — electronics or medicine. She notices, even if she doesn\'t say it."',
+    text: "\"Tanaka's been mentioning your name. She's warming up, but she's careful. Keep bringing her research supplies — electronics or medicine. She notices, even if she doesn't say it.\"",
     choices: [
       {
         text: '"I\'ll keep at it."',

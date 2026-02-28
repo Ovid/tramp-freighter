@@ -558,7 +558,10 @@ export const NARRATIVE_EVENTS = [
     trigger: {
       system: 4,
       condition: [
-        { type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT, value: ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED },
+        {
+          type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT,
+          value: ENDGAME_CONFIG.TANAKA_UNLOCK_SYSTEMS_VISITED,
+        },
         { type: CONDITION_TYPES.QUEST_STAGE, questId: 'tanaka', value: 0 },
       ],
       chance: 1.0,
