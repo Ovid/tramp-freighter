@@ -1,20 +1,27 @@
+name: Claude Auto Review
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
   review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
+          fetch-depth: 1
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          label_trigger: "claude-review"
           prompt: |
-            Review this pull request like a senior engineer.
-            Focus on: correctness, security, edge cases, tests, maintainability, and architecture.
-            Call out high-risk changes and suggest concrete diffs when helpful.
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            Please review this pull request focusing on:
+            - Code quality and best practices
+            - Potential bugs
+            - Security implications
+            - Performance considerations
+            - Architecture flaws
+            Use `gh pr comment` for top-level feedback.
