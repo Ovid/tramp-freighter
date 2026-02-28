@@ -125,6 +125,9 @@ Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@
 ### Accessibility (a11y)
 Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls.
 
+### Git Commits
+- Commit messages must be plain text strings passed directly to `git commit -m`. Never use shell interpolation (`$(...)`) heredocs (`<<EOF`), or command substitution in commit messages.
+
 ### Style
 - ES Modules, 2-space indentation
 - `const`/`let` only, never `var`
