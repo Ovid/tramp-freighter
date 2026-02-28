@@ -29,14 +29,15 @@ export class RepairManager extends BaseManager {
    * @param {number} currentCondition - Current condition percentage
    * @returns {number} Cost in credits
    */
-  getRepairCost(systemType, amount, currentCondition) {
+  getRepairCost(systemType, amount, currentCondition, discount = 0) {
     // If already at max, no cost
     if (currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
       return 0;
     }
 
     // Calculate cost at ₡5 per 1%
-    return amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    const baseCost = amount * REPAIR_CONFIG.COST_PER_PERCENT;
+    return discount > 0 ? Math.ceil(baseCost * (1 - discount)) : baseCost;
   }
 
   /**
@@ -46,7 +47,7 @@ export class RepairManager extends BaseManager {
    * @param {number} amount - Percentage points to restore
    * @returns {Object} { success: boolean, reason: string }
    */
-  repairShipSystem(systemType, amount) {
+  repairShipSystem(systemType, amount, discount = 0) {
     this.validateState();
 
     // Validate system type
@@ -58,7 +59,7 @@ export class RepairManager extends BaseManager {
     const state = this.getState();
     const currentCondition = state.ship[systemType];
     const credits = state.player.credits;
-    const cost = this.getRepairCost(systemType, amount, currentCondition);
+    const cost = this.getRepairCost(systemType, amount, currentCondition, discount);
 
     // Validation order matters for user experience:
     // 1. Check for positive amount (basic input validation)
