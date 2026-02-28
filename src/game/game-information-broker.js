@@ -50,10 +50,7 @@ export class InformationBroker {
     const credits = gameState.player.credits;
 
     // Calculate cost
-    let cost = InformationBroker.getIntelligenceCost(
-      systemId,
-      priceKnowledge
-    );
+    let cost = InformationBroker.getIntelligenceCost(systemId, priceKnowledge);
     if (discount > 0) {
       cost = Math.ceil(cost * (1 - discount));
     }

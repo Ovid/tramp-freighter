@@ -64,7 +64,12 @@ export class RepairManager extends BaseManager {
     const state = this.getState();
     const currentCondition = state.ship[systemType];
     const credits = state.player.credits;
-    const cost = this.getRepairCost(systemType, amount, currentCondition, discount);
+    const cost = this.getRepairCost(
+      systemType,
+      amount,
+      currentCondition,
+      discount
+    );
 
     // Validation order matters for user experience:
     // 1. Check for positive amount (basic input validation)

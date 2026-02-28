@@ -129,9 +129,8 @@ export class RefuelManager extends BaseManager {
     const credits = state.player.credits;
     const systemId = state.player.currentSystem;
     const pricePerPercent = this.getFuelPrice(systemId);
-    const effectivePrice = discount > 0
-      ? pricePerPercent * (1 - discount)
-      : pricePerPercent;
+    const effectivePrice =
+      discount > 0 ? pricePerPercent * (1 - discount) : pricePerPercent;
 
     const validation = this.validateRefuel(
       currentFuel,

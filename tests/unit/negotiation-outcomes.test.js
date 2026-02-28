@@ -36,7 +36,10 @@ describe('Negotiation outcome schema', () => {
 
   it('counter-proposal failure should not return unhandled cost fields', () => {
     const encounter = { strength: 0.5 };
-    const gameState = { player: { karma: 0, credits: 500 }, ship: { cargo: [] } };
+    const gameState = {
+      player: { karma: 0, credits: 500 },
+      ship: { cargo: [] },
+    };
 
     // Force failure with high rng
     const result = manager.resolveCounterProposal(encounter, gameState, 0.99);
