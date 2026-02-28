@@ -192,9 +192,7 @@ describe('Danger Edge Cases', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.costs.strengthIncrease).toBe(
-        NEGOTIATION_CONFIG.MEDICINE_CLAIM.LIE_STRENGTH_INCREASE
-      );
+      expect(result.costs).toEqual({});
       expect(result.description).toBeTypeOf('string');
       expect(result.description.length).toBeGreaterThan(0);
     });
