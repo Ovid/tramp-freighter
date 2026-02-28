@@ -23,3 +23,11 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR. Analyze the changes for:
+            - Bugs and logic errors
+            - Security concerns
+            - Code quality and readability
+            - Architecture problems
+            - Test coverage gaps
+            Provide your review as PR comments.
