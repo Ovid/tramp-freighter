@@ -1,6 +1,5 @@
 # TODO
 
-- Gear menu should link o github repo
 - We need to have gear menu link to "achievements"
     (visited all stars, for example)
     System needs to validate that all achievements in the game are possible.
