@@ -93,10 +93,35 @@ export const NARRATIVE_EVENTS = [
     once: false,
     cooldown: 3,
     priority: NARRATIVE_PRIORITY_LOW,
+    generateContent(state, starData) {
+      const activeEvents = state.world.activeEvents || [];
+
+      if (activeEvents.length > 0) {
+        const event = activeEvents[0];
+        const system = starData.find((s) => s.id === event.systemId);
+        const commodity = Object.keys(event.modifiers || {})[0];
+
+        if (system && commodity) {
+          return {
+            text: [
+              'A dockworker sidles up while you wait for clearance.',
+              `"Heard ${commodity} prices are through the roof at ${system.name}. Just saying."`,
+            ],
+          };
+        }
+      }
+
+      return {
+        text: [
+          'A dockworker sidles up while you wait for clearance.',
+          '"Markets are shifting out there. Keep your eyes open."',
+        ],
+      };
+    },
     content: {
       text: [
         'A dockworker sidles up while you wait for clearance.',
-        '"Heard prices on electronics are spiking out near Epsilon Eridani. Just saying."',
+        '"Markets are shifting out there. Keep your eyes open."',
       ],
       speaker: null,
       mood: 'neutral',

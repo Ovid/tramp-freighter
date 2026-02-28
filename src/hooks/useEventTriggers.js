@@ -121,11 +121,24 @@ export function useEventTriggers() {
    */
   const emitNarrativeEvent = useCallback(
     (event) => {
+      let emitted = { ...event };
+
+      // If event has generateContent, produce dynamic text from game state
+      if (typeof event.generateContent === 'function') {
+        const state = gameStateManager.getState();
+        const dynamicContent = event.generateContent(
+          state,
+          gameStateManager.starData
+        );
+        emitted = {
+          ...emitted,
+          content: { ...emitted.content, ...dynamicContent },
+        };
+      }
+
       // Spread to create a fresh reference so React detects the update
       // and App.jsx de-dupe guard allows repeatable events to re-fire
-      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, {
-        ...event,
-      });
+      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, emitted);
     },
     [gameStateManager]
   );
