@@ -6,7 +6,7 @@
 .system-panel {
   position: absolute;
   top: 20px;
-  left: calc(50% + 223px + var(--panel-gap));
+  right: 20px;
   width: 350px;
   max-height: 80vh;
   padding: var(--panel-padding);
