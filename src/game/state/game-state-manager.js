@@ -510,8 +510,8 @@ export class GameStateManager {
     return this.infoBrokerManager.getIntelligenceCost(systemId);
   }
 
-  purchaseIntelligence(systemId) {
-    return this.infoBrokerManager.purchaseIntelligence(systemId);
+  purchaseIntelligence(systemId, discount = 0) {
+    return this.infoBrokerManager.purchaseIntelligence(systemId, discount);
   }
 
   generateRumor() {
@@ -768,8 +768,8 @@ export class GameStateManager {
     );
   }
 
-  refuel(amount) {
-    return this.refuelManager.refuel(amount);
+  refuel(amount, discount = 0) {
+    return this.refuelManager.refuel(amount, discount);
   }
 
   // ========================================================================
@@ -784,8 +784,8 @@ export class GameStateManager {
     );
   }
 
-  repairShipSystem(systemType, amount) {
-    return this.repairManager.repairShipSystem(systemType, amount);
+  repairShipSystem(systemType, amount, discount = 0) {
+    return this.repairManager.repairShipSystem(systemType, amount, discount);
   }
 
   applyEmergencyPatch(systemType) {

@@ -125,7 +125,7 @@ export function RefuelPanel({ onClose }) {
    */
   const handleConfirm = () => {
     if (finalValidation.valid && amount > 0) {
-      refuel(amount);
+      refuel(amount, bestDiscount.discount);
       // Reset amount after successful refuel
       setAmount(0);
     }

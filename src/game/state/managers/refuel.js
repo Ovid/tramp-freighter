@@ -120,7 +120,7 @@ export class RefuelManager extends BaseManager {
    * @returns {Object} { success: boolean, reason: string }
    * @throws {Error} If refuel would reduce fuel (critical bug detection)
    */
-  refuel(amount) {
+  refuel(amount, discount = 0) {
     this.validateState();
 
     const state = this.getState();
@@ -128,12 +128,15 @@ export class RefuelManager extends BaseManager {
     const credits = state.player.credits;
     const systemId = state.player.currentSystem;
     const pricePerPercent = this.getFuelPrice(systemId);
+    const effectivePrice = discount > 0
+      ? pricePerPercent * (1 - discount)
+      : pricePerPercent;
 
     const validation = this.validateRefuel(
       currentFuel,
       amount,
       credits,
-      pricePerPercent
+      effectivePrice
     );
 
     if (!validation.valid) {

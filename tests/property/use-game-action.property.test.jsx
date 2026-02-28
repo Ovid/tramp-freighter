@@ -35,7 +35,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
         result.current.refuel(refuelAmount);
 
         // Verify GameStateManager method was called
-        expect(refuelSpy).toHaveBeenCalledWith(refuelAmount);
+        expect(refuelSpy).toHaveBeenCalledWith(refuelAmount, undefined);
 
         refuelSpy.mockRestore();
         return true;
