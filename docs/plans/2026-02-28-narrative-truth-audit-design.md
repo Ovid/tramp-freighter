@@ -69,7 +69,7 @@ Remove `strengthIncrease` from all three failure outcome cost objects. Update pl
 
 Replace `reputationPenalty: -10` with the existing handled structure:
 ```javascript
-rewards: { factionRep: { authority: -10 } }
+rewards: { factionRep: { authorities: -10 } }
 ```
 
 This makes the intel-offer-detected failure correctly penalize authority rep, matching what the success path already does.
@@ -80,7 +80,7 @@ This makes the intel-offer-detected failure correctly penalize authority rep, ma
 
 - Remove `triggerPatrolCombat: true` from the outcome.
 - Add meaningful flee costs: `costs: { fuel: 5, hull: 5 }` (emergency burn damages ship).
-- Add `rewards: { factionRep: { authority: -15 } }` (fleeing is worse than bribing).
+- Add `rewards: { factionRep: { authorities: -15 } }` (fleeing is worse than bribing).
 - Update text: "You punch the throttle and break away from the inspection zone. The emergency burn costs fuel and rattles the hull."
 
 ---

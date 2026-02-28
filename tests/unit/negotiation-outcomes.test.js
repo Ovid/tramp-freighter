@@ -91,5 +91,8 @@ describe('Negotiation outcome schema', () => {
     expect(result.costs).not.toHaveProperty('reputationPenalty');
     expect(result.rewards.factionRep).toBeDefined();
     expect(result.rewards.factionRep.authorities).toBeLessThan(0);
+    Object.keys(result.rewards).forEach((key) => {
+      expect(HANDLED_REWARD_FIELDS).toContain(key);
+    });
   });
 });
