@@ -70,9 +70,9 @@ describe('Property: Camera Controls', () => {
       expect(controlButtons).toBeTruthy();
     });
 
-    // Verify all 4 buttons are present
+    // Verify all 6 buttons are present
     const buttons = controlButtons.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(5);
+    expect(buttons.length).toBe(6);
 
     // Click to collapse
     fireEvent.click(toggleButton);
@@ -293,7 +293,7 @@ describe('Property: Camera Controls', () => {
     });
 
     const buttons = container.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(5);
+    expect(buttons.length).toBe(6);
 
     // Verify button labels
     const buttonTexts = Array.from(buttons).map((btn) =>
@@ -303,6 +303,36 @@ describe('Property: Camera Controls', () => {
     expect(buttonTexts).toContain('Zoom Out');
     expect(buttonTexts).toContain('Toggle Rotation');
     expect(buttonTexts).toContain('Toggle Boundary');
+  });
+
+  it('should render Instructions button when expanded', async () => {
+    const mockHandlers = {
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      onToggleRotation: vi.fn(),
+      onToggleBoundary: vi.fn(),
+    };
+
+    const { container } = render(
+      <CameraControls
+        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        {...mockHandlers}
+      />
+    );
+
+    const toggleButton = container.querySelector('.camera-controls-toggle');
+    fireEvent.click(toggleButton);
+
+    await waitFor(() => {
+      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+    });
+
+    const buttons = container.querySelectorAll('.control-btn');
+    const instructionsButton = Array.from(buttons).find((btn) =>
+      btn.textContent.includes('Instructions')
+    );
+
+    expect(instructionsButton).toBeTruthy();
   });
 
   it('should call zoom handlers when zoom buttons clicked', () => {

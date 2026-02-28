@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { InstructionsModal } from '../instructions/InstructionsModal';
 
 /**
  * CameraControls component provides debug/camera control buttons.
@@ -30,6 +31,7 @@ export function CameraControls({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -84,8 +86,19 @@ export function CameraControls({
           >
             {antimatter ? 'Matter' : 'Antimatter'}
           </button>
+          <button
+            className="control-btn"
+            onClick={() => setShowInstructions(true)}
+          >
+            Instructions
+          </button>
         </div>
       )}
+
+      <InstructionsModal
+        isOpen={showInstructions}
+        onClose={() => setShowInstructions(false)}
+      />
     </div>
   );
 }
