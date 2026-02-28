@@ -65,7 +65,13 @@ export function RefuelPanel({ onClose }) {
     { discount: 0, npcName: null }
   );
 
-  // Calculate values
+  // Derive effective price once, accounting for any NPC discount
+  const effectiveFuelPrice =
+    bestDiscount.discount > 0
+      ? fuelPrice * (1 - bestDiscount.discount)
+      : fuelPrice;
+
+  // Calculate values using effective price consistently
   const totalCost = calculateRefuelCost(amount, fuelPrice);
   const discountedTotalCost = calculateDiscountedRefuelCost(
     amount,
@@ -74,27 +80,15 @@ export function RefuelPanel({ onClose }) {
   );
   const finalTotalCost =
     bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
-  const maxRefuel = calculateMaxRefuel(fuel, credits, fuelPrice);
+  const maxRefuel = calculateMaxRefuel(fuel, credits, effectiveFuelPrice);
 
-  // Validate refuel
-  const validation = validateRefuel(fuel, amount, credits, fuelPrice);
-
-  // Override validation for discounted cost if applicable
-  let finalValidation = validation;
-  if (
-    bestDiscount.discount > 0 &&
-    !validation.valid &&
-    validation.reason.includes('Insufficient credits')
-  ) {
-    // Re-validate with discounted cost
-    const discountedValidation = validateRefuel(
-      fuel,
-      amount,
-      credits,
-      fuelPrice * (1 - bestDiscount.discount)
-    );
-    finalValidation = discountedValidation;
-  }
+  // Validate refuel with effective price
+  const finalValidation = validateRefuel(
+    fuel,
+    amount,
+    credits,
+    effectiveFuelPrice
+  );
 
   // Initialize amount when panel opens (only on first render)
   useEffect(() => {
