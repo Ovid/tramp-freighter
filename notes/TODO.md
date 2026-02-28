@@ -1,5 +1,11 @@
 # TODO
 
+- For "Pirate Encounter", flee (and maybe others), I often have a 70% chance
+  of success. But I *always* hit a combat resolution screen, so I don't think
+  that chance of success is working.
+  Also, for those options with lower chances of success, would there be any
+  benefit to taking them? Might be worth it (catching spare cargo breaking
+  loose, or better rep with authorities and things like that)
 - We need to have gear menu link to "achievements"
     (visited all stars, for example)
     System needs to validate that all achievements in the game are possible.
