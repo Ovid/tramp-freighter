@@ -131,6 +131,7 @@ export class DangerManager extends BaseManager {
       change: amount,
       reason,
     });
+    this.gameStateManager.achievementsManager.checkAchievements();
   }
 
   // ========================================================================
@@ -318,6 +319,7 @@ export class DangerManager extends BaseManager {
     ) {
       state.world.dangerFlags[flagName]++;
     }
+    this.gameStateManager.achievementsManager.checkAchievements();
   }
 
   // ========================================================================

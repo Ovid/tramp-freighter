@@ -237,6 +237,31 @@ describe('AchievementsManager', () => {
   });
 });
 
+describe('Achievement Event Integration', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    manager.initNewGame();
+  });
+
+  it('should check achievements after jump completion', () => {
+    const unlocked = [];
+    manager.subscribe('achievementUnlocked', (data) => unlocked.push(data));
+
+    // Simulate enough jumps to trigger tier 1
+    manager.state.stats.jumpsCompleted = 9;
+    // The next jump should trigger the check
+    manager.state.world.visitedSystems = [0];
+    // Find a connected system to jump to
+    const nav = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+    const connected = nav.getConnectedSystems(0);
+    manager.navigationManager.updateLocation(connected[0]);
+
+    expect(unlocked.some((a) => a.id === 'survival_1')).toBe(true);
+  });
+});
+
 describe('Save Compatibility', () => {
   it('should add achievements field to old saves missing it', () => {
     const oldState = {

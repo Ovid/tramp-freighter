@@ -147,6 +147,7 @@ export class NPCManager extends BaseManager {
     this.log(
       `Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`
     );
+    this.gameStateManager.achievementsManager.checkAchievements();
   }
 
   /**

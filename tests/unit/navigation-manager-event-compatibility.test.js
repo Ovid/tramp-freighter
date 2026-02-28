@@ -31,6 +31,7 @@ describe('NavigationManager Event Compatibility', () => {
       updatePriceKnowledge: vi.fn(),
       saveGame: vi.fn(),
       markDirty: vi.fn(),
+      achievementsManager: { checkAchievements: vi.fn() },
     };
 
     // Mock emit function to capture events
