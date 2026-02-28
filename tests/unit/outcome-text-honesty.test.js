@@ -1,0 +1,65 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { CombatManager } from '@game/state/managers/combat.js';
+import { InspectionManager } from '@game/state/managers/inspection.js';
+
+describe('Outcome text honesty', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  describe('combat return fire success', () => {
+    it('should mention hull damage in description', () => {
+      const manager = new CombatManager({ getState: () => ({}) });
+      const encounter = { strength: 0.3 };
+      const gameState = {
+        player: { karma: 10 },
+        ship: { quirks: [], upgrades: [] },
+      };
+
+      // Force success with low rng
+      const result = manager.resolveReturnFire(encounter, gameState, 0.01);
+
+      if (result.success) {
+        expect(result.description.toLowerCase()).toMatch(
+          /hull|hits|damage|scoring/
+        );
+      }
+    });
+  });
+
+  describe('inspection bribe success', () => {
+    it('should hint at reputation consequences', () => {
+      const manager = new InspectionManager({ getState: () => ({}) });
+
+      // Force bribe success
+      const result = manager.resolveInspectionBribe({}, 0.01);
+
+      if (result.success) {
+        expect(result.description.toLowerCase()).toMatch(
+          /books|noted|reputation|record/
+        );
+      }
+    });
+  });
+
+  describe('inspection cooperate', () => {
+    it('should describe clean inspection positively', () => {
+      const manager = new InspectionManager({
+        getState: () => ({}),
+        getDangerZone: () => 'safe',
+        countRestrictedGoods: () => 0,
+      });
+      const cleanState = {
+        player: { currentSystem: 0 },
+        ship: { cargo: [], hiddenCargo: [] },
+      };
+
+      const result = manager.resolveInspectionCooperate(cleanState, 0.99);
+
+      expect(result.description.toLowerCase()).toMatch(
+        /checks out|clean|clear|approv/
+      );
+    });
+  });
+});

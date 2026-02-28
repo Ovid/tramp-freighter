@@ -110,6 +110,20 @@ export class InspectionManager extends BaseManager {
       }
     }
 
+    let description;
+    if (restrictedGoodsConfiscated || hiddenCargoConfiscated) {
+      if (hiddenCargoConfiscated) {
+        description =
+          'They found the hidden compartment. This is going to be expensive.';
+      } else {
+        description =
+          "The inspector's expression hardens. Restricted goods. There will be a fine.";
+      }
+    } else {
+      description =
+        'Inspection complete. Everything checks out. The inspector nods approvingly.';
+    }
+
     const outcome = {
       success: true,
       costs: {
@@ -120,7 +134,7 @@ export class InspectionManager extends BaseManager {
           authorities: authorityRepChange,
         },
       },
-      description: 'Cooperated with customs inspection.',
+      description,
     };
 
     if (restrictedGoodsConfiscated) {
@@ -155,7 +169,7 @@ export class InspectionManager extends BaseManager {
 
     if (success) {
       description =
-        'Successfully bribed customs inspector and avoided inspection.';
+        'The inspector pockets your credits and waves you through. You doubt this stays off the books.';
     } else {
       totalCost += INSPECTION_CONFIG.BRIBE.FAILURE_ADDITIONAL_FINE;
       description =

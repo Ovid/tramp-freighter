@@ -165,7 +165,8 @@ export class CombatManager extends BaseManager {
             outlaws: RETURN_FIRE.SUCCESS_OUTLAW_REP,
           },
         },
-        description: 'Successfully drove off the pirates with return fire.',
+        description:
+          'You drove off the pirates, but not before taking some hits. Your hull shows fresh scoring.',
       };
     } else {
       if (this.checkLuckyShipNegate(gameState, rng)) {
