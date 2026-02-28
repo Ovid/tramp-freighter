@@ -15,7 +15,6 @@ describe('Stats initialization', () => {
     expect(manager.state.stats.creditsEarned).toBe(0);
     expect(manager.state.stats.jumpsCompleted).toBe(0);
     expect(manager.state.stats.cargoHauled).toBe(0);
-    expect(manager.state.stats.smugglingRuns).toBe(0);
     expect(manager.state.stats.charitableActs).toBe(0);
   });
 

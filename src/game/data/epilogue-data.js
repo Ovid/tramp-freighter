@@ -40,10 +40,6 @@ const EPILOGUE_CONFIG = {
           text: "You made it. That's what matters. The network moves on without you. Ships dock and undock. Traders come and go. Your name fades. But you're here. You're free. That's enough.",
         },
         {
-          condition: { smugglingRuns: 5 },
-          text: "The authorities are probably glad you're gone. One less problem. But in the outer stations, in the dark corners, they remember. The trader who took the risks no one else would. There's respect in that.",
-        },
-        {
           condition: null,
           text: "The network continues without you. Some will remember your name, others won't. But you crossed the void. You made the impossible run. And that's something no one can take from you.",
         },
@@ -105,11 +101,6 @@ function evaluateEpilogueCondition(condition, gameState) {
       (n) => n.rep >= REPUTATION_BOUNDS.TRUSTED_MIN
     ).length;
     if (count < condition.trustedNPCs) return false;
-  }
-
-  if (condition.smugglingRuns != null) {
-    if ((gameState.stats?.smugglingRuns ?? 0) < condition.smugglingRuns)
-      return false;
   }
 
   return true;

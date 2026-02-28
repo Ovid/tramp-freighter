@@ -29,7 +29,6 @@ describe('Epilogue generation', () => {
       missions: { completed: [] },
       stats: {
         creditsEarned: 0,
-        smugglingRuns: 0,
         cargoHauled: 0,
         jumpsCompleted: 0,
       },
@@ -47,7 +46,6 @@ describe('Epilogue generation', () => {
       missions: { completed: [] },
       stats: {
         creditsEarned: 0,
-        smugglingRuns: 0,
         cargoHauled: 0,
         jumpsCompleted: 0,
       },

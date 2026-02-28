@@ -865,7 +865,6 @@ export function addStateDefaults(state, systemData) {
       creditsEarned: 0,
       jumpsCompleted: 0,
       cargoHauled: 0,
-      smugglingRuns: 0,
       charitableActs: 0,
     };
   }
