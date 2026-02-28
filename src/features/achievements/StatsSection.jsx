@@ -96,7 +96,10 @@ export function StatsSection() {
   const karmaData = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
   const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED) ?? {};
 
-  // Subscribe to events that trigger re-renders when stats change
+  // These two events cover all remaining stats: jump counters, visited
+  // systems, days elapsed, and danger flags (encounters resolve pre-jump).
+  // Trade stats (creditsEarned, cargoHauled) don't need subscriptions
+  // because the modal must be closed to trade, and it remounts fresh.
   useGameEvent(EVENT_NAMES.JUMP_COMPLETED);
   useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
