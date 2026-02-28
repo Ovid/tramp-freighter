@@ -11,6 +11,7 @@ import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
+import { addStateDefaults } from '../../src/game/state/state-validators.js';
 
 describe('Achievement Constants', () => {
   it('should define achievement tier thresholds for all categories', () => {
@@ -233,5 +234,40 @@ describe('AchievementsManager', () => {
     expect(survival1.current).toBe(7);
     expect(survival1.target).toBe(10);
     expect(survival1.unlocked).toBe(false);
+  });
+});
+
+describe('Save Compatibility', () => {
+  it('should add achievements field to old saves missing it', () => {
+    const oldState = {
+      player: { credits: 100, karma: 0, factions: {}, daysElapsed: 5, currentSystem: SOL_SYSTEM_ID },
+      ship: { cargo: [], hiddenCargo: [] },
+      world: { visitedSystems: [], dangerFlags: {}, narrativeEvents: { fired: [], cooldowns: {}, flags: {}, dockedSystems: [] } },
+      npcs: {},
+      missions: { active: [], completed: [], failed: [], board: [], boardLastRefresh: 0 },
+      stats: { creditsEarned: 0, jumpsCompleted: 0, cargoHauled: 0, charitableActs: 0 },
+      quests: {},
+      meta: { version: '5.0.0' },
+    };
+
+    const migrated = addStateDefaults(oldState, STAR_DATA);
+    expect(migrated.achievements).toEqual({});
+  });
+
+  it('should preserve existing achievements on load', () => {
+    const stateWithAchievements = {
+      player: { credits: 100, karma: 0, factions: {}, daysElapsed: 5, currentSystem: SOL_SYSTEM_ID },
+      ship: { cargo: [], hiddenCargo: [] },
+      world: { visitedSystems: [], dangerFlags: {}, narrativeEvents: { fired: [], cooldowns: {}, flags: {}, dockedSystems: [] } },
+      npcs: {},
+      missions: { active: [], completed: [], failed: [], board: [], boardLastRefresh: 0 },
+      stats: { creditsEarned: 0, jumpsCompleted: 0, cargoHauled: 0, charitableActs: 0 },
+      quests: {},
+      achievements: { survival_1: { unlocked: true, unlockedOnDay: 10 } },
+      meta: { version: '5.0.0' },
+    };
+
+    const migrated = addStateDefaults(stateWithAchievements, STAR_DATA);
+    expect(migrated.achievements.survival_1.unlocked).toBe(true);
   });
 });

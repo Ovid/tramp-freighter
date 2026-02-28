@@ -875,6 +875,11 @@ export function addStateDefaults(state, systemData) {
     state.quests = {};
   }
 
+  // Initialize achievements tracking if missing (pre-achievements saves)
+  if (!state.achievements) {
+    state.achievements = {};
+  }
+
   // Initialize narrative events tracking if missing (pre-narrative-events saves)
   if (!state.world.narrativeEvents) {
     state.world.narrativeEvents = {
