@@ -292,14 +292,18 @@ describe('Property: Camera Controls', () => {
       expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
     });
 
-    const githubLink = container.querySelector('a[href="https://github.com/Ovid/tramp-freighter/"]');
+    const githubLink = container.querySelector(
+      'a[href="https://github.com/Ovid/tramp-freighter/"]'
+    );
     expect(githubLink).toBeTruthy();
     expect(githubLink.getAttribute('target')).toBe('_blank');
     expect(githubLink.getAttribute('rel')).toBe('noopener noreferrer');
     expect(githubLink.textContent.trim()).toBe('GitHub');
 
     // Should be the first child in the buttons container
-    const buttonsContainer = container.querySelector('.camera-controls-buttons');
+    const buttonsContainer = container.querySelector(
+      '.camera-controls-buttons'
+    );
     expect(buttonsContainer.firstElementChild).toBe(githubLink);
   });
 

@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { ACHIEVEMENTS_CONFIG, EVENT_NAMES, NOTIFICATION_CONFIG } from '../../game/constants';
+import {
+  ACHIEVEMENTS_CONFIG,
+  EVENT_NAMES,
+  NOTIFICATION_CONFIG,
+} from '../../game/constants';
 
 /**
  * Toast notification that appears when an achievement is unlocked.

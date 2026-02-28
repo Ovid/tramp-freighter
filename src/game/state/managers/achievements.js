@@ -85,7 +85,8 @@ export class AchievementsManager extends BaseManager {
       ...achievement,
       current: this.resolveStatPath(achievement.statPath),
       unlocked: !!state.achievements?.[achievement.id],
-      unlockedOnDay: state.achievements?.[achievement.id]?.unlockedOnDay ?? null,
+      unlockedOnDay:
+        state.achievements?.[achievement.id]?.unlockedOnDay ?? null,
     }));
   }
 }

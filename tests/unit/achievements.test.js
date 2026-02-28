@@ -6,28 +6,43 @@ import {
   KARMA_CONFIG,
 } from '../../src/game/constants.js';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
-import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES } from '../../src/game/data/achievements-data.js';
+import {
+  ACHIEVEMENTS,
+  ACHIEVEMENT_CATEGORIES,
+} from '../../src/game/data/achievements-data.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { addStateDefaults } from '../../src/game/state/state-validators.js';
-import { getKarmaLabel, getFactionLabel } from '../../src/features/achievements/StatsSection';
+import {
+  getKarmaLabel,
+  getFactionLabel,
+} from '../../src/features/achievements/StatsSection';
 
 describe('Achievement Constants', () => {
   it('should define achievement tier thresholds for all categories', () => {
-    const categories = ['EXPLORATION', 'TRADING', 'SOCIAL', 'SURVIVAL', 'DANGER', 'MORAL'];
+    const categories = [
+      'EXPLORATION',
+      'TRADING',
+      'SOCIAL',
+      'SURVIVAL',
+      'DANGER',
+      'MORAL',
+    ];
     for (const category of categories) {
-      expect(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_1`]).toBeGreaterThan(0);
-      expect(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_2`]).toBeGreaterThan(
+      expect(
         ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_1`]
-      );
-      expect(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_3`]).toBeGreaterThan(
+      ).toBeGreaterThan(0);
+      expect(
         ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_2`]
-      );
-      expect(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_4`]).toBeGreaterThan(
+      ).toBeGreaterThan(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_1`]);
+      expect(
         ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_3`]
-      );
+      ).toBeGreaterThan(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_2`]);
+      expect(
+        ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_4`]
+      ).toBeGreaterThan(ACHIEVEMENTS_CONFIG.THRESHOLDS[`${category}_TIER_3`]);
     }
   });
 
@@ -70,7 +85,9 @@ describe('Achievement Definitions', () => {
 
   it('should have 4 tiers per category', () => {
     for (const category of ACHIEVEMENT_CATEGORIES) {
-      const categoryAchievements = ACHIEVEMENTS.filter((a) => a.category === category);
+      const categoryAchievements = ACHIEVEMENTS.filter(
+        (a) => a.category === category
+      );
       expect(categoryAchievements.length).toBe(4);
       const tiers = categoryAchievements.map((a) => a.tier).sort();
       expect(tiers).toEqual([1, 2, 3, 4]);
@@ -97,9 +114,9 @@ describe('Achievement Definitions', () => {
 
   it('should have increasing targets within each category', () => {
     for (const category of ACHIEVEMENT_CATEGORIES) {
-      const sorted = ACHIEVEMENTS
-        .filter((a) => a.category === category)
-        .sort((a, b) => a.tier - b.tier);
+      const sorted = ACHIEVEMENTS.filter((a) => a.category === category).sort(
+        (a, b) => a.tier - b.tier
+      );
       for (let i = 1; i < sorted.length; i++) {
         expect(sorted[i].target).toBeGreaterThan(sorted[i - 1].target);
       }
@@ -126,11 +143,15 @@ describe('Achievement Target Validation', () => {
     }
 
     // 47 reachable via wormholes + 1 Delta Pavonis (endgame quest)
-    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.EXPLORATION_TIER_4).toBe(reachable.size + 1);
+    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.EXPLORATION_TIER_4).toBe(
+      reachable.size + 1
+    );
   });
 
   it('social tier 4 target should not exceed total NPC count', () => {
-    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.SOCIAL_TIER_4).toBeLessThanOrEqual(ALL_NPCS.length);
+    expect(ACHIEVEMENTS_CONFIG.THRESHOLDS.SOCIAL_TIER_4).toBeLessThanOrEqual(
+      ALL_NPCS.length
+    );
   });
 
   it('moral tier 4 target should not exceed karma bounds', () => {
@@ -161,23 +182,31 @@ describe('AchievementsManager', () => {
   });
 
   it('should resolve simple statPath from game state', () => {
-    const value = manager.achievementsManager.resolveStatPath('stats.jumpsCompleted');
+    const value = manager.achievementsManager.resolveStatPath(
+      'stats.jumpsCompleted'
+    );
     expect(value).toBe(0);
   });
 
   it('should resolve computed.trustedNPCCount', () => {
-    const value = manager.achievementsManager.resolveStatPath('computed.trustedNPCCount');
+    const value = manager.achievementsManager.resolveStatPath(
+      'computed.trustedNPCCount'
+    );
     expect(value).toBe(0);
   });
 
   it('should resolve computed.totalDangerEncounters', () => {
-    const value = manager.achievementsManager.resolveStatPath('computed.totalDangerEncounters');
+    const value = manager.achievementsManager.resolveStatPath(
+      'computed.totalDangerEncounters'
+    );
     expect(value).toBe(0);
   });
 
   it('should resolve computed.karmaAbsolute', () => {
     manager.state.player.karma = -42;
-    const value = manager.achievementsManager.resolveStatPath('computed.karmaAbsolute');
+    const value = manager.achievementsManager.resolveStatPath(
+      'computed.karmaAbsolute'
+    );
     expect(value).toBe(42);
   });
 
@@ -195,7 +224,9 @@ describe('AchievementsManager', () => {
 
     manager.state.player.daysElapsed = 50;
     manager.achievementsManager.checkAchievements();
-    expect(manager.state.achievements['survival_1'].unlockedOnDay).toBe(firstDay);
+    expect(manager.state.achievements['survival_1'].unlockedOnDay).toBe(
+      firstDay
+    );
   });
 
   it('should emit achievementUnlocked event on unlock', () => {
@@ -211,7 +242,9 @@ describe('AchievementsManager', () => {
 
   it('should emit achievementsChanged event on unlock', () => {
     let changed = false;
-    manager.subscribe('achievementsChanged', () => { changed = true; });
+    manager.subscribe('achievementsChanged', () => {
+      changed = true;
+    });
 
     manager.state.stats.jumpsCompleted = 10;
     manager.achievementsManager.checkAchievements();
@@ -221,7 +254,9 @@ describe('AchievementsManager', () => {
 
   it('should not emit events when no achievements unlock', () => {
     let emitted = false;
-    manager.subscribe('achievementUnlocked', () => { emitted = true; });
+    manager.subscribe('achievementUnlocked', () => {
+      emitted = true;
+    });
 
     manager.achievementsManager.checkAchievements();
     expect(emitted).toBe(false);
@@ -266,12 +301,38 @@ describe('Achievement Event Integration', () => {
 describe('Save Compatibility', () => {
   it('should add achievements field to old saves missing it', () => {
     const oldState = {
-      player: { credits: 100, karma: 0, factions: {}, daysElapsed: 5, currentSystem: SOL_SYSTEM_ID },
+      player: {
+        credits: 100,
+        karma: 0,
+        factions: {},
+        daysElapsed: 5,
+        currentSystem: SOL_SYSTEM_ID,
+      },
       ship: { cargo: [], hiddenCargo: [] },
-      world: { visitedSystems: [], dangerFlags: {}, narrativeEvents: { fired: [], cooldowns: {}, flags: {}, dockedSystems: [] } },
+      world: {
+        visitedSystems: [],
+        dangerFlags: {},
+        narrativeEvents: {
+          fired: [],
+          cooldowns: {},
+          flags: {},
+          dockedSystems: [],
+        },
+      },
       npcs: {},
-      missions: { active: [], completed: [], failed: [], board: [], boardLastRefresh: 0 },
-      stats: { creditsEarned: 0, jumpsCompleted: 0, cargoHauled: 0, charitableActs: 0 },
+      missions: {
+        active: [],
+        completed: [],
+        failed: [],
+        board: [],
+        boardLastRefresh: 0,
+      },
+      stats: {
+        creditsEarned: 0,
+        jumpsCompleted: 0,
+        cargoHauled: 0,
+        charitableActs: 0,
+      },
       quests: {},
       meta: { version: '5.0.0' },
     };
@@ -282,12 +343,38 @@ describe('Save Compatibility', () => {
 
   it('should preserve existing achievements on load', () => {
     const stateWithAchievements = {
-      player: { credits: 100, karma: 0, factions: {}, daysElapsed: 5, currentSystem: SOL_SYSTEM_ID },
+      player: {
+        credits: 100,
+        karma: 0,
+        factions: {},
+        daysElapsed: 5,
+        currentSystem: SOL_SYSTEM_ID,
+      },
       ship: { cargo: [], hiddenCargo: [] },
-      world: { visitedSystems: [], dangerFlags: {}, narrativeEvents: { fired: [], cooldowns: {}, flags: {}, dockedSystems: [] } },
+      world: {
+        visitedSystems: [],
+        dangerFlags: {},
+        narrativeEvents: {
+          fired: [],
+          cooldowns: {},
+          flags: {},
+          dockedSystems: [],
+        },
+      },
       npcs: {},
-      missions: { active: [], completed: [], failed: [], board: [], boardLastRefresh: 0 },
-      stats: { creditsEarned: 0, jumpsCompleted: 0, cargoHauled: 0, charitableActs: 0 },
+      missions: {
+        active: [],
+        completed: [],
+        failed: [],
+        board: [],
+        boardLastRefresh: 0,
+      },
+      stats: {
+        creditsEarned: 0,
+        jumpsCompleted: 0,
+        cargoHauled: 0,
+        charitableActs: 0,
+      },
       quests: {},
       achievements: { survival_1: { unlocked: true, unlockedOnDay: 10 } },
       meta: { version: '5.0.0' },

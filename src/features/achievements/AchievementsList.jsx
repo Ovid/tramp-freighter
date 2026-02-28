@@ -42,7 +42,8 @@ export function AchievementsList() {
                     <span
                       className={`achievement-name ${achievement.unlocked ? 'unlocked' : ''}`}
                     >
-                      {achievement.unlocked ? '\u2713 ' : ''}{achievement.name}
+                      {achievement.unlocked ? '\u2713 ' : ''}
+                      {achievement.name}
                     </span>
                     <span className="achievement-progress-text">
                       {achievement.current}/{achievement.target}

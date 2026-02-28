@@ -145,7 +145,9 @@ export function StatsSection() {
         </div>
         <div className="stat-row">
           <span className="stat-label">Days Elapsed</span>
-          <span className="stat-value">{Math.round(player.daysElapsed ?? 0)}</span>
+          <span className="stat-value">
+            {Math.round(player.daysElapsed ?? 0)}
+          </span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Credits Earned</span>

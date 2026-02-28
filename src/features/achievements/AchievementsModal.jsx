@@ -7,7 +7,9 @@ export function AchievementsModal({ isOpen, onClose }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Achievements & Stats">
       <div id="achievements-modal">
         <StatsSection />
-        <hr style={{ borderColor: 'rgba(255, 255, 255, 0.1)', margin: '15px 0' }} />
+        <hr
+          style={{ borderColor: 'rgba(255, 255, 255, 0.1)', margin: '15px 0' }}
+        />
         <AchievementsList />
       </div>
     </Modal>
