@@ -10,7 +10,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
 import {
   COMBAT_CONFIG,
-  NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
   INSPECTION_CONFIG,
   DISTRESS_CONFIG,
