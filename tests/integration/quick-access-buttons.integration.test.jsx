@@ -62,6 +62,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load
       await waitFor(() => {
         expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -107,6 +113,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -160,6 +172,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load
       await waitFor(() => {
         expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -196,6 +214,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -245,6 +269,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load
       await waitFor(() => {
         const systemInfoBtn = screen.getByText('System Info');
@@ -280,6 +310,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -326,6 +362,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load
       await waitFor(() => {
         expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -362,6 +404,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -414,6 +462,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load at Sol (has station)
       await waitFor(() => {
         expect(screen.getByText('Dock')).toBeInTheDocument();
@@ -446,6 +500,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -481,6 +541,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -523,6 +589,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
 
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
+
       // Wait for game to load
       await waitFor(() => {
         const systemInfoBtn = screen.getByText('System Info');
@@ -552,6 +624,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {
@@ -586,6 +664,12 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
       const confirmBtn = screen.getByText('Confirm');
       fireEvent.click(confirmBtn);
+
+      // Dismiss the auto-shown instructions modal
+      await waitFor(() => {
+        expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByLabelText('Close modal'));
 
       // Wait for game to load
       await waitFor(() => {

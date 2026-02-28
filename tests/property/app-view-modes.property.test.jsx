@@ -126,6 +126,10 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
         const confirmButton = screen.getByText('Confirm');
         fireEvent.click(confirmButton);
 
+        // Dismiss the auto-shown instructions modal
+        const closeModal = screen.getByLabelText('Close modal');
+        fireEvent.click(closeModal);
+
         // Now we should be in ORBIT mode
         // Verify starmap container is present (StarMapCanvas component)
         const starmapContainer = container.querySelector('.starmap-container');
@@ -180,6 +184,10 @@ describe('Property: STATION mode displays station menu', () => {
         // Submit ship name (uses default if empty)
         const confirmButton = screen.getByText('Confirm');
         fireEvent.click(confirmButton);
+
+        // Dismiss the auto-shown instructions modal
+        const closeModal = screen.getByLabelText('Close modal');
+        fireEvent.click(closeModal);
 
         // Click dock button to transition to STATION mode
         const dockButton = screen.getByText('Dock');
@@ -237,6 +245,10 @@ describe('Property: PANEL mode displays active panel', () => {
         // Submit ship name (uses default if empty)
         const confirmButton = screen.getByText('Confirm');
         fireEvent.click(confirmButton);
+
+        // Dismiss the auto-shown instructions modal
+        const closeModal = screen.getByLabelText('Close modal');
+        fireEvent.click(closeModal);
 
         // Click dock button to transition to STATION mode
         const dockButton = screen.getByText('Dock');
@@ -302,6 +314,10 @@ describe('Property: View mode changes update visibility', () => {
         // Submit ship name (uses default if empty)
         const confirmButton = screen.getByText('Confirm');
         fireEvent.click(confirmButton);
+
+        // Dismiss the auto-shown instructions modal
+        const closeModal = screen.getByLabelText('Close modal');
+        fireEvent.click(closeModal);
 
         // Initial state: ORBIT mode
         let stationMenu = container.querySelector('#station-interface');

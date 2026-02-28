@@ -65,6 +65,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
 
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
+
     // Wait for game to load
     await waitFor(() => {
       expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -137,6 +143,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
 
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
+
     // Wait for game to load (in orbit, not docked)
     await waitFor(() => {
       expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -186,6 +198,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
+
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
 
     // Wait for game to load
     await waitFor(() => {
@@ -247,6 +265,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
 
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
+
     // Wait for game to load
     await waitFor(() => {
       expect(screen.getByText('System Info')).toBeInTheDocument();
@@ -279,6 +303,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
+
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
 
     // Wait for game to load
     await waitFor(() => {
@@ -324,6 +354,12 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
     const confirmBtn = screen.getByText('Confirm');
     fireEvent.click(confirmBtn);
+
+    // Dismiss the auto-shown instructions modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Close modal'));
 
     // Wait for game to load (ORBIT mode)
     await waitFor(() => {
