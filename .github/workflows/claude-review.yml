@@ -1,27 +1,25 @@
-name: Claude Auto Review
+name: Claude PR Review
 on:
   pull_request:
     types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
 
 jobs:
   review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '@claude'))
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            PR NUMBER: ${{ github.event.pull_request.number }}
-            Please review this pull request focusing on:
-            - Code quality and best practices
-            - Potential bugs
-            - Security implications
-            - Performance considerations
-            - Architecture flaws
-            Use `gh pr comment` for top-level feedback.
