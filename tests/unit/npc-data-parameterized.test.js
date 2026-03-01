@@ -94,7 +94,7 @@ const NPC_TEST_CASES = [
       id: 'kim_tau_ceti',
       name: 'Dr. Sarah Kim',
       role: 'Station Administrator',
-      system: 5,
+      system: 31,
       station: 'Tau Ceti Station',
     },
     expectedPersonality: {
@@ -123,7 +123,7 @@ const NPC_TEST_CASES = [
       id: 'rodriguez_procyon',
       name: '"Rusty" Rodriguez',
       role: 'Mechanic',
-      system: 6,
+      system: 19,
       station: 'Procyon Depot',
     },
     expectedPersonality: {

@@ -218,4 +218,26 @@ describe('NPC System Reachability', () => {
       ).toBe(graphReachable);
     }
   });
+
+  it('should have NPC id star-name suffix matching their assigned system', () => {
+    // NPC ids follow the pattern "surname_starname" (e.g. "chen_barnards", "cole_sol")
+    // Normalize to comparable form: lowercase, strip punctuation/spaces/underscores
+    function normalize(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    for (const npc of ALL_NPCS) {
+      const star = starById.get(npc.system);
+      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
+
+      // Extract the star-name portion of the NPC id (everything after the first underscore)
+      const idSuffix = normalize(npc.id.substring(npc.id.indexOf('_') + 1));
+      const starName = normalize(star.name);
+
+      expect(
+        starName.startsWith(idSuffix) || idSuffix.startsWith(starName),
+        `NPC "${npc.name}" (id "${npc.id}"): id suffix "${idSuffix}" does not match system "${star.name}" (id ${star.id})`
+      ).toBe(true);
+    }
+  });
 });

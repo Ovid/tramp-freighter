@@ -362,7 +362,7 @@ export const DR_SARAH_KIM = {
   id: 'kim_tau_ceti',
   name: 'Dr. Sarah Kim',
   role: 'Station Administrator',
-  system: 5, // Tau Ceti
+  system: 31, // Tau Ceti
   station: 'Tau Ceti Station',
   personality: {
     trust: 0.4, // Cautious trust - needs to see professionalism
@@ -413,7 +413,7 @@ export const RUSTY_RODRIGUEZ = {
   id: 'rodriguez_procyon',
   name: '"Rusty" Rodriguez',
   role: 'Mechanic',
-  system: 6, // Procyon
+  system: 19, // Procyon
   station: 'Procyon Depot',
   personality: {
     trust: 0.7, // High trust - trusting nature
