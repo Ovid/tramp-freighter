@@ -6,6 +6,7 @@
   Also, for those options with lower chances of success, would there be any
   benefit to taking them? Might be worth it (catching spare cargo breaking
   loose, or better rep with authorities and things like that)
+  Please first verify that I've correctly diagnosed the issue.
 - We need to have gear menu link to "achievements"
     (visited all stars, for example)
     System needs to validate that all achievements in the game are possible.
