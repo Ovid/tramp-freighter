@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
+import { SeededRandom } from '../../src/game/utils/seeded-random.js';
 
 function createMockGameStateManager(stateOverrides = {}) {
   const defaultState = {
@@ -496,6 +497,29 @@ describe('EventEngineManager', () => {
 
     it('should return null for unknown id', () => {
       expect(engine.getEventById('nonexistent')).toBeNull();
+    });
+  });
+
+  describe('checkEvents seeded RNG determinism', () => {
+    it('produces the same result for the same seed', () => {
+      const event = {
+        id: 'seed_test_event',
+        type: 'dock',
+        category: 'narrative',
+        trigger: { chance: 0.5 },
+        priority: 10,
+        content: {},
+      };
+      engine.registerEvent(event);
+
+      const seed = 'event-dock-10-0';
+      const rng1 = new SeededRandom(seed);
+      const rng2 = new SeededRandom(seed);
+
+      const result1 = engine.checkEvents('dock', { system: 0 }, () => rng1.next());
+      const result2 = engine.checkEvents('dock', { system: 0 }, () => rng2.next());
+
+      expect(result1?.id ?? null).toBe(result2?.id ?? null);
     });
   });
 });
