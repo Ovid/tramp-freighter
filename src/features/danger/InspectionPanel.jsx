@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
+import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
 import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
@@ -115,7 +116,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                       >
                         <div className="item-info">
                           <span className="item-name">
-                            {formatCommodityName(item.good)}
+                            {formatCargoDisplayName(item.good)}
                           </span>
                           <span className="item-quantity">
                             {item.qty} units
@@ -224,7 +225,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                       Restricted Goods Detected:
                     </span>
                     <span className="warning-text">
-                      {inspectionAnalysis.restrictedItems.join(', ')}
+                      {inspectionAnalysis.restrictedItems.map(formatCargoDisplayName).join(', ')}
                     </span>
                   </div>
                 )}
@@ -478,17 +479,6 @@ function getReputationTier(reputation = 0) {
   if (reputation >= -10) return 'Neutral';
   if (reputation >= -50) return 'Suspicious';
   return 'Wanted';
-}
-
-/**
- * Format commodity names for display
- *
- * @param {string} commodityName - The commodity name
- * @returns {string} Formatted display name
- */
-function formatCommodityName(commodityName) {
-  if (!commodityName || typeof commodityName !== 'string') return 'Unknown';
-  return commodityName.charAt(0).toUpperCase() + commodityName.slice(1);
 }
 
 /**
