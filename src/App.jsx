@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleScreen } from './features/title-screen/TitleScreen';
 import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
@@ -399,9 +399,9 @@ export default function App({ devMode = false }) {
     setActiveNarrativeEvent(null);
   };
 
-  const handleStartPavonisRun = () => {
+  const handleStartPavonisRun = useCallback(() => {
     setViewMode(VIEW_MODES.PAVONIS_RUN);
-  };
+  }, []);
 
   const handlePavonisComplete = () => {
     gameStateManager.markVictory();
@@ -416,7 +416,7 @@ export default function App({ devMode = false }) {
     if (pavonisRunEvent) {
       handleStartPavonisRun();
     }
-  }, [pavonisRunEvent]);
+  }, [pavonisRunEvent, handleStartPavonisRun]);
 
   return (
     <ErrorBoundary>
