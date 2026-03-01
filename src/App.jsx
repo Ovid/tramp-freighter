@@ -26,6 +26,7 @@ import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
+import { AchievementToast } from './features/achievements/AchievementToast';
 import { PavonisRun } from './features/endgame/PavonisRun.jsx';
 import { Epilogue } from './features/endgame/Epilogue.jsx';
 
@@ -409,6 +410,7 @@ export default function App({ devMode = false }) {
               {/* HUD is always rendered */}
               <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
               <RumorAlert />
+              <AchievementToast />
 
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (

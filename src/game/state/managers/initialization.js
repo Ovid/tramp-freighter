@@ -62,10 +62,10 @@ export class InitializationManager {
         creditsEarned: 0,
         jumpsCompleted: 0,
         cargoHauled: 0,
-        smugglingRuns: 0,
         charitableActs: 0,
       },
       quests: {},
+      achievements: {},
       meta: metaState,
     };
   }

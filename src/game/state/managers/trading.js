@@ -114,6 +114,7 @@ export class TradingManager extends BaseManager {
       state.stats.cargoHauled += quantity;
       state.stats.creditsEarned += totalRevenue;
     }
+    this.gameStateManager.achievementsManager.checkAchievements();
 
     // Remove quantity from stack; remove stack if empty
     stack.qty -= quantity;

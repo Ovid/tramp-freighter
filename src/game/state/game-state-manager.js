@@ -24,6 +24,7 @@ import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { DebtManager } from './managers/debt.js';
+import { AchievementsManager } from './managers/achievements.js';
 import {
   isVersionCompatible,
   validateStateStructure,
@@ -123,6 +124,7 @@ export class GameStateManager {
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
+    this.achievementsManager = new AchievementsManager(this);
 
     // Flush pending saves when the browser tab closes
     if (typeof window !== 'undefined') {
@@ -237,6 +239,10 @@ export class GameStateManager {
 
     this._emitAllStateEvents(migratedState);
 
+    // Catch up achievements that already meet thresholds (e.g. saves from
+    // before the achievements system, or new achievements added in updates).
+    this.achievementsManager.checkAchievements();
+
     devLog('State restored successfully');
 
     return { success: true, state: migratedState };
@@ -318,6 +324,9 @@ export class GameStateManager {
     }
     if (state.quests) {
       this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
+    }
+    if (state.achievements) {
+      this.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, { ...state.achievements });
     }
   }
 
@@ -644,6 +653,30 @@ export class GameStateManager {
   processDebtTick() {
     this.debtManager.applyInterest();
     return this.debtManager.checkCheckpoint();
+  }
+
+  // ========================================================================
+  // ACHIEVEMENTS SYSTEM
+  // ========================================================================
+
+  getAchievementProgress() {
+    return this.achievementsManager.getProgress();
+  }
+
+  getStatsSnapshot() {
+    const state = this.stateManager.getState();
+    const stats = state?.stats ?? {};
+    const player = state?.player ?? {};
+    const world = state?.world ?? {};
+    return {
+      jumpsCompleted: stats.jumpsCompleted ?? 0,
+      creditsEarned: stats.creditsEarned ?? 0,
+      cargoHauled: stats.cargoHauled ?? 0,
+      charitableActs: stats.charitableActs ?? 0,
+      daysElapsed: Math.round(player.daysElapsed ?? 0),
+      visitedCount: (world.visitedSystems ?? []).length,
+      dangerFlags: world.dangerFlags ?? {},
+    };
   }
 
   // ========================================================================

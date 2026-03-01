@@ -1,29 +1,35 @@
-.PHONY: all build test lint format clean open dev preview knip
+.PHONY: all build test cover lint format clean open dev preview knip help
 
-all: lint format build test
+all: lint format build test ## Lint, format, build, and test
 
-build:
+build: ## Build production bundle to dist/
 	npm run build
 
-test:
+test: ## Run full test suite
 	npm test
 
-lint:
+cover: ## Generate code coverage report (one-shot)
+	npm run test:coverage -- --run
+
+lint: ## Run ESLint with autofix
 	npm run lint:fix
 
-format:
+format: ## Run Prettier formatter
 	npm run format:write
 
-clean:
+clean: ## Lint + format all files
 	npm run clean
 
-open: dev
+open: dev ## Alias for dev
 
-dev:
+dev: ## Start dev server and open browser
 	npm run dev -- --open
 
-preview: build
+preview: build ## Build then preview production bundle
 	npm run preview -- --open
 
-knip:
+knip: ## Find unused exports and dependencies
 	npm run knip
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-10s %s\n", $$1, $$2}'

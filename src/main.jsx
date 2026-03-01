@@ -45,6 +45,7 @@ import '../css/panel/system-info.css';
 import '../css/panel/system-panel.css';
 import '../css/panel/trade.css';
 import '../css/panel/upgrades.css';
+import '../css/panel/achievements.css';
 
 /**
  * Initialize GameStateManager with either saved game or new game.

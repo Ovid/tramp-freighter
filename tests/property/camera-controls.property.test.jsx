@@ -70,9 +70,9 @@ describe('Property: Camera Controls', () => {
       expect(controlButtons).toBeTruthy();
     });
 
-    // Verify all 7 controls are present (GitHub link + 6 buttons)
+    // Verify all 8 controls are present (GitHub link + 7 buttons)
     const buttons = controlButtons.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(7);
+    expect(buttons.length).toBe(8);
 
     // Click to collapse
     fireEvent.click(toggleButton);
@@ -292,18 +292,22 @@ describe('Property: Camera Controls', () => {
       expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
     });
 
-    const githubLink = container.querySelector('a[href="https://github.com/Ovid/tramp-freighter/"]');
+    const githubLink = container.querySelector(
+      'a[href="https://github.com/Ovid/tramp-freighter/"]'
+    );
     expect(githubLink).toBeTruthy();
     expect(githubLink.getAttribute('target')).toBe('_blank');
     expect(githubLink.getAttribute('rel')).toBe('noopener noreferrer');
     expect(githubLink.textContent.trim()).toBe('GitHub');
 
     // Should be the first child in the buttons container
-    const buttonsContainer = container.querySelector('.camera-controls-buttons');
+    const buttonsContainer = container.querySelector(
+      '.camera-controls-buttons'
+    );
     expect(buttonsContainer.firstElementChild).toBe(githubLink);
   });
 
-  it('should have all 6 control buttons when expanded', async () => {
+  it('should have all 7 control buttons when expanded', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -326,13 +330,14 @@ describe('Property: Camera Controls', () => {
     });
 
     const buttons = container.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(7);
+    expect(buttons.length).toBe(8);
 
     // Verify button labels
     const buttonTexts = Array.from(buttons).map((btn) =>
       btn.textContent.trim()
     );
     expect(buttonTexts).toContain('GitHub');
+    expect(buttonTexts).toContain('Achievements');
     expect(buttonTexts).toContain('Zoom In');
     expect(buttonTexts).toContain('Zoom Out');
     expect(buttonTexts).toContain('Toggle Rotation');

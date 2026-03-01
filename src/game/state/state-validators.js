@@ -865,7 +865,6 @@ export function addStateDefaults(state, systemData) {
       creditsEarned: 0,
       jumpsCompleted: 0,
       cargoHauled: 0,
-      smugglingRuns: 0,
       charitableActs: 0,
     };
   }
@@ -873,6 +872,11 @@ export function addStateDefaults(state, systemData) {
   // Initialize quest state if missing (pre-endgame saves)
   if (!state.quests) {
     state.quests = {};
+  }
+
+  // Initialize achievements tracking if missing (pre-achievements saves)
+  if (!state.achievements) {
+    state.achievements = {};
   }
 
   // Initialize narrative events tracking if missing (pre-narrative-events saves)
