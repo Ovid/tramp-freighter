@@ -26,7 +26,14 @@
   padding: 30px;
   max-width: 500px;
   min-width: 400px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-glow-primary);
+}
+
+.modal-body {
+  overflow-y: auto;
 }
 
 .modal-content {
