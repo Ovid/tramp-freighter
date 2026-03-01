@@ -57,9 +57,10 @@ export function AchievementToast() {
     };
 
     gameStateManager.subscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
+    const queue = queueRef.current;
     return () => {
       gameStateManager.unsubscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
-      const timers = queueRef.current._timers;
+      const timers = queue._timers;
       if (timers) {
         timers.forEach(clearTimeout);
       }
