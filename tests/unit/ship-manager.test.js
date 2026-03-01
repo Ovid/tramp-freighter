@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
 import { SHIP_CONFIG, EVENT_NAMES } from '@game/constants.js';
-import { sanitizeShipName } from '../../src/game/state/game-state-manager.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 
 describe('ShipManager', () => {
   let gsm;

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { sanitizeShipName } from '../../src/game/state/game-state-manager.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';

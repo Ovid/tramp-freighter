@@ -5,7 +5,7 @@ import {
   EVENT_NAMES,
 } from '../../constants.js';
 import { pickRandomFrom } from '../../utils/seeded-random.js';
-import { sanitizeShipName } from '../game-state-manager.js';
+import { sanitizeShipName } from '../../utils/string-utils.js';
 
 /**
  * Ship Manager - Handles all ship-related operations

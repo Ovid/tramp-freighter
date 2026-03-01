@@ -5,7 +5,7 @@ import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDial
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { sanitizeShipName } from '../../src/game/state/game-state-manager.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import { saveGame, loadGame } from '../../src/game/state/save-load.js';
 import { createWrapper } from '../react-test-utils.jsx';
 

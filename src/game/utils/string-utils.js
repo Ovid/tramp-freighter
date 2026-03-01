@@ -5,6 +5,31 @@
  * consistent formatting and avoid duplication.
  */
 
+import { SHIP_CONFIG } from '../constants.js';
+
+/**
+ * Sanitize ship name input
+ *
+ * Removes HTML tags, trims whitespace, and limits length to prevent display issues.
+ * Returns default ship name if input is empty after sanitization.
+ *
+ * @param {string} name - User input for ship name
+ * @returns {string} Sanitized name or default
+ */
+export function sanitizeShipName(name) {
+  if (!name || name.trim().length === 0) {
+    return SHIP_CONFIG.DEFAULT_NAME;
+  }
+
+  // Remove HTML tags, limit length, then trim (order matters for edge cases)
+  const sanitized = name
+    .replace(/<[^>]*>/g, '')
+    .substring(0, SHIP_CONFIG.MAX_NAME_LENGTH)
+    .trim();
+
+  return sanitized || SHIP_CONFIG.DEFAULT_NAME;
+}
+
 /**
  * Capitalize first letter of a string for display purposes
  *

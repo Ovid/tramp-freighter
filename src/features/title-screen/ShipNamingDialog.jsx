@@ -8,7 +8,7 @@
  */
 import { useState } from 'react';
 import { SHIP_CONFIG } from '../../game/constants';
-import { sanitizeShipName } from '../../game/state/game-state-manager';
+import { sanitizeShipName } from '../../game/utils/string-utils';
 
 /**
  * ShipNamingDialog component that allows the player to name their ship.
