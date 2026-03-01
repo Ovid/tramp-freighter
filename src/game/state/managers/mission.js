@@ -469,7 +469,9 @@ export class MissionManager extends BaseManager {
         ? (systemId) => this.gameStateManager.getDangerZone(systemId)
         : null;
 
-    const rng = new SeededRandom(`mission-board-${currentDay}-${state.player.currentSystem}`);
+    const rng = new SeededRandom(
+      `mission-board-${currentDay}-${state.player.currentSystem}`
+    );
     const board = generateMissionBoard(
       state.player.currentSystem,
       this.gameStateManager.starData,

@@ -28,7 +28,9 @@ describe('Event emission reference equality', () => {
   it('FACTION_REP_CHANGED emits a new object reference each time', () => {
     const gsm = makeGSM();
     const received = [];
-    gsm.subscribe(EVENT_NAMES.FACTION_REP_CHANGED, (data) => received.push(data));
+    gsm.subscribe(EVENT_NAMES.FACTION_REP_CHANGED, (data) =>
+      received.push(data)
+    );
 
     gsm.modifyFactionRep('authorities', 5, 'test');
     gsm.modifyFactionRep('authorities', 5, 'test');

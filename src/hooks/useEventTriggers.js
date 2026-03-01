@@ -163,7 +163,11 @@ export function useEventTriggers() {
       if (!event) {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
-          const condEvent = gameStateManager.checkEvents('condition', context, rngFn);
+          const condEvent = gameStateManager.checkEvents(
+            'condition',
+            context,
+            rngFn
+          );
           if (condEvent) {
             emitNarrativeEvent(condEvent);
           }

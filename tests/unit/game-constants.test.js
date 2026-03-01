@@ -26,7 +26,9 @@ describe('Magic constants are named in constants.js', () => {
   it('counter-proposal reduced credit cost equals MIN_CREDIT_DEMAND * COUNTER_PROPOSAL_DISCOUNT', () => {
     const { MIN_CREDIT_DEMAND, COUNTER_PROPOSAL_DISCOUNT } =
       PIRATE_CREDIT_DEMAND_CONFIG;
-    const expectedCost = Math.round(MIN_CREDIT_DEMAND * COUNTER_PROPOSAL_DISCOUNT);
+    const expectedCost = Math.round(
+      MIN_CREDIT_DEMAND * COUNTER_PROPOSAL_DISCOUNT
+    );
     expect(expectedCost).toBe(75); // 150 * 0.5 = 75
   });
 

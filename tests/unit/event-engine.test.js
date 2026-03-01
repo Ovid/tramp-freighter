@@ -516,8 +516,12 @@ describe('EventEngineManager', () => {
       const rng1 = new SeededRandom(seed);
       const rng2 = new SeededRandom(seed);
 
-      const result1 = engine.checkEvents('dock', { system: 0 }, () => rng1.next());
-      const result2 = engine.checkEvents('dock', { system: 0 }, () => rng2.next());
+      const result1 = engine.checkEvents('dock', { system: 0 }, () =>
+        rng1.next()
+      );
+      const result2 = engine.checkEvents('dock', { system: 0 }, () =>
+        rng2.next()
+      );
 
       expect(result1?.id ?? null).toBe(result2?.id ?? null);
     });

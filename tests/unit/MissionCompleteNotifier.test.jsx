@@ -38,13 +38,18 @@ describe('MissionCompleteNotifier MISSIONS_CHANGED reactivity', () => {
     expect(callsAfterMount).toBeGreaterThanOrEqual(1);
 
     // Simulate MISSIONS_CHANGED by returning a new missions reference
-    useGameEvent.mockReturnValue({ active: [{ id: 'mission-1' }], completed: [] });
+    useGameEvent.mockReturnValue({
+      active: [{ id: 'mission-1' }],
+      completed: [],
+    });
 
     act(() => {
       rerender(<MissionCompleteNotifier />);
     });
 
     // Should have been called again after the missions reference changed
-    expect(getCompletableMissions.mock.calls.length).toBeGreaterThan(callsAfterMount);
+    expect(getCompletableMissions.mock.calls.length).toBeGreaterThan(
+      callsAfterMount
+    );
   });
 });

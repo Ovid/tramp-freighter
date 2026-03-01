@@ -28,9 +28,7 @@ describe('ShipManager', () => {
     });
 
     it('sanitizeShipName strips HTML tags', () => {
-      const result = sanitizeShipName(
-        '<script>alert("x")</script>MyShip'
-      );
+      const result = sanitizeShipName('<script>alert("x")</script>MyShip');
       expect(result).toBe('alert("x")MyShip');
     });
 
