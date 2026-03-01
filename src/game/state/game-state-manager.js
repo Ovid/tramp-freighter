@@ -186,8 +186,8 @@ export class GameStateManager {
    *
    * @returns {Object} Complete initial game state
    */
-  initNewGame() {
-    const completeState = this.initializationManager.createInitialState();
+  initNewGame(gameSeed = Date.now().toString()) {
+    const completeState = this.initializationManager.createInitialState(gameSeed);
 
     this.state = completeState;
 
