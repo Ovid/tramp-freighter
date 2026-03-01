@@ -1732,6 +1732,7 @@ export const EVENT_NAMES = Object.freeze({
   // Player resources
   CREDITS_CHANGED: 'creditsChanged',
   DEBT_CHANGED: 'debtChanged',
+  DEBT_CLEARED: 'debtCleared',
   FINANCE_CHANGED: 'financeChanged',
 
   // Ship systems

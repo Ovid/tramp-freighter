@@ -261,4 +261,24 @@ export function useEventTriggers() {
     return () =>
       gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
   }, [gameStateManager, handleTrigger]);
+
+  // Listen for debt clearance to immediately show the narrative popup
+  useEffect(() => {
+    if (!gameStateManager) return;
+
+    const handleDebtCleared = () => {
+      const event = gameStateManager.getEventById('cond_debt_free');
+      if (!event) return;
+
+      // Respect once-only guard so the event doesn't replay on reload
+      const { fired } = gameStateManager.getState().world.narrativeEvents;
+      if (event.once && fired.includes(event.id)) return;
+
+      emitNarrativeEvent(event);
+    };
+
+    gameStateManager.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+    return () =>
+      gameStateManager.unsubscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+  }, [gameStateManager, emitNarrativeEvent]);
 }

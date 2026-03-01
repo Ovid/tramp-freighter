@@ -453,6 +453,7 @@ export const NARRATIVE_EVENTS = [
         'You stare at the balance sheet. Read it again.',
         'Zero. You owe nothing.',
         'The weight lifts. For the first time since you bought this ship, you can breathe.',
+        'Perhaps it\'s time to see what opportunities the stations ahead have to offer.',
       ],
       speaker: null,
       mood: 'triumphant',
