@@ -59,7 +59,7 @@ export function ShipStatus() {
             className="fuel-bar condition-bar"
             style={{ width: `${safeFuel}%` }}
           />
-          <span className="condition-text">{safeFuel.toFixed(1)}%</span>
+          <span className="condition-text">{Math.round(safeFuel)}%</span>
         </div>
       </div>
       <div className="hud-row">
@@ -70,7 +70,7 @@ export function ShipStatus() {
             style={{ width: `${safeCondition.hull}%` }}
           />
           <span className="condition-text">
-            {safeCondition.hull.toFixed(1)}%
+            {Math.round(safeCondition.hull)}%
           </span>
         </div>
       </div>
@@ -82,7 +82,7 @@ export function ShipStatus() {
             style={{ width: `${safeCondition.engine}%` }}
           />
           <span className="condition-text">
-            {safeCondition.engine.toFixed(1)}%
+            {Math.round(safeCondition.engine)}%
           </span>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function ShipStatus() {
             style={{ width: `${safeCondition.lifeSupport}%` }}
           />
           <span className="condition-text">
-            {safeCondition.lifeSupport.toFixed(1)}%
+            {Math.round(safeCondition.lifeSupport)}%
           </span>
         </div>
       </div>

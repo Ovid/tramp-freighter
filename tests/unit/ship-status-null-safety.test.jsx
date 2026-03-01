@@ -135,7 +135,7 @@ describe('ShipStatus Null Safety', () => {
     expect(conditionTexts).toHaveLength(4); // fuel, hull, engine, lifeSupport
 
     conditionTexts.forEach((element) => {
-      expect(element.textContent).toBe('100.0%');
+      expect(element.textContent).toBe('100%');
     });
   });
 
@@ -162,10 +162,10 @@ describe('ShipStatus Null Safety', () => {
 
     // Assert: Should display mixed values correctly
     const conditionTexts = container.querySelectorAll('.condition-text');
-    expect(conditionTexts[0].textContent).toBe('75.5%'); // fuel
-    expect(conditionTexts[1].textContent).toBe('100.0%'); // hull (default)
-    expect(conditionTexts[2].textContent).toBe('50.0%'); // engine
-    expect(conditionTexts[3].textContent).toBe('100.0%'); // lifeSupport (default)
+    expect(conditionTexts[0].textContent).toBe('76%'); // fuel (Math.round(75.5) = 76)
+    expect(conditionTexts[1].textContent).toBe('100%'); // hull (default)
+    expect(conditionTexts[2].textContent).toBe('50%'); // engine
+    expect(conditionTexts[3].textContent).toBe('100%'); // lifeSupport (default)
   });
 
   it('should handle the specific error case from the bug report', () => {
@@ -211,7 +211,7 @@ describe('ShipStatus Null Safety', () => {
 
     // All condition bars should show default 100% values
     conditionTexts.forEach((element) => {
-      expect(element.textContent).toBe('100.0%');
+      expect(element.textContent).toBe('100%');
     });
   });
 });

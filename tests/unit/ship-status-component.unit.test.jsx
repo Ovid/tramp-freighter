@@ -46,7 +46,7 @@ describe('ShipStatus Component', () => {
     const fuelBar = document.querySelector(
       '.fuel-bar-container .condition-text'
     );
-    expect(fuelBar.textContent).toBe(`${state.ship.fuel.toFixed(1)}%`);
+    expect(fuelBar.textContent).toBe(`${Math.round(state.ship.fuel)}%`);
   });
 
   it('should display hull condition percentage', () => {
@@ -60,7 +60,7 @@ describe('ShipStatus Component', () => {
     const hullBar = document.querySelector(
       '.hull-bar-container .condition-text'
     );
-    expect(hullBar.textContent).toBe(`${state.ship.hull.toFixed(1)}%`);
+    expect(hullBar.textContent).toBe(`${Math.round(state.ship.hull)}%`);
   });
 
   it('should display engine condition percentage', () => {
@@ -74,7 +74,7 @@ describe('ShipStatus Component', () => {
     const engineBar = document.querySelector(
       '.engine-bar-container .condition-text'
     );
-    expect(engineBar.textContent).toBe(`${state.ship.engine.toFixed(1)}%`);
+    expect(engineBar.textContent).toBe(`${Math.round(state.ship.engine)}%`);
   });
 
   it('should display life support condition percentage', () => {
@@ -89,7 +89,7 @@ describe('ShipStatus Component', () => {
       '.life-support-bar-container .condition-text'
     );
     expect(lifeSupportBar.textContent).toBe(
-      `${state.ship.lifeSupport.toFixed(1)}%`
+      `${Math.round(state.ship.lifeSupport)}%`
     );
   });
 
@@ -114,7 +114,7 @@ describe('ShipStatus Component', () => {
 
     const hullBar = document.querySelector('.hull-bar');
     expect(hullBar.style.width).toBe('90%');
-    expect(screen.getByText('90.0%')).toBeInTheDocument();
+    expect(screen.getByText('90%')).toBeInTheDocument();
   });
 
   it('should update engine bar width when condition changes', () => {
@@ -138,7 +138,7 @@ describe('ShipStatus Component', () => {
 
     const engineBar = document.querySelector('.engine-bar');
     expect(engineBar.style.width).toBe('95%');
-    expect(screen.getByText('95.0%')).toBeInTheDocument();
+    expect(screen.getByText('95%')).toBeInTheDocument();
   });
 
   it('should update life support bar width when condition changes', () => {
@@ -162,7 +162,7 @@ describe('ShipStatus Component', () => {
 
     const lifeSupportBar = document.querySelector('.life-support-bar');
     expect(lifeSupportBar.style.width).toBe('89%');
-    expect(screen.getByText('89.0%')).toBeInTheDocument();
+    expect(screen.getByText('89%')).toBeInTheDocument();
   });
 
   it('should update all condition bars reactively', () => {
@@ -192,9 +192,9 @@ describe('ShipStatus Component', () => {
     expect(engineBar.style.width).toBe('82%');
     expect(lifeSupportBar.style.width).toBe('68%');
 
-    expect(screen.getByText('75.0%')).toBeInTheDocument();
-    expect(screen.getByText('82.0%')).toBeInTheDocument();
-    expect(screen.getByText('68.0%')).toBeInTheDocument();
+    expect(screen.getByText('75%')).toBeInTheDocument();
+    expect(screen.getByText('82%')).toBeInTheDocument();
+    expect(screen.getByText('68%')).toBeInTheDocument();
   });
 
   it('should handle zero percent condition', () => {
@@ -218,7 +218,7 @@ describe('ShipStatus Component', () => {
 
     const engineBar = document.querySelector('.engine-bar');
     expect(engineBar.style.width).toBe('0%');
-    expect(screen.getByText('0.0%')).toBeInTheDocument();
+    expect(screen.getByText('0%')).toBeInTheDocument();
   });
 
   it('should handle 100 percent condition', () => {
@@ -234,7 +234,7 @@ describe('ShipStatus Component', () => {
       '.life-support-bar-container .condition-text'
     );
     expect(lifeSupportBar.style.width).toBe('100%');
-    expect(lifeSupportText.textContent).toBe('100.0%');
+    expect(lifeSupportText.textContent).toBe('100%');
   });
 
   it('should display cargo capacity', () => {
