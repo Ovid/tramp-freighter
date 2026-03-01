@@ -47,6 +47,50 @@
   margin-bottom: var(--section-gap);
 }
 
+/* Flee failed alert */
+.flee-failed-alert {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 2px solid #ff0000;
+  border-radius: 5px;
+  padding: 16px 20px;
+  box-shadow: 0 0 16px rgba(255, 0, 0, 0.5), inset 0 0 8px rgba(255, 0, 0, 0.1);
+}
+
+.flee-failed-title {
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px #ff0000;
+  margin-bottom: 10px;
+}
+
+.flee-failed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flee-failed-body p {
+  color: #ffffff;
+  font-size: 13px;
+  margin: 0;
+}
+
+.flee-failed-damage {
+  color: #ff6b6b;
+  font-size: 13px;
+  padding: 8px 10px;
+  background-color: rgba(255, 0, 0, 0.15);
+  border-left: 3px solid #ff0000;
+  border-radius: 2px;
+}
+
+.flee-failed-damage strong {
+  color: #ff0000;
+}
+
 .combat-section {
   background-color: var(--bg-section-danger);
   border: var(--section-border-width) solid var(--border-danger);

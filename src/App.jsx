@@ -77,6 +77,7 @@ export default function App({ devMode = false }) {
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [encounterOutcome, setEncounterOutcome] = useState(null);
   const [encounterPhase, setEncounterPhase] = useState('initial');
+  const [combatContext, setCombatContext] = useState(null);
   const lastHandledEncounter = useRef(null);
   const jumpInProgressRef = useRef(false);
   const pendingEncounterRef = useRef(null);
@@ -221,9 +222,46 @@ export default function App({ devMode = false }) {
   const handleEncounterChoice = (choice) => {
     if (!currentEncounter) return;
 
+    // Flee from initial panel resolves immediately via evasive maneuvers
+    if (
+      currentEncounter.type === 'pirate' &&
+      encounterPhase === 'initial' &&
+      choice === 'flee'
+    ) {
+      try {
+        const outcome = gameStateManager.resolveCombatChoice(
+          currentEncounter.encounter,
+          'evasive'
+        );
+        handleApplyOutcome(outcome);
+        if (outcome.success) {
+          const displayOutcome = transformOutcomeForDisplay(
+            outcome,
+            'pirate',
+            'flee'
+          );
+          setEncounterOutcome(displayOutcome);
+        } else {
+          setCombatContext({
+            fleeAttemptFailed: true,
+            hullDamage: outcome.costs?.hull ?? 0,
+            description: outcome.description,
+          });
+          setEncounterPhase('combat');
+        }
+      } catch (error) {
+        console.error('Flee resolution failed:', error);
+        setCurrentEncounter(null);
+        setEncounterOutcome(null);
+        setEncounterPhase('initial');
+        setViewMode(VIEW_MODES.ORBIT);
+      }
+      return;
+    }
+
     // Two-step pirate encounter: route to sub-panels
     if (currentEncounter.type === 'pirate' && encounterPhase === 'initial') {
-      if (choice === 'fight' || choice === 'flee') {
+      if (choice === 'fight') {
         setEncounterPhase('combat');
         return;
       }
@@ -289,6 +327,7 @@ export default function App({ devMode = false }) {
   const handleEncounterClose = () => {
     setCurrentEncounter(null);
     setEncounterPhase('initial');
+    setCombatContext(null);
     setViewMode(VIEW_MODES.ORBIT);
   };
 
@@ -296,6 +335,7 @@ export default function App({ devMode = false }) {
     setCurrentEncounter(null);
     setEncounterOutcome(null);
     setEncounterPhase('initial');
+    setCombatContext(null);
     setViewMode(VIEW_MODES.ORBIT);
   };
 
@@ -477,6 +517,7 @@ export default function App({ devMode = false }) {
                           combat={currentEncounter.encounter}
                           onChoice={handleEncounterChoice}
                           onClose={handleEncounterClose}
+                          fleeContext={combatContext}
                         />
                       )}
                     {currentEncounter.type === 'pirate' &&
