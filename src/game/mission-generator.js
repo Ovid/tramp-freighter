@@ -4,6 +4,11 @@ import {
   PASSENGER_CONFIG,
 } from './constants.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
+import {
+  getConnectedSystems as getCachedConnectedSystems,
+  getReachableSystems as getCachedReachableSystems,
+} from './utils/wormhole-graph.js';
+import { WORMHOLE_DATA } from './data/wormhole-data.js';
 
 function pickWeightedDestination(reachable, rng) {
   const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
@@ -20,7 +25,7 @@ function pickWeightedDestination(reachable, rng) {
   return chosen;
 }
 
-function getConnectedSystems(systemId, wormholeData) {
+function getConnectedSystemsDirect(systemId, wormholeData) {
   const connected = [];
   for (const [a, b] of wormholeData) {
     if (a === systemId) connected.push(b);
@@ -29,7 +34,17 @@ function getConnectedSystems(systemId, wormholeData) {
   return connected;
 }
 
+/**
+ * Get all systems reachable from systemId within maxHops jumps.
+ * Delegates to the pre-computed cache when using production wormhole data;
+ * falls back to BFS for test data.
+ */
 export function getReachableSystems(systemId, wormholeData, maxHops) {
+  if (wormholeData === WORMHOLE_DATA) {
+    return getCachedReachableSystems(systemId, maxHops);
+  }
+
+  // Fallback BFS for non-production data (tests)
   const visited = new Set([systemId]);
   const result = [];
   let frontier = [systemId];
@@ -37,7 +52,7 @@ export function getReachableSystems(systemId, wormholeData, maxHops) {
   for (let hop = 1; hop <= maxHops; hop++) {
     const nextFrontier = [];
     for (const current of frontier) {
-      for (const neighbor of getConnectedSystems(current, wormholeData)) {
+      for (const neighbor of getConnectedSystemsDirect(current, wormholeData)) {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
           result.push({ systemId: neighbor, hopCount: hop });
@@ -262,7 +277,9 @@ export function generateMissionBoard(
   completionHistory = [],
   currentDay = 0
 ) {
-  const connectionCount = getConnectedSystems(systemId, wormholeData).length;
+  const connectionCount = wormholeData === WORMHOLE_DATA
+    ? getCachedConnectedSystems(systemId).length
+    : getConnectedSystemsDirect(systemId, wormholeData).length;
   const boardSize = Math.min(
     Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
     MISSION_CONFIG.BOARD_SIZE

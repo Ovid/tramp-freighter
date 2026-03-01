@@ -4,6 +4,10 @@ import {
   REPAIR_CONFIG,
   EVENT_NAMES,
 } from './constants.js';
+import {
+  getConnectedSystems as getCachedConnectedSystems,
+} from './utils/wormhole-graph.js';
+import { WORMHOLE_DATA } from './data/wormhole-data.js';
 
 /**
  * NavigationSystem - Handles distance calculations and jump mechanics
@@ -245,6 +249,10 @@ export class NavigationSystem {
    * @returns {boolean} True if systems are connected
    */
   areSystemsConnected(systemId1, systemId2) {
+    // Delegate to cache when using production data for O(1) lookup
+    if (this.wormholeData === WORMHOLE_DATA) {
+      return getCachedConnectedSystems(systemId1).includes(systemId2);
+    }
     return this.wormholeData.some(
       (connection) =>
         (connection[0] === systemId1 && connection[1] === systemId2) ||
@@ -259,8 +267,11 @@ export class NavigationSystem {
    * @returns {number[]} Array of connected system IDs
    */
   getConnectedSystems(systemId) {
+    // Delegate to cache when using production data for O(1) lookup
+    if (this.wormholeData === WORMHOLE_DATA) {
+      return getCachedConnectedSystems(systemId);
+    }
     const connected = [];
-
     for (const connection of this.wormholeData) {
       if (connection[0] === systemId) {
         connected.push(connection[1]);
@@ -268,7 +279,6 @@ export class NavigationSystem {
         connected.push(connection[0]);
       }
     }
-
     return connected;
   }
 
