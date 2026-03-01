@@ -6,7 +6,7 @@ import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../hud/hudUtils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
-import { Modal } from '../../components/Modal.jsx';
+import { Modal } from '../../components/Modal';
 
 /**
  * Station menu component.
