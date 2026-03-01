@@ -8,7 +8,7 @@ import {
  *
  * State mutation function: reads current state from gameStateManager,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
- * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated) and rewards (credits, fuelMinimum,
+ * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated, restrictedGoodsConfiscated) and rewards (credits, fuelMinimum,
  * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
  * @param {Object} gameStateManager - The GameStateManager instance

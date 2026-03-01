@@ -128,6 +128,7 @@ function extractStateForEvent(eventName, state) {
       failed: [],
       board: [],
       boardLastRefresh: 0,
+      pendingFailureNotices: [],
     },
     [EVENT_NAMES.QUEST_CHANGED]: state.quests || {},
     [EVENT_NAMES.FINANCE_CHANGED]: state.player.finance || null,
