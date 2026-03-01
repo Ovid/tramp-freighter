@@ -181,42 +181,39 @@ describe('NPC System Reachability', () => {
   const reachableFromSol = computeReachableFromSol();
 
   it('should place all NPCs in systems marked reachable (r: 1)', () => {
-    for (const npc of ALL_NPCS) {
+    const problems = ALL_NPCS.filter((npc) => {
       const star = starById.get(npc.system);
-      expect(
-        star,
-        `NPC "${npc.name}" references unknown system ${npc.system}`
-      ).toBeDefined();
-      expect(
-        star.r,
-        `NPC "${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`
-      ).toBe(1);
-    }
+      return !star || star.r !== 1;
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      return star
+        ? `"${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(problems).toEqual([]);
   });
 
   it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
-    for (const npc of ALL_NPCS) {
+    const problems = ALL_NPCS.filter((npc) => {
       const star = starById.get(npc.system);
-      expect(
-        star,
-        `NPC "${npc.name}" references unknown system ${npc.system}`
-      ).toBeDefined();
-      expect(
-        reachableFromSol.has(npc.system),
-        `NPC "${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol via wormholes`
-      ).toBe(true);
-    }
+      return !star || !reachableFromSol.has(npc.system);
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      return star
+        ? `"${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(problems).toEqual([]);
   });
 
   it('should have r flag consistent with wormhole graph reachability for all systems', () => {
-    for (const star of STAR_DATA) {
+    const mismatches = STAR_DATA.filter((star) => {
+      return (star.r === 1) !== reachableFromSol.has(star.id);
+    }).map((star) => {
       const graphReachable = reachableFromSol.has(star.id);
-      const flagReachable = star.r === 1;
-      expect(
-        flagReachable,
-        `System "${star.name}" (id ${star.id}): r flag is ${star.r} but graph says ${graphReachable ? 'reachable' : 'unreachable'}`
-      ).toBe(graphReachable);
-    }
+      return `"${star.name}" (id ${star.id}): r=${star.r} but graph says ${graphReachable ? 'reachable' : 'unreachable'}`;
+    });
+    expect(mismatches).toEqual([]);
   });
 
   it('should have NPC id star-name suffix matching their assigned system', () => {
@@ -226,18 +223,19 @@ describe('NPC System Reachability', () => {
       return str.toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 
-    for (const npc of ALL_NPCS) {
+    const mismatches = ALL_NPCS.filter((npc) => {
       const star = starById.get(npc.system);
-      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
-
-      // Extract the star-name portion of the NPC id (everything after the first underscore)
+      if (!star) return true;
       const idSuffix = normalize(npc.id.substring(npc.id.indexOf('_') + 1));
       const starName = normalize(star.name);
-
-      expect(
-        starName.startsWith(idSuffix) || idSuffix.startsWith(starName),
-        `NPC "${npc.name}" (id "${npc.id}"): id suffix "${idSuffix}" does not match system "${star.name}" (id ${star.id})`
-      ).toBe(true);
-    }
+      return !starName.startsWith(idSuffix) && !idSuffix.startsWith(starName);
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      const idSuffix = normalize(npc.id.substring(npc.id.indexOf('_') + 1));
+      return star
+        ? `"${npc.name}" (id "${npc.id}"): suffix "${idSuffix}" does not match "${star.name}" (id ${star.id})`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(mismatches).toEqual([]);
   });
 });
