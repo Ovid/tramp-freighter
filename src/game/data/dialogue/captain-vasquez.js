@@ -568,6 +568,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
 
   debt_cleared_tanaka_hint: {
     text: "You cleared your debt? That's no small thing out here. Listen, there's someone you should meet. Engineer named Tanaka at Barnard's Star. She's been working on an experimental jump drive — needs a pilot she can trust. With your slate clean, you're exactly the kind of person she's looking for.",
+    flags: ['vasquez_tanaka_hint_given'],
     choices: [
       {
         text: '"Sounds interesting. I\'ll check it out."',
