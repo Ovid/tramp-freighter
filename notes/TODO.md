@@ -2,6 +2,7 @@
 
 - There should be a game date. For the left panel, instead of "Days:", it
   should show the date. The starting date should be "Date: 2167-06-20"
+  Remove "Coordinates" from System Info panel.
 - If a mission run fails because you ran out of time, there should be
   consequences (I failed a mission hauling illegal goods, but there was no
   consequence)
