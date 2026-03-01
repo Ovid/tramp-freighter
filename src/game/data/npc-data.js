@@ -615,7 +615,7 @@ export const YUKI_TANAKA = {
   id: 'tanaka_barnards',
   name: 'Yuki Tanaka',
   role: 'Engineer',
-  system: 4,
+  system: 4, // Barnard's Star
   station: 'Bore Station 7',
   personality: {
     trust: 0.2,
