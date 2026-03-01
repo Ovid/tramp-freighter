@@ -5,6 +5,7 @@ import {
   EVENT_NAMES,
 } from '../../constants.js';
 import { pickRandomFrom } from '../../utils/seeded-random.js';
+import { sanitizeShipName } from '../game-state-manager.js';
 
 /**
  * Ship Manager - Handles all ship-related operations
@@ -251,36 +252,10 @@ export class ShipManager extends BaseManager {
   updateShipName(newName) {
     this.validateState();
 
-    const sanitized = this.sanitizeShipName(newName);
+    const sanitized = sanitizeShipName(newName);
     const state = this.getState();
     state.ship.name = sanitized;
     this.emit(EVENT_NAMES.SHIP_NAME_CHANGED, sanitized);
-  }
-
-  /**
-   * Sanitize ship name input
-   *
-   * Removes HTML tags, trims whitespace, and limits length to prevent display issues.
-   * Returns default ship name if input is empty after sanitization.
-   *
-   * Feature: ship-personality, Property 10: Ship Name Sanitization
-   * Validates: Requirements 4.2, 4.3, 10.3, 10.5
-   *
-   * @param {string} name - User input for ship name
-   * @returns {string} Sanitized name or default
-   */
-  sanitizeShipName(name) {
-    if (!name || name.trim().length === 0) {
-      return SHIP_CONFIG.DEFAULT_NAME;
-    }
-
-    // Remove HTML tags, limit length, then trim (order matters for edge cases)
-    const sanitized = name
-      .replace(/<[^>]*>/g, '')
-      .substring(0, SHIP_CONFIG.MAX_NAME_LENGTH)
-      .trim();
-
-    return sanitized || SHIP_CONFIG.DEFAULT_NAME;
   }
 
   /**
