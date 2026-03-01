@@ -1,5 +1,7 @@
 # TODO
 
+- Worth offering some kind of political issues with different factions and
+  star systems?
 - Data based on stars and wormholes is static and anything based on that data
   should be cached. For example, "BFS pathfinder in mission-generator.js
   (getReachableSystems())". Are there other examples?
@@ -13,17 +15,18 @@
   meaning the same thing, but phrased differently. They get chosen at random.
   This allows players to have a more of a feeling that the game is "variable"
   and alive.
-- Should we be able to let players opt out of jump warnings and simply experience what happens without those screens?
+- Should we be able to let players opt out of jump warnings and simply
+  experience what happens without those screens?
 - For "Pirate Encounter", flee (and maybe others), I often have a 70% chance
   of success. But I *always* hit a combat resolution screen, so I don't think
-  that chance of success is working.
-  Also, for those options with lower chances of success, would there be any
-  benefit to taking them? Might be worth it (catching spare cargo breaking
-  loose, or better rep with authorities and things like that)
-  Please first verify that I've correctly diagnosed the issue.
-- We need to have gear menu link to "achievements"
-    (visited all stars, for example)
-    System needs to validate that all achievements in the game are possible.
+  that chance of success is working.  Also, for those options with lower
+  chances of success, would there be any benefit to taking them? Might be
+  worth it (catching spare cargo breaking loose, or better rep with
+  authorities and things like that) Please first verify that I've correctly
+  diagnosed the issue.
+- We need to have gear menu link to "achievements" (visited all stars, for
+  example) System needs to validate that all achievements in the game are
+  possible.
 - Need to show additional stats, like reputation.
 - If a mission run fails because you ran out of time, there should be
   consequences (I failed a mission hauling illegal goods, but there was no
