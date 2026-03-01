@@ -27,6 +27,7 @@ vi.mock('../../src/hooks/useStarData', () => ({
 vi.mock('../../src/features/missions/missionRouteUtils.js', () => ({
   calculateRouteIndicator: vi.fn(() => null),
   formatRouteIndicator: vi.fn(() => ''),
+  getFeasibilityWarning: vi.fn(() => null),
 }));
 
 import { useGameEvent } from '../../src/hooks/useGameEvent';

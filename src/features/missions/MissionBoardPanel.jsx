@@ -8,6 +8,7 @@ import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
 import {
   calculateRouteIndicator,
   formatRouteIndicator,
+  getFeasibilityWarning,
 } from './missionRouteUtils.js';
 
 export function MissionBoardPanel({ onClose }) {
@@ -101,6 +102,19 @@ export function MissionBoardPanel({ onClose }) {
                 </div>
               ) : null}
               <div>Deadline: {mission.requirements.deadline} days</div>
+              {(() => {
+                const warning = getFeasibilityWarning(
+                  routeIndicators[mission.id]?.totalDays,
+                  mission.requirements.deadline
+                );
+                return warning ? (
+                  <div
+                    className={`feasibility-warning feasibility-${warning.level}`}
+                  >
+                    {warning.text}
+                  </div>
+                ) : null;
+              })()}
               <div className={mission.saturated ? 'reward-saturated' : ''}>
                 Reward: ₡{mission.rewards.credits}
                 {mission.saturated && (

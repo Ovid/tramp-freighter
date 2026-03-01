@@ -128,3 +128,22 @@
   color: var(--color-warning, #cc8800);
   cursor: help;
 }
+
+.illegal-warning {
+  color: var(--color-danger);
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.feasibility-warning {
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.feasibility-tight {
+  color: var(--color-warning);
+}
+
+.feasibility-impossible {
+  color: var(--color-danger);
+}
