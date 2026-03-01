@@ -13,6 +13,7 @@ function getSatisfactionLabel(satisfaction) {
 
 export function MissionCompleteNotifier() {
   const { completeMission, getCompletableMissions } = useGameAction();
+  // Re-render trigger only — getCompletableMissions() returns the derived view
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const [completable, setCompletable] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
