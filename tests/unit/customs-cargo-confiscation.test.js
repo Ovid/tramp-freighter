@@ -118,9 +118,7 @@ describe('applyEncounterOutcome: restrictedGoodsConfiscated', () => {
   });
 
   it('does not remove cargo when restrictedGoodsConfiscated is absent', () => {
-    gsm.updateCargo([
-      { good: 'electronics', qty: 5, buyPrice: 100 },
-    ]);
+    gsm.updateCargo([{ good: 'electronics', qty: 5, buyPrice: 100 }]);
 
     applyEncounterOutcome(gsm, {
       costs: { credits: 100 },

@@ -8,7 +8,11 @@ describe('dismissMissionFailureNotice', () => {
     gsm = createTestGameStateManager();
     // Seed notices directly into state
     gsm.getState().missions.pendingFailureNotices = [
-      { id: 'mission_1', title: 'Cargo Run: Tau Ceti', destination: 'Tau Ceti' },
+      {
+        id: 'mission_1',
+        title: 'Cargo Run: Tau Ceti',
+        destination: 'Tau Ceti',
+      },
       { id: 'mission_2', title: 'Cargo Run: Procyon', destination: 'Procyon' },
     ];
   });
