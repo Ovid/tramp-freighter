@@ -1,4 +1,4 @@
-.PHONY: all build test lint format clean open dev preview knip
+.PHONY: all build test cover lint format clean open dev preview knip
 
 all: lint format build test
 
@@ -7,6 +7,9 @@ build:
 
 test:
 	npm test
+
+cover:
+	npm run test:coverage -- --run
 
 lint:
 	npm run lint:fix
