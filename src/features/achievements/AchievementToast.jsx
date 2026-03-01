@@ -41,7 +41,12 @@ export function AchievementToast() {
     const removeTimer = setTimeout(() => {
       setToast(null);
       setFadeOut(false);
-      showNext();
+      // Defer showNext to a separate task so React flushes the null render
+      // before mounting the next toast. Without this, React 18 batches
+      // setToast(null) + setToast(next) into one render, the DOM element
+      // never unmounts, and CSS entrance animations don't replay.
+      const deferredTimer = setTimeout(showNext, 0);
+      queueRef.current._timers = [deferredTimer];
     }, ACHIEVEMENTS_CONFIG.TOAST_DURATION + NOTIFICATION_CONFIG.FADE_DURATION);
 
     // Store timer ids for cleanup
