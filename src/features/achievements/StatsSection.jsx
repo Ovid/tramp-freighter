@@ -110,7 +110,7 @@ export function StatsSection() {
         <h3 className="stats-group-title">Gameplay Counters</h3>
         <div className="stat-row">
           <span className="stat-label">Systems Visited</span>
-          <span className="stat-value">{snapshot.visitedCount} / 48</span>
+          <span className="stat-value">{snapshot.visitedCount} / {ACHIEVEMENTS_CONFIG.THRESHOLDS.EXPLORATION_TIER_4}</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Jumps Completed</span>
