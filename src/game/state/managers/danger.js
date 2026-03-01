@@ -329,7 +329,6 @@ export class DangerManager extends BaseManager {
     });
 
     this.gameStateManager.updateCargo(newCargo);
-    this.gameStateManager.markDirty();
   }
 
   /**
