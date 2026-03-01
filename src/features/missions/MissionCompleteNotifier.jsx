@@ -19,10 +19,8 @@ export function MissionCompleteNotifier() {
 
   useEffect(() => {
     const found = getCompletableMissions();
-    if (found.length > 0) {
-      setCompletable(found);
-      setCurrentIndex(0);
-    }
+    setCompletable(found);
+    setCurrentIndex(0);
   }, [missions, getCompletableMissions]);
 
   const current = completable[currentIndex];
