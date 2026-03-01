@@ -1,17 +1,46 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useGameState } from '../../context/GameContext';
+import { useStarData } from '../../hooks/useStarData';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
+import {
+  calculateRouteIndicator,
+  formatRouteIndicator,
+} from './missionRouteUtils.js';
 
 export function MissionBoardPanel({ onClose }) {
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const { acceptMission, refreshMissionBoard } = useGameAction();
+  const gameStateManager = useGameState();
+  const starData = useStarData();
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     refreshMissionBoard();
   }, [refreshMissionBoard]);
+
+  // Pre-compute route indicators for all board missions
+  const routeIndicators = useMemo(() => {
+    if (!missions?.board || !starData || !gameStateManager?.navigationSystem) {
+      return {};
+    }
+    const indicators = {};
+    for (const mission of missions.board) {
+      const destId = mission.destination?.systemId;
+      const originId = mission.giverSystem;
+      if (destId !== undefined && originId !== undefined) {
+        indicators[mission.id] = calculateRouteIndicator(
+          originId,
+          destId,
+          starData,
+          gameStateManager.navigationSystem
+        );
+      }
+    }
+    return indicators;
+  }, [missions?.board, starData, gameStateManager?.navigationSystem]);
 
   const handleAccept = (mission) => {
     const result = acceptMission(mission);
@@ -34,6 +63,11 @@ export function MissionBoardPanel({ onClose }) {
           <div key={mission.id} className="mission-card">
             <h3>{mission.title}</h3>
             <p>{mission.description}</p>
+            {routeIndicators[mission.id] && (
+              <div className="mission-route-info">
+                {formatRouteIndicator(routeIndicators[mission.id])}
+              </div>
+            )}
             <div className="mission-details">
               {mission.type === 'passenger' ? (
                 <>

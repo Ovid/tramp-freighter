@@ -75,6 +75,12 @@
   margin: 0 0 var(--grid-gap-medium) 0;
 }
 
+.mission-route-info {
+  color: var(--color-secondary);
+  font-size: var(--font-size-small);
+  margin-bottom: var(--grid-gap-small);
+}
+
 .mission-details {
   display: flex;
   flex-direction: column;
