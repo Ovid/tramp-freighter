@@ -466,7 +466,7 @@ export const ZARA_OSMAN = {
   id: 'osman_luyten',
   name: 'Zara Osman',
   role: 'Trader',
-  system: 7, // Luyten's Star
+  system: 34, // Luyten's Star
   station: "Luyten's Outpost",
   personality: {
     trust: 0.5, // Moderate trust - cautious but fair

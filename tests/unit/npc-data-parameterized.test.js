@@ -152,7 +152,7 @@ const NPC_TEST_CASES = [
       id: 'osman_luyten',
       name: 'Zara Osman',
       role: 'Trader',
-      system: 7,
+      system: 34,
       station: "Luyten's Outpost",
     },
     expectedPersonality: {
