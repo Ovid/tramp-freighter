@@ -6,6 +6,7 @@ import { GameStateManager } from '../../src/game/state/game-state-manager';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
+import { gameDayToDate } from '../../src/game/utils/date-utils.js';
 
 // Suppress React act() warnings in property-based tests
 beforeEach(() => {
@@ -41,17 +42,17 @@ describe('Property 21: HUD time updates', () => {
           </GameProvider>
         );
 
-        // Verify initial time display (new game starts at day 0)
+        // Verify initial time display (new game starts at day 0 = 2167-06-20)
         await waitFor(() => {
-          expect(screen.getByText('0')).toBeInTheDocument();
+          expect(screen.getByText('2167-06-20')).toBeInTheDocument();
         });
 
         // Update time
         gameStateManager.updateTime(newDays);
 
-        // Verify time display updated
+        // Verify time display updated to the correct calendar date
         await waitFor(() => {
-          expect(screen.getByText(newDays.toString())).toBeInTheDocument();
+          expect(screen.getByText(gameDayToDate(newDays))).toBeInTheDocument();
         });
 
         return true;
