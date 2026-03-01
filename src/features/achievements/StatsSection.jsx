@@ -81,13 +81,7 @@ export function StatsSection() {
   useGameEvent(EVENT_NAMES.JUMP_COMPLETED);
   useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
-  // Read current state for gameplay counters and danger history
-  const state = gameStateManager.getState();
-  const stats = state?.stats ?? {};
-  const player = state?.player ?? {};
-  const world = state?.world ?? {};
-  const dangerFlags = world.dangerFlags ?? {};
-  const visitedCount = (world.visitedSystems ?? []).length;
+  const snapshot = gameStateManager.getStatsSnapshot();
 
   return (
     <div className="stats-section">
@@ -116,29 +110,27 @@ export function StatsSection() {
         <h3 className="stats-group-title">Gameplay Counters</h3>
         <div className="stat-row">
           <span className="stat-label">Systems Visited</span>
-          <span className="stat-value">{visitedCount} / 48</span>
+          <span className="stat-value">{snapshot.visitedCount} / 48</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Jumps Completed</span>
-          <span className="stat-value">{stats.jumpsCompleted ?? 0}</span>
+          <span className="stat-value">{snapshot.jumpsCompleted}</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Days Elapsed</span>
-          <span className="stat-value">
-            {Math.round(player.daysElapsed ?? 0)}
-          </span>
+          <span className="stat-value">{snapshot.daysElapsed}</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Credits Earned</span>
-          <span className="stat-value">{stats.creditsEarned ?? 0}</span>
+          <span className="stat-value">{snapshot.creditsEarned}</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Cargo Hauled</span>
-          <span className="stat-value">{stats.cargoHauled ?? 0}</span>
+          <span className="stat-value">{snapshot.cargoHauled}</span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Charitable Acts</span>
-          <span className="stat-value">{stats.charitableActs ?? 0}</span>
+          <span className="stat-value">{snapshot.charitableActs}</span>
         </div>
       </div>
 
@@ -147,7 +139,7 @@ export function StatsSection() {
         {Object.entries(DANGER_FLAG_LABELS).map(([key, label]) => (
           <div className="stat-row" key={key}>
             <span className="stat-label">{label}</span>
-            <span className="stat-value">{dangerFlags[key] ?? 0}</span>
+            <span className="stat-value">{snapshot.dangerFlags[key] ?? 0}</span>
           </div>
         ))}
       </div>

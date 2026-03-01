@@ -659,6 +659,22 @@ export class GameStateManager {
     return this.achievementsManager.getProgress();
   }
 
+  getStatsSnapshot() {
+    const state = this.stateManager.getState();
+    const stats = state?.stats ?? {};
+    const player = state?.player ?? {};
+    const world = state?.world ?? {};
+    return {
+      jumpsCompleted: stats.jumpsCompleted ?? 0,
+      creditsEarned: stats.creditsEarned ?? 0,
+      cargoHauled: stats.cargoHauled ?? 0,
+      charitableActs: stats.charitableActs ?? 0,
+      daysElapsed: Math.round(player.daysElapsed ?? 0),
+      visitedCount: (world.visitedSystems ?? []).length,
+      dangerFlags: world.dangerFlags ?? {},
+    };
+  }
+
   // ========================================================================
   // DIALOGUE STATE MANAGEMENT
   // ========================================================================
