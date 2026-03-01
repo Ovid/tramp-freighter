@@ -163,9 +163,7 @@ export function useEventTriggers() {
       if (!event) {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
-          const condRng = new SeededRandom(
-            `event-condition-${day}-${system}`
-          );
+          const condRng = new SeededRandom(`event-condition-${day}-${system}`);
           const condEvent = gameStateManager.checkEvents(
             'condition',
             context,
