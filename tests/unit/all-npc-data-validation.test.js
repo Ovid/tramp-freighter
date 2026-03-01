@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import {
+  ALL_NPCS,
   WHISPER,
   CAPTAIN_VASQUEZ,
   DR_SARAH_KIM,
@@ -10,7 +11,9 @@ import {
   LUCKY_LIU,
   validateNPCDefinition,
 } from '../../src/game/data/npc-data.js';
-import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
+import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { REPUTATION_BOUNDS, SOL_SYSTEM_ID } from '../../src/game/constants.js';
 
 /**
  * Cross-NPC validation tests for the NPC benefits system
@@ -145,5 +148,94 @@ describe('Cross-NPC Data Validation', () => {
       }),
       { numRuns: 50 }
     );
+  });
+});
+
+describe('NPC System Reachability', () => {
+  const starById = new Map(STAR_DATA.map((s) => [s.id, s]));
+
+  // BFS from Sol to find all systems reachable via wormhole network
+  function computeReachableFromSol() {
+    const adj = new Map();
+    for (const [a, b] of WORMHOLE_DATA) {
+      if (!adj.has(a)) adj.set(a, []);
+      if (!adj.has(b)) adj.set(b, []);
+      adj.get(a).push(b);
+      adj.get(b).push(a);
+    }
+    const visited = new Set();
+    const queue = [SOL_SYSTEM_ID];
+    visited.add(SOL_SYSTEM_ID);
+    while (queue.length > 0) {
+      const current = queue.shift();
+      for (const neighbor of adj.get(current) || []) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+    return visited;
+  }
+
+  const reachableFromSol = computeReachableFromSol();
+
+  it('should place all NPCs in systems marked reachable (r: 1)', () => {
+    const problems = ALL_NPCS.filter((npc) => {
+      const star = starById.get(npc.system);
+      return !star || star.r !== 1;
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      return star
+        ? `"${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(problems).toEqual([]);
+  });
+
+  it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
+    const problems = ALL_NPCS.filter((npc) => {
+      const star = starById.get(npc.system);
+      return !star || !reachableFromSol.has(npc.system);
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      return star
+        ? `"${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(problems).toEqual([]);
+  });
+
+  it('should have r flag consistent with wormhole graph reachability for all systems', () => {
+    const mismatches = STAR_DATA.filter((star) => {
+      return (star.r === 1) !== reachableFromSol.has(star.id);
+    }).map((star) => {
+      const graphReachable = reachableFromSol.has(star.id);
+      return `"${star.name}" (id ${star.id}): r=${star.r} but graph says ${graphReachable ? 'reachable' : 'unreachable'}`;
+    });
+    expect(mismatches).toEqual([]);
+  });
+
+  it('should have NPC id star-name suffix matching their assigned system', () => {
+    // NPC ids follow the pattern "surname_starname" (e.g. "chen_barnards", "cole_sol")
+    // Normalize to comparable form: lowercase, strip punctuation/spaces/underscores
+    function normalize(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    const mismatches = ALL_NPCS.filter((npc) => {
+      const star = starById.get(npc.system);
+      if (!star) return true;
+      const idSuffix = normalize(npc.id.substring(npc.id.indexOf('_') + 1));
+      const starName = normalize(star.name);
+      return !starName.startsWith(idSuffix) && !idSuffix.startsWith(starName);
+    }).map((npc) => {
+      const star = starById.get(npc.system);
+      const idSuffix = normalize(npc.id.substring(npc.id.indexOf('_') + 1));
+      return star
+        ? `"${npc.name}" (id "${npc.id}"): suffix "${idSuffix}" does not match "${star.name}" (id ${star.id})`
+        : `"${npc.name}" references unknown system ${npc.system}`;
+    });
+    expect(mismatches).toEqual([]);
   });
 });

@@ -253,7 +253,7 @@ export const WHISPER = {
   id: 'whisper_sirius',
   name: 'Whisper',
   role: 'Information Broker',
-  system: 2, // Sirius A
+  system: 7, // Sirius A
   station: 'Sirius Exchange',
   personality: {
     trust: 0.5, // Moderately trusting
@@ -305,7 +305,7 @@ export const CAPTAIN_VASQUEZ = {
   id: 'vasquez_epsilon',
   name: 'Captain Vasquez',
   role: 'Retired Trader',
-  system: 3, // Epsilon Eridani
+  system: 13, // Epsilon Eridani
   station: 'Eridani Hub',
   personality: {
     trust: 0.6, // Moderately trusting
@@ -362,7 +362,7 @@ export const DR_SARAH_KIM = {
   id: 'kim_tau_ceti',
   name: 'Dr. Sarah Kim',
   role: 'Station Administrator',
-  system: 5, // Tau Ceti
+  system: 31, // Tau Ceti
   station: 'Tau Ceti Station',
   personality: {
     trust: 0.4, // Cautious trust - needs to see professionalism
@@ -413,7 +413,7 @@ export const RUSTY_RODRIGUEZ = {
   id: 'rodriguez_procyon',
   name: '"Rusty" Rodriguez',
   role: 'Mechanic',
-  system: 6, // Procyon
+  system: 19, // Procyon
   station: 'Procyon Depot',
   personality: {
     trust: 0.7, // High trust - trusting nature
@@ -466,7 +466,7 @@ export const ZARA_OSMAN = {
   id: 'osman_luyten',
   name: 'Zara Osman',
   role: 'Trader',
-  system: 7, // Luyten's Star
+  system: 34, // Luyten's Star
   station: "Luyten's Outpost",
   personality: {
     trust: 0.5, // Moderate trust - cautious but fair
@@ -568,7 +568,7 @@ export const LUCKY_LIU = {
   id: 'liu_wolf359',
   name: '"Lucky" Liu',
   role: 'Gambler',
-  system: 8, // Wolf 359
+  system: 5, // Wolf 359
   station: 'Wolf 359 Station',
   personality: {
     trust: 0.6, // Moderately trusting - willing to take chances on people
@@ -615,7 +615,7 @@ export const YUKI_TANAKA = {
   id: 'tanaka_barnards',
   name: 'Yuki Tanaka',
   role: 'Engineer',
-  system: 4,
+  system: 4, // Barnard's Star
   station: 'Bore Station 7',
   personality: {
     trust: 0.2,

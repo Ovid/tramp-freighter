@@ -40,7 +40,7 @@ const NPC_TEST_CASES = [
       id: 'whisper_sirius',
       name: 'Whisper',
       role: 'Information Broker',
-      system: 2,
+      system: 7,
       station: 'Sirius Exchange',
     },
     expectedPersonality: {
@@ -65,7 +65,7 @@ const NPC_TEST_CASES = [
       id: 'vasquez_epsilon',
       name: 'Captain Vasquez',
       role: 'Retired Trader',
-      system: 3,
+      system: 13,
       station: 'Eridani Hub',
     },
     expectedPersonality: {
@@ -94,7 +94,7 @@ const NPC_TEST_CASES = [
       id: 'kim_tau_ceti',
       name: 'Dr. Sarah Kim',
       role: 'Station Administrator',
-      system: 5,
+      system: 31,
       station: 'Tau Ceti Station',
     },
     expectedPersonality: {
@@ -123,7 +123,7 @@ const NPC_TEST_CASES = [
       id: 'rodriguez_procyon',
       name: '"Rusty" Rodriguez',
       role: 'Mechanic',
-      system: 6,
+      system: 19,
       station: 'Procyon Depot',
     },
     expectedPersonality: {
@@ -152,7 +152,7 @@ const NPC_TEST_CASES = [
       id: 'osman_luyten',
       name: 'Zara Osman',
       role: 'Trader',
-      system: 7,
+      system: 34,
       station: "Luyten's Outpost",
     },
     expectedPersonality: {
@@ -206,7 +206,7 @@ const NPC_TEST_CASES = [
       id: 'liu_wolf359',
       name: '"Lucky" Liu',
       role: 'Gambler',
-      system: 8,
+      system: 5,
       station: 'Wolf 359 Station',
     },
     expectedPersonality: {
