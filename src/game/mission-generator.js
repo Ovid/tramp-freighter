@@ -234,6 +234,8 @@ export function generatePassengerMission(
     1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
   );
 
+  // Use base prices without active events/market conditions so passenger
+  // payments reflect typical route profitability, not transient market swings
   const fromStar = starData.find((s) => s.id === fromSystem);
   const originPrices = calculateSystemPrices(fromStar, currentDay, [], {});
   const destPrices = calculateSystemPrices(destStar, currentDay, [], {});
@@ -288,9 +290,10 @@ export function generateMissionBoard(
   completionHistory = [],
   currentDay = 0
 ) {
-  const connectionCount = wormholeData === WORMHOLE_DATA
-    ? getCachedConnectedSystems(systemId).length
-    : getConnectedSystemsDirect(systemId, wormholeData).length;
+  const connectionCount =
+    wormholeData === WORMHOLE_DATA
+      ? getCachedConnectedSystems(systemId).length
+      : getConnectedSystemsDirect(systemId, wormholeData).length;
   const boardSize = Math.min(
     Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
     MISSION_CONFIG.BOARD_SIZE
