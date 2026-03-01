@@ -12,5 +12,6 @@ describe('Mission State Initialization', () => {
     expect(state.missions.failed).toEqual([]);
     expect(state.missions.board).toEqual([]);
     expect(state.missions.boardLastRefresh).toBe(0);
+    expect(state.missions.pendingFailureNotices).toEqual([]);
   });
 });
