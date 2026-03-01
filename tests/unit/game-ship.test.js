@@ -32,7 +32,8 @@ describe('Ship quirk seeding', () => {
     expect(gsm1.getState().ship.quirks).toEqual(gsm2.getState().ship.quirks);
   });
 
-  it('different seeds produce different quirks (probabilistically)', () => {
+  // SeededRandom is deterministic: seed-alpha → 3 quirks, seed-beta → 2 quirks
+  it('different seeds produce different quirks', () => {
     const gsm1 = makeGSM();
     const gsm2 = makeGSM();
 
