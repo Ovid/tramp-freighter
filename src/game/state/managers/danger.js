@@ -395,7 +395,7 @@ export class DangerManager extends BaseManager {
     this.getState().player.factions[faction] = newRep;
 
     this.log(`${faction} reputation set to ${newRep}`);
-    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, this.getState().player.factions);
+    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, { ...this.getState().player.factions });
   }
 
   /**
@@ -427,6 +427,6 @@ export class DangerManager extends BaseManager {
       `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
     );
 
-    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, this.getState().player.factions);
+    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, { ...this.getState().player.factions });
   }
 }

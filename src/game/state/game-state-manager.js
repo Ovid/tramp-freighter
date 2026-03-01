@@ -320,7 +320,7 @@ export class GameStateManager {
       this.emit(EVENT_NAMES.FINANCE_CHANGED, player.finance);
     }
     if (state.missions) {
-      this.emit(EVENT_NAMES.MISSIONS_CHANGED, state.missions);
+      this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     }
     if (state.quests) {
       this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
