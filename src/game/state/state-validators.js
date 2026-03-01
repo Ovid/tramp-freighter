@@ -859,6 +859,10 @@ export function addStateDefaults(state, systemData) {
     };
   }
 
+  if (!state.missions.pendingFailureNotices) {
+    state.missions.pendingFailureNotices = [];
+  }
+
   // Initialize stats tracking if missing (pre-endgame saves)
   if (!state.stats) {
     state.stats = {

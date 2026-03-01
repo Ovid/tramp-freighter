@@ -238,6 +238,7 @@ export class InitializationManager {
       board: [],
       boardLastRefresh: 0,
       completionHistory: [],
+      pendingFailureNotices: [],
     };
   }
 

@@ -378,6 +378,16 @@ export class MissionManager extends BaseManager {
     for (const mission of expired) {
       state.missions.failed.push(mission.id);
 
+      // Queue a notice for display on next station dock
+      if (!state.missions.pendingFailureNotices) {
+        state.missions.pendingFailureNotices = [];
+      }
+      state.missions.pendingFailureNotices.push({
+        id: mission.id,
+        title: mission.title,
+        destination: mission.destination ? mission.destination.name : null,
+      });
+
       // Remove mission cargo from hold
       if (mission.missionCargo) {
         state.ship.cargo = state.ship.cargo.filter(
@@ -568,5 +578,18 @@ export class MissionManager extends BaseManager {
   getActiveMissions() {
     this.validateState();
     return this.getState().missions.active;
+  }
+
+  dismissMissionFailureNotice(missionId) {
+    this.validateState();
+    const state = this.getState();
+    if (!state.missions.pendingFailureNotices) return;
+    const notices = state.missions.pendingFailureNotices;
+    if (!notices.some((n) => n.id === missionId)) return;
+    state.missions.pendingFailureNotices = notices.filter(
+      (n) => n.id !== missionId
+    );
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.gameStateManager.markDirty();
   }
 }

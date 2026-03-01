@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Worktree Directory
+
+Use `.worktrees/` (project-local, hidden) for all git worktrees.
+
 ## Project Overview
 
 Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real star systems within 20 light-years of Sol, connected by wormhole networks. Core gameplay: commodity trading, ship resource management, NPC relationships, and danger encounters.

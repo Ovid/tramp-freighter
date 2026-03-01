@@ -980,6 +980,10 @@ export class GameStateManager {
     return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
   }
 
+  removeRestrictedCargo() {
+    return this.dangerManager.removeRestrictedCargo();
+  }
+
   incrementDangerFlag(flagName) {
     return this.dangerManager.incrementDangerFlag(flagName);
   }
@@ -1117,6 +1121,10 @@ export class GameStateManager {
 
   updatePassengerSatisfaction(missionId, event) {
     return this.missionManager.updatePassengerSatisfaction(missionId, event);
+  }
+
+  dismissMissionFailureNotice(missionId) {
+    return this.missionManager.dismissMissionFailureNotice(missionId);
   }
 
   // ========================================================================

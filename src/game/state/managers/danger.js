@@ -271,6 +271,23 @@ export class DangerManager extends BaseManager {
   }
 
   /**
+   * Build the combined list of restricted goods for a given zone and system.
+   *
+   * @param {string} zone - Danger zone type ('safe', 'contested', 'dangerous')
+   * @param {number} [systemId] - Optional system ID for core system checks
+   * @returns {Array<string>} Combined list of restricted good names
+   */
+  _buildRestrictedList(zone, systemId) {
+    const zoneRestrictions =
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+    const coreRestrictions =
+      systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID
+        ? RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED
+        : [];
+    return [...zoneRestrictions, ...coreRestrictions];
+  }
+
+  /**
    * Count the number of restricted goods in cargo for a given zone and system
    *
    * @param {Array} cargo - Array of cargo objects with 'good' property
@@ -279,15 +296,7 @@ export class DangerManager extends BaseManager {
    * @returns {number} Number of restricted goods in cargo
    */
   countRestrictedGoods(cargo, zone, systemId) {
-    const zoneRestrictions =
-      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
-
-    const coreRestrictions =
-      systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID
-        ? RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED
-        : [];
-
-    const allRestricted = [...zoneRestrictions, ...coreRestrictions];
+    const allRestricted = this._buildRestrictedList(zone, systemId);
 
     return cargo.filter((item) => {
       if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
@@ -295,6 +304,31 @@ export class DangerManager extends BaseManager {
 
       return allRestricted.includes(item.good);
     }).length;
+  }
+
+  /**
+   * Remove all restricted goods from the ship's cargo at the current system.
+   *
+   * Reads zone and systemId from state rather than accepting them as arguments
+   * because this method is always called at the moment of confiscation, never
+   * speculatively — so the current state is always the right source of truth.
+   * Called after customs confiscation.
+   */
+  removeRestrictedCargo() {
+    this.validateState();
+    const state = this.getState();
+    const systemId = state.player.currentSystem;
+    const zone = this.getDangerZone(systemId);
+
+    const allRestricted = this._buildRestrictedList(zone, systemId);
+
+    const newCargo = state.ship.cargo.filter((item) => {
+      if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
+        return false;
+      return !allRestricted.includes(item.good);
+    });
+
+    this.gameStateManager.updateCargo(newCargo);
   }
 
   /**
