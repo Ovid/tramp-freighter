@@ -1,5 +1,7 @@
 # UAT New Player Experience Notes
 
+**Design plan:** `docs/plans/2026-03-01-uat-new-player-fixes-design.md`
+**Branch:** `ovid/full-uat-from-player-perspective`
 **Real Start Time:** 2026-03-01 ~10:00 AM
 **Real End Time:** 2026-03-01 ~11:15 AM
 **Game Start Date:** 2167-06-20 (from HUD)
