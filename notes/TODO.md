@@ -1,16 +1,7 @@
 # TODO
 
-- For "Pirate Encounter", flee (and maybe others), I often have a 70% chance
-  of success. But I *always* hit a combat resolution screen, so I don't think
-  that chance of success is working.
-  Also, for those options with lower chances of success, would there be any
-  benefit to taking them? Might be worth it (catching spare cargo breaking
-  loose, or better rep with authorities and things like that)
-  Please first verify that I've correctly diagnosed the issue.
-- We need to have gear menu link to "achievements"
-    (visited all stars, for example)
-    System needs to validate that all achievements in the game are possible.
-- Need to show additional stats, like reputation.
+- There should be a game date. For the left panel, instead of "Days:", it
+  should show the date. The starting date should be "Date: 2167-06-20"
 - If a mission run fails because you ran out of time, there should be
   consequences (I failed a mission hauling illegal goods, but there was no
   consequence)
@@ -61,12 +52,10 @@ Endgame NOT FULLY TESTED (2)
 
 - Can we make this work on mobile?
 - i18n?
-- Code Coverage
 - Liskov and Law of Demeter?
 - GCT
 - We no longer need the migrateFromV1toV12 code
 - Economic events: we can find them, but do they last long enough to matter?
-- X/Y/Z should be fixed for star data. Get more star info?
 - Economic events should last longer (and not have the popup every time)
 - Duplicate tests?
 - Lots of HTML in tests (<div id ...). Refactor?
