@@ -2,10 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import {
-  EVENT_NAMES,
-  NEW_GAME_DEFAULTS,
-} from '../../src/game/constants.js';
+import { EVENT_NAMES } from '../../src/game/constants.js';
 import { NARRATIVE_EVENTS } from '../../src/game/data/narrative-events.js';
 
 describe('Debt-Cleared Narrative Event', () => {

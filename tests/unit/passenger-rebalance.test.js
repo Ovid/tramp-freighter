@@ -1,7 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import {
-  generatePassengerMission,
-} from '../../src/game/mission-generator.js';
+import { describe, it, expect } from 'vitest';
+import { generatePassengerMission } from '../../src/game/mission-generator.js';
 import {
   PASSENGER_CONFIG,
   MISSION_CONFIG,
@@ -25,7 +23,7 @@ describe('Passenger Payment Rebalance', () => {
     });
 
     it('should not have paymentTier on any passenger type', () => {
-      for (const [typeName, config] of Object.entries(PASSENGER_CONFIG.TYPES)) {
+      for (const [_typeName, config] of Object.entries(PASSENGER_CONFIG.TYPES)) {
         expect(config.paymentTier).toBeUndefined();
       }
     });
@@ -72,8 +70,28 @@ describe('Passenger Payment Rebalance', () => {
       // Instead, we directly verify the floor logic by checking the formula
       // with two identical systems (margin = 0 for all goods)
       const sameSystemStarData = [
-        { id: 0, x: 0, y: 0, z: 0, name: 'System A', type: 'G2', wh: 8, st: 6, r: 1 },
-        { id: 1, x: 0, y: 0, z: 0, name: 'System B', type: 'G2', wh: 8, st: 6, r: 1 },
+        {
+          id: 0,
+          x: 0,
+          y: 0,
+          z: 0,
+          name: 'System A',
+          type: 'G2',
+          wh: 8,
+          st: 6,
+          r: 1,
+        },
+        {
+          id: 1,
+          x: 0,
+          y: 0,
+          z: 0,
+          name: 'System B',
+          type: 'G2',
+          wh: 8,
+          st: 6,
+          r: 1,
+        },
       ];
       const sameSystemWormholes = [[0, 1]];
 
@@ -101,7 +119,7 @@ describe('Passenger Payment Rebalance', () => {
       // Generate many missions and verify the ratio between reward and cargoSpace
       const missions = [];
       for (let i = 0; i < 50; i++) {
-        const rng = () => (i * 7 + 3) % 100 / 100;
+        const rng = () => ((i * 7 + 3) % 100) / 100;
         const mission = generatePassengerMission(
           0,
           TEST_STAR_DATA,
@@ -123,7 +141,9 @@ describe('Passenger Payment Rebalance', () => {
         const destPrices = calculateSystemPrices(destSystem, 0, [], {});
         const bestMargin = Math.max(
           MISSION_CONFIG.PASSENGER_MARGIN_FLOOR,
-          ...COMMODITY_TYPES.map((good) => destPrices[good] - originPrices[good])
+          ...COMMODITY_TYPES.map(
+            (good) => destPrices[good] - originPrices[good]
+          )
         );
         const typeConfig = PASSENGER_CONFIG.TYPES[mission.passenger.type];
         const expected = Math.ceil(
