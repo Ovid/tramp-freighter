@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { useGameEvent } from '../../hooks/useGameEvent';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useGameState } from '../../context/GameContext.jsx';
 import {
   ACHIEVEMENTS_CONFIG,
   EVENT_NAMES,
@@ -9,24 +9,30 @@ import {
 /**
  * Toast notification that appears when an achievement is unlocked.
  *
- * Listens for ACHIEVEMENT_UNLOCKED events via the Bridge Pattern.
- * Shows the achievement name briefly, then fades out.
- *
- * The ACHIEVEMENT_UNLOCKED event is fire-and-forget (not in extractStateForEvent),
- * so unlockData starts as null and only populates when the event fires.
+ * Subscribes directly to the event manager (not useGameEvent) to
+ * capture every ACHIEVEMENT_UNLOCKED emission in a queue. React 18
+ * batches setState calls, so useGameEvent would only retain the last
+ * payload when multiple achievements unlock in a single synchronous
+ * pass (e.g. save migration).
  */
 export function AchievementToast() {
+  const gameStateManager = useGameState();
   const [toast, setToast] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
-  const unlockData = useGameEvent(EVENT_NAMES.ACHIEVEMENT_UNLOCKED);
-  const prevUnlockRef = useRef(null);
+  const queueRef = useRef([]);
+  const showingRef = useRef(false);
 
-  useEffect(() => {
-    if (!unlockData || unlockData === prevUnlockRef.current) return;
-    prevUnlockRef.current = unlockData;
+  const showNext = useCallback(() => {
+    if (queueRef.current.length === 0) {
+      showingRef.current = false;
+      return;
+    }
+
+    showingRef.current = true;
+    const next = queueRef.current.shift();
 
     setFadeOut(false);
-    setToast(unlockData);
+    setToast(next);
 
     const fadeTimer = setTimeout(() => {
       setFadeOut(true);
@@ -35,13 +41,30 @@ export function AchievementToast() {
     const removeTimer = setTimeout(() => {
       setToast(null);
       setFadeOut(false);
+      showNext();
     }, ACHIEVEMENTS_CONFIG.TOAST_DURATION + NOTIFICATION_CONFIG.FADE_DURATION);
 
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
+    // Store timer ids for cleanup
+    queueRef.current._timers = [fadeTimer, removeTimer];
+  }, []);
+
+  useEffect(() => {
+    const handler = (data) => {
+      queueRef.current.push(data);
+      if (!showingRef.current) {
+        showNext();
+      }
     };
-  }, [unlockData]);
+
+    gameStateManager.subscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
+    return () => {
+      gameStateManager.unsubscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
+      const timers = queueRef.current._timers;
+      if (timers) {
+        timers.forEach(clearTimeout);
+      }
+    };
+  }, [gameStateManager, showNext]);
 
   if (!toast) return null;
 
