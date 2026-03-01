@@ -179,6 +179,14 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         },
       },
       {
+        text: '"I cleared my debt. What now?"',
+        next: 'debt_cleared_tanaka_hint',
+        condition: (_rep, context) => {
+          if (!context || context.narrativeFlags?.tanaka_met) return false;
+          return context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0;
+        },
+      },
+      {
         text: '"I\'m still pretty green out here."',
         next: 'explore_more',
         condition: (_rep, context) => {
@@ -554,6 +562,41 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       {
         text: '"Thanks for the tip, Captain."',
         next: 'greeting',
+      },
+    ],
+  },
+
+  debt_cleared_tanaka_hint: {
+    text: "You cleared your debt? That's no small thing out here. Listen, there's someone you should meet. Engineer named Tanaka at Barnard's Star. She's been working on an experimental jump drive — needs a pilot she can trust. With your slate clean, you're exactly the kind of person she's looking for.",
+    choices: [
+      {
+        text: '"Sounds interesting. I\'ll check it out."',
+        next: null,
+        repGain: 1,
+      },
+      {
+        text: '"Why do you think she\'d want my help?"',
+        next: 'tanaka_recommendation',
+      },
+      {
+        text: '"Thanks, Captain. I\'ll think about it."',
+        next: null,
+      },
+    ],
+  },
+
+  tanaka_recommendation: {
+    text: "Because I've been watching you fly. You show up, you deliver, you treat people right. That matters more than credentials out here. Tanaka doesn't trust easily, but if you bring her what she needs — electronics, medicine — she'll warm up. Just be patient.",
+    choices: [
+      {
+        text: '"I appreciate the vote of confidence."',
+        next: null,
+        repGain: 2,
+      },
+      {
+        text: '"I\'ll head to Barnard\'s when I can."',
+        next: null,
+        repGain: 1,
       },
     ],
   },

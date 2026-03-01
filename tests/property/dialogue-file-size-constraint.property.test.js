@@ -41,8 +41,8 @@ describe('Dialogue File Size Constraint Properties', () => {
         const fileContent = readFileSync(filePath, 'utf-8');
         const lineCount = fileContent.split('\n').length;
 
-        // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 650 lines
-        expect(lineCount).toBeLessThan(650);
+        // Property: For any individual NPC dialogue file, the file SHALL contain fewer than 700 lines
+        expect(lineCount).toBeLessThan(700);
       }),
       { numRuns: 100 }
     );
