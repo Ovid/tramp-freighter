@@ -5,6 +5,7 @@ import {
   FACTION_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants';
+import { gameDayToDate } from '../../game/utils/date-utils.js';
 
 /**
  * Get karma label from numeric value.
@@ -120,8 +121,10 @@ export function StatsSection() {
           <span className="stat-value">{snapshot.jumpsCompleted}</span>
         </div>
         <div className="stat-row">
-          <span className="stat-label">Days Elapsed</span>
-          <span className="stat-value">{snapshot.daysElapsed}</span>
+          <span className="stat-label">Current Date</span>
+          <span className="stat-value">
+            {gameDayToDate(snapshot.daysElapsed ?? 0)}
+          </span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Credits Earned</span>

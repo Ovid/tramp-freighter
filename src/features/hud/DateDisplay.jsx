@@ -1,5 +1,6 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { EVENT_NAMES } from '../../game/constants.js';
+import { gameDayToDate } from '../../game/utils/date-utils.js';
 
 /**
  * DateDisplay component displays the current game time.
@@ -15,8 +16,8 @@ export function DateDisplay() {
   return (
     <div className="hud-section hud-time">
       <div className="hud-row">
-        <span className="hud-label">Days:</span>
-        <span className="hud-value">{daysElapsed}</span>
+        <span className="hud-label">Date:</span>
+        <span className="hud-value">{gameDayToDate(daysElapsed ?? 0)}</span>
       </div>
     </div>
   );

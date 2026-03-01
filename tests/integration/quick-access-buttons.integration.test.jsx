@@ -79,7 +79,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
       // System panel should appear (check for unique element)
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
 
       // Close system panel
@@ -91,7 +91,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
       // System panel should appear again
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
     });
 
@@ -192,7 +192,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
       // System panel should be visible (check for unique element)
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
     });
 
@@ -379,7 +379,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
       // System panel should appear (check for unique element)
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
 
       // Station interface should not be visible
@@ -421,7 +421,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       fireEvent.click(systemInfoBtn);
 
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
 
       // Close system panel
@@ -438,7 +438,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
 
       // System panel should not be visible
-      expect(screen.queryByText('Coordinates:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Spectral Class:')).not.toBeInTheDocument();
     });
   });
 
@@ -517,7 +517,7 @@ describe('Quick Access Buttons Integration (React)', () => {
 
       // System panel should appear without errors (check for unique element)
       await waitFor(() => {
-        expect(screen.getByText('Coordinates:')).toBeInTheDocument();
+        expect(screen.getByText('Spectral Class:')).toBeInTheDocument();
       });
     });
   });

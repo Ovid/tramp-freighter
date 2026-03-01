@@ -1,14 +1,9 @@
 # TODO
 
-- There should be a game date. For the left panel, instead of "Days:", it
-  should show the date. The starting date should be "Date: 2167-06-20"
-  Remove "Coordinates" from System Info panel.
 - Should we be able to let players opt out of jump warnings and simply experience what happens without those screens?
 - If a mission run fails because you ran out of time, there should be
   consequences (I failed a mission hauling illegal goods, but there was no
   consequence)
-- Players should be able to save and restart up to 3 games
-- Test in Safari and Firefox
 
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to

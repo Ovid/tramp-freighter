@@ -6,6 +6,7 @@ import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { createWrapper } from '../react-test-utils.jsx';
+import { gameDayToDate } from '../../src/game/utils/date-utils.js';
 
 /**
  * Integration test for HUD updates during jump animation
@@ -165,8 +166,8 @@ describe('HUD Animation State Integration', () => {
     const initialState = gameStateManager.getState();
     expect(initialState.ship.fuel).toBe(100);
 
-    const daysLabel = screen.getByText('Days:');
-    expect(daysLabel.nextElementSibling).toHaveTextContent('0');
+    const dateLabel = screen.getByText('Date:');
+    expect(dateLabel.nextElementSibling).toHaveTextContent(gameDayToDate(0));
 
     // Execute jump
     await act(async () => {

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useGameAction } from '../../hooks/useGameAction.js';
 import { Button } from '../../components/Button.jsx';
+import { gameDayToDate } from '../../game/utils/date-utils.js';
 import './endgame.css';
 
 export function Epilogue({ onReturnToTitle }) {
@@ -30,8 +31,8 @@ export function Epilogue({ onReturnToTitle }) {
           <h2>VOYAGE STATISTICS</h2>
           <div className="stats-grid">
             <div className="stat-row">
-              <span>Days traveled:</span>
-              <span>{stats.daysElapsed}</span>
+              <span>Final date:</span>
+              <span>{gameDayToDate(stats.daysElapsed ?? 0)}</span>
             </div>
             <div className="stat-row">
               <span>Systems visited:</span>

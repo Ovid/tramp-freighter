@@ -542,6 +542,8 @@ export async function initDevMode() {
  */
 export const GAME_VERSION = '5.0.0';
 
+export const GAME_START_DATE = '2167-06-20';
+
 /**
  * Mission System Configuration
  */
@@ -1075,9 +1077,6 @@ export const UI_CONFIG = {
 
   // Repair panel configuration
   REPAIR_AMOUNTS: [10, 25, 50, 'full'], // Available repair percentage options
-
-  // Coordinate display configuration
-  COORDINATE_SCALE_FACTOR: 10, // Divide coordinates by this for display (map units to light-years)
 
   // Animation polling configuration
   ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
