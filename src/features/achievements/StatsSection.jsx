@@ -107,7 +107,7 @@ export function StatsSection() {
       </div>
 
       <div className="stats-group">
-        <h3 className="stats-group-title">Gameplay Counters</h3>
+        <h3 className="stats-group-title">Ship's Log</h3>
         <div className="stat-row">
           <span className="stat-label">Systems Visited</span>
           <span className="stat-value">
