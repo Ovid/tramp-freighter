@@ -125,7 +125,7 @@ export function calculateProfit(stack, currentPrice) {
   }
 
   const margin = currentPrice - stack.buyPrice;
-  const percentage = ((margin / stack.buyPrice) * 100).toFixed(1);
+  const percentage = Math.round((margin / stack.buyPrice) * 100);
 
   let direction = 'neutral';
   if (margin > 0) {
