@@ -23,8 +23,9 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   }),
 }));
 
+const stableMissions = { active: [], completed: [] };
 vi.mock('../../src/hooks/useGameEvent.js', () => ({
-  useGameEvent: vi.fn(() => ({ active: [], completed: [] })),
+  useGameEvent: vi.fn(() => stableMissions),
 }));
 
 describe('MissionCompleteNotifier', () => {

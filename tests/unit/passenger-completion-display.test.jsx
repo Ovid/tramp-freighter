@@ -6,8 +6,9 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: vi.fn(),
 }));
 
+const stableMissions = { active: [], completed: [] };
 vi.mock('../../src/hooks/useGameEvent.js', () => ({
-  useGameEvent: vi.fn(() => ({ active: [], completed: [] })),
+  useGameEvent: vi.fn(() => stableMissions),
 }));
 
 import { useGameAction } from '../../src/hooks/useGameAction';
