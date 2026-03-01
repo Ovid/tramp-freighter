@@ -1,4 +1,5 @@
 import { BaseManager } from './base-manager.js';
+import { SeededRandom } from '../../utils/seeded-random.js';
 import {
   COLE_DEBT_CONFIG,
   MISSION_CONFIG,
@@ -467,12 +468,13 @@ export class MissionManager extends BaseManager {
         ? (systemId) => this.gameStateManager.getDangerZone(systemId)
         : null;
 
+    const rng = new SeededRandom(`mission-board-${currentDay}-${state.player.currentSystem}`);
     const board = generateMissionBoard(
       state.player.currentSystem,
       this.gameStateManager.starData,
       this.gameStateManager.wormholeData,
       dangerZone,
-      undefined,
+      () => rng.next(),
       destinationDangerZoneFn,
       state.missions.completionHistory,
       currentDay
