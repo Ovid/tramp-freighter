@@ -572,6 +572,8 @@ export const MISSION_CONFIG = {
   SATURATION_PENALTY_PER_RUN: 0.25,
   SATURATION_FLOOR: 0.25,
   SATURATION_MAX_HISTORY: 50,
+  PASSENGER_PREMIUM: 1.25,
+  PASSENGER_MARGIN_FLOOR: 5,
 };
 
 export const ENDGAME_CONFIG = {
@@ -628,7 +630,6 @@ export const PASSENGER_CONFIG = {
   TYPES: {
     refugee: {
       urgency: 'high',
-      paymentTier: 'low',
       cargoSpace: 1,
       dialogue: [
         'Please, I need to get away from here.',
@@ -638,14 +639,12 @@ export const PASSENGER_CONFIG = {
     },
     business: {
       urgency: 'medium',
-      paymentTier: 'medium',
       cargoSpace: 2,
       dialogue: ['Time is money.', 'I expect professional service.'],
       satisfactionWeights: { speed: 0.6, comfort: 0.4 },
     },
     wealthy: {
       urgency: 'low',
-      paymentTier: 'high',
       cargoSpace: 3,
       dialogue: [
         'I trust the accommodations are adequate?',
@@ -655,7 +654,6 @@ export const PASSENGER_CONFIG = {
     },
     scientist: {
       urgency: 'medium',
-      paymentTier: 'medium',
       cargoSpace: 2,
       dialogue: [
         'Fascinating ship you have.',
@@ -665,7 +663,6 @@ export const PASSENGER_CONFIG = {
     },
     family: {
       urgency: 'low',
-      paymentTier: 'low',
       cargoSpace: 3,
       dialogue: ['Are we there yet?', 'The children are excited.'],
       satisfactionWeights: { speed: 0.4, comfort: 0.4, safety: 0.2 },
@@ -693,12 +690,6 @@ export const PASSENGER_CONFIG = {
     COMBAT: 15,
     LOW_LIFE_SUPPORT: 5,
     LIFE_SUPPORT_THRESHOLD: 50,
-  },
-
-  PAYMENT_TIERS: {
-    low: { min: 200, max: 500 },
-    medium: { min: 500, max: 1000 },
-    high: { min: 800, max: 1500 },
   },
 
   FIRST_NAMES: [

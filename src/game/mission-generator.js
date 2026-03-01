@@ -2,7 +2,9 @@ import {
   MISSION_CONFIG,
   MISSION_CARGO_TYPES,
   PASSENGER_CONFIG,
+  COMMODITY_TYPES,
 } from './constants.js';
+import { calculateSystemPrices } from './utils/calculators.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
 import {
   getConnectedSystems as getCachedConnectedSystems,
@@ -232,9 +234,18 @@ export function generatePassengerMission(
     1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
   );
 
-  const tier = PASSENGER_CONFIG.PAYMENT_TIERS[typeConfig.paymentTier];
+  const fromStar = starData.find((s) => s.id === fromSystem);
+  const originPrices = calculateSystemPrices(fromStar, currentDay, [], {});
+  const destPrices = calculateSystemPrices(destStar, currentDay, [], {});
+  const bestMargin = Math.max(
+    MISSION_CONFIG.PASSENGER_MARGIN_FLOOR,
+    ...COMMODITY_TYPES.map((good) => destPrices[good] - originPrices[good])
+  );
   const reward = Math.ceil(
-    (tier.min + rng() * (tier.max - tier.min)) * saturationMultiplier
+    bestMargin *
+      typeConfig.cargoSpace *
+      MISSION_CONFIG.PASSENGER_PREMIUM *
+      saturationMultiplier
   );
 
   return {
