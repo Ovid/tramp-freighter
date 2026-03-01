@@ -378,6 +378,16 @@ export class MissionManager extends BaseManager {
     for (const mission of expired) {
       state.missions.failed.push(mission.id);
 
+      // Queue a notice for display on next station dock
+      if (!state.missions.pendingFailureNotices) {
+        state.missions.pendingFailureNotices = [];
+      }
+      state.missions.pendingFailureNotices.push({
+        id: mission.id,
+        title: mission.title,
+        destination: mission.destination ? mission.destination.name : null,
+      });
+
       // Remove mission cargo from hold
       if (mission.missionCargo) {
         state.ship.cargo = state.ship.cargo.filter(
