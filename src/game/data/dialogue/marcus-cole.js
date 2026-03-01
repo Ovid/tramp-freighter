@@ -97,8 +97,10 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: 'You mentioned something might be worth my time?',
         next: 'debt_cleared',
-        condition: (_rep, context) =>
-          context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0,
+        condition: (_rep, context) => {
+          if (!context || context.narrativeFlags?.tanaka_met) return false;
+          return context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0;
+        },
       },
       {
         text: 'About my debt...',

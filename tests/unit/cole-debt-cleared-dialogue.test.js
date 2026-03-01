@@ -42,6 +42,12 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
     getQuestStage: (questId) => (questId === 'tanaka' ? 1 : 0),
   };
 
+  /** Mock context where debt is cleared but Tanaka already met */
+  const tanakaMetContext = {
+    ...debtClearedContext,
+    narrativeFlags: { tanaka_met: true },
+  };
+
   describe('getGreetingText with debt === 0', () => {
     it('should return debt-cleared greeting when debt is zero', () => {
       const greetingText = MARCUS_COLE_DIALOGUE.greeting.text(
@@ -93,6 +99,14 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
       );
       expect(debtClearedChoice).toBeDefined();
       expect(debtClearedChoice.condition(0, tanakaStartedContext)).toBe(false);
+    });
+
+    it('should NOT show debt_cleared choice when Tanaka already met', () => {
+      const debtClearedChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
+        (c) => c.next === 'debt_cleared'
+      );
+      expect(debtClearedChoice).toBeDefined();
+      expect(debtClearedChoice.condition(0, tanakaMetContext)).toBe(false);
     });
 
     it('should NOT show debt_cleared choice when context is missing', () => {

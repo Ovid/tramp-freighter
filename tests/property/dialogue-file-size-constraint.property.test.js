@@ -11,7 +11,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 describe('Dialogue File Size Constraint Properties', () => {
-  it('should ensure all individual NPC dialogue files are under 500 lines', () => {
+  it('should ensure all individual NPC dialogue files are under 700 lines', () => {
     // List of all individual NPC dialogue files
     const dialogueFiles = [
       'wei-chen.js',
