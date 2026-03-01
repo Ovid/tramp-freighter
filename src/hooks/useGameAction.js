@@ -278,6 +278,8 @@ export function useGameAction() {
       getCompletableMissions: () => gameStateManager.getCompletableMissions(),
       updatePassengerSatisfaction: (missionId, event) =>
         gameStateManager.updatePassengerSatisfaction(missionId, event),
+      dismissMissionFailureNotice: (missionId) =>
+        gameStateManager.dismissMissionFailureNotice(missionId),
     }),
     [gameStateManager]
   );

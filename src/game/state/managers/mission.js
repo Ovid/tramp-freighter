@@ -569,4 +569,14 @@ export class MissionManager extends BaseManager {
     this.validateState();
     return this.getState().missions.active;
   }
+
+  dismissMissionFailureNotice(missionId) {
+    this.validateState();
+    const state = this.getState();
+    if (!state.missions.pendingFailureNotices) return;
+    state.missions.pendingFailureNotices =
+      state.missions.pendingFailureNotices.filter((n) => n.id !== missionId);
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.gameStateManager.markDirty();
+  }
 }

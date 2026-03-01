@@ -1123,6 +1123,10 @@ export class GameStateManager {
     return this.missionManager.updatePassengerSatisfaction(missionId, event);
   }
 
+  dismissMissionFailureNotice(missionId) {
+    return this.missionManager.dismissMissionFailureNotice(missionId);
+  }
+
   // ========================================================================
   // EVENT ENGINE
   // ========================================================================
