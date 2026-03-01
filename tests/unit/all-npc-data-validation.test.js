@@ -183,8 +183,14 @@ describe('NPC System Reachability', () => {
   it('should place all NPCs in systems marked reachable (r: 1)', () => {
     for (const npc of ALL_NPCS) {
       const star = starById.get(npc.system);
-      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
-      expect(star.r, `NPC "${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`).toBe(1);
+      expect(
+        star,
+        `NPC "${npc.name}" references unknown system ${npc.system}`
+      ).toBeDefined();
+      expect(
+        star.r,
+        `NPC "${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`
+      ).toBe(1);
     }
   });
 
