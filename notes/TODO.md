@@ -1,7 +1,6 @@
 # TODO
 
 - Should we be able to let players opt out of jump warnings and simply experience what happens without those screens?
-- Test that all NPCs are at reachable systems
 - For "Pirate Encounter", flee (and maybe others), I often have a 70% chance
   of success. But I *always* hit a combat resolution screen, so I don't think
   that chance of success is working.
