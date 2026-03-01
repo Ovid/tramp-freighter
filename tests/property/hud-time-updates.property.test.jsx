@@ -42,9 +42,9 @@ describe('Property 21: HUD time updates', () => {
           </GameProvider>
         );
 
-        // Verify initial time display (new game starts at day 0 = 2167-06-20)
+        // Verify initial time display (day 0)
         await waitFor(() => {
-          expect(screen.getByText('2167-06-20')).toBeInTheDocument();
+          expect(screen.getByText(gameDayToDate(0))).toBeInTheDocument();
         });
 
         // Update time
