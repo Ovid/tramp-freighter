@@ -101,7 +101,7 @@
 }
 
 .achievement-progress-fill.complete {
-  background: var(--color-primary);
+  background: var(--color-secondary);
 }
 
 /* Achievement Toast */
