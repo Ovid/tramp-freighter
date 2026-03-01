@@ -122,7 +122,9 @@ export function StatsSection() {
         </div>
         <div className="stat-row">
           <span className="stat-label">Current Date</span>
-          <span className="stat-value">{gameDayToDate(snapshot.daysElapsed ?? 0)}</span>
+          <span className="stat-value">
+            {gameDayToDate(snapshot.daysElapsed ?? 0)}
+          </span>
         </div>
         <div className="stat-row">
           <span className="stat-label">Credits Earned</span>
