@@ -542,6 +542,8 @@ export async function initDevMode() {
  */
 export const GAME_VERSION = '5.0.0';
 
+export const GAME_START_DATE = '2167-06-20';
+
 /**
  * Mission System Configuration
  */
