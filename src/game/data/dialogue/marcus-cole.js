@@ -99,7 +99,9 @@ export const MARCUS_COLE_DIALOGUE = {
         next: 'debt_cleared',
         condition: (_rep, context) => {
           if (!context || context.narrativeFlags?.tanaka_met) return false;
-          return context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0;
+          return (
+            context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0
+          );
         },
       },
       {

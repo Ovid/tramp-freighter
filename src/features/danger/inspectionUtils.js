@@ -17,7 +17,12 @@ import {
  * @param {Object} [cargoItem] - Full cargo item (optional, for mission cargo check)
  * @returns {boolean} Whether the good is restricted
  */
-export function isGoodRestrictedInZone(goodType, dangerZone, systemId, cargoItem) {
+export function isGoodRestrictedInZone(
+  goodType,
+  dangerZone,
+  systemId,
+  cargoItem
+) {
   // Check zone-based restrictions
   const zoneRestricted =
     RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone]?.includes(goodType) ||
@@ -30,8 +35,7 @@ export function isGoodRestrictedInZone(goodType, dangerZone, systemId, cargoItem
 
   // Check illegal mission cargo
   const illegalMissionCargo = Boolean(
-    cargoItem?.missionId &&
-    MISSION_CARGO_TYPES.illegal.includes(goodType)
+    cargoItem?.missionId && MISSION_CARGO_TYPES.illegal.includes(goodType)
   );
 
   return zoneRestricted || coreSystemRestricted || illegalMissionCargo;

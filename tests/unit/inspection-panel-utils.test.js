@@ -39,7 +39,9 @@ describe('isGoodRestrictedInZone', () => {
 
     it('does not flag core-restricted goods outside core systems', () => {
       const item = { good: 'parts', qty: 3 };
-      expect(isGoodRestrictedInZone('parts', 'dangerous', 15, item)).toBe(false);
+      expect(isGoodRestrictedInZone('parts', 'dangerous', 15, item)).toBe(
+        false
+      );
     });
   });
 
@@ -47,18 +49,14 @@ describe('isGoodRestrictedInZone', () => {
     it('flags cargo with missionId and illegal good type as restricted', () => {
       for (const illegalGood of MISSION_CARGO_TYPES.illegal) {
         const item = { good: illegalGood, qty: 1, missionId: 'mission_123' };
-        expect(
-          isGoodRestrictedInZone(illegalGood, 'safe', 5, item)
-        ).toBe(true);
+        expect(isGoodRestrictedInZone(illegalGood, 'safe', 5, item)).toBe(true);
       }
     });
 
     it('does not flag legal mission cargo as restricted', () => {
       for (const legalGood of MISSION_CARGO_TYPES.legal) {
         const item = { good: legalGood, qty: 1, missionId: 'mission_456' };
-        expect(
-          isGoodRestrictedInZone(legalGood, 'safe', 5, item)
-        ).toBe(false);
+        expect(isGoodRestrictedInZone(legalGood, 'safe', 5, item)).toBe(false);
       }
     });
 
@@ -67,14 +65,18 @@ describe('isGoodRestrictedInZone', () => {
       for (const illegalGood of MISSION_CARGO_TYPES.illegal) {
         const item = { good: illegalGood, qty: 1 };
         // These goods are not in any zone restriction list, so should be false
-        expect(
-          isGoodRestrictedInZone(illegalGood, 'safe', 5, item)
-        ).toBe(false);
+        expect(isGoodRestrictedInZone(illegalGood, 'safe', 5, item)).toBe(
+          false
+        );
       }
     });
 
     it('flags illegal mission cargo even in zones with no zone restrictions', () => {
-      const item = { good: 'unmarked_crates', qty: 2, missionId: 'mission_789' };
+      const item = {
+        good: 'unmarked_crates',
+        qty: 2,
+        missionId: 'mission_789',
+      };
       expect(
         isGoodRestrictedInZone('unmarked_crates', 'dangerous', 20, item)
       ).toBe(true);

@@ -95,9 +95,7 @@ describe('Captain Vasquez Debt-Cleared Tanaka Hint', () => {
       const hintIndex = choices.findIndex(
         (c) => c.next === 'debt_cleared_tanaka_hint'
       );
-      const exploreIndex = choices.findIndex(
-        (c) => c.next === 'explore_more'
-      );
+      const exploreIndex = choices.findIndex((c) => c.next === 'explore_more');
       const barnardsIndex = choices.findIndex(
         (c) => c.next === 'barnards_engineer'
       );
@@ -122,7 +120,7 @@ describe('Captain Vasquez Debt-Cleared Tanaka Hint', () => {
 
     it('should mention Barnards Star', () => {
       const node = CAPTAIN_VASQUEZ_DIALOGUE.debt_cleared_tanaka_hint;
-      expect(node.text).toContain("Barnard");
+      expect(node.text).toContain('Barnard');
     });
 
     it('should mention jump drive', () => {
@@ -161,10 +159,11 @@ describe('Captain Vasquez Debt-Cleared Tanaka Hint', () => {
     });
 
     it('should mention supplies Tanaka needs (electronics or medicine)', () => {
-      const text = CAPTAIN_VASQUEZ_DIALOGUE.tanaka_recommendation.text.toLowerCase();
-      expect(
-        text.includes('electronics') || text.includes('medicine')
-      ).toBe(true);
+      const text =
+        CAPTAIN_VASQUEZ_DIALOGUE.tanaka_recommendation.text.toLowerCase();
+      expect(text.includes('electronics') || text.includes('medicine')).toBe(
+        true
+      );
     });
 
     it('should have closing choices with repGain', () => {

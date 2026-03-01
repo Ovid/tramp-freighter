@@ -26,12 +26,8 @@ describe('Mission Cargo Display Names', () => {
     });
 
     it('formats underscored commodity names used in inspections', () => {
-      expect(formatCargoDisplayName('unmarked_crates')).toBe(
-        'Unmarked Crates'
-      );
-      expect(formatCargoDisplayName('alien_artifacts')).toBe(
-        'Alien Artifacts'
-      );
+      expect(formatCargoDisplayName('unmarked_crates')).toBe('Unmarked Crates');
+      expect(formatCargoDisplayName('alien_artifacts')).toBe('Alien Artifacts');
     });
 
     it('formats a list of restricted item IDs for display', () => {

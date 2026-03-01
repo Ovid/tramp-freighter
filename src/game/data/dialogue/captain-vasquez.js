@@ -183,7 +183,9 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
         next: 'debt_cleared_tanaka_hint',
         condition: (_rep, context) => {
           if (!context || context.narrativeFlags?.tanaka_met) return false;
-          return context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0;
+          return (
+            context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0
+          );
         },
       },
       {

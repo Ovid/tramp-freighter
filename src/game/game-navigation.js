@@ -4,9 +4,7 @@ import {
   REPAIR_CONFIG,
   EVENT_NAMES,
 } from './constants.js';
-import {
-  getConnectedSystems as getCachedConnectedSystems,
-} from './utils/wormhole-graph.js';
+import { getConnectedSystems as getCachedConnectedSystems } from './utils/wormhole-graph.js';
 import { WORMHOLE_DATA } from './data/wormhole-data.js';
 
 /**

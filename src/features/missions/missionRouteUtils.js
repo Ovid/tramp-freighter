@@ -74,8 +74,7 @@ export function getFeasibilityWarning(
 
   if (ratio >= 1.0)
     return { level: 'impossible', text: 'Deadline likely impossible' };
-  if (ratio > threshold)
-    return { level: 'tight', text: 'Tight deadline' };
+  if (ratio > threshold) return { level: 'tight', text: 'Tight deadline' };
 
   return null;
 }

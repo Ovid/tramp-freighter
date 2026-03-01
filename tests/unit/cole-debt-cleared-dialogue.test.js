@@ -90,7 +90,9 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
         (c) => c.next === 'debt_cleared'
       );
       expect(debtClearedChoice).toBeDefined();
-      expect(debtClearedChoice.condition(0, debtOutstandingContext)).toBe(false);
+      expect(debtClearedChoice.condition(0, debtOutstandingContext)).toBe(
+        false
+      );
     });
 
     it('should NOT show debt_cleared choice when Tanaka quest already started', () => {
@@ -131,16 +133,12 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
     it('should mention an engineer or Barnards Star', () => {
       const node = MARCUS_COLE_DIALOGUE.debt_cleared;
       const text = node.text;
-      expect(
-        text.includes('engineer') || text.includes("Barnard")
-      ).toBe(true);
+      expect(text.includes('engineer') || text.includes('Barnard')).toBe(true);
     });
 
     it('should have choice leading to tanaka_detail', () => {
       const node = MARCUS_COLE_DIALOGUE.debt_cleared;
-      const tanakaChoice = node.choices.find(
-        (c) => c.next === 'tanaka_detail'
-      );
+      const tanakaChoice = node.choices.find((c) => c.next === 'tanaka_detail');
       expect(tanakaChoice).toBeDefined();
     });
 
@@ -172,7 +170,7 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
     });
 
     it('should mention Barnards Star', () => {
-      expect(MARCUS_COLE_DIALOGUE.tanaka_detail.text).toContain("Barnard");
+      expect(MARCUS_COLE_DIALOGUE.tanaka_detail.text).toContain('Barnard');
     });
 
     it('should mention jump drive or jump tech', () => {
@@ -231,7 +229,9 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
     it('should reference reliability or demonstrated value', () => {
       const text = MARCUS_COLE_DIALOGUE.future_business.text;
       expect(
-        text.includes('reliab') || text.includes('value') || text.includes('demonstrated')
+        text.includes('reliab') ||
+          text.includes('value') ||
+          text.includes('demonstrated')
       ).toBe(true);
     });
 

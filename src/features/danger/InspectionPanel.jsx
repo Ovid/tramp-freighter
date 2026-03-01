@@ -225,7 +225,9 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                       Restricted Goods Detected:
                     </span>
                     <span className="warning-text">
-                      {inspectionAnalysis.restrictedItems.map(formatCargoDisplayName).join(', ')}
+                      {inspectionAnalysis.restrictedItems
+                        .map(formatCargoDisplayName)
+                        .join(', ')}
                     </span>
                   </div>
                 )}
