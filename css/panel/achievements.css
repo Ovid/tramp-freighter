@@ -17,7 +17,7 @@
   padding-bottom: 4px;
 }
 
-.stat-row {
+.stats-section .stat-row {
   display: flex;
   justify-content: space-between;
   padding: 3px 0;
@@ -25,11 +25,11 @@
   font-size: var(--font-size-normal);
 }
 
-.stat-label {
+.stats-section .stat-label {
   color: var(--color-secondary);
 }
 
-.stat-value {
+.stats-section .stat-value {
   color: #ffffff;
 }
 
