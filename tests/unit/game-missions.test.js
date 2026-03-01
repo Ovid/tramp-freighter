@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -13,6 +13,36 @@ function makeGSM() {
   gsm.initNewGame();
   return gsm;
 }
+
+describe('checkMissionDeadlines persistence', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('calls markDirty when missions expire', () => {
+    const gsm = makeGSM();
+    const state = gsm.getState();
+    state.missions.active.push({
+      id: 'test-mission-1',
+      title: 'Expired Test Mission',
+      deadlineDay: 0,
+      destination: null,
+      missionCargo: null,
+      penalties: {},
+    });
+    state.player.daysElapsed = 5;
+
+    const markDirty = vi.spyOn(gsm, 'markDirty');
+    gsm.checkMissionDeadlines();
+
+    expect(markDirty).toHaveBeenCalled();
+  });
+});
 
 describe('Mission board determinism', () => {
   beforeEach(() => {

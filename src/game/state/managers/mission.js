@@ -435,6 +435,7 @@ export class MissionManager extends BaseManager {
     }
 
     this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.gameStateManager.markDirty();
   }
 
   refreshMissionBoard() {
