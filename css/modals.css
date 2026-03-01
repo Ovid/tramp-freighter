@@ -32,14 +32,16 @@
   box-shadow: var(--shadow-glow-primary);
 }
 
-.modal-body {
-  overflow-y: auto;
-}
-
 .modal-content {
   display: flex;
   flex-direction: column;
   gap: 25px;
+  min-height: 0;
+}
+
+.modal-body {
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .modal-header {
