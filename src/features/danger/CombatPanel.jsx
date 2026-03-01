@@ -17,7 +17,7 @@ import { COMBAT_CONFIG, EVENT_NAMES } from '../../game/constants.js';
  * @param {Function} props.onChoice - Callback when player makes a choice
  * @param {Function} props.onClose - Callback to close the panel
  */
-export function CombatPanel({ combat, onChoice, onClose: _onClose }) {
+export function CombatPanel({ combat, onChoice, onClose: _onClose, fleeContext }) {
   // Subscribe to relevant game events for ship status and modifiers
   const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
   const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
@@ -91,6 +91,22 @@ export function CombatPanel({ combat, onChoice, onClose: _onClose }) {
       <h2>Combat Resolution</h2>
 
       <div className="combat-content">
+        {/* Flee failed alert — shown when evasion was attempted and failed */}
+        {fleeContext?.fleeAttemptFailed && (
+          <div className="flee-failed-alert" role="alert">
+            <div className="flee-failed-title">EVASION FAILED — YOU COULD NOT FLEE</div>
+            <div className="flee-failed-body">
+              <p>{fleeContext.description}</p>
+              {fleeContext.hullDamage > 0 && (
+                <p className="flee-failed-damage">
+                  Hull took <strong>-{fleeContext.hullDamage}%</strong> damage during the failed escape attempt.
+                  You are still engaged — choose how to fight back.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Combat Status Section */}
         <div className="combat-section combat-status">
           <h3>Combat Status</h3>
