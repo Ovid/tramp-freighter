@@ -239,6 +239,10 @@ export class GameStateManager {
 
     this._emitAllStateEvents(migratedState);
 
+    // Catch up achievements that already meet thresholds (e.g. saves from
+    // before the achievements system, or new achievements added in updates).
+    this.achievementsManager.checkAchievements();
+
     devLog('State restored successfully');
 
     return { success: true, state: migratedState };

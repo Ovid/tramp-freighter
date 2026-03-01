@@ -341,6 +341,21 @@ describe('Save Compatibility', () => {
     expect(migrated.achievements).toEqual({});
   });
 
+  it('should unlock already-qualified achievements on restoreState', () => {
+    const manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    manager.initNewGame();
+
+    // Build a save with stats that meet thresholds but no unlocked achievements
+    const saveState = JSON.parse(JSON.stringify(manager.state));
+    saveState.stats.jumpsCompleted = 10;
+    saveState.achievements = {};
+
+    const result = manager.restoreState(saveState);
+    expect(result.success).toBe(true);
+    expect(manager.state.achievements['survival_1']).toBeDefined();
+    expect(manager.state.achievements['survival_1'].unlocked).toBe(true);
+  });
+
   it('should preserve existing achievements on load', () => {
     const stateWithAchievements = {
       player: {
