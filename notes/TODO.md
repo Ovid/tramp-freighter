@@ -1,5 +1,11 @@
 # TODO
 
+- Maybe make ship upgrades a key to the endgame? You can only get certain
+  upgrades by completing missions, and some of those upgrades are necessary to
+  complete later missions. This would make the endgame more engaging and less
+  grindy.
+- Bug: if you have enough missions, the HUD display should have a scroll bar,
+  but it doesn't. This means you can't see all your missions.
 - Message variations: all messages should have at least three variants, each
   meaning the same thing, but phrased differently. They get chosen at random.
   This allows players to have a more of a feeling that the game is "variable"
