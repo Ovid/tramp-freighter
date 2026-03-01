@@ -1,4 +1,4 @@
-import { SHIP_CONFIG, FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
+import { FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
