@@ -13,7 +13,7 @@ import {
 } from '../../src/game/data/npc-data.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
+import { REPUTATION_BOUNDS, SOL_SYSTEM_ID } from '../../src/game/constants.js';
 
 /**
  * Cross-NPC validation tests for the NPC benefits system
@@ -164,8 +164,8 @@ describe('NPC System Reachability', () => {
       adj.get(b).push(a);
     }
     const visited = new Set();
-    const queue = [0]; // Sol
-    visited.add(0);
+    const queue = [SOL_SYSTEM_ID];
+    visited.add(SOL_SYSTEM_ID);
     while (queue.length > 0) {
       const current = queue.shift();
       for (const neighbor of adj.get(current) || []) {
@@ -197,7 +197,10 @@ describe('NPC System Reachability', () => {
   it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
     for (const npc of ALL_NPCS) {
       const star = starById.get(npc.system);
-      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
+      expect(
+        star,
+        `NPC "${npc.name}" references unknown system ${npc.system}`
+      ).toBeDefined();
       expect(
         reachableFromSol.has(npc.system),
         `NPC "${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol via wormholes`
