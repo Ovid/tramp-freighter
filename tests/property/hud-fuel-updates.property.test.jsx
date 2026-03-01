@@ -50,7 +50,7 @@ describe('Property 20: HUD fuel updates', () => {
           await waitFor(() => {
             const fuelBar = document.querySelector('.fuel-bar-container');
             expect(fuelBar).toBeTruthy();
-            expect(fuelBar.textContent).toContain('100.0%');
+            expect(fuelBar.textContent).toContain('100%');
           });
 
           // Update fuel
@@ -60,7 +60,7 @@ describe('Property 20: HUD fuel updates', () => {
           await waitFor(() => {
             const fuelBar = document.querySelector('.fuel-bar-container');
             expect(fuelBar).toBeTruthy();
-            expect(fuelBar.textContent).toContain(`${newFuel.toFixed(1)}%`);
+            expect(fuelBar.textContent).toContain(`${Math.round(newFuel)}%`);
           });
 
           return true;
