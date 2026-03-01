@@ -145,7 +145,7 @@ export class DistressManager extends BaseManager {
         cargo: [
           {
             good: 'parts',
-            qty: 2,
+            qty: DISTRESS_CONFIG.LOOT.SALVAGE_PARTS_QTY,
             buyPrice: 0,
             buySystemName: 'Salvaged',
           },

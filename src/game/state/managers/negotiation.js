@@ -99,7 +99,8 @@ export class NegotiationManager extends BaseManager {
       }
 
       const reducedCredits = Math.round(
-        PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5
+        PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND *
+          PIRATE_CREDIT_DEMAND_CONFIG.COUNTER_PROPOSAL_DISCOUNT
       );
       return {
         success: true,
