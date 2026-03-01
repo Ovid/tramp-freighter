@@ -197,6 +197,7 @@ describe('NPC System Reachability', () => {
   it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
     for (const npc of ALL_NPCS) {
       const star = starById.get(npc.system);
+      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
       expect(
         reachableFromSol.has(npc.system),
         `NPC "${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol via wormholes`
