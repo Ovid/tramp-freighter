@@ -68,7 +68,7 @@ export const YUKI_TANAKA_DIALOGUE = {
           context.canStartQuestStage('tanaka', 5),
       },
       {
-        text: '"I delivered the message to Vasquez."',
+        text: '"Vasquez understood. They\'ll take care of it."',
         next: 'mission_4_complete',
         condition: (_rep, context) =>
           context &&
@@ -86,7 +86,7 @@ export const YUKI_TANAKA_DIALOGUE = {
           context.canStartQuestStage('tanaka', 4),
       },
       {
-        text: '"The prototype test went well."',
+        text: '"Your work is impressive, Tanaka. The ship feels different."',
         next: 'mission_3_complete',
         condition: (_rep, context) =>
           context &&
@@ -104,7 +104,7 @@ export const YUKI_TANAKA_DIALOGUE = {
           context.canStartQuestStage('tanaka', 3),
       },
       {
-        text: '"I have all five exotic material samples."',
+        text: '"Took some searching, but it was worth the trip."',
         next: 'mission_2_complete',
         condition: (_rep, context) =>
           context &&
@@ -122,7 +122,7 @@ export const YUKI_TANAKA_DIALOGUE = {
           context.canStartQuestStage('tanaka', 2),
       },
       {
-        text: '"The field test is complete."',
+        text: '"Glad the data worked out. She handled well out there."',
         next: 'mission_1_complete',
         condition: (_rep, context) =>
           context &&

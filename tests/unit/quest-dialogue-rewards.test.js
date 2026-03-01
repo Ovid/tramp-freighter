@@ -65,9 +65,9 @@ describe('Quest dialogue reward timing', () => {
 
   describe('Design Note 2: completion choices hide after rewards claimed', () => {
     const completionChoiceTexts = [
-      '"The field test is complete."',
-      '"I have all five exotic material samples."',
-      '"The prototype test went well."',
+      '"Glad the data worked out. She handled well out there."',
+      '"Took some searching, but it was worth the trip."',
+      '"Your work is impressive, Tanaka. The ship feels different."',
     ];
 
     it('completion greeting choices have condition checking hasClaimedStageRewards', () => {
@@ -83,9 +83,9 @@ describe('Quest dialogue reward timing', () => {
         // Condition should return false when hasClaimedStageRewards returns true
         const mockGSM = {
           getQuestStage: () => {
-            if (text.includes('field test')) return 1;
-            if (text.includes('exotic material')) return 2;
-            if (text.includes('prototype')) return 3;
+            if (text.includes('data worked out')) return 1;
+            if (text.includes('some searching')) return 2;
+            if (text.includes('impressive')) return 3;
             return 0;
           },
           checkQuestObjectives: () => true,
@@ -101,7 +101,7 @@ describe('Quest dialogue reward timing', () => {
     it('mission_4_complete greeting choice exists', () => {
       const greetingChoices = YUKI_TANAKA_DIALOGUE.greeting.choices;
       const choice = greetingChoices.find((c) =>
-        c.text.includes('delivered the message')
+        c.text.includes('Vasquez understood')
       );
       expect(choice).toBeDefined();
       expect(choice.next).toBe('mission_4_complete');
