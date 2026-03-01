@@ -298,6 +298,35 @@ export class DangerManager extends BaseManager {
   }
 
   /**
+   * Remove all restricted goods from the ship's cargo at the current system.
+   *
+   * Uses the same classification logic as countRestrictedGoods, but filters
+   * them out of cargo and calls updateCargo. Called after customs confiscation.
+   */
+  removeRestrictedCargo() {
+    this.validateState();
+    const state = this.getState();
+    const systemId = state.player.currentSystem;
+    const zone = this.getDangerZone(systemId);
+
+    const zoneRestrictions =
+      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[zone] || [];
+    const coreRestrictions =
+      systemId === SOL_SYSTEM_ID || systemId === ALPHA_CENTAURI_SYSTEM_ID
+        ? RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED
+        : [];
+    const allRestricted = [...zoneRestrictions, ...coreRestrictions];
+
+    const newCargo = state.ship.cargo.filter((item) => {
+      if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
+        return false;
+      return !allRestricted.includes(item.good);
+    });
+
+    this.gameStateManager.updateCargo(newCargo);
+  }
+
+  /**
    * Increment a specific danger flag counter
    *
    * @param {string} flagName - Name of the flag to increment (e.g. 'piratesFought')

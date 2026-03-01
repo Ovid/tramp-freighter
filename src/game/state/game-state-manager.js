@@ -980,6 +980,10 @@ export class GameStateManager {
     return this.dangerManager.countRestrictedGoods(cargo, zone, systemId);
   }
 
+  removeRestrictedCargo() {
+    return this.dangerManager.removeRestrictedCargo();
+  }
+
   incrementDangerFlag(flagName) {
     return this.dangerManager.incrementDangerFlag(flagName);
   }
