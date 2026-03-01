@@ -6,6 +6,10 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: vi.fn(),
 }));
 
+vi.mock('../../src/hooks/useGameEvent.js', () => ({
+  useGameEvent: vi.fn(() => ({ active: [], completed: [] })),
+}));
+
 import { useGameAction } from '../../src/hooks/useGameAction';
 
 const passengerMission = {

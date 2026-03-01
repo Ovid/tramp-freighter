@@ -23,6 +23,10 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   }),
 }));
 
+vi.mock('../../src/hooks/useGameEvent.js', () => ({
+  useGameEvent: vi.fn(() => ({ active: [], completed: [] })),
+}));
+
 describe('MissionCompleteNotifier', () => {
   beforeEach(() => {
     vi.clearAllMocks();
