@@ -6,6 +6,7 @@ import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../hud/hudUtils';
 import { getNPCsAtSystem } from '../../game/game-npcs';
+import { Modal } from '../../components/Modal.jsx';
 
 /**
  * Station menu component.
@@ -24,7 +25,10 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
 export function StationMenu({ onOpenPanel, onUndock }) {
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const gameStateManager = useGameState();
-  const { getNarrativeFlags } = useGameAction();
+  const { getNarrativeFlags, dismissMissionFailureNotice } = useGameAction();
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
+  const pendingNotices = missions?.pendingFailureNotices ?? [];
+  const currentNotice = pendingNotices[0] ?? null;
 
   // Get current system data
   const system = STAR_DATA.find((s) => s.id === currentSystemId);
@@ -148,6 +152,20 @@ export function StationMenu({ onOpenPanel, onUndock }) {
           Ship Status
         </button>
       </div>
+      <Modal
+        isOpen={currentNotice !== null}
+        onClose={() => dismissMissionFailureNotice(currentNotice?.id)}
+        title="Mission Failed"
+        showCloseButton={true}
+      >
+        <p>
+          {currentNotice?.title}
+          {currentNotice?.destination
+            ? ` — delivery to ${currentNotice.destination} was not completed in time.`
+            : ' — the deadline has passed.'}
+        </p>
+        <p>The contact won&apos;t be working with you again.</p>
+      </Modal>
     </div>
   );
 }
