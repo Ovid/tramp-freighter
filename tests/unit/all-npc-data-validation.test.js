@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import {
+  ALL_NPCS,
   WHISPER,
   CAPTAIN_VASQUEZ,
   DR_SARAH_KIM,
@@ -10,6 +11,8 @@ import {
   LUCKY_LIU,
   validateNPCDefinition,
 } from '../../src/game/data/npc-data.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
+import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
 
 /**
@@ -145,5 +148,64 @@ describe('Cross-NPC Data Validation', () => {
       }),
       { numRuns: 50 }
     );
+  });
+});
+
+describe('NPC System Reachability', () => {
+  const starById = new Map(STAR_DATA.map((s) => [s.id, s]));
+
+  // BFS from Sol to find all systems reachable via wormhole network
+  function computeReachableFromSol() {
+    const adj = new Map();
+    for (const [a, b] of WORMHOLE_DATA) {
+      if (!adj.has(a)) adj.set(a, []);
+      if (!adj.has(b)) adj.set(b, []);
+      adj.get(a).push(b);
+      adj.get(b).push(a);
+    }
+    const visited = new Set();
+    const queue = [0]; // Sol
+    visited.add(0);
+    while (queue.length > 0) {
+      const current = queue.shift();
+      for (const neighbor of adj.get(current) || []) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+    return visited;
+  }
+
+  const reachableFromSol = computeReachableFromSol();
+
+  it('should place all NPCs in systems marked reachable (r: 1)', () => {
+    for (const npc of ALL_NPCS) {
+      const star = starById.get(npc.system);
+      expect(star, `NPC "${npc.name}" references unknown system ${npc.system}`).toBeDefined();
+      expect(star.r, `NPC "${npc.name}" is in unreachable system "${star.name}" (id ${star.id})`).toBe(1);
+    }
+  });
+
+  it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
+    for (const npc of ALL_NPCS) {
+      const star = starById.get(npc.system);
+      expect(
+        reachableFromSol.has(npc.system),
+        `NPC "${npc.name}" is in system "${star.name}" (id ${star.id}) which is not reachable from Sol via wormholes`
+      ).toBe(true);
+    }
+  });
+
+  it('should have r flag consistent with wormhole graph reachability for all systems', () => {
+    for (const star of STAR_DATA) {
+      const graphReachable = reachableFromSol.has(star.id);
+      const flagReachable = star.r === 1;
+      expect(
+        flagReachable,
+        `System "${star.name}" (id ${star.id}): r flag is ${star.r} but graph says ${graphReachable ? 'reachable' : 'unreachable'}`
+      ).toBe(graphReachable);
+    }
   });
 });

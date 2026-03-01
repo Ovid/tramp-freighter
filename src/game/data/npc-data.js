@@ -253,7 +253,7 @@ export const WHISPER = {
   id: 'whisper_sirius',
   name: 'Whisper',
   role: 'Information Broker',
-  system: 2, // Sirius A
+  system: 7, // Sirius A
   station: 'Sirius Exchange',
   personality: {
     trust: 0.5, // Moderately trusting
@@ -568,7 +568,7 @@ export const LUCKY_LIU = {
   id: 'liu_wolf359',
   name: '"Lucky" Liu',
   role: 'Gambler',
-  system: 8, // Wolf 359
+  system: 5, // Wolf 359
   station: 'Wolf 359 Station',
   personality: {
     trust: 0.6, // Moderately trusting - willing to take chances on people

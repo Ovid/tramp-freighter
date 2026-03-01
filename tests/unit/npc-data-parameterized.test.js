@@ -40,7 +40,7 @@ const NPC_TEST_CASES = [
       id: 'whisper_sirius',
       name: 'Whisper',
       role: 'Information Broker',
-      system: 2,
+      system: 7,
       station: 'Sirius Exchange',
     },
     expectedPersonality: {
@@ -206,7 +206,7 @@ const NPC_TEST_CASES = [
       id: 'liu_wolf359',
       name: '"Lucky" Liu',
       role: 'Gambler',
-      system: 8,
+      system: 5,
       station: 'Wolf 359 Station',
     },
     expectedPersonality: {
