@@ -1,5 +1,8 @@
 # TODO
 
+- Data based on stars and wormholes is static and anything based on that data
+  should be cached. For example, "BFS pathfinder in mission-generator.js
+  (getReachableSystems())". Are there other examples?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
   upgrades by completing missions, and some of those upgrades are necessary to
   complete later missions. This would make the endgame more engaging and less
