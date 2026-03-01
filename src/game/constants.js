@@ -426,7 +426,7 @@ export const NEW_GAME_DEFAULTS = {
  */
 export const COLE_DEBT_CONFIG = {
   // Interest
-  INTEREST_RATE: 0.02, // 2% monthly interest on principal
+  INTEREST_RATE: 0.03, // 3% monthly interest on principal
   INTEREST_PERIOD_DAYS: 30, // Days between interest applications
 
   // Lien rates by heat tier
