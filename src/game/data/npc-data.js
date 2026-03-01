@@ -305,7 +305,7 @@ export const CAPTAIN_VASQUEZ = {
   id: 'vasquez_epsilon',
   name: 'Captain Vasquez',
   role: 'Retired Trader',
-  system: 3, // Epsilon Eridani
+  system: 13, // Epsilon Eridani
   station: 'Eridani Hub',
   personality: {
     trust: 0.6, // Moderately trusting

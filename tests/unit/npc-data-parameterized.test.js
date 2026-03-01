@@ -65,7 +65,7 @@ const NPC_TEST_CASES = [
       id: 'vasquez_epsilon',
       name: 'Captain Vasquez',
       role: 'Retired Trader',
-      system: 3,
+      system: 13,
       station: 'Eridani Hub',
     },
     expectedPersonality: {

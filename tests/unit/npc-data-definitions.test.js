@@ -19,6 +19,7 @@ import {
 import {
   REPUTATION_TIERS,
   REPUTATION_BOUNDS,
+  ENDGAME_CONFIG,
 } from '../../src/game/constants.js';
 
 /**
@@ -372,6 +373,14 @@ describe('NPC Data Definitions', () => {
         fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
           expect(() => validateNPCDefinition(npc)).not.toThrow();
         })
+      );
+    });
+  });
+
+  describe('Vasquez system assignment matches quest delivery target', () => {
+    it('should place Captain Vasquez at the Stage 4 delivery system (Epsilon Eridani)', () => {
+      expect(CAPTAIN_VASQUEZ.system).toBe(
+        ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
       );
     });
   });
