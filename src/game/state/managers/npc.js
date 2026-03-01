@@ -148,6 +148,7 @@ export class NPCManager extends BaseManager {
       `Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`
     );
     this.gameStateManager.achievementsManager.checkAchievements();
+    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.getState().npcs });
   }
 
   /**

@@ -133,6 +133,7 @@ function extractStateForEvent(eventName, state) {
     [EVENT_NAMES.QUEST_CHANGED]: state.quests || {},
     [EVENT_NAMES.FINANCE_CHANGED]: state.player.finance || null,
     [EVENT_NAMES.ACHIEVEMENTS_CHANGED]: state.achievements || {},
+    [EVENT_NAMES.NPCS_CHANGED]: state.npcs || {},
   };
 
   return eventStateMap[eventName] ?? null;

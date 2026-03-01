@@ -50,7 +50,7 @@ describe('Property 22: HUD condition updates', () => {
 
           // Verify initial condition display (new game starts with 100% for all)
           await waitFor(() => {
-            const texts = screen.getAllByText('100.0%');
+            const texts = screen.getAllByText('100%');
             expect(texts.length).toBeGreaterThanOrEqual(3);
           });
 
@@ -68,9 +68,9 @@ describe('Property 22: HUD condition updates', () => {
           await waitFor(
             () => {
               const text = container.textContent;
-              expect(text).toContain(`${newHull.toFixed(1)}%`);
-              expect(text).toContain(`${newEngine.toFixed(1)}%`);
-              expect(text).toContain(`${newLifeSupport.toFixed(1)}%`);
+              expect(text).toContain(`${Math.round(newHull)}%`);
+              expect(text).toContain(`${Math.round(newEngine)}%`);
+              expect(text).toContain(`${Math.round(newLifeSupport)}%`);
             },
             { timeout: 1000 }
           );

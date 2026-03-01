@@ -4,7 +4,7 @@ import { useGameState } from '../../context/GameContext';
 import { useGameAction } from '../../hooks/useGameAction';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
-import { calculateDistanceFromSol } from '../hud/hudUtils';
+import { calculateDistanceFromSol } from '../../game/constants';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 import { Modal } from '../../components/Modal';
 

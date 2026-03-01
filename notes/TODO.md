@@ -1,5 +1,9 @@
 # TODO
 
+- Message variations: all messages should have at least three variants, each
+  meaning the same thing, but phrased differently. They get chosen at random.
+  This allows players to have a more of a feeling that the game is "variable"
+  and alive.
 - Should we be able to let players opt out of jump warnings and simply experience what happens without those screens?
 - For "Pirate Encounter", flee (and maybe others), I often have a 70% chance
   of success. But I *always* hit a combat resolution screen, so I don't think

@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 import { EVENT_NAMES } from '../game/constants.js';
+import { SeededRandom } from '../game/utils/seeded-random.js';
 import {
   determineThreatLevel,
   determineInspectionSeverity,
@@ -150,12 +151,24 @@ export function useEventTriggers() {
     (eventType, context) => {
       if (!gameStateManager) return;
 
-      const event = gameStateManager.checkEvents(eventType, context);
+      const state = gameStateManager.getState();
+      if (!state) return;
+      const day = Math.floor(state.player.daysElapsed);
+      const system = state.player.currentSystem;
+      const rng = new SeededRandom(`event-${eventType}-${day}-${system}`);
+      const rngFn = () => rng.next();
+
+      const event = gameStateManager.checkEvents(eventType, context, rngFn);
 
       if (!event) {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
-          const condEvent = gameStateManager.checkEvents('condition', context);
+          const condRng = new SeededRandom(`event-condition-${day}-${system}`);
+          const condEvent = gameStateManager.checkEvents(
+            'condition',
+            context,
+            () => condRng.next()
+          );
           if (condEvent) {
             emitNarrativeEvent(condEvent);
           }

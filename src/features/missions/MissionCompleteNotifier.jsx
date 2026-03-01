@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useGameEvent } from '../../hooks/useGameEvent';
+import { EVENT_NAMES } from '../../game/constants.js';
 
 function getSatisfactionLabel(satisfaction) {
   if (satisfaction >= 80) return 'Very Satisfied';
@@ -11,14 +13,16 @@ function getSatisfactionLabel(satisfaction) {
 
 export function MissionCompleteNotifier() {
   const { completeMission, getCompletableMissions } = useGameAction();
+  // Re-render trigger only — getCompletableMissions() returns the derived view
+  const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const [completable, setCompletable] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const missions = getCompletableMissions();
-    setCompletable(missions);
+    const found = getCompletableMissions();
+    setCompletable(found);
     setCurrentIndex(0);
-  }, [getCompletableMissions]);
+  }, [missions, getCompletableMissions]);
 
   const current = completable[currentIndex];
   if (!current) return null;

@@ -17,6 +17,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),
       modifyFactionRep: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
     };
 

@@ -1,4 +1,4 @@
-import { SHIP_CONFIG, FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
+import { FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
@@ -38,32 +38,6 @@ import {
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
 import { DANGER_EVENTS } from '../data/danger-events.js';
 import { ALL_QUESTS } from '../data/quest-definitions.js';
-
-/**
- * Sanitize ship name input
- *
- * Removes HTML tags, trims whitespace, and limits length to prevent display issues.
- * Returns default ship name if input is empty after sanitization.
- *
- * Feature: ship-personality, Property 10: Ship Name Sanitization
- * Validates: Requirements 4.2, 4.3, 10.3, 10.5
- *
- * @param {string} name - User input for ship name
- * @returns {string} Sanitized name or default
- */
-export function sanitizeShipName(name) {
-  if (!name || name.trim().length === 0) {
-    return SHIP_CONFIG.DEFAULT_NAME;
-  }
-
-  // Remove HTML tags, limit length, then trim (order matters for edge cases)
-  const sanitized = name
-    .replace(/<[^>]*>/g, '')
-    .substring(0, SHIP_CONFIG.MAX_NAME_LENGTH)
-    .trim();
-
-  return sanitized || SHIP_CONFIG.DEFAULT_NAME;
-}
 
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
@@ -186,8 +160,9 @@ export class GameStateManager {
    *
    * @returns {Object} Complete initial game state
    */
-  initNewGame() {
-    const completeState = this.initializationManager.createInitialState();
+  initNewGame(gameSeed = Date.now().toString()) {
+    const completeState =
+      this.initializationManager.createInitialState(gameSeed);
 
     this.state = completeState;
 
@@ -320,7 +295,7 @@ export class GameStateManager {
       this.emit(EVENT_NAMES.FINANCE_CHANGED, player.finance);
     }
     if (state.missions) {
-      this.emit(EVENT_NAMES.MISSIONS_CHANGED, state.missions);
+      this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     }
     if (state.quests) {
       this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });

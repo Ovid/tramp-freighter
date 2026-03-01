@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleScreen } from './features/title-screen/TitleScreen';
 import { ShipNamingDialog } from './features/title-screen/ShipNamingDialog';
@@ -399,9 +399,9 @@ export default function App({ devMode = false }) {
     setActiveNarrativeEvent(null);
   };
 
-  const handleStartPavonisRun = () => {
+  const handleStartPavonisRun = useCallback(() => {
     setViewMode(VIEW_MODES.PAVONIS_RUN);
-  };
+  }, []);
 
   const handlePavonisComplete = () => {
     gameStateManager.markVictory();
@@ -416,7 +416,7 @@ export default function App({ devMode = false }) {
     if (pavonisRunEvent) {
       handleStartPavonisRun();
     }
-  }, [pavonisRunEvent]);
+  }, [pavonisRunEvent, handleStartPavonisRun]);
 
   return (
     <ErrorBoundary>
@@ -499,67 +499,69 @@ export default function App({ devMode = false }) {
               )}
 
               {/* Encounter panels (rendered when an encounter is active) */}
-              {viewMode === VIEW_MODES.ENCOUNTER &&
-                currentEncounter &&
-                !encounterOutcome && (
-                  <>
-                    {currentEncounter.type === 'pirate' &&
-                      encounterPhase === 'initial' && (
-                        <PirateEncounterPanel
-                          encounter={currentEncounter.encounter}
+              <ErrorBoundary>
+                {viewMode === VIEW_MODES.ENCOUNTER &&
+                  currentEncounter &&
+                  !encounterOutcome && (
+                    <>
+                      {currentEncounter.type === 'pirate' &&
+                        encounterPhase === 'initial' && (
+                          <PirateEncounterPanel
+                            encounter={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                          />
+                        )}
+                      {currentEncounter.type === 'pirate' &&
+                        encounterPhase === 'combat' && (
+                          <CombatPanel
+                            combat={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                            fleeContext={combatContext}
+                          />
+                        )}
+                      {currentEncounter.type === 'pirate' &&
+                        encounterPhase === 'negotiation' && (
+                          <NegotiationPanel
+                            encounter={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                          />
+                        )}
+                      {currentEncounter.type === 'inspection' && (
+                        <InspectionPanel
+                          inspection={currentEncounter.encounter}
                           onChoice={handleEncounterChoice}
                           onClose={handleEncounterClose}
                         />
                       )}
-                    {currentEncounter.type === 'pirate' &&
-                      encounterPhase === 'combat' && (
-                        <CombatPanel
-                          combat={currentEncounter.encounter}
-                          onChoice={handleEncounterChoice}
-                          onClose={handleEncounterClose}
-                          fleeContext={combatContext}
-                        />
-                      )}
-                    {currentEncounter.type === 'pirate' &&
-                      encounterPhase === 'negotiation' && (
-                        <NegotiationPanel
-                          encounter={currentEncounter.encounter}
+                      {currentEncounter.type === 'mechanical_failure' && (
+                        <MechanicalFailurePanel
+                          failure={currentEncounter.encounter}
                           onChoice={handleEncounterChoice}
                           onClose={handleEncounterClose}
                         />
                       )}
-                    {currentEncounter.type === 'inspection' && (
-                      <InspectionPanel
-                        inspection={currentEncounter.encounter}
-                        onChoice={handleEncounterChoice}
-                        onClose={handleEncounterClose}
-                      />
-                    )}
-                    {currentEncounter.type === 'mechanical_failure' && (
-                      <MechanicalFailurePanel
-                        failure={currentEncounter.encounter}
-                        onChoice={handleEncounterChoice}
-                        onClose={handleEncounterClose}
-                      />
-                    )}
-                    {currentEncounter.type === 'distress_call' && (
-                      <DistressCallPanel
-                        distressCall={currentEncounter.encounter}
-                        onChoice={handleEncounterChoice}
-                        onClose={handleEncounterClose}
-                      />
-                    )}
-                  </>
-                )}
+                      {currentEncounter.type === 'distress_call' && (
+                        <DistressCallPanel
+                          distressCall={currentEncounter.encounter}
+                          onChoice={handleEncounterChoice}
+                          onClose={handleEncounterClose}
+                        />
+                      )}
+                    </>
+                  )}
 
-              {/* Outcome panel (shown after encounter choice is resolved) */}
-              {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
-                <OutcomePanel
-                  outcome={encounterOutcome}
-                  onContinue={handleOutcomeContinue}
-                  onClose={handleOutcomeContinue}
-                />
-              )}
+                {/* Outcome panel (shown after encounter choice is resolved) */}
+                {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
+                  <OutcomePanel
+                    outcome={encounterOutcome}
+                    onContinue={handleOutcomeContinue}
+                    onClose={handleOutcomeContinue}
+                  />
+                )}
+              </ErrorBoundary>
 
               {/* Narrative event overlay (renders on top of any view mode) */}
               {activeNarrativeEvent && (

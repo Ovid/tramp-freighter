@@ -1491,6 +1491,7 @@ export const DISTRESS_CONFIG = {
     KARMA_PENALTY: -3, // Karma penalty for looting distressed vessel
     REP_PENALTY: -15, // Civilian reputation penalty for looting
     OUTLAW_REP_GAIN: 5, // Outlaw reputation for piracy behavior
+    SALVAGE_PARTS_QTY: 2, // Units of salvaged parts awarded for looting
   },
 };
 
@@ -1553,6 +1554,7 @@ export const FACTION_CONFIG = {
 export const PIRATE_CREDIT_DEMAND_CONFIG = {
   MIN_CREDIT_DEMAND: 150,
   MAX_CREDIT_DEMAND: 250,
+  COUNTER_PROPOSAL_DISCOUNT: 0.5, // Fraction of MIN_CREDIT_DEMAND offered on successful counter-proposal
 
   KIDNAP_WEIGHTS: {
     wealthy: 0.8,

@@ -14,7 +14,9 @@ const CATEGORY_DISPLAY_NAMES = {
 
 export function AchievementsList() {
   const gameStateManager = useGameState();
-  // Subscribe to achievements changes to trigger re-render
+  // Subscribe to trigger re-renders when achievements change.
+  // The return value is not used directly because getAchievementProgress()
+  // returns a computed view that cannot be reconstructed from raw event data alone.
   useGameEvent(EVENT_NAMES.ACHIEVEMENTS_CHANGED);
 
   const progress = gameStateManager.getAchievementProgress();

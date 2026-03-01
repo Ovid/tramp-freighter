@@ -18,10 +18,8 @@ import {
   calculateDistanceFromSol,
 } from '../../src/game/constants.js';
 
-import {
-  GameStateManager,
-  sanitizeShipName,
-} from '../../src/game/state/game-state-manager.js';
+import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import {
   saveGame,
   loadGame,

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
 import { SHIP_CONFIG, EVENT_NAMES } from '@game/constants.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 
 describe('ShipManager', () => {
   let gsm;
@@ -17,30 +18,28 @@ describe('ShipManager', () => {
 
   describe('Ship Name', () => {
     it('sanitizeShipName returns default for empty string', () => {
-      const result = gsm.shipManager.sanitizeShipName('');
+      const result = sanitizeShipName('');
       expect(result).toBe(SHIP_CONFIG.DEFAULT_NAME);
     });
 
     it('sanitizeShipName returns default for whitespace-only', () => {
-      const result = gsm.shipManager.sanitizeShipName('   ');
+      const result = sanitizeShipName('   ');
       expect(result).toBe(SHIP_CONFIG.DEFAULT_NAME);
     });
 
     it('sanitizeShipName strips HTML tags', () => {
-      const result = gsm.shipManager.sanitizeShipName(
-        '<script>alert("x")</script>MyShip'
-      );
+      const result = sanitizeShipName('<script>alert("x")</script>MyShip');
       expect(result).toBe('alert("x")MyShip');
     });
 
     it('sanitizeShipName limits length to MAX_NAME_LENGTH', () => {
       const longName = 'A'.repeat(SHIP_CONFIG.MAX_NAME_LENGTH + 20);
-      const result = gsm.shipManager.sanitizeShipName(longName);
+      const result = sanitizeShipName(longName);
       expect(result.length).toBe(SHIP_CONFIG.MAX_NAME_LENGTH);
     });
 
     it('sanitizeShipName trims whitespace', () => {
-      const result = gsm.shipManager.sanitizeShipName('  Rusty Bucket  ');
+      const result = sanitizeShipName('  Rusty Bucket  ');
       expect(result).toBe('Rusty Bucket');
     });
 

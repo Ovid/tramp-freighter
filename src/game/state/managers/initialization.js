@@ -10,6 +10,7 @@ import {
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
+import { SeededRandom } from '../../utils/seeded-random.js';
 
 /**
  * InitializationManager - Handles game initialization and setup
@@ -39,12 +40,12 @@ export class InitializationManager {
    *
    * @returns {Object} Complete initial game state
    */
-  createInitialState() {
+  createInitialState(gameSeed = Date.now().toString()) {
     // Validate dialogue trees and constants during game initialization
     validateAllDialogueTrees();
 
     const playerState = this.initializePlayerState();
-    const shipState = this.initializeShipState();
+    const shipState = this.initializeShipState(gameSeed);
     const worldState = this.initializeWorldState();
     const npcState = this.initializeNPCState();
     const dialogueState = this.initializeDialogueState();
@@ -108,9 +109,10 @@ export class InitializationManager {
    *
    * @returns {Object} Ship state object
    */
-  initializeShipState() {
-    // Assign random quirks to the ship
-    const shipQuirks = this.gameStateManager.assignShipQuirks();
+  initializeShipState(gameSeed = Date.now().toString()) {
+    // Assign quirks using a seeded RNG so the same seed always produces the same ship
+    const rng = new SeededRandom(`quirks-${gameSeed}`);
+    const shipQuirks = this.gameStateManager.assignShipQuirks(() => rng.next());
 
     // Get Sol's grain price for initial cargo using dynamic pricing
     const solSystem = this.starData.find((s) => s.id === SOL_SYSTEM_ID);
