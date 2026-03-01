@@ -1,7 +1,7 @@
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
-import { calculateDistanceFromSol } from './hudUtils';
+import { calculateDistanceFromSol } from '../../game/constants';
 
 /**
  * LocationDisplay component displays current system and distance from Sol.
