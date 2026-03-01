@@ -21,7 +21,7 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
 }));
 
 describe('StatsSection headings', () => {
-  it("labels the counters section \"Ship's Log\"", () => {
+  it('labels the counters section "Ship\'s Log"', () => {
     render(<StatsSection />);
     expect(screen.getByText("Ship's Log")).toBeInTheDocument();
   });
