@@ -58,6 +58,7 @@ describe('Cargo confiscation – mission failure', () => {
       modifyFactionRep: vi.fn(),
       modifyKarma: vi.fn(),
       abandonMission: vi.fn(),
+      removeRestrictedCargo: vi.fn(),
       failMissionsDueToCargoLoss: vi.fn(),
     };
   });

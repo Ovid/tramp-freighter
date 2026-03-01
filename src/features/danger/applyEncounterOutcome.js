@@ -80,6 +80,11 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
     }
 
+    // Remove restricted goods from cargo before checking mission failures
+    if (outcome.costs.restrictedGoodsConfiscated) {
+      gameStateManager.removeRestrictedCargo();
+    }
+
     // Fail missions whose cargo was lost or confiscated
     if (
       outcome.costs.cargoLoss ||
