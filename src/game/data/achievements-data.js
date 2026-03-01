@@ -16,7 +16,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'exploration_1',
     name: 'First Steps',
-    description: 'Visit 5 star systems',
+    description: `Visit ${T.EXPLORATION_TIER_1} star systems`,
     category: 'exploration',
     tier: 1,
     target: T.EXPLORATION_TIER_1,
@@ -25,7 +25,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'exploration_2',
     name: 'Pathfinder',
-    description: 'Visit 15 star systems',
+    description: `Visit ${T.EXPLORATION_TIER_2} star systems`,
     category: 'exploration',
     tier: 2,
     target: T.EXPLORATION_TIER_2,
@@ -34,7 +34,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'exploration_3',
     name: 'Star Mapper',
-    description: 'Visit 30 star systems',
+    description: `Visit ${T.EXPLORATION_TIER_3} star systems`,
     category: 'exploration',
     tier: 3,
     target: T.EXPLORATION_TIER_3,
@@ -54,7 +54,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'trading_1',
     name: 'Petty Cash',
-    description: 'Earn 5,000 credits from trading',
+    description: `Earn ${T.TRADING_TIER_1.toLocaleString()} credits from trading`,
     category: 'trading',
     tier: 1,
     target: T.TRADING_TIER_1,
@@ -63,7 +63,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'trading_2',
     name: 'Merchant',
-    description: 'Earn 25,000 credits from trading',
+    description: `Earn ${T.TRADING_TIER_2.toLocaleString()} credits from trading`,
     category: 'trading',
     tier: 2,
     target: T.TRADING_TIER_2,
@@ -72,7 +72,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'trading_3',
     name: 'Trade Baron',
-    description: 'Earn 100,000 credits from trading',
+    description: `Earn ${T.TRADING_TIER_3.toLocaleString()} credits from trading`,
     category: 'trading',
     tier: 3,
     target: T.TRADING_TIER_3,
@@ -81,7 +81,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'trading_4',
     name: 'Tycoon',
-    description: 'Earn 500,000 credits from trading',
+    description: `Earn ${T.TRADING_TIER_4.toLocaleString()} credits from trading`,
     category: 'trading',
     tier: 4,
     target: T.TRADING_TIER_4,
@@ -92,7 +92,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'social_1',
     name: 'First Friend',
-    description: 'Earn Trusted status with 1 NPC',
+    description: `Earn Trusted status with ${T.SOCIAL_TIER_1} ${T.SOCIAL_TIER_1 === 1 ? 'NPC' : 'NPCs'}`,
     category: 'social',
     tier: 1,
     target: T.SOCIAL_TIER_1,
@@ -101,7 +101,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'social_2',
     name: 'Inner Circle',
-    description: 'Earn Trusted status with 3 NPCs',
+    description: `Earn Trusted status with ${T.SOCIAL_TIER_2} NPCs`,
     category: 'social',
     tier: 2,
     target: T.SOCIAL_TIER_2,
@@ -110,7 +110,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'social_3',
     name: 'Networker',
-    description: 'Earn Trusted status with 5 NPCs',
+    description: `Earn Trusted status with ${T.SOCIAL_TIER_3} NPCs`,
     category: 'social',
     tier: 3,
     target: T.SOCIAL_TIER_3,
@@ -119,7 +119,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'social_4',
     name: 'Beloved',
-    description: 'Earn Trusted status with 8 NPCs',
+    description: `Earn Trusted status with ${T.SOCIAL_TIER_4} NPCs`,
     category: 'social',
     tier: 4,
     target: T.SOCIAL_TIER_4,
@@ -130,7 +130,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'survival_1',
     name: 'Rookie Pilot',
-    description: 'Complete 10 jumps',
+    description: `Complete ${T.SURVIVAL_TIER_1} jumps`,
     category: 'survival',
     tier: 1,
     target: T.SURVIVAL_TIER_1,
@@ -139,7 +139,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'survival_2',
     name: 'Seasoned Captain',
-    description: 'Complete 50 jumps',
+    description: `Complete ${T.SURVIVAL_TIER_2} jumps`,
     category: 'survival',
     tier: 2,
     target: T.SURVIVAL_TIER_2,
@@ -148,7 +148,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'survival_3',
     name: 'Wormhole Veteran',
-    description: 'Complete 150 jumps',
+    description: `Complete ${T.SURVIVAL_TIER_3} jumps`,
     category: 'survival',
     tier: 3,
     target: T.SURVIVAL_TIER_3,
@@ -157,7 +157,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'survival_4',
     name: 'Void Walker',
-    description: 'Complete 300 jumps',
+    description: `Complete ${T.SURVIVAL_TIER_4} jumps`,
     category: 'survival',
     tier: 4,
     target: T.SURVIVAL_TIER_4,
@@ -168,7 +168,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'danger_1',
     name: 'Survivor',
-    description: 'Resolve 3 danger encounters',
+    description: `Resolve ${T.DANGER_TIER_1} danger encounters`,
     category: 'danger',
     tier: 1,
     target: T.DANGER_TIER_1,
@@ -177,7 +177,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'danger_2',
     name: 'Battle-Scarred',
-    description: 'Resolve 10 danger encounters',
+    description: `Resolve ${T.DANGER_TIER_2} danger encounters`,
     category: 'danger',
     tier: 2,
     target: T.DANGER_TIER_2,
@@ -186,7 +186,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'danger_3',
     name: 'Hardened',
-    description: 'Resolve 25 danger encounters',
+    description: `Resolve ${T.DANGER_TIER_3} danger encounters`,
     category: 'danger',
     tier: 3,
     target: T.DANGER_TIER_3,
@@ -195,7 +195,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'danger_4',
     name: 'Unkillable',
-    description: 'Resolve 50 danger encounters',
+    description: `Resolve ${T.DANGER_TIER_4} danger encounters`,
     category: 'danger',
     tier: 4,
     target: T.DANGER_TIER_4,
@@ -206,7 +206,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'moral_1',
     name: 'Picking Sides',
-    description: 'Reach karma magnitude of 15',
+    description: `Reach karma magnitude of ${T.MORAL_TIER_1}`,
     category: 'moral',
     tier: 1,
     target: T.MORAL_TIER_1,
@@ -215,7 +215,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'moral_2',
     name: 'Committed',
-    description: 'Reach karma magnitude of 35',
+    description: `Reach karma magnitude of ${T.MORAL_TIER_2}`,
     category: 'moral',
     tier: 2,
     target: T.MORAL_TIER_2,
@@ -224,7 +224,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'moral_3',
     name: 'True Believer',
-    description: 'Reach karma magnitude of 60',
+    description: `Reach karma magnitude of ${T.MORAL_TIER_3}`,
     category: 'moral',
     tier: 3,
     target: T.MORAL_TIER_3,
@@ -233,7 +233,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'moral_4',
     name: 'Legend',
-    description: 'Reach karma magnitude of 85',
+    description: `Reach karma magnitude of ${T.MORAL_TIER_4}`,
     category: 'moral',
     tier: 4,
     target: T.MORAL_TIER_4,
