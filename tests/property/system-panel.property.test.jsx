@@ -42,7 +42,6 @@ describe('Property: System Panel', () => {
       expect(screen.getByText(currentSystem.name)).toBeInTheDocument();
 
       // Should display system properties
-      expect(screen.getByText(/Coordinates:/i)).toBeInTheDocument();
       expect(screen.getByText(/Spectral Class:/i)).toBeInTheDocument();
       expect(screen.getByText(/Wormholes:/i)).toBeInTheDocument();
       expect(screen.getByText(/Status:/i)).toBeInTheDocument();
@@ -158,26 +157,6 @@ describe('Property: System Panel', () => {
 
       // Should not display event info section when Advanced Sensors not installed
       expect(screen.queryByText(/📊/)).not.toBeInTheDocument();
-    });
-
-    it('should round coordinates to 2 decimal places', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
-      const currentSystem = STAR_DATA.find((s) => s.id === currentSystemId);
-
-      render(
-        <GameProvider gameStateManager={gameStateManager}>
-          <SystemPanel
-            viewingSystemId={currentSystemId}
-            onClose={() => {}}
-            onJumpStart={() => {}}
-            onJumpComplete={() => {}}
-          />
-        </GameProvider>
-      );
-
-      // Check that coordinates are displayed with 2 decimal places
-      const expectedCoords = `${(currentSystem.x / 10).toFixed(2)}, ${(currentSystem.y / 10).toFixed(2)}, ${(currentSystem.z / 10).toFixed(2)}`;
-      expect(screen.getByText(expectedCoords)).toBeInTheDocument();
     });
   });
 

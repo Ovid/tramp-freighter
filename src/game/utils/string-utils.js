@@ -5,8 +5,6 @@
  * consistent formatting and avoid duplication.
  */
 
-import { UI_CONFIG } from '../constants';
-
 /**
  * Capitalize first letter of a string for display purposes
  *
@@ -19,16 +17,6 @@ import { UI_CONFIG } from '../constants';
 export function capitalizeFirst(str) {
   if (!str || typeof str !== 'string') return String(str ?? '');
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Format a raw map coordinate to display light-years.
- *
- * @param {number} value - Raw coordinate value (map units)
- * @returns {string} Scaled coordinate string with 2 decimal places
- */
-export function formatCoordinate(value) {
-  return (value / UI_CONFIG.COORDINATE_SCALE_FACTOR).toFixed(2);
 }
 
 /**

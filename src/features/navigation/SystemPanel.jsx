@@ -8,7 +8,6 @@ import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { calculateDistanceFromSol, EVENT_NAMES } from '../../game/constants';
-import { formatCoordinate } from '../../game/utils/string-utils';
 
 /**
  * SystemPanel displays information about a system.
@@ -151,14 +150,6 @@ export function SystemPanel({
             {/* System Details */}
             <div className="system-details">
               <div className="system-property">
-                <span className="label">Coordinates:</span>
-                <span className="value">
-                  {formatCoordinate(viewingSystem.x)},{' '}
-                  {formatCoordinate(viewingSystem.y)},{' '}
-                  {formatCoordinate(viewingSystem.z)}
-                </span>
-              </div>
-              <div className="system-property">
                 <span className="label">Spectral Class:</span>
                 <span className="value">{viewingSystem.type}</span>
               </div>
@@ -280,14 +271,6 @@ export function SystemPanel({
       <div className="system-panel-content">
         {/* System Details */}
         <div className="system-details">
-          <div className="system-property">
-            <span className="label">Coordinates:</span>
-            <span className="value">
-              {formatCoordinate(viewingSystem.x)},{' '}
-              {formatCoordinate(viewingSystem.y)},{' '}
-              {formatCoordinate(viewingSystem.z)}
-            </span>
-          </div>
           <div className="system-property">
             <span className="label">Spectral Class:</span>
             <span className="value">{viewingSystem.type}</span>

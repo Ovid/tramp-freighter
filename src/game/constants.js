@@ -1078,9 +1078,6 @@ export const UI_CONFIG = {
   // Repair panel configuration
   REPAIR_AMOUNTS: [10, 25, 50, 'full'], // Available repair percentage options
 
-  // Coordinate display configuration
-  COORDINATE_SCALE_FACTOR: 10, // Divide coordinates by this for display (map units to light-years)
-
   // Animation polling configuration
   ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
 
