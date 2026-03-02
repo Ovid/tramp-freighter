@@ -134,5 +134,5 @@ UAT validation checklist in `scratch/balancing-attempts.md`.
 
 ## Related
 
-- `notes/dirty-dozon.md` -- 14 additional bugs/UX issues from the same UAT
+- `notes/dirty-dozen.md` -- 14 additional bugs/UX issues from the same UAT
 - `scratch/balancing-attempts.md` -- balance tracking log with validation checklist
