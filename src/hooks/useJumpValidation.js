@@ -18,6 +18,8 @@ export function useJumpValidation(currentSystemId, targetSystemId, fuel) {
   const gameStateManager = useGameState();
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
+  // Subscribe so hook re-runs when upgrades change (affects fuelConsumption)
+  useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const capabilities = gameStateManager.calculateShipCapabilities();
 
   return gameStateManager.navigationSystem.validateJump(
