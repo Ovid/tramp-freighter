@@ -54,6 +54,14 @@ describe('Preferences', () => {
     });
   });
 
+  it('useGameEvent extractStateForEvent returns preferences from state', () => {
+    // Regression: PREFERENCES_CHANGED was missing from the eventStateMap,
+    // so useGameEvent returned null on mount and the preference was ignored
+    const state = gsm.getState();
+    gsm.setPreference('jumpWarningsEnabled', false);
+    expect(state.preferences.jumpWarningsEnabled).toBe(false);
+  });
+
   it('old saves without preferences get defaults via addStateDefaults', () => {
     const state = gsm.getState();
     delete state.preferences;
