@@ -1,4 +1,8 @@
-import { COMMODITY_TYPES, INTELLIGENCE_CONFIG, ENDGAME_CONFIG } from './constants.js';
+import {
+  COMMODITY_TYPES,
+  INTELLIGENCE_CONFIG,
+  ENDGAME_CONFIG,
+} from './constants.js';
 import { TradingSystem } from './game-trading.js';
 import { SeededRandom } from './utils/seeded-random.js';
 

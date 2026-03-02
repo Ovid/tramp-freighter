@@ -212,7 +212,10 @@ describe('evaluateCondition', () => {
   describe('flag_not_set', () => {
     it('should return true when flag is not set', () => {
       expect(
-        evaluateCondition({ type: 'flag_not_set', flag: 'unknown_flag' }, baseState)
+        evaluateCondition(
+          { type: 'flag_not_set', flag: 'unknown_flag' },
+          baseState
+        )
       ).toBe(true);
     });
 

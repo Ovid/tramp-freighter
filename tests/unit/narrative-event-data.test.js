@@ -140,9 +140,7 @@ describe('Narrative Event Data', () => {
       const systemsCondition = conditions.find(
         (c) => c.type === 'systems_visited_count'
       );
-      const flagCondition = conditions.find(
-        (c) => c.type === 'flag_not_set'
-      );
+      const flagCondition = conditions.find((c) => c.type === 'flag_not_set');
       expect(systemsCondition).toBeDefined();
       expect(systemsCondition.value).toBe(5);
       expect(flagCondition).toBeDefined();
@@ -162,16 +160,14 @@ describe('Narrative Event Data', () => {
       expect(systemsCondition.value).toBe(3);
     });
 
-    it('dock_barnards_pre_tanaka requires Barnard\'s Star and tanaka_met not set', () => {
+    it("dock_barnards_pre_tanaka requires Barnard's Star and tanaka_met not set", () => {
       const event = NARRATIVE_EVENTS.find(
         (e) => e.id === 'dock_barnards_pre_tanaka'
       );
       expect(event.trigger.system).toBe(4);
       const conditions = event.trigger.condition;
       expect(Array.isArray(conditions)).toBe(true);
-      const flagCondition = conditions.find(
-        (c) => c.type === 'flag_not_set'
-      );
+      const flagCondition = conditions.find((c) => c.type === 'flag_not_set');
       expect(flagCondition).toBeDefined();
       expect(flagCondition.flag).toBe('tanaka_met');
     });

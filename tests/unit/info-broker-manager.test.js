@@ -137,7 +137,8 @@ describe('InfoBrokerManager', () => {
       const state = gsm.getState();
       state.world.visitedSystems = [0, 1, 4, 5, 7];
       state.world.narrativeEvents = state.world.narrativeEvents || {};
-      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+      state.world.narrativeEvents.flags =
+        state.world.narrativeEvents.flags || {};
       delete state.world.narrativeEvents.flags.tanaka_met;
 
       const rumors = new Set();
@@ -146,7 +147,7 @@ describe('InfoBrokerManager', () => {
         rumors.add(gsm.generateRumor());
       }
       const hasTanakaRumor = [...rumors].some(
-        (r) => r.includes('Tanaka') || r.includes("Barnard")
+        (r) => r.includes('Tanaka') || r.includes('Barnard')
       );
       expect(hasTanakaRumor).toBe(true);
     });
@@ -155,7 +156,8 @@ describe('InfoBrokerManager', () => {
       const state = gsm.getState();
       state.world.visitedSystems = [0, 1, 4, 5, 7];
       state.world.narrativeEvents = state.world.narrativeEvents || {};
-      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+      state.world.narrativeEvents.flags =
+        state.world.narrativeEvents.flags || {};
       state.world.narrativeEvents.flags.tanaka_met = true;
 
       const rumors = new Set();
@@ -164,7 +166,7 @@ describe('InfoBrokerManager', () => {
         rumors.add(gsm.generateRumor());
       }
       const hasTanakaRumor = [...rumors].some(
-        (r) => r.includes('Tanaka') || r.includes("Barnard")
+        (r) => r.includes('Tanaka') || r.includes('Barnard')
       );
       expect(hasTanakaRumor).toBe(false);
     });
@@ -173,7 +175,8 @@ describe('InfoBrokerManager', () => {
       const state = gsm.getState();
       state.world.visitedSystems = [0, 1];
       state.world.narrativeEvents = state.world.narrativeEvents || {};
-      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+      state.world.narrativeEvents.flags =
+        state.world.narrativeEvents.flags || {};
 
       const rumors = new Set();
       for (let day = 0; day < 50; day++) {
@@ -181,7 +184,7 @@ describe('InfoBrokerManager', () => {
         rumors.add(gsm.generateRumor());
       }
       const hasTanakaRumor = [...rumors].some(
-        (r) => r.includes('Tanaka') || r.includes("Barnard")
+        (r) => r.includes('Tanaka') || r.includes('Barnard')
       );
       expect(hasTanakaRumor).toBe(false);
     });
