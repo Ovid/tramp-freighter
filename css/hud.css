@@ -374,44 +374,6 @@
   color: #ffffff;
 }
 
-/* Control Buttons Styling */
-#controls {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
-}
-
-.control-btn {
-  width: 120px;
-  height: 40px;
-  background-color: var(--bg-button);
-  color: #ffffff;
-  border: 2px solid #00ff88;
-  border-radius: 5px;
-  font-size: 14px;
-  font-family: var(--font-family-mono);
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-sizing: border-box;
-}
-
-.control-btn:hover {
-  background-color: #333333;
-}
-
-.control-btn.active {
-  background-color: #00ff88;
-  color: #000000;
-}
-
 /* Settings Panel (gear icon + card) */
 #camera-controls {
   position: absolute;
