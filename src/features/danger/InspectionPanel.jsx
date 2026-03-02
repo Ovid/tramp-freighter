@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameState } from '../../context/GameContext.jsx';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
@@ -29,9 +29,6 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   const currentSystem = useGameEvent(EVENT_NAMES.CURRENT_SYSTEM_CHANGED);
   const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
-  // Local state for selected inspection option
-  const [selectedOption, setSelectedOption] = useState(null);
-
   // Get danger zone from the single source of truth
   const dangerZone = gameStateManager.getDangerZone(currentSystem);
 
@@ -48,20 +45,6 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
       ),
     [inspection, cargo, hiddenCargo, currentSystem, credits, dangerZone]
   );
-
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-  };
-
-  const handleConfirm = () => {
-    if (selectedOption && onChoice) {
-      onChoice(selectedOption);
-    }
-  };
-
-  const handleCancel = () => {
-    setSelectedOption(null);
-  };
 
   // Determine inspection severity for display
   const severity = inspection.severity || 'routine';
@@ -204,8 +187,8 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
           <div className="options-list">
             {/* Cooperate Option */}
             <div
-              className={`inspection-option ${selectedOption === 'cooperate' ? 'selected' : ''}`}
-              onClick={() => handleOptionSelect('cooperate')}
+              className="inspection-option"
+              onClick={() => onChoice('cooperate')}
             >
               <div className="option-header">
                 <span className="option-name">Cooperate</span>
@@ -295,10 +278,10 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
 
             {/* Bribe Option */}
             <div
-              className={`inspection-option ${selectedOption === 'bribe' ? 'selected' : ''} ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
+              className={`inspection-option ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
               onClick={() =>
                 credits >= INSPECTION_CONFIG.BRIBE.COST &&
-                handleOptionSelect('bribe')
+                onChoice('bribe')
               }
             >
               <div className="option-header">
@@ -355,8 +338,8 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
 
             {/* Flee Option */}
             <div
-              className={`inspection-option ${selectedOption === 'flee' ? 'selected' : ''}`}
-              onClick={() => handleOptionSelect('flee')}
+              className="inspection-option"
+              onClick={() => onChoice('flee')}
             >
               <div className="option-header">
                 <span className="option-name">Flee</span>
@@ -392,34 +375,6 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="inspection-actions">
-          {selectedOption && (
-            <>
-              <button
-                className="inspection-btn primary"
-                onClick={handleConfirm}
-                disabled={
-                  selectedOption === 'bribe' &&
-                  credits < INSPECTION_CONFIG.BRIBE.COST
-                }
-              >
-                {getActionButtonText(selectedOption)}
-              </button>
-              <button
-                className="inspection-btn secondary"
-                onClick={handleCancel}
-              >
-                Reconsider
-              </button>
-            </>
-          )}
-          {!selectedOption && (
-            <div className="selection-prompt">
-              Choose your response to the customs inspection
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -487,23 +442,4 @@ function getReputationTier(reputation = 0) {
   if (reputation >= -10) return 'Neutral';
   if (reputation >= -50) return 'Suspicious';
   return 'Wanted';
-}
-
-/**
- * Get action button text based on selected option
- *
- * @param {string} optionName - The selected option name
- * @returns {string} Button text
- */
-function getActionButtonText(optionName) {
-  switch (optionName) {
-    case 'cooperate':
-      return 'Comply with Inspection';
-    case 'bribe':
-      return 'Offer Bribe';
-    case 'flee':
-      return 'Attempt to Flee';
-    default:
-      return 'Proceed';
-  }
 }
