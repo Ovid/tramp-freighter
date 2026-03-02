@@ -300,10 +300,7 @@ export default function App({ devMode = false }) {
           outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
         }
 
-        // Apply the resolution outcome to game state
-        handleApplyOutcome(outcome);
-
-        // Failed negotiation escalates to combat
+        // Failed negotiation escalates to combat — skip applying empty outcome
         if (outcome.escalate) {
           currentEncounter.encounter.threatLevel =
             (currentEncounter.encounter.threatLevel || 0.5) +
@@ -319,6 +316,9 @@ export default function App({ devMode = false }) {
           setEncounterPhase('escalated_combat');
           return;
         }
+
+        // Apply the resolution outcome to game state
+        handleApplyOutcome(outcome);
 
         // Transform for OutcomePanel display
         const displayOutcome = transformOutcomeForDisplay(

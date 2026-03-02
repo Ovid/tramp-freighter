@@ -242,6 +242,7 @@ export function PirateEncounterPanel({
             {/* Negotiate Option */}
             <div
               className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''} ${escalated ? 'disabled' : ''}`}
+              aria-disabled={escalated || undefined}
               onClick={() => !escalated && handleOptionSelect('negotiate')}
             >
               <div className="option-header">
