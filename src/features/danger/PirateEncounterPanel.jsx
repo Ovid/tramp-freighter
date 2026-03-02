@@ -26,6 +26,7 @@ export function PirateEncounterPanel({
   encounter,
   onChoice,
   onClose: _onClose,
+  escalated = false,
 }) {
   // Subscribe to relevant game events for ship status display
   const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
@@ -240,8 +241,8 @@ export function PirateEncounterPanel({
 
             {/* Negotiate Option */}
             <div
-              className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''}`}
-              onClick={() => handleOptionSelect('negotiate')}
+              className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''} ${escalated ? 'disabled' : ''}`}
+              onClick={() => !escalated && handleOptionSelect('negotiate')}
             >
               <div className="option-header">
                 <span className="option-name">Negotiate</span>
@@ -277,6 +278,11 @@ export function PirateEncounterPanel({
                   Failure: Pirates become more aggressive (+10% strength)
                 </div>
               </div>
+              {escalated && (
+                <div className="option-disabled-reason">
+                  They're done talking.
+                </div>
+              )}
             </div>
 
             {/* Surrender Option */}

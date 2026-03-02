@@ -113,6 +113,7 @@ export class NegotiationManager extends BaseManager {
     } else {
       return {
         success: false,
+        escalate: true,
         costs: {},
         rewards: {},
         description: "The pirates don't take kindly to your offer.",

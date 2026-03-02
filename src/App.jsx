@@ -20,7 +20,7 @@ import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
-import { EVENT_NAMES } from './game/constants.js';
+import { EVENT_NAMES, NEGOTIATION_CONFIG } from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -303,6 +303,23 @@ export default function App({ devMode = false }) {
         // Apply the resolution outcome to game state
         handleApplyOutcome(outcome);
 
+        // Failed negotiation escalates to combat
+        if (outcome.escalate) {
+          currentEncounter.encounter.threatLevel =
+            (currentEncounter.encounter.threatLevel || 0.5) +
+            NEGOTIATION_CONFIG.OUTCOME_VALUES
+              .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
+
+          const displayOutcome = transformOutcomeForDisplay(
+            outcome,
+            currentEncounter.type,
+            choice
+          );
+          setEncounterOutcome(displayOutcome);
+          setEncounterPhase('escalated_combat');
+          return;
+        }
+
         // Transform for OutcomePanel display
         const displayOutcome = transformOutcomeForDisplay(
           outcome,
@@ -332,6 +349,13 @@ export default function App({ devMode = false }) {
   };
 
   const handleOutcomeContinue = () => {
+    if (encounterPhase === 'escalated_combat') {
+      // Transition from negotiation failure to encounter panel with negotiate disabled
+      setEncounterOutcome(null);
+      setEncounterPhase('initial');
+      setCombatContext({ escalated: true });
+      return;
+    }
     setCurrentEncounter(null);
     setEncounterOutcome(null);
     setEncounterPhase('initial');
@@ -510,6 +534,7 @@ export default function App({ devMode = false }) {
                             encounter={currentEncounter.encounter}
                             onChoice={handleEncounterChoice}
                             onClose={handleEncounterClose}
+                            escalated={combatContext?.escalated || false}
                           />
                         )}
                       {currentEncounter.type === 'pirate' &&
