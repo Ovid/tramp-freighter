@@ -1,9 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import glob from 'glob';
+import { readFileSync, readdirSync, statSync } from 'fs';
+import { join } from 'path';
+
+function globJsx(dir) {
+  const results = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      results.push(...globJsx(full));
+    } else if (full.endsWith('.jsx')) {
+      results.push(full);
+    }
+  }
+  return results;
+}
 
 describe('Currency Standardization (#15)', () => {
-  const componentFiles = glob.sync('src/features/**/*.jsx');
+  const componentFiles = globJsx('src/features');
 
   it('ResourceBar should display ₡ prefix for credits', () => {
     const source = readFileSync('src/features/hud/ResourceBar.jsx', 'utf-8');
