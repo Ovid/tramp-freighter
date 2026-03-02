@@ -313,8 +313,7 @@ export default function App({ devMode = false }) {
           currentEncounter.encounter.threatLevel =
             THREAT_ESCALATION[current] || 'strong';
           currentEncounter.encounter.strengthModifier =
-            NEGOTIATION_CONFIG.OUTCOME_VALUES
-              .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
+            NEGOTIATION_CONFIG.OUTCOME_VALUES.COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
 
           const displayOutcome = transformOutcomeForDisplay(
             outcome,
