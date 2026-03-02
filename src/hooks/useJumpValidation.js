@@ -17,9 +17,7 @@ import { EVENT_NAMES } from '../game/constants.js';
 export function useJumpValidation(currentSystemId, targetSystemId, fuel) {
   const gameStateManager = useGameState();
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
-
-  const state = gameStateManager.getState();
-  const quirks = state.ship?.quirks || [];
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
   const capabilities = gameStateManager.calculateShipCapabilities();
 
   return gameStateManager.navigationSystem.validateJump(

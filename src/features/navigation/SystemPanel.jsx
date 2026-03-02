@@ -31,6 +31,8 @@ export function SystemPanel({
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
@@ -222,9 +224,8 @@ export function SystemPanel({
   }
 
   // If viewing current system, show system info with connected systems
-  const quirks = gameStateManager.getState().ship?.quirks || [];
   const capabilities = gameStateManager.calculateShipCapabilities();
-  const engineCondition = gameStateManager.getState().ship?.engine ?? 100;
+  const engineCondition = shipCondition?.engine ?? 100;
 
   const connectedSystemIds =
     gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
