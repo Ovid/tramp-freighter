@@ -209,6 +209,20 @@ describe('evaluateCondition', () => {
     });
   });
 
+  describe('flag_not_set', () => {
+    it('should return true when flag is not set', () => {
+      expect(
+        evaluateCondition({ type: 'flag_not_set', flag: 'unknown_flag' }, baseState)
+      ).toBe(true);
+    });
+
+    it('should return false when flag exists in narrativeEvents.flags', () => {
+      expect(
+        evaluateCondition({ type: 'flag_not_set', flag: 'met_chen' }, baseState)
+      ).toBe(false);
+    });
+  });
+
   describe('array of conditions (AND logic)', () => {
     it('should return true when all conditions in array are met', () => {
       const conditions = [

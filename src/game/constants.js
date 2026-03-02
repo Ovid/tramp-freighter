@@ -612,6 +612,9 @@ export const ENDGAME_CONFIG = {
   STAGE_5_ENGINE: 90,
   VICTORY_STAGE: 6,
   DELTA_PAVONIS_ID: 115,
+  BARNARDS_ENGINEER_RUMOR_SYSTEMS: 5,
+  BEYOND_LANES_RUMOR_SYSTEMS: 3,
+  INFO_BROKER_TANAKA_CHANCE: 0.3,
 };
 
 /**
@@ -1636,6 +1639,7 @@ export const CONDITION_TYPES = {
   HAS_VISITED: 'has_visited',
   HAS_CARGO: 'has_cargo',
   FLAG_SET: 'flag_set',
+  FLAG_NOT_SET: 'flag_not_set',
   HAS_PASSENGER: 'has_passenger',
   HAS_WEALTHY_PASSENGER: 'has_wealthy_passenger',
   HAS_FAMILY_PASSENGER: 'has_family_passenger',
