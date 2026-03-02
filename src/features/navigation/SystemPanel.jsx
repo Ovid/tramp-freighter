@@ -31,6 +31,8 @@ export function SystemPanel({
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
+  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
+  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
@@ -222,6 +224,9 @@ export function SystemPanel({
   }
 
   // If viewing current system, show system info with connected systems
+  const capabilities = gameStateManager.calculateShipCapabilities();
+  const engineCondition = shipCondition?.engine ?? 100;
+
   const connectedSystemIds =
     gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
   const connectedSystems = connectedSystemIds
@@ -235,7 +240,13 @@ export function SystemPanel({
           system
         );
       const fuelCost =
-        gameStateManager.navigationSystem.calculateFuelCost(distance);
+        gameStateManager.navigationSystem.calculateFuelCostWithCondition(
+          distance,
+          engineCondition,
+          gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+          quirks,
+          capabilities.fuelConsumption
+        );
       const jumpTime =
         gameStateManager.navigationSystem.calculateJumpTime(distance);
 

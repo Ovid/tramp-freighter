@@ -7,17 +7,19 @@ export function InstructionsModal({ isOpen, onClose }) {
         <section className="instructions-section">
           <h3>Your Goal</h3>
           <p>
-            You've spent years hauling cargo through the wormhole lanes of Sol
-            Sector. Bad deals, rough encounters, and the relentless cost of
-            keeping a ship running have taken their toll. You're tired. All you
-            want is enough credits to retire somewhere quiet and never look at a
-            cargo manifest again.
+            You owe Marcus Cole ten thousand credits — and he's not the patient
+            type. Check the <strong>Finance</strong> menu at any station to see
+            your debt terms: interest, withholding, and payment options.
           </p>
           <p>
-            Save up enough and you might just make it. But space doesn't make it
-            easy — fuel costs money, hulls don't repair themselves, and not
-            everyone out there has your best interests at heart. Stay sharp,
-            trade smart, and survive long enough to earn your way out.
+            Trade smart, pay down the debt, and build a reputation. The traders
+            who last longest out here aren't just rich — they know the right
+            people. There are rumors of routes beyond the known lanes, but
+            nobody's going to share those with a stranger. Earn your way in.
+          </p>
+          <p>
+            Your hold has 20 units of grain — enough to start trading. Check the{' '}
+            <strong>Cargo Manifest</strong> to see what you're carrying.
           </p>
         </section>
 
@@ -38,8 +40,22 @@ export function InstructionsModal({ isOpen, onClose }) {
             When you're in a system with a station, click the{' '}
             <strong>Dock</strong> button in the Quick Access panel to go aboard.
             From there you can trade goods, refuel, and repair your ship. Each
-            system has different prices — buy low, sell high. Keep an eye on
-            your credits and cargo hold.
+            system has different prices — buy low, sell high.
+          </p>
+          <p>
+            The <strong>Info Broker</strong> sells market intelligence — rumors
+            and price data for nearby systems. Worth the credits if you want to
+            trade smart instead of flying blind.
+          </p>
+          <p>
+            The <strong>Mission Board</strong> posts cargo runs and passenger
+            contracts. Missions pay on delivery and don't cost anything upfront
+            — good supplemental income alongside trading.
+          </p>
+          <p>
+            Talk to <strong>People</strong> at stations. Build relationships and
+            they'll share tips, offer favors, and open doors you didn't know
+            existed.
           </p>
         </section>
 

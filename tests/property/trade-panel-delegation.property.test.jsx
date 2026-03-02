@@ -138,12 +138,12 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
           wrapper,
         });
 
-        // Verify that prices are displayed (should be numbers followed by "cr/unit")
+        // Verify that prices are displayed (should be numbers followed by "₡/unit")
         const priceElements = container.querySelectorAll('.good-price');
         expect(priceElements.length).toBeGreaterThan(0);
 
         priceElements.forEach((element) => {
-          expect(element.textContent).toMatch(/\d+ cr\/unit/);
+          expect(element.textContent).toMatch(/\d+ ₡\/unit/);
         });
       }),
       { numRuns: 100 }

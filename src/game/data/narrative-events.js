@@ -91,7 +91,7 @@ export const NARRATIVE_EVENTS = [
     category: 'narrative',
     trigger: { system: null, condition: null, chance: 0.15 },
     once: false,
-    cooldown: 3,
+    cooldown: 10,
     priority: NARRATIVE_PRIORITY_LOW,
     generateContent(state, starData) {
       const activeEvents = state.world.activeEvents || [];
@@ -128,6 +128,90 @@ export const NARRATIVE_EVENTS = [
       choices: [
         {
           text: '"Thanks for the tip."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+        {
+          text: '"Mind your own business."',
+          next: null,
+          effects: { costs: {}, rewards: { karma: -1 } },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'dock_beyond_the_lanes_rumor',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: null,
+      condition: [
+        {
+          type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT,
+          value: ENDGAME_CONFIG.BEYOND_LANES_RUMOR_SYSTEMS,
+        },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_LOW,
+    content: {
+      text: [
+        'A dockworker sidles up while you wait for clearance.',
+        '"You ever talk to the old hands? Some of them swear there are routes that don\'t show on any starmap. Places beyond the wormhole network."',
+        'She shrugs. "Probably just spacer talk. But who knows?"',
+      ],
+      speaker: null,
+      mood: 'mysterious',
+      choices: [
+        {
+          text: '"Interesting. Where would I hear more?"',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+        {
+          text: '"I\'ve got enough to worry about on the known routes."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'dock_barnards_engineer_rumor',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: null,
+      condition: [
+        {
+          type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT,
+          value: ENDGAME_CONFIG.BARNARDS_ENGINEER_RUMOR_SYSTEMS,
+        },
+        {
+          type: CONDITION_TYPES.FLAG_NOT_SET,
+          flag: 'tanaka_met',
+        },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_DEFAULT,
+    content: {
+      text: [
+        'A dockworker sidles up while you wait for clearance.',
+        '"Hey, you run a Tanaka drive, right? Heard the designer\'s daughter works out of Barnard\'s Star. Does something with experimental drive mods."',
+        'He lowers his voice. "Picky about who she works with, though."',
+      ],
+      speaker: null,
+      mood: 'neutral',
+      choices: [
+        {
+          text: '"Thanks. Might be worth a visit."',
           next: null,
           effects: { costs: {}, rewards: {} },
         },
@@ -576,6 +660,76 @@ export const NARRATIVE_EVENTS = [
   },
 
   // === QUEST EVENTS ===
+
+  {
+    id: 'dock_barnards_pre_tanaka',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: ENDGAME_CONFIG.TANAKA_SYSTEM,
+      condition: [
+        {
+          type: CONDITION_TYPES.FLAG_NOT_SET,
+          flag: 'tanaka_met',
+        },
+        {
+          type: CONDITION_TYPES.QUEST_STAGE,
+          questId: 'tanaka',
+          value: 0,
+        },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_HIGH,
+    content: {
+      text: [
+        'You ask around about an engineer who works on drive modifications.',
+        'A dock tech looks you over. "Tanaka? Yeah, she\'s here. But she doesn\'t talk to green pilots."',
+        '"Come back when you\'ve got some real flight time. She wants to see you\'ve been around — visited plenty of systems, know the lanes."',
+      ],
+      speaker: null,
+      mood: 'neutral',
+      choices: [
+        {
+          text: '"How much flight time are we talking?"',
+          next: 'dock_barnards_pre_tanaka_followup',
+          effects: { costs: {}, rewards: {} },
+        },
+        {
+          text: '"I\'ll be back."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'dock_barnards_pre_tanaka_followup',
+    type: 'chain',
+    category: 'narrative',
+    trigger: { system: null, condition: null, chance: 1.0 },
+    once: false,
+    cooldown: 0,
+    priority: 0,
+    content: {
+      text: [
+        '"More than you\'ve got." The dock tech counts on her fingers.',
+        '"Visit more systems. Get to know the network. She\'ll notice when you\'ve earned your stripes."',
+      ],
+      speaker: null,
+      mood: 'neutral',
+      choices: [
+        {
+          text: '"Got it. I\'ll explore more first."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+      ],
+    },
+  },
 
   {
     id: 'tanaka_intro',

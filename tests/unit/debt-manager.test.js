@@ -544,7 +544,7 @@ describe('Cole Debt System', () => {
 
         expect(info.debt).toBe(8000);
         expect(info.lienRate).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
-        expect(info.interestRate).toBe(COLE_DEBT_CONFIG.INTEREST_RATE);
+        expect(info.interestRate).toBe(COLE_DEBT_CONFIG.INTEREST_RATE_MEDIUM);
         expect(info.nextInterestDay).toEqual(expect.any(Number));
         expect(info.maxDraw).toBeGreaterThanOrEqual(
           COLE_DEBT_CONFIG.DEFAULT_DRAW

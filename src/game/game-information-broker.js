@@ -1,4 +1,8 @@
-import { COMMODITY_TYPES, INTELLIGENCE_CONFIG } from './constants.js';
+import {
+  COMMODITY_TYPES,
+  INTELLIGENCE_CONFIG,
+  ENDGAME_CONFIG,
+} from './constants.js';
 import { TradingSystem } from './game-trading.js';
 import { SeededRandom } from './utils/seeded-random.js';
 
@@ -160,6 +164,17 @@ export class InformationBroker {
     // Use seeded random for deterministic rumor generation
     const seed = `rumor_${currentDay}`;
     const rng = new SeededRandom(seed);
+
+    // Conditional Tanaka hint for mid-game players
+    const visitedCount = gameState.world.visitedSystems?.length ?? 0;
+    const tanakaFlag = gameState.world.narrativeEvents?.flags?.tanaka_met;
+    if (
+      !tanakaFlag &&
+      visitedCount >= ENDGAME_CONFIG.BARNARDS_ENGINEER_RUMOR_SYSTEMS &&
+      rng.next() < ENDGAME_CONFIG.INFO_BROKER_TANAKA_CHANCE
+    ) {
+      return "There's an engineer at Barnard's Star — Tanaka, I think. Works on experimental drive tech. Doesn't talk to just anyone, though.";
+    }
 
     // If there are active events, 50% chance to hint about one
     if (activeEvents.length > 0 && rng.next() < 0.5) {

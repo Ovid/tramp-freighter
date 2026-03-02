@@ -57,6 +57,24 @@ export class DebtManager extends BaseManager {
     }
   }
 
+  getInterestRate() {
+    if (this.getDebt() === 0) return 0;
+
+    const tier = this.getHeatTier();
+    switch (tier) {
+      case 'low':
+        return COLE_DEBT_CONFIG.INTEREST_RATE_LOW;
+      case 'medium':
+        return COLE_DEBT_CONFIG.INTEREST_RATE_MEDIUM;
+      case 'high':
+        return COLE_DEBT_CONFIG.INTEREST_RATE_HIGH;
+      case 'critical':
+        return COLE_DEBT_CONFIG.INTEREST_RATE_CRITICAL;
+      default:
+        return COLE_DEBT_CONFIG.INTEREST_RATE_LOW;
+    }
+  }
+
   clampHeat(heat) {
     return Math.max(
       COLE_DEBT_CONFIG.HEAT_MIN,
@@ -68,6 +86,7 @@ export class DebtManager extends BaseManager {
     const finance = this.getFinance();
     finance.heat = this.clampHeat(finance.heat + delta);
     finance.lienRate = this.getLienRate();
+    finance.interestRate = this.getInterestRate();
   }
 
   applyInterest() {
@@ -81,7 +100,7 @@ export class DebtManager extends BaseManager {
     const daysSinceLast = state.player.daysElapsed - finance.lastInterestDay;
     if (daysSinceLast < COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS) return;
 
-    const interest = Math.ceil(debt * finance.interestRate);
+    const interest = Math.ceil(debt * this.getInterestRate());
     this.gameStateManager.updateDebt(debt + interest);
     finance.lastInterestDay = state.player.daysElapsed;
 
@@ -205,6 +224,7 @@ export class DebtManager extends BaseManager {
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      finance.interestRate = 0;
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -249,6 +269,7 @@ export class DebtManager extends BaseManager {
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      finance.interestRate = 0;
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -327,7 +348,7 @@ export class DebtManager extends BaseManager {
     return {
       debt,
       lienRate: this.getLienRate(),
-      interestRate: finance.interestRate,
+      interestRate: this.getInterestRate(),
       nextInterestDay:
         finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS,
       maxDraw: this.getMaxDraw(),

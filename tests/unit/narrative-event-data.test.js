@@ -101,4 +101,75 @@ describe('Narrative Event Data', () => {
       });
     });
   });
+
+  describe('breadcrumb events', () => {
+    it('should include dock_barnards_engineer_rumor event', () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_barnards_engineer_rumor'
+      );
+      expect(event).toBeDefined();
+      expect(event.type).toBe('dock');
+      expect(event.once).toBe(true);
+    });
+
+    it('should include dock_beyond_the_lanes_rumor event', () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_beyond_the_lanes_rumor'
+      );
+      expect(event).toBeDefined();
+      expect(event.type).toBe('dock');
+      expect(event.once).toBe(true);
+    });
+
+    it('should include dock_barnards_pre_tanaka event', () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_barnards_pre_tanaka'
+      );
+      expect(event).toBeDefined();
+      expect(event.type).toBe('dock');
+      expect(event.once).toBe(true);
+      expect(event.trigger.system).toBe(4);
+    });
+
+    it('dock_barnards_engineer_rumor requires 5+ systems and tanaka_met not set', () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_barnards_engineer_rumor'
+      );
+      const conditions = event.trigger.condition;
+      expect(Array.isArray(conditions)).toBe(true);
+      const systemsCondition = conditions.find(
+        (c) => c.type === 'systems_visited_count'
+      );
+      const flagCondition = conditions.find((c) => c.type === 'flag_not_set');
+      expect(systemsCondition).toBeDefined();
+      expect(systemsCondition.value).toBe(5);
+      expect(flagCondition).toBeDefined();
+      expect(flagCondition.flag).toBe('tanaka_met');
+    });
+
+    it('dock_beyond_the_lanes_rumor requires 3+ systems visited', () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_beyond_the_lanes_rumor'
+      );
+      const conditions = event.trigger.condition;
+      expect(Array.isArray(conditions)).toBe(true);
+      const systemsCondition = conditions.find(
+        (c) => c.type === 'systems_visited_count'
+      );
+      expect(systemsCondition).toBeDefined();
+      expect(systemsCondition.value).toBe(3);
+    });
+
+    it("dock_barnards_pre_tanaka requires Barnard's Star and tanaka_met not set", () => {
+      const event = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_barnards_pre_tanaka'
+      );
+      expect(event.trigger.system).toBe(4);
+      const conditions = event.trigger.condition;
+      expect(Array.isArray(conditions)).toBe(true);
+      const flagCondition = conditions.find((c) => c.type === 'flag_not_set');
+      expect(flagCondition).toBeDefined();
+      expect(flagCondition.flag).toBe('tanaka_met');
+    });
+  });
 });

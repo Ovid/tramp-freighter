@@ -48,7 +48,7 @@ describe('Property 19: HUD credit updates', () => {
 
           // Verify initial credits display (new game starts with 500)
           await waitFor(() => {
-            expect(screen.getByText('500')).toBeInTheDocument();
+            expect(screen.getByText('₡500')).toBeInTheDocument();
           });
 
           // Update credits
@@ -57,7 +57,7 @@ describe('Property 19: HUD credit updates', () => {
           // Verify credits display updated
           await waitFor(() => {
             expect(
-              screen.getByText(newCredits.toLocaleString())
+              screen.getByText(`₡${newCredits.toLocaleString()}`)
             ).toBeInTheDocument();
           });
 

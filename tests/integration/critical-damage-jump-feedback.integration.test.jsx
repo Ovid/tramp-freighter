@@ -37,8 +37,20 @@ vi.mock('../../src/context/GameContext', () => ({
       getConnectedSystems: () => [1],
       calculateDistanceBetween: () => 4.3,
       calculateFuelCost: () => 15,
+      calculateFuelCostWithCondition: () => 15,
       calculateJumpTime: () => 1,
     },
+    getState: () => ({
+      ship: {
+        quirks: [],
+        upgrades: [],
+        engine: 100,
+        hull: 100,
+        lifeSupport: 100,
+      },
+    }),
+    calculateShipCapabilities: () => ({ fuelConsumption: 1.0 }),
+    applyQuirkModifiers: (val) => val,
   }),
 }));
 

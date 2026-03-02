@@ -58,6 +58,9 @@ export function evaluateCondition(condition, gameState, context = {}) {
     case CONDITION_TYPES.FLAG_SET:
       return !!gameState.world.narrativeEvents.flags[condition.flag];
 
+    case CONDITION_TYPES.FLAG_NOT_SET:
+      return !gameState.world.narrativeEvents.flags[condition.flag];
+
     case CONDITION_TYPES.HAS_PASSENGER:
       return gameState.missions.active.some((m) => m.type === 'passenger');
 

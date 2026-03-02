@@ -198,6 +198,7 @@ export const SHIP_CONFIG = {
         loadingTime: 1.1, // +10% slower (future use)
         theftRisk: 0.95, // -5% theft risk (future use)
       },
+      effectLabel: '+10% loading time, -5% theft risk',
       flavor: "You've learned to kick it in just the right spot.",
     },
     hot_thruster: {
@@ -206,6 +207,7 @@ export const SHIP_CONFIG = {
       effects: {
         fuelConsumption: 1.05, // +5% fuel use
       },
+      effectLabel: '+5% fuel consumption',
       flavor: "The engineers say it's 'within tolerances.' Barely.",
     },
     sensitive_sensors: {
@@ -216,6 +218,7 @@ export const SHIP_CONFIG = {
         salvageDetection: 1.15, // +15% salvage (future use)
         falseAlarms: 1.1, // +10% false alarms (future use)
       },
+      effectLabel: '+15% salvage detection, +10% false alarms',
       flavor: "You've learned to tell the difference. Mostly.",
     },
     cramped_quarters: {
@@ -224,6 +227,7 @@ export const SHIP_CONFIG = {
       effects: {
         lifeSupportDrain: 0.9, // -10% drain
       },
+      effectLabel: '-10% life support drain',
       flavor: "At least you don't have to share.",
     },
     lucky_ship: {
@@ -232,6 +236,7 @@ export const SHIP_CONFIG = {
       effects: {
         negateEventChance: 0.05, // 5% to negate bad events (future use)
       },
+      effectLabel: '+5% chance to negate bad events',
       flavor: 'Knock on hull plating.',
     },
     fuel_sipper: {
@@ -240,6 +245,7 @@ export const SHIP_CONFIG = {
       effects: {
         fuelConsumption: 0.85, // -15% fuel use
       },
+      effectLabel: '-15% fuel consumption',
       flavor: 'One of the few things that actually works better than spec.',
     },
     leaky_seals: {
@@ -248,6 +254,7 @@ export const SHIP_CONFIG = {
       effects: {
         hullDegradation: 1.5, // +50% hull damage
       },
+      effectLabel: '+50% hull degradation',
       flavor: "You can hear the whistle when you're in the cargo bay.",
     },
     smooth_talker: {
@@ -256,6 +263,7 @@ export const SHIP_CONFIG = {
       effects: {
         npcRepGain: 1.05, // +5% reputation gains (future use)
       },
+      effectLabel: '+5% reputation gains',
       flavor: 'People remember this ship. Usually fondly.',
     },
   },
@@ -425,8 +433,12 @@ export const NEW_GAME_DEFAULTS = {
  * All numeric values for the loan shark mechanics
  */
 export const COLE_DEBT_CONFIG = {
-  // Interest
-  INTEREST_RATE: 0.03, // 3% monthly interest on principal
+  // Interest rates by heat tier
+  INTEREST_RATE: 0.03, // Keep for backward compat with getFinance init
+  INTEREST_RATE_LOW: 0.03, // 0-20 heat: 3% (grace period)
+  INTEREST_RATE_MEDIUM: 0.04, // 21-45 heat: 4%
+  INTEREST_RATE_HIGH: 0.05, // 46-70 heat: 5%
+  INTEREST_RATE_CRITICAL: 0.05, // 71-100 heat: 5% (cap)
   INTEREST_PERIOD_DAYS: 30, // Days between interest applications
 
   // Lien rates by heat tier
@@ -612,6 +624,9 @@ export const ENDGAME_CONFIG = {
   STAGE_5_ENGINE: 90,
   VICTORY_STAGE: 6,
   DELTA_PAVONIS_ID: 115,
+  BARNARDS_ENGINEER_RUMOR_SYSTEMS: 5,
+  BEYOND_LANES_RUMOR_SYSTEMS: 3,
+  INFO_BROKER_TANAKA_CHANCE: 0.3,
 };
 
 /**
@@ -1636,6 +1651,7 @@ export const CONDITION_TYPES = {
   HAS_VISITED: 'has_visited',
   HAS_CARGO: 'has_cargo',
   FLAG_SET: 'flag_set',
+  FLAG_NOT_SET: 'flag_not_set',
   HAS_PASSENGER: 'has_passenger',
   HAS_WEALTHY_PASSENGER: 'has_wealthy_passenger',
   HAS_FAMILY_PASSENGER: 'has_family_passenger',
