@@ -21,6 +21,7 @@ import {
   calculateProfit,
   formatCargoAge,
 } from './tradeUtils';
+import { isGoodRestrictedInZone } from '../danger/inspectionUtils.js';
 
 /**
  * TradePanel - React component for trading goods at stations
@@ -182,9 +183,11 @@ export function TradePanel({ onClose }) {
 
               const maxQuantity = calculateMaxBuyQuantity(price, state);
               const validation = validateBuy(goodType, 1, price, state);
-              const isRestricted = (
-                RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone] || []
-              ).includes(goodType);
+              const isRestricted = isGoodRestrictedInZone(
+                goodType,
+                dangerZone,
+                currentSystemId
+              );
 
               return (
                 <div key={goodType} className="good-item">

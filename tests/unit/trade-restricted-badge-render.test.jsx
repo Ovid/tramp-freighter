@@ -73,4 +73,42 @@ describe('TradePanel restricted badge rendering', () => {
 
     expect(restrictedGoodNames).toContain('Medicine');
   });
+
+  it('renders RESTRICTED badge for parts in core system (Sol)', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm.initNewGame();
+    gsm.state.player.currentSystem = 0; // Sol — core system
+
+    const wrapper = createWrapper(gsm);
+    render(<TradePanel onClose={() => {}} />, { wrapper });
+
+    const badges = screen.getAllByText('RESTRICTED');
+    const badgeParents = badges.map((b) => b.closest('.good-item'));
+    const restrictedGoodNames = badgeParents.map(
+      (p) => p.querySelector('.good-name').textContent
+    );
+
+    expect(restrictedGoodNames).toContain('Parts');
+  });
+
+  it('does not render RESTRICTED badge for parts in non-core system', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm.initNewGame();
+    gsm.state.player.currentSystem = 7; // Sirius — not a core system
+
+    const wrapper = createWrapper(gsm);
+    render(<TradePanel onClose={() => {}} />, { wrapper });
+
+    const badges = screen.getAllByText('RESTRICTED');
+    const badgeParents = badges.map((b) => b.closest('.good-item'));
+    const restrictedGoodNames = badgeParents.map(
+      (p) => p.querySelector('.good-name').textContent
+    );
+
+    expect(restrictedGoodNames).not.toContain('Parts');
+  });
 });
