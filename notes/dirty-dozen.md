@@ -1,4 +1,4 @@
-# The Dirty Dozon
+# The Dirty Dozen
 
 Issues identified during UAT new-player playthrough (Day 1-70). Excludes the
 three design-level issues being addressed separately (fine mechanics when broke,
