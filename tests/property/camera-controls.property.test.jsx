@@ -4,16 +4,42 @@ import { CameraControls } from '../../src/features/navigation/CameraControls';
 import * as fc from 'fast-check';
 
 /**
- * Property tests for camera controls functionality.
+ * Property tests for camera controls / settings panel functionality.
  *
  * Tests verify:
- * - Camera controls are collapsible
+ * - Settings panel is collapsible
  * - Zoom In/Out buttons work correctly
- * - Toggle Rotation button changes state
- * - Toggle Boundary button changes visibility
+ * - Star Rotation toggle changes state
+ * - Boundary toggle changes visibility
  */
 
-describe('Property: Camera Controls', () => {
+// Mock the modal components
+vi.mock('../../src/features/instructions/InstructionsModal', () => ({
+  InstructionsModal: ({ isOpen }) =>
+    isOpen ? <div data-testid="instructions-modal">Instructions</div> : null,
+}));
+vi.mock('../../src/features/achievements/AchievementsModal', () => ({
+  AchievementsModal: ({ isOpen }) =>
+    isOpen ? <div data-testid="achievements-modal">Achievements</div> : null,
+}));
+
+// Mock GameContext
+vi.mock('../../src/context/GameContext', () => ({
+  useGameState: () => ({
+    getPreference: vi.fn((key) => {
+      if (key === 'jumpWarningsEnabled') return true;
+      return true;
+    }),
+    setPreference: vi.fn(),
+  }),
+}));
+
+// Mock useGameEvent
+vi.mock('../../src/hooks/useGameEvent', () => ({
+  useGameEvent: () => ({ jumpWarningsEnabled: true }),
+}));
+
+describe('Property: Settings Panel', () => {
   it('should start in collapsed state by default', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
@@ -34,12 +60,12 @@ describe('Property: Camera Controls', () => {
     expect(cameraControls.classList.contains('collapsed')).toBe(true);
     expect(cameraControls.classList.contains('expanded')).toBe(false);
 
-    // Buttons should not be visible
-    const controlButtons = container.querySelector('.camera-controls-buttons');
-    expect(controlButtons).toBeFalsy();
+    // Settings panel should not be visible
+    const settingsPanel = container.querySelector('.settings-panel');
+    expect(settingsPanel).toBeFalsy();
   });
 
-  it('should toggle camera controls visibility when toggle button clicked', async () => {
+  it('should toggle settings panel visibility when toggle button clicked', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -57,34 +83,36 @@ describe('Property: Camera Controls', () => {
     const toggleButton = container.querySelector('.camera-controls-toggle');
     expect(toggleButton).toBeTruthy();
 
-    // Initially collapsed - buttons should not be visible
-    let controlButtons = container.querySelector('.camera-controls-buttons');
-    expect(controlButtons).toBeFalsy();
+    // Initially collapsed - settings panel should not be visible
+    let settingsPanel = container.querySelector('.settings-panel');
+    expect(settingsPanel).toBeFalsy();
 
     // Click to expand
     fireEvent.click(toggleButton);
 
-    // Wait for buttons to appear
+    // Wait for panel to appear
     await waitFor(() => {
-      controlButtons = container.querySelector('.camera-controls-buttons');
-      expect(controlButtons).toBeTruthy();
+      settingsPanel = container.querySelector('.settings-panel');
+      expect(settingsPanel).toBeTruthy();
     });
 
-    // Verify all 8 controls are present (GitHub link + 7 buttons)
-    const buttons = controlButtons.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(8);
+    // Verify toggle rows and action buttons are present
+    const toggleRows = settingsPanel.querySelectorAll('.settings-toggle-row');
+    const actionBtns = settingsPanel.querySelectorAll('.settings-action-btn');
+    expect(toggleRows.length).toBe(4);
+    expect(actionBtns.length).toBe(5);
 
     // Click to collapse
     fireEvent.click(toggleButton);
 
-    // Wait for buttons to disappear
+    // Wait for panel to disappear
     await waitFor(() => {
-      controlButtons = container.querySelector('.camera-controls-buttons');
-      expect(controlButtons).toBeFalsy();
+      settingsPanel = container.querySelector('.settings-panel');
+      expect(settingsPanel).toBeFalsy();
     });
   });
 
-  it('should show active state for Toggle Rotation button when rotation disabled', async () => {
+  it('should reflect Star Rotation toggle state from props', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -103,22 +131,18 @@ describe('Property: Camera Controls', () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+      expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
-    // Find Toggle Rotation button
-    const buttons = container.querySelectorAll('.control-btn');
-    const rotationButton = Array.from(buttons).find((btn) =>
-      btn.textContent.includes('Toggle Rotation')
+    // Find Star Rotation checkbox by aria-label
+    let rotationCheckbox = container.querySelector(
+      'input[aria-label="Star Rotation"]'
     );
+    expect(rotationCheckbox).toBeTruthy();
+    expect(rotationCheckbox.checked).toBe(true);
 
-    expect(rotationButton).toBeTruthy();
-
-    // Initially not active (rotation enabled = default state)
-    expect(rotationButton.classList.contains('active')).toBe(false);
-
-    // Click to disable rotation
-    fireEvent.click(rotationButton);
+    // Click to toggle rotation
+    fireEvent.click(rotationCheckbox);
     expect(mockHandlers.onToggleRotation).toHaveBeenCalledTimes(1);
 
     // Re-render with rotation disabled
@@ -129,15 +153,14 @@ describe('Property: Camera Controls', () => {
       />
     );
 
-    // Should now be active (rotation off = highlighted)
-    const updatedButtons = container.querySelectorAll('.control-btn');
-    const updatedRotationButton = Array.from(updatedButtons).find((btn) =>
-      btn.textContent.includes('Toggle Rotation')
+    // Checkbox should now be unchecked
+    rotationCheckbox = container.querySelector(
+      'input[aria-label="Star Rotation"]'
     );
-    expect(updatedRotationButton.classList.contains('active')).toBe(true);
+    expect(rotationCheckbox.checked).toBe(false);
   });
 
-  it('should show active state for Toggle Boundary button when boundary hidden', async () => {
+  it('should reflect Boundary toggle state from props', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -156,22 +179,18 @@ describe('Property: Camera Controls', () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+      expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
-    // Find Toggle Boundary button
-    const buttons = container.querySelectorAll('.control-btn');
-    const boundaryButton = Array.from(buttons).find((btn) =>
-      btn.textContent.includes('Toggle Boundary')
+    // Find Boundary checkbox by aria-label
+    let boundaryCheckbox = container.querySelector(
+      'input[aria-label="Boundary"]'
     );
+    expect(boundaryCheckbox).toBeTruthy();
+    expect(boundaryCheckbox.checked).toBe(true);
 
-    expect(boundaryButton).toBeTruthy();
-
-    // Initially not active (boundary visible = default state)
-    expect(boundaryButton.classList.contains('active')).toBe(false);
-
-    // Click to hide boundary
-    fireEvent.click(boundaryButton);
+    // Click to toggle boundary
+    fireEvent.click(boundaryCheckbox);
     expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(1);
 
     // Re-render with boundary hidden
@@ -182,15 +201,14 @@ describe('Property: Camera Controls', () => {
       />
     );
 
-    // Should now be active (boundary off = highlighted)
-    const updatedButtons = container.querySelectorAll('.control-btn');
-    const updatedBoundaryButton = Array.from(updatedButtons).find((btn) =>
-      btn.textContent.includes('Toggle Boundary')
+    // Checkbox should now be unchecked
+    boundaryCheckbox = container.querySelector(
+      'input[aria-label="Boundary"]'
     );
-    expect(updatedBoundaryButton.classList.contains('active')).toBe(true);
+    expect(boundaryCheckbox.checked).toBe(false);
   });
 
-  it('Property: Toggle Rotation button calls handler on each click', () => {
+  it('Property: Star Rotation toggle calls handler on each click', () => {
     fc.assert(
       fc.property(fc.integer({ min: 1, max: 10 }), (clickCount) => {
         const mockHandlers = {
@@ -210,15 +228,14 @@ describe('Property: Camera Controls', () => {
         const toggleButton = container.querySelector('.camera-controls-toggle');
         fireEvent.click(toggleButton);
 
-        // Find Toggle Rotation button
-        const buttons = container.querySelectorAll('.control-btn');
-        const rotationButton = Array.from(buttons).find((btn) =>
-          btn.textContent.includes('Toggle Rotation')
+        // Find Star Rotation checkbox
+        const rotationCheckbox = container.querySelector(
+          'input[aria-label="Star Rotation"]'
         );
 
-        // Click the button clickCount times
+        // Click the checkbox clickCount times
         for (let i = 0; i < clickCount; i++) {
-          fireEvent.click(rotationButton);
+          fireEvent.click(rotationCheckbox);
         }
 
         // Verify handler was called exactly clickCount times
@@ -230,7 +247,7 @@ describe('Property: Camera Controls', () => {
     );
   });
 
-  it('Property: Toggle Boundary button calls handler on each click', () => {
+  it('Property: Boundary toggle calls handler on each click', () => {
     fc.assert(
       fc.property(fc.integer({ min: 1, max: 10 }), (clickCount) => {
         const mockHandlers = {
@@ -250,19 +267,20 @@ describe('Property: Camera Controls', () => {
         const toggleButton = container.querySelector('.camera-controls-toggle');
         fireEvent.click(toggleButton);
 
-        // Find Toggle Boundary button
-        const buttons = container.querySelectorAll('.control-btn');
-        const boundaryButton = Array.from(buttons).find((btn) =>
-          btn.textContent.includes('Toggle Boundary')
+        // Find Boundary checkbox
+        const boundaryCheckbox = container.querySelector(
+          'input[aria-label="Boundary"]'
         );
 
-        // Click the button clickCount times
+        // Click the checkbox clickCount times
         for (let i = 0; i < clickCount; i++) {
-          fireEvent.click(boundaryButton);
+          fireEvent.click(boundaryCheckbox);
         }
 
         // Verify handler was called exactly clickCount times
-        expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(clickCount);
+        expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(
+          clickCount
+        );
 
         return true;
       }),
@@ -270,7 +288,7 @@ describe('Property: Camera Controls', () => {
     );
   });
 
-  it('should render GitHub link as first item when expanded', async () => {
+  it('should render GitHub link when expanded', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -289,7 +307,7 @@ describe('Property: Camera Controls', () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+      expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
     const githubLink = container.querySelector(
@@ -299,15 +317,9 @@ describe('Property: Camera Controls', () => {
     expect(githubLink.getAttribute('target')).toBe('_blank');
     expect(githubLink.getAttribute('rel')).toBe('noopener noreferrer');
     expect(githubLink.textContent.trim()).toBe('GitHub');
-
-    // Should be the first child in the buttons container
-    const buttonsContainer = container.querySelector(
-      '.camera-controls-buttons'
-    );
-    expect(buttonsContainer.firstElementChild).toBe(githubLink);
   });
 
-  it('should have all 7 control buttons when expanded', async () => {
+  it('should have all toggle rows and action buttons when expanded', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
@@ -326,22 +338,24 @@ describe('Property: Camera Controls', () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+      expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
-    const buttons = container.querySelectorAll('.control-btn');
-    expect(buttons.length).toBe(8);
+    const toggleRows = container.querySelectorAll('.settings-toggle-row');
+    expect(toggleRows.length).toBe(4);
 
-    // Verify button labels
-    const buttonTexts = Array.from(buttons).map((btn) =>
+    const actionBtns = container.querySelectorAll('.settings-action-btn');
+    expect(actionBtns.length).toBe(5);
+
+    // Verify action button labels
+    const actionTexts = Array.from(actionBtns).map((btn) =>
       btn.textContent.trim()
     );
-    expect(buttonTexts).toContain('GitHub');
-    expect(buttonTexts).toContain('Achievements');
-    expect(buttonTexts).toContain('Zoom In');
-    expect(buttonTexts).toContain('Zoom Out');
-    expect(buttonTexts).toContain('Toggle Rotation');
-    expect(buttonTexts).toContain('Toggle Boundary');
+    expect(actionTexts).toContain('GitHub');
+    expect(actionTexts).toContain('Achievements');
+    expect(actionTexts).toContain('Zoom In');
+    expect(actionTexts).toContain('Zoom Out');
+    expect(actionTexts).toContain('Instructions');
   });
 
   it('should render Instructions button when expanded', async () => {
@@ -363,11 +377,11 @@ describe('Property: Camera Controls', () => {
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
-      expect(container.querySelector('.camera-controls-buttons')).toBeTruthy();
+      expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
-    const buttons = container.querySelectorAll('.control-btn');
-    const instructionsButton = Array.from(buttons).find((btn) =>
+    const actionBtns = container.querySelectorAll('.settings-action-btn');
+    const instructionsButton = Array.from(actionBtns).find((btn) =>
       btn.textContent.includes('Instructions')
     );
 
@@ -392,11 +406,11 @@ describe('Property: Camera Controls', () => {
     const toggleButton = container.querySelector('.camera-controls-toggle');
     fireEvent.click(toggleButton);
 
-    const buttons = container.querySelectorAll('.control-btn');
-    const zoomInButton = Array.from(buttons).find((btn) =>
+    const actionBtns = container.querySelectorAll('.settings-action-btn');
+    const zoomInButton = Array.from(actionBtns).find((btn) =>
       btn.textContent.includes('Zoom In')
     );
-    const zoomOutButton = Array.from(buttons).find((btn) =>
+    const zoomOutButton = Array.from(actionBtns).find((btn) =>
       btn.textContent.includes('Zoom Out')
     );
 
@@ -427,8 +441,8 @@ describe('Property: Camera Controls', () => {
         const toggleButton = container.querySelector('.camera-controls-toggle');
         fireEvent.click(toggleButton);
 
-        const buttons = container.querySelectorAll('.control-btn');
-        const zoomInButton = Array.from(buttons).find((btn) =>
+        const actionBtns = container.querySelectorAll('.settings-action-btn');
+        const zoomInButton = Array.from(actionBtns).find((btn) =>
           btn.textContent.includes('Zoom In')
         );
 
@@ -464,8 +478,8 @@ describe('Property: Camera Controls', () => {
         const toggleButton = container.querySelector('.camera-controls-toggle');
         fireEvent.click(toggleButton);
 
-        const buttons = container.querySelectorAll('.control-btn');
-        const zoomOutButton = Array.from(buttons).find((btn) =>
+        const actionBtns = container.querySelectorAll('.settings-action-btn');
+        const zoomOutButton = Array.from(actionBtns).find((btn) =>
           btn.textContent.includes('Zoom Out')
         );
 

@@ -412,7 +412,7 @@
   color: #000000;
 }
 
-/* Camera Controls (React version - collapsible) */
+/* Settings Panel (gear icon + card) */
 #camera-controls {
   position: absolute;
   bottom: 20px;
@@ -424,25 +424,17 @@
   gap: 10px;
 }
 
-#camera-controls.collapsed {
-  flex-direction: row;
-}
-
-#camera-controls.expanded {
-  flex-direction: row;
-}
-
 .camera-controls-toggle {
   width: 40px;
   height: 40px;
   background-color: var(--bg-button);
   color: #ffffff;
-  border: 2px solid #00ff88;
+  border: 2px solid var(--border-primary);
   border-radius: 5px;
   font-size: 20px;
   font-family: var(--font-family-mono);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-fast);
   white-space: nowrap;
 }
 
@@ -450,10 +442,127 @@
   background-color: #333333;
 }
 
-.camera-controls-buttons {
+.settings-panel {
+  background-color: var(--bg-panel);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+  min-width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-family-mono);
+}
+
+.settings-header {
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  font-weight: bold;
+  margin-bottom: var(--grid-gap-medium);
+  text-align: center;
+}
+
+.settings-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+}
+
+/* Toggle switch row */
+.settings-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: var(--transition-fast);
+}
+
+.settings-toggle-row:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+.settings-label {
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+}
+
+/* Hidden checkbox */
+.settings-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Toggle slider track */
+.settings-toggle-slider {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background-color: #444444;
+  border-radius: 10px;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+/* Toggle slider knob */
+.settings-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: #888888;
+  border-radius: 50%;
+  transition: var(--transition-fast);
+}
+
+/* Checked state */
+.settings-toggle-input:checked + .settings-toggle-slider {
+  background-color: rgba(0, 255, 136, 0.3);
+}
+
+.settings-toggle-input:checked + .settings-toggle-slider::after {
+  transform: translateX(16px);
+  background-color: var(--color-primary);
+}
+
+/* Focus visible for keyboard nav */
+.settings-toggle-input:focus-visible + .settings-toggle-slider {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Divider between toggles and actions */
+.settings-divider {
+  height: 1px;
+  background-color: rgba(0, 255, 136, 0.3);
+  margin: 6px 0;
+}
+
+/* Compact action buttons */
+.settings-action-btn {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  background-color: transparent;
+  color: var(--color-white);
+  border: none;
+  border-radius: 3px;
+  font-size: var(--font-size-large);
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.settings-action-btn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  color: var(--color-primary);
 }
 
 /* Station Interface Styling */
