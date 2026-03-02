@@ -483,6 +483,13 @@ export const COLE_DEBT_CONFIG = {
 };
 
 /**
+ * Default player preferences (saved with game state)
+ */
+export const DEFAULT_PREFERENCES = Object.freeze({
+  jumpWarningsEnabled: true,
+});
+
+/**
  * Development mode flag
  *
  * Checks for existence of .dev file to enable dev features.
@@ -1787,4 +1794,7 @@ export const EVENT_NAMES = Object.freeze({
   // Achievements
   ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
   ACHIEVEMENTS_CHANGED: 'achievementsChanged',
+
+  // Preferences
+  PREFERENCES_CHANGED: 'preferencesChanged',
 });
