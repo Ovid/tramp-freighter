@@ -183,7 +183,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         const qtyToAdd = Math.min(rewardItem.qty, availableSpace);
 
         if (qtyToAdd < rewardItem.qty) {
-          const unitWord = qtyToAdd === 1 ? 'unit' : 'units';
+          const unitWord = rewardItem.qty === 1 ? 'unit' : 'units';
           salvageMessages.push(
             `Could only fit ${qtyToAdd} of ${rewardItem.qty} ${unitWord}.`
           );

@@ -64,7 +64,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
 
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(1);
-    expect(outcome.description).toContain('Could only fit 1 of 3 unit.');
+    expect(outcome.description).toContain('Could only fit 1 of 3 units.');
   });
 
   it('should salvage nothing when hold is full with full-hold message', () => {
