@@ -7,6 +7,10 @@
   top: 20px;
   left: 20px;
   width: 300px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00ff88 rgba(0, 255, 136, 0.1);
   background-color: var(--bg-overlay-darker);
   border: 2px solid var(--border-primary);
   border-radius: var(--section-border-radius);
@@ -15,6 +19,24 @@
   color: var(--color-primary);
   z-index: var(--z-hud);
   display: none;
+}
+
+#game-hud::-webkit-scrollbar {
+  width: 6px;
+}
+
+#game-hud::-webkit-scrollbar-track {
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 3px;
+}
+
+#game-hud::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 3px;
+}
+
+#game-hud::-webkit-scrollbar-thumb:hover {
+  background: #33ffaa;
 }
 
 #game-hud.visible {
