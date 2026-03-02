@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { NEGOTIATION_CONFIG } from '../../src/game/constants.js';
+import {
+  NEGOTIATION_CONFIG,
+  COMBAT_CONFIG,
+} from '../../src/game/constants.js';
 
 describe('Negotiation Escalation (#68/73)', () => {
   let gsm;
@@ -43,5 +46,41 @@ describe('Negotiation Escalation (#68/73)', () => {
       NEGOTIATION_CONFIG.OUTCOME_VALUES
         .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE
     ).toBe(0.1);
+  });
+
+  it('should reduce combat success chance when strengthModifier is set', () => {
+    // Clear quirks/upgrades to isolate the strengthModifier effect
+    const state = gsm.getState();
+    state.ship.quirks = [];
+    state.ship.upgrades = [];
+    state.player.karma = 0;
+
+    const baseEncounter = { demandPercent: 20, threatLevel: 'moderate' };
+    const escalatedEncounter = {
+      demandPercent: 20,
+      threatLevel: 'strong',
+      strengthModifier:
+        NEGOTIATION_CONFIG.OUTCOME_VALUES
+          .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE,
+    };
+
+    // Use an rng value between escalated chance and base chance
+    // Base: 0.7, escalated: 0.6 — pick 0.65 which is between them
+    const rngNearBoundary = COMBAT_CONFIG.EVASIVE.BASE_CHANCE - 0.05;
+
+    const baseResult = gsm.combatManager.resolveEvasiveManeuvers(
+      baseEncounter,
+      gsm.getState(),
+      rngNearBoundary
+    );
+    const escalatedResult = gsm.combatManager.resolveEvasiveManeuvers(
+      escalatedEncounter,
+      gsm.getState(),
+      rngNearBoundary
+    );
+
+    // Normal encounter succeeds, escalated fails (chance reduced by 0.1)
+    expect(baseResult.success).toBe(true);
+    expect(escalatedResult.success).toBe(false);
   });
 });

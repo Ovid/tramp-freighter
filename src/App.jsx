@@ -20,7 +20,7 @@ import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
-import { EVENT_NAMES } from './game/constants.js';
+import { EVENT_NAMES, NEGOTIATION_CONFIG } from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -302,7 +302,7 @@ export default function App({ devMode = false }) {
 
         // Failed negotiation escalates to combat — skip applying empty outcome
         if (outcome.escalate) {
-          // Bump threat tier for display (combat resolution uses separate mechanics)
+          // Bump threat tier for display and apply strength modifier for combat
           const THREAT_ESCALATION = {
             weak: 'moderate',
             moderate: 'strong',
@@ -312,6 +312,9 @@ export default function App({ devMode = false }) {
           const current = currentEncounter.encounter.threatLevel || 'moderate';
           currentEncounter.encounter.threatLevel =
             THREAT_ESCALATION[current] || 'strong';
+          currentEncounter.encounter.strengthModifier =
+            NEGOTIATION_CONFIG.OUTCOME_VALUES
+              .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
 
           const displayOutcome = transformOutcomeForDisplay(
             outcome,

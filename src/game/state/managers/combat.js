@@ -84,6 +84,7 @@ export class CombatManager extends BaseManager {
     }
 
     successChance += calculateKarmaModifier(gameState.player.karma);
+    successChance -= encounter.strengthModifier || 0;
 
     successChance = Math.max(0, Math.min(1, successChance));
 
@@ -146,6 +147,7 @@ export class CombatManager extends BaseManager {
     let successChance = RETURN_FIRE.BASE_CHANCE;
 
     successChance += calculateKarmaModifier(gameState.player.karma);
+    successChance -= encounter.strengthModifier || 0;
 
     successChance = Math.max(0, Math.min(1, successChance));
 
@@ -248,6 +250,7 @@ export class CombatManager extends BaseManager {
     }
 
     successChance += calculateKarmaModifier(gameState.player.karma);
+    successChance -= encounter.strengthModifier || 0;
 
     successChance = Math.max(0, Math.min(1, successChance));
 
