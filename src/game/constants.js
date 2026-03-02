@@ -433,8 +433,12 @@ export const NEW_GAME_DEFAULTS = {
  * All numeric values for the loan shark mechanics
  */
 export const COLE_DEBT_CONFIG = {
-  // Interest
-  INTEREST_RATE: 0.03, // 3% monthly interest on principal
+  // Interest rates by heat tier
+  INTEREST_RATE: 0.03, // Keep for backward compat with getFinance init
+  INTEREST_RATE_LOW: 0.03, // 0-20 heat: 3% (grace period)
+  INTEREST_RATE_MEDIUM: 0.04, // 21-45 heat: 4%
+  INTEREST_RATE_HIGH: 0.05, // 46-70 heat: 5%
+  INTEREST_RATE_CRITICAL: 0.05, // 71-100 heat: 5% (cap)
   INTEREST_PERIOD_DAYS: 30, // Days between interest applications
 
   // Lien rates by heat tier
