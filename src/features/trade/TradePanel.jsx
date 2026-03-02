@@ -196,6 +196,7 @@ export function TradePanel({ onClose }) {
                         <span
                           className="restricted-badge"
                           title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                          aria-label={`Restricted: ${RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}`}
                         >
                           RESTRICTED
                         </span>
