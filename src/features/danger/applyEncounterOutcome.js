@@ -167,8 +167,28 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.rewards.cargo) {
-      const currentCargo = [...gameStateManager.getState().ship.cargo];
+      const currentCargo = [...state.ship.cargo];
+      const cargoCapacity = state.ship.cargoCapacity;
+      let currentTotal = currentCargo.reduce((sum, item) => sum + item.qty, 0);
+      const salvageMessages = [];
+
       outcome.rewards.cargo.forEach((rewardItem) => {
+        const availableSpace = cargoCapacity - currentTotal;
+
+        if (availableSpace <= 0) {
+          salvageMessages.push('Your hold is full — nothing salvaged.');
+          return;
+        }
+
+        const qtyToAdd = Math.min(rewardItem.qty, availableSpace);
+
+        if (qtyToAdd < rewardItem.qty) {
+          const unitWord = qtyToAdd === 1 ? 'unit' : 'units';
+          salvageMessages.push(
+            `Could only fit ${qtyToAdd} of ${rewardItem.qty} ${unitWord}.`
+          );
+        }
+
         const existingStack = currentCargo.find(
           (item) =>
             item.good === rewardItem.good &&
@@ -176,16 +196,22 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         );
 
         if (existingStack) {
-          existingStack.qty += rewardItem.qty;
+          existingStack.qty += qtyToAdd;
         } else {
           currentCargo.push({
             good: rewardItem.good,
-            qty: rewardItem.qty,
+            qty: qtyToAdd,
             buyPrice: rewardItem.buyPrice,
             buySystemName: rewardItem.buySystemName,
           });
         }
+
+        currentTotal += qtyToAdd;
       });
+
+      if (salvageMessages.length > 0) {
+        outcome.description = outcome.description + ' ' + salvageMessages.join(' ');
+      }
 
       gameStateManager.updateCargo(currentCargo);
     }
