@@ -91,7 +91,7 @@ export const NARRATIVE_EVENTS = [
     category: 'narrative',
     trigger: { system: null, condition: null, chance: 0.15 },
     once: false,
-    cooldown: 3,
+    cooldown: 10,
     priority: NARRATIVE_PRIORITY_LOW,
     generateContent(state, starData) {
       const activeEvents = state.world.activeEvents || [];
