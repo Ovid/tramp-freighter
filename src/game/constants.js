@@ -236,7 +236,7 @@ export const SHIP_CONFIG = {
       effects: {
         negateEventChance: 0.05, // 5% to negate bad events (future use)
       },
-      effectLabel: '5% chance to negate bad events',
+      effectLabel: '+5% chance to negate bad events',
       flavor: 'Knock on hull plating.',
     },
     fuel_sipper: {
