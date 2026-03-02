@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
+import { useDangerZone } from '../../hooks/useDangerZone';
 import {
   COMMODITY_TYPES,
   TRADE_CONFIG,
   SHIP_CONFIG,
   UI_CONFIG,
   EVENT_NAMES,
+  RESTRICTED_GOODS_CONFIG,
 } from '../../game/constants.js';
 import {
   capitalizeFirst,
@@ -62,6 +64,8 @@ export function TradePanel({ onClose }) {
 
   // Get current system
   const system = starData.find((s) => s.id === currentSystemId);
+
+  const dangerZone = useDangerZone(currentSystemId);
 
   if (!system) {
     throw new Error(
@@ -178,12 +182,25 @@ export function TradePanel({ onClose }) {
 
               const maxQuantity = calculateMaxBuyQuantity(price, state);
               const validation = validateBuy(goodType, 1, price, state);
+              const isRestricted = (
+                RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone] || []
+              ).includes(goodType);
 
               return (
                 <div key={goodType} className="good-item">
                   <div className="good-info">
                     <div className="good-name">{capitalizeFirst(goodType)}</div>
-                    <div className="good-price">{price} ₡/unit</div>
+                    <div className="good-price">
+                      {price} ₡/unit
+                      {isRestricted && (
+                        <span
+                          className="restricted-badge"
+                          title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                        >
+                          RESTRICTED
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="good-actions">

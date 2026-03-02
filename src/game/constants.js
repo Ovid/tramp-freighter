@@ -1614,6 +1614,9 @@ export const RESTRICTED_GOODS_CONFIG = {
     dangerous: ['tritium'], // Fuel restricted in dangerous zones (pirate supply concerns)
   },
 
+  RESTRICTED_TOOLTIP:
+    'Regulated in this zone. Risk of fines and confiscation during customs inspections.',
+
   // Core systems (Sol, Alpha Centauri) have additional restrictions
   CORE_SYSTEM_RESTRICTED: ['parts'], // Manufactured parts restricted to protect local industry
 };
