@@ -285,9 +285,7 @@ describe('Mission Generator', () => {
       // 2 completions: penalty = 0.5, mult = 0.5
       // base * 1.0 * 1.0 * 0.5 = 60
       expect(mission.rewards.credits).toBe(
-        Math.ceil(
-          MISSION_CONFIG.CARGO_RUN_BASE_FEE * 1.0 * 1.0 * 0.5
-        )
+        Math.ceil(MISSION_CONFIG.CARGO_RUN_BASE_FEE * 1.0 * 1.0 * 0.5)
       );
     });
 
