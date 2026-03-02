@@ -247,10 +247,7 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.asyncProperty(
         fc
           .string({ minLength: 3, maxLength: 20 })
-          .filter(
-            (s) =>
-              sanitizeShipName(s) !== SHIP_CONFIG.DEFAULT_NAME
-          ),
+          .filter((s) => sanitizeShipName(s) !== SHIP_CONFIG.DEFAULT_NAME),
         async (newName) => {
           cleanup();
 
