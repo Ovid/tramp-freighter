@@ -18,14 +18,18 @@ export function useJumpValidation(currentSystemId, targetSystemId, fuel) {
   const gameStateManager = useGameState();
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
 
+  const state = gameStateManager.getState();
+  const quirks = state.ship?.quirks || [];
+  const capabilities = gameStateManager.calculateShipCapabilities();
+
   return gameStateManager.navigationSystem.validateJump(
     currentSystemId,
     targetSystemId,
     fuel,
     shipCondition?.engine ?? 100,
-    null,
-    [],
-    1.0,
+    gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+    quirks,
+    capabilities.fuelConsumption,
     shipCondition ?? null
   );
 }

@@ -338,11 +338,23 @@ describe('Property: System Panel', () => {
         </GameProvider>
       );
 
-      // Get validation data
+      // Get validation data with quirks and upgrades (matching useJumpValidation hook)
+      const state = gameStateManager.getState();
+      const quirks = state.ship?.quirks || [];
+      const capabilities = gameStateManager.calculateShipCapabilities();
       const validation = navigationSystem.validateJump(
         currentSystemId,
         targetSystemId,
-        100
+        100,
+        state.ship?.engine ?? 100,
+        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        quirks,
+        capabilities.fuelConsumption,
+        {
+          hull: state.ship.hull,
+          engine: state.ship.engine,
+          lifeSupport: state.ship.lifeSupport,
+        }
       );
 
       // Check that displayed values match calculated values

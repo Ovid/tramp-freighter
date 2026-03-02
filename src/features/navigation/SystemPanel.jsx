@@ -222,6 +222,10 @@ export function SystemPanel({
   }
 
   // If viewing current system, show system info with connected systems
+  const quirks = gameStateManager.getState().ship?.quirks || [];
+  const capabilities = gameStateManager.calculateShipCapabilities();
+  const engineCondition = gameStateManager.getState().ship?.engine ?? 100;
+
   const connectedSystemIds =
     gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
   const connectedSystems = connectedSystemIds
@@ -235,7 +239,13 @@ export function SystemPanel({
           system
         );
       const fuelCost =
-        gameStateManager.navigationSystem.calculateFuelCost(distance);
+        gameStateManager.navigationSystem.calculateFuelCostWithCondition(
+          distance,
+          engineCondition,
+          gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+          quirks,
+          capabilities.fuelConsumption
+        );
       const jumpTime =
         gameStateManager.navigationSystem.calculateJumpTime(distance);
 
