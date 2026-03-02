@@ -183,7 +183,7 @@ export function TradePanel({ onClose }) {
                 <div key={goodType} className="good-item">
                   <div className="good-info">
                     <div className="good-name">{capitalizeFirst(goodType)}</div>
-                    <div className="good-price">{price} cr/unit</div>
+                    <div className="good-price">{price} ₡/unit</div>
                   </div>
 
                   <div className="good-actions">
@@ -257,7 +257,7 @@ export function TradePanel({ onClose }) {
                 const currentPrice = currentSystemPrices[stack.good];
                 const profit = calculateProfit(stack, currentPrice);
 
-                let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
+                let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} ₡/unit`;
 
                 if (
                   stack.buySystem !== undefined &&
@@ -278,11 +278,11 @@ export function TradePanel({ onClose }) {
 
                 let profitText = '';
                 if (profit.direction === 'positive') {
-                  profitText = `Sell at: ${currentPrice} cr/unit | Profit: +${profit.margin} cr/unit (+${profit.percentage}%)`;
+                  profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
                 } else if (profit.direction === 'negative') {
-                  profitText = `Sell at: ${currentPrice} cr/unit | Loss: ${profit.margin} cr/unit (${profit.percentage}%)`;
+                  profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
                 } else {
-                  profitText = `Sell at: ${currentPrice} cr/unit | Break even`;
+                  profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
                 }
 
                 return (
@@ -379,7 +379,7 @@ export function TradePanel({ onClose }) {
                     const currentPrice = currentSystemPrices[stack.good];
                     const profit = calculateProfit(stack, currentPrice);
 
-                    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} cr/unit`;
+                    let detailsText = `Qty: ${stack.qty} | Bought at: ${stack.buyPrice} ₡/unit`;
 
                     if (
                       stack.buySystem !== undefined &&
@@ -400,11 +400,11 @@ export function TradePanel({ onClose }) {
 
                     let profitText = '';
                     if (profit.direction === 'positive') {
-                      profitText = `Sell at: ${currentPrice} cr/unit | Profit: +${profit.margin} cr/unit (+${profit.percentage}%)`;
+                      profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
                     } else if (profit.direction === 'negative') {
-                      profitText = `Sell at: ${currentPrice} cr/unit | Loss: ${profit.margin} cr/unit (${profit.percentage}%)`;
+                      profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
                     } else {
-                      profitText = `Sell at: ${currentPrice} cr/unit | Break even`;
+                      profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
                     }
 
                     return (

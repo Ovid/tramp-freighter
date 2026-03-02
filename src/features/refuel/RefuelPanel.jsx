@@ -153,7 +153,7 @@ export function RefuelPanel({ onClose }) {
           </div>
           <div className="info-row">
             <span className="label">Price per %:</span>
-            <span className="value">{fuelPrice} cr</span>
+            <span className="value">{fuelPrice} ₡</span>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export function RefuelPanel({ onClose }) {
           <div className="refuel-cost-display">
             <div className="cost-row">
               <span className="cost-label">Total Cost:</span>
-              <span className="cost-value">{finalTotalCost} cr</span>
+              <span className="cost-value">{finalTotalCost} ₡</span>
             </div>
             {bestDiscount.discount > 0 && (
               <div className="discount-row">
@@ -194,7 +194,7 @@ export function RefuelPanel({ onClose }) {
                   {bestDiscount.npcName}):
                 </span>
                 <span className="discount-value">
-                  -{totalCost - finalTotalCost} cr
+                  -{totalCost - finalTotalCost} ₡
                 </span>
               </div>
             )}

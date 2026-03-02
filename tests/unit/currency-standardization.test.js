@@ -28,12 +28,29 @@ describe('Currency Standardization (#15)', () => {
     }
   });
 
-  it('no component file should use ₡ with incorrect casing or alternate symbols', () => {
+  it('no component file should use cr{ as a currency prefix', () => {
     for (const file of componentFiles) {
       const source = readFileSync(file, 'utf-8');
       // Catch patterns like "cr}" used as a currency prefix (e.g., cr{amount})
       expect(source, `Found cr{ currency prefix in ${file}`).not.toMatch(
         /\bcr\{/
+      );
+    }
+  });
+
+  it('no component file should use cr/unit as a currency rate', () => {
+    for (const file of componentFiles) {
+      const source = readFileSync(file, 'utf-8');
+      expect(source, `Found cr/unit in ${file}`).not.toMatch(/cr\/unit/);
+    }
+  });
+
+  it('no component file should use cr as a currency suffix in JSX', () => {
+    for (const file of componentFiles) {
+      const source = readFileSync(file, 'utf-8');
+      // Catch patterns like "} cr<" used as a currency suffix in JSX spans
+      expect(source, `Found " cr<" currency suffix in ${file}`).not.toMatch(
+        /\} cr</
       );
     }
   });
