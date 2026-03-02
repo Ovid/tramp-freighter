@@ -39,6 +39,10 @@ function safeGetHeatTier(context) {
  * @returns {string} Greeting text
  */
 function getGreetingText(rep, context) {
+  if (context?.debt === 0) {
+    return "You surprised me. Most don't make it this far. Your account reads zero. I wasn't sure you had it in you.";
+  }
+
   const heatTier = safeGetHeatTier(context);
 
   switch (heatTier) {
@@ -79,6 +83,8 @@ function getGreetingText(rep, context) {
  * Uses formal speech with educated vocabulary and short clipped sentences.
  *
  * Dialogue Flow:
+ * - greeting → debt_cleared (debt=0, tanaka stage=0) → tanaka_detail → tanaka_motive
+ * - greeting → debt_cleared → future_business
  * - greeting → debt_talk → (payment_plan | defiant_response) → greeting
  * - greeting → business (NEUTRAL_MIN tier) → business_details → greeting
  * - greeting → cole_threat (high heat) → (comply | refuse_job) → greeting
@@ -88,6 +94,16 @@ export const MARCUS_COLE_DIALOGUE = {
   greeting: {
     text: (rep, context) => getGreetingText(rep, context),
     choices: [
+      {
+        text: 'You mentioned something might be worth my time?',
+        next: 'debt_cleared',
+        condition: (_rep, context) => {
+          if (!context || context.narrativeFlags?.tanaka_met) return false;
+          return (
+            context?.debt === 0 && context?.getQuestStage?.('tanaka') === 0
+          );
+        },
+      },
       {
         text: 'About my debt...',
         next: 'debt_talk',
@@ -346,6 +362,63 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: 'Consider it done.',
         next: null,
+      },
+    ],
+  },
+
+  debt_cleared: {
+    text: "Now that your slate is clean, I will share something. There is an engineer working out of Barnard's Star. Experimental jump technology. Might be worth your time, now that you're free.",
+    choices: [
+      {
+        text: 'Tell me more about this engineer.',
+        next: 'tanaka_detail',
+      },
+      {
+        text: 'Any future business between us?',
+        next: 'future_business',
+      },
+      {
+        text: "Good. We're done here.",
+        next: null,
+      },
+    ],
+  },
+
+  tanaka_detail: {
+    text: "Name's Tanaka. Works out of Barnard's Star. Obsessed with some experimental jump drive project. Always looking for pilots to help with field testing. Might be worth introducing yourself.",
+    choices: [
+      {
+        text: "I'll look into it.",
+        next: null,
+      },
+      {
+        text: 'Why are you telling me this?',
+        next: 'tanaka_motive',
+      },
+    ],
+  },
+
+  tanaka_motive: {
+    text: 'Call it professional courtesy. You paid your debt. That earns a certain... consideration. Besides, if her project succeeds, there is money to be made. I always have an angle.',
+    choices: [
+      {
+        text: 'Of course you do. Thanks for the tip.',
+        next: null,
+      },
+    ],
+  },
+
+  future_business: {
+    text: "Perhaps. You've demonstrated reliability. That has value in my line of work. When opportunities arise, I'll know where to find you.",
+    choices: [
+      {
+        text: "I'll keep that in mind.",
+        next: null,
+      },
+      {
+        text: "I'd rather not.",
+        next: null,
+        repGain: -2,
       },
     ],
   },

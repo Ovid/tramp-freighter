@@ -201,10 +201,11 @@ export class DebtManager extends BaseManager {
     );
     this.modifyColeRep(repGain);
 
-    // If debt is now 0, reset heat
+    // If debt is now 0, reset heat and notify for immediate narrative trigger
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
     this.emitFinanceChanged();
@@ -248,6 +249,7 @@ export class DebtManager extends BaseManager {
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
     this.emitFinanceChanged();

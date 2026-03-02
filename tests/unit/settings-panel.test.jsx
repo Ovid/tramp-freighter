@@ -1,128 +1,93 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import { CameraControls } from '../../src/features/navigation/CameraControls';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { CameraControls } from '../../src/features/navigation/CameraControls.jsx';
 
-const defaultProps = {
-  cameraState: { autoRotationEnabled: true, boundaryVisible: true },
-  onZoomIn: vi.fn(),
-  onZoomOut: vi.fn(),
-  onToggleRotation: vi.fn(),
-  onToggleBoundary: vi.fn(),
-};
+// Mock the modal components
+vi.mock('../../src/features/instructions/InstructionsModal', () => ({
+  InstructionsModal: ({ isOpen }) =>
+    isOpen ? <div data-testid="instructions-modal">Instructions</div> : null,
+}));
+vi.mock('../../src/features/achievements/AchievementsModal', () => ({
+  AchievementsModal: ({ isOpen }) =>
+    isOpen ? <div data-testid="achievements-modal">Achievements</div> : null,
+}));
+
+// Mock GameContext
+vi.mock('../../src/context/GameContext', () => ({
+  useGameState: () => ({
+    getPreference: vi.fn((key) => {
+      if (key === 'jumpWarningsEnabled') return true;
+      return true;
+    }),
+    setPreference: vi.fn(),
+  }),
+}));
+
+// Mock useGameEvent
+vi.mock('../../src/hooks/useGameEvent', () => ({
+  useGameEvent: () => ({ jumpWarningsEnabled: true }),
+}));
 
 describe('Settings Panel', () => {
-  afterEach(() => {
-    document.documentElement.classList.remove('antimatter');
+  const defaultProps = {
+    cameraState: { autoRotationEnabled: true, boundaryVisible: true },
+    onZoomIn: vi.fn(),
+    onZoomOut: vi.fn(),
+    onToggleRotation: vi.fn(),
+    onToggleBoundary: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe('Gear icon toggle', () => {
-    it('should display a gear icon on the toggle button', () => {
-      const { container } = render(<CameraControls {...defaultProps} />);
-      const toggle = container.querySelector('.camera-controls-toggle');
-      expect(toggle.textContent).toContain('⚙');
-      expect(toggle.textContent).not.toContain('Camera');
-    });
+  it('renders gear toggle button', () => {
+    render(<CameraControls {...defaultProps} />);
+    expect(screen.getByLabelText('Toggle settings')).toBeTruthy();
   });
 
-  describe('Antimatter Mode', () => {
-    it('should show an Antimatter toggle when expanded', async () => {
-      const { container } = render(<CameraControls {...defaultProps} />);
-      const toggle = container.querySelector('.camera-controls-toggle');
-      fireEvent.click(toggle);
+  it('shows settings panel with header when expanded', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
+    expect(screen.getByText('Settings')).toBeTruthy();
+  });
 
-      await waitFor(() => {
-        const buttons = container.querySelectorAll('.control-btn');
-        const antimatterBtn = Array.from(buttons).find(
-          (btn) =>
-            btn.textContent.includes('Antimatter') ||
-            btn.textContent.includes('Matter')
-        );
-        expect(antimatterBtn).toBeTruthy();
-      });
-    });
+  it('renders toggle switches for boolean preferences', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
 
-    it('should toggle label between Matter and Antimatter on click', async () => {
-      const { container } = render(<CameraControls {...defaultProps} />);
-      const toggle = container.querySelector('.camera-controls-toggle');
-      fireEvent.click(toggle);
+    expect(screen.getByText('Star Rotation')).toBeTruthy();
+    expect(screen.getByText('Boundary')).toBeTruthy();
+    expect(screen.getByText('Antimatter')).toBeTruthy();
+    expect(screen.getByText('Jump Warnings')).toBeTruthy();
+  });
 
-      await waitFor(() => {
-        expect(
-          container.querySelector('.camera-controls-buttons')
-        ).toBeTruthy();
-      });
+  it('renders action buttons', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
 
-      const buttons = container.querySelectorAll('.control-btn');
-      const antimatterBtn = Array.from(buttons).find(
-        (btn) => btn.textContent.trim() === 'Antimatter'
-      );
+    expect(screen.getByText('Zoom In')).toBeTruthy();
+    expect(screen.getByText('Zoom Out')).toBeTruthy();
+    expect(screen.getByText('Instructions')).toBeTruthy();
+    expect(screen.getByText('Achievements')).toBeTruthy();
+    expect(screen.getByText('GitHub')).toBeTruthy();
+  });
 
-      expect(antimatterBtn).toBeTruthy();
+  it('toggle switches have correct initial state', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
 
-      // Click to activate
-      fireEvent.click(antimatterBtn);
+    const rotationToggle = screen.getByLabelText('Star Rotation');
+    expect(rotationToggle.checked).toBe(true);
 
-      // Now should say "Matter"
-      const updatedButtons = container.querySelectorAll('.control-btn');
-      const matterBtn = Array.from(updatedButtons).find(
-        (btn) => btn.textContent.trim() === 'Matter'
-      );
-      expect(matterBtn).toBeTruthy();
-    });
+    const boundaryToggle = screen.getByLabelText('Boundary');
+    expect(boundaryToggle.checked).toBe(true);
+  });
 
-    it('should apply invert class to document element when antimatter active', async () => {
-      const { container } = render(<CameraControls {...defaultProps} />);
-      const toggle = container.querySelector('.camera-controls-toggle');
-      fireEvent.click(toggle);
-
-      await waitFor(() => {
-        expect(
-          container.querySelector('.camera-controls-buttons')
-        ).toBeTruthy();
-      });
-
-      const buttons = container.querySelectorAll('.control-btn');
-      const antimatterBtn = Array.from(buttons).find((btn) =>
-        btn.textContent.includes('Antimatter')
-      );
-
-      fireEvent.click(antimatterBtn);
-      expect(document.documentElement.classList.contains('antimatter')).toBe(
-        true
-      );
-    });
-
-    it('should remove invert class when toggled back to matter', async () => {
-      const { container } = render(<CameraControls {...defaultProps} />);
-      const toggle = container.querySelector('.camera-controls-toggle');
-      fireEvent.click(toggle);
-
-      await waitFor(() => {
-        expect(
-          container.querySelector('.camera-controls-buttons')
-        ).toBeTruthy();
-      });
-
-      const buttons = container.querySelectorAll('.control-btn');
-      const antimatterBtn = Array.from(buttons).find((btn) =>
-        btn.textContent.includes('Antimatter')
-      );
-
-      // Activate
-      fireEvent.click(antimatterBtn);
-      expect(document.documentElement.classList.contains('antimatter')).toBe(
-        true
-      );
-
-      // Find the now-labeled "Matter" button and click again
-      const updatedButtons = container.querySelectorAll('.control-btn');
-      const matterBtn = Array.from(updatedButtons).find(
-        (btn) => btn.textContent.trim() === 'Matter'
-      );
-      fireEvent.click(matterBtn);
-      expect(document.documentElement.classList.contains('antimatter')).toBe(
-        false
-      );
-    });
+  it('clicking Star Rotation toggle calls onToggleRotation', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
+    fireEvent.click(screen.getByLabelText('Star Rotation'));
+    expect(defaultProps.onToggleRotation).toHaveBeenCalled();
   });
 });

@@ -10,6 +10,26 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: vi.fn(),
 }));
 
+vi.mock('../../src/context/GameContext', () => ({
+  useGameState: vi.fn(() => ({
+    navigationSystem: {
+      calculateDistanceBetween: vi.fn(() => 4),
+      calculateJumpTime: vi.fn(() => 3),
+    },
+  })),
+}));
+
+vi.mock('../../src/hooks/useStarData', () => ({
+  useStarData: vi.fn(() => []),
+}));
+
+// Route utils returns no data by default since starData is empty
+vi.mock('../../src/features/missions/missionRouteUtils.js', () => ({
+  calculateRouteIndicator: vi.fn(() => null),
+  formatRouteIndicator: vi.fn(() => ''),
+  getFeasibilityWarning: vi.fn(() => null),
+}));
+
 import { useGameEvent } from '../../src/hooks/useGameEvent';
 import { useGameAction } from '../../src/hooks/useGameAction';
 

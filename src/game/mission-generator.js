@@ -2,8 +2,15 @@ import {
   MISSION_CONFIG,
   MISSION_CARGO_TYPES,
   PASSENGER_CONFIG,
+  COMMODITY_TYPES,
 } from './constants.js';
+import { calculateSystemPrices } from './utils/calculators.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
+import {
+  getConnectedSystems as getCachedConnectedSystems,
+  getReachableSystems as getCachedReachableSystems,
+} from './utils/wormhole-graph.js';
+import { WORMHOLE_DATA } from './data/wormhole-data.js';
 
 function pickWeightedDestination(reachable, rng) {
   const weights = reachable.map((r) => 1 / (r.hopCount * r.hopCount));
@@ -20,7 +27,7 @@ function pickWeightedDestination(reachable, rng) {
   return chosen;
 }
 
-function getConnectedSystems(systemId, wormholeData) {
+function getConnectedSystemsDirect(systemId, wormholeData) {
   const connected = [];
   for (const [a, b] of wormholeData) {
     if (a === systemId) connected.push(b);
@@ -29,7 +36,17 @@ function getConnectedSystems(systemId, wormholeData) {
   return connected;
 }
 
+/**
+ * Get all systems reachable from systemId within maxHops jumps.
+ * Delegates to the pre-computed cache when using production wormhole data;
+ * falls back to BFS for test data.
+ */
 export function getReachableSystems(systemId, wormholeData, maxHops) {
+  if (wormholeData === WORMHOLE_DATA) {
+    return getCachedReachableSystems(systemId, maxHops);
+  }
+
+  // Fallback BFS for non-production data (tests)
   const visited = new Set([systemId]);
   const result = [];
   let frontier = [systemId];
@@ -37,7 +54,7 @@ export function getReachableSystems(systemId, wormholeData, maxHops) {
   for (let hop = 1; hop <= maxHops; hop++) {
     const nextFrontier = [];
     for (const current of frontier) {
-      for (const neighbor of getConnectedSystems(current, wormholeData)) {
+      for (const neighbor of getConnectedSystemsDirect(current, wormholeData)) {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
           result.push({ systemId: neighbor, hopCount: hop });
@@ -217,9 +234,20 @@ export function generatePassengerMission(
     1.0 - recentCompletions * MISSION_CONFIG.SATURATION_PENALTY_PER_RUN
   );
 
-  const tier = PASSENGER_CONFIG.PAYMENT_TIERS[typeConfig.paymentTier];
+  // Use base prices without active events/market conditions so passenger
+  // payments reflect typical route profitability, not transient market swings
+  const fromStar = starData.find((s) => s.id === fromSystem);
+  const originPrices = calculateSystemPrices(fromStar, currentDay, [], {});
+  const destPrices = calculateSystemPrices(destStar, currentDay, [], {});
+  const bestMargin = Math.max(
+    MISSION_CONFIG.PASSENGER_MARGIN_FLOOR,
+    ...COMMODITY_TYPES.map((good) => destPrices[good] - originPrices[good])
+  );
   const reward = Math.ceil(
-    (tier.min + rng() * (tier.max - tier.min)) * saturationMultiplier
+    bestMargin *
+      typeConfig.cargoSpace *
+      MISSION_CONFIG.PASSENGER_PREMIUM *
+      saturationMultiplier
   );
 
   return {
@@ -262,7 +290,10 @@ export function generateMissionBoard(
   completionHistory = [],
   currentDay = 0
 ) {
-  const connectionCount = getConnectedSystems(systemId, wormholeData).length;
+  const connectionCount =
+    wormholeData === WORMHOLE_DATA
+      ? getCachedConnectedSystems(systemId).length
+      : getConnectedSystemsDirect(systemId, wormholeData).length;
   const boardSize = Math.min(
     Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
     MISSION_CONFIG.BOARD_SIZE

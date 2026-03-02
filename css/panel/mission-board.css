@@ -75,6 +75,12 @@
   margin: 0 0 var(--grid-gap-medium) 0;
 }
 
+.mission-route-info {
+  color: var(--color-secondary);
+  font-size: var(--font-size-small);
+  margin-bottom: var(--grid-gap-small);
+}
+
 .mission-details {
   display: flex;
   flex-direction: column;
@@ -121,4 +127,23 @@
 .saturation-hint {
   color: var(--color-warning, #cc8800);
   cursor: help;
+}
+
+.illegal-warning {
+  color: var(--color-danger);
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.feasibility-warning {
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.feasibility-tight {
+  color: var(--color-warning);
+}
+
+.feasibility-impossible {
+  color: var(--color-danger);
 }

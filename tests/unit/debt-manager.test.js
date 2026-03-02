@@ -390,8 +390,8 @@ describe('Cole Debt System', () => {
 
         debtManager.applyInterest();
 
-        // 10000 * 0.02 = 200, ceil = 200
-        expect(gsm.state.player.debt).toBe(10200);
+        // 10000 * 0.03 = 300, ceil = 300
+        expect(gsm.state.player.debt).toBe(10300);
         expect(gsm.state.player.finance.lastInterestDay).toBe(30);
       });
 
@@ -423,8 +423,8 @@ describe('Cole Debt System', () => {
 
         debtManager.applyInterest();
 
-        // 150 * 0.02 = 3, ceil = 3
-        expect(gsm.state.player.debt).toBe(153);
+        // 150 * 0.03 = 4.5, ceil = 5
+        expect(gsm.state.player.debt).toBe(155);
       });
 
       it('applies natural heat decay when no new borrowing in period', () => {

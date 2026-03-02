@@ -7,6 +7,7 @@ import {
   KARMA_CONFIG,
   FACTION_CONFIG,
   COLE_DEBT_CONFIG,
+  DEFAULT_PREFERENCES,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -67,6 +68,7 @@ export class InitializationManager {
       },
       quests: {},
       achievements: {},
+      preferences: { ...DEFAULT_PREFERENCES },
       meta: metaState,
     };
   }

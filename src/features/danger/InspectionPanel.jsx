@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import {
-  INSPECTION_CONFIG,
-  RESTRICTED_GOODS_CONFIG,
-  EVENT_NAMES,
-} from '../../game/constants.js';
+import { useGameState } from '../../context/GameContext.jsx';
+import { calculateInspectionAnalysis } from './inspectionUtils.js';
+import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
+import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
 
 /**
  * InspectionPanel - React component for customs inspection resolution
@@ -23,6 +22,7 @@ import {
  */
 export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for inspection context
+  const gameStateManager = useGameState();
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
@@ -32,6 +32,9 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Local state for selected inspection option
   const [selectedOption, setSelectedOption] = useState(null);
 
+  // Get danger zone from the single source of truth
+  const dangerZone = gameStateManager.getDangerZone(currentSystem);
+
   // Calculate inspection analysis and restricted goods
   const inspectionAnalysis = useMemo(
     () =>
@@ -40,9 +43,10 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
         cargo,
         hiddenCargo,
         currentSystem,
-        credits
+        credits,
+        dangerZone
       ),
-    [inspection, cargo, hiddenCargo, currentSystem, credits]
+    [inspection, cargo, hiddenCargo, currentSystem, credits, dangerZone]
   );
 
   const handleOptionSelect = (option) => {
@@ -118,7 +122,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                       >
                         <div className="item-info">
                           <span className="item-name">
-                            {formatCommodityName(item.good)}
+                            {formatCargoDisplayName(item.good)}
                           </span>
                           <span className="item-quantity">
                             {item.qty} units
@@ -213,8 +217,12 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
               <div className="option-analysis">
                 <div className="guaranteed-outcome">
                   <span className="outcome-label">Outcome:</span>
-                  <span className="outcome-value guaranteed">
-                    Guaranteed Success
+                  <span
+                    className={`outcome-value ${inspectionAnalysis.restrictedItems.length > 0 ? 'warning' : 'guaranteed'}`}
+                  >
+                    {inspectionAnalysis.restrictedItems.length > 0
+                      ? 'Compliance — fines apply for restricted goods'
+                      : 'Guaranteed Success'}
                   </span>
                 </div>
                 {inspectionAnalysis.restrictedItems.length > 0 && (
@@ -223,7 +231,9 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                       Restricted Goods Detected:
                     </span>
                     <span className="warning-text">
-                      {inspectionAnalysis.restrictedItems.join(', ')}
+                      {inspectionAnalysis.restrictedItems
+                        .map(formatCargoDisplayName)
+                        .join(', ')}
                     </span>
                   </div>
                 )}
@@ -416,102 +426,6 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
 }
 
 /**
- * Calculate inspection analysis including restricted goods and discovery chances
- *
- * @param {Object} inspection - The inspection encounter
- * @param {Array} cargo - Current regular cargo
- * @param {Array} hiddenCargo - Current hidden cargo
- * @param {number} currentSystem - Current system ID
- * @param {number} credits - Current credits
- * @returns {Object} Analysis of the inspection situation
- */
-function calculateInspectionAnalysis(
-  inspection,
-  cargo = [],
-  _hiddenCargo = [],
-  currentSystem = 0,
-  credits = 0
-) {
-  // Determine danger zone for the current system
-  const dangerZone = getDangerZoneForSystem(currentSystem);
-
-  // Find restricted items in regular cargo
-  const restrictedItems = cargo
-    .filter((item) =>
-      isGoodRestrictedInZone(item.good, dangerZone, currentSystem)
-    )
-    .map((item) => item.good);
-
-  // Calculate security level and hidden cargo discovery chance
-  let securityMultiplier;
-  if (currentSystem === 0 || currentSystem === 1) {
-    // Core systems (Sol, Alpha Centauri)
-    securityMultiplier = INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS.core;
-  } else {
-    // Use zone-based multiplier
-    securityMultiplier =
-      INSPECTION_CONFIG.SECURITY_LEVEL_MULTIPLIERS[dangerZone];
-  }
-
-  const hiddenCargoDiscoveryChance =
-    INSPECTION_CONFIG.HIDDEN_CARGO_DISCOVERY_CHANCE * securityMultiplier;
-
-  return {
-    restrictedItems,
-    hiddenCargoDiscoveryChance,
-    securityLevel: securityMultiplier,
-    dangerZone,
-    canAffordBribe: credits >= INSPECTION_CONFIG.BRIBE.COST,
-  };
-}
-
-/**
- * Determine danger zone for a system (simplified version for UI)
- * This should match the logic in DangerManager.getDangerZone()
- *
- * @param {number} systemId - System ID
- * @returns {string} Danger zone classification
- */
-function getDangerZoneForSystem(systemId) {
-  // Safe systems
-  if ([0, 1, 4].includes(systemId)) {
-    return 'safe';
-  }
-
-  // Contested systems
-  if ([7, 10].includes(systemId)) {
-    return 'contested';
-  }
-
-  // For now, assume other systems are dangerous
-  // In a full implementation, this would check distance from Sol
-  return 'dangerous';
-}
-
-/**
- * Check if a good is restricted in a specific zone
- * This should match the logic in TradingManager.isGoodRestricted()
- *
- * @param {string} goodType - Commodity type
- * @param {string} dangerZone - Danger zone classification
- * @param {number} systemId - System ID
- * @returns {boolean} Whether the good is restricted
- */
-function isGoodRestrictedInZone(goodType, dangerZone, systemId) {
-  // Check zone-based restrictions
-  const zoneRestricted =
-    RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS[dangerZone]?.includes(goodType) ||
-    false;
-
-  // Check core system restrictions
-  const coreSystemRestricted =
-    (systemId === 0 || systemId === 1) &&
-    RESTRICTED_GOODS_CONFIG.CORE_SYSTEM_RESTRICTED.includes(goodType);
-
-  return zoneRestricted || coreSystemRestricted;
-}
-
-/**
  * Get color for inspection severity display
  *
  * @param {string} severity - The inspection severity level
@@ -573,17 +487,6 @@ function getReputationTier(reputation = 0) {
   if (reputation >= -10) return 'Neutral';
   if (reputation >= -50) return 'Suspicious';
   return 'Wanted';
-}
-
-/**
- * Format commodity names for display
- *
- * @param {string} commodityName - The commodity name
- * @returns {string} Formatted display name
- */
-function formatCommodityName(commodityName) {
-  if (!commodityName || typeof commodityName !== 'string') return 'Unknown';
-  return commodityName.charAt(0).toUpperCase() + commodityName.slice(1);
 }
 
 /**

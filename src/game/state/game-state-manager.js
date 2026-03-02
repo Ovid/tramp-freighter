@@ -1,4 +1,8 @@
-import { FACTION_CONFIG, EVENT_NAMES } from '../constants.js';
+import {
+  FACTION_CONFIG,
+  EVENT_NAMES,
+  DEFAULT_PREFERENCES,
+} from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
@@ -302,6 +306,9 @@ export class GameStateManager {
     }
     if (state.achievements) {
       this.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, { ...state.achievements });
+    }
+    if (state.preferences) {
+      this.emit(EVENT_NAMES.PREFERENCES_CHANGED, { ...state.preferences });
     }
   }
 
@@ -652,6 +659,23 @@ export class GameStateManager {
       visitedCount: (world.visitedSystems ?? []).length,
       dangerFlags: world.dangerFlags ?? {},
     };
+  }
+
+  // ========================================================================
+  // PREFERENCES
+  // ========================================================================
+
+  getPreference(key) {
+    return this.state?.preferences?.[key] ?? DEFAULT_PREFERENCES[key];
+  }
+
+  setPreference(key, value) {
+    if (!this.state.preferences) {
+      this.state.preferences = { ...DEFAULT_PREFERENCES };
+    }
+    this.state.preferences[key] = value;
+    this.emit(EVENT_NAMES.PREFERENCES_CHANGED, { ...this.state.preferences });
+    this.markDirty();
   }
 
   // ========================================================================

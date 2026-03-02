@@ -1,4 +1,9 @@
-import { GAME_VERSION, SHIP_CONFIG, COMMODITY_TYPES } from '../constants.js';
+import {
+  GAME_VERSION,
+  SHIP_CONFIG,
+  COMMODITY_TYPES,
+  DEFAULT_PREFERENCES,
+} from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { devLog, devWarn } from '../utils/dev-logger.js';
 
@@ -891,6 +896,10 @@ export function addStateDefaults(state, systemData) {
       flags: {},
       dockedSystems: [],
     };
+  }
+
+  if (!state.preferences) {
+    state.preferences = { ...DEFAULT_PREFERENCES };
   }
 
   return state;
