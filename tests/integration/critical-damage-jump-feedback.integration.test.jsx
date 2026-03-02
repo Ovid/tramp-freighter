@@ -41,7 +41,13 @@ vi.mock('../../src/context/GameContext', () => ({
       calculateJumpTime: () => 1,
     },
     getState: () => ({
-      ship: { quirks: [], upgrades: [], engine: 100, hull: 100, lifeSupport: 100 },
+      ship: {
+        quirks: [],
+        upgrades: [],
+        engine: 100,
+        hull: 100,
+        lifeSupport: 100,
+      },
     }),
     calculateShipCapabilities: () => ({ fuelConsumption: 1.0 }),
     applyQuirkModifiers: (val) => val,

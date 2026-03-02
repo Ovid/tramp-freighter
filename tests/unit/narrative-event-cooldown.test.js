@@ -51,9 +51,7 @@ describe('Narrative Event Deduplication (#52/78)', () => {
     });
 
     it('should block event at station B after firing at station A within cooldown', () => {
-      const event = NARRATIVE_EVENTS.find(
-        (e) => e.id === 'dock_generic_rumor'
-      );
+      const event = NARRATIVE_EVENTS.find((e) => e.id === 'dock_generic_rumor');
 
       // Register only this event for isolation
       engine.registerEvent({

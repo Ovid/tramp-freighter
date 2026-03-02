@@ -5,7 +5,10 @@ import { SHIP_CONFIG } from '../../src/game/constants.js';
 describe('Quirk Effects Display (#66/100)', () => {
   it('every quirk should have an effectLabel', () => {
     Object.entries(SHIP_CONFIG.QUIRKS).forEach(([id, quirk]) => {
-      expect(quirk.effectLabel, `Quirk ${id} missing effectLabel`).toBeDefined();
+      expect(
+        quirk.effectLabel,
+        `Quirk ${id} missing effectLabel`
+      ).toBeDefined();
       expect(typeof quirk.effectLabel).toBe('string');
       expect(quirk.effectLabel.length).toBeGreaterThan(0);
     });

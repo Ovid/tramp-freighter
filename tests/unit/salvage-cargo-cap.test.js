@@ -15,85 +15,107 @@ describe('Salvage Cargo Cap (#55/56)', () => {
   it('should cap salvage cargo to available space with partial-fit message', () => {
     const state = gsm.getState();
     // Fill cargo to 48/50
-    state.ship.cargo = [{ good: 'grain', qty: 48, buyPrice: 10, buySystemName: 'Sol' }];
+    state.ship.cargo = [
+      { good: 'grain', qty: 48, buyPrice: 10, buySystemName: 'Sol' },
+    ];
 
     const outcome = {
       success: true,
       costs: {},
       rewards: {
-        cargo: [{ good: 'parts', qty: 5, buyPrice: 0, buySystemName: 'Salvage' }],
+        cargo: [
+          { good: 'parts', qty: 5, buyPrice: 0, buySystemName: 'Salvage' },
+        ],
       },
       description: 'Salvaged parts.',
     };
 
     applyEncounterOutcome(gsm, outcome);
 
-    const totalCargo = state.ship.cargo.reduce((sum, item) => sum + item.qty, 0);
+    const totalCargo = state.ship.cargo.reduce(
+      (sum, item) => sum + item.qty,
+      0
+    );
     expect(totalCargo).toBeLessThanOrEqual(state.ship.cargoCapacity);
     // Should only fit 2 of 5
-    const parts = state.ship.cargo.find(item => item.good === 'parts');
+    const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(2);
     expect(outcome.description).toContain('Could only fit 2 of 5');
   });
 
   it('should use singular "unit" when only 1 fits', () => {
     const state = gsm.getState();
-    state.ship.cargo = [{ good: 'grain', qty: 49, buyPrice: 10, buySystemName: 'Sol' }];
+    state.ship.cargo = [
+      { good: 'grain', qty: 49, buyPrice: 10, buySystemName: 'Sol' },
+    ];
 
     const outcome = {
       success: true,
       costs: {},
       rewards: {
-        cargo: [{ good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' }],
+        cargo: [
+          { good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' },
+        ],
       },
       description: 'Salvaged parts.',
     };
 
     applyEncounterOutcome(gsm, outcome);
 
-    const parts = state.ship.cargo.find(item => item.good === 'parts');
+    const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(1);
     expect(outcome.description).toContain('Could only fit 1 of 3 unit.');
   });
 
   it('should salvage nothing when hold is full with full-hold message', () => {
     const state = gsm.getState();
-    state.ship.cargo = [{ good: 'grain', qty: 50, buyPrice: 10, buySystemName: 'Sol' }];
+    state.ship.cargo = [
+      { good: 'grain', qty: 50, buyPrice: 10, buySystemName: 'Sol' },
+    ];
 
     const outcome = {
       success: true,
       costs: {},
       rewards: {
-        cargo: [{ good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' }],
+        cargo: [
+          { good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' },
+        ],
       },
       description: 'Salvaged parts.',
     };
 
     applyEncounterOutcome(gsm, outcome);
 
-    const totalCargo = state.ship.cargo.reduce((sum, item) => sum + item.qty, 0);
+    const totalCargo = state.ship.cargo.reduce(
+      (sum, item) => sum + item.qty,
+      0
+    );
     expect(totalCargo).toBe(50);
-    const parts = state.ship.cargo.find(item => item.good === 'parts');
+    const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts).toBeUndefined();
     expect(outcome.description).toContain('Your hold is full');
   });
 
   it('should salvage full amount when space is sufficient (no extra message)', () => {
     const state = gsm.getState();
-    state.ship.cargo = [{ good: 'grain', qty: 20, buyPrice: 10, buySystemName: 'Sol' }];
+    state.ship.cargo = [
+      { good: 'grain', qty: 20, buyPrice: 10, buySystemName: 'Sol' },
+    ];
 
     const outcome = {
       success: true,
       costs: {},
       rewards: {
-        cargo: [{ good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' }],
+        cargo: [
+          { good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvage' },
+        ],
       },
       description: 'Salvaged parts.',
     };
 
     applyEncounterOutcome(gsm, outcome);
 
-    const parts = state.ship.cargo.find(item => item.good === 'parts');
+    const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(3);
     // No extra message when everything fits
     expect(outcome.description).toBe('Salvaged parts.');

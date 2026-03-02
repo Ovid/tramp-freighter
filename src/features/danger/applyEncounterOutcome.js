@@ -210,7 +210,8 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       });
 
       if (salvageMessages.length > 0) {
-        outcome.description = outcome.description + ' ' + salvageMessages.join(' ');
+        outcome.description =
+          outcome.description + ' ' + salvageMessages.join(' ');
       }
 
       gameStateManager.updateCargo(currentCargo);

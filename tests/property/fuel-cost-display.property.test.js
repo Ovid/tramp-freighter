@@ -37,8 +37,7 @@ describe('Fuel Cost Display Property Tests (#33/61/88)', () => {
           }
 
           const currentSystem = state.player.currentSystem;
-          const connected =
-            navigationSystem.getConnectedSystems(currentSystem);
+          const connected = navigationSystem.getConnectedSystems(currentSystem);
           if (connected.length === 0) return;
           const targetSystem = connected[0];
 
@@ -64,14 +63,13 @@ describe('Fuel Cost Display Property Tests (#33/61/88)', () => {
             }
           );
 
-          const actualCost =
-            navigationSystem.calculateFuelCostWithCondition(
-              distance,
-              state.ship.engine,
-              gsm.applyQuirkModifiers.bind(gsm),
-              state.ship.quirks,
-              capabilities.fuelConsumption
-            );
+          const actualCost = navigationSystem.calculateFuelCostWithCondition(
+            distance,
+            state.ship.engine,
+            gsm.applyQuirkModifiers.bind(gsm),
+            state.ship.quirks,
+            capabilities.fuelConsumption
+          );
 
           expect(validation.fuelCost).toBeCloseTo(actualCost, 5);
         }

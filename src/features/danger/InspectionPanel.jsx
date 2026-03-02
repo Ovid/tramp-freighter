@@ -280,8 +280,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
             <div
               className={`inspection-option ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
               onClick={() =>
-                credits >= INSPECTION_CONFIG.BRIBE.COST &&
-                onChoice('bribe')
+                credits >= INSPECTION_CONFIG.BRIBE.COST && onChoice('bribe')
               }
             >
               <div className="option-header">
@@ -337,10 +336,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
             </div>
 
             {/* Flee Option */}
-            <div
-              className="inspection-option"
-              onClick={() => onChoice('flee')}
-            >
+            <div className="inspection-option" onClick={() => onChoice('flee')}>
               <div className="option-header">
                 <span className="option-name">Flee</span>
                 <span className="option-type">Evasion</span>
@@ -374,7 +370,6 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

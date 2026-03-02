@@ -18,8 +18,8 @@ export function InstructionsModal({ isOpen, onClose }) {
             nobody's going to share those with a stranger. Earn your way in.
           </p>
           <p>
-            Your hold has 20 units of grain — enough to start trading. Check
-            the <strong>Cargo Manifest</strong> to see what you're carrying.
+            Your hold has 20 units of grain — enough to start trading. Check the{' '}
+            <strong>Cargo Manifest</strong> to see what you're carrying.
           </p>
         </section>
 

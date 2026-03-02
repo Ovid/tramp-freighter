@@ -21,8 +21,7 @@ describe('Fuel Cost Display (#33/61/88)', () => {
       state.ship.quirks = ['fuel_sipper'];
 
       const currentSystem = state.player.currentSystem;
-      const connected =
-        navigationSystem.getConnectedSystems(currentSystem);
+      const connected = navigationSystem.getConnectedSystems(currentSystem);
       const targetSystem = connected[0];
 
       const distance = navigationSystem.calculateDistanceBetween(
@@ -58,8 +57,7 @@ describe('Fuel Cost Display (#33/61/88)', () => {
       state.ship.quirks = ['hot_thruster'];
 
       const currentSystem = state.player.currentSystem;
-      const connected =
-        navigationSystem.getConnectedSystems(currentSystem);
+      const connected = navigationSystem.getConnectedSystems(currentSystem);
       const targetSystem = connected[0];
 
       const distance = navigationSystem.calculateDistanceBetween(

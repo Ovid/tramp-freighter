@@ -48,11 +48,14 @@ describe('Debt Escalation (#77)', () => {
     finance.heat = COLE_DEBT_CONFIG.HEAT_TIER_MEDIUM_MAX + 1;
     gsm.debtManager.updateHeat(0);
 
-    state.player.daysElapsed = finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS;
+    state.player.daysElapsed =
+      finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS;
 
     gsm.debtManager.applyInterest();
 
-    const expectedInterest = Math.ceil(initialDebt * COLE_DEBT_CONFIG.INTEREST_RATE_HIGH);
+    const expectedInterest = Math.ceil(
+      initialDebt * COLE_DEBT_CONFIG.INTEREST_RATE_HIGH
+    );
     expect(state.player.debt).toBe(initialDebt + expectedInterest);
   });
 
@@ -60,13 +63,17 @@ describe('Debt Escalation (#77)', () => {
     it('should apply low withholding rate at low heat', () => {
       const finance = gsm.debtManager.getFinance();
       finance.heat = 0;
-      expect(gsm.debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_LOW);
+      expect(gsm.debtManager.getLienRate()).toBe(
+        COLE_DEBT_CONFIG.LIEN_RATE_LOW
+      );
     });
 
     it('should apply medium withholding rate at medium heat', () => {
       const finance = gsm.debtManager.getFinance();
       finance.heat = COLE_DEBT_CONFIG.HEAT_TIER_LOW_MAX + 1;
-      expect(gsm.debtManager.getLienRate()).toBe(COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM);
+      expect(gsm.debtManager.getLienRate()).toBe(
+        COLE_DEBT_CONFIG.LIEN_RATE_MEDIUM
+      );
     });
 
     it('should apply correct withholding to trade revenue at high heat', () => {
@@ -76,7 +83,9 @@ describe('Debt Escalation (#77)', () => {
 
       const totalRevenue = 1000;
       const result = gsm.debtManager.calculateWithholding(totalRevenue);
-      const expectedWithheld = Math.ceil(totalRevenue * COLE_DEBT_CONFIG.LIEN_RATE_HIGH);
+      const expectedWithheld = Math.ceil(
+        totalRevenue * COLE_DEBT_CONFIG.LIEN_RATE_HIGH
+      );
       expect(result.withheld).toBe(expectedWithheld);
       expect(result.playerReceives).toBe(totalRevenue - expectedWithheld);
     });

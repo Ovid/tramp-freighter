@@ -18,21 +18,38 @@ describe('Salvage Cargo Cap Property Tests (#55/56)', () => {
 
           state.ship.cargo =
             existingQty > 0
-              ? [{ good: 'grain', qty: existingQty, buyPrice: 10, buySystemName: 'Sol' }]
+              ? [
+                  {
+                    good: 'grain',
+                    qty: existingQty,
+                    buyPrice: 10,
+                    buySystemName: 'Sol',
+                  },
+                ]
               : [];
 
           const outcome = {
             success: true,
             costs: {},
             rewards: {
-              cargo: [{ good: 'parts', qty: salvageQty, buyPrice: 0, buySystemName: 'Salvage' }],
+              cargo: [
+                {
+                  good: 'parts',
+                  qty: salvageQty,
+                  buyPrice: 0,
+                  buySystemName: 'Salvage',
+                },
+              ],
             },
             description: 'Salvaged parts.',
           };
 
           applyEncounterOutcome(gsm, outcome);
 
-          const totalCargo = state.ship.cargo.reduce((sum, item) => sum + item.qty, 0);
+          const totalCargo = state.ship.cargo.reduce(
+            (sum, item) => sum + item.qty,
+            0
+          );
           expect(totalCargo).toBeLessThanOrEqual(state.ship.cargoCapacity);
         }
       ),
