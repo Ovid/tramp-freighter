@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useGameState } from '../../context/GameContext.jsx';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
 import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
 import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
@@ -21,6 +22,7 @@ import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
  */
 export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Subscribe to relevant game events for inspection context
+  const gameStateManager = useGameState();
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
@@ -30,6 +32,9 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   // Local state for selected inspection option
   const [selectedOption, setSelectedOption] = useState(null);
 
+  // Get danger zone from the single source of truth
+  const dangerZone = gameStateManager.getDangerZone(currentSystem);
+
   // Calculate inspection analysis and restricted goods
   const inspectionAnalysis = useMemo(
     () =>
@@ -38,9 +43,10 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
         cargo,
         hiddenCargo,
         currentSystem,
-        credits
+        credits,
+        dangerZone
       ),
-    [inspection, cargo, hiddenCargo, currentSystem, credits]
+    [inspection, cargo, hiddenCargo, currentSystem, credits, dangerZone]
   );
 
   const handleOptionSelect = (option) => {

@@ -42,28 +42,6 @@ export function isGoodRestrictedInZone(
 }
 
 /**
- * Determine danger zone for a system (simplified version for UI).
- * This should match the logic in DangerManager.getDangerZone().
- *
- * @param {number} systemId - System ID
- * @returns {string} Danger zone classification
- */
-export function getDangerZoneForSystem(systemId) {
-  // Safe systems
-  if ([0, 1, 4].includes(systemId)) {
-    return 'safe';
-  }
-
-  // Contested systems
-  if ([7, 10].includes(systemId)) {
-    return 'contested';
-  }
-
-  // For now, assume other systems are dangerous
-  return 'dangerous';
-}
-
-/**
  * Calculate inspection analysis including restricted goods and discovery chances.
  *
  * @param {Object} inspection - The inspection encounter
@@ -71,6 +49,7 @@ export function getDangerZoneForSystem(systemId) {
  * @param {Array} hiddenCargo - Current hidden cargo
  * @param {number} currentSystem - Current system ID
  * @param {number} credits - Current credits
+ * @param {string} dangerZone - Danger zone from DangerManager.getDangerZone()
  * @returns {Object} Analysis of the inspection situation
  */
 export function calculateInspectionAnalysis(
@@ -78,10 +57,9 @@ export function calculateInspectionAnalysis(
   cargo = [],
   _hiddenCargo = [],
   currentSystem = 0,
-  credits = 0
+  credits = 0,
+  dangerZone = 'contested'
 ) {
-  // Determine danger zone for the current system
-  const dangerZone = getDangerZoneForSystem(currentSystem);
 
   // Find restricted items in regular cargo, passing the full cargo item
   // so illegal mission cargo is detected

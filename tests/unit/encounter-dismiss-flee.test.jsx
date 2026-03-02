@@ -36,6 +36,12 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({}),
 }));
 
+vi.mock('../../src/context/GameContext.jsx', () => ({
+  useGameState: () => ({
+    getDangerZone: () => 'safe',
+  }),
+}));
+
 describe('Encounter Panel Dismiss Triggers Flee', () => {
   let onChoice;
   let onClose;

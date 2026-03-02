@@ -13,6 +13,8 @@ import {
 } from '../../src/features/danger/inspectionUtils.js';
 import { MISSION_CARGO_TYPES } from '@game/constants.js';
 
+// Danger zones are now passed in from DangerManager, not computed internally
+
 describe('isGoodRestrictedInZone', () => {
   describe('zone-based restrictions (existing behavior)', () => {
     it('flags goods restricted in their zone', () => {
@@ -107,7 +109,8 @@ describe('calculateInspectionAnalysis', () => {
       cargo,
       [],
       5, // non-core system
-      1000
+      1000,
+      'contested'
     );
 
     expect(analysis.restrictedItems).toContain('unmarked_crates');
@@ -124,7 +127,8 @@ describe('calculateInspectionAnalysis', () => {
       cargo,
       [],
       5,
-      1000
+      1000,
+      'contested'
     );
 
     expect(analysis.restrictedItems).not.toContain('registered_freight');
@@ -138,13 +142,13 @@ describe('calculateInspectionAnalysis', () => {
     ];
     const inspection = { severity: 'routine' };
 
-    // System 0 is 'safe' zone
     const analysis = calculateInspectionAnalysis(
       inspection,
       cargo,
       [],
       0,
-      1000
+      1000,
+      'safe'
     );
 
     expect(analysis.restrictedItems).toContain('electronics');
