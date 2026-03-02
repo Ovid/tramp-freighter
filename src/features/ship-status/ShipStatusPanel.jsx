@@ -64,6 +64,9 @@ export function ShipStatusPanel({ onClose }) {
           <span className="quirk-name">{quirk.name}</span>
         </div>
         <div className="quirk-description">{quirk.description}</div>
+        {quirk.effectLabel && (
+          <div className="quirk-effect">{quirk.effectLabel}</div>
+        )}
         <div className="quirk-flavor">{quirk.flavor}</div>
       </div>
     );
