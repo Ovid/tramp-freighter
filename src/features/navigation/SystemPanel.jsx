@@ -34,6 +34,8 @@ export function SystemPanel({
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
+  const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
+  const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
   // Jump validation via Bridge Pattern (passes shipCondition for critical damage check)
   const validation = useJumpValidation(currentSystemId, viewingSystemId, fuel);
@@ -75,7 +77,7 @@ export function SystemPanel({
       const isDangerous =
         dangerZone === 'contested' || dangerZone === 'dangerous';
 
-      if (isDangerous) {
+      if (isDangerous && jumpWarningsEnabled) {
         setShowDangerWarning(true);
         return; // Stop here and wait for user decision
       }

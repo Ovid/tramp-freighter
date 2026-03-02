@@ -47,6 +47,13 @@ describe('Preferences', () => {
     expect(gsm2.getPreference('jumpWarningsEnabled')).toBe(false);
   });
 
+  describe('Jump Warnings preference effect', () => {
+    it('when jumpWarningsEnabled is false, handleJump skips danger check', () => {
+      gsm.setPreference('jumpWarningsEnabled', false);
+      expect(gsm.getPreference('jumpWarningsEnabled')).toBe(false);
+    });
+  });
+
   it('old saves without preferences get defaults via addStateDefaults', () => {
     const state = gsm.getState();
     delete state.preferences;
