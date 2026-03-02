@@ -43,7 +43,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
     expect(outcome.description).toContain('Could only fit 2 of 5');
   });
 
-  it('should use singular "unit" when only 1 fits', () => {
+  it('should show partial salvage message when only 1 of multiple fits', () => {
     const state = gsm.getState();
     state.ship.cargo = [
       { good: 'grain', qty: 49, buyPrice: 10, buySystemName: 'Sol' },
