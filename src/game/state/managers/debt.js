@@ -224,6 +224,7 @@ export class DebtManager extends BaseManager {
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      finance.interestRate = 0;
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -268,6 +269,7 @@ export class DebtManager extends BaseManager {
     if (this.getDebt() === 0) {
       finance.heat = 0;
       finance.lienRate = 0;
+      finance.interestRate = 0;
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
