@@ -9,9 +9,7 @@ describe('Camera controls CSS', () => {
   const css = readFileSync(resolve('css/hud.css'), 'utf-8');
 
   it('should use mono font-family on settings action buttons', () => {
-    const actionBtnBlock = css.match(
-      /\.settings-action-btn\s*\{[^}]*\}/s
-    )?.[0];
+    const actionBtnBlock = css.match(/\.settings-action-btn\s*\{[^}]*\}/s)?.[0];
     expect(actionBtnBlock).toBeDefined();
     expect(actionBtnBlock).toMatch(/font-family/);
   });

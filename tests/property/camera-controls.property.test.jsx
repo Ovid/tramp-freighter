@@ -202,9 +202,7 @@ describe('Property: Settings Panel', () => {
     );
 
     // Checkbox should now be unchecked
-    boundaryCheckbox = container.querySelector(
-      'input[aria-label="Boundary"]'
-    );
+    boundaryCheckbox = container.querySelector('input[aria-label="Boundary"]');
     expect(boundaryCheckbox.checked).toBe(false);
   });
 
@@ -278,9 +276,7 @@ describe('Property: Settings Panel', () => {
         }
 
         // Verify handler was called exactly clickCount times
-        expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(
-          clickCount
-        );
+        expect(mockHandlers.onToggleBoundary).toHaveBeenCalledTimes(clickCount);
 
         return true;
       }),

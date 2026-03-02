@@ -60,7 +60,6 @@ export function calculateInspectionAnalysis(
   credits = 0,
   dangerZone = 'contested'
 ) {
-
   // Find restricted items in regular cargo, passing the full cargo item
   // so illegal mission cargo is detected
   const restrictedItems = cargo
