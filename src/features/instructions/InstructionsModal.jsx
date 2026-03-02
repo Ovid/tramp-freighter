@@ -17,6 +17,10 @@ export function InstructionsModal({ isOpen, onClose }) {
             people. There are rumors of routes beyond the known lanes, but
             nobody's going to share those with a stranger. Earn your way in.
           </p>
+          <p>
+            Your hold has 20 units of grain — enough to start trading. Check
+            the <strong>Cargo Manifest</strong> to see what you're carrying.
+          </p>
         </section>
 
         <section className="instructions-section">
