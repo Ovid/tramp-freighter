@@ -23,7 +23,9 @@ describe('Passenger Payment Rebalance', () => {
     });
 
     it('should not have paymentTier on any passenger type', () => {
-      for (const [_typeName, config] of Object.entries(PASSENGER_CONFIG.TYPES)) {
+      for (const [_typeName, config] of Object.entries(
+        PASSENGER_CONFIG.TYPES
+      )) {
         expect(config.paymentTier).toBeUndefined();
       }
     });
