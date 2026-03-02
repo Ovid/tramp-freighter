@@ -172,12 +172,12 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       let currentTotal = currentCargo.reduce((sum, item) => sum + item.qty, 0);
       const salvageMessages = [];
 
-      outcome.rewards.cargo.forEach((rewardItem) => {
+      for (const rewardItem of outcome.rewards.cargo) {
         const availableSpace = cargoCapacity - currentTotal;
 
         if (availableSpace <= 0) {
           salvageMessages.push('Your hold is full — nothing salvaged.');
-          return;
+          break;
         }
 
         const qtyToAdd = Math.min(rewardItem.qty, availableSpace);
@@ -207,7 +207,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         }
 
         currentTotal += qtyToAdd;
-      });
+      }
 
       if (salvageMessages.length > 0) {
         outcome.description =
