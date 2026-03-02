@@ -55,11 +55,14 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.costs.credits) {
-      const newCredits = Math.max(
-        0,
-        state.player.credits - outcome.costs.credits
-      );
-      gameStateManager.updateCredits(newCredits);
+      const fine = outcome.costs.credits;
+      const currentCredits = state.player.credits;
+      const paid = Math.min(currentCredits, fine);
+      const unpaid = fine - paid;
+      gameStateManager.updateCredits(currentCredits - paid);
+      if (unpaid > 0) {
+        gameStateManager.updateDebt(state.player.debt + unpaid);
+      }
     }
 
     if (outcome.costs.cargoLoss === true) {
