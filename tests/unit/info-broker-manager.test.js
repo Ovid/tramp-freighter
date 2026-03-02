@@ -132,6 +132,59 @@ describe('InfoBrokerManager', () => {
 
       expect(typeof rumor).toBe('string');
     });
+
+    it('returns Tanaka hint when player has 5+ systems visited and tanaka_met not set', () => {
+      const state = gsm.getState();
+      state.world.visitedSystems = [0, 1, 4, 5, 7];
+      state.world.narrativeEvents = state.world.narrativeEvents || {};
+      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+      delete state.world.narrativeEvents.flags.tanaka_met;
+
+      const rumors = new Set();
+      for (let day = 0; day < 50; day++) {
+        state.player.daysElapsed = day;
+        rumors.add(gsm.generateRumor());
+      }
+      const hasTanakaRumor = [...rumors].some(
+        (r) => r.includes('Tanaka') || r.includes("Barnard")
+      );
+      expect(hasTanakaRumor).toBe(true);
+    });
+
+    it('does not return Tanaka hint when tanaka_met flag is set', () => {
+      const state = gsm.getState();
+      state.world.visitedSystems = [0, 1, 4, 5, 7];
+      state.world.narrativeEvents = state.world.narrativeEvents || {};
+      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+      state.world.narrativeEvents.flags.tanaka_met = true;
+
+      const rumors = new Set();
+      for (let day = 0; day < 50; day++) {
+        state.player.daysElapsed = day;
+        rumors.add(gsm.generateRumor());
+      }
+      const hasTanakaRumor = [...rumors].some(
+        (r) => r.includes('Tanaka') || r.includes("Barnard")
+      );
+      expect(hasTanakaRumor).toBe(false);
+    });
+
+    it('does not return Tanaka hint when fewer than 5 systems visited', () => {
+      const state = gsm.getState();
+      state.world.visitedSystems = [0, 1];
+      state.world.narrativeEvents = state.world.narrativeEvents || {};
+      state.world.narrativeEvents.flags = state.world.narrativeEvents.flags || {};
+
+      const rumors = new Set();
+      for (let day = 0; day < 50; day++) {
+        state.player.daysElapsed = day;
+        rumors.add(gsm.generateRumor());
+      }
+      const hasTanakaRumor = [...rumors].some(
+        (r) => r.includes('Tanaka') || r.includes("Barnard")
+      );
+      expect(hasTanakaRumor).toBe(false);
+    });
   });
 
   describe('listAvailableIntelligence', () => {
