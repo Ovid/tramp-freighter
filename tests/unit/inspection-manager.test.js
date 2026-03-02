@@ -387,6 +387,44 @@ describe('InspectionManager', () => {
       expect(outcome.costs.credits).toBe(expectedTotal);
     });
 
+    it('marks failed bribe costs as isFine so unpaid portion rolls into debt', () => {
+      const state = gsm.getState();
+
+      // Find a failed bribe scenario
+      let daysElapsed = 0;
+      for (let d = 0; d < 1000; d++) {
+        const rng = computeInspectionRng(d, state.player.currentSystem);
+        if (rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
+          daysElapsed = d;
+          break;
+        }
+      }
+      state.player.daysElapsed = daysElapsed;
+
+      const outcome = gsm.resolveInspection('bribe', state);
+
+      expect(outcome.costs.isFine).toBe(true);
+    });
+
+    it('does not mark successful bribe costs as isFine', () => {
+      const state = gsm.getState();
+
+      // Find a successful bribe scenario
+      let daysElapsed = 0;
+      for (let d = 0; d < 1000; d++) {
+        const rng = computeInspectionRng(d, state.player.currentSystem);
+        if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
+          daysElapsed = d;
+          break;
+        }
+      }
+      state.player.daysElapsed = daysElapsed;
+
+      const outcome = gsm.resolveInspection('bribe', state);
+
+      expect(outcome.costs.isFine).toBeUndefined();
+    });
+
     it('always penalizes authority rep by -10', () => {
       const state = gsm.getState();
 
