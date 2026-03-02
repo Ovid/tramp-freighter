@@ -180,14 +180,17 @@ describe('applyEncounterOutcome', () => {
   });
 
   describe('credit costs and rewards', () => {
-    it('subtracts credit costs clamped to zero', () => {
-      const before = gsm.getState().player.credits;
+    it('subtracts non-fine credit costs clamped to zero without debt', () => {
+      const state = gsm.getState();
+      state.player.credits = 30;
+      state.player.debt = 5000;
 
       applyEncounterOutcome(gsm, {
         costs: { credits: 200 },
       });
 
-      expect(gsm.getState().player.credits).toBe(Math.max(0, before - 200));
+      expect(gsm.getState().player.credits).toBe(0);
+      expect(gsm.getState().player.debt).toBe(5000);
     });
 
     it('rolls unpaid fine remainder into debt when credits insufficient', () => {
@@ -196,7 +199,7 @@ describe('applyEncounterOutcome', () => {
       state.player.debt = 5000;
 
       applyEncounterOutcome(gsm, {
-        costs: { credits: 1000 },
+        costs: { credits: 1000, isFine: true },
       });
 
       expect(gsm.getState().player.credits).toBe(0);
@@ -209,7 +212,7 @@ describe('applyEncounterOutcome', () => {
       state.player.debt = 5000;
 
       applyEncounterOutcome(gsm, {
-        costs: { credits: 500 },
+        costs: { credits: 500, isFine: true },
       });
 
       expect(gsm.getState().player.credits).toBe(1500);

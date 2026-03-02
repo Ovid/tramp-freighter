@@ -128,6 +128,7 @@ export class InspectionManager extends BaseManager {
       success: true,
       costs: {
         credits: totalFine,
+        isFine: totalFine > 0,
       },
       rewards: {
         factionRep: {
