@@ -3,21 +3,21 @@ import { RESTRICTED_GOODS_CONFIG } from '../../src/game/constants.js';
 
 describe('Restricted goods badge logic', () => {
   it('medicine is restricted in contested zones', () => {
-    expect(
-      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.contested
-    ).toContain('medicine');
+    expect(RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.contested).toContain(
+      'medicine'
+    );
   });
 
   it('electronics is restricted in safe zones', () => {
-    expect(
-      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.safe
-    ).toContain('electronics');
+    expect(RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.safe).toContain(
+      'electronics'
+    );
   });
 
   it('tritium is restricted in dangerous zones', () => {
-    expect(
-      RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.dangerous
-    ).toContain('tritium');
+    expect(RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS.dangerous).toContain(
+      'tritium'
+    );
   });
 
   it('has a restricted tooltip text', () => {
