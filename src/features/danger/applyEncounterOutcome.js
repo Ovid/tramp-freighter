@@ -202,7 +202,9 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
             good: rewardItem.good,
             qty: qtyToAdd,
             buyPrice: rewardItem.buyPrice,
-            buySystemName: rewardItem.buySystemName,
+            buySystem: state.player.currentSystem,
+            buySystemName: rewardItem.buySystemName || 'Salvaged',
+            buyDate: state.player.daysElapsed,
           });
         }
 
