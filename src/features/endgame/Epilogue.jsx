@@ -40,7 +40,7 @@ export function Epilogue({ onReturnToTitle }) {
             </div>
             <div className="stat-row">
               <span>Credits earned:</span>
-              <span>{stats.creditsEarned.toLocaleString()}</span>
+              <span>₡{stats.creditsEarned.toLocaleString()}</span>
             </div>
             <div className="stat-row">
               <span>Missions completed:</span>
