@@ -227,7 +227,7 @@ describe('Mission Generator', () => {
         'safe',
         rng
       );
-      // 1-hop safe legal: baseFee(75) * hopMult(1.0) * dangerMult(1.0) = 75
+      // 1-hop safe legal: baseFee(120) * hopMult(1.0) * dangerMult(1.0) = 120
       expect(mission.rewards.credits).toBe(MISSION_CONFIG.CARGO_RUN_BASE_FEE);
     });
 
@@ -255,7 +255,7 @@ describe('Mission Generator', () => {
         rng,
         dangerZoneFn
       );
-      // 1-hop dangerous: 75 * 1.0 * 2.0 = 150
+      // 1-hop dangerous: 120 * 1.0 * 2.0 = 240
       expect(mission.rewards.credits).toBe(
         Math.ceil(
           MISSION_CONFIG.CARGO_RUN_BASE_FEE *
@@ -283,8 +283,8 @@ describe('Mission Generator', () => {
         15
       );
       // 2 completions: penalty = 0.5, mult = 0.5
-      // 75 * 1.0 * 1.0 * 0.5 = 38
-      expect(mission.rewards.credits).toBe(Math.ceil(75 * 1.0 * 1.0 * 0.5));
+      // 120 * 1.0 * 1.0 * 0.5 = 60
+      expect(mission.rewards.credits).toBe(Math.ceil(120 * 1.0 * 1.0 * 0.5));
     });
 
     it('should not reduce reward below saturation floor', () => {
@@ -308,7 +308,7 @@ describe('Mission Generator', () => {
         15
       );
       // 5 completions: penalty = 1.25, clamped to floor 0.25
-      expect(mission.rewards.credits).toBe(Math.ceil(75 * 0.25));
+      expect(mission.rewards.credits).toBe(Math.ceil(120 * 0.25));
     });
 
     it('should ignore completionHistory entries outside saturation window', () => {
@@ -326,7 +326,7 @@ describe('Mission Generator', () => {
         50
       );
       // Entry at day 1, current day 50, window 30 => stale
-      expect(mission.rewards.credits).toBe(75);
+      expect(mission.rewards.credits).toBe(120);
     });
 
     it('should use hop-based deadline', () => {

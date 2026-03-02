@@ -1,5 +1,9 @@
 # TODO
 
+- What happens when you're fined and can't pay? Seems like they took the last
+  of my money (10 credits for a 1000 fine), but that's all.
+- Why is medicine restricted? There should be a justification for this in the
+  lore. Maybe it's a controlled substance that only certain stations can sell?
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Data based on stars and wormholes is static and anything based on that data
