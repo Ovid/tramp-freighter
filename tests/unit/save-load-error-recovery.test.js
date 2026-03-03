@@ -23,7 +23,7 @@ describe('Save/Load Error Recovery', () => {
 
   describe('_forceSave error path', () => {
     it('does not throw when localStorage.setItem fails', () => {
-      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
 
@@ -31,7 +31,7 @@ describe('Save/Load Error Recovery', () => {
     });
 
     it('does nothing when state is null', () => {
-      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+      const setItemSpy = vi.spyOn(localStorage, 'setItem');
       vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(null);
 
       gsm.saveLoadManager._forceSave();
@@ -92,7 +92,7 @@ describe('Save/Load Error Recovery', () => {
     });
 
     it('returns null when recovery itself throws', () => {
-      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
         throw new Error('localStorage read error');
       });
 
