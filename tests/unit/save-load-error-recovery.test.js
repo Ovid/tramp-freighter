@@ -9,14 +9,11 @@ import { createTestGameStateManager } from '../test-utils.js';
 
 describe('Save/Load Error Recovery', () => {
   let gsm;
-  let consoleSpy;
-  let consoleErrorSpy;
-
   beforeEach(() => {
     localStorage.clear();
     gsm = createTestGameStateManager();
-    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

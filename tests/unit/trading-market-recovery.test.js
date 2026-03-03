@@ -229,7 +229,6 @@ describe('TradingManager market recovery and price knowledge', () => {
     });
 
     it('should emit PRICE_KNOWLEDGE_CHANGED event', () => {
-      const state = gsm.getState();
       gsm.recordVisitedPrices();
 
       let emittedData = null;

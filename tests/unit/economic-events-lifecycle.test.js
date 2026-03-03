@@ -248,12 +248,6 @@ describe('EconomicEventsSystem Lifecycle', () => {
     it('skips systems not eligible for the event type', () => {
       // Sol (G2) is NOT a mining system, so mining_strike should not trigger there
       // Use only Sol in starData to isolate the eligibility check
-      const currentDay = 10;
-      const gameState = makeGameState({
-        daysElapsed: currentDay,
-        activeEvents: [],
-      });
-
       // Run many days to give RNG a chance — mining_strike should never appear on Sol
       for (let day = 1; day <= 100; day++) {
         const gs = makeGameState({ daysElapsed: day, activeEvents: [] });
