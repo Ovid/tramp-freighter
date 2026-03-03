@@ -204,6 +204,12 @@ export const SHIP_CONFIG = {
     FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption
     TIME_PENALTY_DAYS: 1, // Additional days added to jump time
   },
+  // Quirk assignment configuration
+  QUIRK_ASSIGNMENT: {
+    PROBABILITY_THRESHOLD: 0.5, // 50% chance of getting 2 vs 3 quirks
+    MIN_COUNT: 2, // Minimum quirks assigned to a new ship
+    MAX_COUNT: 3, // Maximum quirks assigned to a new ship
+  },
   QUIRKS: {
     sticky_seal: {
       name: 'Sticky Cargo Seal',
@@ -1071,6 +1077,7 @@ export const NPC_BENEFITS_CONFIG = {
   EMERGENCY_LOAN_AMOUNT: 500, // Credits for emergency loan
   LOAN_REPAYMENT_DEADLINE: 30, // Days to repay loan
   LOAN_DEFAULT_TIER_PENALTY: 1, // Tiers lost on loan default
+  LOAN_DEFAULT_HOSTILE_MULTIPLIER: 20, // Extra penalty multiplier when already at Hostile tier
   LOAN_ACCEPTANCE_REP_BONUS: 5, // Rep gained for accepting loan
 
   // Cargo storage configuration
@@ -1451,6 +1458,7 @@ export const FAILURE_CONFIG = {
   // Damage amounts for failures
   DAMAGE_AMOUNTS: {
     HULL_BREACH_ADDITIONAL_DAMAGE: 5, // Additional hull damage from breach
+    TOTAL_CARGO_LOSS_PERCENT: 100, // Percentage representing complete cargo loss
   },
 
   // Hull breach - occurs when hull condition is low

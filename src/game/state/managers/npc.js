@@ -586,7 +586,9 @@ export class NPCManager extends BaseManager {
           } else {
             // Already at Hostile tier, apply penalty but don't go below minimum
             newReputation = Math.max(
-              oldRep - NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY * 20,
+              oldRep -
+                NPC_BENEFITS_CONFIG.LOAN_DEFAULT_TIER_PENALTY *
+                  NPC_BENEFITS_CONFIG.LOAN_DEFAULT_HOSTILE_MULTIPLIER,
               REPUTATION_BOUNDS.MIN
             );
           }
