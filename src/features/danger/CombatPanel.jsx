@@ -150,7 +150,7 @@ export function CombatPanel({
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="condition-impact">
-                {hull < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD
+                {hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
                   ? 'Reduced maneuverability'
                   : 'Normal operation'}
               </span>
