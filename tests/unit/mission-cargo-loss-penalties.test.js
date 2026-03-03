@@ -40,14 +40,23 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       {
         id: 'cargo_run_1',
         type: 'delivery',
-        missionCargo: { good: 'registered_freight', quantity: 5, isIllegal: false },
+        missionCargo: {
+          good: 'registered_freight',
+          quantity: 5,
+          isIllegal: false,
+        },
         requirements: { destination: 5, deadline: 10 },
         rewards: { credits: 200 },
         penalties: { failure: { faction: { traders: -2 } } },
       },
     ];
     state.ship.cargo = [
-      { good: 'registered_freight', qty: 5, buyPrice: 0, missionId: 'cargo_run_1' },
+      {
+        good: 'registered_freight',
+        qty: 5,
+        buyPrice: 0,
+        missionId: 'cargo_run_1',
+      },
     ];
 
     const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
@@ -118,7 +127,11 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       {
         id: 'cargo_run_4',
         type: 'delivery',
-        missionCargo: { good: 'registered_freight', quantity: 3, isIllegal: false },
+        missionCargo: {
+          good: 'registered_freight',
+          quantity: 3,
+          isIllegal: false,
+        },
         requirements: { destination: 5, deadline: 10 },
         rewards: { credits: 100 },
         // No penalties property at all
@@ -156,7 +169,11 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       {
         id: 'cargo_run_6',
         type: 'delivery',
-        missionCargo: { good: 'registered_freight', quantity: 3, isIllegal: false },
+        missionCargo: {
+          good: 'registered_freight',
+          quantity: 3,
+          isIllegal: false,
+        },
         requirements: { destination: 5, deadline: 10 },
         rewards: { credits: 200 },
         penalties: { failure: { faction: { traders: -1 } } },
@@ -164,7 +181,12 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
     ];
     // Only cargo_run_6 has its cargo in the hold; cargo_run_5 does not
     state.ship.cargo = [
-      { good: 'registered_freight', qty: 3, buyPrice: 0, missionId: 'cargo_run_6' },
+      {
+        good: 'registered_freight',
+        qty: 3,
+        buyPrice: 0,
+        missionId: 'cargo_run_6',
+      },
     ];
 
     const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');

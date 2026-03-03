@@ -23,7 +23,10 @@ describe('TradingSystem static validators', () => {
 
     it('returns invalid with reason when quantity exceeds cargo space', () => {
       const result = TradingSystem.validatePurchase(10000, 3, 5, 100);
-      expect(result).toEqual({ valid: false, reason: 'Not enough cargo space' });
+      expect(result).toEqual({
+        valid: false,
+        reason: 'Not enough cargo space',
+      });
     });
 
     it('is valid at exact credit boundary (totalCost === credits)', () => {
@@ -64,7 +67,10 @@ describe('TradingSystem static validators', () => {
     it('returns invalid when quantity exceeds stack quantity', () => {
       const cargo = [{ qty: 3, good: 'metals' }];
       const result = TradingSystem.validateSale(cargo, 0, 5);
-      expect(result).toEqual({ valid: false, reason: 'Not enough quantity in stack' });
+      expect(result).toEqual({
+        valid: false,
+        reason: 'Not enough quantity in stack',
+      });
     });
 
     it('is valid at exact quantity boundary (quantity === stack.qty)', () => {
@@ -76,7 +82,10 @@ describe('TradingSystem static validators', () => {
 
   describe('calculateCargoValue', () => {
     it('returns qty * buyPrice for a valid entry', () => {
-      const result = TradingSystem.calculateCargoValue({ qty: 5, buyPrice: 200 });
+      const result = TradingSystem.calculateCargoValue({
+        qty: 5,
+        buyPrice: 200,
+      });
       expect(result).toBe(1000);
     });
 
@@ -105,7 +114,10 @@ describe('TradingSystem static validators', () => {
     });
 
     it('handles zero qty correctly', () => {
-      const result = TradingSystem.calculateCargoValue({ qty: 0, buyPrice: 200 });
+      const result = TradingSystem.calculateCargoValue({
+        qty: 0,
+        buyPrice: 200,
+      });
       expect(result).toBe(0);
     });
 

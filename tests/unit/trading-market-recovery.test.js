@@ -97,7 +97,8 @@ describe('TradingManager market recovery and price knowledge', () => {
       const days = 3;
       gsm.applyMarketRecovery(days);
 
-      const expected = 100 * Math.pow(ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR, days);
+      const expected =
+        100 * Math.pow(ECONOMY_CONFIG.DAILY_RECOVERY_FACTOR, days);
       expect(state.world.marketConditions[systemId].tritium).toBeCloseTo(
         expected,
         10

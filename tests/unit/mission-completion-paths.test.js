@@ -172,7 +172,9 @@ describe('Mission Completion Paths — fetch and intel types', () => {
       const result = gsm.completeMission('intel-1');
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain('Not all target systems have been visited');
+      expect(result.reason).toContain(
+        'Not all target systems have been visited'
+      );
     });
 
     it('succeeds when giverSystem is undefined (no location check)', () => {

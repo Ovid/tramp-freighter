@@ -131,10 +131,7 @@ describe('Restricted goods trading', () => {
 
       it('returns true for parts at Alpha Centauri', () => {
         expect(
-          gsm.tradingManager.isGoodRestricted(
-            'parts',
-            ALPHA_CENTAURI_SYSTEM_ID
-          )
+          gsm.tradingManager.isGoodRestricted('parts', ALPHA_CENTAURI_SYSTEM_ID)
         ).toBe(true);
       });
 

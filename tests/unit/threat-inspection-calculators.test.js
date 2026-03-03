@@ -44,9 +44,7 @@ describe('determineThreatLevel', () => {
 
   it('returns "strong" when cargo value exceeds CARGO_VALUE_STRONG but not DANGEROUS', () => {
     const state = makeGameState({
-      cargo: [
-        { qty: 1, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_STRONG + 1 },
-      ],
+      cargo: [{ qty: 1, buyPrice: THREAT_LEVEL_CONFIG.CARGO_VALUE_STRONG + 1 }],
     });
     expect(determineThreatLevel(state)).toBe('strong');
   });
