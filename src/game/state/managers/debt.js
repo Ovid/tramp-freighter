@@ -225,6 +225,7 @@ export class DebtManager extends BaseManager {
       finance.heat = 0;
       finance.lienRate = 0;
       finance.interestRate = 0;
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -270,6 +271,7 @@ export class DebtManager extends BaseManager {
       finance.heat = 0;
       finance.lienRate = 0;
       finance.interestRate = 0;
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 

@@ -303,6 +303,23 @@ describe('Cole Debt System', () => {
         debtManager.makePayment(1000);
         expect(gsm.getNPCState('cole_sol').rep).toBe(-16);
       });
+
+      it('gives Cole a significant rep bonus when debt is fully cleared', () => {
+        gsm.state.player.credits = 15000;
+        gsm.state.player.debt = 500;
+
+        const repBefore = gsm.getNPCState('cole_sol').rep;
+
+        debtManager.makePayment(500);
+
+        expect(gsm.state.player.debt).toBe(0);
+
+        const repAfter = gsm.getNPCState('cole_sol').rep;
+        // Debt-cleared bonus should push Cole well past COLD (-10) into NEUTRAL or higher
+        expect(repAfter).toBeGreaterThanOrEqual(-9);
+        // Should be a meaningful jump, not just the per-payment +1
+        expect(repAfter - repBefore).toBeGreaterThan(5);
+      });
     });
 
     describe('calculateWithholding', () => {
@@ -812,7 +829,7 @@ describe('Cole Debt System', () => {
       debtManager = new DebtManager(gsm);
     });
 
-    it('paying off 10K in voluntary payments moves Cole from COLD to NEUTRAL', () => {
+    it('paying off 10K in voluntary payments moves Cole from COLD to NEUTRAL or better', () => {
       gsm.state.player.credits = 20000;
       gsm.state.player.debt = 10000;
 
@@ -825,8 +842,9 @@ describe('Cole Debt System', () => {
 
       const coleRep = gsm.getNPCState('cole_sol').rep;
       // Each ₡1000 payment → floor(1000/500) = +2 rep → 10 * 2 = +20
-      // -20 + 20 = 0 (NEUTRAL)
-      expect(coleRep).toBe(0);
+      // Final payment clears debt → +15 bonus (REP_DEBT_CLEARED_BONUS)
+      // -20 + 20 + 15 = 15 (WARM)
+      expect(coleRep).toBe(15);
     });
 
     it('borrow-and-repay cycle builds rep over time', () => {
@@ -837,11 +855,11 @@ describe('Cole Debt System', () => {
 
       // Borrow 500 → +1 rep
       debtManager.borrow(500);
-      // Repay 500 → +1 rep (floor(500/500))
+      // Repay 500 → +1 rep (floor(500/500)) + 15 (debt cleared bonus)
       debtManager.makePayment(500);
 
-      // +1 (borrow) + 1 (payment) = +2
-      expect(gsm.getNPCState('cole_sol').rep).toBe(2);
+      // +1 (borrow) + 1 (payment) + 15 (debt cleared) = +17
+      expect(gsm.getNPCState('cole_sol').rep).toBe(17);
     });
   });
 });
