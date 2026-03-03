@@ -205,12 +205,19 @@ export class MissionManager extends BaseManager {
       });
     }
 
+    let grossCredits = 0;
     if (mission.type === 'passenger') {
-      const payment = this.calculatePassengerPayment(mission);
-      state.player.credits += payment;
-      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
+      grossCredits = this.calculatePassengerPayment(mission);
     } else if (mission.rewards.credits) {
-      state.player.credits += mission.rewards.credits;
+      grossCredits = mission.rewards.credits;
+    }
+
+    let withheld = 0;
+    if (grossCredits > 0) {
+      const result = this.gameStateManager.applyTradeWithholding(grossCredits);
+      withheld = result.withheld;
+      const playerReceives = grossCredits - withheld;
+      state.player.credits += playerReceives;
       this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
     }
 
@@ -256,7 +263,7 @@ export class MissionManager extends BaseManager {
     this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     this.gameStateManager.markDirty();
 
-    return { success: true, rewards: mission.rewards };
+    return { success: true, rewards: mission.rewards, withheld };
   }
 
   updatePassengerSatisfaction(missionId, event) {

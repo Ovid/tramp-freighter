@@ -44,10 +44,9 @@ describe('Mission Flow Integration', () => {
     const completeResult = manager.completeMission(activeMission.id);
     expect(completeResult.success).toBe(true);
 
-    // 5. Verify rewards applied
-    expect(state.player.credits).toBe(
-      creditsBefore + activeMission.rewards.credits
-    );
+    // 5. Verify rewards applied (minus Cole's withholding)
+    const net = activeMission.rewards.credits - completeResult.withheld;
+    expect(state.player.credits).toBe(creditsBefore + net);
     expect(manager.getActiveMissions()).toHaveLength(0);
     expect(state.missions.completed).toContain(activeMission.id);
   });

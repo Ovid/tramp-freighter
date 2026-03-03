@@ -44,8 +44,9 @@ describe('Mission Completion', () => {
       expect(manager.getState().missions.completed).toContain('test_delivery');
     });
 
-    it('should award credits on completion', () => {
-      expect(manager.getState().player.credits).toBe(creditsBefore + 500);
+    it('should award credits on completion minus withholding', () => {
+      // 5% lien at low heat: ceil(500 * 0.05) = 25 withheld
+      expect(manager.getState().player.credits).toBe(creditsBefore + 475);
     });
   });
 
@@ -211,5 +212,63 @@ describe('Mission Completion', () => {
   it('should return not found for unknown mission id', () => {
     const result = manager.completeMission('nonexistent');
     expect(result.success).toBe(false);
+  });
+
+  describe('Cole withholding on mission rewards', () => {
+    it('should apply withholding to delivery mission credit rewards', () => {
+      const mission = {
+        id: 'test_withholding',
+        type: 'delivery',
+        title: 'Test Withholding',
+        requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+        rewards: { credits: 500 },
+        penalties: { failure: {} },
+      };
+      manager.acceptMission(mission);
+      const debtBefore = manager.getState().player.debt;
+      const creditsBefore = manager.getState().player.credits;
+      const result = manager.completeMission('test_withholding');
+
+      // 5% lien at low heat: ceil(500 * 0.05) = 25
+      expect(result.withheld).toBe(25);
+      expect(manager.getState().player.credits).toBe(creditsBefore + 475);
+      expect(manager.getState().player.debt).toBe(debtBefore - 25);
+    });
+
+    it('should not withhold when debt is zero', () => {
+      manager.getState().player.debt = 0;
+      const mission = {
+        id: 'test_no_withholding',
+        type: 'delivery',
+        title: 'No Debt',
+        requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+        rewards: { credits: 500 },
+        penalties: { failure: {} },
+      };
+      manager.acceptMission(mission);
+      const creditsBefore = manager.getState().player.credits;
+      const result = manager.completeMission('test_no_withholding');
+
+      expect(result.withheld).toBe(0);
+      expect(manager.getState().player.credits).toBe(creditsBefore + 500);
+    });
+
+    it('should apply withholding to passenger payment', () => {
+      const mission = {
+        id: 'test_passenger_wh',
+        type: 'passenger',
+        title: 'Passenger Withholding',
+        requirements: { destination: 0, deadline: 10 },
+        passenger: { type: 'business', satisfaction: 80 },
+        rewards: { credits: 800 },
+        penalties: { failure: {} },
+      };
+      manager.acceptMission(mission);
+      const debtBefore = manager.getState().player.debt;
+      const result = manager.completeMission('test_passenger_wh');
+
+      expect(result.withheld).toBeGreaterThan(0);
+      expect(manager.getState().player.debt).toBeLessThan(debtBefore);
+    });
   });
 });

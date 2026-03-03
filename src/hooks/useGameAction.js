@@ -280,6 +280,8 @@ export function useGameAction() {
         gameStateManager.updatePassengerSatisfaction(missionId, event),
       dismissMissionFailureNotice: (missionId) =>
         gameStateManager.dismissMissionFailureNotice(missionId),
+      calculateTradeWithholding: (amount) =>
+        gameStateManager.calculateTradeWithholding(amount),
     }),
     [gameStateManager]
   );

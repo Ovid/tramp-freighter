@@ -16,10 +16,16 @@ const mockGetCompletableMissions = vi.fn(() => [
   },
 ]);
 
+const mockCalculateTradeWithholding = vi.fn((amount) => ({
+  withheld: 0,
+  playerReceives: amount,
+}));
+
 vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({
     completeMission: mockCompleteMission,
     getCompletableMissions: mockGetCompletableMissions,
+    calculateTradeWithholding: mockCalculateTradeWithholding,
   }),
 }));
 
