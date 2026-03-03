@@ -57,7 +57,7 @@ Zone restrictions already exist in `RESTRICTED_GOODS_CONFIG.ZONE_RESTRICTIONS`:
 Changes:
 - Trade panel shows a yellow "RESTRICTED" badge on goods restricted in the
   current zone's security level
-- Tooltip text: "Regulated in [zone] zones. Risk of fines and confiscation
+- Tooltip text: "Regulated in this zone. Risk of fines and confiscation
   during customs inspections."
 - Buying is still allowed -- this is an informed risk/reward choice, not a block
 - Badge only appears for goods restricted in the zone the player is currently in
