@@ -98,9 +98,7 @@ describe('TradingManager coverage', () => {
     });
 
     it('returns false for grain (unrestricted everywhere)', () => {
-      expect(gsm.tradingManager.isGoodRestrictedAnywhere('grain')).toBe(
-        false
-      );
+      expect(gsm.tradingManager.isGoodRestrictedAnywhere('grain')).toBe(false);
     });
   });
 
