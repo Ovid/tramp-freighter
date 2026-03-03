@@ -313,8 +313,10 @@ export function PirateEncounterPanel({
               <div className="option-consequences">
                 {hasTradeCargo ? (
                   <div className="consequence guaranteed">
-                    Guaranteed: Pay {encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}% of cargo,
-                    safe passage
+                    Guaranteed: Pay{' '}
+                    {encounter.demandPercent ??
+                      PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}
+                    % of cargo, safe passage
                   </div>
                 ) : (
                   <>
