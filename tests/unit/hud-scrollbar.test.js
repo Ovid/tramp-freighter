@@ -9,18 +9,19 @@ import { resolve } from 'path';
  * the viewport. The panel must constrain its height and show a scrollbar.
  */
 describe('HUD scrollbar', () => {
-  const css = readFileSync(resolve('css/hud.css'), 'utf-8');
+  const hudCss = readFileSync(resolve('css/hud.css'), 'utf-8');
+  const baseCss = readFileSync(resolve('css/base.css'), 'utf-8');
 
   it('should constrain #game-hud height to the viewport', () => {
-    expect(css).toMatch(/#game-hud\s*\{[^}]*max-height/);
+    expect(hudCss).toMatch(/#game-hud\s*\{[^}]*max-height/);
   });
 
   it('should enable vertical scrolling on #game-hud', () => {
-    expect(css).toMatch(/#game-hud\s*\{[^}]*overflow-y:\s*auto/);
+    expect(hudCss).toMatch(/#game-hud\s*\{[^}]*overflow-y:\s*auto/);
   });
 
-  it('should style the scrollbar to match the game theme', () => {
-    expect(css).toMatch(/#game-hud::-webkit-scrollbar\b/);
-    expect(css).toMatch(/#game-hud::-webkit-scrollbar-thumb\b/);
+  it('should style scrollbars globally to match the game theme', () => {
+    expect(baseCss).toMatch(/::-webkit-scrollbar\s*\{/);
+    expect(baseCss).toMatch(/::-webkit-scrollbar-thumb\s*\{/);
   });
 });
