@@ -127,7 +127,7 @@ Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@
 - Never create objects in hot loops (animation frames, frequent events)
 
 ### Accessibility (a11y)
-Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls.
+Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls. Accessibility suggestions from code review are welcome and should be applied when low-effort.
 
 ### Git Commits
 - Commit messages must be plain text strings passed directly to `git commit -m`. Never use shell interpolation (`$(...)`) heredocs (`<<EOF`), or command substitution in commit messages.

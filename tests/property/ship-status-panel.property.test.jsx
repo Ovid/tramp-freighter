@@ -6,6 +6,7 @@ import { GameStateManager } from '../../src/game/state/game-state-manager.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
+import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
@@ -244,7 +245,9 @@ describe('ShipStatusPanel Property Tests', () => {
   it('should update ship name when shipNameChanged event fires', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.string({ minLength: 3, maxLength: 20 }),
+        fc
+          .string({ minLength: 3, maxLength: 20 })
+          .filter((s) => sanitizeShipName(s) !== SHIP_CONFIG.DEFAULT_NAME),
         async (newName) => {
           cleanup();
 

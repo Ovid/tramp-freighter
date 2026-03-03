@@ -573,8 +573,8 @@ export const MISSION_CONFIG = {
   BOARD_REFRESH_DAYS: 1,
   DEADLINE_BUFFER_DAYS: 3,
   REWARD_MARKUP: 0.3,
-  CARGO_RUN_BASE_FEE: 75,
-  CARGO_RUN_ILLEGAL_BASE_FEE: 150,
+  CARGO_RUN_BASE_FEE: 120,
+  CARGO_RUN_ILLEGAL_BASE_FEE: 225,
   CARGO_RUN_LEGAL_QUANTITY: { MIN: 5, MAX: 15 },
   CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
   CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
@@ -1613,6 +1613,9 @@ export const RESTRICTED_GOODS_CONFIG = {
     contested: ['medicine'], // Medical supplies restricted in contested zones (hoarding prevention)
     dangerous: ['tritium'], // Fuel restricted in dangerous zones (pirate supply concerns)
   },
+
+  RESTRICTED_TOOLTIP:
+    'Regulated in this zone. Risk of fines and confiscation during customs inspections.',
 
   // Core systems (Sol, Alpha Centauri) have additional restrictions
   CORE_SYSTEM_RESTRICTED: ['parts'], // Manufactured parts restricted to protect local industry

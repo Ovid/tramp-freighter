@@ -128,6 +128,7 @@ export class InspectionManager extends BaseManager {
       success: true,
       costs: {
         credits: totalFine,
+        isFine: totalFine > 0,
       },
       rewards: {
         factionRep: {
@@ -176,11 +177,14 @@ export class InspectionManager extends BaseManager {
         'Bribery attempt failed. Inspector imposed additional penalties.';
     }
 
+    const costs = { credits: totalCost };
+    if (!success) {
+      costs.isFine = true;
+    }
+
     return {
       success,
-      costs: {
-        credits: totalCost,
-      },
+      costs,
       rewards: {
         factionRep: {
           authorities: INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY,

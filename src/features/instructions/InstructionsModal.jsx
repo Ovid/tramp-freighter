@@ -18,7 +18,10 @@ export function InstructionsModal({ isOpen, onClose }) {
             nobody's going to share those with a stranger. Earn your way in.
           </p>
           <p>
-            Your hold has 20 units of grain — enough to start trading. Check the{' '}
+            Your hold has 20 units of grain — enough to start trading, but raw
+            commodities like grain and ore have thin margins. The real money is
+            in manufactured goods: <strong>electronics</strong>,{' '}
+            <strong>parts</strong>, <strong>medicine</strong>. Check the{' '}
             <strong>Cargo Manifest</strong> to see what you're carrying.
           </p>
         </section>

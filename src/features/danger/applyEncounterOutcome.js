@@ -55,11 +55,22 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.costs.credits) {
-      const newCredits = Math.max(
-        0,
-        state.player.credits - outcome.costs.credits
-      );
-      gameStateManager.updateCredits(newCredits);
+      const amount = outcome.costs.credits;
+      const currentCredits = state.player.credits;
+
+      if (outcome.costs.isFine) {
+        // Fines: pay what you can, roll remainder into Cole's debt
+        const paid = Math.min(currentCredits, amount);
+        const unpaid = amount - paid;
+        gameStateManager.updateCredits(currentCredits - paid);
+        if (unpaid > 0) {
+          gameStateManager.updateDebt(state.player.debt + unpaid);
+        }
+      } else {
+        // Voluntary costs: deduct up to zero, no debt
+        const newCredits = Math.max(0, currentCredits - amount);
+        gameStateManager.updateCredits(newCredits);
+      }
     }
 
     if (outcome.costs.cargoLoss === true) {
