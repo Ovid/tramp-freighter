@@ -25,7 +25,8 @@ export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
 
   // Cargo loss tracking
   if (costs.cargoLoss === true) {
-    resourceChanges.cargo = -FAILURE_CONFIG.DAMAGE_AMOUNTS.TOTAL_CARGO_LOSS_PERCENT;
+    resourceChanges.cargo =
+      -FAILURE_CONFIG.DAMAGE_AMOUNTS.TOTAL_CARGO_LOSS_PERCENT;
   } else if (costs.cargoPercent) {
     resourceChanges.cargo = -costs.cargoPercent;
   }

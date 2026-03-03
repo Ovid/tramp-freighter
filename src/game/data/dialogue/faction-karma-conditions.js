@@ -66,7 +66,11 @@ export function hasMaxKarma(maxKarma, context) {
  * @returns {boolean} True if player has high authority reputation (>=50)
  */
 export function isTrustedByAuthorities(context) {
-  return hasFactionRep('authorities', FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH, context);
+  return hasFactionRep(
+    'authorities',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -76,7 +80,11 @@ export function isTrustedByAuthorities(context) {
  * @returns {boolean} True if player has high outlaw reputation (>=50)
  */
 export function isKnownToOutlaws(context) {
-  return hasFactionRep('outlaws', FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH, context);
+  return hasFactionRep(
+    'outlaws',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -86,7 +94,11 @@ export function isKnownToOutlaws(context) {
  * @returns {boolean} True if player has high civilian reputation (>=50)
  */
 export function isFriendToCivilians(context) {
-  return hasFactionRep('civilians', FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH, context);
+  return hasFactionRep(
+    'civilians',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -131,7 +143,10 @@ export function isWantedByAuthorities(context) {
 export function hasMixedReputation(highFaction, lowFaction, context) {
   const highRep = context.factionReps[highFaction] || 0;
   const lowRep = context.factionReps[lowFaction] || 0;
-  return highRep >= FACTION_CONFIG.REPUTATION_THRESHOLDS.MODERATE && lowRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.LOW;
+  return (
+    highRep >= FACTION_CONFIG.REPUTATION_THRESHOLDS.MODERATE &&
+    lowRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.LOW
+  );
 }
 
 /**

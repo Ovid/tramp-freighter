@@ -1,10 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
-import {
-  EVENT_NAMES,
-  PIRATE_CREDIT_DEMAND_CONFIG,
-} from '../game/constants.js';
+import { EVENT_NAMES, PIRATE_CREDIT_DEMAND_CONFIG } from '../game/constants.js';
 import { SeededRandom } from '../game/utils/seeded-random.js';
 import {
   determineThreatLevel,
