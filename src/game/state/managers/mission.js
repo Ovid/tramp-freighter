@@ -534,7 +534,9 @@ export class MissionManager extends BaseManager {
           );
         }
         if (mission.type === 'passenger') {
-          return mission.requirements.destination === state.player.currentSystem;
+          return (
+            mission.requirements.destination === state.player.currentSystem
+          );
         }
         return false;
       })

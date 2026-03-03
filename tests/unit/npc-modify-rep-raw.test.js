@@ -38,8 +38,7 @@ describe('NPCManager.modifyRepRaw', () => {
   });
 
   it('increments interactions count', () => {
-    const startInteractions =
-      manager.getNPCState('chen_barnards').interactions;
+    const startInteractions = manager.getNPCState('chen_barnards').interactions;
     manager.modifyRepRaw('chen_barnards', 5, 'test');
     expect(manager.getNPCState('chen_barnards').interactions).toBe(
       startInteractions + 1
@@ -54,10 +53,7 @@ describe('NPCManager.modifyRepRaw', () => {
   });
 
   it('triggers achievement check', () => {
-    const spy = vi.spyOn(
-      manager.achievementsManager,
-      'checkAchievements'
-    );
+    const spy = vi.spyOn(manager.achievementsManager, 'checkAchievements');
     manager.modifyRepRaw('chen_barnards', 5, 'test');
     expect(spy).toHaveBeenCalled();
   });
@@ -79,9 +75,9 @@ describe('NPCManager.modifyRepRaw', () => {
   });
 
   it('throws for unknown NPC ID', () => {
-    expect(() =>
-      manager.modifyRepRaw('nonexistent_npc', 10, 'test')
-    ).toThrow('Unknown NPC ID');
+    expect(() => manager.modifyRepRaw('nonexistent_npc', 10, 'test')).toThrow(
+      'Unknown NPC ID'
+    );
   });
 
   it('marks dirty via GameStateManager delegation', () => {
@@ -107,8 +103,7 @@ describe('modifyRep delegates to modifyRepRaw', () => {
   it('modifyRep applies trust modifier and updates interaction tracking', () => {
     // chen_barnards trust is 0.3, so 10 * 0.3 = 3
     const startRep = manager.getNPCState('chen_barnards').rep;
-    const startInteractions =
-      manager.getNPCState('chen_barnards').interactions;
+    const startInteractions = manager.getNPCState('chen_barnards').interactions;
     manager.modifyRep('chen_barnards', 10, 'test');
     expect(manager.getNPCState('chen_barnards').rep).toBe(startRep + 3);
     expect(manager.getNPCState('chen_barnards').interactions).toBe(

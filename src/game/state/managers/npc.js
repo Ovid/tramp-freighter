@@ -138,10 +138,7 @@ export class NPCManager extends BaseManager {
     const npcState = this.getNPCState(npcId);
 
     const oldRep = npcState.rep;
-    const newRep = Math.max(
-      -100,
-      Math.min(100, Math.round(oldRep + amount))
-    );
+    const newRep = Math.max(-100, Math.min(100, Math.round(oldRep + amount)));
 
     if (oldRep + amount < -100 || oldRep + amount > 100) {
       this.warn(
