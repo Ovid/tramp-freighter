@@ -8,7 +8,11 @@
  * @module dialogue/dr-sarah-kim
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 
 /**
  * Dr. Sarah Kim Dialogue Tree - Station Administrator at Tau Ceti
@@ -63,7 +67,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
           if (daysRemaining <= 0) {
             baseText +=
               '\n\n*Per Financial Regulation 12-A, your loan of ₡500 is overdue. Immediate repayment is required.*';
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Financial reminder: Your loan of ₡500 is due in ${daysRemaining} days per standard terms.*`;
           } else {
             baseText += `\n\n*Outstanding financial obligation: ₡500, ${daysRemaining} days remaining per agreement.*`;

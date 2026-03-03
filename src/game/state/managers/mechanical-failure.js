@@ -228,7 +228,7 @@ export class MechanicalFailureManager extends BaseManager {
     return {
       success: false,
       costs: {
-        lifeSupport: 5,
+        lifeSupport: FAILURE_CONFIG.LIFE_SUPPORT.EMERGENCY_COST,
       },
       rewards: {},
       description:

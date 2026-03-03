@@ -8,7 +8,11 @@
  * @module dialogue/station-master-kowalski
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 
 /**
  * Station Master Kowalski Dialogue Tree - Station Master at Alpha Centauri
@@ -58,7 +62,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
 
           if (daysRemaining <= 0) {
             baseText += `\n\n*Your loan of ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits is overdue, captain. Station policy requires immediate repayment.*`;
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Reminder: Your loan of ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits is due in ${daysRemaining} days. Station policy - no extensions.*`;
           } else {
             baseText += `\n\n*Outstanding loan: ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, ${daysRemaining} days remaining per station policy.*`;

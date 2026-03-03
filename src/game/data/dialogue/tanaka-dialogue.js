@@ -76,10 +76,10 @@ export const YUKI_TANAKA_DIALOGUE = {
       if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return '"Your ship interests me. The Tanaka Mark III drive is one of my better designs." She studies you. "Perhaps we can help each other."';
       }
-      if (rep >= 7) {
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_HIGH) {
         return '"Captain." She looks up from her work. "You keep bringing supplies. You ask nothing in return." A pause. "I may have a use for that reliability."';
       }
-      if (rep >= 4) {
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_MID) {
         return '"You again." She doesn\'t look up, but she doesn\'t turn away either. "Your deliveries have been... adequate."';
       }
       return '"Tanaka. Engineer." She extends a hand, then withdraws it. "I have work to do. Unless you have business?"';
@@ -565,12 +565,12 @@ export const YUKI_TANAKA_DIALOGUE = {
   research_supply: {
     text: (rep) => {
       let lines;
-      if (rep >= 7) {
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_HIGH) {
         lines = [
           '"Every delivery gets me closer. I won\'t forget that."',
           '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
         ];
-      } else if (rep >= 4) {
+      } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MID) {
         lines = [
           "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
           '"This saves me weeks of requisition paperwork. Appreciated."',

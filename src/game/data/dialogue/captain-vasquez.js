@@ -9,6 +9,7 @@ import {
   NPC_BENEFITS_CONFIG,
   ENDGAME_CONFIG,
   TANAKA_SUPPLY_CONFIG,
+  COLE_DEBT_CONFIG,
 } from '../../constants.js';
 import {
   hasGoodKarma,
@@ -98,7 +99,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           if (daysRemaining <= 0) {
             baseText +=
               '\n\n*Captain, your loan of ₡500 is overdue. I trust this is just an oversight?*';
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Just a friendly reminder - your loan of ₡500 is due in ${daysRemaining} days.*`;
           } else {
             baseText += `\n\n*By the way, you still owe me ₡500 - ${daysRemaining} days left to repay.*`;

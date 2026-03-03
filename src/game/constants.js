@@ -73,6 +73,10 @@ export const INTELLIGENCE_CONFIG = {
   },
   RECENT_THRESHOLD: 30, // Days before price knowledge is considered stale
   MAX_AGE: 100, // Days before purchased intelligence is automatically deleted
+  STALENESS_THRESHOLDS: {
+    RECENT: 10, // Days old before staleness indicator appears
+    STALE: 30, // Days old before data is considered very stale
+  },
   RELIABILITY: {
     MANIPULATION_CHANCE: 0.1, // Probability that a commodity price will be manipulated
     MIN_MANIPULATION_MULTIPLIER: 0.7, // Lower multiplier = appears cheaper to buy
@@ -127,6 +131,16 @@ export const NAVIGATION_CONFIG = {
   // Set to 1.0 to allow refueling in 1% increments even when current fuel
   // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
   FUEL_CAPACITY_EPSILON: 1.0,
+
+  // Wormhole fuel cost formula: BASE + (distance * DISTANCE_MULTIPLIER)
+  WORMHOLE_FUEL_BASE_COST: 10,
+  WORMHOLE_FUEL_DISTANCE_MULTIPLIER: 2,
+
+  // Fuel remaining thresholds for wormhole color-coding warnings
+  FUEL_WARNING_RANGE: {
+    LOW: 10, // Fuel remaining below this = warning
+    HIGH: 20, // Fuel remaining above this = safe
+  },
 };
 
 /**
@@ -453,6 +467,9 @@ export const COLE_DEBT_CONFIG = {
   HEAT_TIER_LOW_MAX: 20,
   HEAT_TIER_MEDIUM_MAX: 45,
   HEAT_TIER_HIGH_MAX: 70,
+
+  // NPC loan reminder threshold
+  LOAN_REMINDER_DAYS: 5, // Days remaining to trigger urgent loan reminder
 
   // Heat changes
   HEAT_BORROW_BASE: 8,
@@ -913,6 +930,8 @@ export const REPUTATION_BOUNDS = {
   COLD_MIN: -49,
   COLD_MAX: -10,
   NEUTRAL_MIN: -9,
+  NEUTRAL_MID: 4,
+  NEUTRAL_HIGH: 7,
   NEUTRAL_MAX: 9,
   WARM_MIN: 10,
   WARM_MAX: 29,
@@ -1248,6 +1267,9 @@ export const COMBAT_CONFIG = {
     FAILURE_HULL_DAMAGE: 25, // Uses COSTS_AND_DAMAGE.DISTRESS_FAILURE_HULL_DAMAGE
   },
 
+  // Engine condition threshold for combat penalties (different from SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD which is for fuel/time)
+  ENGINE_PENALTY_THRESHOLD: 50,
+
   // Quirk and upgrade modifier values
   QUIRK_UPGRADE_BONUSES: {
     HOT_THRUSTER_EVASIVE_BONUS: 0.1, // +10% evasive success for hot_thruster quirk
@@ -1463,6 +1485,7 @@ export const FAILURE_CONFIG = {
   LIFE_SUPPORT: {
     CONDITION_THRESHOLD: 30, // Uses CONDITION_THRESHOLDS.LIFE_SUPPORT_FAILURE_THRESHOLD
     CHANCE: 0.05, // Uses FAILURE_CHANCES.LIFE_SUPPORT_FAILURE_CHANCE
+    EMERGENCY_COST: 5, // Life support condition lost during emergency
   },
 };
 
@@ -1540,6 +1563,22 @@ export const KARMA_CONFIG = {
   // At karma 100: +5% success rate
   // At karma -100: -5% success rate
   SUCCESS_RATE_SCALE: 0.0005, // Uses SCALING_FACTORS.SUCCESS_RATE_SCALE
+
+  // Karma thresholds for dialogue conditions (faction-karma-conditions.js)
+  THRESHOLDS: {
+    VERY_GOOD: 50,
+    GOOD: 25,
+    BAD: -25,
+    VERY_BAD: -50,
+  },
+
+  // Karma thresholds for UI display (different from dialogue thresholds)
+  DISPLAY_THRESHOLDS: {
+    SAINT: 50,
+    GOOD: 20,
+    BAD: -20,
+    VILLAIN: -50,
+  },
 };
 
 /**
@@ -1557,6 +1596,16 @@ export const FACTION_CONFIG = {
 
   // List of all factions in the game
   FACTIONS: ['authorities', 'traders', 'outlaws', 'civilians'],
+
+  // Reputation thresholds for dialogue conditions
+  REPUTATION_THRESHOLDS: {
+    VERY_HIGH: 75,
+    HIGH: 50,
+    MODERATE: 25,
+    LOW: -25,
+    VERY_LOW: -50,
+    EXTREME_LOW: -75,
+  },
 };
 
 /**
@@ -1569,6 +1618,7 @@ export const FACTION_CONFIG = {
 export const PIRATE_CREDIT_DEMAND_CONFIG = {
   MIN_CREDIT_DEMAND: 150,
   MAX_CREDIT_DEMAND: 250,
+  CARGO_DEMAND_PERCENT: 20, // Percentage of cargo demanded in pirate encounters
   COUNTER_PROPOSAL_DISCOUNT: 0.5, // Fraction of MIN_CREDIT_DEMAND offered on successful counter-proposal
 
   KIDNAP_WEIGHTS: {

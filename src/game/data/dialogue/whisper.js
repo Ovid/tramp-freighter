@@ -8,7 +8,11 @@
  * @module dialogue/whisper
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 import {
   isWantedByAuthorities,
   isKnownToOutlaws,
@@ -92,7 +96,7 @@ export const WHISPER_DIALOGUE = {
           if (daysRemaining <= 0) {
             baseText +=
               '\n\n*Your loan of ₡500 is overdue. Immediate repayment is required.*';
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Reminder: Your loan of ₡500 is due in ${daysRemaining} days.*`;
           } else {
             baseText += `\n\n*Outstanding loan: ₡500, ${daysRemaining} days remaining.*`;

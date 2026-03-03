@@ -1,6 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { DISTRESS_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  DISTRESS_CONFIG,
+  KARMA_CONFIG,
+  REPUTATION_BOUNDS,
+  SHIP_CONFIG,
+  EVENT_NAMES,
+} from '../../game/constants.js';
 
 /**
  * DistressCallPanel - React component for distress call moral choice resolution
@@ -430,9 +436,10 @@ function getDistressSeverityColor(severity) {
  * @returns {string} CSS class name for styling the resource display
  */
 function getResourceClass(resource) {
-  if (resource >= 75) return 'abundant';
-  if (resource >= 50) return 'adequate';
-  if (resource >= 25) return 'limited';
+  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
+  if (resource >= thresholds.EXCELLENT) return 'abundant';
+  if (resource >= thresholds.FAIR) return 'adequate';
+  if (resource >= thresholds.POOR) return 'limited';
   return 'critical';
 }
 
@@ -444,10 +451,11 @@ function getResourceClass(resource) {
  * @returns {string} CSS class name for karma display styling
  */
 function getKarmaClass(karma) {
-  if (karma >= 50) return 'saint';
-  if (karma >= 20) return 'good';
-  if (karma >= -20) return 'neutral';
-  if (karma >= -50) return 'bad';
+  const thresholds = KARMA_CONFIG.DISPLAY_THRESHOLDS;
+  if (karma >= thresholds.SAINT) return 'saint';
+  if (karma >= thresholds.GOOD) return 'good';
+  if (karma >= thresholds.BAD) return 'neutral';
+  if (karma >= thresholds.VILLAIN) return 'bad';
   return 'villain';
 }
 
@@ -459,10 +467,11 @@ function getKarmaClass(karma) {
  * @returns {string} Human-readable karma description
  */
 function getKarmaDescription(karma) {
-  if (karma >= 50) return 'Renowned for heroic deeds';
-  if (karma >= 20) return 'Known for helping others';
-  if (karma >= -20) return 'Morally neutral reputation';
-  if (karma >= -50) return 'Reputation for selfishness';
+  const thresholds = KARMA_CONFIG.DISPLAY_THRESHOLDS;
+  if (karma >= thresholds.SAINT) return 'Renowned for heroic deeds';
+  if (karma >= thresholds.GOOD) return 'Known for helping others';
+  if (karma >= thresholds.BAD) return 'Morally neutral reputation';
+  if (karma >= thresholds.VILLAIN) return 'Reputation for selfishness';
   return 'Feared as ruthless and cruel';
 }
 
@@ -474,11 +483,11 @@ function getKarmaDescription(karma) {
  * @returns {string} CSS class name for reputation display styling
  */
 function getReputationClass(reputation) {
-  if (reputation >= 60) return 'trusted';
-  if (reputation >= 30) return 'friendly';
-  if (reputation >= 10) return 'warm';
-  if (reputation >= -10) return 'neutral';
-  if (reputation >= -50) return 'cold';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
 }
 
@@ -490,12 +499,12 @@ function getReputationClass(reputation) {
  * @returns {string} Reputation tier name
  */
 function getReputationTier(reputation) {
-  if (reputation >= 90) return 'Family';
-  if (reputation >= 60) return 'Trusted';
-  if (reputation >= 30) return 'Friendly';
-  if (reputation >= 10) return 'Warm';
-  if (reputation >= -10) return 'Neutral';
-  if (reputation >= -50) return 'Cold';
+  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Family';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Cold';
   return 'Hostile';
 }
 

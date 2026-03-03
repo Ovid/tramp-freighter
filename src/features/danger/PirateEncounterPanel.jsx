@@ -2,8 +2,10 @@ import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   COMBAT_CONFIG,
+  KARMA_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
+  SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
 
@@ -272,8 +274,8 @@ export function PirateEncounterPanel({
               <div className="option-consequences">
                 <div className="consequence success">
                   {hasTradeCargo
-                    ? `Success: Reduced payment (10% cargo instead of ${encounter.demandPercent || 20}%)`
-                    : `Success: Reduced credit demand (₡${Math.round(PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * 0.5)})`}
+                    ? `Success: Reduced payment (10% cargo instead of ${encounter.demandPercent || PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}%)`
+                    : `Success: Reduced credit demand (₡${Math.round(PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * PIRATE_CREDIT_DEMAND_CONFIG.COUNTER_PROPOSAL_DISCOUNT)})`}
                 </div>
                 <div className="consequence failure">
                   Failure: Pirates become more aggressive (+10% strength)
@@ -386,7 +388,7 @@ function calculateTacticalProbabilities(
   _factions = {}
 ) {
   // Calculate karma modifier
-  const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE
+  const karmaModifier = karma * KARMA_CONFIG.SUCCESS_RATE_SCALE;
 
   // Calculate evasive maneuvers probability
   let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
@@ -462,9 +464,10 @@ function getThreatLevelColor(threatLevel) {
  * @returns {string} CSS class name
  */
 function getConditionClass(condition) {
-  if (condition >= 75) return 'good';
-  if (condition >= 50) return 'fair';
-  if (condition >= 25) return 'poor';
+  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
+  if (condition >= thresholds.EXCELLENT) return 'good';
+  if (condition >= thresholds.FAIR) return 'fair';
+  if (condition >= thresholds.POOR) return 'poor';
   return 'critical';
 }
 

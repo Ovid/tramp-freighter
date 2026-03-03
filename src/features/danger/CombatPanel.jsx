@@ -1,6 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { COMBAT_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  COMBAT_CONFIG,
+  KARMA_CONFIG,
+  SHIP_CONFIG,
+  EVENT_NAMES,
+} from '../../game/constants.js';
 
 /**
  * CombatPanel - React component for combat resolution
@@ -145,7 +150,9 @@ export function CombatPanel({
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="condition-impact">
-                {hull < 50 ? 'Reduced maneuverability' : 'Normal operation'}
+                {hull < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD
+                  ? 'Reduced maneuverability'
+                  : 'Normal operation'}
               </span>
             </div>
             <div className="condition-item">
@@ -154,7 +161,7 @@ export function CombatPanel({
                 {Math.round(engine ?? 100)}%
               </span>
               <span className="condition-impact">
-                {engine < 50
+                {engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD
                   ? 'Reduced evasion capability'
                   : 'Full power available'}
               </span>
@@ -492,14 +499,14 @@ function calculateCombatProbabilities(
   _factions = {}
 ) {
   // Calculate karma modifier
-  const karmaModifier = karma * 0.0005; // KARMA_CONFIG.SUCCESS_RATE_SCALE
+  const karmaModifier = karma * KARMA_CONFIG.SUCCESS_RATE_SCALE;
 
   // Evasive Maneuvers Analysis
   const evasiveModifiers = [];
   let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
 
   // Apply engine condition modifier
-  if (engine < 50) {
+  if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
     const enginePenalty = -0.1;
     evasiveChance += enginePenalty;
     evasiveModifiers.push({
@@ -623,9 +630,10 @@ function getCombatIntensityColor(intensity) {
  * @returns {string} CSS class name for styling the condition display
  */
 function getConditionClass(condition) {
-  if (condition >= 75) return 'good';
-  if (condition >= 50) return 'fair';
-  if (condition >= 25) return 'poor';
+  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
+  if (condition >= thresholds.EXCELLENT) return 'good';
+  if (condition >= thresholds.FAIR) return 'fair';
+  if (condition >= thresholds.POOR) return 'poor';
   return 'critical';
 }
 
