@@ -18,6 +18,10 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
             nobody's going to share those with a stranger. Earn your way in.
           </p>
           <p>
+            Clear your debt and the sector may have more to offer than you
+            expect.
+          </p>
+          <p>
             Your hold has 20 units of grain — enough to start trading, but raw
             commodities like grain and ore have thin margins. The real money is
             in manufactured goods: <strong>electronics</strong>,{' '}
