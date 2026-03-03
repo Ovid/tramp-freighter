@@ -534,6 +534,11 @@ export class GameStateManager {
     this.markDirty();
   }
 
+  modifyRepRaw(npcId, amount, reason) {
+    this.npcManager.modifyRepRaw(npcId, amount, reason);
+    this.markDirty();
+  }
+
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
     this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.state.npcs });

@@ -417,12 +417,10 @@ export class DebtManager extends BaseManager {
   }
 
   modifyColeRep(delta) {
-    const npcState = this.gameStateManager.getNPCState(
-      COLE_DEBT_CONFIG.COLE_NPC_ID
-    );
-    this.gameStateManager.setNpcRep(
+    this.gameStateManager.modifyRepRaw(
       COLE_DEBT_CONFIG.COLE_NPC_ID,
-      npcState.rep + delta
+      delta,
+      'cole_debt'
     );
   }
 

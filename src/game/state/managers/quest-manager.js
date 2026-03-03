@@ -118,9 +118,7 @@ export class QuestManager extends BaseManager {
 
     if (rewards.rep) {
       for (const [npcId, amount] of Object.entries(rewards.rep)) {
-        // Bypass trust modifier so quest rewards grant full value
-        const npcState = this.gameStateManager.getNPCState(npcId);
-        this.gameStateManager.setNpcRep(npcId, npcState.rep + amount);
+        this.gameStateManager.modifyRepRaw(npcId, amount, 'quest_reward');
       }
     }
 
@@ -310,14 +308,11 @@ export class QuestManager extends BaseManager {
       TANAKA_SUPPLY_CONFIG.QUANTITY
     );
 
-    // Add rep (flat gain, bypasses trust modifier so the reward is guaranteed)
-    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
-    this.gameStateManager.setNpcRep(
+    this.gameStateManager.modifyRepRaw(
       'tanaka_barnards',
-      npcState.rep + TANAKA_SUPPLY_CONFIG.REP_GAIN
+      TANAKA_SUPPLY_CONFIG.REP_GAIN,
+      'tanaka_supply'
     );
-    npcState.lastInteraction = state.player.daysElapsed;
-    npcState.interactions += 1;
 
     // Set cooldown
     const questState = this.getQuestState('tanaka');

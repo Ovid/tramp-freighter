@@ -99,51 +99,60 @@ export class NPCManager extends BaseManager {
    * Modify NPC reputation with trust modifier and quirk support
    *
    * Applies reputation change with NPC personality trust modifier and
-   * smooth_talker quirk bonus. Clamps final value to [-100, 100] range.
-   * Updates interaction count and timestamp.
+   * smooth_talker quirk bonus, then delegates to modifyRepRaw for
+   * clamping, interaction tracking, achievements, and UI updates.
    *
    * @param {string} npcId - NPC identifier
    * @param {number} amount - Base reputation change amount
    * @param {string} reason - Reason for reputation change (for logging)
    */
   modifyRep(npcId, amount, reason) {
-    // Validate NPC ID and get NPC data
     const npcData = this.validateAndGetNPCData(npcId);
 
-    // Get or create NPC state
-    const npcState = this.getNPCState(npcId);
-
-    // Apply trust modifier for positive reputation gains
     let modifiedAmount = amount;
     if (amount > 0) {
       modifiedAmount *= npcData.personality.trust;
     }
 
-    // Apply smooth_talker quirk bonus for positive reputation gains
     if (amount > 0 && this.getState().ship.quirks.includes('smooth_talker')) {
       modifiedAmount *= 1.05;
     }
 
-    // Calculate new reputation with clamping and rounding
+    this.modifyRepRaw(npcId, modifiedAmount, reason);
+  }
+
+  /**
+   * Modify NPC reputation without trust/quirk modifiers
+   *
+   * Applies an exact reputation change with all gameplay side-effects
+   * (interaction tracking, achievements, UI updates) but no personality
+   * or quirk modifiers. Used for system-granted rewards (quests, missions)
+   * where the reward value should be deterministic.
+   *
+   * @param {string} npcId - NPC identifier
+   * @param {number} amount - Exact reputation change amount
+   * @param {string} reason - Reason for reputation change (for logging)
+   */
+  modifyRepRaw(npcId, amount, reason) {
+    this.validateAndGetNPCData(npcId);
+    const npcState = this.getNPCState(npcId);
+
     const oldRep = npcState.rep;
     const newRep = Math.max(
       -100,
-      Math.min(100, Math.round(oldRep + modifiedAmount))
+      Math.min(100, Math.round(oldRep + amount))
     );
 
-    // Log warning if clamping occurred
-    if (oldRep + modifiedAmount < -100 || oldRep + modifiedAmount > 100) {
+    if (oldRep + amount < -100 || oldRep + amount > 100) {
       this.warn(
-        `Reputation clamped for ${npcId}: ${oldRep + modifiedAmount} -> ${newRep}`
+        `Reputation clamped for ${npcId}: ${oldRep + amount} -> ${newRep}`
       );
     }
 
-    // Update NPC state
     npcState.rep = newRep;
     npcState.lastInteraction = this.getState().player.daysElapsed;
     npcState.interactions += 1;
 
-    // Log reputation change for debugging
     this.log(
       `Reputation change for ${npcId}: ${amount} (${reason}) -> ${newRep}`
     );
