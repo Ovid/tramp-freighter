@@ -15,12 +15,13 @@ import {
  * - canSellGood(goodType, systemId, hasBlackMarketContact)
  */
 
-// System IDs from TEST_STAR_DATA zone classifications:
-// Safe zone: Sol (0), Alpha Centauri (1), Barnard's Star (4)
-// Contested zone: Wolf 359 (5), Sirius A (7), Epsilon Eridani (13)
+// System IDs from TEST_STAR_DATA:
+// Safe zone (explicit): Sol (0), Alpha Centauri (1)
+// Safe zone (non-core): Barnard's Star (4)
+// Contested zone (explicit): Sirius A (7)
+// Contested zone (fallthrough default): Wolf 359 (5)
 const SAFE_SYSTEM_SOL = SOL_SYSTEM_ID; // 0
 const SAFE_SYSTEM_BARNARD = 4;
-const CONTESTED_SYSTEM_WOLF = 5;
 const CONTESTED_SYSTEM_SIRIUS = 7;
 
 // Far-away system placed beyond the 15 LY dangerous threshold
@@ -145,9 +146,8 @@ describe('Restricted goods trading', () => {
       });
 
       it('returns false for parts at a contested system', () => {
-        expect(
-          gsm.tradingManager.isGoodRestricted('parts', CONTESTED_SYSTEM_WOLF)
-        ).toBe(false);
+        // Wolf 359 (5) — resolves to contested via fallthrough default
+        expect(gsm.tradingManager.isGoodRestricted('parts', 5)).toBe(false);
       });
     });
 
@@ -248,6 +248,16 @@ describe('Restricted goods trading', () => {
         BASE_PRICE
       );
       expect(price).toBe(BASE_PRICE * PREMIUM);
+    });
+
+    it('returns base price for medicine sold in a contested zone', () => {
+      // medicine is restricted in contested zones — blocked from trade, base price
+      const price = gsm.tradingManager.calculateSellPrice(
+        'medicine',
+        CONTESTED_SYSTEM_SIRIUS,
+        BASE_PRICE
+      );
+      expect(price).toBe(BASE_PRICE);
     });
   });
 
