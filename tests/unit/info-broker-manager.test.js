@@ -150,7 +150,6 @@ describe('InfoBrokerManager', () => {
       expect(state.stats.rumorsPurchased).toBe(before + 1);
     });
 
-
     it('returns Tanaka hint when player has 5+ systems visited and tanaka_met not set', () => {
       const state = gsm.getState();
       state.world.visitedSystems = [0, 1, 4, 5, 7];
