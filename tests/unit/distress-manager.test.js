@@ -213,7 +213,7 @@ describe('DistressManager', () => {
       expect(result.rewards.credits).toBe(
         DISTRESS_CONFIG.RESPOND.CREDITS_REWARD
       );
-      expect(result.rewards.credits).toBe(500);
+      expect(result.rewards.credits).toBe(150);
     });
 
     it('includes correct karma reward', () => {

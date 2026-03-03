@@ -1490,7 +1490,7 @@ export const DISTRESS_CONFIG = {
     DAYS_COST: 2, // Days delay for responding to distress call
     FUEL_COST: 15, // Fuel percentage consumed when responding
     LIFE_SUPPORT_COST: 5, // Life support condition cost when responding
-    CREDITS_REWARD: 500, // Credits reward for responding to distress call
+    CREDITS_REWARD: 150, // Credits reward for responding to distress call
     REP_REWARD: 10, // Civilian reputation reward for helping
     KARMA_REWARD: 1, // Karma reward for helping civilians
   },

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MISSION_CONFIG } from '../../src/game/constants.js';
+import { MISSION_CONFIG, DISTRESS_CONFIG } from '../../src/game/constants.js';
 
 describe('Mission Constants', () => {
   it('should export MISSION_CONFIG with required fields', () => {
@@ -57,5 +57,9 @@ describe('Mission Arbitrage Fix Constants', () => {
 describe('Mission Balance Constants', () => {
   it('should set smuggling base fee to 150', () => {
     expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(150);
+  });
+
+  it('should set distress respond reward to 150', () => {
+    expect(DISTRESS_CONFIG.RESPOND.CREDITS_REWARD).toBe(150);
   });
 });
