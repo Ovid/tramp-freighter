@@ -302,4 +302,108 @@ describe('EconomicEventsSystem Lifecycle', () => {
       expect(Array.isArray(result)).toBe(true);
     });
   });
+
+  describe('removeExpiredEvents', () => {
+    it('returns empty array for non-array input', () => {
+      expect(EconomicEventsSystem.removeExpiredEvents(null, 10)).toEqual([]);
+      expect(EconomicEventsSystem.removeExpiredEvents(undefined, 10)).toEqual(
+        []
+      );
+    });
+
+    it('keeps events where endDay equals currentDay', () => {
+      const events = [{ endDay: 10 }];
+      const result = EconomicEventsSystem.removeExpiredEvents(events, 10);
+      expect(result).toHaveLength(1);
+    });
+
+    it('removes events where endDay is before currentDay', () => {
+      const events = [{ endDay: 9 }];
+      const result = EconomicEventsSystem.removeExpiredEvents(events, 10);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('getActiveEventForSystem', () => {
+    it('returns null for non-array activeEvents', () => {
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(0, null)
+      ).toBeNull();
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(0, undefined)
+      ).toBeNull();
+    });
+
+    it('returns null when no event matches the system', () => {
+      const events = [{ systemId: 5, type: 'festival' }];
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(99, events)
+      ).toBeNull();
+    });
+
+    it('returns the matching event for a system', () => {
+      const events = [
+        { systemId: 5, type: 'festival' },
+        { systemId: 0, type: 'mining_strike' },
+      ];
+      const result = EconomicEventsSystem.getActiveEventForSystem(0, events);
+      expect(result).toEqual({ systemId: 0, type: 'mining_strike' });
+    });
+  });
+
+  describe('isSystemEligible', () => {
+    it('returns false for null system or eventType', () => {
+      expect(EconomicEventsSystem.isSystemEligible(null, {})).toBe(false);
+      expect(EconomicEventsSystem.isSystemEligible({}, null)).toBe(false);
+    });
+
+    it('returns true for any system when targetSystems is "any"', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(sol, { targetSystems: 'any' })
+      ).toBe(true);
+    });
+
+    it('returns true for core systems when targetSystems is "core"', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(sol, { targetSystems: 'core' })
+      ).toBe(true);
+      expect(
+        EconomicEventsSystem.isSystemEligible(alphaCentauri, {
+          targetSystems: 'core',
+        })
+      ).toBe(true);
+    });
+
+    it('returns false for non-core systems when targetSystems is "core"', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(barnardsStar, {
+          targetSystems: 'core',
+        })
+      ).toBe(false);
+    });
+
+    it('returns true for M-class stars when targetSystems is "mining"', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(barnardsStar, {
+          targetSystems: 'mining',
+        })
+      ).toBe(true);
+    });
+
+    it('returns false for G-class stars when targetSystems is "mining"', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(sol, {
+          targetSystems: 'mining',
+        })
+      ).toBe(false);
+    });
+
+    it('returns false for unknown targetSystems value', () => {
+      expect(
+        EconomicEventsSystem.isSystemEligible(sol, {
+          targetSystems: 'alien',
+        })
+      ).toBe(false);
+    });
+  });
 });
