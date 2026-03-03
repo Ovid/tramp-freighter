@@ -161,8 +161,13 @@ export class InformationBroker {
     const currentDay = gameState.player.daysElapsed;
     const activeEvents = gameState.world.activeEvents || [];
 
+    // Track purchase count so consecutive buys on the same day differ
+    if (!gameState.stats) gameState.stats = {};
+    const purchaseCount = gameState.stats.rumorsPurchased || 0;
+    gameState.stats.rumorsPurchased = purchaseCount + 1;
+
     // Use seeded random for deterministic rumor generation
-    const seed = `rumor_${currentDay}`;
+    const seed = `rumor_${currentDay}_${purchaseCount}`;
     const rng = new SeededRandom(seed);
 
     // Conditional Tanaka hint for mid-game players
