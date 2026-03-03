@@ -53,3 +53,9 @@ describe('Mission Arbitrage Fix Constants', () => {
     expect(MISSION_CONFIG.SATURATION_MAX_HISTORY).toBe(50);
   });
 });
+
+describe('Mission Balance Constants', () => {
+  it('should set smuggling base fee to 150', () => {
+    expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(150);
+  });
+});

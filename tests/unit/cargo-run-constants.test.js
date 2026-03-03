@@ -11,7 +11,7 @@ describe('Cargo Run Constants', () => {
     });
 
     it('should have base fee constants for illegal cargo', () => {
-      expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(225);
+      expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(150);
     });
 
     it('should have quantity ranges for legal and illegal cargo', () => {
