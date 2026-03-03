@@ -146,7 +146,7 @@ describe('TradingSystem.recordCargoPurchase', () => {
     ];
     const result = TradingSystem.recordCargoPurchase(
       cargo,
-      'food',
+      'grain',
       3,
       100,
       5,
@@ -155,7 +155,7 @@ describe('TradingSystem.recordCargoPurchase', () => {
     );
     expect(result).toHaveLength(2);
     expect(result[0].good).toBe('ore');
-    expect(result[1].good).toBe('food');
+    expect(result[1].good).toBe('grain');
   });
 
   it('does not mutate the original cargo array', () => {
@@ -179,7 +179,7 @@ describe('TradingSystem.calculateCargoUsed', () => {
   it('sums quantities across all stacks', () => {
     const cargo = [
       { good: 'ore', qty: 5 },
-      { good: 'food', qty: 10 },
+      { good: 'grain', qty: 10 },
       { good: 'parts', qty: 3 },
     ];
     expect(TradingSystem.calculateCargoUsed(cargo)).toBe(18);
@@ -195,7 +195,7 @@ describe('TradingSystem.calculateCargoUsed', () => {
   });
 
   it('treats missing qty as 0', () => {
-    const cargo = [{ good: 'ore' }, { good: 'food', qty: 5 }];
+    const cargo = [{ good: 'ore' }, { good: 'grain', qty: 5 }];
     expect(TradingSystem.calculateCargoUsed(cargo)).toBe(5);
   });
 });
