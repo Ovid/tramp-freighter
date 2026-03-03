@@ -197,6 +197,22 @@ describe('QuestManager', () => {
       );
     });
 
+    it('applies rep rewards at full value bypassing trust modifier', () => {
+      // Tanaka has trust: 0.2 — modifyRep would reduce +15 to +3.
+      // Quest rewards should bypass this and grant the full amount.
+      manager.advanceQuest('tanaka'); // stage 0 → 1
+      // Complete stage 1 objectives (3 jumps)
+      manager.questManager.onJump();
+      manager.questManager.onJump();
+      manager.questManager.onJump();
+      const startRep = manager.getNPCState('tanaka_barnards').rep;
+      manager.claimStageRewards('tanaka');
+      const rewardRep = 15; // STAGE_1_REWARD_REP
+      expect(manager.getNPCState('tanaka_barnards').rep).toBe(
+        startRep + rewardRep
+      );
+    });
+
     it('fails when objectives are not complete', () => {
       manager.registerQuest({
         id: 'q1',

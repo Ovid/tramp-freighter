@@ -118,7 +118,9 @@ export class QuestManager extends BaseManager {
 
     if (rewards.rep) {
       for (const [npcId, amount] of Object.entries(rewards.rep)) {
-        this.gameStateManager.modifyRep(npcId, amount, 'quest_reward');
+        // Bypass trust modifier so quest rewards grant full value
+        const npcState = this.gameStateManager.getNPCState(npcId);
+        this.gameStateManager.setNpcRep(npcId, npcState.rep + amount);
       }
     }
 
