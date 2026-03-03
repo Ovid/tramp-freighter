@@ -26,6 +26,21 @@ function computeInspectionRng(daysElapsed, currentSystem) {
   return new SeededRandom(seed).next();
 }
 
+/**
+ * Search up to 1000 days for a daysElapsed value whose seeded RNG satisfies
+ * the given predicate.  Throws if no match is found so tests fail explicitly
+ * rather than silently using an invalid day.
+ */
+function findDayForRng(systemId, predicate) {
+  for (let d = 0; d < 1000; d++) {
+    const rng = computeInspectionRng(d, systemId);
+    if (predicate(rng)) return d;
+  }
+  throw new Error(
+    `No daysElapsed in 0..999 satisfies the RNG predicate for system ${systemId}`
+  );
+}
+
 describe('InspectionManager', () => {
   let gsm;
 
@@ -168,17 +183,7 @@ describe('InspectionManager', () => {
 
       // System 0 (Sol) is a core system with multiplier 2.0
       // discoveryChance = 0.1 * 2.0 = 0.2
-      // Find a daysElapsed value where the seeded RNG < 0.2
-      let daysElapsed = 0;
-      let rng;
-      for (let d = 0; d < 1000; d++) {
-        rng = computeInspectionRng(d, 0);
-        if (rng < 0.2) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(0, (rng) => rng < 0.2);
 
       const outcome = gsm.resolveInspection('cooperate', state);
 
@@ -201,17 +206,7 @@ describe('InspectionManager', () => {
 
       // System 0 (Sol) is a core system with multiplier 2.0
       // discoveryChance = 0.1 * 2.0 = 0.2
-      // Find a daysElapsed value where the seeded RNG >= 0.2
-      let daysElapsed = 0;
-      let rng;
-      for (let d = 0; d < 1000; d++) {
-        rng = computeInspectionRng(d, 0);
-        if (rng >= 0.2) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(0, (rng) => rng >= 0.2);
 
       const outcome = gsm.resolveInspection('cooperate', state);
 
@@ -235,15 +230,7 @@ describe('InspectionManager', () => {
       state.ship.hiddenCargo = [{ good: 'water', qty: 1, buyPrice: 10 }];
 
       // Find a daysElapsed where hidden cargo is discovered at Sol (core, multiplier 2.0)
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, 0);
-        if (rng < 0.2) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(0, (rng) => rng < 0.2);
 
       const outcome = gsm.resolveInspection('cooperate', state);
 
@@ -264,24 +251,15 @@ describe('InspectionManager', () => {
       // Core multiplier is 2.0, so discoveryChance = 0.1 * 2.0 = 0.2
       // Find daysElapsed where RNG is between 0.15 (safe multiplier threshold) and 0.2 (core threshold)
       // This proves core multiplier (2.0) is used instead of safe (1.5)
-      let daysElapsed = -1;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, 0);
-        if (rng >= 0.15 && rng < 0.2) {
-          daysElapsed = d;
-          break;
-        }
-      }
+      state.player.daysElapsed = findDayForRng(
+        0,
+        (rng) => rng >= 0.15 && rng < 0.2
+      );
+      const outcome = gsm.resolveInspection('cooperate', state);
 
-      // Only run this assertion if we found a suitable daysElapsed value
-      if (daysElapsed >= 0) {
-        state.player.daysElapsed = daysElapsed;
-        const outcome = gsm.resolveInspection('cooperate', state);
-
-        // With core multiplier (2.0): discoveryChance = 0.2, rng < 0.2 => discovered
-        // With safe multiplier (1.5): discoveryChance = 0.15, rng >= 0.15 => not discovered
-        expect(outcome.costs.hiddenCargoConfiscated).toBe(true);
-      }
+      // With core multiplier (2.0): discoveryChance = 0.2, rng < 0.2 => discovered
+      // With safe multiplier (1.5): discoveryChance = 0.15, rng >= 0.15 => not discovered
+      expect(outcome.costs.hiddenCargoConfiscated).toBe(true);
     });
 
     it('uses core multiplier for system 1 (Alpha Centauri)', () => {
@@ -291,15 +269,7 @@ describe('InspectionManager', () => {
       state.ship.hiddenCargo = [{ good: 'water', qty: 1, buyPrice: 10 }];
 
       // Find daysElapsed where hidden cargo is discovered at system 1
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, 1);
-        if (rng < 0.2) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(1, (rng) => rng < 0.2);
 
       const outcome = gsm.resolveInspection('cooperate', state);
 
@@ -311,16 +281,10 @@ describe('InspectionManager', () => {
     it('returns success: true when RNG < 0.6 (base chance)', () => {
       const state = gsm.getState();
 
-      // Find a daysElapsed where seeded RNG < 0.6 for bribery success
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -330,16 +294,10 @@ describe('InspectionManager', () => {
     it('returns success: false when RNG >= 0.6', () => {
       const state = gsm.getState();
 
-      // Find a daysElapsed where seeded RNG >= 0.6 for bribery failure
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -349,16 +307,10 @@ describe('InspectionManager', () => {
     it('costs 500 credits on success', () => {
       const state = gsm.getState();
 
-      // Find a successful bribe scenario
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -368,16 +320,10 @@ describe('InspectionManager', () => {
     it('adds additional 1500 fine on failure (total 2000)', () => {
       const state = gsm.getState();
 
-      // Find a failed bribe scenario
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -390,16 +336,10 @@ describe('InspectionManager', () => {
     it('marks failed bribe costs as isFine so unpaid portion rolls into debt', () => {
       const state = gsm.getState();
 
-      // Find a failed bribe scenario
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -409,16 +349,10 @@ describe('InspectionManager', () => {
     it('does not mark successful bribe costs as isFine', () => {
       const state = gsm.getState();
 
-      // Find a successful bribe scenario
-      let daysElapsed = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          daysElapsed = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = daysElapsed;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
 
       const outcome = gsm.resolveInspection('bribe', state);
 
@@ -429,30 +363,20 @@ describe('InspectionManager', () => {
       const state = gsm.getState();
 
       // Test with a successful bribe
-      let successDay = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          successDay = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = successDay;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng < INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
       const successOutcome = gsm.resolveInspection('bribe', state);
       expect(successOutcome.rewards.factionRep.authorities).toBe(
         INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY
       );
 
       // Test with a failed bribe
-      let failDay = 0;
-      for (let d = 0; d < 1000; d++) {
-        const rng = computeInspectionRng(d, state.player.currentSystem);
-        if (rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE) {
-          failDay = d;
-          break;
-        }
-      }
-      state.player.daysElapsed = failDay;
+      state.player.daysElapsed = findDayForRng(
+        state.player.currentSystem,
+        (rng) => rng >= INSPECTION_CONFIG.BRIBE.BASE_CHANCE
+      );
       const failOutcome = gsm.resolveInspection('bribe', state);
       expect(failOutcome.rewards.factionRep.authorities).toBe(
         INSPECTION_CONFIG.BRIBE.AUTHORITY_REP_PENALTY
