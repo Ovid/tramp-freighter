@@ -19,7 +19,10 @@ export function determineConnectionColor(currentFuel, fuelCost) {
     return 'insufficient';
   }
   const fuelRemaining = currentFuel - fuelCost;
-  if (fuelRemaining >= 10 && fuelRemaining <= 20) {
+  if (
+    fuelRemaining >= NAVIGATION_CONFIG.FUEL_WARNING_RANGE.LOW &&
+    fuelRemaining <= NAVIGATION_CONFIG.FUEL_WARNING_RANGE.HIGH
+  ) {
     return 'warning';
   }
   return 'sufficient';
@@ -104,7 +107,9 @@ export function createWormholeLines(scene, connections, starObjects) {
           star1.data.y - star2.data.y,
           star1.data.z - star2.data.z
         ) * NAVIGATION_CONFIG.LY_PER_UNIT;
-      const fuelCost = 10 + distance * 2;
+      const fuelCost =
+        NAVIGATION_CONFIG.WORMHOLE_FUEL_BASE_COST +
+        distance * NAVIGATION_CONFIG.WORMHOLE_FUEL_DISTANCE_MULTIPLIER;
 
       // Store connection data for fuel-based coloring
       wormholeConnections.push({

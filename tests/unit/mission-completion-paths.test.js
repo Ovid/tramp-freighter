@@ -105,14 +105,15 @@ describe('Mission Completion Paths — fetch and intel types', () => {
       expect(oreRemaining).toBe(5);
     });
 
-    it('awards credits on success', () => {
+    it('awards credits on success minus withholding', () => {
       addActiveMission(fetchMission);
       setCargo([{ good: 'ore', qty: 5 }]);
       const creditsBefore = state.player.credits;
 
-      gsm.completeMission('fetch-1');
+      const result = gsm.completeMission('fetch-1');
 
-      expect(state.player.credits).toBe(creditsBefore + 500);
+      const net = 500 - result.withheld;
+      expect(state.player.credits).toBe(creditsBefore + net);
     });
 
     it('awards rep rewards on success', () => {
@@ -189,14 +190,15 @@ describe('Mission Completion Paths — fetch and intel types', () => {
       expect(result.success).toBe(true);
     });
 
-    it('awards credits on success', () => {
+    it('awards credits on success minus withholding', () => {
       addActiveMission(intelMission);
       state.world.visitedSystems = [0, 1, 4];
       const creditsBefore = state.player.credits;
 
-      gsm.completeMission('intel-1');
+      const result = gsm.completeMission('intel-1');
 
-      expect(state.player.credits).toBe(creditsBefore + 300);
+      const net = 300 - result.withheld;
+      expect(state.player.credits).toBe(creditsBefore + net);
     });
 
     it('awards rep rewards on success', () => {

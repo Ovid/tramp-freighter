@@ -118,7 +118,7 @@ export class QuestManager extends BaseManager {
 
     if (rewards.rep) {
       for (const [npcId, amount] of Object.entries(rewards.rep)) {
-        this.gameStateManager.modifyRep(npcId, amount, 'quest_reward');
+        this.gameStateManager.modifyRepRaw(npcId, amount, 'quest_reward');
       }
     }
 
@@ -177,31 +177,40 @@ export class QuestManager extends BaseManager {
   canStartStage(questId, stage) {
     const questDef = this.questDefinitions[questId];
     if (!questDef) return false;
+    const stageDef = questDef.stages.find((s) => s.stage === stage);
+    if (!stageDef) return false;
+    return this.getUnmetRequirements(questId, stage).length === 0;
+  }
+
+  getUnmetRequirements(questId, stage) {
+    const questDef = this.questDefinitions[questId];
+    if (!questDef) return [];
 
     const stageDef = questDef.stages.find((s) => s.stage === stage);
-    if (!stageDef?.requirements) return true;
+    if (!stageDef?.requirements) return [];
 
     const state = this.getState();
     const reqs = stageDef.requirements;
+    const unmet = [];
 
     if (reqs.npcRep) {
       const [npcId, threshold] = reqs.npcRep;
       const npcState = state.npcs[npcId];
-      if (!npcState || npcState.rep < threshold) return false;
+      if (!npcState || npcState.rep < threshold) unmet.push('rep');
     }
-
     if (
       reqs.engineCondition != null &&
       state.ship.engine < reqs.engineCondition
     )
-      return false;
+      unmet.push('engine');
     if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
-      return false;
-    if (reqs.debt != null && state.player.debt !== reqs.debt) return false;
+      unmet.push('hull');
+    if (reqs.debt != null && state.player.debt !== reqs.debt)
+      unmet.push('debt');
     if (reqs.credits != null && state.player.credits < reqs.credits)
-      return false;
+      unmet.push('credits');
 
-    return true;
+    return unmet;
   }
 
   checkObjectivesComplete(questId) {
@@ -277,14 +286,11 @@ export class QuestManager extends BaseManager {
       TANAKA_SUPPLY_CONFIG.QUANTITY
     );
 
-    // Add rep (flat gain, bypasses trust modifier so the reward is guaranteed)
-    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
-    this.gameStateManager.setNpcRep(
+    this.gameStateManager.modifyRepRaw(
       'tanaka_barnards',
-      npcState.rep + TANAKA_SUPPLY_CONFIG.REP_GAIN
+      TANAKA_SUPPLY_CONFIG.REP_GAIN,
+      'tanaka_supply'
     );
-    npcState.lastInteraction = state.player.daysElapsed;
-    npcState.interactions += 1;
 
     // Set cooldown
     const questState = this.getQuestState('tanaka');

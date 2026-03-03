@@ -12,7 +12,8 @@ function getSatisfactionLabel(satisfaction) {
 }
 
 export function MissionCompleteNotifier() {
-  const { completeMission, getCompletableMissions } = useGameAction();
+  const { completeMission, getCompletableMissions, calculateTradeWithholding } =
+    useGameAction();
   // Re-render trigger only — getCompletableMissions() returns the derived view
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const [completable, setCompletable] = useState([]);
@@ -61,12 +62,26 @@ export function MissionCompleteNotifier() {
               </div>
             </div>
           )}
-          {current.rewards && (
-            <div className="mission-complete-rewards">
-              <h4>Rewards:</h4>
-              {current.rewards.credits && <div>₡{current.rewards.credits}</div>}
-            </div>
-          )}
+          {current.grossCredits > 0 &&
+            (() => {
+              const gross = current.grossCredits;
+              const { withheld, playerReceives } =
+                calculateTradeWithholding(gross);
+              return (
+                <div className="mission-complete-rewards">
+                  <h4>Rewards:</h4>
+                  <div>₡{gross}</div>
+                  {withheld > 0 && (
+                    <>
+                      <div className="withholding-line">
+                        Cole&apos;s cut: -₡{withheld}
+                      </div>
+                      <div>You receive: ₡{playerReceives}</div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
         </div>
         <div className="modal-actions">
           <button className="modal-cancel" onClick={handleDismiss}>

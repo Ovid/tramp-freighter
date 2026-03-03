@@ -14,6 +14,7 @@ export function CameraControls({
 }) {
   const gameStateManager = useGameState();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
+  const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
@@ -143,6 +144,7 @@ export function CameraControls({
       <InstructionsModal
         isOpen={showInstructions}
         onClose={() => setShowInstructions(false)}
+        shipName={shipName}
       />
       <AchievementsModal
         isOpen={showAchievements}

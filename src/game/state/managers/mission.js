@@ -205,12 +205,22 @@ export class MissionManager extends BaseManager {
       });
     }
 
+    let grossCredits = 0;
     if (mission.type === 'passenger') {
-      const payment = this.calculatePassengerPayment(mission);
-      state.player.credits += payment;
-      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
+      grossCredits = this.calculatePassengerPayment(mission);
     } else if (mission.rewards.credits) {
-      state.player.credits += mission.rewards.credits;
+      grossCredits = mission.rewards.credits;
+    }
+
+    let withheld = 0;
+    if (grossCredits > 0) {
+      const result = this.gameStateManager.applyTradeWithholding(grossCredits);
+      withheld = result.withheld;
+      const playerReceives = grossCredits - withheld;
+      state.player.credits += playerReceives;
+      if (state.stats) {
+        state.stats.creditsEarned += grossCredits;
+      }
       this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
     }
 
@@ -256,7 +266,7 @@ export class MissionManager extends BaseManager {
     this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
     this.gameStateManager.markDirty();
 
-    return { success: true, rewards: mission.rewards };
+    return { success: true, rewards: mission.rewards, withheld };
   }
 
   updatePassengerSatisfaction(missionId, event) {
@@ -494,42 +504,52 @@ export class MissionManager extends BaseManager {
     this.validateState();
     const state = this.getState();
 
-    return state.missions.active.filter((mission) => {
-      if (mission.type === 'delivery') {
-        if (mission.requirements.destination !== state.player.currentSystem)
-          return false;
-        if (mission.missionCargo) {
-          return state.ship.cargo.some((c) => c.missionId === mission.id);
+    return state.missions.active
+      .filter((mission) => {
+        if (mission.type === 'delivery') {
+          if (mission.requirements.destination !== state.player.currentSystem)
+            return false;
+          if (mission.missionCargo) {
+            return state.ship.cargo.some((c) => c.missionId === mission.id);
+          }
+          if (mission.requirements.cargo) {
+            const totalCargo = state.ship.cargo
+              .filter((c) => c.good === mission.requirements.cargo)
+              .reduce((sum, c) => sum + c.qty, 0);
+            return totalCargo >= mission.requirements.quantity;
+          }
+          return true;
         }
-        if (mission.requirements.cargo) {
-          const totalCargo = state.ship.cargo
-            .filter((c) => c.good === mission.requirements.cargo)
-            .reduce((sum, c) => sum + c.qty, 0);
-          return totalCargo >= mission.requirements.quantity;
+        if (mission.type === 'fetch') {
+          if (mission.giverSystem !== state.player.currentSystem) return false;
+          if (mission.requirements.cargo) {
+            const totalCargo = state.ship.cargo
+              .filter((c) => c.good === mission.requirements.cargo)
+              .reduce((sum, c) => sum + c.qty, 0);
+            return totalCargo >= mission.requirements.quantity;
+          }
+          return true;
         }
-        return true;
-      }
-      if (mission.type === 'fetch') {
-        if (mission.giverSystem !== state.player.currentSystem) return false;
-        if (mission.requirements.cargo) {
-          const totalCargo = state.ship.cargo
-            .filter((c) => c.good === mission.requirements.cargo)
-            .reduce((sum, c) => sum + c.qty, 0);
-          return totalCargo >= mission.requirements.quantity;
+        if (mission.type === 'intel') {
+          if (mission.giverSystem !== state.player.currentSystem) return false;
+          return mission.requirements.targets.every((t) =>
+            state.world.visitedSystems.includes(t)
+          );
         }
-        return true;
-      }
-      if (mission.type === 'intel') {
-        if (mission.giverSystem !== state.player.currentSystem) return false;
-        return mission.requirements.targets.every((t) =>
-          state.world.visitedSystems.includes(t)
-        );
-      }
-      if (mission.type === 'passenger') {
-        return mission.requirements.destination === state.player.currentSystem;
-      }
-      return false;
-    });
+        if (mission.type === 'passenger') {
+          return (
+            mission.requirements.destination === state.player.currentSystem
+          );
+        }
+        return false;
+      })
+      .map((mission) => ({
+        ...mission,
+        grossCredits:
+          mission.type === 'passenger'
+            ? this.calculatePassengerPayment(mission)
+            : mission.rewards?.credits || 0,
+      }));
   }
 
   failMissionsDueToCargoLoss() {

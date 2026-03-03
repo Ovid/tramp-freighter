@@ -117,11 +117,12 @@ export class TradingManager extends BaseManager {
     this.gameStateManager.achievementsManager.checkAchievements();
 
     // Remove quantity from stack; remove stack if empty
+    // Create a new array reference so React detects the change via Object.is
     stack.qty -= quantity;
     if (stack.qty <= 0) {
       cargo.splice(stackIndex, 1);
     }
-    this.gameStateManager.updateCargo(cargo);
+    this.gameStateManager.updateCargo([...cargo]);
 
     // Update market conditions: positive quantity creates surplus (lowers prices)
     // Feature: deterministic-economy, Requirements 4.1, 4.2

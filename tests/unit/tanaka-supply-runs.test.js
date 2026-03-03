@@ -11,7 +11,7 @@ describe('Tanaka Supply Run constants', () => {
   it('exports TANAKA_SUPPLY_CONFIG with required fields', () => {
     expect(TANAKA_SUPPLY_CONFIG).toBeDefined();
     expect(TANAKA_SUPPLY_CONFIG.QUANTITY).toBe(5);
-    expect(TANAKA_SUPPLY_CONFIG.REP_GAIN).toBe(1);
+    expect(TANAKA_SUPPLY_CONFIG.REP_GAIN).toBe(3);
     expect(TANAKA_SUPPLY_CONFIG.COOLDOWN_DAYS).toBe(7);
     expect(TANAKA_SUPPLY_CONFIG.GOODS).toEqual(['electronics', 'medicine']);
   });
@@ -176,7 +176,7 @@ describe('QuestManager.contributeSupply', () => {
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
   });
 
-  it('deducts 5 electronics and adds 1 rep on success', () => {
+  it('deducts 5 electronics and adds 3 rep on success', () => {
     manager.state.ship.cargo = [
       {
         good: 'electronics',
@@ -198,8 +198,8 @@ describe('QuestManager.contributeSupply', () => {
       .reduce((sum, c) => sum + c.qty, 0);
     expect(remaining).toBe(3);
 
-    // Rep increased
-    expect(manager.getNPCState('tanaka_barnards').rep).toBe(repBefore + 1);
+    // Rep increased by TANAKA_SUPPLY_CONFIG.REP_GAIN (3)
+    expect(manager.getNPCState('tanaka_barnards').rep).toBe(repBefore + 3);
   });
 
   it('sets lastSupplyDay cooldown on success', () => {

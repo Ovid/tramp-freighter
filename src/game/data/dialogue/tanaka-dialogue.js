@@ -1,5 +1,20 @@
 import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
 
+function getRequirementHint(context, nextStage) {
+  const unmet = context.getUnmetRequirements('tanaka', nextStage);
+  if (unmet.includes('engine'))
+    return '"Your drive\'s running rough. I wouldn\'t trust my firmware on an engine in that shape." She glances at your ship. "Get it tuned up and we\'ll talk."';
+  if (unmet.includes('hull'))
+    return '"Your hull\'s taken a beating. Get that patched up before we talk next steps." She runs a hand along a dent in your ship\'s plating.';
+  if (unmet.includes('debt'))
+    return '"You\'re still in Cole\'s pocket. Settle that first." She crosses her arms. "I don\'t work with people who have strings attached."';
+  if (unmet.includes('credits'))
+    return '"What I have in mind isn\'t cheap. You\'ll need deeper pockets before we proceed." She glances at your ship. "Keep trading."';
+  if (unmet.includes('rep'))
+    return '"I like you, captain. But I don\'t know you well enough yet for what comes next." She turns back to her work. "Keep visiting. Bring supplies. We\'ll get there."';
+  return null;
+}
+
 export const YUKI_TANAKA_DIALOGUE = {
   greeting: {
     text: (rep, context) => {
@@ -8,6 +23,15 @@ export const YUKI_TANAKA_DIALOGUE = {
       }
 
       const stage = context.getQuestStage('tanaka');
+
+      // Hint when between stages: rewards claimed but can't start next
+      if (stage >= 1 && stage < 5 && context.hasClaimedStageRewards('tanaka')) {
+        const nextStage = stage + 1;
+        if (!context.canStartQuestStage('tanaka', nextStage)) {
+          const hint = getRequirementHint(context, nextStage);
+          if (hint) return hint;
+        }
+      }
 
       if (stage >= 5) {
         return '"Everything is in place. The Range Extender is calibrated. Your ship is ready." She meets your eyes. "Are you?"';
@@ -40,11 +64,23 @@ export const YUKI_TANAKA_DIALOGUE = {
         return `"The field test is in progress. ${ENDGAME_CONFIG.STAGE_1_JUMPS - jumps} more jumps needed to calibrate the drive harmonics." She studies her readouts intently.`;
       }
 
+      // Stage 0 with requirements not met for stage 1
+      if (stage === 0 && !context.canStartQuestStage('tanaka', 1)) {
+        const hint = getRequirementHint(context, 1);
+        if (hint) return hint;
+      }
+
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {
         return '"Captain." A brief nod. "I appreciate your continued visits. There is much work to be done."';
       }
       if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return '"Your ship interests me. The Tanaka Mark III drive is one of my better designs." She studies you. "Perhaps we can help each other."';
+      }
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_HIGH) {
+        return '"Captain." She looks up from her work. "You keep bringing supplies. You ask nothing in return." A pause. "I may have a use for that reliability."';
+      }
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_MID) {
+        return '"You again." She doesn\'t look up, but she doesn\'t turn away either. "Your deliveries have been... adequate."';
       }
       return '"Tanaka. Engineer." She extends a hand, then withdraws it. "I have work to do. Unless you have business?"';
     },
@@ -527,15 +563,24 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   research_supply: {
-    text: (_rep, _context) => {
-      const lines = [
-        '"Electronics. Good quality. These will work for the coupling array."',
-        '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
-        '"I can use these. The drive prototype consumes components faster than I projected."',
-        "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
-        '"Every delivery gets me closer. I won\'t forget that."',
-        '"This saves me weeks of requisition paperwork. Appreciated."',
-      ];
+    text: (rep) => {
+      let lines;
+      if (rep >= REPUTATION_BOUNDS.NEUTRAL_HIGH) {
+        lines = [
+          '"Every delivery gets me closer. I won\'t forget that."',
+          '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
+        ];
+      } else if (rep >= REPUTATION_BOUNDS.NEUTRAL_MID) {
+        lines = [
+          "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
+          '"This saves me weeks of requisition paperwork. Appreciated."',
+        ];
+      } else {
+        lines = [
+          '"Electronics. Good quality. These will work for the coupling array."',
+          '"I can use these. The drive prototype consumes components faster than I projected."',
+        ];
+      }
       return lines[Math.floor(Math.random() * lines.length)];
     },
     choices: [

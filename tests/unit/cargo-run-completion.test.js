@@ -49,6 +49,7 @@ describe('Cargo Run Mission Completion', () => {
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),
       removeCargoForMission: vi.fn(() => ({ success: true })),
+      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
       emit: vi.fn(),
     };
 

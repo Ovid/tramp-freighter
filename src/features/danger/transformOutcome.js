@@ -1,3 +1,5 @@
+import { FAILURE_CONFIG } from '../../game/constants.js';
+
 /**
  * Transform a raw DangerManager outcome into the shape OutcomePanel expects.
  *
@@ -23,7 +25,8 @@ export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
 
   // Cargo loss tracking
   if (costs.cargoLoss === true) {
-    resourceChanges.cargo = -100;
+    resourceChanges.cargo =
+      -FAILURE_CONFIG.DAMAGE_AMOUNTS.TOTAL_CARGO_LOSS_PERCENT;
   } else if (costs.cargoPercent) {
     resourceChanges.cargo = -costs.cargoPercent;
   }

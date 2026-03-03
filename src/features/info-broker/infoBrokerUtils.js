@@ -111,9 +111,9 @@ export function formatStaleness(lastVisit) {
     return { text: 'Current', cssClass: '' };
   } else if (lastVisit === 1) {
     return { text: '1 day old', cssClass: '' };
-  } else if (lastVisit <= 10) {
+  } else if (lastVisit <= INTELLIGENCE_CONFIG.STALENESS_THRESHOLDS.RECENT) {
     return { text: `${lastVisit} days old`, cssClass: '' };
-  } else if (lastVisit <= 30) {
+  } else if (lastVisit <= INTELLIGENCE_CONFIG.STALENESS_THRESHOLDS.STALE) {
     return { text: `${lastVisit} days old`, cssClass: 'stale' };
   } else {
     return { text: `${lastVisit} days old`, cssClass: 'very-stale' };

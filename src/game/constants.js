@@ -73,6 +73,10 @@ export const INTELLIGENCE_CONFIG = {
   },
   RECENT_THRESHOLD: 30, // Days before price knowledge is considered stale
   MAX_AGE: 100, // Days before purchased intelligence is automatically deleted
+  STALENESS_THRESHOLDS: {
+    RECENT: 10, // Days old before staleness indicator appears
+    STALE: 30, // Days old before data is considered very stale
+  },
   RELIABILITY: {
     MANIPULATION_CHANCE: 0.1, // Probability that a commodity price will be manipulated
     MIN_MANIPULATION_MULTIPLIER: 0.7, // Lower multiplier = appears cheaper to buy
@@ -127,6 +131,16 @@ export const NAVIGATION_CONFIG = {
   // Set to 1.0 to allow refueling in 1% increments even when current fuel
   // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
   FUEL_CAPACITY_EPSILON: 1.0,
+
+  // Wormhole fuel cost formula: BASE + (distance * DISTANCE_MULTIPLIER)
+  WORMHOLE_FUEL_BASE_COST: 10,
+  WORMHOLE_FUEL_DISTANCE_MULTIPLIER: 2,
+
+  // Fuel remaining thresholds for wormhole color-coding warnings
+  FUEL_WARNING_RANGE: {
+    LOW: 10, // Fuel remaining below this = warning
+    HIGH: 20, // Fuel remaining above this = safe
+  },
 };
 
 /**
@@ -189,6 +203,12 @@ export const SHIP_CONFIG = {
     THRESHOLD: 60, // Percentage below which penalties apply
     FUEL_PENALTY_MULTIPLIER: 1.2, // 20% increase in fuel consumption
     TIME_PENALTY_DAYS: 1, // Additional days added to jump time
+  },
+  // Quirk assignment configuration
+  QUIRK_ASSIGNMENT: {
+    PROBABILITY_THRESHOLD: 0.5, // 50% chance of getting 2 vs 3 quirks
+    MIN_COUNT: 2, // Minimum quirks assigned to a new ship
+    MAX_COUNT: 3, // Maximum quirks assigned to a new ship
   },
   QUIRKS: {
     sticky_seal: {
@@ -454,6 +474,9 @@ export const COLE_DEBT_CONFIG = {
   HEAT_TIER_MEDIUM_MAX: 45,
   HEAT_TIER_HIGH_MAX: 70,
 
+  // NPC loan reminder threshold
+  LOAN_REMINDER_DAYS: 5, // Days remaining to trigger urgent loan reminder
+
   // Heat changes
   HEAT_BORROW_BASE: 8,
   HEAT_BORROW_STEP: 500,
@@ -487,6 +510,7 @@ export const COLE_DEBT_CONFIG = {
   REP_MISSED_CHECKPOINT: -3,
   REP_WITHHOLDING_THRESHOLD: 500,
   REP_FAVOR_FAIL: -5,
+  REP_DEBT_CLEARED_BONUS: 15,
 
   // Starting values
   STARTING_LIEN_RATE: 0.05,
@@ -574,7 +598,7 @@ export const MISSION_CONFIG = {
   DEADLINE_BUFFER_DAYS: 3,
   REWARD_MARKUP: 0.3,
   CARGO_RUN_BASE_FEE: 120,
-  CARGO_RUN_ILLEGAL_BASE_FEE: 225,
+  CARGO_RUN_ILLEGAL_BASE_FEE: 150,
   CARGO_RUN_LEGAL_QUANTITY: { MIN: 5, MAX: 15 },
   CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
   CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
@@ -634,7 +658,7 @@ export const ENDGAME_CONFIG = {
  */
 export const TANAKA_SUPPLY_CONFIG = {
   QUANTITY: 5,
-  REP_GAIN: 1,
+  REP_GAIN: 3,
   COOLDOWN_DAYS: 7,
   GOODS: ['electronics', 'medicine'],
 };
@@ -912,6 +936,8 @@ export const REPUTATION_BOUNDS = {
   COLD_MIN: -49,
   COLD_MAX: -10,
   NEUTRAL_MIN: -9,
+  NEUTRAL_MID: 4,
+  NEUTRAL_HIGH: 7,
   NEUTRAL_MAX: 9,
   WARM_MIN: 10,
   WARM_MAX: 29,
@@ -1051,6 +1077,7 @@ export const NPC_BENEFITS_CONFIG = {
   EMERGENCY_LOAN_AMOUNT: 500, // Credits for emergency loan
   LOAN_REPAYMENT_DEADLINE: 30, // Days to repay loan
   LOAN_DEFAULT_TIER_PENALTY: 1, // Tiers lost on loan default
+  LOAN_DEFAULT_HOSTILE_MULTIPLIER: 20, // Extra penalty multiplier when already at Hostile tier
   LOAN_ACCEPTANCE_REP_BONUS: 5, // Rep gained for accepting loan
 
   // Cargo storage configuration
@@ -1247,6 +1274,9 @@ export const COMBAT_CONFIG = {
     FAILURE_HULL_DAMAGE: 25, // Uses COSTS_AND_DAMAGE.DISTRESS_FAILURE_HULL_DAMAGE
   },
 
+  // Engine condition threshold for combat penalties (different from SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD which is for fuel/time)
+  ENGINE_PENALTY_THRESHOLD: 50,
+
   // Quirk and upgrade modifier values
   QUIRK_UPGRADE_BONUSES: {
     HOT_THRUSTER_EVASIVE_BONUS: 0.1, // +10% evasive success for hot_thruster quirk
@@ -1428,6 +1458,7 @@ export const FAILURE_CONFIG = {
   // Damage amounts for failures
   DAMAGE_AMOUNTS: {
     HULL_BREACH_ADDITIONAL_DAMAGE: 5, // Additional hull damage from breach
+    TOTAL_CARGO_LOSS_PERCENT: 100, // Percentage representing complete cargo loss
   },
 
   // Hull breach - occurs when hull condition is low
@@ -1462,6 +1493,7 @@ export const FAILURE_CONFIG = {
   LIFE_SUPPORT: {
     CONDITION_THRESHOLD: 30, // Uses CONDITION_THRESHOLDS.LIFE_SUPPORT_FAILURE_THRESHOLD
     CHANCE: 0.05, // Uses FAILURE_CHANCES.LIFE_SUPPORT_FAILURE_CHANCE
+    EMERGENCY_COST: 5, // Life support condition lost during emergency
   },
 };
 
@@ -1489,7 +1521,7 @@ export const DISTRESS_CONFIG = {
     DAYS_COST: 2, // Days delay for responding to distress call
     FUEL_COST: 15, // Fuel percentage consumed when responding
     LIFE_SUPPORT_COST: 5, // Life support condition cost when responding
-    CREDITS_REWARD: 500, // Credits reward for responding to distress call
+    CREDITS_REWARD: 150, // Credits reward for responding to distress call
     REP_REWARD: 10, // Civilian reputation reward for helping
     KARMA_REWARD: 1, // Karma reward for helping civilians
   },
@@ -1539,6 +1571,22 @@ export const KARMA_CONFIG = {
   // At karma 100: +5% success rate
   // At karma -100: -5% success rate
   SUCCESS_RATE_SCALE: 0.0005, // Uses SCALING_FACTORS.SUCCESS_RATE_SCALE
+
+  // Karma thresholds for dialogue conditions (faction-karma-conditions.js)
+  THRESHOLDS: {
+    VERY_GOOD: 50,
+    GOOD: 25,
+    BAD: -25,
+    VERY_BAD: -50,
+  },
+
+  // Karma thresholds for UI display (different from dialogue thresholds)
+  DISPLAY_THRESHOLDS: {
+    SAINT: 50,
+    GOOD: 20,
+    BAD: -20,
+    VILLAIN: -50,
+  },
 };
 
 /**
@@ -1556,6 +1604,16 @@ export const FACTION_CONFIG = {
 
   // List of all factions in the game
   FACTIONS: ['authorities', 'traders', 'outlaws', 'civilians'],
+
+  // Reputation thresholds for dialogue conditions
+  REPUTATION_THRESHOLDS: {
+    VERY_HIGH: 75,
+    HIGH: 50,
+    MODERATE: 25,
+    LOW: -25,
+    VERY_LOW: -50,
+    EXTREME_LOW: -75,
+  },
 };
 
 /**
@@ -1568,6 +1626,7 @@ export const FACTION_CONFIG = {
 export const PIRATE_CREDIT_DEMAND_CONFIG = {
   MIN_CREDIT_DEMAND: 150,
   MAX_CREDIT_DEMAND: 250,
+  CARGO_DEMAND_PERCENT: 20, // Percentage of cargo demanded in pirate encounters
   COUNTER_PROPOSAL_DISCOUNT: 0.5, // Fraction of MIN_CREDIT_DEMAND offered on successful counter-proposal
 
   KIDNAP_WEIGHTS: {
@@ -1632,6 +1691,7 @@ export const NARRATIVE_EVENT_CONFIG = {
   DANGER_PRIORITY_DISTRESS: 40,
 
   // Narrative event priority range
+  NARRATIVE_PRIORITY_CRITICAL: 25,
   NARRATIVE_PRIORITY_HIGH: 20,
   NARRATIVE_PRIORITY_DEFAULT: 10,
   NARRATIVE_PRIORITY_LOW: 5,

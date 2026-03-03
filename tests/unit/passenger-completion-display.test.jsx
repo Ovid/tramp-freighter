@@ -40,6 +40,10 @@ describe('MissionCompleteNotifier passenger display', () => {
     useGameAction.mockReturnValue({
       completeMission: vi.fn(() => ({ success: true })),
       getCompletableMissions: vi.fn(() => [passengerMission]),
+      calculateTradeWithholding: vi.fn((amount) => ({
+        withheld: 0,
+        playerReceives: amount,
+      })),
     });
   });
 
@@ -62,6 +66,10 @@ describe('MissionCompleteNotifier passenger display', () => {
     useGameAction.mockReturnValue({
       completeMission: vi.fn(() => ({ success: true })),
       getCompletableMissions: vi.fn(() => [highSatMission]),
+      calculateTradeWithholding: vi.fn((amount) => ({
+        withheld: 0,
+        playerReceives: amount,
+      })),
     });
 
     render(<MissionCompleteNotifier />);
@@ -72,6 +80,10 @@ describe('MissionCompleteNotifier passenger display', () => {
     useGameAction.mockReturnValue({
       completeMission: vi.fn(() => ({ success: true })),
       getCompletableMissions: vi.fn(() => [cargoMission]),
+      calculateTradeWithholding: vi.fn((amount) => ({
+        withheld: 0,
+        playerReceives: amount,
+      })),
     });
 
     render(<MissionCompleteNotifier />);

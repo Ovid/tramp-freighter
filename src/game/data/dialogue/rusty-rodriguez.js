@@ -8,7 +8,11 @@
  * @module dialogue/rusty-rodriguez
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 
 /**
  * "Rusty" Rodriguez Dialogue Tree - Mechanic at Procyon
@@ -59,7 +63,7 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
           if (daysRemaining <= 0) {
             baseText +=
               '\n\n*About that loan, captain... five hundred credits, and it was due yesterday. Your ship needs you to be reliable.*';
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Don't forget - you owe me five hundred credits, due in ${daysRemaining} days. Your ship's counting on you.*`;
           } else {
             baseText += `\n\n*By the way, you still owe me five hundred credits - ${daysRemaining} days left to pay up.*`;

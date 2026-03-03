@@ -13,7 +13,7 @@
  * @module dialogue/faction-karma-conditions
  */
 
-import { FACTION_CONFIG } from '../../constants.js';
+import { FACTION_CONFIG, KARMA_CONFIG } from '../../constants.js';
 
 /**
  * Check if player has minimum faction reputation
@@ -66,7 +66,11 @@ export function hasMaxKarma(maxKarma, context) {
  * @returns {boolean} True if player has high authority reputation (>=50)
  */
 export function isTrustedByAuthorities(context) {
-  return hasFactionRep('authorities', 50, context);
+  return hasFactionRep(
+    'authorities',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -76,7 +80,11 @@ export function isTrustedByAuthorities(context) {
  * @returns {boolean} True if player has high outlaw reputation (>=50)
  */
 export function isKnownToOutlaws(context) {
-  return hasFactionRep('outlaws', 50, context);
+  return hasFactionRep(
+    'outlaws',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -86,7 +94,11 @@ export function isKnownToOutlaws(context) {
  * @returns {boolean} True if player has high civilian reputation (>=50)
  */
 export function isFriendToCivilians(context) {
-  return hasFactionRep('civilians', 50, context);
+  return hasFactionRep(
+    'civilians',
+    FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH,
+    context
+  );
 }
 
 /**
@@ -96,7 +108,7 @@ export function isFriendToCivilians(context) {
  * @returns {boolean} True if player has good karma (>=25)
  */
 export function hasGoodKarma(context) {
-  return hasKarma(25, context);
+  return hasKarma(KARMA_CONFIG.THRESHOLDS.GOOD, context);
 }
 
 /**
@@ -106,7 +118,7 @@ export function hasGoodKarma(context) {
  * @returns {boolean} True if player has bad karma (<=-25)
  */
 export function hasBadKarma(context) {
-  return hasMaxKarma(-25, context);
+  return hasMaxKarma(KARMA_CONFIG.THRESHOLDS.BAD, context);
 }
 
 /**
@@ -117,7 +129,7 @@ export function hasBadKarma(context) {
  */
 export function isWantedByAuthorities(context) {
   const authorityRep = context.factionReps.authorities || 0;
-  return authorityRep <= -25;
+  return authorityRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.LOW;
 }
 
 /**
@@ -131,7 +143,10 @@ export function isWantedByAuthorities(context) {
 export function hasMixedReputation(highFaction, lowFaction, context) {
   const highRep = context.factionReps[highFaction] || 0;
   const lowRep = context.factionReps[lowFaction] || 0;
-  return highRep >= 25 && lowRep <= -25;
+  return (
+    highRep >= FACTION_CONFIG.REPUTATION_THRESHOLDS.MODERATE &&
+    lowRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.LOW
+  );
 }
 
 /**
@@ -145,7 +160,7 @@ export function hasMixedReputation(highFaction, lowFaction, context) {
  * @returns {string} Text modifier to append to greeting
  */
 export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
-  if (karma >= 50) {
+  if (karma >= KARMA_CONFIG.THRESHOLDS.VERY_GOOD) {
     // Very good karma
     switch (npcPersonality) {
       case 'lawful':
@@ -155,7 +170,7 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
       default:
         return ' You have a trustworthy air about you.';
     }
-  } else if (karma >= 25) {
+  } else if (karma >= KARMA_CONFIG.THRESHOLDS.GOOD) {
     // Good karma
     switch (npcPersonality) {
       case 'lawful':
@@ -165,7 +180,7 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
       default:
         return ' You seem reliable.';
     }
-  } else if (karma <= -50) {
+  } else if (karma <= KARMA_CONFIG.THRESHOLDS.VERY_BAD) {
     // Very bad karma
     switch (npcPersonality) {
       case 'lawful':
@@ -175,7 +190,7 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
       default:
         return ' You have a dangerous look about you.';
     }
-  } else if (karma <= -25) {
+  } else if (karma <= KARMA_CONFIG.THRESHOLDS.BAD) {
     // Bad karma
     switch (npcPersonality) {
       case 'lawful':
@@ -204,13 +219,13 @@ export function getKarmaFirstImpression(karma, npcPersonality = 'neutral') {
 export function getFactionAttitudeModifier(npcFaction, context) {
   const factionRep = context.factionReps[npcFaction] || 0;
 
-  if (factionRep >= 75) {
+  if (factionRep >= FACTION_CONFIG.REPUTATION_THRESHOLDS.VERY_HIGH) {
     return " You're a true friend to our cause.";
-  } else if (factionRep >= 50) {
+  } else if (factionRep >= FACTION_CONFIG.REPUTATION_THRESHOLDS.HIGH) {
     return ' We appreciate your support.';
-  } else if (factionRep <= -75) {
+  } else if (factionRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.EXTREME_LOW) {
     return " Your reputation precedes you, and it's not good.";
-  } else if (factionRep <= -50) {
+  } else if (factionRep <= FACTION_CONFIG.REPUTATION_THRESHOLDS.VERY_LOW) {
     return ' We have... concerns about your activities.';
   }
 

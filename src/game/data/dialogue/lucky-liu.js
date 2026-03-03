@@ -8,7 +8,11 @@
  * @module dialogue/lucky-liu
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 
 /**
  * "Lucky" Liu Dialogue Tree - Gambler at Wolf 359
@@ -58,7 +62,7 @@ export const LUCKY_LIU_DIALOGUE = {
 
           if (daysRemaining <= 0) {
             baseText += `\n\n*About that stake I fronted you - ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, and the house always collects. Time to settle up, sport.*`;
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Quick reminder about your stake - ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits due in ${daysRemaining} days. Don't let it ride too long, yeah?*`;
           } else {
             baseText += `\n\n*Oh, and you still owe me ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits from that stake - ${daysRemaining} days left on the clock.*`;

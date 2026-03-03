@@ -68,7 +68,15 @@ export class InfoBrokerManager extends BaseManager {
    */
   generateRumor() {
     const state = this.getState();
-    return InformationBroker.generateRumor(state, this.starData);
+    const purchaseCount = state.stats.rumorsPurchased || 0;
+    const rumor = InformationBroker.generateRumor(
+      state,
+      this.starData,
+      purchaseCount
+    );
+    state.stats.rumorsPurchased = purchaseCount + 1;
+    this.gameStateManager.markDirty();
+    return rumor;
   }
 
   /**

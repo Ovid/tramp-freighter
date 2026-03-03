@@ -138,10 +138,11 @@ describe('Passenger Satisfaction & Payment', () => {
       state.missions.active[0].passenger.satisfaction = 85;
 
       const creditsBefore = state.player.credits;
-      manager.completeMission('test_passenger_001');
+      const result = manager.completeMission('test_passenger_001');
 
+      const gross = Math.round(800 * 1.4);
       const earned = state.player.credits - creditsBefore;
-      expect(earned).toBe(Math.round(800 * 1.4));
+      expect(earned).toBe(gross - result.withheld);
     });
 
     it('should apply satisfied multiplier when satisfaction >= 60', () => {
@@ -152,10 +153,11 @@ describe('Passenger Satisfaction & Payment', () => {
       state.missions.active[0].passenger.satisfaction = 65;
 
       const creditsBefore = state.player.credits;
-      manager.completeMission('test_passenger_001');
+      const result = manager.completeMission('test_passenger_001');
 
+      const gross = Math.round(800 * 1.25);
       const earned = state.player.credits - creditsBefore;
-      expect(earned).toBe(Math.round(800 * 1.25));
+      expect(earned).toBe(gross - result.withheld);
     });
 
     it('should apply dissatisfied multiplier when satisfaction < 40', () => {
@@ -166,10 +168,11 @@ describe('Passenger Satisfaction & Payment', () => {
       state.missions.active[0].passenger.satisfaction = 25;
 
       const creditsBefore = state.player.credits;
-      manager.completeMission('test_passenger_001');
+      const result = manager.completeMission('test_passenger_001');
 
+      const gross = Math.round(800 * 0.8);
       const earned = state.player.credits - creditsBefore;
-      expect(earned).toBe(Math.round(800 * 0.8));
+      expect(earned).toBe(gross - result.withheld);
     });
 
     it('should not apply on-time bonus when past deadline', () => {
@@ -181,10 +184,11 @@ describe('Passenger Satisfaction & Payment', () => {
       state.missions.active[0].passenger.satisfaction = 85;
 
       const creditsBefore = state.player.credits;
-      manager.completeMission('test_passenger_001');
+      const result = manager.completeMission('test_passenger_001');
 
+      const gross = Math.round(800 * 1.3);
       const earned = state.player.credits - creditsBefore;
-      expect(earned).toBe(Math.round(800 * 1.3));
+      expect(earned).toBe(gross - result.withheld);
     });
   });
 });

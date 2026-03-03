@@ -225,6 +225,7 @@ export class DebtManager extends BaseManager {
       finance.heat = 0;
       finance.lienRate = 0;
       finance.interestRate = 0;
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -270,6 +271,7 @@ export class DebtManager extends BaseManager {
       finance.heat = 0;
       finance.lienRate = 0;
       finance.interestRate = 0;
+      this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
       this.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
@@ -415,12 +417,10 @@ export class DebtManager extends BaseManager {
   }
 
   modifyColeRep(delta) {
-    const npcState = this.gameStateManager.getNPCState(
-      COLE_DEBT_CONFIG.COLE_NPC_ID
-    );
-    this.gameStateManager.setNpcRep(
+    this.gameStateManager.modifyRepRaw(
       COLE_DEBT_CONFIG.COLE_NPC_ID,
-      npcState.rep + delta
+      delta,
+      'cole_debt'
     );
   }
 

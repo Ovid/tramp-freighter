@@ -155,14 +155,15 @@ export class InformationBroker {
    *
    * @param {Object} gameState - Current game state
    * @param {Array} starData - Star system data
+   * @param {number} purchaseCount - Number of rumors already purchased (for seed variation)
    * @returns {string} Rumor text
    */
-  static generateRumor(gameState, starData) {
+  static generateRumor(gameState, starData, purchaseCount = 0) {
     const currentDay = gameState.player.daysElapsed;
     const activeEvents = gameState.world.activeEvents || [];
 
     // Use seeded random for deterministic rumor generation
-    const seed = `rumor_${currentDay}`;
+    const seed = `rumor_${currentDay}_${purchaseCount}`;
     const rng = new SeededRandom(seed);
 
     // Conditional Tanaka hint for mid-game players

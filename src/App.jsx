@@ -65,6 +65,7 @@ export default function App({ devMode = false }) {
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
   const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
   const pavonisRunEvent = useGameEvent(EVENT_NAMES.PAVONIS_RUN_TRIGGERED);
+  const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   useEventTriggers();
   const starmapRef = useRef(null);
 
@@ -607,6 +608,7 @@ export default function App({ devMode = false }) {
               <InstructionsModal
                 isOpen={showInstructions}
                 onClose={() => setShowInstructions(false)}
+                shipName={shipName}
               />
             </StarmapProvider>
           )}

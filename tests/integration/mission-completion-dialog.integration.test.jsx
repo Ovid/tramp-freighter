@@ -13,13 +13,20 @@ const mockGetCompletableMissions = vi.fn(() => [
     title: 'Cargo Run: parts to Sirius A',
     requirements: { cargo: 'parts', quantity: 24, destination: 'Sirius A' },
     rewards: { credits: 216 },
+    grossCredits: 216,
   },
 ]);
+
+const mockCalculateTradeWithholding = vi.fn((amount) => ({
+  withheld: 0,
+  playerReceives: amount,
+}));
 
 vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({
     completeMission: mockCompleteMission,
     getCompletableMissions: mockGetCompletableMissions,
+    calculateTradeWithholding: mockCalculateTradeWithholding,
   }),
 }));
 

@@ -37,7 +37,11 @@ export class ShipManager extends BaseManager {
    */
   assignShipQuirks(rng = Math.random) {
     const quirkIds = Object.keys(SHIP_CONFIG.QUIRKS);
-    const count = rng() < 0.5 ? 2 : 3;
+    const { QUIRK_ASSIGNMENT } = SHIP_CONFIG;
+    const count =
+      rng() < QUIRK_ASSIGNMENT.PROBABILITY_THRESHOLD
+        ? QUIRK_ASSIGNMENT.MIN_COUNT
+        : QUIRK_ASSIGNMENT.MAX_COUNT;
     const assigned = new Set();
 
     while (assigned.size < count) {

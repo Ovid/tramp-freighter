@@ -8,7 +8,11 @@
  * @module dialogue/zara-osman
  */
 
-import { REPUTATION_BOUNDS, NPC_BENEFITS_CONFIG } from '../../constants.js';
+import {
+  REPUTATION_BOUNDS,
+  NPC_BENEFITS_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../constants.js';
 
 /**
  * Zara Osman Dialogue Tree - Trader at Luyten's Star
@@ -59,7 +63,7 @@ export const ZARA_OSMAN_DIALOGUE = {
           if (daysRemaining <= 0) {
             baseText +=
               "\n\n*Hey, about that loan - five hundred credits, and the clock's run out. Time to settle up, partner.*";
-          } else if (daysRemaining <= 5) {
+          } else if (daysRemaining <= COLE_DEBT_CONFIG.LOAN_REMINDER_DAYS) {
             baseText += `\n\n*Quick reminder - you owe me five hundred credits, due in ${daysRemaining} days. Don't let it slip, yeah?*`;
           } else {
             baseText += `\n\n*Oh, and you still owe me five hundred credits - ${daysRemaining} days left on the clock.*`;

@@ -169,7 +169,9 @@ export class NegotiationManager extends BaseManager {
       return {
         success: false,
         costs: {
-          cargoPercent: encounter.demandPercent || 20,
+          cargoPercent:
+            encounter.demandPercent ??
+            PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT,
         },
         rewards: {},
         description:
