@@ -24,11 +24,7 @@ describe('InstructionsModal', () => {
 
   it('should display ship name and mention Ship Status in Your Ship section', () => {
     render(
-      <InstructionsModal
-        isOpen={true}
-        onClose={() => {}}
-        shipName="Wanderer"
-      />
+      <InstructionsModal isOpen={true} onClose={() => {}} shipName="Wanderer" />
     );
     expect(screen.getByText('Your Ship')).toBeInTheDocument();
     expect(screen.getByText(/Wanderer/)).toBeInTheDocument();

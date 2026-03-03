@@ -42,8 +42,8 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
           <p>
             <em>{shipName || 'Your ship'}</em> is second-hand — a Tanaka Mark
             III freighter. Every used ship has its quirks: maybe she sips fuel,
-            maybe she handles like a brick. Check <strong>Ship Status</strong> to
-            see what yours came with.
+            maybe she handles like a brick. Check <strong>Ship Status</strong>{' '}
+            to see what yours came with.
           </p>
         </section>
 
