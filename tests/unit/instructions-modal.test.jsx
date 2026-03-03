@@ -17,8 +17,22 @@ describe('InstructionsModal', () => {
     expect(screen.getByText("Captain's Briefing")).toBeInTheDocument();
     expect(screen.getByText('Your Goal')).toBeInTheDocument();
     expect(screen.getByText('Navigation')).toBeInTheDocument();
+    expect(screen.getByText('Your Ship')).toBeInTheDocument();
     expect(screen.getByText('Stations')).toBeInTheDocument();
     expect(screen.getByText('The Science')).toBeInTheDocument();
+  });
+
+  it('should display ship name and mention Ship Status in Your Ship section', () => {
+    render(
+      <InstructionsModal
+        isOpen={true}
+        onClose={() => {}}
+        shipName="Wanderer"
+      />
+    );
+    expect(screen.getByText('Your Ship')).toBeInTheDocument();
+    expect(screen.getByText(/Wanderer/)).toBeInTheDocument();
+    expect(screen.getByText(/Ship Status/)).toBeInTheDocument();
   });
 
   it('should call onClose when close button is clicked', () => {

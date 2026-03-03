@@ -634,7 +634,7 @@ export const ENDGAME_CONFIG = {
  */
 export const TANAKA_SUPPLY_CONFIG = {
   QUANTITY: 5,
-  REP_GAIN: 1,
+  REP_GAIN: 3,
   COOLDOWN_DAYS: 7,
   GOODS: ['electronics', 'medicine'],
 };

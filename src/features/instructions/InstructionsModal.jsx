@@ -1,6 +1,6 @@
 import { Modal } from '../../components/Modal';
 
-export function InstructionsModal({ isOpen, onClose }) {
+export function InstructionsModal({ isOpen, onClose, shipName }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Captain's Briefing">
       <div className="instructions-content">
@@ -34,6 +34,16 @@ export function InstructionsModal({ isOpen, onClose }) {
             Quick Access panel to view a system's details, wormhole connections,
             and the option to jump there. Every jump costs fuel and advances
             time.
+          </p>
+        </section>
+
+        <section className="instructions-section">
+          <h3>Your Ship</h3>
+          <p>
+            <em>{shipName || 'Your ship'}</em> is second-hand — a Tanaka Mark
+            III freighter. Every used ship has its quirks: maybe she sips fuel,
+            maybe she handles like a brick. Check <strong>Ship Status</strong> to
+            see what yours came with.
           </p>
         </section>
 

@@ -46,6 +46,12 @@ export const YUKI_TANAKA_DIALOGUE = {
       if (rep >= REPUTATION_BOUNDS.WARM_MIN) {
         return '"Your ship interests me. The Tanaka Mark III drive is one of my better designs." She studies you. "Perhaps we can help each other."';
       }
+      if (rep >= 7) {
+        return '"Captain." She looks up from her work. "You keep bringing supplies. You ask nothing in return." A pause. "I may have a use for that reliability."';
+      }
+      if (rep >= 4) {
+        return '"You again." She doesn\'t look up, but she doesn\'t turn away either. "Your deliveries have been... adequate."';
+      }
       return '"Tanaka. Engineer." She extends a hand, then withdraws it. "I have work to do. Unless you have business?"';
     },
 
@@ -527,15 +533,24 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   research_supply: {
-    text: (_rep, _context) => {
-      const lines = [
-        '"Electronics. Good quality. These will work for the coupling array."',
-        '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
-        '"I can use these. The drive prototype consumes components faster than I projected."',
-        "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
-        '"Every delivery gets me closer. I won\'t forget that."',
-        '"This saves me weeks of requisition paperwork. Appreciated."',
-      ];
+    text: (rep) => {
+      let lines;
+      if (rep >= 7) {
+        lines = [
+          '"Every delivery gets me closer. I won\'t forget that."',
+          '"Medical-grade sealant compounds. Useful for the containment housing. Thank you."',
+        ];
+      } else if (rep >= 4) {
+        lines = [
+          "\"You didn't have to do this. But I won't pretend it doesn't help.\"",
+          '"This saves me weeks of requisition paperwork. Appreciated."',
+        ];
+      } else {
+        lines = [
+          '"Electronics. Good quality. These will work for the coupling array."',
+          '"I can use these. The drive prototype consumes components faster than I projected."',
+        ];
+      }
       return lines[Math.floor(Math.random() * lines.length)];
     },
     choices: [
