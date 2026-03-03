@@ -45,10 +45,10 @@ describe('TradingManager coverage', () => {
     it('returns prices for a system with price knowledge', () => {
       gsm.state.world.priceKnowledge[42] = {
         lastVisit: 0,
-        prices: { food: 100, ore: 200 },
+        prices: { grain: 100, ore: 200 },
       };
       const prices = gsm.tradingManager.getKnownPrices(42);
-      expect(prices).toEqual({ food: 100, ore: 200 });
+      expect(prices).toEqual({ grain: 100, ore: 200 });
     });
 
     it('throws when priceKnowledge is missing', () => {
@@ -97,8 +97,10 @@ describe('TradingManager coverage', () => {
       expect(gsm.tradingManager.isGoodRestrictedAnywhere('parts')).toBe(true);
     });
 
-    it('returns false for food (unrestricted everywhere)', () => {
-      expect(gsm.tradingManager.isGoodRestrictedAnywhere('food')).toBe(false);
+    it('returns false for grain (unrestricted everywhere)', () => {
+      expect(gsm.tradingManager.isGoodRestrictedAnywhere('grain')).toBe(
+        false
+      );
     });
   });
 
@@ -107,7 +109,7 @@ describe('TradingManager coverage', () => {
       const systemId = gsm.state.player.currentSystem;
       gsm.state.world.priceKnowledge[systemId] = {
         lastVisit: 5,
-        prices: { food: 999, ore: 999 },
+        prices: { grain: 999, ore: 999 },
       };
 
       gsm.tradingManager.recalculatePricesForKnownSystems();
@@ -123,7 +125,7 @@ describe('TradingManager coverage', () => {
       const systemId = gsm.state.player.currentSystem;
       gsm.state.world.priceKnowledge[systemId] = {
         lastVisit: 42,
-        prices: { food: 100 },
+        prices: { grain: 100 },
       };
 
       gsm.tradingManager.recalculatePricesForKnownSystems();
@@ -140,14 +142,14 @@ describe('TradingManager coverage', () => {
     it('skips unknown system IDs gracefully', () => {
       gsm.state.world.priceKnowledge[9999] = {
         lastVisit: 0,
-        prices: { food: 100 },
+        prices: { grain: 100 },
       };
 
       gsm.tradingManager.recalculatePricesForKnownSystems();
 
       // Unknown system should still exist but prices unchanged
       expect(gsm.state.world.priceKnowledge[9999].prices).toEqual({
-        food: 100,
+        grain: 100,
       });
     });
 
@@ -156,7 +158,7 @@ describe('TradingManager coverage', () => {
       gsm.subscribe('priceKnowledgeChanged', handler);
       gsm.state.world.priceKnowledge[0] = {
         lastVisit: 0,
-        prices: { food: 100 },
+        prices: { grain: 100 },
       };
 
       gsm.tradingManager.recalculatePricesForKnownSystems();
@@ -191,7 +193,7 @@ describe('TradingManager coverage', () => {
     it('increments lastVisit by 1 day by default', () => {
       gsm.state.world.priceKnowledge[0] = {
         lastVisit: 5,
-        prices: { food: 100 },
+        prices: { grain: 100 },
       };
 
       gsm.tradingManager.incrementPriceKnowledgeStaleness();
@@ -202,7 +204,7 @@ describe('TradingManager coverage', () => {
     it('increments lastVisit by specified days', () => {
       gsm.state.world.priceKnowledge[0] = {
         lastVisit: 5,
-        prices: { food: 100 },
+        prices: { grain: 100 },
       };
 
       gsm.tradingManager.incrementPriceKnowledgeStaleness(3);
@@ -245,28 +247,28 @@ describe('TradingManager coverage', () => {
 
   describe('updatePriceKnowledge', () => {
     it('stores prices for a system', () => {
-      const prices = { food: 50, ore: 75 };
+      const prices = { grain: 50, ore: 75 };
       gsm.tradingManager.updatePriceKnowledge(42, prices, 0, 'visited');
 
       expect(gsm.state.world.priceKnowledge[42]).toEqual({
         lastVisit: 0,
-        prices: { food: 50, ore: 75 },
+        prices: { grain: 50, ore: 75 },
         source: 'visited',
       });
     });
 
     it('makes a defensive copy of prices', () => {
-      const prices = { food: 50 };
+      const prices = { grain: 50 };
       gsm.tradingManager.updatePriceKnowledge(42, prices);
-      prices.food = 999;
-      expect(gsm.state.world.priceKnowledge[42].prices.food).toBe(50);
+      prices.grain = 999;
+      expect(gsm.state.world.priceKnowledge[42].prices.grain).toBe(50);
     });
 
     it('emits PRICE_KNOWLEDGE_CHANGED event', () => {
       const handler = vi.fn();
       gsm.subscribe('priceKnowledgeChanged', handler);
 
-      gsm.tradingManager.updatePriceKnowledge(42, { food: 50 });
+      gsm.tradingManager.updatePriceKnowledge(42, { grain: 50 });
 
       expect(handler).toHaveBeenCalledTimes(1);
     });
@@ -416,23 +418,23 @@ describe('TradingManager coverage', () => {
   describe('applyMarketRecovery', () => {
     it('decays market conditions toward zero', () => {
       gsm.state.world.marketConditions = {
-        0: { ore: 100, food: -50 },
+        0: { ore: 100, grain: -50 },
       };
       gsm.tradingManager.applyMarketRecovery(1);
       // After 1 day, values should be multiplied by 0.9
       expect(gsm.state.world.marketConditions[0].ore).toBeCloseTo(90, 0);
-      expect(gsm.state.world.marketConditions[0].food).toBeCloseTo(-45, 0);
+      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(-45, 0);
     });
 
     it('prunes insignificant values and removes empty system entries', () => {
       gsm.state.world.marketConditions = {
-        0: { ore: 0.5, food: 100 },
+        0: { ore: 0.5, grain: 100 },
       };
       gsm.tradingManager.applyMarketRecovery(1);
       // ore: 0.5 * 0.9 = 0.45, below threshold 1.0, pruned
       expect(gsm.state.world.marketConditions[0].ore).toBeUndefined();
-      // food: 100 * 0.9 = 90, still significant
-      expect(gsm.state.world.marketConditions[0].food).toBeCloseTo(90, 0);
+      // grain: 100 * 0.9 = 90, still significant
+      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(90, 0);
     });
 
     it('removes system entry when all commodities pruned', () => {
@@ -533,7 +535,7 @@ describe('TradingManager coverage', () => {
 
     it('returns false for unrestricted goods', () => {
       vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
-      expect(gsm.tradingManager.isGoodRestricted('food', 5)).toBe(false);
+      expect(gsm.tradingManager.isGoodRestricted('grain', 5)).toBe(false);
     });
   });
 
@@ -561,15 +563,15 @@ describe('TradingManager coverage', () => {
 
     it('returns base price for completely unrestricted goods', () => {
       vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
-      // food is unrestricted everywhere
-      expect(gsm.tradingManager.calculateSellPrice('food', 5, 100)).toBe(100);
+      // grain is unrestricted everywhere
+      expect(gsm.tradingManager.calculateSellPrice('grain', 5, 100)).toBe(100);
     });
   });
 
   describe('canSellGood', () => {
     it('returns true for unrestricted goods without black market contact', () => {
       vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
-      expect(gsm.tradingManager.canSellGood('food', 5, false)).toBe(true);
+      expect(gsm.tradingManager.canSellGood('grain', 5, false)).toBe(true);
     });
 
     it('returns false for restricted goods without black market contact', () => {
