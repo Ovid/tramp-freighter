@@ -297,7 +297,10 @@ describe('TradingManager coverage', () => {
     it('returns failure when insufficient credits', () => {
       gsm.state.player.credits = 10;
       const result = gsm.tradingManager.buyGood('ore', 5, 100);
-      expect(result).toEqual({ success: false, reason: 'Insufficient credits' });
+      expect(result).toEqual({
+        success: false,
+        reason: 'Insufficient credits',
+      });
     });
 
     it('returns failure when insufficient cargo space', () => {
@@ -511,9 +514,9 @@ describe('TradingManager coverage', () => {
 
     it('returns true for parts at Sol (core system)', () => {
       vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
-      expect(
-        gsm.tradingManager.isGoodRestricted('parts', SOL_SYSTEM_ID)
-      ).toBe(true);
+      expect(gsm.tradingManager.isGoodRestricted('parts', SOL_SYSTEM_ID)).toBe(
+        true
+      );
     });
 
     it('returns true for parts at Alpha Centauri (core system)', () => {

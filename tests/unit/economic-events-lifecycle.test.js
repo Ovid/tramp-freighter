@@ -326,9 +326,7 @@ describe('EconomicEventsSystem Lifecycle', () => {
 
   describe('getActiveEventForSystem', () => {
     it('returns null for non-array activeEvents', () => {
-      expect(
-        EconomicEventsSystem.getActiveEventForSystem(0, null)
-      ).toBeNull();
+      expect(EconomicEventsSystem.getActiveEventForSystem(0, null)).toBeNull();
       expect(
         EconomicEventsSystem.getActiveEventForSystem(0, undefined)
       ).toBeNull();

@@ -109,23 +109,66 @@ describe('TradingSystem.recordCargoPurchase', () => {
   });
 
   it('creates separate stack when price differs', () => {
-    const cargo = [{ good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sol', buyDate: 0 }];
-    const result = TradingSystem.recordCargoPurchase(cargo, 'ore', 3, 200, 5, 'Proxima', 5);
+    const cargo = [
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+    ];
+    const result = TradingSystem.recordCargoPurchase(
+      cargo,
+      'ore',
+      3,
+      200,
+      5,
+      'Proxima',
+      5
+    );
     expect(result).toHaveLength(2);
     expect(result[0].buyPrice).toBe(100);
     expect(result[1].buyPrice).toBe(200);
   });
 
   it('creates separate stack when good type differs', () => {
-    const cargo = [{ good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sol', buyDate: 0 }];
-    const result = TradingSystem.recordCargoPurchase(cargo, 'food', 3, 100, 5, 'Proxima', 5);
+    const cargo = [
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+    ];
+    const result = TradingSystem.recordCargoPurchase(
+      cargo,
+      'food',
+      3,
+      100,
+      5,
+      'Proxima',
+      5
+    );
     expect(result).toHaveLength(2);
     expect(result[0].good).toBe('ore');
     expect(result[1].good).toBe('food');
   });
 
   it('does not mutate the original cargo array', () => {
-    const cargo = [{ good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sol', buyDate: 0 }];
+    const cargo = [
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+    ];
     TradingSystem.recordCargoPurchase(cargo, 'ore', 3, 100, 5, 'Proxima', 5);
     expect(cargo).toHaveLength(1);
     expect(cargo[0].qty).toBe(5);
