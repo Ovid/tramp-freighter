@@ -175,33 +175,8 @@ export class QuestManager extends BaseManager {
   }
 
   canStartStage(questId, stage) {
-    const questDef = this.questDefinitions[questId];
-    if (!questDef) return false;
-
-    const stageDef = questDef.stages.find((s) => s.stage === stage);
-    if (!stageDef?.requirements) return true;
-
-    const state = this.getState();
-    const reqs = stageDef.requirements;
-
-    if (reqs.npcRep) {
-      const [npcId, threshold] = reqs.npcRep;
-      const npcState = state.npcs[npcId];
-      if (!npcState || npcState.rep < threshold) return false;
-    }
-
-    if (
-      reqs.engineCondition != null &&
-      state.ship.engine < reqs.engineCondition
-    )
-      return false;
-    if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
-      return false;
-    if (reqs.debt != null && state.player.debt !== reqs.debt) return false;
-    if (reqs.credits != null && state.player.credits < reqs.credits)
-      return false;
-
-    return true;
+    if (!this.questDefinitions[questId]) return false;
+    return this.getUnmetRequirements(questId, stage).length === 0;
   }
 
   getUnmetRequirements(questId, stage) {

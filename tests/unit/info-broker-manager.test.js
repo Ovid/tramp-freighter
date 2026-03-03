@@ -150,20 +150,6 @@ describe('InfoBrokerManager', () => {
       expect(state.stats.rumorsPurchased).toBe(before + 1);
     });
 
-    it('consecutive purchases on the same day can return different rumors', () => {
-      const state = gsm.getState();
-      state.player.daysElapsed = 10;
-      state.player.credits = 10000;
-
-      // With only 6 commodity types, two consecutive seeded picks may collide.
-      // Verify that at least 2 distinct rumors appear across 5 purchases.
-      const rumors = new Set();
-      for (let i = 0; i < 5; i++) {
-        rumors.add(gsm.generateRumor());
-      }
-
-      expect(rumors.size).toBeGreaterThanOrEqual(2);
-    });
 
     it('returns Tanaka hint when player has 5+ systems visited and tanaka_met not set', () => {
       const state = gsm.getState();

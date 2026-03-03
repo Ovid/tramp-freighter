@@ -24,6 +24,15 @@ export const YUKI_TANAKA_DIALOGUE = {
 
       const stage = context.getQuestStage('tanaka');
 
+      // Hint when between stages: rewards claimed but can't start next
+      if (stage >= 1 && stage < 5 && context.hasClaimedStageRewards('tanaka')) {
+        const nextStage = stage + 1;
+        if (!context.canStartQuestStage('tanaka', nextStage)) {
+          const hint = getRequirementHint(context, nextStage);
+          if (hint) return hint;
+        }
+      }
+
       if (stage >= 5) {
         return '"Everything is in place. The Range Extender is calibrated. Your ship is ready." She meets your eyes. "Are you?"';
       }
@@ -53,15 +62,6 @@ export const YUKI_TANAKA_DIALOGUE = {
           return '"The field test data looks excellent. The drive modifications are performing within expected parameters." She actually smiles. "I have another task for you."';
         }
         return `"The field test is in progress. ${ENDGAME_CONFIG.STAGE_1_JUMPS - jumps} more jumps needed to calibrate the drive harmonics." She studies her readouts intently.`;
-      }
-
-      // Hint when between stages: rewards claimed but can't start next
-      if (stage >= 1 && stage < 5 && context.hasClaimedStageRewards('tanaka')) {
-        const nextStage = stage + 1;
-        if (!context.canStartQuestStage('tanaka', nextStage)) {
-          const hint = getRequirementHint(context, nextStage);
-          if (hint) return hint;
-        }
       }
 
       // Stage 0 with requirements not met for stage 1
