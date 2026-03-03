@@ -65,13 +65,16 @@ describe('Save/Load Error Recovery', () => {
   });
 
   describe('attemptNPCRecovery', () => {
-    it('clears NPC and dialogue state then calls restoreState', () => {
+    it('clears NPC and dialogue state then restores successfully', () => {
       // Save current valid game state to localStorage first
       gsm.saveLoadManager._forceSave();
 
       const restoreSpy = vi.spyOn(gsm, 'restoreState');
 
-      gsm.saveLoadManager.attemptNPCRecovery();
+      const result = gsm.saveLoadManager.attemptNPCRecovery();
+
+      // Should return non-null on successful recovery
+      expect(result).not.toBeNull();
 
       expect(restoreSpy).toHaveBeenCalledTimes(1);
       const restoredArg = restoreSpy.mock.calls[0][0];
