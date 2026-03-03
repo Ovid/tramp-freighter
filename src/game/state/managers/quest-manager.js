@@ -175,7 +175,10 @@ export class QuestManager extends BaseManager {
   }
 
   canStartStage(questId, stage) {
-    if (!this.questDefinitions[questId]) return false;
+    const questDef = this.questDefinitions[questId];
+    if (!questDef) return false;
+    const stageDef = questDef.stages.find((s) => s.stage === stage);
+    if (!stageDef) return false;
     return this.getUnmetRequirements(questId, stage).length === 0;
   }
 
