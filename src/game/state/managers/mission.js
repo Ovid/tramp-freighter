@@ -218,6 +218,9 @@ export class MissionManager extends BaseManager {
       withheld = result.withheld;
       const playerReceives = grossCredits - withheld;
       state.player.credits += playerReceives;
+      if (state.stats) {
+        state.stats.creditsEarned += grossCredits;
+      }
       this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
     }
 
