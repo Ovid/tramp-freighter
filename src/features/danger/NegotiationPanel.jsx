@@ -59,7 +59,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
   };
 
   // Determine negotiation context for display
-  const demandPercent = encounter.demandPercent || 20;
+  const demandPercent = encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT;
   const pirateDescription =
     encounter.description ||
     `The pirates are demanding ${demandPercent}% of your cargo as tribute.`;

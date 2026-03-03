@@ -119,7 +119,7 @@ export function PirateEncounterPanel({
             </div>
             <div className="pirate-description">
               {encounter.description ||
-                `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent || 20}% of your cargo as tribute.`}
+                `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}% of your cargo as tribute.`}
             </div>
           </div>
         </div>
@@ -274,7 +274,7 @@ export function PirateEncounterPanel({
               <div className="option-consequences">
                 <div className="consequence success">
                   {hasTradeCargo
-                    ? `Success: Reduced payment (10% cargo instead of ${encounter.demandPercent || PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}%)`
+                    ? `Success: Reduced payment (10% cargo instead of ${encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}%)`
                     : `Success: Reduced credit demand (₡${Math.round(PIRATE_CREDIT_DEMAND_CONFIG.MIN_CREDIT_DEMAND * PIRATE_CREDIT_DEMAND_CONFIG.COUNTER_PROPOSAL_DISCOUNT)})`}
                 </div>
                 <div className="consequence failure">
@@ -313,7 +313,7 @@ export function PirateEncounterPanel({
               <div className="option-consequences">
                 {hasTradeCargo ? (
                   <div className="consequence guaranteed">
-                    Guaranteed: Pay {encounter.demandPercent || 20}% of cargo,
+                    Guaranteed: Pay {encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}% of cargo,
                     safe passage
                   </div>
                 ) : (
