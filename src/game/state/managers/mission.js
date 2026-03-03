@@ -501,42 +501,50 @@ export class MissionManager extends BaseManager {
     this.validateState();
     const state = this.getState();
 
-    return state.missions.active.filter((mission) => {
-      if (mission.type === 'delivery') {
-        if (mission.requirements.destination !== state.player.currentSystem)
-          return false;
-        if (mission.missionCargo) {
-          return state.ship.cargo.some((c) => c.missionId === mission.id);
+    return state.missions.active
+      .filter((mission) => {
+        if (mission.type === 'delivery') {
+          if (mission.requirements.destination !== state.player.currentSystem)
+            return false;
+          if (mission.missionCargo) {
+            return state.ship.cargo.some((c) => c.missionId === mission.id);
+          }
+          if (mission.requirements.cargo) {
+            const totalCargo = state.ship.cargo
+              .filter((c) => c.good === mission.requirements.cargo)
+              .reduce((sum, c) => sum + c.qty, 0);
+            return totalCargo >= mission.requirements.quantity;
+          }
+          return true;
         }
-        if (mission.requirements.cargo) {
-          const totalCargo = state.ship.cargo
-            .filter((c) => c.good === mission.requirements.cargo)
-            .reduce((sum, c) => sum + c.qty, 0);
-          return totalCargo >= mission.requirements.quantity;
+        if (mission.type === 'fetch') {
+          if (mission.giverSystem !== state.player.currentSystem) return false;
+          if (mission.requirements.cargo) {
+            const totalCargo = state.ship.cargo
+              .filter((c) => c.good === mission.requirements.cargo)
+              .reduce((sum, c) => sum + c.qty, 0);
+            return totalCargo >= mission.requirements.quantity;
+          }
+          return true;
         }
-        return true;
-      }
-      if (mission.type === 'fetch') {
-        if (mission.giverSystem !== state.player.currentSystem) return false;
-        if (mission.requirements.cargo) {
-          const totalCargo = state.ship.cargo
-            .filter((c) => c.good === mission.requirements.cargo)
-            .reduce((sum, c) => sum + c.qty, 0);
-          return totalCargo >= mission.requirements.quantity;
+        if (mission.type === 'intel') {
+          if (mission.giverSystem !== state.player.currentSystem) return false;
+          return mission.requirements.targets.every((t) =>
+            state.world.visitedSystems.includes(t)
+          );
         }
-        return true;
-      }
-      if (mission.type === 'intel') {
-        if (mission.giverSystem !== state.player.currentSystem) return false;
-        return mission.requirements.targets.every((t) =>
-          state.world.visitedSystems.includes(t)
-        );
-      }
-      if (mission.type === 'passenger') {
-        return mission.requirements.destination === state.player.currentSystem;
-      }
-      return false;
-    });
+        if (mission.type === 'passenger') {
+          return mission.requirements.destination === state.player.currentSystem;
+        }
+        return false;
+      })
+      .map((mission) => ({
+        ...mission,
+        grossCredits:
+          mission.type === 'passenger'
+            ? this.calculatePassengerPayment(mission)
+            : mission.rewards?.credits || 0,
+      }));
   }
 
   failMissionsDueToCargoLoss() {

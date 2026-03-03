@@ -62,10 +62,9 @@ export function MissionCompleteNotifier() {
               </div>
             </div>
           )}
-          {current.rewards &&
-            current.rewards.credits > 0 &&
+          {current.grossCredits > 0 &&
             (() => {
-              const gross = current.rewards.credits;
+              const gross = current.grossCredits;
               const { withheld, playerReceives } =
                 calculateTradeWithholding(gross);
               return (

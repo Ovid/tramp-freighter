@@ -13,6 +13,7 @@ const mockGetCompletableMissions = vi.fn(() => [
     title: 'Cargo Run: parts to Sirius A',
     requirements: { cargo: 'parts', quantity: 24, destination: 'Sirius A' },
     rewards: { credits: 216 },
+    grossCredits: 216,
   },
 ]);
 

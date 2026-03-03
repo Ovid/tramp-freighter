@@ -104,11 +104,15 @@ describe('modifyRep delegates to modifyRepRaw', () => {
     vi.restoreAllMocks();
   });
 
-  it('modifyRep calls modifyRepRaw with trust-modified amount', () => {
-    const spy = vi.spyOn(manager.npcManager, 'modifyRepRaw');
-    manager.modifyRep('chen_barnards', 10, 'test');
-    expect(spy).toHaveBeenCalledTimes(1);
+  it('modifyRep applies trust modifier and updates interaction tracking', () => {
     // chen_barnards trust is 0.3, so 10 * 0.3 = 3
-    expect(spy).toHaveBeenCalledWith('chen_barnards', 3, 'test');
+    const startRep = manager.getNPCState('chen_barnards').rep;
+    const startInteractions =
+      manager.getNPCState('chen_barnards').interactions;
+    manager.modifyRep('chen_barnards', 10, 'test');
+    expect(manager.getNPCState('chen_barnards').rep).toBe(startRep + 3);
+    expect(manager.getNPCState('chen_barnards').interactions).toBe(
+      startInteractions + 1
+    );
   });
 });
