@@ -133,6 +133,23 @@ describe('InfoBrokerManager', () => {
       expect(typeof rumor).toBe('string');
     });
 
+    it('marks state dirty so counter persists across saves', () => {
+      const markDirtySpy = vi.spyOn(gsm, 'markDirty');
+
+      gsm.generateRumor();
+
+      expect(markDirtySpy).toHaveBeenCalled();
+    });
+
+    it('increments rumorsPurchased counter in stats', () => {
+      const state = gsm.getState();
+      const before = state.stats.rumorsPurchased || 0;
+
+      gsm.generateRumor();
+
+      expect(state.stats.rumorsPurchased).toBe(before + 1);
+    });
+
     it('consecutive purchases on the same day can return different rumors', () => {
       const state = gsm.getState();
       state.player.daysElapsed = 10;

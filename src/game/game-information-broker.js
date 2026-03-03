@@ -155,16 +155,12 @@ export class InformationBroker {
    *
    * @param {Object} gameState - Current game state
    * @param {Array} starData - Star system data
+   * @param {number} purchaseCount - Number of rumors already purchased (for seed variation)
    * @returns {string} Rumor text
    */
-  static generateRumor(gameState, starData) {
+  static generateRumor(gameState, starData, purchaseCount = 0) {
     const currentDay = gameState.player.daysElapsed;
     const activeEvents = gameState.world.activeEvents || [];
-
-    // Track purchase count so consecutive buys on the same day differ
-    if (!gameState.stats) gameState.stats = {};
-    const purchaseCount = gameState.stats.rumorsPurchased || 0;
-    gameState.stats.rumorsPurchased = purchaseCount + 1;
 
     // Use seeded random for deterministic rumor generation
     const seed = `rumor_${currentDay}_${purchaseCount}`;
