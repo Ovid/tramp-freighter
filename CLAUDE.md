@@ -137,3 +137,5 @@ Full a11y pass is planned. In the meantime, new and modified components should i
 - `const`/`let` only, never `var`
 - Comments explain WHY, not WHAT. Never mention task numbers in comments.
 - Import order: external libraries → internal modules → components → utilities → data/constants → styles
+
+IMPORTANT: after reading this file, you must MUST say "CLAUDE.md read and understood. Ready to assist with code tasks."
