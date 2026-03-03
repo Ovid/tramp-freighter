@@ -176,9 +176,7 @@ describe('Narrative Event Data', () => {
       const preTanaka = NARRATIVE_EVENTS.find(
         (e) => e.id === 'dock_barnards_pre_tanaka'
       );
-      const tanakaIntro = NARRATIVE_EVENTS.find(
-        (e) => e.id === 'tanaka_intro'
-      );
+      const tanakaIntro = NARRATIVE_EVENTS.find((e) => e.id === 'tanaka_intro');
       expect(tanakaIntro.priority).toBeGreaterThan(preTanaka.priority);
     });
   });

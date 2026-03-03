@@ -220,7 +220,12 @@ describe('Mission Completion', () => {
         id: 'test_withholding',
         type: 'delivery',
         title: 'Test Withholding',
-        requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+        requirements: {
+          cargo: 'grain',
+          quantity: 10,
+          destination: 0,
+          deadline: 7,
+        },
         rewards: { credits: 500 },
         penalties: { failure: {} },
       };
@@ -241,7 +246,12 @@ describe('Mission Completion', () => {
         id: 'test_no_withholding',
         type: 'delivery',
         title: 'No Debt',
-        requirements: { cargo: 'grain', quantity: 10, destination: 0, deadline: 7 },
+        requirements: {
+          cargo: 'grain',
+          quantity: 10,
+          destination: 0,
+          deadline: 7,
+        },
         rewards: { credits: 500 },
         penalties: { failure: {} },
       };

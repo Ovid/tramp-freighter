@@ -34,9 +34,7 @@ describe('sellGood emits new cargo array reference', () => {
     const state = gsm.getState();
     state.player.credits = 1000;
     state.player.debt = 0;
-    state.ship.cargo = [
-      { good: 'ore', qty: 10, buyPrice: 15 },
-    ];
+    state.ship.cargo = [{ good: 'ore', qty: 10, buyPrice: 15 }];
 
     // Capture the cargo reference before the sell
     const cargoBefore = state.ship.cargo;

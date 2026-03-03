@@ -222,7 +222,10 @@ export class QuestManager extends BaseManager {
       const npcState = state.npcs[npcId];
       if (!npcState || npcState.rep < threshold) unmet.push('rep');
     }
-    if (reqs.engineCondition != null && state.ship.engine < reqs.engineCondition)
+    if (
+      reqs.engineCondition != null &&
+      state.ship.engine < reqs.engineCondition
+    )
       unmet.push('engine');
     if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
       unmet.push('hull');

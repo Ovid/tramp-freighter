@@ -62,22 +62,27 @@ export function MissionCompleteNotifier() {
               </div>
             </div>
           )}
-          {current.rewards && current.rewards.credits > 0 && (() => {
-            const gross = current.rewards.credits;
-            const { withheld, playerReceives } = calculateTradeWithholding(gross);
-            return (
-              <div className="mission-complete-rewards">
-                <h4>Rewards:</h4>
-                <div>₡{gross}</div>
-                {withheld > 0 && (
-                  <>
-                    <div className="withholding-line">Cole&apos;s cut: -₡{withheld}</div>
-                    <div>You receive: ₡{playerReceives}</div>
-                  </>
-                )}
-              </div>
-            );
-          })()}
+          {current.rewards &&
+            current.rewards.credits > 0 &&
+            (() => {
+              const gross = current.rewards.credits;
+              const { withheld, playerReceives } =
+                calculateTradeWithholding(gross);
+              return (
+                <div className="mission-complete-rewards">
+                  <h4>Rewards:</h4>
+                  <div>₡{gross}</div>
+                  {withheld > 0 && (
+                    <>
+                      <div className="withholding-line">
+                        Cole&apos;s cut: -₡{withheld}
+                      </div>
+                      <div>You receive: ₡{playerReceives}</div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
         </div>
         <div className="modal-actions">
           <button className="modal-cancel" onClick={handleDismiss}>
