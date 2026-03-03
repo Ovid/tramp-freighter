@@ -4,7 +4,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getShortestPath,
   getReachableSystems,
-  _resetCacheForTesting,
 } from '../../src/game/utils/wormhole-graph.js';
 
 /**
