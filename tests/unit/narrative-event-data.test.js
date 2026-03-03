@@ -171,5 +171,15 @@ describe('Narrative Event Data', () => {
       expect(flagCondition).toBeDefined();
       expect(flagCondition.flag).toBe('tanaka_met');
     });
+
+    it('tanaka_intro has higher priority than dock_barnards_pre_tanaka', () => {
+      const preTanaka = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'dock_barnards_pre_tanaka'
+      );
+      const tanakaIntro = NARRATIVE_EVENTS.find(
+        (e) => e.id === 'tanaka_intro'
+      );
+      expect(tanakaIntro.priority).toBeGreaterThan(preTanaka.priority);
+    });
   });
 });

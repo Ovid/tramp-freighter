@@ -5,6 +5,7 @@ import {
 } from '../constants.js';
 
 const {
+  NARRATIVE_PRIORITY_CRITICAL,
   NARRATIVE_PRIORITY_HIGH,
   NARRATIVE_PRIORITY_DEFAULT,
   NARRATIVE_PRIORITY_LOW,
@@ -736,7 +737,7 @@ export const NARRATIVE_EVENTS = [
     type: 'dock',
     category: 'narrative',
     trigger: {
-      system: 4,
+      system: ENDGAME_CONFIG.TANAKA_SYSTEM,
       condition: [
         {
           type: CONDITION_TYPES.SYSTEMS_VISITED_COUNT,
@@ -748,7 +749,7 @@ export const NARRATIVE_EVENTS = [
     },
     once: true,
     cooldown: 0,
-    priority: NARRATIVE_PRIORITY_HIGH,
+    priority: NARRATIVE_PRIORITY_CRITICAL,
     content: {
       text: [
         "A woman in engineer's coveralls watches your ship dock. She approaches as you exit the airlock.",
