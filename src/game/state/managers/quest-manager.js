@@ -206,6 +206,34 @@ export class QuestManager extends BaseManager {
     return true;
   }
 
+  getUnmetRequirements(questId, stage) {
+    const questDef = this.questDefinitions[questId];
+    if (!questDef) return [];
+
+    const stageDef = questDef.stages.find((s) => s.stage === stage);
+    if (!stageDef?.requirements) return [];
+
+    const state = this.getState();
+    const reqs = stageDef.requirements;
+    const unmet = [];
+
+    if (reqs.npcRep) {
+      const [npcId, threshold] = reqs.npcRep;
+      const npcState = state.npcs[npcId];
+      if (!npcState || npcState.rep < threshold) unmet.push('rep');
+    }
+    if (reqs.engineCondition != null && state.ship.engine < reqs.engineCondition)
+      unmet.push('engine');
+    if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
+      unmet.push('hull');
+    if (reqs.debt != null && state.player.debt !== reqs.debt)
+      unmet.push('debt');
+    if (reqs.credits != null && state.player.credits < reqs.credits)
+      unmet.push('credits');
+
+    return unmet;
+  }
+
   checkObjectivesComplete(questId) {
     const questDef = this.questDefinitions[questId];
     const questState = this.getQuestState(questId);

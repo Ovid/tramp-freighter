@@ -584,6 +584,10 @@ export class GameStateManager {
     return this.questManager.canStartStage(questId, stage);
   }
 
+  getUnmetRequirements(questId, stage) {
+    return this.questManager.getUnmetRequirements(questId, stage);
+  }
+
   checkQuestObjectives(questId) {
     return this.questManager.checkObjectivesComplete(questId);
   }

@@ -9,6 +9,7 @@ function makeContext(overrides = {}) {
     checkQuestObjectives: () => false,
     hasClaimedStageRewards: () => false,
     canContributeSupply: () => false,
+    getUnmetRequirements: () => [],
     ...overrides,
   };
 }

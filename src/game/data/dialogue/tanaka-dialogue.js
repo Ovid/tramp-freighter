@@ -1,5 +1,20 @@
 import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
 
+function getRequirementHint(context, nextStage) {
+  const unmet = context.getUnmetRequirements('tanaka', nextStage);
+  if (unmet.includes('engine'))
+    return '"Your drive\'s running rough. I wouldn\'t trust my firmware on an engine in that shape." She glances at your ship. "Get it tuned up and we\'ll talk."';
+  if (unmet.includes('hull'))
+    return '"Your hull\'s taken a beating. Get that patched up before we talk next steps." She runs a hand along a dent in your ship\'s plating.';
+  if (unmet.includes('debt'))
+    return '"You\'re still in Cole\'s pocket. Settle that first." She crosses her arms. "I don\'t work with people who have strings attached."';
+  if (unmet.includes('credits'))
+    return '"What I have in mind isn\'t cheap. You\'ll need deeper pockets before we proceed." She glances at your ship. "Keep trading."';
+  if (unmet.includes('rep'))
+    return '"I like you, captain. But I don\'t know you well enough yet for what comes next." She turns back to her work. "Keep visiting. Bring supplies. We\'ll get there."';
+  return null;
+}
+
 export const YUKI_TANAKA_DIALOGUE = {
   greeting: {
     text: (rep, context) => {
@@ -38,6 +53,21 @@ export const YUKI_TANAKA_DIALOGUE = {
           return '"The field test data looks excellent. The drive modifications are performing within expected parameters." She actually smiles. "I have another task for you."';
         }
         return `"The field test is in progress. ${ENDGAME_CONFIG.STAGE_1_JUMPS - jumps} more jumps needed to calibrate the drive harmonics." She studies her readouts intently.`;
+      }
+
+      // Hint when between stages: rewards claimed but can't start next
+      if (stage >= 1 && stage < 5 && context.hasClaimedStageRewards('tanaka')) {
+        const nextStage = stage + 1;
+        if (!context.canStartQuestStage('tanaka', nextStage)) {
+          const hint = getRequirementHint(context, nextStage);
+          if (hint) return hint;
+        }
+      }
+
+      // Stage 0 with requirements not met for stage 1
+      if (stage === 0 && !context.canStartQuestStage('tanaka', 1)) {
+        const hint = getRequirementHint(context, 1);
+        if (hint) return hint;
       }
 
       if (rep >= REPUTATION_BOUNDS.FRIENDLY_MIN) {

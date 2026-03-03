@@ -76,6 +76,8 @@ export function buildDialogueContext(gameStateManager, npcId) {
       gameStateManager.checkQuestObjectives(questId),
     hasClaimedStageRewards: (questId) =>
       gameStateManager.hasClaimedStageRewards(questId),
+    getUnmetRequirements: (questId, stage) =>
+      gameStateManager.getUnmetRequirements(questId, stage),
 
     // Action callbacks (bound to npcId where appropriate)
     requestLoan: () => gameStateManager.requestLoan(npcId),
