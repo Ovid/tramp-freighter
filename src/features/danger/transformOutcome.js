@@ -56,13 +56,25 @@ export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
     });
   }
 
+  // Build consequences with additional effects
+  const consequences = {};
+  const additionalEffects = [];
+
+  if (rawOutcome.escalate) {
+    additionalEffects.push('Pirates become more aggressive (+10% threat)');
+  }
+
+  if (additionalEffects.length > 0) {
+    consequences.additionalEffects = additionalEffects;
+  }
+
   return {
     success: rawOutcome.success,
     encounterType,
     choiceMade: choice,
     explanation: rawOutcome.description,
     modifiers: [],
-    consequences: {},
+    consequences,
     karmaChanges,
     reputationChanges,
     resourceChanges,

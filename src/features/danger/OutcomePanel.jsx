@@ -110,102 +110,106 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
           </div>
         )}
 
-        {/* Consequences Section */}
-        <div className="outcome-section consequences-section">
-          <h3>Consequences</h3>
-          <div className="consequences-grid">
-            {/* Resource Changes */}
-            {Object.keys(outcomeAnalysis.resourceChanges).length > 0 && (
-              <div className="consequence-category resource-changes">
-                <h4>Ship & Resources</h4>
-                <div className="changes-list">
-                  {Object.entries(outcomeAnalysis.resourceChanges).map(
-                    ([resource, change]) => (
-                      <div key={resource} className="change-item">
-                        <span className="change-label">
-                          {formatResourceName(resource)}:
-                        </span>
-                        <span
-                          className={`change-value ${change >= 0 ? 'positive' : 'negative'}`}
-                        >
-                          {formatResourceChange(resource, change)}
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Karma Changes */}
-            {outcomeAnalysis.karmaChanges.length > 0 && (
-              <div className="consequence-category karma-changes">
-                <h4>Moral Standing</h4>
-                <div className="changes-list">
-                  {outcomeAnalysis.karmaChanges.map((change, index) => (
-                    <div key={index} className="change-item karma">
-                      <span className="change-label">Karma:</span>
-                      <span
-                        className={`change-value ${change.amount >= 0 ? 'positive' : 'negative'}`}
-                      >
-                        {change.amount >= 0 ? '+' : ''}
-                        {change.amount}
-                      </span>
-                      <span className="change-reason">({change.reason})</span>
-                    </div>
-                  ))}
-                  <div className="current-karma">
-                    <span className="current-label">Current Karma:</span>
-                    <span className={`current-value ${getKarmaClass(karma)}`}>
-                      {karma}
-                    </span>
+        {/* Consequences Section - only render when there's content */}
+        {(Object.keys(outcomeAnalysis.resourceChanges).length > 0 ||
+          outcomeAnalysis.karmaChanges.length > 0 ||
+          outcomeAnalysis.reputationChanges.length > 0) && (
+          <div className="outcome-section consequences-section">
+            <h3>Consequences</h3>
+            <div className="consequences-grid">
+              {/* Resource Changes */}
+              {Object.keys(outcomeAnalysis.resourceChanges).length > 0 && (
+                <div className="consequence-category resource-changes">
+                  <h4>Ship & Resources</h4>
+                  <div className="changes-list">
+                    {Object.entries(outcomeAnalysis.resourceChanges).map(
+                      ([resource, change]) => (
+                        <div key={resource} className="change-item">
+                          <span className="change-label">
+                            {formatResourceName(resource)}:
+                          </span>
+                          <span
+                            className={`change-value ${change >= 0 ? 'positive' : 'negative'}`}
+                          >
+                            {formatResourceChange(resource, change)}
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Reputation Changes */}
-            {outcomeAnalysis.reputationChanges.length > 0 && (
-              <div className="consequence-category reputation-changes">
-                <h4>Faction Standing</h4>
-                <div className="changes-list">
-                  {outcomeAnalysis.reputationChanges.map((change, index) => (
-                    <div key={index} className="change-item reputation">
-                      <span className="change-label">
-                        {formatFactionName(change.faction)}:
-                      </span>
-                      <span
-                        className={`change-value ${change.amount >= 0 ? 'positive' : 'negative'}`}
-                      >
-                        {change.amount >= 0 ? '+' : ''}
-                        {change.amount}
-                      </span>
-                      <span className="change-reason">({change.reason})</span>
-                    </div>
-                  ))}
-                  {/* Current Faction Standings */}
-                  <div className="current-standings">
-                    <h5>Current Standing:</h5>
-                    {FACTION_CONFIG.FACTIONS.map((faction) => (
-                      <div key={faction} className="current-standing">
-                        <span className="faction-name">
-                          {formatFactionName(faction)}:
-                        </span>
+              {/* Karma Changes */}
+              {outcomeAnalysis.karmaChanges.length > 0 && (
+                <div className="consequence-category karma-changes">
+                  <h4>Moral Standing</h4>
+                  <div className="changes-list">
+                    {outcomeAnalysis.karmaChanges.map((change, index) => (
+                      <div key={index} className="change-item karma">
+                        <span className="change-label">Karma:</span>
                         <span
-                          className={`faction-value ${getReputationClass(
-                            factions[faction]
-                          )}`}
+                          className={`change-value ${change.amount >= 0 ? 'positive' : 'negative'}`}
                         >
-                          {factions[faction]}
+                          {change.amount >= 0 ? '+' : ''}
+                          {change.amount}
                         </span>
+                        <span className="change-reason">({change.reason})</span>
                       </div>
                     ))}
+                    <div className="current-karma">
+                      <span className="current-label">Current Karma:</span>
+                      <span className={`current-value ${getKarmaClass(karma)}`}>
+                        {karma}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Reputation Changes */}
+              {outcomeAnalysis.reputationChanges.length > 0 && (
+                <div className="consequence-category reputation-changes">
+                  <h4>Faction Standing</h4>
+                  <div className="changes-list">
+                    {outcomeAnalysis.reputationChanges.map((change, index) => (
+                      <div key={index} className="change-item reputation">
+                        <span className="change-label">
+                          {formatFactionName(change.faction)}:
+                        </span>
+                        <span
+                          className={`change-value ${change.amount >= 0 ? 'positive' : 'negative'}`}
+                        >
+                          {change.amount >= 0 ? '+' : ''}
+                          {change.amount}
+                        </span>
+                        <span className="change-reason">({change.reason})</span>
+                      </div>
+                    ))}
+                    {/* Current Faction Standings */}
+                    <div className="current-standings">
+                      <h5>Current Standing:</h5>
+                      {FACTION_CONFIG.FACTIONS.map((faction) => (
+                        <div key={faction} className="current-standing">
+                          <span className="faction-name">
+                            {formatFactionName(faction)}:
+                          </span>
+                          <span
+                            className={`faction-value ${getReputationClass(
+                              factions[faction]
+                            )}`}
+                          >
+                            {factions[faction]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Additional Consequences */}
         {outcomeAnalysis.consequences.additionalEffects && (

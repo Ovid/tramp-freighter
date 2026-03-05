@@ -164,4 +164,37 @@ describe('transformOutcomeForDisplay', () => {
 
     expect(result.resourceChanges.days).toBe(2);
   });
+
+  it('should populate additionalEffects when escalate is true', () => {
+    const raw = {
+      success: false,
+      escalate: true,
+      costs: {},
+      rewards: {},
+      description: "The pirates don't take kindly to your offer.",
+    };
+
+    const result = transformOutcomeForDisplay(
+      raw,
+      'negotiation',
+      'counter_proposal'
+    );
+
+    expect(result.consequences.additionalEffects).toBeDefined();
+    expect(result.consequences.additionalEffects.length).toBeGreaterThan(0);
+    expect(result.consequences.additionalEffects[0]).toMatch(/aggressive/i);
+  });
+
+  it('should not have additionalEffects when escalate is absent', () => {
+    const raw = {
+      success: true,
+      costs: {},
+      rewards: {},
+      description: 'Resolved peacefully.',
+    };
+
+    const result = transformOutcomeForDisplay(raw, 'pirate', 'surrender');
+
+    expect(result.consequences.additionalEffects).toBeUndefined();
+  });
 });

@@ -214,6 +214,19 @@ describe('OutcomePanel', () => {
     ).toBeInTheDocument();
   });
 
+  it('should hide Consequences section when no resource, karma, reputation, or additional effects', () => {
+    const emptyConsequencesOutcome = {
+      ...defaultOutcome,
+      consequences: {},
+      karmaChanges: [],
+      reputationChanges: [],
+      resourceChanges: {},
+    };
+
+    renderWithContext({ outcome: emptyConsequencesOutcome });
+    expect(screen.queryByText('Consequences')).not.toBeInTheDocument();
+  });
+
   it('should format different resource types correctly', () => {
     const outcomeWithVariousResources = {
       ...defaultOutcome,
