@@ -234,9 +234,9 @@ export class QuestManager extends BaseManager {
     if (state.player.currentSystem !== ENDGAME_CONFIG.TANAKA_SYSTEM)
       return false;
 
-    // Must have met Tanaka
-    const npcState = this.gameStateManager.getNPCState('tanaka_barnards');
-    if (!npcState || !npcState.flags.includes('tanaka_met')) return false;
+    // Must have met Tanaka (flag set by narrative events system)
+    const narrativeFlags = state.world?.narrativeEvents?.flags;
+    if (!narrativeFlags?.tanaka_met) return false;
 
     // Check cooldown
     const questState = this.getQuestState('tanaka');
