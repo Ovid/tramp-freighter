@@ -185,6 +185,46 @@ describe('transformOutcomeForDisplay', () => {
     expect(result.consequences.additionalEffects[0]).toMatch(/aggressive/i);
   });
 
+  it('should show restricted goods confiscated in additionalEffects', () => {
+    const raw = {
+      success: true,
+      costs: { credits: 250, restrictedGoodsConfiscated: true },
+      rewards: { factionRep: { authorities: -5 } },
+      description: 'The inspector confiscated restricted goods.',
+    };
+
+    const result = transformOutcomeForDisplay(
+      raw,
+      'customs_inspection',
+      'cooperate'
+    );
+
+    expect(result.consequences.additionalEffects).toBeDefined();
+    expect(result.consequences.additionalEffects.length).toBeGreaterThan(0);
+    expect(result.consequences.additionalEffects[0]).toMatch(/restricted/i);
+    expect(result.consequences.additionalEffects[0]).toMatch(/confiscated/i);
+  });
+
+  it('should show hidden cargo confiscated in additionalEffects', () => {
+    const raw = {
+      success: true,
+      costs: { credits: 500, hiddenCargoConfiscated: true },
+      rewards: { factionRep: { authorities: -10 } },
+      description: 'They found the hidden compartment.',
+    };
+
+    const result = transformOutcomeForDisplay(
+      raw,
+      'customs_inspection',
+      'cooperate'
+    );
+
+    expect(result.consequences.additionalEffects).toBeDefined();
+    expect(result.consequences.additionalEffects.length).toBeGreaterThan(0);
+    expect(result.consequences.additionalEffects[0]).toMatch(/hidden cargo/i);
+    expect(result.consequences.additionalEffects[0]).toMatch(/confiscated/i);
+  });
+
   it('should not have additionalEffects when escalate is absent', () => {
     const raw = {
       success: true,

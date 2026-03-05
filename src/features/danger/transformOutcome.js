@@ -64,6 +64,14 @@ export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
     additionalEffects.push('Pirates become more aggressive (+10% threat)');
   }
 
+  if (costs.restrictedGoodsConfiscated) {
+    additionalEffects.push('Restricted goods confiscated by customs');
+  }
+
+  if (costs.hiddenCargoConfiscated) {
+    additionalEffects.push('Hidden cargo discovered and confiscated');
+  }
+
   if (additionalEffects.length > 0) {
     consequences.additionalEffects = additionalEffects;
   }
