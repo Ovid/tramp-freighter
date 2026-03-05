@@ -130,7 +130,7 @@ Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@
 Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls. Accessibility suggestions from code review are welcome and should be applied when low-effort.
 
 ### Git Commits
-- Commit messages must be plain text strings passed directly to `git commit -m`. Never use shell interpolation (`$(...)`) heredocs (`<<EOF`), or command substitution in commit messages.
+- Commit messages must be plain text strings passed directly to `git commit -m "plain text here"`. **NEVER** use shell interpolation (`$(...)`), heredocs (`<<EOF`, `<<'EOF'`), command substitution, or `$(cat ...)` wrappers in commit messages. This means **NO** `git commit -m "$(cat <<'EOF' ... EOF)"` — just a simple quoted string. Multi-line messages should use multiple `-m` flags: `git commit -m "subject" -m "body"`.
 
 ### Style
 - ES Modules, 2-space indentation
