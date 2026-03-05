@@ -243,10 +243,11 @@ export function generatePassengerMission(
     MISSION_CONFIG.PASSENGER_MARGIN_FLOOR,
     ...COMMODITY_TYPES.map((good) => destPrices[good] - originPrices[good])
   );
+  const hopMultiplier = MISSION_CONFIG.HOP_MULTIPLIERS[hopCount] || 1.0;
   const reward = Math.ceil(
-    bestMargin *
-      typeConfig.cargoSpace *
-      MISSION_CONFIG.PASSENGER_PREMIUM *
+    (MISSION_CONFIG.PASSENGER_BASE_FEE +
+      bestMargin * typeConfig.cargoSpace * MISSION_CONFIG.PASSENGER_PREMIUM) *
+      hopMultiplier *
       saturationMultiplier
   );
 
