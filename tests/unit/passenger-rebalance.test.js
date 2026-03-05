@@ -63,7 +63,9 @@ describe('Passenger Payment Rebalance', () => {
         MISSION_CONFIG.HOP_MULTIPLIERS[mission.hopCount] || 1.0;
       const expected = Math.ceil(
         (MISSION_CONFIG.PASSENGER_BASE_FEE +
-          bestMargin * typeConfig.cargoSpace * MISSION_CONFIG.PASSENGER_PREMIUM) *
+          bestMargin *
+            typeConfig.cargoSpace *
+            MISSION_CONFIG.PASSENGER_PREMIUM) *
           hopMultiplier
       );
 
