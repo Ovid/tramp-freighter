@@ -79,6 +79,32 @@ describe('DialoguePanel Quest Progress', () => {
       expect(progressBar).toHaveAttribute('aria-valuemin', '0');
     });
 
+    it('should clamp negative reputation to zero in progress bar', async () => {
+      // Set Tanaka's rep to a negative value
+      gameStateManager.modifyRepRaw('tanaka_barnards', -10, 'test');
+
+      render(
+        <GameProvider gameStateManager={gameStateManager}>
+          <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Yuki Tanaka')).toBeInTheDocument();
+      });
+
+      const progressBar = screen.getByRole('progressbar', {
+        name: 'Quest progress',
+      });
+      // aria-valuenow should be clamped to 0, not -10
+      expect(progressBar).toHaveAttribute('aria-valuenow', '0');
+      expect(progressBar).toHaveAttribute('aria-valuemin', '0');
+
+      // Fill width should be 0%, not negative
+      const fill = progressBar.querySelector('.quest-progress-fill');
+      expect(fill.style.width).toBe('0%');
+    });
+
     it('should clamp aria-valuenow to aria-valuemax when rep exceeds threshold', async () => {
       // Give Tanaka more rep than needed for stage 1
       gameStateManager.modifyRepRaw(
