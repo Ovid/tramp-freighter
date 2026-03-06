@@ -66,8 +66,8 @@
 3. **[Impact: ~~Medium~~ None] ~~Bridge Pattern violations in hooks~~ Reclassified: not a flaw** — `useEventTriggers.js` calls `gameStateManager.getState()` inside event handler callbacks, not during React render. These are point-in-time snapshots needed when an event fires (e.g., computing encounter data). Converting to `useGameEvent()` subscriptions would be incorrect — `useGameEvent` triggers re-renders, but these handlers need the current state as input to a one-shot computation. The hook already subscribes reactively to `LOCATION_CHANGED` via `useGameEvent` (line 24) for the value it needs during render.
    Evidence: `src/hooks/useEventTriggers.js:129,154,180,204,255,274` (all `getState()` calls are inside event callbacks)
 
-4. **[Impact: Medium] Non-deterministic Math.random() in dialogue** — `tanaka-dialogue.js` uses `Math.random()` for dialogue variant selection, violating the project's deterministic RNG requirement for gameplay paths.
-   Evidence: `src/game/data/dialogue/tanaka-dialogue.js:584` (`return lines[Math.floor(Math.random() * lines.length)]`)
+4. **[Impact: ~~Medium~~ Not a flaw] Dialogue variant selection is intentionally non-deterministic** — `tanaka-dialogue.js` uses `Math.random()` to pick between cosmetic dialogue lines when Tanaka acknowledges a supply delivery. This is flavoring text, not a gameplay path — it has no effect on outcomes, rewards, or state. The deterministic RNG requirement applies to combat, encounters, and pricing where reproducibility matters. Locking dialogue variants to a deterministic seed would eliminate the intended variation.
+   Evidence: `src/game/data/dialogue/tanaka-dialogue.js:584` (cosmetic text selection only)
 
 5. **[Impact: ~~Medium~~ Resolved] Save failure now surfaced to player** — SaveLoadManager emits `SAVE_FAILED` event on localStorage errors. App.jsx subscribes via Bridge Pattern and shows error notification through the existing notification system.
    Evidence: `src/game/state/managers/save-load.js` (emits EVENT_NAMES.SAVE_FAILED), `src/App.jsx` (useGameEvent + showError)
