@@ -11,9 +11,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls clearHiddenCargo instead of mutating state.ship.hiddenCargo', async () => {
-    const { applyEncounterOutcome } = await import(
-      '../../src/features/danger/applyEncounterOutcome.js'
-    );
+    const { applyEncounterOutcome } =
+      await import('../../src/features/danger/applyEncounterOutcome.js');
 
     const clearHiddenCargo = vi.fn();
     const mockGSM = {
@@ -36,9 +35,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls modifyAllPassengerSatisfaction for cost.passengerSatisfaction', async () => {
-    const { applyEncounterOutcome } = await import(
-      '../../src/features/danger/applyEncounterOutcome.js'
-    );
+    const { applyEncounterOutcome } =
+      await import('../../src/features/danger/applyEncounterOutcome.js');
 
     const modifyAllPassengerSatisfaction = vi.fn();
     const mockGSM = {
@@ -46,9 +44,7 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
         ship: { cargo: [] },
         player: { credits: 100, daysElapsed: 5 },
         missions: {
-          active: [
-            { type: 'passenger', passenger: { satisfaction: 80 } },
-          ],
+          active: [{ type: 'passenger', passenger: { satisfaction: 80 } }],
         },
       }),
       modifyAllPassengerSatisfaction,
@@ -64,9 +60,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls modifyAllPassengerSatisfaction for rewards.passengerSatisfaction', async () => {
-    const { applyEncounterOutcome } = await import(
-      '../../src/features/danger/applyEncounterOutcome.js'
-    );
+    const { applyEncounterOutcome } =
+      await import('../../src/features/danger/applyEncounterOutcome.js');
 
     const modifyAllPassengerSatisfaction = vi.fn();
     const mockGSM = {
@@ -74,9 +69,7 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
         ship: { cargo: [] },
         player: { credits: 100, daysElapsed: 5 },
         missions: {
-          active: [
-            { type: 'passenger', passenger: { satisfaction: 80 } },
-          ],
+          active: [{ type: 'passenger', passenger: { satisfaction: 80 } }],
         },
       }),
       modifyAllPassengerSatisfaction,

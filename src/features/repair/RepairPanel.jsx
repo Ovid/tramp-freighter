@@ -74,10 +74,7 @@ export function RepairPanel({ onClose }) {
   // Get repair service discounts from NPCs at this location
   const repairDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = getServiceDiscount(
-        npc.id,
-        'repair'
-      );
+      const discountInfo = getServiceDiscount(npc.id, 'repair');
       return {
         npc,
         discount: discountInfo.discount,

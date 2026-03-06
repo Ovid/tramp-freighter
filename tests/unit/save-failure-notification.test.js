@@ -20,9 +20,8 @@ describe('SaveLoadManager emits SAVE_FAILED on save failure', () => {
   });
 
   it('emits SAVE_FAILED when _forceSave catches a localStorage error', async () => {
-    const { SaveLoadManager } = await import(
-      '../../src/game/state/managers/save-load.js'
-    );
+    const { SaveLoadManager } =
+      await import('../../src/game/state/managers/save-load.js');
 
     const emitSpy = vi.fn();
     const mockGSM = {

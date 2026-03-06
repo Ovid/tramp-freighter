@@ -4,10 +4,7 @@ describe('useGameAction exposes methods used by RefuelPanel and RepairPanel', ()
   it('exports getFuelPrice and getServiceDiscount through useGameAction', async () => {
     // Read the source to verify the methods are exposed
     const fs = await import('fs');
-    const source = fs.readFileSync(
-      'src/hooks/useGameAction.js',
-      'utf-8'
-    );
+    const source = fs.readFileSync('src/hooks/useGameAction.js', 'utf-8');
 
     expect(source).toContain('getFuelPrice:');
     expect(source).toContain('getServiceDiscount:');
