@@ -537,7 +537,7 @@ export class ShipManager extends BaseManager {
     this.validateState();
     const state = this.getState();
     state.ship.hiddenCargo = [];
-    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, state.ship.hiddenCargo);
   }
 
   /**
