@@ -48,10 +48,9 @@ describe('ShipManager.addToCargoArray is a public API', () => {
   });
 
   it('NPCManager uses facade addToCargoArray instead of private method', async () => {
-    const { NPCManager } = await import('../../src/game/state/managers/npc.js');
+    const fs = await import('fs');
+    const source = fs.readFileSync('src/game/state/managers/npc.js', 'utf-8');
 
-    // Verify the source does not contain _addToCargoArray
-    const npcSource = NPCManager.toString();
-    expect(npcSource).not.toContain('._addToCargoArray');
+    expect(source).not.toContain('._addToCargoArray');
   });
 });
