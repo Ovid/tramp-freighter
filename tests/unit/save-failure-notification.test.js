@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { EVENT_NAMES } from '../../src/game/constants.js';
+import { EVENT_NAMES, UI_CONFIG } from '../../src/game/constants.js';
 
 describe('SaveLoadManager emits SAVE_FAILED on save failure', () => {
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('SaveLoadManager emits SAVE_FAILED on save failure', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     manager.markDirty();
-    vi.advanceTimersByTime(600);
+    vi.advanceTimersByTime(UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS + 100);
 
     expect(emitSpy).toHaveBeenCalledWith(
       EVENT_NAMES.SAVE_FAILED,
