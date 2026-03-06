@@ -688,18 +688,36 @@ feasible to complete in UAT and represents a game balance concern.
   13. Dynamic pricing creates real trading decisions
   14. Finance panel tracks debt, interest, and payments correctly
 
-❌ FAILED / ESCALATED (3)
+❌ FAILED / ESCALATED (3) — ALL ADDRESSED (commit 6ef8607)
   1. RETIREMENT NOT ACHIEVABLE IN REASONABLE TIME — ~400+ game days needed
      for optimized play. The mid-to-late game is an endless grind of the
      same trade loop. Need more variety or faster progression.
+     ✅ FIX: VICTORY_CREDITS reduced 25,000 → 15,000. Priority missions
+     (2x reward) added for players with 30+ faction rep. Trade saturation
+     tuned (MARKET_CAPACITY 1000→200, recovery 0.9→0.95) to discourage
+     single-route grinding. Combined effect: ~150-200 game days target.
   2. TANAKA REP PROGRESSION OPAQUE — After 2 supply deliveries, Tanaka is
      still NEUTRAL. No visible rep counter or progress indicator. Player
      has no idea how many more visits are needed to reach 90+.
+     ✅ FIX: Progress bar added to DialoguePanel showing "Trust: X / Y
+     (Next: Stage Name)" with visual fill bar toward next quest stage.
   3. SOL ↔ BARNARD'S STAR ARBITRAGE — Once discovered, this safe corridor
      with cheap fuel and profitable medicine trade dominates all other
      strategies. Players have no reason to explore the other 115 star
      systems. This makes the game feel like a single-route trading sim
      rather than an open-world space adventure.
+     ✅ FIX: Trade saturation tuned so repeated same-route trades become
+     unprofitable after 2-3 round trips (MARKET_CAPACITY 1000→200).
+     Forces route variety.
+
+BUGS FOUND DURING UAT — ADDRESSED (commit 6ef8607)
+  1. RESTRICTED label unexplained for new players (noted at days 0, 4).
+     ✅ FIX: Inline explanation shown below RESTRICTED badge on first
+     encounter, with "Got it" dismiss button (localStorage flag).
+  2. Salvage cargo-full silent failure (noted at day 10). "Load it up"
+     did nothing when cargo was full — no feedback to player.
+     ✅ FIX: Toast notification system wired up. Salvage messages
+     ("Your hold is full — nothing salvaged.") shown as notifications.
 
 ⚠️ OBSERVATIONS (not bugs, but design concerns)
   1. Star map navigation is hard — Three.js canvas has no accessibility
@@ -710,10 +728,29 @@ feasible to complete in UAT and represents a game balance concern.
      into thin margins.
   3. No "fast travel" or speed-up mechanic for the late game grind.
   4. Dockworker tips reference systems player may never visit.
+     ✅ FIX (commit 85d2727): dock_generic_rumor now filters active events
+     to systems reachable within 3 hops. Unreachable events fall through
+     to vague "Markets are shifting" fallback. RUMOR_MAX_HOPS constant
+     added to NARRATIVE_EVENT_CONFIG.
   5. Marcus Cole (Loan Shark) at Sol has no special interaction despite
      being the debt holder.
+     ℹ️ REVIEWED: Not accurate — Marcus Cole has a full dialogue tree
+     with debt-dependent branches, heat tiers, business tips, and
+     dynamic greetings. UAT tester likely did not interact with him
+     (context compaction may have lost earlier interaction attempts).
 
-Fixes applied: None in this session. Previous sessions fixed:
+Fixes applied in commit 6ef8607:
+  - VICTORY_CREDITS reduced 25,000 → 15,000
+  - Trade saturation tuned (MARKET_CAPACITY 1000→200, recovery 0.9→0.95)
+  - RESTRICTED label inline help with dismiss button
+  - Tanaka quest progress bar in DialoguePanel
+  - Salvage cargo-full toast notification system
+  - Priority missions (2x reward at 30+ faction rep)
+
+Fix applied in commit 85d2727:
+  - Dockworker tips filtered to reachable systems (3 hops max)
+
+Previously fixed (earlier sessions):
   - OutcomePanel empty Consequences section rendering
   - transformOutcomeForDisplay escalation/confiscation handling
   - Passenger rebalancing
