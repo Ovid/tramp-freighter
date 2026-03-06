@@ -128,12 +128,23 @@ export function DialoguePanel({ npcId, onClose }) {
         dialogueDisplay.questProgress.nextRepThreshold !== null && (
           <div className="quest-progress">
             <div className="quest-progress-label">
-              Trust: {dialogueDisplay.questProgress.currentRep} /{' '}
-              {dialogueDisplay.questProgress.nextRepThreshold}
-              <span className="quest-stage-name">
-                {' '}
-                (Next: {dialogueDisplay.questProgress.stageName})
-              </span>
+              {dialogueDisplay.questProgress.currentRep >=
+              dialogueDisplay.questProgress.nextRepThreshold ? (
+                <>
+                  Trust: {dialogueDisplay.questProgress.nextRepThreshold} /{' '}
+                  {dialogueDisplay.questProgress.nextRepThreshold}
+                  <span className="quest-stage-name"> (Ready!)</span>
+                </>
+              ) : (
+                <>
+                  Trust: {dialogueDisplay.questProgress.currentRep} /{' '}
+                  {dialogueDisplay.questProgress.nextRepThreshold}
+                  <span className="quest-stage-name">
+                    {' '}
+                    (Next: {dialogueDisplay.questProgress.stageName})
+                  </span>
+                </>
+              )}
             </div>
             <div
               className="quest-progress-bar"

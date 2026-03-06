@@ -132,6 +132,38 @@ describe('DialoguePanel Quest Progress', () => {
       );
     });
 
+    it('should show "Ready!" label when rep meets threshold', async () => {
+      gameStateManager.modifyRepRaw(
+        'tanaka_barnards',
+        ENDGAME_CONFIG.STAGE_1_REP + 5,
+        'test'
+      );
+
+      render(
+        <GameProvider gameStateManager={gameStateManager}>
+          <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Yuki Tanaka')).toBeInTheDocument();
+      });
+
+      // Should show "Ready!" instead of "Next: Field Test"
+      expect(screen.getByText(/Ready!/)).toBeInTheDocument();
+      expect(screen.queryByText(/Next:/)).not.toBeInTheDocument();
+
+      // Label should show clamped value, not exceeding threshold
+      expect(
+        screen.getByText(
+          (content) =>
+            content.includes('Trust:') &&
+            content.includes(`${ENDGAME_CONFIG.STAGE_1_REP}`) &&
+            content.includes(`${ENDGAME_CONFIG.STAGE_1_REP}`)
+        )
+      ).toBeInTheDocument();
+    });
+
     it('should show next stage name', async () => {
       gameStateManager.modifyRepRaw('tanaka_barnards', 3, 'test');
 
