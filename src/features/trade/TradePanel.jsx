@@ -188,7 +188,9 @@ export function TradePanel({ onClose }) {
         <div className="trade-section">
           <h3>Market Goods</h3>
           <div id="market-goods" className="goods-list">
-            {COMMODITY_TYPES.map((goodType) => {
+            {(() => {
+              let hintShown = false;
+              return COMMODITY_TYPES.map((goodType) => {
               const price = currentSystemPrices[goodType];
 
               const maxQuantity = calculateMaxBuyQuantity(price, state);
@@ -198,6 +200,8 @@ export function TradePanel({ onClose }) {
                 dangerZone,
                 currentSystemId
               );
+              const showHint = isRestricted && !restrictedExplained && !hintShown;
+              if (showHint) hintShown = true;
 
               return (
                 <div key={goodType} className="good-item">
@@ -214,7 +218,7 @@ export function TradePanel({ onClose }) {
                           >
                             RESTRICTED
                           </span>
-                          {!restrictedExplained && (
+                          {showHint && (
                             <span className="restricted-hint">
                               {RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
                               <button
@@ -275,7 +279,8 @@ export function TradePanel({ onClose }) {
                   </div>
                 </div>
               );
-            })}
+            });
+            })()}
           </div>
         </div>
 
