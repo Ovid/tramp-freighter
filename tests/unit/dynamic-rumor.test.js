@@ -73,6 +73,32 @@ describe('dock_generic_rumor', () => {
     expect(fullText).toContain('Markets are shifting');
   });
 
+  it('should reference an active event at the current system', () => {
+    // getReachableSystems excludes the origin; the fix adds currentSystem explicitly
+    vi.spyOn(wormholeGraph, 'getReachableSystems').mockReturnValue([]);
+
+    const state = {
+      player: { currentSystem: 5 },
+      world: {
+        activeEvents: [
+          {
+            type: 'mining_strike',
+            systemId: 5,
+            modifiers: { ore: 1.5 },
+          },
+        ],
+        priceKnowledge: {},
+      },
+    };
+    const starData = [{ id: 5, name: 'Luyten 726-8' }];
+
+    const content = rumor.generateContent(state, starData);
+
+    const fullText = content.text.join(' ');
+    expect(fullText).toContain('Luyten 726-8');
+    expect(fullText.toLowerCase()).toMatch(/ore/i);
+  });
+
   it('should generate vague text when no active events', () => {
     const state = {
       player: { currentSystem: 0 },

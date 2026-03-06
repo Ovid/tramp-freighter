@@ -101,6 +101,7 @@ export const NARRATIVE_EVENTS = [
       const currentSystem = state.player.currentSystem;
       const reachable = getReachableSystems(currentSystem, RUMOR_MAX_HOPS);
       const reachableIds = new Set(reachable.map((r) => r.systemId));
+      reachableIds.add(currentSystem);
 
       const nearbyEvents = activeEvents.filter((e) =>
         reachableIds.has(e.systemId)
