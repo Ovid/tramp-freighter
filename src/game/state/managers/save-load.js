@@ -84,7 +84,7 @@ export class SaveLoadManager extends BaseManager {
       localStorage.setItem(SAVE_KEY, saveData);
       this.lastSaveTime = now;
     } catch (error) {
-      this.error('Save failed - game progress may be lost', error);
+      this.error('Save failed — game progress may be lost', error);
       this.emit(EVENT_NAMES.SAVE_FAILED, {
         message: 'Save failed — game progress may be lost',
       });
