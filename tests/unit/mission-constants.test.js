@@ -23,7 +23,7 @@ describe('Mission Constants', () => {
 
 describe('Mission Arbitrage Fix Constants', () => {
   it('should have hop multipliers array with entries for 0-3 hops', () => {
-    expect(MISSION_CONFIG.HOP_MULTIPLIERS).toEqual([1.0, 1.0, 2.0, 3.5]);
+    expect(MISSION_CONFIG.HOP_MULTIPLIERS).toEqual([1.0, 1.5, 2.5, 4.0]);
   });
 
   it('should have danger multipliers for all zones', () => {
@@ -55,8 +55,8 @@ describe('Mission Arbitrage Fix Constants', () => {
 });
 
 describe('Mission Balance Constants', () => {
-  it('should set smuggling base fee to 150', () => {
-    expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(150);
+  it('should set smuggling base fee to 400', () => {
+    expect(MISSION_CONFIG.CARGO_RUN_ILLEGAL_BASE_FEE).toBe(400);
   });
 
   it('should set distress respond reward to 150', () => {

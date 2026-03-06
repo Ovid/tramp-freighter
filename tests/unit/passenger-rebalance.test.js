@@ -59,8 +59,14 @@ describe('Passenger Payment Rebalance', () => {
       );
 
       const typeConfig = PASSENGER_CONFIG.TYPES[mission.passenger.type];
+      const hopMultiplier =
+        MISSION_CONFIG.HOP_MULTIPLIERS[mission.hopCount] || 1.0;
       const expected = Math.ceil(
-        bestMargin * typeConfig.cargoSpace * MISSION_CONFIG.PASSENGER_PREMIUM
+        (MISSION_CONFIG.PASSENGER_BASE_FEE +
+          bestMargin *
+            typeConfig.cargoSpace *
+            MISSION_CONFIG.PASSENGER_PREMIUM) *
+          hopMultiplier
       );
 
       expect(mission.rewards.credits).toBe(expected);
@@ -108,10 +114,14 @@ describe('Passenger Payment Rebalance', () => {
 
       // With identical systems, all margins are 0, so floor of 5 is used
       const typeConfig = PASSENGER_CONFIG.TYPES[mission.passenger.type];
+      const hopMultiplier =
+        MISSION_CONFIG.HOP_MULTIPLIERS[mission.hopCount] || 1.0;
       const expected = Math.ceil(
-        MISSION_CONFIG.PASSENGER_MARGIN_FLOOR *
-          typeConfig.cargoSpace *
-          MISSION_CONFIG.PASSENGER_PREMIUM
+        (MISSION_CONFIG.PASSENGER_BASE_FEE +
+          MISSION_CONFIG.PASSENGER_MARGIN_FLOOR *
+            typeConfig.cargoSpace *
+            MISSION_CONFIG.PASSENGER_PREMIUM) *
+          hopMultiplier
       );
 
       expect(mission.rewards.credits).toBe(expected);
@@ -148,8 +158,14 @@ describe('Passenger Payment Rebalance', () => {
           )
         );
         const typeConfig = PASSENGER_CONFIG.TYPES[mission.passenger.type];
+        const hopMultiplier =
+          MISSION_CONFIG.HOP_MULTIPLIERS[mission.hopCount] || 1.0;
         const expected = Math.ceil(
-          bestMargin * typeConfig.cargoSpace * MISSION_CONFIG.PASSENGER_PREMIUM
+          (MISSION_CONFIG.PASSENGER_BASE_FEE +
+            bestMargin *
+              typeConfig.cargoSpace *
+              MISSION_CONFIG.PASSENGER_PREMIUM) *
+            hopMultiplier
         );
         expect(mission.rewards.credits).toBe(expected);
       }

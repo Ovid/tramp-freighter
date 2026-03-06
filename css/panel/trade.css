@@ -103,6 +103,12 @@
   margin-top: 3px;
 }
 
+.restricted-badge-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  margin-left: 8px;
+}
+
 .restricted-badge {
   color: #ffcc00;
   font-size: 0.75em;
@@ -110,8 +116,27 @@
   padding: 1px 6px;
   border: 1px solid #ffcc00;
   border-radius: 3px;
-  margin-left: 8px;
   cursor: help;
+}
+
+.restricted-hint {
+  display: block;
+  color: #ffcc00;
+  font-size: 0.7em;
+  font-style: italic;
+  margin-top: 4px;
+  opacity: 0.85;
+}
+
+.restricted-hint-dismiss {
+  background: none;
+  border: none;
+  color: #ffcc00;
+  font-size: 1em;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 6px;
 }
 
 .good-actions {

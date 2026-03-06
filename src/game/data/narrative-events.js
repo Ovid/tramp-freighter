@@ -3,12 +3,14 @@ import {
   CONDITION_TYPES,
   ENDGAME_CONFIG,
 } from '../constants.js';
+import { getReachableSystems } from '../utils/wormhole-graph.js';
 
 const {
   NARRATIVE_PRIORITY_CRITICAL,
   NARRATIVE_PRIORITY_HIGH,
   NARRATIVE_PRIORITY_DEFAULT,
   NARRATIVE_PRIORITY_LOW,
+  RUMOR_MAX_HOPS,
 } = NARRATIVE_EVENT_CONFIG;
 
 /**
@@ -96,9 +98,17 @@ export const NARRATIVE_EVENTS = [
     priority: NARRATIVE_PRIORITY_LOW,
     generateContent(state, starData) {
       const activeEvents = state.world.activeEvents || [];
+      const currentSystem = state.player.currentSystem;
+      const reachable = getReachableSystems(currentSystem, RUMOR_MAX_HOPS);
+      const reachableIds = new Set(reachable.map((r) => r.systemId));
+      reachableIds.add(currentSystem);
 
-      if (activeEvents.length > 0) {
-        const event = activeEvents[0];
+      const nearbyEvents = activeEvents.filter((e) =>
+        reachableIds.has(e.systemId)
+      );
+
+      if (nearbyEvents.length > 0) {
+        const event = nearbyEvents[0];
         const system = starData.find((s) => s.id === event.systemId);
         const commodity = Object.keys(event.modifiers || {})[0];
 

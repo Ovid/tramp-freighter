@@ -419,9 +419,9 @@ describe('TradingManager coverage', () => {
         0: { ore: 100, grain: -50 },
       };
       gsm.tradingManager.applyMarketRecovery(1);
-      // After 1 day, values should be multiplied by 0.9
-      expect(gsm.state.world.marketConditions[0].ore).toBeCloseTo(90, 0);
-      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(-45, 0);
+      // After 1 day, values should be multiplied by DAILY_RECOVERY_FACTOR (0.95)
+      expect(gsm.state.world.marketConditions[0].ore).toBeCloseTo(95, 0);
+      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(-47.5, 0);
     });
 
     it('prunes insignificant values and removes empty system entries', () => {
@@ -429,10 +429,10 @@ describe('TradingManager coverage', () => {
         0: { ore: 0.5, grain: 100 },
       };
       gsm.tradingManager.applyMarketRecovery(1);
-      // ore: 0.5 * 0.9 = 0.45, below threshold 1.0, pruned
+      // ore: 0.5 * 0.95 = 0.475, below threshold 1.0, pruned
       expect(gsm.state.world.marketConditions[0].ore).toBeUndefined();
-      // grain: 100 * 0.9 = 90, still significant
-      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(90, 0);
+      // grain: 100 * 0.95 = 95, still significant
+      expect(gsm.state.world.marketConditions[0].grain).toBeCloseTo(95, 0);
     });
 
     it('removes system entry when all commodities pruned', () => {
@@ -449,8 +449,8 @@ describe('TradingManager coverage', () => {
         0: { ore: 100 },
       };
       gsm.tradingManager.applyMarketRecovery(10);
-      // 100 * 0.9^10 ≈ 34.87
-      expect(gsm.state.world.marketConditions[0].ore).toBeCloseTo(34.87, 0);
+      // 100 * 0.95^10 ≈ 59.87
+      expect(gsm.state.world.marketConditions[0].ore).toBeCloseTo(59.87, 0);
     });
 
     it('throws when marketConditions is missing', () => {

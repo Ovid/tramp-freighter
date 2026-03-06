@@ -18,6 +18,7 @@ import { OutcomePanel } from './features/danger/OutcomePanel';
 import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGameState } from './context/GameContext';
+import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
 import { EVENT_NAMES, NEGOTIATION_CONFIG } from './game/constants.js';
@@ -27,6 +28,7 @@ import { StarmapProvider } from './context/StarmapContext';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
 import { AchievementToast } from './features/achievements/AchievementToast';
+import { NotificationContainer } from './components/NotificationContainer';
 import { PavonisRun } from './features/endgame/PavonisRun.jsx';
 import { Epilogue } from './features/endgame/Epilogue.jsx';
 
@@ -61,6 +63,7 @@ const VIEW_MODES = {
  */
 export default function App({ devMode = false }) {
   const gameStateManager = useGameState();
+  const notificationCtx = useNotificationContext();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
   const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
@@ -373,7 +376,10 @@ export default function App({ devMode = false }) {
   };
 
   const handleApplyOutcome = (outcome) => {
-    applyEncounterOutcome(gameStateManager, outcome);
+    const result = applyEncounterOutcome(gameStateManager, outcome);
+    if (result.salvageMessages.length > 0 && notificationCtx) {
+      result.salvageMessages.forEach((msg) => notificationCtx.showInfo(msg));
+    }
   };
 
   // Listen for encounter events (only process each event once)
@@ -484,6 +490,7 @@ export default function App({ devMode = false }) {
               <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
               <RumorAlert />
               <AchievementToast />
+              <NotificationContainer />
 
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (

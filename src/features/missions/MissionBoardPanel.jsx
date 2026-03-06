@@ -62,7 +62,12 @@ export function MissionBoardPanel({ onClose }) {
       <div className="mission-list">
         {missions?.board?.map((mission) => (
           <div key={mission.id} className="mission-card">
-            <h3>{mission.title}</h3>
+            <h3>
+              {mission.title}
+              {mission.priority && (
+                <span className="priority-badge">PRIORITY</span>
+              )}
+            </h3>
             <p>{mission.description}</p>
             {routeIndicators[mission.id] && (
               <div className="mission-route-info">

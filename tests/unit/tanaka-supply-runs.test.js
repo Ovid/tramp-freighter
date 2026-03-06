@@ -17,14 +17,17 @@ describe('Tanaka Supply Run constants', () => {
   });
 });
 
+function setTanakaMet(manager) {
+  manager.state.world.narrativeEvents.flags.tanaka_met = true;
+}
+
 describe('QuestManager.canContributeSupply', () => {
   let manager;
 
   beforeEach(() => {
     manager = createTestGameStateManager();
-    // Set tanaka_met flag
-    const npcState = manager.getNPCState('tanaka_barnards');
-    npcState.flags.push('tanaka_met');
+    // Set tanaka_met flag in narrativeEvents (where the game actually stores it)
+    setTanakaMet(manager);
     // Dock at Barnard's Star
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
   });
@@ -80,8 +83,7 @@ describe('QuestManager.canContributeSupply', () => {
   });
 
   it('returns false when tanaka_met flag is not set', () => {
-    const npcState = manager.getNPCState('tanaka_barnards');
-    npcState.flags = [];
+    manager.state.world.narrativeEvents.flags.tanaka_met = false;
     manager.state.ship.cargo = [
       {
         good: 'electronics',
@@ -171,8 +173,7 @@ describe('QuestManager.contributeSupply', () => {
 
   beforeEach(() => {
     manager = createTestGameStateManager();
-    const npcState = manager.getNPCState('tanaka_barnards');
-    npcState.flags.push('tanaka_met');
+    setTanakaMet(manager);
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
   });
 
@@ -356,13 +357,47 @@ describe('Dialogue context for supply runs', () => {
   });
 });
 
+describe('canContributeSupply checks narrativeEvents.flags for tanaka_met', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGameStateManager();
+    // Set tanaka_met in the CORRECT location (narrativeEvents.flags),
+    // NOT in npcState.flags — mirrors how the game actually sets this flag
+    manager.state.world.narrativeEvents = {
+      fired: [],
+      cooldowns: {},
+      flags: { tanaka_met: true },
+      dockedSystems: [],
+    };
+    manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
+    manager.state.ship.cargo = [
+      {
+        good: 'electronics',
+        qty: 5,
+        buyPrice: 30,
+        buySystem: 0,
+        buySystemName: 'Sol',
+        buyDate: 0,
+      },
+    ];
+  });
+
+  it('returns true when tanaka_met is set in narrativeEvents.flags (not npcState.flags)', () => {
+    // npcState.flags should be empty — the flag is NOT stored there
+    const npcState = manager.getNPCState('tanaka_barnards');
+    expect(npcState.flags).not.toContain('tanaka_met');
+    // But canContributeSupply should still return true
+    expect(manager.canContributeSupply()).toBe(true);
+  });
+});
+
 describe('Full supply run flow (integration)', () => {
   let manager;
 
   beforeEach(() => {
     manager = createTestGameStateManager();
-    const npcState = manager.getNPCState('tanaka_barnards');
-    npcState.flags.push('tanaka_met');
+    setTanakaMet(manager);
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
     manager.state.player.daysElapsed = 20;
     manager.state.ship.cargo = [

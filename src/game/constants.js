@@ -373,9 +373,9 @@ export const ECONOMY_CONFIG = {
   MAX_TECH_LEVEL: 10.0, // Sol and core systems
   MIN_TECH_LEVEL: 1.0, // Frontier systems at 21+ LY
 
-  MARKET_CAPACITY: 1000, // Units traded before extreme price impact
+  MARKET_CAPACITY: 200, // Units traded before extreme price impact
 
-  DAILY_RECOVERY_FACTOR: 0.9, // Market conditions decay 10% per day
+  DAILY_RECOVERY_FACTOR: 0.95, // Market conditions decay 5% per day
 
   TEMPORAL_WAVE_PERIOD: 30, // Price oscillation cycle in days
   TEMPORAL_AMPLITUDE: 0.15, // ±15% price variation (0.85 to 1.15 multiplier)
@@ -593,12 +593,12 @@ export const GAME_START_DATE = '2167-06-20';
 export const MISSION_CONFIG = {
   TYPES: ['delivery', 'fetch', 'passenger', 'intel', 'special'],
   MAX_ACTIVE: 3,
-  BOARD_SIZE: 3,
+  BOARD_SIZE: 6,
   BOARD_REFRESH_DAYS: 1,
   DEADLINE_BUFFER_DAYS: 3,
   REWARD_MARKUP: 0.3,
-  CARGO_RUN_BASE_FEE: 120,
-  CARGO_RUN_ILLEGAL_BASE_FEE: 150,
+  CARGO_RUN_BASE_FEE: 250,
+  CARGO_RUN_ILLEGAL_BASE_FEE: 400,
   CARGO_RUN_LEGAL_QUANTITY: { MIN: 5, MAX: 15 },
   CARGO_RUN_ILLEGAL_QUANTITY: { MIN: 5, MAX: 10 },
   CARGO_RUN_ZONE_ILLEGAL_CHANCE: {
@@ -606,7 +606,7 @@ export const MISSION_CONFIG = {
     contested: 0.5,
     dangerous: 0.75,
   },
-  HOP_MULTIPLIERS: [1.0, 1.0, 2.0, 3.5],
+  HOP_MULTIPLIERS: [1.0, 1.5, 2.5, 4.0],
   DANGER_MULTIPLIERS: { safe: 1.0, contested: 1.5, dangerous: 2.0 },
   MAX_MISSION_HOPS: 3,
   MIN_BOARD_SIZE: 1,
@@ -615,13 +615,20 @@ export const MISSION_CONFIG = {
   SATURATION_PENALTY_PER_RUN: 0.25,
   SATURATION_FLOOR: 0.25,
   SATURATION_MAX_HISTORY: 50,
+  PASSENGER_BASE_FEE: 100,
   PASSENGER_PREMIUM: 1.25,
   PASSENGER_MARGIN_FLOOR: 5,
   FEASIBILITY_WARNING_THRESHOLD: 0.7,
+  PRIORITY_MISSION: {
+    TRADER_REP_THRESHOLD: 30,
+    CIVILIAN_REP_THRESHOLD: 30,
+    REWARD_MULTIPLIER: 2.0,
+    BOARD_CHANCE: 0.3,
+  },
 };
 
 export const ENDGAME_CONFIG = {
-  VICTORY_CREDITS: 25000,
+  VICTORY_CREDITS: 15000,
   TANAKA_SYSTEM: 4, // Barnard's Star
   TANAKA_UNLOCK_SYSTEMS_VISITED: 10,
   STAGE_1_REP: 10,
@@ -1695,6 +1702,8 @@ export const NARRATIVE_EVENT_CONFIG = {
   NARRATIVE_PRIORITY_HIGH: 20,
   NARRATIVE_PRIORITY_DEFAULT: 10,
   NARRATIVE_PRIORITY_LOW: 5,
+
+  RUMOR_MAX_HOPS: 3,
 };
 
 /**

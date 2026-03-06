@@ -123,6 +123,53 @@ export function DialoguePanel({ npcId, onClose }) {
         </div>
       </div>
 
+      {/* Quest Progress (Tanaka and other quest NPCs) */}
+      {dialogueDisplay.questProgress &&
+        dialogueDisplay.questProgress.nextRepThreshold !== null && (
+          <div className="quest-progress">
+            <div className="quest-progress-label">
+              {dialogueDisplay.questProgress.currentRep >=
+              dialogueDisplay.questProgress.nextRepThreshold ? (
+                <>
+                  Trust: {dialogueDisplay.questProgress.nextRepThreshold} /{' '}
+                  {dialogueDisplay.questProgress.nextRepThreshold}
+                  <span className="quest-stage-name"> (Ready!)</span>
+                </>
+              ) : (
+                <>
+                  Trust: {dialogueDisplay.questProgress.currentRep} /{' '}
+                  {dialogueDisplay.questProgress.nextRepThreshold}
+                  <span className="quest-stage-name">
+                    {' '}
+                    (Next: {dialogueDisplay.questProgress.stageName})
+                  </span>
+                </>
+              )}
+            </div>
+            <div
+              className="quest-progress-bar"
+              role="progressbar"
+              aria-valuenow={Math.max(
+                0,
+                Math.min(
+                  dialogueDisplay.questProgress.currentRep,
+                  dialogueDisplay.questProgress.nextRepThreshold
+                )
+              )}
+              aria-valuemin={0}
+              aria-valuemax={dialogueDisplay.questProgress.nextRepThreshold}
+              aria-label="Quest progress"
+            >
+              <div
+                className="quest-progress-fill"
+                style={{
+                  width: `${dialogueDisplay.questProgress.nextRepThreshold > 0 ? Math.max(0, Math.min(100, (dialogueDisplay.questProgress.currentRep / dialogueDisplay.questProgress.nextRepThreshold) * 100)) : 0}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
       {/* Dialogue Content */}
       <div className="dialogue-content">
         {/* NPC Dialogue Text */}

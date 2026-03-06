@@ -557,6 +557,10 @@ export class GameStateManager {
     return this.questManager.getQuestState(questId);
   }
 
+  getQuestDefinition(questId) {
+    return this.questManager.getQuestDefinition(questId);
+  }
+
   getQuestStage(questId) {
     return this.questManager.getQuestStage(questId);
   }

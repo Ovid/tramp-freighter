@@ -482,6 +482,14 @@ export class MissionManager extends BaseManager {
     const rng = new SeededRandom(
       `mission-board-${currentDay}-${state.player.currentSystem}`
     );
+    const factionReps =
+      typeof this.gameStateManager.getFactionRep === 'function'
+        ? {
+            traders: this.gameStateManager.getFactionRep('traders'),
+            civilians: this.gameStateManager.getFactionRep('civilians'),
+          }
+        : null;
+
     const board = generateMissionBoard(
       state.player.currentSystem,
       this.gameStateManager.starData,
@@ -490,7 +498,8 @@ export class MissionManager extends BaseManager {
       () => rng.next(),
       destinationDangerZoneFn,
       state.missions.completionHistory,
-      currentDay
+      currentDay,
+      factionReps
     );
 
     state.missions.board = board;

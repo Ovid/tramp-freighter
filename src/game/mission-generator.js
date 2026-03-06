@@ -243,10 +243,11 @@ export function generatePassengerMission(
     MISSION_CONFIG.PASSENGER_MARGIN_FLOOR,
     ...COMMODITY_TYPES.map((good) => destPrices[good] - originPrices[good])
   );
+  const hopMultiplier = MISSION_CONFIG.HOP_MULTIPLIERS[hopCount] || 1.0;
   const reward = Math.ceil(
-    bestMargin *
-      typeConfig.cargoSpace *
-      MISSION_CONFIG.PASSENGER_PREMIUM *
+    (MISSION_CONFIG.PASSENGER_BASE_FEE +
+      bestMargin * typeConfig.cargoSpace * MISSION_CONFIG.PASSENGER_PREMIUM) *
+      hopMultiplier *
       saturationMultiplier
   );
 
@@ -288,7 +289,8 @@ export function generateMissionBoard(
   rng = Math.random,
   destinationDangerZoneFn = null,
   completionHistory = [],
-  currentDay = 0
+  currentDay = 0,
+  factionReps = null
 ) {
   const connectionCount =
     wormholeData === WORMHOLE_DATA
@@ -298,6 +300,8 @@ export function generateMissionBoard(
     Math.max(connectionCount + 1, MISSION_CONFIG.MIN_BOARD_SIZE),
     MISSION_CONFIG.BOARD_SIZE
   );
+
+  const priorityConfig = MISSION_CONFIG.PRIORITY_MISSION;
 
   const board = [];
   for (let i = 0; i < boardSize; i++) {
@@ -321,7 +325,23 @@ export function generateMissionBoard(
           completionHistory,
           currentDay
         );
-    if (mission) board.push(mission);
+    if (!mission) continue;
+
+    // Check if mission qualifies for priority tier
+    if (factionReps && rng() < priorityConfig.BOARD_CHANCE) {
+      const isEligible = isPassenger
+        ? (factionReps.civilians || 0) >= priorityConfig.CIVILIAN_REP_THRESHOLD
+        : (factionReps.traders || 0) >= priorityConfig.TRADER_REP_THRESHOLD;
+
+      if (isEligible) {
+        mission.rewards.credits = Math.ceil(
+          mission.rewards.credits * priorityConfig.REWARD_MULTIPLIER
+        );
+        mission.priority = true;
+      }
+    }
+
+    board.push(mission);
   }
   return board;
 }

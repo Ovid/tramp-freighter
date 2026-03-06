@@ -9,6 +9,7 @@ import { NavigationSystem } from './game/game-navigation';
 // 3. Components
 import App from './App';
 import { GameProvider } from './context/GameContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 // 4. Data/constants
 import { STAR_DATA } from './game/data/star-data';
@@ -46,6 +47,7 @@ import '../css/panel/system-panel.css';
 import '../css/panel/trade.css';
 import '../css/panel/upgrades.css';
 import '../css/panel/achievements.css';
+import '../css/notification.css';
 
 /**
  * Initialize GameStateManager with either saved game or new game.
@@ -159,7 +161,9 @@ async function initializeApp() {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <GameProvider gameStateManager={gameStateManager}>
-        <App devMode={isDevMode} />
+        <NotificationProvider>
+          <App devMode={isDevMode} />
+        </NotificationProvider>
       </GameProvider>
     </React.StrictMode>
   );
