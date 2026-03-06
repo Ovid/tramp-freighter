@@ -61,7 +61,9 @@ export function transformOutcomeForDisplay(rawOutcome, encounterType, choice) {
   const additionalEffects = [];
 
   if (rawOutcome.escalate) {
-    additionalEffects.push('Pirates become more aggressive (threat level increased)');
+    additionalEffects.push(
+      'Pirates become more aggressive (threat level increased)'
+    );
   }
 
   if (costs.restrictedGoodsConfiscated) {
