@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { UI_CONFIG, SAVE_KEY } from '../../constants.js';
+import { UI_CONFIG, SAVE_KEY, EVENT_NAMES } from '../../constants.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -84,7 +84,10 @@ export class SaveLoadManager extends BaseManager {
       localStorage.setItem(SAVE_KEY, saveData);
       this.lastSaveTime = now;
     } catch (error) {
-      this.error('Save failed - game progress may be lost', error);
+      this.error('Save failed — game progress may be lost', error);
+      this.emit(EVENT_NAMES.SAVE_FAILED, {
+        message: 'Save failed — game progress may be lost',
+      });
     }
   }
 
@@ -109,10 +112,10 @@ export class SaveLoadManager extends BaseManager {
       const timeSinceLastSave = now - this.lastSaveTime;
 
       if (timeSinceLastSave >= UI_CONFIG.SAVE_DEBOUNCE_MS) {
-        // Not debounced, actual failure
-        this.error('Save failed - game progress may be lost');
-        // TODO: Show user notification about save failure
-        // For now, just log the error - UI notification system would be added later
+        this.error('Save failed — game progress may be lost');
+        this.emit(EVENT_NAMES.SAVE_FAILED, {
+          message: 'Save failed — game progress may be lost',
+        });
       }
     }
 

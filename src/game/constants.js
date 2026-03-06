@@ -1885,4 +1885,7 @@ export const EVENT_NAMES = Object.freeze({
 
   // Preferences
   PREFERENCES_CHANGED: 'preferencesChanged',
+
+  // Errors
+  SAVE_FAILED: 'saveFailed',
 });

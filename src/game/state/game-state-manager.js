@@ -126,6 +126,10 @@ export class GameStateManager {
     this.animationSystem = animationSystem;
   }
 
+  // ========================================================================
+  // SHIP CONFIGURATION
+  // ========================================================================
+
   assignShipQuirks(rng = Math.random) {
     return this.shipManager.assignShipQuirks(rng);
   }
@@ -157,6 +161,14 @@ export class GameStateManager {
   removeUpgrade(upgradeId) {
     return this.shipManager.removeUpgrade(upgradeId);
   }
+
+  addToCargoArray(cargoArray, sourceStack, qty) {
+    return this.shipManager.addToCargoArray(cargoArray, sourceStack, qty);
+  }
+
+  // ========================================================================
+  // GAME LIFECYCLE
+  // ========================================================================
 
   /**
    * Initialize a new game with default values
@@ -785,6 +797,18 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // NPC BENEFITS SYSTEM - FREE REPAIR SYSTEM
+  // ========================================================================
+
+  canGetFreeRepair(npcId) {
+    return this.npcManager.canGetFreeRepair(npcId);
+  }
+
+  getFreeRepair(npcId, hullDamagePercent) {
+    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+  }
+
+  // ========================================================================
   // TRADING OPERATIONS
   // ========================================================================
 
@@ -873,6 +897,10 @@ export class GameStateManager {
     return this.shipManager.getHiddenCargo();
   }
 
+  clearHiddenCargo() {
+    return this.shipManager.clearHiddenCargo();
+  }
+
   // ========================================================================
   // DOCK/UNDOCK OPERATIONS
   // ========================================================================
@@ -923,18 +951,6 @@ export class GameStateManager {
 
   set lastSaveTime(timestamp) {
     this.saveLoadManager.setLastSaveTime(timestamp);
-  }
-
-  // ========================================================================
-  // NPC BENEFITS SYSTEM - FREE REPAIR SYSTEM
-  // ========================================================================
-
-  canGetFreeRepair(npcId) {
-    return this.npcManager.canGetFreeRepair(npcId);
-  }
-
-  getFreeRepair(npcId, hullDamagePercent) {
-    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
   }
 
   // ========================================================================
@@ -1133,6 +1149,10 @@ export class GameStateManager {
 
   updatePassengerSatisfaction(missionId, event) {
     return this.missionManager.updatePassengerSatisfaction(missionId, event);
+  }
+
+  modifyAllPassengerSatisfaction(delta) {
+    return this.missionManager.modifyAllPassengerSatisfaction(delta);
   }
 
   dismissMissionFailureNotice(missionId) {

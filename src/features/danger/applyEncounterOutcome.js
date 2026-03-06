@@ -1,7 +1,4 @@
-import {
-  PIRATE_CREDIT_DEMAND_CONFIG,
-  EVENT_NAMES,
-} from '../../game/constants.js';
+import { PIRATE_CREDIT_DEMAND_CONFIG } from '../../game/constants.js';
 
 /**
  * Apply encounter outcome costs and rewards to game state.
@@ -89,8 +86,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.costs.hiddenCargoConfiscated) {
-      state.ship.hiddenCargo = [];
-      gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+      gameStateManager.clearHiddenCargo();
     }
 
     // Remove restricted goods from cargo before checking mission failures
@@ -131,18 +127,9 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.costs.passengerSatisfaction) {
-      const activeMissions = state.missions.active;
-      for (const mission of activeMissions) {
-        if (mission.type === 'passenger' && mission.passenger) {
-          mission.passenger.satisfaction = Math.max(
-            0,
-            mission.passenger.satisfaction - outcome.costs.passengerSatisfaction
-          );
-        }
-      }
-      gameStateManager.emit(EVENT_NAMES.MISSIONS_CHANGED, {
-        ...state.missions,
-      });
+      gameStateManager.modifyAllPassengerSatisfaction(
+        -outcome.costs.passengerSatisfaction
+      );
     }
   }
 
@@ -227,19 +214,9 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     }
 
     if (outcome.rewards.passengerSatisfaction) {
-      const activeMissions = state.missions.active;
-      for (const mission of activeMissions) {
-        if (mission.type === 'passenger' && mission.passenger) {
-          mission.passenger.satisfaction = Math.min(
-            100,
-            mission.passenger.satisfaction +
-              outcome.rewards.passengerSatisfaction
-          );
-        }
-      }
-      gameStateManager.emit(EVENT_NAMES.MISSIONS_CHANGED, {
-        ...state.missions,
-      });
+      gameStateManager.modifyAllPassengerSatisfaction(
+        outcome.rewards.passengerSatisfaction
+      );
     }
   }
 

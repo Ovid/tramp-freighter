@@ -211,7 +211,7 @@ export default TradePanel;
 - **Clean output**: Tests must produce no stderr warnings
 - **Floating-point precision**: Use epsilon tolerance for comparisons
 - **Mock console**: Mock `console` methods when testing error conditions
-- **Mock localStorage**: Use Vitest `vi.stubGlobal()` for localStorage
+- **Mock localStorage**: Use Vitest `vi.stubGlobal()` for localStorage. Vitest runs each test file in its own isolated thread by default, so `vi.stubGlobal('localStorage', ...)` in `beforeEach` cannot leak between files. Do not flag missing `afterEach`/`unstubAllGlobals` cleanup as a bug — it is unnecessary given file-level isolation.
 - **Property tests**: Minimum 100 iterations with fast-check
 
 ### Test-Driven Development

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -37,7 +36,6 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
  * @returns {JSX.Element} Repair panel component
  */
 export function RepairPanel({ onClose }) {
-  const gameStateManager = useGameState();
   const starData = useStarData();
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
@@ -49,6 +47,7 @@ export function RepairPanel({ onClose }) {
     applyEmergencyPatch,
     cannibalizeSystem,
     getNarrativeFlags,
+    getServiceDiscount,
   } = useGameAction();
 
   const [validationMessage, setValidationMessage] = useState('');
@@ -75,10 +74,7 @@ export function RepairPanel({ onClose }) {
   // Get repair service discounts from NPCs at this location
   const repairDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = gameStateManager.getServiceDiscount(
-        npc.id,
-        'repair'
-      );
+      const discountInfo = getServiceDiscount(npc.id, 'repair');
       return {
         npc,
         discount: discountInfo.discount,
