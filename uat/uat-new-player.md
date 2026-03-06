@@ -21,8 +21,8 @@ that's fine. The point of this test is to see if a new player can figure out
 how to play the game without any guidance.
 
 Your MAIN OBJECTIVE is to ensure that the game isn't too easy and you can't
-get tons of money with no effort, but also that the game isn't too hard and
-you can't figure out.
+get tons of money with no effort, but also that the game isn't too hard to
+figure out how to play/retire
 
 Players might take notes. You should, too. Write them to
 uat/<YYYY-MM-DD>-uat-new-player-notes.md. This will help you remember what you did and what you
