@@ -126,6 +126,10 @@ export class GameStateManager {
     this.animationSystem = animationSystem;
   }
 
+  // ========================================================================
+  // SHIP CONFIGURATION
+  // ========================================================================
+
   assignShipQuirks(rng = Math.random) {
     return this.shipManager.assignShipQuirks(rng);
   }
@@ -161,6 +165,10 @@ export class GameStateManager {
   addToCargoArray(cargoArray, sourceStack, qty) {
     return this.shipManager.addToCargoArray(cargoArray, sourceStack, qty);
   }
+
+  // ========================================================================
+  // GAME LIFECYCLE
+  // ========================================================================
 
   /**
    * Initialize a new game with default values
@@ -789,6 +797,18 @@ export class GameStateManager {
   }
 
   // ========================================================================
+  // NPC BENEFITS SYSTEM - FREE REPAIR SYSTEM
+  // ========================================================================
+
+  canGetFreeRepair(npcId) {
+    return this.npcManager.canGetFreeRepair(npcId);
+  }
+
+  getFreeRepair(npcId, hullDamagePercent) {
+    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+  }
+
+  // ========================================================================
   // TRADING OPERATIONS
   // ========================================================================
 
@@ -931,18 +951,6 @@ export class GameStateManager {
 
   set lastSaveTime(timestamp) {
     this.saveLoadManager.setLastSaveTime(timestamp);
-  }
-
-  // ========================================================================
-  // NPC BENEFITS SYSTEM - FREE REPAIR SYSTEM
-  // ========================================================================
-
-  canGetFreeRepair(npcId) {
-    return this.npcManager.canGetFreeRepair(npcId);
-  }
-
-  getFreeRepair(npcId, hullDamagePercent) {
-    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
   }
 
   // ========================================================================
