@@ -28,13 +28,13 @@ Increase base fees and fix the flat 2-hop multiplier:
 | `CARGO_RUN_ILLEGAL_BASE_FEE` | 150     | 400      |
 | `HOP_MULTIPLIERS`            | [1.0, 1.0, 2.0, 3.5] | [1.0, 1.5, 2.5, 4.0] |
 
-Expected cargo mission payouts:
+Expected cargo mission payouts (hopCount indexes HOP_MULTIPLIERS directly):
 
-| Hops | Safe | Contested | Dangerous |
-|------|------|-----------|-----------|
-| 1    | 250  | 375       | 500       |
-| 2    | 375  | 563       | 750       |
-| 3    | 625  | 938       | 1,250     |
+| Hops | Multiplier | Safe | Contested | Dangerous |
+|------|------------|------|-----------|-----------|
+| 1    | 1.5        | 375  | 563       | 750       |
+| 2    | 2.5        | 625  | 938       | 1,250     |
+| 3    | 4.0        | 1,000| 1,500     | 2,000     |
 
 Illegal missions at 400 base are ~60% higher, making customs risk a genuine
 gamble (600 credit reward vs 1,000 credit fine) instead of an automatic loss
@@ -86,27 +86,28 @@ Per-cycle income (6-day Sol to Barnard's Star round trip):
 
 | Source                          | Current | Proposed |
 |---------------------------------|---------|----------|
-| Cargo mission (1-hop safe, 75%) | 90 avg  | 188 avg  |
+| Cargo mission (1-hop safe, 75%) | 90 avg  | 281 avg  |
 | Passenger (occasional)          | 10 avg  | 50 avg   |
 | Trade profit                    | 200     | 200      |
-| **Gross income**                | **300** | **438**  |
+| **Gross income**                | **300** | **531**  |
 | Fuel + repairs                  | -130    | -130     |
-| **Net per cycle**               | **170** | **308**  |
+| **Net per cycle**               | **170** | **401**  |
 
 Over 150 days (25 cycles):
 
-- Proposed gross debt payments: ~7,700
+- Proposed gross debt payments: ~10,025
 - Interest accrued (~250/mo avg on declining balance): ~1,250
-- Net debt reduction: ~6,450
+- Net debt reduction: ~8,775
 
-The remaining ~3,500 gap is covered by occasional 2-hop missions, medicine
-price spikes, and Tanaka quest stage bonuses (6,000 total from ENDGAME_CONFIG).
+This comfortably covers the 10,000 starting debt within the target window.
+Occasional 2-hop missions and Tanaka quest bonuses provide additional margin.
 
 Edge cases:
 - Death spiral recovery: a player at 0 credits can take a free-cargo mission
-  worth 250 (vs 120 currently), enough to refuel at Sol and restart.
-- Illegal mission risk/reward: 1-hop contested illegal pays 600. At 18%
-  inspection rate, EV = 600 - (0.18 * 1,000) = 420. A genuine calculated risk.
+  worth 375 (vs 120 currently), enough to refuel at Sol and restart.
+- Illegal mission risk/reward: 1-hop contested illegal pays 600 (400 * 1.5).
+  At 18% inspection rate, EV = 600 - (0.18 * 1,000) = 420. A genuine
+  calculated risk.
 
 ## Implementation
 
