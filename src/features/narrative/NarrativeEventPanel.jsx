@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useGameState } from '../../context/GameContext.jsx';
+import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
 import '../../../css/panel/narrative-event.css';
 
@@ -15,6 +16,7 @@ import '../../../css/panel/narrative-event.css';
  */
 export function NarrativeEventPanel({ event, onClose }) {
   const gameStateManager = useGameState();
+  const notificationCtx = useNotificationContext();
   const [currentEvent, setCurrentEvent] = useState(event);
 
   const handleChoice = useCallback(
@@ -28,7 +30,15 @@ export function NarrativeEventPanel({ event, onClose }) {
             Object.keys(choice.effects.rewards).length > 0);
 
         if (hasEffects) {
-          applyEncounterOutcome(gameStateManager, choice.effects);
+          const result = applyEncounterOutcome(
+            gameStateManager,
+            choice.effects
+          );
+          if (result.salvageMessages.length > 0 && notificationCtx) {
+            result.salvageMessages.forEach((msg) =>
+              notificationCtx.showInfo(msg)
+            );
+          }
         }
       }
 
@@ -61,7 +71,7 @@ export function NarrativeEventPanel({ event, onClose }) {
       // No chain — close the panel
       onClose();
     },
-    [gameStateManager, currentEvent, onClose]
+    [gameStateManager, currentEvent, onClose, notificationCtx]
   );
 
   const { content } = currentEvent;

@@ -220,6 +220,23 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     }
   }
 
+  // Build quest progress info for NPCs with quests
+  let questProgress = null;
+  if (npcData.questId) {
+    const questStage = gameStateManager.getQuestStage(npcData.questId);
+    const questDef = gameStateManager.getQuestDefinition?.(npcData.questId);
+    if (questDef && questDef.stages) {
+      const nextStage = questDef.stages.find((s) => s.stage === questStage + 1);
+      const nextRepThreshold = nextStage?.requirements?.npcRep?.[1] ?? null;
+      questProgress = {
+        currentRep,
+        questStage,
+        nextRepThreshold,
+        stageName: nextStage?.name ?? null,
+      };
+    }
+  }
+
   return {
     npcId,
     npcName: npcData.name,
@@ -228,6 +245,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     reputationTier: gameStateManager.getRepTier(currentRep),
     text: dialogueText,
     choices: availableChoices,
+    questProgress,
   };
 }
 

@@ -373,9 +373,9 @@ export const ECONOMY_CONFIG = {
   MAX_TECH_LEVEL: 10.0, // Sol and core systems
   MIN_TECH_LEVEL: 1.0, // Frontier systems at 21+ LY
 
-  MARKET_CAPACITY: 1000, // Units traded before extreme price impact
+  MARKET_CAPACITY: 200, // Units traded before extreme price impact
 
-  DAILY_RECOVERY_FACTOR: 0.9, // Market conditions decay 10% per day
+  DAILY_RECOVERY_FACTOR: 0.95, // Market conditions decay 5% per day
 
   TEMPORAL_WAVE_PERIOD: 30, // Price oscillation cycle in days
   TEMPORAL_AMPLITUDE: 0.15, // ±15% price variation (0.85 to 1.15 multiplier)
@@ -619,10 +619,16 @@ export const MISSION_CONFIG = {
   PASSENGER_PREMIUM: 1.25,
   PASSENGER_MARGIN_FLOOR: 5,
   FEASIBILITY_WARNING_THRESHOLD: 0.7,
+  PRIORITY_MISSION: {
+    TRADER_REP_THRESHOLD: 30,
+    CIVILIAN_REP_THRESHOLD: 30,
+    REWARD_MULTIPLIER: 2.0,
+    BOARD_CHANCE: 0.3,
+  },
 };
 
 export const ENDGAME_CONFIG = {
-  VICTORY_CREDITS: 25000,
+  VICTORY_CREDITS: 15000,
   TANAKA_SYSTEM: 4, // Barnard's Star
   TANAKA_UNLOCK_SYSTEMS_VISITED: 10,
   STAGE_1_REP: 10,

@@ -15,8 +15,8 @@ describe('ECONOMY_CONFIG Constants', () => {
     ['MAX_COORD_DISTANCE', 21],
     ['MAX_TECH_LEVEL', 10.0],
     ['MIN_TECH_LEVEL', 1.0],
-    ['MARKET_CAPACITY', 1000],
-    ['DAILY_RECOVERY_FACTOR', 0.9],
+    ['MARKET_CAPACITY', 200],
+    ['DAILY_RECOVERY_FACTOR', 0.95],
     ['TEMPORAL_WAVE_PERIOD', 30],
   ])('%s should be %s', (property, expectedValue) => {
     expect(ECONOMY_CONFIG[property]).toBe(expectedValue);

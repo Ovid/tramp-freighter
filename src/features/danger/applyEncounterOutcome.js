@@ -13,9 +13,11 @@ import {
  *
  * @param {Object} gameStateManager - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
+ * @returns {Object} result - { salvageMessages: string[] }
  */
 export function applyEncounterOutcome(gameStateManager, outcome) {
   const state = gameStateManager.getState();
+  const salvageMessages = [];
 
   // Apply costs
   if (outcome.costs) {
@@ -181,7 +183,6 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       const currentCargo = [...state.ship.cargo];
       const cargoCapacity = state.ship.cargoCapacity;
       let currentTotal = currentCargo.reduce((sum, item) => sum + item.qty, 0);
-      const salvageMessages = [];
 
       for (const rewardItem of outcome.rewards.cargo) {
         const availableSpace = cargoCapacity - currentTotal;
@@ -222,11 +223,6 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         currentTotal += qtyToAdd;
       }
 
-      if (salvageMessages.length > 0) {
-        outcome.description =
-          outcome.description + ' ' + salvageMessages.join(' ');
-      }
-
       gameStateManager.updateCargo(currentCargo);
     }
 
@@ -248,4 +244,6 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
   }
 
   gameStateManager.markDirty();
+
+  return { salvageMessages };
 }

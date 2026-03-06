@@ -30,7 +30,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    applyEncounterOutcome(gsm, outcome);
+    const result = applyEncounterOutcome(gsm, outcome);
 
     const totalCargo = state.ship.cargo.reduce(
       (sum, item) => sum + item.qty,
@@ -40,7 +40,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
     // Should only fit 2 of 5
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(2);
-    expect(outcome.description).toContain('Could only fit 2 of 5');
+    expect(result.salvageMessages).toContain('Could only fit 2 of 5 units.');
   });
 
   it('should show partial salvage message when only 1 of multiple fits', () => {
@@ -60,11 +60,11 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    applyEncounterOutcome(gsm, outcome);
+    const result = applyEncounterOutcome(gsm, outcome);
 
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(1);
-    expect(outcome.description).toContain('Could only fit 1 of 3 units.');
+    expect(result.salvageMessages).toContain('Could only fit 1 of 3 units.');
   });
 
   it('should salvage nothing when hold is full with full-hold message', () => {
@@ -84,7 +84,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    applyEncounterOutcome(gsm, outcome);
+    const result = applyEncounterOutcome(gsm, outcome);
 
     const totalCargo = state.ship.cargo.reduce(
       (sum, item) => sum + item.qty,
@@ -93,7 +93,9 @@ describe('Salvage Cargo Cap (#55/56)', () => {
     expect(totalCargo).toBe(50);
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts).toBeUndefined();
-    expect(outcome.description).toContain('Your hold is full');
+    expect(result.salvageMessages).toContain(
+      'Your hold is full \u2014 nothing salvaged.'
+    );
   });
 
   it('should salvage full amount when space is sufficient (no extra message)', () => {
@@ -113,11 +115,10 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    applyEncounterOutcome(gsm, outcome);
+    const result = applyEncounterOutcome(gsm, outcome);
 
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(3);
-    // No extra message when everything fits
-    expect(outcome.description).toBe('Salvaged parts.');
+    expect(result.salvageMessages).toHaveLength(0);
   });
 });

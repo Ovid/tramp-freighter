@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -108,6 +108,16 @@ export function TradePanel({ onClose }) {
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
+  // Track whether the player has seen the RESTRICTED explanation
+  const [restrictedExplained, setRestrictedExplained] = useState(
+    () => localStorage.getItem('restrictedExplained') === 'true'
+  );
+
+  const dismissRestrictedHint = useCallback(() => {
+    localStorage.setItem('restrictedExplained', 'true');
+    setRestrictedExplained(true);
+  }, []);
+
   // Sale feedback message (e.g., Cole's withholding notice)
   // Persists until the next sale or panel close — no auto-dismiss timer
   const [saleFeedback, setSaleFeedback] = useState(null);
@@ -196,12 +206,26 @@ export function TradePanel({ onClose }) {
                     <div className="good-price">
                       {price} ₡/unit
                       {isRestricted && (
-                        <span
-                          className="restricted-badge"
-                          title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
-                          aria-label={`Restricted: ${RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}`}
-                        >
-                          RESTRICTED
+                        <span className="restricted-badge-wrapper">
+                          <span
+                            className="restricted-badge"
+                            title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                            aria-label={`Restricted: ${RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}`}
+                          >
+                            RESTRICTED
+                          </span>
+                          {!restrictedExplained && (
+                            <span className="restricted-hint">
+                              {RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                              <button
+                                className="restricted-hint-dismiss"
+                                onClick={dismissRestrictedHint}
+                                aria-label="Dismiss restricted goods explanation"
+                              >
+                                Got it
+                              </button>
+                            </span>
+                          )}
                         </span>
                       )}
                     </div>

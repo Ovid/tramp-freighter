@@ -135,6 +135,17 @@
   font-weight: bold;
 }
 
+.priority-badge {
+  color: #ffd700;
+  font-size: 0.65em;
+  font-weight: bold;
+  padding: 1px 6px;
+  border: 1px solid #ffd700;
+  border-radius: 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 .feasibility-warning {
   font-size: var(--font-size-small);
   font-weight: bold;

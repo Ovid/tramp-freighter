@@ -137,6 +137,40 @@
   color: #ffd700;
 }
 
+/* Quest Progress Bar */
+.quest-progress {
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  background-color: rgba(0, 191, 255, 0.08);
+  border: 1px solid rgba(0, 191, 255, 0.3);
+  border-radius: 5px;
+}
+
+.quest-progress-label {
+  font-size: 13px;
+  color: #00bfff;
+  margin-bottom: 6px;
+}
+
+.quest-stage-name {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.quest-progress-bar {
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background-color: #00bfff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
 /* Dialogue Content */
 .dialogue-content {
   display: flex;
