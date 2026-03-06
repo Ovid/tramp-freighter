@@ -4,7 +4,7 @@
 to figure out how to play the game, understand the basic mechanics, and
 retire. If you can do that, then the new player experience is successful. Do
 not stop and ask questions. You're on your own. You can explore and experiment
-as much as you want. However, YOU MANDATORY GOAL, THAT YOU MUST ACHIEVE, is to
+as much as you want. However, YOUR MANDATORY GOAL, THAT YOU MUST ACHIEVE, is to
 RETIRE. You should not stop until you figure out how to retire.
 
 You CANNOT USE the .dev hack to give yourself money or to skip any parts of
