@@ -112,7 +112,7 @@ export class SaveLoadManager extends BaseManager {
       const timeSinceLastSave = now - this.lastSaveTime;
 
       if (timeSinceLastSave >= UI_CONFIG.SAVE_DEBOUNCE_MS) {
-        this.error('Save failed - game progress may be lost');
+        this.error('Save failed — game progress may be lost');
         this.emit(EVENT_NAMES.SAVE_FAILED, {
           message: 'Save failed — game progress may be lost',
         });
