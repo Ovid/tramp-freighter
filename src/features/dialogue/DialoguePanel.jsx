@@ -138,7 +138,10 @@ export function DialoguePanel({ npcId, onClose }) {
             <div
               className="quest-progress-bar"
               role="progressbar"
-              aria-valuenow={Math.min(dialogueDisplay.questProgress.currentRep, dialogueDisplay.questProgress.nextRepThreshold)}
+              aria-valuenow={Math.min(
+                dialogueDisplay.questProgress.currentRep,
+                dialogueDisplay.questProgress.nextRepThreshold
+              )}
               aria-valuemin={0}
               aria-valuemax={dialogueDisplay.questProgress.nextRepThreshold}
               aria-label="Quest progress"
