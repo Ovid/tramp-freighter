@@ -282,6 +282,10 @@ export function useGameAction() {
         gameStateManager.dismissMissionFailureNotice(missionId),
       calculateTradeWithholding: (amount) =>
         gameStateManager.calculateTradeWithholding(amount),
+
+      getFuelPrice: (systemId) => gameStateManager.getFuelPrice(systemId),
+      getServiceDiscount: (npcId, serviceType) =>
+        gameStateManager.getServiceDiscount(npcId, serviceType),
     }),
     [gameStateManager]
   );

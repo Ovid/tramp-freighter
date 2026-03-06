@@ -825,7 +825,7 @@ export class NPCManager extends BaseManager {
 
     // Add retrieved cargo to ship using the same stacking logic as storeCargo
     for (const stack of retrievedCargo) {
-      this.gameStateManager.shipManager._addToCargoArray(
+      this.gameStateManager.addToCargoArray(
         currentShipCargo,
         stack,
         stack.qty

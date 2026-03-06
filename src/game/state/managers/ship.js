@@ -533,6 +533,13 @@ export class ShipManager extends BaseManager {
     return state.ship.hiddenCargo;
   }
 
+  clearHiddenCargo() {
+    this.validateState();
+    const state = this.getState();
+    state.ship.hiddenCargo = [];
+    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+  }
+
   /**
    * Move cargo from regular cargo to hidden cargo
    *
@@ -577,7 +584,7 @@ export class ShipManager extends BaseManager {
     }
 
     // Add to hidden cargo (stacks with matching good and buyPrice)
-    this._addToCargoArray(ship.hiddenCargo, cargoStack, qty);
+    this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
     // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
@@ -630,7 +637,7 @@ export class ShipManager extends BaseManager {
     }
 
     // Add to regular cargo (stacks with matching good and buyPrice)
-    this._addToCargoArray(ship.cargo, hiddenStack, qty);
+    this.addToCargoArray(ship.cargo, hiddenStack, qty);
 
     // Emit cargo change events
     this.gameStateManager.updateCargo(ship.cargo);
@@ -648,9 +655,8 @@ export class ShipManager extends BaseManager {
    * @param {Array} cargoArray - Target cargo array
    * @param {Object} sourceStack - Source cargo stack
    * @param {number} qty - Quantity to add
-   * @private
    */
-  _addToCargoArray(cargoArray, sourceStack, qty) {
+  addToCargoArray(cargoArray, sourceStack, qty) {
     // Find existing stack with matching good and buyPrice
     const existingIndex = cargoArray.findIndex(
       (stack) =>

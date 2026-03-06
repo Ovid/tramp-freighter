@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useGameState } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { EVENT_NAMES } from '../../game/constants.js';
@@ -29,17 +28,14 @@ export function RefuelPanel({ onClose }) {
   // Track if this is the first render
   const isFirstRender = useRef(true);
 
-  // Access GameStateManager
-  const gameStateManager = useGameState();
-
   // Subscribe to game state changes
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
   const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   // Get action methods
-  const { refuel, validateRefuel, getNarrativeFlags } = useGameAction();
-  const fuelPrice = gameStateManager.getFuelPrice(currentSystem);
+  const { refuel, validateRefuel, getNarrativeFlags, getFuelPrice, getServiceDiscount } = useGameAction();
+  const fuelPrice = getFuelPrice(currentSystem);
 
   // Get NPCs at current location for refuel discounts
   const npcsAtSystem = getNPCsAtSystem(currentSystem, getNarrativeFlags());
@@ -47,7 +43,7 @@ export function RefuelPanel({ onClose }) {
   // Get refuel service discounts from NPCs at this location
   const refuelDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = gameStateManager.getServiceDiscount(
+      const discountInfo = getServiceDiscount(
         npc.id,
         'refuel'
       );

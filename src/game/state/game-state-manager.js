@@ -158,6 +158,10 @@ export class GameStateManager {
     return this.shipManager.removeUpgrade(upgradeId);
   }
 
+  addToCargoArray(cargoArray, sourceStack, qty) {
+    return this.shipManager.addToCargoArray(cargoArray, sourceStack, qty);
+  }
+
   /**
    * Initialize a new game with default values
    * Uses InitializationManager for state creation but maintains control over state assignment
@@ -873,6 +877,10 @@ export class GameStateManager {
     return this.shipManager.getHiddenCargo();
   }
 
+  clearHiddenCargo() {
+    return this.shipManager.clearHiddenCargo();
+  }
+
   // ========================================================================
   // DOCK/UNDOCK OPERATIONS
   // ========================================================================
@@ -1133,6 +1141,10 @@ export class GameStateManager {
 
   updatePassengerSatisfaction(missionId, event) {
     return this.missionManager.updatePassengerSatisfaction(missionId, event);
+  }
+
+  modifyAllPassengerSatisfaction(delta) {
+    return this.missionManager.modifyAllPassengerSatisfaction(delta);
   }
 
   dismissMissionFailureNotice(missionId) {

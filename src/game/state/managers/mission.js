@@ -293,6 +293,19 @@ export class MissionManager extends BaseManager {
     this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
   }
 
+  modifyAllPassengerSatisfaction(delta) {
+    const state = this.getState();
+    for (const mission of state.missions.active) {
+      if (mission.type === 'passenger' && mission.passenger) {
+        mission.passenger.satisfaction = Math.max(
+          0,
+          Math.min(100, mission.passenger.satisfaction + delta)
+        );
+      }
+    }
+    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+  }
+
   calculatePassengerPayment(mission) {
     const base = mission.rewards.credits;
     const satisfaction = mission.passenger.satisfaction;

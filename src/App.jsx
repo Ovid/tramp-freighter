@@ -69,6 +69,7 @@ export default function App({ devMode = false }) {
   const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
   const pavonisRunEvent = useGameEvent(EVENT_NAMES.PAVONIS_RUN_TRIGGERED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  const saveFailedEvent = useGameEvent(EVENT_NAMES.SAVE_FAILED);
   useEventTriggers();
   const starmapRef = useRef(null);
 
@@ -94,6 +95,13 @@ export default function App({ devMode = false }) {
     selectStarById: () => {},
     deselectStar: () => {},
   });
+
+  // Surface save failures to the player
+  useEffect(() => {
+    if (saveFailedEvent?.message && notificationCtx) {
+      notificationCtx.showError(saveFailedEvent.message);
+    }
+  }, [saveFailedEvent, notificationCtx]);
 
   // Determine if system panel should be shown
   // Show when a system is selected (regardless of view mode)
