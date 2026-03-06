@@ -587,4 +587,169 @@ describe('Mission Generator', () => {
       });
     });
   });
+
+  describe('generateMissionBoard (priority missions)', () => {
+    const { PRIORITY_MISSION } = MISSION_CONFIG;
+
+    it('should mark missions as priority when rep meets threshold and RNG passes', () => {
+      // rng=0.1: isPassenger (0.1 < 0.3 → passenger), BOARD_CHANCE (0.1 < 0.3 → passes)
+      const rng = () => 0.1;
+      const factionReps = {
+        traders: PRIORITY_MISSION.TRADER_REP_THRESHOLD,
+        civilians: PRIORITY_MISSION.CIVILIAN_REP_THRESHOLD,
+      };
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        factionReps
+      );
+
+      expect(board.length).toBeGreaterThan(0);
+      board.forEach((m) => {
+        expect(m.priority).toBe(true);
+      });
+    });
+
+    it('should multiply rewards by REWARD_MULTIPLIER for priority missions', () => {
+      const rng = () => 0.1;
+      const factionReps = {
+        traders: PRIORITY_MISSION.TRADER_REP_THRESHOLD,
+        civilians: PRIORITY_MISSION.CIVILIAN_REP_THRESHOLD,
+      };
+
+      // Generate a baseline board without priority
+      const baseBoard = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        () => 0.1,
+        null,
+        [],
+        0,
+        null
+      );
+
+      const priorityBoard = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        factionReps
+      );
+
+      // Same rng means same base missions; priority ones should have doubled rewards
+      for (let i = 0; i < Math.min(baseBoard.length, priorityBoard.length); i++) {
+        const expected = Math.ceil(
+          baseBoard[i].rewards.credits * PRIORITY_MISSION.REWARD_MULTIPLIER
+        );
+        expect(priorityBoard[i].rewards.credits).toBe(expected);
+      }
+    });
+
+    it('should not set priority when faction rep is below threshold', () => {
+      const rng = () => 0.1; // BOARD_CHANCE roll passes
+      const factionReps = {
+        traders: PRIORITY_MISSION.TRADER_REP_THRESHOLD - 1,
+        civilians: PRIORITY_MISSION.CIVILIAN_REP_THRESHOLD - 1,
+      };
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        factionReps
+      );
+
+      expect(board.length).toBeGreaterThan(0);
+      board.forEach((m) => {
+        expect(m.priority).toBeUndefined();
+      });
+    });
+
+    it('should not set priority when BOARD_CHANCE roll fails', () => {
+      const rng = () => 0.99; // 0.99 >= 0.3 → BOARD_CHANCE fails
+      const factionReps = {
+        traders: PRIORITY_MISSION.TRADER_REP_THRESHOLD + 10,
+        civilians: PRIORITY_MISSION.CIVILIAN_REP_THRESHOLD + 10,
+      };
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        factionReps
+      );
+
+      expect(board.length).toBeGreaterThan(0);
+      board.forEach((m) => {
+        expect(m.priority).toBeUndefined();
+      });
+    });
+
+    it('should not set priority when factionReps is null', () => {
+      const rng = () => 0.1;
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        null
+      );
+
+      expect(board.length).toBeGreaterThan(0);
+      board.forEach((m) => {
+        expect(m.priority).toBeUndefined();
+      });
+    });
+
+    it('should use civilian rep threshold for passenger missions', () => {
+      // rng=0.1 → isPassenger check: 0.1 < 0.3 → true (passenger)
+      const rng = () => 0.1;
+      const factionReps = {
+        traders: 0,
+        civilians: PRIORITY_MISSION.CIVILIAN_REP_THRESHOLD,
+      };
+      const board = generateMissionBoard(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA,
+        'safe',
+        rng,
+        null,
+        [],
+        0,
+        factionReps
+      );
+
+      expect(board.length).toBeGreaterThan(0);
+      // With rng=0.1, isPassenger is true (0.1 < 0.3), civilian rep meets threshold
+      const passengerMissions = board.filter((m) => m.passenger);
+      passengerMissions.forEach((m) => {
+        expect(m.priority).toBe(true);
+      });
+    });
+  });
 });
