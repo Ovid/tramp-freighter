@@ -649,7 +649,11 @@ describe('Mission Generator', () => {
       );
 
       // Same rng means same base missions; priority ones should have doubled rewards
-      for (let i = 0; i < Math.min(baseBoard.length, priorityBoard.length); i++) {
+      for (
+        let i = 0;
+        i < Math.min(baseBoard.length, priorityBoard.length);
+        i++
+      ) {
         const expected = Math.ceil(
           baseBoard[i].rewards.credits * PRIORITY_MISSION.REWARD_MULTIPLIER
         );
