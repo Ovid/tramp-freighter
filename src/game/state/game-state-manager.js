@@ -47,9 +47,11 @@ import { ALL_QUESTS } from '../data/quest-definitions.js';
 /**
  * GameStateManager - Manages all game state with event-driven reactivity
  *
- * This class uses a delegation pattern with focused managers for different game domains.
- * Most methods delegate to specialized managers (TradingManager, ShipManager, etc.) to
- * maintain separation of concerns while providing a unified API.
+ * This class acts as a facade over focused domain managers (TradingManager, ShipManager,
+ * etc.). The high method count (~180) is intentional: most are pure delegation pass-throughs
+ * that provide a unified API while keeping domain logic in individual managers. This is a
+ * facade, not a god object — splitting into sub-facades would add import complexity without
+ * reducing coupling for a single-player game.
  *
  * DOCUMENTATION: Method documentation is maintained in the individual manager classes
  * to avoid duplication. See the respective manager files for detailed parameter and
@@ -530,7 +532,7 @@ export class GameStateManager {
   // NPC REPUTATION SYSTEM
   // ========================================================================
 
-  _validateAndGetNPCData(npcId) {
+  validateAndGetNPCData(npcId) {
     return this.npcManager.validateAndGetNPCData(npcId);
   }
 
@@ -666,6 +668,10 @@ export class GameStateManager {
   // ========================================================================
   // ACHIEVEMENTS SYSTEM
   // ========================================================================
+
+  checkAchievements() {
+    this.achievementsManager.checkAchievements();
+  }
 
   getAchievementProgress() {
     return this.achievementsManager.getProgress();

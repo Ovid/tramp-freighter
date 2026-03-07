@@ -5,6 +5,11 @@ import { DEV_MODE } from '../../constants.js';
  *
  * Provides common patterns and utilities for state management modules.
  * All managers should extend this class to ensure consistent behavior.
+ *
+ * Save pattern: managers call this.gameStateManager.markDirty() after mutations.
+ * This is deliberately explicit rather than automatic — not every method mutates
+ * state, and auto-marking would trigger unnecessary saves on read operations.
+ * SaveLoadManager debounces with a 500ms trailing timer.
  */
 export class BaseManager {
   /**

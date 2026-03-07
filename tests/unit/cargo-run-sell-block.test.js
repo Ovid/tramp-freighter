@@ -33,7 +33,7 @@ describe('Trading – mission cargo sell block', () => {
       saveGame: vi.fn(),
       markDirty: vi.fn(),
       emit: vi.fn(),
-      achievementsManager: { checkAchievements: vi.fn() },
+      checkAchievements: vi.fn(),
     };
 
     const {

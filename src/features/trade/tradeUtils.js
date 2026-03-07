@@ -157,18 +157,5 @@ function getPassengerCargoSpace(state) {
  * @param {number} buyDate - The day the cargo was purchased
  * @returns {string} Formatted age string
  */
-export function formatCargoAge(currentDay, buyDate) {
-  if (buyDate === undefined || currentDay === undefined) {
-    return '';
-  }
-
-  const daysSincePurchase = currentDay - buyDate;
-
-  if (daysSincePurchase === 0) {
-    return 'today';
-  } else if (daysSincePurchase === 1) {
-    return '1 day ago';
-  } else {
-    return `${daysSincePurchase} days ago`;
-  }
-}
+// Re-export from canonical location to avoid breaking existing imports
+export { formatCargoAge } from '../cargo/cargoUtils';

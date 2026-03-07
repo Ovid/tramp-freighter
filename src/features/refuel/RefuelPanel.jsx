@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
-import { EVENT_NAMES } from '../../game/constants.js';
+import { EVENT_NAMES, TRADE_CONFIG } from '../../game/constants.js';
 import {
   calculateRefuelCost,
   calculateDiscountedRefuelCost,
@@ -92,7 +92,10 @@ export function RefuelPanel({ onClose }) {
   // Initialize amount when panel opens (only on first render)
   useEffect(() => {
     if (isFirstRender.current) {
-      const defaultAmount = Math.min(10, maxRefuel);
+      const defaultAmount = Math.min(
+        TRADE_CONFIG.QUICK_BUY_QUANTITY,
+        maxRefuel
+      );
       setAmount(defaultAmount > 0 ? defaultAmount : 0);
       isFirstRender.current = false;
     }

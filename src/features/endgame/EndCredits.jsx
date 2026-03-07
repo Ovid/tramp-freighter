@@ -10,6 +10,7 @@ export function EndCredits({ onCreditsComplete }) {
   const scrollRef = useRef(null);
   const animationRef = useRef(null);
 
+  // Direct access acceptable: read-only mount-time value that never changes during credits
   const shipName = useMemo(
     () => gameStateManager.getShip()?.name || 'Your Ship',
     [gameStateManager]

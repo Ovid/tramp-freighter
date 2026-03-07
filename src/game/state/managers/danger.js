@@ -123,7 +123,7 @@ export class DangerManager extends BaseManager {
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
     );
     this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
-    this.gameStateManager.achievementsManager.checkAchievements();
+    this.gameStateManager.checkAchievements();
   }
 
   // ========================================================================
@@ -345,7 +345,7 @@ export class DangerManager extends BaseManager {
     ) {
       state.world.dangerFlags[flagName]++;
     }
-    this.gameStateManager.achievementsManager.checkAchievements();
+    this.gameStateManager.checkAchievements();
   }
 
   // ========================================================================

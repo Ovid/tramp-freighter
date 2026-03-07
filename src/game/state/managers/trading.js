@@ -114,7 +114,7 @@ export class TradingManager extends BaseManager {
       state.stats.cargoHauled += quantity;
       state.stats.creditsEarned += totalRevenue;
     }
-    this.gameStateManager.achievementsManager.checkAchievements();
+    this.gameStateManager.checkAchievements();
 
     // Remove quantity from stack; remove stack if empty
     // Create a new array reference so React detects the change via Object.is
