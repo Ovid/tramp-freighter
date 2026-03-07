@@ -1223,8 +1223,7 @@ export class GameStateManager {
   markVictory() {
     if (this.state.meta) {
       this.state.meta.victory = true;
-      this.state.player.currentSystem = ENDGAME_CONFIG.DELTA_PAVONIS_ID;
-      this.emit(EVENT_NAMES.LOCATION_CHANGED, ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+      this.navigationManager.updateLocation(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
       this.markDirty();
     }
   }
