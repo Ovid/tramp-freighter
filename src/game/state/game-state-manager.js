@@ -1230,8 +1230,7 @@ export class GameStateManager {
   }
 
   devTeleport(systemId) {
-    this.state.player.currentSystem = systemId;
-    this.emit(EVENT_NAMES.LOCATION_CHANGED, systemId);
+    this.navigationManager.updateLocation(systemId);
     this.markDirty();
   }
 }
