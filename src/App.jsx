@@ -31,6 +31,7 @@ import { AchievementToast } from './features/achievements/AchievementToast';
 import { NotificationContainer } from './components/NotificationContainer';
 import { PavonisRun } from './features/endgame/PavonisRun.jsx';
 import { Epilogue } from './features/endgame/Epilogue.jsx';
+import { PostCreditsStation } from './features/endgame/PostCreditsStation.jsx';
 
 /**
  * Application state machine modes.
@@ -91,6 +92,7 @@ export default function App({ devMode = false }) {
   const pendingEncounterRef = useRef(null);
   const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
   const lastHandledNarrative = useRef(null);
+  const [postCredits, setPostCredits] = useState(false);
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -458,7 +460,14 @@ export default function App({ devMode = false }) {
     setViewMode(VIEW_MODES.EPILOGUE);
   };
 
+  const handleCreditsComplete = useCallback(() => {
+    gameStateManager.setNarrativeFlag('post_credits');
+    setPostCredits(true);
+    setViewMode(VIEW_MODES.STATION);
+  }, [gameStateManager]);
+
   const handleReturnToTitle = () => {
+    setPostCredits(false);
     setViewMode(VIEW_MODES.TITLE);
   };
 
@@ -514,10 +523,17 @@ export default function App({ devMode = false }) {
               {viewMode === VIEW_MODES.STATION && (
                 <>
                   <MissionCompleteNotifier />
-                  <StationMenu
-                    onOpenPanel={handleOpenPanel}
-                    onUndock={handleUndock}
-                  />
+                  {postCredits ? (
+                    <PostCreditsStation
+                      onOpenPanel={handleOpenPanel}
+                      onReturnToTitle={handleReturnToTitle}
+                    />
+                  ) : (
+                    <StationMenu
+                      onOpenPanel={handleOpenPanel}
+                      onUndock={handleUndock}
+                    />
+                  )}
                 </>
               )}
 
@@ -648,7 +664,10 @@ export default function App({ devMode = false }) {
 
         {/* Epilogue after Pavonis Run */}
         {viewMode === VIEW_MODES.EPILOGUE && (
-          <Epilogue onReturnToTitle={handleReturnToTitle} />
+          <Epilogue
+            onReturnToTitle={handleReturnToTitle}
+            onCreditsComplete={handleCreditsComplete}
+          />
         )}
       </div>
     </ErrorBoundary>

@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
-import { Button } from '../../components/Button.jsx';
 import { CREDITS_SECTIONS, buildCastList } from './credits-data.js';
 import { CREDITS_CONFIG } from '../../game/constants.js';
 import './endgame.css';
 
-export function EndCredits({ onReturnToTitle }) {
+export function EndCredits({ onCreditsComplete }) {
   const gameStateManager = useGameState();
   const [scrollFinished, setScrollFinished] = useState(false);
   const scrollRef = useRef(null);
@@ -59,6 +58,12 @@ export function EndCredits({ onReturnToTitle }) {
 
     return () => animation.cancel();
   }, [scrollFinished]);
+
+  useEffect(() => {
+    if (scrollFinished) {
+      onCreditsComplete();
+    }
+  }, [scrollFinished, onCreditsComplete]);
 
   const renderSection = (section, idx) => {
     switch (section.type) {
@@ -168,12 +173,6 @@ export function EndCredits({ onReturnToTitle }) {
         >
           Skip
         </button>
-      )}
-
-      {scrollFinished && (
-        <div className="credits-end-buttons">
-          <Button onClick={onReturnToTitle}>Return to Title</Button>
-        </div>
       )}
     </div>
   );

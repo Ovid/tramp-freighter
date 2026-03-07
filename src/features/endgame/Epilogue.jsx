@@ -5,7 +5,7 @@ import { EndCredits } from './EndCredits.jsx';
 import { gameDayToDate } from '../../game/utils/date-utils.js';
 import './endgame.css';
 
-export function Epilogue({ onReturnToTitle }) {
+export function Epilogue({ onReturnToTitle, onCreditsComplete }) {
   const { getEpilogueData, getEpilogueStats } = useGameAction();
   const [phase, setPhase] = useState('epilogue');
 
@@ -14,7 +14,7 @@ export function Epilogue({ onReturnToTitle }) {
   const stats = useMemo(() => getEpilogueStats(), [getEpilogueStats]);
 
   if (phase === 'credits') {
-    return <EndCredits onReturnToTitle={onReturnToTitle} />;
+    return <EndCredits onCreditsComplete={onCreditsComplete} />;
   }
 
   if (phase === 'stats') {

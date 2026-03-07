@@ -33,7 +33,13 @@ beforeAll(() => {
 describe('Epilogue credits phase', () => {
   it('renders EndCredits component when navigating to credits phase', () => {
     const onReturnToTitle = vi.fn();
-    render(<Epilogue onReturnToTitle={onReturnToTitle} />);
+    const onCreditsComplete = vi.fn();
+    render(
+      <Epilogue
+        onReturnToTitle={onReturnToTitle}
+        onCreditsComplete={onCreditsComplete}
+      />
+    );
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
@@ -41,15 +47,20 @@ describe('Epilogue credits phase', () => {
     expect(screen.getByText('TRAMP FREIGHTER BLUES')).toBeTruthy();
   });
 
-  it('EndCredits passes onReturnToTitle through', () => {
+  it('EndCredits calls onCreditsComplete when skipped', () => {
     const onReturnToTitle = vi.fn();
-    render(<Epilogue onReturnToTitle={onReturnToTitle} />);
+    const onCreditsComplete = vi.fn();
+    render(
+      <Epilogue
+        onReturnToTitle={onReturnToTitle}
+        onCreditsComplete={onCreditsComplete}
+      />
+    );
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
 
     fireEvent.click(screen.getByLabelText('Skip credits'));
-    fireEvent.click(screen.getByText('Return to Title'));
-    expect(onReturnToTitle).toHaveBeenCalledOnce();
+    expect(onCreditsComplete).toHaveBeenCalledOnce();
   });
 });
