@@ -21,7 +21,11 @@ import { useGameState } from './context/GameContext';
 import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
-import { EVENT_NAMES, NEGOTIATION_CONFIG } from './game/constants.js';
+import {
+  EVENT_NAMES,
+  NEGOTIATION_CONFIG,
+  ENDGAME_CONFIG,
+} from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -502,9 +506,10 @@ export default function App({ devMode = false }) {
   useEffect(() => {
     if (epiloguePreviewEvent) {
       setShowDevAdmin(false);
+      gameStateManager.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
       setViewMode(VIEW_MODES.EPILOGUE);
     }
-  }, [epiloguePreviewEvent]);
+  }, [epiloguePreviewEvent, gameStateManager]);
 
   return (
     <ErrorBoundary>
