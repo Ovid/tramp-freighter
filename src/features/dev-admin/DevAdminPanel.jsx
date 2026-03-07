@@ -822,6 +822,23 @@ export function DevAdminPanel({ onClose }) {
         </div>
       )}
 
+      {/* Endgame Section */}
+      <div className="dev-admin-section">
+        <h3>Endgame</h3>
+        <div className="dev-admin-encounter-buttons">
+          <button
+            onClick={() =>
+              gameStateManager.emit(
+                EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED,
+                true
+              )
+            }
+          >
+            Preview Epilogue
+          </button>
+        </div>
+      </div>
+
       <div className="dev-admin-warning">
         ⚠ Dev Mode Only - Not visible in production
       </div>

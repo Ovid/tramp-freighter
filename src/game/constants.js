@@ -1878,6 +1878,7 @@ export const EVENT_NAMES = Object.freeze({
 
   // Special
   PAVONIS_RUN_TRIGGERED: 'pavonisRunTriggered',
+  EPILOGUE_PREVIEW_TRIGGERED: 'epiloguePreviewTriggered',
 
   // Achievements
   ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
