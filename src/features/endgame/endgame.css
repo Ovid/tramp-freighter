@@ -161,7 +161,7 @@
   height: 100%;
   overflow: hidden;
   z-index: var(--z-modal);
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .credits-center {
@@ -175,7 +175,7 @@
 .credits-scroll {
   width: 100%;
   padding: 40px;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: transparent;
   text-align: center;
   font-family: var(--font-family-mono);
 }
@@ -326,5 +326,48 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+/* Stats-to-credits fade transition: full-screen black overlay */
+.credits-blackout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: calc(var(--z-modal) + 1);
+  animation: blackout-fade-in 2000ms ease forwards;
+}
+
+@keyframes blackout-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Black overlay that fades OUT to reveal credits underneath */
+.credits-blackout-out {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: calc(var(--z-modal) + 1);
+  animation: blackout-fade-out 2000ms ease forwards;
+  pointer-events: none;
+}
+
+@keyframes blackout-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }

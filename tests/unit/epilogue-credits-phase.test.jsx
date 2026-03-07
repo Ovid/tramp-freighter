@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Epilogue } from '../../src/features/endgame/Epilogue.jsx';
+import { CREDITS_CONFIG } from '../../src/game/constants.js';
 
 vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({
@@ -30,6 +31,14 @@ beforeAll(() => {
   }));
 });
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('Epilogue credits phase', () => {
   it('renders EndCredits component when navigating to credits phase', () => {
     const onCreditsComplete = vi.fn();
@@ -37,8 +46,21 @@ describe('Epilogue credits phase', () => {
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
+    act(() => {
+      vi.advanceTimersByTime(CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
+    });
 
     expect(screen.getByText('TRAMP FREIGHTER BLUES')).toBeTruthy();
+  });
+
+  it('disables Credits button during fade transition', () => {
+    const onCreditsComplete = vi.fn();
+    render(<Epilogue onCreditsComplete={onCreditsComplete} />);
+
+    fireEvent.click(screen.getByText('Continue'));
+    fireEvent.click(screen.getByText('Credits'));
+
+    expect(screen.getByText('Credits').disabled).toBe(true);
   });
 
   it('EndCredits calls onCreditsComplete when skipped', () => {
@@ -47,6 +69,9 @@ describe('Epilogue credits phase', () => {
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
+    act(() => {
+      vi.advanceTimersByTime(CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
+    });
 
     fireEvent.click(screen.getByLabelText('Skip credits'));
     expect(onCreditsComplete).toHaveBeenCalledOnce();

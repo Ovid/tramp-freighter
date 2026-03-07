@@ -139,7 +139,7 @@ export function EndCredits({ onCreditsComplete }) {
   const afterCast = CREDITS_SECTIONS.slice(castHeadingIdx + 1);
 
   return (
-    <div id="end-credits" onClick={scrollFinished ? undefined : handleSkip}>
+    <div id="end-credits">
       <div className="credits-center">
         <div className="credits-scroll" ref={scrollRef}>
           {beforeCast.map(renderSection)}

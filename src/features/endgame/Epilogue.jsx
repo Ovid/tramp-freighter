@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useGameAction } from '../../hooks/useGameAction.js';
 import { Button } from '../../components/Button.jsx';
 import { EndCredits } from './EndCredits.jsx';
 import { gameDayToDate } from '../../game/utils/date-utils.js';
+import { CREDITS_CONFIG } from '../../game/constants.js';
 import './endgame.css';
 
 export function Epilogue({ onCreditsComplete }) {
@@ -13,14 +14,32 @@ export function Epilogue({ onCreditsComplete }) {
   const sections = useMemo(() => getEpilogueData(), [getEpilogueData]);
   const stats = useMemo(() => getEpilogueStats(), [getEpilogueStats]);
 
-  if (phase === 'credits') {
-    return <EndCredits onCreditsComplete={onCreditsComplete} />;
+  const handleCreditsClick = useCallback(() => {
+    setPhase('fading');
+    setTimeout(() => {
+      setPhase('credits');
+      setTimeout(() => {
+        setPhase('credits-revealed');
+      }, CREDITS_CONFIG.FADE_IN_MS);
+    }, CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
+  }, []);
+
+  if (phase === 'credits' || phase === 'credits-revealed') {
+    return (
+      <>
+        <EndCredits onCreditsComplete={onCreditsComplete} />
+        {phase === 'credits' && <div className="credits-blackout-out" />}
+      </>
+    );
   }
 
-  if (phase === 'stats') {
+  if (phase === 'stats' || phase === 'fading') {
+    const isFading = phase === 'fading';
     return (
-      <div id="epilogue" className="visible">
-        <div className="endgame-panel">
+      <>
+        {isFading && <div className="credits-blackout" />}
+        <div id="epilogue" className="visible">
+          <div className="endgame-panel">
           <h2>VOYAGE STATISTICS</h2>
           <div className="stats-grid">
             <div className="stat-row">
@@ -52,9 +71,12 @@ export function Epilogue({ onCreditsComplete }) {
               <span>{stats.jumpsCompleted}</span>
             </div>
           </div>
-          <Button onClick={() => setPhase('credits')}>Credits</Button>
+          <Button onClick={handleCreditsClick} disabled={isFading}>
+            Credits
+          </Button>
         </div>
       </div>
+      </>
     );
   }
 
