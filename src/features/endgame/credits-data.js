@@ -67,12 +67,13 @@ export const CREDITS_SECTIONS = [
   },
   {
     type: 'credit-pair',
-    lines: [
-      'Game Engine ............... React 18',
-      '3D Starmap ................ Three.js',
-      'Build System .............. Vite',
-      'Test Framework ............ Vitest',
-      'Property Testing .......... fast-check',
+    lines: [],
+    pairs: [
+      ['Game Engine', 'React 18'],
+      ['3D Starmap', 'Three.js'],
+      ['Build System', 'Vite'],
+      ['Test Framework', 'Vitest'],
+      ['Property Testing', 'fast-check'],
     ],
   },
   {
@@ -85,11 +86,12 @@ export const CREDITS_SECTIONS = [
   },
   {
     type: 'credit-pair',
-    lines: [
-      'Star Catalogue ............ HYG Stellar Database',
-      'Wormhole Cartography ...... Purely Fictional',
-      'Number of Real Stars ...... 117',
-      'Distance from Sol ......... 20 light-years',
+    lines: [],
+    pairs: [
+      ['Star Catalogue', 'HYG Stellar Database'],
+      ['Wormhole Cartography', 'Purely Fictional'],
+      ['Number of Real Stars', '117'],
+      ['Distance from Sol', '20 light-years'],
     ],
   },
   {

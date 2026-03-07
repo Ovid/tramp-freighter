@@ -164,12 +164,16 @@
   cursor: pointer;
 }
 
-.credits-scroll {
+.credits-center {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
   max-width: 600px;
+}
+
+.credits-scroll {
+  width: 100%;
   padding: 40px;
   background-color: rgba(0, 0, 0, 0.7);
   text-align: center;

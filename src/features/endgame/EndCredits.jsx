@@ -87,6 +87,18 @@ export function EndCredits({ onReturnToTitle }) {
             <div className="credits-role-name">{section.lines[1]}</div>
           </div>
         );
+      case 'credit-pair':
+        return (
+          <div key={idx} className="credits-section credits-cast">
+            {section.pairs.map(([label, value]) => (
+              <div key={label} className="credits-cast-row">
+                <span className="credits-cast-name">{label}</span>
+                <span className="credits-cast-dots" />
+                <span className="credits-cast-role">{value}</span>
+              </div>
+            ))}
+          </div>
+        );
       case 'thankyou':
         return (
           <div key={idx} className="credits-section credits-thankyou">
@@ -123,7 +135,8 @@ export function EndCredits({ onReturnToTitle }) {
 
   return (
     <div id="end-credits" onClick={scrollFinished ? undefined : handleSkip}>
-      <div className="credits-scroll" ref={scrollRef}>
+      <div className="credits-center">
+        <div className="credits-scroll" ref={scrollRef}>
         {beforeCast.map(renderSection)}
 
         <div className="credits-section credits-cast">
@@ -144,6 +157,7 @@ export function EndCredits({ onReturnToTitle }) {
         {afterCast.map((section, idx) =>
           renderSection(section, idx + castHeadingIdx + 1)
         )}
+        </div>
       </div>
 
       {!scrollFinished && (
