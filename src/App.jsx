@@ -92,7 +92,13 @@ export default function App({ devMode = false }) {
   const pendingEncounterRef = useRef(null);
   const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
   const lastHandledNarrative = useRef(null);
-  const [postCredits, setPostCredits] = useState(false);
+  const [postCredits, setPostCredits] = useState(() => {
+    try {
+      return !!gameStateManager.getNarrativeFlags()?.post_credits;
+    } catch {
+      return false;
+    }
+  });
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -117,11 +123,13 @@ export default function App({ devMode = false }) {
     if (isNewGame) {
       // Initialize new game
       gameStateManager.initNewGame();
+      setPostCredits(false);
       // Show ship naming dialog
       setViewMode(VIEW_MODES.SHIP_NAMING);
     } else {
       // Load existing game
       gameStateManager.loadGame();
+      setPostCredits(!!gameStateManager.getNarrativeFlags()?.post_credits);
       // Transition to game
       setViewMode(VIEW_MODES.ORBIT);
     }
@@ -664,10 +672,7 @@ export default function App({ devMode = false }) {
 
         {/* Epilogue after Pavonis Run */}
         {viewMode === VIEW_MODES.EPILOGUE && (
-          <Epilogue
-            onReturnToTitle={handleReturnToTitle}
-            onCreditsComplete={handleCreditsComplete}
-          />
+          <Epilogue onCreditsComplete={handleCreditsComplete} />
         )}
       </div>
     </ErrorBoundary>
