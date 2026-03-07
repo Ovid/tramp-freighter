@@ -3,7 +3,6 @@ import { useGameState } from '../../context/GameContext';
 import { STAR_DATA } from '../../game/data/star-data';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 import { ENDGAME_CONFIG } from '../../game/constants';
-import { Button } from '../../components/Button.jsx';
 
 export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
   const gameStateManager = useGameState();
@@ -16,7 +15,12 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
     return npcsAtSystem.map((npc) => {
       const npcState = gameStateManager.getNPCState(npc.id);
       const tier = gameStateManager.getRepTier(npcState.rep);
-      return { id: npc.id, name: npc.name, role: npc.role, tierName: tier.name };
+      return {
+        id: npc.id,
+        name: npc.name,
+        role: npc.role,
+        tierName: tier.name,
+      };
     });
   }, [npcsAtSystem, gameStateManager]);
 
@@ -54,7 +58,9 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
       )}
 
       <div className="station-actions">
-        <Button onClick={onReturnToTitle}>Return to Title</Button>
+        <button className="station-btn" onClick={onReturnToTitle}>
+          Return to Title
+        </button>
       </div>
     </div>
   );
