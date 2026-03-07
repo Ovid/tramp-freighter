@@ -8,8 +8,10 @@ import {
   REPUTATION_TIERS,
   REPUTATION_TIER_PRESETS,
   EVENT_NAMES,
+  ENDGAME_CONFIG,
 } from '../../game/constants.js';
 import { ALL_NPCS } from '../../game/data/npc-data.js';
+import { STAR_DATA } from '../../game/data/star-data.js';
 
 /**
  * DevAdminPanel - Development admin panel for danger system testing
@@ -35,6 +37,7 @@ export function DevAdminPanel({ onClose }) {
 
   // NPC reputation: selected NPC and input fields keyed by npcId
   const [selectedNpcId, setSelectedNpcId] = useState('');
+  const [selectedTeleportSystem, setSelectedTeleportSystem] = useState('');
   const [npcRepInputs, setNpcRepInputs] = useState({});
 
   // Local state for input fields
@@ -626,6 +629,45 @@ export function DevAdminPanel({ onClose }) {
               </div>
             );
           })()}
+      </div>
+
+      {/* Teleport Section */}
+      <div className="dev-admin-section">
+        <h3>Teleport</h3>
+        <div className="dev-admin-control">
+          <select
+            value={selectedTeleportSystem}
+            onChange={(e) => setSelectedTeleportSystem(e.target.value)}
+          >
+            <option value="">Select star...</option>
+            {[...STAR_DATA]
+              .filter(
+                (s) => s.r === 1 || s.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
+              )
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, {
+                  sensitivity: 'base',
+                })
+              )
+              .map((star) => (
+                <option key={star.id} value={star.id}>
+                  {star.name}
+                  {star.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
+                    ? ' (endgame)'
+                    : ''}
+                </option>
+              ))}
+          </select>
+          <button
+            onClick={() => {
+              if (selectedTeleportSystem !== '') {
+                gameStateManager.devTeleport(Number(selectedTeleportSystem));
+              }
+            }}
+          >
+            Go
+          </button>
+        </div>
       </div>
 
       {/* Ship Quirks Section */}
