@@ -302,7 +302,7 @@ export class RepairManager extends BaseManager {
     this.validateState();
 
     // Validate NPC ID
-    this.gameStateManager._validateAndGetNPCData(npcId);
+    this.gameStateManager.validateAndGetNPCData(npcId);
 
     const state = this.getState();
 

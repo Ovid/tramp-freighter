@@ -532,7 +532,7 @@ export class GameStateManager {
   // NPC REPUTATION SYSTEM
   // ========================================================================
 
-  _validateAndGetNPCData(npcId) {
+  validateAndGetNPCData(npcId) {
     return this.npcManager.validateAndGetNPCData(npcId);
   }
 
