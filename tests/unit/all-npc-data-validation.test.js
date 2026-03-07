@@ -181,7 +181,9 @@ describe('NPC System Reachability', () => {
   const reachableFromSol = computeReachableFromSol();
 
   it('should place all NPCs in systems marked reachable (r: 1)', () => {
+    // Hidden NPCs at special endgame locations (e.g., post-credits) are exempt
     const problems = ALL_NPCS.filter((npc) => {
+      if (npc.hidden) return false;
       const star = starById.get(npc.system);
       return !star || star.r !== 1;
     }).map((npc) => {
@@ -194,7 +196,9 @@ describe('NPC System Reachability', () => {
   });
 
   it('should place all NPCs in systems reachable from Sol via wormhole traversal', () => {
+    // Hidden NPCs at special endgame locations (e.g., post-credits) are exempt
     const problems = ALL_NPCS.filter((npc) => {
+      if (npc.hidden) return false;
       const star = starById.get(npc.system);
       return !star || !reachableFromSol.has(npc.system);
     }).map((npc) => {
