@@ -32,14 +32,8 @@ beforeAll(() => {
 
 describe('Epilogue credits phase', () => {
   it('renders EndCredits component when navigating to credits phase', () => {
-    const onReturnToTitle = vi.fn();
     const onCreditsComplete = vi.fn();
-    render(
-      <Epilogue
-        onReturnToTitle={onReturnToTitle}
-        onCreditsComplete={onCreditsComplete}
-      />
-    );
+    render(<Epilogue onCreditsComplete={onCreditsComplete} />);
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
@@ -48,14 +42,8 @@ describe('Epilogue credits phase', () => {
   });
 
   it('EndCredits calls onCreditsComplete when skipped', () => {
-    const onReturnToTitle = vi.fn();
     const onCreditsComplete = vi.fn();
-    render(
-      <Epilogue
-        onReturnToTitle={onReturnToTitle}
-        onCreditsComplete={onCreditsComplete}
-      />
-    );
+    render(<Epilogue onCreditsComplete={onCreditsComplete} />);
 
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));

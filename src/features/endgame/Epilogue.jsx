@@ -5,7 +5,7 @@ import { EndCredits } from './EndCredits.jsx';
 import { gameDayToDate } from '../../game/utils/date-utils.js';
 import './endgame.css';
 
-export function Epilogue({ onReturnToTitle, onCreditsComplete }) {
+export function Epilogue({ onCreditsComplete }) {
   const { getEpilogueData, getEpilogueStats } = useGameAction();
   const [phase, setPhase] = useState('epilogue');
 
