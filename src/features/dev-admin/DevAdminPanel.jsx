@@ -830,7 +830,7 @@ export function DevAdminPanel({ onClose }) {
             onClick={() =>
               gameStateManager.emit(
                 EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED,
-                true
+                Date.now()
               )
             }
           >

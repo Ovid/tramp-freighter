@@ -50,7 +50,7 @@ describe('DevAdminPanel epilogue preview', () => {
 
     expect(emitSpy).toHaveBeenCalledWith(
       EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED,
-      true
+      expect.any(Number)
     );
   });
 });
