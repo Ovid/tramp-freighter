@@ -146,7 +146,7 @@ export function EndCredits({ onCreditsComplete }) {
 
           <div className="credits-section credits-cast">
             {cast.map((npc) => (
-              <div key={npc.name} className="credits-cast-row">
+              <div key={npc.id} className="credits-cast-row">
                 <span className="credits-cast-name">{npc.name}</span>
                 <span className="credits-cast-dots" />
                 <span className="credits-cast-role">{npc.role}</span>

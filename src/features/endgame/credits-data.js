@@ -2,6 +2,7 @@ import { ALL_NPCS } from '../../game/data/npc-data.js';
 
 export function buildCastList() {
   return ALL_NPCS.map((npc) => ({
+    id: npc.id,
     name: npc.name,
     role: npc.role,
   }));
