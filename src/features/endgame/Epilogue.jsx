@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useGameAction } from '../../hooks/useGameAction.js';
 import { Button } from '../../components/Button.jsx';
+import { EndCredits } from './EndCredits.jsx';
 import { gameDayToDate } from '../../game/utils/date-utils.js';
 import './endgame.css';
 
@@ -13,15 +14,7 @@ export function Epilogue({ onReturnToTitle }) {
   const stats = useMemo(() => getEpilogueStats(), [getEpilogueStats]);
 
   if (phase === 'credits') {
-    return (
-      <div id="epilogue" className="visible">
-        <div className="endgame-panel">
-          <h2>TRAMP FREIGHTER BLUES</h2>
-          <p className="credits-text">A space trading survival game</p>
-          <Button onClick={onReturnToTitle}>Return to Title</Button>
-        </div>
-      </div>
-    );
+    return <EndCredits onReturnToTitle={onReturnToTitle} />;
   }
 
   if (phase === 'stats') {
