@@ -15,7 +15,10 @@ lint: ## Run ESLint with autofix
 	npm run lint:fix
 
 format: ## Run Prettier formatter
-	npm run format:write
+	@output=$$(npm run format:write --silent 2>&1); \
+	changed=$$(echo "$$output" | grep -cv '(unchanged)' || true); \
+	total=$$(echo "$$output" | wc -l | tr -d ' '); \
+	echo "Prettier: $$changed changed, $$total files checked"
 
 clean: ## Lint + format all files
 	npm run clean
