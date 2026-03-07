@@ -172,6 +172,6 @@ export const CREDITS_SECTIONS = [
   },
   {
     type: 'quote',
-    lines: ['\u201cThe stars don\u2019t judge. They just burn.\u201d'],
+    lines: ['\u201cThe stars don\u2019t remember you. The people between them might.\u201d'],
   },
 ];

@@ -58,7 +58,7 @@ const EPILOGUE_CONFIG = {
         },
         {
           condition: null,
-          text: "Neither saint nor villain — just a freighter captain who did what needed doing. The stars don't judge. They just burn. And now there's a new one overhead.",
+          text: "Neither saint nor villain — just a freighter captain who did what needed doing. The stars don't remember you. The people between them might. And now there's a new one overhead.",
         },
       ],
     },
