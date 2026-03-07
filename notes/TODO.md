@@ -1,20 +1,19 @@
 # TODO
 
-- Tanaka's sister at Delta Pavonis. After end game credits, you see her as an
-  NPC in the "Dock" screen. You can have "fun" dialogue with her, sort of like
-  Ferris Bueller's end game comments in the credits.
-- .dev panel needs to let you set your current star, but only reachable stars
-  + Delta Pavonis.
+- If you can't accept a mission (for example, not having the required cargo
+  space), the "Accept" button should be disabled and show a tooltip explaining
+  why.
+- End game flash before credits.
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
   upgrades by completing missions, and some of those upgrades are necessary to
   complete later missions. This would make the endgame more engaging and less
   grindy.
-- Message variations: all messages should have at least three variants, each
-  meaning the same thing, but phrased differently. They get chosen at random.
-  This allows players to have a more of a feeling that the game is "variable"
-  and alive.
+- Message variations: perhaps all messages should have at least three
+  variants, each meaning the same thing, but phrased differently. They get
+  chosen at random.  This allows players to have a more of a feeling that the
+  game is "variable" and alive.
 
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to
