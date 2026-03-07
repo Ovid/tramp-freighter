@@ -39,7 +39,8 @@ export function EndCredits({ onReturnToTitle }) {
     const contentHeight = el.scrollHeight;
     const viewportHeight = window.innerHeight;
     const totalDistance = contentHeight + viewportHeight;
-    const durationMs = (totalDistance / CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC) * 1000;
+    const durationMs =
+      (totalDistance / CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC) * 1000;
 
     const animation = el.animate(
       [

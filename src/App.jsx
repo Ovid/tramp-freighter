@@ -68,7 +68,9 @@ export default function App({ devMode = false }) {
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
   const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
   const pavonisRunEvent = useGameEvent(EVENT_NAMES.PAVONIS_RUN_TRIGGERED);
-  const epiloguePreviewEvent = useGameEvent(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED);
+  const epiloguePreviewEvent = useGameEvent(
+    EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED
+  );
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const saveFailedEvent = useGameEvent(EVENT_NAMES.SAVE_FAILED);
   useEventTriggers();
