@@ -17,6 +17,10 @@
  * @returns {string} Formatted age text (e.g., "today", "1 day ago", "5 days ago")
  */
 export function formatCargoAge(currentDay, purchaseDay) {
+  if (purchaseDay === undefined || currentDay === undefined) {
+    return '';
+  }
+
   const daysSincePurchase = currentDay - purchaseDay;
 
   if (daysSincePurchase === 0) {
