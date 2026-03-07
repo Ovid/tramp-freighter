@@ -1,10 +1,6 @@
 # TODO
 
 - Sound?
-- If you can't accept a mission (for example, not having the required cargo
-  space), the "Accept" button should be disabled and show a tooltip explaining
-  why.
-- End game flash before credits.
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
