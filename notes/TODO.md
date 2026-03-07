@@ -1,5 +1,6 @@
 # TODO
 
+- Sound?
 - If you can't accept a mission (for example, not having the required cargo
   space), the "Accept" button should be disabled and show a tooltip explaining
   why.
