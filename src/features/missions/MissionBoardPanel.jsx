@@ -48,26 +48,27 @@ export function MissionBoardPanel({ onClose }) {
     if (!missions?.board) return {};
     const activeCount = missions.active?.length ?? 0;
     const cargoRemaining = gameStateManager.getCargoRemaining();
-    const activeIds = new Set(
-      (missions.active ?? []).map((m) => m.id)
-    );
+    const activeIds = new Set((missions.active ?? []).map((m) => m.id));
 
     const reasons = {};
     for (const mission of missions.board) {
       if (activeCount >= MISSION_CONFIG.MAX_ACTIVE) {
-        reasons[mission.id] = `Maximum ${MISSION_CONFIG.MAX_ACTIVE} active missions.`;
+        reasons[mission.id] =
+          `Maximum ${MISSION_CONFIG.MAX_ACTIVE} active missions.`;
       } else if (activeIds.has(mission.id)) {
         reasons[mission.id] = 'Already accepted.';
       } else if (
         mission.type === 'passenger' &&
         mission.requirements.cargoSpace > cargoRemaining
       ) {
-        reasons[mission.id] = `Need ${mission.requirements.cargoSpace} cargo space (${cargoRemaining} available).`;
+        reasons[mission.id] =
+          `Need ${mission.requirements.cargoSpace} cargo space (${cargoRemaining} available).`;
       } else if (
         mission.missionCargo &&
         mission.missionCargo.quantity > cargoRemaining
       ) {
-        reasons[mission.id] = `Need ${mission.missionCargo.quantity} cargo space (${cargoRemaining} available).`;
+        reasons[mission.id] =
+          `Need ${mission.missionCargo.quantity} cargo space (${cargoRemaining} available).`;
       }
     }
     return reasons;
