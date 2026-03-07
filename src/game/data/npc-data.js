@@ -17,6 +17,8 @@ import {
   NPC_VALIDATION,
   NPC_PERSONALITY_VALUES,
   NPC_INITIAL_REPUTATION,
+  REPUTATION_BOUNDS,
+  ENDGAME_CONFIG,
 } from '../constants.js';
 
 /**
@@ -652,6 +654,46 @@ export const YUKI_TANAKA = {
 };
 
 /**
+ * Yumi Tanaka - Colony Director at Delta Pavonis (Post-Credits)
+ *
+ * Tanaka's sister. Hidden until post-credits scene reveals her.
+ * Fourth-wall-breaking comedy dialogue about the game being over.
+ */
+export const YUMI_TANAKA_POSTCREDITS = {
+  id: 'yumi_delta_pavonis',
+  name: 'Yumi Tanaka',
+  role: 'Colony Director',
+  system: ENDGAME_CONFIG.DELTA_PAVONIS_ID,
+  station: 'Delta Pavonis Colony',
+  personality: {
+    trust: NPC_PERSONALITY_VALUES.TRUST_HIGH,
+    greed: NPC_PERSONALITY_VALUES.GREED_NONE,
+    loyalty: NPC_PERSONALITY_VALUES.LOYALTY_HIGH,
+    morality: NPC_PERSONALITY_VALUES.MORALITY_MODERATE,
+  },
+  speechStyle: {
+    greeting: 'casual',
+    vocabulary: 'simple',
+    quirk: 'Fourth-wall-breaking irreverence.',
+  },
+  description:
+    "Colony Director at Delta Pavonis. Tanaka's sister. Seems to know more than she should.",
+  initialRep: REPUTATION_BOUNDS.WARM_MIN,
+  tips: [
+    'The credits already rolled. There is literally nothing left to do here.',
+  ],
+  discountService: null,
+  tierBenefits: {
+    warm: { discount: 0, benefit: 'Post-credits banter.' },
+    friendly: { discount: 0, benefit: 'More post-credits banter.' },
+    trusted: { discount: 0, benefit: 'Even more post-credits banter.' },
+    family: { discount: 0, benefit: 'Maximum post-credits banter.' },
+  },
+  hidden: true,
+  revealFlag: 'post_credits',
+};
+
+/**
  * All NPCs in the game
  * Add new NPCs to this array to make them available to the game systems
  */
@@ -667,6 +709,7 @@ export const ALL_NPCS = [
   STATION_MASTER_KOWALSKI,
   LUCKY_LIU,
   YUKI_TANAKA,
+  YUMI_TANAKA_POSTCREDITS,
 ];
 
 /**
