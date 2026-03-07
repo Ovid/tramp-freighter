@@ -129,7 +129,15 @@ export default function App({ devMode = false }) {
     } else {
       // Load existing game
       gameStateManager.loadGame();
-      setPostCredits(!!gameStateManager.getNarrativeFlags()?.post_credits);
+      const isPostCredits = !!gameStateManager.getNarrativeFlags()?.post_credits;
+      if (isPostCredits) {
+        // Reset Yumi's interaction counter so the full dialogue progression
+        // is available when returning from the title screen
+        const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+        yumiState.interactions = 0;
+        gameStateManager.markDirty();
+      }
+      setPostCredits(isPostCredits);
       // Transition to game
       setViewMode(VIEW_MODES.ORBIT);
     }
@@ -470,6 +478,11 @@ export default function App({ devMode = false }) {
 
   const handleCreditsComplete = useCallback(() => {
     gameStateManager.setNarrativeFlag('post_credits');
+    // Reset Yumi's interaction counter so the full dialogue progression
+    // (rounds 0→1→2→loop) is available from the start
+    const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+    yumiState.interactions = 0;
+    gameStateManager.markDirty();
     setPostCredits(true);
     setViewMode(VIEW_MODES.STATION);
   }, [gameStateManager]);
