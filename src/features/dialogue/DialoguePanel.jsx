@@ -90,9 +90,12 @@ export function DialoguePanel({ npcId, onClose }) {
   }, [dialogueState.isActive, dialogueState.display, onClose]);
 
   // Loading state - dialogue not yet initialized
+  // Keep panel hidden (no 'visible' class) until data arrives so the
+  // dialogueFadeIn animation fires on the full-content panel, avoiding
+  // a positional jump from the small loading content to the taller dialogue.
   if (!dialogueState.isActive || !dialogueState.display) {
     return (
-      <div className="dialogue-panel visible">
+      <div className="dialogue-panel">
         <button className="close-btn" onClick={handleClose} aria-label="Close">
           ×
         </button>
