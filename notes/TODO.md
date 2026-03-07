@@ -1,6 +1,11 @@
 # TODO
 
-- Sound?
+/superpowers:brainstorm The game is great, but there's no sound. When
+traveling via wormhole, no sound. No general
+background sound. No sci-fi click when I click on a button. Might be more. Is
+that something which is easy to add in? The
+ sounds would have to be coherent and understandable. They'd also have to be
+ something you could disable in the Settings.
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
