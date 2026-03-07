@@ -129,7 +129,8 @@ export default function App({ devMode = false }) {
     } else {
       // Load existing game
       gameStateManager.loadGame();
-      const isPostCredits = !!gameStateManager.getNarrativeFlags()?.post_credits;
+      const isPostCredits =
+        !!gameStateManager.getNarrativeFlags()?.post_credits;
       if (isPostCredits) {
         // Reset Yumi's interaction counter so the full dialogue progression
         // is available when returning from the title screen

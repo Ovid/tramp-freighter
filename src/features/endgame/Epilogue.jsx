@@ -40,42 +40,42 @@ export function Epilogue({ onCreditsComplete }) {
         {isFading && <div className="credits-blackout" />}
         <div id="epilogue" className="visible">
           <div className="endgame-panel">
-          <h2>VOYAGE STATISTICS</h2>
-          <div className="stats-grid">
-            <div className="stat-row">
-              <span>Final date:</span>
-              <span>{gameDayToDate(stats.daysElapsed ?? 0)}</span>
+            <h2>VOYAGE STATISTICS</h2>
+            <div className="stats-grid">
+              <div className="stat-row">
+                <span>Final date:</span>
+                <span>{gameDayToDate(stats.daysElapsed ?? 0)}</span>
+              </div>
+              <div className="stat-row">
+                <span>Systems visited:</span>
+                <span>{stats.systemsVisited}</span>
+              </div>
+              <div className="stat-row">
+                <span>Credits earned:</span>
+                <span>₡{stats.creditsEarned.toLocaleString()}</span>
+              </div>
+              <div className="stat-row">
+                <span>Missions completed:</span>
+                <span>{stats.missionsCompleted}</span>
+              </div>
+              <div className="stat-row">
+                <span>NPCs at Trusted or higher:</span>
+                <span>{stats.trustedNPCs}</span>
+              </div>
+              <div className="stat-row">
+                <span>Cargo hauled:</span>
+                <span>{stats.cargoHauled} units</span>
+              </div>
+              <div className="stat-row">
+                <span>Jumps made:</span>
+                <span>{stats.jumpsCompleted}</span>
+              </div>
             </div>
-            <div className="stat-row">
-              <span>Systems visited:</span>
-              <span>{stats.systemsVisited}</span>
-            </div>
-            <div className="stat-row">
-              <span>Credits earned:</span>
-              <span>₡{stats.creditsEarned.toLocaleString()}</span>
-            </div>
-            <div className="stat-row">
-              <span>Missions completed:</span>
-              <span>{stats.missionsCompleted}</span>
-            </div>
-            <div className="stat-row">
-              <span>NPCs at Trusted or higher:</span>
-              <span>{stats.trustedNPCs}</span>
-            </div>
-            <div className="stat-row">
-              <span>Cargo hauled:</span>
-              <span>{stats.cargoHauled} units</span>
-            </div>
-            <div className="stat-row">
-              <span>Jumps made:</span>
-              <span>{stats.jumpsCompleted}</span>
-            </div>
+            <Button onClick={handleCreditsClick} disabled={isFading}>
+              Credits
+            </Button>
           </div>
-          <Button onClick={handleCreditsClick} disabled={isFading}>
-            Credits
-          </Button>
         </div>
-      </div>
       </>
     );
   }

@@ -1,4 +1,12 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Epilogue } from '../../src/features/endgame/Epilogue.jsx';
 import { CREDITS_CONFIG } from '../../src/game/constants.js';
@@ -47,7 +55,9 @@ describe('Epilogue credits phase', () => {
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
     act(() => {
-      vi.advanceTimersByTime(CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
+      vi.advanceTimersByTime(
+        CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS
+      );
     });
 
     expect(screen.getByText('TRAMP FREIGHTER BLUES')).toBeTruthy();
@@ -70,7 +80,9 @@ describe('Epilogue credits phase', () => {
     fireEvent.click(screen.getByText('Continue'));
     fireEvent.click(screen.getByText('Credits'));
     act(() => {
-      vi.advanceTimersByTime(CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
+      vi.advanceTimersByTime(
+        CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS
+      );
     });
 
     fireEvent.click(screen.getByLabelText('Skip credits'));
