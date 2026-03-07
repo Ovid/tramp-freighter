@@ -54,6 +54,7 @@ describe('Dialogue Export Equivalence Properties', () => {
       'kowalski_alpha_centauri',
       'liu_wolf359',
       'tanaka_barnards',
+      'yumi_delta_pavonis',
     ];
 
     expect(DialogueTrees.ALL_DIALOGUE_TREES).toBeDefined();

@@ -1878,6 +1878,7 @@ export const EVENT_NAMES = Object.freeze({
 
   // Special
   PAVONIS_RUN_TRIGGERED: 'pavonisRunTriggered',
+  EPILOGUE_PREVIEW_TRIGGERED: 'epiloguePreviewTriggered',
 
   // Achievements
   ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
@@ -1888,4 +1889,11 @@ export const EVENT_NAMES = Object.freeze({
 
   // Errors
   SAVE_FAILED: 'saveFailed',
+});
+
+export const CREDITS_CONFIG = Object.freeze({
+  SCROLL_SPEED_PX_PER_SEC: 25,
+  FADE_OUT_MS: 2000,
+  FADE_HOLD_MS: 800,
+  FADE_IN_MS: 2000,
 });

@@ -16,6 +16,7 @@ vi.mock('../../src/context/GameContext', () => ({
       calculateDistanceBetween: vi.fn(() => 4),
       calculateJumpTime: vi.fn(() => 3),
     },
+    getCargoRemaining: vi.fn(() => 100),
   })),
 }));
 

@@ -3,7 +3,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useGameState } from '../../context/GameContext';
 import { useStarData } from '../../hooks/useStarData';
-import { EVENT_NAMES } from '../../game/constants.js';
+import { EVENT_NAMES, MISSION_CONFIG } from '../../game/constants.js';
 import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
 import {
   calculateRouteIndicator,
@@ -42,6 +42,37 @@ export function MissionBoardPanel({ onClose }) {
     }
     return indicators;
   }, [missions?.board, starData, gameStateManager?.navigationSystem]);
+
+  // Pre-compute why each board mission can't be accepted (if any)
+  const disabledReasons = useMemo(() => {
+    if (!missions?.board) return {};
+    const activeCount = missions.active?.length ?? 0;
+    const cargoRemaining = gameStateManager.getCargoRemaining();
+    const activeIds = new Set((missions.active ?? []).map((m) => m.id));
+
+    const reasons = {};
+    for (const mission of missions.board) {
+      if (activeCount >= MISSION_CONFIG.MAX_ACTIVE) {
+        reasons[mission.id] =
+          `Maximum ${MISSION_CONFIG.MAX_ACTIVE} active missions.`;
+      } else if (activeIds.has(mission.id)) {
+        reasons[mission.id] = 'Already accepted.';
+      } else if (
+        mission.type === 'passenger' &&
+        mission.requirements.cargoSpace > cargoRemaining
+      ) {
+        reasons[mission.id] =
+          `Need ${mission.requirements.cargoSpace} cargo space (${cargoRemaining} available).`;
+      } else if (
+        mission.missionCargo &&
+        mission.missionCargo.quantity > cargoRemaining
+      ) {
+        reasons[mission.id] =
+          `Need ${mission.missionCargo.quantity} cargo space (${cargoRemaining} available).`;
+      }
+    }
+    return reasons;
+  }, [missions?.board, missions?.active, gameStateManager]);
 
   const handleAccept = (mission) => {
     const result = acceptMission(mission);
@@ -136,9 +167,16 @@ export function MissionBoardPanel({ onClose }) {
             <button
               className="accept-btn"
               onClick={() => handleAccept(mission)}
+              disabled={!!disabledReasons[mission.id]}
+              title={disabledReasons[mission.id] || ''}
             >
               Accept
             </button>
+            {disabledReasons[mission.id] && (
+              <div className="mission-disabled-reason">
+                {disabledReasons[mission.id]}
+              </div>
+            )}
           </div>
         ))}
         {(!missions?.board || missions.board.length === 0) && (

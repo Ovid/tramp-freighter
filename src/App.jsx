@@ -21,7 +21,11 @@ import { useGameState } from './context/GameContext';
 import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
-import { EVENT_NAMES, NEGOTIATION_CONFIG } from './game/constants.js';
+import {
+  EVENT_NAMES,
+  NEGOTIATION_CONFIG,
+  ENDGAME_CONFIG,
+} from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -31,6 +35,7 @@ import { AchievementToast } from './features/achievements/AchievementToast';
 import { NotificationContainer } from './components/NotificationContainer';
 import { PavonisRun } from './features/endgame/PavonisRun.jsx';
 import { Epilogue } from './features/endgame/Epilogue.jsx';
+import { PostCreditsStation } from './features/endgame/PostCreditsStation.jsx';
 
 /**
  * Application state machine modes.
@@ -68,6 +73,9 @@ export default function App({ devMode = false }) {
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
   const narrativeEvent = useGameEvent(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED);
   const pavonisRunEvent = useGameEvent(EVENT_NAMES.PAVONIS_RUN_TRIGGERED);
+  const epiloguePreviewEvent = useGameEvent(
+    EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED
+  );
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const saveFailedEvent = useGameEvent(EVENT_NAMES.SAVE_FAILED);
   useEventTriggers();
@@ -88,6 +96,13 @@ export default function App({ devMode = false }) {
   const pendingEncounterRef = useRef(null);
   const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
   const lastHandledNarrative = useRef(null);
+  const [postCredits, setPostCredits] = useState(() => {
+    try {
+      return !!gameStateManager.getNarrativeFlags()?.post_credits;
+    } catch {
+      return false;
+    }
+  });
 
   // Starmap methods that will be provided to context
   // These will be set by StarMapCanvas when it initializes
@@ -112,11 +127,22 @@ export default function App({ devMode = false }) {
     if (isNewGame) {
       // Initialize new game
       gameStateManager.initNewGame();
+      setPostCredits(false);
       // Show ship naming dialog
       setViewMode(VIEW_MODES.SHIP_NAMING);
     } else {
       // Load existing game
       gameStateManager.loadGame();
+      const isPostCredits =
+        !!gameStateManager.getNarrativeFlags()?.post_credits;
+      if (isPostCredits) {
+        // Reset Yumi's interaction counter so the full dialogue progression
+        // is available when returning from the title screen
+        const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+        yumiState.interactions = 0;
+        gameStateManager.markDirty();
+      }
+      setPostCredits(isPostCredits);
       // Transition to game
       setViewMode(VIEW_MODES.ORBIT);
     }
@@ -455,7 +481,19 @@ export default function App({ devMode = false }) {
     setViewMode(VIEW_MODES.EPILOGUE);
   };
 
+  const handleCreditsComplete = useCallback(() => {
+    gameStateManager.setNarrativeFlag('post_credits');
+    // Reset Yumi's interaction counter so the full dialogue progression
+    // (rounds 0→1→2→loop) is available from the start
+    const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+    yumiState.interactions = 0;
+    gameStateManager.markDirty();
+    setPostCredits(true);
+    setViewMode(VIEW_MODES.STATION);
+  }, [gameStateManager]);
+
   const handleReturnToTitle = () => {
+    setPostCredits(false);
     setViewMode(VIEW_MODES.TITLE);
   };
 
@@ -464,6 +502,14 @@ export default function App({ devMode = false }) {
       handleStartPavonisRun();
     }
   }, [pavonisRunEvent, handleStartPavonisRun]);
+
+  useEffect(() => {
+    if (epiloguePreviewEvent) {
+      setShowDevAdmin(false);
+      gameStateManager.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+      setViewMode(VIEW_MODES.EPILOGUE);
+    }
+  }, [epiloguePreviewEvent, gameStateManager]);
 
   return (
     <ErrorBoundary>
@@ -504,10 +550,17 @@ export default function App({ devMode = false }) {
               {viewMode === VIEW_MODES.STATION && (
                 <>
                   <MissionCompleteNotifier />
-                  <StationMenu
-                    onOpenPanel={handleOpenPanel}
-                    onUndock={handleUndock}
-                  />
+                  {postCredits ? (
+                    <PostCreditsStation
+                      onOpenPanel={handleOpenPanel}
+                      onReturnToTitle={handleReturnToTitle}
+                    />
+                  ) : (
+                    <StationMenu
+                      onOpenPanel={handleOpenPanel}
+                      onUndock={handleUndock}
+                    />
+                  )}
                 </>
               )}
 
@@ -638,7 +691,7 @@ export default function App({ devMode = false }) {
 
         {/* Epilogue after Pavonis Run */}
         {viewMode === VIEW_MODES.EPILOGUE && (
-          <Epilogue onReturnToTitle={handleReturnToTitle} />
+          <Epilogue onCreditsComplete={handleCreditsComplete} />
         )}
       </div>
     </ErrorBoundary>

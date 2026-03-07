@@ -2,6 +2,7 @@ import {
   FACTION_CONFIG,
   EVENT_NAMES,
   DEFAULT_PREFERENCES,
+  ENDGAME_CONFIG,
 } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
@@ -1222,7 +1223,13 @@ export class GameStateManager {
   markVictory() {
     if (this.state.meta) {
       this.state.meta.victory = true;
+      this.navigationManager.updateLocation(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
       this.markDirty();
     }
+  }
+
+  devTeleport(systemId) {
+    this.navigationManager.updateLocation(systemId);
+    this.markDirty();
   }
 }

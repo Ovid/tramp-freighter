@@ -52,6 +52,7 @@ import { ZARA_OSMAN_DIALOGUE } from './dialogue/zara-osman.js';
 import { STATION_MASTER_KOWALSKI_DIALOGUE } from './dialogue/station-master-kowalski.js';
 import { LUCKY_LIU_DIALOGUE } from './dialogue/lucky-liu.js';
 import { YUKI_TANAKA_DIALOGUE } from './dialogue/tanaka-dialogue.js';
+import { YUMI_TANAKA_POSTCREDITS_DIALOGUE } from './dialogue/yumi-tanaka.js';
 
 // Re-export individual dialogue trees
 export {
@@ -66,6 +67,7 @@ export {
   STATION_MASTER_KOWALSKI_DIALOGUE,
   LUCKY_LIU_DIALOGUE,
   YUKI_TANAKA_DIALOGUE,
+  YUMI_TANAKA_POSTCREDITS_DIALOGUE,
 };
 
 /**
@@ -84,6 +86,7 @@ export const ALL_DIALOGUE_TREES = {
   kowalski_alpha_centauri: STATION_MASTER_KOWALSKI_DIALOGUE,
   liu_wolf359: LUCKY_LIU_DIALOGUE,
   tanaka_barnards: YUKI_TANAKA_DIALOGUE,
+  yumi_delta_pavonis: YUMI_TANAKA_POSTCREDITS_DIALOGUE,
 };
 
 /**

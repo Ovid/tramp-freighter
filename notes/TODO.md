@@ -1,22 +1,21 @@
 # TODO
 
-- What happens when you're fined and can't pay? Seems like they took the last
-  of my money (10 credits for a 1000 fine), but that's all.
-- Why is medicine restricted? There should be a justification for this in the
-  lore. Maybe it's a controlled substance that only certain stations can sell?
+/superpowers:brainstorm The game is great, but there's no sound. When
+traveling via wormhole, no sound. No general
+background sound. No sci-fi click when I click on a button. Might be more. Is
+that something which is easy to add in? The
+ sounds would have to be coherent and understandable. They'd also have to be
+ something you could disable in the Settings.
 - Worth offering some kind of political issues with different factions and
   star systems?
-- Data based on stars and wormholes is static and anything based on that data
-  should be cached. For example, "BFS pathfinder in mission-generator.js
-  (getReachableSystems())". Are there other examples?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
   upgrades by completing missions, and some of those upgrades are necessary to
   complete later missions. This would make the endgame more engaging and less
   grindy.
-- Message variations: all messages should have at least three variants, each
-  meaning the same thing, but phrased differently. They get chosen at random.
-  This allows players to have a more of a feeling that the game is "variable"
-  and alive.
+- Message variations: perhaps all messages should have at least three
+  variants, each meaning the same thing, but phrased differently. They get
+  chosen at random.  This allows players to have a more of a feeling that the
+  game is "variable" and alive.
 
 Endgame NOT FULLY TESTED (2)
     1. Mission 2-4 gameplay — Accepted missions but advanced quest stages via admin to

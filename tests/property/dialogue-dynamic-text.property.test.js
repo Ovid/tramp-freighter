@@ -19,8 +19,13 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
     const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
     gameStateManager.initNewGame();
 
-    // Generator for valid NPC IDs
-    const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
+    // Skip post-credits NPCs whose text varies by interactions, not reputation
+    const npcsWithRepDialogue = ALL_NPCS.filter(
+      (npc) => !npc.revealFlag || npc.revealFlag !== 'post_credits'
+    );
+    const arbNPCId = fc.constantFrom(
+      ...npcsWithRepDialogue.map((npc) => npc.id)
+    );
 
     fc.assert(
       fc.property(arbNPCId, (npcId) => {
