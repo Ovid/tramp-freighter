@@ -3,6 +3,10 @@
  *
  * This module contains all static game data that should remain consistent
  * across the entire application. Import from here rather than duplicating.
+ *
+ * Single-file design: all constants live here deliberately. For a single-developer
+ * project this avoids import indirection and makes cross-domain searches trivial.
+ * The file is organized by domain with section headers for navigation.
  */
 
 /**

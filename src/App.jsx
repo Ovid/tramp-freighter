@@ -100,6 +100,7 @@ export default function App({ devMode = false }) {
     try {
       return !!gameStateManager.getNarrativeFlags()?.post_credits;
     } catch {
+      // State not yet initialized during first render — safe to default to false
       return false;
     }
   });

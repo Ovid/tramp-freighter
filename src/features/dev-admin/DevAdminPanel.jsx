@@ -60,7 +60,8 @@ export function DevAdminPanel({ onClose }) {
   const [cargoQuantity, setCargoQuantity] = useState('5');
   const [useHiddenCargo, setUseHiddenCargo] = useState(false);
 
-  // Get current state values (fall back to GameStateManager queries before events fire)
+  // Dev tool: direct state access is acceptable here since this panel is for
+  // debugging and testing, not production gameplay. Bridge Pattern not required.
   const currentQuirks = quirks || gameStateManager.getShip()?.quirks || [];
   const currentUpgrades =
     upgrades || gameStateManager.getShip()?.upgrades || [];

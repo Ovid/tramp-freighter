@@ -109,6 +109,8 @@ export function TradePanel({ onClose }) {
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
 
   // Track whether the player has seen the RESTRICTED explanation
+  // localStorage key is component-local UI preference, not game state —
+  // not worth centralizing since it's only used here and not saved/loaded
   const [restrictedExplained, setRestrictedExplained] = useState(
     () => localStorage.getItem('restrictedExplained') === 'true'
   );
