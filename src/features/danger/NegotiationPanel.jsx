@@ -497,9 +497,8 @@ function getReputationClass(reputation = 0) {
   if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
   if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
   if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
-  // Display softening: COLD_MAX (-10) shows as neutral for a gentler UI
-  if (reputation >= REPUTATION_BOUNDS.COLD_MAX) return 'neutral';
-  if (reputation >= REPUTATION_BOUNDS.HOSTILE_MAX) return 'cold';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
 }
 
