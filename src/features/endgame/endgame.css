@@ -1,8 +1,7 @@
 /* Import CSS Variables */
 @import '../../../css/variables.css';
 
-#pavonis-run,
-#epilogue {
+#pavonis-run {
   position: fixed;
   top: 0;
   left: 0;
@@ -17,6 +16,17 @@
 }
 
 #epilogue {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-white);
+  z-index: var(--z-modal);
   overflow-y: auto;
 }
 
@@ -142,10 +152,171 @@
   font-weight: bold;
 }
 
-/* Credits phase */
-.credits-text {
-  margin-top: 1.5rem;
-  font-size: var(--font-size-large);
+/* End Credits scroll */
+#end-credits {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: var(--z-modal);
+  cursor: pointer;
+}
+
+.credits-scroll {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  padding: 40px;
+  background-color: rgba(0, 0, 0, 0.7);
+  text-align: center;
+  font-family: var(--font-family-mono);
+}
+
+.credits-title h1 {
+  color: var(--color-primary);
+  font-size: 32px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+  margin: 0;
+}
+
+.credits-separator {
+  height: 60px;
+}
+
+.credits-heading {
+  color: var(--color-primary);
+  font-size: var(--font-size-xxlarge);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+}
+
+.credits-heading div:not(:first-child) {
   color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 1px;
+  font-size: var(--font-size-large);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 4px;
+}
+
+.credits-role {
+  margin-bottom: 10px;
+}
+
+.credits-role-title {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: var(--font-size-large);
+  margin-bottom: 4px;
+}
+
+.credits-role-name {
+  color: var(--color-white);
+  font-size: var(--font-size-xlarge);
+}
+
+.credits-cast {
+  text-align: left;
+  margin: 0 auto;
+  max-width: 460px;
+}
+
+.credits-cast-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
+  font-size: var(--font-size-large);
+}
+
+.credits-cast-name {
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
+.credits-cast-dots {
+  flex: 1;
+  margin: 0 8px;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
+  min-width: 20px;
+  position: relative;
+  top: -4px;
+}
+
+.credits-cast-role {
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.credits-cast-ship {
+  text-align: center;
+  margin-top: 25px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: var(--font-size-large);
+}
+
+.credits-ship-name {
+  color: var(--color-primary);
+  font-size: var(--font-size-xlarge);
+  margin: 6px 0;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.credits-body {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-large);
+  line-height: 1.8;
+}
+
+.credits-thankyou {
+  color: var(--color-primary);
+  font-size: var(--font-size-title);
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+}
+
+.credits-quote {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-size-large);
+  font-style: italic;
+}
+
+.credits-skip-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-normal);
+  padding: 6px 16px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  z-index: calc(var(--z-modal) + 1);
+}
+
+.credits-skip-btn:hover {
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.credits-end-buttons {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-modal) + 1);
+  animation: credits-fade-in 1s ease forwards;
+}
+
+@keyframes credits-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
