@@ -302,15 +302,15 @@ export class RepairManager extends BaseManager {
     this.validateState();
 
     // Validate NPC ID
-    this.gameStateManager.npcManager.validateAndGetNPCData(npcId);
+    this.gameStateManager._validateAndGetNPCData(npcId);
 
     const state = this.getState();
 
     // Get NPC state (creates default if doesn't exist)
-    const npcState = this.gameStateManager.npcManager.getNPCState(npcId);
+    const npcState = this.gameStateManager.getNPCState(npcId);
 
     // Check reputation tier is Trusted or Family
-    const repTier = this.gameStateManager.npcManager.getRepTier(npcState.rep);
+    const repTier = this.gameStateManager.getRepTier(npcState.rep);
     const isTrusted =
       npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
       npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
@@ -410,7 +410,7 @@ export class RepairManager extends BaseManager {
     );
 
     // Get NPC state and set lastFreeRepairDay to current day
-    const npcState = this.gameStateManager.npcManager.getNPCState(npcId);
+    const npcState = this.gameStateManager.getNPCState(npcId);
     npcState.lastFreeRepairDay = state.player.daysElapsed;
 
     // Update interaction tracking
