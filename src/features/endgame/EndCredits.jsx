@@ -137,26 +137,26 @@ export function EndCredits({ onReturnToTitle }) {
     <div id="end-credits" onClick={scrollFinished ? undefined : handleSkip}>
       <div className="credits-center">
         <div className="credits-scroll" ref={scrollRef}>
-        {beforeCast.map(renderSection)}
+          {beforeCast.map(renderSection)}
 
-        <div className="credits-section credits-cast">
-          {cast.map((npc) => (
-            <div key={npc.name} className="credits-cast-row">
-              <span className="credits-cast-name">{npc.name}</span>
-              <span className="credits-cast-dots" />
-              <span className="credits-cast-role">{npc.role}</span>
+          <div className="credits-section credits-cast">
+            {cast.map((npc) => (
+              <div key={npc.name} className="credits-cast-row">
+                <span className="credits-cast-name">{npc.name}</span>
+                <span className="credits-cast-dots" />
+                <span className="credits-cast-role">{npc.role}</span>
+              </div>
+            ))}
+            <div className="credits-cast-ship">
+              <div>And introducing</div>
+              <div className="credits-ship-name">{shipName}</div>
+              <div>as itself</div>
             </div>
-          ))}
-          <div className="credits-cast-ship">
-            <div>And introducing</div>
-            <div className="credits-ship-name">{shipName}</div>
-            <div>as itself</div>
           </div>
-        </div>
 
-        {afterCast.map((section, idx) =>
-          renderSection(section, idx + castHeadingIdx + 1)
-        )}
+          {afterCast.map((section, idx) =>
+            renderSection(section, idx + castHeadingIdx + 1)
+          )}
         </div>
       </div>
 
