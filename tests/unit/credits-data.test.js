@@ -4,6 +4,7 @@ import {
   buildCastList,
 } from '../../src/features/endgame/credits-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
+import { CREDITS_CONFIG } from '../../src/game/constants.js';
 
 describe('Credits data', () => {
   it('CREDITS_SECTIONS is a non-empty array of { type, lines } objects', () => {
@@ -34,5 +35,10 @@ describe('Credits data', () => {
   it('includes closing quote', () => {
     const closing = CREDITS_SECTIONS.find((s) => s.type === 'quote');
     expect(closing).toBeDefined();
+  });
+
+  it('CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC is a positive number', () => {
+    expect(CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC).toBeGreaterThan(0);
+    expect(typeof CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC).toBe('number');
   });
 });

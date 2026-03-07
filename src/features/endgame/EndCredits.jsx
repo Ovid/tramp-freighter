@@ -2,9 +2,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useGameState } from '../../context/GameContext';
 import { Button } from '../../components/Button.jsx';
 import { CREDITS_SECTIONS, buildCastList } from './credits-data.js';
+import { CREDITS_CONFIG } from '../../game/constants.js';
 import './endgame.css';
-
-const SCROLL_SPEED_PX_PER_SEC = 25;
 
 export function EndCredits({ onReturnToTitle }) {
   const gameStateManager = useGameState();
@@ -40,7 +39,7 @@ export function EndCredits({ onReturnToTitle }) {
     const contentHeight = el.scrollHeight;
     const viewportHeight = window.innerHeight;
     const totalDistance = contentHeight + viewportHeight;
-    const durationMs = (totalDistance / SCROLL_SPEED_PX_PER_SEC) * 1000;
+    const durationMs = (totalDistance / CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC) * 1000;
 
     const animation = el.animate(
       [

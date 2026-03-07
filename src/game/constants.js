@@ -1889,3 +1889,7 @@ export const EVENT_NAMES = Object.freeze({
   // Errors
   SAVE_FAILED: 'saveFailed',
 });
+
+export const CREDITS_CONFIG = Object.freeze({
+  SCROLL_SPEED_PX_PER_SEC: 25,
+});
