@@ -1,14 +1,12 @@
 # TODO
 
-- What happens when you're fined and can't pay? Seems like they took the last
-  of my money (10 credits for a 1000 fine), but that's all.
-- Why is medicine restricted? There should be a justification for this in the
-  lore. Maybe it's a controlled substance that only certain stations can sell?
+- Tanaka's sister at Delta Pavonis. After end game credits, you see her as an
+  NPC in the "Dock" screen. You can have "fun" dialogue with her, sort of like
+  Ferris Bueller's end game comments in the credits.
+- .dev panel needs to let you set your current star, but only reachable stars
+  + Delta Pavonis.
 - Worth offering some kind of political issues with different factions and
   star systems?
-- Data based on stars and wormholes is static and anything based on that data
-  should be cached. For example, "BFS pathfinder in mission-generator.js
-  (getReachableSystems())". Are there other examples?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
   upgrades by completing missions, and some of those upgrades are necessary to
   complete later missions. This would make the endgame more engaging and less
