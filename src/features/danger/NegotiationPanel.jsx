@@ -5,6 +5,8 @@ import {
   KARMA_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
   EVENT_NAMES,
+  BASE_PRICES,
+  REPUTATION_BOUNDS,
 } from '../../game/constants.js';
 
 /**
@@ -468,15 +470,7 @@ function calculateCargoValue(cargo) {
  * @returns {number} Estimated price per unit
  */
 function getEstimatedPrice(good) {
-  const basePrices = {
-    grain: 10,
-    ore: 15,
-    tritium: 50,
-    parts: 30,
-    medicine: 40,
-    electronics: 35,
-  };
-  return basePrices[good] || 20;
+  return BASE_PRICES[good] || 20;
 }
 
 /**
@@ -486,10 +480,10 @@ function getEstimatedPrice(good) {
  * @returns {string} CSS class name
  */
 function getKarmaClass(karma = 0) {
-  if (karma >= 50) return 'very-good';
-  if (karma >= 20) return 'good';
-  if (karma >= -20) return 'neutral';
-  if (karma >= -50) return 'bad';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.SAINT) return 'very-good';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.GOOD) return 'good';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.BAD) return 'neutral';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.VILLAIN) return 'bad';
   return 'very-bad';
 }
 
@@ -500,11 +494,12 @@ function getKarmaClass(karma = 0) {
  * @returns {string} CSS class name
  */
 function getReputationClass(reputation = 0) {
-  if (reputation >= 60) return 'trusted';
-  if (reputation >= 30) return 'friendly';
-  if (reputation >= 10) return 'warm';
-  if (reputation >= -10) return 'neutral';
-  if (reputation >= -50) return 'cold';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  // Display softening: COLD_MAX (-10) shows as neutral for a gentler UI
+  if (reputation >= REPUTATION_BOUNDS.COLD_MAX) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.HOSTILE_MAX) return 'cold';
   return 'hostile';
 }
 
