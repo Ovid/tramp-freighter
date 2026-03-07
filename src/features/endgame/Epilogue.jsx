@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { useGameAction } from '../../hooks/useGameAction.js';
 import { Button } from '../../components/Button.jsx';
 import { EndCredits } from './EndCredits.jsx';
@@ -14,11 +14,21 @@ export function Epilogue({ onCreditsComplete }) {
   const sections = useMemo(() => getEpilogueData(), [getEpilogueData]);
   const stats = useMemo(() => getEpilogueStats(), [getEpilogueStats]);
 
+  const fadeTimerRef = useRef(null);
+  const revealTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(fadeTimerRef.current);
+      clearTimeout(revealTimerRef.current);
+    };
+  }, []);
+
   const handleCreditsClick = useCallback(() => {
     setPhase('fading');
-    setTimeout(() => {
+    fadeTimerRef.current = setTimeout(() => {
       setPhase('credits');
-      setTimeout(() => {
+      revealTimerRef.current = setTimeout(() => {
         setPhase('credits-revealed');
       }, CREDITS_CONFIG.FADE_IN_MS);
     }, CREDITS_CONFIG.FADE_OUT_MS + CREDITS_CONFIG.FADE_HOLD_MS);
