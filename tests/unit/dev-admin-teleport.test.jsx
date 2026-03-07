@@ -27,9 +27,7 @@ describe('DevAdminPanel teleport', () => {
       wrapper,
     });
     const headings = Array.from(container.querySelectorAll('h3'));
-    const teleportHeading = headings.find(
-      (h) => h.textContent === 'Teleport'
-    );
+    const teleportHeading = headings.find((h) => h.textContent === 'Teleport');
     expect(teleportHeading).toBeTruthy();
 
     const section = teleportHeading.closest('.dev-admin-section');
@@ -41,9 +39,7 @@ describe('DevAdminPanel teleport', () => {
     expect(
       options.find((o) => o.textContent.includes('Delta Pavonis'))
     ).toBeTruthy();
-    expect(
-      options.find((o) => o.textContent.includes('Sol'))
-    ).toBeTruthy();
+    expect(options.find((o) => o.textContent.includes('Sol'))).toBeTruthy();
   });
 
   it('only includes reachable stars (r:1) plus Delta Pavonis', () => {

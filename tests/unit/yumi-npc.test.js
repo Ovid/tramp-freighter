@@ -15,7 +15,9 @@ describe('Yumi Tanaka NPC definition', () => {
   });
 
   it('is located at Delta Pavonis', () => {
-    expect(YUMI_TANAKA_POSTCREDITS.system).toBe(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+    expect(YUMI_TANAKA_POSTCREDITS.system).toBe(
+      ENDGAME_CONFIG.DELTA_PAVONIS_ID
+    );
   });
 
   it('is hidden with post_credits reveal flag', () => {
@@ -38,11 +40,15 @@ describe('Yumi Tanaka NPC definition', () => {
 
 describe('Yumi Tanaka dialogue tree', () => {
   it('passes dialogue validation', () => {
-    expect(() => validateDialogueTree(YUMI_TANAKA_POSTCREDITS_DIALOGUE)).not.toThrow();
+    expect(() =>
+      validateDialogueTree(YUMI_TANAKA_POSTCREDITS_DIALOGUE)
+    ).not.toThrow();
   });
 
   it('is registered in ALL_DIALOGUE_TREES', () => {
-    expect(ALL_DIALOGUE_TREES.yumi_delta_pavonis).toBe(YUMI_TANAKA_POSTCREDITS_DIALOGUE);
+    expect(ALL_DIALOGUE_TREES.yumi_delta_pavonis).toBe(
+      YUMI_TANAKA_POSTCREDITS_DIALOGUE
+    );
   });
 
   it('greeting text varies by interaction round', () => {
@@ -81,7 +87,9 @@ describe('Yumi Tanaka dialogue tree', () => {
 
   it('goodbye choice in greeting increments interactions', () => {
     const choices = YUMI_TANAKA_POSTCREDITS_DIALOGUE.greeting.choices;
-    const goodbye = choices.find((c) => !c.condition && c.text.includes('Goodbye'));
+    const goodbye = choices.find(
+      (c) => !c.condition && c.text.includes('Goodbye')
+    );
     expect(goodbye).toBeDefined();
     const mockCtx = { npcState: { interactions: 0 } };
     goodbye.action(mockCtx);

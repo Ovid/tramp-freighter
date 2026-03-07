@@ -20,8 +20,12 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
     gameStateManager.initNewGame();
 
     // Skip post-credits NPCs whose text varies by interactions, not reputation
-    const npcsWithRepDialogue = ALL_NPCS.filter((npc) => !npc.revealFlag || npc.revealFlag !== 'post_credits');
-    const arbNPCId = fc.constantFrom(...npcsWithRepDialogue.map((npc) => npc.id));
+    const npcsWithRepDialogue = ALL_NPCS.filter(
+      (npc) => !npc.revealFlag || npc.revealFlag !== 'post_credits'
+    );
+    const arbNPCId = fc.constantFrom(
+      ...npcsWithRepDialogue.map((npc) => npc.id)
+    );
 
     fc.assert(
       fc.property(arbNPCId, (npcId) => {
