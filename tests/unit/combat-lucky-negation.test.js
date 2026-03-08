@@ -48,12 +48,18 @@ describe('CombatManager lucky_ship negation paths', () => {
       // rng = 0.01 fails evasive (0.01 >= 0 is true, wait: 0.01 < 0 is false)
       // So evasive fails, then lucky check: 0.01 < 0.05 = true → negation!
       const encounter = { strengthModifier: 1.0 };
-      const result = manager.resolveEvasiveManeuvers(encounter, gameState, 0.01);
+      const result = manager.resolveEvasiveManeuvers(
+        encounter,
+        gameState,
+        0.01
+      );
 
       expect(result.success).toBe(true);
       expect(result.description).toMatch(/lucky/i);
       expect(result.costs.fuel).toBe(COMBAT_CONFIG.EVASIVE.SUCCESS_FUEL_COST);
-      expect(result.costs.engine).toBe(COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST);
+      expect(result.costs.engine).toBe(
+        COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST
+      );
     });
   });
 

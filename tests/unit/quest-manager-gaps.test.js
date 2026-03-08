@@ -68,7 +68,9 @@ describe('QuestManager coverage gaps', () => {
         if (stageWithRewards) {
           questState.stage = stageWithRewards.stage;
           questState.data._rewardsClaimedStage = stageWithRewards.stage - 1;
-          vi.spyOn(gsm.questManager, 'checkObjectivesComplete').mockReturnValue(true);
+          vi.spyOn(gsm.questManager, 'checkObjectivesComplete').mockReturnValue(
+            true
+          );
           vi.spyOn(gsm, 'modifyKarma').mockImplementation(() => {});
           gsm.questManager.claimStageRewards(questId);
           expect(gsm.modifyKarma).toHaveBeenCalled();

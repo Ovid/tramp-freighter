@@ -118,11 +118,7 @@ describe('SeededRandom coverage', () => {
   describe('pickRandomFrom (standalone)', () => {
     it('returns an element from the array', () => {
       const items = [10, 20, 30, 40];
-      let callCount = 0;
-      const mockRng = () => {
-        callCount++;
-        return 0.5;
-      };
+      const mockRng = () => 0.5;
       const result = pickRandomFrom(items, mockRng);
       expect(items).toContain(result);
     });

@@ -83,14 +83,11 @@ describe('SaveLoadManager coverage gaps', () => {
     it('returns null when restoreState returns failure', () => {
       // Mock loadGameFromStorage to return a state
       vi.spyOn(gsm.saveLoadManager, 'gameStateManager', 'get');
-      const mockLoadedState = { player: {}, ship: {}, world: {} };
       // We need to mock the underlying save-load module
-      vi.spyOn(gsm.saveLoadManager, 'loadGame').mockImplementation(
-        function () {
-          // Simulate the loadGame logic with restoreState returning failure
-          return null;
-        }
-      );
+      vi.spyOn(gsm.saveLoadManager, 'loadGame').mockImplementation(function () {
+        // Simulate the loadGame logic with restoreState returning failure
+        return null;
+      });
       const result = gsm.saveLoadManager.loadGame();
       expect(result).toBeNull();
     });
@@ -104,7 +101,9 @@ describe('SaveLoadManager coverage gaps', () => {
     });
 
     it('attempts NPC recovery for NPC-related errors', () => {
-      const spy = vi.spyOn(gsm.saveLoadManager, 'attemptNPCRecovery').mockReturnValue(null);
+      const spy = vi
+        .spyOn(gsm.saveLoadManager, 'attemptNPCRecovery')
+        .mockReturnValue(null);
       const error = new Error('NPC data is corrupted');
       gsm.saveLoadManager.handleLoadError(error);
       expect(spy).toHaveBeenCalled();
@@ -142,7 +141,9 @@ describe('SaveLoadManager coverage gaps', () => {
     });
 
     it('saves immediately when dirty', () => {
-      const spy = vi.spyOn(gsm.saveLoadManager, '_forceSave').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(gsm.saveLoadManager, '_forceSave')
+        .mockImplementation(() => {});
       gsm.saveLoadManager._isDirty = true;
       gsm.saveLoadManager.flushSave();
       expect(spy).toHaveBeenCalled();

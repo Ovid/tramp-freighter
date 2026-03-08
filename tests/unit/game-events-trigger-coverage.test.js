@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EconomicEventsSystem } from '../../src/game/game-events.js';
-import {
-  COMMODITY_TYPES,
-  SOL_SYSTEM_ID,
-} from '../../src/game/constants.js';
+import { COMMODITY_TYPES, SOL_SYSTEM_ID } from '../../src/game/constants.js';
 
 /**
  * These tests cover the event-triggering path inside updateEvents(),
@@ -256,8 +253,14 @@ describe('EconomicEventsSystem - updateEvents event triggering', () => {
         { id: 15, type: 'M3V' },
       ];
 
-      const result1 = EconomicEventsSystem.updateEvents(makeGameState(1), starData);
-      const result2 = EconomicEventsSystem.updateEvents(makeGameState(50), starData);
+      const result1 = EconomicEventsSystem.updateEvents(
+        makeGameState(1),
+        starData
+      );
+      const result2 = EconomicEventsSystem.updateEvents(
+        makeGameState(50),
+        starData
+      );
 
       // Different days will likely produce different event sets
       // At minimum the IDs should differ since day is part of the ID

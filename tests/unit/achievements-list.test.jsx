@@ -51,7 +51,13 @@ describe('AchievementsList', () => {
 
   it('renders achievement items with name, description, and progress', () => {
     mockGSM.getAchievementProgress.mockReturnValue([
-      buildAchievement({ id: 'e1', name: 'Star Hopper', description: 'Visit 5 systems', current: 3, target: 5 }),
+      buildAchievement({
+        id: 'e1',
+        name: 'Star Hopper',
+        description: 'Visit 5 systems',
+        current: 3,
+        target: 5,
+      }),
     ]);
     render(<AchievementsList />);
 

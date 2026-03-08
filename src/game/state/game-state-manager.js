@@ -80,10 +80,7 @@ export class GameStateManager {
 
       // Skip if this class already defines it (allows future overrides)
       if (
-        Object.prototype.hasOwnProperty.call(
-          GameStateManager.prototype,
-          key
-        ) &&
+        Object.prototype.hasOwnProperty.call(GameStateManager.prototype, key) &&
         key !== '_bindCoordinatorInterface'
       ) {
         continue;

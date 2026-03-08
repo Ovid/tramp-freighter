@@ -57,10 +57,16 @@ describe('TradingSystem.calculatePrice', () => {
       },
     ];
     const priceWithEvent = TradingSystem.calculatePrice(
-      'ore', mockSystem, 10, events
+      'ore',
+      mockSystem,
+      10,
+      events
     );
     const priceWithoutEvent = TradingSystem.calculatePrice(
-      'ore', mockSystem, 10, []
+      'ore',
+      mockSystem,
+      10,
+      []
     );
     expect(priceWithEvent).toBeGreaterThan(priceWithoutEvent);
   });
@@ -68,10 +74,18 @@ describe('TradingSystem.calculatePrice', () => {
   it('applies market condition modifiers', () => {
     const marketConditions = { 5: { ore: 100 } }; // surplus
     const priceWithSurplus = TradingSystem.calculatePrice(
-      'ore', mockSystem, 10, [], marketConditions
+      'ore',
+      mockSystem,
+      10,
+      [],
+      marketConditions
     );
     const priceWithout = TradingSystem.calculatePrice(
-      'ore', mockSystem, 10, [], {}
+      'ore',
+      mockSystem,
+      10,
+      [],
+      {}
     );
     expect(priceWithSurplus).toBeLessThan(priceWithout);
   });
@@ -157,7 +171,13 @@ describe('TradingSystem.getEventModifier', () => {
 describe('TradingSystem.recordCargoPurchase', () => {
   it('creates a new cargo stack with complete metadata', () => {
     const result = TradingSystem.recordCargoPurchase(
-      [], 'ore', 5, 100, 3, 'Sirius', 42
+      [],
+      'ore',
+      5,
+      100,
+      3,
+      'Sirius',
+      42
     );
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -172,10 +192,23 @@ describe('TradingSystem.recordCargoPurchase', () => {
 
   it('consolidates into existing stack with matching good and price', () => {
     const cargo = [
-      { good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sirius', buyDate: 10 },
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sirius',
+        buyDate: 10,
+      },
     ];
     const result = TradingSystem.recordCargoPurchase(
-      cargo, 'ore', 3, 100, 7, 'Procyon', 20
+      cargo,
+      'ore',
+      3,
+      100,
+      7,
+      'Procyon',
+      20
     );
     expect(result).toHaveLength(1);
     expect(result[0].qty).toBe(8);
@@ -187,10 +220,23 @@ describe('TradingSystem.recordCargoPurchase', () => {
 
   it('creates new stack when price differs', () => {
     const cargo = [
-      { good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sirius', buyDate: 10 },
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sirius',
+        buyDate: 10,
+      },
     ];
     const result = TradingSystem.recordCargoPurchase(
-      cargo, 'ore', 3, 200, 7, 'Procyon', 20
+      cargo,
+      'ore',
+      3,
+      200,
+      7,
+      'Procyon',
+      20
     );
     expect(result).toHaveLength(2);
     expect(result[1].buyPrice).toBe(200);
@@ -198,10 +244,23 @@ describe('TradingSystem.recordCargoPurchase', () => {
 
   it('creates new stack when good type differs', () => {
     const cargo = [
-      { good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sirius', buyDate: 10 },
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sirius',
+        buyDate: 10,
+      },
     ];
     const result = TradingSystem.recordCargoPurchase(
-      cargo, 'grain', 3, 100, 7, 'Procyon', 20
+      cargo,
+      'grain',
+      3,
+      100,
+      7,
+      'Procyon',
+      20
     );
     expect(result).toHaveLength(2);
     expect(result[1].good).toBe('grain');
@@ -209,7 +268,14 @@ describe('TradingSystem.recordCargoPurchase', () => {
 
   it('does not mutate the original cargo array', () => {
     const cargo = [
-      { good: 'ore', qty: 5, buyPrice: 100, buySystem: 3, buySystemName: 'Sirius', buyDate: 10 },
+      {
+        good: 'ore',
+        qty: 5,
+        buyPrice: 100,
+        buySystem: 3,
+        buySystemName: 'Sirius',
+        buyDate: 10,
+      },
     ];
     TradingSystem.recordCargoPurchase(cargo, 'ore', 3, 100, 7, 'Procyon', 20);
     expect(cargo).toHaveLength(1);

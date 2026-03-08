@@ -33,7 +33,12 @@ describe('NPC dialogue greeting text coverage', () => {
 
     it('includes civilian faction appreciation for Vasquez', () => {
       gsm.getNPCState('vasquez_epsilon').rep = 20;
-      gsm.state.player.factions = { civilians: 50, traders: 0, outlaws: 0, authorities: 0 };
+      gsm.state.player.factions = {
+        civilians: 50,
+        traders: 0,
+        outlaws: 0,
+        authorities: 0,
+      };
       const result = showDialogue('vasquez_epsilon', 'greeting', gsm);
       expect(result.text).toContain('helping folks');
     });
@@ -73,7 +78,10 @@ describe('NPC dialogue greeting text coverage', () => {
       gsm.getNPCState('vasquez_epsilon').rep = 40;
       const result = showDialogue('vasquez_epsilon', 'greeting', gsm);
       const storageChoice = result.choices.find(
-        (c) => c.text && (c.text.toLowerCase().includes('storage') || c.text.toLowerCase().includes('store'))
+        (c) =>
+          c.text &&
+          (c.text.toLowerCase().includes('storage') ||
+            c.text.toLowerCase().includes('store'))
       );
       if (storageChoice) {
         expect(storageChoice.next).toBeDefined();

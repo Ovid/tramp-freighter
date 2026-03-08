@@ -12,10 +12,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Direct imports for validation.js
-import {
-  validateRequiredConstants,
-  validateDialogueTree,
-} from '../../src/game/data/dialogue/validation.js';
+import { validateRequiredConstants } from '../../src/game/data/dialogue/validation.js';
 
 // Direct imports for faction-karma-conditions.js
 import {
@@ -29,7 +26,11 @@ import { MARCUS_COLE_DIALOGUE } from '../../src/game/data/dialogue/marcus-cole.j
 // Import for dialogue-trees.js aggregator
 import { validateAllDialogueTrees } from '../../src/game/data/dialogue-trees.js';
 
-import { REPUTATION_BOUNDS, KARMA_CONFIG, FACTION_CONFIG } from '../../src/game/constants.js';
+import {
+  REPUTATION_BOUNDS,
+  KARMA_CONFIG,
+  FACTION_CONFIG,
+} from '../../src/game/constants.js';
 
 describe('validation.js uncovered error paths', () => {
   let originalBounds;
@@ -79,9 +80,7 @@ describe('validation.js uncovered error paths', () => {
   // Lines 75-78: MAX not greater than FAMILY_MIN
   it('throws when MAX is not greater than FAMILY_MIN', () => {
     REPUTATION_BOUNDS.MAX = REPUTATION_BOUNDS.FAMILY_MIN;
-    expect(() => validateRequiredConstants()).toThrow(
-      'REPUTATION_BOUNDS.MAX'
-    );
+    expect(() => validateRequiredConstants()).toThrow('REPUTATION_BOUNDS.MAX');
   });
 });
 
@@ -129,17 +128,13 @@ describe('faction-karma-conditions.js uncovered lines', () => {
     it('returns lawful impression for bad karma', () => {
       // Line 197
       const result = getKarmaFirstImpression(badKarma, 'lawful');
-      expect(result).toBe(
-        ' You look like someone I should be careful around.'
-      );
+      expect(result).toBe(' You look like someone I should be careful around.');
     });
 
     it('returns chaotic impression for bad karma', () => {
       // Line 199
       const result = getKarmaFirstImpression(badKarma, 'chaotic');
-      expect(result).toBe(
-        ' You look like you know how to bend the rules.'
-      );
+      expect(result).toBe(' You look like you know how to bend the rules.');
     });
   });
 
@@ -164,9 +159,7 @@ describe('faction-karma-conditions.js uncovered lines', () => {
         },
       };
       const result = getFactionAttitudeModifier('traders', context);
-      expect(result).toBe(
-        " Your reputation precedes you, and it's not good."
-      );
+      expect(result).toBe(" Your reputation precedes you, and it's not good.");
     });
 
     // Lines 228-230: VERY_LOW rep (not extreme)

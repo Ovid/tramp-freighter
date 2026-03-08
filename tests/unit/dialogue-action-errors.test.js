@@ -20,13 +20,16 @@ describe('selectChoice action error handling', () => {
   it('handles action returning {success: false} gracefully', () => {
     // Find a real NPC and node, then inject a failing action
     const npcId = 'chen_barnards';
-    const dialogue = showDialogue(npcId, 'greeting', gsm);
+    showDialogue(npcId, 'greeting', gsm);
 
     // Temporarily inject a failing action into the first choice
     const tree = ALL_DIALOGUE_TREES[npcId];
     const node = tree['greeting'];
     const originalAction = node.choices[0].action;
-    node.choices[0].action = () => ({ success: false, message: 'test failure' });
+    node.choices[0].action = () => ({
+      success: false,
+      message: 'test failure',
+    });
 
     selectChoice(npcId, 0, gsm);
 
@@ -57,7 +60,9 @@ describe('selectChoice action error handling', () => {
 
     const errorCalls = console.error.mock.calls;
     const hasErrorLog = errorCalls.some(
-      (call) => typeof call[0] === 'string' && call[0].includes('Error executing dialogue action')
+      (call) =>
+        typeof call[0] === 'string' &&
+        call[0].includes('Error executing dialogue action')
     );
     expect(hasErrorLog).toBe(true);
 

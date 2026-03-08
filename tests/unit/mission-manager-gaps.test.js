@@ -40,7 +40,11 @@ describe('MissionManager coverage gaps', () => {
         {
           id: 'm1',
           type: 'delivery',
-          requirements: { destination: currentSystem, cargo: 'ore', quantity: 10 },
+          requirements: {
+            destination: currentSystem,
+            cargo: 'ore',
+            quantity: 10,
+          },
           rewards: { credits: 500 },
         },
       ];
@@ -82,7 +86,11 @@ describe('MissionManager coverage gaps', () => {
         {
           id: 'm1',
           type: 'delivery',
-          requirements: { destination: currentSystem, cargo: 'ore', quantity: 5 },
+          requirements: {
+            destination: currentSystem,
+            cargo: 'ore',
+            quantity: 5,
+          },
           rewards: { credits: 500 },
         },
       ];
@@ -149,7 +157,9 @@ describe('MissionManager coverage gaps', () => {
     });
 
     it('applies karma penalties on abandon', () => {
-      const karmaSpy = vi.spyOn(gsm, 'modifyKarma').mockImplementation(() => {});
+      const karmaSpy = vi
+        .spyOn(gsm, 'modifyKarma')
+        .mockImplementation(() => {});
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -188,7 +198,9 @@ describe('MissionManager coverage gaps', () => {
   describe('checkMissionDeadlines with penalties', () => {
     it('applies rep and karma penalties on deadline expiry', () => {
       const repSpy = vi.spyOn(gsm, 'modifyRep').mockImplementation(() => {});
-      const karmaSpy = vi.spyOn(gsm, 'modifyKarma').mockImplementation(() => {});
+      const karmaSpy = vi
+        .spyOn(gsm, 'modifyKarma')
+        .mockImplementation(() => {});
       gsm.state.player.daysElapsed = 50;
       gsm.state.missions.active = [
         {
@@ -208,7 +220,9 @@ describe('MissionManager coverage gaps', () => {
     });
 
     it('applies faction penalties on deadline expiry', () => {
-      const factionSpy = vi.spyOn(gsm, 'modifyFactionRep').mockImplementation(() => {});
+      const factionSpy = vi
+        .spyOn(gsm, 'modifyFactionRep')
+        .mockImplementation(() => {});
       gsm.state.player.daysElapsed = 50;
       gsm.state.missions.active = [
         {
@@ -264,7 +278,9 @@ describe('MissionManager coverage gaps', () => {
       gsm.missionManager.checkMissionDeadlines();
       expect(gsm.state.missions.pendingFailureNotices).toBeDefined();
       expect(gsm.state.missions.pendingFailureNotices).toHaveLength(1);
-      expect(gsm.state.missions.pendingFailureNotices[0].title).toBe('Deliver Ore');
+      expect(gsm.state.missions.pendingFailureNotices[0].title).toBe(
+        'Deliver Ore'
+      );
     });
   });
 
@@ -334,7 +350,11 @@ describe('MissionManager coverage gaps', () => {
         {
           id: 'm1',
           type: 'delivery',
-          requirements: { destination: currentSystem, cargo: 'ore', quantity: 10 },
+          requirements: {
+            destination: currentSystem,
+            cargo: 'ore',
+            quantity: 10,
+          },
           rewards: { credits: 500 },
         },
       ];
@@ -396,7 +416,9 @@ describe('MissionManager coverage gaps', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'delay');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('drops satisfaction for combat event', () => {
@@ -413,7 +435,9 @@ describe('MissionManager coverage gaps', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'combat');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('drops satisfaction for low_life_support event', () => {
@@ -430,7 +454,9 @@ describe('MissionManager coverage gaps', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'low_life_support');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('does nothing for non-passenger mission', () => {

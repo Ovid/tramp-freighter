@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { InformationBroker } from '../../src/game/game-information-broker.js';
-import { INTELLIGENCE_CONFIG, ENDGAME_CONFIG } from '../../src/game/constants.js';
+import {
+  INTELLIGENCE_CONFIG,
+  ENDGAME_CONFIG,
+} from '../../src/game/constants.js';
 
 describe('InformationBroker coverage', () => {
   const starData = [
@@ -74,7 +77,9 @@ describe('InformationBroker coverage', () => {
         world: { priceKnowledge: {}, activeEvents: [] },
       };
       const result = InformationBroker.purchaseIntelligence(
-        gameState, 1, starData
+        gameState,
+        1,
+        starData
       );
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Insufficient credits for intelligence');
@@ -86,7 +91,9 @@ describe('InformationBroker coverage', () => {
         world: { priceKnowledge: {}, activeEvents: [] },
       };
       const result = InformationBroker.purchaseIntelligence(
-        gameState, 999, starData
+        gameState,
+        999,
+        starData
       );
       expect(result.success).toBe(false);
       expect(result.reason).toBe('System not found');
@@ -170,7 +177,10 @@ describe('InformationBroker coverage', () => {
           },
         };
         const rumor = InformationBroker.generateRumor(gameState, starData);
-        if (rumor.includes('Alpha Centauri') && rumor.includes('labor troubles')) {
+        if (
+          rumor.includes('Alpha Centauri') &&
+          rumor.includes('labor troubles')
+        ) {
           foundEventRumor = true;
           break;
         }
@@ -189,13 +199,18 @@ describe('InformationBroker coverage', () => {
         },
       };
       const rumor = InformationBroker.generateRumor(gameState, starData);
-      expect(rumor).toMatch(/prices are pretty good|markets are always changing/);
+      expect(rumor).toMatch(
+        /prices are pretty good|markets are always changing/
+      );
     });
 
     it('can return Tanaka hint for mid-game players', () => {
       let foundTanakaRumor = false;
       const minSystems = ENDGAME_CONFIG.BARNARDS_ENGINEER_RUMOR_SYSTEMS;
-      const visitedSystems = Array.from({ length: minSystems + 5 }, (_, i) => i);
+      const visitedSystems = Array.from(
+        { length: minSystems + 5 },
+        (_, i) => i
+      );
 
       for (let count = 0; count < 200; count++) {
         const gameState = {
@@ -208,7 +223,9 @@ describe('InformationBroker coverage', () => {
           },
         };
         const rumor = InformationBroker.generateRumor(
-          gameState, starData, count
+          gameState,
+          starData,
+          count
         );
         if (rumor.includes('Tanaka')) {
           foundTanakaRumor = true;
@@ -220,7 +237,10 @@ describe('InformationBroker coverage', () => {
 
     it('does not return Tanaka hint when already met', () => {
       const minSystems = ENDGAME_CONFIG.BARNARDS_ENGINEER_RUMOR_SYSTEMS;
-      const visitedSystems = Array.from({ length: minSystems + 5 }, (_, i) => i);
+      const visitedSystems = Array.from(
+        { length: minSystems + 5 },
+        (_, i) => i
+      );
 
       for (let count = 0; count < 50; count++) {
         const gameState = {
@@ -233,7 +253,9 @@ describe('InformationBroker coverage', () => {
           },
         };
         const rumor = InformationBroker.generateRumor(
-          gameState, starData, count
+          gameState,
+          starData,
+          count
         );
         expect(rumor).not.toContain('Tanaka');
       }
@@ -251,14 +273,21 @@ describe('InformationBroker coverage', () => {
           },
         };
         const rumor = InformationBroker.generateRumor(
-          gameState, starData, count
+          gameState,
+          starData,
+          count
         );
         expect(rumor).not.toContain('Tanaka');
       }
     });
 
     it('handles event descriptions for all event types', () => {
-      const eventTypes = ['mining_strike', 'medical_emergency', 'festival', 'supply_glut'];
+      const eventTypes = [
+        'mining_strike',
+        'medical_emergency',
+        'festival',
+        'supply_glut',
+      ];
       const expectedDescriptions = [
         'labor troubles',
         'a health crisis',
@@ -325,7 +354,10 @@ describe('InformationBroker coverage', () => {
 
     it('returns intelligence for connected systems only', () => {
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem
+        {},
+        starData,
+        0,
+        mockNavSystem
       );
       expect(result).toHaveLength(2);
       expect(result[0].systemId).toBe(1);
@@ -334,7 +366,10 @@ describe('InformationBroker coverage', () => {
 
     it('includes system name and cost', () => {
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem
+        {},
+        starData,
+        0,
+        mockNavSystem
       );
       expect(result[0].systemName).toBe('Alpha Centauri');
       expect(result[0].cost).toBe(INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED);
@@ -343,30 +378,50 @@ describe('InformationBroker coverage', () => {
     it('includes lastVisit from price knowledge', () => {
       const knowledge = { 1: { lastVisit: 15 } };
       const result = InformationBroker.listAvailableIntelligence(
-        knowledge, starData, 0, mockNavSystem
+        knowledge,
+        starData,
+        0,
+        mockNavSystem
       );
       expect(result[0].lastVisit).toBe(15);
     });
 
     it('returns null lastVisit for unknown systems', () => {
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem
+        {},
+        starData,
+        0,
+        mockNavSystem
       );
       expect(result[0].lastVisit).toBeNull();
     });
 
     it('does not include events without advanced sensors', () => {
-      const events = [{ systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 }];
+      const events = [
+        { systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+      ];
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem, events, false
+        {},
+        starData,
+        0,
+        mockNavSystem,
+        events,
+        false
       );
       expect(result[0].event).toBeUndefined();
     });
 
     it('includes events with advanced sensors', () => {
-      const events = [{ systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 }];
+      const events = [
+        { systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+      ];
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem, events, true
+        {},
+        starData,
+        0,
+        mockNavSystem,
+        events,
+        true
       );
       expect(result[0].event).toEqual({
         name: 'Strike',
@@ -376,9 +431,16 @@ describe('InformationBroker coverage', () => {
     });
 
     it('does not include event for systems without one', () => {
-      const events = [{ systemId: 99, name: 'Strike', commodity: 'ore', modifier: 1.5 }];
+      const events = [
+        { systemId: 99, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+      ];
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem, events, true
+        {},
+        starData,
+        0,
+        mockNavSystem,
+        events,
+        true
       );
       expect(result[0].event).toBeUndefined();
       expect(result[1].event).toBeUndefined();
@@ -387,7 +449,10 @@ describe('InformationBroker coverage', () => {
     it('returns empty array when no connected systems', () => {
       mockNavSystem.getConnectedSystems.mockReturnValue([]);
       const result = InformationBroker.listAvailableIntelligence(
-        {}, starData, 0, mockNavSystem
+        {},
+        starData,
+        0,
+        mockNavSystem
       );
       expect(result).toHaveLength(0);
     });

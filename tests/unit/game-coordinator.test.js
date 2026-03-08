@@ -32,7 +32,8 @@ describe('GameCoordinator', () => {
       Object.getOwnPropertyDescriptors(coordinatorProto);
     const coordinatorMethodNames = Object.entries(coordinatorDescriptors)
       .filter(
-        ([key, desc]) => key !== 'constructor' && typeof desc.value === 'function'
+        ([key, desc]) =>
+          key !== 'constructor' && typeof desc.value === 'function'
       )
       .map(([key]) => key);
 

@@ -50,7 +50,9 @@ describe('CombatManager coverage', () => {
 
     it('returns correct cargo and fuel costs', () => {
       const result = manager.resolveDumpCargo();
-      expect(result.costs.cargoPercent).toBe(COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT);
+      expect(result.costs.cargoPercent).toBe(
+        COMBAT_CONFIG.DUMP_CARGO.CARGO_LOSS_PERCENT
+      );
       expect(result.costs.fuel).toBe(COMBAT_CONFIG.DUMP_CARGO.FUEL_COST);
     });
 
@@ -68,27 +70,45 @@ describe('CombatManager coverage', () => {
       const result = manager.resolveEvasiveManeuvers(encounter, gameState, 0.1);
       expect(result.success).toBe(true);
       expect(result.costs.fuel).toBe(COMBAT_CONFIG.EVASIVE.SUCCESS_FUEL_COST);
-      expect(result.costs.engine).toBe(COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST);
+      expect(result.costs.engine).toBe(
+        COMBAT_CONFIG.EVASIVE.SUCCESS_ENGINE_COST
+      );
     });
 
     it('fails with high rng', () => {
       const gameState = makeGameState();
-      const result = manager.resolveEvasiveManeuvers(encounter, gameState, 0.99);
+      const result = manager.resolveEvasiveManeuvers(
+        encounter,
+        gameState,
+        0.99
+      );
       expect(result.success).toBe(false);
       expect(result.costs.hull).toBeDefined();
     });
 
     it('applies hot_thruster bonus', () => {
-      const gameState = makeGameState({ ship: { quirks: ['hot_thruster'], upgrades: [] } });
+      const gameState = makeGameState({
+        ship: { quirks: ['hot_thruster'], upgrades: [] },
+      });
       // With hot_thruster: base 0.7 + 0.1 = 0.8
-      const result = manager.resolveEvasiveManeuvers(encounter, gameState, 0.75);
+      const result = manager.resolveEvasiveManeuvers(
+        encounter,
+        gameState,
+        0.75
+      );
       expect(result.success).toBe(true);
     });
 
     it('applies efficient_drive bonus', () => {
-      const gameState = makeGameState({ ship: { quirks: [], upgrades: ['efficient_drive'] } });
+      const gameState = makeGameState({
+        ship: { quirks: [], upgrades: ['efficient_drive'] },
+      });
       // With efficient_drive: base 0.7 + 0.1 = 0.8
-      const result = manager.resolveEvasiveManeuvers(encounter, gameState, 0.75);
+      const result = manager.resolveEvasiveManeuvers(
+        encounter,
+        gameState,
+        0.75
+      );
       expect(result.success).toBe(true);
     });
 
@@ -96,7 +116,11 @@ describe('CombatManager coverage', () => {
       const strongEncounter = { strengthModifier: 0.3 };
       const gameState = makeGameState();
       // Base 0.7 - 0.3 = 0.4
-      const result = manager.resolveEvasiveManeuvers(strongEncounter, gameState, 0.5);
+      const result = manager.resolveEvasiveManeuvers(
+        strongEncounter,
+        gameState,
+        0.5
+      );
       expect(result.success).toBe(false);
     });
 
@@ -104,7 +128,11 @@ describe('CombatManager coverage', () => {
       const veryStrongEncounter = { strengthModifier: 2.0 };
       const gameState = makeGameState();
       // Would go negative, clamped to 0
-      const result = manager.resolveEvasiveManeuvers(veryStrongEncounter, gameState, 0.01);
+      const result = manager.resolveEvasiveManeuvers(
+        veryStrongEncounter,
+        gameState,
+        0.01
+      );
       expect(result.success).toBe(false);
     });
   });
@@ -127,7 +155,9 @@ describe('CombatManager coverage', () => {
       const result = manager.resolveReturnFire(encounter, gameState, 0.99);
       expect(result.success).toBe(false);
       expect(result.costs.hull).toBeDefined();
-      expect(result.costs.credits).toBe(COMBAT_CONFIG.RETURN_FIRE.FAILURE_CREDITS_LOSS);
+      expect(result.costs.credits).toBe(
+        COMBAT_CONFIG.RETURN_FIRE.FAILURE_CREDITS_LOSS
+      );
       expect(result.costs.cargoLoss).toBe(true);
     });
 
@@ -198,7 +228,9 @@ describe('CombatManager coverage', () => {
       const karmaBonus = 100 * KARMA_CONFIG.LUCKY_SHIP_KARMA_SCALE;
       const totalChance = baseChance + karmaBonus;
       // rng just below total chance should succeed
-      expect(manager.checkLuckyShipNegate(gameState, totalChance - 0.001)).toBe(true);
+      expect(manager.checkLuckyShipNegate(gameState, totalChance - 0.001)).toBe(
+        true
+      );
     });
   });
 
@@ -216,7 +248,9 @@ describe('CombatManager coverage', () => {
       const damage = manager.applyHullDamageModifiers(20, gameState);
       const expected = Math.max(
         1,
-        Math.round(20 * (1 - COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction))
+        Math.round(
+          20 * (1 - COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction)
+        )
       );
       expect(damage).toBe(expected);
     });
@@ -228,7 +262,9 @@ describe('CombatManager coverage', () => {
       const damage = manager.applyHullDamageModifiers(20, gameState);
       const expected = Math.max(
         1,
-        Math.round(20 * (1 + COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease))
+        Math.round(
+          20 * (1 + COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease)
+        )
       );
       expect(damage).toBe(expected);
     });
@@ -238,7 +274,8 @@ describe('CombatManager coverage', () => {
         ship: { quirks: ['leaky_seals'], upgrades: ['reinforced_hull'] },
       });
       const damage = manager.applyHullDamageModifiers(20, gameState);
-      let expected = 20 * (1 - COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction);
+      let expected =
+        20 * (1 - COMBAT_CONFIG.MODIFIERS.reinforced_hull.damageReduction);
       expected *= 1 + COMBAT_CONFIG.MODIFIERS.leaky_seals.damageIncrease;
       expect(damage).toBe(Math.max(1, Math.round(expected)));
     });
@@ -267,7 +304,8 @@ describe('CombatManager coverage', () => {
 
     it('resolves evasive choice', () => {
       const result = manager.resolveCombatChoice(
-        { strengthModifier: 0 }, 'evasive'
+        { strengthModifier: 0 },
+        'evasive'
       );
       expect(result).toHaveProperty('success');
       expect(result).toHaveProperty('costs');
@@ -275,21 +313,24 @@ describe('CombatManager coverage', () => {
 
     it('resolves return_fire choice', () => {
       const result = manager.resolveCombatChoice(
-        { strengthModifier: 0 }, 'return_fire'
+        { strengthModifier: 0 },
+        'return_fire'
       );
       expect(result).toHaveProperty('success');
     });
 
     it('resolves distress_call choice', () => {
       const result = manager.resolveCombatChoice(
-        { strengthModifier: 0 }, 'distress_call'
+        { strengthModifier: 0 },
+        'distress_call'
       );
       expect(result).toHaveProperty('success');
     });
 
     it('resolves dump_cargo choice', () => {
       const result = manager.resolveCombatChoice(
-        { strengthModifier: 0 }, 'dump_cargo'
+        { strengthModifier: 0 },
+        'dump_cargo'
       );
       expect(result.success).toBe(true);
     });
@@ -311,7 +352,9 @@ describe('CombatManager coverage', () => {
       // lucky_ship cannot realistically negate evasive failure with karma=0.
       // This is expected behavior — test the code path at least
       const result = manager.resolveEvasiveManeuvers(
-        { strengthModifier: 0 }, gameState, 0.99
+        { strengthModifier: 0 },
+        gameState,
+        0.99
       );
       // With rng=0.99, lucky ship check (0.99 < 0.05) = false, so failure
       expect(result.success).toBe(false);
@@ -322,7 +365,9 @@ describe('CombatManager coverage', () => {
         ship: { quirks: ['lucky_ship'], upgrades: [] },
       });
       const result = manager.resolveReturnFire(
-        { strengthModifier: 0 }, gameState, 0.99
+        { strengthModifier: 0 },
+        gameState,
+        0.99
       );
       expect(result.success).toBe(false);
     });
@@ -332,7 +377,9 @@ describe('CombatManager coverage', () => {
         ship: { quirks: ['lucky_ship'], upgrades: [] },
       });
       const result = manager.resolveDistressCall(
-        { strengthModifier: 0 }, gameState, 0.99
+        { strengthModifier: 0 },
+        gameState,
+        0.99
       );
       expect(result.success).toBe(false);
     });

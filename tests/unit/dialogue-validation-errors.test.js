@@ -20,9 +20,9 @@ describe('validateDialogueChoice error paths', () => {
   });
 
   it('throws for choice with missing text', () => {
-    expect(() =>
-      validateDialogueChoice('node1', 0, { next: null })
-    ).toThrow('must have text string');
+    expect(() => validateDialogueChoice('node1', 0, { next: null })).toThrow(
+      'must have text string'
+    );
   });
 
   it('throws for choice with numeric text', () => {
@@ -88,9 +88,9 @@ describe('validateDialogueNode error paths', () => {
   });
 
   it('throws for node with missing text', () => {
-    expect(() =>
-      validateDialogueNode('test', { choices: [] })
-    ).toThrow('must have text property');
+    expect(() => validateDialogueNode('test', { choices: [] })).toThrow(
+      'must have text property'
+    );
   });
 
   it('throws for node with numeric text', () => {
@@ -100,9 +100,9 @@ describe('validateDialogueNode error paths', () => {
   });
 
   it('throws for node with missing choices', () => {
-    expect(() =>
-      validateDialogueNode('test', { text: 'Hello' })
-    ).toThrow('must have choices array');
+    expect(() => validateDialogueNode('test', { text: 'Hello' })).toThrow(
+      'must have choices array'
+    );
   });
 
   it('accepts node with function text', () => {

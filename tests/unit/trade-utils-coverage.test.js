@@ -96,9 +96,7 @@ describe('tradeUtils coverage', () => {
       const state = makeState({
         ship: { cargo: [], cargoCapacity: 10 },
         missions: {
-          active: [
-            { type: 'passenger', requirements: { cargoSpace: 8 } },
-          ],
+          active: [{ type: 'passenger', requirements: { cargoSpace: 8 } }],
         },
       });
       const result = validateBuy('ore', 5, 10, state);
@@ -151,21 +149,27 @@ describe('tradeUtils coverage', () => {
     });
 
     it('rejects out-of-bounds stack index', () => {
-      const state = makeState({ ship: { cargo: [{ qty: 10, good: 'ore' }], cargoCapacity: 100 } });
+      const state = makeState({
+        ship: { cargo: [{ qty: 10, good: 'ore' }], cargoCapacity: 100 },
+      });
       const result = validateSell(5, 5, state);
       expect(result.valid).toBe(false);
       expect(result.reason).toBe('Stack index out of bounds');
     });
 
     it('rejects quantity exceeding stack', () => {
-      const state = makeState({ ship: { cargo: [{ qty: 5, good: 'ore' }], cargoCapacity: 100 } });
+      const state = makeState({
+        ship: { cargo: [{ qty: 5, good: 'ore' }], cargoCapacity: 100 },
+      });
       const result = validateSell(0, 10, state);
       expect(result.valid).toBe(false);
       expect(result.reason).toBe('Insufficient quantity in stack');
     });
 
     it('returns valid for acceptable sale', () => {
-      const state = makeState({ ship: { cargo: [{ qty: 10, good: 'ore' }], cargoCapacity: 100 } });
+      const state = makeState({
+        ship: { cargo: [{ qty: 10, good: 'ore' }], cargoCapacity: 100 },
+      });
       const result = validateSell(0, 5, state);
       expect(result.valid).toBe(true);
     });
@@ -189,7 +193,9 @@ describe('tradeUtils coverage', () => {
     });
 
     it('returns 0 for state without ship', () => {
-      expect(calculateMaxBuyQuantity(100, { player: { credits: 1000 } })).toBe(0);
+      expect(calculateMaxBuyQuantity(100, { player: { credits: 1000 } })).toBe(
+        0
+      );
     });
 
     it('is limited by credits', () => {

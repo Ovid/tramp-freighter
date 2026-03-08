@@ -95,9 +95,7 @@ describe('ShipManager coverage', () => {
 
   describe('moveToHiddenCargo', () => {
     beforeEach(() => {
-      gsm.state.ship.cargo = [
-        { good: 'electronics', qty: 10, buyPrice: 200 },
-      ];
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 10, buyPrice: 200 }];
       gsm.state.ship.hiddenCargo = [];
       // Install smuggling compartment for hidden cargo capacity
       const smugglingUpgrade = Object.entries(SHIP_CONFIG.UPGRADES).find(
@@ -196,9 +194,7 @@ describe('ShipManager coverage', () => {
     });
 
     it('consolidates into existing regular cargo stack', () => {
-      gsm.state.ship.cargo = [
-        { good: 'electronics', qty: 3, buyPrice: 200 },
-      ];
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 3, buyPrice: 200 }];
       const result = gsm.shipManager.moveToRegularCargo('electronics', 2);
       expect(result.success).toBe(true);
       expect(gsm.state.ship.cargo).toHaveLength(1);
@@ -247,9 +243,7 @@ describe('ShipManager coverage', () => {
     });
 
     it('removes stacks entirely when depleted', () => {
-      gsm.state.ship.cargo = [
-        { good: 'ore', qty: 5, buyPrice: 100 },
-      ];
+      gsm.state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 100 }];
       const result = gsm.shipManager.removeCargoForMission('ore', 5);
       expect(result.success).toBe(true);
       expect(gsm.state.ship.cargo).toHaveLength(0);
@@ -307,7 +301,9 @@ describe('ShipManager coverage', () => {
   describe('getHiddenCargo', () => {
     it('returns hidden cargo array', () => {
       gsm.state.ship.hiddenCargo = [{ good: 'ore', qty: 5 }];
-      expect(gsm.shipManager.getHiddenCargo()).toEqual([{ good: 'ore', qty: 5 }]);
+      expect(gsm.shipManager.getHiddenCargo()).toEqual([
+        { good: 'ore', qty: 5 },
+      ]);
     });
   });
 

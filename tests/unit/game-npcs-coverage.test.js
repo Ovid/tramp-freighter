@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { getNPCsAtSystem, renderNPCListItem } from '../../src/game/game-npcs.js';
+import {
+  getNPCsAtSystem,
+  renderNPCListItem,
+} from '../../src/game/game-npcs.js';
 
 describe('game-npcs coverage', () => {
   describe('getNPCsAtSystem', () => {
@@ -98,15 +101,27 @@ describe('game-npcs coverage', () => {
 
     it('throws for NPC missing required fields', () => {
       expect(() =>
-        renderNPCListItem({ role: 'Trader', initialRep: 10 }, null, mockGetRepTier)
+        renderNPCListItem(
+          { role: 'Trader', initialRep: 10 },
+          null,
+          mockGetRepTier
+        )
       ).toThrow('missing required fields');
 
       expect(() =>
-        renderNPCListItem({ name: 'Test', initialRep: 10 }, null, mockGetRepTier)
+        renderNPCListItem(
+          { name: 'Test', initialRep: 10 },
+          null,
+          mockGetRepTier
+        )
       ).toThrow('missing required fields');
 
       expect(() =>
-        renderNPCListItem({ name: 'Test', role: 'Trader' }, null, mockGetRepTier)
+        renderNPCListItem(
+          { name: 'Test', role: 'Trader' },
+          null,
+          mockGetRepTier
+        )
       ).toThrow('missing required fields');
     });
   });

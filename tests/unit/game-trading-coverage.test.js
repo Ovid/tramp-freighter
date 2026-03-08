@@ -100,36 +100,48 @@ describe('TradingSystem.getLocalModifier computation', () => {
   });
 
   it('returns 1.0 when system has no entry in market conditions', () => {
-    const modifier = TradingSystem.getLocalModifier(5, 'ore', { 0: { ore: 100 } });
+    const modifier = TradingSystem.getLocalModifier(5, 'ore', {
+      0: { ore: 100 },
+    });
     expect(modifier).toBe(1.0);
   });
 
   it('returns 1.0 when good has no entry for the system', () => {
-    const modifier = TradingSystem.getLocalModifier(0, 'grain', { 0: { ore: 100 } });
+    const modifier = TradingSystem.getLocalModifier(0, 'grain', {
+      0: { ore: 100 },
+    });
     expect(modifier).toBe(1.0);
   });
 
   it('returns < 1.0 for surplus (player sold goods)', () => {
     // MARKET_CAPACITY is 200, so surplus of 40 gives 1.0 - 40/200 = 0.8
-    const modifier = TradingSystem.getLocalModifier(0, 'ore', { 0: { ore: 40 } });
+    const modifier = TradingSystem.getLocalModifier(0, 'ore', {
+      0: { ore: 40 },
+    });
     expect(modifier).toBeLessThan(1.0);
     expect(modifier).toBeCloseTo(0.8, 2);
   });
 
   it('returns > 1.0 for deficit (player bought goods)', () => {
     // MARKET_CAPACITY is 200, so deficit of -40 gives 1.0 - (-40/200) = 1.2
-    const modifier = TradingSystem.getLocalModifier(0, 'ore', { 0: { ore: -40 } });
+    const modifier = TradingSystem.getLocalModifier(0, 'ore', {
+      0: { ore: -40 },
+    });
     expect(modifier).toBeGreaterThan(1.0);
     expect(modifier).toBeCloseTo(1.2, 2);
   });
 
   it('clamps to minimum for extreme surplus', () => {
-    const modifier = TradingSystem.getLocalModifier(0, 'ore', { 0: { ore: 10000 } });
+    const modifier = TradingSystem.getLocalModifier(0, 'ore', {
+      0: { ore: 10000 },
+    });
     expect(modifier).toBe(0.25);
   });
 
   it('clamps to maximum for extreme deficit', () => {
-    const modifier = TradingSystem.getLocalModifier(0, 'ore', { 0: { ore: -10000 } });
+    const modifier = TradingSystem.getLocalModifier(0, 'ore', {
+      0: { ore: -10000 },
+    });
     expect(modifier).toBe(2.0);
   });
 
@@ -166,11 +178,15 @@ describe('TradingSystem.calculateCargoUsed edge cases', () => {
 
 describe('TradingSystem.calculateCargoValue', () => {
   it('returns correct value for valid entry', () => {
-    expect(TradingSystem.calculateCargoValue({ qty: 5, buyPrice: 100 })).toBe(500);
+    expect(TradingSystem.calculateCargoValue({ qty: 5, buyPrice: 100 })).toBe(
+      500
+    );
   });
 
   it('returns 0 when qty is 0', () => {
-    expect(TradingSystem.calculateCargoValue({ qty: 0, buyPrice: 100 })).toBe(0);
+    expect(TradingSystem.calculateCargoValue({ qty: 0, buyPrice: 100 })).toBe(
+      0
+    );
   });
 
   it('throws for null entry', () => {
@@ -204,9 +220,9 @@ describe('TradingSystem.calculateCargoValue', () => {
   });
 
   it('throws when qty is missing', () => {
-    expect(() =>
-      TradingSystem.calculateCargoValue({ buyPrice: 100 })
-    ).toThrow('qty must be a number');
+    expect(() => TradingSystem.calculateCargoValue({ buyPrice: 100 })).toThrow(
+      'qty must be a number'
+    );
   });
 
   it('throws when buyPrice is not a number', () => {
@@ -388,7 +404,13 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
   it('creates new stack with full metadata when provided', () => {
     const cargo = [];
     const result = TradingSystem.addCargoStack(
-      cargo, 'ore', 5, 100, 3, 'Alpha Centauri', 10
+      cargo,
+      'ore',
+      5,
+      100,
+      3,
+      'Alpha Centauri',
+      10
     );
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -411,9 +433,7 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
 
   it('creates new stack with systemId and systemName but no day', () => {
     const cargo = [];
-    const result = TradingSystem.addCargoStack(
-      cargo, 'ore', 5, 100, 3, 'Sol'
-    );
+    const result = TradingSystem.addCargoStack(cargo, 'ore', 5, 100, 3, 'Sol');
     expect(result[0].buySystem).toBe(3);
     expect(result[0].buySystemName).toBe('Sol');
     expect(result[0]).not.toHaveProperty('buyDate');
@@ -422,7 +442,13 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
   it('omits null systemId from stack', () => {
     const cargo = [];
     const result = TradingSystem.addCargoStack(
-      cargo, 'ore', 5, 100, null, 'Sol', 10
+      cargo,
+      'ore',
+      5,
+      100,
+      null,
+      'Sol',
+      10
     );
     expect(result[0]).not.toHaveProperty('buySystem');
     expect(result[0].buySystemName).toBe('Sol');
@@ -432,7 +458,13 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
   it('omits null systemName from stack', () => {
     const cargo = [];
     const result = TradingSystem.addCargoStack(
-      cargo, 'ore', 5, 100, 3, null, 10
+      cargo,
+      'ore',
+      5,
+      100,
+      3,
+      null,
+      10
     );
     expect(result[0].buySystem).toBe(3);
     expect(result[0]).not.toHaveProperty('buySystemName');
@@ -442,7 +474,13 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
   it('omits null day from stack', () => {
     const cargo = [];
     const result = TradingSystem.addCargoStack(
-      cargo, 'ore', 5, 100, 3, 'Sol', null
+      cargo,
+      'ore',
+      5,
+      100,
+      3,
+      'Sol',
+      null
     );
     expect(result[0].buySystem).toBe(3);
     expect(result[0].buySystemName).toBe('Sol');
@@ -451,7 +489,15 @@ describe('TradingSystem.addCargoStack (deprecated)', () => {
 
   it('consolidates into existing stack with matching good and price', () => {
     const cargo = [{ good: 'ore', qty: 5, buyPrice: 100, buySystem: 3 }];
-    const result = TradingSystem.addCargoStack(cargo, 'ore', 3, 100, 7, 'Other', 20);
+    const result = TradingSystem.addCargoStack(
+      cargo,
+      'ore',
+      3,
+      100,
+      7,
+      'Other',
+      20
+    );
     expect(result).toHaveLength(1);
     expect(result[0].qty).toBe(8);
     // Preserves original metadata

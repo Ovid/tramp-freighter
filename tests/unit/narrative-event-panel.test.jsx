@@ -236,9 +236,7 @@ describe('NarrativeEventPanel', () => {
       content: {
         speaker: 'Captain Renn',
         text: ['The follow-up event.'],
-        choices: [
-          { text: 'Continue', effects: null, flags: null, next: null },
-        ],
+        choices: [{ text: 'Continue', effects: null, flags: null, next: null }],
       },
     };
     mockGSM.getEventById.mockReturnValue(nextEvent);

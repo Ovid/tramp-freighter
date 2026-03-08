@@ -861,5 +861,4 @@ export class NPCManager extends BaseManager {
       remaining: remainingStoredCargo,
     };
   }
-
 }

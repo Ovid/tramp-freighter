@@ -5,9 +5,8 @@ const constants = vi.hoisted(() => ({ DEV_MODE: false }));
 vi.mock('../../src/game/constants.js', () => constants);
 
 // Import after mock setup
-const { BaseManager } = await import(
-  '../../src/game/state/managers/base-manager.js'
-);
+const { BaseManager } =
+  await import('../../src/game/state/managers/base-manager.js');
 
 function makeMockGSM(overrides = {}) {
   return {
@@ -150,10 +149,7 @@ describe('BaseManager', () => {
       const gsm = makeMockGSM();
       const manager = new BaseManager(gsm);
       manager.error('something broke');
-      expect(spyError).toHaveBeenCalledWith(
-        '[BaseManager]',
-        'something broke'
-      );
+      expect(spyError).toHaveBeenCalledWith('[BaseManager]', 'something broke');
     });
 
     it('error logs with the subclass name', () => {

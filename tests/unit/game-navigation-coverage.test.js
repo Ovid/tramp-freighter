@@ -224,7 +224,9 @@ describe('NavigationSystem coverage', () => {
       };
 
       const animationSystem = {
-        playJumpAnimation: vi.fn().mockRejectedValue(new Error('animation failed')),
+        playJumpAnimation: vi
+          .fn()
+          .mockRejectedValue(new Error('animation failed')),
       };
 
       await expect(

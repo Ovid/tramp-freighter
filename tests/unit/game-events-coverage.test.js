@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EconomicEventsSystem } from '../../src/game/game-events.js';
-import { COMMODITY_TYPES, SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID } from '../../src/game/constants.js';
+import {
+  COMMODITY_TYPES,
+  SOL_SYSTEM_ID,
+  ALPHA_CENTAURI_SYSTEM_ID,
+} from '../../src/game/constants.js';
 
 describe('EconomicEventsSystem', () => {
   beforeEach(() => {
@@ -15,7 +19,9 @@ describe('EconomicEventsSystem', () => {
   describe('isSystemEligible', () => {
     it('returns false for null system', () => {
       const eventType = { targetSystems: 'any' };
-      expect(EconomicEventsSystem.isSystemEligible(null, eventType)).toBe(false);
+      expect(EconomicEventsSystem.isSystemEligible(null, eventType)).toBe(
+        false
+      );
     });
 
     it('returns false for null eventType', () => {
@@ -26,55 +32,73 @@ describe('EconomicEventsSystem', () => {
     it('returns true for "any" target systems', () => {
       const system = { id: 50, type: 'G2V' };
       const eventType = { targetSystems: 'any' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns true for core system with "core" target', () => {
       const system = { id: SOL_SYSTEM_ID, type: 'G2V' };
       const eventType = { targetSystems: 'core' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns true for Alpha Centauri with "core" target', () => {
       const system = { id: ALPHA_CENTAURI_SYSTEM_ID, type: 'G2V' };
       const eventType = { targetSystems: 'core' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns false for non-core system with "core" target', () => {
       const system = { id: 50, type: 'G2V' };
       const eventType = { targetSystems: 'core' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(false);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        false
+      );
     });
 
     it('returns true for M-class system with "mining" target', () => {
       const system = { id: 10, type: 'M3V' };
       const eventType = { targetSystems: 'mining' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns true for L-class system with "mining" target', () => {
       const system = { id: 10, type: 'L2' };
       const eventType = { targetSystems: 'mining' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns true for T-class system with "mining" target', () => {
       const system = { id: 10, type: 'T6' };
       const eventType = { targetSystems: 'mining' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(true);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        true
+      );
     });
 
     it('returns false for G-class system with "mining" target', () => {
       const system = { id: 10, type: 'G2V' };
       const eventType = { targetSystems: 'mining' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(false);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        false
+      );
     });
 
     it('returns false for unknown target systems value', () => {
       const system = { id: 10, type: 'G2V' };
       const eventType = { targetSystems: 'unknown' };
-      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(false);
+      expect(EconomicEventsSystem.isSystemEligible(system, eventType)).toBe(
+        false
+      );
     });
   });
 
@@ -97,14 +121,22 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('creates medical_emergency event with correct modifiers', () => {
-      const event = EconomicEventsSystem.createEvent('medical_emergency', 10, 100);
+      const event = EconomicEventsSystem.createEvent(
+        'medical_emergency',
+        10,
+        100
+      );
       expect(event.modifiers.medicine).toBe(2.0);
       expect(event.modifiers.grain).toBe(0.9);
       expect(event.modifiers.ore).toBe(0.9);
     });
 
     it('creates festival event with correct modifiers', () => {
-      const event = EconomicEventsSystem.createEvent('festival', SOL_SYSTEM_ID, 100);
+      const event = EconomicEventsSystem.createEvent(
+        'festival',
+        SOL_SYSTEM_ID,
+        100
+      );
       expect(event.modifiers.electronics).toBe(1.75);
       expect(event.modifiers.grain).toBe(1.2);
     });
@@ -143,7 +175,9 @@ describe('EconomicEventsSystem', () => {
   describe('removeExpiredEvents', () => {
     it('returns empty array for non-array input', () => {
       expect(EconomicEventsSystem.removeExpiredEvents(null, 100)).toEqual([]);
-      expect(EconomicEventsSystem.removeExpiredEvents(undefined, 100)).toEqual([]);
+      expect(EconomicEventsSystem.removeExpiredEvents(undefined, 100)).toEqual(
+        []
+      );
     });
 
     it('keeps events that have not expired', () => {
@@ -181,8 +215,12 @@ describe('EconomicEventsSystem', () => {
   describe('getActiveEventForSystem', () => {
     it('returns null for non-array input', () => {
       expect(EconomicEventsSystem.getActiveEventForSystem(0, null)).toBeNull();
-      expect(EconomicEventsSystem.getActiveEventForSystem(0, undefined)).toBeNull();
-      expect(EconomicEventsSystem.getActiveEventForSystem(0, 'not-array')).toBeNull();
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(0, undefined)
+      ).toBeNull();
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(0, 'not-array')
+      ).toBeNull();
     });
 
     it('returns null when no event matches', () => {
@@ -190,7 +228,9 @@ describe('EconomicEventsSystem', () => {
         { systemId: 5, type: 'mining_strike' },
         { systemId: 10, type: 'festival' },
       ];
-      expect(EconomicEventsSystem.getActiveEventForSystem(99, events)).toBeNull();
+      expect(
+        EconomicEventsSystem.getActiveEventForSystem(99, events)
+      ).toBeNull();
     });
 
     it('returns matching event', () => {
@@ -222,7 +262,10 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('returns empty array for null starData', () => {
-      const state = { player: { daysElapsed: 10 }, world: { activeEvents: [] } };
+      const state = {
+        player: { daysElapsed: 10 },
+        world: { activeEvents: [] },
+      };
       expect(EconomicEventsSystem.updateEvents(state, null)).toEqual([]);
     });
 
@@ -236,7 +279,10 @@ describe('EconomicEventsSystem', () => {
           ],
         },
       };
-      const starData = [{ id: 0, type: 'G2V' }, { id: 1, type: 'M3V' }];
+      const starData = [
+        { id: 0, type: 'G2V' },
+        { id: 1, type: 'M3V' },
+      ];
       const result = EconomicEventsSystem.updateEvents(state, starData);
       // e1 should be removed (endDay 100 < currentDay 200)
       const hasE1 = result.some((e) => e.id === 'e1');
@@ -279,7 +325,9 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('all event types have required fields', () => {
-      for (const [, eventType] of Object.entries(EconomicEventsSystem.EVENT_TYPES)) {
+      for (const [, eventType] of Object.entries(
+        EconomicEventsSystem.EVENT_TYPES
+      )) {
         expect(eventType).toHaveProperty('name');
         expect(eventType).toHaveProperty('description');
         expect(eventType).toHaveProperty('duration');

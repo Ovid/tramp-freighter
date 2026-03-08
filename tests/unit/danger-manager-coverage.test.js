@@ -170,7 +170,9 @@ describe('DangerManager coverage', () => {
     });
 
     it('returns true for illegal mission cargo', () => {
-      const cargo = [{ good: 'unmarked_crates', qty: 5, missionId: 'mission_1' }];
+      const cargo = [
+        { good: 'unmarked_crates', qty: 5, missionId: 'mission_1' },
+      ];
       expect(gsm.dangerManager.hasIllegalMissionCargo(cargo)).toBe(true);
     });
 
@@ -217,7 +219,8 @@ describe('DangerManager coverage', () => {
     it('returns a value between 0 and 1', () => {
       const safeId = DANGER_CONFIG.ZONES.safe.systems[0];
       const chance = gsm.dangerManager.calculatePirateEncounterChance(
-        safeId, makeGameState()
+        safeId,
+        makeGameState()
       );
       expect(chance).toBeGreaterThanOrEqual(0);
       expect(chance).toBeLessThanOrEqual(1);
@@ -226,12 +229,17 @@ describe('DangerManager coverage', () => {
     it('higher for high-value cargo', () => {
       const safeId = DANGER_CONFIG.ZONES.safe.systems[0];
       const baseChance = gsm.dangerManager.calculatePirateEncounterChance(
-        safeId, makeGameState()
+        safeId,
+        makeGameState()
       );
       const highValueChance = gsm.dangerManager.calculatePirateEncounterChance(
         safeId,
         makeGameState({
-          ship: { cargo: [{ qty: 100, buyPrice: 500 }], engine: 100, upgrades: [] },
+          ship: {
+            cargo: [{ qty: 100, buyPrice: 500 }],
+            engine: 100,
+            upgrades: [],
+          },
         })
       );
       expect(highValueChance).toBeGreaterThan(baseChance);
@@ -240,7 +248,8 @@ describe('DangerManager coverage', () => {
     it('higher for poor engine condition', () => {
       const safeId = DANGER_CONFIG.ZONES.safe.systems[0];
       const baseChance = gsm.dangerManager.calculatePirateEncounterChance(
-        safeId, makeGameState()
+        safeId,
+        makeGameState()
       );
       const poorEngineChance = gsm.dangerManager.calculatePirateEncounterChance(
         safeId,
@@ -252,11 +261,14 @@ describe('DangerManager coverage', () => {
     it('lower with advanced_sensors upgrade', () => {
       const contestedId = DANGER_CONFIG.ZONES.contested.systems[0];
       const baseChance = gsm.dangerManager.calculatePirateEncounterChance(
-        contestedId, makeGameState()
+        contestedId,
+        makeGameState()
       );
       const sensorsChance = gsm.dangerManager.calculatePirateEncounterChance(
         contestedId,
-        makeGameState({ ship: { cargo: [], engine: 100, upgrades: ['advanced_sensors'] } })
+        makeGameState({
+          ship: { cargo: [], engine: 100, upgrades: ['advanced_sensors'] },
+        })
       );
       expect(sensorsChance).toBeLessThan(baseChance);
     });
@@ -264,7 +276,8 @@ describe('DangerManager coverage', () => {
     it('lower with high outlaw rep', () => {
       const contestedId = DANGER_CONFIG.ZONES.contested.systems[0];
       const baseChance = gsm.dangerManager.calculatePirateEncounterChance(
-        contestedId, makeGameState()
+        contestedId,
+        makeGameState()
       );
       const outlawChance = gsm.dangerManager.calculatePirateEncounterChance(
         contestedId,
@@ -293,7 +306,8 @@ describe('DangerManager coverage', () => {
     it('returns a value between 0 and 1', () => {
       const safeId = DANGER_CONFIG.ZONES.safe.systems[0];
       const chance = gsm.dangerManager.calculateInspectionChance(
-        safeId, makeGameState()
+        safeId,
+        makeGameState()
       );
       expect(chance).toBeGreaterThanOrEqual(0);
       expect(chance).toBeLessThanOrEqual(1);
@@ -305,10 +319,12 @@ describe('DangerManager coverage', () => {
       );
       if (nonCoreId !== undefined) {
         const coreChance = gsm.dangerManager.calculateInspectionChance(
-          SOL_SYSTEM_ID, makeGameState()
+          SOL_SYSTEM_ID,
+          makeGameState()
         );
         const nonCoreChance = gsm.dangerManager.calculateInspectionChance(
-          nonCoreId, makeGameState()
+          nonCoreId,
+          makeGameState()
         );
         expect(coreChance).toBeGreaterThan(nonCoreChance);
       }
@@ -321,7 +337,9 @@ describe('DangerManager coverage', () => {
     });
 
     it('counts illegal mission cargo', () => {
-      const cargo = [{ good: 'unmarked_crates', qty: 5, missionId: 'mission_1' }];
+      const cargo = [
+        { good: 'unmarked_crates', qty: 5, missionId: 'mission_1' },
+      ];
       expect(gsm.dangerManager.countRestrictedGoods(cargo, 'safe', 0)).toBe(1);
     });
   });

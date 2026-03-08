@@ -71,7 +71,11 @@ describe('mission-generator coverage', () => {
 
     it('generates valid cargo run mission', () => {
       const mission = generateCargoRun(
-        0, starData, wormholeData, 'safe', deterministicRng
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        deterministicRng
       );
       expect(mission).toBeDefined();
       expect(mission.type).toBe('delivery');
@@ -89,7 +93,11 @@ describe('mission-generator coverage', () => {
           return (c * 0.03) % 1; // Low values to trigger illegal
         };
         const mission = generateCargoRun(
-          0, starData, wormholeData, 'dangerous', rng
+          0,
+          starData,
+          wormholeData,
+          'dangerous',
+          rng
         );
         if (mission && mission.missionCargo.isIllegal) {
           found = true;
@@ -104,7 +112,12 @@ describe('mission-generator coverage', () => {
     it('applies destination danger zone multiplier', () => {
       const dangerZoneFn = () => 'dangerous';
       const mission = generateCargoRun(
-        0, starData, wormholeData, 'safe', deterministicRng, dangerZoneFn
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        deterministicRng,
+        dangerZoneFn
       );
       expect(mission).toBeDefined();
     });
@@ -116,13 +129,16 @@ describe('mission-generator coverage', () => {
         { from: 0, to: 1, day: 7 },
       ];
       // Force rng to pick system 1 as destination
-      let c = 0;
-      const rng = () => {
-        c++;
-        return 0.5;
-      };
+      const rng = () => 0.5;
       const mission = generateCargoRun(
-        0, starData, wormholeData, 'safe', rng, null, history, 10
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        rng,
+        null,
+        history,
+        10
       );
       if (mission && mission.destination.systemId === 1) {
         expect(mission.saturated).toBe(true);
@@ -131,14 +147,8 @@ describe('mission-generator coverage', () => {
 
     it('generates legal cargo in safe zones', () => {
       // Use rng that returns high values to avoid illegal
-      let c = 0;
-      const rng = () => {
-        c++;
-        return 0.99;
-      };
-      const mission = generateCargoRun(
-        0, starData, wormholeData, 'safe', rng
-      );
+      const rng = () => 0.99;
+      const mission = generateCargoRun(0, starData, wormholeData, 'safe', rng);
       if (mission) {
         expect(mission.missionCargo.isIllegal).toBe(false);
       }
@@ -153,7 +163,10 @@ describe('mission-generator coverage', () => {
 
     it('generates valid passenger mission', () => {
       const mission = generatePassengerMission(
-        0, starData, wormholeData, deterministicRng
+        0,
+        starData,
+        wormholeData,
+        deterministicRng
       );
       expect(mission).toBeDefined();
       expect(mission.type).toBe('passenger');
@@ -165,7 +178,10 @@ describe('mission-generator coverage', () => {
 
     it('includes passenger dialogue', () => {
       const mission = generatePassengerMission(
-        0, starData, wormholeData, deterministicRng
+        0,
+        starData,
+        wormholeData,
+        deterministicRng
       );
       if (mission) {
         expect(typeof mission.passenger.dialogue).toBe('string');
@@ -179,7 +195,12 @@ describe('mission-generator coverage', () => {
         { from: 0, to: 1, day: 7 },
       ];
       const mission = generatePassengerMission(
-        0, starData, wormholeData, deterministicRng, history, 10
+        0,
+        starData,
+        wormholeData,
+        deterministicRng,
+        history,
+        10
       );
       expect(mission).toBeDefined();
     });
@@ -188,7 +209,11 @@ describe('mission-generator coverage', () => {
   describe('generateMissionBoard', () => {
     it('generates a board with missions', () => {
       const board = generateMissionBoard(
-        0, starData, wormholeData, 'safe', deterministicRng
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        deterministicRng
       );
       expect(Array.isArray(board)).toBe(true);
       expect(board.length).toBeGreaterThan(0);
@@ -205,7 +230,11 @@ describe('mission-generator coverage', () => {
           return (c * 0.31) % 1;
         };
         const board = generateMissionBoard(
-          0, starData, wormholeData, 'safe', rng
+          0,
+          starData,
+          wormholeData,
+          'safe',
+          rng
         );
         for (const m of board) {
           if (m.type === 'delivery') hasCargo = true;
@@ -228,7 +257,15 @@ describe('mission-generator coverage', () => {
           return (c * 0.13) % 1;
         };
         const board = generateMissionBoard(
-          0, starData, wormholeData, 'safe', rng, null, [], 10, factionReps
+          0,
+          starData,
+          wormholeData,
+          'safe',
+          rng,
+          null,
+          [],
+          10,
+          factionReps
         );
         for (const m of board) {
           if (m.priority) {
@@ -243,7 +280,11 @@ describe('mission-generator coverage', () => {
 
     it('respects board size limits', () => {
       const board = generateMissionBoard(
-        0, starData, wormholeData, 'safe', deterministicRng
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        deterministicRng
       );
       expect(board.length).toBeLessThanOrEqual(MISSION_CONFIG.BOARD_SIZE);
     });
@@ -251,7 +292,14 @@ describe('mission-generator coverage', () => {
     it('passes completion history through', () => {
       const history = [{ from: 0, to: 1, day: 5 }];
       const board = generateMissionBoard(
-        0, starData, wormholeData, 'safe', deterministicRng, null, history, 10
+        0,
+        starData,
+        wormholeData,
+        'safe',
+        deterministicRng,
+        null,
+        history,
+        10
       );
       expect(board).toBeDefined();
     });

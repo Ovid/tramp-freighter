@@ -4,9 +4,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 const constants = vi.hoisted(() => ({ DEV_MODE: false }));
 vi.mock('../../src/game/constants.js', () => constants);
 
-const { BaseManager } = await import(
-  '../../src/game/state/managers/base-manager.js'
-);
+const { BaseManager } =
+  await import('../../src/game/state/managers/base-manager.js');
 
 // ── SeededRandom: direct import (no mocking needed) ──
 import {
@@ -36,13 +35,11 @@ function makeMockGSM(overrides = {}) {
 describe('BaseManager log/warn gap coverage', () => {
   let spyLog;
   let spyWarn;
-  let spyError;
-
   beforeEach(() => {
     constants.DEV_MODE = false;
     spyLog = vi.spyOn(console, 'log').mockImplementation(() => {});
     spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    spyError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

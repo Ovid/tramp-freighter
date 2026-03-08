@@ -59,11 +59,7 @@ describe('mission-generator gap coverage', () => {
     it('should select illegal quantity range and return illegal mission fields', () => {
       // rng sequence: first call picks destination, second call must be < illegalChance
       // In 'dangerous' zone, illegalChance = 0.75, so 0.5 < 0.75 triggers illegal
-      let callIndex = 0;
-      const rng = () => {
-        callIndex++;
-        return 0.5;
-      };
+      const rng = () => 0.5;
       const mission = generateCargoRun(
         0,
         starDataMissingDest,
@@ -87,11 +83,7 @@ describe('mission-generator gap coverage', () => {
     });
 
     it('should include outlaws in failure penalties for illegal cargo', () => {
-      let callIndex = 0;
-      const rng = () => {
-        callIndex++;
-        return 0.5;
-      };
+      const rng = () => 0.5;
       const mission = generateCargoRun(
         0,
         starDataMissingDest,
@@ -107,11 +99,7 @@ describe('mission-generator gap coverage', () => {
     });
 
     it('should include outlaws in rewards for illegal cargo', () => {
-      let callIndex = 0;
-      const rng = () => {
-        callIndex++;
-        return 0.5;
-      };
+      const rng = () => 0.5;
       const mission = generateCargoRun(
         0,
         starDataMissingDest,
@@ -130,11 +118,7 @@ describe('mission-generator gap coverage', () => {
   describe('generateCargoRun cargo label formatting', () => {
     it('should format cargo label with title case and spaces', () => {
       // Force legal cargo (rng > illegalChance for safe zone = 0.15)
-      let callIndex = 0;
-      const rng = () => {
-        callIndex++;
-        return 0.99;
-      };
+      const rng = () => 0.99;
       const mission = generateCargoRun(
         0,
         starDataMissingDest,
@@ -315,11 +299,7 @@ describe('mission-generator gap coverage', () => {
 
     it('should default to 1.0 danger multiplier for unknown destination zone', () => {
       const dangerZoneFn = () => 'nonexistent_zone';
-      let callIndex = 0;
-      const rng = () => {
-        callIndex++;
-        return 0.99; // Force legal
-      };
+      const rng = () => 0.99; // Force legal
       const mission = generateCargoRun(
         0,
         starDataMissingDest,

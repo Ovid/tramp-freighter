@@ -46,10 +46,9 @@ describe('Capability interface completeness', () => {
     ];
 
     for (const typedef of expectedTypedefs) {
-      expect(
-        capabilitiesSource,
-        `Missing typedef: ${typedef}`
-      ).toContain(`@typedef {Object} ${typedef}`);
+      expect(capabilitiesSource, `Missing typedef: ${typedef}`).toContain(
+        `@typedef {Object} ${typedef}`
+      );
     }
   });
 
@@ -90,18 +89,13 @@ describe('Capability interface completeness', () => {
 
       // Find the end of this typedef block
       const nextTypedef = capabilitiesSource.indexOf('@typedef', startIdx + 1);
-      const block = nextTypedef > -1
-        ? capabilitiesSource.slice(startIdx, nextTypedef)
-        : capabilitiesSource.slice(startIdx);
+      const block =
+        nextTypedef > -1
+          ? capabilitiesSource.slice(startIdx, nextTypedef)
+          : capabilitiesSource.slice(startIdx);
 
-      expect(
-        block,
-        `${name} missing emit`
-      ).toContain('emit');
-      expect(
-        block,
-        `${name} missing markDirty`
-      ).toContain('markDirty');
+      expect(block, `${name} missing emit`).toContain('emit');
+      expect(block, `${name} missing markDirty`).toContain('markDirty');
     }
   });
 
@@ -113,9 +107,10 @@ describe('Capability interface completeness', () => {
     );
     expect(startIdx).toBeGreaterThan(-1);
     const nextTypedef = capabilitiesSource.indexOf('@typedef', startIdx + 1);
-    const block = nextTypedef > -1
-      ? capabilitiesSource.slice(startIdx, nextTypedef)
-      : capabilitiesSource.slice(startIdx);
+    const block =
+      nextTypedef > -1
+        ? capabilitiesSource.slice(startIdx, nextTypedef)
+        : capabilitiesSource.slice(startIdx);
     expect(block).toContain('emit');
   });
 });

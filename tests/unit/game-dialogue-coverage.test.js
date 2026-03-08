@@ -153,9 +153,7 @@ describe('game-dialogue coverage', () => {
       const dialogue = showDialogue('chen_barnards', 'greeting', gsm);
       const continueChoice = dialogue.choices.find((c) => c.next);
       if (continueChoice) {
-        const result = selectChoice(
-          'chen_barnards', continueChoice.index, gsm
-        );
+        const result = selectChoice('chen_barnards', continueChoice.index, gsm);
         expect(result).toBeDefined();
         expect(result.text).toBeDefined();
       }

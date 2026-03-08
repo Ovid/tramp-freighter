@@ -105,7 +105,6 @@ export class GameCoordinator {
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
     this.achievementsManager = new AchievementsManager(this);
-
   }
 
   /**

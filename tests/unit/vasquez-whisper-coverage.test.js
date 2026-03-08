@@ -4,7 +4,6 @@ import { WHISPER_DIALOGUE } from '../../src/game/data/dialogue/whisper.js';
 import {
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
-  COLE_DEBT_CONFIG,
 } from '../../src/game/constants.js';
 
 describe('Captain Vasquez dialogue coverage', () => {
@@ -26,15 +25,15 @@ describe('Captain Vasquez dialogue coverage', () => {
     });
 
     it('throws when rep is a string', () => {
-      expect(() =>
-        CAPTAIN_VASQUEZ_DIALOGUE.greeting.text('high', {})
-      ).toThrow('reputation must be a number');
+      expect(() => CAPTAIN_VASQUEZ_DIALOGUE.greeting.text('high', {})).toThrow(
+        'reputation must be a number'
+      );
     });
 
     it('throws when rep is null', () => {
-      expect(() =>
-        CAPTAIN_VASQUEZ_DIALOGUE.greeting.text(null, {})
-      ).toThrow('reputation must be a number');
+      expect(() => CAPTAIN_VASQUEZ_DIALOGUE.greeting.text(null, {})).toThrow(
+        'reputation must be a number'
+      );
     });
   });
 
@@ -46,7 +45,8 @@ describe('Captain Vasquez dialogue coverage', () => {
       // We want 0 < daysRemaining <= LOAN_REMINDER_DAYS (5)
       // So daysElapsed - loanDay = LOAN_REPAYMENT_DEADLINE - daysRemaining
       // For daysRemaining = 3: daysElapsed = loanDay + 30 - 3 = 37
-      const daysElapsed = loanDay + NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - 3;
+      const daysElapsed =
+        loanDay + NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - 3;
       const context = {
         npcState: { loanAmount: 500, loanDay },
         daysElapsed,

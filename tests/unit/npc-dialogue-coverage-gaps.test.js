@@ -6,12 +6,7 @@ import { STATION_MASTER_KOWALSKI_DIALOGUE } from '../../src/game/data/dialogue/s
 import { ZARA_OSMAN_DIALOGUE } from '../../src/game/data/dialogue/zara-osman.js';
 import { WHISPER_DIALOGUE } from '../../src/game/data/dialogue/whisper.js';
 import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
-import {
-  REPUTATION_BOUNDS,
-  NPC_BENEFITS_CONFIG,
-  COLE_DEBT_CONFIG,
-  ENDGAME_CONFIG,
-} from '../../src/game/constants.js';
+import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../src/game/constants.js';
 
 describe('NPC dialogue coverage gaps', () => {
   beforeEach(() => {
@@ -163,7 +158,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = LUCKY_LIU_DIALOGUE.request_storage.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ storeCargo });
+      actionChoice.action({ storeCargo });
       expect(storeCargo).toHaveBeenCalledOnce();
     });
 
@@ -172,7 +167,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = LUCKY_LIU_DIALOGUE.repay_loan.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ repayLoan });
+      actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
     });
 
@@ -181,7 +176,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = LUCKY_LIU_DIALOGUE.retrieve_cargo.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ retrieveCargo });
+      actionChoice.action({ retrieveCargo });
       expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
@@ -222,10 +217,8 @@ describe('NPC dialogue coverage gaps', () => {
     it('request_storage action calls context.storeCargo', () => {
       const storeCargo = vi.fn().mockReturnValue({ success: true });
       const actionChoice =
-        RUSTY_RODRIGUEZ_DIALOGUE.request_storage.choices.find(
-          (c) => c.action
-        );
-      const result = actionChoice.action({ storeCargo });
+        RUSTY_RODRIGUEZ_DIALOGUE.request_storage.choices.find((c) => c.action);
+      actionChoice.action({ storeCargo });
       expect(storeCargo).toHaveBeenCalledOnce();
     });
 
@@ -234,17 +227,16 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = RUSTY_RODRIGUEZ_DIALOGUE.repay_loan.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ repayLoan });
+      actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
     });
 
     it('retrieve_cargo action calls context.retrieveCargo', () => {
       const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        RUSTY_RODRIGUEZ_DIALOGUE.retrieve_cargo.choices.find(
-          (c) => c.action
-        );
-      const result = actionChoice.action({ retrieveCargo });
+      const actionChoice = RUSTY_RODRIGUEZ_DIALOGUE.retrieve_cargo.choices.find(
+        (c) => c.action
+      );
+      actionChoice.action({ retrieveCargo });
       expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
@@ -279,7 +271,7 @@ describe('NPC dialogue coverage gaps', () => {
         STATION_MASTER_KOWALSKI_DIALOGUE.request_loan.choices.find(
           (c) => c.action
         );
-      const result = actionChoice.action({ requestLoan });
+      actionChoice.action({ requestLoan });
       expect(requestLoan).toHaveBeenCalledOnce();
     });
 
@@ -289,7 +281,7 @@ describe('NPC dialogue coverage gaps', () => {
         STATION_MASTER_KOWALSKI_DIALOGUE.request_storage.choices.find(
           (c) => c.action
         );
-      const result = actionChoice.action({ storeCargo });
+      actionChoice.action({ storeCargo });
       expect(storeCargo).toHaveBeenCalledOnce();
     });
 
@@ -299,7 +291,7 @@ describe('NPC dialogue coverage gaps', () => {
         STATION_MASTER_KOWALSKI_DIALOGUE.repay_loan.choices.find(
           (c) => c.action
         );
-      const result = actionChoice.action({ repayLoan });
+      actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
     });
 
@@ -309,7 +301,7 @@ describe('NPC dialogue coverage gaps', () => {
         STATION_MASTER_KOWALSKI_DIALOGUE.retrieve_cargo.choices.find(
           (c) => c.action
         );
-      const result = actionChoice.action({ retrieveCargo });
+      actionChoice.action({ retrieveCargo });
       expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
@@ -342,7 +334,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = ZARA_OSMAN_DIALOGUE.request_loan.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ requestLoan });
+      actionChoice.action({ requestLoan });
       expect(requestLoan).toHaveBeenCalledOnce();
     });
 
@@ -351,7 +343,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = ZARA_OSMAN_DIALOGUE.request_storage.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ storeCargo });
+      actionChoice.action({ storeCargo });
       expect(storeCargo).toHaveBeenCalledOnce();
     });
 
@@ -360,7 +352,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = ZARA_OSMAN_DIALOGUE.repay_loan.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ repayLoan });
+      actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
     });
 
@@ -369,7 +361,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = ZARA_OSMAN_DIALOGUE.retrieve_cargo.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ retrieveCargo });
+      actionChoice.action({ retrieveCargo });
       expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
@@ -478,7 +470,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = WHISPER_DIALOGUE.request_storage.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ storeCargo });
+      actionChoice.action({ storeCargo });
       expect(storeCargo).toHaveBeenCalledOnce();
     });
 
@@ -487,7 +479,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = WHISPER_DIALOGUE.repay_loan.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ repayLoan });
+      actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
     });
 
@@ -496,7 +488,7 @@ describe('NPC dialogue coverage gaps', () => {
       const actionChoice = WHISPER_DIALOGUE.retrieve_cargo.choices.find(
         (c) => c.action
       );
-      const result = actionChoice.action({ retrieveCargo });
+      actionChoice.action({ retrieveCargo });
       expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
@@ -613,9 +605,7 @@ describe('NPC dialogue coverage gaps', () => {
       });
       const result = greeting.text(REPUTATION_BOUNDS.FRIENDLY_MIN, ctx);
       expect(result).toContain('credits');
-      expect(result).toContain(
-        ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString()
-      );
+      expect(result).toContain(ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString());
     });
 
     it('shows rep requirement hint', () => {
@@ -641,26 +631,26 @@ describe('NPC dialogue coverage gaps', () => {
 
     it('mission_1_offer action calls context.advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_1_offer.choices.find((c) => c.action);
-      const result = actionChoice.action({ advanceQuest });
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_1_offer.choices.find(
+        (c) => c.action
+      );
+      actionChoice.action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_1_complete action calls context.claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_1_complete.choices.find((c) => c.action);
-      const result = actionChoice.action({ claimStageRewards });
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_1_complete.choices.find(
+        (c) => c.action
+      );
+      actionChoice.action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_1_complete second choice also calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_1_complete.choices.filter(
-          (c) => c.action
-        );
+        YUKI_TANAKA_DIALOGUE.mission_1_complete.choices.filter((c) => c.action);
       expect(actionChoices.length).toBe(2);
       actionChoices[1].action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
@@ -668,24 +658,27 @@ describe('NPC dialogue coverage gaps', () => {
 
     it('mission_2_offer action calls context.advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_2_offer.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_2_offer.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_2_complete action calls context.claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_2_complete.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_2_complete.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_3_offer action calls context.advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_3_offer.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_3_offer.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
@@ -693,9 +686,7 @@ describe('NPC dialogue coverage gaps', () => {
     it('mission_3_complete first choice calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_3_complete.choices.filter(
-          (c) => c.action
-        );
+        YUKI_TANAKA_DIALOGUE.mission_3_complete.choices.filter((c) => c.action);
       actionChoices[0].action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
@@ -703,25 +694,25 @@ describe('NPC dialogue coverage gaps', () => {
     it('mission_3_complete second choice calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_3_complete.choices.filter(
-          (c) => c.action
-        );
+        YUKI_TANAKA_DIALOGUE.mission_3_complete.choices.filter((c) => c.action);
       actionChoices[1].action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_4_offer first choice calls advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.filter((c) => c.action);
+      const actionChoices = YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.filter(
+        (c) => c.action
+      );
       actionChoices[0].action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_4_offer second choice calls advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.filter((c) => c.action);
+      const actionChoices = YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.filter(
+        (c) => c.action
+      );
       actionChoices[1].action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
@@ -729,9 +720,7 @@ describe('NPC dialogue coverage gaps', () => {
     it('mission_4_complete first choice calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_4_complete.choices.filter(
-          (c) => c.action
-        );
+        YUKI_TANAKA_DIALOGUE.mission_4_complete.choices.filter((c) => c.action);
       actionChoices[0].action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
@@ -739,33 +728,34 @@ describe('NPC dialogue coverage gaps', () => {
     it('mission_4_complete second choice calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
-        YUKI_TANAKA_DIALOGUE.mission_4_complete.choices.filter(
-          (c) => c.action
-        );
+        YUKI_TANAKA_DIALOGUE.mission_4_complete.choices.filter((c) => c.action);
       actionChoices[1].action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_5_accepted action calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_5_accepted.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_5_accepted.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ claimStageRewards });
       expect(claimStageRewards).toHaveBeenCalledWith('tanaka');
     });
 
     it('mission_5_offer action calls advanceQuest', () => {
       const advanceQuest = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.mission_5_offer.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.mission_5_offer.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ advanceQuest });
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
 
     it('pavonis_ready action calls startPavonisRun and returns success', () => {
       const startPavonisRun = vi.fn();
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.pavonis_ready.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.pavonis_ready.choices.find(
+        (c) => c.action
+      );
       const result = actionChoice.action({ startPavonisRun });
       expect(startPavonisRun).toHaveBeenCalledOnce();
       expect(result).toEqual({ success: true });
@@ -794,8 +784,9 @@ describe('NPC dialogue coverage gaps', () => {
 
     it('research_supply action calls contributeSupply', () => {
       const contributeSupply = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        YUKI_TANAKA_DIALOGUE.research_supply.choices.find((c) => c.action);
+      const actionChoice = YUKI_TANAKA_DIALOGUE.research_supply.choices.find(
+        (c) => c.action
+      );
       actionChoice.action({ contributeSupply });
       expect(contributeSupply).toHaveBeenCalledOnce();
     });

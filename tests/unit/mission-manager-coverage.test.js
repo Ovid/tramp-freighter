@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGameStateManager } from '../test-utils.js';
-import { PASSENGER_CONFIG, COLE_DEBT_CONFIG } from '../../src/game/constants.js';
+import {
+  PASSENGER_CONFIG,
+  COLE_DEBT_CONFIG,
+} from '../../src/game/constants.js';
 
 describe('MissionManager coverage', () => {
   let gsm;
@@ -59,7 +62,11 @@ describe('MissionManager coverage', () => {
         {
           id: 'm1',
           type: 'delivery',
-          requirements: { destination: currentSystem, cargo: 'ore', quantity: 20 },
+          requirements: {
+            destination: currentSystem,
+            cargo: 'ore',
+            quantity: 20,
+          },
           rewards: { credits: 100 },
         },
       ];
@@ -75,7 +82,11 @@ describe('MissionManager coverage', () => {
         {
           id: 'm1',
           type: 'delivery',
-          requirements: { destination: currentSystem, cargo: 'ore', quantity: 5 },
+          requirements: {
+            destination: currentSystem,
+            cargo: 'ore',
+            quantity: 5,
+          },
           rewards: { credits: 500 },
         },
       ];
@@ -226,7 +237,11 @@ describe('MissionManager coverage', () => {
       ];
       gsm.state.missions.completed = [];
       gsm.missionManager.completeMission('m1');
-      expect(modifyRepSpy).toHaveBeenCalledWith('vasquez_epsilon', 3, 'mission');
+      expect(modifyRepSpy).toHaveBeenCalledWith(
+        'vasquez_epsilon',
+        3,
+        'mission'
+      );
     });
 
     it('applies karma rewards on completion', () => {
@@ -313,7 +328,9 @@ describe('MissionManager coverage', () => {
 
     it('applies very satisfied multiplier', () => {
       gsm.state.player.daysElapsed = 10;
-      const mission = makeMission(PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.VERY_SATISFIED);
+      const mission = makeMission(
+        PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.VERY_SATISFIED
+      );
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       expect(payment).toBeGreaterThan(1000);
     });
@@ -329,8 +346,10 @@ describe('MissionManager coverage', () => {
       gsm.state.player.daysElapsed = 10;
       const missionOnTime = makeMission(50, 20);
       const missionLate = makeMission(50, 5);
-      const paymentOnTime = gsm.missionManager.calculatePassengerPayment(missionOnTime);
-      const paymentLate = gsm.missionManager.calculatePassengerPayment(missionLate);
+      const paymentOnTime =
+        gsm.missionManager.calculatePassengerPayment(missionOnTime);
+      const paymentLate =
+        gsm.missionManager.calculatePassengerPayment(missionLate);
       expect(paymentOnTime).toBeGreaterThan(paymentLate);
     });
   });
@@ -348,7 +367,9 @@ describe('MissionManager coverage', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'delay');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('reduces satisfaction for combat event', () => {
@@ -363,7 +384,9 @@ describe('MissionManager coverage', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'combat');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('reduces satisfaction for low_life_support event', () => {
@@ -378,7 +401,9 @@ describe('MissionManager coverage', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'low_life_support');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('does nothing for non-passenger mission', () => {
@@ -410,7 +435,9 @@ describe('MissionManager coverage', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'combat');
-      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeGreaterThanOrEqual(0);
+      expect(
+        gsm.state.missions.active[0].passenger.satisfaction
+      ).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -475,12 +502,21 @@ describe('MissionManager coverage', () => {
       gsm.missionManager.failMissionsDueToCargoLoss();
       expect(gsm.state.missions.active).toHaveLength(0);
       expect(gsm.state.missions.failed).toContain('m1');
-      expect(spy).toHaveBeenCalledWith('traders', -5, 'mission_cargo_confiscated');
+      expect(spy).toHaveBeenCalledWith(
+        'traders',
+        -5,
+        'mission_cargo_confiscated'
+      );
     });
 
     it('keeps non-cargo missions intact', () => {
       gsm.state.missions.active = [
-        { id: 'm1', type: 'intel', giverSystem: 0, requirements: { targets: [1] } },
+        {
+          id: 'm1',
+          type: 'intel',
+          giverSystem: 0,
+          requirements: { targets: [1] },
+        },
         {
           id: 'm2',
           type: 'delivery',
@@ -521,7 +557,11 @@ describe('MissionManager coverage', () => {
 
       expect(gsm.state.missions.active).toHaveLength(0);
       expect(gsm.state.missions.failed).toContain('m1');
-      expect(repSpy).toHaveBeenCalledWith('vasquez_epsilon', -3, 'mission_fail');
+      expect(repSpy).toHaveBeenCalledWith(
+        'vasquez_epsilon',
+        -3,
+        'mission_fail'
+      );
       expect(karmaSpy).toHaveBeenCalledWith(-5, 'mission_fail');
       expect(factionSpy).toHaveBeenCalledWith('traders', -2, 'mission_fail');
     });
@@ -539,7 +579,9 @@ describe('MissionManager coverage', () => {
       gsm.state.missions.failed = [];
       gsm.missionManager.checkMissionDeadlines();
       expect(gsm.state.missions.pendingFailureNotices).toHaveLength(1);
-      expect(gsm.state.missions.pendingFailureNotices[0].title).toBe('Expired Mission');
+      expect(gsm.state.missions.pendingFailureNotices[0].title).toBe(
+        'Expired Mission'
+      );
     });
 
     it('removes mission cargo on deadline expiry', () => {
@@ -575,14 +617,14 @@ describe('MissionManager coverage', () => {
       ];
       gsm.state.missions.failed = [];
       gsm.missionManager.checkMissionDeadlines();
-      expect(modifyColeRepSpy).toHaveBeenCalledWith(COLE_DEBT_CONFIG.REP_FAVOR_FAIL);
+      expect(modifyColeRepSpy).toHaveBeenCalledWith(
+        COLE_DEBT_CONFIG.REP_FAVOR_FAIL
+      );
     });
 
     it('does nothing when no missions are expired', () => {
       gsm.state.player.daysElapsed = 50;
-      gsm.state.missions.active = [
-        { id: 'm1', deadlineDay: 100 },
-      ];
+      gsm.state.missions.active = [{ id: 'm1', deadlineDay: 100 }];
       gsm.state.missions.failed = [];
       gsm.missionManager.checkMissionDeadlines();
       expect(gsm.state.missions.active).toHaveLength(1);
@@ -729,9 +771,7 @@ describe('MissionManager coverage', () => {
     });
 
     it('returns failure for non-abandonable mission', () => {
-      gsm.state.missions.active = [
-        { id: 'm1', abandonable: false },
-      ];
+      gsm.state.missions.active = [{ id: 'm1', abandonable: false }];
       const result = gsm.missionManager.abandonMission('m1');
       expect(result.success).toBe(false);
       expect(result.reason).toContain('cannot be abandoned');
@@ -770,7 +810,11 @@ describe('MissionManager coverage', () => {
       ];
       gsm.state.missions.failed = [];
       gsm.missionManager.abandonMission('m1');
-      expect(repSpy).toHaveBeenCalledWith('vasquez_epsilon', -2, 'mission_abandon');
+      expect(repSpy).toHaveBeenCalledWith(
+        'vasquez_epsilon',
+        -2,
+        'mission_abandon'
+      );
       expect(karmaSpy).toHaveBeenCalledWith(-3, 'mission_abandon');
     });
   });

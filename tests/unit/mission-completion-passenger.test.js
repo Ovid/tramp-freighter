@@ -43,7 +43,10 @@ describe('MissionManager completeMission passenger and edge cases', () => {
           type: 'passenger',
           requirements: { destination: currentSystem },
           rewards: { credits: 1000 },
-          passenger: { satisfaction: PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.VERY_SATISFIED },
+          passenger: {
+            satisfaction:
+              PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.VERY_SATISFIED,
+          },
           deadlineDay: 999,
         },
       ];
@@ -63,33 +66,42 @@ describe('MissionManager completeMission passenger and edge cases', () => {
 
     it('applies satisfied multiplier', () => {
       gsm.state.player.daysElapsed = 10;
-      const mission = makeMission(PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.SATISFIED);
+      const mission = makeMission(
+        PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.SATISFIED
+      );
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       const expected = Math.round(
-        1000 * (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.SATISFIED +
-          PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
+        1000 *
+          (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.SATISFIED +
+            PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
       );
       expect(payment).toBe(expected);
     });
 
     it('applies neutral multiplier', () => {
       gsm.state.player.daysElapsed = 10;
-      const mission = makeMission(PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.NEUTRAL);
+      const mission = makeMission(
+        PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.NEUTRAL
+      );
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       const expected = Math.round(
-        1000 * (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.NEUTRAL +
-          PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
+        1000 *
+          (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.NEUTRAL +
+            PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
       );
       expect(payment).toBe(expected);
     });
 
     it('applies dissatisfied multiplier', () => {
       gsm.state.player.daysElapsed = 10;
-      const mission = makeMission(PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.DISSATISFIED);
+      const mission = makeMission(
+        PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.DISSATISFIED
+      );
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       const expected = Math.round(
-        1000 * (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.DISSATISFIED +
-          PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
+        1000 *
+          (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.DISSATISFIED +
+            PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
       );
       expect(payment).toBe(expected);
     });
@@ -99,15 +111,19 @@ describe('MissionManager completeMission passenger and edge cases', () => {
       const mission = makeMission(0);
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       const expected = Math.round(
-        1000 * (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.VERY_DISSATISFIED +
-          PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
+        1000 *
+          (PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.VERY_DISSATISFIED +
+            PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.ON_TIME_BONUS)
       );
       expect(payment).toBe(expected);
     });
 
     it('does not apply on-time bonus when past deadline', () => {
       gsm.state.player.daysElapsed = 20;
-      const mission = makeMission(PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.NEUTRAL, 10);
+      const mission = makeMission(
+        PASSENGER_CONFIG.SATISFACTION_THRESHOLDS.NEUTRAL,
+        10
+      );
       const payment = gsm.missionManager.calculatePassengerPayment(mission);
       const expected = Math.round(
         1000 * PASSENGER_CONFIG.PAYMENT_MULTIPLIERS.NEUTRAL

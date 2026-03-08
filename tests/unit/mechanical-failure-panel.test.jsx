@@ -145,9 +145,7 @@ describe('MechanicalFailurePanel', () => {
 
     // Clicking the disabled option should not select it
     fireEvent.click(screen.getByText('Call for Help'));
-    expect(
-      screen.queryByText('Call for Professional Help')
-    ).not.toBeTruthy();
+    expect(screen.queryByText('Call for Professional Help')).not.toBeTruthy();
   });
 
   // 7. Hull breach renders info panel with Acknowledge button
@@ -162,9 +160,7 @@ describe('MechanicalFailurePanel', () => {
 
     expect(screen.getByText('Hull Breach Damage')).toBeTruthy();
     expect(screen.getByText('Acknowledge')).toBeTruthy();
-    expect(
-      screen.getByText(/hull integrity/, { exact: false })
-    ).toBeTruthy();
+    expect(screen.getByText(/hull integrity/, { exact: false })).toBeTruthy();
 
     // Should not show engine failure options
     expect(screen.queryByText('Emergency Restart')).toBeNull();
@@ -314,10 +310,8 @@ describe('MechanicalFailurePanel', () => {
       FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE * 100
     );
     const juryRigCost = FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.ENGINE_COST;
-    const helpCost =
-      FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST;
-    const helpDelay =
-      FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY;
+    const helpCost = FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST;
+    const helpDelay = FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.DAYS_DELAY;
 
     // Verify emergency restart stats are shown
     expect(
@@ -365,9 +359,11 @@ describe('MechanicalFailurePanel', () => {
     // Hull at 80 >= EXCELLENT (75) -> 'good'
     // Engine at 60 >= FAIR (50) -> 'fair'
     // Life support at 90 >= EXCELLENT (75) -> 'good'
-    hookValues.hullChanged = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT;
+    hookValues.hullChanged =
+      SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT;
     hookValues.engineChanged = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR;
-    hookValues.lifeSupportChanged = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR - 1;
+    hookValues.lifeSupportChanged =
+      SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR - 1;
 
     const { container } = render(
       <MechanicalFailurePanel

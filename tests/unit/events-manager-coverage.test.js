@@ -39,7 +39,10 @@ describe('EventsManager coverage', () => {
       const spy = vi.spyOn(gsm.eventsManager, 'emit');
       const newEvents = [{ systemId: 3, type: 'supply_glut' }];
       gsm.eventsManager.updateActiveEvents(newEvents);
-      expect(spy).toHaveBeenCalledWith(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, newEvents);
+      expect(spy).toHaveBeenCalledWith(
+        EVENT_NAMES.ACTIVE_EVENTS_CHANGED,
+        newEvents
+      );
     });
   });
 

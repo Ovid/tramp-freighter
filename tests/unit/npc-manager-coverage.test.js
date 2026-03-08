@@ -46,9 +46,15 @@ describe('NPCManager coverage', () => {
     });
 
     it('returns correct tier at boundary values', () => {
-      expect(gsm.npcManager.getRepTier(REPUTATION_BOUNDS.WARM_MIN).name).toBe('Warm');
-      expect(gsm.npcManager.getRepTier(REPUTATION_BOUNDS.FRIENDLY_MIN).name).toBe('Friendly');
-      expect(gsm.npcManager.getRepTier(REPUTATION_BOUNDS.TRUSTED_MIN).name).toBe('Trusted');
+      expect(gsm.npcManager.getRepTier(REPUTATION_BOUNDS.WARM_MIN).name).toBe(
+        'Warm'
+      );
+      expect(
+        gsm.npcManager.getRepTier(REPUTATION_BOUNDS.FRIENDLY_MIN).name
+      ).toBe('Friendly');
+      expect(
+        gsm.npcManager.getRepTier(REPUTATION_BOUNDS.TRUSTED_MIN).name
+      ).toBe('Trusted');
     });
   });
 
@@ -144,7 +150,8 @@ describe('NPCManager coverage', () => {
     });
 
     it('returns available for warm rep NPC with tips', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.WARM_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.WARM_MIN;
       const result = gsm.npcManager.canGetTip('chen_barnards');
       expect(result.available).toBe(true);
     });
@@ -161,7 +168,8 @@ describe('NPCManager coverage', () => {
     it('returns available after cooldown expires', () => {
       const npcState = gsm.npcManager.getNPCState('chen_barnards');
       npcState.rep = REPUTATION_BOUNDS.WARM_MIN;
-      npcState.lastTipDay = gsm.state.player.daysElapsed - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS;
+      npcState.lastTipDay =
+        gsm.state.player.daysElapsed - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS;
       const result = gsm.npcManager.canGetTip('chen_barnards');
       expect(result.available).toBe(true);
     });
@@ -174,14 +182,16 @@ describe('NPCManager coverage', () => {
     });
 
     it('returns tip string when available', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.WARM_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.WARM_MIN;
       const tip = gsm.npcManager.getTip('chen_barnards');
       expect(typeof tip).toBe('string');
       expect(tip.length).toBeGreaterThan(0);
     });
 
     it('sets lastTipDay after getting tip', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.WARM_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.WARM_MIN;
       gsm.npcManager.getTip('chen_barnards');
       expect(gsm.npcManager.getNPCState('chen_barnards').lastTipDay).toBe(
         gsm.state.player.daysElapsed
@@ -193,26 +203,40 @@ describe('NPCManager coverage', () => {
     it('returns no discount when service type does not match', () => {
       gsm.npcManager.getNPCState('chen_barnards').rep = 50;
       // chen_barnards has discountService: 'docking'
-      const result = gsm.npcManager.getServiceDiscount('chen_barnards', 'repair');
+      const result = gsm.npcManager.getServiceDiscount(
+        'chen_barnards',
+        'repair'
+      );
       expect(result.discount).toBe(0);
       expect(result.npcName).toBeNull();
     });
 
     it('returns discount when service type matches and rep is sufficient', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.WARM_MIN;
-      const result = gsm.npcManager.getServiceDiscount('chen_barnards', 'docking');
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.WARM_MIN;
+      const result = gsm.npcManager.getServiceDiscount(
+        'chen_barnards',
+        'docking'
+      );
       expect(result.discount).toBe(NPC_BENEFITS_CONFIG.TIER_DISCOUNTS.warm);
     });
 
     it('returns higher discount at higher rep tier', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.TRUSTED_MIN;
-      const result = gsm.npcManager.getServiceDiscount('chen_barnards', 'docking');
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.TRUSTED_MIN;
+      const result = gsm.npcManager.getServiceDiscount(
+        'chen_barnards',
+        'docking'
+      );
       expect(result.discount).toBe(NPC_BENEFITS_CONFIG.TIER_DISCOUNTS.trusted);
     });
 
     it('returns zero discount for hostile rep', () => {
       gsm.npcManager.getNPCState('chen_barnards').rep = -80;
-      const result = gsm.npcManager.getServiceDiscount('chen_barnards', 'docking');
+      const result = gsm.npcManager.getServiceDiscount(
+        'chen_barnards',
+        'docking'
+      );
       expect(result.discount).toBe(0);
     });
   });
@@ -294,7 +318,9 @@ describe('NPCManager coverage', () => {
       expect(gsm.state.player.credits).toBe(
         creditsBefore + NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
       );
-      expect(npcState.loanAmount).toBe(NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT);
+      expect(npcState.loanAmount).toBe(
+        NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+      );
     });
   });
 
@@ -348,7 +374,10 @@ describe('NPCManager coverage', () => {
       const npcState = gsm.npcManager.getNPCState('chen_barnards');
       npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN; // 60 -> should drop to FRIENDLY_MAX (59)
       npcState.loanAmount = 500;
-      npcState.loanDay = gsm.state.player.daysElapsed - NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE - 1;
+      npcState.loanDay =
+        gsm.state.player.daysElapsed -
+        NPC_BENEFITS_CONFIG.LOAN_REPAYMENT_DEADLINE -
+        1;
       gsm.npcManager.checkLoanDefaults();
       expect(npcState.rep).toBe(REPUTATION_BOUNDS.FRIENDLY_MAX);
       expect(npcState.loanAmount).toBeNull();
@@ -382,7 +411,8 @@ describe('NPCManager coverage', () => {
     });
 
     it('fails when no cargo to store', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.FRIENDLY_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [];
       const result = gsm.npcManager.storeCargo('chen_barnards');
       expect(result.success).toBe(false);
@@ -390,16 +420,20 @@ describe('NPCManager coverage', () => {
     });
 
     it('stores cargo successfully', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.FRIENDLY_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 100 }];
       const result = gsm.npcManager.storeCargo('chen_barnards');
       expect(result.success).toBe(true);
       expect(result.stored).toBe(5);
-      expect(gsm.npcManager.getNPCState('chen_barnards').storedCargo).toHaveLength(1);
+      expect(
+        gsm.npcManager.getNPCState('chen_barnards').storedCargo
+      ).toHaveLength(1);
     });
 
     it('limits storage to CARGO_STORAGE_LIMIT', () => {
-      gsm.npcManager.getNPCState('chen_barnards').rep = REPUTATION_BOUNDS.FRIENDLY_MIN;
+      gsm.npcManager.getNPCState('chen_barnards').rep =
+        REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [{ good: 'ore', qty: 20, buyPrice: 100 }];
       const result = gsm.npcManager.storeCargo('chen_barnards');
       expect(result.success).toBe(true);

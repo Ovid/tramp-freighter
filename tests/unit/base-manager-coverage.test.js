@@ -123,10 +123,7 @@ describe('BaseManager coverage', () => {
   describe('error', () => {
     it('logs error with class name prefix', () => {
       manager.error('test error');
-      expect(console.error).toHaveBeenCalledWith(
-        '[BaseManager]',
-        'test error'
-      );
+      expect(console.error).toHaveBeenCalledWith('[BaseManager]', 'test error');
     });
 
     it('handles multiple arguments', () => {
