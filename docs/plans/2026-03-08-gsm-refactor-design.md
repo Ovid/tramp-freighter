@@ -14,7 +14,7 @@
 |---|---|---|
 | Phase 0 | `2026-03-08-gsm-phase0-implementation.md` | Complete |
 | Phase 1 | `2026-03-08-gsm-phase1-implementation.md` | Complete |
-| Phase 2 | (create when Phase 1 is complete) | — |
+| Phase 2 | `2026-03-08-gsm-phase2-implementation.md` | Not started |
 | Phase 3 | (create when Phase 2 is complete) | — |
 | Phase 4 | (create when Phase 3 is complete) | — |
 | Phase 5 | (create when Phase 4 is complete) | — |
