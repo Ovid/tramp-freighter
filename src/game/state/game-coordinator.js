@@ -84,7 +84,11 @@ export class GameCoordinator {
     // Initialize managers
     this.eventSystemManager = new EventSystemManager();
     this.stateManager = new StateManager(this);
-    this.initializationManager = new InitializationManager(this);
+    this.initializationManager = new InitializationManager({
+      assignShipQuirks: (rng) => this.shipManager.assignShipQuirks(rng),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.saveLoadManager = new SaveLoadManager(this);
     this.tradingManager = new TradingManager({
       getOwnState: () => ({

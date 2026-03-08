@@ -23,10 +23,10 @@ import { SeededRandom } from '../../utils/seeded-random.js';
  * - Emit initial state events for UI synchronization
  */
 export class InitializationManager {
-  constructor(gameStateManager) {
-    this.gameStateManager = gameStateManager;
-    this.starData = gameStateManager.starData;
-    this.isTestEnvironment = gameStateManager.isTestEnvironment;
+  constructor(capabilities) {
+    this.capabilities = capabilities;
+    this.starData = capabilities.starData;
+    this.isTestEnvironment = capabilities.isTestEnvironment;
   }
 
   /**
@@ -114,7 +114,7 @@ export class InitializationManager {
   initializeShipState(gameSeed = Date.now().toString()) {
     // Assign quirks using a seeded RNG so the same seed always produces the same ship
     const rng = new SeededRandom(`quirks-${gameSeed}`);
-    const shipQuirks = this.gameStateManager.assignShipQuirks(() => rng.next());
+    const shipQuirks = this.capabilities.assignShipQuirks(() => rng.next());
 
     // Get Sol's grain price for initial cargo using dynamic pricing
     const solSystem = this.starData.find((s) => s.id === SOL_SYSTEM_ID);
