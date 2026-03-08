@@ -76,6 +76,13 @@ function initializeGameStateManager() {
     devLog('New game initialized');
   }
 
+  // Flush pending saves when the browser tab closes
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+      gameStateManager.flushSave();
+    });
+  }
+
   return gameStateManager;
 }
 
