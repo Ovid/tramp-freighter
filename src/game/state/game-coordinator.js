@@ -83,7 +83,32 @@ export class GameCoordinator {
 
     // Initialize managers
     this.eventSystemManager = new EventSystemManager();
-    this.stateManager = new StateManager(this);
+    this.stateManager = new StateManager({
+      getPlayerCredits: () => this.state.player.credits,
+      setPlayerCredits: (value) => {
+        this.state.player.credits = value;
+      },
+      getPlayerDebt: () => this.state.player.debt,
+      setPlayerDebt: (value) => {
+        this.state.player.debt = value;
+      },
+      getShipFuel: () => this.state.ship.fuel,
+      setShipFuel: (value) => {
+        this.state.ship.fuel = value;
+      },
+      getShipCargo: () => this.state.ship.cargo,
+      setShipCargo: (value) => {
+        this.state.ship.cargo = value;
+      },
+      getShipCargoCapacity: () => this.state.ship.cargoCapacity,
+      getPlayer: () => this.state.player,
+      getShip: () => this.state.ship,
+      getActiveMissions: () => this.state.missions?.active,
+      getFullState: () => this.state,
+      getFuelCapacity: () => this.shipManager.getFuelCapacity(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.initializationManager = new InitializationManager({
       assignShipQuirks: (rng) => this.shipManager.assignShipQuirks(rng),
       starData: this.starData,

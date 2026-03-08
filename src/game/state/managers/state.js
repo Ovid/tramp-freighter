@@ -9,8 +9,8 @@ import { devWarn } from '../../utils/dev-logger.js';
  * Provides the fundamental state operations that other managers build upon.
  */
 export class StateManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
   }
 
   // ========================================================================
@@ -22,7 +22,7 @@ export class StateManager extends BaseManager {
    * @returns {Object} Current game state
    */
   getState() {
-    return this.gameStateManager.state;
+    return this.capabilities.getFullState();
   }
 
   /**
@@ -30,8 +30,7 @@ export class StateManager extends BaseManager {
    * @returns {Object} Player state object
    */
   getPlayer() {
-    this.validateState();
-    return this.gameStateManager.state.player;
+    return this.capabilities.getPlayer();
   }
 
   /**
@@ -39,8 +38,7 @@ export class StateManager extends BaseManager {
    * @returns {Object} Ship state object
    */
   getShip() {
-    this.validateState();
-    return this.gameStateManager.state.ship;
+    return this.capabilities.getShip();
   }
 
   /**
@@ -48,7 +46,6 @@ export class StateManager extends BaseManager {
    * @returns {number} Total cargo units used
    */
   getCargoUsed() {
-    this.validateState();
     const tradeCargo = this.getTradeCargoUsed();
     const passengerSpace = this.getPassengerCargoUsed();
     return tradeCargo + passengerSpace;
@@ -59,11 +56,9 @@ export class StateManager extends BaseManager {
    * @returns {number} Trade cargo units used
    */
   getTradeCargoUsed() {
-    this.validateState();
-    return this.gameStateManager.state.ship.cargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
-    );
+    return this.capabilities
+      .getShipCargo()
+      .reduce((total, stack) => total + stack.qty, 0);
   }
 
   /**
@@ -71,10 +66,9 @@ export class StateManager extends BaseManager {
    * @returns {number} Passenger cargo units used
    */
   getPassengerCargoUsed() {
-    this.validateState();
-    const missions = this.gameStateManager.state.missions;
-    if (!missions || !missions.active) return 0;
-    return missions.active
+    const active = this.capabilities.getActiveMissions();
+    if (!active) return 0;
+    return active
       .filter((m) => m.type === 'passenger' && m.requirements?.cargoSpace)
       .reduce((total, m) => total + m.requirements.cargoSpace, 0);
   }
@@ -84,8 +78,7 @@ export class StateManager extends BaseManager {
    * @returns {number} Available cargo units
    */
   getCargoRemaining() {
-    this.validateState();
-    return this.gameStateManager.state.ship.cargoCapacity - this.getCargoUsed();
+    return this.capabilities.getShipCargoCapacity() - this.getCargoUsed();
   }
 
   // ========================================================================
@@ -97,9 +90,8 @@ export class StateManager extends BaseManager {
    * @param {number} newCredits - New credit amount
    */
   updateCredits(newCredits) {
-    this.validateState();
-    this.gameStateManager.state.player.credits = newCredits;
-    this.emit(EVENT_NAMES.CREDITS_CHANGED, newCredits);
+    this.capabilities.setPlayerCredits(newCredits);
+    this.capabilities.emit(EVENT_NAMES.CREDITS_CHANGED, newCredits);
   }
 
   /**
@@ -107,9 +99,8 @@ export class StateManager extends BaseManager {
    * @param {number} newDebt - New debt amount
    */
   updateDebt(newDebt) {
-    this.validateState();
-    this.gameStateManager.state.player.debt = newDebt;
-    this.emit(EVENT_NAMES.DEBT_CHANGED, newDebt);
+    this.capabilities.setPlayerDebt(newDebt);
+    this.capabilities.emit(EVENT_NAMES.DEBT_CHANGED, newDebt);
   }
 
   /**
@@ -117,10 +108,8 @@ export class StateManager extends BaseManager {
    * @param {number} newFuel - New fuel percentage
    */
   updateFuel(newFuel) {
-    this.validateState();
-
     // Get fuel capacity from ship manager
-    const maxFuel = this.gameStateManager.getFuelCapacity();
+    const maxFuel = this.capabilities.getFuelCapacity();
 
     if (newFuel < SHIP_CONFIG.CONDITION_BOUNDS.MIN || newFuel > maxFuel) {
       throw new Error(
@@ -128,8 +117,8 @@ export class StateManager extends BaseManager {
       );
     }
 
-    this.gameStateManager.state.ship.fuel = newFuel;
-    this.emit(EVENT_NAMES.FUEL_CHANGED, newFuel);
+    this.capabilities.setShipFuel(newFuel);
+    this.capabilities.emit(EVENT_NAMES.FUEL_CHANGED, newFuel);
   }
 
   /**
@@ -137,7 +126,6 @@ export class StateManager extends BaseManager {
    * @param {Array} newCargo - New cargo array
    */
   updateCargo(newCargo) {
-    this.validateState();
     const requiredFields = ['good', 'qty', 'buyPrice'];
     newCargo.forEach((item, i) => {
       const missing = requiredFields.filter((f) => item[f] === undefined);
@@ -149,8 +137,8 @@ export class StateManager extends BaseManager {
         );
       }
     });
-    this.gameStateManager.state.ship.cargo = newCargo;
-    this.emit(EVENT_NAMES.CARGO_CHANGED, newCargo);
+    this.capabilities.setShipCargo(newCargo);
+    this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, newCargo);
   }
 
   // ========================================================================
