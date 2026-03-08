@@ -33,23 +33,27 @@ describe('Integration: Critical Damage Confinement Flow', () => {
       player: { credits: 0, daysElapsed: 10 },
       ship: { ...shipCondition },
     };
-    const mockGSM = {
-      state: mockState,
+    const capabilities = {
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
+      getCredits: () => mockState.player.credits,
+      getDaysElapsed: () => mockState.player.daysElapsed,
       updateShipCondition: vi.fn((h, e, ls) => {
         mockState.ship.hull = h;
         mockState.ship.engine = e;
         mockState.ship.lifeSupport = ls;
       }),
-      updateTime: vi.fn((d) => {
+      advanceTime: vi.fn((d) => {
         mockState.player.daysElapsed = d;
       }),
-      saveGame: vi.fn(),
       markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
 
-    const repairMgr = new RepairManager(mockGSM);
-    repairMgr.getState = () => mockState;
-    repairMgr.validateState = () => {};
+    const repairMgr = new RepairManager(capabilities);
 
     const patchResult = repairMgr.applyEmergencyPatch('hull');
     expect(patchResult.success).toBe(true);
@@ -92,20 +96,24 @@ describe('Integration: Critical Damage Confinement Flow', () => {
       player: { credits: 0 },
       ship: { ...shipCondition },
     };
-    const mockGSM = {
-      state: mockState,
+    const capabilities = {
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
+      getCredits: () => mockState.player.credits,
+      getDaysElapsed: () => mockState.player?.daysElapsed ?? 0,
       updateShipCondition: vi.fn((h, e, ls) => {
         mockState.ship.hull = h;
         mockState.ship.engine = e;
         mockState.ship.lifeSupport = ls;
       }),
-      saveGame: vi.fn(),
       markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
 
-    const repairMgr = new RepairManager(mockGSM);
-    repairMgr.getState = () => mockState;
-    repairMgr.validateState = () => {};
+    const repairMgr = new RepairManager(capabilities);
 
     const result = repairMgr.cannibalizeSystem('hull', [
       { system: 'engine', amount: 12 },

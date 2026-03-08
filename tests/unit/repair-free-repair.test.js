@@ -254,7 +254,7 @@ describe('RepairManager free repair', () => {
       setNpcRep(TEST_NPC_ID, REPUTATION_BOUNDS.TRUSTED_MIN);
       gsm.getState().ship.hull = 70;
 
-      const updateSpy = vi.spyOn(gsm, 'updateShipCondition');
+      const updateSpy = vi.spyOn(gsm.shipManager, 'updateShipCondition');
       gsm.getFreeRepair(TEST_NPC_ID, 30);
 
       expect(updateSpy).toHaveBeenCalled();

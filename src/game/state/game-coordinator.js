@@ -110,7 +110,25 @@ export class GameCoordinator {
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.repairManager = new RepairManager(this);
+    this.repairManager = new RepairManager({
+      getShipCondition: () => ({
+        hull: this.state.ship.hull,
+        engine: this.state.ship.engine,
+        lifeSupport: this.state.ship.lifeSupport,
+      }),
+      getCredits: () => this.state.player.credits,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getNPCState: (npcId) => this.npcManager.getNPCState(npcId),
+      validateAndGetNPCData: (npcId) => this.npcManager.validateAndGetNPCData(npcId),
+      getRepTier: (rep) => this.npcManager.getRepTier(rep),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateShipCondition: (hull, engine, lifeSupport) =>
+        this.shipManager.updateShipCondition(hull, engine, lifeSupport),
+      advanceTime: (newDays) => this.eventsManager.updateTime(newDays),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.dialogueManager = new DialogueManager({
       getOwnState: () => this.state.dialogue,
       emit: this.emit.bind(this),

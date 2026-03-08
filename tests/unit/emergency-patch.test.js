@@ -4,7 +4,7 @@ import { REPAIR_CONFIG } from '../../src/game/constants.js';
 
 describe('Emergency Patch', () => {
   let repairManager;
-  let mockGSM;
+  let capabilities;
   let mockState;
 
   beforeEach(() => {
@@ -13,17 +13,21 @@ describe('Emergency Patch', () => {
       ship: { hull: 5, engine: 80, lifeSupport: 90 },
     };
 
-    mockGSM = {
-      state: mockState,
+    capabilities = {
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
+      getCredits: () => mockState.player.credits,
+      getDaysElapsed: () => mockState.player.daysElapsed,
       updateShipCondition: vi.fn(),
-      updateTime: vi.fn(),
-      saveGame: vi.fn(),
+      advanceTime: vi.fn(),
       markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
 
-    repairManager = new RepairManager(mockGSM);
-    repairManager.getState = () => mockState;
-    repairManager.validateState = () => {};
+    repairManager = new RepairManager(capabilities);
   });
 
   afterEach(() => {
@@ -34,7 +38,7 @@ describe('Emergency Patch', () => {
     const result = repairManager.applyEmergencyPatch('hull');
 
     expect(result.success).toBe(true);
-    expect(mockGSM.updateShipCondition).toHaveBeenCalledWith(
+    expect(capabilities.updateShipCondition).toHaveBeenCalledWith(
       REPAIR_CONFIG.EMERGENCY_PATCH_TARGET,
       80,
       90
@@ -44,7 +48,7 @@ describe('Emergency Patch', () => {
   it('should advance time by EMERGENCY_PATCH_DAYS_PENALTY days', () => {
     repairManager.applyEmergencyPatch('hull');
 
-    expect(mockGSM.updateTime).toHaveBeenCalledWith(
+    expect(capabilities.advanceTime).toHaveBeenCalledWith(
       10 + REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
     );
   });
@@ -75,6 +79,6 @@ describe('Emergency Patch', () => {
   it('should save game after successful patch', () => {
     repairManager.applyEmergencyPatch('hull');
 
-    expect(mockGSM.markDirty).toHaveBeenCalled();
+    expect(capabilities.markDirty).toHaveBeenCalled();
   });
 });
