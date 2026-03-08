@@ -54,7 +54,7 @@ function createTestGameState(baseState, overrides = {}, gameStateManager) {
     ...overrides,
   };
 
-  // Sync internal state so seeded RNG reads consistent values
+  // Sync internal state so capabilities read consistent values
   if (gameStateManager) {
     const internalState = gameStateManager.getState();
     if (overrides.player?.currentSystem !== undefined) {
@@ -62,6 +62,17 @@ function createTestGameState(baseState, overrides = {}, gameStateManager) {
     }
     if (overrides.player?.daysElapsed !== undefined) {
       internalState.player.daysElapsed = overrides.player.daysElapsed;
+    }
+    // Sync ship state for capability-injected managers
+    if (overrides.ship?.cargo !== undefined) {
+      internalState.ship.cargo = overrides.ship.cargo;
+    } else {
+      internalState.ship.cargo = [];
+    }
+    if (overrides.ship?.hiddenCargo !== undefined) {
+      internalState.ship.hiddenCargo = overrides.ship.hiddenCargo;
+    } else {
+      internalState.ship.hiddenCargo = [];
     }
   }
 
@@ -109,9 +120,13 @@ describe('Inspection Resolution Outcomes Properties', () => {
             });
           }
 
-          const testGameState = createTestGameState(gameState, {
-            ship: { cargo },
-          });
+          const testGameState = createTestGameState(
+            gameState,
+            {
+              ship: { cargo },
+            },
+            gameStateManager
+          );
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',
@@ -432,9 +447,13 @@ describe('Inspection Resolution Outcomes Properties', () => {
             ? [{ good: COMMODITY_TYPES[1], qty: 1, buyPrice: 10 }]
             : [];
 
-          const testGameState = createTestGameState(gameState, {
-            ship: { cargo, hiddenCargo },
-          });
+          const testGameState = createTestGameState(
+            gameState,
+            {
+              ship: { cargo, hiddenCargo },
+            },
+            gameStateManager
+          );
 
           const outcome = gameStateManager.resolveInspection(
             'cooperate',

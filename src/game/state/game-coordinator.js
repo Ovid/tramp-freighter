@@ -108,7 +108,20 @@ export class GameCoordinator {
       isTestEnvironment: this.isTestEnvironment,
     });
     this.negotiationManager = new NegotiationManager(this);
-    this.inspectionManager = new InspectionManager(this);
+    this.inspectionManager = new InspectionManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipHiddenCargo: () => this.state.ship.hiddenCargo,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      countRestrictedGoods: (cargo, zone, systemId) =>
+        this.dangerManager.countRestrictedGoods(cargo, zone, systemId),
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.distressManager = new DistressManager({
       getDaysElapsed: () => this.state.player.daysElapsed,
       getCurrentSystem: () => this.state.player.currentSystem,
@@ -1020,8 +1033,8 @@ export class GameCoordinator {
     return this.negotiationManager.resolveNegotiation(encounter, choice);
   }
 
-  resolveInspection(choice, gameState) {
-    return this.inspectionManager.resolveInspection(choice, gameState);
+  resolveInspection(choice, _gameState) {
+    return this.inspectionManager.resolveInspection(choice);
   }
 
   checkDistressCall() {

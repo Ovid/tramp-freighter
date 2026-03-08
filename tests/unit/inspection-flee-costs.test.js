@@ -13,7 +13,11 @@ describe('Inspection flee outcome', () => {
   });
 
   it('should have fuel and hull costs for fleeing', () => {
-    const manager = new InspectionManager({ getState: () => ({}) });
+    const manager = new InspectionManager({
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
+    });
     const result = manager.resolveInspectionFlee();
 
     expect(result.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
@@ -21,14 +25,22 @@ describe('Inspection flee outcome', () => {
   });
 
   it('should not contain unhandled fields', () => {
-    const manager = new InspectionManager({ getState: () => ({}) });
+    const manager = new InspectionManager({
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
+    });
     const result = manager.resolveInspectionFlee();
 
     expect(result).not.toHaveProperty('triggerPatrolCombat');
   });
 
   it('should have honest description without pursuit claim', () => {
-    const manager = new InspectionManager({ getState: () => ({}) });
+    const manager = new InspectionManager({
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
+    });
     const result = manager.resolveInspectionFlee();
 
     expect(result.description).not.toContain('pursuit');
