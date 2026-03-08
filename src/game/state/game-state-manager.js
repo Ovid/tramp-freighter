@@ -1197,6 +1197,5 @@ export class GameStateManager {
 
   devTeleport(systemId) {
     this.navigationManager.updateLocation(systemId);
-    this.markDirty();
   }
 }

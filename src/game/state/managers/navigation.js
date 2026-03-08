@@ -67,6 +67,7 @@ export class NavigationManager extends BaseManager {
     this.emit(EVENT_NAMES.LOCATION_CHANGED, newSystemId);
     this.emit(EVENT_NAMES.JUMP_COMPLETED, newSystemId);
     this.gameStateManager.checkAchievements();
+    this.gameStateManager.markDirty();
   }
 
   /**
