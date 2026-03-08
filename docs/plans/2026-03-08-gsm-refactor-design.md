@@ -14,7 +14,7 @@
 |---|---|---|
 | Phase 0 | `2026-03-08-gsm-phase0-implementation.md` | Complete |
 | Phase 1 | `2026-03-08-gsm-phase1-implementation.md` | Complete |
-| Phase 2 | `2026-03-08-gsm-phase2-implementation.md` | Not started |
+| Phase 2 | `2026-03-08-gsm-phase2-implementation.md` | Complete |
 | Phase 3 | (create when Phase 2 is complete) | — |
 | Phase 4 | (create when Phase 3 is complete) | — |
 | Phase 5 | (create when Phase 4 is complete) | — |
@@ -449,7 +449,7 @@ manager owns which state paths (matching the ownership table in this document).
 
 **No runtime changes. Design-only phase.**
 
-### Phase 2: Build the Coordinator
+### Phase 2: Build the Coordinator ✅ COMPLETE
 
 **Goal:** Create the new wiring layer alongside the existing GSM.
 
