@@ -17,17 +17,15 @@ export function useEncounterProbabilities(systemId, gameState) {
     return { pirateChance: 0, inspectionChance: 0 };
   }
 
-  const pirateChance =
-    game.dangerManager.calculatePirateEncounterChance(
-      systemId,
-      gameState
-    );
+  const pirateChance = game.dangerManager.calculatePirateEncounterChance(
+    systemId,
+    gameState
+  );
 
-  const inspectionChance =
-    game.dangerManager.calculateInspectionChance(
-      systemId,
-      gameState
-    );
+  const inspectionChance = game.dangerManager.calculateInspectionChance(
+    systemId,
+    gameState
+  );
 
   return { pirateChance, inspectionChance };
 }

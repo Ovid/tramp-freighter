@@ -134,8 +134,7 @@ export default function App({ devMode = false }) {
     } else {
       // Load existing game
       game.loadGame();
-      const isPostCredits =
-        !!game.getNarrativeFlags()?.post_credits;
+      const isPostCredits = !!game.getNarrativeFlags()?.post_credits;
       if (isPostCredits) {
         // Reset Yumi's interaction counter so the full dialogue progression
         // is available when returning from the title screen
@@ -446,10 +445,7 @@ export default function App({ devMode = false }) {
       }
     };
 
-    game.subscribe(
-      EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
-      handleAnimationNearEnd
-    );
+    game.subscribe(EVENT_NAMES.JUMP_ANIMATION_NEAR_END, handleAnimationNearEnd);
     return () =>
       game.unsubscribe(
         EVENT_NAMES.JUMP_ANIMATION_NEAR_END,

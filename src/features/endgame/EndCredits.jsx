@@ -11,10 +11,7 @@ export function EndCredits({ onCreditsComplete }) {
   const animationRef = useRef(null);
 
   // Direct access acceptable: read-only mount-time value that never changes during credits
-  const shipName = useMemo(
-    () => game.getShip()?.name || 'Your Ship',
-    [game]
-  );
+  const shipName = useMemo(() => game.getShip()?.name || 'Your Ship', [game]);
   const cast = useMemo(() => buildCastList(), []);
 
   const handleSkip = useCallback(() => {

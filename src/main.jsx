@@ -60,11 +60,7 @@ import '../css/notification.css';
 function initializeGame() {
   const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
-  const game = new GameCoordinator(
-    STAR_DATA,
-    WORMHOLE_DATA,
-    navigationSystem
-  );
+  const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
 
   // Try to load saved game through the manager's canonical restore path
   const loaded = game.loadGame();

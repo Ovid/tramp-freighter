@@ -234,21 +234,18 @@ export function SystemPanel({
       const system = starData.find((s) => s.id === id);
       if (!system) return null;
 
-      const distance =
-        game.navigationSystem.calculateDistanceBetween(
-          currentSystem,
-          system
-        );
-      const fuelCost =
-        game.navigationSystem.calculateFuelCostWithCondition(
-          distance,
-          engineCondition,
-          game.applyQuirkModifiers.bind(game),
-          quirks,
-          capabilities.fuelConsumption
-        );
-      const jumpTime =
-        game.navigationSystem.calculateJumpTime(distance);
+      const distance = game.navigationSystem.calculateDistanceBetween(
+        currentSystem,
+        system
+      );
+      const fuelCost = game.navigationSystem.calculateFuelCostWithCondition(
+        distance,
+        engineCondition,
+        game.applyQuirkModifiers.bind(game),
+        quirks,
+        capabilities.fuelConsumption
+      );
+      const jumpTime = game.navigationSystem.calculateJumpTime(distance);
 
       return {
         ...system,

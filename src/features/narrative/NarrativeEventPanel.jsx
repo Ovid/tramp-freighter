@@ -30,10 +30,7 @@ export function NarrativeEventPanel({ event, onClose }) {
             Object.keys(choice.effects.rewards).length > 0);
 
         if (hasEffects) {
-          const result = applyEncounterOutcome(
-            game,
-            choice.effects
-          );
+          const result = applyEncounterOutcome(game, choice.effects);
           if (result.salvageMessages.length > 0 && notificationCtx) {
             result.salvageMessages.forEach((msg) =>
               notificationCtx.showInfo(msg)
@@ -50,10 +47,7 @@ export function NarrativeEventPanel({ event, onClose }) {
       // Mark event as fired and set cooldown
       game.markEventFired(currentEvent.id);
       if (currentEvent.cooldown) {
-        game.setEventCooldown(
-          currentEvent.id,
-          currentEvent.cooldown
-        );
+        game.setEventCooldown(currentEvent.id, currentEvent.cooldown);
       }
 
       // Persist narrative event state (fired, cooldowns, flags)

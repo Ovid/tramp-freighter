@@ -117,19 +117,13 @@ export function applyEncounterOutcome(game, outcome) {
       const { KIDNAP_FACTION_PENALTY, KIDNAP_KARMA_PENALTY } =
         PIRATE_CREDIT_DEMAND_CONFIG;
       Object.entries(KIDNAP_FACTION_PENALTY).forEach(([faction, change]) => {
-        game.modifyFactionRep(
-          faction,
-          change,
-          'passenger_kidnapped'
-        );
+        game.modifyFactionRep(faction, change, 'passenger_kidnapped');
       });
       game.modifyKarma(KIDNAP_KARMA_PENALTY, 'passenger_kidnapped');
     }
 
     if (outcome.costs.passengerSatisfaction) {
-      game.modifyAllPassengerSatisfaction(
-        -outcome.costs.passengerSatisfaction
-      );
+      game.modifyAllPassengerSatisfaction(-outcome.costs.passengerSatisfaction);
     }
   }
 
@@ -148,20 +142,13 @@ export function applyEncounterOutcome(game, outcome) {
     }
 
     if (outcome.rewards.karma) {
-      game.modifyKarma(
-        outcome.rewards.karma,
-        'encounter_resolution'
-      );
+      game.modifyKarma(outcome.rewards.karma, 'encounter_resolution');
     }
 
     if (outcome.rewards.factionRep) {
       Object.entries(outcome.rewards.factionRep).forEach(
         ([faction, change]) => {
-          game.modifyFactionRep(
-            faction,
-            change,
-            'encounter_resolution'
-          );
+          game.modifyFactionRep(faction, change, 'encounter_resolution');
         }
       );
     }

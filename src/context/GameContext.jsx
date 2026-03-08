@@ -30,9 +30,7 @@ export function GameProvider({ game, gameStateManager, children }) {
   }
 
   return (
-    <GameContext.Provider value={instance}>
-      {children}
-    </GameContext.Provider>
+    <GameContext.Provider value={instance}>{children}</GameContext.Provider>
   );
 }
 

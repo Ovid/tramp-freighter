@@ -229,12 +229,7 @@ export function useGameAction() {
        * @returns {Object} { valid: boolean, reason: string }
        */
       validateRefuel: (currentFuel, amount, credits, fuelPrice) => {
-        return game.validateRefuel(
-          currentFuel,
-          amount,
-          credits,
-          fuelPrice
-        );
+        return game.validateRefuel(currentFuel, amount, credits, fuelPrice);
       },
 
       /**
@@ -258,8 +253,7 @@ export function useGameAction() {
       getQuestState: (questId) => game.getQuestState(questId),
       canStartQuestStage: (questId, stage) =>
         game.canStartQuestStage(questId, stage),
-      checkQuestObjectives: (questId) =>
-        game.checkQuestObjectives(questId),
+      checkQuestObjectives: (questId) => game.checkQuestObjectives(questId),
 
       getNarrativeFlags: () => game.getNarrativeFlags(),
       getEpilogueData: () => game.getEpilogueData(),
@@ -270,8 +264,7 @@ export function useGameAction() {
       makeDebtPayment: (amount) => game.makeDebtPayment(amount),
 
       acceptMission: (mission) => game.acceptMission(mission),
-      completeMission: (missionId) =>
-        game.completeMission(missionId),
+      completeMission: (missionId) => game.completeMission(missionId),
       abandonMission: (missionId) => game.abandonMission(missionId),
       refreshMissionBoard: () => game.refreshMissionBoard(),
       getActiveMissions: () => game.getActiveMissions(),

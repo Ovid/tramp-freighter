@@ -40,8 +40,7 @@ export function useEventTriggers() {
 
       // Mechanical failure and distress call use internal seeded RNG.
       // We pre-check and convert to a 0/1 chance for the engine.
-      const mechanicalResult =
-        game.checkMechanicalFailure(gameState);
+      const mechanicalResult = game.checkMechanicalFailure(gameState);
       const distressResult = game.checkDistressCall();
 
       return {
@@ -127,10 +126,7 @@ export function useEventTriggers() {
       // If event has generateContent, produce dynamic text from game state
       if (typeof event.generateContent === 'function') {
         const state = game.getState();
-        const dynamicContent = event.generateContent(
-          state,
-          game.starData
-        );
+        const dynamicContent = event.generateContent(state, game.starData);
         emitted = {
           ...emitted,
           content: { ...emitted.content, ...dynamicContent },
@@ -164,10 +160,8 @@ export function useEventTriggers() {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
           const condRng = new SeededRandom(`event-condition-${day}-${system}`);
-          const condEvent = game.checkEvents(
-            'condition',
-            context,
-            () => condRng.next()
+          const condEvent = game.checkEvents('condition', context, () =>
+            condRng.next()
           );
           if (condEvent) {
             emitNarrativeEvent(condEvent);
@@ -222,15 +216,9 @@ export function useEventTriggers() {
       handleTrigger('jump', context);
     };
 
-    game.subscribe(
-      EVENT_NAMES.LOCATION_CHANGED,
-      handleJumpComplete
-    );
+    game.subscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
     return () =>
-      game.unsubscribe(
-        EVENT_NAMES.LOCATION_CHANGED,
-        handleJumpComplete
-      );
+      game.unsubscribe(EVENT_NAMES.LOCATION_CHANGED, handleJumpComplete);
   }, [game, buildJumpContext, handleTrigger, currentSystem]);
 
   // Listen for docking
@@ -258,8 +246,7 @@ export function useEventTriggers() {
     };
 
     game.subscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
-    return () =>
-      game.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
+    return () => game.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
   }, [game, handleTrigger]);
 
   // Listen for debt clearance to immediately show the narrative popup
@@ -278,7 +265,6 @@ export function useEventTriggers() {
     };
 
     game.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
-    return () =>
-      game.unsubscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+    return () => game.unsubscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
   }, [game, emitNarrativeEvent]);
 }

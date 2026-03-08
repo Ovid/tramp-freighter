@@ -63,8 +63,7 @@ export function DevAdminPanel({ onClose }) {
   // Dev tool: direct state access is acceptable here since this panel is for
   // debugging and testing, not production gameplay. Bridge Pattern not required.
   const currentQuirks = quirks || game.getShip()?.quirks || [];
-  const currentUpgrades =
-    upgrades || game.getShip()?.upgrades || [];
+  const currentUpgrades = upgrades || game.getShip()?.upgrades || [];
   const currentCargo = cargo || game.getShip()?.cargo || [];
   const hiddenCargo = game.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
@@ -174,11 +173,7 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(hullInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const condition = game.getShipCondition();
-      game.updateShipCondition(
-        amount,
-        condition.engine,
-        condition.lifeSupport
-      );
+      game.updateShipCondition(amount, condition.engine, condition.lifeSupport);
     }
   };
 
@@ -186,11 +181,7 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(engineInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const condition = game.getShipCondition();
-      game.updateShipCondition(
-        condition.hull,
-        amount,
-        condition.lifeSupport
-      );
+      game.updateShipCondition(condition.hull, amount, condition.lifeSupport);
     }
   };
 
@@ -198,11 +189,7 @@ export function DevAdminPanel({ onClose }) {
     const amount = parseInt(lifeSupportInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
       const condition = game.getShipCondition();
-      game.updateShipCondition(
-        condition.hull,
-        condition.engine,
-        amount
-      );
+      game.updateShipCondition(condition.hull, condition.engine, amount);
     }
   };
 
@@ -334,10 +321,8 @@ export function DevAdminPanel({ onClose }) {
     if (currentSystem == null) return null;
 
     const dangerZone = game.getDangerZone(currentSystem);
-    const pirateChance =
-      game.calculatePirateEncounterChance(currentSystem);
-    const inspectionChance =
-      game.calculateInspectionChance(currentSystem);
+    const pirateChance = game.calculatePirateEncounterChance(currentSystem);
+    const inspectionChance = game.calculateInspectionChance(currentSystem);
 
     return {
       dangerZone,
@@ -871,10 +856,7 @@ export function DevAdminPanel({ onClose }) {
         <div className="dev-admin-encounter-buttons">
           <button
             onClick={() =>
-              game.emit(
-                EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED,
-                Date.now()
-              )
+              game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, Date.now())
             }
           >
             Preview Epilogue

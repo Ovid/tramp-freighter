@@ -23,7 +23,10 @@ describe('Capability interface completeness', () => {
   });
 
   it('capabilities.js exists and is non-empty', () => {
-    expect(capabilitiesSource, 'capabilities.js is missing or unreadable').not.toBeNull();
+    expect(
+      capabilitiesSource,
+      'capabilities.js is missing or unreadable'
+    ).not.toBeNull();
     expect(capabilitiesSource.length).toBeGreaterThan(100);
   });
 
