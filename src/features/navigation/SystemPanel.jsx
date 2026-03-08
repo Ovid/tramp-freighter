@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -26,7 +26,7 @@ export function SystemPanel({
   onJumpStart,
   onJumpComplete,
 }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const starData = useStarData();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
@@ -224,31 +224,31 @@ export function SystemPanel({
   }
 
   // If viewing current system, show system info with connected systems
-  const capabilities = gameStateManager.calculateShipCapabilities();
+  const capabilities = game.calculateShipCapabilities();
   const engineCondition = shipCondition?.engine ?? 100;
 
   const connectedSystemIds =
-    gameStateManager.navigationSystem.getConnectedSystems(currentSystemId);
+    game.navigationSystem.getConnectedSystems(currentSystemId);
   const connectedSystems = connectedSystemIds
     .map((id) => {
       const system = starData.find((s) => s.id === id);
       if (!system) return null;
 
       const distance =
-        gameStateManager.navigationSystem.calculateDistanceBetween(
+        game.navigationSystem.calculateDistanceBetween(
           currentSystem,
           system
         );
       const fuelCost =
-        gameStateManager.navigationSystem.calculateFuelCostWithCondition(
+        game.navigationSystem.calculateFuelCostWithCondition(
           distance,
           engineCondition,
-          gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+          game.applyQuirkModifiers.bind(game),
           quirks,
           capabilities.fuelConsumption
         );
       const jumpTime =
-        gameStateManager.navigationSystem.calculateJumpTime(distance);
+        game.navigationSystem.calculateJumpTime(distance);
 
       return {
         ...system,
@@ -266,9 +266,9 @@ export function SystemPanel({
   let eventType = null;
 
   if (hasAdvancedSensors) {
-    activeEvent = gameStateManager.getActiveEventForSystem(currentSystemId);
+    activeEvent = game.getActiveEventForSystem(currentSystemId);
     if (activeEvent) {
-      eventType = gameStateManager.getEventType(activeEvent.type);
+      eventType = game.getEventType(activeEvent.type);
     }
   }
 

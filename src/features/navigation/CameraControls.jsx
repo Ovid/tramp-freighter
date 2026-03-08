@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { EVENT_NAMES } from '../../game/constants';
 
@@ -12,7 +12,7 @@ export function CameraControls({
   onToggleRotation,
   onToggleBoundary,
 }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
 
@@ -41,7 +41,7 @@ export function CameraControls({
   };
 
   const toggleJumpWarnings = () => {
-    gameStateManager.setPreference('jumpWarningsEnabled', !jumpWarningsEnabled);
+    game.setPreference('jumpWarningsEnabled', !jumpWarningsEnabled);
   };
 
   return (
