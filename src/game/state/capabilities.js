@@ -191,6 +191,12 @@
  *   Returns: state.dialogue
  *
  * @property {function(string, *): void} emit
+ *
+ * @property {Object} coordinatorRef
+ *   The coordinator instance, passed through to dialogue engine functions
+ *   (showDialogue, selectChoice). Those functions use it to build dialogue
+ *   context (karma, credits, NPC state, etc.). This is a documented coupling
+ *   that will be addressed if the dialogue engine is refactored separately.
  */
 
 // ========================================================================

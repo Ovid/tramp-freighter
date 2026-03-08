@@ -91,7 +91,12 @@ export class GameCoordinator {
     this.navigationManager = new NavigationManager(this, this.starData);
     this.refuelManager = new RefuelManager(this);
     this.repairManager = new RepairManager(this);
-    this.dialogueManager = new DialogueManager(this);
+    this.dialogueManager = new DialogueManager({
+      getOwnState: () => this.state.dialogue,
+      emit: this.emit.bind(this),
+      coordinatorRef: this,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
     this.dangerManager = new DangerManager(this);
