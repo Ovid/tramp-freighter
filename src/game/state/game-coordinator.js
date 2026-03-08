@@ -85,7 +85,35 @@ export class GameCoordinator {
     this.stateManager = new StateManager(this);
     this.initializationManager = new InitializationManager(this);
     this.saveLoadManager = new SaveLoadManager(this);
-    this.tradingManager = new TradingManager(this);
+    this.tradingManager = new TradingManager({
+      getOwnState: () => ({
+        priceKnowledge: this.state.world.priceKnowledge,
+        marketConditions: this.state.world.marketConditions,
+        currentSystemPrices: this.state.world.currentSystemPrices,
+      }),
+      getCredits: () => this.state.player.credits,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getStats: () => this.state.stats,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      getActiveEvents: () => this.state.world.activeEvents,
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      applyTradeWithholding: (totalRevenue) =>
+        this.debtManager.applyWithholding(totalRevenue),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.shipManager = new ShipManager({
       getOwnState: () => this.state.ship,
       getCredits: () => this.state.player.credits,

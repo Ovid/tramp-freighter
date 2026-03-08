@@ -305,8 +305,8 @@ describe('TradingManager coverage', () => {
 
     it('returns failure when insufficient cargo space', () => {
       gsm.state.player.credits = 100000;
-      // Set cargo capacity to something small
-      vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(2);
+      // Set cargo capacity to something small via capability mock
+      gsm.tradingManager.capabilities.getCargoRemaining = () => 2;
       const result = gsm.tradingManager.buyGood('ore', 5, 10);
       expect(result).toEqual({
         success: false,
@@ -317,7 +317,7 @@ describe('TradingManager coverage', () => {
     it('deducts credits and adds cargo on success', () => {
       gsm.state.player.credits = 1000;
       gsm.state.ship.cargo = [];
-      vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(100);
+      gsm.tradingManager.capabilities.getCargoRemaining = () => 100;
       const result = gsm.tradingManager.buyGood('ore', 5, 100);
       expect(result).toEqual({ success: true });
       expect(gsm.state.player.credits).toBe(500);
@@ -326,7 +326,7 @@ describe('TradingManager coverage', () => {
     it('updates market conditions with negative quantity (deficit)', () => {
       gsm.state.player.credits = 10000;
       gsm.state.ship.cargo = [];
-      vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(100);
+      gsm.tradingManager.capabilities.getCargoRemaining = () => 100;
       const systemId = gsm.state.player.currentSystem;
 
       gsm.tradingManager.buyGood('ore', 5, 100);
@@ -492,54 +492,54 @@ describe('TradingManager coverage', () => {
 
   describe('isGoodRestricted', () => {
     it('returns true for electronics in a safe zone system', () => {
-      // Mock getDangerZone to return 'safe'
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      // Mock getDangerZone to return 'safe' via capability
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.isGoodRestricted('electronics', 5)).toBe(true);
     });
 
     it('returns false for electronics in a contested zone', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('contested');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'contested';
       expect(gsm.tradingManager.isGoodRestricted('electronics', 5)).toBe(false);
     });
 
     it('returns true for medicine in a contested zone', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('contested');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'contested';
       expect(gsm.tradingManager.isGoodRestricted('medicine', 5)).toBe(true);
     });
 
     it('returns true for tritium in a dangerous zone', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('dangerous');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'dangerous';
       expect(gsm.tradingManager.isGoodRestricted('tritium', 5)).toBe(true);
     });
 
     it('returns true for parts at Sol (core system)', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.isGoodRestricted('parts', SOL_SYSTEM_ID)).toBe(
         true
       );
     });
 
     it('returns true for parts at Alpha Centauri (core system)', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(
         gsm.tradingManager.isGoodRestricted('parts', ALPHA_CENTAURI_SYSTEM_ID)
       ).toBe(true);
     });
 
     it('returns false for parts at non-core system', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.isGoodRestricted('parts', 50)).toBe(false);
     });
 
     it('returns false for unrestricted goods', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.isGoodRestricted('grain', 5)).toBe(false);
     });
   });
 
   describe('calculateSellPrice', () => {
     it('returns base price for restricted goods in restricted zone', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       // electronics is restricted in safe zones
       expect(gsm.tradingManager.calculateSellPrice('electronics', 5, 100)).toBe(
         100
@@ -547,7 +547,7 @@ describe('TradingManager coverage', () => {
     });
 
     it('applies premium multiplier for goods restricted elsewhere', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('contested');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'contested';
       // electronics is restricted in safe zones but not contested, so premium applies
       const price = gsm.tradingManager.calculateSellPrice(
         'electronics',
@@ -560,7 +560,7 @@ describe('TradingManager coverage', () => {
     });
 
     it('returns base price for completely unrestricted goods', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       // grain is unrestricted everywhere
       expect(gsm.tradingManager.calculateSellPrice('grain', 5, 100)).toBe(100);
     });
@@ -568,19 +568,19 @@ describe('TradingManager coverage', () => {
 
   describe('canSellGood', () => {
     it('returns true for unrestricted goods without black market contact', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.canSellGood('grain', 5, false)).toBe(true);
     });
 
     it('returns false for restricted goods without black market contact', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.canSellGood('electronics', 5, false)).toBe(
         false
       );
     });
 
     it('returns true for restricted goods with black market contact', () => {
-      vi.spyOn(gsm, 'getDangerZone').mockReturnValue('safe');
+      gsm.tradingManager.capabilities.getDangerZone = () => 'safe';
       expect(gsm.tradingManager.canSellGood('electronics', 5, true)).toBe(true);
     });
   });
