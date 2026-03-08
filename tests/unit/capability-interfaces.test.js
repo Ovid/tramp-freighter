@@ -12,12 +12,19 @@ import { resolve } from 'path';
  * This is a design validation test, not a runtime test.
  */
 describe('Capability interface completeness', () => {
-  const capabilitiesSource = readFileSync(
-    resolve('src/game/state/capabilities.js'),
-    'utf-8'
-  );
+  let capabilitiesSource;
+
+  beforeAll(() => {
+    const filePath = resolve('src/game/state/capabilities.js');
+    try {
+      capabilitiesSource = readFileSync(filePath, 'utf-8');
+    } catch {
+      capabilitiesSource = null;
+    }
+  });
 
   it('capabilities.js exists and is non-empty', () => {
+    expect(capabilitiesSource, 'capabilities.js is missing or unreadable').not.toBeNull();
     expect(capabilitiesSource.length).toBeGreaterThan(100);
   });
 
