@@ -8,9 +8,9 @@ import { SOL_SYSTEM_ID } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
- * Verifies that the restricted hint (explanation text) appears on ALL
- * restricted items when the player hasn't dismissed it yet, not just
- * the first one.
+ * Verifies that the restricted hint (explanation text) appears only once
+ * (on the first restricted item) to avoid spamming the UI when multiple
+ * goods are restricted in the same zone.
  */
 describe('TradePanel restricted hint on all items', () => {
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('TradePanel restricted hint on all items', () => {
     localStorage.removeItem('restrictedExplained');
   });
 
-  it('shows restricted hint on all restricted items when not yet dismissed', () => {
+  it('shows restricted hint only on first restricted item when not yet dismissed', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
@@ -33,12 +33,12 @@ describe('TradePanel restricted hint on all items', () => {
     const wrapper = createWrapper(gsm);
     render(<TradePanel onClose={() => {}} />, { wrapper });
 
-    // Sol has 2 restricted goods (Parts and Electronics)
+    // Sol has 2 restricted goods — both get RESTRICTED badges
     const badges = screen.getAllByText('RESTRICTED');
     expect(badges.length).toBe(2);
 
-    // Each restricted item should have a "Got it" dismiss button
+    // Only the first restricted item shows the dismiss hint
     const dismissButtons = screen.getAllByText('Got it');
-    expect(dismissButtons.length).toBe(2);
+    expect(dismissButtons.length).toBe(1);
   });
 });
