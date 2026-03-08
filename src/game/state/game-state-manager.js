@@ -249,24 +249,20 @@ export class GameStateManager {
    * @private
    */
   _applyMigrations(state) {
+    const MIGRATIONS = [
+      ['1.0.0', (s) => migrateFromV1ToV2(s, this.starData)],
+      ['2.0.0', migrateFromV2ToV2_1],
+      ['2.1.0', migrateFromV2_1ToV4],
+      ['4.0.0', migrateFromV4ToV4_1],
+      ['4.1.0', migrateFromV4_1ToV5],
+    ];
+
     let migrated = state;
-
-    if (migrated.meta.version === '1.0.0') {
-      migrated = migrateFromV1ToV2(migrated, this.starData);
+    for (const [version, migrateFn] of MIGRATIONS) {
+      if (migrated.meta.version === version) {
+        migrated = migrateFn(migrated);
+      }
     }
-    if (migrated.meta.version === '2.0.0') {
-      migrated = migrateFromV2ToV2_1(migrated);
-    }
-    if (migrated.meta.version === '2.1.0') {
-      migrated = migrateFromV2_1ToV4(migrated);
-    }
-    if (migrated.meta.version === '4.0.0') {
-      migrated = migrateFromV4ToV4_1(migrated);
-    }
-    if (migrated.meta.version === '4.1.0') {
-      migrated = migrateFromV4_1ToV5(migrated);
-    }
-
     return migrated;
   }
 
