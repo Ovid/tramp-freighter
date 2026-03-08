@@ -433,3 +433,38 @@
  * @property {function(string, *): void} emit
  * @property {Array} starData
  */
+
+// ========================================================================
+// REMAINING DOMAIN MANAGERS
+// ========================================================================
+
+/**
+ * @typedef {Object} NavigationCapabilities
+ *
+ * @property {function(): NavigationState} getOwnState
+ *   Returns: { currentSystem: state.player.currentSystem,
+ *              visitedSystems: state.world.visitedSystems }
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): Array} getActiveEvents
+ * @property {function(): Object} getMarketConditions
+ * @property {function(): Object|undefined} getStats
+ * @property {function(): Object|undefined} getDockedSystems
+ *   Returns: state.world.narrativeEvents.dockedSystems
+ *
+ * @property {function(): void} checkAchievements
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} EventEngineCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.world.narrativeEvents (flags, fired, cooldowns)
+ *
+ * @property {function(): number} getDaysElapsed
+ *
+ * @property {function(string, *): void} emit
+ */
