@@ -1,5 +1,9 @@
 # TODO
 
+- "Lucky" Liu, a gambler NPC who offers gambling tips and occasional insider
+  info as relationship benefits. But it's not clear how. We need a thorough
+  review of all the NPCs and their benefits to ensure they are implemented in
+  a way that is discoverable, meaningful, and actually exists.
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
