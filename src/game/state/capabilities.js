@@ -317,7 +317,6 @@
  * @property {function(number): void} advanceTime
  *   For emergency patch time penalty
  * @property {function(): void} markDirty
- * @property {function(string, *): void} emit
  */
 
 /**

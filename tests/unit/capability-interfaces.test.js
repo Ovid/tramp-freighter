@@ -73,7 +73,6 @@ describe('Capability interface completeness', () => {
       'NPCCapabilities',
       'DangerCapabilities',
       'RefuelCapabilities',
-      'RepairCapabilities',
       'InfoBrokerCapabilities',
       'TradingCapabilities',
       'MissionCapabilities',
@@ -97,6 +96,21 @@ describe('Capability interface completeness', () => {
       expect(block, `${name} missing emit`).toContain('emit');
       expect(block, `${name} missing markDirty`).toContain('markDirty');
     }
+  });
+
+  // RepairCapabilities has markDirty but not emit — it delegates all
+  // event emission to updateShipCondition (which emits internally)
+  it('RepairCapabilities has markDirty but not necessarily emit', () => {
+    const startIdx = capabilitiesSource.indexOf(
+      '@typedef {Object} RepairCapabilities'
+    );
+    expect(startIdx).toBeGreaterThan(-1);
+    const nextTypedef = capabilitiesSource.indexOf('@typedef', startIdx + 1);
+    const block =
+      nextTypedef > -1
+        ? capabilitiesSource.slice(startIdx, nextTypedef)
+        : capabilitiesSource.slice(startIdx);
+    expect(block).toContain('markDirty');
   });
 
   // DialogueCapabilities and EventEngineCapabilities intentionally omit

@@ -126,7 +126,6 @@ export class GameCoordinator {
         this.shipManager.updateShipCondition(hull, engine, lifeSupport),
       advanceTime: (newDays) => this.eventsManager.updateTime(newDays),
       markDirty: () => this.markDirty(),
-      emit: (...args) => this.emit(...args),
       isTestEnvironment: this.isTestEnvironment,
     });
     this.dialogueManager = new DialogueManager({
