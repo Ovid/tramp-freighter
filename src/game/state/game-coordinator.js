@@ -82,7 +82,7 @@ export class GameCoordinator {
     this.state = null;
 
     // Initialize managers
-    this.eventSystemManager = new EventSystemManager(this);
+    this.eventSystemManager = new EventSystemManager();
     this.stateManager = new StateManager(this);
     this.initializationManager = new InitializationManager(this);
     this.saveLoadManager = new SaveLoadManager(this);

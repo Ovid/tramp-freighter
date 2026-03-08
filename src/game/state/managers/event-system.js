@@ -12,9 +12,7 @@ import { EVENT_NAMES } from '../../constants.js';
  * The event system maintains clean separation while enabling reactive UI updates.
  */
 export class EventSystemManager {
-  constructor(gameStateManager) {
-    this.gameStateManager = gameStateManager;
-
+  constructor() {
     // Supports multiple UI components subscribing to same state changes
     // Built dynamically from EVENT_NAMES so new events only need to be added in constants.js
     this.subscribers = {};
