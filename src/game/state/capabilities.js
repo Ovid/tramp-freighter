@@ -126,3 +126,69 @@
  * @property {function(string, *): void} emit
  * @property {function(): void} markDirty
  */
+
+// ========================================================================
+// BATCH 2: Clean Slice Owners
+// ========================================================================
+
+/**
+ * @typedef {Object} AchievementsCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.achievements
+ *
+ * @property {function(): Object} getNpcs
+ *   Returns: state.npcs (read-only, for counting trusted NPCs)
+ * @property {function(): Object|undefined} getDangerFlags
+ *   Returns: state.world.dangerFlags
+ * @property {function(): number|undefined} getKarma
+ *   Returns: state.player.karma
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): Object|undefined} getStats
+ *   Returns: state.stats
+ *
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} QuestCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.quests
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): number} getCredits
+ * @property {function(): Array} getShipCargo
+ * @property {function(): number} getShipHull
+ * @property {function(): number} getShipEngine
+ * @property {function(): Array} getShipUpgrades
+ * @property {function(): Object} getNpcs
+ *   Returns: state.npcs (read-only, for quest stage checks)
+ * @property {function(): Object|undefined} getStats
+ * @property {function(): Object|undefined} getNarrativeFlags
+ *   Returns: state.world.narrativeEvents.flags
+ * @property {function(): Array|undefined} getActiveMissions
+ *   Returns: state.missions.active
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(string, number, string): void} modifyRepRaw
+ * @property {function(number, string): void} modifyKarma
+ * @property {function(string, number): void} removeCargoForMission
+ * @property {function(): void} markDirty
+ * @property {function(): void} checkAchievements
+ * @property {function(string, number): void} updateShipCondition
+ *   For quest rewards that repair/damage ship
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} DialogueCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.dialogue
+ *
+ * @property {function(string, *): void} emit
+ */
