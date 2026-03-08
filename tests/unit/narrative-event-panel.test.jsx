@@ -15,7 +15,7 @@ const mockNotificationCtx = {
 };
 
 vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGameState: vi.fn(() => mockGSM),
+  useGame: vi.fn(() => mockGSM),
 }));
 
 vi.mock('../../src/context/NotificationContext.jsx', () => ({

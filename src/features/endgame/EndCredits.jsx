@@ -1,19 +1,19 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { CREDITS_SECTIONS, buildCastList } from './credits-data.js';
 import { CREDITS_CONFIG } from '../../game/constants.js';
 import './endgame.css';
 
 export function EndCredits({ onCreditsComplete }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const [scrollFinished, setScrollFinished] = useState(false);
   const scrollRef = useRef(null);
   const animationRef = useRef(null);
 
   // Direct access acceptable: read-only mount-time value that never changes during credits
   const shipName = useMemo(
-    () => gameStateManager.getShip()?.name || 'Your Ship',
-    [gameStateManager]
+    () => game.getShip()?.name || 'Your Ship',
+    [game]
   );
   const cast = useMemo(() => buildCastList(), []);
 

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { EndCredits } from '../../src/features/endgame/EndCredits.jsx';
 
 vi.mock('../../src/context/GameContext', () => ({
-  useGameState: () => ({
+  useGame: () => ({
     getShip: () => ({ name: 'The Rusty Bucket' }),
   }),
 }));

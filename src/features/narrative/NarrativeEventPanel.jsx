@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useGameState } from '../../context/GameContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
 import '../../../css/panel/narrative-event.css';
@@ -15,7 +15,7 @@ import '../../../css/panel/narrative-event.css';
  * @param {Function} props.onClose - Called when event is dismissed
  */
 export function NarrativeEventPanel({ event, onClose }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const notificationCtx = useNotificationContext();
   const [currentEvent, setCurrentEvent] = useState(event);
 
@@ -31,7 +31,7 @@ export function NarrativeEventPanel({ event, onClose }) {
 
         if (hasEffects) {
           const result = applyEncounterOutcome(
-            gameStateManager,
+            game,
             choice.effects
           );
           if (result.salvageMessages.length > 0 && notificationCtx) {
@@ -44,24 +44,24 @@ export function NarrativeEventPanel({ event, onClose }) {
 
       // Apply flags from choice if specified
       if (choice.flags) {
-        choice.flags.forEach((flag) => gameStateManager.setNarrativeFlag(flag));
+        choice.flags.forEach((flag) => game.setNarrativeFlag(flag));
       }
 
       // Mark event as fired and set cooldown
-      gameStateManager.markEventFired(currentEvent.id);
+      game.markEventFired(currentEvent.id);
       if (currentEvent.cooldown) {
-        gameStateManager.setEventCooldown(
+        game.setEventCooldown(
           currentEvent.id,
           currentEvent.cooldown
         );
       }
 
       // Persist narrative event state (fired, cooldowns, flags)
-      gameStateManager.markDirty();
+      game.markDirty();
 
       // Chain to next event if specified
       if (choice.next) {
-        const nextEvent = gameStateManager.getEventById(choice.next);
+        const nextEvent = game.getEventById(choice.next);
         if (nextEvent) {
           setCurrentEvent(nextEvent);
           return;
@@ -71,7 +71,7 @@ export function NarrativeEventPanel({ event, onClose }) {
       // No chain — close the panel
       onClose();
     },
-    [gameStateManager, currentEvent, onClose, notificationCtx]
+    [game, currentEvent, onClose, notificationCtx]
   );
 
   const { content } = currentEvent;

@@ -8,7 +8,7 @@
  * React Migration Spec: Requirements 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 47.7
  */
 import { useState, useEffect } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { ConfirmModal } from '../../components/Modal';
 import { GAME_VERSION } from '../../game/constants';
 
@@ -20,14 +20,14 @@ import { GAME_VERSION } from '../../game/constants';
  * @returns {JSX.Element} Title screen component
  */
 export function TitleScreen({ onStartGame }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const [hasSave, setHasSave] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Check for saved game on mount
   useEffect(() => {
-    setHasSave(gameStateManager.hasSavedGame());
-  }, [gameStateManager]);
+    setHasSave(game.hasSavedGame());
+  }, [game]);
 
   const handleContinue = () => {
     onStartGame(false); // Load existing game

@@ -37,7 +37,7 @@ vi.mock('../../src/hooks/useGameAction', () => ({
 }));
 
 vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGameState: () => ({
+  useGame: () => ({
     getDangerZone: () => 'safe',
   }),
 }));

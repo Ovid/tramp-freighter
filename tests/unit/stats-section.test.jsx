@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { StatsSection } from '../../src/features/achievements/StatsSection';
 
 vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGameState: () => ({
+  useGame: () => ({
     getStatsSnapshot: () => ({
       visitedCount: 0,
       jumpsCompleted: 0,

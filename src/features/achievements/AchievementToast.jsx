@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useGameState } from '../../context/GameContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import {
   ACHIEVEMENTS_CONFIG,
   EVENT_NAMES,
@@ -16,7 +16,7 @@ import {
  * pass (e.g. save migration).
  */
 export function AchievementToast() {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const [toast, setToast] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
   const queueRef = useRef([]);
@@ -61,16 +61,16 @@ export function AchievementToast() {
       }
     };
 
-    gameStateManager.subscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
+    game.subscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
     const queue = queueRef.current;
     return () => {
-      gameStateManager.unsubscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
+      game.unsubscribe(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, handler);
       const timers = queue._timers;
       if (timers) {
         timers.forEach(clearTimeout);
       }
     };
-  }, [gameStateManager, showNext]);
+  }, [game, showNext]);
 
   if (!toast) return null;
 

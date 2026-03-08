@@ -1,4 +1,4 @@
-import { useGameState } from '../../context/GameContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import { useGameEvent } from '../../hooks/useGameEvent.js';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { ACHIEVEMENT_CATEGORIES } from '../../game/data/achievements-data.js';
@@ -13,13 +13,13 @@ const CATEGORY_DISPLAY_NAMES = {
 };
 
 export function AchievementsList() {
-  const gameStateManager = useGameState();
+  const game = useGame();
   // Subscribe to trigger re-renders when achievements change.
   // The return value is not used directly because getAchievementProgress()
   // returns a computed view that cannot be reconstructed from raw event data alone.
   useGameEvent(EVENT_NAMES.ACHIEVEMENTS_CHANGED);
 
-  const progress = gameStateManager.getAchievementProgress();
+  const progress = game.getAchievementProgress();
 
   return (
     <div className="achievements-list">

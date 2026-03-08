@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
@@ -36,7 +36,7 @@ import { getNPCsAtSystem } from '../../game/game-npcs';
  * @returns {JSX.Element} Information broker panel component
  */
 export function InfoBrokerPanel({ onClose }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const starData = useStarData();
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
@@ -63,9 +63,9 @@ export function InfoBrokerPanel({ onClose }) {
 
   // Update intelligence options when location or price knowledge changes
   useEffect(() => {
-    const options = gameStateManager.listAvailableIntelligence();
+    const options = game.listAvailableIntelligence();
     setIntelligenceOptions(options);
-  }, [gameStateManager, currentSystemId, priceKnowledge]);
+  }, [game, currentSystemId, priceKnowledge]);
 
   // Get NPCs at current location for intel discounts
   const npcsAtSystem = getNPCsAtSystem(currentSystemId, getNarrativeFlags());
@@ -73,7 +73,7 @@ export function InfoBrokerPanel({ onClose }) {
   // Get intel service discounts from NPCs at this location
   const intelDiscounts = npcsAtSystem
     .map((npc) => {
-      const discountInfo = gameStateManager.getServiceDiscount(npc.id, 'intel');
+      const discountInfo = game.getServiceDiscount(npc.id, 'intel');
       return {
         npc,
         discount: discountInfo.discount,
@@ -162,7 +162,7 @@ export function InfoBrokerPanel({ onClose }) {
 
     // Refresh intelligence options to reflect the purchase
     // This ensures the UI immediately shows the updated state
-    const updatedOptions = gameStateManager.listAvailableIntelligence();
+    const updatedOptions = game.listAvailableIntelligence();
     setIntelligenceOptions(updatedOptions);
   };
 

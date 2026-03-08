@@ -7,7 +7,7 @@ vi.mock('../../src/features/endgame/endgame.css', () => ({}));
 const mockMarkDirty = vi.fn();
 
 vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGameState: vi.fn(() => ({ markDirty: mockMarkDirty })),
+  useGame: vi.fn(() => ({ markDirty: mockMarkDirty })),
 }));
 
 vi.mock('../../src/components/Button.jsx', () => ({

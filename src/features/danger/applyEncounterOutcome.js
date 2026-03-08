@@ -3,29 +3,29 @@ import { PIRATE_CREDIT_DEMAND_CONFIG } from '../../game/constants.js';
 /**
  * Apply encounter outcome costs and rewards to game state.
  *
- * State mutation function: reads current state from gameStateManager,
+ * State mutation function: reads current state from game,
  * applies costs (fuel, hull, engine, lifeSupport, credits, cargo, days,
  * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated, restrictedGoodsConfiscated) and rewards (credits, fuelMinimum,
  * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
- * @param {Object} gameStateManager - The GameStateManager instance
+ * @param {Object} game - The GameStateManager instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
  * @returns {Object} result - { salvageMessages: string[] }
  */
-export function applyEncounterOutcome(gameStateManager, outcome) {
-  const state = gameStateManager.getState();
+export function applyEncounterOutcome(game, outcome) {
+  const state = game.getState();
   const salvageMessages = [];
 
   // Apply costs
   if (outcome.costs) {
     if (outcome.costs.fuel) {
       const newFuel = Math.max(0, state.ship.fuel - outcome.costs.fuel);
-      gameStateManager.updateFuel(newFuel);
+      game.updateFuel(newFuel);
     }
 
     if (outcome.costs.hull) {
       const newHull = Math.max(0, state.ship.hull - outcome.costs.hull);
-      gameStateManager.updateShipCondition(
+      game.updateShipCondition(
         newHull,
         state.ship.engine,
         state.ship.lifeSupport
@@ -34,7 +34,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
 
     if (outcome.costs.engine) {
       const newEngine = Math.max(0, state.ship.engine - outcome.costs.engine);
-      gameStateManager.updateShipCondition(
+      game.updateShipCondition(
         state.ship.hull,
         newEngine,
         state.ship.lifeSupport
@@ -46,7 +46,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         0,
         state.ship.lifeSupport - outcome.costs.lifeSupport
       );
-      gameStateManager.updateShipCondition(
+      game.updateShipCondition(
         state.ship.hull,
         state.ship.engine,
         newLifeSupport
@@ -61,19 +61,19 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         // Fines: pay what you can, roll remainder into Cole's debt
         const paid = Math.min(currentCredits, amount);
         const unpaid = amount - paid;
-        gameStateManager.updateCredits(currentCredits - paid);
+        game.updateCredits(currentCredits - paid);
         if (unpaid > 0) {
-          gameStateManager.updateDebt(state.player.debt + unpaid);
+          game.updateDebt(state.player.debt + unpaid);
         }
       } else {
         // Voluntary costs: deduct up to zero, no debt
         const newCredits = Math.max(0, currentCredits - amount);
-        gameStateManager.updateCredits(newCredits);
+        game.updateCredits(newCredits);
       }
     }
 
     if (outcome.costs.cargoLoss === true) {
-      gameStateManager.updateCargo([]);
+      game.updateCargo([]);
     } else if (outcome.costs.cargoPercent) {
       const lossPercent = outcome.costs.cargoPercent / 100;
       const filteredCargo = state.ship.cargo
@@ -82,16 +82,16 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
           qty: Math.max(0, item.qty - Math.floor(item.qty * lossPercent)),
         }))
         .filter((item) => item.qty > 0);
-      gameStateManager.updateCargo(filteredCargo);
+      game.updateCargo(filteredCargo);
     }
 
     if (outcome.costs.hiddenCargoConfiscated) {
-      gameStateManager.clearHiddenCargo();
+      game.clearHiddenCargo();
     }
 
     // Remove restricted goods from cargo before checking mission failures
     if (outcome.costs.restrictedGoodsConfiscated) {
-      gameStateManager.removeRestrictedCargo();
+      game.removeRestrictedCargo();
     }
 
     // Fail missions whose cargo was lost or confiscated
@@ -101,33 +101,33 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
       outcome.costs.restrictedGoodsConfiscated ||
       outcome.costs.hiddenCargoConfiscated
     ) {
-      if (typeof gameStateManager.failMissionsDueToCargoLoss === 'function') {
-        gameStateManager.failMissionsDueToCargoLoss();
+      if (typeof game.failMissionsDueToCargoLoss === 'function') {
+        game.failMissionsDueToCargoLoss();
       }
     }
 
     if (outcome.costs.days) {
       const newDays = state.player.daysElapsed + outcome.costs.days;
-      gameStateManager.updateTime(newDays);
+      game.updateTime(newDays);
     }
 
     if (outcome.costs.kidnappedPassengerId) {
-      gameStateManager.abandonMission(outcome.costs.kidnappedPassengerId);
+      game.abandonMission(outcome.costs.kidnappedPassengerId);
 
       const { KIDNAP_FACTION_PENALTY, KIDNAP_KARMA_PENALTY } =
         PIRATE_CREDIT_DEMAND_CONFIG;
       Object.entries(KIDNAP_FACTION_PENALTY).forEach(([faction, change]) => {
-        gameStateManager.modifyFactionRep(
+        game.modifyFactionRep(
           faction,
           change,
           'passenger_kidnapped'
         );
       });
-      gameStateManager.modifyKarma(KIDNAP_KARMA_PENALTY, 'passenger_kidnapped');
+      game.modifyKarma(KIDNAP_KARMA_PENALTY, 'passenger_kidnapped');
     }
 
     if (outcome.costs.passengerSatisfaction) {
-      gameStateManager.modifyAllPassengerSatisfaction(
+      game.modifyAllPassengerSatisfaction(
         -outcome.costs.passengerSatisfaction
       );
     }
@@ -136,19 +136,19 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
   // Apply rewards
   if (outcome.rewards) {
     if (outcome.rewards.credits) {
-      const currentCredits = gameStateManager.getState().player.credits;
+      const currentCredits = game.getState().player.credits;
       const newCredits = currentCredits + outcome.rewards.credits;
-      gameStateManager.updateCredits(newCredits);
+      game.updateCredits(newCredits);
     }
 
     if (outcome.rewards.fuelMinimum) {
-      const currentFuel = gameStateManager.getState().ship.fuel;
+      const currentFuel = game.getState().ship.fuel;
       const newFuel = Math.max(currentFuel, outcome.rewards.fuelMinimum);
-      gameStateManager.updateFuel(newFuel);
+      game.updateFuel(newFuel);
     }
 
     if (outcome.rewards.karma) {
-      gameStateManager.modifyKarma(
+      game.modifyKarma(
         outcome.rewards.karma,
         'encounter_resolution'
       );
@@ -157,7 +157,7 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
     if (outcome.rewards.factionRep) {
       Object.entries(outcome.rewards.factionRep).forEach(
         ([faction, change]) => {
-          gameStateManager.modifyFactionRep(
+          game.modifyFactionRep(
             faction,
             change,
             'encounter_resolution'
@@ -210,17 +210,17 @@ export function applyEncounterOutcome(gameStateManager, outcome) {
         currentTotal += qtyToAdd;
       }
 
-      gameStateManager.updateCargo(currentCargo);
+      game.updateCargo(currentCargo);
     }
 
     if (outcome.rewards.passengerSatisfaction) {
-      gameStateManager.modifyAllPassengerSatisfaction(
+      game.modifyAllPassengerSatisfaction(
         outcome.rewards.passengerSatisfaction
       );
     }
   }
 
-  gameStateManager.markDirty();
+  game.markDirty();
 
   return { salvageMessages };
 }

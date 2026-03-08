@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { AchievementsList } from '../../src/features/achievements/AchievementsList.jsx';
 
 vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGameState: vi.fn(),
+  useGame: vi.fn(),
 }));
 
 vi.mock('../../src/hooks/useGameEvent.js', () => ({
@@ -14,7 +14,7 @@ vi.mock('../../src/game/data/achievements-data.js', () => ({
   ACHIEVEMENT_CATEGORIES: ['exploration', 'trading', 'survival'],
 }));
 
-import { useGameState } from '../../src/context/GameContext.jsx';
+import { useGame } from '../../src/context/GameContext.jsx';
 
 function buildAchievement(overrides = {}) {
   return {
@@ -37,7 +37,7 @@ describe('AchievementsList', () => {
     mockGSM = {
       getAchievementProgress: vi.fn(() => []),
     };
-    useGameState.mockReturnValue(mockGSM);
+    useGame.mockReturnValue(mockGSM);
   });
 
   it('renders category titles for each category', () => {
