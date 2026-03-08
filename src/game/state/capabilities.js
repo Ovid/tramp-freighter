@@ -192,3 +192,133 @@
  *
  * @property {function(string, *): void} emit
  */
+
+// ========================================================================
+// BATCH 3: Moderate Complexity
+// ========================================================================
+
+/**
+ * @typedef {Object} ShipCapabilities
+ *
+ * @property {function(): ShipState} getOwnState
+ *   Returns: { hull, engine, lifeSupport, quirks, upgrades, cargoCapacity,
+ *              hiddenCargo, name }
+ *   (Note: fuel and cargo are owned by StateManager, not ShipManager)
+ *
+ * @property {function(): number} getCredits
+ * @property {function(): Array} getShipCargo
+ *   Needed for cargo capacity checks and hidden cargo operations
+ * @property {function(): number} getCargoRemaining
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(Array): void} updateCargo
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} NPCCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.npcs
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCredits
+ * @property {function(): Array} getShipCargo
+ * @property {function(): Array} getShipQuirks
+ *   Needed for smooth_talker quirk check in modifyRep
+ * @property {function(): number} getCargoRemaining
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(Array): void} updateCargo
+ * @property {function(Array, Object, number): void} addToCargoArray
+ * @property {function(): void} checkAchievements
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} npcData
+ *   ALL_NPCS reference for NPC validation
+ */
+
+/**
+ * @typedef {Object} DangerCapabilities
+ *
+ * @property {function(): DangerState} getOwnState
+ *   Returns: { karma: state.player.karma, factions: state.player.factions,
+ *              dangerFlags: state.world.dangerFlags }
+ *
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Array} getShipCargo
+ * @property {function(): Array} getShipUpgrades
+ * @property {function(): Object|undefined} getStats
+ *
+ * @property {function(Array): void} updateCargo
+ *   For removeRestrictedCargo
+ * @property {function(): void} checkAchievements
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} RefuelCapabilities
+ *
+ * @property {function(): RefuelState} getOwnState
+ *   Returns: (no owned state — Refuel computes from ship.fuel and player)
+ *
+ * @property {function(): number} getShipFuel
+ * @property {function(): number} getCredits
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): number} getFuelCapacity
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(number): void} updateFuel
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} RepairCapabilities
+ *
+ * @property {function(): RepairState} getOwnState
+ *   Returns: (no owned state — Repair computes from ship condition and player)
+ *
+ * @property {function(): Object} getShipCondition
+ *   Returns: { hull, engine, lifeSupport }
+ * @property {function(): number} getCredits
+ * @property {function(): number} getDaysElapsed
+ * @property {function(string): Object} getNPCState
+ *   Returns: state.npcs[npcId] for free repair checks
+ * @property {function(string): Object} validateAndGetNPCData
+ *   Returns NPC static data (from ALL_NPCS)
+ * @property {function(number): Object} getRepTier
+ *   Returns reputation tier object for given rep value
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(number, number, number): void} updateShipCondition
+ * @property {function(number): void} advanceTime
+ *   For emergency patch time penalty
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} InfoBrokerCapabilities
+ *
+ * @property {function(): InfoBrokerState} getOwnState
+ *   Returns: (no owned state — InfoBroker reads world.priceKnowledge and stats)
+ *
+ * @property {function(): Object} getPriceKnowledge
+ *   Returns: state.world.priceKnowledge
+ * @property {function(): Array} getActiveEvents
+ *   Returns: state.world.activeEvents
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Array} getShipUpgrades
+ * @property {function(): number|undefined} getRumorsPurchased
+ *   Returns: state.stats.rumorsPurchased
+ *
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ * @property {Object} navigationSystem
+ */
