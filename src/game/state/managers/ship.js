@@ -713,6 +713,7 @@ export class ShipManager extends BaseManager {
     }
 
     this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...ship.cargo]);
+    this.capabilities.markDirty();
     return { success: true };
   }
 }
