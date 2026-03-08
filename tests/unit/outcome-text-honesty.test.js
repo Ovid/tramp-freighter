@@ -14,7 +14,7 @@ describe('Outcome text honesty', () => {
 
   describe('combat return fire success', () => {
     it('should mention hull damage in description', () => {
-      const manager = new CombatManager({ getState: () => ({}) });
+      const manager = new CombatManager({ state: {}, getState: () => ({}) });
       const encounter = { strength: 0.3 };
       const gameState = {
         player: { karma: 10 },
@@ -33,7 +33,7 @@ describe('Outcome text honesty', () => {
 
   describe('inspection bribe success', () => {
     it('should hint at reputation consequences', () => {
-      const manager = new InspectionManager({ getState: () => ({}) });
+      const manager = new InspectionManager({ state: {}, getState: () => ({}) });
 
       // Force bribe success (rng well below BRIBE.BASE_CHANCE)
       const result = manager.resolveInspectionBribe({}, 0.01);
@@ -48,6 +48,7 @@ describe('Outcome text honesty', () => {
   describe('inspection cooperate', () => {
     it('should describe clean inspection positively', () => {
       const manager = new InspectionManager({
+        state: {},
         getState: () => ({}),
         getDangerZone: () => 'safe',
         countRestrictedGoods: () => 0,

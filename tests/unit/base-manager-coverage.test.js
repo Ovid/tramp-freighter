@@ -27,13 +27,13 @@ describe('BaseManager coverage', () => {
   describe('constructor', () => {
     it('throws when no gameStateManager provided', () => {
       expect(() => new BaseManager(null)).toThrow(
-        'BaseManager requires gameStateManager instance'
+        'BaseManager requires gameStateManager or capabilities'
       );
     });
 
     it('throws when undefined gameStateManager provided', () => {
       expect(() => new BaseManager(undefined)).toThrow(
-        'BaseManager requires gameStateManager instance'
+        'BaseManager requires gameStateManager or capabilities'
       );
     });
 

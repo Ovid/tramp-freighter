@@ -15,15 +15,24 @@ export class BaseManager {
   /**
    * Initialize base manager with required dependencies
    *
-   * @param {GameStateManager} gameStateManager - Reference to main state manager
+   * @param {GameStateManager|Object} gsmOrCapabilities - GSM/Coordinator instance or capability object
    */
-  constructor(gameStateManager) {
-    if (!gameStateManager) {
-      throw new Error('BaseManager requires gameStateManager instance');
+  constructor(gsmOrCapabilities) {
+    if (!gsmOrCapabilities) {
+      throw new Error('BaseManager requires gameStateManager or capabilities');
     }
 
-    this.gameStateManager = gameStateManager;
-    this.isTestEnvironment = gameStateManager.isTestEnvironment;
+    // Detect mode: GSM/Coordinator instances have a `state` property (even when null)
+    // Capability objects use getOwnState() or specific getters and never have `state`
+    if ('state' in gsmOrCapabilities) {
+      // Legacy mode: received GSM/Coordinator instance
+      this.gameStateManager = gsmOrCapabilities;
+      this.isTestEnvironment = gsmOrCapabilities.isTestEnvironment;
+    } else {
+      // Capability mode: received capability object
+      this.capabilities = gsmOrCapabilities;
+      this.isTestEnvironment = gsmOrCapabilities.isTestEnvironment ?? false;
+    }
   }
 
   /**
@@ -77,11 +86,15 @@ export class BaseManager {
    * @throws {Error} If state is not initialized
    */
   validateState() {
-    if (!this.gameStateManager.state) {
-      throw new Error(
-        `Invalid state: ${this.constructor.name} operation called before game initialization`
-      );
+    if (this.gameStateManager) {
+      if (!this.gameStateManager.state) {
+        throw new Error(
+          `Invalid state: ${this.constructor.name} operation called before game initialization`
+        );
+      }
+      return;
     }
+    // Capability mode: capabilities are always valid by construction
   }
 
   /**

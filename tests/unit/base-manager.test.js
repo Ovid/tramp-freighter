@@ -41,13 +41,13 @@ describe('BaseManager', () => {
   describe('constructor', () => {
     it('throws when no gameStateManager is provided', () => {
       expect(() => new BaseManager()).toThrow(
-        'BaseManager requires gameStateManager instance'
+        'BaseManager requires gameStateManager or capabilities'
       );
     });
 
     it('throws when gameStateManager is null', () => {
       expect(() => new BaseManager(null)).toThrow(
-        'BaseManager requires gameStateManager instance'
+        'BaseManager requires gameStateManager or capabilities'
       );
     });
 
