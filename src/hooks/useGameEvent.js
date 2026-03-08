@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useGameState } from '../context/GameContext.jsx';
+import { useGame } from '../context/GameContext.jsx';
 import { EVENT_NAMES } from '../game/constants.js';
 
 /**
@@ -27,11 +27,11 @@ import { EVENT_NAMES } from '../game/constants.js';
  * }
  */
 export function useGameEvent(eventName) {
-  const gameStateManager = useGameState();
+  const game = useGame();
 
   // Initialize with current state value
   const [state, setState] = useState(() => {
-    const currentState = gameStateManager.getState();
+    const currentState = game.getState();
     return extractStateForEvent(eventName, currentState);
   });
 
@@ -41,13 +41,13 @@ export function useGameEvent(eventName) {
   }, []);
 
   useEffect(() => {
-    gameStateManager.subscribe(eventName, callback);
+    game.subscribe(eventName, callback);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      gameStateManager.unsubscribe(eventName, callback);
+      game.unsubscribe(eventName, callback);
     };
-  }, [gameStateManager, eventName, callback]);
+  }, [game, eventName, callback]);
 
   return state;
 }

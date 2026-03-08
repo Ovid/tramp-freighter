@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGameState } from '../context/GameContext.jsx';
+import { useGame } from '../context/GameContext.jsx';
 
 /**
  * Custom hook for triggering game actions through GameStateManager.
@@ -25,7 +25,7 @@ import { useGameState } from '../context/GameContext.jsx';
  * }
  */
 export function useGameAction() {
-  const gameStateManager = useGameState();
+  const game = useGame();
 
   // Use useMemo to ensure stable function references across re-renders
   // This prevents unnecessary re-renders of components that receive these functions as props
@@ -37,10 +37,10 @@ export function useGameAction() {
        * @returns {Promise<Object>} { success: boolean, error: string|null }
        */
       executeJump: async (targetSystemId) => {
-        return await gameStateManager.navigationSystem.executeJump(
-          gameStateManager,
+        return await game.navigationSystem.executeJump(
+          game,
           targetSystemId,
-          gameStateManager.animationSystem
+          game.animationSystem
         );
       },
 
@@ -52,7 +52,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       buyGood: (goodType, quantity, price) => {
-        return gameStateManager.buyGood(goodType, quantity, price);
+        return game.buyGood(goodType, quantity, price);
       },
 
       /**
@@ -63,7 +63,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string, profitMargin: number }
        */
       sellGood: (stackIndex, quantity, salePrice) => {
-        return gameStateManager.sellGood(stackIndex, quantity, salePrice);
+        return game.sellGood(stackIndex, quantity, salePrice);
       },
 
       /**
@@ -73,7 +73,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       refuel: (amount, discount) => {
-        return gameStateManager.refuel(amount, discount);
+        return game.refuel(amount, discount);
       },
 
       /**
@@ -84,7 +84,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       repair: (systemType, amount, discount) => {
-        return gameStateManager.repairShipSystem(systemType, amount, discount);
+        return game.repairShipSystem(systemType, amount, discount);
       },
 
       /**
@@ -93,7 +93,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string | null }
        */
       applyEmergencyPatch: (systemType) => {
-        return gameStateManager.applyEmergencyPatch(systemType);
+        return game.applyEmergencyPatch(systemType);
       },
 
       /**
@@ -103,7 +103,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string | null }
        */
       cannibalizeSystem: (targetType, donations) => {
-        return gameStateManager.cannibalizeSystem(targetType, donations);
+        return game.cannibalizeSystem(targetType, donations);
       },
 
       /**
@@ -112,7 +112,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       purchaseUpgrade: (upgradeId) => {
-        return gameStateManager.purchaseUpgrade(upgradeId);
+        return game.purchaseUpgrade(upgradeId);
       },
 
       /**
@@ -122,7 +122,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       purchaseIntelligence: (systemId, discount) => {
-        return gameStateManager.purchaseIntelligence(systemId, discount);
+        return game.purchaseIntelligence(systemId, discount);
       },
 
       /**
@@ -130,7 +130,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean }
        */
       dock: () => {
-        return gameStateManager.dock();
+        return game.dock();
       },
 
       /**
@@ -138,7 +138,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean }
        */
       undock: () => {
-        return gameStateManager.undock();
+        return game.undock();
       },
 
       /**
@@ -146,7 +146,7 @@ export function useGameAction() {
        * @returns {boolean} Success status
        */
       saveGame: () => {
-        return gameStateManager.saveGame();
+        return game.saveGame();
       },
 
       /**
@@ -154,7 +154,7 @@ export function useGameAction() {
        * @returns {Object} New game state
        */
       newGame: () => {
-        return gameStateManager.initNewGame();
+        return game.initNewGame();
       },
 
       /**
@@ -162,7 +162,7 @@ export function useGameAction() {
        * @param {string} newName - New ship name
        */
       updateShipName: (newName) => {
-        gameStateManager.updateShipName(newName);
+        game.updateShipName(newName);
       },
 
       /**
@@ -172,7 +172,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       moveToHiddenCargo: (good, qty) => {
-        return gameStateManager.moveToHiddenCargo(good, qty);
+        return game.moveToHiddenCargo(good, qty);
       },
 
       /**
@@ -182,7 +182,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, reason: string }
        */
       moveToRegularCargo: (good, qty) => {
-        return gameStateManager.moveToRegularCargo(good, qty);
+        return game.moveToRegularCargo(good, qty);
       },
 
       /**
@@ -191,7 +191,7 @@ export function useGameAction() {
        * @returns {Object} { available: boolean, maxHullPercent: number, reason: string | null }
        */
       canGetFreeRepair: (npcId) => {
-        return gameStateManager.canGetFreeRepair(npcId);
+        return game.canGetFreeRepair(npcId);
       },
 
       /**
@@ -201,7 +201,7 @@ export function useGameAction() {
        * @returns {Object} { success: boolean, repairedPercent: number, message: string }
        */
       getFreeRepair: (npcId, hullDamagePercent) => {
-        return gameStateManager.getFreeRepair(npcId, hullDamagePercent);
+        return game.getFreeRepair(npcId, hullDamagePercent);
       },
 
       /**
@@ -209,7 +209,7 @@ export function useGameAction() {
        * @param {number} newCredits - New credit amount
        */
       updateCredits: (newCredits) => {
-        gameStateManager.updateCredits(newCredits);
+        game.updateCredits(newCredits);
       },
 
       /**
@@ -217,7 +217,7 @@ export function useGameAction() {
        * @returns {string} Generated rumor text
        */
       generateRumor: () => {
-        return gameStateManager.generateRumor();
+        return game.generateRumor();
       },
 
       /**
@@ -229,7 +229,7 @@ export function useGameAction() {
        * @returns {Object} { valid: boolean, reason: string }
        */
       validateRefuel: (currentFuel, amount, credits, fuelPrice) => {
-        return gameStateManager.validateRefuel(
+        return game.validateRefuel(
           currentFuel,
           amount,
           credits,
@@ -241,7 +241,7 @@ export function useGameAction() {
        * Record visited prices for current system
        */
       recordVisitedPrices: () => {
-        gameStateManager.recordVisitedPrices();
+        game.recordVisitedPrices();
       },
 
       /**
@@ -249,45 +249,45 @@ export function useGameAction() {
        * @returns {Object} Price data for current system
        */
       getCurrentSystemPrices: () => {
-        return gameStateManager.getCurrentSystemPrices();
+        return game.getCurrentSystemPrices();
       },
 
-      getQuestStage: (questId) => gameStateManager.getQuestStage(questId),
-      advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
-      isQuestComplete: (questId) => gameStateManager.isQuestComplete(questId),
-      getQuestState: (questId) => gameStateManager.getQuestState(questId),
+      getQuestStage: (questId) => game.getQuestStage(questId),
+      advanceQuest: (questId) => game.advanceQuest(questId),
+      isQuestComplete: (questId) => game.isQuestComplete(questId),
+      getQuestState: (questId) => game.getQuestState(questId),
       canStartQuestStage: (questId, stage) =>
-        gameStateManager.canStartQuestStage(questId, stage),
+        game.canStartQuestStage(questId, stage),
       checkQuestObjectives: (questId) =>
-        gameStateManager.checkQuestObjectives(questId),
+        game.checkQuestObjectives(questId),
 
-      getNarrativeFlags: () => gameStateManager.getNarrativeFlags(),
-      getEpilogueData: () => gameStateManager.getEpilogueData(),
-      getEpilogueStats: () => gameStateManager.getEpilogueStats(),
+      getNarrativeFlags: () => game.getNarrativeFlags(),
+      getEpilogueData: () => game.getEpilogueData(),
+      getEpilogueStats: () => game.getEpilogueStats(),
 
-      getDebtInfo: () => gameStateManager.getDebtInfo(),
-      borrowFromCole: (amount) => gameStateManager.borrowFromCole(amount),
-      makeDebtPayment: (amount) => gameStateManager.makeDebtPayment(amount),
+      getDebtInfo: () => game.getDebtInfo(),
+      borrowFromCole: (amount) => game.borrowFromCole(amount),
+      makeDebtPayment: (amount) => game.makeDebtPayment(amount),
 
-      acceptMission: (mission) => gameStateManager.acceptMission(mission),
+      acceptMission: (mission) => game.acceptMission(mission),
       completeMission: (missionId) =>
-        gameStateManager.completeMission(missionId),
-      abandonMission: (missionId) => gameStateManager.abandonMission(missionId),
-      refreshMissionBoard: () => gameStateManager.refreshMissionBoard(),
-      getActiveMissions: () => gameStateManager.getActiveMissions(),
-      getCompletableMissions: () => gameStateManager.getCompletableMissions(),
+        game.completeMission(missionId),
+      abandonMission: (missionId) => game.abandonMission(missionId),
+      refreshMissionBoard: () => game.refreshMissionBoard(),
+      getActiveMissions: () => game.getActiveMissions(),
+      getCompletableMissions: () => game.getCompletableMissions(),
       updatePassengerSatisfaction: (missionId, event) =>
-        gameStateManager.updatePassengerSatisfaction(missionId, event),
+        game.updatePassengerSatisfaction(missionId, event),
       dismissMissionFailureNotice: (missionId) =>
-        gameStateManager.dismissMissionFailureNotice(missionId),
+        game.dismissMissionFailureNotice(missionId),
       calculateTradeWithholding: (amount) =>
-        gameStateManager.calculateTradeWithholding(amount),
+        game.calculateTradeWithholding(amount),
 
-      getFuelPrice: (systemId) => gameStateManager.getFuelPrice(systemId),
+      getFuelPrice: (systemId) => game.getFuelPrice(systemId),
       getServiceDiscount: (npcId, serviceType) =>
-        gameStateManager.getServiceDiscount(npcId, serviceType),
+        game.getServiceDiscount(npcId, serviceType),
     }),
-    [gameStateManager]
+    [game]
   );
 
   return actions;
