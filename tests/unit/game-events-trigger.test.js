@@ -59,5 +59,4 @@ describe('EconomicEventsSystem updateEvents trigger path', () => {
     expect(result.some((e) => e.id === 'active1')).toBe(true);
     expect(result.some((e) => e.id === 'expired1')).toBe(false);
   });
-
 });

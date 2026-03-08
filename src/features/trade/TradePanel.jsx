@@ -193,95 +193,98 @@ export function TradePanel({ onClose }) {
             {(() => {
               let hintShown = false;
               return COMMODITY_TYPES.map((goodType) => {
-              const price = currentSystemPrices[goodType];
+                const price = currentSystemPrices[goodType];
 
-              const maxQuantity = calculateMaxBuyQuantity(price, state);
-              const validation = validateBuy(goodType, 1, price, state);
-              const isRestricted = isGoodRestrictedInZone(
-                goodType,
-                dangerZone,
-                currentSystemId
-              );
-              const showHint = isRestricted && !restrictedExplained && !hintShown;
-              if (showHint) hintShown = true;
+                const maxQuantity = calculateMaxBuyQuantity(price, state);
+                const validation = validateBuy(goodType, 1, price, state);
+                const isRestricted = isGoodRestrictedInZone(
+                  goodType,
+                  dangerZone,
+                  currentSystemId
+                );
+                const showHint =
+                  isRestricted && !restrictedExplained && !hintShown;
+                if (showHint) hintShown = true;
 
-              return (
-                <div key={goodType} className="good-item">
-                  <div className="good-info">
-                    <div className="good-name">{capitalizeFirst(goodType)}</div>
-                    <div className="good-price">
-                      {price} ₡/unit
-                      {isRestricted && (
-                        <span className="restricted-badge-wrapper">
-                          <span
-                            className="restricted-badge"
-                            title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
-                            aria-label={`Restricted: ${RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}`}
-                          >
-                            RESTRICTED
-                          </span>
-                          {showHint && (
-                            <span className="restricted-hint">
-                              {RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
-                              <button
-                                className="restricted-hint-dismiss"
-                                onClick={dismissRestrictedHint}
-                                aria-label="Dismiss restricted goods explanation"
-                              >
-                                Got it
-                              </button>
+                return (
+                  <div key={goodType} className="good-item">
+                    <div className="good-info">
+                      <div className="good-name">
+                        {capitalizeFirst(goodType)}
+                      </div>
+                      <div className="good-price">
+                        {price} ₡/unit
+                        {isRestricted && (
+                          <span className="restricted-badge-wrapper">
+                            <span
+                              className="restricted-badge"
+                              title={RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                              aria-label={`Restricted: ${RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}`}
+                            >
+                              RESTRICTED
                             </span>
-                          )}
-                        </span>
-                      )}
+                            {showHint && (
+                              <span className="restricted-hint">
+                                {RESTRICTED_GOODS_CONFIG.RESTRICTED_TOOLTIP}
+                                <button
+                                  className="restricted-hint-dismiss"
+                                  onClick={dismissRestrictedHint}
+                                  aria-label="Dismiss restricted goods explanation"
+                                >
+                                  Got it
+                                </button>
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="good-actions">
+                      <button
+                        className="buy-btn"
+                        disabled={credits < price || cargoRemaining < 1}
+                        onClick={() => handleBuyGood(goodType, 1, price)}
+                      >
+                        Buy 1
+                      </button>
+                      <button
+                        className="buy-btn"
+                        disabled={
+                          credits < price * TRADE_CONFIG.QUICK_BUY_QUANTITY ||
+                          cargoRemaining < TRADE_CONFIG.QUICK_BUY_QUANTITY
+                        }
+                        onClick={() =>
+                          handleBuyGood(
+                            goodType,
+                            TRADE_CONFIG.QUICK_BUY_QUANTITY,
+                            price
+                          )
+                        }
+                      >
+                        Buy {TRADE_CONFIG.QUICK_BUY_QUANTITY}
+                      </button>
+                      <button
+                        className="buy-btn"
+                        disabled={maxQuantity < 1}
+                        onClick={() =>
+                          handleBuyGood(goodType, maxQuantity, price)
+                        }
+                      >
+                        Buy Max
+                      </button>
+                    </div>
+
+                    <div
+                      className={`validation-message ${
+                        !validation.valid ? 'error' : ''
+                      }`}
+                    >
+                      {!validation.valid && validation.reason}
                     </div>
                   </div>
-
-                  <div className="good-actions">
-                    <button
-                      className="buy-btn"
-                      disabled={credits < price || cargoRemaining < 1}
-                      onClick={() => handleBuyGood(goodType, 1, price)}
-                    >
-                      Buy 1
-                    </button>
-                    <button
-                      className="buy-btn"
-                      disabled={
-                        credits < price * TRADE_CONFIG.QUICK_BUY_QUANTITY ||
-                        cargoRemaining < TRADE_CONFIG.QUICK_BUY_QUANTITY
-                      }
-                      onClick={() =>
-                        handleBuyGood(
-                          goodType,
-                          TRADE_CONFIG.QUICK_BUY_QUANTITY,
-                          price
-                        )
-                      }
-                    >
-                      Buy {TRADE_CONFIG.QUICK_BUY_QUANTITY}
-                    </button>
-                    <button
-                      className="buy-btn"
-                      disabled={maxQuantity < 1}
-                      onClick={() =>
-                        handleBuyGood(goodType, maxQuantity, price)
-                      }
-                    >
-                      Buy Max
-                    </button>
-                  </div>
-
-                  <div
-                    className={`validation-message ${
-                      !validation.valid ? 'error' : ''
-                    }`}
-                  >
-                    {!validation.valid && validation.reason}
-                  </div>
-                </div>
-              );
-            });
+                );
+              });
             })()}
           </div>
         </div>
