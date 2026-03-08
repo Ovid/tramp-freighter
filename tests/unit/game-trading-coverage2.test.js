@@ -93,8 +93,7 @@ describe('TradingSystem.calculatePrice', () => {
   it('prices vary by day', () => {
     const price1 = TradingSystem.calculatePrice('ore', mockSystem, 1);
     const price15 = TradingSystem.calculatePrice('ore', mockSystem, 15);
-    // Not guaranteed different for every day, but across this gap they should differ
-    expect(price1 !== price15 || price1 === price15).toBe(true);
+    expect(price1).not.toBe(price15);
   });
 
   it('prices vary by system location', () => {
