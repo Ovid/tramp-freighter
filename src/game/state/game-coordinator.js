@@ -123,8 +123,8 @@ export class GameCoordinator {
       getStats: () => this.state.stats,
       updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
       checkAchievements: () => this.achievementsManager.checkAchievements(),
-      markDirty: this.markDirty.bind(this),
-      emit: this.emit.bind(this),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });
