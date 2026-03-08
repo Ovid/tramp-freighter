@@ -12,10 +12,12 @@ import { EVENT_NAMES } from '../../constants.js';
  * - List available intelligence for connected systems
  */
 export class InfoBrokerManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-    this.starData = gameStateManager.starData;
-    this.navigationSystem = gameStateManager.navigationSystem;
+  constructor(capabilities) {
+    super(capabilities);
+    if (this.capabilities) {
+      this.starData = this.capabilities.starData;
+      this.navigationSystem = this.capabilities.navigationSystem;
+    }
   }
 
   /**
@@ -25,7 +27,7 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {number} Cost in credits
    */
   getIntelligenceCost(systemId) {
-    const priceKnowledge = this.gameStateManager.getPriceKnowledge();
+    const priceKnowledge = this.capabilities.getPriceKnowledge();
     return InformationBroker.getIntelligenceCost(systemId, priceKnowledge);
   }
 
@@ -37,7 +39,7 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {Object} { success: boolean, reason: string }
    */
   purchaseIntelligence(systemId, discount = 0) {
-    const state = this.getState();
+    const state = this.capabilities.coordinatorRef.getState();
 
     const result = InformationBroker.purchaseIntelligence(
       state,
@@ -47,15 +49,12 @@ export class InfoBrokerManager extends BaseManager {
     );
 
     if (result.success) {
-      // Emit state change events
-      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
-      this.emit(
+      this.capabilities.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
+      this.capabilities.emit(
         EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
         state.world.priceKnowledge
       );
-
-      // Persist immediately - intelligence purchase modifies credits and price knowledge
-      this.gameStateManager.markDirty();
+      this.capabilities.markDirty();
     }
 
     return result;
@@ -67,7 +66,7 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {string} Rumor text
    */
   generateRumor() {
-    const state = this.getState();
+    const state = this.capabilities.coordinatorRef.getState();
     const purchaseCount = state.stats.rumorsPurchased || 0;
     const rumor = InformationBroker.generateRumor(
       state,
@@ -75,7 +74,7 @@ export class InfoBrokerManager extends BaseManager {
       purchaseCount
     );
     state.stats.rumorsPurchased = purchaseCount + 1;
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
     return rumor;
   }
 
@@ -88,11 +87,10 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {Array} Array of { systemId, systemName, cost, lastVisit, event? }
    */
   listAvailableIntelligence() {
-    const state = this.getState();
-    const priceKnowledge = this.gameStateManager.getPriceKnowledge();
-    const currentSystemId = state.player.currentSystem;
-    const activeEvents = this.gameStateManager.getActiveEvents();
-    const hasAdvancedSensors = state.ship.upgrades.includes('advanced_sensors');
+    const priceKnowledge = this.capabilities.getPriceKnowledge();
+    const currentSystemId = this.capabilities.getCurrentSystem();
+    const activeEvents = this.capabilities.getActiveEvents();
+    const hasAdvancedSensors = this.capabilities.getShipUpgrades().includes('advanced_sensors');
 
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,

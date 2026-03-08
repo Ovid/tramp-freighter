@@ -118,7 +118,19 @@ export class GameCoordinator {
       isTestEnvironment: this.isTestEnvironment,
     });
     this.eventsManager = new EventsManager(this);
-    this.infoBrokerManager = new InfoBrokerManager(this);
+    this.infoBrokerManager = new InfoBrokerManager({
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
+      getActiveEvents: () => this.state.world.activeEvents,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getRumorsPurchased: () => this.state.stats?.rumorsPurchased,
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      navigationSystem: this.navigationSystem,
+      coordinatorRef: this,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.dangerManager = new DangerManager({
       getKarma: () => this.state.player.karma,
       setKarma: (value) => {

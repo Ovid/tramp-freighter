@@ -323,9 +323,6 @@
 /**
  * @typedef {Object} InfoBrokerCapabilities
  *
- * @property {function(): InfoBrokerState} getOwnState
- *   Returns: (no owned state — InfoBroker reads world.priceKnowledge and stats)
- *
  * @property {function(): Object} getPriceKnowledge
  *   Returns: state.world.priceKnowledge
  * @property {function(): Array} getActiveEvents
@@ -339,6 +336,11 @@
  * @property {function(string, *): void} emit
  * @property {Array} starData
  * @property {Object} navigationSystem
+ * @property {Object} coordinatorRef
+ *   The coordinator instance, passed through to InformationBroker static methods
+ *   (purchaseIntelligence, generateRumor). Those methods directly mutate
+ *   state.player.credits and state.world.priceKnowledge. This is a documented
+ *   coupling that will be addressed if InformationBroker is refactored separately.
  */
 
 // ========================================================================
