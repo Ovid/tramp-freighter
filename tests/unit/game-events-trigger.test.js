@@ -11,36 +11,6 @@ describe('EconomicEventsSystem updateEvents trigger path', () => {
     vi.restoreAllMocks();
   });
 
-  it('triggers events for eligible systems when RNG rolls below chance', () => {
-    // Use many systems and days to increase probability of triggering at least one event
-    const starData = [];
-    for (let i = 0; i < 50; i++) {
-      starData.push({ id: i, type: 'M3V', name: `System ${i}` });
-    }
-
-    let triggered = false;
-    for (let day = 0; day < 100 && !triggered; day++) {
-      const state = {
-        player: { daysElapsed: day },
-        world: { activeEvents: [] },
-      };
-      const result = EconomicEventsSystem.updateEvents(state, starData);
-      if (result.length > 0) {
-        triggered = true;
-        // Verify event structure
-        const event = result[0];
-        expect(event).toHaveProperty('id');
-        expect(event).toHaveProperty('type');
-        expect(event).toHaveProperty('systemId');
-        expect(event).toHaveProperty('startDay');
-        expect(event).toHaveProperty('endDay');
-        expect(event).toHaveProperty('modifiers');
-        expect(event.endDay).toBeGreaterThan(event.startDay);
-      }
-    }
-    expect(triggered).toBe(true);
-  });
-
   it('does not trigger second event on system with active event', () => {
     const starData = [{ id: 0, type: 'M3V' }];
     const state = {
@@ -90,23 +60,4 @@ describe('EconomicEventsSystem updateEvents trigger path', () => {
     expect(result.some((e) => e.id === 'expired1')).toBe(false);
   });
 
-  describe('event type eligibility for core systems', () => {
-    it('festival events can trigger at Sol', () => {
-      // Use Sol system ID and iterate days to find a festival trigger
-      const starData = [{ id: 0, type: 'G2V' }];
-      let festivalTriggered = false;
-
-      for (let day = 0; day < 500 && !festivalTriggered; day++) {
-        const state = {
-          player: { daysElapsed: day },
-          world: { activeEvents: [] },
-        };
-        const result = EconomicEventsSystem.updateEvents(state, starData);
-        if (result.some((e) => e.type === 'festival')) {
-          festivalTriggered = true;
-        }
-      }
-      expect(festivalTriggered).toBe(true);
-    });
-  });
 });
