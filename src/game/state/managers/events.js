@@ -141,6 +141,7 @@ export class EventsManager extends BaseManager {
       );
     }
 
+    this.capabilities.markDirty();
     this.capabilities.emit(EVENT_NAMES.TIME_CHANGED, newDays);
   }
 }
