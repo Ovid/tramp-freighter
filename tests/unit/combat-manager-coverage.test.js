@@ -301,7 +301,9 @@ describe('CombatManager coverage', () => {
 
     it('increments piratesFought flag', () => {
       manager.resolveCombatChoice({ strengthModifier: 0 }, 'dump_cargo');
-      expect(capabilities.incrementDangerFlag).toHaveBeenCalledWith('piratesFought');
+      expect(capabilities.incrementDangerFlag).toHaveBeenCalledWith(
+        'piratesFought'
+      );
     });
 
     it('resolves evasive choice', () => {
