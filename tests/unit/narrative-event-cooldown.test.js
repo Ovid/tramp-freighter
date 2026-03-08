@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { NARRATIVE_EVENTS } from '../../src/game/data/narrative-events.js';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 
