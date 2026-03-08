@@ -28,6 +28,7 @@ function createMockGameStateManager(stateOverrides = {}) {
     _state: state,
     getOwnState: () => state.world.narrativeEvents,
     getGameState: () => state,
+    getDaysElapsed: () => state.player.daysElapsed,
     isTestEnvironment: true,
   };
 }

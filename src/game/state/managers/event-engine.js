@@ -131,7 +131,7 @@ export class EventEngineManager extends BaseManager {
    */
   setCooldown(eventId, cooldownDays) {
     this.capabilities.getOwnState().cooldowns[eventId] =
-      this.capabilities.getGameState().player.daysElapsed + cooldownDays;
+      this.capabilities.getDaysElapsed() + cooldownDays;
   }
 
   /**
