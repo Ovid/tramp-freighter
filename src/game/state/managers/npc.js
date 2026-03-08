@@ -155,6 +155,7 @@ export class NPCManager extends BaseManager {
     );
     this.gameStateManager.checkAchievements();
     this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.getState().npcs });
+    this.gameStateManager.markDirty();
   }
 
   /**
@@ -172,6 +173,8 @@ export class NPCManager extends BaseManager {
     npcState.rep = Math.round(
       Math.max(REPUTATION_BOUNDS.MIN, Math.min(REPUTATION_BOUNDS.MAX, value))
     );
+    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.getState().npcs });
+    this.gameStateManager.markDirty();
   }
 
   /**
@@ -269,6 +272,8 @@ export class NPCManager extends BaseManager {
 
     // Update lastTipDay to current game day
     npcState.lastTipDay = state.player.daysElapsed;
+
+    this.gameStateManager.markDirty();
 
     return selectedTip;
   }
@@ -464,6 +469,8 @@ export class NPCManager extends BaseManager {
     // Set lastFavorDay to current day
     npcState.lastFavorDay = state.player.daysElapsed;
 
+    this.gameStateManager.markDirty();
+
     return {
       success: true,
       message: `Received ₡${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} emergency loan`,
@@ -521,6 +528,8 @@ export class NPCManager extends BaseManager {
     // Update interaction tracking
     npcState.lastInteraction = state.player.daysElapsed;
     npcState.interactions += 1;
+
+    this.gameStateManager.markDirty();
 
     return {
       success: true,
@@ -611,6 +620,8 @@ export class NPCManager extends BaseManager {
           this.log(
             `Loan default penalty for ${npcId}: ${oldRep} -> ${npcState.rep} (loan default, tier reduction)`
           );
+
+          this.gameStateManager.markDirty();
         }
       }
     }
@@ -721,6 +732,8 @@ export class NPCManager extends BaseManager {
     // Update interaction tracking
     npcState.lastInteraction = state.player.daysElapsed;
     npcState.interactions += 1;
+
+    this.gameStateManager.markDirty();
 
     return {
       success: true,
@@ -837,6 +850,10 @@ export class NPCManager extends BaseManager {
     // Update interaction tracking
     npcState.lastInteraction = state.player.daysElapsed;
     npcState.interactions += 1;
+
+    if (retrievedCargo.length > 0) {
+      this.gameStateManager.markDirty();
+    }
 
     return {
       success: true,

@@ -536,18 +536,14 @@ export class GameStateManager {
 
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
-    this.markDirty();
   }
 
   modifyRepRaw(npcId, amount, reason) {
     this.npcManager.modifyRepRaw(npcId, amount, reason);
-    this.markDirty();
   }
 
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
-    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.state.npcs });
-    this.markDirty();
   }
 
   // ========================================================================
@@ -733,11 +729,7 @@ export class GameStateManager {
   }
 
   getTip(npcId) {
-    const result = this.npcManager.getTip(npcId);
-    if (result) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.getTip(npcId);
   }
 
   // ========================================================================
@@ -757,40 +749,23 @@ export class GameStateManager {
   }
 
   requestLoan(npcId) {
-    const result = this.npcManager.requestLoan(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.requestLoan(npcId);
   }
 
   repayLoan(npcId) {
-    const result = this.npcManager.repayLoan(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.repayLoan(npcId);
   }
 
   checkLoanDefaults() {
     this.npcManager.checkLoanDefaults();
-    this.markDirty();
   }
 
   storeCargo(npcId) {
-    const result = this.npcManager.storeCargo(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.storeCargo(npcId);
   }
 
   retrieveCargo(npcId) {
-    const result = this.npcManager.retrieveCargo(npcId);
-    if (result.success && result.retrieved.length > 0) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.retrieveCargo(npcId);
   }
 
   // ========================================================================
