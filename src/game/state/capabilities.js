@@ -474,12 +474,18 @@
  *   Returns: { currentSystem: state.player.currentSystem,
  *              visitedSystems: state.world.visitedSystems }
  *
+ * @property {function(number): void} setCurrentSystem
+ *   Sets state.player.currentSystem
+ * @property {function(Object): void} setCurrentSystemPrices
+ *   Sets state.world.currentSystemPrices
  * @property {function(): number} getDaysElapsed
  * @property {function(): Array} getActiveEvents
  * @property {function(): Object} getMarketConditions
  * @property {function(): Object|undefined} getStats
  * @property {function(): Object|undefined} getDockedSystems
  *   Returns: state.world.narrativeEvents.dockedSystems
+ * @property {function(number, Object, number, string): void} updatePriceKnowledge
+ *   Delegates to TradingManager
  *
  * @property {function(): void} checkAchievements
  * @property {function(): void} markDirty
@@ -493,7 +499,55 @@
  * @property {function(): Object} getOwnState
  *   Returns: state.world.narrativeEvents (flags, fired, cooldowns)
  *
- * @property {function(): number} getDaysElapsed
+ * @property {function(): Object} getGameState
+ *   Returns: full state (for evaluateCondition)
  *
  * @property {function(string, *): void} emit
+ */
+
+// ========================================================================
+// BATCH 5: Infrastructure Managers
+// ========================================================================
+
+/**
+ * @typedef {Object} StateManagerCapabilities
+ *
+ * @property {function(): number} getPlayerCredits
+ * @property {function(number): void} setPlayerCredits
+ * @property {function(): number} getPlayerDebt
+ * @property {function(number): void} setPlayerDebt
+ * @property {function(): number} getShipFuel
+ * @property {function(number): void} setShipFuel
+ * @property {function(): Array} getShipCargo
+ * @property {function(Array): void} setShipCargo
+ * @property {function(): number} getShipCargoCapacity
+ * @property {function(): Object} getPlayer
+ * @property {function(): Object} getShip
+ * @property {function(): Array|undefined} getActiveMissions
+ * @property {function(): Object} getFullState
+ *   Returns: full state for coordinator delegation
+ * @property {function(): number} getFuelCapacity
+ *   Delegates to ShipManager
+ *
+ * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} SaveLoadManagerCapabilities
+ *
+ * @property {function(): Object} getFullState
+ *   Returns: full state for serialization
+ * @property {function(Object): Object} restoreState
+ *   Delegates to coordinator
+ *
+ * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} InitializationCapabilities
+ *
+ * @property {function(function): Array} assignShipQuirks
+ *   Delegates to ShipManager
+ * @property {Array} starData
+ * @property {boolean} isTestEnvironment
  */
