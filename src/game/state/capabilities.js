@@ -354,8 +354,10 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipCargo
  * @property {function(): number} getCargoRemaining
+ * @property {function(): number} getDaysElapsed
  * @property {function(): Object|undefined} getStats
  * @property {function(number): Object} getDangerZone
+ * @property {function(): Array} getActiveEvents
  *
  * @property {function(number): void} updateCredits
  * @property {function(Array): void} updateCargo
@@ -365,6 +367,7 @@
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
  * @property {Array} starData
+ * @property {boolean} [isTestEnvironment]
  */
 
 /**
@@ -389,13 +392,15 @@
  * @property {function(string, number, string): void} modifyRep
  *   NPC reputation (trust-modified)
  * @property {function(number, string): void} modifyKarma
- * @property {function(string, number, string): void} modifyColeRep
+ * @property {function(number): void} modifyColeRep
+ *   Direct Cole reputation delta (bypasses trust modifier)
  * @property {function(string, number): void} removeCargoForMission
  * @property {function(string, number): void} updateStats
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
  * @property {Array} starData
  * @property {Array} wormholeData
+ * @property {boolean} [isTestEnvironment]
  */
 
 /**
@@ -406,6 +411,10 @@
  *              daysElapsed: state.player.daysElapsed }
  *   (EventsManager owns both the events list and the day counter)
  *
+ * @property {function(number): void} setDaysElapsed
+ *   Sets state.player.daysElapsed to a new value
+ * @property {function(Array): void} setActiveEvents
+ *   Replaces state.world.activeEvents with a new array
  * @property {function(): Object} getPriceKnowledge
  *   Returns: state.world.priceKnowledge (read-only for staleness check)
  * @property {function(): Object} getMarketConditions
@@ -420,7 +429,7 @@
  * @property {function(): void} checkLoanDefaults
  *   Delegates to NPCManager
  * @property {function(): void} processDebtTick
- *   Delegates to DebtManager
+ *   Delegates to DebtManager (applies interest + checks checkpoint)
  * @property {function(): void} checkMissionDeadlines
  *   Delegates to MissionManager
  * @property {function(): void} cleanupOldIntelligence
@@ -428,6 +437,7 @@
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
  * @property {Array} starData
+ * @property {boolean} [isTestEnvironment]
  */
 
 /**
@@ -439,7 +449,10 @@
  * @property {function(): number} getDaysElapsed
  * @property {function(): number} getCredits
  * @property {function(): Array} getShipCargo
+ * @property {function(): number} getCurrentSystem
  *
+ * @property {function(Object): void} initFinance
+ *   Initializes state.player.finance when not yet set
  * @property {function(number): void} updateDebt
  * @property {function(number): void} updateCredits
  * @property {function(string, number, string): void} modifyRepRaw
@@ -447,6 +460,7 @@
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
  * @property {Array} starData
+ * @property {boolean} [isTestEnvironment]
  */
 
 // ========================================================================
