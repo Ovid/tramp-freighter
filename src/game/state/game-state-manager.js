@@ -107,6 +107,9 @@ export class GameStateManager {
           caps.processDebtTick = () => this.processDebtTick();
         if (caps.checkMissionDeadlines)
           caps.checkMissionDeadlines = () => this.checkMissionDeadlines();
+        if (caps.restoreState)
+          caps.restoreState = (...args) => this.restoreState(...args);
+        if (caps.getFullState) caps.getFullState = () => this.state;
       }
     }
   }

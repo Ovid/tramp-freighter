@@ -114,7 +114,12 @@ export class GameCoordinator {
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.saveLoadManager = new SaveLoadManager(this);
+    this.saveLoadManager = new SaveLoadManager({
+      getFullState: () => this.state,
+      restoreState: (rawState) => this.restoreState(rawState),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.tradingManager = new TradingManager({
       getOwnState: () => ({
         priceKnowledge: this.state.world.priceKnowledge,

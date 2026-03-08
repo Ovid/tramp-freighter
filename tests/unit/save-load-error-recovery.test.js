@@ -32,7 +32,7 @@ describe('Save/Load Error Recovery', () => {
 
     it('does nothing when state is null', () => {
       const setItemSpy = vi.spyOn(localStorage, 'setItem');
-      vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(null);
+      gsm.saveLoadManager.capabilities.getFullState = () => null;
 
       gsm.saveLoadManager._forceSave();
 

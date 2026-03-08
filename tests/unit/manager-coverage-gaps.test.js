@@ -66,10 +66,10 @@ describe('SaveLoadManager coverage gaps', () => {
       const emitSpy = vi.spyOn(gsm, 'emit');
       // Set lastSaveTime far in the past so debounce is exceeded
       gsm.saveLoadManager.lastSaveTime = 0;
-      // Make getState return something that fails to serialize
+      // Make getFullState return something that fails to serialize
       const circular = {};
       circular.self = circular;
-      vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(circular);
+      gsm.saveLoadManager.capabilities.getFullState = () => circular;
       gsm.saveLoadManager.saveGame();
 
       const saveFailedCalls = emitSpy.mock.calls.filter(
@@ -81,8 +81,6 @@ describe('SaveLoadManager coverage gaps', () => {
 
   describe('loadGame restoreState failure path', () => {
     it('returns null when restoreState returns failure', () => {
-      // Mock loadGameFromStorage to return a state
-      vi.spyOn(gsm.saveLoadManager, 'gameStateManager', 'get');
       // We need to mock the underlying save-load module
       vi.spyOn(gsm.saveLoadManager, 'loadGame').mockImplementation(function () {
         // Simulate the loadGame logic with restoreState returning failure
@@ -160,8 +158,8 @@ describe('SaveLoadManager coverage gaps', () => {
   });
 
   describe('_forceSave', () => {
-    it('returns early when getState returns falsy', () => {
-      vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(null);
+    it('returns early when getFullState returns falsy', () => {
+      gsm.saveLoadManager.capabilities.getFullState = () => null;
       // Should not throw - just returns early
       gsm.saveLoadManager._forceSave();
     });
@@ -171,7 +169,7 @@ describe('SaveLoadManager coverage gaps', () => {
       // Create circular reference that fails JSON.stringify
       const circular = { meta: {} };
       circular.self = circular;
-      vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(circular);
+      gsm.saveLoadManager.capabilities.getFullState = () => circular;
       gsm.saveLoadManager._forceSave();
       const saveFailedCalls = emitSpy.mock.calls.filter(
         (call) => call[0] === 'saveFailed'
