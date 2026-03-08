@@ -16,10 +16,6 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  * Validates: Requirements 4.1-4.11, 8.7, 9.4, 9.10
  */
 export class NegotiationManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Resolve a negotiation choice and return the outcome
    *
@@ -30,27 +26,37 @@ export class NegotiationManager extends BaseManager {
   resolveNegotiation(encounter, choice) {
     this.validateState();
 
-    const gameState = this.getState();
-
-    // Generate deterministic RNG from game context
     const seed = buildEncounterSeed(
-      gameState.player.daysElapsed,
-      gameState.player.currentSystem,
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
       'negotiation'
     );
     const seededRng = new SeededRandom(seed);
     const rngValue = seededRng.next();
 
+    // Build stateView for internal methods that check karma, cargo, world flags
+    const stateView = {
+      player: {
+        karma: this.capabilities.getKarma(),
+        credits: this.capabilities.getCredits(),
+        daysElapsed: this.capabilities.getDaysElapsed(),
+        currentSystem: this.capabilities.getCurrentSystem(),
+      },
+      ship: { cargo: this.capabilities.getShipCargo() },
+      missions: { active: this.capabilities.getActiveMissions() },
+      world: { flags: { hasPriorIntel: this.capabilities.getHasPriorIntel() } },
+    };
+
     let result;
     switch (choice) {
       case 'counter_proposal':
-        result = this.resolveCounterProposal(encounter, gameState, rngValue);
+        result = this.resolveCounterProposal(encounter, stateView, rngValue);
         break;
       case 'medicine_claim':
-        result = this.resolveMedicineClaim(encounter, gameState, rngValue);
+        result = this.resolveMedicineClaim(encounter, stateView, rngValue);
         break;
       case 'intel_offer':
-        result = this.resolveIntelOffer(encounter, gameState, rngValue);
+        result = this.resolveIntelOffer(encounter, stateView, rngValue);
         break;
       case 'accept_demand':
         result = this.resolveAcceptDemand();
@@ -59,7 +65,7 @@ export class NegotiationManager extends BaseManager {
         throw new Error(`Unknown negotiation choice: ${choice}`);
     }
 
-    this.gameStateManager.incrementDangerFlag('piratesNegotiated');
+    this.capabilities.incrementDangerFlag('piratesNegotiated');
     return result;
   }
 
@@ -246,7 +252,7 @@ export class NegotiationManager extends BaseManager {
    */
   hasTradeCargoForPirates() {
     this.validateState();
-    const cargo = this.getState().ship.cargo;
+    const cargo = this.capabilities.getShipCargo();
     return cargo.some((item) => item.qty > 0);
   }
 
@@ -274,11 +280,10 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    const state = this.getState();
     const rng = new SeededRandom(
       buildEncounterSeed(
-        state.player.daysElapsed,
-        state.player.currentSystem,
+        this.capabilities.getDaysElapsed(),
+        this.capabilities.getCurrentSystem(),
         'negotiation_payment'
       )
     );
@@ -289,7 +294,7 @@ export class NegotiationManager extends BaseManager {
       MIN_CREDIT_DEMAND + rng.next() * (MAX_CREDIT_DEMAND - MIN_CREDIT_DEMAND)
     );
 
-    if (state.player.credits >= creditDemand) {
+    if (this.capabilities.getCredits() >= creditDemand) {
       return {
         success: true,
         costs: {
@@ -314,18 +319,16 @@ export class NegotiationManager extends BaseManager {
    */
   resolveCannotPayPirates(rng) {
     if (!rng) {
-      const state = this.getState();
       rng = new SeededRandom(
         buildEncounterSeed(
-          state.player.daysElapsed,
-          state.player.currentSystem,
+          this.capabilities.getDaysElapsed(),
+          this.capabilities.getCurrentSystem(),
           'negotiation_payment'
         )
       );
     }
 
-    const gameState = this.getState();
-    const activeMissions = gameState.missions?.active || [];
+    const activeMissions = this.capabilities.getActiveMissions() || [];
     const passengerMissions = activeMissions.filter(
       (m) => m.type === 'passenger' && m.passenger
     );

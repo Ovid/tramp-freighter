@@ -31,7 +31,19 @@ describe('Negotiation outcome schema', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    manager = new NegotiationManager({ getState: () => ({}) });
+    manager = new NegotiationManager({
+      getShipCargo: () => [],
+      getCredits: () => 500,
+      getDaysElapsed: () => 10,
+      getCurrentSystem: () => 0,
+      getActiveMissions: () => [],
+      getHasPriorIntel: () => false,
+      getKarma: () => 0,
+      incrementDangerFlag: vi.fn(),
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
+    });
   });
 
   afterEach(() => {

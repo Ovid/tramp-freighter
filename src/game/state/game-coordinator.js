@@ -107,7 +107,20 @@ export class GameCoordinator {
       markDirty: this.markDirty.bind(this),
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.negotiationManager = new NegotiationManager(this);
+    this.negotiationManager = new NegotiationManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getKarma: () => this.state.player.karma,
+      getShipCargo: () => this.state.ship.cargo,
+      getCredits: () => this.state.player.credits,
+      getActiveMissions: () => this.state.missions?.active,
+      getHasPriorIntel: () => this.state.world?.flags?.hasPriorIntel || false,
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.inspectionManager = new InspectionManager({
       getDaysElapsed: () => this.state.player.daysElapsed,
       getCurrentSystem: () => this.state.player.currentSystem,
