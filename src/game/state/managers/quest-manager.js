@@ -10,7 +10,9 @@ export class QuestManager extends BaseManager {
   constructor(capabilities) {
     super(capabilities);
     this.questDefinitions = {};
-    this.capabilities.subscribe(EVENT_NAMES.JUMP_COMPLETED, () => this.onJump());
+    this.capabilities.subscribe(EVENT_NAMES.JUMP_COMPLETED, () =>
+      this.onJump()
+    );
     this.capabilities.subscribe(EVENT_NAMES.DOCKED, (data) =>
       this.onDock(data?.systemId)
     );
@@ -198,10 +200,7 @@ export class QuestManager extends BaseManager {
       unmet.push('hull');
     if (reqs.debt != null && this.capabilities.getDebt() !== reqs.debt)
       unmet.push('debt');
-    if (
-      reqs.credits != null &&
-      this.capabilities.getCredits() < reqs.credits
-    )
+    if (reqs.credits != null && this.capabilities.getCredits() < reqs.credits)
       unmet.push('credits');
 
     return unmet;

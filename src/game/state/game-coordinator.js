@@ -193,7 +193,9 @@ export class GameCoordinator {
       addShipUpgrade: (upgrade) => {
         if (!this.state.ship.upgrades.includes(upgrade)) {
           this.state.ship.upgrades.push(upgrade);
-          this.emit(EVENT_NAMES.UPGRADES_CHANGED, [...this.state.ship.upgrades]);
+          this.emit(EVENT_NAMES.UPGRADES_CHANGED, [
+            ...this.state.ship.upgrades,
+          ]);
         }
       },
       updateStats: (key, delta) => {
