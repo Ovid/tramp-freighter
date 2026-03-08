@@ -123,7 +123,6 @@ export class GameCoordinator {
       getActiveEvents: () => this.state.world.activeEvents,
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipUpgrades: () => this.state.ship.upgrades,
-      getRumorsPurchased: () => this.state.stats?.rumorsPurchased,
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,

@@ -329,8 +329,6 @@
  *   Returns: state.world.activeEvents
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipUpgrades
- * @property {function(): number|undefined} getRumorsPurchased
- *   Returns: state.stats.rumorsPurchased
  *
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit

@@ -14,10 +14,8 @@ import { EVENT_NAMES } from '../../constants.js';
 export class InfoBrokerManager extends BaseManager {
   constructor(capabilities) {
     super(capabilities);
-    if (this.capabilities) {
-      this.starData = this.capabilities.starData;
-      this.navigationSystem = this.capabilities.navigationSystem;
-    }
+    this.starData = this.capabilities.starData;
+    this.navigationSystem = this.capabilities.navigationSystem;
   }
 
   /**
