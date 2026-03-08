@@ -8,6 +8,34 @@ import {
 } from '../../src/game/constants.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
 
+function buildDebtCapabilities(gsm) {
+  return {
+    getOwnState: () => ({
+      debt: gsm.state.player.debt,
+      finance: gsm.state.player.finance,
+    }),
+    initFinance: (financeObj) => {
+      gsm.state.player.finance = financeObj;
+    },
+    getDaysElapsed: () => gsm.state.player.daysElapsed,
+    getCredits: () => gsm.state.player.credits,
+    getShipCargo: () => gsm.state.ship.cargo,
+    getCurrentSystem: () => gsm.state.player.currentSystem,
+    updateDebt: (amount) => {
+      gsm.state.player.debt = amount;
+    },
+    updateCredits: (value) => {
+      gsm.state.player.credits = value;
+    },
+    modifyRepRaw: (npcId, amount, reason) =>
+      gsm.modifyRepRaw(npcId, amount, reason),
+    markDirty: () => {},
+    emit: (...args) => gsm.emit(...args),
+    starData: STAR_DATA,
+    isTestEnvironment: true,
+  };
+}
+
 describe('Cole Debt System', () => {
   let gsm;
 
@@ -54,7 +82,7 @@ describe('Cole Debt System', () => {
     beforeEach(() => {
       gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
       gsm.initNewGame();
-      debtManager = new DebtManager(gsm);
+      debtManager = new DebtManager(buildDebtCapabilities(gsm));
     });
 
     describe('getHeatTier', () => {
@@ -820,7 +848,7 @@ describe('Cole Debt System', () => {
     let debtManager;
 
     beforeEach(() => {
-      debtManager = new DebtManager(gsm);
+      debtManager = new DebtManager(buildDebtCapabilities(gsm));
     });
 
     it('paying off 10K in voluntary payments moves Cole from COLD to NEUTRAL or better', () => {

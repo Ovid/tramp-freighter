@@ -4,31 +4,34 @@ import { COLE_FAVOR_MISSIONS } from '../../data/cole-missions.js';
 import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
 export class DebtManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
   }
 
   getFinance() {
-    const state = this.getState();
-    if (!state.player.finance) {
-      state.player.finance = {
+    const ownState = this.capabilities.getOwnState();
+    if (!ownState.finance) {
+      const financeObj = {
         heat: COLE_DEBT_CONFIG.STARTING_HEAT,
         lienRate: COLE_DEBT_CONFIG.STARTING_LIEN_RATE,
         interestRate: COLE_DEBT_CONFIG.INTEREST_RATE,
         lastInterestDay: 0,
         nextCheckpoint:
-          state.player.daysElapsed + COLE_DEBT_CONFIG.STARTING_CHECKPOINT_DAY,
+          this.capabilities.getDaysElapsed() +
+          COLE_DEBT_CONFIG.STARTING_CHECKPOINT_DAY,
         totalBorrowed: 0,
         totalRepaid: 0,
         borrowedThisPeriod: false,
         lastCheckpointRepaid: 0,
       };
+      this.capabilities.initFinance(financeObj);
+      return financeObj;
     }
-    return state.player.finance;
+    return ownState.finance;
   }
 
   getDebt() {
-    return this.getState().player.debt;
+    return this.capabilities.getOwnState().debt;
   }
 
   getHeatTier() {
@@ -90,19 +93,18 @@ export class DebtManager extends BaseManager {
   }
 
   applyInterest() {
-    this.validateState();
-    const state = this.getState();
     const finance = this.getFinance();
     const debt = this.getDebt();
 
     if (debt === 0) return;
 
-    const daysSinceLast = state.player.daysElapsed - finance.lastInterestDay;
+    const daysElapsed = this.capabilities.getDaysElapsed();
+    const daysSinceLast = daysElapsed - finance.lastInterestDay;
     if (daysSinceLast < COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS) return;
 
     const interest = Math.ceil(debt * this.getInterestRate());
-    this.gameStateManager.updateDebt(debt + interest);
-    finance.lastInterestDay = state.player.daysElapsed;
+    this.capabilities.updateDebt(debt + interest);
+    finance.lastInterestDay = daysElapsed;
 
     // Natural heat decay if player hasn't borrowed this period
     if (!finance.borrowedThisPeriod) {
@@ -114,13 +116,12 @@ export class DebtManager extends BaseManager {
   }
 
   getMaxDraw() {
-    this.validateState();
-    const state = this.getState();
-    const credits = state.player.credits;
+    const credits = this.capabilities.getCredits();
     const debt = this.getDebt();
 
     // Estimate cargo liquidation value
-    const cargoValue = (state.ship.cargo || []).reduce(
+    const cargo = this.capabilities.getShipCargo();
+    const cargoValue = (cargo || []).reduce(
       (sum, stack) => sum + stack.qty * stack.buyPrice,
       0
     );
@@ -143,8 +144,6 @@ export class DebtManager extends BaseManager {
   }
 
   borrow(amount) {
-    this.validateState();
-    const state = this.getState();
     const finance = this.getFinance();
     const maxDraw = this.getMaxDraw();
 
@@ -156,11 +155,14 @@ export class DebtManager extends BaseManager {
       return { success: false, reason: 'Amount below minimum draw' };
     }
 
+    const credits = this.capabilities.getCredits();
+    const daysElapsed = this.capabilities.getDaysElapsed();
+
     // Increase debt
-    this.gameStateManager.updateDebt(this.getDebt() + amount);
+    this.capabilities.updateDebt(this.getDebt() + amount);
 
     // Give credits
-    this.gameStateManager.updateCredits(state.player.credits + amount);
+    this.capabilities.updateCredits(credits + amount);
 
     // Increase heat
     const heatIncrease =
@@ -171,8 +173,7 @@ export class DebtManager extends BaseManager {
 
     // Accelerate next checkpoint
     const accelerated =
-      state.player.daysElapsed +
-      COLE_DEBT_CONFIG.BORROW_CHECKPOINT_ACCELERATION_DAYS;
+      daysElapsed + COLE_DEBT_CONFIG.BORROW_CHECKPOINT_ACCELERATION_DAYS;
     finance.nextCheckpoint = Math.min(finance.nextCheckpoint, accelerated);
 
     // Track
@@ -183,14 +184,12 @@ export class DebtManager extends BaseManager {
     this.modifyColeRep(COLE_DEBT_CONFIG.REP_BORROW_BONUS);
 
     this.emitFinanceChanged();
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, amount };
   }
 
   makePayment(amount) {
-    this.validateState();
-    const state = this.getState();
     const finance = this.getFinance();
     const debt = this.getDebt();
 
@@ -201,12 +200,14 @@ export class DebtManager extends BaseManager {
     // Cap at actual debt before checking credits
     const actualPayment = Math.min(amount, debt);
 
-    if (state.player.credits < actualPayment) {
+    const credits = this.capabilities.getCredits();
+
+    if (credits < actualPayment) {
       return { success: false, reason: 'Insufficient credits' };
     }
 
-    this.gameStateManager.updateDebt(debt - actualPayment);
-    this.gameStateManager.updateCredits(state.player.credits - actualPayment);
+    this.capabilities.updateDebt(debt - actualPayment);
+    this.capabilities.updateCredits(credits - actualPayment);
 
     finance.totalRepaid += actualPayment;
 
@@ -226,11 +227,12 @@ export class DebtManager extends BaseManager {
       finance.lienRate = 0;
       finance.interestRate = 0;
       this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
-      this.emit(EVENT_NAMES.DEBT_CLEARED);
+      this.emitFinanceChanged();
+      this.capabilities.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
     this.emitFinanceChanged();
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, amount: actualPayment };
   }
@@ -277,13 +279,12 @@ export class DebtManager extends BaseManager {
   }
 
   checkCheckpoint() {
-    this.validateState();
-    const state = this.getState();
     const finance = this.getFinance();
     const debt = this.getDebt();
+    const daysElapsed = this.capabilities.getDaysElapsed();
 
     if (debt === 0) return null;
-    if (state.player.daysElapsed < finance.nextCheckpoint) return null;
+    if (daysElapsed < finance.nextCheckpoint) return null;
 
     const madePayments = finance.totalRepaid > finance.lastCheckpointRepaid;
 
@@ -297,7 +298,7 @@ export class DebtManager extends BaseManager {
 
     // Schedule next checkpoint
     const interval = this.getCheckpointInterval();
-    finance.nextCheckpoint = state.player.daysElapsed + interval;
+    finance.nextCheckpoint = daysElapsed + interval;
 
     const tier = this.getHeatTier();
     const requiresFavor = tier === 'high' || tier === 'critical';
@@ -322,10 +323,9 @@ export class DebtManager extends BaseManager {
   }
 
   getDebtInfo() {
-    this.validateState();
-    const state = this.getState();
     const finance = this.getFinance();
     const debt = this.getDebt();
+    const credits = this.capabilities.getCredits();
 
     return {
       debt,
@@ -335,7 +335,7 @@ export class DebtManager extends BaseManager {
         finance.lastInterestDay + COLE_DEBT_CONFIG.INTEREST_PERIOD_DAYS,
       maxDraw: this.getMaxDraw(),
       availableDrawTiers: this.getAvailableDrawTiers(),
-      canPay: debt > 0 && state.player.credits > 0,
+      canPay: debt > 0 && credits > 0,
       totalBorrowed: finance.totalBorrowed,
       totalRepaid: finance.totalRepaid,
       nextCheckpoint: finance.nextCheckpoint,
@@ -343,13 +343,13 @@ export class DebtManager extends BaseManager {
   }
 
   generateFavorMission() {
-    this.validateState();
-    const state = this.getState();
-    const starData = this.getStarData();
+    const daysElapsed = this.capabilities.getDaysElapsed();
+    const currentSystem = this.capabilities.getCurrentSystem();
+    const starData = this.capabilities.starData;
 
     const seed = buildEncounterSeed(
-      state.player.daysElapsed,
-      state.player.currentSystem,
+      daysElapsed,
+      currentSystem,
       'favor_mission'
     );
     const rng = new SeededRandom(seed);
@@ -357,9 +357,6 @@ export class DebtManager extends BaseManager {
     // Pick a random template
     const templateIndex = Math.floor(rng.next() * COLE_FAVOR_MISSIONS.length);
     const template = COLE_FAVOR_MISSIONS[templateIndex];
-
-    // Pick a random destination different from current system
-    const currentSystem = state.player.currentSystem;
     const reachable = starData.filter(
       (s) => s.id !== currentSystem && s.r === 1
     );
@@ -397,7 +394,7 @@ export class DebtManager extends BaseManager {
   }
 
   modifyColeRep(delta) {
-    this.gameStateManager.modifyRepRaw(
+    this.capabilities.modifyRepRaw(
       COLE_DEBT_CONFIG.COLE_NPC_ID,
       delta,
       'cole_debt'
@@ -405,6 +402,8 @@ export class DebtManager extends BaseManager {
   }
 
   emitFinanceChanged() {
-    this.emit(EVENT_NAMES.FINANCE_CHANGED, { ...this.getFinance() });
+    this.capabilities.emit(EVENT_NAMES.FINANCE_CHANGED, {
+      ...this.getFinance(),
+    });
   }
 }

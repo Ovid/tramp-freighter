@@ -318,7 +318,27 @@ export class GameCoordinator {
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.debtManager = new DebtManager(this);
+    this.debtManager = new DebtManager({
+      getOwnState: () => ({
+        debt: this.state.player.debt,
+        finance: this.state.player.finance,
+      }),
+      initFinance: (financeObj) => {
+        this.state.player.finance = financeObj;
+      },
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      updateDebt: (amount) => this.stateManager.updateDebt(amount),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      modifyRepRaw: (npcId, amount, reason) =>
+        this.npcManager.modifyRepRaw(npcId, amount, reason),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.achievementsManager = new AchievementsManager({
       getOwnState: () => this.state.achievements,
       getNpcs: () => this.state.npcs,

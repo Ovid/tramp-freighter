@@ -7,6 +7,35 @@ import {
   NAVIGATION_CONFIG,
 } from '@game/constants.js';
 import { DebtManager } from '@game/state/managers/debt.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
+
+function buildDebtCapabilities(gsm) {
+  return {
+    getOwnState: () => ({
+      debt: gsm.state.player.debt,
+      finance: gsm.state.player.finance,
+    }),
+    initFinance: (financeObj) => {
+      gsm.state.player.finance = financeObj;
+    },
+    getDaysElapsed: () => gsm.state.player.daysElapsed,
+    getCredits: () => gsm.state.player.credits,
+    getShipCargo: () => gsm.state.ship.cargo,
+    getCurrentSystem: () => gsm.state.player.currentSystem,
+    updateDebt: (amount) => {
+      gsm.state.player.debt = amount;
+    },
+    updateCredits: (value) => {
+      gsm.state.player.credits = value;
+    },
+    modifyRepRaw: (npcId, amount, reason) =>
+      gsm.modifyRepRaw(npcId, amount, reason),
+    markDirty: () => {},
+    emit: (...args) => gsm.emit(...args),
+    starData: STAR_DATA,
+    isTestEnvironment: true,
+  };
+}
 
 describe('Finance Boundary Tests', () => {
   let gsm;
@@ -263,7 +292,7 @@ describe('Finance Boundary Tests', () => {
     let debtManager;
 
     beforeEach(() => {
-      debtManager = new DebtManager(gsm);
+      debtManager = new DebtManager(buildDebtCapabilities(gsm));
     });
 
     describe('Heat tier boundaries', () => {

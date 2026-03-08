@@ -5,6 +5,34 @@ import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
 
+function buildDebtCapabilities(gsm) {
+  return {
+    getOwnState: () => ({
+      debt: gsm.state.player.debt,
+      finance: gsm.state.player.finance,
+    }),
+    initFinance: (financeObj) => {
+      gsm.state.player.finance = financeObj;
+    },
+    getDaysElapsed: () => gsm.state.player.daysElapsed,
+    getCredits: () => gsm.state.player.credits,
+    getShipCargo: () => gsm.state.ship.cargo,
+    getCurrentSystem: () => gsm.state.player.currentSystem,
+    updateDebt: (amount) => {
+      gsm.state.player.debt = amount;
+    },
+    updateCredits: (value) => {
+      gsm.state.player.credits = value;
+    },
+    modifyRepRaw: (npcId, amount, reason) =>
+      gsm.modifyRepRaw(npcId, amount, reason),
+    markDirty: () => {},
+    emit: (...args) => gsm.emit(...args),
+    starData: STAR_DATA,
+    isTestEnvironment: true,
+  };
+}
+
 describe('Cole Debt System Properties', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -19,7 +47,7 @@ describe('Cole Debt System Properties', () => {
       fc.property(fc.integer({ min: -200, max: 200 }), (delta) => {
         const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
         gsm.initNewGame();
-        const dm = new DebtManager(gsm);
+        const dm = new DebtManager(buildDebtCapabilities(gsm));
 
         dm.updateHeat(delta);
 
@@ -41,7 +69,7 @@ describe('Cole Debt System Properties', () => {
           gsm.initNewGame();
           gsm.state.player.debt = debt;
           gsm.state.player.finance.heat = Math.min(heat, 100);
-          const dm = new DebtManager(gsm);
+          const dm = new DebtManager(buildDebtCapabilities(gsm));
 
           const lienRate = dm.getLienRate();
           const { withheld } = dm.calculateWithholding(revenue);
@@ -63,7 +91,7 @@ describe('Cole Debt System Properties', () => {
           gsm.initNewGame();
           gsm.state.player.debt = initialDebt;
           gsm.state.player.credits = payment;
-          const dm = new DebtManager(gsm);
+          const dm = new DebtManager(buildDebtCapabilities(gsm));
 
           dm.makePayment(payment);
 
@@ -80,7 +108,7 @@ describe('Cole Debt System Properties', () => {
         const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
         gsm.initNewGame();
         const initialDebt = gsm.state.player.debt;
-        const dm = new DebtManager(gsm);
+        const dm = new DebtManager(buildDebtCapabilities(gsm));
 
         const result = dm.borrow(amount);
 
