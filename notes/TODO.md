@@ -1,11 +1,9 @@
 # TODO
 
-/superpowers:brainstorm The game is great, but there's no sound. When
-traveling via wormhole, no sound. No general
-background sound. No sci-fi click when I click on a button. Might be more. Is
-that something which is easy to add in? The
- sounds would have to be coherent and understandable. They'd also have to be
- something you could disable in the Settings.
+- Whisper, information broker on Sirius A, provides intel discount service,
+  but it looks like it's not implemented yet. We should implement this, as it
+  adds a unique benefit to building a relationship with Whisper.
+- docs/plans/2026-03-08-gsm-refactor-design.md
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain
