@@ -4,7 +4,6 @@ import { COMBAT_CONFIG } from '../../src/game/constants.js';
 
 describe('CombatManager lucky_ship negation paths', () => {
   let manager;
-  let gsm;
 
   const makeGameState = (overrides = {}) => ({
     player: {
@@ -25,16 +24,19 @@ describe('CombatManager lucky_ship negation paths', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = {
-      state: makeGameState(),
-      starData: [],
-      wormholeData: [],
-      navigationSystem: { jump: vi.fn() },
-      emit: vi.fn(),
-      isTestEnvironment: true,
+    const state = makeGameState();
+    const capabilities = {
+      getDaysElapsed: () => state.player.daysElapsed,
+      getCurrentSystem: () => state.player.currentSystem,
+      getShipQuirks: () => state.ship.quirks,
+      getShipUpgrades: () => state.ship.upgrades,
+      getKarma: () => state.player.karma,
       incrementDangerFlag: vi.fn(),
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
-    manager = new CombatManager(gsm);
+    manager = new CombatManager(capabilities);
   });
 
   afterEach(() => {

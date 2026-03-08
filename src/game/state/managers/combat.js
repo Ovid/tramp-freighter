@@ -13,10 +13,6 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  * Validates: Requirements 3.1-3.11, 8.7
  */
 export class CombatManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Resolve a combat choice and return the outcome
    *
@@ -27,11 +23,17 @@ export class CombatManager extends BaseManager {
   resolveCombatChoice(encounter, choice) {
     this.validateState();
 
-    const gameState = this.getState();
+    const stateView = {
+      player: { karma: this.capabilities.getKarma() },
+      ship: {
+        quirks: this.capabilities.getShipQuirks(),
+        upgrades: this.capabilities.getShipUpgrades(),
+      },
+    };
 
     const seed = buildEncounterSeed(
-      gameState.player.daysElapsed,
-      gameState.player.currentSystem,
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
       'combat'
     );
     const rng = new SeededRandom(seed).next();
@@ -39,22 +41,22 @@ export class CombatManager extends BaseManager {
     let result;
     switch (choice) {
       case 'evasive':
-        result = this.resolveEvasiveManeuvers(encounter, gameState, rng);
+        result = this.resolveEvasiveManeuvers(encounter, stateView, rng);
         break;
       case 'return_fire':
-        result = this.resolveReturnFire(encounter, gameState, rng);
+        result = this.resolveReturnFire(encounter, stateView, rng);
         break;
       case 'dump_cargo':
         result = this.resolveDumpCargo();
         break;
       case 'distress_call':
-        result = this.resolveDistressCall(encounter, gameState, rng);
+        result = this.resolveDistressCall(encounter, stateView, rng);
         break;
       default:
         throw new Error(`Unknown combat choice: ${choice}`);
     }
 
-    this.gameStateManager.incrementDangerFlag('piratesFought');
+    this.capabilities.incrementDangerFlag('piratesFought');
     return result;
   }
 

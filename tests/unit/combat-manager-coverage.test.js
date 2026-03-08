@@ -4,7 +4,7 @@ import { COMBAT_CONFIG, KARMA_CONFIG } from '../../src/game/constants.js';
 
 describe('CombatManager coverage', () => {
   let manager;
-  let gsm;
+  let capabilities;
 
   const makeGameState = (overrides = {}) => ({
     player: {
@@ -26,16 +26,18 @@ describe('CombatManager coverage', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     const state = makeGameState();
-    gsm = {
-      state,
-      starData: [],
-      wormholeData: [],
-      navigationSystem: { jump: vi.fn() },
-      emit: vi.fn(),
-      isTestEnvironment: true,
+    capabilities = {
+      getDaysElapsed: () => state.player.daysElapsed,
+      getCurrentSystem: () => state.player.currentSystem,
+      getShipQuirks: () => state.ship.quirks,
+      getShipUpgrades: () => state.ship.upgrades,
+      getKarma: () => state.player.karma,
       incrementDangerFlag: vi.fn(),
+      emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
-    manager = new CombatManager(gsm);
+    manager = new CombatManager(capabilities);
   });
 
   afterEach(() => {
@@ -299,7 +301,7 @@ describe('CombatManager coverage', () => {
 
     it('increments piratesFought flag', () => {
       manager.resolveCombatChoice({ strengthModifier: 0 }, 'dump_cargo');
-      expect(gsm.incrementDangerFlag).toHaveBeenCalledWith('piratesFought');
+      expect(capabilities.incrementDangerFlag).toHaveBeenCalledWith('piratesFought');
     });
 
     it('resolves evasive choice', () => {
