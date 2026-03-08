@@ -72,7 +72,7 @@ export class MissionManager extends BaseManager {
         buyPrice: 0,
         missionId: mission.id,
       });
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
     }
 
     this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
@@ -250,7 +250,7 @@ export class MissionManager extends BaseManager {
       // Update the cargo array in-place by splicing
       cargo.length = 0;
       cargo.push(...updatedCargo);
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
     } else if (
       (mission.type === 'delivery' || mission.type === 'fetch') &&
       mission.requirements.cargo
@@ -355,7 +355,7 @@ export class MissionManager extends BaseManager {
       const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
       cargo.length = 0;
       cargo.push(...updatedCargo);
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
     }
 
     if (mission.penalties && mission.penalties.failure) {
@@ -446,7 +446,7 @@ export class MissionManager extends BaseManager {
     }
 
     if (cargoChanged) {
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
     }
 
     this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });

@@ -592,9 +592,9 @@ export class ShipManager extends BaseManager {
     // Add to hidden cargo (stacks with matching good and buyPrice)
     this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
-    // Emit cargo change events
-    this.capabilities.updateCargo(ship.cargo);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    // Emit cargo change events (new references for React re-renders)
+    this.capabilities.updateCargo([...ship.cargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [...ship.hiddenCargo]);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
@@ -644,9 +644,9 @@ export class ShipManager extends BaseManager {
     // Add to regular cargo (stacks with matching good and buyPrice)
     this.addToCargoArray(ship.cargo, hiddenStack, qty);
 
-    // Emit cargo change events
-    this.capabilities.updateCargo(ship.cargo);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    // Emit cargo change events (new references for React re-renders)
+    this.capabilities.updateCargo([...ship.cargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [...ship.hiddenCargo]);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
@@ -707,7 +707,7 @@ export class ShipManager extends BaseManager {
       }
     }
 
-    this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, ship.cargo);
+    this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...ship.cargo]);
     return { success: true };
   }
 }
