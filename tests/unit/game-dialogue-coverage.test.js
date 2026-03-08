@@ -167,9 +167,28 @@ describe('game-dialogue coverage', () => {
       if (repChoice) {
         const repBefore = gsm.getNPCState('chen_barnards').rep;
         selectChoice('chen_barnards', repChoice.index, gsm);
-        // Rep should change (modified by trust modifier)
+        // Rep should change (without trust modifier)
         expect(gsm.getNPCState('chen_barnards').rep).not.toBe(repBefore);
       }
+    });
+
+    it('applies dialogue repGain without trust personality modifier', () => {
+      // Tanaka has trust=0.2; a repGain of 3 with modifyRep would give
+      // 3*0.2=0.6 -> rounds to +1. With modifyRepRaw it should give +3.
+      const npcId = 'tanaka_barnards';
+      gsm.getNPCState(npcId).rep = 50;
+
+      const dialogue = showDialogue(npcId, 'about_work', gsm);
+      // "How much further?" has repGain: 1
+      const repChoice = dialogue.choices.find((c) => c.repGain > 0);
+      expect(repChoice).toBeDefined();
+
+      const repBefore = gsm.getNPCState(npcId).rep;
+      selectChoice(npcId, repChoice.index, gsm);
+      const repAfter = gsm.getNPCState(npcId).rep;
+
+      // Should apply full repGain (1), not trust-modified (1*0.2=0.2 -> 0)
+      expect(repAfter).toBe(repBefore + repChoice.repGain);
     });
 
     it('defaults to greeting when no active dialogue state', () => {

@@ -336,8 +336,10 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   }
 
   // Apply reputation gain before advancing to next node
+  // Use modifyRepRaw to bypass trust personality modifier — dialogue repGain
+  // values are intentional design choices that should apply at face value
   if (selectedChoice.repGain && selectedChoice.repGain !== 0) {
-    gameStateManager.modifyRep(
+    gameStateManager.modifyRepRaw(
       npcId,
       selectedChoice.repGain,
       'dialogue_choice'

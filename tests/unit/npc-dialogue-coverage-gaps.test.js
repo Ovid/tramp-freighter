@@ -604,7 +604,7 @@ describe('NPC dialogue coverage gaps', () => {
       expect(result).toContain("Cole's pocket");
     });
 
-    it('shows credits requirement hint', () => {
+    it('shows credits requirement hint with specific amount', () => {
       const ctx = makeTanakaContext({
         getQuestStage: () => 1,
         hasClaimedStageRewards: () => true,
@@ -612,7 +612,10 @@ describe('NPC dialogue coverage gaps', () => {
         getUnmetRequirements: () => ['credits'],
       });
       const result = greeting.text(REPUTATION_BOUNDS.FRIENDLY_MIN, ctx);
-      expect(result).toContain('deeper pockets');
+      expect(result).toContain('credits');
+      expect(result).toContain(
+        ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString()
+      );
     });
 
     it('shows rep requirement hint', () => {

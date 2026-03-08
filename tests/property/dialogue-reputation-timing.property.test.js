@@ -74,31 +74,16 @@ describe('Dialogue Reputation Update Timing Properties', () => {
           // Check that reputation was updated
           const finalRep = gameStateManager.getNPCState(npcId).rep;
 
-          // Calculate expected reputation change (accounting for trust modifier and quirks)
-          const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          let expectedChange = choice.repGain;
+          // Dialogue repGain uses modifyRepRaw (no trust modifier or quirk bonus)
+          const expectedChange = choice.repGain;
 
-          if (expectedChange > 0) {
-            // Apply trust modifier for positive gains
-            expectedChange *= npcData.personality.trust;
-
-            // Apply smooth_talker quirk if present
-            if (
-              gameStateManager.getState().ship.quirks.includes('smooth_talker')
-            ) {
-              expectedChange *= 1.05;
-            }
-          }
-
-          // Calculate expected final reputation (with clamping)
+          // Calculate expected final reputation (with clamping and rounding)
           const expectedFinalRep = Math.max(
             -100,
-            Math.min(100, initialRep + expectedChange)
+            Math.min(100, Math.round(initialRep + expectedChange))
           );
 
-          // Allow for small floating point differences
-          const repDifference = Math.abs(finalRep - expectedFinalRep);
-          expect(repDifference).toBeLessThanOrEqual(0.01);
+          expect(finalRep).toBe(expectedFinalRep);
 
           // The key test: verify that the next dialogue node reflects the updated reputation
           // If the next node has reputation-dependent text, it should use the new reputation
