@@ -33,7 +33,10 @@ describe('Outcome text honesty', () => {
 
   describe('inspection bribe success', () => {
     it('should hint at reputation consequences', () => {
-      const manager = new InspectionManager({ state: {}, getState: () => ({}) });
+      const manager = new InspectionManager({
+        state: {},
+        getState: () => ({}),
+      });
 
       // Force bribe success (rng well below BRIBE.BASE_CHANCE)
       const result = manager.resolveInspectionBribe({}, 0.01);
