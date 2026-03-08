@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useGameState } from '../context/GameContext.jsx';
+import { useGame } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 import { EVENT_NAMES, PIRATE_CREDIT_DEMAND_CONFIG } from '../game/constants.js';
 import { SeededRandom } from '../game/utils/seeded-random.js';
@@ -20,7 +20,7 @@ import {
  * DangerManager before querying the engine.
  */
 export function useEventTriggers() {
-  const gameStateManager = useGameState();
+  const game = useGameState();
   const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   /**
@@ -29,11 +29,11 @@ export function useEventTriggers() {
   const buildJumpContext = useCallback(
     (systemId, gameState) => {
       // Compute dynamic chances from manager methods
-      const pirateChance = gameStateManager.calculatePirateEncounterChance(
+      const pirateChance = game.calculatePirateEncounterChance(
         systemId,
         gameState
       );
-      const inspectionChance = gameStateManager.calculateInspectionChance(
+      const inspectionChance = game.calculateInspectionChance(
         systemId,
         gameState
       );
@@ -41,8 +41,8 @@ export function useEventTriggers() {
       // Mechanical failure and distress call use internal seeded RNG.
       // We pre-check and convert to a 0/1 chance for the engine.
       const mechanicalResult =
-        gameStateManager.checkMechanicalFailure(gameState);
-      const distressResult = gameStateManager.checkDistressCall();
+        game.checkMechanicalFailure(gameState);
+      const distressResult = game.checkDistressCall();
 
       return {
         system: systemId,
@@ -58,7 +58,7 @@ export function useEventTriggers() {
         _distressResult: distressResult,
       };
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -126,10 +126,10 @@ export function useEventTriggers() {
 
       // If event has generateContent, produce dynamic text from game state
       if (typeof event.generateContent === 'function') {
-        const state = gameStateManager.getState();
+        const state = game.getState();
         const dynamicContent = event.generateContent(
           state,
-          gameStateManager.starData
+          game.starData
         );
         emitted = {
           ...emitted,
@@ -139,9 +139,9 @@ export function useEventTriggers() {
 
       // Spread to create a fresh reference so React detects the update
       // and App.jsx de-dupe guard allows repeatable events to re-fire
-      gameStateManager.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, emitted);
+      game.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, emitted);
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -149,22 +149,22 @@ export function useEventTriggers() {
    */
   const handleTrigger = useCallback(
     (eventType, context) => {
-      if (!gameStateManager) return;
+      if (!game) return;
 
-      const state = gameStateManager.getState();
+      const state = game.getState();
       if (!state) return;
       const day = Math.floor(state.player.daysElapsed);
       const system = state.player.currentSystem;
       const rng = new SeededRandom(`event-${eventType}-${day}-${system}`);
       const rngFn = () => rng.next();
 
-      const event = gameStateManager.checkEvents(eventType, context, rngFn);
+      const event = game.checkEvents(eventType, context, rngFn);
 
       if (!event) {
         // Also check condition events as fallback
         if (eventType !== 'condition') {
           const condRng = new SeededRandom(`event-condition-${day}-${system}`);
-          const condEvent = gameStateManager.checkEvents(
+          const condEvent = game.checkEvents(
             'condition',
             context,
             () => condRng.next()
@@ -177,20 +177,20 @@ export function useEventTriggers() {
       }
 
       if (event.category === 'danger') {
-        const gameState = gameStateManager.getState();
+        const gameState = game.getState();
         const encounterData = generateDangerEncounterData(
           event,
           context,
           gameState
         );
         if (encounterData) {
-          gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
+          game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
         }
       } else if (event.category === 'narrative') {
         emitNarrativeEvent(event);
       }
     },
-    [gameStateManager, generateDangerEncounterData, emitNarrativeEvent]
+    [game, generateDangerEncounterData, emitNarrativeEvent]
   );
 
   // Track last system to distinguish real jumps from initial state emission
@@ -198,10 +198,10 @@ export function useEventTriggers() {
 
   // Listen for jump completion (locationChanged)
   useEffect(() => {
-    if (!gameStateManager) return;
+    if (!game) return;
 
     const handleJumpComplete = (data) => {
-      const gameState = gameStateManager.getState();
+      const gameState = game.getState();
       if (!gameState) return;
 
       const systemId = typeof data === 'number' ? data : currentSystem;
@@ -222,20 +222,20 @@ export function useEventTriggers() {
       handleTrigger('jump', context);
     };
 
-    gameStateManager.subscribe(
+    game.subscribe(
       EVENT_NAMES.LOCATION_CHANGED,
       handleJumpComplete
     );
     return () =>
-      gameStateManager.unsubscribe(
+      game.unsubscribe(
         EVENT_NAMES.LOCATION_CHANGED,
         handleJumpComplete
       );
-  }, [gameStateManager, buildJumpContext, handleTrigger, currentSystem]);
+  }, [game, buildJumpContext, handleTrigger, currentSystem]);
 
   // Listen for docking
   useEffect(() => {
-    if (!gameStateManager) return;
+    if (!game) return;
 
     const handleDocked = (data) => {
       const systemId = data?.systemId;
@@ -243,42 +243,42 @@ export function useEventTriggers() {
       handleTrigger('dock', { system: systemId });
     };
 
-    gameStateManager.subscribe(EVENT_NAMES.DOCKED, handleDocked);
-    return () => gameStateManager.unsubscribe(EVENT_NAMES.DOCKED, handleDocked);
-  }, [gameStateManager, handleTrigger]);
+    game.subscribe(EVENT_NAMES.DOCKED, handleDocked);
+    return () => game.unsubscribe(EVENT_NAMES.DOCKED, handleDocked);
+  }, [game, handleTrigger]);
 
   // Listen for time changes
   useEffect(() => {
-    if (!gameStateManager) return;
+    if (!game) return;
 
     const handleTimeChanged = () => {
-      const gameState = gameStateManager.getState();
+      const gameState = game.getState();
       if (!gameState) return;
       handleTrigger('time', { system: gameState.player.currentSystem });
     };
 
-    gameStateManager.subscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
+    game.subscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
     return () =>
-      gameStateManager.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
-  }, [gameStateManager, handleTrigger]);
+      game.unsubscribe(EVENT_NAMES.TIME_CHANGED, handleTimeChanged);
+  }, [game, handleTrigger]);
 
   // Listen for debt clearance to immediately show the narrative popup
   useEffect(() => {
-    if (!gameStateManager) return;
+    if (!game) return;
 
     const handleDebtCleared = () => {
-      const event = gameStateManager.getEventById('cond_debt_free');
+      const event = game.getEventById('cond_debt_free');
       if (!event) return;
 
       // Respect once-only guard so the event doesn't replay on reload
-      const { fired } = gameStateManager.getState().world.narrativeEvents;
+      const { fired } = game.getState().world.narrativeEvents;
       if (event.once && fired.includes(event.id)) return;
 
       emitNarrativeEvent(event);
     };
 
-    gameStateManager.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+    game.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
     return () =>
-      gameStateManager.unsubscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
-  }, [gameStateManager, emitNarrativeEvent]);
+      game.unsubscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+  }, [game, emitNarrativeEvent]);
 }

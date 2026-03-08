@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useGameState } from '../context/GameContext.jsx';
+import { useGame } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 import { EVENT_NAMES } from '../game/constants.js';
 
@@ -34,7 +34,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  * }
  */
 export function useDialogue() {
-  const gameStateManager = useGameState();
+  const game = useGameState();
   const dialogueState = useGameEvent(EVENT_NAMES.DIALOGUE_CHANGED);
 
   /**
@@ -52,14 +52,14 @@ export function useDialogue() {
     async (npcId, nodeId = 'greeting') => {
       try {
         // Call the GameStateManager public API method
-        await gameStateManager.startDialogue(npcId, nodeId);
+        await game.startDialogue(npcId, nodeId);
         return true;
       } catch (error) {
         console.error('Failed to start dialogue:', error);
         return false;
       }
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -77,14 +77,14 @@ export function useDialogue() {
     async (npcId, choiceIndex) => {
       try {
         // Call the GameStateManager public API method
-        await gameStateManager.selectDialogueChoice(npcId, choiceIndex);
+        await game.selectDialogueChoice(npcId, choiceIndex);
         return true;
       } catch (error) {
         console.error('Failed to select dialogue choice:', error);
         return false;
       }
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -93,8 +93,8 @@ export function useDialogue() {
    * Immediately clears the dialogue state and updates UI through event system.
    */
   const clearDialogue = useCallback(() => {
-    gameStateManager.clearDialogueState();
-  }, [gameStateManager]);
+    game.clearDialogueState();
+  }, [game]);
 
   return {
     dialogueState,

@@ -1,4 +1,4 @@
-import { useGameState } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 
 /**
  * Custom hook for accessing danger zone information
@@ -11,6 +11,6 @@ import { useGameState } from '../context/GameContext';
  * @returns {string} Danger zone classification: 'safe', 'contested', or 'dangerous'
  */
 export function useDangerZone(systemId) {
-  const gameStateManager = useGameState();
-  return gameStateManager.dangerManager.getDangerZone(systemId);
+  const game = useGameState();
+  return game.dangerManager.getDangerZone(systemId);
 }

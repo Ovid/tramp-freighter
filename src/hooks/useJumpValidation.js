@@ -1,4 +1,4 @@
-import { useGameState } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 import { useGameEvent } from './useGameEvent';
 import { EVENT_NAMES } from '../game/constants.js';
 
@@ -15,19 +15,19 @@ import { EVENT_NAMES } from '../game/constants.js';
  * @returns {Object} Validation result: { valid, error, fuelCost, distance, jumpTime }
  */
 export function useJumpValidation(currentSystemId, targetSystemId, fuel) {
-  const gameStateManager = useGameState();
+  const game = useGameState();
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
   // Subscribe so hook re-runs when upgrades change (affects fuelConsumption)
   useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
-  const capabilities = gameStateManager.calculateShipCapabilities();
+  const capabilities = game.calculateShipCapabilities();
 
-  return gameStateManager.navigationSystem.validateJump(
+  return game.navigationSystem.validateJump(
     currentSystemId,
     targetSystemId,
     fuel,
     shipCondition?.engine ?? 100,
-    gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+    game.applyQuirkModifiers.bind(game),
     quirks,
     capabilities.fuelConsumption,
     shipCondition ?? null

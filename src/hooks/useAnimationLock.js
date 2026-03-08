@@ -1,4 +1,4 @@
-import { useGameState } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 
 /**
  * useAnimationLock hook provides access to animation lock state
@@ -15,11 +15,11 @@ import { useGameState } from '../context/GameContext';
  * @returns {Function} returns.isAnimating - Function that returns true if animation is currently playing
  */
 export function useAnimationLock() {
-  const gameStateManager = useGameState();
+  const game = useGameState();
 
   // Access the animation system through the game state manager
   // The animation system is set during starmap initialization
-  const animationSystem = gameStateManager.animationSystem;
+  const animationSystem = game.animationSystem;
 
   /**
    * Check if input is currently locked
