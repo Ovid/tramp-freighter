@@ -31,8 +31,8 @@ vi.mock('../../src/hooks/useStarData', () => ({
 }));
 
 // Mock GameContext
-vi.mock('../../src/context/GameContext', () => ({
-  useGameState: () => ({
+vi.mock('../../src/context/GameContext', () => {
+  const hook = () => ({
     navigationSystem: {
       getConnectedSystems: () => [1],
       calculateDistanceBetween: () => 4.3,
@@ -51,8 +51,9 @@ vi.mock('../../src/context/GameContext', () => ({
     }),
     calculateShipCapabilities: () => ({ fuelConsumption: 1.0 }),
     applyQuirkModifiers: (val) => val,
-  }),
-}));
+  });
+  return { useGameState: hook, useGame: hook };
+});
 
 // Mock useGameAction
 vi.mock('../../src/hooks/useGameAction', () => ({

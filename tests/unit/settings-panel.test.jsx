@@ -13,15 +13,16 @@ vi.mock('../../src/features/achievements/AchievementsModal', () => ({
 }));
 
 // Mock GameContext
-vi.mock('../../src/context/GameContext', () => ({
-  useGameState: () => ({
+vi.mock('../../src/context/GameContext', () => {
+  const hook = () => ({
     getPreference: vi.fn((key) => {
       if (key === 'jumpWarningsEnabled') return true;
       return true;
     }),
     setPreference: vi.fn(),
-  }),
-}));
+  });
+  return { useGameState: hook, useGame: hook };
+});
 
 // Mock useGameEvent
 vi.mock('../../src/hooks/useGameEvent', () => ({
