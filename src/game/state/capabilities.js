@@ -322,3 +322,114 @@
  * @property {Array} starData
  * @property {Object} navigationSystem
  */
+
+// ========================================================================
+// BATCH 4: Heavy Cross-Domain
+// ========================================================================
+
+/**
+ * @typedef {Object} TradingCapabilities
+ *
+ * @property {function(): TradingState} getOwnState
+ *   Returns: { priceKnowledge: state.world.priceKnowledge,
+ *              marketConditions: state.world.marketConditions,
+ *              currentSystemPrices: state.world.currentSystemPrices }
+ *
+ * @property {function(): number} getCredits
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Array} getShipCargo
+ * @property {function(): number} getCargoRemaining
+ * @property {function(): Object|undefined} getStats
+ * @property {function(number): Object} getDangerZone
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(Array): void} updateCargo
+ * @property {function(number): void} applyTradeWithholding
+ * @property {function(): void} checkAchievements
+ * @property {function(string, number): void} updateStats
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} MissionCapabilities
+ *
+ * @property {function(): Object} getOwnState
+ *   Returns: state.missions
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): number} getCredits
+ * @property {function(): Array} getShipCargo
+ * @property {function(): number} getCargoRemaining
+ * @property {function(): Object|undefined} getStats
+ * @property {function(): Array} getVisitedSystems
+ * @property {function(number): Object} getDangerZone
+ * @property {function(string): number} getFactionRep
+ *
+ * @property {function(number): void} updateCredits
+ * @property {function(number): void} applyTradeWithholding
+ * @property {function(string, number, string): void} modifyFactionRep
+ * @property {function(string, number, string): void} modifyRep
+ *   NPC reputation (trust-modified)
+ * @property {function(number, string): void} modifyKarma
+ * @property {function(string, number, string): void} modifyColeRep
+ * @property {function(string, number): void} removeCargoForMission
+ * @property {function(string, number): void} updateStats
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ * @property {Array} wormholeData
+ */
+
+/**
+ * @typedef {Object} EventsCapabilities
+ *
+ * @property {function(): EventsState} getOwnState
+ *   Returns: { activeEvents: state.world.activeEvents,
+ *              daysElapsed: state.player.daysElapsed }
+ *   (EventsManager owns both the events list and the day counter)
+ *
+ * @property {function(): Object} getPriceKnowledge
+ *   Returns: state.world.priceKnowledge (read-only for staleness check)
+ * @property {function(): Object} getMarketConditions
+ *   Returns: state.world.marketConditions (read-only for event processing)
+ *
+ * @property {function(number): void} incrementPriceKnowledgeStaleness
+ *   Delegates to TradingManager
+ * @property {function(number): void} applyMarketRecovery
+ *   Delegates to TradingManager
+ * @property {function(): void} recalculatePricesForKnownSystems
+ *   Delegates to TradingManager
+ * @property {function(): void} checkLoanDefaults
+ *   Delegates to NPCManager
+ * @property {function(): void} processDebtTick
+ *   Delegates to DebtManager
+ * @property {function(): void} checkMissionDeadlines
+ *   Delegates to MissionManager
+ * @property {function(): void} cleanupOldIntelligence
+ *   Delegates to InformationBroker
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
+
+/**
+ * @typedef {Object} DebtCapabilities
+ *
+ * @property {function(): DebtState} getOwnState
+ *   Returns: { debt: state.player.debt, finance: state.player.finance }
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCredits
+ * @property {function(): Array} getShipCargo
+ *
+ * @property {function(number): void} updateDebt
+ * @property {function(number): void} updateCredits
+ * @property {function(string, number, string): void} modifyRepRaw
+ *   For Cole reputation changes
+ * @property {function(): void} markDirty
+ * @property {function(string, *): void} emit
+ * @property {Array} starData
+ */
