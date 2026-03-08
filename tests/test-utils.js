@@ -1,5 +1,6 @@
 'use strict';
 
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { GameStateManager } from '@game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from './test-data.js';
 
@@ -13,15 +14,15 @@ export { TEST_STAR_DATA, TEST_WORMHOLE_DATA };
  */
 
 /**
- * Create a fully initialized GameStateManager for testing
+ * Create a fully initialized GameCoordinator for testing
  *
- * Encapsulates the standard test setup pattern of creating a GameStateManager
+ * Encapsulates the standard test setup pattern of creating a GameCoordinator
  * with TEST_STAR_DATA and TEST_WORMHOLE_DATA, then calling initNewGame().
  *
- * @returns {GameStateManager} An initialized GameStateManager instance
+ * @returns {GameCoordinator} An initialized GameCoordinator instance
  */
-export function createTestGameStateManager() {
-  const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+export function createTestGame() {
+  const manager = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
   manager.initNewGame();
   return manager;
 }
@@ -102,4 +103,15 @@ export function createMinimalStarData() {
  */
 export function createMinimalWormholeData() {
   return [[0, 1]];
+}
+
+/**
+ * @deprecated Use createTestGame instead.
+ * Uses GameStateManager wrapper for backward compat with tests that spy on
+ * cross-domain methods via the wrapper's capability patching.
+ */
+export function createTestGameStateManager() {
+  const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+  manager.initNewGame();
+  return manager;
 }
