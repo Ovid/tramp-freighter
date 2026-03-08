@@ -146,6 +146,8 @@
  * @property {function(): number} getDaysElapsed
  * @property {function(): Object|undefined} getStats
  *   Returns: state.stats
+ * @property {function(): Array|undefined} getVisitedSystems
+ *   Returns: state.world.visitedSystems
  *
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit

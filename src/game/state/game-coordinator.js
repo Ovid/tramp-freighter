@@ -165,7 +165,18 @@ export class GameCoordinator {
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
     this.debtManager = new DebtManager(this);
-    this.achievementsManager = new AchievementsManager(this);
+    this.achievementsManager = new AchievementsManager({
+      getOwnState: () => this.state.achievements,
+      getNpcs: () => this.state.npcs,
+      getDangerFlags: () => this.state.world?.dangerFlags,
+      getKarma: () => this.state.player?.karma,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getStats: () => this.state.stats,
+      getVisitedSystems: () => this.state.world?.visitedSystems,
+      markDirty: this.markDirty.bind(this),
+      emit: this.emit.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
   }
 
   /**
