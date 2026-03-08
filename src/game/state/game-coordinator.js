@@ -96,7 +96,22 @@ export class GameCoordinator {
       emit: (...args) => this.emit(...args),
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.npcManager = new NPCManager(this);
+    this.npcManager = new NPCManager({
+      getOwnState: () => this.state.npcs,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipQuirks: () => this.state.ship.quirks,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      addToCargoArray: (cargoArray, sourceStack, qty) =>
+        this.shipManager.addToCargoArray(cargoArray, sourceStack, qty),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.navigationManager = new NavigationManager(this, this.starData);
     this.refuelManager = new RefuelManager({
       getShipFuel: () => this.state.ship.fuel,

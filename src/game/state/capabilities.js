@@ -233,7 +233,7 @@
  * @typedef {Object} NPCCapabilities
  *
  * @property {function(): Object} getOwnState
- *   Returns: state.npcs
+ *   Returns: state.npcs (mutable reference)
  *
  * @property {function(): number} getDaysElapsed
  * @property {function(): number} getCredits
@@ -248,8 +248,6 @@
  * @property {function(): void} checkAchievements
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
- * @property {Array} npcData
- *   ALL_NPCS reference for NPC validation
  */
 
 /**
