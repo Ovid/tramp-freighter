@@ -67,16 +67,17 @@ export class SaveLoadManager extends BaseManager {
    * @private
    */
   _forceSave() {
-    if (!this.capabilities.getFullState()) {
+    const fullState = this.capabilities.getFullState();
+    if (!fullState) {
       return;
     }
 
     try {
       const now = Date.now();
       const stateToSave = {
-        ...this.capabilities.getFullState(),
+        ...fullState,
         meta: {
-          ...this.capabilities.getFullState().meta,
+          ...fullState.meta,
           timestamp: now,
         },
       };
