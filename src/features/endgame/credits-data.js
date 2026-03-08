@@ -91,7 +91,7 @@ export const CREDITS_SECTIONS = [
     pairs: [
       ['Star Catalogue', 'HYG Stellar Database'],
       ['Wormhole Cartography', 'Purely Fictional'],
-      ['Number of Real Stars', '117'],
+      ['Stars Featured', '117 of 131 known (so far)'],
       ['Distance from Sol', '20 light-years'],
     ],
   },
@@ -127,6 +127,7 @@ export const CREDITS_SECTIONS = [
     lines: [
       'The real stars within 20 light-years of Sol,',
       'for existing in convenient locations.',
+      '(Apologies to the 14 we left out. Budget constraints.)',
     ],
   },
   {
