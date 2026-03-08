@@ -238,4 +238,26 @@ describe('RepairManager free repair', () => {
       expect(gsm.getState().ship.hull).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
     });
   });
+
+  describe('GSM facade delegation', () => {
+    it('getFreeRepair via GSM facade calls markDirty on success', () => {
+      setNpcRep(TEST_NPC_ID, REPUTATION_BOUNDS.TRUSTED_MIN);
+      gsm.getState().ship.hull = 70;
+
+      const markDirtySpy = vi.spyOn(gsm, 'markDirty');
+      gsm.getFreeRepair(TEST_NPC_ID, 30);
+
+      expect(markDirtySpy).toHaveBeenCalled();
+    });
+
+    it('getFreeRepair via GSM facade uses updateShipCondition', () => {
+      setNpcRep(TEST_NPC_ID, REPUTATION_BOUNDS.TRUSTED_MIN);
+      gsm.getState().ship.hull = 70;
+
+      const updateSpy = vi.spyOn(gsm, 'updateShipCondition');
+      gsm.getFreeRepair(TEST_NPC_ID, 30);
+
+      expect(updateSpy).toHaveBeenCalled();
+    });
+  });
 });

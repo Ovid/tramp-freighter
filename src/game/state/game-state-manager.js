@@ -798,11 +798,11 @@ export class GameStateManager {
   // ========================================================================
 
   canGetFreeRepair(npcId) {
-    return this.npcManager.canGetFreeRepair(npcId);
+    return this.repairManager.canGetFreeRepair(npcId);
   }
 
   getFreeRepair(npcId, hullDamagePercent) {
-    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+    return this.repairManager.applyFreeRepair(npcId, hullDamagePercent);
   }
 
   // ========================================================================
