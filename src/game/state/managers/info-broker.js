@@ -88,7 +88,9 @@ export class InfoBrokerManager extends BaseManager {
     const priceKnowledge = this.capabilities.getPriceKnowledge();
     const currentSystemId = this.capabilities.getCurrentSystem();
     const activeEvents = this.capabilities.getActiveEvents();
-    const hasAdvancedSensors = this.capabilities.getShipUpgrades().includes('advanced_sensors');
+    const hasAdvancedSensors = this.capabilities
+      .getShipUpgrades()
+      .includes('advanced_sensors');
 
     return InformationBroker.listAvailableIntelligence(
       priceKnowledge,

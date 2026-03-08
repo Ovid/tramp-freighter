@@ -60,7 +60,12 @@ export class RepairManager extends BaseManager {
     const condition = this.capabilities.getShipCondition();
     const currentCondition = condition[systemType];
     const credits = this.capabilities.getCredits();
-    const cost = this.getRepairCost(systemType, amount, currentCondition, discount);
+    const cost = this.getRepairCost(
+      systemType,
+      amount,
+      currentCondition,
+      discount
+    );
 
     // Validation order matters for user experience:
     // 1. Check for positive amount (basic input validation)
@@ -81,7 +86,10 @@ export class RepairManager extends BaseManager {
     }
 
     if (currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX) {
-      return { success: false, reason: 'Repair would exceed maximum condition' };
+      return {
+        success: false,
+        reason: 'Repair would exceed maximum condition',
+      };
     }
 
     this.capabilities.updateCredits(credits - cost);
@@ -121,10 +129,14 @@ export class RepairManager extends BaseManager {
     const currentCondition = condition[systemType];
 
     if (currentCondition > REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
-      return { success: false, reason: `${systemType} is not critically damaged` };
+      return {
+        success: false,
+        reason: `${systemType} is not critically damaged`,
+      };
     }
 
-    const repairAmount = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
+    const repairAmount =
+      REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
     const repairCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
 
     if (this.capabilities.getCredits() >= repairCost) {
@@ -141,7 +153,8 @@ export class RepairManager extends BaseManager {
     );
 
     this.capabilities.advanceTime(
-      this.capabilities.getDaysElapsed() + REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
+      this.capabilities.getDaysElapsed() +
+        REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
     );
 
     this.capabilities.markDirty();
@@ -208,7 +221,10 @@ export class RepairManager extends BaseManager {
         };
       }
 
-      if (donorCondition - donation.amount < REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN) {
+      if (
+        donorCondition - donation.amount <
+        REPAIR_CONFIG.CANNIBALIZE_DONOR_MIN
+      ) {
         return {
           success: false,
           reason: `${systemDisplayNames[donation.system]} would fall below minimum safe condition`,
@@ -217,8 +233,10 @@ export class RepairManager extends BaseManager {
     }
 
     const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
-    const amountNeeded = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentTargetCondition;
-    const requiredDonation = amountNeeded * REPAIR_CONFIG.CANNIBALIZE_WASTE_MULTIPLIER;
+    const amountNeeded =
+      REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentTargetCondition;
+    const requiredDonation =
+      amountNeeded * REPAIR_CONFIG.CANNIBALIZE_WASTE_MULTIPLIER;
 
     if (totalDonated < requiredDonation) {
       return {

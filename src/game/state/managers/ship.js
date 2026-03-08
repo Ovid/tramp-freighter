@@ -195,7 +195,10 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== ship.cargoCapacity) {
       ship.cargoCapacity = capabilities.cargoCapacity;
-      this.capabilities.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
@@ -232,7 +235,10 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== ship.cargoCapacity) {
       ship.cargoCapacity = capabilities.cargoCapacity;
-      this.capabilities.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
@@ -412,7 +418,9 @@ export class ShipManager extends BaseManager {
     const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
     // Deduct credits through capabilities
-    this.capabilities.updateCredits(this.capabilities.getCredits() - upgrade.cost);
+    this.capabilities.updateCredits(
+      this.capabilities.getCredits() - upgrade.cost
+    );
 
     // Add upgrade to ship
     ship.upgrades.push(upgradeId);
@@ -423,7 +431,10 @@ export class ShipManager extends BaseManager {
     // Update ship state with new capabilities
     if (capabilities.cargoCapacity !== ship.cargoCapacity) {
       ship.cargoCapacity = capabilities.cargoCapacity;
-      this.capabilities.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;

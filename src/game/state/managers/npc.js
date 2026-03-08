@@ -474,7 +474,9 @@ export class NPCManager extends BaseManager {
     }
 
     // Check player has sufficient credits
-    if (this.capabilities.getCredits() < NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT) {
+    if (
+      this.capabilities.getCredits() < NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
+    ) {
       return {
         success: false,
         message: 'Insufficient credits',
