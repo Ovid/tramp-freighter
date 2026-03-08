@@ -47,3 +47,82 @@
  * Each manager's getter returns ONLY its specific paths, not the entire
  * player/world/ship object.
  */
+
+// ========================================================================
+// BATCH 1: Pure Calculation Managers
+// ========================================================================
+
+/**
+ * @typedef {Object} CombatCapabilities
+ *
+ * @property {function(): CombatState} getOwnState
+ *   Returns: (no owned state — Combat is stateless, computes from inputs)
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Array} getShipQuirks
+ * @property {function(): Array} getShipUpgrades
+ * @property {function(): number} getKarma
+ *
+ * @property {function(string): void} incrementDangerFlag
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(): void} markDirty
+ */
+
+/**
+ * @typedef {Object} NegotiationCapabilities
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): number} getKarma
+ * @property {function(): Array} getShipCargo
+ * @property {function(): number} getCredits
+ * @property {function(): Array|undefined} getActiveMissions
+ * @property {function(): boolean} getHasPriorIntel
+ *
+ * @property {function(string): void} incrementDangerFlag
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(): void} markDirty
+ */
+
+/**
+ * @typedef {Object} InspectionCapabilities
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Array} getShipCargo
+ * @property {function(): Array} getShipHiddenCargo
+ * @property {function(number): Object} getDangerZone
+ * @property {function(Array, Object, number): number} countRestrictedGoods
+ *
+ * @property {function(string): void} incrementDangerFlag
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(): void} markDirty
+ */
+
+/**
+ * @typedef {Object} DistressCapabilities
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ *
+ * @property {function(string): void} incrementDangerFlag
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(): void} markDirty
+ */
+
+/**
+ * @typedef {Object} MechanicalFailureCapabilities
+ *
+ * @property {function(): number} getDaysElapsed
+ * @property {function(): number} getCurrentSystem
+ * @property {function(): Object} getShipCondition
+ *   Returns: { hull: number, engine: number, lifeSupport: number }
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(): void} markDirty
+ */
