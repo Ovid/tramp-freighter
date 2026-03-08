@@ -92,6 +92,8 @@ export const CREDITS_SECTIONS = [
       ['Star Catalogue', 'HYG Stellar Database'],
       ['Wormhole Cartography', 'Purely Fictional'],
       ['Stars Featured', '117 of 131 known (so far)'],
+      ['Nearest Star to Sol', 'Proxima Centauri \u2014 4.25 ly'],
+      ['Longest Route', 'Sol to Delta Pavonis \u2014 19.89 ly'],
     ],
   },
   {
