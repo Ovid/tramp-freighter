@@ -98,7 +98,15 @@ export class GameCoordinator {
     this.combatManager = new CombatManager(this);
     this.negotiationManager = new NegotiationManager(this);
     this.inspectionManager = new InspectionManager(this);
-    this.distressManager = new DistressManager(this);
+    this.distressManager = new DistressManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.mechanicalFailureManager = new MechanicalFailureManager({
       getDaysElapsed: () => this.state.player.daysElapsed,
       getCurrentSystem: () => this.state.player.currentSystem,
