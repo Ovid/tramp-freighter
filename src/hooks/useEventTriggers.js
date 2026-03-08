@@ -20,7 +20,7 @@ import {
  * DangerManager before querying the engine.
  */
 export function useEventTriggers() {
-  const game = useGameState();
+  const game = useGame();
   const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   /**

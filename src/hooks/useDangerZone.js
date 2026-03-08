@@ -11,6 +11,6 @@ import { useGame } from '../context/GameContext';
  * @returns {string} Danger zone classification: 'safe', 'contested', or 'dangerous'
  */
 export function useDangerZone(systemId) {
-  const game = useGameState();
+  const game = useGame();
   return game.dangerManager.getDangerZone(systemId);
 }

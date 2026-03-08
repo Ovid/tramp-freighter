@@ -11,7 +11,7 @@ import { useGame } from '../context/GameContext';
  * @returns {Object} Encounter probabilities: { pirateChance, inspectionChance }
  */
 export function useEncounterProbabilities(systemId, gameState) {
-  const game = useGameState();
+  const game = useGame();
 
   if (!gameState) {
     return { pirateChance: 0, inspectionChance: 0 };

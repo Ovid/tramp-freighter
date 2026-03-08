@@ -15,7 +15,7 @@ import { useGame } from '../context/GameContext';
  * @returns {Function} returns.isAnimating - Function that returns true if animation is currently playing
  */
 export function useAnimationLock() {
-  const game = useGameState();
+  const game = useGame();
 
   // Access the animation system through the game state manager
   // The animation system is set during starmap initialization

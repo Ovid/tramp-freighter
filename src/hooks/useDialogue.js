@@ -34,7 +34,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  * }
  */
 export function useDialogue() {
-  const game = useGameState();
+  const game = useGame();
   const dialogueState = useGameEvent(EVENT_NAMES.DIALOGUE_CHANGED);
 
   /**

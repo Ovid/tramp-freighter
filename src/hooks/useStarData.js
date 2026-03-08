@@ -10,6 +10,6 @@ import { useGame } from '../context/GameContext';
  * @returns {Array} Array of star system objects
  */
 export function useStarData() {
-  const game = useGameState();
+  const game = useGame();
   return game.starData;
 }
