@@ -99,7 +99,18 @@ export class GameCoordinator {
     this.negotiationManager = new NegotiationManager(this);
     this.inspectionManager = new InspectionManager(this);
     this.distressManager = new DistressManager(this);
-    this.mechanicalFailureManager = new MechanicalFailureManager(this);
+    this.mechanicalFailureManager = new MechanicalFailureManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCondition: () => ({
+        hull: this.state.ship.hull,
+        engine: this.state.ship.engine,
+        lifeSupport: this.state.ship.lifeSupport,
+      }),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager(this);
@@ -1061,15 +1072,14 @@ export class GameCoordinator {
     }
   }
 
-  checkMechanicalFailure(gameState) {
-    return this.mechanicalFailureManager.checkMechanicalFailure(gameState);
+  checkMechanicalFailure(_gameState) {
+    return this.mechanicalFailureManager.checkMechanicalFailure();
   }
 
-  resolveMechanicalFailure(failureType, choice, gameState) {
+  resolveMechanicalFailure(failureType, choice, _gameState) {
     return this.mechanicalFailureManager.resolveMechanicalFailure(
       failureType,
-      choice,
-      gameState
+      choice
     );
   }
 

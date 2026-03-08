@@ -5,7 +5,7 @@ import { FAILURE_CONFIG } from '../../src/game/constants.js';
 describe('MechanicalFailureManager', () => {
   let manager;
   let mockState;
-  let mockGSM;
+  let capabilities;
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -16,13 +16,20 @@ describe('MechanicalFailureManager', () => {
       ship: { hull: 100, engine: 100, lifeSupport: 100 },
     };
 
-    mockGSM = {
-      state: mockState,
-      isTestEnvironment: true,
+    capabilities = {
+      getDaysElapsed: () => mockState.player.daysElapsed,
+      getCurrentSystem: () => mockState.player.currentSystem,
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
       emit: vi.fn(),
+      markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
 
-    manager = new MechanicalFailureManager(mockGSM);
+    manager = new MechanicalFailureManager(capabilities);
   });
 
   afterEach(() => {
@@ -31,13 +38,13 @@ describe('MechanicalFailureManager', () => {
 
   describe('checkMechanicalFailure', () => {
     it('returns null when all conditions are above thresholds', () => {
-      const result = manager.checkMechanicalFailure(mockState);
+      const result = manager.checkMechanicalFailure();
       expect(result).toBe(null);
     });
 
     it('returns null when hull is exactly at threshold', () => {
       mockState.ship.hull = FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD;
-      const result = manager.checkMechanicalFailure(mockState);
+      const result = manager.checkMechanicalFailure();
       expect(result).toBe(null);
     });
 
@@ -47,7 +54,7 @@ describe('MechanicalFailureManager', () => {
       let found = false;
       for (let day = 0; day < 200; day++) {
         mockState.player.daysElapsed = day;
-        const result = manager.checkMechanicalFailure(mockState);
+        const result = manager.checkMechanicalFailure();
         if (result && result.type === 'hull_breach') {
           expect(result.severity).toBe(mockState.ship.hull);
           found = true;
@@ -64,7 +71,7 @@ describe('MechanicalFailureManager', () => {
       let found = false;
       for (let day = 0; day < 200; day++) {
         mockState.player.daysElapsed = day;
-        const result = manager.checkMechanicalFailure(mockState);
+        const result = manager.checkMechanicalFailure();
         if (result && result.type === 'engine_failure') {
           expect(result.severity).toBe(mockState.ship.engine);
           found = true;
@@ -82,7 +89,7 @@ describe('MechanicalFailureManager', () => {
       let found = false;
       for (let day = 0; day < 500; day++) {
         mockState.player.daysElapsed = day;
-        const result = manager.checkMechanicalFailure(mockState);
+        const result = manager.checkMechanicalFailure();
         if (result && result.type === 'life_support') {
           expect(result.severity).toBe(mockState.ship.lifeSupport);
           found = true;
@@ -95,11 +102,7 @@ describe('MechanicalFailureManager', () => {
 
   describe('resolveMechanicalFailure', () => {
     it('dispatches hull_breach to resolveHullBreach', () => {
-      const result = manager.resolveMechanicalFailure(
-        'hull_breach',
-        null,
-        mockState
-      );
+      const result = manager.resolveMechanicalFailure('hull_breach', null);
       expect(result.costs.hull).toBe(FAILURE_CONFIG.HULL_BREACH.HULL_DAMAGE);
       expect(result.costs.cargoLoss).toBe(true);
     });
@@ -107,8 +110,7 @@ describe('MechanicalFailureManager', () => {
     it('dispatches engine_failure to resolveEngineFailure', () => {
       const result = manager.resolveMechanicalFailure(
         'engine_failure',
-        'call_for_help',
-        mockState
+        'call_for_help'
       );
       expect(result.costs.credits).toBe(
         FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST
@@ -116,11 +118,7 @@ describe('MechanicalFailureManager', () => {
     });
 
     it('dispatches life_support to resolveLifeSupportEmergency', () => {
-      const result = manager.resolveMechanicalFailure(
-        'life_support',
-        null,
-        mockState
-      );
+      const result = manager.resolveMechanicalFailure('life_support', null);
       expect(result.costs.lifeSupport).toBe(
         FAILURE_CONFIG.LIFE_SUPPORT.EMERGENCY_COST
       );
@@ -128,7 +126,7 @@ describe('MechanicalFailureManager', () => {
 
     it('throws on unknown failure type', () => {
       expect(() =>
-        manager.resolveMechanicalFailure('warp_core_breach', null, mockState)
+        manager.resolveMechanicalFailure('warp_core_breach', null)
       ).toThrow('Unknown failure type: warp_core_breach');
     });
   });
@@ -200,7 +198,7 @@ describe('MechanicalFailureManager', () => {
 
     it('throws on unknown engine repair choice', () => {
       expect(() =>
-        manager.resolveEngineFailure('percussive_maintenance', mockState, 0.5)
+        manager.resolveEngineFailure('percussive_maintenance', 0.5)
       ).toThrow('Unknown engine failure repair choice: percussive_maintenance');
     });
   });
