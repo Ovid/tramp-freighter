@@ -96,6 +96,7 @@ export class DangerManager extends BaseManager {
 
     this.log(`Karma set to ${newKarma}`);
     this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
+    this.gameStateManager.markDirty();
   }
 
   /**
@@ -124,6 +125,7 @@ export class DangerManager extends BaseManager {
     );
     this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
     this.gameStateManager.checkAchievements();
+    this.gameStateManager.markDirty();
   }
 
   // ========================================================================
@@ -398,6 +400,7 @@ export class DangerManager extends BaseManager {
     this.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
       ...this.getState().player.factions,
     });
+    this.gameStateManager.markDirty();
   }
 
   /**
@@ -432,5 +435,6 @@ export class DangerManager extends BaseManager {
     this.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
       ...this.getState().player.factions,
     });
+    this.gameStateManager.markDirty();
   }
 }

@@ -975,12 +975,10 @@ export class GameStateManager {
 
   setKarma(value) {
     this.dangerManager.setKarma(value);
-    this.markDirty();
   }
 
   modifyKarma(amount, reason) {
     this.dangerManager.modifyKarma(amount, reason);
-    this.markDirty();
   }
 
   getFactionRep(faction) {
@@ -989,12 +987,10 @@ export class GameStateManager {
 
   setFactionRep(faction, value) {
     this.dangerManager.setFactionRep(faction, value);
-    this.markDirty();
   }
 
   modifyFactionRep(faction, amount, reason) {
     this.dangerManager.modifyFactionRep(faction, amount, reason);
-    this.markDirty();
   }
 
   hasIllegalMissionCargo() {
