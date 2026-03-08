@@ -262,6 +262,7 @@ export class ShipManager extends BaseManager {
     const ship = this.capabilities.getOwnState();
     ship.name = sanitized;
     this.capabilities.emit(EVENT_NAMES.SHIP_NAME_CHANGED, sanitized);
+    this.capabilities.markDirty();
   }
 
   /**
