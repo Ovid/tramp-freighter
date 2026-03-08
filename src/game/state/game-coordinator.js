@@ -145,7 +145,35 @@ export class GameCoordinator {
       emit: (...args) => this.emit(...args),
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.navigationManager = new NavigationManager(this, this.starData);
+    this.navigationManager = new NavigationManager({
+      getOwnState: () => ({
+        currentSystem: this.state.player.currentSystem,
+        visitedSystems: this.state.world.visitedSystems,
+      }),
+      setCurrentSystem: (systemId) => {
+        this.state.player.currentSystem = systemId;
+      },
+      setCurrentSystemPrices: (prices) => {
+        this.state.world.currentSystemPrices = prices;
+      },
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getActiveEvents: () => this.state.world.activeEvents,
+      getMarketConditions: () => this.state.world.marketConditions,
+      getStats: () => this.state.stats,
+      getDockedSystems: () => this.state.world.narrativeEvents?.dockedSystems,
+      updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
+        this.tradingManager.updatePriceKnowledge(
+          systemId,
+          prices,
+          lastVisit,
+          source
+        ),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.refuelManager = new RefuelManager({
       getShipFuel: () => this.state.ship.fuel,
       getCredits: () => this.state.player.credits,
