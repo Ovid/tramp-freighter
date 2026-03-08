@@ -227,11 +227,13 @@ export class DebtManager extends BaseManager {
       finance.lienRate = 0;
       finance.interestRate = 0;
       this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
-      this.emitFinanceChanged();
-      this.capabilities.emit(EVENT_NAMES.DEBT_CLEARED);
     }
 
     this.emitFinanceChanged();
+
+    if (this.getDebt() === 0) {
+      this.capabilities.emit(EVENT_NAMES.DEBT_CLEARED);
+    }
     this.capabilities.markDirty();
 
     return { success: true, amount: actualPayment };
