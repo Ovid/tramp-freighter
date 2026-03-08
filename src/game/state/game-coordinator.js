@@ -110,7 +110,24 @@ export class GameCoordinator {
     });
     this.eventsManager = new EventsManager(this);
     this.infoBrokerManager = new InfoBrokerManager(this);
-    this.dangerManager = new DangerManager(this);
+    this.dangerManager = new DangerManager({
+      getKarma: () => this.state.player.karma,
+      setKarma: (value) => {
+        this.state.player.karma = value;
+      },
+      getPlayerFactions: () => this.state.player.factions,
+      getDangerFlags: () => this.state.world.dangerFlags,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getStats: () => this.state.stats,
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: this.markDirty.bind(this),
+      emit: this.emit.bind(this),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.combatManager = new CombatManager({
       getDaysElapsed: () => this.state.player.daysElapsed,
       getCurrentSystem: () => this.state.player.currentSystem,

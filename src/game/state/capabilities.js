@@ -256,9 +256,14 @@
 /**
  * @typedef {Object} DangerCapabilities
  *
- * @property {function(): DangerState} getOwnState
- *   Returns: { karma: state.player.karma, factions: state.player.factions,
- *              dangerFlags: state.world.dangerFlags }
+ * @property {function(): number} getKarma
+ *   Returns: state.player.karma (read only — use setKarma to write)
+ * @property {function(number): void} setKarma
+ *   Sets state.player.karma to exact value
+ * @property {function(): Object} getPlayerFactions
+ *   Returns: state.player.factions (mutable reference)
+ * @property {function(): Object} getDangerFlags
+ *   Returns: state.world.dangerFlags (mutable reference)
  *
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipCargo
