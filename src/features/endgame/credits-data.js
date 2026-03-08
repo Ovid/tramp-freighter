@@ -92,7 +92,6 @@ export const CREDITS_SECTIONS = [
       ['Star Catalogue', 'HYG Stellar Database'],
       ['Wormhole Cartography', 'Purely Fictional'],
       ['Stars Featured', '117 of 131 known (so far)'],
-      ['Distance from Sol', '20 light-years'],
     ],
   },
   {
