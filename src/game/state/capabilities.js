@@ -167,22 +167,28 @@
  * @property {function(): number} getShipEngine
  * @property {function(): Array} getShipUpgrades
  * @property {function(): Object} getNpcs
- *   Returns: state.npcs (read-only, for quest stage checks)
- * @property {function(): Object|undefined} getStats
+ *   Returns: state.npcs (read-only, for quest stage requirement checks)
+ * @property {function(): number|undefined} getDebt
+ *   Returns: state.player.debt
  * @property {function(): Object|undefined} getNarrativeFlags
  *   Returns: state.world.narrativeEvents.flags
- * @property {function(): Array|undefined} getActiveMissions
- *   Returns: state.missions.active
  *
  * @property {function(number): void} updateCredits
+ *   Sets player credits to exact value
  * @property {function(string, number, string): void} modifyRepRaw
+ *   Modifies NPC reputation (bypasses trust modifier)
  * @property {function(number, string): void} modifyKarma
  * @property {function(string, number): void} removeCargoForMission
+ * @property {function(number): void} setShipEngine
+ *   Sets ship engine condition to exact value (for engine restore rewards)
+ * @property {function(string): void} addShipUpgrade
+ *   Adds upgrade to ship if not already present
+ * @property {function(string, number): void} updateStats
+ *   Increments a stats key by delta
  * @property {function(): void} markDirty
- * @property {function(): void} checkAchievements
- * @property {function(string, number): void} updateShipCondition
- *   For quest rewards that repair/damage ship
  * @property {function(string, *): void} emit
+ * @property {function(string, function): void} subscribe
+ *   Subscribe to game events (for JUMP_COMPLETED, DOCKED)
  * @property {Array} starData
  */
 

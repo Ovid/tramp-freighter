@@ -163,7 +163,50 @@ export class GameCoordinator {
     });
     this.missionManager = new MissionManager(this);
     this.eventEngineManager = new EventEngineManager(this);
-    this.questManager = new QuestManager(this);
+    this.questManager = new QuestManager({
+      getOwnState: () => this.state.quests,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipHull: () => this.state.ship.hull,
+      getShipEngine: () => this.state.ship.engine,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getNpcs: () => this.state.npcs,
+      getDebt: () => this.state.player.debt,
+      getNarrativeFlags: () => this.state.world?.narrativeEvents?.flags,
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      modifyRepRaw: (npcId, amount, reason) =>
+        this.npcManager.modifyRepRaw(npcId, amount, reason),
+      modifyKarma: (amount, reason) =>
+        this.dangerManager.modifyKarma(amount, reason),
+      removeCargoForMission: (goodType, qty) =>
+        this.shipManager.removeCargoForMission(goodType, qty),
+      setShipEngine: (value) => {
+        this.state.ship.engine = value;
+        this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
+          hull: this.state.ship.hull,
+          engine: this.state.ship.engine,
+          lifeSupport: this.state.ship.lifeSupport,
+        });
+      },
+      addShipUpgrade: (upgrade) => {
+        if (!this.state.ship.upgrades.includes(upgrade)) {
+          this.state.ship.upgrades.push(upgrade);
+          this.emit(EVENT_NAMES.UPGRADES_CHANGED, [...this.state.ship.upgrades]);
+        }
+      },
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: this.markDirty.bind(this),
+      emit: this.emit.bind(this),
+      subscribe: this.subscribe.bind(this),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.debtManager = new DebtManager(this);
     this.achievementsManager = new AchievementsManager({
       getOwnState: () => this.state.achievements,
