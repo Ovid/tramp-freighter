@@ -214,14 +214,13 @@
 /**
  * @typedef {Object} ShipCapabilities
  *
- * @property {function(): ShipState} getOwnState
- *   Returns: { hull, engine, lifeSupport, quirks, upgrades, cargoCapacity,
- *              hiddenCargo, name }
- *   (Note: fuel and cargo are owned by StateManager, not ShipManager)
+ * @property {function(): Object} getOwnState
+ *   Returns: state.ship (mutable reference)
+ *   ShipManager owns: hull, engine, lifeSupport, quirks, upgrades,
+ *   cargoCapacity, hiddenCargo, hiddenCargoCapacity, name
+ *   StateManager owns: fuel, cargo (do NOT mutate directly)
  *
  * @property {function(): number} getCredits
- * @property {function(): Array} getShipCargo
- *   Needed for cargo capacity checks and hidden cargo operations
  * @property {function(): number} getCargoRemaining
  *
  * @property {function(number): void} updateCredits

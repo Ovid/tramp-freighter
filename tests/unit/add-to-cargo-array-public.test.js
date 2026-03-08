@@ -14,11 +14,9 @@ describe('ShipManager.addToCargoArray is a public API', () => {
     const { ShipManager } =
       await import('../../src/game/state/managers/ship.js');
 
-    const mockGSM = {
-      state: { ship: { cargo: [] } },
+    const manager = new ShipManager({
       isTestEnvironment: true,
-    };
-    const manager = new ShipManager(mockGSM);
+    });
 
     const cargo = [];
     const stack = {

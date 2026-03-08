@@ -86,7 +86,16 @@ export class GameCoordinator {
     this.initializationManager = new InitializationManager(this);
     this.saveLoadManager = new SaveLoadManager(this);
     this.tradingManager = new TradingManager(this);
-    this.shipManager = new ShipManager(this);
+    this.shipManager = new ShipManager({
+      getOwnState: () => this.state.ship,
+      getCredits: () => this.state.player.credits,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.npcManager = new NPCManager(this);
     this.navigationManager = new NavigationManager(this, this.starData);
     this.refuelManager = new RefuelManager({
