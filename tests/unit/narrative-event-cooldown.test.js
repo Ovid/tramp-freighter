@@ -22,15 +22,13 @@ function createMockGameStateManager(stateOverrides = {}) {
     },
   };
 
+  const state = { ...defaultState, ...stateOverrides };
+
   return {
-    state: { ...defaultState, ...stateOverrides },
+    _state: state,
+    getOwnState: () => state.world.narrativeEvents,
+    getGameState: () => state,
     isTestEnvironment: true,
-    emit: vi.fn(),
-    getState() {
-      return this.state;
-    },
-    saveGame: vi.fn(),
-    markDirty: vi.fn(),
   };
 }
 
@@ -66,11 +64,11 @@ describe('Narrative Event Deduplication (#52/78)', () => {
       });
 
       // Simulate event fired at day 5: cooldown expires at day 5 + cooldown
-      mockGSM.state.player.daysElapsed = 5;
+      mockGSM._state.player.daysElapsed = 5;
       engine.setCooldown('dock_generic_rumor', event.cooldown);
 
       // At day 10 (within cooldown window), check at a DIFFERENT system
-      mockGSM.state.player.daysElapsed = 10;
+      mockGSM._state.player.daysElapsed = 10;
       const result = engine.checkEvents(
         'dock',
         { system: 99 },
@@ -107,8 +105,9 @@ describe('Narrative Event Deduplication (#52/78)', () => {
       });
 
       // Set cooldown only for dock_generic_rumor
-      mockGSM.state.world.narrativeEvents.cooldowns['dock_generic_rumor'] = 100;
-      mockGSM.state.player.daysElapsed = 5;
+      mockGSM._state.world.narrativeEvents.cooldowns['dock_generic_rumor'] =
+        100;
+      mockGSM._state.player.daysElapsed = 5;
 
       const result = engine.checkEvents(
         'dock',

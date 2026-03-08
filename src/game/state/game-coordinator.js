@@ -370,7 +370,11 @@ export class GameCoordinator {
       wormholeData: this.wormholeData,
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.eventEngineManager = new EventEngineManager(this);
+    this.eventEngineManager = new EventEngineManager({
+      getOwnState: () => this.state.world.narrativeEvents,
+      getGameState: () => this.state,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.questManager = new QuestManager({
       getOwnState: () => this.state.quests,
       getDaysElapsed: () => this.state.player.daysElapsed,
