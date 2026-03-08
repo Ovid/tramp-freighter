@@ -4,10 +4,9 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 /**
- * This test validates that the capability interface definitions in
- * capabilities.js account for every cross-domain dependency found in the
- * actual manager source files. It parses the source code for
- * this.gameStateManager.X() calls and verifies each is documented.
+ * Validates that capabilities.js contains the expected typedef definitions
+ * and documents the state ownership model. Checks for typedef presence,
+ * required infrastructure properties (emit, markDirty), and ownership table.
  *
  * This is a design validation test, not a runtime test.
  */
