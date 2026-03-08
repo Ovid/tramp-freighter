@@ -270,7 +270,40 @@ export class GameCoordinator {
       markDirty: this.markDirty.bind(this),
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.missionManager = new MissionManager(this);
+    this.missionManager = new MissionManager({
+      getOwnState: () => this.state.missions,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      getStats: () => this.state.stats,
+      getVisitedSystems: () => this.state.world.visitedSystems,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      getFactionRep: (faction) => this.dangerManager.getFactionRep(faction),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      applyTradeWithholding: (totalRevenue) =>
+        this.debtManager.applyWithholding(totalRevenue),
+      modifyFactionRep: (faction, amount, reason) =>
+        this.dangerManager.modifyFactionRep(faction, amount, reason),
+      modifyRep: (npcId, amount, reason) =>
+        this.npcManager.modifyRep(npcId, amount, reason),
+      modifyKarma: (amount, reason) =>
+        this.dangerManager.modifyKarma(amount, reason),
+      modifyColeRep: (delta) => this.debtManager.modifyColeRep(delta),
+      removeCargoForMission: (goodType, qty) =>
+        this.shipManager.removeCargoForMission(goodType, qty),
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      wormholeData: this.wormholeData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.eventEngineManager = new EventEngineManager(this);
     this.questManager = new QuestManager({
       getOwnState: () => this.state.quests,

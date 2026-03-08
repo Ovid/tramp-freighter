@@ -63,14 +63,35 @@ export class GameStateManager {
       this.coordinator[name].gameStateManager = this;
     }
 
-    // Patch capability-injected managers so their markDirty/emit closures
-    // route through the wrapper (important for test spies on GSM methods).
+    // Patch capability-injected managers so their closures route through
+    // the wrapper (important for test spies on GSM methods).
     for (const name of managerNames) {
       const mgr = this.coordinator[name];
       if (mgr.capabilities) {
         const caps = mgr.capabilities;
         if (caps.markDirty) caps.markDirty = () => this.markDirty();
         if (caps.emit) caps.emit = (...args) => this.emit(...args);
+        // Patch cross-domain calls so test spies on wrapper methods work
+        if (caps.modifyFactionRep)
+          caps.modifyFactionRep = (...args) => this.modifyFactionRep(...args);
+        if (caps.modifyRep)
+          caps.modifyRep = (...args) => this.modifyRep(...args);
+        if (caps.modifyKarma)
+          caps.modifyKarma = (...args) => this.modifyKarma(...args);
+        if (caps.modifyColeRep)
+          caps.modifyColeRep = (...args) => this.modifyColeRep(...args);
+        if (caps.removeCargoForMission)
+          caps.removeCargoForMission = (...args) =>
+            this.removeCargoForMission(...args);
+        if (caps.getCargoRemaining)
+          caps.getCargoRemaining = (...args) => this.getCargoRemaining(...args);
+        if (caps.applyTradeWithholding)
+          caps.applyTradeWithholding = (...args) =>
+            this.applyTradeWithholding(...args);
+        if (caps.getDangerZone)
+          caps.getDangerZone = (...args) => this.getDangerZone(...args);
+        if (caps.getFactionRep)
+          caps.getFactionRep = (...args) => this.getFactionRep(...args);
       }
     }
   }

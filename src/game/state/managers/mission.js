@@ -10,22 +10,21 @@ import { generateMissionBoard } from '../../mission-generator.js';
 import { partitionExpiredMissions } from '../../utils/calculators.js';
 
 export class MissionManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
   }
 
   acceptMission(mission) {
-    this.validateState();
-    const state = this.getState();
+    const missions = this.capabilities.getOwnState();
 
-    if (state.missions.active.length >= MISSION_CONFIG.MAX_ACTIVE) {
+    if (missions.active.length >= MISSION_CONFIG.MAX_ACTIVE) {
       return {
         success: false,
         reason: 'You have the maximum number of active missions.',
       };
     }
 
-    if (state.missions.active.some((m) => m.id === mission.id)) {
+    if (missions.active.some((m) => m.id === mission.id)) {
       return {
         success: false,
         reason: 'You already have this mission active.',
@@ -34,8 +33,7 @@ export class MissionManager extends BaseManager {
 
     if (
       mission.type === 'passenger' &&
-      mission.requirements.cargoSpace >
-        this.gameStateManager.getCargoRemaining()
+      mission.requirements.cargoSpace > this.capabilities.getCargoRemaining()
     ) {
       return {
         success: false,
@@ -46,8 +44,7 @@ export class MissionManager extends BaseManager {
     // Check cargo space for cargo run missions
     if (mission.missionCargo) {
       if (
-        mission.missionCargo.quantity >
-        this.gameStateManager.getCargoRemaining()
+        mission.missionCargo.quantity > this.capabilities.getCargoRemaining()
       ) {
         return {
           success: false,
@@ -58,39 +55,38 @@ export class MissionManager extends BaseManager {
 
     const activeMission = {
       ...mission,
-      acceptedDay: state.player.daysElapsed,
-      deadlineDay: state.player.daysElapsed + mission.requirements.deadline,
+      acceptedDay: this.capabilities.getDaysElapsed(),
+      deadlineDay:
+        this.capabilities.getDaysElapsed() + mission.requirements.deadline,
     };
 
-    state.missions.active.push(activeMission);
-    state.missions.board = state.missions.board.filter(
-      (m) => m.id !== mission.id
-    );
+    missions.active.push(activeMission);
+    missions.board = missions.board.filter((m) => m.id !== mission.id);
 
     // Place mission cargo in hold for cargo run missions
     if (mission.missionCargo) {
-      state.ship.cargo.push({
+      const cargo = this.capabilities.getShipCargo();
+      cargo.push({
         good: mission.missionCargo.good,
         qty: mission.missionCargo.quantity,
         buyPrice: 0,
         missionId: mission.id,
       });
-      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
     }
 
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
+    this.capabilities.markDirty();
 
     return { success: true };
   }
 
   completeMission(missionId) {
-    this.validateState();
-    const state = this.getState();
+    const missions = this.capabilities.getOwnState();
+    const currentSystem = this.capabilities.getCurrentSystem();
+    const cargo = this.capabilities.getShipCargo();
 
-    const missionIndex = state.missions.active.findIndex(
-      (m) => m.id === missionId
-    );
+    const missionIndex = missions.active.findIndex((m) => m.id === missionId);
     if (missionIndex === -1) {
       return {
         success: false,
@@ -98,10 +94,10 @@ export class MissionManager extends BaseManager {
       };
     }
 
-    const mission = state.missions.active[missionIndex];
+    const mission = missions.active[missionIndex];
 
     if (mission.type === 'delivery') {
-      if (mission.requirements.destination !== state.player.currentSystem) {
+      if (mission.requirements.destination !== currentSystem) {
         return {
           success: false,
           reason: 'You are not at the mission destination.',
@@ -109,9 +105,7 @@ export class MissionManager extends BaseManager {
       }
       // New-style cargo runs: check missionId-tagged cargo
       if (mission.missionCargo) {
-        const hasMissionCargo = state.ship.cargo.some(
-          (c) => c.missionId === mission.id
-        );
+        const hasMissionCargo = cargo.some((c) => c.missionId === mission.id);
         if (!hasMissionCargo) {
           return {
             success: false,
@@ -120,7 +114,7 @@ export class MissionManager extends BaseManager {
         }
       } else if (mission.requirements.cargo) {
         // Legacy: old-style cargo runs (backwards compat for existing saves)
-        const totalCargo = state.ship.cargo
+        const totalCargo = cargo
           .filter((c) => c.good === mission.requirements.cargo)
           .reduce((sum, c) => sum + c.qty, 0);
         if (totalCargo < mission.requirements.quantity) {
@@ -135,7 +129,7 @@ export class MissionManager extends BaseManager {
     if (mission.type === 'fetch') {
       if (
         mission.giverSystem !== undefined &&
-        mission.giverSystem !== state.player.currentSystem
+        mission.giverSystem !== currentSystem
       ) {
         return {
           success: false,
@@ -143,7 +137,7 @@ export class MissionManager extends BaseManager {
         };
       }
       if (mission.requirements.cargo) {
-        const totalCargo = state.ship.cargo
+        const totalCargo = cargo
           .filter((c) => c.good === mission.requirements.cargo)
           .reduce((sum, c) => sum + c.qty, 0);
         if (totalCargo < mission.requirements.quantity) {
@@ -158,7 +152,7 @@ export class MissionManager extends BaseManager {
     if (mission.type === 'intel') {
       if (
         mission.giverSystem !== undefined &&
-        mission.giverSystem !== state.player.currentSystem
+        mission.giverSystem !== currentSystem
       ) {
         return {
           success: false,
@@ -166,8 +160,9 @@ export class MissionManager extends BaseManager {
         };
       }
       if (mission.requirements.targets) {
+        const visitedSystems = this.capabilities.getVisitedSystems();
         const unvisited = mission.requirements.targets.filter(
-          (t) => !state.world.visitedSystems.includes(t)
+          (t) => !visitedSystems.includes(t)
         );
         if (unvisited.length > 0) {
           return {
@@ -179,7 +174,7 @@ export class MissionManager extends BaseManager {
     }
 
     if (mission.type === 'passenger') {
-      if (mission.requirements.destination !== state.player.currentSystem) {
+      if (mission.requirements.destination !== currentSystem) {
         return {
           success: false,
           reason: 'You are not at the passenger destination.',
@@ -187,21 +182,21 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    state.missions.active.splice(missionIndex, 1);
-    state.missions.completed.push(missionId);
+    missions.active.splice(missionIndex, 1);
+    missions.completed.push(missionId);
 
     // Record completion for route saturation
     if (
       mission.requirements &&
       mission.requirements.destination !== undefined
     ) {
-      if (!state.missions.completionHistory) {
-        state.missions.completionHistory = [];
+      if (!missions.completionHistory) {
+        missions.completionHistory = [];
       }
-      state.missions.completionHistory.push({
+      missions.completionHistory.push({
         from: mission.giverSystem,
         to: mission.requirements.destination,
-        day: state.player.daysElapsed,
+        day: this.capabilities.getDaysElapsed(),
       });
     }
 
@@ -214,64 +209,68 @@ export class MissionManager extends BaseManager {
 
     let withheld = 0;
     if (grossCredits > 0) {
-      const result = this.gameStateManager.applyTradeWithholding(grossCredits);
+      const result = this.capabilities.applyTradeWithholding(grossCredits);
       withheld = result.withheld;
       const playerReceives = grossCredits - withheld;
-      state.player.credits += playerReceives;
-      if (state.stats) {
-        state.stats.creditsEarned += grossCredits;
-      }
-      this.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
+      this.capabilities.updateCredits(
+        this.capabilities.getCredits() + playerReceives
+      );
+      this.capabilities.updateStats('creditsEarned', grossCredits);
+      this.capabilities.emit(
+        EVENT_NAMES.CREDITS_CHANGED,
+        this.capabilities.getCredits()
+      );
     }
 
     if (mission.rewards.faction) {
       for (const [faction, amount] of Object.entries(mission.rewards.faction)) {
-        this.gameStateManager.modifyFactionRep(faction, amount, 'mission');
+        this.capabilities.modifyFactionRep(faction, amount, 'mission');
       }
     }
 
     if (mission.rewards.rep) {
       for (const [npcId, amount] of Object.entries(mission.rewards.rep)) {
-        this.gameStateManager.modifyRep(npcId, amount, 'mission');
+        this.capabilities.modifyRep(npcId, amount, 'mission');
       }
     }
 
     // Cole favor missions: apply direct rep bypassing trust modifier
     if (mission.source === 'cole' && mission.coleRepReward) {
-      this.gameStateManager.modifyColeRep(mission.coleRepReward);
+      this.capabilities.modifyColeRep(mission.coleRepReward);
     }
 
     if (mission.rewards.karma) {
-      this.gameStateManager.modifyKarma(mission.rewards.karma, 'mission');
+      this.capabilities.modifyKarma(mission.rewards.karma, 'mission');
     }
 
     // Remove delivered cargo for delivery/fetch missions
     if (mission.type === 'delivery' && mission.missionCargo) {
       // New-style: remove by missionId
-      state.ship.cargo = state.ship.cargo.filter(
-        (c) => c.missionId !== mission.id
-      );
-      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
+      const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
+      // Update the cargo array in-place by splicing
+      cargo.length = 0;
+      cargo.push(...updatedCargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
     } else if (
       (mission.type === 'delivery' || mission.type === 'fetch') &&
       mission.requirements.cargo
     ) {
       // Legacy: remove by good type and quantity
-      this.gameStateManager.removeCargoForMission(
+      this.capabilities.removeCargoForMission(
         mission.requirements.cargo,
         mission.requirements.quantity
       );
     }
 
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
+    this.capabilities.markDirty();
 
     return { success: true, rewards: mission.rewards, withheld };
   }
 
   updatePassengerSatisfaction(missionId, event) {
-    const state = this.getState();
-    const mission = state.missions.active.find((m) => m.id === missionId);
+    const missions = this.capabilities.getOwnState();
+    const mission = missions.active.find((m) => m.id === missionId);
     if (!mission || mission.type !== 'passenger') return;
 
     const weights = mission.passenger.satisfactionWeights;
@@ -290,12 +289,12 @@ export class MissionManager extends BaseManager {
       0,
       Math.min(100, mission.passenger.satisfaction - drop)
     );
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
   }
 
   modifyAllPassengerSatisfaction(delta) {
-    const state = this.getState();
-    for (const mission of state.missions.active) {
+    const missions = this.capabilities.getOwnState();
+    for (const mission of missions.active) {
       if (mission.type === 'passenger' && mission.passenger) {
         mission.passenger.satisfaction = Math.max(
           0,
@@ -303,7 +302,7 @@ export class MissionManager extends BaseManager {
         );
       }
     }
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
   }
 
   calculatePassengerPayment(mission) {
@@ -323,8 +322,7 @@ export class MissionManager extends BaseManager {
       multiplier = multipliers.DISSATISFIED;
     else multiplier = multipliers.VERY_DISSATISFIED;
 
-    const state = this.getState();
-    if (state.player.daysElapsed <= mission.deadlineDay) {
+    if (this.capabilities.getDaysElapsed() <= mission.deadlineDay) {
       multiplier += multipliers.ON_TIME_BONUS;
     }
 
@@ -332,12 +330,9 @@ export class MissionManager extends BaseManager {
   }
 
   abandonMission(missionId) {
-    this.validateState();
-    const state = this.getState();
+    const missions = this.capabilities.getOwnState();
 
-    const missionIndex = state.missions.active.findIndex(
-      (m) => m.id === missionId
-    );
+    const missionIndex = missions.active.findIndex((m) => m.id === missionId);
     if (missionIndex === -1) {
       return {
         success: false,
@@ -345,21 +340,22 @@ export class MissionManager extends BaseManager {
       };
     }
 
-    const mission = state.missions.active[missionIndex];
+    const mission = missions.active[missionIndex];
 
     if (mission.abandonable === false) {
       return { success: false, reason: 'This mission cannot be abandoned.' };
     }
 
-    state.missions.active.splice(missionIndex, 1);
-    state.missions.failed.push(missionId);
+    missions.active.splice(missionIndex, 1);
+    missions.failed.push(missionId);
 
     // Remove mission cargo from hold
     if (mission.missionCargo) {
-      state.ship.cargo = state.ship.cargo.filter(
-        (c) => c.missionId !== mission.id
-      );
-      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
+      const cargo = this.capabilities.getShipCargo();
+      const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
+      cargo.length = 0;
+      cargo.push(...updatedCargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
     }
 
     if (mission.penalties && mission.penalties.failure) {
@@ -367,46 +363,46 @@ export class MissionManager extends BaseManager {
         for (const [npcId, amount] of Object.entries(
           mission.penalties.failure.rep
         )) {
-          this.gameStateManager.modifyRep(npcId, amount, 'mission_abandon');
+          this.capabilities.modifyRep(npcId, amount, 'mission_abandon');
         }
       }
       if (mission.penalties.failure.karma) {
-        this.gameStateManager.modifyKarma(
+        this.capabilities.modifyKarma(
           mission.penalties.failure.karma,
           'mission_abandon'
         );
       }
     }
 
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
+    this.capabilities.markDirty();
 
     return { success: true };
   }
 
   checkMissionDeadlines() {
-    this.validateState();
-    const state = this.getState();
-    const currentDay = state.player.daysElapsed;
+    const missions = this.capabilities.getOwnState();
+    const currentDay = this.capabilities.getDaysElapsed();
 
     const { expired, remaining } = partitionExpiredMissions(
-      state.missions.active,
+      missions.active,
       currentDay
     );
     if (expired.length === 0) return;
 
-    state.missions.active = remaining;
+    missions.active = remaining;
 
     let cargoChanged = false;
+    const cargo = this.capabilities.getShipCargo();
 
     for (const mission of expired) {
-      state.missions.failed.push(mission.id);
+      missions.failed.push(mission.id);
 
       // Queue a notice for display on next station dock
-      if (!state.missions.pendingFailureNotices) {
-        state.missions.pendingFailureNotices = [];
+      if (!missions.pendingFailureNotices) {
+        missions.pendingFailureNotices = [];
       }
-      state.missions.pendingFailureNotices.push({
+      missions.pendingFailureNotices.push({
         id: mission.id,
         title: mission.title,
         destination: mission.destination ? mission.destination.name : null,
@@ -414,9 +410,9 @@ export class MissionManager extends BaseManager {
 
       // Remove mission cargo from hold
       if (mission.missionCargo) {
-        state.ship.cargo = state.ship.cargo.filter(
-          (c) => c.missionId !== mission.id
-        );
+        const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
+        cargo.length = 0;
+        cargo.push(...updatedCargo);
         cargoChanged = true;
       }
 
@@ -425,11 +421,11 @@ export class MissionManager extends BaseManager {
           for (const [npcId, amount] of Object.entries(
             mission.penalties.failure.rep
           )) {
-            this.gameStateManager.modifyRep(npcId, amount, 'mission_fail');
+            this.capabilities.modifyRep(npcId, amount, 'mission_fail');
           }
         }
         if (mission.penalties.failure.karma) {
-          this.gameStateManager.modifyKarma(
+          this.capabilities.modifyKarma(
             mission.penalties.failure.karma,
             'mission_fail'
           );
@@ -438,104 +434,90 @@ export class MissionManager extends BaseManager {
           for (const [faction, amount] of Object.entries(
             mission.penalties.failure.faction
           )) {
-            this.gameStateManager.modifyFactionRep(
-              faction,
-              amount,
-              'mission_fail'
-            );
+            this.capabilities.modifyFactionRep(faction, amount, 'mission_fail');
           }
         }
       }
 
       // Cole favor mission failure: direct rep penalty
       if (mission.source === 'cole') {
-        this.gameStateManager.modifyColeRep(COLE_DEBT_CONFIG.REP_FAVOR_FAIL);
+        this.capabilities.modifyColeRep(COLE_DEBT_CONFIG.REP_FAVOR_FAIL);
       }
     }
 
     if (cargoChanged) {
-      this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
+      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, cargo);
     }
 
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
+    this.capabilities.markDirty();
   }
 
   refreshMissionBoard() {
-    this.validateState();
-    const state = this.getState();
-    const currentDay = Math.floor(state.player.daysElapsed);
+    const missions = this.capabilities.getOwnState();
+    const currentDay = Math.floor(this.capabilities.getDaysElapsed());
+    const currentSystem = this.capabilities.getCurrentSystem();
 
-    if (
-      state.missions.board.length > 0 &&
-      state.missions.boardLastRefresh === currentDay
-    ) {
-      return state.missions.board;
+    if (missions.board.length > 0 && missions.boardLastRefresh === currentDay) {
+      return missions.board;
     }
 
     // Prune stale completion history
-    if (!state.missions.completionHistory) {
-      state.missions.completionHistory = [];
+    if (!missions.completionHistory) {
+      missions.completionHistory = [];
     }
     const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
-    state.missions.completionHistory = state.missions.completionHistory
+    missions.completionHistory = missions.completionHistory
       .filter((entry) => entry.day > windowStart)
       .slice(-MISSION_CONFIG.SATURATION_MAX_HISTORY);
 
-    const dangerZone =
-      typeof this.gameStateManager.getDangerZone === 'function'
-        ? this.gameStateManager.getDangerZone(state.player.currentSystem)
-        : 'safe';
+    const dangerZone = this.capabilities.getDangerZone(currentSystem);
 
-    const destinationDangerZoneFn =
-      typeof this.gameStateManager.getDangerZone === 'function'
-        ? (systemId) => this.gameStateManager.getDangerZone(systemId)
-        : null;
+    const destinationDangerZoneFn = (systemId) =>
+      this.capabilities.getDangerZone(systemId);
 
     const rng = new SeededRandom(
-      `mission-board-${currentDay}-${state.player.currentSystem}`
+      `mission-board-${currentDay}-${currentSystem}`
     );
-    const factionReps =
-      typeof this.gameStateManager.getFactionRep === 'function'
-        ? {
-            traders: this.gameStateManager.getFactionRep('traders'),
-            civilians: this.gameStateManager.getFactionRep('civilians'),
-          }
-        : null;
+    const factionReps = {
+      traders: this.capabilities.getFactionRep('traders'),
+      civilians: this.capabilities.getFactionRep('civilians'),
+    };
 
     const board = generateMissionBoard(
-      state.player.currentSystem,
-      this.gameStateManager.starData,
-      this.gameStateManager.wormholeData,
+      currentSystem,
+      this.capabilities.starData,
+      this.capabilities.wormholeData,
       dangerZone,
       () => rng.next(),
       destinationDangerZoneFn,
-      state.missions.completionHistory,
+      missions.completionHistory,
       currentDay,
       factionReps
     );
 
-    state.missions.board = board;
-    state.missions.boardLastRefresh = currentDay;
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    missions.board = board;
+    missions.boardLastRefresh = currentDay;
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
 
     return board;
   }
 
   getCompletableMissions() {
-    this.validateState();
-    const state = this.getState();
+    const missions = this.capabilities.getOwnState();
+    const currentSystem = this.capabilities.getCurrentSystem();
+    const cargo = this.capabilities.getShipCargo();
+    const visitedSystems = this.capabilities.getVisitedSystems();
 
-    return state.missions.active
+    return missions.active
       .filter((mission) => {
         if (mission.type === 'delivery') {
-          if (mission.requirements.destination !== state.player.currentSystem)
-            return false;
+          if (mission.requirements.destination !== currentSystem) return false;
           if (mission.missionCargo) {
-            return state.ship.cargo.some((c) => c.missionId === mission.id);
+            return cargo.some((c) => c.missionId === mission.id);
           }
           if (mission.requirements.cargo) {
-            const totalCargo = state.ship.cargo
+            const totalCargo = cargo
               .filter((c) => c.good === mission.requirements.cargo)
               .reduce((sum, c) => sum + c.qty, 0);
             return totalCargo >= mission.requirements.quantity;
@@ -543,9 +525,9 @@ export class MissionManager extends BaseManager {
           return true;
         }
         if (mission.type === 'fetch') {
-          if (mission.giverSystem !== state.player.currentSystem) return false;
+          if (mission.giverSystem !== currentSystem) return false;
           if (mission.requirements.cargo) {
-            const totalCargo = state.ship.cargo
+            const totalCargo = cargo
               .filter((c) => c.good === mission.requirements.cargo)
               .reduce((sum, c) => sum + c.qty, 0);
             return totalCargo >= mission.requirements.quantity;
@@ -553,15 +535,13 @@ export class MissionManager extends BaseManager {
           return true;
         }
         if (mission.type === 'intel') {
-          if (mission.giverSystem !== state.player.currentSystem) return false;
+          if (mission.giverSystem !== currentSystem) return false;
           return mission.requirements.targets.every((t) =>
-            state.world.visitedSystems.includes(t)
+            visitedSystems.includes(t)
           );
         }
         if (mission.type === 'passenger') {
-          return (
-            mission.requirements.destination === state.player.currentSystem
-          );
+          return mission.requirements.destination === currentSystem;
         }
         return false;
       })
@@ -575,18 +555,16 @@ export class MissionManager extends BaseManager {
   }
 
   failMissionsDueToCargoLoss() {
-    this.validateState();
-    const state = this.getState();
+    const missions = this.capabilities.getOwnState();
+    const cargo = this.capabilities.getShipCargo();
 
     const toFail = [];
     const toKeep = [];
 
-    for (const mission of state.missions.active) {
+    for (const mission of missions.active) {
       if (mission.missionCargo) {
         // Check if this mission's cargo is still in the hold
-        const hasCargo = state.ship.cargo.some(
-          (c) => c.missionId === mission.id
-        );
+        const hasCargo = cargo.some((c) => c.missionId === mission.id);
         if (!hasCargo) {
           toFail.push(mission);
         } else {
@@ -599,17 +577,17 @@ export class MissionManager extends BaseManager {
 
     if (toFail.length === 0) return;
 
-    state.missions.active = toKeep;
+    missions.active = toKeep;
 
     for (const mission of toFail) {
-      state.missions.failed.push(mission.id);
+      missions.failed.push(mission.id);
 
       if (mission.penalties && mission.penalties.failure) {
         if (mission.penalties.failure.faction) {
           for (const [faction, amount] of Object.entries(
             mission.penalties.failure.faction
           )) {
-            this.gameStateManager.modifyFactionRep(
+            this.capabilities.modifyFactionRep(
               faction,
               amount,
               'mission_cargo_confiscated'
@@ -619,24 +597,20 @@ export class MissionManager extends BaseManager {
       }
     }
 
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
   }
 
   getActiveMissions() {
-    this.validateState();
-    return this.getState().missions.active;
+    return this.capabilities.getOwnState().active;
   }
 
   dismissMissionFailureNotice(missionId) {
-    this.validateState();
-    const state = this.getState();
-    if (!state.missions.pendingFailureNotices) return;
-    const notices = state.missions.pendingFailureNotices;
+    const missions = this.capabilities.getOwnState();
+    if (!missions.pendingFailureNotices) return;
+    const notices = missions.pendingFailureNotices;
     if (!notices.some((n) => n.id === missionId)) return;
-    state.missions.pendingFailureNotices = notices.filter(
-      (n) => n.id !== missionId
-    );
-    this.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...state.missions });
-    this.gameStateManager.markDirty();
+    missions.pendingFailureNotices = notices.filter((n) => n.id !== missionId);
+    this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
+    this.capabilities.markDirty();
   }
 }

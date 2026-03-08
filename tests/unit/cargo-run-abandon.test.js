@@ -11,24 +11,36 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
       missions: { active: [], board: [], completed: [], failed: [] },
     };
 
-    const mockGSM = {
-      state,
-      getState: () => state,
-      saveGame: vi.fn(),
-      markDirty: vi.fn(),
+    const capabilities = {
+      getOwnState: () => state.missions,
+      getDaysElapsed: () => state.player.daysElapsed,
+      getCurrentSystem: () => state.player.currentSystem,
+      getCredits: () => state.player.credits,
+      getShipCargo: () => state.ship.cargo,
+      getCargoRemaining: vi.fn(() => 100),
+      getStats: () => ({}),
+      getVisitedSystems: () => [],
+      getDangerZone: vi.fn(() => 'safe'),
+      getFactionRep: vi.fn(() => 0),
+      updateCredits: vi.fn(),
+      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
+      modifyFactionRep: vi.fn(),
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),
-      modifyFactionRep: vi.fn(),
+      modifyColeRep: vi.fn(),
+      removeCargoForMission: vi.fn(),
+      updateStats: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
+      starData: [],
+      wormholeData: [],
+      isTestEnvironment: true,
     };
 
     const {
       MissionManager,
     } = require('../../src/game/state/managers/mission.js');
-    manager = new MissionManager(mockGSM);
-    manager.validateState = vi.fn();
-    manager.getState = () => state;
-    manager.emit = vi.fn();
+    manager = new MissionManager(capabilities);
   });
 
   afterEach(() => {

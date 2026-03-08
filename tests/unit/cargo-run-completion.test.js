@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 describe('Cargo Run Mission Completion', () => {
   let manager;
   let state;
-  let mockGSM;
+  let capabilities;
 
   beforeEach(() => {
     state = {
@@ -38,28 +38,41 @@ describe('Cargo Run Mission Completion', () => {
         failed: [],
         board: [],
       },
+      stats: { creditsEarned: 0 },
     };
 
-    mockGSM = {
-      state,
-      getState: () => state,
-      saveGame: vi.fn(),
-      markDirty: vi.fn(),
+    capabilities = {
+      getOwnState: () => state.missions,
+      getDaysElapsed: () => state.player.daysElapsed,
+      getCurrentSystem: () => state.player.currentSystem,
+      getCredits: () => state.player.credits,
+      getShipCargo: () => state.ship.cargo,
+      getCargoRemaining: vi.fn(() => 100),
+      getStats: () => state.stats,
+      getVisitedSystems: () => [],
+      getDangerZone: vi.fn(() => 'safe'),
+      getFactionRep: vi.fn(() => 0),
+      updateCredits: vi.fn((value) => {
+        state.player.credits = value;
+      }),
+      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
       modifyFactionRep: vi.fn(),
       modifyRep: vi.fn(),
       modifyKarma: vi.fn(),
+      modifyColeRep: vi.fn(),
       removeCargoForMission: vi.fn(() => ({ success: true })),
-      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
+      updateStats: vi.fn(),
+      markDirty: vi.fn(),
       emit: vi.fn(),
+      starData: [],
+      wormholeData: [],
+      isTestEnvironment: true,
     };
 
     const {
       MissionManager,
     } = require('../../src/game/state/managers/mission.js');
-    manager = new MissionManager(mockGSM);
-    manager.validateState = vi.fn();
-    manager.getState = () => state;
-    manager.emit = vi.fn();
+    manager = new MissionManager(capabilities);
   });
 
   afterEach(() => {
@@ -83,7 +96,7 @@ describe('Cargo Run Mission Completion', () => {
 
   it('should award faction rep on completion', () => {
     manager.completeMission('cargo_run_123');
-    expect(mockGSM.modifyFactionRep).toHaveBeenCalledWith(
+    expect(capabilities.modifyFactionRep).toHaveBeenCalledWith(
       'traders',
       2,
       'mission'
@@ -103,6 +116,6 @@ describe('Cargo Run Mission Completion', () => {
     const result = manager.completeMission('cargo_run_123');
     expect(result.success).toBe(true);
     // removeCargoForMission should NOT be called for new-style missions
-    expect(mockGSM.removeCargoForMission).not.toHaveBeenCalled();
+    expect(capabilities.removeCargoForMission).not.toHaveBeenCalled();
   });
 });
