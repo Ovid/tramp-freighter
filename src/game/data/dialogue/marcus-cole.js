@@ -107,6 +107,7 @@ export const MARCUS_COLE_DIALOGUE = {
       {
         text: 'About my debt...',
         next: 'debt_talk',
+        condition: (_rep, context) => context?.debt > 0,
       },
       {
         text: 'Any financial tips for me?',

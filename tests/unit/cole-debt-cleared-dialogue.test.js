@@ -76,6 +76,24 @@ describe('Marcus Cole Debt-Cleared Dialogue', () => {
     });
   });
 
+  describe('debt_talk choice visibility', () => {
+    it('should show "About my debt..." when debt > 0', () => {
+      const debtTalkChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
+        (c) => c.next === 'debt_talk'
+      );
+      expect(debtTalkChoice).toBeDefined();
+      expect(debtTalkChoice.condition(0, debtOutstandingContext)).toBe(true);
+    });
+
+    it('should NOT show "About my debt..." when debt === 0', () => {
+      const debtTalkChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
+        (c) => c.next === 'debt_talk'
+      );
+      expect(debtTalkChoice).toBeDefined();
+      expect(debtTalkChoice.condition(0, debtClearedContext)).toBe(false);
+    });
+  });
+
   describe('debt_cleared choice visibility', () => {
     it('should show debt_cleared choice when debt === 0 and Tanaka quest not started', () => {
       const debtClearedChoice = MARCUS_COLE_DIALOGUE.greeting.choices.find(
