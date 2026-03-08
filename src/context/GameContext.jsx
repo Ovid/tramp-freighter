@@ -11,17 +11,12 @@ const GameContext = createContext(null);
 /**
  * Provider component that makes the game coordinator available to all child components.
  *
- * Accepts either `game` (preferred) or `gameStateManager` (backward compat for tests).
- *
  * @param {Object} props
- * @param {GameCoordinator} props.game - Game coordinator instance (preferred)
- * @param {GameStateManager} props.gameStateManager - Legacy prop (backward compat)
+ * @param {GameCoordinator} props.game - Game coordinator instance
  * @param {React.ReactNode} props.children - Child components
  */
-export function GameProvider({ game, gameStateManager, children }) {
-  const instance = game || gameStateManager;
-
-  if (!instance) {
+export function GameProvider({ game, children }) {
+  if (!game) {
     return (
       <div className="game-loading">
         <p>Loading game...</p>
@@ -30,7 +25,7 @@ export function GameProvider({ game, gameStateManager, children }) {
   }
 
   return (
-    <GameContext.Provider value={instance}>{children}</GameContext.Provider>
+    <GameContext.Provider value={game}>{children}</GameContext.Provider>
   );
 }
 
@@ -44,13 +39,8 @@ export function useGame() {
   const context = useContext(GameContext);
 
   if (!context) {
-    throw new Error('useGameState must be used within GameProvider');
+    throw new Error('useGame must be used within GameProvider');
   }
 
   return context;
 }
-
-/**
- * @deprecated Use useGame() instead. Will be removed in Phase 5.
- */
-export const useGameState = useGame;
