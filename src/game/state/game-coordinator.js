@@ -89,7 +89,18 @@ export class GameCoordinator {
     this.shipManager = new ShipManager(this);
     this.npcManager = new NPCManager(this);
     this.navigationManager = new NavigationManager(this, this.starData);
-    this.refuelManager = new RefuelManager(this);
+    this.refuelManager = new RefuelManager({
+      getShipFuel: () => this.state.ship.fuel,
+      getCredits: () => this.state.player.credits,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getFuelCapacity: () => this.shipManager.getFuelCapacity(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateFuel: (value) => this.stateManager.updateFuel(value),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.repairManager = new RepairManager(this);
     this.dialogueManager = new DialogueManager({
       getOwnState: () => this.state.dialogue,

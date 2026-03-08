@@ -14,10 +14,6 @@ import {
  * - Refuel execution with safety checks
  */
 export class RefuelManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Calculate fuel price based on system distance from Sol
    *
@@ -35,7 +31,7 @@ export class RefuelManager extends BaseManager {
       return FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT;
     }
 
-    const system = this.getStarData().find((s) => s.id === systemId);
+    const system = this.capabilities.starData.find((s) => s.id === systemId);
     if (!system) {
       return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
     }
@@ -73,7 +69,7 @@ export class RefuelManager extends BaseManager {
    */
   validateRefuel(currentFuel, amount, credits, pricePerPercent) {
     const totalCost = Math.ceil(amount * pricePerPercent);
-    const maxFuel = this.gameStateManager.getFuelCapacity();
+    const maxFuel = this.capabilities.getFuelCapacity();
 
     if (amount <= 0) {
       return {
@@ -124,10 +120,9 @@ export class RefuelManager extends BaseManager {
   refuel(amount, discount = 0) {
     this.validateState();
 
-    const state = this.getState();
-    const currentFuel = state.ship.fuel;
-    const credits = state.player.credits;
-    const systemId = state.player.currentSystem;
+    const currentFuel = this.capabilities.getShipFuel();
+    const credits = this.capabilities.getCredits();
+    const systemId = this.capabilities.getCurrentSystem();
     const pricePerPercent = this.getFuelPrice(systemId);
     const effectivePrice =
       discount > 0 ? pricePerPercent * (1 - discount) : pricePerPercent;
@@ -143,11 +138,11 @@ export class RefuelManager extends BaseManager {
       return { success: false, reason: validation.reason };
     }
 
-    this.gameStateManager.updateCredits(credits - validation.cost);
+    this.capabilities.updateCredits(credits - validation.cost);
 
     // Clamp fuel to max capacity to handle floating point rounding
     // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
-    const maxFuel = this.gameStateManager.getFuelCapacity();
+    const maxFuel = this.capabilities.getFuelCapacity();
     const newFuel = Math.min(currentFuel + amount, maxFuel);
 
     // SAFETY CHECK: Prevent fuel reduction bug
@@ -161,10 +156,10 @@ export class RefuelManager extends BaseManager {
       );
     }
 
-    this.gameStateManager.updateFuel(newFuel);
+    this.capabilities.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, reason: null };
   }

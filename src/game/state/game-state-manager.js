@@ -62,6 +62,28 @@ export class GameStateManager {
     for (const name of managerNames) {
       this.coordinator[name].gameStateManager = this;
     }
+
+    // Patch capability-injected managers so their markDirty/emit closures
+    // route through the wrapper (important for test spies on GSM methods).
+    const capabilityManagers = [
+      'combatManager',
+      'negotiationManager',
+      'inspectionManager',
+      'distressManager',
+      'mechanicalFailureManager',
+      'dialogueManager',
+      'questManager',
+      'achievementsManager',
+      'refuelManager',
+    ];
+    for (const name of capabilityManagers) {
+      const mgr = this.coordinator[name];
+      if (mgr.capabilities) {
+        const caps = mgr.capabilities;
+        if (caps.markDirty) caps.markDirty = () => this.markDirty();
+        if (caps.emit) caps.emit = (...args) => this.emit(...args);
+      }
+    }
   }
 
   /**
