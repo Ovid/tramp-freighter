@@ -595,7 +595,9 @@ export class ShipManager extends BaseManager {
 
     // Emit cargo change events (new references for React re-renders)
     this.capabilities.updateCargo([...ship.cargo]);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [...ship.hiddenCargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
+      ...ship.hiddenCargo,
+    ]);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
@@ -647,7 +649,9 @@ export class ShipManager extends BaseManager {
 
     // Emit cargo change events (new references for React re-renders)
     this.capabilities.updateCargo([...ship.cargo]);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [...ship.hiddenCargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
+      ...ship.hiddenCargo,
+    ]);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
