@@ -18,7 +18,7 @@
 | Phase 3 Batch 1 | `2026-03-08-gsm-phase3-batch1-implementation.md` | Complete |
 | Phase 3 Batch 2 | `2026-03-08-gsm-phase3-batch2-implementation.md` | Complete |
 | Phase 3 Batch 3 | `2026-03-08-gsm-phase3-batch3-implementation.md` | Complete |
-| Phase 3 Batch 4 | (create when Batch 3 is complete) | — |
+| Phase 3 Batch 4 | `2026-03-08-gsm-phase3-batch4-implementation.md` | Complete |
 | Phase 3 Batch 5 | (create when Batch 4 is complete) | — |
 | Phase 4 | (create when Phase 3 is complete) | — |
 | Phase 5 | (create when Phase 4 is complete) | — |
