@@ -56,32 +56,17 @@ describe('Debt-Cleared Narrative Event', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('emits DEBT_CLEARED when applyWithholding reduces debt to zero', () => {
+    it('does not emit DEBT_CLEARED from applyWithholding (pure penalty)', () => {
       const spy = vi.fn();
       gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, spy);
 
-      // At low heat (0), lien rate is 5%. With debt=5 and revenue=100,
-      // withholding = ceil(100 * 0.05) = 5, which equals the debt exactly.
+      // Cole's cut no longer reduces debt, so DEBT_CLEARED never fires
       gsm.state.player.debt = 5;
       gsm.state.player.finance.heat = 0;
 
       gsm.debtManager.applyWithholding(100);
 
-      expect(gsm.state.player.debt).toBe(0);
-      expect(spy).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not emit DEBT_CLEARED when applyWithholding does not zero out debt', () => {
-      const spy = vi.fn();
-      gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, spy);
-
-      gsm.state.player.debt = 1000;
-      gsm.state.player.finance.heat = 0;
-
-      // Small revenue, won't zero out debt
-      gsm.debtManager.applyWithholding(10);
-
-      expect(gsm.state.player.debt).toBeGreaterThan(0);
+      expect(gsm.state.player.debt).toBe(5);
       expect(spy).not.toHaveBeenCalled();
     });
   });

@@ -122,8 +122,8 @@ describe('Price locking prevents intra-system arbitrage', () => {
     // Credits + withheld should equal initial credits (no arbitrage profit)
     expect(creditsAfterSell + withheld).toBe(initialCredits);
 
-    // Debt should have decreased by the withheld amount
-    expect(debtAfterSell).toBe(initialDebt - withheld);
+    // Cole's cut is a pure penalty — debt unchanged
+    expect(debtAfterSell).toBe(initialDebt);
 
     // Verify no profit was made from arbitrage
     const profit = creditsAfterSell - initialCredits;

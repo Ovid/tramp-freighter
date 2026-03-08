@@ -333,14 +333,15 @@ describe('Cole Debt System', () => {
         expect(result.playerReceives).toBe(950);
       });
 
-      it('caps withholding at current debt', () => {
+      it('does not cap withholding at current debt (pure penalty)', () => {
         gsm.state.player.debt = 20;
         gsm.state.player.finance.heat = 10;
 
         const result = debtManager.calculateWithholding(1000);
 
-        expect(result.withheld).toBe(20);
-        expect(result.playerReceives).toBe(980);
+        // 5% of 1000 = 50, NOT capped at debt of 20
+        expect(result.withheld).toBe(50);
+        expect(result.playerReceives).toBe(950);
       });
 
       it('returns 0 withholding when debt is 0', () => {
@@ -364,38 +365,35 @@ describe('Cole Debt System', () => {
     });
 
     describe('applyWithholding', () => {
-      it('reduces debt by withheld amount and tracks totalRepaid', () => {
+      it('does not reduce debt (pure penalty)', () => {
         gsm.state.player.debt = 10000;
         gsm.state.player.finance.heat = 10;
 
         debtManager.applyWithholding(1000);
 
-        expect(gsm.state.player.debt).toBe(9950);
-        expect(gsm.state.player.finance.totalRepaid).toBe(50);
+        expect(gsm.state.player.debt).toBe(10000);
+        expect(gsm.state.player.finance.totalRepaid).toBe(0);
       });
 
-      it('does not improve Cole rep when withholding < 500', () => {
+      it('returns withheld amount without affecting debt', () => {
         gsm.state.player.debt = 10000;
-        gsm.state.player.finance.heat = 10;
+        gsm.state.player.finance.heat = 80; // critical, 20% lien
 
-        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+        const result = debtManager.applyWithholding(5000);
 
-        // Revenue 1000, 5% lien = 50 withheld (< 500)
-        debtManager.applyWithholding(1000);
-
-        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
+        expect(result.withheld).toBe(1000);
+        expect(gsm.state.player.debt).toBe(10000);
       });
 
-      it('improves Cole rep by floor(withheld/500) when withholding >= 500', () => {
+      it('does not modify Cole rep', () => {
         gsm.state.player.debt = 100000;
         gsm.state.player.finance.heat = 80; // critical, 20% lien
 
         expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
 
-        // Revenue 5000, 20% lien = 1000 withheld → floor(1000/500) = +2
         debtManager.applyWithholding(5000);
 
-        expect(gsm.getNPCState('cole_sol').rep).toBe(-18);
+        expect(gsm.getNPCState('cole_sol').rep).toBe(-20);
       });
     });
 
@@ -761,17 +759,13 @@ describe('Cole Debt System', () => {
   });
 
   describe('Trading Integration', () => {
-    it('applies withholding when selling goods', () => {
+    it('applies withholding when selling goods without reducing debt', () => {
       // Set up trade scenario with debt and heat
       gsm.state.player.credits = 500;
       gsm.state.player.debt = 10000;
       gsm.state.player.finance.heat = 10; // low tier => 5% lien
 
       gsm.state.ship.cargo = [{ good: 'water', qty: 10, buyPrice: 50 }];
-
-      // sellGood uses currentSystemPrices for market condition tracking,
-      // and the state must already have them set (from initNewGame)
-      // We just need cargo and a valid stack index.
 
       const result = gsm.sellGood(0, 10, 100);
 
@@ -780,8 +774,8 @@ describe('Cole Debt System', () => {
       // Withholding = ceil(1000 * 0.05) = 50
       // Player gets 500 + 950 = 1450
       expect(gsm.state.player.credits).toBe(1450);
-      // Debt reduced by 50
-      expect(gsm.state.player.debt).toBe(9950);
+      // Debt NOT reduced — Cole's cut is a penalty, not repayment
+      expect(gsm.state.player.debt).toBe(10000);
       expect(result.withheld).toBe(50);
     });
 

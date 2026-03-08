@@ -1,9 +1,5 @@
 # TODO
 
-- Whisper, information broker on Sirius A, provides intel discount service,
-  but it looks like it's not implemented yet. We should implement this, as it
-  adds a unique benefit to building a relationship with Whisper.
-- docs/plans/2026-03-08-gsm-refactor-design.md
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain

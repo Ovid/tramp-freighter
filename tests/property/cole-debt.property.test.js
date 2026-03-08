@@ -30,7 +30,7 @@ describe('Cole Debt System Properties', () => {
     );
   });
 
-  it('withholding never exceeds debt', () => {
+  it('withholding equals ceil of revenue times lien rate (pure penalty, not capped at debt)', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 100000 }),
@@ -43,9 +43,10 @@ describe('Cole Debt System Properties', () => {
           gsm.state.player.finance.heat = Math.min(heat, 100);
           const dm = new DebtManager(gsm);
 
+          const lienRate = dm.getLienRate();
           const { withheld } = dm.calculateWithholding(revenue);
 
-          return withheld <= debt && withheld >= 0;
+          return withheld === Math.ceil(revenue * lienRate) && withheld >= 0;
         }
       ),
       { numRuns: 100 }

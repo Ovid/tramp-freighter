@@ -242,8 +242,7 @@ export class DebtManager extends BaseManager {
     }
 
     const lienRate = this.getLienRate();
-    let withheld = Math.ceil(totalRevenue * lienRate);
-    withheld = Math.min(withheld, debt);
+    const withheld = Math.ceil(totalRevenue * lienRate);
 
     return {
       withheld,
@@ -255,27 +254,8 @@ export class DebtManager extends BaseManager {
     const { withheld } = this.calculateWithholding(totalRevenue);
     if (withheld === 0) return { withheld: 0 };
 
-    const finance = this.getFinance();
-    this.gameStateManager.updateDebt(this.getDebt() - withheld);
-    finance.totalRepaid += withheld;
-
-    // Cole's cut: only counts if ≥ threshold
-    if (withheld >= COLE_DEBT_CONFIG.REP_WITHHOLDING_THRESHOLD) {
-      const repGain = Math.floor(
-        withheld / COLE_DEBT_CONFIG.REP_PER_CREDIT_DIVISOR
-      );
-      this.modifyColeRep(repGain);
-    }
-
-    if (this.getDebt() === 0) {
-      finance.heat = 0;
-      finance.lienRate = 0;
-      finance.interestRate = 0;
-      this.modifyColeRep(COLE_DEBT_CONFIG.REP_DEBT_CLEARED_BONUS);
-      this.emit(EVENT_NAMES.DEBT_CLEARED);
-    }
-
-    this.emitFinanceChanged();
+    // Cole's cut is a pure penalty — money taken, debt unchanged.
+    // Only voluntary payments through the Finance panel reduce debt.
 
     return { withheld };
   }

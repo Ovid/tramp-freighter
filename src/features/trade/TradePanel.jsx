@@ -155,7 +155,7 @@ export function TradePanel({ onClose }) {
 
     if (saleOutcome.withheld > 0) {
       setSaleFeedback(
-        `Revenue: ₡${saleOutcome.totalRevenue.toLocaleString()} · Cole's cut: -₡${saleOutcome.withheld.toLocaleString()} · You receive: ₡${saleOutcome.playerReceives.toLocaleString()}`
+        `Revenue: ₡${saleOutcome.totalRevenue.toLocaleString()} · Cole's cut: -₡${saleOutcome.withheld.toLocaleString()} · You receive: ₡${saleOutcome.playerReceives.toLocaleString()} (does not reduce your debt)`
       );
     }
   };
