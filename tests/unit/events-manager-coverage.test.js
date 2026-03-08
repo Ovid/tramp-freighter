@@ -36,7 +36,7 @@ describe('EventsManager coverage', () => {
     });
 
     it('emits ACTIVE_EVENTS_CHANGED', () => {
-      const spy = vi.spyOn(gsm.eventsManager, 'emit');
+      const spy = vi.spyOn(gsm, 'emit');
       const newEvents = [{ systemId: 3, type: 'supply_glut' }];
       gsm.eventsManager.updateActiveEvents(newEvents);
       expect(spy).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe('EventsManager coverage', () => {
     });
 
     it('emits TIME_CHANGED event', () => {
-      const spy = vi.spyOn(gsm.eventsManager, 'emit');
+      const spy = vi.spyOn(gsm, 'emit');
       gsm.eventsManager.updateTime(5);
       expect(spy).toHaveBeenCalledWith(EVENT_NAMES.TIME_CHANGED, 5);
     });
@@ -141,7 +141,7 @@ describe('EventsManager coverage', () => {
     });
 
     it('emits ACTIVE_EVENTS_CHANGED when days advance', () => {
-      const spy = vi.spyOn(gsm.eventsManager, 'emit');
+      const spy = vi.spyOn(gsm, 'emit');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       const eventsCalls = spy.mock.calls.filter(

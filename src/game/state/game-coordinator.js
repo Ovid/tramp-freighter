@@ -30,6 +30,7 @@ import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { DebtManager } from './managers/debt.js';
 import { AchievementsManager } from './managers/achievements.js';
+import { InformationBroker } from '../game-information-broker.js';
 import {
   isVersionCompatible,
   validateStateStructure,
@@ -178,7 +179,40 @@ export class GameCoordinator {
       coordinatorRef: this,
       isTestEnvironment: this.isTestEnvironment,
     });
-    this.eventsManager = new EventsManager(this);
+    this.eventsManager = new EventsManager({
+      getOwnState: () => ({
+        activeEvents: this.state.world.activeEvents,
+        daysElapsed: this.state.player.daysElapsed,
+      }),
+      setDaysElapsed: (newDays) => {
+        this.state.player.daysElapsed = newDays;
+      },
+      setActiveEvents: (events) => {
+        this.state.world.activeEvents = events;
+      },
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
+      getMarketConditions: () => this.state.world.marketConditions,
+      incrementPriceKnowledgeStaleness: (days) =>
+        this.tradingManager.incrementPriceKnowledgeStaleness(days),
+      applyMarketRecovery: (daysPassed) =>
+        this.tradingManager.applyMarketRecovery(daysPassed),
+      recalculatePricesForKnownSystems: () =>
+        this.tradingManager.recalculatePricesForKnownSystems(),
+      checkLoanDefaults: () => this.npcManager.checkLoanDefaults(),
+      processDebtTick: () => {
+        this.debtManager.applyInterest();
+        return this.debtManager.checkCheckpoint();
+      },
+      checkMissionDeadlines: () => this.missionManager.checkMissionDeadlines(),
+      cleanupOldIntelligence: () =>
+        InformationBroker.cleanupOldIntelligence(
+          this.state.world.priceKnowledge
+        ),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.infoBrokerManager = new InfoBrokerManager({
       getPriceKnowledge: () => this.state.world.priceKnowledge,
       getActiveEvents: () => this.state.world.activeEvents,

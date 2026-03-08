@@ -92,6 +92,21 @@ export class GameStateManager {
           caps.getDangerZone = (...args) => this.getDangerZone(...args);
         if (caps.getFactionRep)
           caps.getFactionRep = (...args) => this.getFactionRep(...args);
+        if (caps.incrementPriceKnowledgeStaleness)
+          caps.incrementPriceKnowledgeStaleness = (...args) =>
+            this.incrementPriceKnowledgeStaleness(...args);
+        if (caps.applyMarketRecovery)
+          caps.applyMarketRecovery = (...args) =>
+            this.applyMarketRecovery(...args);
+        if (caps.recalculatePricesForKnownSystems)
+          caps.recalculatePricesForKnownSystems = () =>
+            this.recalculatePricesForKnownSystems();
+        if (caps.checkLoanDefaults)
+          caps.checkLoanDefaults = () => this.checkLoanDefaults();
+        if (caps.processDebtTick)
+          caps.processDebtTick = () => this.processDebtTick();
+        if (caps.checkMissionDeadlines)
+          caps.checkMissionDeadlines = () => this.checkMissionDeadlines();
       }
     }
   }
