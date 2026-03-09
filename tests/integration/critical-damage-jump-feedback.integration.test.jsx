@@ -52,7 +52,7 @@ vi.mock('../../src/context/GameContext', () => {
     calculateShipCapabilities: () => ({ fuelConsumption: 1.0 }),
     applyQuirkModifiers: (val) => val,
   });
-  return { useGame: hook, useGame: hook };
+  return { useGame: hook };
 });
 
 // Mock useGameAction

@@ -14,7 +14,7 @@
  *
  * - **NPC Data**: Uses ALL_NPCS for NPC definitions and validation
  * - **Dialogue Trees**: Uses ALL_DIALOGUE_TREES for conversation content
- * - **Reputation System**: Integrates with GameStateManager for reputation queries and modifications
+ * - **Reputation System**: Integrates with GameCoordinator for reputation queries and modifications
  * - **Story Flags**: Manages persistent story flags in NPC state
  *
  * ## Error Handling
@@ -30,7 +30,7 @@
 import { ALL_NPCS } from './data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 
-// Dialogue state is now managed by GameStateManager
+// Dialogue state is now managed by GameCoordinator
 
 // Special dialogue node identifiers
 const TIP_NODE_ID = 'ask_tip';
@@ -124,7 +124,7 @@ function validateNPCId(npcId) {
  *
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {string} [nodeId='greeting'] - Dialogue node identifier within the NPC's dialogue tree
- * @param {GameStateManager} gameStateManager - Game state manager instance for reputation and state access
+ * @param {GameCoordinator} gameStateManager - Game state manager instance for reputation and state access
  * @returns {Object} Dialogue display object with the following properties:
  *   - npcId: string - The NPC identifier
  *   - npcName: string - Display name of the NPC
@@ -151,7 +151,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     throw new Error(`Unknown dialogue node: ${nodeId} for NPC: ${npcId}`);
   }
 
-  // Store current dialogue state in GameStateManager
+  // Store current dialogue state in GameCoordinator
   gameStateManager.setDialogueState(npcId, nodeId);
 
   // Get current reputation (getNPCState handles initialization with initialRep)
@@ -258,7 +258,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  *
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {number} choiceIndex - Index of selected choice from the current dialogue node's choices array
- * @param {GameStateManager} gameStateManager - Game state manager instance for state modifications
+ * @param {GameCoordinator} gameStateManager - Game state manager instance for state modifications
  * @returns {Object|null} Next dialogue display object (same format as showDialogue) or null if dialogue ends
  * @throws {Error} If NPC ID is invalid or choice index is out of bounds
  */
@@ -348,7 +348,7 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
 
   // Close dialogue if choice has no next node
   if (!selectedChoice.next) {
-    // Clear dialogue state in GameStateManager
+    // Clear dialogue state in GameCoordinator
     gameStateManager.clearDialogueState();
     return null;
   }

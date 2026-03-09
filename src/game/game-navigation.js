@@ -402,7 +402,7 @@ export class NavigationSystem {
   /**
    * Execute a jump (updates game state and triggers animation)
    *
-   * @param {Object} gameStateManager - GameStateManager instance
+   * @param {Object} gameStateManager - GameCoordinator instance
    * @param {number} targetSystemId - Target system ID
    * @param {Object} animationSystem - Optional JumpAnimationSystem instance
    * @param {Object} uiManager - Optional UIManager instance for hiding/showing panels during animation

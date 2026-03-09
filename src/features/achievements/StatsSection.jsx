@@ -68,7 +68,7 @@ const DANGER_FLAG_LABELS = {
  *
  * Subscribes to karmaChanged, factionRepChanged, jumpCompleted,
  * and timeChanged events via the Bridge Pattern. Reads additional
- * stats from GameStateManager on each render.
+ * stats from GameCoordinator on each render.
  */
 export function StatsSection() {
   const game = useGame();

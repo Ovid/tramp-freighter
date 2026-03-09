@@ -15,7 +15,7 @@ import { EVENT_NAMES } from '../../game/constants.js';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function ShipStatusPanel({ onClose }) {
-  // Access GameStateManager
+  // Access GameCoordinator
   const game = useGame();
 
   // Subscribe to game events

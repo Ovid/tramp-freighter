@@ -129,7 +129,7 @@ export class SaveLoadManager extends BaseManager {
   /**
    * Load game state from localStorage
    *
-   * Delegates to GameStateManager.restoreState() for version checking,
+   * Delegates to GameCoordinator.restoreState() for version checking,
    * migrations, validation, defaults, state assignment, and event emission.
    *
    * @returns {Object|null} Loaded and validated game state, or null if load failed

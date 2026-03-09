@@ -7,7 +7,7 @@ import { UI_CONFIG, EVENT_NAMES } from '../../game/constants';
 /**
  * QuickAccessButtons component displays quick access buttons for common actions.
  *
- * Uses the Bridge Pattern to subscribe to GameStateManager events:
+ * Uses the Bridge Pattern to subscribe to GameCoordinator events:
  * - locationChanged: Updates button state when player location changes
  *
  * Uses useAnimationLock to disable buttons during animations.

@@ -27,7 +27,7 @@ import { isGoodRestrictedInZone } from '../danger/inspectionUtils.js';
  * TradePanel - React component for trading goods at stations
  *
  * Displays market goods with current prices and cargo stacks with profit calculations.
- * Handles buy/sell transactions through GameStateManager.
+ * Handles buy/sell transactions through GameCoordinator.
  *
  * Architecture: react-migration
  * Validates: Requirements 8.1, 26.1, 26.2, 26.3, 26.5

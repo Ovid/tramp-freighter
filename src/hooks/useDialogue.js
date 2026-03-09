@@ -9,7 +9,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  * This hook implements the Bridge Pattern for dialogue management by:
  * 1. Subscribing to dialogue state changes via useGameEvent
  * 2. Providing dialogue actions that handle async complexity internally
- * 3. Ensuring React components never directly call GameStateManager methods
+ * 3. Ensuring React components never directly call GameCoordinator methods
  *
  * The hook encapsulates the async nature of dialogue operations while maintaining
  * the Bridge Pattern's separation between imperative game logic and declarative UI.
@@ -51,7 +51,7 @@ export function useDialogue() {
   const startDialogue = useCallback(
     async (npcId, nodeId = 'greeting') => {
       try {
-        // Call the GameStateManager public API method
+        // Call the GameCoordinator public API method
         await game.startDialogue(npcId, nodeId);
         return true;
       } catch (error) {
@@ -76,7 +76,7 @@ export function useDialogue() {
   const selectChoice = useCallback(
     async (npcId, choiceIndex) => {
       try {
-        // Call the GameStateManager public API method
+        // Call the GameCoordinator public API method
         await game.selectDialogueChoice(npcId, choiceIndex);
         return true;
       } catch (error) {

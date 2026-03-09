@@ -6,7 +6,7 @@ import { useDialogue } from '../../hooks/useDialogue';
  *
  * Displays NPC information, dialogue text, and numbered choice list.
  * Handles choice selection and dialogue advancement through the Bridge Pattern.
- * Uses GameStateManager as single source of truth for dialogue state.
+ * Uses GameCoordinator as single source of truth for dialogue state.
  *
  * NPC Foundation Spec: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
  *

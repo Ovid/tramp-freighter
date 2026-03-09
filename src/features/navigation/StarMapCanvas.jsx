@@ -195,7 +195,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         starData
       );
 
-      // Register animation system with GameStateManager for useAnimationLock hook
+      // Register animation system with GameCoordinator for useAnimationLock hook
       game.setAnimationSystem(animationSystem);
 
       // Store scene components for cleanup
@@ -332,7 +332,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
         }
 
-        // Clear animation system reference from GameStateManager
+        // Clear animation system reference from GameCoordinator
         game.setAnimationSystem(null);
 
         // Dispose of Three.js resources

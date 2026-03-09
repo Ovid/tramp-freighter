@@ -50,7 +50,7 @@ import { ALL_QUESTS } from '../data/quest-definitions.js';
  *
  * This class is the composition root that owns all domain managers and provides
  * the unified API for game state management. It has the same shape as
- * GameStateManager (`.state`, `.starData`, `.emit()`, `.markDirty()`, etc.)
+ * GameCoordinator (`.state`, `.starData`, `.emit()`, `.markDirty()`, etc.)
  * so that managers receiving `this` continue to work unchanged.
  *
  * DOCUMENTATION: Method documentation is maintained in the individual manager classes

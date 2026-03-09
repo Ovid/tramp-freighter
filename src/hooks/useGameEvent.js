@@ -3,10 +3,10 @@ import { useGame } from '../context/GameContext.jsx';
 import { EVENT_NAMES } from '../game/constants.js';
 
 /**
- * Custom hook for subscribing to GameStateManager events.
+ * Custom hook for subscribing to GameCoordinator events.
  *
  * This hook implements the Bridge Pattern by connecting React's declarative
- * component model to the imperative GameStateManager event system.
+ * component model to the imperative GameCoordinator event system.
  *
  * The hook:
  * 1. Subscribes to the specified event on mount
@@ -16,7 +16,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  *
  * React Migration Spec: Requirements 5.2, 5.3, 5.4, 34.1, 34.2, 34.3, 34.4, 34.5
  *
- * @param {string} eventName - Event name from GameStateManager.subscribers
+ * @param {string} eventName - Event name from GameCoordinator.subscribers
  * @returns {any} Current state value from the event
  *
  * @example

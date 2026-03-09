@@ -120,7 +120,7 @@
   - **context/**: React Context providers (GameContext)
   - **hooks/**: Custom React hooks (useGameEvent, useGameAction, etc.)
   - **game/**: Game logic organized by category
-    - **state/**: State management (GameStateManager, save/load)
+    - **state/**: State management (GameCoordinator, save/load)
     - **engine/**: Scene and animation logic
     - **data/**: Static game data (star systems, wormhole connections)
     - **utils/**: Reusable utility functions
@@ -138,10 +138,10 @@
 ## Key Files
 
 - `index.html`: Vite entry point for React application
-- `src/main.jsx`: Application entry point, initializes GameStateManager, imports global CSS
+- `src/main.jsx`: Application entry point, initializes GameCoordinator, imports global CSS
 - `src/App.jsx`: Root component, manages view mode state
-- `src/context/GameContext.jsx`: Provides GameStateManager to all components
-- `src/hooks/useGameEvent.js`: Custom hook for subscribing to GameStateManager events
+- `src/context/GameContext.jsx`: Provides GameCoordinator to all components
+- `src/hooks/useGameEvent.js`: Custom hook for subscribing to GameCoordinator events
 - `src/hooks/useGameAction.js`: Custom hook for triggering game actions
 - `src/game/state/game-state-manager.js`: Central state management
 - `src/game/constants.js`: Configuration objects for all game constants

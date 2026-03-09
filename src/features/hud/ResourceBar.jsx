@@ -4,7 +4,7 @@ import { EVENT_NAMES } from '../../game/constants.js';
 /**
  * ResourceBar component displays player credits and debt.
  *
- * Uses the Bridge Pattern to subscribe to GameStateManager events:
+ * Uses the Bridge Pattern to subscribe to GameCoordinator events:
  * - creditsChanged: Updates when player credits change
  * - debtChanged: Updates when player debt changes
  *

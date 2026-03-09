@@ -59,7 +59,7 @@ const VIEW_MODES = {
  * Root application orchestrator.
  *
  * Manages the UI state machine and coordinates between React's declarative
- * rendering and the imperative GameStateManager. Acts as the bridge between
+ * rendering and the imperative GameCoordinator. Acts as the bridge between
  * the game engine and the user interface.
  *
  * React Migration Spec: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4, 25.5, 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 48.1, 48.7

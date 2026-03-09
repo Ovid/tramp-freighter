@@ -8,7 +8,7 @@ import { PIRATE_CREDIT_DEMAND_CONFIG } from '../../game/constants.js';
  * passengerSatisfaction, kidnappedPassengerId, hiddenCargoConfiscated, restrictedGoodsConfiscated) and rewards (credits, fuelMinimum,
  * karma, factionRep, cargo, passengerSatisfaction), then saves.
  *
- * @param {Object} game - The GameStateManager instance
+ * @param {Object} game - The GameCoordinator instance
  * @param {Object} outcome - Encounter outcome with costs and rewards
  * @returns {Object} result - { salvageMessages: string[] }
  */

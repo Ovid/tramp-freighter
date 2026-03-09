@@ -1,7 +1,6 @@
 'use strict';
 
 import { GameCoordinator } from '@game/state/game-coordinator.js';
-import { GameStateManager } from '@game/state/game-state-manager.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from './test-data.js';
 
 export { TEST_STAR_DATA, TEST_WORMHOLE_DATA };
@@ -105,13 +104,3 @@ export function createMinimalWormholeData() {
   return [[0, 1]];
 }
 
-/**
- * @deprecated Use createTestGame instead.
- * Uses GameStateManager wrapper for backward compat with tests that spy on
- * cross-domain methods via the wrapper's capability patching.
- */
-export function createTestGameStateManager() {
-  const manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
-  manager.initNewGame();
-  return manager;
-}

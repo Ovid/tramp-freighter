@@ -31,7 +31,7 @@ Features:
 - **UI Layer**: Migrated from vanilla JavaScript DOM manipulation to React declarative components
 - **Build System**: Migrated from simple HTTP server to Vite build tool
 - **Testing**: Migrated from vanilla JS tests to Vitest with React Testing Library
-- **Architecture**: Implemented Bridge Pattern to connect GameStateManager to React
+- **Architecture**: Implemented Bridge Pattern to connect GameCoordinator to React
 
 ### What Stayed the Same
 
@@ -117,10 +117,10 @@ project-root/
 │   │   └── ErrorBoundary.jsx    # Error boundary for graceful failures
 │   │
 │   ├── context/                 # React Context providers
-│   │   └── GameContext.jsx      # Provides GameStateManager to all components
+│   │   └── GameContext.jsx      # Provides GameCoordinator to all components
 │   │
 │   ├── hooks/                   # Custom React hooks
-│   │   ├── useGameEvent.js      # Subscribe to GameStateManager events
+│   │   ├── useGameEvent.js      # Subscribe to GameCoordinator events
 │   │   ├── useGameAction.js     # Trigger game actions
 │   │   ├── useAnimationLock.js  # Animation state management
 │   │   └── useNotification.js   # Notification system
@@ -240,7 +240,7 @@ project-root/
 
 ## Bridge Pattern Architecture
 
-The React migration uses a **Bridge Pattern** to connect the imperative GameStateManager (single source of truth) to React's declarative component model. This ensures zero behavioral changes to game mechanics while enabling reactive UI updates.
+The React migration uses a **Bridge Pattern** to connect the imperative GameCoordinator (single source of truth) to React's declarative component model. This ensures zero behavioral changes to game mechanics while enabling reactive UI updates.
 
 ### Architecture Overview
 
@@ -272,7 +272,7 @@ The React migration uses a **Bridge Pattern** to connect the imperative GameStat
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              GameStateManager (Singleton)                    │
+│              GameCoordinator (Singleton)                    │
 │  - Single Source of Truth                                   │
 │  - Event Subscription System                                │
 │  - Game Logic Methods                                       │
@@ -296,11 +296,11 @@ The React migration uses a **Bridge Pattern** to connect the imperative GameStat
 
 #### 1. GameContext
 
-Provides the GameStateManager instance to all React components via React Context.
+Provides the GameCoordinator instance to all React components via React Context.
 
 **Location**: `src/context/GameContext.jsx`
 
-**Purpose**: Makes GameStateManager available throughout the component tree without prop drilling.
+**Purpose**: Makes GameCoordinator available throughout the component tree without prop drilling.
 
 **Usage**:
 
@@ -309,13 +309,13 @@ import { useGameState } from '../context/GameContext';
 
 function MyComponent() {
   const gameStateManager = useGameState();
-  // Access GameStateManager methods
+  // Access GameCoordinator methods
 }
 ```
 
 #### 2. useGameEvent Hook
 
-Subscribes to GameStateManager events and triggers React re-renders when events fire.
+Subscribes to GameCoordinator events and triggers React re-renders when events fire.
 
 **Location**: `src/hooks/useGameEvent.js`
 
@@ -342,18 +342,18 @@ function ResourceBar() {
 **How it works**:
 
 1. Component calls `useGameEvent('creditsChanged')`
-2. Hook subscribes to GameStateManager's 'creditsChanged' event
-3. When credits change, GameStateManager fires event
+2. Hook subscribes to GameCoordinator's 'creditsChanged' event
+3. When credits change, GameCoordinator fires event
 4. Hook updates local state, triggering React re-render
 5. Component automatically unsubscribes on unmount
 
 #### 3. useGameAction Hook
 
-Provides methods to trigger game actions through GameStateManager.
+Provides methods to trigger game actions through GameCoordinator.
 
 **Location**: `src/hooks/useGameAction.js`
 
-**Purpose**: Enables components to trigger game actions without direct GameStateManager access.
+**Purpose**: Enables components to trigger game actions without direct GameCoordinator access.
 
 **Usage**:
 
@@ -385,12 +385,12 @@ function RefuelButton() {
 
 ### Bridge Pattern Benefits
 
-1. **Single Source of Truth**: GameStateManager remains the only source of game state
+1. **Single Source of Truth**: GameCoordinator remains the only source of game state
 2. **No State Duplication**: React components don't duplicate game state in local state
 3. **Automatic Cleanup**: Subscriptions automatically cleaned up on component unmount
 4. **Selective Re-rendering**: Only components subscribed to specific events re-render
-5. **Preserved Game Logic**: All game logic remains unchanged in GameStateManager
-6. **Testability**: Components can be tested with mock GameStateManager
+5. **Preserved Game Logic**: All game logic remains unchanged in GameCoordinator
+6. **Testability**: Components can be tested with mock GameCoordinator
 
 ### Example: Complete Component
 
@@ -405,7 +405,7 @@ function TradePanel({ onClose }) {
   const [selectedGood, setSelectedGood] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Access GameStateManager
+  // Access GameCoordinator
   const gameStateManager = useGameState();
 
   // Subscribe to game events
@@ -544,7 +544,7 @@ describe('Property: Automatic unsubscription on unmount', () => {
       fc.property(
         fc.constantFrom('creditsChanged', 'fuelChanged', 'cargoChanged'),
         (eventName) => {
-          const mockGSM = createMockGameStateManager();
+          const mockGSM = createMockGameCoordinator();
           const { unmount } = renderHook(() => useGameEvent(eventName), {
             wrapper: createWrapper(mockGSM),
           });

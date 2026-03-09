@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { useGame } from '../context/GameContext.jsx';
 
 /**
- * Custom hook for triggering game actions through GameStateManager.
+ * Custom hook for triggering game actions through GameCoordinator.
  *
  * This hook provides a stable interface for components to trigger game actions
- * without directly accessing GameStateManager methods. All actions delegate to
- * the corresponding GameStateManager methods, which handle state updates and
+ * without directly accessing GameCoordinator methods. All actions delegate to
+ * the corresponding GameCoordinator methods, which handle state updates and
  * event emissions.
  *
  * React Migration Spec: Requirements 16.1, 16.2, 16.3, 16.4, 16.5

@@ -21,7 +21,7 @@ vi.mock('../../src/context/GameContext', () => {
     }),
     setPreference: vi.fn(),
   });
-  return { useGame: hook, useGame: hook };
+  return { useGame: hook };
 });
 
 // Mock useGameEvent

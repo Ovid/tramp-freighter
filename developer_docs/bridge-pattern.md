@@ -4,7 +4,7 @@
 
 The Bridge Pattern is a core architectural pattern in Tramp Freighter Blues
 that connects React's declarative UI components to the imperative
-GameStateManager. This pattern ensures clean separation of concerns, prevents
+GameCoordinator. This pattern ensures clean separation of concerns, prevents
 state duplication, and maintains a single source of truth for all game state.
 
 ## Why the Bridge Pattern?
@@ -25,23 +25,23 @@ The Bridge Pattern provides a clean interface between these two paradigms:
 
 ```
     ┌─────────────────┐    Bridge Pattern   ┌──────────────────┐
-    │ React Components│ ◄─────────────────► │ GameStateManager │
+    │ React Components│ ◄─────────────────► │ GameCoordinator │
     │ (Declarative)   │                     │ (Imperative)     │
     └─────────────────┘                     └──────────────────┘
 ```
 
 ## Core Components
 
-### 1. GameStateManager (Single Source of Truth)
+### 1. GameCoordinator (Single Source of Truth)
 
-The GameStateManager is an imperative singleton that:
+The GameCoordinator is an imperative singleton that:
 - Maintains all game state
 - Implements business logic
 - Emits events when state changes
 - Provides methods for state mutations
 
 ```javascript
-class GameStateManager {
+class GameCoordinator {
   constructor() {
     this.state = { /* game state */ };
     this.subscribers = { /* event subscribers */ };
@@ -61,7 +61,7 @@ class GameStateManager {
 
 ### 2. Custom Hooks (Bridge Interface)
 
-Custom hooks provide the bridge between React and GameStateManager:
+Custom hooks provide the bridge between React and GameCoordinator:
 
 #### useGameEvent() - Subscribe to State Changes
 
@@ -99,7 +99,7 @@ function RefuelButton() {
 
 ### 3. GameContext (Dependency Injection)
 
-React Context provides the GameStateManager instance to all components:
+React Context provides the GameCoordinator instance to all components:
 
 ```javascript
 // GameContext.jsx
@@ -140,10 +140,10 @@ function TradePanel() {
 }
 ```
 
-### ❌ DON'T: Access GameStateManager Directly
+### ❌ DON'T: Access GameCoordinator Directly
 
 ```javascript
-// WRONG: Direct GameStateManager access
+// WRONG: Direct GameCoordinator access
 function TradePanel() {
   const gameStateManager = useGameState();
   const state = gameStateManager.getState(); // ❌ Bridge Pattern violation
@@ -194,7 +194,7 @@ function TradePanel() {
 
 ### Available Events
 
-The GameStateManager emits these events for component subscriptions:
+The GameCoordinator emits these events for component subscriptions:
 
 ```javascript
 // Player state
@@ -336,14 +336,14 @@ test('displays credits correctly', () => {
 
 ### Integration Testing
 
-Test the full bridge by providing a real GameStateManager:
+Test the full bridge by providing a real GameCoordinator:
 
 ```javascript
-import { GameStateManager } from '../game/state/game-state-manager';
+import { GameCoordinator } from '../game/state/game-state-manager';
 import { GameProvider } from '../context/GameContext';
 
-test('integration with GameStateManager', () => {
-  const gameStateManager = new GameStateManager(starData, wormholeData);
+test('integration with GameCoordinator', () => {
+  const gameStateManager = new GameCoordinator(starData, wormholeData);
   gameStateManager.initNewGame();
   
   render(
@@ -435,12 +435,12 @@ function UpgradeButton({ upgradeId }) {
 ## Benefits
 
 ### 1. Single Source of Truth
-- All game state lives in GameStateManager
+- All game state lives in GameCoordinator
 - No state duplication or synchronization issues
 - Consistent state across all components
 
 ### 2. Clean Separation of Concerns
-- Business logic stays in GameStateManager
+- Business logic stays in GameCoordinator
 - UI components focus on presentation
 - Easy to test each layer independently
 
@@ -456,7 +456,7 @@ function UpgradeButton({ upgradeId }) {
 
 ### 5. Testability
 - Components can be tested with mocked hooks
-- GameStateManager can be tested independently
+- GameCoordinator can be tested independently
 - Integration tests verify the bridge works correctly
 
 ## Migration Checklist
@@ -546,4 +546,4 @@ Freighter Blues. By following these patterns and rules, you ensure:
 - Type-safe interfaces
 
 Always use `useGameEvent()` for state subscriptions and `useGameAction()` for
-state mutations. Never access GameStateManager directly from React components.
+state mutations. Never access GameCoordinator directly from React components.
