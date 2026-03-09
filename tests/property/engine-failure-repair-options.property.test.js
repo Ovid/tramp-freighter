@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FAILURE_CONFIG } from '../../src/game/constants.js';
@@ -82,12 +82,11 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve emergency restart
-          const result =
-            game.mechanicalFailureManager.resolveMechanicalFailure(
-              failure.type,
-              'emergency_restart',
-              gameState
-            );
+          const result = game.mechanicalFailureManager.resolveMechanicalFailure(
+            failure.type,
+            'emergency_restart',
+            gameState
+          );
 
           if (
             seededRng < FAILURE_CONFIG.ENGINE_FAILURE.EMERGENCY_RESTART.CHANCE
@@ -127,12 +126,11 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve call for help
-          const result =
-            game.mechanicalFailureManager.resolveMechanicalFailure(
-              failure.type,
-              'call_for_help',
-              gameState
-            );
+          const result = game.mechanicalFailureManager.resolveMechanicalFailure(
+            failure.type,
+            'call_for_help',
+            gameState
+          );
 
           // Call for help should always succeed
           expect(result.success).toBe(true);
@@ -172,12 +170,11 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'engine_failure', severity: initialEngine };
 
           // Resolve jury-rig
-          const result =
-            game.mechanicalFailureManager.resolveMechanicalFailure(
-              failure.type,
-              'jury_rig',
-              gameState
-            );
+          const result = game.mechanicalFailureManager.resolveMechanicalFailure(
+            failure.type,
+            'jury_rig',
+            gameState
+          );
 
           if (seededRng < FAILURE_CONFIG.ENGINE_FAILURE.JURY_RIG.CHANCE) {
             // Success case
@@ -218,12 +215,11 @@ describe('Property 10: Engine Failure Repair Options', () => {
           const failure = { type: 'hull_breach', severity: initialHull };
 
           // Resolve hull breach (no choice needed, immediate consequence)
-          const result =
-            game.mechanicalFailureManager.resolveMechanicalFailure(
-              failure.type,
-              null, // Hull breach has no repair choices
-              gameState
-            );
+          const result = game.mechanicalFailureManager.resolveMechanicalFailure(
+            failure.type,
+            null, // Hull breach has no repair choices
+            gameState
+          );
 
           // Hull breach should always cause immediate damage and cargo loss
           expect(result.success).toBe(false); // Hull breach is always bad
@@ -253,12 +249,11 @@ describe('Property 10: Engine Failure Repair Options', () => {
           };
 
           // Resolve life support emergency (no choice needed, immediate consequence)
-          const result =
-            game.mechanicalFailureManager.resolveMechanicalFailure(
-              failure.type,
-              null, // Life support emergency has no repair choices
-              gameState
-            );
+          const result = game.mechanicalFailureManager.resolveMechanicalFailure(
+            failure.type,
+            null, // Life support emergency has no repair choices
+            gameState
+          );
 
           // Life support emergency should always cause immediate consequences
           expect(result.success).toBe(false); // Life support emergency is always bad

@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -106,8 +106,7 @@ describe('Property: Info broker panel delegates to GameCoordinator', () => {
 
         // Track generateRumor calls
         let generateRumorCalled = false;
-        const originalGenerateRumor =
-          game.generateRumor.bind(game);
+        const originalGenerateRumor = game.generateRumor.bind(game);
         game.generateRumor = () => {
           generateRumorCalled = true;
           return originalGenerateRumor();
@@ -152,8 +151,7 @@ describe('Property: Info broker panel delegates to GameCoordinator', () => {
         // Track updateCredits calls
         let updateCreditsCalled = false;
         let updateCreditsArgs = null;
-        const originalUpdateCredits =
-          game.updateCredits.bind(game);
+        const originalUpdateCredits = game.updateCredits.bind(game);
         game.updateCredits = (newCredits) => {
           updateCreditsCalled = true;
           updateCreditsArgs = { newCredits };
@@ -317,10 +315,7 @@ describe('Property: Info broker panel delegates to GameCoordinator', () => {
             },
           },
         };
-        game.emit(
-          'priceKnowledgeChanged',
-          game.state.world.priceKnowledge
-        );
+        game.emit('priceKnowledgeChanged', game.state.world.priceKnowledge);
 
         // Market data should now be displayed after re-render
         await waitFor(() => {

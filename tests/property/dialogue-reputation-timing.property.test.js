@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -38,11 +38,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
         const availableChoices = initialDialogue.choices;
 
         // Find choices that have reputation gains and next nodes
@@ -63,11 +59,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
           const initialRep = game.getNPCState(npcId).rep;
 
           // Select the choice
-          const nextDialogue = selectChoice(
-            npcId,
-            choice.index,
-            game
-          );
+          const nextDialogue = selectChoice(npcId, choice.index, game);
 
           expect(nextDialogue).toBeDefined();
 
@@ -120,11 +112,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
         npcState.rep = initialRep;
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
 
         // Find a choice that gives enough reputation to unlock the backstory choice
         const choicesWithRepGain = initialDialogue.choices.filter(
@@ -137,11 +125,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
         // Select a choice that should increase reputation
         const choice = choicesWithRepGain[0];
-        const nextDialogue = selectChoice(
-          npcId,
-          choice.index,
-          game
-        );
+        const nextDialogue = selectChoice(npcId, choice.index, game);
 
         expect(nextDialogue).toBeDefined();
 
@@ -150,11 +134,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
         if (finalRep >= 30) {
           // If we now have enough reputation, go back to greeting and check if backstory is available
-          const greetingDialogue = showDialogue(
-            npcId,
-            'greeting',
-            game
-          );
+          const greetingDialogue = showDialogue(npcId, 'greeting', game);
           const backstoryChoice = greetingDialogue.choices.find((c) =>
             c.text.includes('Tell me about yourself')
           );

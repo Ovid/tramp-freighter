@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { COMBAT_CONFIG } from '../../src/game/constants.js';
@@ -55,10 +55,7 @@ describe('Combat Resolution Outcomes Property Tests', () => {
         ),
         (encounter, choice) => {
           // Resolve the combat choice using the current game state
-          const outcome = game.resolveCombatChoice(
-            encounter,
-            choice
-          );
+          const outcome = game.resolveCombatChoice(encounter, choice);
 
           // Verify outcome structure is valid
           expect(outcome).toBeDefined();

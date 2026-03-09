@@ -7,7 +7,7 @@ import {
   act,
 } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { EVENT_NAMES } from '../../src/game/constants';
@@ -171,10 +171,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit encounter event directly (no jump in progress)
     act(() => {
-      game.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     // Encounter should appear immediately
@@ -205,10 +202,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit encounter while jump is in progress — should be buffered, not shown
     act(() => {
-      game.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
@@ -253,10 +247,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Trigger and fully resolve an encounter
     act(() => {
-      game.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     await waitFor(() => {

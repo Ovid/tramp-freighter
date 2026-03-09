@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -76,10 +76,7 @@ describe('Negotiation Outcomes Property Tests', () => {
           currentState.player.karma = karma;
 
           // Resolve the negotiation choice
-          const outcome = game.resolveNegotiation(
-            encounter,
-            choice
-          );
+          const outcome = game.resolveNegotiation(encounter, choice);
 
           // Verify outcome structure is valid
           expect(outcome).toBeDefined();
@@ -223,10 +220,7 @@ describe('Negotiation Outcomes Property Tests', () => {
           // Resolve negotiation multiple times to test karma effect consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
-            const outcome = game.resolveNegotiation(
-              encounter,
-              choice
-            );
+            const outcome = game.resolveNegotiation(encounter, choice);
             outcomes.push(outcome);
           }
 

@@ -7,7 +7,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -33,10 +33,9 @@ describe('Trust Modifier Properties', () => {
           npcState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          game.state.ship.quirks =
-            game.state.ship.quirks.filter(
-              (quirk) => quirk !== 'smooth_talker'
-            );
+          game.state.ship.quirks = game.state.ship.quirks.filter(
+            (quirk) => quirk !== 'smooth_talker'
+          );
 
           // Apply reputation change
           game.modifyRep(npcId, reputationGain, 'test');
@@ -115,10 +114,9 @@ describe('Trust Modifier Properties', () => {
           marcusState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          game.state.ship.quirks =
-            game.state.ship.quirks.filter(
-              (quirk) => quirk !== 'smooth_talker'
-            );
+          game.state.ship.quirks = game.state.ship.quirks.filter(
+            (quirk) => quirk !== 'smooth_talker'
+          );
 
           // Apply same reputation change to both NPCs
           game.modifyRep(weiChenId, reputationGain, 'test');

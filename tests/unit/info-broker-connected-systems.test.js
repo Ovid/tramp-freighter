@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 
 /**
@@ -24,11 +24,7 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const game = new GameCoordinator(
-      starData,
-      wormholeData,
-      navigationSystem
-    );
+    const game = new GameCoordinator(starData, wormholeData, navigationSystem);
     game.initNewGame();
 
     // Get available intelligence
@@ -61,11 +57,7 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const game = new GameCoordinator(
-      starData,
-      wormholeData,
-      navigationSystem
-    );
+    const game = new GameCoordinator(starData, wormholeData, navigationSystem);
     game.initNewGame();
 
     // At Sol: should see Alpha Centauri and Barnard
@@ -97,11 +89,7 @@ describe('Information Broker - Connected Systems Filter', () => {
     const wormholeData = [];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const game = new GameCoordinator(
-      starData,
-      wormholeData,
-      navigationSystem
-    );
+    const game = new GameCoordinator(starData, wormholeData, navigationSystem);
     game.initNewGame();
 
     const available = game.listAvailableIntelligence();

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -160,11 +160,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set bad karma to unlock bad deal sympathy option
       game.modifyKarma(-30, 'test');
 
-      const dialogue = showDialogue(
-        'chen_barnards',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('chen_barnards', 'greeting', game);
 
       // Should have the bad deal sympathy option available
       const badDealOption = dialogue.choices.find((choice) =>
@@ -178,11 +174,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       game.modifyKarma(30, 'test');
       game.modifyRep('vasquez_epsilon', 15, 'test'); // Warm tier
 
-      const dialogue = showDialogue(
-        'vasquez_epsilon',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('vasquez_epsilon', 'greeting', game);
 
       // Should have the good karma discussion option available
       const goodKarmaOption = dialogue.choices.find((choice) =>
@@ -195,11 +187,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set high civilian reputation
       game.modifyFactionRep('civilians', 60, 'test');
 
-      const dialogue = showDialogue(
-        'chen_barnards',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('chen_barnards', 'greeting', game);
 
       // Text should include faction attitude modifier
       expect(dialogue.text).toContain('appreciate your support');
@@ -209,11 +197,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set bad karma for first impression
       game.modifyKarma(-60, 'test');
 
-      const dialogue = showDialogue(
-        'chen_barnards',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('chen_barnards', 'greeting', game);
 
       // Text should include karma-based first impression
       expect(dialogue.text).toContain('dangerous look');
@@ -224,11 +208,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       game.modifyFactionRep('authorities', -30, 'test');
       game.modifyRep('whisper_sirius', 25, 'test'); // Warm tier (need at least 20)
 
-      const dialogue = showDialogue(
-        'whisper_sirius',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('whisper_sirius', 'greeting', game);
 
       // Should have authority intel option available
       const authorityIntelOption = dialogue.choices.find((choice) =>
@@ -243,11 +223,7 @@ describe('Dialogue Faction and Karma Integration', () => {
       // Set reputation to reach Friendly tier - need to account for starting reputation
       game.modifyRep('whisper_sirius', 30, 'test'); // Should reach 30+ total
 
-      const dialogue = showDialogue(
-        'whisper_sirius',
-        'greeting',
-        game
-      );
+      const dialogue = showDialogue('whisper_sirius', 'greeting', game);
 
       // Check if we have the expected reputation levels
       const whisperRep = game.getNPCState('whisper_sirius').rep;

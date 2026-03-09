@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipStatusPanel } from '../../src/features/ship-status/ShipStatusPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
@@ -251,10 +251,7 @@ describe('ShipStatusPanel Property Tests', () => {
         async (newName) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -294,10 +291,7 @@ describe('ShipStatusPanel Property Tests', () => {
         async (newHull, newEngine, newLifeSupport) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -388,9 +382,7 @@ describe('ShipStatusPanel Property Tests', () => {
 
         const quirkItems = quirksSection.querySelectorAll('.quirk-item');
         // Should have one less item than total quirks (invalid one filtered out)
-        expect(quirkItems.length).toBe(
-          game.state.ship.quirks.length - 1
-        );
+        expect(quirkItems.length).toBe(game.state.ship.quirks.length - 1);
       }),
       { numRuns: 100 }
     );
@@ -424,9 +416,7 @@ describe('ShipStatusPanel Property Tests', () => {
 
         const upgradeItems = upgradesSection.querySelectorAll('.quirk-item');
         // Should have one less item than total upgrades (invalid one filtered out)
-        expect(upgradeItems.length).toBe(
-          game.state.ship.upgrades.length - 1
-        );
+        expect(upgradeItems.length).toBe(game.state.ship.upgrades.length - 1);
       }),
       { numRuns: 100 }
     );
@@ -454,8 +444,7 @@ describe('ShipStatusPanel Property Tests', () => {
         expect(upgradesSection.textContent).toContain('No upgrades installed');
 
         // Verify component subscribed to upgradesChanged event
-        const subscriberCount =
-          game.subscribers.upgradesChanged.length;
+        const subscriberCount = game.subscribers.upgradesChanged.length;
         expect(subscriberCount).toBeGreaterThan(0);
       }),
       { numRuns: 100 }

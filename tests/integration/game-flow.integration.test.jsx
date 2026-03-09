@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../../src/App';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { TradingSystem } from '../../src/game/game-trading';
 import { STAR_DATA } from '../../src/game/data/star-data';
@@ -56,10 +56,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       expect(initialState.ship.cargo.length).toBe(1); // Initial grain
 
       // Step 2: Execute a jump to Alpha Centauri (system 1)
-      const jumpResult = await navigationSystem.executeJump(
-        game,
-        1
-      );
+      const jumpResult = await navigationSystem.executeJump(game, 1);
 
       expect(jumpResult.success).toBe(true);
       expect(game.state.player.currentSystem).toBe(1);
@@ -120,9 +117,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       const refuelResult = game.refuel(refuelAmount);
 
       expect(refuelResult.success).toBe(true);
-      expect(game.state.ship.fuel).toBe(
-        fuelAfterJump + refuelAmount
-      );
+      expect(game.state.ship.fuel).toBe(fuelAfterJump + refuelAmount);
       expect(game.state.player.credits).toBe(
         creditsAfterPurchase - fuelPrice * refuelAmount
       );
@@ -133,15 +128,10 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       expect(localStorage.getItem('trampFreighterSave')).not.toBeNull();
 
       // Capture state before load
-      const stateBeforeLoad = JSON.parse(
-        JSON.stringify(game.state)
-      );
+      const stateBeforeLoad = JSON.parse(JSON.stringify(game.state));
 
       // Step 7: Load game
-      const newGameCoordinator = new GameCoordinator(
-        STAR_DATA,
-        WORMHOLE_DATA
-      );
+      const newGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
       const loadedState = newGameCoordinator.loadGame();
 
       expect(loadedState).not.toBeNull();
@@ -203,10 +193,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.initNewGame();
 
       // Attempt to jump to a non-connected system
-      const jumpResult = await navigationSystem.executeJump(
-        game,
-        50
-      );
+      const jumpResult = await navigationSystem.executeJump(game, 50);
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('No wormhole connection');
@@ -224,10 +211,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.updateFuel(5);
 
       // Attempt to jump (requires more than 5% fuel)
-      const jumpResult = await navigationSystem.executeJump(
-        game,
-        1
-      );
+      const jumpResult = await navigationSystem.executeJump(game, 1);
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('Insufficient fuel');
@@ -408,10 +392,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
       // Execute jump
-      const jumpResult = await navigationSystem.executeJump(
-        game,
-        1
-      );
+      const jumpResult = await navigationSystem.executeJump(game, 1);
 
       // If jump failed, the test should fail with a clear message
       if (!jumpResult.success) {

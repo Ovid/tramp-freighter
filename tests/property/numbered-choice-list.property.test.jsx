@@ -10,7 +10,7 @@ import fc from 'fast-check';
 import { render, screen, cleanup } from '@testing-library/react';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -36,11 +36,7 @@ describe('Numbered Choice List Format Properties', () => {
           cleanup();
 
           // Use the actual dialogue system to get dialogue display
-          const dialogueDisplay = showDialogue(
-            npc.id,
-            'greeting',
-            game
-          );
+          const dialogueDisplay = showDialogue(npc.id, 'greeting', game);
 
           // Skip if no choices available
           if (
@@ -107,11 +103,7 @@ describe('Numbered Choice List Format Properties', () => {
             game.modifyRep(npc.id, reputation, 'test');
 
             // Use the actual dialogue system to get dialogue display
-            const dialogueDisplay = showDialogue(
-              npc.id,
-              'greeting',
-              game
-            );
+            const dialogueDisplay = showDialogue(npc.id, 'greeting', game);
 
             // Skip if no choices available
             if (

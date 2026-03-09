@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { ShipStatus } from '../../src/features/hud/ShipStatus';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
@@ -35,10 +35,7 @@ describe('Property 22: HUD condition updates', () => {
           cleanup();
 
           // Create game state manager
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Render ShipStatus

@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import {
   showDialogue,
   buildDialogueContext,
@@ -44,11 +44,7 @@ describe('Dialogue Choice Filtering Properties', () => {
         const context = buildDialogueContext(game, npcId);
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const dialogueResult = showDialogue(npcId, 'greeting', game);
         const availableChoices = dialogueResult.choices;
 
         // Check each choice in the original dialogue node
@@ -120,11 +116,7 @@ describe('Dialogue Choice Filtering Properties', () => {
           npcState.rep = reputation;
 
           // Show dialogue and get filtered choices
-          const dialogueResult = showDialogue(
-            mockNPCId,
-            'greeting',
-            game
-          );
+          const dialogueResult = showDialogue(mockNPCId, 'greeting', game);
           const availableChoices = dialogueResult.choices;
 
           // The choice with throwing condition should not be in available choices
@@ -173,11 +165,7 @@ describe('Dialogue Choice Filtering Properties', () => {
         }
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const dialogueResult = showDialogue(npcId, 'greeting', game);
         const availableChoices = dialogueResult.choices;
 
         // Check that all choices without conditions are available

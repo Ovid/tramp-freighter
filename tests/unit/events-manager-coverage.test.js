@@ -93,13 +93,19 @@ describe('EventsManager coverage', () => {
 
     it('does not process day-change logic when time stays the same', () => {
       const currentDay = gsm.state.player.daysElapsed;
-      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(
+        gsm.tradingManager,
+        'incrementPriceKnowledgeStaleness'
+      );
       gsm.eventsManager.updateTime(currentDay);
       expect(spy).not.toHaveBeenCalled();
     });
 
     it('increments price knowledge staleness when days advance', () => {
-      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(
+        gsm.tradingManager,
+        'incrementPriceKnowledgeStaleness'
+      );
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 3);
       expect(spy).toHaveBeenCalledWith(3);
@@ -134,7 +140,10 @@ describe('EventsManager coverage', () => {
     });
 
     it('recalculates prices when days advance', () => {
-      const spy = vi.spyOn(gsm.tradingManager, 'recalculatePricesForKnownSystems');
+      const spy = vi.spyOn(
+        gsm.tradingManager,
+        'recalculatePricesForKnownSystems'
+      );
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       expect(spy).toHaveBeenCalled();
@@ -152,7 +161,10 @@ describe('EventsManager coverage', () => {
 
     it('does not advance for earlier day', () => {
       gsm.state.player.daysElapsed = 10;
-      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(
+        gsm.tradingManager,
+        'incrementPriceKnowledgeStaleness'
+      );
       gsm.eventsManager.updateTime(5);
       expect(spy).not.toHaveBeenCalled();
       // But daysElapsed is still updated

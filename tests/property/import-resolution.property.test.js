@@ -18,7 +18,7 @@ import {
   calculateDistanceFromSol,
 } from '../../src/game/constants.js';
 
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import {
   saveGame,

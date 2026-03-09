@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DISTRESS_CONFIG } from '../../src/game/constants.js';
@@ -43,10 +43,7 @@ describe('Distress Call Outcomes Property Tests', () => {
           };
 
           // Resolve the distress call choice using the current game state
-          const outcome = game.resolveDistressCall(
-            distressCall,
-            choice
-          );
+          const outcome = game.resolveDistressCall(distressCall, choice);
 
           // Verify outcome structure is valid
           expect(outcome).toBeDefined();

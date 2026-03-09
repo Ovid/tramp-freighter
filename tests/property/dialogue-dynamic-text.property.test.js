@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -70,11 +70,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
             try {
               // Show dialogue for this node
-              const dialogueResult = showDialogue(
-                npcId,
-                nodeId,
-                game
-              );
+              const dialogueResult = showDialogue(npcId, nodeId, game);
 
               if (dialogueResult && typeof dialogueResult.text === 'string') {
                 generatedTexts.add(dialogueResult.text);
@@ -187,11 +183,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         for (const [nodeId] of nodesWithFunctionText) {
           try {
             // Show dialogue for this node
-            const dialogueResult = showDialogue(
-              npcId,
-              nodeId,
-              game
-            );
+            const dialogueResult = showDialogue(npcId, nodeId, game);
 
             // Verify text is a valid non-empty string
             expect(typeof dialogueResult.text).toBe('string');
@@ -248,11 +240,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             }
 
             // Show dialogue for this node
-            const dialogueResult = showDialogue(
-              npcId,
-              nodeId,
-              game
-            );
+            const dialogueResult = showDialogue(npcId, nodeId, game);
 
             // Text should match exactly the static text from the node
             expect(dialogueResult.text).toBe(node.text);
@@ -294,11 +282,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
           npcState.rep = reputation;
 
           // Show greeting dialogue
-          const dialogueResult = showDialogue(
-            npcId,
-            'greeting',
-            game
-          );
+          const dialogueResult = showDialogue(npcId, 'greeting', game);
 
           // Verify text is valid
           expect(typeof dialogueResult.text).toBe('string');

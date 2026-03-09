@@ -103,4 +103,3 @@ export function createMinimalStarData() {
 export function createMinimalWormholeData() {
   return [[0, 1]];
 }
-

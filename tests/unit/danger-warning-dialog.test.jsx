@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DangerWarningDialog } from '../../src/features/danger/DangerWarningDialog';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -23,11 +23,7 @@ describe('DangerWarningDialog', () => {
   beforeEach(() => {
     // Create NavigationSystem and GameCoordinator properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    game = new GameCoordinator(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     game.initNewGame();
 
     // Mock console.error to avoid noise in test output

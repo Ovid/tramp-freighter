@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -25,11 +25,7 @@ describe('SystemPanel Danger Warning Integration', () => {
   beforeEach(() => {
     // Create NavigationSystem and GameCoordinator properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    game = new GameCoordinator(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     game.initNewGame();
 
     // Mock starmap context
@@ -306,11 +302,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       game.updateFuel(100);
 
       // Find a dangerous system that's actually connected to Barnard's Star
-      const connectedSystems =
-        game.navigationSystem.getConnectedSystems(4);
+      const connectedSystems = game.navigationSystem.getConnectedSystems(4);
       const dangerousSystems = connectedSystems.filter((systemId) => {
-        const dangerZone =
-          game.dangerManager.getDangerZone(systemId);
+        const dangerZone = game.dangerManager.getDangerZone(systemId);
         return dangerZone === 'dangerous';
       });
 

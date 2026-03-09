@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useGameEvent } from '../../src/hooks/useGameEvent.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -38,10 +38,7 @@ describe('Property: useGameEvent subscription correctness', () => {
         (eventName) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Spy on subscribe method
@@ -82,10 +79,7 @@ describe('Property: useGameEvent state updates', () => {
         async (newCredits) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Render hook
@@ -133,15 +127,11 @@ describe('Property: Automatic unsubscription on unmount', () => {
         (eventName) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Get initial subscriber count
-          const initialCount =
-            game.subscribers[eventName]?.length || 0;
+          const initialCount = game.subscribers[eventName]?.length || 0;
 
           // Render hook
           const { unmount } = renderHook(() => useGameEvent(eventName), {
@@ -149,16 +139,14 @@ describe('Property: Automatic unsubscription on unmount', () => {
           });
 
           // Verify subscription was added
-          const afterMountCount =
-            game.subscribers[eventName]?.length || 0;
+          const afterMountCount = game.subscribers[eventName]?.length || 0;
           expect(afterMountCount).toBe(initialCount + 1);
 
           // Unmount
           unmount();
 
           // Verify subscription was removed
-          const afterUnmountCount =
-            game.subscribers[eventName]?.length || 0;
+          const afterUnmountCount = game.subscribers[eventName]?.length || 0;
           expect(afterUnmountCount).toBe(initialCount);
 
           return afterUnmountCount === initialCount;
@@ -188,10 +176,7 @@ describe('Property: Selective re-rendering on events', () => {
           async (newCredits) => {
             cleanup();
 
-            const game = new GameCoordinator(
-              STAR_DATA,
-              WORMHOLE_DATA
-            );
+            const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
             game.initNewGame();
 
             // Render two hooks subscribed to different events
@@ -265,8 +250,7 @@ describe('Property: All subscribers notified', () => {
         }
 
         // Get the actual subscriber count
-        const actualSubscriberCount =
-          game.subscribers.creditsChanged.length;
+        const actualSubscriberCount = game.subscribers.creditsChanged.length;
 
         // Verify we have the expected number of subscribers
         expect(actualSubscriberCount).toBe(subscriberCount);
@@ -275,8 +259,7 @@ describe('Property: All subscribers notified', () => {
         game.updateCredits(12345);
 
         // Verify all subscribers are still registered (they weren't removed during the event)
-        const afterEventCount =
-          game.subscribers.creditsChanged.length;
+        const afterEventCount = game.subscribers.creditsChanged.length;
         expect(afterEventCount).toBe(subscriberCount);
 
         return afterEventCount === subscriberCount;

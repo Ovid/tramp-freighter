@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -109,11 +109,7 @@ describe('Price locking prevents intra-system arbitrage', () => {
     );
     expect(cargoStackIndex).toBeGreaterThanOrEqual(0);
 
-    const result = game.sellGood(
-      cargoStackIndex,
-      buyQuantity,
-      orePrice
-    );
+    const result = game.sellGood(cargoStackIndex, buyQuantity, orePrice);
 
     const creditsAfterSell = game.getState().player.credits;
     const debtAfterSell = game.getState().player.debt;
@@ -221,16 +217,8 @@ describe('Price locking prevents intra-system arbitrage', () => {
     const grainStack = state.ship.cargo.find((stack) => stack.good === 'grain');
     const oreStack = state.ship.cargo.find((stack) => stack.good === 'ore');
 
-    game.sellGood(
-      state.ship.cargo.indexOf(grainStack),
-      5,
-      initialGrainPrice
-    );
-    game.sellGood(
-      state.ship.cargo.indexOf(oreStack),
-      10,
-      initialOrePrice
-    );
+    game.sellGood(state.ship.cargo.indexOf(grainStack), 5, initialGrainPrice);
+    game.sellGood(state.ship.cargo.indexOf(oreStack), 10, initialOrePrice);
 
     // Verify prices remain locked after all transactions
     const finalPrices = game.getCurrentSystemPrices();

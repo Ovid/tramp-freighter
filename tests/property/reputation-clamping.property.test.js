@@ -7,7 +7,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -69,8 +69,7 @@ describe('Reputation Clamping Properties', () => {
           if (changeAmount > 0) {
             // Trust modifier applies: 0.3 * changeAmount
             // Smooth_talker quirk may apply: 1.05 multiplier
-            const hasSmooth =
-              game.state.ship.quirks.includes('smooth_talker');
+            const hasSmooth = game.state.ship.quirks.includes('smooth_talker');
             const expectedChange =
               changeAmount * 0.3 * (hasSmooth ? 1.05 : 1.0);
             const expectedFinal = initialRep + expectedChange;

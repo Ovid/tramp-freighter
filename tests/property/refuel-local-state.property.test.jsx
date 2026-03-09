@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -32,10 +32,7 @@ describe('Property 25: Refuel panel manages local state', () => {
         (sliderValue) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Set up initial state
@@ -81,10 +78,7 @@ describe('Property 25: Refuel panel manages local state', () => {
         (refuelAmount) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Set up initial state with enough credits
@@ -139,10 +133,7 @@ describe('Property 25: Refuel panel manages local state', () => {
         (refuelAmount) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Set up initial state
@@ -185,10 +176,7 @@ describe('Property 25: Refuel panel manages local state', () => {
         (sliderValue) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Set up initial state

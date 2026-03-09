@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FACTION_CONFIG } from '../../src/game/constants.js';
@@ -49,10 +49,7 @@ describe('Faction Reputation Clamping Properties', () => {
         factionArb,
         fc.integer({ min: -500, max: 500 }),
         (faction, amount) => {
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           game.modifyFactionRep(faction, amount, 'test');
@@ -77,10 +74,7 @@ describe('Faction Reputation Clamping Properties', () => {
           maxLength: 10,
         }),
         (modifications) => {
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           for (const [faction, amount] of modifications) {

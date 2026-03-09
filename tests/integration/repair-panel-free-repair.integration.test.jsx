@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';

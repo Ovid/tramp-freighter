@@ -210,7 +210,10 @@ describe('MissionManager coverage', () => {
 
     it('applies faction rewards on completion', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const modifyFactionRepSpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
+      const modifyFactionRepSpy = vi.spyOn(
+        gsm.dangerManager,
+        'modifyFactionRep'
+      );
       gsm.state.missions.active = [
         {
           id: 'm1',

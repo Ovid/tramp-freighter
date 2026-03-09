@@ -27,10 +27,6 @@ import { GameProvider } from '../src/context/GameContext.jsx';
  */
 export function createWrapper(game) {
   return function Wrapper({ children }) {
-    return (
-      <GameProvider game={game}>
-        {children}
-      </GameProvider>
-    );
+    return <GameProvider game={game}>{children}</GameProvider>;
   };
 }

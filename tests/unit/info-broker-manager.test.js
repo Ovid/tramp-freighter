@@ -6,7 +6,7 @@ import {
   TEST_STAR_DATA,
   TEST_WORMHOLE_DATA,
 } from '../test-utils.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '@game/game-navigation.js';
 import { EVENT_NAMES } from '@game/constants.js';
 

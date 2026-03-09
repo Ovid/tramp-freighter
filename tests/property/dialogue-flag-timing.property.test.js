@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -54,11 +54,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
 
           // Show dialogue for this specific node
           try {
-            const dialogueResult = showDialogue(
-              npcId,
-              nodeId,
-              game
-            );
+            const dialogueResult = showDialogue(npcId, nodeId, game);
 
             // Verify that flags were set when the node was displayed
             const currentFlags = game.getNPCState(npcId).flags;
@@ -98,11 +94,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         npcState.flags = []; // Clear existing flags
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
 
         // Find the backstory choice
         const backstoryChoice = initialDialogue.choices.find((choice) =>

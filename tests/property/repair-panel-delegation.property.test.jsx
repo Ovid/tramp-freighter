@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -32,10 +32,7 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
         (systemType) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Give player credits and damage the system
@@ -52,8 +49,7 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
           // Track repair calls
           let repairCalled = false;
           let repairArgs = null;
-          const originalRepair =
-            game.repairShipSystem.bind(game);
+          const originalRepair = game.repairShipSystem.bind(game);
           game.repairShipSystem = (system, repairAmount) => {
             repairCalled = true;
             repairArgs = { system, repairAmount };
@@ -249,8 +245,7 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
 
         // Track repair calls
         let repairCallCount = 0;
-        const originalRepair =
-          game.repairShipSystem.bind(game);
+        const originalRepair = game.repairShipSystem.bind(game);
         game.repairShipSystem = (system, amount) => {
           repairCallCount++;
           return originalRepair(system, amount);

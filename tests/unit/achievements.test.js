@@ -5,7 +5,7 @@ import {
   SOL_SYSTEM_ID,
   KARMA_CONFIG,
 } from '../../src/game/constants.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import {
   ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,

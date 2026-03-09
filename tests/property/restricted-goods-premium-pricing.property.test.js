@@ -7,7 +7,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -123,36 +123,32 @@ describe('Restricted Goods Premium Pricing Properties', () => {
 
           if (isRestricted) {
             // Without black market contact, should not be able to sell
-            const canSellWithoutContact =
-              game.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                false
-              );
+            const canSellWithoutContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              false
+            );
 
             // With black market contact, should be able to sell
-            const canSellWithContact =
-              game.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                true
-              );
+            const canSellWithContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              true
+            );
 
             return !canSellWithoutContact && canSellWithContact;
           } else {
             // Non-restricted goods should be sellable regardless of contacts
-            const canSellWithoutContact =
-              game.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                false
-              );
-            const canSellWithContact =
-              game.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                true
-              );
+            const canSellWithoutContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              false
+            );
+            const canSellWithContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              true
+            );
 
             return canSellWithoutContact && canSellWithContact;
           }

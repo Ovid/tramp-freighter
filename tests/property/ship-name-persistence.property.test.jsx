@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
@@ -43,10 +43,7 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -98,10 +95,7 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -157,10 +151,7 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -211,10 +202,7 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -273,10 +261,7 @@ describe('Property: Ship name persists after submission', () => {
           localStorage.clear();
 
           // Create first game state manager and set ship name
-          const game1 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game1.initNewGame();
 
           const wrapper1 = createWrapper(game1);
@@ -302,10 +287,7 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
 
           // Create second game state manager and load saved game
-          const game2 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
           const loadedState = game2.loadGame();
           expect(loadedState).toBeTruthy();

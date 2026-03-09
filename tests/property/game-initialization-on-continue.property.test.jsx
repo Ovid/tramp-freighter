@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TitleScreen } from '../../src/features/title-screen/TitleScreen';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { clearSave } from '../../src/game/state/save-load.js';
@@ -95,10 +95,7 @@ describe('Property: Game initialization on continue', () => {
           clearSave(true);
 
           // Create first game state manager and save a game
-          const game1 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game1.initNewGame();
 
           // Modify game state with random values
@@ -114,10 +111,7 @@ describe('Property: Game initialization on continue', () => {
           expect(game1.hasSavedGame()).toBe(true);
 
           // Create a new game state manager (simulating app reload)
-          const game2 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
           // Verify the new manager can detect the save
           expect(game2.hasSavedGame()).toBe(true);
@@ -192,10 +186,7 @@ describe('Property: Game initialization on continue', () => {
           clearSave(true);
 
           // Create first game state manager and save a game
-          const game1 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game1.initNewGame();
 
           // Modify game state with random cargo and ship condition
@@ -212,10 +203,7 @@ describe('Property: Game initialization on continue', () => {
           expect(game1.hasSavedGame()).toBe(true);
 
           // Create a new game state manager (simulating app reload)
-          const game2 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
           const wrapper = createWrapper(game2);
 

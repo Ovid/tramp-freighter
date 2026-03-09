@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { UpgradesPanel } from '../../src/features/upgrades/UpgradesPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
@@ -386,8 +386,7 @@ describe('Property: Upgrades panel delegates to GameCoordinator', () => {
         // Track purchaseUpgrade calls
         let purchaseUpgradeCalled = false;
         let purchaseUpgradeArgs = null;
-        const originalPurchaseUpgrade =
-          game.purchaseUpgrade.bind(game);
+        const originalPurchaseUpgrade = game.purchaseUpgrade.bind(game);
         game.purchaseUpgrade = (upgradeId) => {
           purchaseUpgradeCalled = true;
           purchaseUpgradeArgs = { upgradeId };
@@ -436,8 +435,7 @@ describe('Property: Upgrades panel delegates to GameCoordinator', () => {
 
         // Track purchaseUpgrade calls
         let purchaseUpgradeCalled = false;
-        const originalPurchaseUpgrade =
-          game.purchaseUpgrade.bind(game);
+        const originalPurchaseUpgrade = game.purchaseUpgrade.bind(game);
         game.purchaseUpgrade = (upgradeId) => {
           purchaseUpgradeCalled = true;
           return originalPurchaseUpgrade(upgradeId);

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -128,10 +128,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             game
           );
 
-          const outcome = game.resolveInspection(
-            'cooperate',
-            testGameState
-          );
+          const outcome = game.resolveInspection('cooperate', testGameState);
 
           // Should confiscate restricted goods and impose fine (Requirement 5.4)
           expect(outcome).toHaveProperty('success', true);
@@ -191,10 +188,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             game
           );
 
-          const outcome = game.resolveInspection(
-            'cooperate',
-            testGameState
-          );
+          const outcome = game.resolveInspection('cooperate', testGameState);
 
           // Compute the seeded RNG value the manager will use
           const seededRng = computeInspectionRng(
@@ -260,10 +254,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
           gameState.player.daysElapsed = daysElapsed;
           const testGameState = createTestGameState(gameState);
 
-          const outcome = game.resolveInspection(
-            'bribe',
-            testGameState
-          );
+          const outcome = game.resolveInspection('bribe', testGameState);
 
           // Compute the seeded RNG value the manager will use
           const seededRng = computeInspectionRng(
@@ -314,10 +305,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
           const gameState = game.getState();
           const testGameState = createTestGameState(gameState);
 
-          const outcome = game.resolveInspection(
-            'flee',
-            testGameState
-          );
+          const outcome = game.resolveInspection('flee', testGameState);
 
           // Should apply fuel and hull costs (Requirement 5.9)
           expect(outcome.costs.fuel).toBe(INSPECTION_CONFIG.FLEE.FUEL_COST);
@@ -366,10 +354,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             game
           );
 
-          const outcome = game.resolveInspection(
-            'cooperate',
-            testGameState
-          );
+          const outcome = game.resolveInspection('cooperate', testGameState);
 
           // Compute the seeded RNG value the manager will use
           const seededRng = computeInspectionRng(
@@ -455,10 +440,7 @@ describe('Inspection Resolution Outcomes Properties', () => {
             game
           );
 
-          const outcome = game.resolveInspection(
-            'cooperate',
-            testGameState
-          );
+          const outcome = game.resolveInspection('cooperate', testGameState);
 
           // Compute the seeded RNG value the manager will use
           const seededRng = computeInspectionRng(

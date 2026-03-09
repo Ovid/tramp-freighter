@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -115,8 +115,7 @@ describe('Story Flag Idempotence Properties', () => {
           }
 
           // Check that no duplicate flags were added
-          const finalFlagCount =
-            game.getNPCState(npcId).flags.length;
+          const finalFlagCount = game.getNPCState(npcId).flags.length;
 
           expect(finalFlagCount).toBe(initialFlagCount);
 

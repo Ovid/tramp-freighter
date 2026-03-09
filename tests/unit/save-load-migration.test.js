@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
 

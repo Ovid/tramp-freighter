@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -43,8 +43,7 @@ describe('RefuelPanel discount affects slider max', () => {
     // Expected slider max with discount: 50
 
     // Mock getServiceDiscount to simulate a 20% refuel discount NPC
-    const originalGetServiceDiscount =
-      game.getServiceDiscount.bind(game);
+    const originalGetServiceDiscount = game.getServiceDiscount.bind(game);
     vi.spyOn(game, 'getServiceDiscount').mockImplementation(
       (npcId, serviceType) => {
         if (serviceType === 'refuel') {

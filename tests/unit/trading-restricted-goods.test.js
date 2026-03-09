@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGame } from '../test-utils.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { TEST_WORMHOLE_DATA } from '../test-data.js';
 import {
   SOL_SYSTEM_ID,

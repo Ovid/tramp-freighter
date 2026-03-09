@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { InformationBroker } from '../../src/game/game-information-broker.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { INTELLIGENCE_CONFIG } from '../../src/game/constants.js';
 
@@ -138,11 +138,7 @@ describe('Intelligence Cleanup', () => {
 
     beforeEach(() => {
       navigationSystem = new NavigationSystem(starData, wormholeData);
-      game = new GameCoordinator(
-        starData,
-        wormholeData,
-        navigationSystem
-      );
+      game = new GameCoordinator(starData, wormholeData, navigationSystem);
       game.initNewGame();
     });
 

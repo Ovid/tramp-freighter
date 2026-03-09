@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { KARMA_CONFIG } from '../../src/game/constants.js';
@@ -85,10 +85,7 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test modifier consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
-            const outcome = game.resolveCombatChoice(
-              encounter,
-              choice
-            );
+            const outcome = game.resolveCombatChoice(encounter, choice);
             outcomes.push(outcome);
           }
 
@@ -211,10 +208,7 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test karma effect
           const outcomes = [];
           for (let i = 0; i < 20; i++) {
-            const outcome = game.resolveCombatChoice(
-              encounter,
-              choice
-            );
+            const outcome = game.resolveCombatChoice(encounter, choice);
             outcomes.push(outcome);
           }
 

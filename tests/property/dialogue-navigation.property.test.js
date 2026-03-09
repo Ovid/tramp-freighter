@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -38,11 +38,7 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
         const availableChoices = initialDialogue.choices;
 
         if (availableChoices.length === 0) {
@@ -56,11 +52,7 @@ describe('Dialogue Navigation Properties', () => {
 
           if (choice.next) {
             // Choice has a next node - should navigate there
-            const nextDialogue = selectChoice(
-              npcId,
-              choice.index,
-              game
-            );
+            const nextDialogue = selectChoice(npcId, choice.index, game);
 
             expect(nextDialogue).toBeDefined();
 
@@ -108,11 +100,7 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
         const availableChoices = initialDialogue.choices;
 
         // Find choices that end dialogue (next: null)
@@ -157,11 +145,7 @@ describe('Dialogue Navigation Properties', () => {
         }
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
 
         // Verify dialogue state consistency
         expect(initialDialogue.npcId).toBe(npcId);

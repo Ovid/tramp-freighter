@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -290,10 +290,7 @@ describe('Favor Cooldown Enforcement Property Tests', () => {
 
           // Test both favor types - they should have the same cooldown behavior
           // since cooldown is shared between favor types (per requirements)
-          const loanResult = testGameCoordinator.canRequestFavor(
-            npcId,
-            'loan'
-          );
+          const loanResult = testGameCoordinator.canRequestFavor(npcId, 'loan');
           const storageResult = testGameCoordinator.canRequestFavor(
             npcId,
             'storage'

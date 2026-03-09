@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -25,11 +25,7 @@ describe('Visited price recording', () => {
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    game = new GameCoordinator(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     game.initNewGame();
   });
 
@@ -119,11 +115,7 @@ describe('Visited price recording', () => {
       electronics: actualPrices.electronics * 0.9,
     };
 
-    game.updatePriceKnowledge(
-      currentSystemId,
-      manipulatedPrices,
-      5
-    );
+    game.updatePriceKnowledge(currentSystemId, manipulatedPrices, 5);
 
     // Record visited prices
     game.recordVisitedPrices();

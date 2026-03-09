@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -53,11 +53,7 @@ describe('Dialogue Engine Edge Cases', () => {
         npcState.rep = 0;
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          game
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
 
         // Find ending choices
         const endingChoices = initialDialogue.choices.filter(
@@ -300,11 +296,7 @@ describe('Dialogue Engine Edge Cases', () => {
         (c) => c.repGain && c.repGain > 0
       );
       if (repGainChoice) {
-        const finalDialogue = selectChoice(
-          npcId,
-          repGainChoice.index,
-          game
-        );
+        const finalDialogue = selectChoice(npcId, repGainChoice.index, game);
 
         // Reputation tier should be updated in the final dialogue
         const finalRep = game.getNPCState(npcId).rep;

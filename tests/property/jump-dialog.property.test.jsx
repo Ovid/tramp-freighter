@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { JumpDialog } from '../../src/features/navigation/JumpDialog';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -13,11 +13,7 @@ describe('Property: Jump Dialog', () => {
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    game = new GameCoordinator(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     game.initNewGame();
   });
 

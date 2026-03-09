@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useGameAction } from '../../src/hooks/useGameAction.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -53,10 +53,7 @@ describe('Property: useGameAction delegates to GameCoordinator', () => {
         (goodType, quantity, price) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Spy on buyGood method
@@ -92,17 +89,11 @@ describe('Property: useGameAction delegates to GameCoordinator', () => {
         (upgradeId) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           // Spy on purchaseUpgrade method
-          const purchaseUpgradeSpy = vi.spyOn(
-            game,
-            'purchaseUpgrade'
-          );
+          const purchaseUpgradeSpy = vi.spyOn(game, 'purchaseUpgrade');
 
           // Render hook
           const { result } = renderHook(() => useGameAction(), {

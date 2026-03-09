@@ -7,7 +7,7 @@ import {
   cleanup,
 } from '@testing-library/react';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { NOTIFICATION_CONFIG } from '../../src/game/constants.js';

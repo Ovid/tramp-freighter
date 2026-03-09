@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -137,8 +137,7 @@ describe('Danger System State Persistence', () => {
           expect(loadResult).not.toBeNull();
 
           // Verify hidden cargo is preserved
-          const loadedHiddenCargo =
-            game.getState().ship.hiddenCargo;
+          const loadedHiddenCargo = game.getState().ship.hiddenCargo;
           expect(loadedHiddenCargo).toEqual(hiddenCargoItems);
         }
       ),
@@ -178,8 +177,7 @@ describe('Danger System State Persistence', () => {
           expect(loadResult).not.toBeNull();
 
           // Verify danger flags are preserved
-          const loadedDangerFlags =
-            game.getState().world.dangerFlags;
+          const loadedDangerFlags = game.getState().world.dangerFlags;
           expect(loadedDangerFlags).toEqual(dangerFlags);
         }
       ),
@@ -234,9 +232,7 @@ describe('Danger System State Persistence', () => {
           game.getState().player.factions = {
             ...dangerState.factions,
           };
-          game.getState().ship.hiddenCargo = [
-            ...dangerState.hiddenCargo,
-          ];
+          game.getState().ship.hiddenCargo = [...dangerState.hiddenCargo];
 
           // Initialize world.dangerFlags if it doesn't exist
           if (!game.getState().world.dangerFlags) {

@@ -4,7 +4,7 @@ import { GameProvider } from '../../src/context/GameContext';
 import { RepairPanel } from '../../src/features/repair/RepairPanel';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -34,11 +34,7 @@ describe('Service Panel Discounts Integration', () => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
     // Create GameCoordinator instance with navigation system
-    game = new GameCoordinator(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     game.isTestEnvironment = true;
 
     // Initialize game state
@@ -83,11 +79,7 @@ describe('Service Panel Discounts Integration', () => {
   });
 
   const renderWithGameContext = (component) => {
-    return render(
-      <GameProvider game={game}>
-        {component}
-      </GameProvider>
-    );
+    return render(<GameProvider game={game}>{component}</GameProvider>);
   };
 
   describe('RepairPanel Discounts', () => {

@@ -104,7 +104,9 @@ describe('MissionManager coverage gaps', () => {
   describe('completeMission cole source rep reward', () => {
     it('modifies cole rep when mission has coleRepReward', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const spy = vi.spyOn(gsm.debtManager, 'modifyColeRep').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(gsm.debtManager, 'modifyColeRep')
+        .mockImplementation(() => {});
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -124,7 +126,9 @@ describe('MissionManager coverage gaps', () => {
   describe('completeMission karma reward', () => {
     it('modifies karma when mission has karma reward', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const spy = vi.spyOn(gsm.dangerManager, 'modifyKarma').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(gsm.dangerManager, 'modifyKarma')
+        .mockImplementation(() => {});
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -141,7 +145,9 @@ describe('MissionManager coverage gaps', () => {
 
   describe('abandonMission with penalties', () => {
     it('applies rep penalties on abandon', () => {
-      const repSpy = vi.spyOn(gsm.npcManager, 'modifyRep').mockImplementation(() => {});
+      const repSpy = vi
+        .spyOn(gsm.npcManager, 'modifyRep')
+        .mockImplementation(() => {});
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -197,7 +203,9 @@ describe('MissionManager coverage gaps', () => {
 
   describe('checkMissionDeadlines with penalties', () => {
     it('applies rep and karma penalties on deadline expiry', () => {
-      const repSpy = vi.spyOn(gsm.npcManager, 'modifyRep').mockImplementation(() => {});
+      const repSpy = vi
+        .spyOn(gsm.npcManager, 'modifyRep')
+        .mockImplementation(() => {});
       const karmaSpy = vi
         .spyOn(gsm.dangerManager, 'modifyKarma')
         .mockImplementation(() => {});

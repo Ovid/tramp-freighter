@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
@@ -60,8 +60,7 @@ describe('Tip Cooldown Tracking Property Tests', () => {
     game.initNewGame();
 
     // Mock the validation method to use test NPCs
-    originalValidateAndGetNPCData =
-      game.npcManager.validateAndGetNPCData;
+    originalValidateAndGetNPCData = game.npcManager.validateAndGetNPCData;
     game.npcManager.validateAndGetNPCData = (npcId) => {
       // First check test NPCs
       const testNPC = testNPCs.find((npc) => npc.id === npcId);
@@ -69,18 +68,14 @@ describe('Tip Cooldown Tracking Property Tests', () => {
         return testNPC;
       }
       // Fall back to original method for other NPCs
-      return originalValidateAndGetNPCData.call(
-        game.npcManager,
-        npcId
-      );
+      return originalValidateAndGetNPCData.call(game.npcManager, npcId);
     };
   });
 
   afterEach(() => {
     // Restore original method
     if (originalValidateAndGetNPCData) {
-      game.npcManager.validateAndGetNPCData =
-        originalValidateAndGetNPCData;
+      game.npcManager.validateAndGetNPCData = originalValidateAndGetNPCData;
     }
   });
 

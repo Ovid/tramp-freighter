@@ -7,7 +7,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -103,10 +103,7 @@ describe('Smooth Talker Quirk Properties', () => {
         fc.integer({ min: 10, max: 50 }), // Positive reputation gain
         (npcId, reputationGain) => {
           // Test without smooth_talker quirk
-          const game1 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game1.initNewGame();
           game1.state.npcs[npcId] = {
             rep: 0,
@@ -115,18 +112,14 @@ describe('Smooth Talker Quirk Properties', () => {
             interactions: 0,
           };
           // Remove smooth_talker quirk
-          game1.state.ship.quirks =
-            game1.state.ship.quirks.filter(
-              (quirk) => quirk !== 'smooth_talker'
-            );
+          game1.state.ship.quirks = game1.state.ship.quirks.filter(
+            (quirk) => quirk !== 'smooth_talker'
+          );
           game1.modifyRep(npcId, reputationGain, 'test');
           const repWithoutQuirk = game1.state.npcs[npcId].rep;
 
           // Test with smooth_talker quirk
-          const game2 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game2.initNewGame();
           game2.state.npcs[npcId] = {
             rep: 0,

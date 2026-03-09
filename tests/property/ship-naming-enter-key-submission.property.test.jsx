@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
@@ -35,10 +35,7 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -91,10 +88,7 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput, keyEventProps) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -149,10 +143,7 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput, keyEventProps) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);
@@ -198,10 +189,7 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const game1 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game1.initNewGame();
 
           const wrapper1 = createWrapper(game1);
@@ -226,10 +214,7 @@ describe('Property: Enter key submits ship name', () => {
           cleanup();
 
           // Test confirm button submission
-          const game2 = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game2.initNewGame();
 
           const wrapper2 = createWrapper(game2);
@@ -277,10 +262,7 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const game = new GameCoordinator(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           game.initNewGame();
 
           const wrapper = createWrapper(game);

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -146,8 +146,7 @@ describe('Interaction Count Properties', () => {
           // Apply reputation changes one by one and check monotonicity
           for (const change of reputationChanges) {
             game.modifyRep(npcId, change, 'test');
-            const currentCount =
-              game.state.npcs[npcId].interactions;
+            const currentCount = game.state.npcs[npcId].interactions;
 
             // Count should never decrease and should increase by exactly 1
             expect(currentCount).toBeGreaterThanOrEqual(previousCount);

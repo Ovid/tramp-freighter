@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FAILURE_CONFIG } from '../../src/game/constants.js';
@@ -76,9 +76,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure =
-            game.mechanicalFailureManager.checkMechanicalFailure(
-              gameState
-            );
+            game.mechanicalFailureManager.checkMechanicalFailure(gameState);
 
           if (hullCondition < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
             // Below threshold: hull breach should be possible
@@ -125,9 +123,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure =
-            game.mechanicalFailureManager.checkMechanicalFailure(
-              gameState
-            );
+            game.mechanicalFailureManager.checkMechanicalFailure(gameState);
 
           if (
             engineCondition < FAILURE_CONFIG.ENGINE_FAILURE.CONDITION_THRESHOLD
@@ -177,9 +173,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure =
-            game.mechanicalFailureManager.checkMechanicalFailure(
-              gameState
-            );
+            game.mechanicalFailureManager.checkMechanicalFailure(gameState);
 
           if (
             lifeSupportCondition <
@@ -230,9 +224,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure =
-            game.mechanicalFailureManager.checkMechanicalFailure(
-              gameState
-            );
+            game.mechanicalFailureManager.checkMechanicalFailure(gameState);
 
           // Verify that the correct failure type occurs based on probability ranges
           if (seededRng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
@@ -274,9 +266,7 @@ describe('Property 9: Mechanical Failure Thresholds', () => {
 
           // Check for mechanical failure
           const failure =
-            game.mechanicalFailureManager.checkMechanicalFailure(
-              gameState
-            );
+            game.mechanicalFailureManager.checkMechanicalFailure(gameState);
 
           // No failures should occur when all systems are above thresholds
           expect(failure).toBe(null);

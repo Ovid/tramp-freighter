@@ -24,9 +24,7 @@ export function GameProvider({ game, children }) {
     );
   }
 
-  return (
-    <GameContext.Provider value={game}>{children}</GameContext.Provider>
-  );
+  return <GameContext.Provider value={game}>{children}</GameContext.Provider>;
 }
 
 /**

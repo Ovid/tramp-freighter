@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -87,8 +87,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
           npcState.storedCargo = [...storedCargo];
 
           // Set up ship cargo to have specific available capacity
-          const maxCapacity =
-            testGameCoordinator.getState().ship.cargoCapacity;
+          const maxCapacity = testGameCoordinator.getState().ship.cargoCapacity;
           const usedCapacity = Math.max(0, maxCapacity - availableCapacity);
 
           // Create ship cargo to use up space, leaving availableCapacity free
@@ -252,8 +251,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
           fc.pre(totalStoredUnits > limitedCapacity);
 
           // Set up ship cargo to have limited available capacity
-          const maxCapacity =
-            testGameCoordinator.getState().ship.cargoCapacity;
+          const maxCapacity = testGameCoordinator.getState().ship.cargoCapacity;
           const usedCapacity = Math.max(0, maxCapacity - limitedCapacity);
 
           // Create ship cargo to use up space, leaving limitedCapacity free
@@ -324,9 +322,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
         npcState.storedCargo = [];
 
         // Record initial ship cargo
-        const initialShipCargo = [
-          ...testGameCoordinator.getState().ship.cargo,
-        ];
+        const initialShipCargo = [...testGameCoordinator.getState().ship.cargo];
 
         // Retrieve cargo from NPC (should be empty)
         const result = testGameCoordinator.retrieveCargo(npcId);

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -36,8 +36,7 @@ describe('Timestamp Update Properties', () => {
           game.modifyRep(npcId, reputationChange, 'test');
 
           // Check that lastInteraction was updated to current day
-          const updatedTimestamp =
-            game.state.npcs[npcId].lastInteraction;
+          const updatedTimestamp = game.state.npcs[npcId].lastInteraction;
           expect(updatedTimestamp).toBe(currentDay);
         }
       ),
@@ -68,8 +67,7 @@ describe('Timestamp Update Properties', () => {
           game.modifyRep(npcId, reputationChange, 'test');
 
           // Check that timestamp was updated even for negative changes
-          const updatedTimestamp =
-            game.state.npcs[npcId].lastInteraction;
+          const updatedTimestamp = game.state.npcs[npcId].lastInteraction;
           expect(updatedTimestamp).toBe(currentDay);
         }
       ),
@@ -104,8 +102,7 @@ describe('Timestamp Update Properties', () => {
             game.modifyRep(npcId, change, 'test');
 
             // After each change, timestamp should be current day
-            const currentTimestamp =
-              game.state.npcs[npcId].lastInteraction;
+            const currentTimestamp = game.state.npcs[npcId].lastInteraction;
             expect(currentTimestamp).toBe(currentDay);
           }
         }
@@ -134,8 +131,7 @@ describe('Timestamp Update Properties', () => {
 
           // First interaction
           game.modifyRep(npcId, 1, 'test');
-          const firstTimestamp =
-            game.state.npcs[npcId].lastInteraction;
+          const firstTimestamp = game.state.npcs[npcId].lastInteraction;
 
           // Advance game time
           const newDay = startDay + daysAdvance;
@@ -143,8 +139,7 @@ describe('Timestamp Update Properties', () => {
 
           // Second interaction
           game.modifyRep(npcId, 1, 'test');
-          const secondTimestamp =
-            game.state.npcs[npcId].lastInteraction;
+          const secondTimestamp = game.state.npcs[npcId].lastInteraction;
 
           // First timestamp should be start day, second should be new day
           expect(firstTimestamp).toBe(startDay);
@@ -188,10 +183,8 @@ describe('Timestamp Update Properties', () => {
           game.modifyRep(npc2Id, 1, 'test');
 
           // Check that each NPC has the correct timestamp
-          const npc1Timestamp =
-            game.state.npcs[npc1Id].lastInteraction;
-          const npc2Timestamp =
-            game.state.npcs[npc2Id].lastInteraction;
+          const npc1Timestamp = game.state.npcs[npc1Id].lastInteraction;
+          const npc2Timestamp = game.state.npcs[npc2Id].lastInteraction;
 
           expect(npc1Timestamp).toBe(day1);
           expect(npc2Timestamp).toBe(day2);

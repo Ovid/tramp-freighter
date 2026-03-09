@@ -7,7 +7,7 @@ import {
   act,
 } from '@testing-library/react';
 import App from '../../src/App';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -199,9 +199,7 @@ describe('Panel Animation Hide Integration', () => {
 
     // Set animation to running
     game.animationSystem.isAnimating = true;
-    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(
-      true
-    );
+    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(true);
 
     // Wait for state to propagate
     await waitFor(() => {
@@ -210,9 +208,7 @@ describe('Panel Animation Hide Integration', () => {
 
     // Set animation to stopped
     game.animationSystem.isAnimating = false;
-    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(
-      false
-    );
+    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(false);
 
     // Wait for state to propagate
     await waitFor(() => {

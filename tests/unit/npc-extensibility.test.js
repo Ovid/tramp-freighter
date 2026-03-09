@@ -13,7 +13,7 @@ import {
   getNPCsAtSystem,
   renderNPCListItem,
 } from '../../src/game/game-npcs.js';
-import { GameCoordinator } from "@game/state/game-coordinator.js";
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { ALPHA_CENTAURI_SYSTEM_ID } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
