@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -19,11 +19,11 @@ import {
  * success rates, cargo costs, and reputation changes according to the configuration.
  */
 describe('Negotiation Outcomes Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   /**
@@ -71,12 +71,12 @@ describe('Negotiation Outcomes Property Tests', () => {
         fc.integer({ min: -100, max: 100 }),
         (encounter, choice, cargo, karma) => {
           // Set up the game state with specific cargo and karma
-          const currentState = gameStateManager.getState();
+          const currentState = game.getState();
           currentState.ship.cargo = [...cargo];
           currentState.player.karma = karma;
 
           // Resolve the negotiation choice
-          const outcome = gameStateManager.resolveNegotiation(
+          const outcome = game.resolveNegotiation(
             encounter,
             choice
           );
@@ -213,7 +213,7 @@ describe('Negotiation Outcomes Property Tests', () => {
         fc.constantFrom(-100, -50, 0, 50, 100),
         (encounter, karma) => {
           // Set up the game state with specific karma
-          const currentState = gameStateManager.getState();
+          const currentState = game.getState();
           currentState.player.karma = karma;
           currentState.ship.cargo = []; // Empty cargo to isolate karma effect
 
@@ -223,7 +223,7 @@ describe('Negotiation Outcomes Property Tests', () => {
           // Resolve negotiation multiple times to test karma effect consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
-            const outcome = gameStateManager.resolveNegotiation(
+            const outcome = game.resolveNegotiation(
               encounter,
               choice
             );

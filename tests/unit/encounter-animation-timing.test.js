@@ -46,7 +46,7 @@ describe('executeJump near-end event', () => {
       playJumpAnimation: vi.fn(() => Promise.resolve()),
     };
 
-    const mockGSM = buildMockGameStateManager();
+    const mockGSM = buildMockGameCoordinator();
 
     const nav = new NavigationSystem();
     stubNavValidation(nav, NavigationSystem);
@@ -71,7 +71,7 @@ describe('executeJump near-end event', () => {
     };
 
     const emittedEvents = [];
-    const mockGSM = buildMockGameStateManager((event) =>
+    const mockGSM = buildMockGameCoordinator((event) =>
       emittedEvents.push(event)
     );
 
@@ -85,7 +85,7 @@ describe('executeJump near-end event', () => {
 
   it('does not emit JUMP_ANIMATION_NEAR_END without animation system', async () => {
     const emittedEvents = [];
-    const mockGSM = buildMockGameStateManager((event) =>
+    const mockGSM = buildMockGameCoordinator((event) =>
       emittedEvents.push(event)
     );
 
@@ -101,7 +101,7 @@ describe('executeJump near-end event', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function buildMockGameStateManager(onEmit = () => {}) {
+function buildMockGameCoordinator(onEmit = () => {}) {
   return {
     getState: () => ({
       player: { currentSystem: 0, daysElapsed: 10 },

@@ -2,23 +2,23 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../../src/App';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 describe('Integration: App StarmapProvider Integration', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
+    game = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Mock Three.js to avoid WebGL context issues in tests
     vi.mock('three', () => ({
@@ -73,7 +73,7 @@ describe('Integration: App StarmapProvider Integration', () => {
 
   it('should provide StarmapProvider context to SystemPanel when game is running', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={false} />
       </GameProvider>
     );
@@ -86,14 +86,14 @@ describe('Integration: App StarmapProvider Integration', () => {
 
   it('should not provide StarmapProvider context during title screen', () => {
     // Create a fresh game state manager that hasn't been initialized
-    const freshGameStateManager = new GameStateManager(
+    const freshGameCoordinator = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
 
     render(
-      <GameProvider gameStateManager={freshGameStateManager}>
+      <GameProvider game={freshGameCoordinator}>
         <App devMode={false} />
       </GameProvider>
     );

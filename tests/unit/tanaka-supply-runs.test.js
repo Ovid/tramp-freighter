@@ -3,7 +3,7 @@ import {
   TANAKA_SUPPLY_CONFIG,
   ENDGAME_CONFIG,
 } from '../../src/game/constants.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { buildDialogueContext } from '../../src/game/game-dialogue.js';
 import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
 
@@ -25,7 +25,7 @@ describe('QuestManager.canContributeSupply', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     // Set tanaka_met flag in narrativeEvents (where the game actually stores it)
     setTanakaMet(manager);
     // Dock at Barnard's Star
@@ -172,7 +172,7 @@ describe('QuestManager.contributeSupply', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     setTanakaMet(manager);
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
   });
@@ -343,7 +343,7 @@ describe('Dialogue context for supply runs', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('exposes canContributeSupply on dialogue context', () => {
@@ -361,7 +361,7 @@ describe('canContributeSupply checks narrativeEvents.flags for tanaka_met', () =
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     // Set tanaka_met in the CORRECT location (narrativeEvents.flags),
     // NOT in npcState.flags — mirrors how the game actually sets this flag
     manager.state.world.narrativeEvents = {
@@ -396,7 +396,7 @@ describe('Full supply run flow (integration)', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     setTanakaMet(manager);
     manager.state.player.currentSystem = ENDGAME_CONFIG.TANAKA_SYSTEM;
     manager.state.player.daysElapsed = 20;

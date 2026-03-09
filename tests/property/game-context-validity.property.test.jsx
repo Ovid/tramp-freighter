@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
-import { GameProvider, useGameState } from '../../src/context/GameContext.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameProvider, useGame } from '../../src/context/GameContext.jsx';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -20,32 +20,32 @@ afterEach(() => {
  * Validates: Requirements 5.1, 13.5
  *
  * For any component accessing GameContext, the context should provide
- * a non-null GameStateManager instance.
+ * a non-null GameCoordinator instance.
  */
 describe('Property: GameContext provides valid instance', () => {
-  // Test component that uses useGameState hook
+  // Test component that uses useGame hook
   function TestComponent() {
-    const gameStateManager = useGameState();
+    const game = useGame();
     return (
       <div data-testid="test-component">
-        {gameStateManager ? 'valid' : 'invalid'}
+        {game ? 'valid' : 'invalid'}
       </div>
     );
   }
 
-  it('should provide non-null GameStateManager instance to all components', () => {
+  it('should provide non-null GameCoordinator instance to all components', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         // Clean up any previous renders
         cleanup();
 
-        // Create a new GameStateManager instance
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        // Create a new GameCoordinator instance
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Render component wrapped in GameProvider
         render(
-          <GameProvider gameStateManager={gameStateManager}>
+          <GameProvider game={game}>
             <TestComponent />
           </GameProvider>
         );
@@ -54,20 +54,20 @@ describe('Property: GameContext provides valid instance', () => {
         const element = screen.getByTestId('test-component');
         expect(element.textContent).toBe('valid');
 
-        // Verify the instance is actually a GameStateManager
-        return gameStateManager instanceof GameStateManager;
+        // Verify the instance is actually a GameCoordinator
+        return game instanceof GameCoordinator;
       }),
       { numRuns: 100 }
     );
   });
 
-  it('should throw error when useGameState is used outside GameProvider', () => {
+  it('should throw error when useGame is used outside GameProvider', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         // Attempt to render component without GameProvider should throw
         expect(() => {
           render(<TestComponent />);
-        }).toThrow('useGameState must be used within GameProvider');
+        }).toThrow('useGame must be used within GameProvider');
 
         return true;
       }),
@@ -75,15 +75,15 @@ describe('Property: GameContext provides valid instance', () => {
     );
   });
 
-  it('should show loading state when gameStateManager is null', () => {
+  it('should show loading state when game is null', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         // Clean up any previous renders
         cleanup();
 
-        // Render GameProvider with null gameStateManager
+        // Render GameProvider with null game
         render(
-          <GameProvider gameStateManager={null}>
+          <GameProvider game={null}>
             <TestComponent />
           </GameProvider>
         );

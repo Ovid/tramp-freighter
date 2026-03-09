@@ -5,7 +5,7 @@ import {
   SOL_SYSTEM_ID,
   KARMA_CONFIG,
 } from '../../src/game/constants.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import {
   ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,
@@ -173,7 +173,7 @@ describe('AchievementsManager', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    manager = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     manager.initNewGame();
   });
 
@@ -277,7 +277,7 @@ describe('Achievement Event Integration', () => {
   let manager;
 
   beforeEach(() => {
-    manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    manager = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     manager.initNewGame();
   });
 
@@ -342,7 +342,7 @@ describe('Save Compatibility', () => {
   });
 
   it('should unlock already-qualified achievements on restoreState', () => {
-    const manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const manager = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     manager.initNewGame();
 
     // Build a save with stats that meet thresholds but no unlocked achievements

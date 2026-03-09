@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -13,7 +13,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
  */
 
 describe('NPC Benefits Migration Unit Tests', () => {
-  let gameStateManager;
+  let game;
   let originalLocalStorage;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
       removeItem: () => {},
     };
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
   });
 
   afterEach(() => {
@@ -96,7 +96,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
       removeItem: () => {},
     };
 
-    const loadedState = gameStateManager.loadGame();
+    const loadedState = game.loadGame();
 
     // Verify migration occurred
     expect(loadedState).not.toBeNull();
@@ -220,7 +220,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
     };
 
     // Load the game (should load without migration)
-    const loadedState = gameStateManager.loadGame();
+    const loadedState = game.loadGame();
 
     // Verify state was loaded correctly
     expect(loadedState).not.toBeNull();
@@ -300,7 +300,7 @@ describe('NPC Benefits Migration Unit Tests', () => {
       removeItem: () => {},
     };
 
-    const loadedState = gameStateManager.loadGame();
+    const loadedState = game.loadGame();
 
     // Verify migration occurred
     expect(loadedState).not.toBeNull();

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, cleanup, act } from '@testing-library/react';
 import { ShipStatus } from '../../src/features/hud/ShipStatus.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -16,33 +16,33 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
  * - Bar width reflects condition percentage
  */
 describe('ShipStatus Component', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     cleanup();
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   it('should display ship name', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     expect(screen.getByText(state.ship.name)).toBeInTheDocument();
   });
 
   it('should display fuel percentage', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const fuelBar = document.querySelector(
       '.fuel-bar-container .condition-text'
     );
@@ -51,12 +51,12 @@ describe('ShipStatus Component', () => {
 
   it('should display hull condition percentage', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const hullBar = document.querySelector(
       '.hull-bar-container .condition-text'
     );
@@ -65,12 +65,12 @@ describe('ShipStatus Component', () => {
 
   it('should display engine condition percentage', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const engineBar = document.querySelector(
       '.engine-bar-container .condition-text'
     );
@@ -79,12 +79,12 @@ describe('ShipStatus Component', () => {
 
   it('should display life support condition percentage', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const lifeSupportBar = document.querySelector(
       '.life-support-bar-container .condition-text'
     );
@@ -95,19 +95,19 @@ describe('ShipStatus Component', () => {
 
   it('should update hull bar width when condition changes', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Update hull condition to 90%
     act(() => {
-      gameStateManager.updateShipCondition(90, 100, 100);
+      game.updateShipCondition(90, 100, 100);
     });
 
     // Force re-render to pick up condition change
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -119,19 +119,19 @@ describe('ShipStatus Component', () => {
 
   it('should update engine bar width when condition changes', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Update engine condition to 95%
     act(() => {
-      gameStateManager.updateShipCondition(100, 95, 100);
+      game.updateShipCondition(100, 95, 100);
     });
 
     // Force re-render to pick up condition change
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -143,19 +143,19 @@ describe('ShipStatus Component', () => {
 
   it('should update life support bar width when condition changes', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Update life support condition to 89%
     act(() => {
-      gameStateManager.updateShipCondition(100, 100, 89);
+      game.updateShipCondition(100, 100, 89);
     });
 
     // Force re-render to pick up condition change
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -167,19 +167,19 @@ describe('ShipStatus Component', () => {
 
   it('should update all condition bars reactively', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Update all conditions
     act(() => {
-      gameStateManager.updateShipCondition(75, 82, 68);
+      game.updateShipCondition(75, 82, 68);
     });
 
     // Force re-render to pick up condition changes
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -199,19 +199,19 @@ describe('ShipStatus Component', () => {
 
   it('should handle zero percent condition', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Update engine to 0%
     act(() => {
-      gameStateManager.updateShipCondition(100, 0, 100);
+      game.updateShipCondition(100, 0, 100);
     });
 
     // Force re-render
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -223,7 +223,7 @@ describe('ShipStatus Component', () => {
 
   it('should handle 100 percent condition', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
@@ -239,13 +239,13 @@ describe('ShipStatus Component', () => {
 
   it('should display cargo capacity', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
-    const ship = gameStateManager.getShip();
+    const state = game.getState();
+    const ship = game.getShip();
     const cargoUsed = state.ship.cargo.reduce(
       (sum, stack) => sum + stack.qty,
       0
@@ -257,31 +257,31 @@ describe('ShipStatus Component', () => {
 
   it('should update cargo display when cargo changes', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
     // Buy some goods to change cargo
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const currentSystem = STAR_DATA.find(
       (s) => s.id === state.player.currentSystem
     );
 
     if (currentSystem && currentSystem.st > 0) {
       act(() => {
-        gameStateManager.buyGood('electronics', 10);
+        game.buyGood('electronics', 10);
       });
 
       // Force re-render
       rerender(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <ShipStatus />
         </GameProvider>
       );
 
-      const ship = gameStateManager.getShip();
-      const newState = gameStateManager.getState();
+      const ship = game.getShip();
+      const newState = game.getState();
       const cargoUsed = newState.ship.cargo.reduce(
         (sum, stack) => sum + stack.qty,
         0
@@ -294,12 +294,12 @@ describe('ShipStatus Component', () => {
 
   it('should display fuel bar with correct width', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <ShipStatus />
       </GameProvider>
     );
 
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const fuelBar = document.querySelector('.fuel-bar');
     expect(fuelBar.style.width).toBe(`${state.ship.fuel}%`);
   });

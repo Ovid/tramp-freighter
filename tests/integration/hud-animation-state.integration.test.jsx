@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { HUD } from '../../src/features/hud/HUD';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -20,15 +20,15 @@ import { gameDayToDate } from '../../src/game/utils/date-utils.js';
  * 3. UI updates are visible throughout the animation sequence
  */
 describe('HUD Animation State Integration', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
     // Initialize game state
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.navigationSystem = navigationSystem;
-    gameStateManager.initNewGame();
+    game.navigationSystem = navigationSystem;
+    game.initNewGame();
 
     // Mock animation system to resolve immediately
     const mockAnimationSystem = {
@@ -40,7 +40,7 @@ describe('HUD Animation State Integration', () => {
         unlock: vi.fn(),
       },
     };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
   });
 
   afterEach(() => {
@@ -48,19 +48,19 @@ describe('HUD Animation State Integration', () => {
   });
 
   it('should update HUD before animation begins', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<HUD />, { wrapper });
 
     // Record initial state
-    const initialFuel = gameStateManager.getState().ship.fuel;
-    const initialDays = gameStateManager.getState().player.daysElapsed;
+    const initialFuel = game.getState().ship.fuel;
+    const initialDays = game.getState().player.daysElapsed;
 
     // Track when state changes occur
     let stateChangedBeforeAnimation = false;
 
-    gameStateManager.subscribe('locationChanged', () => {
-      if (!gameStateManager.animationSystem?.isAnimating) {
+    game.subscribe('locationChanged', () => {
+      if (!game.animationSystem?.isAnimating) {
         stateChangedBeforeAnimation = true;
       }
     });
@@ -68,9 +68,9 @@ describe('HUD Animation State Integration', () => {
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -83,22 +83,22 @@ describe('HUD Animation State Integration', () => {
     });
 
     // Verify state changed
-    const finalState = gameStateManager.getState();
+    const finalState = game.getState();
     expect(finalState.ship.fuel).toBeLessThan(initialFuel);
     expect(finalState.player.daysElapsed).toBeGreaterThan(initialDays);
   });
 
   it('should display updated location during animation', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<HUD />, { wrapper });
 
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -109,53 +109,53 @@ describe('HUD Animation State Integration', () => {
   });
 
   it('should display updated fuel during animation', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<HUD />, { wrapper });
 
-    const initialFuel = gameStateManager.getState().ship.fuel;
+    const initialFuel = game.getState().ship.fuel;
 
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
     // Verify fuel decreased
     await waitFor(() => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
       expect(state.ship.fuel).toBeLessThan(initialFuel);
     });
   });
 
   it('should display updated time during animation', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<HUD />, { wrapper });
 
-    const initialDays = gameStateManager.getState().player.daysElapsed;
+    const initialDays = game.getState().player.daysElapsed;
 
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
     // Verify time advanced
     await waitFor(() => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
       expect(state.player.daysElapsed).toBeGreaterThan(initialDays);
     });
   });
 
   it('should update all HUD elements reactively via event system', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<HUD />, { wrapper });
 
@@ -163,7 +163,7 @@ describe('HUD Animation State Integration', () => {
     expect(screen.getByText('Sol')).toBeInTheDocument();
 
     // Verify initial fuel is 100%
-    const initialState = gameStateManager.getState();
+    const initialState = game.getState();
     expect(initialState.ship.fuel).toBe(100);
 
     const dateLabel = screen.getByText('Date:');
@@ -172,9 +172,9 @@ describe('HUD Animation State Integration', () => {
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -184,7 +184,7 @@ describe('HUD Animation State Integration', () => {
     });
 
     // Fuel should have decreased
-    const finalState = gameStateManager.getState();
+    const finalState = game.getState();
     expect(finalState.ship.fuel).toBeLessThan(100);
 
     // Days should have advanced
@@ -192,7 +192,7 @@ describe('HUD Animation State Integration', () => {
   });
 
   it('should maintain HUD visibility during animation', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     const { container } = render(<HUD />, { wrapper });
 
@@ -204,9 +204,9 @@ describe('HUD Animation State Integration', () => {
     // Execute jump
     await act(async () => {
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 

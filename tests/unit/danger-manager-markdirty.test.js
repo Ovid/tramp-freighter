@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('DangerManager markDirty contract', () => {
   let gsm;
@@ -8,7 +8,7 @@ describe('DangerManager markDirty contract', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

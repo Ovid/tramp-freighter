@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -10,7 +10,7 @@ describe('removeRestrictedCargo', () => {
 
   beforeEach(() => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
     // Default system is Sol (ID 0): 'safe' zone → restricts 'electronics'
     // Core system restrictions → restricts 'parts'
   });
@@ -76,7 +76,7 @@ describe('applyEncounterOutcome: restrictedGoodsConfiscated', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
   });
 

@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { GAME_VERSION } from '../../src/game/constants.js';
 
-describe('GameStateManager.restoreState', () => {
+describe('GameCoordinator.restoreState', () => {
   let manager;
 
   beforeEach(() => {
     localStorage.clear();
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
   });
 
   afterEach(() => {
@@ -17,7 +17,7 @@ describe('GameStateManager.restoreState', () => {
 
   it('restores valid current-version state and returns success', () => {
     // Generate valid state from a separate manager to avoid direct .state mutation
-    const sourceManager = new GameStateManager(
+    const sourceManager = new GameCoordinator(
       TEST_STAR_DATA,
       TEST_WORMHOLE_DATA
     );
@@ -82,7 +82,7 @@ describe('GameStateManager.restoreState', () => {
   });
 
   it('emits UI state events after restore', () => {
-    const sourceManager = new GameStateManager(
+    const sourceManager = new GameCoordinator(
       TEST_STAR_DATA,
       TEST_WORMHOLE_DATA
     );

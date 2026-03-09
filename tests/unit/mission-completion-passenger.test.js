@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { PASSENGER_CONFIG } from '../../src/game/constants.js';
 
 describe('MissionManager completeMission passenger and edge cases', () => {
@@ -8,7 +8,7 @@ describe('MissionManager completeMission passenger and edge cases', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { FUEL_PRICING_CONFIG, SHIP_CONFIG } from '@game/constants.js';
 
 describe('RefuelManager', () => {
@@ -7,7 +7,7 @@ describe('RefuelManager', () => {
 
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

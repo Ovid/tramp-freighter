@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { RESTRICTED_GOODS_CONFIG } from '../../src/game/constants.js';
 
 describe('Restricted Goods Counting Properties', () => {
   it('should count zero restricted goods when cargo contains only unrestricted items for the zone', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(fc.constantFrom('safe', 'contested', 'dangerous'), (zone) => {
@@ -26,7 +26,7 @@ describe('Restricted Goods Counting Properties', () => {
           purchasePrice: 10,
         }));
 
-        const count = gameStateManager.countRestrictedGoods(cargo, zone);
+        const count = game.countRestrictedGoods(cargo, zone);
         return count === 0;
       }),
       { numRuns: 100 }
@@ -34,8 +34,8 @@ describe('Restricted Goods Counting Properties', () => {
   });
 
   it('should count restricted goods correctly for each zone', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(fc.constantFrom('safe', 'contested', 'dangerous'), (zone) => {
@@ -49,7 +49,7 @@ describe('Restricted Goods Counting Properties', () => {
           { good: 'grain', quantity: 3, purchasePrice: 8 },
         ];
 
-        const count = gameStateManager.countRestrictedGoods(cargo, zone);
+        const count = game.countRestrictedGoods(cargo, zone);
         // Should count the restricted item but not grain (unless grain is restricted)
         const expectedCount = cargo.filter((item) =>
           restricted.includes(item.good)
@@ -61,8 +61,8 @@ describe('Restricted Goods Counting Properties', () => {
   });
 
   it('should count core system restricted goods when in core systems', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Core systems (Sol=0, Alpha Centauri=1) restrict 'parts'
     const cargo = [
@@ -71,7 +71,7 @@ describe('Restricted Goods Counting Properties', () => {
     ];
 
     // systemId 0 (Sol) is a core system
-    const count = gameStateManager.countRestrictedGoods(cargo, 'safe', 0);
+    const count = game.countRestrictedGoods(cargo, 'safe', 0);
     expect(count).toBe(1); // parts is restricted in core systems
   });
 });

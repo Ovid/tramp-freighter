@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('MissionManager acceptMission edge cases', () => {
   let gsm;
@@ -7,7 +7,7 @@ describe('MissionManager acceptMission edge cases', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -15,7 +15,7 @@ describe('MissionManager acceptMission edge cases', () => {
   });
 
   it('rejects passenger mission when insufficient cargo space', () => {
-    vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(0);
+    vi.spyOn(gsm.stateManager, 'getCargoRemaining').mockReturnValue(0);
     const mission = {
       id: 'p1',
       type: 'passenger',
@@ -28,7 +28,7 @@ describe('MissionManager acceptMission edge cases', () => {
   });
 
   it('rejects mission with missionCargo when insufficient cargo space', () => {
-    vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(2);
+    vi.spyOn(gsm.stateManager, 'getCargoRemaining').mockReturnValue(2);
     const mission = {
       id: 'm1',
       type: 'delivery',
@@ -42,7 +42,7 @@ describe('MissionManager acceptMission edge cases', () => {
   });
 
   it('places mission cargo in hold on acceptance', () => {
-    vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(100);
+    vi.spyOn(gsm.stateManager, 'getCargoRemaining').mockReturnValue(100);
     const mission = {
       id: 'm1',
       type: 'delivery',
@@ -62,7 +62,7 @@ describe('MissionManager acceptMission edge cases', () => {
   });
 
   it('emits cargoChanged when mission cargo is placed', () => {
-    vi.spyOn(gsm, 'getCargoRemaining').mockReturnValue(100);
+    vi.spyOn(gsm.stateManager, 'getCargoRemaining').mockReturnValue(100);
     const emitSpy = vi.spyOn(gsm, 'emit');
     const mission = {
       id: 'm1',

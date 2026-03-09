@@ -1,14 +1,14 @@
 /**
  * @fileoverview Integration tests for RepairPanel free repair functionality
  *
- * Tests the integration between RepairPanel UI and GameStateManager free repair methods.
+ * Tests the integration between RepairPanel UI and GameCoordinator free repair methods.
  * Verifies that free repair options appear when available and function correctly.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -23,32 +23,32 @@ vi.stubGlobal('localStorage', {
 });
 
 describe('RepairPanel Free Repair Integration', () => {
-  let gameStateManager;
+  let game;
   let mockOnClose;
 
   beforeEach(() => {
-    // Create fresh GameStateManager instance
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    // Create fresh GameCoordinator instance
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Mock onClose function
     mockOnClose = vi.fn();
 
     // Set up test scenario: player at Sol with damaged hull
-    const state = gameStateManager.getState();
+    const state = game.getState();
     state.player.currentSystem = 0; // Sol
     state.ship.hull = 70; // 30% hull damage
 
     // Set up Marcus Cole (at Sol) with Trusted reputation for free repair
     const marcusId = 'cole_sol';
-    const marcusState = gameStateManager.getNPCState(marcusId);
+    const marcusState = game.getNPCState(marcusId);
     marcusState.rep = 65; // Trusted tier
     marcusState.lastFreeRepairDay = null; // No previous free repair
   });
 
   const renderRepairPanel = () => {
     return render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <RepairPanel onClose={mockOnClose} />
       </GameProvider>
     );
@@ -94,7 +94,7 @@ describe('RepairPanel Free Repair Integration', () => {
 
   it('should not display free repair section when no NPCs are available', () => {
     // Set Marcus Cole to Cold reputation (no free repair)
-    const marcusState = gameStateManager.getNPCState('cole_sol');
+    const marcusState = game.getNPCState('cole_sol');
     marcusState.rep = -20; // Cold tier
 
     renderRepairPanel();
@@ -119,17 +119,17 @@ describe('RepairPanel Free Repair Integration', () => {
     expect(screen.getByText(/Free repair completed:/)).toBeInTheDocument();
 
     // Hull should be repaired by 10% (from 70% to 80%)
-    const state = gameStateManager.getState();
+    const state = game.getState();
     expect(state.ship.hull).toBe(80);
 
     // Marcus Cole's lastFreeRepairDay should be set
-    const marcusState = gameStateManager.getNPCState('cole_sol');
+    const marcusState = game.getNPCState('cole_sol');
     expect(marcusState.lastFreeRepairDay).toBe(state.player.daysElapsed);
   });
 
   it('should disable free repair button when no hull damage exists', () => {
     // Set hull to maximum condition
-    const state = gameStateManager.getState();
+    const state = game.getState();
     state.ship.hull = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
 
     renderRepairPanel();
@@ -144,7 +144,7 @@ describe('RepairPanel Free Repair Integration', () => {
 
   it('should show higher repair limit for Family tier NPC', () => {
     // Set Marcus Cole to Family reputation
-    const marcusState = gameStateManager.getNPCState('cole_sol');
+    const marcusState = game.getNPCState('cole_sol');
     marcusState.rep = 95; // Family tier
 
     renderRepairPanel();
@@ -160,8 +160,8 @@ describe('RepairPanel Free Repair Integration', () => {
 
   it('should not show free repair option when already used today', () => {
     // Set Marcus Cole as having used free repair today
-    const state = gameStateManager.getState();
-    const marcusState = gameStateManager.getNPCState('cole_sol');
+    const state = game.getState();
+    const marcusState = game.getNPCState('cole_sol');
     marcusState.lastFreeRepairDay = state.player.daysElapsed;
 
     renderRepairPanel();

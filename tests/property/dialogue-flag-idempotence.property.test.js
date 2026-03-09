@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -16,8 +16,8 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Story Flag Idempotence Properties', () => {
   it('should contain each flag exactly once regardless of how many times the same node is visited', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -45,13 +45,13 @@ describe('Story Flag Idempotence Properties', () => {
         // Test each node with flags
         for (const [nodeId, node] of nodesWithFlags) {
           // Clear flags before test
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.flags = [];
 
           // Visit the same node multiple times
           for (let i = 0; i < visitCount; i++) {
             try {
-              showDialogue(npcId, nodeId, gameStateManager);
+              showDialogue(npcId, nodeId, game);
             } catch {
               // Some nodes might not be accessible directly, skip them
               break;
@@ -59,7 +59,7 @@ describe('Story Flag Idempotence Properties', () => {
           }
 
           // Check that each flag appears exactly once
-          const currentFlags = gameStateManager.getNPCState(npcId).flags;
+          const currentFlags = game.getNPCState(npcId).flags;
 
           for (const expectedFlag of node.flags) {
             const flagCount = currentFlags.filter(
@@ -75,8 +75,8 @@ describe('Story Flag Idempotence Properties', () => {
   });
 
   it('should not add duplicate flags when flags already exist in NPC state', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -101,14 +101,14 @@ describe('Story Flag Idempotence Properties', () => {
         // Test each node with flags
         for (const [nodeId, node] of nodesWithFlags) {
           // Pre-populate NPC state with the same flags that the node will try to add
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.flags = [...node.flags]; // Pre-add all the flags
 
           const initialFlagCount = npcState.flags.length;
 
           try {
             // Visit the node (which should try to add the same flags)
-            showDialogue(npcId, nodeId, gameStateManager);
+            showDialogue(npcId, nodeId, game);
           } catch {
             // Some nodes might not be accessible directly, skip them
             continue;
@@ -116,12 +116,12 @@ describe('Story Flag Idempotence Properties', () => {
 
           // Check that no duplicate flags were added
           const finalFlagCount =
-            gameStateManager.getNPCState(npcId).flags.length;
+            game.getNPCState(npcId).flags.length;
 
           expect(finalFlagCount).toBe(initialFlagCount);
 
           // Verify each flag still appears exactly once
-          const currentFlags = gameStateManager.getNPCState(npcId).flags;
+          const currentFlags = game.getNPCState(npcId).flags;
           for (const expectedFlag of node.flags) {
             const flagCount = currentFlags.filter(
               (flag) => flag === expectedFlag
@@ -136,8 +136,8 @@ describe('Story Flag Idempotence Properties', () => {
   });
 
   it('should preserve order of existing flags when adding new ones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -160,7 +160,7 @@ describe('Story Flag Idempotence Properties', () => {
         }
 
         // Test with existing flags
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         const existingFlags = [
           'pre_existing_1',
           'pre_existing_2',
@@ -172,14 +172,14 @@ describe('Story Flag Idempotence Properties', () => {
         const [nodeId] = nodesWithFlags[0];
 
         try {
-          showDialogue(npcId, nodeId, gameStateManager);
+          showDialogue(npcId, nodeId, game);
         } catch {
           // Some nodes might not be accessible directly, skip
           return true;
         }
 
         // Check that existing flags are still at the beginning in the same order
-        const currentFlags = gameStateManager.getNPCState(npcId).flags;
+        const currentFlags = game.getNPCState(npcId).flags;
 
         for (let i = 0; i < existingFlags.length; i++) {
           expect(currentFlags[i]).toBe(existingFlags[i]);
@@ -190,8 +190,8 @@ describe('Story Flag Idempotence Properties', () => {
   });
 
   it('should handle mixed scenarios with some flags existing and some new', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test specifically with Wei Chen who has multiple flag-setting nodes
     const npcId = 'chen_barnards';
@@ -199,7 +199,7 @@ describe('Story Flag Idempotence Properties', () => {
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation to access backstory nodes
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Start with some existing flags, including one that will be "re-added"
@@ -211,10 +211,10 @@ describe('Story Flag Idempotence Properties', () => {
 
         try {
           // Visit backstory node which should try to add 'chen_backstory_1' (already exists)
-          showDialogue(npcId, 'backstory', gameStateManager);
+          showDialogue(npcId, 'backstory', game);
 
           // Check that the existing flag wasn't duplicated
-          const currentFlags = gameStateManager.getNPCState(npcId).flags;
+          const currentFlags = game.getNPCState(npcId).flags;
           const backstoryFlagCount = currentFlags.filter(
             (flag) => flag === 'chen_backstory_1'
           ).length;
@@ -226,9 +226,9 @@ describe('Story Flag Idempotence Properties', () => {
           expect(currentFlags).toContain('another_existing');
 
           // Visit backstory_2 node which should add a new flag
-          showDialogue(npcId, 'backstory_2', gameStateManager);
+          showDialogue(npcId, 'backstory_2', game);
 
-          const finalFlags = gameStateManager.getNPCState(npcId).flags;
+          const finalFlags = game.getNPCState(npcId).flags;
 
           // Should now have the new flag
           expect(finalFlags).toContain('chen_backstory_2');

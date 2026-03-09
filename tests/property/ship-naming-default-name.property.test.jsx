@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -44,13 +44,13 @@ describe('Property: Default ship name on empty input', () => {
         (emptyInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -94,13 +94,13 @@ describe('Property: Default ship name on empty input', () => {
         (emptyInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -150,13 +150,13 @@ describe('Property: Default ship name on empty input', () => {
         (htmlOnlyInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -210,10 +210,10 @@ describe('Property: Default ship name on empty input', () => {
     testCases.forEach(({ input }) => {
       cleanup();
 
-      const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-      gameStateManager.initNewGame();
+      const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      game.initNewGame();
 
-      const wrapper = createWrapper(gameStateManager);
+      const wrapper = createWrapper(game);
 
       let submittedName = null;
       const onSubmit = (name) => {
@@ -245,13 +245,13 @@ describe('Property: Default ship name on empty input', () => {
         (validInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;

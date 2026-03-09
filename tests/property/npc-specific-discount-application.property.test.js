@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -13,7 +13,7 @@ import { ALL_NPCS } from '../../src/game/data/npc-data.js';
  */
 
 describe('NPC-Specific Discount Application Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -27,18 +27,18 @@ describe('NPC-Specific Discount Application Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    gameStateManager.initNewGame();
-    return gameStateManager;
+    game.initNewGame();
+    return game;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -66,18 +66,18 @@ describe('NPC-Specific Discount Application Property Tests', () => {
         arbServiceType(),
         arbHighReputation(),
         (npcId, serviceType, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set high reputation to ensure discount would be given if service matches
           npcState.rep = reputation;
 
           // Get the result
-          const result = testGameStateManager.getServiceDiscount(
+          const result = testGameCoordinator.getServiceDiscount(
             npcId,
             serviceType
           );
@@ -105,19 +105,19 @@ describe('NPC-Specific Discount Application Property Tests', () => {
         arbServiceType(),
         fc.integer({ min: -100, max: 100 }), // Any reputation
         (npcId, serviceType, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set reputation
           npcState.rep = reputation;
 
           // Only test when discountService doesn't match serviceType
           if (npcData.discountService !== serviceType) {
-            const result = testGameStateManager.getServiceDiscount(
+            const result = testGameCoordinator.getServiceDiscount(
               npcId,
               serviceType
             );
@@ -139,18 +139,18 @@ describe('NPC-Specific Discount Application Property Tests', () => {
         arbServiceType(),
         fc.integer({ min: -100, max: 100 }), // Any reputation
         (npcId, serviceType, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set reputation
           npcState.rep = reputation;
 
           // Get the result
-          const result = testGameStateManager.getServiceDiscount(
+          const result = testGameCoordinator.getServiceDiscount(
             npcId,
             serviceType
           );
@@ -172,19 +172,19 @@ describe('NPC-Specific Discount Application Property Tests', () => {
   it('should maintain service type specificity across all NPCs', () => {
     fc.assert(
       fc.property(arbServiceType(), (serviceType) => {
-        // Reset GameStateManager for this test iteration
-        const testGameStateManager = resetGameState();
+        // Reset GameCoordinator for this test iteration
+        const testGameCoordinator = resetGameState();
 
         // Test all NPCs for this service type
         const npcsWithMatchingService = [];
         const npcsWithNonMatchingService = [];
 
         for (const npc of ALL_NPCS) {
-          const npcState = testGameStateManager.getNPCState(npc.id);
+          const npcState = testGameCoordinator.getNPCState(npc.id);
           // Set high reputation to ensure discount would be given if service matches
           npcState.rep = 75; // Trusted tier
 
-          const result = testGameStateManager.getServiceDiscount(
+          const result = testGameCoordinator.getServiceDiscount(
             npc.id,
             serviceType
           );
@@ -223,8 +223,8 @@ describe('NPC-Specific Discount Application Property Tests', () => {
         arbServiceType(),
         arbHighReputation(),
         (serviceType, reputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Find NPCs with undefined or null discountService
           const npcsWithoutDiscountService = ALL_NPCS.filter(
@@ -233,10 +233,10 @@ describe('NPC-Specific Discount Application Property Tests', () => {
           );
 
           for (const npc of npcsWithoutDiscountService) {
-            const npcState = testGameStateManager.getNPCState(npc.id);
+            const npcState = testGameCoordinator.getNPCState(npc.id);
             npcState.rep = reputation;
 
-            const result = testGameStateManager.getServiceDiscount(
+            const result = testGameCoordinator.getServiceDiscount(
               npc.id,
               serviceType
             );

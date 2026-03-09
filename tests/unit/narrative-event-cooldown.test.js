@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { NARRATIVE_EVENTS } from '../../src/game/data/narrative-events.js';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 
-function createMockGameStateManager(stateOverrides = {}) {
+function createMockGameCoordinator(stateOverrides = {}) {
   const defaultState = {
     player: {
       currentSystem: 0,
@@ -45,7 +45,7 @@ describe('Narrative Event Deduplication (#52/78)', () => {
     let mockGSM;
 
     beforeEach(() => {
-      mockGSM = createMockGameStateManager();
+      mockGSM = createMockGameCoordinator();
       engine = new EventEngineManager(mockGSM);
     });
 

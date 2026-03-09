@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Illegal Cargo Rumors - Detection', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('should return false when cargo is empty', () => {
@@ -74,7 +74,7 @@ describe('Illegal Cargo Rumors - Pirate Probability', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('should increase pirate encounter chance when carrying illegal mission cargo', () => {

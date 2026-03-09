@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Mission Completion', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   describe('completing a delivery mission when at destination with cargo', () => {

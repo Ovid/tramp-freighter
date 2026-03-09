@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { InformationBroker } from '../../src/game/game-information-broker.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { INTELLIGENCE_CONFIG } from '../../src/game/constants.js';
 
@@ -132,22 +132,22 @@ describe('Intelligence Cleanup', () => {
     });
   });
 
-  describe('Integration with GameStateManager', () => {
-    let gameStateManager;
+  describe('Integration with GameCoordinator', () => {
+    let game;
     let navigationSystem;
 
     beforeEach(() => {
       navigationSystem = new NavigationSystem(starData, wormholeData);
-      gameStateManager = new GameStateManager(
+      game = new GameCoordinator(
         starData,
         wormholeData,
         navigationSystem
       );
-      gameStateManager.initNewGame();
+      game.initNewGame();
     });
 
     it('should automatically clean up old data when time advances', () => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
 
       // Add some price knowledge with different ages
       state.world.priceKnowledge = {
@@ -165,15 +165,15 @@ describe('Intelligence Cleanup', () => {
       // This will increment lastVisit by 120 for all systems
       // System 1: lastVisit becomes 0 + 120 = 120 (should be removed)
       // System 2: lastVisit becomes 50 + 120 = 170 (should be removed)
-      gameStateManager.updateTime(120);
+      game.updateTime(120);
 
-      const priceKnowledge = gameStateManager.getPriceKnowledge();
+      const priceKnowledge = game.getPriceKnowledge();
       expect(priceKnowledge).not.toHaveProperty('1');
       expect(priceKnowledge).not.toHaveProperty('2');
     });
 
     it('should not clean up data when time does not advance', () => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
 
       state.world.priceKnowledge = {
         1: {
@@ -185,15 +185,15 @@ describe('Intelligence Cleanup', () => {
       const currentDay = state.player.daysElapsed;
 
       // Update to same day (no advancement)
-      gameStateManager.updateTime(currentDay);
+      game.updateTime(currentDay);
 
       // Data should still be there
-      const priceKnowledge = gameStateManager.getPriceKnowledge();
+      const priceKnowledge = game.getPriceKnowledge();
       expect(priceKnowledge).toHaveProperty('1');
     });
 
     it('should clean up multiple old systems at once', () => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
 
       // Add price knowledge for all systems
       state.world.priceKnowledge = {
@@ -203,15 +203,15 @@ describe('Intelligence Cleanup', () => {
       };
 
       // Advance time past cleanup threshold
-      gameStateManager.updateTime(INTELLIGENCE_MAX_AGE + 10);
+      game.updateTime(INTELLIGENCE_MAX_AGE + 10);
 
       // All systems should be cleaned up
-      const priceKnowledge = gameStateManager.getPriceKnowledge();
+      const priceKnowledge = game.getPriceKnowledge();
       expect(Object.keys(priceKnowledge).length).toBe(0);
     });
 
     it('should preserve recently visited systems during cleanup', () => {
-      const state = gameStateManager.getState();
+      const state = game.getState();
 
       // Add price knowledge with different ages
       state.world.priceKnowledge = {
@@ -222,9 +222,9 @@ describe('Intelligence Cleanup', () => {
       // Advance time by 20 days
       // System 1: lastVisit becomes 90 + 20 = 110 (should be removed)
       // System 2: lastVisit becomes 80 + 20 = 100 (should NOT be removed, exactly at threshold)
-      gameStateManager.updateTime(20);
+      game.updateTime(20);
 
-      const priceKnowledge = gameStateManager.getPriceKnowledge();
+      const priceKnowledge = game.getPriceKnowledge();
       expect(priceKnowledge).not.toHaveProperty('1');
       expect(priceKnowledge).toHaveProperty('2');
       expect(priceKnowledge[2].lastVisit).toBe(100);

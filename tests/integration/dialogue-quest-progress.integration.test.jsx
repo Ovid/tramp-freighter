@@ -9,13 +9,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ENDGAME_CONFIG } from '../../src/game/constants.js';
 
 describe('DialoguePanel Quest Progress', () => {
-  let gameStateManager;
+  let game;
   let mockOnClose;
 
   beforeEach(() => {
@@ -32,8 +32,8 @@ describe('DialoguePanel Quest Progress', () => {
       warn: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
     mockOnClose = vi.fn();
   });
 
@@ -44,10 +44,10 @@ describe('DialoguePanel Quest Progress', () => {
   describe('Quest NPC (Tanaka)', () => {
     it('should display quest progress bar with Trust label', async () => {
       // Give Tanaka some reputation so progress bar has values
-      gameStateManager.modifyRepRaw('tanaka_barnards', 5, 'test');
+      game.modifyRepRaw('tanaka_barnards', 5, 'test');
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
         </GameProvider>
       );
@@ -81,10 +81,10 @@ describe('DialoguePanel Quest Progress', () => {
 
     it('should clamp negative reputation to zero in progress bar', async () => {
       // Set Tanaka's rep to a negative value
-      gameStateManager.modifyRepRaw('tanaka_barnards', -10, 'test');
+      game.modifyRepRaw('tanaka_barnards', -10, 'test');
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
         </GameProvider>
       );
@@ -107,14 +107,14 @@ describe('DialoguePanel Quest Progress', () => {
 
     it('should clamp aria-valuenow to aria-valuemax when rep exceeds threshold', async () => {
       // Give Tanaka more rep than needed for stage 1
-      gameStateManager.modifyRepRaw(
+      game.modifyRepRaw(
         'tanaka_barnards',
         ENDGAME_CONFIG.STAGE_1_REP + 5,
         'test'
       );
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
         </GameProvider>
       );
@@ -133,14 +133,14 @@ describe('DialoguePanel Quest Progress', () => {
     });
 
     it('should show "Ready!" label when rep meets threshold', async () => {
-      gameStateManager.modifyRepRaw(
+      game.modifyRepRaw(
         'tanaka_barnards',
         ENDGAME_CONFIG.STAGE_1_REP + 5,
         'test'
       );
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
         </GameProvider>
       );
@@ -165,10 +165,10 @@ describe('DialoguePanel Quest Progress', () => {
     });
 
     it('should show next stage name', async () => {
-      gameStateManager.modifyRepRaw('tanaka_barnards', 3, 'test');
+      game.modifyRepRaw('tanaka_barnards', 3, 'test');
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
         </GameProvider>
       );
@@ -185,7 +185,7 @@ describe('DialoguePanel Quest Progress', () => {
   describe('Non-quest NPC (Wei Chen)', () => {
     it('should not display quest progress bar', async () => {
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId="chen_barnards" onClose={mockOnClose} />
         </GameProvider>
       );

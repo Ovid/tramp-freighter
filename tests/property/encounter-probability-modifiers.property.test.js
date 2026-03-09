@@ -7,15 +7,15 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DANGER_CONFIG } from '../../src/game/constants.js';
 
 describe('Encounter Probability Modifiers Properties', () => {
   it('should apply cargo value modifiers correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -23,7 +23,7 @@ describe('Encounter Probability Modifiers Properties', () => {
         fc.integer({ min: 0, max: 20000 }), // Cargo value range
         (systemId, cargoValue) => {
           // Set up game state with specific cargo value
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           // Create cargo that totals to the specified value
           gameState.ship.cargo = [];
@@ -44,11 +44,11 @@ describe('Encounter Probability Modifiers Properties', () => {
             (sum, item) => sum + (item.qty || 0) * (item.buyPrice || 0),
             0
           );
-          const baseRate = gameStateManager.calculatePirateEncounterChance(
+          const baseRate = game.calculatePirateEncounterChance(
             systemId,
             gameState
           );
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Test cargo value modifiers (Requirements 2.7, 2.8)
@@ -85,8 +85,8 @@ describe('Encounter Probability Modifiers Properties', () => {
   });
 
   it('should apply engine condition modifier correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -94,15 +94,15 @@ describe('Encounter Probability Modifiers Properties', () => {
         fc.integer({ min: 0, max: 100 }), // Engine condition percentage
         (systemId, engineCondition) => {
           // Set up game state with specific engine condition
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.engine = engineCondition;
           gameState.ship.cargo = []; // No cargo to isolate engine modifier
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(
+          const baseRate = game.calculatePirateEncounterChance(
             systemId,
             gameState
           );
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Test engine condition modifier (Requirement 2.9)
@@ -130,8 +130,8 @@ describe('Encounter Probability Modifiers Properties', () => {
   });
 
   it('should apply advanced sensors modifier correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -139,7 +139,7 @@ describe('Encounter Probability Modifiers Properties', () => {
         fc.boolean(), // Has advanced sensors or not
         (systemId, hasAdvancedSensors) => {
           // Set up game state with or without advanced sensors
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.cargo = []; // No cargo to isolate sensors modifier
           gameState.ship.engine = 100; // Perfect engine to isolate sensors modifier
 
@@ -149,11 +149,11 @@ describe('Encounter Probability Modifiers Properties', () => {
             gameState.ship.upgrades = [];
           }
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(
+          const baseRate = game.calculatePirateEncounterChance(
             systemId,
             gameState
           );
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Test advanced sensors modifier (Requirement 2.10)
@@ -177,8 +177,8 @@ describe('Encounter Probability Modifiers Properties', () => {
   });
 
   it('should apply faction reputation modifiers correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -187,18 +187,18 @@ describe('Encounter Probability Modifiers Properties', () => {
         fc.integer({ min: -100, max: 100 }), // Authority reputation
         (systemId, outlawRep, authorityRep) => {
           // Set up game state with specific faction reputations
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.player.factions.outlaws = outlawRep;
           gameState.player.factions.authorities = authorityRep;
           gameState.ship.cargo = []; // No cargo to isolate faction modifiers
           gameState.ship.engine = 100; // Perfect engine to isolate faction modifiers
           gameState.ship.upgrades = []; // No upgrades to isolate faction modifiers
 
-          const baseRate = gameStateManager.calculatePirateEncounterChance(
+          const baseRate = game.calculatePirateEncounterChance(
             systemId,
             gameState
           );
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
           const expectedBaseRate = DANGER_CONFIG.ZONES[zone].pirateChance;
 
           // Calculate expected modifiers (Requirement 8.8)
@@ -228,8 +228,8 @@ describe('Encounter Probability Modifiers Properties', () => {
   });
 
   it('should clamp final probability to [0, 1] range', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -240,7 +240,7 @@ describe('Encounter Probability Modifiers Properties', () => {
         fc.integer({ min: -100, max: 100 }), // Authority reputation
         (systemId, cargoValue, engineCondition, outlawRep, authorityRep) => {
           // Set up game state with extreme values that might push probability outside [0,1]
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.player.factions.outlaws = outlawRep;
           gameState.player.factions.authorities = authorityRep;
           gameState.ship.engine = engineCondition;
@@ -259,7 +259,7 @@ describe('Encounter Probability Modifiers Properties', () => {
             }
           }
 
-          const probability = gameStateManager.calculatePirateEncounterChance(
+          const probability = game.calculatePirateEncounterChance(
             systemId,
             gameState
           );

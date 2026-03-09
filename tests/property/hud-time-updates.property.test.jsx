@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { DateDisplay } from '../../src/features/hud/DateDisplay';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
@@ -32,12 +32,12 @@ describe('Property 21: HUD time updates', () => {
         cleanup();
 
         // Create game state manager
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Render DateDisplay
         render(
-          <GameProvider gameStateManager={gameStateManager}>
+          <GameProvider game={game}>
             <DateDisplay />
           </GameProvider>
         );
@@ -48,7 +48,7 @@ describe('Property 21: HUD time updates', () => {
         });
 
         // Update time
-        gameStateManager.updateTime(newDays);
+        game.updateTime(newDays);
 
         // Verify time display updated to the correct calendar date
         await waitFor(() => {

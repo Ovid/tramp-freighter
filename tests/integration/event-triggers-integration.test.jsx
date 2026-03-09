@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, act, cleanup } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { useEventTriggers } from '../../src/hooks/useEventTriggers.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -14,16 +14,16 @@ function EventTriggersHarness() {
   return <div data-testid="harness" />;
 }
 
-function renderWithGame(gameStateManager) {
+function renderWithGame(game) {
   return render(
-    <GameProvider gameStateManager={gameStateManager}>
+    <GameProvider game={game}>
       <EventTriggersHarness />
     </GameProvider>
   );
 }
 
 describe('useEventTriggers Integration', () => {
-  let gameStateManager;
+  let game;
   let emitSpy;
 
   beforeEach(() => {
@@ -38,11 +38,11 @@ describe('useEventTriggers Integration', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Spy on emit to track what events are dispatched
-    emitSpy = vi.spyOn(gameStateManager, 'emit');
+    emitSpy = vi.spyOn(game, 'emit');
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should not trigger encounters on initial locationChanged during mount', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
 
     // The hook subscribes to locationChanged. On mount, useGameEvent fires
     // the initial value (current system). The hook should skip this.
@@ -67,12 +67,12 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should process jump events when locationChanged fires for a new system', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
     emitSpy.mockClear();
 
     // Simulate a jump to a different system
     act(() => {
-      gameStateManager.emit('locationChanged', 4); // Barnard's Star
+      game.emit('locationChanged', 4); // Barnard's Star
     });
 
     // The hook should have called checkEvents for 'jump' type.
@@ -83,17 +83,17 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should skip duplicate locationChanged for the same system', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
 
     // First real jump
     act(() => {
-      gameStateManager.emit('locationChanged', 4);
+      game.emit('locationChanged', 4);
     });
     emitSpy.mockClear();
 
     // Duplicate emission for same system
     act(() => {
-      gameStateManager.emit('locationChanged', 4);
+      game.emit('locationChanged', 4);
     });
 
     // No new encounter or narrative emissions from the duplicate
@@ -109,12 +109,12 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should trigger dock event checks when docked event fires', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
     emitSpy.mockClear();
 
     // Simulate docking at Sol (system 0)
     act(() => {
-      gameStateManager.emit('docked', { systemId: 0 });
+      game.emit('docked', { systemId: 0 });
     });
 
     // The hook should process dock triggers. dock_sol_first has chance 1.0
@@ -129,12 +129,12 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should route narrative events to narrativeEventTriggered, not encounterTriggered', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
     emitSpy.mockClear();
 
     // dock_sol_first is a narrative event
     act(() => {
-      gameStateManager.emit('docked', { systemId: 0 });
+      game.emit('docked', { systemId: 0 });
     });
 
     const encounterEmissions = emitSpy.mock.calls.filter(
@@ -151,10 +151,10 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should route danger events to encounterTriggered', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
 
     // Register a test danger event that always fires on jump
-    gameStateManager.eventEngineManager.registerEvent({
+    game.eventEngineManager.registerEvent({
       id: 'test_danger_jump',
       type: 'jump',
       category: 'danger',
@@ -168,12 +168,12 @@ describe('useEventTriggers Integration', () => {
     emitSpy.mockClear();
 
     act(() => {
-      gameStateManager.emit('locationChanged', 1); // Initial skip
+      game.emit('locationChanged', 1); // Initial skip
     });
     emitSpy.mockClear();
 
     act(() => {
-      gameStateManager.emit('locationChanged', 4); // Real jump
+      game.emit('locationChanged', 4); // Real jump
     });
 
     const encounterEmissions = emitSpy.mock.calls.filter(
@@ -185,15 +185,15 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should ignore docked events with no systemId', () => {
-    renderWithGame(gameStateManager);
+    renderWithGame(game);
     emitSpy.mockClear();
 
     act(() => {
-      gameStateManager.emit('docked', {});
+      game.emit('docked', {});
     });
 
     act(() => {
-      gameStateManager.emit('docked', null);
+      game.emit('docked', null);
     });
 
     // No emissions should occur for malformed dock events

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -16,8 +16,8 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dialogue Flag Setting Timing Properties', () => {
   it('should set story flags before displaying dialogue node content', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -28,7 +28,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -49,7 +49,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         // Test each node with flags
         for (const [nodeId, node] of nodesWithFlags) {
           // Clear any existing flags for this test
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.flags = [];
 
           // Show dialogue for this specific node
@@ -57,11 +57,11 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             const dialogueResult = showDialogue(
               npcId,
               nodeId,
-              gameStateManager
+              game
             );
 
             // Verify that flags were set when the node was displayed
-            const currentFlags = gameStateManager.getNPCState(npcId).flags;
+            const currentFlags = game.getNPCState(npcId).flags;
 
             for (const expectedFlag of node.flags) {
               expect(currentFlags).toContain(expectedFlag);
@@ -84,8 +84,8 @@ describe('Dialogue Flag Setting Timing Properties', () => {
   });
 
   it('should set flags when navigating to nodes through choice selection', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test specifically with Wei Chen who has nodes with flags (backstory nodes)
     const npcId = 'chen_barnards';
@@ -93,7 +93,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation to access backstory
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
         npcState.flags = []; // Clear existing flags
 
@@ -101,7 +101,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         const initialDialogue = showDialogue(
           npcId,
           'greeting',
-          gameStateManager
+          game
         );
 
         // Find the backstory choice
@@ -117,13 +117,13 @@ describe('Dialogue Flag Setting Timing Properties', () => {
         const backstoryDialogue = selectChoice(
           npcId,
           backstoryChoice.index,
-          gameStateManager
+          game
         );
 
         expect(backstoryDialogue).toBeDefined();
 
         // Check that the backstory flag was set
-        const currentFlags = gameStateManager.getNPCState(npcId).flags;
+        const currentFlags = game.getNPCState(npcId).flags;
         expect(currentFlags).toContain('chen_backstory_1');
 
         // Continue to backstory_2 if available
@@ -135,12 +135,12 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           const backstory2Dialogue = selectChoice(
             npcId,
             continueChoice.index,
-            gameStateManager
+            game
           );
 
           if (backstory2Dialogue) {
             // Check that the second backstory flag was set
-            const updatedFlags = gameStateManager.getNPCState(npcId).flags;
+            const updatedFlags = game.getNPCState(npcId).flags;
             expect(updatedFlags).toContain('chen_backstory_2');
           }
         }
@@ -152,8 +152,8 @@ describe('Dialogue Flag Setting Timing Properties', () => {
   });
 
   it('should not duplicate flags when the same node is visited multiple times', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test with Wei Chen backstory nodes
     const npcId = 'chen_barnards';
@@ -161,17 +161,17 @@ describe('Dialogue Flag Setting Timing Properties', () => {
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
         npcState.flags = []; // Clear existing flags
 
         // Visit backstory node multiple times
         for (let i = 0; i < 3; i++) {
           try {
-            showDialogue(npcId, 'backstory', gameStateManager);
+            showDialogue(npcId, 'backstory', game);
 
             // Check that flag is present but not duplicated
-            const currentFlags = gameStateManager.getNPCState(npcId).flags;
+            const currentFlags = game.getNPCState(npcId).flags;
             const flagCount = currentFlags.filter(
               (flag) => flag === 'chen_backstory_1'
             ).length;
@@ -190,8 +190,8 @@ describe('Dialogue Flag Setting Timing Properties', () => {
   });
 
   it('should preserve existing flags when setting new ones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test with Wei Chen
     const npcId = 'chen_barnards';
@@ -199,16 +199,16 @@ describe('Dialogue Flag Setting Timing Properties', () => {
     fc.assert(
       fc.property(fc.integer({ min: 30, max: 100 }), (reputation) => {
         // Set up NPC state with high reputation and some existing flags
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
         npcState.flags = ['existing_flag_1', 'existing_flag_2']; // Pre-existing flags
 
         try {
           // Show a dialogue node that sets flags
-          showDialogue(npcId, 'backstory', gameStateManager);
+          showDialogue(npcId, 'backstory', game);
 
           // Check that both existing and new flags are present
-          const currentFlags = gameStateManager.getNPCState(npcId).flags;
+          const currentFlags = game.getNPCState(npcId).flags;
 
           expect(currentFlags).toContain('existing_flag_1');
           expect(currentFlags).toContain('existing_flag_2');

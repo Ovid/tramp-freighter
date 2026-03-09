@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import { StationMenu } from '../../src/features/station/StationMenu.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -24,12 +24,12 @@ import { ALL_NPCS } from '../../src/game/data/npc-data.js';
  * NPC selection to open dialogue.
  */
 describe('Station Menu NPC Integration', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     cleanup();
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   describe('PEOPLE section visibility', () => {
@@ -37,11 +37,11 @@ describe('Station Menu NPC Integration', () => {
       // Sol (system 0) has Marcus Cole
       const sol = STAR_DATA.find((s) => s.id === 0);
       act(() => {
-        gameStateManager.updateLocation(sol.id);
+        game.updateLocation(sol.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
         </GameProvider>
       );
@@ -59,11 +59,11 @@ describe('Station Menu NPC Integration', () => {
 
       if (systemWithoutNPCs) {
         act(() => {
-          gameStateManager.updateLocation(systemWithoutNPCs.id);
+          game.updateLocation(systemWithoutNPCs.id);
         });
 
         render(
-          <GameProvider gameStateManager={gameStateManager}>
+          <GameProvider game={game}>
             <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
           </GameProvider>
         );
@@ -77,11 +77,11 @@ describe('Station Menu NPC Integration', () => {
       // Sol (system 0) has Marcus Cole
       const sol = STAR_DATA.find((s) => s.id === 0);
       act(() => {
-        gameStateManager.updateLocation(sol.id);
+        game.updateLocation(sol.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
         </GameProvider>
       );
@@ -101,11 +101,11 @@ describe('Station Menu NPC Integration', () => {
       // Sol (system 0) has Marcus Cole
       const sol = STAR_DATA.find((s) => s.id === 0);
       act(() => {
-        gameStateManager.updateLocation(sol.id);
+        game.updateLocation(sol.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={onOpenPanel} onUndock={() => {}} />
         </GameProvider>
       );
@@ -124,11 +124,11 @@ describe('Station Menu NPC Integration', () => {
       // Barnard's Star (system 4) has Wei Chen
       const barnards = STAR_DATA.find((s) => s.id === 4);
       act(() => {
-        gameStateManager.updateLocation(barnards.id);
+        game.updateLocation(barnards.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
         </GameProvider>
       );
@@ -143,11 +143,11 @@ describe('Station Menu NPC Integration', () => {
       // Ross 154 (system 11) has Father Okonkwo
       const ross154 = STAR_DATA.find((s) => s.id === 11);
       act(() => {
-        gameStateManager.updateLocation(ross154.id);
+        game.updateLocation(ross154.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
         </GameProvider>
       );
@@ -169,14 +169,14 @@ describe('Station Menu NPC Integration', () => {
       // With trust modifier of 0.1, we need to add a large amount
       // -20 + (amount * 0.1) >= -9 means amount >= 110
       // Let's add 150 to be safe: -20 + (150 * 0.1) = -20 + 15 = -5 (Neutral)
-      gameStateManager.modifyRep('cole_sol', 150, 'test');
+      game.modifyRep('cole_sol', 150, 'test');
 
       act(() => {
-        gameStateManager.updateLocation(sol.id);
+        game.updateLocation(sol.id);
       });
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StationMenu onOpenPanel={() => {}} onUndock={() => {}} />
         </GameProvider>
       );

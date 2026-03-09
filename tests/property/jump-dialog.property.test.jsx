@@ -2,23 +2,23 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { JumpDialog } from '../../src/features/navigation/JumpDialog';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 describe('Property: Jump Dialog', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
+    game = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
   });
 
   it('should display target system name and jump information', () => {
@@ -26,7 +26,7 @@ describe('Property: Jump Dialog', () => {
     const targetSystemId = 1;
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -49,12 +49,12 @@ describe('Property: Jump Dialog', () => {
 
   it('should disable jump button when fuel is insufficient', () => {
     // Set fuel to 0
-    gameStateManager.updateFuel(0);
+    game.updateFuel(0);
 
     const targetSystemId = 1;
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -83,7 +83,7 @@ describe('Property: Jump Dialog', () => {
     }
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={unconnectedSystem.id}
           onClose={() => {}}
@@ -104,7 +104,7 @@ describe('Property: Jump Dialog', () => {
     const targetSystemId = 1;
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={onClose}
@@ -123,7 +123,7 @@ describe('Property: Jump Dialog', () => {
     const targetSystemId = 1; // Alpha Centauri A - connected to Sol
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -148,7 +148,7 @@ describe('Property: Jump Dialog', () => {
     const targetSystemId = 1;
 
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -163,12 +163,12 @@ describe('Property: Jump Dialog', () => {
 
     // Reduce fuel to insufficient level
     await act(async () => {
-      gameStateManager.updateFuel(0);
+      game.updateFuel(0);
     });
 
     // Re-render to reflect state change
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -187,7 +187,7 @@ describe('Property: Jump Dialog', () => {
     const targetSystemId = 1; // Alpha Centauri A
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <JumpDialog
           targetSystemId={targetSystemId}
           onClose={() => {}}
@@ -197,15 +197,15 @@ describe('Property: Jump Dialog', () => {
     );
 
     // Get validation data with quirks and upgrades (matching useJumpValidation hook)
-    const state = gameStateManager.getState();
+    const state = game.getState();
     const quirks = state.ship?.quirks || [];
-    const capabilities = gameStateManager.calculateShipCapabilities();
+    const capabilities = game.calculateShipCapabilities();
     const validation = navigationSystem.validateJump(
       0,
       targetSystemId,
       100,
       state.ship?.engine ?? 100,
-      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      game.applyQuirkModifiers.bind(game),
       quirks,
       capabilities.fuelConsumption,
       {

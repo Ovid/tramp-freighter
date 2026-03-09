@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 
 /**
@@ -24,15 +24,15 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(
+    const game = new GameCoordinator(
       starData,
       wormholeData,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Get available intelligence
-    const available = gameStateManager.listAvailableIntelligence();
+    const available = game.listAvailableIntelligence();
 
     // Should only show connected systems (Alpha Centauri and Barnard)
     expect(available.length).toBe(2);
@@ -61,25 +61,25 @@ describe('Information Broker - Connected Systems Filter', () => {
     ];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(
+    const game = new GameCoordinator(
       starData,
       wormholeData,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // At Sol: should see Alpha Centauri and Barnard
-    let available = gameStateManager.listAvailableIntelligence();
+    let available = game.listAvailableIntelligence();
     expect(available.length).toBe(2);
     let systemNames = available.map((opt) => opt.systemName);
     expect(systemNames).toContain('Alpha Centauri');
     expect(systemNames).toContain('Barnard');
 
     // Move to Alpha Centauri
-    gameStateManager.updateLocation(1);
+    game.updateLocation(1);
 
     // At Alpha Centauri: should see Sol and Wolf 359
-    available = gameStateManager.listAvailableIntelligence();
+    available = game.listAvailableIntelligence();
     expect(available.length).toBe(2);
     systemNames = available.map((opt) => opt.systemName);
     expect(systemNames).toContain('Sol');
@@ -97,14 +97,14 @@ describe('Information Broker - Connected Systems Filter', () => {
     const wormholeData = [];
 
     const navigationSystem = new NavigationSystem(starData, wormholeData);
-    const gameStateManager = new GameStateManager(
+    const game = new GameCoordinator(
       starData,
       wormholeData,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const available = gameStateManager.listAvailableIntelligence();
+    const available = game.listAvailableIntelligence();
     expect(available.length).toBe(0);
   });
 });

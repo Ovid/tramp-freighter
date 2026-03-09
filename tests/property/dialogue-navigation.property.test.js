@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -16,8 +16,8 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dialogue Navigation Properties', () => {
   it('should advance to the next node specified by a choice when that choice is selected', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -28,7 +28,7 @@ describe('Dialogue Navigation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -41,7 +41,7 @@ describe('Dialogue Navigation Properties', () => {
         const initialDialogue = showDialogue(
           npcId,
           'greeting',
-          gameStateManager
+          game
         );
         const availableChoices = initialDialogue.choices;
 
@@ -52,14 +52,14 @@ describe('Dialogue Navigation Properties', () => {
         // Test each available choice separately (need fresh dialogue state for each test)
         for (const choice of availableChoices) {
           // Reset dialogue state by showing dialogue again
-          showDialogue(npcId, 'greeting', gameStateManager);
+          showDialogue(npcId, 'greeting', game);
 
           if (choice.next) {
             // Choice has a next node - should navigate there
             const nextDialogue = selectChoice(
               npcId,
               choice.index,
-              gameStateManager
+              game
             );
 
             expect(nextDialogue).toBeDefined();
@@ -76,7 +76,7 @@ describe('Dialogue Navigation Properties', () => {
             expect(Array.isArray(nextDialogue.choices)).toBe(true);
           } else {
             // Choice has no next node - should end dialogue
-            const result = selectChoice(npcId, choice.index, gameStateManager);
+            const result = selectChoice(npcId, choice.index, game);
             expect(result).toBeNull();
           }
         }
@@ -86,8 +86,8 @@ describe('Dialogue Navigation Properties', () => {
   });
 
   it('should end dialogue when a choice with no next node is selected', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -98,7 +98,7 @@ describe('Dialogue Navigation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -111,7 +111,7 @@ describe('Dialogue Navigation Properties', () => {
         const initialDialogue = showDialogue(
           npcId,
           'greeting',
-          gameStateManager
+          game
         );
         const availableChoices = initialDialogue.choices;
 
@@ -126,7 +126,7 @@ describe('Dialogue Navigation Properties', () => {
 
         // Test each ending choice
         for (const choice of endingChoices) {
-          const result = selectChoice(npcId, choice.index, gameStateManager);
+          const result = selectChoice(npcId, choice.index, game);
           expect(result).toBeNull();
         }
       }),
@@ -135,8 +135,8 @@ describe('Dialogue Navigation Properties', () => {
   });
 
   it('should maintain dialogue state consistency across navigation', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -147,7 +147,7 @@ describe('Dialogue Navigation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -160,7 +160,7 @@ describe('Dialogue Navigation Properties', () => {
         const initialDialogue = showDialogue(
           npcId,
           'greeting',
-          gameStateManager
+          game
         );
 
         // Verify dialogue state consistency
@@ -174,7 +174,7 @@ describe('Dialogue Navigation Properties', () => {
         expect(initialDialogue.npcStation).toBe(npcData.station);
 
         // Reputation tier should be consistent with current reputation
-        const expectedTier = gameStateManager.getRepTier(reputation);
+        const expectedTier = game.getRepTier(reputation);
         expect(initialDialogue.reputationTier.name).toBe(expectedTier.name);
       }),
       { numRuns: 100 }

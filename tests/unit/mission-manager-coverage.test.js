@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import {
   PASSENGER_CONFIG,
   COLE_DEBT_CONFIG,
@@ -11,7 +11,7 @@ describe('MissionManager coverage', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -210,7 +210,7 @@ describe('MissionManager coverage', () => {
 
     it('applies faction rewards on completion', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const modifyFactionRepSpy = vi.spyOn(gsm, 'modifyFactionRep');
+      const modifyFactionRepSpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -226,7 +226,7 @@ describe('MissionManager coverage', () => {
 
     it('applies rep rewards on completion', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const modifyRepSpy = vi.spyOn(gsm, 'modifyRep');
+      const modifyRepSpy = vi.spyOn(gsm.npcManager, 'modifyRep');
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -246,7 +246,7 @@ describe('MissionManager coverage', () => {
 
     it('applies karma rewards on completion', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const modifyKarmaSpy = vi.spyOn(gsm, 'modifyKarma');
+      const modifyKarmaSpy = vi.spyOn(gsm.dangerManager, 'modifyKarma');
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -262,7 +262,7 @@ describe('MissionManager coverage', () => {
 
     it('applies cole rep reward for cole missions', () => {
       const currentSystem = gsm.state.player.currentSystem;
-      const modifyColeRepSpy = vi.spyOn(gsm, 'modifyColeRep');
+      const modifyColeRepSpy = vi.spyOn(gsm.debtManager, 'modifyColeRep');
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -498,7 +498,7 @@ describe('MissionManager coverage', () => {
       ];
       gsm.state.ship.cargo = [];
       gsm.state.missions.failed = [];
-      const spy = vi.spyOn(gsm, 'modifyFactionRep');
+      const spy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
       gsm.missionManager.failMissionsDueToCargoLoss();
       expect(gsm.state.missions.active).toHaveLength(0);
       expect(gsm.state.missions.failed).toContain('m1');
@@ -549,9 +549,9 @@ describe('MissionManager coverage', () => {
         },
       ];
       gsm.state.missions.failed = [];
-      const repSpy = vi.spyOn(gsm, 'modifyRep');
-      const karmaSpy = vi.spyOn(gsm, 'modifyKarma');
-      const factionSpy = vi.spyOn(gsm, 'modifyFactionRep');
+      const repSpy = vi.spyOn(gsm.npcManager, 'modifyRep');
+      const karmaSpy = vi.spyOn(gsm.dangerManager, 'modifyKarma');
+      const factionSpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
       gsm.missionManager.checkMissionDeadlines();
 
@@ -606,7 +606,7 @@ describe('MissionManager coverage', () => {
 
     it('applies cole rep penalty for expired cole missions', () => {
       gsm.state.player.daysElapsed = 200;
-      const modifyColeRepSpy = vi.spyOn(gsm, 'modifyColeRep');
+      const modifyColeRepSpy = vi.spyOn(gsm.debtManager, 'modifyColeRep');
       gsm.state.missions.active = [
         {
           id: 'm1',
@@ -795,8 +795,8 @@ describe('MissionManager coverage', () => {
     });
 
     it('applies abandon penalties', () => {
-      const repSpy = vi.spyOn(gsm, 'modifyRep');
-      const karmaSpy = vi.spyOn(gsm, 'modifyKarma');
+      const repSpy = vi.spyOn(gsm.npcManager, 'modifyRep');
+      const karmaSpy = vi.spyOn(gsm.dangerManager, 'modifyKarma');
       gsm.state.missions.active = [
         {
           id: 'm1',

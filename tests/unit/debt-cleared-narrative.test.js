@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
@@ -12,7 +12,7 @@ describe('Debt-Cleared Narrative Event', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
   });
 

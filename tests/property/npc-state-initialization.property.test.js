@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -13,7 +13,7 @@ import { ALL_NPCS } from '../../src/game/data/npc-data.js';
  */
 
 describe('NPC State Initialization Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -27,8 +27,8 @@ describe('NPC State Initialization Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -42,7 +42,7 @@ describe('NPC State Initialization Property Tests', () => {
     fc.assert(
       fc.property(arbNPCId(), (npcId) => {
         // Get NPC state (this will initialize it if it doesn't exist)
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
 
         // Verify all original NPC state fields exist
         expect(npcState).toHaveProperty('rep');
@@ -90,15 +90,15 @@ describe('NPC State Initialization Property Tests', () => {
   it('should preserve existing NPC state when accessing again', () => {
     fc.assert(
       fc.property(arbNPCId(), (npcId) => {
-        // Create a fresh GameStateManager for this test iteration
-        const testGameStateManager = new GameStateManager(
+        // Create a fresh GameCoordinator for this test iteration
+        const testGameCoordinator = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA
         );
-        testGameStateManager.initNewGame();
+        testGameCoordinator.initNewGame();
 
         // Get NPC state for the first time (initializes it)
-        const firstAccess = testGameStateManager.getNPCState(npcId);
+        const firstAccess = testGameCoordinator.getNPCState(npcId);
 
         // Modify some values to test preservation
         firstAccess.rep = 50;
@@ -112,7 +112,7 @@ describe('NPC State Initialization Property Tests', () => {
         firstAccess.lastFreeRepairDay = 25;
 
         // Get NPC state again
-        const secondAccess = testGameStateManager.getNPCState(npcId);
+        const secondAccess = testGameCoordinator.getNPCState(npcId);
 
         // Verify it's the same object (not re-initialized)
         expect(secondAccess).toBe(firstAccess);
@@ -137,16 +137,16 @@ describe('NPC State Initialization Property Tests', () => {
       fc.property(
         fc.tuple(arbNPCId(), arbNPCId()).filter(([id1, id2]) => id1 !== id2),
         ([npcId1, npcId2]) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Get state for both NPCs
-          const npcState1 = testGameStateManager.getNPCState(npcId1);
-          const npcState2 = testGameStateManager.getNPCState(npcId2);
+          const npcState1 = testGameCoordinator.getNPCState(npcId1);
+          const npcState2 = testGameCoordinator.getNPCState(npcId2);
 
           // Verify they are different objects
           expect(npcState1).not.toBe(npcState2);

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -18,19 +18,19 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
  * Validates: Requirements 1.3, 12.3
  */
 describe('SystemPanel Danger Warning Integration', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
   let mockStarmapContext;
 
   beforeEach(() => {
-    // Create NavigationSystem and GameStateManager properly
+    // Create NavigationSystem and GameCoordinator properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
+    game = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Mock starmap context
     mockStarmapContext = {
@@ -47,7 +47,7 @@ describe('SystemPanel Danger Warning Integration', () => {
 
   const renderSystemPanel = (viewingSystemId, props = {}) => {
     return render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <StarmapProvider value={mockStarmapContext}>
           <SystemPanel
             viewingSystemId={viewingSystemId}
@@ -64,8 +64,8 @@ describe('SystemPanel Danger Warning Integration', () => {
   describe('Danger Warning Dialog Display', () => {
     it('should show danger warning dialog when jumping to dangerous system', async () => {
       // Arrange: Set up at Barnard's Star (safe system)
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       // Act: Render SystemPanel viewing 70 Ophiuchi A (dangerous system)
       renderSystemPanel(73); // 70 Ophiuchi A
@@ -97,8 +97,8 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     it('should show danger warning dialog when jumping to contested system', async () => {
       // Arrange: Set up at Sol (safe system)
-      gameStateManager.updateLocation(0); // Sol
-      gameStateManager.updateFuel(100);
+      game.updateLocation(0); // Sol
+      game.updateFuel(100);
 
       // Act: Render SystemPanel viewing Sirius (contested system)
       renderSystemPanel(7); // Sirius
@@ -128,8 +128,8 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     it('should NOT show danger warning dialog when jumping to safe system', async () => {
       // Arrange: Set up at Sol (safe system)
-      gameStateManager.updateLocation(0); // Sol
-      gameStateManager.updateFuel(100);
+      game.updateLocation(0); // Sol
+      game.updateFuel(100);
 
       const mockOnClose = vi.fn();
       const mockOnJumpComplete = vi.fn();
@@ -157,8 +157,8 @@ describe('SystemPanel Danger Warning Integration', () => {
   describe('Danger Warning Dialog Interactions', () => {
     it('should proceed with jump when user clicks "Accept Risk & Proceed"', async () => {
       // Arrange: Set up dangerous system jump
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       const mockOnClose = vi.fn();
       const mockOnJumpComplete = vi.fn();
@@ -190,13 +190,13 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Player should be at destination
-      expect(gameStateManager.getPlayer().currentSystem).toBe(73);
+      expect(game.getPlayer().currentSystem).toBe(73);
     });
 
     it('should cancel jump when user clicks "Cancel Jump"', async () => {
       // Arrange: Set up dangerous system jump
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       const mockOnClose = vi.fn();
       const mockOnJumpComplete = vi.fn();
@@ -227,13 +227,13 @@ describe('SystemPanel Danger Warning Integration', () => {
       expect(mockOnJumpComplete).not.toHaveBeenCalled();
 
       // Player should still be at origin
-      expect(gameStateManager.getPlayer().currentSystem).toBe(4);
+      expect(game.getPlayer().currentSystem).toBe(4);
     });
 
     it('should close dialog when user clicks close button', async () => {
       // Arrange: Set up dangerous system jump
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       renderSystemPanel(73); // 70 Ophiuchi A
 
@@ -258,15 +258,15 @@ describe('SystemPanel Danger Warning Integration', () => {
       });
 
       // Player should still be at origin
-      expect(gameStateManager.getPlayer().currentSystem).toBe(4);
+      expect(game.getPlayer().currentSystem).toBe(4);
     });
   });
 
   describe('Danger Zone Classification', () => {
     it('should correctly classify safe systems', async () => {
       // Test Sol (system 0)
-      gameStateManager.updateLocation(1); // Alpha Centauri
-      gameStateManager.updateFuel(100);
+      game.updateLocation(1); // Alpha Centauri
+      game.updateFuel(100);
 
       renderSystemPanel(0); // Sol
 
@@ -278,8 +278,8 @@ describe('SystemPanel Danger Warning Integration', () => {
     });
 
     it('should correctly classify contested systems', async () => {
-      gameStateManager.updateLocation(0); // Sol
-      gameStateManager.updateFuel(100);
+      game.updateLocation(0); // Sol
+      game.updateFuel(100);
 
       renderSystemPanel(7); // Sirius (contested)
 
@@ -302,15 +302,15 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     it('should correctly classify dangerous systems', async () => {
       // Use Barnard's Star as starting point (as per manual testing plan)
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       // Find a dangerous system that's actually connected to Barnard's Star
       const connectedSystems =
-        gameStateManager.navigationSystem.getConnectedSystems(4);
+        game.navigationSystem.getConnectedSystems(4);
       const dangerousSystems = connectedSystems.filter((systemId) => {
         const dangerZone =
-          gameStateManager.dangerManager.getDangerZone(systemId);
+          game.dangerManager.getDangerZone(systemId);
         return dangerZone === 'dangerous';
       });
 
@@ -345,8 +345,8 @@ describe('SystemPanel Danger Warning Integration', () => {
 
   describe('Risk Assessment Display', () => {
     it('should display pirate and inspection probabilities', async () => {
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       renderSystemPanel(73); // 70 Ophiuchi A
 
@@ -369,11 +369,11 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     it('should show risk factors when applicable', async () => {
       // Arrange: Add cargo to trigger risk factors
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       // Add some cargo to trigger risk factor display
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.ship.cargo.push({
         type: 'electronics',
         quantity: 10,
@@ -401,8 +401,8 @@ describe('SystemPanel Danger Warning Integration', () => {
 
   describe('Safety Recommendations', () => {
     it('should show safety recommendations for dangerous systems', async () => {
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       renderSystemPanel(73); // 70 Ophiuchi A (dangerous)
 
@@ -420,8 +420,8 @@ describe('SystemPanel Danger Warning Integration', () => {
     });
 
     it('should show appropriate recommendations for contested systems', async () => {
-      gameStateManager.updateLocation(0); // Sol
-      gameStateManager.updateFuel(100);
+      game.updateLocation(0); // Sol
+      game.updateFuel(100);
 
       renderSystemPanel(7); // Sirius (contested)
 
@@ -442,11 +442,11 @@ describe('SystemPanel Danger Warning Integration', () => {
   describe('Edge Cases', () => {
     it('should handle null faction data gracefully', async () => {
       // Arrange: Corrupt faction data to test null handling
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       // Temporarily corrupt faction data
-      const state = gameStateManager.getState();
+      const state = game.getState();
       const originalFactions = state.player.factions;
       state.player.factions = null;
 
@@ -465,8 +465,8 @@ describe('SystemPanel Danger Warning Integration', () => {
     });
 
     it('should handle missing ship condition data gracefully', async () => {
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(100);
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(100);
 
       renderSystemPanel(73); // 70 Ophiuchi A
 
@@ -481,8 +481,8 @@ describe('SystemPanel Danger Warning Integration', () => {
 
     it('should not show danger warning if jump validation fails', async () => {
       // Arrange: Set up insufficient fuel
-      gameStateManager.updateLocation(4); // Barnard's Star
-      gameStateManager.updateFuel(5); // Insufficient fuel
+      game.updateLocation(4); // Barnard's Star
+      game.updateFuel(5); // Insufficient fuel
 
       renderSystemPanel(73); // 70 Ophiuchi A
 

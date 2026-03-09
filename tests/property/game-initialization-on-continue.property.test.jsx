@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TitleScreen } from '../../src/features/title-screen/TitleScreen';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { clearSave } from '../../src/game/state/save-load.js';
@@ -35,21 +35,21 @@ describe('Property: Game initialization on continue', () => {
         // Clear any existing save first
         clearSave(true);
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Modify game state to create a unique save
-        const state = gameStateManager.getState();
+        const state = game.getState();
         state.player.credits = 5000; // Set specific credits value
         state.player.daysElapsed = 10; // Set specific days elapsed
 
         // Save the game
-        gameStateManager.saveGame();
+        game.saveGame();
 
         // Verify save exists
-        expect(gameStateManager.hasSavedGame()).toBe(true);
+        expect(game.hasSavedGame()).toBe(true);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Mock onStartGame callback
         const onStartGame = vi.fn();
@@ -95,40 +95,40 @@ describe('Property: Game initialization on continue', () => {
           clearSave(true);
 
           // Create first game state manager and save a game
-          const gameStateManager1 = new GameStateManager(
+          const game1 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager1.initNewGame();
+          game1.initNewGame();
 
           // Modify game state with random values
-          const state1 = gameStateManager1.getState();
+          const state1 = game1.getState();
           state1.player.credits = credits;
           state1.player.daysElapsed = daysElapsed;
           state1.ship.fuel = fuel;
 
           // Save the game
-          gameStateManager1.saveGame();
+          game1.saveGame();
 
           // Verify save exists
-          expect(gameStateManager1.hasSavedGame()).toBe(true);
+          expect(game1.hasSavedGame()).toBe(true);
 
           // Create a new game state manager (simulating app reload)
-          const gameStateManager2 = new GameStateManager(
+          const game2 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
 
           // Verify the new manager can detect the save
-          expect(gameStateManager2.hasSavedGame()).toBe(true);
+          expect(game2.hasSavedGame()).toBe(true);
 
-          const wrapper = createWrapper(gameStateManager2);
+          const wrapper = createWrapper(game2);
 
           // Mock onStartGame callback that simulates loading the game
           const onStartGame = vi.fn((isNewGame) => {
             if (!isNewGame) {
               // Simulate loading the saved game
-              gameStateManager2.loadGame();
+              game2.loadGame();
             }
           });
 
@@ -153,7 +153,7 @@ describe('Property: Game initialization on continue', () => {
           expect(onStartGame.mock.calls.length).toBe(1);
 
           // Verify the loaded state matches the saved state
-          const loadedState = gameStateManager2.getState();
+          const loadedState = game2.getState();
 
           expect(loadedState.player.credits).toBe(credits);
           expect(loadedState.player.daysElapsed).toBe(daysElapsed);
@@ -192,38 +192,38 @@ describe('Property: Game initialization on continue', () => {
           clearSave(true);
 
           // Create first game state manager and save a game
-          const gameStateManager1 = new GameStateManager(
+          const game1 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager1.initNewGame();
+          game1.initNewGame();
 
           // Modify game state with random cargo and ship condition
-          const state1 = gameStateManager1.getState();
+          const state1 = game1.getState();
           state1.ship.cargo = cargo;
           state1.ship.hull = shipCondition.hull;
           state1.ship.engine = shipCondition.engine;
           state1.ship.lifeSupport = shipCondition.lifeSupport;
 
           // Save the game
-          gameStateManager1.saveGame();
+          game1.saveGame();
 
           // Verify save exists
-          expect(gameStateManager1.hasSavedGame()).toBe(true);
+          expect(game1.hasSavedGame()).toBe(true);
 
           // Create a new game state manager (simulating app reload)
-          const gameStateManager2 = new GameStateManager(
+          const game2 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
 
-          const wrapper = createWrapper(gameStateManager2);
+          const wrapper = createWrapper(game2);
 
           // Mock onStartGame callback that simulates loading the game
           const onStartGame = vi.fn((isNewGame) => {
             if (!isNewGame) {
               // Simulate loading the saved game
-              gameStateManager2.loadGame();
+              game2.loadGame();
             }
           });
 
@@ -245,7 +245,7 @@ describe('Property: Game initialization on continue', () => {
           fireEvent.click(continueButton);
 
           // Verify the loaded state matches the saved state
-          const loadedState = gameStateManager2.getState();
+          const loadedState = game2.getState();
 
           expect(loadedState).toBeTruthy();
 

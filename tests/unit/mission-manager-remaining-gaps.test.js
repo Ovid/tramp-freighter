@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { PASSENGER_CONFIG, MISSION_CONFIG } from '../../src/game/constants.js';
 
 describe('MissionManager remaining coverage gaps', () => {
@@ -8,7 +8,7 @@ describe('MissionManager remaining coverage gaps', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -319,7 +319,7 @@ describe('MissionManager remaining coverage gaps', () => {
     it('removes legacy cargo on fetch completion via removeCargoForMission', () => {
       const currentSystem = gsm.state.player.currentSystem;
       const removeSpy = vi
-        .spyOn(gsm, 'removeCargoForMission')
+        .spyOn(gsm.shipManager, 'removeCargoForMission')
         .mockImplementation(() => {});
       gsm.state.missions.active = [
         {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 import { SeededRandom } from '../../src/game/utils/seeded-random.js';
 
-function createMockGameStateManager(stateOverrides = {}) {
+function createMockGameCoordinator(stateOverrides = {}) {
   const defaultState = {
     player: {
       currentSystem: 0,
@@ -38,7 +38,7 @@ describe('EventEngineManager', () => {
   let mockGSM;
 
   beforeEach(() => {
-    mockGSM = createMockGameStateManager();
+    mockGSM = createMockGameCoordinator();
     engine = new EventEngineManager(mockGSM);
   });
 

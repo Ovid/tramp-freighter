@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Completable Mission Detection', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('should return completable delivery mission at destination with cargo', () => {

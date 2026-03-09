@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -14,18 +14,18 @@ import { COMMODITY_TYPES } from '../../src/game/constants.js';
  */
 
 describe('Cargo Retrieval Completeness Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    const testGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    testGameStateManager.initNewGame();
-    return testGameStateManager;
+    const testGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    testGameCoordinator.initNewGame();
+    return testGameCoordinator;
   };
 
   /**
@@ -76,19 +76,19 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
         arbStoredCargoArray(),
         arbShipCargoCapacity(),
         (npcId, currentDay, storedCargo, availableCapacity) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up stored cargo
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.storedCargo = [...storedCargo];
 
           // Set up ship cargo to have specific available capacity
           const maxCapacity =
-            testGameStateManager.getState().ship.cargoCapacity;
+            testGameCoordinator.getState().ship.cargoCapacity;
           const usedCapacity = Math.max(0, maxCapacity - availableCapacity);
 
           // Create ship cargo to use up space, leaving availableCapacity free
@@ -109,7 +109,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
             });
             remainingToFill -= qty;
           }
-          testGameStateManager.updateCargo(shipCargo);
+          testGameCoordinator.updateCargo(shipCargo);
 
           // Calculate expected transfer amount
           const totalStoredUnits = storedCargo.reduce(
@@ -122,18 +122,18 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
           );
 
           // Record initial state
-          const initialShipCargoTotal = testGameStateManager.getCargoUsed();
+          const initialShipCargoTotal = testGameCoordinator.getCargoUsed();
           const initialNPCStoredTotal = totalStoredUnits;
 
           // Retrieve cargo from NPC
-          const result = testGameStateManager.retrieveCargo(npcId);
+          const result = testGameCoordinator.retrieveCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Get final state
-          const finalShipCargoTotal = testGameStateManager.getCargoUsed();
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalShipCargoTotal = testGameCoordinator.getCargoUsed();
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           const finalNPCStoredTotal = finalNPCState.storedCargo.reduce(
             (total, stack) => total + stack.qty,
             0
@@ -178,36 +178,36 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
         arbCurrentDay(),
         arbStoredCargoArray(),
         (npcId, currentDay, storedCargo) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up stored cargo
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.storedCargo = [...storedCargo];
 
           // Ensure ship has sufficient capacity by clearing cargo
-          testGameStateManager.updateCargo([]);
+          testGameCoordinator.updateCargo([]);
 
           const totalStoredUnits = storedCargo.reduce(
             (total, stack) => total + stack.qty,
             0
           );
-          const availableCapacity = testGameStateManager.getCargoRemaining();
+          const availableCapacity = testGameCoordinator.getCargoRemaining();
 
           // Only test when ship has sufficient capacity
           fc.pre(availableCapacity >= totalStoredUnits);
 
           // Retrieve cargo from NPC
-          const result = testGameStateManager.retrieveCargo(npcId);
+          const result = testGameCoordinator.retrieveCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // NPC storedCargo should be empty after retrieval
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           expect(finalNPCState.storedCargo).toEqual([]);
 
           // All cargo should be retrieved
@@ -233,14 +233,14 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
         arbStoredCargoArray(),
         fc.integer({ min: 1, max: 20 }),
         (npcId, currentDay, storedCargo, limitedCapacity) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up stored cargo
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.storedCargo = [...storedCargo];
 
           const totalStoredUnits = storedCargo.reduce(
@@ -253,7 +253,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
 
           // Set up ship cargo to have limited available capacity
           const maxCapacity =
-            testGameStateManager.getState().ship.cargoCapacity;
+            testGameCoordinator.getState().ship.cargoCapacity;
           const usedCapacity = Math.max(0, maxCapacity - limitedCapacity);
 
           // Create ship cargo to use up space, leaving limitedCapacity free
@@ -274,10 +274,10 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
             });
             remainingToFill -= qty;
           }
-          testGameStateManager.updateCargo(shipCargo);
+          testGameCoordinator.updateCargo(shipCargo);
 
           // Retrieve cargo from NPC
-          const result = testGameStateManager.retrieveCargo(npcId);
+          const result = testGameCoordinator.retrieveCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
@@ -298,7 +298,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
           expect(remainingTotal).toBe(expectedRemaining);
 
           // NPC should still have remaining cargo
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           const finalNPCStoredTotal = finalNPCState.storedCargo.reduce(
             (total, stack) => total + stack.qty,
             0
@@ -313,23 +313,23 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
   it('should handle empty storedCargo gracefully', () => {
     fc.assert(
       fc.property(arbNPCId(), arbCurrentDay(), (npcId, currentDay) => {
-        // Reset GameStateManager for this test iteration
-        const testGameStateManager = resetGameState();
+        // Reset GameCoordinator for this test iteration
+        const testGameCoordinator = resetGameState();
 
         // Set up initial state
-        testGameStateManager.updateTime(currentDay);
+        testGameCoordinator.updateTime(currentDay);
 
         // Get NPC state and ensure no stored cargo
-        const npcState = testGameStateManager.getNPCState(npcId);
+        const npcState = testGameCoordinator.getNPCState(npcId);
         npcState.storedCargo = [];
 
         // Record initial ship cargo
         const initialShipCargo = [
-          ...testGameStateManager.getState().ship.cargo,
+          ...testGameCoordinator.getState().ship.cargo,
         ];
 
         // Retrieve cargo from NPC (should be empty)
-        const result = testGameStateManager.retrieveCargo(npcId);
+        const result = testGameCoordinator.retrieveCargo(npcId);
 
         // Should succeed
         expect(result.success).toBe(true);
@@ -339,7 +339,7 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
         expect(result.remaining).toEqual([]);
 
         // Ship cargo should be unchanged
-        const finalShipCargo = testGameStateManager.getState().ship.cargo;
+        const finalShipCargo = testGameCoordinator.getState().ship.cargo;
         expect(finalShipCargo).toEqual(initialShipCargo);
       }),
       { numRuns: 100 }
@@ -347,25 +347,25 @@ describe('Cargo Retrieval Completeness Property Tests', () => {
   });
 
   it('should throw error for invalid npcId input', () => {
-    const testGameStateManager = resetGameState();
+    const testGameCoordinator = resetGameState();
 
     // Test null npcId
-    expect(() => testGameStateManager.retrieveCargo(null)).toThrow(
+    expect(() => testGameCoordinator.retrieveCargo(null)).toThrow(
       'Invalid npcId: retrieveCargo requires a valid NPC identifier'
     );
 
     // Test undefined npcId
-    expect(() => testGameStateManager.retrieveCargo(undefined)).toThrow(
+    expect(() => testGameCoordinator.retrieveCargo(undefined)).toThrow(
       'Invalid npcId: retrieveCargo requires a valid NPC identifier'
     );
 
     // Test empty string npcId
-    expect(() => testGameStateManager.retrieveCargo('')).toThrow(
+    expect(() => testGameCoordinator.retrieveCargo('')).toThrow(
       'Invalid npcId: retrieveCargo requires a valid NPC identifier'
     );
 
     // Test non-string npcId
-    expect(() => testGameStateManager.retrieveCargo(123)).toThrow(
+    expect(() => testGameCoordinator.retrieveCargo(123)).toThrow(
       'Invalid npcId: retrieveCargo requires a valid NPC identifier'
     );
   });

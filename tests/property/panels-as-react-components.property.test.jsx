@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -30,12 +30,12 @@ describe('Property 23: Panels rendered as React components', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel as a React component
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -61,12 +61,12 @@ describe('Property 23: Panels rendered as React components', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -98,11 +98,11 @@ describe('Property 23: Panels rendered as React components', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
-        gameStateManager.state.ship.cargo = [
+        game.state.player.currentSystem = 0; // Sol
+        game.state.ship.cargo = [
           {
             good: 'electronics',
             qty: 10,
@@ -119,7 +119,7 @@ describe('Property 23: Panels rendered as React components', () => {
           },
         ];
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -152,15 +152,15 @@ describe('Property 23: Panels rendered as React components', () => {
       fc.asyncProperty(fc.constant(null), async () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
-        gameStateManager.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
         // Clear cargo to start with empty state
-        gameStateManager.state.ship.cargo = [];
+        game.state.ship.cargo = [];
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -172,7 +172,7 @@ describe('Property 23: Panels rendered as React components', () => {
         expect(cargoStacks.textContent).toContain('No cargo');
 
         // Manually add cargo to state and emit event
-        gameStateManager.state.ship.cargo = [
+        game.state.ship.cargo = [
           {
             good: 'electronics',
             qty: 10,
@@ -181,9 +181,9 @@ describe('Property 23: Panels rendered as React components', () => {
             buyDate: 0,
           },
         ];
-        gameStateManager.emit(
+        game.emit(
           'cargoChanged',
-          gameStateManager.state.ship.cargo
+          game.state.ship.cargo
         );
 
         // Wait for component to re-render

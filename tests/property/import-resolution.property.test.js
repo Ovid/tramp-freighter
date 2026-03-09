@@ -18,7 +18,7 @@ import {
   calculateDistanceFromSol,
 } from '../../src/game/constants.js';
 
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
 import {
   saveGame,
@@ -65,7 +65,7 @@ describe('Property 35: Import resolution correctness', () => {
 
   it('should resolve state management from src/game/state/', () => {
     // Verify exports exist and have correct types
-    expect(typeof GameStateManager).toBe('function');
+    expect(typeof GameCoordinator).toBe('function');
     expect(typeof sanitizeShipName).toBe('function');
     expect(typeof saveGame).toBe('function');
     expect(typeof loadGame).toBe('function');
@@ -183,11 +183,11 @@ describe('Property 35: Import resolution correctness', () => {
   });
 
   /**
-   * Property: GameStateManager should be instantiable with data from new locations
+   * Property: GameCoordinator should be instantiable with data from new locations
    */
-  it('should create GameStateManager with imports from new locations', () => {
+  it('should create GameCoordinator with imports from new locations', () => {
     // Should be able to create instance
-    const manager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const manager = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
     expect(manager).toBeDefined();
     expect(typeof manager.initNewGame).toBe('function');

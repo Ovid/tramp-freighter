@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DISTRESS_CONFIG } from '../../src/game/constants.js';
@@ -15,11 +15,11 @@ import { DISTRESS_CONFIG } from '../../src/game/constants.js';
  * with correct resource costs, karma changes, and reputation effects.
  */
 describe('Distress Call Outcomes Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   /**
@@ -43,7 +43,7 @@ describe('Distress Call Outcomes Property Tests', () => {
           };
 
           // Resolve the distress call choice using the current game state
-          const outcome = gameStateManager.resolveDistressCall(
+          const outcome = game.resolveDistressCall(
             distressCall,
             choice
           );

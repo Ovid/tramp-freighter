@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { calculateProfit } from '../../src/features/trade/tradeUtils.js';
 import { TradingSystem } from '../../src/game/game-trading.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
 
 describe('calculateProfit', () => {
@@ -24,7 +24,7 @@ describe('sellGood emits new cargo array reference', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

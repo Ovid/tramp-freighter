@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () => {
   let gsm;
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -25,7 +25,7 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       },
     ];
 
-    const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
+    const modifySpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
     gsm.failMissionsDueToCargoLoss();
 
@@ -59,7 +59,7 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       },
     ];
 
-    const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
+    const modifySpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
     gsm.failMissionsDueToCargoLoss();
 
@@ -104,7 +104,7 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
     ];
     state.ship.cargo = [];
 
-    const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
+    const modifySpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
     gsm.failMissionsDueToCargoLoss();
 
@@ -139,7 +139,7 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
     ];
     state.ship.cargo = [];
 
-    const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
+    const modifySpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
     expect(() => gsm.failMissionsDueToCargoLoss()).not.toThrow();
 
@@ -189,7 +189,7 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
       },
     ];
 
-    const modifySpy = vi.spyOn(gsm, 'modifyFactionRep');
+    const modifySpy = vi.spyOn(gsm.dangerManager, 'modifyFactionRep');
 
     gsm.failMissionsDueToCargoLoss();
 

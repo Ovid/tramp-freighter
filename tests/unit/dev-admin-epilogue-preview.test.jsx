@@ -1,19 +1,19 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 describe('DevAdminPanel epilogue preview', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -22,7 +22,7 @@ describe('DevAdminPanel epilogue preview', () => {
   });
 
   it('renders Preview Epilogue button in Endgame section', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const { container } = render(<DevAdminPanel onClose={() => {}} />, {
       wrapper,
     });
@@ -36,8 +36,8 @@ describe('DevAdminPanel epilogue preview', () => {
   });
 
   it('emits EPILOGUE_PREVIEW_TRIGGERED when Preview Epilogue is clicked', () => {
-    const emitSpy = vi.spyOn(gameStateManager, 'emit');
-    const wrapper = createWrapper(gameStateManager);
+    const emitSpy = vi.spyOn(game, 'emit');
+    const wrapper = createWrapper(game);
     const { container } = render(<DevAdminPanel onClose={() => {}} />, {
       wrapper,
     });

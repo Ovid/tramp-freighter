@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TitleScreen } from '../../src/features/title-screen/TitleScreen';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { clearSave } from '../../src/game/state/save-load.js';
@@ -35,16 +35,16 @@ describe('Property: Ship naming after new game', () => {
         // Clear any existing save first
         clearSave(true);
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Save the game to create a saved game
-        gameStateManager.saveGame();
+        game.saveGame();
 
         // Verify save exists
-        expect(gameStateManager.hasSavedGame()).toBe(true);
+        expect(game.hasSavedGame()).toBe(true);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Mock onStartGame callback to verify it's called with true (new game)
         const onStartGame = vi.fn();
@@ -98,13 +98,13 @@ describe('Property: Ship naming after new game', () => {
         // Clear any existing save to ensure no save exists
         clearSave(true);
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Verify no save exists
-        expect(gameStateManager.hasSavedGame()).toBe(false);
+        expect(game.hasSavedGame()).toBe(false);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Mock onStartGame callback
         const onStartGame = vi.fn();
@@ -143,16 +143,16 @@ describe('Property: Ship naming after new game', () => {
         // Clear any existing save first
         clearSave(true);
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Save the game to create a saved game
-        gameStateManager.saveGame();
+        game.saveGame();
 
         // Verify save exists
-        expect(gameStateManager.hasSavedGame()).toBe(true);
+        expect(game.hasSavedGame()).toBe(true);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Mock onStartGame callback
         const onStartGame = vi.fn();

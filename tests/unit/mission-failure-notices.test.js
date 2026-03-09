@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('dismissMissionFailureNotice', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
     // Seed notices directly into state
     gsm.getState().missions.pendingFailureNotices = [
       {
@@ -48,7 +48,7 @@ describe('checkMissionDeadlines: pendingFailureNotices', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   it('pushes a notice when a mission expires', () => {

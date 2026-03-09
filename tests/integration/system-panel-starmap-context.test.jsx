@@ -3,23 +3,23 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 describe('Integration: SystemPanel Starmap Context', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
+    game = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
   });
 
   it('should throw error when useStarmap is used outside StarmapProvider in production', () => {
@@ -27,14 +27,14 @@ describe('Integration: SystemPanel Starmap Context', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
 
-    const currentSystemId = gameStateManager.getState().player.currentSystem;
+    const currentSystemId = game.getState().player.currentSystem;
 
     // Mock console.error to capture the error boundary error
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => {
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={() => {}}
@@ -51,7 +51,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
   });
 
   it('should work correctly when wrapped in StarmapProvider', () => {
-    const currentSystemId = gameStateManager.getState().player.currentSystem;
+    const currentSystemId = game.getState().player.currentSystem;
     const connectedIds = navigationSystem.getConnectedSystems(currentSystemId);
 
     if (connectedIds.length === 0) {
@@ -67,7 +67,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
     };
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <StarmapProvider value={mockStarmapMethods}>
           <SystemPanel
             viewingSystemId={currentSystemId}
@@ -99,7 +99,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
     // Ensure we're in test environment
     expect(process.env.NODE_ENV).toBe('test');
 
-    const currentSystemId = gameStateManager.getState().player.currentSystem;
+    const currentSystemId = game.getState().player.currentSystem;
     const connectedIds = navigationSystem.getConnectedSystems(currentSystemId);
 
     if (connectedIds.length === 0) {
@@ -109,7 +109,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
 
     // Should render without StarmapProvider in test environment
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <SystemPanel
           viewingSystemId={currentSystemId}
           onClose={() => {}}
@@ -136,7 +136,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
   });
 
   it('should handle missing starmap methods gracefully', () => {
-    const currentSystemId = gameStateManager.getState().player.currentSystem;
+    const currentSystemId = game.getState().player.currentSystem;
     const connectedIds = navigationSystem.getConnectedSystems(currentSystemId);
 
     if (connectedIds.length === 0) {
@@ -151,7 +151,7 @@ describe('Integration: SystemPanel Starmap Context', () => {
     };
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <StarmapProvider value={mockStarmapMethods}>
           <SystemPanel
             viewingSystemId={currentSystemId}

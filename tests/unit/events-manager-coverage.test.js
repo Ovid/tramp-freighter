@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
 
 describe('EventsManager coverage', () => {
@@ -8,7 +8,7 @@ describe('EventsManager coverage', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -93,48 +93,48 @@ describe('EventsManager coverage', () => {
 
     it('does not process day-change logic when time stays the same', () => {
       const currentDay = gsm.state.player.daysElapsed;
-      const spy = vi.spyOn(gsm, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
       gsm.eventsManager.updateTime(currentDay);
       expect(spy).not.toHaveBeenCalled();
     });
 
     it('increments price knowledge staleness when days advance', () => {
-      const spy = vi.spyOn(gsm, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 3);
       expect(spy).toHaveBeenCalledWith(3);
     });
 
     it('applies market recovery when days advance', () => {
-      const spy = vi.spyOn(gsm, 'applyMarketRecovery');
+      const spy = vi.spyOn(gsm.tradingManager, 'applyMarketRecovery');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 5);
       expect(spy).toHaveBeenCalledWith(5);
     });
 
     it('checks loan defaults when days advance', () => {
-      const spy = vi.spyOn(gsm, 'checkLoanDefaults');
+      const spy = vi.spyOn(gsm.npcManager, 'checkLoanDefaults');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       expect(spy).toHaveBeenCalled();
     });
 
     it('checks mission deadlines when days advance', () => {
-      const spy = vi.spyOn(gsm, 'checkMissionDeadlines');
+      const spy = vi.spyOn(gsm.missionManager, 'checkMissionDeadlines');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       expect(spy).toHaveBeenCalled();
     });
 
     it('processes debt tick when days advance', () => {
-      const spy = vi.spyOn(gsm, 'processDebtTick');
+      const spy = vi.spyOn(gsm.debtManager, 'applyInterest');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       expect(spy).toHaveBeenCalled();
     });
 
     it('recalculates prices when days advance', () => {
-      const spy = vi.spyOn(gsm, 'recalculatePricesForKnownSystems');
+      const spy = vi.spyOn(gsm.tradingManager, 'recalculatePricesForKnownSystems');
       const oldDays = gsm.state.player.daysElapsed;
       gsm.eventsManager.updateTime(oldDays + 1);
       expect(spy).toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe('EventsManager coverage', () => {
 
     it('does not advance for earlier day', () => {
       gsm.state.player.daysElapsed = 10;
-      const spy = vi.spyOn(gsm, 'incrementPriceKnowledgeStaleness');
+      const spy = vi.spyOn(gsm.tradingManager, 'incrementPriceKnowledgeStaleness');
       gsm.eventsManager.updateTime(5);
       expect(spy).not.toHaveBeenCalled();
       // But daysElapsed is still updated

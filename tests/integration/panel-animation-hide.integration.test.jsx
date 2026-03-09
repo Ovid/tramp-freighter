@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../../src/App';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -18,7 +18,7 @@ import { GameProvider } from '../../src/context/GameContext';
  * Migrated from: tests/integration/trade-panel-animation-hide.integration.test.js
  */
 describe('Panel Animation Hide Integration (React)', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
@@ -26,9 +26,9 @@ describe('Panel Animation Hide Integration (React)', () => {
     localStorage.clear();
 
     // Initialize game systems
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.navigationSystem = navigationSystem;
+    game.navigationSystem = navigationSystem;
 
     // Mock console methods to suppress expected errors during tests
     // WebGL is not supported in jsdom test environment
@@ -45,11 +45,11 @@ describe('Panel Animation Hide Integration (React)', () => {
 
   it('should hide station menu when jump starts and not restore it after animation', async () => {
     // Initialize game with enough fuel
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -124,11 +124,11 @@ describe('Panel Animation Hide Integration (React)', () => {
 
   it('should not show station menu after jump if it was not visible before', async () => {
     // Initialize game with enough fuel
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -180,11 +180,11 @@ describe('Panel Animation Hide Integration (React)', () => {
 
   it('should hide trade panel when jump starts', async () => {
     // Initialize game with enough fuel
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -246,11 +246,11 @@ describe('Panel Animation Hide Integration (React)', () => {
 
   it('should handle jump without animation system gracefully', async () => {
     // Initialize game with enough fuel
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -276,20 +276,20 @@ describe('Panel Animation Hide Integration (React)', () => {
       expect(screen.getByText('System Info')).toBeInTheDocument();
     });
 
-    // Execute jump directly through GameStateManager (no animation)
-    const result = await navigationSystem.executeJump(gameStateManager, 1);
+    // Execute jump directly through GameCoordinator (no animation)
+    const result = await navigationSystem.executeJump(game, 1);
 
     expect(result.success).toBe(true);
-    expect(gameStateManager.state.player.currentSystem).toBe(1);
+    expect(game.state.player.currentSystem).toBe(1);
   });
 
   it('should maintain view mode state across failed jumps', async () => {
     // Initialize game
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -325,7 +325,7 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
 
     // Try to jump to invalid system (no wormhole connection)
-    const result = await navigationSystem.executeJump(gameStateManager, 50);
+    const result = await navigationSystem.executeJump(game, 50);
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('No wormhole connection');
@@ -336,11 +336,11 @@ describe('Panel Animation Hide Integration (React)', () => {
 
   it('should handle view mode transitions correctly during jump sequence', async () => {
     // Initialize game with enough fuel
-    gameStateManager.initNewGame();
-    gameStateManager.updateFuel(100);
+    game.initNewGame();
+    game.updateFuel(100);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );

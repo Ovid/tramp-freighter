@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -25,12 +25,12 @@ import {
  * Also patches the actual internal game state so that the seeded RNG
  * inside the manager reads consistent daysElapsed and currentSystem.
  *
- * @param {Object} baseState - Base game state from GameStateManager
+ * @param {Object} baseState - Base game state from GameCoordinator
  * @param {Object} overrides - Properties to override
- * @param {Object} [gameStateManager] - Optional GameStateManager to patch internal state
+ * @param {Object} [game] - Optional GameCoordinator to patch internal state
  * @returns {Object} Modified game state for testing
  */
-function createTestGameState(baseState, overrides = {}, gameStateManager) {
+function createTestGameState(baseState, overrides = {}, game) {
   const result = {
     ...baseState,
     ship: {
@@ -55,8 +55,8 @@ function createTestGameState(baseState, overrides = {}, gameStateManager) {
   };
 
   // Sync internal state so capabilities read consistent values
-  if (gameStateManager) {
-    const internalState = gameStateManager.getState();
+  if (game) {
+    const internalState = game.getState();
     if (overrides.player?.currentSystem !== undefined) {
       internalState.player.currentSystem = overrides.player.currentSystem;
     }
@@ -94,14 +94,14 @@ function computeInspectionRng(daysElapsed, currentSystem) {
 
 describe('Inspection Resolution Outcomes Properties', () => {
   it('should handle cooperate choice correctly with restricted goods', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 5 }), // Number of restricted goods
         (restrictedGoodsCount) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           // Use goods that are actually restricted at system 0 (Sol, safe zone)
           // Safe zone restricts: electronics; core system restricts: parts
@@ -125,10 +125,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
             {
               ship: { cargo },
             },
-            gameStateManager
+            game
           );
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'cooperate',
             testGameState
           );
@@ -161,16 +161,16 @@ describe('Inspection Resolution Outcomes Properties', () => {
   });
 
   it('should handle hidden cargo discovery correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }), // System ID
         fc.integer({ min: 1, max: 3 }), // Number of hidden cargo items
         (systemId, hiddenCargoCount) => {
-          const gameState = gameStateManager.getState();
-          const zone = gameStateManager.getDangerZone(systemId);
+          const gameState = game.getState();
+          const zone = game.getDangerZone(systemId);
 
           // Create hidden cargo
           const hiddenCargo = [];
@@ -188,10 +188,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
               ship: { hiddenCargo },
               player: { currentSystem: systemId },
             },
-            gameStateManager
+            game
           );
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'cooperate',
             testGameState
           );
@@ -249,18 +249,18 @@ describe('Inspection Resolution Outcomes Properties', () => {
   });
 
   it('should handle bribery choice correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 500 }), // Vary daysElapsed to get different seeded RNG values
         (daysElapsed) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.player.daysElapsed = daysElapsed;
           const testGameState = createTestGameState(gameState);
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'bribe',
             testGameState
           );
@@ -304,17 +304,17 @@ describe('Inspection Resolution Outcomes Properties', () => {
   });
 
   it('should handle flee choice correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.constant(0), // placeholder for property-based test structure
         () => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           const testGameState = createTestGameState(gameState);
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'flee',
             testGameState
           );
@@ -338,15 +338,15 @@ describe('Inspection Resolution Outcomes Properties', () => {
   });
 
   it('should apply security level scaling for hidden cargo discovery', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }), // System ID
         (systemId) => {
-          const gameState = gameStateManager.getState();
-          const zone = gameStateManager.getDangerZone(systemId);
+          const gameState = game.getState();
+          const zone = game.getDangerZone(systemId);
 
           // Create hidden cargo
           const hiddenCargo = [
@@ -363,10 +363,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
               ship: { hiddenCargo },
               player: { currentSystem: systemId },
             },
-            gameStateManager
+            game
           );
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'cooperate',
             testGameState
           );
@@ -429,15 +429,15 @@ describe('Inspection Resolution Outcomes Properties', () => {
   });
 
   it('should apply reputation penalties correctly for violations', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.boolean(), // Has restricted goods
         fc.boolean(), // Has hidden cargo
         (hasRestrictedGoods, hasHiddenCargo) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           // Use actually restricted goods for system 0 (Sol, safe zone)
           const cargo = hasRestrictedGoods
@@ -452,10 +452,10 @@ describe('Inspection Resolution Outcomes Properties', () => {
             {
               ship: { cargo, hiddenCargo },
             },
-            gameStateManager
+            game
           );
 
-          const outcome = gameStateManager.resolveInspection(
+          const outcome = game.resolveInspection(
             'cooperate',
             testGameState
           );

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -17,11 +17,11 @@ import { createWrapper } from '../react-test-utils.jsx';
  * This ensures players can always access system information.
  */
 describe('System Info Accessible With Panels Open', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Mock animation system to avoid errors
     const mockAnimationSystem = {
@@ -32,7 +32,7 @@ describe('System Info Accessible With Panels Open', () => {
         unlock: vi.fn(),
       },
     };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
   });
 
   afterEach(() => {
@@ -49,9 +49,9 @@ describe('System Info Accessible With Panels Open', () => {
         unlock: vi.fn(),
       },
     };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
     const mockOnDock = vi.fn();
 
@@ -82,7 +82,7 @@ describe('System Info Accessible With Panels Open', () => {
   });
 
   it('should allow System Info callback to be triggered multiple times', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     render(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />, {
@@ -107,9 +107,9 @@ describe('System Info Accessible With Panels Open', () => {
       throw new Error('Test requires a system without a station');
     }
 
-    gameStateManager.updateLocation(systemWithoutStation.id);
+    game.updateLocation(systemWithoutStation.id);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
     const mockOnDock = vi.fn();
 
@@ -149,9 +149,9 @@ describe('System Info Accessible With Panels Open', () => {
         unlock: vi.fn(),
       },
     };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
     const mockOnDock = vi.fn();
 
@@ -182,7 +182,7 @@ describe('System Info Accessible With Panels Open', () => {
   });
 
   it('should never disable System Info button regardless of game state', async () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     const { rerender } = render(
@@ -197,7 +197,7 @@ describe('System Info Accessible With Panels Open', () => {
 
     // Jump to different system
     await act(async () => {
-      gameStateManager.updateLocation(1);
+      game.updateLocation(1);
     });
     rerender(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />);
     expect(systemInfoBtn).not.toBeDisabled();
@@ -212,14 +212,14 @@ describe('System Info Accessible With Panels Open', () => {
           unlock: vi.fn(),
         },
       };
-      gameStateManager.setAnimationSystem(mockAnimationSystem);
+      game.setAnimationSystem(mockAnimationSystem);
     });
     rerender(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />);
     expect(systemInfoBtn).not.toBeDisabled();
 
     // Stop animation
     await act(async () => {
-      const mockAnimationSystem = gameStateManager.animationSystem;
+      const mockAnimationSystem = game.animationSystem;
       mockAnimationSystem.isAnimating = false;
       mockAnimationSystem.inputLockManager.isInputLocked.mockReturnValue(false);
     });

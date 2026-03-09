@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { ShipStatus } from '../../src/features/hud/ShipStatus';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
@@ -33,15 +33,15 @@ describe('Property 20: HUD fuel updates', () => {
           cleanup();
 
           // Create game state manager
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           // Render ShipStatus (which contains fuel display)
           render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <ShipStatus />
             </GameProvider>
           );
@@ -54,7 +54,7 @@ describe('Property 20: HUD fuel updates', () => {
           });
 
           // Update fuel
-          gameStateManager.updateFuel(newFuel);
+          game.updateFuel(newFuel);
 
           // Verify fuel display updated
           await waitFor(() => {

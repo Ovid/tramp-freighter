@@ -4,7 +4,7 @@ import * as fc from 'fast-check';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -20,18 +20,18 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
  * Validates: Requirements 1.3, 12.3
  */
 describe('Danger Warning System Properties', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
   let mockStarmapContext;
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
+    game = new GameCoordinator(
       STAR_DATA,
       WORMHOLE_DATA,
       navigationSystem
     );
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     mockStarmapContext = {
       selectStarById: vi.fn(),
@@ -48,7 +48,7 @@ describe('Danger Warning System Properties', () => {
 
   const renderSystemPanel = (viewingSystemId, props = {}) => {
     return render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <StarmapProvider value={mockStarmapContext}>
           <SystemPanel
             viewingSystemId={viewingSystemId}
@@ -92,12 +92,12 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(fuelLevel);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(fuelLevel);
 
             // Get danger zone classification
             const dangerZone =
-              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+              game.dangerManager.getDangerZone(destinationSystemId);
             const isDangerous =
               dangerZone === 'contested' || dangerZone === 'dangerous';
 
@@ -135,8 +135,8 @@ describe('Danger Warning System Properties', () => {
           arbFuelLevel(),
           (currentSystemId, fuelLevel) => {
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(fuelLevel);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(fuelLevel);
 
             // Test all safe systems
             const safeSystems = [0, 1, 4]; // Sol, Alpha Centauri, Barnard's Star
@@ -173,8 +173,8 @@ describe('Danger Warning System Properties', () => {
           arbFuelLevel(),
           (currentSystemId, fuelLevel) => {
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(fuelLevel);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(fuelLevel);
 
             // Find systems beyond 15 LY from Sol
             const distantSystems = STAR_DATA.filter((system) => {
@@ -232,16 +232,16 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100); // Ensure sufficient fuel
-            gameStateManager.updateShipCondition(
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100); // Ensure sufficient fuel
+            game.updateShipCondition(
               shipCondition.hull,
               shipCondition.engine,
               shipCondition.lifeSupport
             );
 
             // Set faction reputation
-            const state = gameStateManager.getState();
+            const state = game.getState();
             state.player.factions = factionRep;
 
             // Add cargo if specified
@@ -258,7 +258,7 @@ describe('Danger Warning System Properties', () => {
             }
 
             const dangerZone =
-              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+              game.dangerManager.getDangerZone(destinationSystemId);
             const isDangerous =
               dangerZone === 'contested' || dangerZone === 'dangerous';
 
@@ -305,10 +305,10 @@ describe('Danger Warning System Properties', () => {
           fc.integer({ min: 10000, max: 50000 }), // High cargo value
           (currentSystemId, cargoValue) => {
             // Set up game state with high-value cargo
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100);
 
-            const state = gameStateManager.getState();
+            const state = game.getState();
             state.ship.cargo = [
               {
                 type: 'electronics',
@@ -356,9 +356,9 @@ describe('Danger Warning System Properties', () => {
           fc.integer({ min: 0, max: 49 }), // Damaged engine (< 50%)
           (currentSystemId, engineCondition) => {
             // Set up game state with damaged engine
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100);
-            gameStateManager.updateShipCondition(100, engineCondition, 100);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100);
+            game.updateShipCondition(100, engineCondition, 100);
 
             // Test with a known dangerous system
             const dangerousSystemId = 73; // 70 Ophiuchi A
@@ -402,11 +402,11 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100);
 
             const dangerZone =
-              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+              game.dangerManager.getDangerZone(destinationSystemId);
             const isDangerous =
               dangerZone === 'contested' || dangerZone === 'dangerous';
 
@@ -449,11 +449,11 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100);
 
             const dangerZone =
-              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+              game.dangerManager.getDangerZone(destinationSystemId);
             const isDangerous =
               dangerZone === 'contested' || dangerZone === 'dangerous';
 
@@ -508,15 +508,15 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up potentially problematic game state
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(fuelLevel);
-            gameStateManager.updateShipCondition(
+            game.updateLocation(currentSystemId);
+            game.updateFuel(fuelLevel);
+            game.updateShipCondition(
               shipCondition.hull,
               shipCondition.engine,
               shipCondition.lifeSupport
             );
 
-            const state = gameStateManager.getState();
+            const state = game.getState();
             state.player.factions = factionRep;
 
             // Property: Should never crash regardless of input
@@ -548,10 +548,10 @@ describe('Danger Warning System Properties', () => {
             fc.pre(currentSystemId !== destinationSystemId);
 
             // Set up game state with corrupted faction data
-            gameStateManager.updateLocation(currentSystemId);
-            gameStateManager.updateFuel(100);
+            game.updateLocation(currentSystemId);
+            game.updateFuel(100);
 
-            const state = gameStateManager.getState();
+            const state = game.getState();
             state.player.factions = fc.sample(
               fc.oneof(
                 fc.constant(null),
@@ -562,7 +562,7 @@ describe('Danger Warning System Properties', () => {
             )[0];
 
             const dangerZone =
-              gameStateManager.dangerManager.getDangerZone(destinationSystemId);
+              game.dangerManager.getDangerZone(destinationSystemId);
             const isDangerous =
               dangerZone === 'contested' || dangerZone === 'dangerous';
 

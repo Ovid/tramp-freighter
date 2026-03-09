@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { createTestGame } from '../test-utils.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { TEST_WORMHOLE_DATA } from '../test-data.js';
 import {
   SOL_SYSTEM_ID,
@@ -58,7 +58,7 @@ describe('Restricted goods trading', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -90,7 +90,7 @@ describe('Restricted goods trading', () => {
 
       it('returns true for tritium in a dangerous zone', () => {
         // dangerous zone restricts 'tritium' — need a far-away system
-        const dangerGsm = new GameStateManager(
+        const dangerGsm = new GameCoordinator(
           DANGEROUS_STAR_DATA,
           TEST_WORMHOLE_DATA
         );

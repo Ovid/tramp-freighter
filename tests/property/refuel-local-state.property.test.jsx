@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -32,21 +32,21 @@ describe('Property 25: Refuel panel manages local state', () => {
         (sliderValue) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           // Set up initial state
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.ship.fuel = 50;
-          gameStateManager.state.player.currentSystem = 0; // Sol
+          game.state.player.credits = 10000;
+          game.state.ship.fuel = 50;
+          game.state.player.currentSystem = 0; // Sol
 
-          const initialFuel = gameStateManager.state.ship.fuel;
-          const initialCredits = gameStateManager.state.player.credits;
+          const initialFuel = game.state.ship.fuel;
+          const initialCredits = game.state.player.credits;
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render RefuelPanel
           const { container } = render(<RefuelPanel onClose={() => {}} />, {
@@ -64,8 +64,8 @@ describe('Property 25: Refuel panel manages local state', () => {
           expect(Number(slider.value)).toBe(sliderValue);
 
           // Verify game state has NOT changed (local state only)
-          expect(gameStateManager.state.ship.fuel).toBe(initialFuel);
-          expect(gameStateManager.state.player.credits).toBe(initialCredits);
+          expect(game.state.ship.fuel).toBe(initialFuel);
+          expect(game.state.player.credits).toBe(initialCredits);
 
           return true;
         }
@@ -81,22 +81,22 @@ describe('Property 25: Refuel panel manages local state', () => {
         (refuelAmount) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           // Set up initial state with enough credits
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.ship.fuel = 50;
-          gameStateManager.state.player.currentSystem = 0; // Sol
+          game.state.player.credits = 10000;
+          game.state.ship.fuel = 50;
+          game.state.player.currentSystem = 0; // Sol
 
-          const initialFuel = gameStateManager.state.ship.fuel;
-          const fuelPrice = gameStateManager.getFuelPrice(0);
+          const initialFuel = game.state.ship.fuel;
+          const fuelPrice = game.getFuelPrice(0);
           const expectedCost = refuelAmount * fuelPrice;
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render RefuelPanel
           const { container } = render(<RefuelPanel onClose={() => {}} />, {
@@ -108,19 +108,19 @@ describe('Property 25: Refuel panel manages local state', () => {
           fireEvent.change(slider, { target: { value: refuelAmount } });
 
           // Game state should not have changed yet
-          expect(gameStateManager.state.ship.fuel).toBe(initialFuel);
+          expect(game.state.ship.fuel).toBe(initialFuel);
 
           // Click confirm button
           const confirmButton = screen.getByText('Confirm Refuel');
           fireEvent.click(confirmButton);
 
           // Now game state should be updated
-          expect(gameStateManager.state.ship.fuel).toBeCloseTo(
+          expect(game.state.ship.fuel).toBeCloseTo(
             initialFuel + refuelAmount,
             1
           );
-          expect(gameStateManager.state.player.credits).toBeLessThan(10000);
-          expect(gameStateManager.state.player.credits).toBeCloseTo(
+          expect(game.state.player.credits).toBeLessThan(10000);
+          expect(game.state.player.credits).toBeCloseTo(
             10000 - expectedCost,
             1
           );
@@ -139,18 +139,18 @@ describe('Property 25: Refuel panel manages local state', () => {
         (refuelAmount) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           // Set up initial state
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.ship.fuel = 50;
-          gameStateManager.state.player.currentSystem = 0; // Sol
+          game.state.player.credits = 10000;
+          game.state.ship.fuel = 50;
+          game.state.player.currentSystem = 0; // Sol
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render RefuelPanel
           const { container } = render(<RefuelPanel onClose={() => {}} />, {
@@ -185,21 +185,21 @@ describe('Property 25: Refuel panel manages local state', () => {
         (sliderValue) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           // Set up initial state
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.ship.fuel = 50;
-          gameStateManager.state.player.currentSystem = 0; // Sol
+          game.state.player.credits = 10000;
+          game.state.ship.fuel = 50;
+          game.state.player.currentSystem = 0; // Sol
 
-          const fuelPrice = gameStateManager.getFuelPrice(0);
+          const fuelPrice = game.getFuelPrice(0);
           const expectedCost = sliderValue * fuelPrice;
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render RefuelPanel
           const { container } = render(<RefuelPanel onClose={() => {}} />, {
@@ -227,15 +227,15 @@ describe('Property 25: Refuel panel manages local state', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Set up state with fuel at 100% (can't refuel more)
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.ship.fuel = 100;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.ship.fuel = 100;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RefuelPanel
         const { container } = render(<RefuelPanel onClose={() => {}} />, {
@@ -265,18 +265,18 @@ describe('Property 25: Refuel panel manages local state', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Set up state with fuel at 100% (can't refuel)
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.ship.fuel = 100;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.ship.fuel = 100;
+        game.state.player.currentSystem = 0; // Sol
 
-        const initialFuel = gameStateManager.state.ship.fuel;
-        const initialCredits = gameStateManager.state.player.credits;
+        const initialFuel = game.state.ship.fuel;
+        const initialCredits = game.state.player.credits;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RefuelPanel
         render(<RefuelPanel onClose={() => {}} />, {
@@ -291,8 +291,8 @@ describe('Property 25: Refuel panel manages local state', () => {
         fireEvent.click(confirmButton);
 
         // Game state should not have changed
-        expect(gameStateManager.state.ship.fuel).toBe(initialFuel);
-        expect(gameStateManager.state.player.credits).toBe(initialCredits);
+        expect(game.state.ship.fuel).toBe(initialFuel);
+        expect(game.state.player.credits).toBe(initialCredits);
 
         return true;
       }),

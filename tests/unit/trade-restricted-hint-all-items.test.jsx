@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SOL_SYSTEM_ID } from '../../src/game/constants.js';
@@ -26,7 +26,7 @@ describe('TradePanel restricted hint on all items', () => {
   it('shows restricted hint only on first restricted item when not yet dismissed', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SOL_SYSTEM_ID;
 

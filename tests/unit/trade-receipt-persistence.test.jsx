@@ -7,7 +7,7 @@ import {
   cleanup,
 } from '@testing-library/react';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { NOTIFICATION_CONFIG } from '../../src/game/constants.js';
@@ -31,7 +31,7 @@ describe('Trade receipt persistence', () => {
   it('Cole withholding receipt persists after DEFAULT_SUCCESS_DURATION', () => {
     vi.useFakeTimers();
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
 
     // Set up: player has debt and cargo to sell

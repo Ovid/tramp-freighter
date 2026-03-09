@@ -4,7 +4,7 @@ import {
   selectChoice,
   buildDialogueContext,
 } from '../../src/game/game-dialogue.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('game-dialogue coverage', () => {
   let gsm;
@@ -13,7 +13,7 @@ describe('game-dialogue coverage', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

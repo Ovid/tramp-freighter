@@ -114,14 +114,14 @@ describe('Property: Wormhole Color Updates', () => {
       fc.property(fc.float({ min: 0, max: 100 }), (fuel) => {
         const wormholes = createWormholeLines(scene, connections, starObjects);
 
-        const mockGameStateManager = {
+        const mockGameCoordinator = {
           state: {
             player: { currentSystem: 0 },
             ship: { fuel },
           },
         };
 
-        updateConnectionColors(mockGameStateManager);
+        updateConnectionColors(mockGameCoordinator);
 
         // All connections should have their colors updated
         wormholes.forEach((conn) => {
@@ -144,14 +144,14 @@ describe('Property: Wormhole Color Updates', () => {
             starObjects
           );
 
-          const mockGameStateManager = {
+          const mockGameCoordinator = {
             state: {
               player: { currentSystem },
               ship: { fuel },
             },
           };
 
-          updateConnectionColors(mockGameStateManager);
+          updateConnectionColors(mockGameCoordinator);
 
           // Connections from current system should have higher opacity
           const currentSystemConnections = wormholes.filter(
@@ -193,18 +193,18 @@ describe('Property: Wormhole Color Updates', () => {
             starObjects
           );
 
-          const mockGameStateManager = {
+          const mockGameCoordinator = {
             state: {
               player: { currentSystem: system1 },
               ship: { fuel },
             },
           };
 
-          updateConnectionColors(mockGameStateManager);
+          updateConnectionColors(mockGameCoordinator);
 
           // Change system
-          mockGameStateManager.state.player.currentSystem = system2;
-          updateConnectionColors(mockGameStateManager);
+          mockGameCoordinator.state.player.currentSystem = system2;
+          updateConnectionColors(mockGameCoordinator);
 
           // Should not throw and all connections should still be valid
           wormholes.forEach((conn) => {

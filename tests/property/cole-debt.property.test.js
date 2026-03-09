@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DebtManager } from '../../src/game/state/managers/debt.js';
@@ -45,7 +45,7 @@ describe('Cole Debt System Properties', () => {
   it('heat is always clamped to 0-100', () => {
     fc.assert(
       fc.property(fc.integer({ min: -200, max: 200 }), (delta) => {
-        const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         gsm.initNewGame();
         const dm = new DebtManager(buildDebtCapabilities(gsm));
 
@@ -65,7 +65,7 @@ describe('Cole Debt System Properties', () => {
         fc.integer({ min: 1, max: 100000 }),
         fc.integer({ min: 0, max: 100 }),
         (revenue, debt, heat) => {
-          const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           gsm.initNewGame();
           gsm.state.player.debt = debt;
           gsm.state.player.finance.heat = Math.min(heat, 100);
@@ -87,7 +87,7 @@ describe('Cole Debt System Properties', () => {
         fc.integer({ min: 1, max: 50000 }),
         fc.integer({ min: 1, max: 100000 }),
         (payment, initialDebt) => {
-          const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+          const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
           gsm.initNewGame();
           gsm.state.player.debt = initialDebt;
           gsm.state.player.credits = payment;
@@ -105,7 +105,7 @@ describe('Cole Debt System Properties', () => {
   it('borrowing always increases debt', () => {
     fc.assert(
       fc.property(fc.integer({ min: 100, max: 200 }), (amount) => {
-        const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         gsm.initNewGame();
         const initialDebt = gsm.state.player.debt;
         const dm = new DebtManager(buildDebtCapabilities(gsm));

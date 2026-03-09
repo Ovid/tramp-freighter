@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DEFAULT_PREFERENCES } from '../../src/game/constants.js';
@@ -13,7 +13,7 @@ describe('Preferences', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame('test-seed');
   });
 
@@ -41,7 +41,7 @@ describe('Preferences', () => {
     gsm.setPreference('jumpWarningsEnabled', false);
     gsm.saveGame();
 
-    const gsm2 = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm2.loadGame();
 
     expect(gsm2.getPreference('jumpWarningsEnabled')).toBe(false);
@@ -66,7 +66,7 @@ describe('Preferences', () => {
     const state = gsm.getState();
     delete state.preferences;
 
-    const gsm2 = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     const result = gsm2.restoreState(state);
 
     expect(result.success).toBe(true);

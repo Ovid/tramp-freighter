@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
 
 describe('NPCManager.modifyRepRaw', () => {
@@ -8,7 +8,7 @@ describe('NPCManager.modifyRepRaw', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   afterEach(() => {
@@ -80,7 +80,7 @@ describe('NPCManager.modifyRepRaw', () => {
     );
   });
 
-  it('marks dirty via GameStateManager delegation', () => {
+  it('marks dirty via GameCoordinator delegation', () => {
     const dirtySpy = vi.spyOn(manager, 'markDirty');
     manager.modifyRepRaw('chen_barnards', 5, 'test');
     expect(dirtySpy).toHaveBeenCalled();
@@ -93,7 +93,7 @@ describe('modifyRep delegates to modifyRepRaw', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   afterEach(() => {

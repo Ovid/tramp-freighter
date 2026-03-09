@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -22,17 +22,17 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
  * - Animation lock integration
  */
 describe('QuickAccessButtons Component', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     cleanup();
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   it('should render Dock button before System Info button', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -44,7 +44,7 @@ describe('QuickAccessButtons Component', () => {
 
   it('should render System Info and Dock buttons', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -55,7 +55,7 @@ describe('QuickAccessButtons Component', () => {
 
   it('should enable System Info button when game is active', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -67,10 +67,10 @@ describe('QuickAccessButtons Component', () => {
   it('should enable Dock button when at system with station', () => {
     // Sol has a station (st: 1)
     const sol = STAR_DATA.find((s) => s.name === 'Sol');
-    gameStateManager.updateLocation(sol.id);
+    game.updateLocation(sol.id);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -84,10 +84,10 @@ describe('QuickAccessButtons Component', () => {
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
 
     if (systemWithoutStation) {
-      gameStateManager.updateLocation(systemWithoutStation.id);
+      game.updateLocation(systemWithoutStation.id);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
         </GameProvider>
       );
@@ -101,7 +101,7 @@ describe('QuickAccessButtons Component', () => {
     const onSystemInfo = vi.fn();
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={onSystemInfo} />
       </GameProvider>
     );
@@ -115,10 +115,10 @@ describe('QuickAccessButtons Component', () => {
   it('should call onDock when Dock button is clicked at system with station', () => {
     const onDock = vi.fn();
     const sol = STAR_DATA.find((s) => s.name === 'Sol');
-    gameStateManager.updateLocation(sol.id);
+    game.updateLocation(sol.id);
 
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={onDock} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -134,10 +134,10 @@ describe('QuickAccessButtons Component', () => {
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
 
     if (systemWithoutStation) {
-      gameStateManager.updateLocation(systemWithoutStation.id);
+      game.updateLocation(systemWithoutStation.id);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <QuickAccessButtons onDock={onDock} onSystemInfo={() => {}} />
         </GameProvider>
       );
@@ -152,7 +152,7 @@ describe('QuickAccessButtons Component', () => {
 
   it('should update button state when location changes', () => {
     const { rerender } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -160,12 +160,12 @@ describe('QuickAccessButtons Component', () => {
     // Start at Sol (has station)
     const sol = STAR_DATA.find((s) => s.name === 'Sol');
     act(() => {
-      gameStateManager.updateLocation(sol.id);
+      game.updateLocation(sol.id);
     });
 
     // Force re-render to pick up location change
     rerender(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
       </GameProvider>
     );
@@ -177,11 +177,11 @@ describe('QuickAccessButtons Component', () => {
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
     if (systemWithoutStation) {
       act(() => {
-        gameStateManager.updateLocation(systemWithoutStation.id);
+        game.updateLocation(systemWithoutStation.id);
       });
 
       rerender(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <QuickAccessButtons onDock={() => {}} onSystemInfo={() => {}} />
         </GameProvider>
       );
@@ -192,7 +192,7 @@ describe('QuickAccessButtons Component', () => {
 
   it('should handle missing callbacks gracefully', () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <QuickAccessButtons />
       </GameProvider>
     );

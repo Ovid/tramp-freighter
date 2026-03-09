@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import {
   COMBAT_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
@@ -49,7 +49,7 @@ describe('Danger Edge Cases', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -268,7 +268,7 @@ describe('Danger Edge Cases', () => {
 
   describe('Distress edge cases', () => {
     it('all three choices work with minimal/default initialized state', () => {
-      // Use the default state as-is from createTestGameStateManager
+      // Use the default state as-is from createTestGame
       const choices = ['respond', 'ignore', 'loot'];
 
       for (const choice of choices) {

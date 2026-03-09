@@ -17,7 +17,7 @@ import {
 describe('AchievementToast queue', () => {
   let mockGSM;
 
-  function createMockGameStateManager() {
+  function createMockGameCoordinator() {
     const subscribers = {};
     return {
       subscribe(eventType, callback) {
@@ -37,7 +37,7 @@ describe('AchievementToast queue', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    mockGSM = createMockGameStateManager();
+    mockGSM = createMockGameCoordinator();
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
@@ -49,7 +49,7 @@ describe('AchievementToast queue', () => {
 
   function renderToast() {
     return render(
-      <GameProvider gameStateManager={mockGSM}>
+      <GameProvider game={mockGSM}>
         <AchievementToast />
       </GameProvider>
     );

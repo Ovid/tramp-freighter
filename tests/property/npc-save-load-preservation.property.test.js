@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -12,7 +12,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
  */
 
 describe('NPC Save/Load Preservation Property Tests', () => {
-  let gameStateManager;
+  let game;
   let originalLocalStorage;
 
   beforeEach(() => {
@@ -24,8 +24,8 @@ describe('NPC Save/Load Preservation Property Tests', () => {
       removeItem: () => {},
     };
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -56,7 +56,7 @@ describe('NPC Save/Load Preservation Property Tests', () => {
     fc.assert(
       fc.property(arbNPCStates(), (npcStates) => {
         // Set up NPC states in game state
-        gameStateManager.state.npcs = npcStates;
+        game.state.npcs = npcStates;
 
         // Create mock localStorage that actually stores data
         let storedData = null;
@@ -71,28 +71,28 @@ describe('NPC Save/Load Preservation Property Tests', () => {
         };
 
         // Reset lastSaveTime to ensure save is not debounced
-        gameStateManager.lastSaveTime = 0;
+        game.lastSaveTime = 0;
 
         // Save the game
-        const saveResult = gameStateManager.saveGame();
+        const saveResult = game.saveGame();
         expect(saveResult).toBe(true);
 
         // Create new game state manager and load
-        const newGameStateManager = new GameStateManager(
+        const newGameCoordinator = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA
         );
-        const loadedState = newGameStateManager.loadGame();
+        const loadedState = newGameCoordinator.loadGame();
 
         // Verify state was loaded
         expect(loadedState).not.toBeNull();
 
         // Verify NPC states are preserved
-        expect(newGameStateManager.state.npcs).toEqual(npcStates);
+        expect(newGameCoordinator.state.npcs).toEqual(npcStates);
 
         // Verify each NPC state has all required fields
         for (const [npcId, expectedState] of Object.entries(npcStates)) {
-          const actualState = newGameStateManager.state.npcs[npcId];
+          const actualState = newGameCoordinator.state.npcs[npcId];
           expect(actualState).toBeDefined();
           expect(actualState.rep).toBe(expectedState.rep);
           expect(actualState.lastInteraction).toBe(
@@ -111,7 +111,7 @@ describe('NPC Save/Load Preservation Property Tests', () => {
     fc.assert(
       fc.property(fc.constant({}), (emptyNPCStates) => {
         // Set up empty NPC states
-        gameStateManager.state.npcs = emptyNPCStates;
+        game.state.npcs = emptyNPCStates;
 
         // Create mock localStorage that actually stores data
         let storedData = null;
@@ -126,24 +126,24 @@ describe('NPC Save/Load Preservation Property Tests', () => {
         };
 
         // Reset lastSaveTime to ensure save is not debounced
-        gameStateManager.lastSaveTime = 0;
+        game.lastSaveTime = 0;
 
         // Save the game
-        const saveResult = gameStateManager.saveGame();
+        const saveResult = game.saveGame();
         expect(saveResult).toBe(true);
 
         // Create new game state manager and load
-        const newGameStateManager = new GameStateManager(
+        const newGameCoordinator = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA
         );
-        const loadedState = newGameStateManager.loadGame();
+        const loadedState = newGameCoordinator.loadGame();
 
         // Verify state was loaded
         expect(loadedState).not.toBeNull();
 
         // Verify empty NPC states are preserved
-        expect(newGameStateManager.state.npcs).toEqual({});
+        expect(newGameCoordinator.state.npcs).toEqual({});
       }),
       { numRuns: 100 }
     );
@@ -171,7 +171,7 @@ describe('NPC Save/Load Preservation Property Tests', () => {
         }),
         (npcStates) => {
           // Set up NPC states
-          gameStateManager.state.npcs = npcStates;
+          game.state.npcs = npcStates;
 
           // Create mock localStorage that actually stores data
           let storedData = null;
@@ -186,27 +186,27 @@ describe('NPC Save/Load Preservation Property Tests', () => {
           };
 
           // Reset lastSaveTime to ensure save is not debounced
-          gameStateManager.lastSaveTime = 0;
+          game.lastSaveTime = 0;
 
           // Save the game
-          const saveResult = gameStateManager.saveGame();
+          const saveResult = game.saveGame();
           expect(saveResult).toBe(true);
 
           // Create new game state manager and load
-          const newGameStateManager = new GameStateManager(
+          const newGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          const loadedState = newGameStateManager.loadGame();
+          const loadedState = newGameCoordinator.loadGame();
 
           // Verify state was loaded
           expect(loadedState).not.toBeNull();
 
           // Verify NPC states are preserved exactly
-          expect(newGameStateManager.state.npcs).toEqual(npcStates);
+          expect(newGameCoordinator.state.npcs).toEqual(npcStates);
 
           // Verify flag arrays are preserved as arrays (not converted to objects)
-          const testNpcState = newGameStateManager.state.npcs.testNpc;
+          const testNpcState = newGameCoordinator.state.npcs.testNpc;
           expect(Array.isArray(testNpcState.flags)).toBe(true);
           expect(testNpcState.flags).toEqual(npcStates.testNpc.flags);
         }

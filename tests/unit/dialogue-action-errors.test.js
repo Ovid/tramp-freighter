@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { selectChoice, showDialogue } from '../../src/game/game-dialogue.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
 
 describe('selectChoice action error handling', () => {
@@ -10,7 +10,7 @@ describe('selectChoice action error handling', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

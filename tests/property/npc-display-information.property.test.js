@@ -9,15 +9,15 @@ import { describe, it } from 'vitest';
 import fc from 'fast-check';
 import { renderNPCListItem } from '../../src/game/game-npcs.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { REPUTATION_TIERS } from '../../src/game/constants.js';
 
-// Create GameStateManager once to avoid repeated instantiation in tests
-const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+// Create GameCoordinator once to avoid repeated instantiation in tests
+const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 // Create bound method once to avoid repeated binding in tests
-const getRepTier = gameStateManager.getRepTier.bind(gameStateManager);
+const getRepTier = game.getRepTier.bind(game);
 
 describe('NPC Display Information Properties', () => {
   it('should include NPC name, role, and reputation tier in rendered output', () => {
@@ -33,7 +33,7 @@ describe('NPC Display Information Properties', () => {
           const rendered = renderNPCListItem(npc, npcState, getRepTier);
 
           // Get the expected tier name
-          const tier = gameStateManager.getRepTier(reputation);
+          const tier = game.getRepTier(reputation);
 
           // Verify all required information is present
           const containsName = rendered.includes(npc.name);
@@ -54,7 +54,7 @@ describe('NPC Display Information Properties', () => {
         const rendered = renderNPCListItem(npc, null, getRepTier);
 
         // Get the expected tier name from initial reputation
-        const expectedTier = gameStateManager.getRepTier(npc.initialRep);
+        const expectedTier = game.getRepTier(npc.initialRep);
 
         // Verify all required information is present
         const containsName = rendered.includes(npc.name);
@@ -93,7 +93,7 @@ describe('NPC Display Information Properties', () => {
         (npc, reputation) => {
           const npcState = { rep: reputation };
           const rendered = renderNPCListItem(npc, npcState, getRepTier);
-          const tier = gameStateManager.getRepTier(reputation);
+          const tier = game.getRepTier(reputation);
 
           // Expected format: "Name (Role) [Tier]"
           const expectedPattern = `${npc.name} (${npc.role}) [${tier.name}]`;
@@ -172,7 +172,7 @@ describe('NPC Display Information Properties', () => {
       fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
         // Test with undefined NPC state (should use initialRep)
         const renderedUndefined = renderNPCListItem(npc, undefined, getRepTier);
-        const expectedTier = gameStateManager.getRepTier(npc.initialRep);
+        const expectedTier = game.getRepTier(npc.initialRep);
 
         const containsName = renderedUndefined.includes(npc.name);
         const containsRole = renderedUndefined.includes(npc.role);

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -17,8 +17,8 @@ import {
 
 describe('Danger Zone Classification Properties', () => {
   it('should classify every system to exactly one zone type', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     const validZones = ['safe', 'contested', 'dangerous'];
 
@@ -26,7 +26,7 @@ describe('Danger Zone Classification Properties', () => {
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
 
           // Zone must be one of the valid types
           return validZones.includes(zone);
@@ -37,15 +37,15 @@ describe('Danger Zone Classification Properties', () => {
   });
 
   it('should return consistent zone for the same system', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
-          const zone1 = gameStateManager.getDangerZone(systemId);
-          const zone2 = gameStateManager.getDangerZone(systemId);
+          const zone1 = game.getDangerZone(systemId);
+          const zone2 = game.getDangerZone(systemId);
 
           // Same system should always return same zone
           return zone1 === zone2;
@@ -56,23 +56,23 @@ describe('Danger Zone Classification Properties', () => {
   });
 
   it('should classify explicitly listed systems correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Safe systems from config
     for (const systemId of DANGER_CONFIG.ZONES.safe.systems) {
-      expect(gameStateManager.getDangerZone(systemId)).toBe('safe');
+      expect(game.getDangerZone(systemId)).toBe('safe');
     }
 
     // Contested systems from config
     for (const systemId of DANGER_CONFIG.ZONES.contested.systems) {
-      expect(gameStateManager.getDangerZone(systemId)).toBe('contested');
+      expect(game.getDangerZone(systemId)).toBe('contested');
     }
   });
 
   it('should classify distant systems as dangerous', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     const threshold = DANGER_CONFIG.ZONES.dangerous.distanceThreshold;
 
@@ -89,7 +89,7 @@ describe('Danger Zone Classification Properties', () => {
       const distance = calculateDistanceFromSol(system);
 
       if (distance > threshold) {
-        expect(gameStateManager.getDangerZone(system.id)).toBe('dangerous');
+        expect(game.getDangerZone(system.id)).toBe('dangerous');
       }
     }
   });

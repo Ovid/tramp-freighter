@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import App from '../../src/App';
@@ -76,7 +76,7 @@ vi.mock('../../src/game/engine/game-animation', () => {
 });
 
 describe('Two-Step Encounter Flow', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.stubGlobal('localStorage', {
@@ -90,8 +90,8 @@ describe('Two-Step Encounter Flow', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -124,7 +124,7 @@ describe('Two-Step Encounter Flow', () => {
 
   it('should show CombatPanel when player chooses Fight', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -149,7 +149,7 @@ describe('Two-Step Encounter Flow', () => {
 
   it('should show NegotiationPanel when player chooses Negotiate', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -172,7 +172,7 @@ describe('Two-Step Encounter Flow', () => {
 
   it('should resolve immediately when player chooses Surrender', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );

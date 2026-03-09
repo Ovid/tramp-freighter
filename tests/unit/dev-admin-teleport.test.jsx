@@ -1,19 +1,19 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ENDGAME_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 describe('DevAdminPanel teleport', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -22,7 +22,7 @@ describe('DevAdminPanel teleport', () => {
   });
 
   it('renders Teleport section with a star dropdown after NPC Reputation', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const { container } = render(<DevAdminPanel onClose={() => {}} />, {
       wrapper,
     });
@@ -43,7 +43,7 @@ describe('DevAdminPanel teleport', () => {
   });
 
   it('only includes reachable stars (r:1) plus Delta Pavonis', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const { container } = render(<DevAdminPanel onClose={() => {}} />, {
       wrapper,
     });
@@ -63,7 +63,7 @@ describe('DevAdminPanel teleport', () => {
   });
 
   it('teleports player to selected system when Go is clicked', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const { container } = render(<DevAdminPanel onClose={() => {}} />, {
       wrapper,
     });
@@ -80,7 +80,7 @@ describe('DevAdminPanel teleport', () => {
     const goBtn = section.querySelector('button');
     fireEvent.click(goBtn);
 
-    expect(gameStateManager.getState().player.currentSystem).toBe(
+    expect(game.getState().player.currentSystem).toBe(
       ENDGAME_CONFIG.DELTA_PAVONIS_ID
     );
   });

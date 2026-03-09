@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
 
@@ -17,7 +17,7 @@ describe('Save/Load Migration System', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
   });
 
   afterEach(() => {

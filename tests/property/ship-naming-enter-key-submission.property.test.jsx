@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
@@ -35,13 +35,13 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -91,13 +91,13 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput, keyEventProps) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -149,13 +149,13 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput, keyEventProps) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -198,13 +198,13 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const gameStateManager1 = new GameStateManager(
+          const game1 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager1.initNewGame();
+          game1.initNewGame();
 
-          const wrapper1 = createWrapper(gameStateManager1);
+          const wrapper1 = createWrapper(game1);
 
           // Test Enter key submission
           let submittedNameViaEnter = null;
@@ -226,13 +226,13 @@ describe('Property: Enter key submits ship name', () => {
           cleanup();
 
           // Test confirm button submission
-          const gameStateManager2 = new GameStateManager(
+          const game2 = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager2.initNewGame();
+          game2.initNewGame();
 
-          const wrapper2 = createWrapper(gameStateManager2);
+          const wrapper2 = createWrapper(game2);
 
           let submittedNameViaButton = null;
           const onSubmitButton = (name) => {
@@ -277,13 +277,13 @@ describe('Property: Enter key submits ship name', () => {
         (shipNameInput) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -337,10 +337,10 @@ describe('Property: Enter key submits ship name', () => {
     testCases.forEach(({ input }) => {
       cleanup();
 
-      const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-      gameStateManager.initNewGame();
+      const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      game.initNewGame();
 
-      const wrapper = createWrapper(gameStateManager);
+      const wrapper = createWrapper(game);
 
       let submittedName = null;
       const onSubmit = (name) => {

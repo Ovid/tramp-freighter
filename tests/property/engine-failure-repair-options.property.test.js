@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FAILURE_CONFIG } from '../../src/game/constants.js';
@@ -33,7 +33,7 @@ function computeResolveMechanicalRng(daysElapsed, currentSystem) {
  * - Jury-rig: 75% success with -5% engine cost
  */
 describe('Property 10: Engine Failure Repair Options', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage
@@ -51,8 +51,8 @@ describe('Property 10: Engine Failure Repair Options', () => {
       error: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -67,7 +67,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
         fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
         (initialEngine, initialCredits, daysElapsed) => {
           // Set up game state
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.engine = initialEngine;
           gameState.player.credits = initialCredits;
           gameState.player.daysElapsed = daysElapsed;
@@ -83,7 +83,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve emergency restart
           const result =
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'emergency_restart',
               gameState
@@ -119,7 +119,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
         fc.integer({ min: 1000, max: 10000 }), // initial credits (ensure enough for cost)
         (initialEngine, initialCredits) => {
           // Set up game state
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.engine = initialEngine;
           gameState.player.credits = initialCredits;
 
@@ -128,7 +128,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve call for help
           const result =
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'call_for_help',
               gameState
@@ -157,7 +157,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
         fc.integer({ min: 0, max: 500 }), // daysElapsed to vary seeded RNG
         (initialEngine, initialCredits, daysElapsed) => {
           // Set up game state
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.engine = initialEngine;
           gameState.player.credits = initialCredits;
           gameState.player.daysElapsed = daysElapsed;
@@ -173,7 +173,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve jury-rig
           const result =
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               'jury_rig',
               gameState
@@ -207,7 +207,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
         fc.integer({ min: 1, max: 10 }), // cargo count
         (initialHull, cargoCount) => {
           // Set up game state with cargo
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.hull = initialHull;
           gameState.ship.cargo = Array(cargoCount).fill({
             type: 'electronics',
@@ -219,7 +219,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve hull breach (no choice needed, immediate consequence)
           const result =
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Hull breach has no repair choices
               gameState
@@ -243,7 +243,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
         fc.integer({ min: 0, max: 100 }), // initial life support condition
         (initialLifeSupport) => {
           // Set up game state
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
           gameState.ship.lifeSupport = initialLifeSupport;
 
           // Create life support failure
@@ -254,7 +254,7 @@ describe('Property 10: Engine Failure Repair Options', () => {
 
           // Resolve life support emergency (no choice needed, immediate consequence)
           const result =
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               failure.type,
               null, // Life support emergency has no repair choices
               gameState
@@ -280,10 +280,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               !['hull_breach', 'engine_failure', 'life_support'].includes(s)
           ),
         (unknownFailureType) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           expect(() => {
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               unknownFailureType,
               'emergency_restart',
               gameState
@@ -305,10 +305,10 @@ describe('Property 10: Engine Failure Repair Options', () => {
               !['emergency_restart', 'call_for_help', 'jury_rig'].includes(s)
           ),
         (unknownChoice) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           expect(() => {
-            gameStateManager.mechanicalFailureManager.resolveMechanicalFailure(
+            game.mechanicalFailureManager.resolveMechanicalFailure(
               'engine_failure',
               unknownChoice,
               gameState

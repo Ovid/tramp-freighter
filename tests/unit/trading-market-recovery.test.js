@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import {
   ECONOMY_CONFIG,
   COMMODITY_TYPES,
@@ -12,7 +12,7 @@ import {
  * Unit Tests for TradingManager market recovery, price recalculation,
  * and price knowledge staleness methods.
  *
- * Tests three methods accessed via GameStateManager delegation:
+ * Tests three methods accessed via GameCoordinator delegation:
  * - applyMarketRecovery(daysPassed)
  * - recalculatePricesForKnownSystems()
  * - incrementPriceKnowledgeStaleness(days)
@@ -25,7 +25,7 @@ describe('TradingManager market recovery and price knowledge', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

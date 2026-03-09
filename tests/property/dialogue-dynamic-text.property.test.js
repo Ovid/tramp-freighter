@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { showDialogue } from '../../src/game/game-dialogue.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
@@ -16,8 +16,8 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dynamic Dialogue Text Generation Properties', () => {
   it('should generate different text for different reputation tiers when text is a function', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Skip post-credits NPCs whose text varies by interactions, not reputation
     const npcsWithRepDialogue = ALL_NPCS.filter(
@@ -65,7 +65,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
 
           for (const reputation of testReputations) {
             // Set up NPC state with specific reputation
-            const npcState = gameStateManager.getNPCState(npcId);
+            const npcState = game.getNPCState(npcId);
             npcState.rep = reputation;
 
             try {
@@ -73,7 +73,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
               const dialogueResult = showDialogue(
                 npcId,
                 nodeId,
-                gameStateManager
+                game
               );
 
               if (dialogueResult && typeof dialogueResult.text === 'string') {
@@ -99,8 +99,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
   });
 
   it('should generate consistent text for the same reputation value', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -111,7 +111,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -133,9 +133,9 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         for (const [nodeId] of nodesWithFunctionText) {
           try {
             // Show dialogue multiple times with same reputation
-            const firstResult = showDialogue(npcId, nodeId, gameStateManager);
-            const secondResult = showDialogue(npcId, nodeId, gameStateManager);
-            const thirdResult = showDialogue(npcId, nodeId, gameStateManager);
+            const firstResult = showDialogue(npcId, nodeId, game);
+            const secondResult = showDialogue(npcId, nodeId, game);
+            const thirdResult = showDialogue(npcId, nodeId, game);
 
             // Text should be consistent across multiple calls
             expect(firstResult.text).toBe(secondResult.text);
@@ -153,8 +153,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
   });
 
   it('should return valid string text for all reputation values when text is a function', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -165,7 +165,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -190,7 +190,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             const dialogueResult = showDialogue(
               npcId,
               nodeId,
-              gameStateManager
+              game
             );
 
             // Verify text is a valid non-empty string
@@ -209,8 +209,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
   });
 
   it('should use static text directly when text is a string', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -221,7 +221,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -251,7 +251,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
             const dialogueResult = showDialogue(
               npcId,
               nodeId,
-              gameStateManager
+              game
             );
 
             // Text should match exactly the static text from the node
@@ -269,8 +269,8 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
   });
 
   it('should handle reputation boundary conditions correctly in function-based text', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test specifically with NPCs that have reputation-dependent greeting text
     const npcIds = ['chen_barnards', 'cole_sol', 'okonkwo_ross154'];
@@ -290,14 +290,14 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
         // Test greeting text at each boundary
         for (const reputation of boundaryReputations) {
           // Set up NPC state with boundary reputation
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Show greeting dialogue
           const dialogueResult = showDialogue(
             npcId,
             'greeting',
-            gameStateManager
+            game
           );
 
           // Verify text is valid
@@ -305,7 +305,7 @@ describe('Dynamic Dialogue Text Generation Properties', () => {
           expect(dialogueResult.text.length).toBeGreaterThan(0);
 
           // Verify reputation tier is correct
-          const expectedTier = gameStateManager.getRepTier(reputation);
+          const expectedTier = game.getRepTier(reputation);
           expect(dialogueResult.reputationTier.name).toBe(expectedTier.name);
         }
       }),

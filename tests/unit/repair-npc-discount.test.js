@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { REPAIR_CONFIG } from '@game/constants.js';
 
 describe('Repair NPC discount', () => {
@@ -8,7 +8,7 @@ describe('Repair NPC discount', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
     // Damage hull to allow repair
     const state = gsm.getState();
     gsm.updateShipCondition(50, state.ship.engine, state.ship.lifeSupport);

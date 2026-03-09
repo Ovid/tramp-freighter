@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipStatusPanel } from '../../src/features/ship-status/ShipStatusPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from "@game/state/game-coordinator.js";
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
@@ -32,10 +32,10 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -79,11 +79,11 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const shipName = gameStateManager.getShip().name;
-        const wrapper = createWrapper(gameStateManager);
+        const shipName = game.getShip().name;
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -104,10 +104,10 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -145,11 +145,11 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const ship = gameStateManager.getShip();
-        const wrapper = createWrapper(gameStateManager);
+        const ship = game.getShip();
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -196,11 +196,11 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const ship = gameStateManager.getShip();
-        const wrapper = createWrapper(gameStateManager);
+        const ship = game.getShip();
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -251,13 +251,13 @@ describe('ShipStatusPanel Property Tests', () => {
         async (newName) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render ShipStatusPanel
           const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -266,16 +266,16 @@ describe('ShipStatusPanel Property Tests', () => {
 
           // Get initial ship name
           const initialHeader = container.querySelector('h2');
-          const initialName = gameStateManager.getShip().name;
+          const initialName = game.getShip().name;
           expect(initialHeader.textContent).toContain(initialName);
 
           // Update ship name
-          gameStateManager.updateShipName(newName);
+          game.updateShipName(newName);
 
           // Wait for component to re-render
           await waitFor(() => {
             const header = container.querySelector('h2');
-            const sanitizedName = gameStateManager.getShip().name;
+            const sanitizedName = game.getShip().name;
             expect(header.textContent).toContain(sanitizedName);
             expect(header.textContent).not.toContain(initialName);
           });
@@ -294,13 +294,13 @@ describe('ShipStatusPanel Property Tests', () => {
         async (newHull, newEngine, newLifeSupport) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render ShipStatusPanel
           const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -308,11 +308,11 @@ describe('ShipStatusPanel Property Tests', () => {
           });
 
           // Update ship condition
-          gameStateManager.state.ship.hull = newHull;
-          gameStateManager.state.ship.engine = newEngine;
-          gameStateManager.state.ship.lifeSupport = newLifeSupport;
+          game.state.ship.hull = newHull;
+          game.state.ship.engine = newEngine;
+          game.state.ship.lifeSupport = newLifeSupport;
 
-          gameStateManager.emit('shipConditionChanged', {
+          game.emit('shipConditionChanged', {
             hull: newHull,
             engine: newEngine,
             lifeSupport: newLifeSupport,
@@ -339,10 +339,10 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
           wrapper,
@@ -365,13 +365,13 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Add an invalid quirk ID
-        gameStateManager.state.ship.quirks.push('invalid_quirk_id');
+        game.state.ship.quirks.push('invalid_quirk_id');
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Should render without errors
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -389,7 +389,7 @@ describe('ShipStatusPanel Property Tests', () => {
         const quirkItems = quirksSection.querySelectorAll('.quirk-item');
         // Should have one less item than total quirks (invalid one filtered out)
         expect(quirkItems.length).toBe(
-          gameStateManager.state.ship.quirks.length - 1
+          game.state.ship.quirks.length - 1
         );
       }),
       { numRuns: 100 }
@@ -401,13 +401,13 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Add an invalid upgrade ID
-        gameStateManager.state.ship.upgrades.push('invalid_upgrade_id');
+        game.state.ship.upgrades.push('invalid_upgrade_id');
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Should render without errors
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -425,7 +425,7 @@ describe('ShipStatusPanel Property Tests', () => {
         const upgradeItems = upgradesSection.querySelectorAll('.quirk-item');
         // Should have one less item than total upgrades (invalid one filtered out)
         expect(upgradeItems.length).toBe(
-          gameStateManager.state.ship.upgrades.length - 1
+          game.state.ship.upgrades.length - 1
         );
       }),
       { numRuns: 100 }
@@ -437,10 +437,10 @@ describe('ShipStatusPanel Property Tests', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render ShipStatusPanel
         const { container } = render(<ShipStatusPanel onClose={() => {}} />, {
@@ -455,7 +455,7 @@ describe('ShipStatusPanel Property Tests', () => {
 
         // Verify component subscribed to upgradesChanged event
         const subscriberCount =
-          gameStateManager.subscribers.upgradesChanged.length;
+          game.subscribers.upgradesChanged.length;
         expect(subscriberCount).toBeGreaterThan(0);
       }),
       { numRuns: 100 }

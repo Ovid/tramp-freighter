@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Mission Abandonment', () => {
   let manager;
@@ -16,7 +16,7 @@ describe('Mission Abandonment', () => {
   };
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('should remove mission from active and add to failed', () => {

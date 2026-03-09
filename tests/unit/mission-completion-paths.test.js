@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Mission Completion Paths — fetch and intel types', () => {
   let gsm;
@@ -9,7 +9,7 @@ describe('Mission Completion Paths — fetch and intel types', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
     state = gsm.getState();
   });
 
