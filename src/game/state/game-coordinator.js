@@ -403,6 +403,7 @@ export class GameCoordinator {
     this.eventEngineManager = new EventEngineManager({
       getOwnState: () => this.state.world.narrativeEvents,
       getGameState: () => this.state,
+      getDaysElapsed: () => this.state.player.daysElapsed,
       isTestEnvironment: this.isTestEnvironment,
     });
     this.questManager = new QuestManager({
