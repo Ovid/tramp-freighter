@@ -1,4 +1,4 @@
-import { useGameState } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 
 /**
  * Custom hook for accessing star system data
@@ -10,6 +10,6 @@ import { useGameState } from '../context/GameContext';
  * @returns {Array} Array of star system objects
  */
 export function useStarData() {
-  const gameStateManager = useGameState();
-  return gameStateManager.starData;
+  const game = useGame();
+  return game.starData;
 }

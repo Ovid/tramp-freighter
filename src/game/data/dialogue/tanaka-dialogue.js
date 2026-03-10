@@ -9,7 +9,7 @@ function getRequirementHint(context, nextStage) {
   if (unmet.includes('debt'))
     return '"You\'re still in Cole\'s pocket. Settle that first." She crosses her arms. "I don\'t work with people who have strings attached."';
   if (unmet.includes('credits'))
-    return '"What I have in mind isn\'t cheap. You\'ll need deeper pockets before we proceed." She glances at your ship. "Keep trading."';
+    return `"What I have in mind isn't cheap. You'll need at least ${ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString()} credits before we proceed." She glances at your ship. "Keep trading."`;
   if (unmet.includes('rep'))
     return '"I like you, captain. But I don\'t know you well enough yet for what comes next." She turns back to her work. "Keep visiting. Bring supplies. We\'ll get there."';
   return null;

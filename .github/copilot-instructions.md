@@ -25,19 +25,19 @@ This file provides comprehensive custom instructions for GitHub Copilot when wor
 
 ### Bridge Pattern (Critical)
 
-The app uses a **Bridge Pattern** to connect the imperative `GameStateManager` singleton to React's declarative model:
+The app uses a **Bridge Pattern** to connect the imperative `GameCoordinator` singleton to React's declarative model:
 
-- **GameContext** (`src/context/GameContext.jsx`): Provides GameStateManager via React Context
+- **GameContext** (`src/context/GameContext.jsx`): Provides GameCoordinator via React Context
 - **useGameEvent(eventName)** (`src/hooks/useGameEvent.js`): Subscribe to state changes, auto-cleanup on unmount
 - **useGameAction()** (`src/hooks/useGameAction.js`): Trigger game actions (jump, buyGood, sellGood, refuel, etc.)
 
-**CRITICAL RULE**: Components must **NEVER** call `GameStateManager.getState()` directly or duplicate game state in React state. All state flows through Bridge Pattern hooks.
+**CRITICAL RULE**: Components must **NEVER** call `GameCoordinator.getState()` directly or duplicate game state in React state. All state flows through Bridge Pattern hooks.
 
 ### Event-Driven State Management
 
-- **GameStateManager**: Single source of truth for all game state
+- **GameCoordinator**: Single source of truth for all game state
 - **Event System**: Components subscribe via `useGameEvent`, trigger changes via `useGameAction`
-- **Manager Delegation**: GameStateManager delegates to specialized managers in `src/game/state/managers/`
+- **Manager Delegation**: GameCoordinator delegates to specialized managers in `src/game/state/managers/`
 - **Event Emission Convention**: Low-level mutation helpers (e.g., `updateHeat`, `clampHeat`) intentionally do NOT emit events. Orchestrating methods (e.g., `borrow`, `makePayment`) perform all mutations first, then emit a single event at the end. This prevents double-emissions and broadcasting stale intermediate state. Do not flag missing event emissions in helper methods as bugs.
 
 ### Feature-Based Organization
@@ -137,7 +137,7 @@ notes/                    # Specifications and documentation
 1. **Feature Co-location**: Keep related components, hooks, and utils together in feature directories
 2. **Pure Functions**: Separate validation/calculation logic from components
 3. **No Manual DOM Manipulation**: Use React's declarative rendering only
-4. **Manager Delegation**: GameStateManager coordinates specialized domain managers
+4. **Manager Delegation**: GameCoordinator coordinates specialized domain managers
 5. **Event System**: Components subscribe to changes, don't poll state
 
 ## File Naming Conventions
@@ -164,7 +164,7 @@ import { useGameAction } from '@hooks/useGameAction.js';
  * @param {Function} props.onClose - Close callback
  */
 function TradePanel({ onClose }) {
-  // Access GameStateManager via context (rarely needed directly)
+  // Access GameCoordinator via context (rarely needed directly)
   const gameStateManager = useGameState();
   
   // Subscribe to state changes via events
@@ -279,7 +279,7 @@ Cargo stacks use this shape (ALWAYS):
 
 ### State Management
 
-GameStateManager is the **single source of truth** with this state structure:
+GameCoordinator is the **single source of truth** with this state structure:
 
 ```javascript
 {
@@ -477,7 +477,7 @@ REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD = 20
 
 ### When Suggesting Code
 
-1. **Follow Bridge Pattern**: Don't bypass GameStateManager
+1. **Follow Bridge Pattern**: Don't bypass GameCoordinator
 2. **Use custom hooks**: Leverage `useGameEvent`/`useGameAction`
 3. **Avoid manual DOM**: React declarative rendering only
 4. **Consider floating-point**: Use epsilon for comparisons
@@ -489,7 +489,7 @@ REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD = 20
 ### When Debugging
 
 1. Check known issues in recent commit messages
-2. Review manager methods, not just GameStateManager
+2. Review manager methods, not just GameCoordinator
 3. Consider event emission timing (especially for save-load)
 4. Verify subscription cleanup in `useEffect` hooks
 5. Check for 0-value handling (use `??` not `||`)

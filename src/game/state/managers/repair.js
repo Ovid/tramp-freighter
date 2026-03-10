@@ -15,10 +15,6 @@ import {
  * - NPC free repair benefits system
  */
 export class RepairManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Calculate repair cost for a ship system
    *
@@ -61,9 +57,9 @@ export class RepairManager extends BaseManager {
       return { success: false, reason: 'Invalid system type' };
     }
 
-    const state = this.getState();
-    const currentCondition = state.ship[systemType];
-    const credits = state.player.credits;
+    const condition = this.capabilities.getShipCondition();
+    const currentCondition = condition[systemType];
+    const credits = this.capabilities.getCredits();
     const cost = this.getRepairCost(
       systemType,
       amount,
@@ -96,27 +92,18 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    // Deduct credits
-    this.gameStateManager.updateCredits(credits - cost);
+    this.capabilities.updateCredits(credits - cost);
 
-    // Increase condition (clamped by updateShipCondition)
-    const newConditions = {
-      hull: state.ship.hull,
-      engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport,
-    };
-
+    const newConditions = { ...condition };
     newConditions[systemType] = currentCondition + amount;
 
-    this.gameStateManager.updateShipCondition(
+    this.capabilities.updateShipCondition(
       newConditions.hull,
       newConditions.engine,
       newConditions.lifeSupport
     );
 
-    // Persist immediately - repair modifies credits and ship condition
-    this.gameStateManager.markDirty();
-
+    this.capabilities.markDirty();
     return { success: true, reason: null };
   }
 
@@ -138,8 +125,8 @@ export class RepairManager extends BaseManager {
       return { success: false, reason: 'Invalid system type' };
     }
 
-    const state = this.getState();
-    const currentCondition = state.ship[systemType];
+    const condition = this.capabilities.getShipCondition();
+    const currentCondition = condition[systemType];
 
     if (currentCondition > REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
       return {
@@ -152,32 +139,25 @@ export class RepairManager extends BaseManager {
       REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
     const repairCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
 
-    if (state.player.credits >= repairCost) {
-      return {
-        success: false,
-        reason: 'You can afford standard repair',
-      };
+    if (this.capabilities.getCredits() >= repairCost) {
+      return { success: false, reason: 'You can afford standard repair' };
     }
 
-    const newConditions = {
-      hull: state.ship.hull,
-      engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport,
-    };
+    const newConditions = { ...condition };
     newConditions[systemType] = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET;
 
-    this.gameStateManager.updateShipCondition(
+    this.capabilities.updateShipCondition(
       newConditions.hull,
       newConditions.engine,
       newConditions.lifeSupport
     );
 
-    this.gameStateManager.updateTime(
-      state.player.daysElapsed + REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
+    this.capabilities.advanceTime(
+      this.capabilities.getDaysElapsed() +
+        REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY
     );
 
-    this.gameStateManager.markDirty();
-
+    this.capabilities.markDirty();
     return { success: true, reason: null };
   }
 
@@ -206,8 +186,8 @@ export class RepairManager extends BaseManager {
       return { success: false, reason: 'Invalid system type' };
     }
 
-    const state = this.getState();
-    const currentTargetCondition = state.ship[targetType];
+    const condition = this.capabilities.getShipCondition();
+    const currentTargetCondition = condition[targetType];
 
     if (currentTargetCondition > REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
       return {
@@ -232,7 +212,7 @@ export class RepairManager extends BaseManager {
         return { success: false, reason: 'Donation amount must be positive' };
       }
 
-      const donorCondition = state.ship[donation.system];
+      const donorCondition = condition[donation.system];
 
       if (donorCondition <= REPAIR_CONFIG.CRITICAL_SYSTEM_THRESHOLD) {
         return {
@@ -265,26 +245,20 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    const newConditions = {
-      hull: state.ship.hull,
-      engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport,
-    };
-
+    const newConditions = { ...condition };
     newConditions[targetType] = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET;
 
     for (const donation of donations) {
       newConditions[donation.system] -= donation.amount;
     }
 
-    this.gameStateManager.updateShipCondition(
+    this.capabilities.updateShipCondition(
       newConditions.hull,
       newConditions.engine,
       newConditions.lifeSupport
     );
 
-    this.gameStateManager.markDirty();
-
+    this.capabilities.markDirty();
     return { success: true, reason: null };
   }
 
@@ -302,15 +276,13 @@ export class RepairManager extends BaseManager {
     this.validateState();
 
     // Validate NPC ID
-    this.gameStateManager.validateAndGetNPCData(npcId);
-
-    const state = this.getState();
+    this.capabilities.validateAndGetNPCData(npcId);
 
     // Get NPC state (creates default if doesn't exist)
-    const npcState = this.gameStateManager.getNPCState(npcId);
+    const npcState = this.capabilities.getNPCState(npcId);
 
     // Check reputation tier is Trusted or Family
-    const repTier = this.gameStateManager.getRepTier(npcState.rep);
+    const repTier = this.capabilities.getRepTier(npcState.rep);
     const isTrusted =
       npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
       npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
@@ -325,7 +297,7 @@ export class RepairManager extends BaseManager {
     }
 
     // Check once-per-visit limitation (lastFreeRepairDay is not current day)
-    const currentDay = state.player.daysElapsed;
+    const currentDay = this.capabilities.getDaysElapsed();
     if (
       npcState.lastFreeRepairDay !== null &&
       npcState.lastFreeRepairDay === currentDay
@@ -389,36 +361,36 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    const state = this.getState();
+    const condition = this.capabilities.getShipCondition();
 
     // Calculate repair amount (up to maxHullPercent of hull damage)
     const maxRepairPercent = availability.maxHullPercent;
     const actualRepairPercent = Math.min(hullDamagePercent, maxRepairPercent);
 
     // Apply repair to ship hull
-    const currentHull = state.ship.hull;
+    const currentHull = condition.hull;
     const newHull = Math.min(
       SHIP_CONFIG.CONDITION_BOUNDS.MAX,
       currentHull + actualRepairPercent
     );
 
     // Update ship condition
-    this.gameStateManager.updateShipCondition(
+    this.capabilities.updateShipCondition(
       newHull,
-      state.ship.engine,
-      state.ship.lifeSupport
+      condition.engine,
+      condition.lifeSupport
     );
 
     // Get NPC state and set lastFreeRepairDay to current day
-    const npcState = this.gameStateManager.getNPCState(npcId);
-    npcState.lastFreeRepairDay = state.player.daysElapsed;
+    const npcState = this.capabilities.getNPCState(npcId);
+    npcState.lastFreeRepairDay = this.capabilities.getDaysElapsed();
 
     // Update interaction tracking
-    npcState.lastInteraction = state.player.daysElapsed;
+    npcState.lastInteraction = this.capabilities.getDaysElapsed();
     npcState.interactions += 1;
 
     // Persist immediately - free repair modifies ship condition and NPC state
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return {
       success: true,

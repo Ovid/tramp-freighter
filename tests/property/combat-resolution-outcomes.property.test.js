@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { COMBAT_CONFIG } from '../../src/game/constants.js';
@@ -15,11 +15,11 @@ import { COMBAT_CONFIG } from '../../src/game/constants.js';
  * success rates, costs, and rewards according to the configuration.
  */
 describe('Combat Resolution Outcomes Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   /**
@@ -55,10 +55,7 @@ describe('Combat Resolution Outcomes Property Tests', () => {
         ),
         (encounter, choice) => {
           // Resolve the combat choice using the current game state
-          const outcome = gameStateManager.resolveCombatChoice(
-            encounter,
-            choice
-          );
+          const outcome = game.resolveCombatChoice(encounter, choice);
 
           // Verify outcome structure is valid
           expect(outcome).toBeDefined();

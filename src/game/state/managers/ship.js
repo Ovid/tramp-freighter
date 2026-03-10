@@ -19,10 +19,6 @@ import { sanitizeShipName } from '../../utils/string-utils.js';
  * - Ship name management
  */
 export class ShipManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Assign random quirks to a ship
    *
@@ -120,14 +116,14 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Unknown quirk' };
     }
 
-    const state = this.getState();
-    if (state.ship.quirks.includes(quirkId)) {
+    const ship = this.capabilities.getOwnState();
+    if (ship.quirks.includes(quirkId)) {
       return { success: false, reason: 'Quirk already installed' };
     }
 
-    state.ship.quirks.push(quirkId);
-    this.emit(EVENT_NAMES.QUIRKS_CHANGED, state.ship.quirks);
-    this.gameStateManager.markDirty();
+    ship.quirks.push(quirkId);
+    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -143,15 +139,15 @@ export class ShipManager extends BaseManager {
   removeQuirk(quirkId) {
     this.validateState();
 
-    const state = this.getState();
-    const index = state.ship.quirks.indexOf(quirkId);
+    const ship = this.capabilities.getOwnState();
+    const index = ship.quirks.indexOf(quirkId);
     if (index === -1) {
       return { success: false, reason: 'Quirk not installed' };
     }
 
-    state.ship.quirks.splice(index, 1);
-    this.emit(EVENT_NAMES.QUIRKS_CHANGED, state.ship.quirks);
-    this.gameStateManager.markDirty();
+    ship.quirks.splice(index, 1);
+    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -186,27 +182,30 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Unknown upgrade' };
     }
 
-    const state = this.getState();
-    if (state.ship.upgrades.includes(upgradeId)) {
+    const ship = this.capabilities.getOwnState();
+    if (ship.upgrades.includes(upgradeId)) {
       return { success: false, reason: 'Upgrade already installed' };
     }
 
-    state.ship.upgrades.push(upgradeId);
+    ship.upgrades.push(upgradeId);
 
     // Apply upgrade effects to ship capabilities
     const capabilities = this.calculateShipCapabilities();
 
     // Update ship state with new capabilities
-    if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
-      state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+    if (capabilities.cargoCapacity !== ship.cargoCapacity) {
+      ship.cargoCapacity = capabilities.cargoCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
-    if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
-      state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
+      ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
 
-    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -222,28 +221,31 @@ export class ShipManager extends BaseManager {
   removeUpgrade(upgradeId) {
     this.validateState();
 
-    const state = this.getState();
-    const index = state.ship.upgrades.indexOf(upgradeId);
+    const ship = this.capabilities.getOwnState();
+    const index = ship.upgrades.indexOf(upgradeId);
     if (index === -1) {
       return { success: false, reason: 'Upgrade not installed' };
     }
 
-    state.ship.upgrades.splice(index, 1);
+    ship.upgrades.splice(index, 1);
 
     // Recalculate ship capabilities
     const capabilities = this.calculateShipCapabilities();
 
     // Update ship state with new capabilities
-    if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
-      state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+    if (capabilities.cargoCapacity !== ship.cargoCapacity) {
+      ship.cargoCapacity = capabilities.cargoCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
-    if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
-      state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
+      ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
 
-    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
-    this.gameStateManager.markDirty();
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -257,9 +259,10 @@ export class ShipManager extends BaseManager {
     this.validateState();
 
     const sanitized = sanitizeShipName(newName);
-    const state = this.getState();
-    state.ship.name = sanitized;
-    this.emit(EVENT_NAMES.SHIP_NAME_CHANGED, sanitized);
+    const ship = this.capabilities.getOwnState();
+    ship.name = sanitized;
+    this.capabilities.emit(EVENT_NAMES.SHIP_NAME_CHANGED, sanitized);
+    this.capabilities.markDirty();
   }
 
   /**
@@ -275,33 +278,33 @@ export class ShipManager extends BaseManager {
   updateShipCondition(hull, engine, lifeSupport) {
     this.validateState();
 
-    const state = this.getState();
+    const ship = this.capabilities.getOwnState();
 
     // Clamp all values to valid range
-    state.ship.hull = Math.max(
+    ship.hull = Math.max(
       SHIP_CONFIG.CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, hull)
     );
-    state.ship.engine = Math.max(
+    ship.engine = Math.max(
       SHIP_CONFIG.CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, engine)
     );
-    state.ship.lifeSupport = Math.max(
+    ship.lifeSupport = Math.max(
       SHIP_CONFIG.CONDITION_BOUNDS.MIN,
       Math.min(SHIP_CONFIG.CONDITION_BOUNDS.MAX, lifeSupport)
     );
 
-    this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
-      hull: state.ship.hull,
-      engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport,
+    this.capabilities.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
+      hull: ship.hull,
+      engine: ship.engine,
+      lifeSupport: ship.lifeSupport,
     });
 
     // Check for warnings and emit them
     const warnings = this.checkConditionWarnings();
     if (warnings.length > 0) {
       warnings.forEach((warning) => {
-        this.emit(EVENT_NAMES.CONDITION_WARNING, warning);
+        this.capabilities.emit(EVENT_NAMES.CONDITION_WARNING, warning);
       });
     }
   }
@@ -313,11 +316,11 @@ export class ShipManager extends BaseManager {
   getShipCondition() {
     this.validateState();
 
-    const state = this.getState();
+    const ship = this.capabilities.getOwnState();
     return {
-      hull: state.ship.hull,
-      engine: state.ship.engine,
-      lifeSupport: state.ship.lifeSupport,
+      hull: ship.hull,
+      engine: ship.engine,
+      lifeSupport: ship.lifeSupport,
     };
   }
 
@@ -377,7 +380,7 @@ export class ShipManager extends BaseManager {
   validateUpgradePurchase(upgradeId) {
     this.validateState();
 
-    const state = this.getState();
+    const ship = this.capabilities.getOwnState();
     const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
     if (!upgrade) {
@@ -385,12 +388,12 @@ export class ShipManager extends BaseManager {
     }
 
     // Check if already installed
-    if (state.ship.upgrades.includes(upgradeId)) {
+    if (ship.upgrades.includes(upgradeId)) {
       return { valid: false, reason: 'Already installed' };
     }
 
     // Check credits
-    if (state.player.credits < upgrade.cost) {
+    if (this.capabilities.getCredits() < upgrade.cost) {
       return { valid: false, reason: 'Insufficient credits' };
     }
 
@@ -412,25 +415,30 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: validation.reason };
     }
 
-    const state = this.getState();
+    const ship = this.capabilities.getOwnState();
     const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
 
-    // Deduct credits through GameStateManager
-    this.gameStateManager.updateCredits(state.player.credits - upgrade.cost);
+    // Deduct credits through capabilities
+    this.capabilities.updateCredits(
+      this.capabilities.getCredits() - upgrade.cost
+    );
 
     // Add upgrade to ship
-    state.ship.upgrades.push(upgradeId);
+    ship.upgrades.push(upgradeId);
 
     // Apply upgrade effects to ship capabilities
     const capabilities = this.calculateShipCapabilities();
 
     // Update ship state with new capabilities
-    if (capabilities.cargoCapacity !== state.ship.cargoCapacity) {
-      state.ship.cargoCapacity = capabilities.cargoCapacity;
-      this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, capabilities.cargoCapacity);
+    if (capabilities.cargoCapacity !== ship.cargoCapacity) {
+      ship.cargoCapacity = capabilities.cargoCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.CARGO_CAPACITY_CHANGED,
+        capabilities.cargoCapacity
+      );
     }
-    if (capabilities.hiddenCargoCapacity !== state.ship.hiddenCargoCapacity) {
-      state.ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
+      ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
 
     // Note: Fuel capacity is calculated on-demand via getFuelCapacity()
@@ -438,10 +446,10 @@ export class ShipManager extends BaseManager {
     // are applied during calculations via calculateShipCapabilities(), not stored
 
     // Emit upgrade change event
-    this.emit(EVENT_NAMES.UPGRADES_CHANGED, state.ship.upgrades);
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
 
     // Persist immediately - upgrade purchases modify credits and ship state
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -458,7 +466,7 @@ export class ShipManager extends BaseManager {
   calculateShipCapabilities() {
     this.validateState();
 
-    const state = this.getState();
+    const ship = this.capabilities.getOwnState();
     const baseCapabilities = {
       fuelCapacity: SHIP_CONFIG.FUEL_CAPACITY,
       cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
@@ -469,7 +477,7 @@ export class ShipManager extends BaseManager {
     };
 
     // Apply each installed upgrade
-    for (const upgradeId of state.ship.upgrades) {
+    for (const upgradeId of ship.upgrades) {
       const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
       if (!upgrade) {
         this.warn(`Unknown upgrade installed: ${upgradeId}`);
@@ -529,15 +537,15 @@ export class ShipManager extends BaseManager {
   getHiddenCargo() {
     this.validateState();
 
-    const state = this.getState();
-    return state.ship.hiddenCargo;
+    const ship = this.capabilities.getOwnState();
+    return ship.hiddenCargo;
   }
 
   clearHiddenCargo() {
     this.validateState();
-    const state = this.getState();
-    state.ship.hiddenCargo = [];
-    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, state.ship.hiddenCargo);
+    const ship = this.capabilities.getOwnState();
+    ship.hiddenCargo = [];
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
   }
 
   /**
@@ -550,8 +558,7 @@ export class ShipManager extends BaseManager {
   moveToHiddenCargo(good, qty) {
     this.validateState();
 
-    const state = this.getState();
-    const ship = state.ship;
+    const ship = this.capabilities.getOwnState();
 
     // Find cargo stack with matching good
     const cargoIndex = ship.cargo.findIndex((stack) => stack.good === good);
@@ -586,12 +593,14 @@ export class ShipManager extends BaseManager {
     // Add to hidden cargo (stacks with matching good and buyPrice)
     this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
-    // Emit cargo change events
-    this.gameStateManager.updateCargo(ship.cargo);
-    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    // Emit cargo change events (new references for React re-renders)
+    this.capabilities.updateCargo([...ship.cargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
+      ...ship.hiddenCargo,
+    ]);
 
     // Persist immediately - cargo changes should be saved
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -606,8 +615,7 @@ export class ShipManager extends BaseManager {
   moveToRegularCargo(good, qty) {
     this.validateState();
 
-    const state = this.getState();
-    const ship = state.ship;
+    const ship = this.capabilities.getOwnState();
 
     // Find hidden cargo stack with matching good
     const hiddenIndex = ship.hiddenCargo.findIndex(
@@ -639,12 +647,14 @@ export class ShipManager extends BaseManager {
     // Add to regular cargo (stacks with matching good and buyPrice)
     this.addToCargoArray(ship.cargo, hiddenStack, qty);
 
-    // Emit cargo change events
-    this.gameStateManager.updateCargo(ship.cargo);
-    this.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    // Emit cargo change events (new references for React re-renders)
+    this.capabilities.updateCargo([...ship.cargo]);
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
+      ...ship.hiddenCargo,
+    ]);
 
     // Persist immediately - cargo changes should be saved
-    this.gameStateManager.markDirty();
+    this.capabilities.markDirty();
 
     return { success: true, reason: '' };
   }
@@ -682,8 +692,8 @@ export class ShipManager extends BaseManager {
 
   removeCargoForMission(goodType, quantity) {
     this.validateState();
-    const state = this.getState();
-    const relevantStacks = state.ship.cargo.filter((c) => c.good === goodType);
+    const ship = this.capabilities.getOwnState();
+    const relevantStacks = ship.cargo.filter((c) => c.good === goodType);
     const totalAvailable = relevantStacks.reduce((sum, c) => sum + c.qty, 0);
 
     if (totalAvailable < quantity) {
@@ -691,18 +701,19 @@ export class ShipManager extends BaseManager {
     }
 
     let remaining = quantity;
-    for (let i = state.ship.cargo.length - 1; i >= 0 && remaining > 0; i--) {
-      if (state.ship.cargo[i].good === goodType) {
-        const removeFromStack = Math.min(state.ship.cargo[i].qty, remaining);
-        state.ship.cargo[i].qty -= removeFromStack;
+    for (let i = ship.cargo.length - 1; i >= 0 && remaining > 0; i--) {
+      if (ship.cargo[i].good === goodType) {
+        const removeFromStack = Math.min(ship.cargo[i].qty, remaining);
+        ship.cargo[i].qty -= removeFromStack;
         remaining -= removeFromStack;
-        if (state.ship.cargo[i].qty <= 0) {
-          state.ship.cargo.splice(i, 1);
+        if (ship.cargo[i].qty <= 0) {
+          ship.cargo.splice(i, 1);
         }
       }
     }
 
-    this.emit(EVENT_NAMES.CARGO_CHANGED, state.ship.cargo);
+    this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...ship.cargo]);
+    this.capabilities.markDirty();
     return { success: true };
   }
 }

@@ -27,10 +27,6 @@ import {
  * Validates: Requirements 1.1, 1.2, 1.10, 1.11, 1.12, 8.3, 9.1, 9.2, 9.3
  */
 export class DangerManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Get the danger zone classification for a star system
    *
@@ -54,7 +50,7 @@ export class DangerManager extends BaseManager {
       return 'contested';
     }
 
-    const system = this.getStarData().find((s) => s.id === systemId);
+    const system = this.capabilities.starData.find((s) => s.id === systemId);
     if (system) {
       const distance = calculateDistanceFromSol(system);
       if (distance > ZONES.dangerous.distanceThreshold) {
@@ -76,7 +72,7 @@ export class DangerManager extends BaseManager {
    */
   getKarma() {
     this.validateState();
-    return this.getState().player.karma;
+    return this.capabilities.getKarma();
   }
 
   /**
@@ -86,16 +82,14 @@ export class DangerManager extends BaseManager {
    */
   setKarma(value) {
     this.validateState();
-
     const newKarma = Math.max(
       KARMA_CONFIG.MIN,
       Math.min(KARMA_CONFIG.MAX, value)
     );
-
-    this.getState().player.karma = newKarma;
-
+    this.capabilities.setKarma(newKarma);
     this.log(`Karma set to ${newKarma}`);
-    this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
+    this.capabilities.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
+    this.capabilities.markDirty();
   }
 
   /**
@@ -106,24 +100,22 @@ export class DangerManager extends BaseManager {
    */
   modifyKarma(amount, reason) {
     this.validateState();
-
-    const currentKarma = this.getState().player.karma;
+    const currentKarma = this.capabilities.getKarma();
     const newKarma = Math.max(
       KARMA_CONFIG.MIN,
       Math.min(KARMA_CONFIG.MAX, currentKarma + amount)
     );
-
-    this.getState().player.karma = newKarma;
-
-    if (this.getState().stats && amount > 0) {
-      this.getState().stats.charitableActs++;
+    this.capabilities.setKarma(newKarma);
+    const stats = this.capabilities.getStats();
+    if (stats && amount > 0) {
+      stats.charitableActs++;
     }
-
     this.log(
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`
     );
-    this.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
-    this.gameStateManager.checkAchievements();
+    this.capabilities.emit(EVENT_NAMES.KARMA_CHANGED, newKarma);
+    this.capabilities.checkAchievements();
+    this.capabilities.markDirty();
   }
 
   // ========================================================================
@@ -262,7 +254,7 @@ export class DangerManager extends BaseManager {
    */
   hasIllegalMissionCargo(cargo) {
     if (!cargo) {
-      cargo = this.getState().ship.cargo;
+      cargo = this.capabilities.getShipCargo();
     }
     return cargo.some(
       (item) =>
@@ -316,19 +308,16 @@ export class DangerManager extends BaseManager {
    */
   removeRestrictedCargo() {
     this.validateState();
-    const state = this.getState();
-    const systemId = state.player.currentSystem;
+    const systemId = this.capabilities.getCurrentSystem();
     const zone = this.getDangerZone(systemId);
-
+    const cargo = this.capabilities.getShipCargo();
     const allRestricted = this._buildRestrictedList(zone, systemId);
-
-    const newCargo = state.ship.cargo.filter((item) => {
+    const newCargo = cargo.filter((item) => {
       if (item.missionId && MISSION_CARGO_TYPES.illegal.includes(item.good))
         return false;
       return !allRestricted.includes(item.good);
     });
-
-    this.gameStateManager.updateCargo(newCargo);
+    this.capabilities.updateCargo(newCargo);
   }
 
   /**
@@ -338,14 +327,11 @@ export class DangerManager extends BaseManager {
    */
   incrementDangerFlag(flagName) {
     this.validateState();
-    const state = this.getState();
-    if (
-      state.world.dangerFlags &&
-      typeof state.world.dangerFlags[flagName] === 'number'
-    ) {
-      state.world.dangerFlags[flagName]++;
+    const dangerFlags = this.capabilities.getDangerFlags();
+    if (dangerFlags && typeof dangerFlags[flagName] === 'number') {
+      dangerFlags[flagName]++;
     }
-    this.gameStateManager.checkAchievements();
+    this.capabilities.checkAchievements();
   }
 
   // ========================================================================
@@ -368,7 +354,7 @@ export class DangerManager extends BaseManager {
       );
     }
 
-    return this.getState().player.factions[faction];
+    return this.capabilities.getPlayerFactions()[faction];
   }
 
   /**
@@ -392,12 +378,13 @@ export class DangerManager extends BaseManager {
       Math.min(FACTION_CONFIG.MAX, value)
     );
 
-    this.getState().player.factions[faction] = newRep;
+    this.capabilities.getPlayerFactions()[faction] = newRep;
 
     this.log(`${faction} reputation set to ${newRep}`);
-    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
-      ...this.getState().player.factions,
+    this.capabilities.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
+      ...this.capabilities.getPlayerFactions(),
     });
+    this.capabilities.markDirty();
   }
 
   /**
@@ -417,20 +404,21 @@ export class DangerManager extends BaseManager {
       );
     }
 
-    const currentRep = this.getState().player.factions[faction];
+    const currentRep = this.capabilities.getPlayerFactions()[faction];
     const newRep = Math.max(
       FACTION_CONFIG.MIN,
       Math.min(FACTION_CONFIG.MAX, currentRep + amount)
     );
 
-    this.getState().player.factions[faction] = newRep;
+    this.capabilities.getPlayerFactions()[faction] = newRep;
 
     this.log(
       `${faction} reputation changed by ${amount} (${reason}): ${currentRep} -> ${newRep}`
     );
 
-    this.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
-      ...this.getState().player.factions,
+    this.capabilities.emit(EVENT_NAMES.FACTION_REP_CHANGED, {
+      ...this.capabilities.getPlayerFactions(),
     });
+    this.capabilities.markDirty();
   }
 }

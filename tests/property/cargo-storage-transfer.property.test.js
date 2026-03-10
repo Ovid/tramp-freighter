@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -18,7 +18,7 @@ import {
  */
 
 describe('Cargo Storage Transfer Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -32,19 +32,19 @@ describe('Cargo Storage Transfer Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    const testGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    testGameStateManager.initNewGame();
-    return testGameStateManager;
+    const testGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    testGameCoordinator.initNewGame();
+    return testGameCoordinator;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -82,14 +82,14 @@ describe('Cargo Storage Transfer Property Tests', () => {
         arbCurrentDay(),
         arbCargoArray(),
         (npcId, reputation, currentDay, cargoToStore) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Friendly tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no recent favor
@@ -97,7 +97,7 @@ describe('Cargo Storage Transfer Property Tests', () => {
 
           // Set up ship cargo
           const initialShipCargo = [...cargoToStore];
-          testGameStateManager.updateCargo(initialShipCargo);
+          testGameCoordinator.updateCargo(initialShipCargo);
 
           // Calculate initial cargo quantities
           const initialShipCargoTotal = initialShipCargo.reduce(
@@ -111,14 +111,14 @@ describe('Cargo Storage Transfer Property Tests', () => {
           );
 
           // Store cargo with NPC
-          const result = testGameStateManager.storeCargo(npcId);
+          const result = testGameCoordinator.storeCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Get final state
-          const finalShipCargo = testGameStateManager.getState().ship.cargo;
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalShipCargo = testGameCoordinator.getState().ship.cargo;
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           const finalNPCStoredCargo = finalNPCState.storedCargo || [];
 
           // Calculate final cargo quantities
@@ -161,14 +161,14 @@ describe('Cargo Storage Transfer Property Tests', () => {
         arbCurrentDay(),
         arbCargoArray(),
         (npcId, reputation, currentDay, cargoToStore) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Friendly tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no recent favor
@@ -176,19 +176,19 @@ describe('Cargo Storage Transfer Property Tests', () => {
 
           // Set up ship cargo
           const initialShipCargo = [...cargoToStore];
-          testGameStateManager.updateCargo(initialShipCargo);
+          testGameCoordinator.updateCargo(initialShipCargo);
 
           // Record initial NPC stored cargo
           const initialNPCStoredCargo = [...(npcState.storedCargo || [])];
 
           // Store cargo with NPC
-          const result = testGameStateManager.storeCargo(npcId);
+          const result = testGameCoordinator.storeCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Get final NPC state
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           const finalNPCStoredCargo = finalNPCState.storedCargo || [];
 
           // NPC should have stored cargo
@@ -231,30 +231,30 @@ describe('Cargo Storage Transfer Property Tests', () => {
         arbCurrentDay(),
         arbCargoArray(),
         (npcId, reputation, currentDay, cargoToStore) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Friendly tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no recent favor
           npcState.lastFavorDay = null;
 
           // Set up ship cargo
-          testGameStateManager.updateCargo(cargoToStore);
+          testGameCoordinator.updateCargo(cargoToStore);
 
           // Store cargo with NPC
-          const result = testGameStateManager.storeCargo(npcId);
+          const result = testGameCoordinator.storeCargo(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // lastFavorDay should be set to current day
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           expect(finalNPCState.lastFavorDay).toBe(currentDay);
         }
       ),
@@ -269,14 +269,14 @@ describe('Cargo Storage Transfer Property Tests', () => {
         arbFriendlyReputation(),
         arbCurrentDay(),
         (npcId, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Friendly tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no recent favor
@@ -293,10 +293,10 @@ describe('Cargo Storage Transfer Property Tests', () => {
               buyDate: 0,
             },
           ];
-          testGameStateManager.updateCargo(largeCargo);
+          testGameCoordinator.updateCargo(largeCargo);
 
           // Store cargo with NPC
-          const result = testGameStateManager.storeCargo(npcId, largeCargo);
+          const result = testGameCoordinator.storeCargo(npcId, largeCargo);
 
           // Should succeed
           expect(result.success).toBe(true);
@@ -305,7 +305,7 @@ describe('Cargo Storage Transfer Property Tests', () => {
           expect(result.stored).toBe(NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
 
           // Ship should have 5 units remaining
-          const finalShipCargo = testGameStateManager.getState().ship.cargo;
+          const finalShipCargo = testGameCoordinator.getState().ship.cargo;
           const finalShipTotal = finalShipCargo.reduce(
             (total, stack) => total + stack.qty,
             0
@@ -330,27 +330,27 @@ describe('Cargo Storage Transfer Property Tests', () => {
         arbCurrentDay(),
         arbCargoArray(),
         (npcId, lowReputation, currentDay, cargoToStore) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation below Friendly tier
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = lowReputation;
 
           // Set up ship cargo
-          testGameStateManager.updateCargo(cargoToStore);
+          testGameCoordinator.updateCargo(cargoToStore);
 
           // Record initial state
           const initialShipCargo = [
-            ...testGameStateManager.getState().ship.cargo,
+            ...testGameCoordinator.getState().ship.cargo,
           ];
           const initialNPCStoredCargo = [...(npcState.storedCargo || [])];
 
           // Attempt to store cargo should fail
-          const result = testGameStateManager.storeCargo(npcId, cargoToStore);
+          const result = testGameCoordinator.storeCargo(npcId, cargoToStore);
 
           // Should fail
           expect(result.success).toBe(false);
@@ -358,8 +358,8 @@ describe('Cargo Storage Transfer Property Tests', () => {
           expect(typeof result.message).toBe('string');
 
           // No state should be modified
-          const finalShipCargo = testGameStateManager.getState().ship.cargo;
-          const finalNPCState = testGameStateManager.getNPCState(npcId);
+          const finalShipCargo = testGameCoordinator.getState().ship.cargo;
+          const finalNPCState = testGameCoordinator.getNPCState(npcId);
           const finalNPCStoredCargo = finalNPCState.storedCargo || [];
 
           expect(finalShipCargo).toEqual(initialShipCargo);

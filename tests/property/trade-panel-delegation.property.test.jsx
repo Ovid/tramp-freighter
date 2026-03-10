@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
- * Property 24: Trade panel delegates to GameStateManager
+ * Property 24: Trade panel delegates to GameCoordinator
  *
- * Validates that the TradePanel component delegates all trade operations to GameStateManager
+ * Validates that the TradePanel component delegates all trade operations to GameCoordinator
  * and does not duplicate trade logic.
  *
  * React Migration Spec: Requirements 26.1, 26.2, 26.3
  */
-describe('Property 24: Trade panel delegates to GameStateManager', () => {
+describe('Property 24: Trade panel delegates to GameCoordinator', () => {
   // Suppress React act() warnings for property tests
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -25,25 +25,25 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
     vi.restoreAllMocks();
   });
 
-  it('should call gameStateManager.buyGood when buying goods', () => {
+  it('should call game.buyGood when buying goods', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player credits and dock at a station
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track buyGood calls
         let buyGoodCalled = false;
         let buyGoodArgs = null;
-        const originalBuyGood = gameStateManager.buyGood.bind(gameStateManager);
-        gameStateManager.buyGood = (goodType, quantity, price) => {
+        const originalBuyGood = game.buyGood.bind(game);
+        game.buyGood = (goodType, quantity, price) => {
           buyGoodCalled = true;
           buyGoodArgs = { goodType, quantity, price };
           return originalBuyGood(goodType, quantity, price);
@@ -68,17 +68,17 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
     );
   });
 
-  it('should call gameStateManager.sellGood when selling goods', () => {
+  it('should call game.sellGood when selling goods', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player cargo to sell
-        gameStateManager.state.player.currentSystem = 0; // Sol
-        gameStateManager.state.ship.cargo = [
+        game.state.player.currentSystem = 0; // Sol
+        game.state.ship.cargo = [
           {
             good: 'electronics',
             qty: 10,
@@ -88,14 +88,13 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
           },
         ];
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track sellGood calls
         let sellGoodCalled = false;
         let sellGoodArgs = null;
-        const originalSellGood =
-          gameStateManager.sellGood.bind(gameStateManager);
-        gameStateManager.sellGood = (stackIndex, quantity, salePrice) => {
+        const originalSellGood = game.sellGood.bind(game);
+        game.sellGood = (stackIndex, quantity, salePrice) => {
           sellGoodCalled = true;
           sellGoodArgs = { stackIndex, quantity, salePrice };
           return originalSellGood(stackIndex, quantity, salePrice);
@@ -126,12 +125,12 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -155,15 +154,15 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
-        gameStateManager.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
         // Clear cargo to start with empty state
-        gameStateManager.state.ship.cargo = [];
+        game.state.ship.cargo = [];
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {
@@ -191,14 +190,14 @@ describe('Property 24: Trade panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.currentSystem = 0; // Sol
-        gameStateManager.state.player.credits = 10; // Very low credits
-        gameStateManager.state.ship.cargo = []; // Empty cargo to maximize space
+        game.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10; // Very low credits
+        game.state.ship.cargo = []; // Empty cargo to maximize space
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render TradePanel
         const { container } = render(<TradePanel onClose={() => {}} />, {

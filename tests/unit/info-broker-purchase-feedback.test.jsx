@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -16,22 +16,18 @@ import { createWrapper } from '../react-test-utils.jsx';
  * - Intelligence options list refreshes
  */
 describe('InfoBrokerPanel Purchase Feedback', () => {
-  let gameStateManager;
+  let game;
   let mockOnClose;
 
   beforeEach(() => {
     // Create real game state manager for testing
     const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    game.initNewGame();
 
     // Set up test state
-    gameStateManager.state.player.credits = 1000;
-    gameStateManager.state.player.currentSystem = 0; // Sol
+    game.state.player.credits = 1000;
+    game.state.player.currentSystem = 0; // Sol
 
     mockOnClose = vi.fn();
   });
@@ -41,7 +37,7 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   });
 
   it('should show success message when intelligence is purchased', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<InfoBrokerPanel onClose={mockOnClose} />, { wrapper });
 
@@ -59,10 +55,10 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   });
 
   it('should refresh intelligence options after successful purchase', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     // Spy on listAvailableIntelligence to track calls
-    const listSpy = vi.spyOn(gameStateManager, 'listAvailableIntelligence');
+    const listSpy = vi.spyOn(game, 'listAvailableIntelligence');
 
     render(<InfoBrokerPanel onClose={mockOnClose} />, { wrapper });
 
@@ -80,7 +76,7 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   });
 
   it('should show success message when rumor is purchased', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<InfoBrokerPanel onClose={mockOnClose} />, { wrapper });
 
@@ -98,10 +94,10 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   });
 
   it('should show error message when purchase fails', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     // Set insufficient credits to trigger failure
-    gameStateManager.state.player.credits = 1;
+    game.state.player.credits = 1;
 
     render(<InfoBrokerPanel onClose={mockOnClose} />, { wrapper });
 
@@ -120,7 +116,7 @@ describe('InfoBrokerPanel Purchase Feedback', () => {
   });
 
   it('should clear validation messages when switching tabs', () => {
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<InfoBrokerPanel onClose={mockOnClose} />, { wrapper });
 

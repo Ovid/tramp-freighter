@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { REPAIR_CONFIG } from '../../src/game/constants.js';
 
 vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -8,7 +8,7 @@ describe('cannibalizeSystem — validation and state updates', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

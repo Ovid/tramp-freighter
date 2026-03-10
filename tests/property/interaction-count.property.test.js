@@ -7,15 +7,15 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 describe('Interaction Count Properties', () => {
   it('should increment interaction count by exactly one for each reputation modification', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -24,18 +24,18 @@ describe('Interaction Count Properties', () => {
         (npcId, numModifications) => {
           // Set up NPC state with known initial interaction count
           const initialCount = 0;
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = 0;
           npcState.lastInteraction = 0;
           npcState.interactions = initialCount;
 
           // Apply multiple reputation modifications
           for (let i = 0; i < numModifications; i++) {
-            gameStateManager.modifyRep(npcId, 1, 'test');
+            game.modifyRep(npcId, 1, 'test');
           }
 
           // Check that interaction count increased by exactly the number of modifications
-          const finalCount = gameStateManager.state.npcs[npcId].interactions;
+          const finalCount = game.state.npcs[npcId].interactions;
           expect(finalCount).toBe(initialCount + numModifications);
         }
       ),
@@ -44,8 +44,8 @@ describe('Interaction Count Properties', () => {
   });
 
   it('should increment interaction count for both positive and negative reputation changes', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -57,18 +57,18 @@ describe('Interaction Count Properties', () => {
         (npcId, reputationChanges) => {
           // Set up NPC state with known initial interaction count
           const initialCount = 0;
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = 0;
           npcState.lastInteraction = 0;
           npcState.interactions = initialCount;
 
           // Apply all reputation changes
           for (const change of reputationChanges) {
-            gameStateManager.modifyRep(npcId, change, 'test');
+            game.modifyRep(npcId, change, 'test');
           }
 
           // Check that interaction count increased by exactly the number of changes
-          const finalCount = gameStateManager.state.npcs[npcId].interactions;
+          const finalCount = game.state.npcs[npcId].interactions;
           expect(finalCount).toBe(initialCount + reputationChanges.length);
         }
       ),
@@ -77,8 +77,8 @@ describe('Interaction Count Properties', () => {
   });
 
   it('should maintain separate interaction counts for different NPCs', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Use first two NPCs for testing
     const npc1Id = ALL_NPCS[0].id;
@@ -90,29 +90,29 @@ describe('Interaction Count Properties', () => {
         fc.integer({ min: 1, max: 5 }), // Modifications for NPC 2
         (npc1Mods, npc2Mods) => {
           // Set up both NPCs with initial interaction counts
-          const npc1State = gameStateManager.getNPCState(npc1Id);
+          const npc1State = game.getNPCState(npc1Id);
           npc1State.rep = 0;
           npc1State.lastInteraction = 0;
           npc1State.interactions = 0;
 
-          const npc2State = gameStateManager.getNPCState(npc2Id);
+          const npc2State = game.getNPCState(npc2Id);
           npc2State.rep = 0;
           npc2State.lastInteraction = 0;
           npc2State.interactions = 0;
 
           // Apply modifications to NPC 1
           for (let i = 0; i < npc1Mods; i++) {
-            gameStateManager.modifyRep(npc1Id, 1, 'test');
+            game.modifyRep(npc1Id, 1, 'test');
           }
 
           // Apply modifications to NPC 2
           for (let i = 0; i < npc2Mods; i++) {
-            gameStateManager.modifyRep(npc2Id, 1, 'test');
+            game.modifyRep(npc2Id, 1, 'test');
           }
 
           // Check that each NPC has the correct interaction count
-          const npc1Count = gameStateManager.state.npcs[npc1Id].interactions;
-          const npc2Count = gameStateManager.state.npcs[npc2Id].interactions;
+          const npc1Count = game.state.npcs[npc1Id].interactions;
+          const npc2Count = game.state.npcs[npc2Id].interactions;
 
           expect(npc1Count).toBe(npc1Mods);
           expect(npc2Count).toBe(npc2Mods);
@@ -123,8 +123,8 @@ describe('Interaction Count Properties', () => {
   });
 
   it('should never decrease interaction count', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -136,7 +136,7 @@ describe('Interaction Count Properties', () => {
         }), // Reputation changes
         (npcId, initialCount, reputationChanges) => {
           // Set up NPC state with initial interaction count
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = 0;
           npcState.lastInteraction = 0;
           npcState.interactions = initialCount;
@@ -145,9 +145,8 @@ describe('Interaction Count Properties', () => {
 
           // Apply reputation changes one by one and check monotonicity
           for (const change of reputationChanges) {
-            gameStateManager.modifyRep(npcId, change, 'test');
-            const currentCount =
-              gameStateManager.state.npcs[npcId].interactions;
+            game.modifyRep(npcId, change, 'test');
+            const currentCount = game.state.npcs[npcId].interactions;
 
             // Count should never decrease and should increase by exactly 1
             expect(currentCount).toBeGreaterThanOrEqual(previousCount);

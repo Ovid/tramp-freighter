@@ -7,15 +7,15 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 describe('Trust Modifier Properties', () => {
   it('should apply trust modifier to positive reputation gains', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -28,23 +28,22 @@ describe('Trust Modifier Properties', () => {
 
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = initialRep;
           npcState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          gameStateManager.state.ship.quirks =
-            gameStateManager.state.ship.quirks.filter(
-              (quirk) => quirk !== 'smooth_talker'
-            );
+          game.state.ship.quirks = game.state.ship.quirks.filter(
+            (quirk) => quirk !== 'smooth_talker'
+          );
 
           // Apply reputation change
-          gameStateManager.modifyRep(npcId, reputationGain, 'test');
+          game.modifyRep(npcId, reputationGain, 'test');
 
           // Calculate expected reputation after trust modifier and rounding
           const expectedGain = reputationGain * trustValue;
           const expectedFinalRep = initialRep + expectedGain;
-          const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
+          const actualFinalRep = game.state.npcs[npcId].rep;
 
           // Expected value should be rounded and clamped
           const clampedExpected = Math.max(
@@ -59,8 +58,8 @@ describe('Trust Modifier Properties', () => {
   });
 
   it('should not apply trust modifier to negative reputation changes', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -69,16 +68,16 @@ describe('Trust Modifier Properties', () => {
         (npcId, reputationChange) => {
           // Set up NPC state with known initial reputation
           const initialRep = 0;
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = initialRep;
           npcState.lastInteraction = 0;
 
           // Apply reputation change
-          gameStateManager.modifyRep(npcId, reputationChange, 'test');
+          game.modifyRep(npcId, reputationChange, 'test');
 
           // For negative changes, no trust modifier should be applied
           const expectedFinalRep = initialRep + reputationChange;
-          const actualFinalRep = gameStateManager.state.npcs[npcId].rep;
+          const actualFinalRep = game.state.npcs[npcId].rep;
 
           // Allow for clamping
           const clampedExpected = Math.max(
@@ -93,8 +92,8 @@ describe('Trust Modifier Properties', () => {
   });
 
   it('should apply different trust modifiers for different NPCs', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Use Wei Chen (trust: 0.3) and Marcus Cole (trust: 0.1) for comparison
     const weiChenId = 'chen_barnards';
@@ -106,27 +105,26 @@ describe('Trust Modifier Properties', () => {
         (reputationGain) => {
           // Set up both NPCs with same initial reputation
           const initialRep = 0;
-          const weiChenState = gameStateManager.getNPCState(weiChenId);
+          const weiChenState = game.getNPCState(weiChenId);
           weiChenState.rep = initialRep;
           weiChenState.lastInteraction = 0;
 
-          const marcusState = gameStateManager.getNPCState(marcusColeId);
+          const marcusState = game.getNPCState(marcusColeId);
           marcusState.rep = initialRep;
           marcusState.lastInteraction = 0;
 
           // Remove smooth_talker quirk to isolate trust modifier effect
-          gameStateManager.state.ship.quirks =
-            gameStateManager.state.ship.quirks.filter(
-              (quirk) => quirk !== 'smooth_talker'
-            );
+          game.state.ship.quirks = game.state.ship.quirks.filter(
+            (quirk) => quirk !== 'smooth_talker'
+          );
 
           // Apply same reputation change to both NPCs
-          gameStateManager.modifyRep(weiChenId, reputationGain, 'test');
-          gameStateManager.modifyRep(marcusColeId, reputationGain, 'test');
+          game.modifyRep(weiChenId, reputationGain, 'test');
+          game.modifyRep(marcusColeId, reputationGain, 'test');
 
           // Get final reputations
-          const weiChenFinalRep = gameStateManager.state.npcs[weiChenId].rep;
-          const marcusFinalRep = gameStateManager.state.npcs[marcusColeId].rep;
+          const weiChenFinalRep = game.state.npcs[weiChenId].rep;
+          const marcusFinalRep = game.state.npcs[marcusColeId].rep;
 
           // Wei Chen (trust: 0.3) should have higher reputation gain than Marcus (trust: 0.1)
           return weiChenFinalRep > marcusFinalRep;

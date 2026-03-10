@@ -7,11 +7,13 @@ import {
 } from '../../constants.js';
 
 export class QuestManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
     this.questDefinitions = {};
-    gameStateManager.subscribe(EVENT_NAMES.JUMP_COMPLETED, () => this.onJump());
-    gameStateManager.subscribe(EVENT_NAMES.DOCKED, (data) =>
+    this.capabilities.subscribe(EVENT_NAMES.JUMP_COMPLETED, () =>
+      this.onJump()
+    );
+    this.capabilities.subscribe(EVENT_NAMES.DOCKED, (data) =>
       this.onDock(data?.systemId)
     );
   }
@@ -27,16 +29,16 @@ export class QuestManager extends BaseManager {
 
   getQuestState(questId) {
     if (!this.questDefinitions[questId]) return null;
-    const state = this.getState();
-    if (!state.quests[questId]) {
-      state.quests[questId] = {
+    const quests = this.capabilities.getOwnState();
+    if (!quests[questId]) {
+      quests[questId] = {
         stage: 0,
         data: {},
         startedDay: null,
         completedDay: null,
       };
     }
-    return state.quests[questId];
+    return quests[questId];
   }
 
   advanceQuest(questId) {
@@ -48,21 +50,21 @@ export class QuestManager extends BaseManager {
       return { success: false, reason: 'Quest already complete' };
     }
 
-    const state = this.getState();
     const nextStage = questState.stage + 1;
 
     if (questState.stage === 0) {
-      questState.startedDay = state.player.daysElapsed;
+      questState.startedDay = this.capabilities.getDaysElapsed();
     }
 
     questState.stage = nextStage;
 
     if (nextStage >= questDef.victoryStage) {
-      questState.completedDay = state.player.daysElapsed;
+      questState.completedDay = this.capabilities.getDaysElapsed();
     }
 
-    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
-    this.gameStateManager.markDirty();
+    const quests = this.capabilities.getOwnState();
+    this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.markDirty();
 
     return { success: true, stage: nextStage };
   }
@@ -93,8 +95,9 @@ export class QuestManager extends BaseManager {
     }
 
     questState.data._rewardsClaimedStage = currentStage;
-    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...this.getState().quests });
-    this.gameStateManager.markDirty();
+    const quests = this.capabilities.getOwnState();
+    this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.markDirty();
 
     return { success: true, stage: currentStage };
   }
@@ -107,41 +110,27 @@ export class QuestManager extends BaseManager {
 
   _applyRewards(rewards) {
     if (rewards.credits) {
-      const state = this.getState();
-      this.gameStateManager.updateCredits(
-        state.player.credits + rewards.credits
-      );
-      if (state.stats) {
-        state.stats.creditsEarned += rewards.credits;
-      }
+      const currentCredits = this.capabilities.getCredits();
+      this.capabilities.updateCredits(currentCredits + rewards.credits);
+      this.capabilities.updateStats('creditsEarned', rewards.credits);
     }
 
     if (rewards.rep) {
       for (const [npcId, amount] of Object.entries(rewards.rep)) {
-        this.gameStateManager.modifyRepRaw(npcId, amount, 'quest_reward');
+        this.capabilities.modifyRepRaw(npcId, amount, 'quest_reward');
       }
     }
 
     if (rewards.karma) {
-      this.gameStateManager.modifyKarma(rewards.karma, 'quest_reward');
+      this.capabilities.modifyKarma(rewards.karma, 'quest_reward');
     }
 
     if (rewards.engineRestore) {
-      const state = this.getState();
-      state.ship.engine = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-      this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
-        hull: state.ship.hull,
-        engine: state.ship.engine,
-        lifeSupport: state.ship.lifeSupport,
-      });
+      this.capabilities.setShipEngine(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
     }
 
     if (rewards.upgrade) {
-      const state = this.getState();
-      if (!state.ship.upgrades.includes(rewards.upgrade)) {
-        state.ship.upgrades.push(rewards.upgrade);
-        this.emit(EVENT_NAMES.UPGRADES_CHANGED, [...state.ship.upgrades]);
-      }
+      this.capabilities.addShipUpgrade(rewards.upgrade);
     }
   }
 
@@ -149,8 +138,9 @@ export class QuestManager extends BaseManager {
     const questState = this.getQuestState(questId);
     if (!questState) return;
     questState.data[key] = value;
-    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...this.getState().quests });
-    this.gameStateManager.markDirty();
+    const quests = this.capabilities.getOwnState();
+    this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.markDirty();
   }
 
   isQuestComplete(questId) {
@@ -189,25 +179,28 @@ export class QuestManager extends BaseManager {
     const stageDef = questDef.stages.find((s) => s.stage === stage);
     if (!stageDef?.requirements) return [];
 
-    const state = this.getState();
     const reqs = stageDef.requirements;
     const unmet = [];
 
     if (reqs.npcRep) {
       const [npcId, threshold] = reqs.npcRep;
-      const npcState = state.npcs[npcId];
+      const npcs = this.capabilities.getNpcs();
+      const npcState = npcs[npcId];
       if (!npcState || npcState.rep < threshold) unmet.push('rep');
     }
     if (
       reqs.engineCondition != null &&
-      state.ship.engine < reqs.engineCondition
+      this.capabilities.getShipEngine() < reqs.engineCondition
     )
       unmet.push('engine');
-    if (reqs.hullCondition != null && state.ship.hull < reqs.hullCondition)
+    if (
+      reqs.hullCondition != null &&
+      this.capabilities.getShipHull() < reqs.hullCondition
+    )
       unmet.push('hull');
-    if (reqs.debt != null && state.player.debt !== reqs.debt)
+    if (reqs.debt != null && this.capabilities.getDebt() !== reqs.debt)
       unmet.push('debt');
-    if (reqs.credits != null && state.player.credits < reqs.credits)
+    if (reqs.credits != null && this.capabilities.getCredits() < reqs.credits)
       unmet.push('credits');
 
     return unmet;
@@ -228,27 +221,22 @@ export class QuestManager extends BaseManager {
   }
 
   canContributeSupply() {
-    const state = this.getState();
-
-    // Must be at Barnard's Star
-    if (state.player.currentSystem !== ENDGAME_CONFIG.TANAKA_SYSTEM)
+    if (this.capabilities.getCurrentSystem() !== ENDGAME_CONFIG.TANAKA_SYSTEM)
       return false;
 
-    // Must have met Tanaka (flag set by narrative events system)
-    const narrativeFlags = state.world?.narrativeEvents?.flags;
+    const narrativeFlags = this.capabilities.getNarrativeFlags();
     if (!narrativeFlags?.tanaka_met) return false;
 
-    // Check cooldown
     const questState = this.getQuestState('tanaka');
     if (questState?.data?.lastSupplyDay != null) {
       const daysSince =
-        state.player.daysElapsed - questState.data.lastSupplyDay;
+        this.capabilities.getDaysElapsed() - questState.data.lastSupplyDay;
       if (daysSince < TANAKA_SUPPLY_CONFIG.COOLDOWN_DAYS) return false;
     }
 
-    // Check cargo - need QUANTITY of any qualifying good
+    const cargo = this.capabilities.getShipCargo();
     for (const goodType of TANAKA_SUPPLY_CONFIG.GOODS) {
-      const total = state.ship.cargo
+      const total = cargo
         .filter((c) => c.good === goodType)
         .reduce((sum, c) => sum + c.qty, 0);
       if (total >= TANAKA_SUPPLY_CONFIG.QUANTITY) return true;
@@ -262,12 +250,11 @@ export class QuestManager extends BaseManager {
       return { success: false, reason: 'Not eligible' };
     }
 
-    const state = this.getState();
+    const cargo = this.capabilities.getShipCargo();
 
-    // Find first qualifying good with enough quantity (GOODS array order = preference)
     let goodToDonate = null;
     for (const goodType of TANAKA_SUPPLY_CONFIG.GOODS) {
-      const total = state.ship.cargo
+      const total = cargo
         .filter((c) => c.good === goodType)
         .reduce((sum, c) => sum + c.qty, 0);
       if (total >= TANAKA_SUPPLY_CONFIG.QUANTITY) {
@@ -280,24 +267,23 @@ export class QuestManager extends BaseManager {
       return { success: false, reason: 'No qualifying cargo' };
     }
 
-    // Deduct cargo
-    this.gameStateManager.removeCargoForMission(
+    this.capabilities.removeCargoForMission(
       goodToDonate,
       TANAKA_SUPPLY_CONFIG.QUANTITY
     );
 
-    this.gameStateManager.modifyRepRaw(
+    this.capabilities.modifyRepRaw(
       'tanaka_barnards',
       TANAKA_SUPPLY_CONFIG.REP_GAIN,
       'tanaka_supply'
     );
 
-    // Set cooldown
     const questState = this.getQuestState('tanaka');
-    questState.data.lastSupplyDay = state.player.daysElapsed;
+    questState.data.lastSupplyDay = this.capabilities.getDaysElapsed();
 
-    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...state.quests });
-    this.gameStateManager.markDirty();
+    const quests = this.capabilities.getOwnState();
+    this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.markDirty();
 
     return { success: true, goodDonated: goodToDonate };
   }
@@ -313,7 +299,8 @@ export class QuestManager extends BaseManager {
       if (stageDef?.objectives?.jumpsCompleted != null) {
         questState.data.jumpsCompleted =
           (questState.data.jumpsCompleted || 0) + 1;
-        this.emit(EVENT_NAMES.QUEST_CHANGED, { ...this.getState().quests });
+        const quests = this.capabilities.getOwnState();
+        this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
       }
     }
   }
@@ -322,7 +309,7 @@ export class QuestManager extends BaseManager {
     const tanakaState = this.getQuestState('tanaka');
     if (!tanakaState || tanakaState.stage !== 2) return;
 
-    const starData = this.gameStateManager.starData;
+    const starData = this.capabilities.starData;
     const system = starData.find((s) => s.id === systemId);
     const sol = starData.find((s) => s.id === 0);
     if (!system || !sol) return;
@@ -342,7 +329,8 @@ export class QuestManager extends BaseManager {
     tanakaState.data.exoticStations.push(systemId);
     tanakaState.data.exoticMaterials =
       (tanakaState.data.exoticMaterials || 0) + 1;
-    this.emit(EVENT_NAMES.QUEST_CHANGED, { ...this.getState().quests });
-    this.gameStateManager.markDirty();
+    const quests = this.capabilities.getOwnState();
+    this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.markDirty();
   }
 }

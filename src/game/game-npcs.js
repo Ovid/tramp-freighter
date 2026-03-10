@@ -3,7 +3,7 @@
  *
  * Provides functions for querying and displaying NPCs in the game.
  * These functions work with the static NPC data definitions and dynamic
- * NPC state managed by GameStateManager.
+ * NPC state managed by GameCoordinator.
  *
  * @module NPCQueries
  */
@@ -49,7 +49,7 @@ export function getNPCsAtSystem(systemId, narrativeFlags = {}) {
  * the relationship tier for display.
  *
  * @param {Object} npc - NPC definition object from npc-data.js
- * @param {Object} npcState - Current NPC state from GameStateManager
+ * @param {Object} npcState - Current NPC state from GameCoordinator
  * @param {function} getRepTier - Function to get reputation tier from reputation value
  * @returns {string} Formatted display string: "Name (Role) [Tier]"
  */

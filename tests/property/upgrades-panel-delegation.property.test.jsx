@@ -2,21 +2,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { UpgradesPanel } from '../../src/features/upgrades/UpgradesPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
- * Property: Upgrades panel delegates to GameStateManager
+ * Property: Upgrades panel delegates to GameCoordinator
  *
- * Validates that the UpgradesPanel component delegates all upgrade operations to GameStateManager
+ * Validates that the UpgradesPanel component delegates all upgrade operations to GameCoordinator
  * and does not duplicate upgrade logic.
  *
  * React Migration Spec: Requirements 26.1, 26.2, 26.3
  */
-describe('Property: Upgrades panel delegates to GameStateManager', () => {
+describe('Property: Upgrades panel delegates to GameCoordinator', () => {
   // Suppress React act() warnings for property tests
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -31,14 +31,14 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player credits
-        gameStateManager.state.player.credits = 50000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 50000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         render(<UpgradesPanel onClose={() => {}} />, { wrapper });
@@ -60,15 +60,15 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Install an upgrade
         const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
-        gameStateManager.state.ship.upgrades = [upgradeId];
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.ship.upgrades = [upgradeId];
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         render(<UpgradesPanel onClose={() => {}} />, { wrapper });
@@ -91,14 +91,14 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player insufficient credits
-        gameStateManager.state.player.credits = 10;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         const { container } = render(<UpgradesPanel onClose={() => {}} />, {
@@ -128,14 +128,14 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player insufficient credits
-        gameStateManager.state.player.credits = 10;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         render(<UpgradesPanel onClose={() => {}} />, { wrapper });
@@ -159,14 +159,14 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player sufficient credits
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         render(<UpgradesPanel onClose={() => {}} />, { wrapper });
@@ -191,14 +191,14 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player sufficient credits
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         render(<UpgradesPanel onClose={() => {}} />, { wrapper });
@@ -226,13 +226,13 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.integer({ min: 0, max: 100000 }), (credits) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = credits;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = credits;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         const { container } = render(<UpgradesPanel onClose={() => {}} />, {
@@ -257,13 +257,13 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         const { container } = render(<UpgradesPanel onClose={() => {}} />, {
@@ -299,13 +299,13 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         const { container } = render(<UpgradesPanel onClose={() => {}} />, {
@@ -335,13 +335,13 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render UpgradesPanel
         const { container } = render(<UpgradesPanel onClose={() => {}} />, {
@@ -369,26 +369,25 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
     );
   });
 
-  it('should call gameStateManager.purchaseUpgrade when confirming purchase', () => {
+  it('should call game.purchaseUpgrade when confirming purchase', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player sufficient credits
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track purchaseUpgrade calls
         let purchaseUpgradeCalled = false;
         let purchaseUpgradeArgs = null;
-        const originalPurchaseUpgrade =
-          gameStateManager.purchaseUpgrade.bind(gameStateManager);
-        gameStateManager.purchaseUpgrade = (upgradeId) => {
+        const originalPurchaseUpgrade = game.purchaseUpgrade.bind(game);
+        game.purchaseUpgrade = (upgradeId) => {
           purchaseUpgradeCalled = true;
           purchaseUpgradeArgs = { upgradeId };
           return originalPurchaseUpgrade(upgradeId);
@@ -420,25 +419,24 @@ describe('Property: Upgrades panel delegates to GameStateManager', () => {
     );
   });
 
-  it('should not call gameStateManager.purchaseUpgrade when canceling', () => {
+  it('should not call game.purchaseUpgrade when canceling', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Give player sufficient credits
-        gameStateManager.state.player.credits = 100000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 100000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track purchaseUpgrade calls
         let purchaseUpgradeCalled = false;
-        const originalPurchaseUpgrade =
-          gameStateManager.purchaseUpgrade.bind(gameStateManager);
-        gameStateManager.purchaseUpgrade = (upgradeId) => {
+        const originalPurchaseUpgrade = game.purchaseUpgrade.bind(game);
+        game.purchaseUpgrade = (upgradeId) => {
           purchaseUpgradeCalled = true;
           return originalPurchaseUpgrade(upgradeId);
         };

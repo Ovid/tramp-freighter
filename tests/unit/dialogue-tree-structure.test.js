@@ -173,11 +173,11 @@ describe('Dialogue Tree Structure', () => {
 
       expect(highRepChoices.length).toBeGreaterThan(lowRepChoices.length);
 
-      // Should always have debt and exit options regardless of reputation
+      // Should always have exit option regardless of reputation
       const unconditionalChoices = MARCUS_COLE_DIALOGUE.greeting.choices.filter(
         (choice) => !choice.condition
       );
-      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(2);
+      expect(unconditionalChoices.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should have business choice with reputation condition', () => {

@@ -30,6 +30,7 @@ import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { DebtManager } from './managers/debt.js';
 import { AchievementsManager } from './managers/achievements.js';
+import { InformationBroker } from '../game-information-broker.js';
 import {
   isVersionCompatible,
   validateStateStructure,
@@ -45,13 +46,12 @@ import { DANGER_EVENTS } from '../data/danger-events.js';
 import { ALL_QUESTS } from '../data/quest-definitions.js';
 
 /**
- * GameStateManager - Manages all game state with event-driven reactivity
+ * GameCoordinator - Full game state coordination with event-driven reactivity
  *
- * This class acts as a facade over focused domain managers (TradingManager, ShipManager,
- * etc.). The high method count (~180) is intentional: most are pure delegation pass-throughs
- * that provide a unified API while keeping domain logic in individual managers. This is a
- * facade, not a god object — splitting into sub-facades would add import complexity without
- * reducing coupling for a single-player game.
+ * This class is the composition root that owns all domain managers and provides
+ * the unified API for game state management. It has the same shape as
+ * GameCoordinator (`.state`, `.starData`, `.emit()`, `.markDirty()`, etc.)
+ * so that managers receiving `this` continue to work unchanged.
  *
  * DOCUMENTATION: Method documentation is maintained in the individual manager classes
  * to avoid duplication. See the respective manager files for detailed parameter and
@@ -64,7 +64,7 @@ import { ALL_QUESTS } from '../data/quest-definitions.js';
  * - Emit events on state mutations for UI reactivity
  * - Support multiple subscribers per event type
  */
-export class GameStateManager {
+export class GameCoordinator {
   constructor(starData, wormholeData, navigationSystem = null) {
     this.starData = starData;
     this.wormholeData = wormholeData;
@@ -82,37 +82,409 @@ export class GameStateManager {
     this.state = null;
 
     // Initialize managers
-    this.eventSystemManager = new EventSystemManager(this);
-    this.stateManager = new StateManager(this);
-    this.initializationManager = new InitializationManager(this);
-    this.saveLoadManager = new SaveLoadManager(this);
-    this.tradingManager = new TradingManager(this);
-    this.shipManager = new ShipManager(this);
-    this.npcManager = new NPCManager(this);
-    this.navigationManager = new NavigationManager(this, this.starData);
-    this.refuelManager = new RefuelManager(this);
-    this.repairManager = new RepairManager(this);
-    this.dialogueManager = new DialogueManager(this);
-    this.eventsManager = new EventsManager(this);
-    this.infoBrokerManager = new InfoBrokerManager(this);
-    this.dangerManager = new DangerManager(this);
-    this.combatManager = new CombatManager(this);
-    this.negotiationManager = new NegotiationManager(this);
-    this.inspectionManager = new InspectionManager(this);
-    this.distressManager = new DistressManager(this);
-    this.mechanicalFailureManager = new MechanicalFailureManager(this);
-    this.missionManager = new MissionManager(this);
-    this.eventEngineManager = new EventEngineManager(this);
-    this.questManager = new QuestManager(this);
-    this.debtManager = new DebtManager(this);
-    this.achievementsManager = new AchievementsManager(this);
-
-    // Flush pending saves when the browser tab closes
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', () => {
-        this.flushSave();
-      });
-    }
+    this.eventSystemManager = new EventSystemManager();
+    this.stateManager = new StateManager({
+      getPlayerCredits: () => this.state.player.credits,
+      setPlayerCredits: (value) => {
+        this.state.player.credits = value;
+      },
+      getPlayerDebt: () => this.state.player.debt,
+      setPlayerDebt: (value) => {
+        this.state.player.debt = value;
+      },
+      getShipFuel: () => this.state.ship.fuel,
+      setShipFuel: (value) => {
+        this.state.ship.fuel = value;
+      },
+      getShipCargo: () => this.state.ship.cargo,
+      setShipCargo: (value) => {
+        this.state.ship.cargo = value;
+      },
+      getShipCargoCapacity: () => this.state.ship.cargoCapacity,
+      getPlayer: () => this.state.player,
+      getShip: () => this.state.ship,
+      getActiveMissions: () => this.state.missions?.active,
+      getFullState: () => this.state,
+      getFuelCapacity: () => this.shipManager.getFuelCapacity(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.initializationManager = new InitializationManager({
+      assignShipQuirks: (rng) => this.shipManager.assignShipQuirks(rng),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.saveLoadManager = new SaveLoadManager({
+      getFullState: () => this.state,
+      restoreState: (rawState) => this.restoreState(rawState),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.tradingManager = new TradingManager({
+      getOwnState: () => ({
+        priceKnowledge: this.state.world.priceKnowledge,
+        marketConditions: this.state.world.marketConditions,
+        currentSystemPrices: this.state.world.currentSystemPrices,
+      }),
+      getCredits: () => this.state.player.credits,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getStats: () => this.state.stats,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      getActiveEvents: () => this.state.world.activeEvents,
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      applyTradeWithholding: (totalRevenue) =>
+        this.debtManager.applyWithholding(totalRevenue),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.shipManager = new ShipManager({
+      getOwnState: () => this.state.ship,
+      getCredits: () => this.state.player.credits,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.npcManager = new NPCManager({
+      getOwnState: () => this.state.npcs,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipQuirks: () => this.state.ship.quirks,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      addToCargoArray: (cargoArray, sourceStack, qty) =>
+        this.shipManager.addToCargoArray(cargoArray, sourceStack, qty),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.navigationManager = new NavigationManager({
+      getOwnState: () => ({
+        currentSystem: this.state.player.currentSystem,
+        visitedSystems: this.state.world.visitedSystems,
+      }),
+      setCurrentSystem: (systemId) => {
+        this.state.player.currentSystem = systemId;
+      },
+      setCurrentSystemPrices: (prices) => {
+        this.state.world.currentSystemPrices = prices;
+      },
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getActiveEvents: () => this.state.world.activeEvents,
+      getMarketConditions: () => this.state.world.marketConditions,
+      getStats: () => this.state.stats,
+      getDockedSystems: () => this.state.world.narrativeEvents?.dockedSystems,
+      updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
+        this.tradingManager.updatePriceKnowledge(
+          systemId,
+          prices,
+          lastVisit,
+          source
+        ),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.refuelManager = new RefuelManager({
+      getShipFuel: () => this.state.ship.fuel,
+      getCredits: () => this.state.player.credits,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getFuelCapacity: () => this.shipManager.getFuelCapacity(),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateFuel: (value) => this.stateManager.updateFuel(value),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.repairManager = new RepairManager({
+      getShipCondition: () => ({
+        hull: this.state.ship.hull,
+        engine: this.state.ship.engine,
+        lifeSupport: this.state.ship.lifeSupport,
+      }),
+      getCredits: () => this.state.player.credits,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getNPCState: (npcId) => this.npcManager.getNPCState(npcId),
+      validateAndGetNPCData: (npcId) =>
+        this.npcManager.validateAndGetNPCData(npcId),
+      getRepTier: (rep) => this.npcManager.getRepTier(rep),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateShipCondition: (hull, engine, lifeSupport) =>
+        this.shipManager.updateShipCondition(hull, engine, lifeSupport),
+      advanceTime: (newDays) => this.eventsManager.updateTime(newDays),
+      markDirty: () => this.markDirty(),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.dialogueManager = new DialogueManager({
+      getOwnState: () => this.state.dialogue,
+      emit: this.emit.bind(this),
+      coordinatorRef: this,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.eventsManager = new EventsManager({
+      getOwnState: () => ({
+        activeEvents: this.state.world.activeEvents,
+        daysElapsed: this.state.player.daysElapsed,
+      }),
+      setDaysElapsed: (newDays) => {
+        this.state.player.daysElapsed = newDays;
+      },
+      setActiveEvents: (events) => {
+        this.state.world.activeEvents = events;
+      },
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
+      getMarketConditions: () => this.state.world.marketConditions,
+      incrementPriceKnowledgeStaleness: (days) =>
+        this.tradingManager.incrementPriceKnowledgeStaleness(days),
+      applyMarketRecovery: (daysPassed) =>
+        this.tradingManager.applyMarketRecovery(daysPassed),
+      recalculatePricesForKnownSystems: () =>
+        this.tradingManager.recalculatePricesForKnownSystems(),
+      checkLoanDefaults: () => this.npcManager.checkLoanDefaults(),
+      processDebtTick: () => {
+        this.debtManager.applyInterest();
+        return this.debtManager.checkCheckpoint();
+      },
+      checkMissionDeadlines: () => this.missionManager.checkMissionDeadlines(),
+      cleanupOldIntelligence: () =>
+        InformationBroker.cleanupOldIntelligence(
+          this.state.world.priceKnowledge
+        ),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.infoBrokerManager = new InfoBrokerManager({
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
+      getActiveEvents: () => this.state.world.activeEvents,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      navigationSystem: this.navigationSystem,
+      coordinatorRef: this,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.dangerManager = new DangerManager({
+      getKarma: () => this.state.player.karma,
+      setKarma: (value) => {
+        this.state.player.karma = value;
+      },
+      getPlayerFactions: () => this.state.player.factions,
+      getDangerFlags: () => this.state.world.dangerFlags,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getStats: () => this.state.stats,
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      checkAchievements: () => this.achievementsManager.checkAchievements(),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.combatManager = new CombatManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipQuirks: () => this.state.ship.quirks,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getKarma: () => this.state.player.karma,
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.negotiationManager = new NegotiationManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getKarma: () => this.state.player.karma,
+      getShipCargo: () => this.state.ship.cargo,
+      getCredits: () => this.state.player.credits,
+      getActiveMissions: () => this.state.missions?.active,
+      getHasPriorIntel: () => this.state.world?.flags?.hasPriorIntel || false,
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.inspectionManager = new InspectionManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipHiddenCargo: () => this.state.ship.hiddenCargo,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      countRestrictedGoods: (cargo, zone, systemId) =>
+        this.dangerManager.countRestrictedGoods(cargo, zone, systemId),
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.distressManager = new DistressManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      incrementDangerFlag: (flagName) =>
+        this.dangerManager.incrementDangerFlag(flagName),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.mechanicalFailureManager = new MechanicalFailureManager({
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getShipCondition: () => ({
+        hull: this.state.ship.hull,
+        engine: this.state.ship.engine,
+        lifeSupport: this.state.ship.lifeSupport,
+      }),
+      emit: this.emit.bind(this),
+      markDirty: this.markDirty.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.missionManager = new MissionManager({
+      getOwnState: () => this.state.missions,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getCargoRemaining: () => this.stateManager.getCargoRemaining(),
+      getStats: () => this.state.stats,
+      getVisitedSystems: () => this.state.world.visitedSystems,
+      getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
+      getFactionRep: (faction) => this.dangerManager.getFactionRep(faction),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      applyTradeWithholding: (totalRevenue) =>
+        this.debtManager.applyWithholding(totalRevenue),
+      modifyFactionRep: (faction, amount, reason) =>
+        this.dangerManager.modifyFactionRep(faction, amount, reason),
+      modifyRep: (npcId, amount, reason) =>
+        this.npcManager.modifyRep(npcId, amount, reason),
+      modifyKarma: (amount, reason) =>
+        this.dangerManager.modifyKarma(amount, reason),
+      modifyColeRep: (delta) => this.debtManager.modifyColeRep(delta),
+      removeCargoForMission: (goodType, qty) =>
+        this.shipManager.removeCargoForMission(goodType, qty),
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      wormholeData: this.wormholeData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.eventEngineManager = new EventEngineManager({
+      getOwnState: () => this.state.world.narrativeEvents,
+      getGameState: () => this.state,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.questManager = new QuestManager({
+      getOwnState: () => this.state.quests,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getShipHull: () => this.state.ship.hull,
+      getShipEngine: () => this.state.ship.engine,
+      getShipUpgrades: () => this.state.ship.upgrades,
+      getNpcs: () => this.state.npcs,
+      getDebt: () => this.state.player.debt,
+      getNarrativeFlags: () => this.state.world?.narrativeEvents?.flags,
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      modifyRepRaw: (npcId, amount, reason) =>
+        this.npcManager.modifyRepRaw(npcId, amount, reason),
+      modifyKarma: (amount, reason) =>
+        this.dangerManager.modifyKarma(amount, reason),
+      removeCargoForMission: (goodType, qty) =>
+        this.shipManager.removeCargoForMission(goodType, qty),
+      setShipEngine: (value) => {
+        this.state.ship.engine = value;
+        this.emit(EVENT_NAMES.SHIP_CONDITION_CHANGED, {
+          hull: this.state.ship.hull,
+          engine: this.state.ship.engine,
+          lifeSupport: this.state.ship.lifeSupport,
+        });
+      },
+      addShipUpgrade: (upgrade) => {
+        if (!this.state.ship.upgrades.includes(upgrade)) {
+          this.state.ship.upgrades.push(upgrade);
+          this.emit(EVENT_NAMES.UPGRADES_CHANGED, [
+            ...this.state.ship.upgrades,
+          ]);
+        }
+      },
+      updateStats: (key, delta) => {
+        if (this.state.stats) {
+          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
+        }
+      },
+      markDirty: this.markDirty.bind(this),
+      emit: this.emit.bind(this),
+      subscribe: this.subscribe.bind(this),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.debtManager = new DebtManager({
+      getOwnState: () => ({
+        debt: this.state.player.debt,
+        finance: this.state.player.finance,
+      }),
+      initFinance: (financeObj) => {
+        this.state.player.finance = financeObj;
+      },
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getCredits: () => this.state.player.credits,
+      getShipCargo: () => this.state.ship.cargo,
+      getCurrentSystem: () => this.state.player.currentSystem,
+      updateDebt: (amount) => this.stateManager.updateDebt(amount),
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      modifyRepRaw: (npcId, amount, reason) =>
+        this.npcManager.modifyRepRaw(npcId, amount, reason),
+      markDirty: () => this.markDirty(),
+      emit: (...args) => this.emit(...args),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    this.achievementsManager = new AchievementsManager({
+      getOwnState: () => this.state.achievements,
+      getNpcs: () => this.state.npcs,
+      getDangerFlags: () => this.state.world?.dangerFlags,
+      getKarma: () => this.state.player?.karma,
+      getDaysElapsed: () => this.state.player.daysElapsed,
+      getStats: () => this.state.stats,
+      getVisitedSystems: () => this.state.world?.visitedSystems,
+      markDirty: this.markDirty.bind(this),
+      emit: this.emit.bind(this),
+      isTestEnvironment: this.isTestEnvironment,
+    });
   }
 
   /**
@@ -249,24 +621,20 @@ export class GameStateManager {
    * @private
    */
   _applyMigrations(state) {
+    const MIGRATIONS = [
+      ['1.0.0', (s) => migrateFromV1ToV2(s, this.starData)],
+      ['2.0.0', migrateFromV2ToV2_1],
+      ['2.1.0', migrateFromV2_1ToV4],
+      ['4.0.0', migrateFromV4ToV4_1],
+      ['4.1.0', migrateFromV4_1ToV5],
+    ];
+
     let migrated = state;
-
-    if (migrated.meta.version === '1.0.0') {
-      migrated = migrateFromV1ToV2(migrated, this.starData);
+    for (const [version, migrateFn] of MIGRATIONS) {
+      if (migrated.meta.version === version) {
+        migrated = migrateFn(migrated);
+      }
     }
-    if (migrated.meta.version === '2.0.0') {
-      migrated = migrateFromV2ToV2_1(migrated);
-    }
-    if (migrated.meta.version === '2.1.0') {
-      migrated = migrateFromV2_1ToV4(migrated);
-    }
-    if (migrated.meta.version === '4.0.0') {
-      migrated = migrateFromV4ToV4_1(migrated);
-    }
-    if (migrated.meta.version === '4.1.0') {
-      migrated = migrateFromV4_1ToV5(migrated);
-    }
-
     return migrated;
   }
 
@@ -546,18 +914,14 @@ export class GameStateManager {
 
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
-    this.markDirty();
   }
 
   modifyRepRaw(npcId, amount, reason) {
     this.npcManager.modifyRepRaw(npcId, amount, reason);
-    this.markDirty();
   }
 
   setNpcRep(npcId, value) {
     this.npcManager.setNpcRep(npcId, value);
-    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...this.state.npcs });
-    this.markDirty();
   }
 
   // ========================================================================
@@ -743,11 +1107,7 @@ export class GameStateManager {
   }
 
   getTip(npcId) {
-    const result = this.npcManager.getTip(npcId);
-    if (result) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.getTip(npcId);
   }
 
   // ========================================================================
@@ -767,40 +1127,23 @@ export class GameStateManager {
   }
 
   requestLoan(npcId) {
-    const result = this.npcManager.requestLoan(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.requestLoan(npcId);
   }
 
   repayLoan(npcId) {
-    const result = this.npcManager.repayLoan(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.repayLoan(npcId);
   }
 
   checkLoanDefaults() {
     this.npcManager.checkLoanDefaults();
-    this.markDirty();
   }
 
   storeCargo(npcId) {
-    const result = this.npcManager.storeCargo(npcId);
-    if (result.success) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.storeCargo(npcId);
   }
 
   retrieveCargo(npcId) {
-    const result = this.npcManager.retrieveCargo(npcId);
-    if (result.success && result.retrieved.length > 0) {
-      this.markDirty();
-    }
-    return result;
+    return this.npcManager.retrieveCargo(npcId);
   }
 
   // ========================================================================
@@ -808,11 +1151,11 @@ export class GameStateManager {
   // ========================================================================
 
   canGetFreeRepair(npcId) {
-    return this.npcManager.canGetFreeRepair(npcId);
+    return this.repairManager.canGetFreeRepair(npcId);
   }
 
   getFreeRepair(npcId, hullDamagePercent) {
-    return this.npcManager.getFreeRepair(npcId, hullDamagePercent);
+    return this.repairManager.applyFreeRepair(npcId, hullDamagePercent);
   }
 
   // ========================================================================
@@ -985,12 +1328,10 @@ export class GameStateManager {
 
   setKarma(value) {
     this.dangerManager.setKarma(value);
-    this.markDirty();
   }
 
   modifyKarma(amount, reason) {
     this.dangerManager.modifyKarma(amount, reason);
-    this.markDirty();
   }
 
   getFactionRep(faction) {
@@ -999,12 +1340,10 @@ export class GameStateManager {
 
   setFactionRep(faction, value) {
     this.dangerManager.setFactionRep(faction, value);
-    this.markDirty();
   }
 
   modifyFactionRep(faction, amount, reason) {
     this.dangerManager.modifyFactionRep(faction, amount, reason);
-    this.markDirty();
   }
 
   hasIllegalMissionCargo() {
@@ -1031,8 +1370,8 @@ export class GameStateManager {
     return this.negotiationManager.resolveNegotiation(encounter, choice);
   }
 
-  resolveInspection(choice, gameState) {
-    return this.inspectionManager.resolveInspection(choice, gameState);
+  resolveInspection(choice, _gameState) {
+    return this.inspectionManager.resolveInspection(choice);
   }
 
   checkDistressCall() {
@@ -1102,15 +1441,14 @@ export class GameStateManager {
     }
   }
 
-  checkMechanicalFailure(gameState) {
-    return this.mechanicalFailureManager.checkMechanicalFailure(gameState);
+  checkMechanicalFailure(_gameState) {
+    return this.mechanicalFailureManager.checkMechanicalFailure();
   }
 
-  resolveMechanicalFailure(failureType, choice, gameState) {
+  resolveMechanicalFailure(failureType, choice, _gameState) {
     return this.mechanicalFailureManager.resolveMechanicalFailure(
       failureType,
-      choice,
-      gameState
+      choice
     );
   }
 
@@ -1236,6 +1574,5 @@ export class GameStateManager {
 
   devTeleport(systemId) {
     this.navigationManager.updateLocation(systemId);
-    this.markDirty();
   }
 }

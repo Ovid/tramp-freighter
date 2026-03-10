@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
- * Property: Repair panel delegates to GameStateManager
+ * Property: Repair panel delegates to GameCoordinator
  *
- * Validates that the RepairPanel component delegates all repair operations to GameStateManager
+ * Validates that the RepairPanel component delegates all repair operations to GameCoordinator
  * and does not duplicate repair logic.
  *
  * React Migration Spec: Requirements 26.1, 26.2, 26.3
  */
-describe('Property: Repair panel delegates to GameStateManager', () => {
+describe('Property: Repair panel delegates to GameCoordinator', () => {
   // Suppress React act() warnings for property tests
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -25,36 +25,32 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
     vi.restoreAllMocks();
   });
 
-  it('should call gameStateManager.repair when repairing a system', () => {
+  it('should call game.repair when repairing a system', () => {
     fc.assert(
       fc.property(
         fc.constantFrom('hull', 'engine', 'lifeSupport'),
         (systemType) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Give player credits and damage the system
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.ship[systemType] = 50;
-          gameStateManager.emit('shipConditionChanged', {
-            hull: gameStateManager.state.ship.hull,
-            engine: gameStateManager.state.ship.engine,
-            lifeSupport: gameStateManager.state.ship.lifeSupport,
+          game.state.player.credits = 10000;
+          game.state.ship[systemType] = 50;
+          game.emit('shipConditionChanged', {
+            hull: game.state.ship.hull,
+            engine: game.state.ship.engine,
+            lifeSupport: game.state.ship.lifeSupport,
           });
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track repair calls
           let repairCalled = false;
           let repairArgs = null;
-          const originalRepair =
-            gameStateManager.repairShipSystem.bind(gameStateManager);
-          gameStateManager.repairShipSystem = (system, repairAmount) => {
+          const originalRepair = game.repairShipSystem.bind(game);
+          game.repairShipSystem = (system, repairAmount) => {
             repairCalled = true;
             repairArgs = { system, repairAmount };
             return originalRepair(system, repairAmount);
@@ -91,16 +87,16 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Damage all systems
-        gameStateManager.state.ship.hull = 50;
-        gameStateManager.state.ship.engine = 60;
-        gameStateManager.state.ship.lifeSupport = 70;
-        gameStateManager.state.player.credits = 10000;
+        game.state.ship.hull = 50;
+        game.state.ship.engine = 60;
+        game.state.ship.lifeSupport = 70;
+        game.state.player.credits = 10000;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RepairPanel
         const { container } = render(<RepairPanel onClose={() => {}} />, {
@@ -112,8 +108,8 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
         expect(conditionValues.length).toBeGreaterThan(0);
 
         // Update ship condition
-        gameStateManager.state.ship.hull = 80;
-        gameStateManager.emit('shipConditionChanged', {
+        game.state.ship.hull = 80;
+        game.emit('shipConditionChanged', {
           hull: 80,
           engine: 60,
           lifeSupport: 70,
@@ -132,14 +128,14 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Damage systems and set low credits
-        gameStateManager.state.ship.hull = 50;
-        gameStateManager.state.player.credits = 10;
+        game.state.ship.hull = 50;
+        game.state.player.credits = 10;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RepairPanel
         render(<RepairPanel onClose={() => {}} />, { wrapper });
@@ -150,8 +146,8 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
         expect(repairButtons[0].disabled).toBe(true);
 
         // Update credits
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.emit('creditsChanged', 10000);
+        game.state.player.credits = 10000;
+        game.emit('creditsChanged', 10000);
 
         // Buttons should now be enabled
         // (This is tested implicitly - if subscription doesn't work, buttons won't update)
@@ -166,16 +162,16 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Damage systems
-        gameStateManager.state.ship.hull = 50;
-        gameStateManager.state.ship.engine = 60;
-        gameStateManager.state.ship.lifeSupport = 70;
-        gameStateManager.state.player.credits = 10000;
+        game.state.ship.hull = 50;
+        game.state.ship.engine = 60;
+        game.state.ship.lifeSupport = 70;
+        game.state.player.credits = 10000;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RepairPanel
         const { container } = render(<RepairPanel onClose={() => {}} />, {
@@ -201,14 +197,14 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Set low credits and damage systems
-        gameStateManager.state.player.credits = 10;
-        gameStateManager.state.ship.hull = 50;
+        game.state.player.credits = 10;
+        game.state.ship.hull = 50;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render RepairPanel
         const { container } = render(<RepairPanel onClose={() => {}} />, {
@@ -236,22 +232,21 @@ describe('Property: Repair panel delegates to GameStateManager', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Damage all systems and give credits
-        gameStateManager.state.ship.hull = 50;
-        gameStateManager.state.ship.engine = 60;
-        gameStateManager.state.ship.lifeSupport = 70;
-        gameStateManager.state.player.credits = 10000;
+        game.state.ship.hull = 50;
+        game.state.ship.engine = 60;
+        game.state.ship.lifeSupport = 70;
+        game.state.player.credits = 10000;
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track repair calls
         let repairCallCount = 0;
-        const originalRepair =
-          gameStateManager.repairShipSystem.bind(gameStateManager);
-        gameStateManager.repairShipSystem = (system, amount) => {
+        const originalRepair = game.repairShipSystem.bind(game);
+        game.repairShipSystem = (system, amount) => {
           repairCallCount++;
           return originalRepair(system, amount);
         };

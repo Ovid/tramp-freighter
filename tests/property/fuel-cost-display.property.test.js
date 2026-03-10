@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -22,7 +22,7 @@ describe('Fuel Cost Display Property Tests (#33/61/88)', () => {
             STAR_DATA,
             WORMHOLE_DATA
           );
-          const gsm = new GameStateManager(
+          const gsm = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA,
             navigationSystem

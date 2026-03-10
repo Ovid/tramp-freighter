@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -18,8 +18,8 @@ import { createWrapper } from '../react-test-utils.jsx';
  */
 describe('System Info Always Accessible', () => {
   it('should allow System Info to be clicked during animations', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system with lock enabled
     const mockAnimationSystem = {
@@ -31,9 +31,9 @@ describe('System Info Always Accessible', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
     const mockOnDock = vi.fn();
 
@@ -64,11 +64,11 @@ describe('System Info Always Accessible', () => {
   });
 
   it('should allow System Info to be clicked when no animation system exists', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Don't set animation system (simulating before StarMapCanvas mounts)
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     render(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />, {
@@ -86,8 +86,8 @@ describe('System Info Always Accessible', () => {
   });
 
   it('should allow System Info to be clicked when animation is not running', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system with lock disabled
     const mockAnimationSystem = {
@@ -99,9 +99,9 @@ describe('System Info Always Accessible', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     render(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />, {
@@ -119,8 +119,8 @@ describe('System Info Always Accessible', () => {
   });
 
   it('should allow multiple System Info clicks during animation', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system with lock enabled
     const mockAnimationSystem = {
@@ -132,9 +132,9 @@ describe('System Info Always Accessible', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     render(<QuickAccessButtons onSystemInfo={mockOnSystemInfo} />, {
@@ -153,8 +153,8 @@ describe('System Info Always Accessible', () => {
   });
 
   it('should keep System Info enabled when transitioning from unlocked to locked', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting unlocked
     let isLocked = false;
@@ -167,9 +167,9 @@ describe('System Info Always Accessible', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
 
     const { rerender } = render(
@@ -202,8 +202,8 @@ describe('System Info Always Accessible', () => {
   });
 
   it('should not prevent System Info callback when Dock is disabled', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Jump to a system without a station
     const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
@@ -211,9 +211,9 @@ describe('System Info Always Accessible', () => {
       throw new Error('Test requires a system without a station');
     }
 
-    gameStateManager.updateLocation(systemWithoutStation.id);
+    game.updateLocation(systemWithoutStation.id);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnSystemInfo = vi.fn();
     const mockOnDock = vi.fn();
 

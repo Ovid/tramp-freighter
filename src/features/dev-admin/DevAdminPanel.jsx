@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   SHIP_CONFIG,
@@ -23,7 +23,7 @@ import { STAR_DATA } from '../../game/data/star-data.js';
  * Only rendered when dev mode is enabled (detected via .dev file).
  */
 export function DevAdminPanel({ onClose }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
 
   // Subscribe to game state changes
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
@@ -62,11 +62,10 @@ export function DevAdminPanel({ onClose }) {
 
   // Dev tool: direct state access is acceptable here since this panel is for
   // debugging and testing, not production gameplay. Bridge Pattern not required.
-  const currentQuirks = quirks || gameStateManager.getShip()?.quirks || [];
-  const currentUpgrades =
-    upgrades || gameStateManager.getShip()?.upgrades || [];
-  const currentCargo = cargo || gameStateManager.getShip()?.cargo || [];
-  const hiddenCargo = gameStateManager.getHiddenCargo() || [];
+  const currentQuirks = quirks || game.getShip()?.quirks || [];
+  const currentUpgrades = upgrades || game.getShip()?.upgrades || [];
+  const currentCargo = cargo || game.getShip()?.cargo || [];
+  const hiddenCargo = game.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
 
   // Available quirks and upgrades (excluding already installed)
@@ -115,8 +114,8 @@ export function DevAdminPanel({ onClose }) {
   // Dev-only panel: getPlayer/getShip guard ensures state is initialized;
   // getKarma/getFactionReps always return safe defaults (0 / {}).
   useEffect(() => {
-    const player = gameStateManager.getPlayer();
-    const ship = gameStateManager.getShip();
+    const player = game.getPlayer();
+    const ship = game.getShip();
     if (player && ship) {
       setCreditsInput(String(player.credits));
       setDebtInput(String(player.debt));
@@ -124,8 +123,8 @@ export function DevAdminPanel({ onClose }) {
       setHullInput(String(Math.round(ship.hull)));
       setEngineInput(String(Math.round(ship.engine)));
       setLifeSupportInput(String(Math.round(ship.lifeSupport)));
-      setKarmaInput(String(gameStateManager.getKarma()));
-      const factionReps = gameStateManager.getFactionReps();
+      setKarmaInput(String(game.getKarma()));
+      const factionReps = game.getFactionReps();
       setFactionInputs({
         authorities: String(factionReps.authorities || 0),
         traders: String(factionReps.traders || 0),
@@ -136,7 +135,7 @@ export function DevAdminPanel({ onClose }) {
       // Initialize NPC rep inputs from existing state only (avoid getNPCState
       // which creates entries and sets lastInteraction as a side effect)
       const npcInputs = {};
-      const state = gameStateManager.getState();
+      const state = game.getState();
       ALL_NPCS.forEach((npc) => {
         const existingState = state.npcs[npc.id];
         npcInputs[npc.id] = String(
@@ -145,27 +144,27 @@ export function DevAdminPanel({ onClose }) {
       });
       setNpcRepInputs(npcInputs);
     }
-  }, [gameStateManager]);
+  }, [game]);
 
   // Handlers for player resources
   const handleSetCredits = () => {
     const amount = parseInt(creditsInput);
     if (!isNaN(amount) && amount >= 0) {
-      gameStateManager.setCredits(amount);
+      game.setCredits(amount);
     }
   };
 
   const handleSetDebt = () => {
     const amount = parseInt(debtInput);
     if (!isNaN(amount) && amount >= 0) {
-      gameStateManager.setDebt(amount);
+      game.setDebt(amount);
     }
   };
 
   const handleSetFuel = () => {
     const amount = parseInt(fuelInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      gameStateManager.setFuel(amount);
+      game.setFuel(amount);
     }
   };
 
@@ -173,54 +172,42 @@ export function DevAdminPanel({ onClose }) {
   const handleSetHull = () => {
     const amount = parseInt(hullInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const condition = gameStateManager.getShipCondition();
-      gameStateManager.updateShipCondition(
-        amount,
-        condition.engine,
-        condition.lifeSupport
-      );
+      const condition = game.getShipCondition();
+      game.updateShipCondition(amount, condition.engine, condition.lifeSupport);
     }
   };
 
   const handleSetEngine = () => {
     const amount = parseInt(engineInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const condition = gameStateManager.getShipCondition();
-      gameStateManager.updateShipCondition(
-        condition.hull,
-        amount,
-        condition.lifeSupport
-      );
+      const condition = game.getShipCondition();
+      game.updateShipCondition(condition.hull, amount, condition.lifeSupport);
     }
   };
 
   const handleSetLifeSupport = () => {
     const amount = parseInt(lifeSupportInput);
     if (!isNaN(amount) && amount >= 0 && amount <= 100) {
-      const condition = gameStateManager.getShipCondition();
-      gameStateManager.updateShipCondition(
-        condition.hull,
-        condition.engine,
-        amount
-      );
+      const condition = game.getShipCondition();
+      game.updateShipCondition(condition.hull, condition.engine, amount);
     }
   };
 
   const handleRepairAll = () => {
-    gameStateManager.updateShipCondition(100, 100, 100);
-    gameStateManager.setFuel(100);
+    game.updateShipCondition(100, 100, 100);
+    game.setFuel(100);
   };
 
   // Handlers for karma
   const handleSetKarma = () => {
     const amount = parseInt(karmaInput);
     if (!isNaN(amount) && amount >= -100 && amount <= 100) {
-      gameStateManager.setKarma(amount);
+      game.setKarma(amount);
     }
   };
 
   const handleQuickKarma = (value) => {
-    gameStateManager.setKarma(value);
+    game.setKarma(value);
     setKarmaInput(String(value));
   };
 
@@ -228,12 +215,12 @@ export function DevAdminPanel({ onClose }) {
   const handleSetFactionRep = (faction) => {
     const amount = parseInt(factionInputs[faction]);
     if (!isNaN(amount) && amount >= -100 && amount <= 100) {
-      gameStateManager.setFactionRep(faction, amount);
+      game.setFactionRep(faction, amount);
     }
   };
 
   const handleQuickFactionRep = (faction, value) => {
-    gameStateManager.setFactionRep(faction, value);
+    game.setFactionRep(faction, value);
     setFactionInputs((prev) => ({ ...prev, [faction]: String(value) }));
   };
 
@@ -241,46 +228,46 @@ export function DevAdminPanel({ onClose }) {
   const handleSetNpcRep = (npcId) => {
     const amount = parseInt(npcRepInputs[npcId]);
     if (!isNaN(amount) && amount >= -100 && amount <= 100) {
-      gameStateManager.setNpcRep(npcId, amount);
+      game.setNpcRep(npcId, amount);
     }
   };
 
   const handleQuickNpcRep = (npcId, value) => {
-    gameStateManager.setNpcRep(npcId, value);
+    game.setNpcRep(npcId, value);
     setNpcRepInputs((prev) => ({ ...prev, [npcId]: String(value) }));
   };
 
   // Handlers for quirks
   const handleAddQuirk = () => {
     if (selectedQuirk) {
-      gameStateManager.addQuirk(selectedQuirk);
+      game.addQuirk(selectedQuirk);
       setSelectedQuirk('');
     }
   };
 
   const handleRemoveQuirk = (quirkId) => {
-    gameStateManager.removeQuirk(quirkId);
+    game.removeQuirk(quirkId);
   };
 
   // Handlers for upgrades
   const handleAddUpgrade = () => {
     if (selectedUpgrade) {
-      gameStateManager.addUpgrade(selectedUpgrade);
+      game.addUpgrade(selectedUpgrade);
       setSelectedUpgrade('');
     }
   };
 
   const handleRemoveUpgrade = (upgradeId) => {
-    gameStateManager.removeUpgrade(upgradeId);
+    game.removeUpgrade(upgradeId);
   };
 
   // Handlers for cargo
   const handleAddCargo = () => {
     const qty = parseInt(cargoQuantity);
     if (!isNaN(qty) && qty > 0 && selectedCommodity) {
-      const currentSystem = gameStateManager.getCurrentSystem();
-      const daysElapsed = gameStateManager.getDaysElapsed();
-      const ship = gameStateManager.getShip();
+      const currentSystem = game.getCurrentSystem();
+      const daysElapsed = game.getDaysElapsed();
+      const ship = game.getShip();
       const newCargoItem = {
         good: selectedCommodity,
         qty,
@@ -302,7 +289,7 @@ export function DevAdminPanel({ onClose }) {
           updatedHidden.push(newCargoItem);
         }
         ship.hiddenCargo = updatedHidden;
-        gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, updatedHidden);
+        game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, updatedHidden);
       } else {
         // Add to regular cargo
         const newCargo = [...ship.cargo];
@@ -314,36 +301,34 @@ export function DevAdminPanel({ onClose }) {
         } else {
           newCargo.push(newCargoItem);
         }
-        gameStateManager.updateCargo(newCargo);
+        game.updateCargo(newCargo);
       }
-      gameStateManager.markDirty();
+      game.markDirty();
     }
   };
 
   const handleClearCargo = () => {
-    gameStateManager.updateCargo([]);
-    const ship = gameStateManager.getShip();
+    game.updateCargo([]);
+    const ship = game.getShip();
     ship.hiddenCargo = [];
-    gameStateManager.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
-    gameStateManager.markDirty();
+    game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    game.markDirty();
   };
 
   // Calculate danger state display values
   const getDangerStateDisplay = () => {
-    const currentSystem = gameStateManager.getCurrentSystem();
+    const currentSystem = game.getCurrentSystem();
     if (currentSystem == null) return null;
 
-    const dangerZone = gameStateManager.getDangerZone(currentSystem);
-    const pirateChance =
-      gameStateManager.calculatePirateEncounterChance(currentSystem);
-    const inspectionChance =
-      gameStateManager.calculateInspectionChance(currentSystem);
+    const dangerZone = game.getDangerZone(currentSystem);
+    const pirateChance = game.calculatePirateEncounterChance(currentSystem);
+    const inspectionChance = game.calculateInspectionChance(currentSystem);
 
     return {
       dangerZone,
       pirateChance: (pirateChance * 100).toFixed(1),
       inspectionChance: (inspectionChance * 100).toFixed(1),
-      dangerFlags: gameStateManager.getDangerFlags(),
+      dangerFlags: game.getDangerFlags(),
     };
   };
 
@@ -362,11 +347,11 @@ export function DevAdminPanel({ onClose }) {
     };
 
     // Emit event to trigger pirate encounter panel
-    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
+    game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, encounterData);
   };
 
   const handleTriggerInspection = () => {
-    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
+    game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
       type: 'inspection',
       encounter: {
         id: `inspection_dev_${Date.now()}`,
@@ -376,13 +361,13 @@ export function DevAdminPanel({ onClose }) {
   };
 
   const handleTriggerMechanicalFailure = () => {
-    const condition = gameStateManager.getShipCondition();
+    const condition = game.getShipCondition();
     // Determine failure type based on ship condition
     let failureType = 'engine_failure';
     if (condition.hull < 50) failureType = 'hull_breach';
     else if (condition.lifeSupport < 30) failureType = 'life_support';
 
-    gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
+    game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
       type: 'mechanical_failure',
       encounter: {
         id: `failure_dev_${Date.now()}`,
@@ -397,15 +382,15 @@ export function DevAdminPanel({ onClose }) {
   };
 
   const handleTriggerDistressCall = () => {
-    const distressCall = gameStateManager.checkDistressCall(0); // Force trigger
+    const distressCall = game.checkDistressCall(0); // Force trigger
     if (distressCall) {
-      gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
         type: 'distress_call',
         encounter: distressCall,
       });
     } else {
       // Create one manually if checkDistressCall didn't return one
-      gameStateManager.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
         type: 'distress_call',
         encounter: {
           id: `distress_dev_${Date.now()}`,
@@ -662,7 +647,7 @@ export function DevAdminPanel({ onClose }) {
           <button
             onClick={() => {
               if (selectedTeleportSystem !== '') {
-                gameStateManager.devTeleport(Number(selectedTeleportSystem));
+                game.devTeleport(Number(selectedTeleportSystem));
               }
             }}
           >
@@ -871,10 +856,7 @@ export function DevAdminPanel({ onClose }) {
         <div className="dev-admin-encounter-buttons">
           <button
             onClick={() =>
-              gameStateManager.emit(
-                EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED,
-                Date.now()
-              )
+              game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, Date.now())
             }
           >
             Preview Epilogue

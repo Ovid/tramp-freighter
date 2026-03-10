@@ -27,7 +27,7 @@ vi.mock('../../src/hooks/useGameAction', () => ({
 }));
 
 vi.mock('../../src/context/GameContext', () => ({
-  useGameState: () => ({
+  useGame: () => ({
     getShip: () => ({ name: 'Test Ship' }),
   }),
 }));

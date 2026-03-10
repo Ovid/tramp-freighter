@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../../src/App';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -18,7 +18,7 @@ import { GameProvider } from '../../src/context/GameContext';
  * Migrated from: tests/integration/quick-access-integration.test.js
  */
 describe('Quick Access Buttons Integration (React)', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
@@ -26,9 +26,9 @@ describe('Quick Access Buttons Integration (React)', () => {
     localStorage.clear();
 
     // Initialize game systems
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.navigationSystem = navigationSystem;
+    game.navigationSystem = navigationSystem;
 
     // Mock console methods to suppress expected errors during tests
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -44,10 +44,10 @@ describe('Quick Access Buttons Integration (React)', () => {
 
   describe('Complete User Workflow', () => {
     it('should allow opening system info panel multiple times', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -96,10 +96,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should allow reopening station interface after closing it', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -154,10 +154,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should handle clicking System Info button multiple times', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -197,10 +197,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should handle clicking Dock button multiple times', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -250,11 +250,11 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should keep System Info button enabled across all systems', async () => {
-      gameStateManager.initNewGame();
-      gameStateManager.updateFuel(100);
+      game.initNewGame();
+      game.updateFuel(100);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -282,7 +282,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
 
       // Jump to another system
-      await navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(game, 1);
 
       // System Info button should still be enabled
       await waitFor(() => {
@@ -292,11 +292,11 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should disable Dock button during animation', async () => {
-      gameStateManager.initNewGame();
-      gameStateManager.updateFuel(100);
+      game.initNewGame();
+      game.updateFuel(100);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -344,10 +344,10 @@ describe('Quick Access Buttons Integration (React)', () => {
 
   describe('Panel Independence', () => {
     it('should open system info panel without opening station interface', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -387,10 +387,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should open station interface without affecting system info panel', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -444,10 +444,10 @@ describe('Quick Access Buttons Integration (React)', () => {
 
   describe('User Feedback', () => {
     it('should not show error when clicking Dock at system with station', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -483,10 +483,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should never show error when clicking System Info button', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -524,10 +524,10 @@ describe('Quick Access Buttons Integration (React)', () => {
 
   describe('Accessibility', () => {
     it('should have descriptive button text', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -571,10 +571,10 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should keep System Info button enabled at all times', async () => {
-      gameStateManager.initNewGame();
+      game.initNewGame();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -606,11 +606,11 @@ describe('Quick Access Buttons Integration (React)', () => {
 
   describe('Animation Lock Integration', () => {
     it('should disable Dock button during jump animation', async () => {
-      gameStateManager.initNewGame();
-      gameStateManager.updateFuel(100);
+      game.initNewGame();
+      game.updateFuel(100);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -646,11 +646,11 @@ describe('Quick Access Buttons Integration (React)', () => {
     });
 
     it('should keep System Info button enabled during animations', async () => {
-      gameStateManager.initNewGame();
-      gameStateManager.updateFuel(100);
+      game.initNewGame();
+      game.updateFuel(100);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <App />
         </GameProvider>
       );
@@ -681,7 +681,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       expect(systemInfoBtn).not.toBeDisabled();
 
       // Even during/after jump, System Info should remain enabled
-      await navigationSystem.executeJump(gameStateManager, 1);
+      await navigationSystem.executeJump(game, 1);
 
       await waitFor(() => {
         const systemInfoBtn = screen.getByText('System Info');

@@ -91,8 +91,9 @@ export const CREDITS_SECTIONS = [
     pairs: [
       ['Star Catalogue', 'HYG Stellar Database'],
       ['Wormhole Cartography', 'Purely Fictional'],
-      ['Number of Real Stars', '117'],
-      ['Distance from Sol', '20 light-years'],
+      ['Stars Featured', '117 of 131 known (so far)'],
+      ['Nearest Star to Sol', 'Proxima Centauri \u2014 4.25 ly'],
+      ['Longest Route', 'Sol to Delta Pavonis \u2014 19.89 ly'],
     ],
   },
   {
@@ -127,6 +128,7 @@ export const CREDITS_SECTIONS = [
     lines: [
       'The real stars within 20 light-years of Sol,',
       'for existing in convenient locations.',
+      '(Apologies to the 14 we left out. Budget constraints.)',
     ],
   },
   {

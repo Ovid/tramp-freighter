@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -28,8 +28,8 @@ describe('Property 49: Animation lock disables quick access', () => {
       fc.property(fc.boolean(), (isAnimationRunning) => {
         cleanup(); // Clean up between property test iterations
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Create mock animation system with specified lock state
         const mockAnimationSystem = {
@@ -41,9 +41,9 @@ describe('Property 49: Animation lock disables quick access', () => {
           },
         };
 
-        gameStateManager.setAnimationSystem(mockAnimationSystem);
+        game.setAnimationSystem(mockAnimationSystem);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
         const mockOnDock = vi.fn();
 
         // Render QuickAccessButtons
@@ -73,8 +73,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should prevent dock callback when animation is running even if button is clicked', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system with lock enabled
     const mockAnimationSystem = {
@@ -86,9 +86,9 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnDock = vi.fn();
     const mockOnSystemInfo = vi.fn();
 
@@ -119,8 +119,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should allow dock callback when animation is not running', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system with lock disabled
     const mockAnimationSystem = {
@@ -132,9 +132,9 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnDock = vi.fn();
 
     render(<QuickAccessButtons onDock={mockOnDock} />, { wrapper });
@@ -150,11 +150,11 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should handle missing animation system gracefully', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Don't set animation system (simulating before StarMapCanvas mounts)
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnDock = vi.fn();
     const mockOnSystemInfo = vi.fn();
 
@@ -182,8 +182,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should re-enable buttons when animation completes', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting locked
     const mockAnimationSystem = {
@@ -195,9 +195,9 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnDock = vi.fn();
 
     const { rerender } = render(<QuickAccessButtons onDock={mockOnDock} />, {
@@ -225,8 +225,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should poll animation state and re-enable buttons after location change during animation', async () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting locked
     let isLocked = true;
@@ -239,9 +239,9 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     const mockOnDock = vi.fn();
 
     render(<QuickAccessButtons onDock={mockOnDock} />, { wrapper });
@@ -254,7 +254,7 @@ describe('Property 49: Animation lock disables quick access', () => {
     // Simulate location change (which happens before animation completes)
     // This triggers the useEffect that starts polling
     await act(async () => {
-      gameStateManager.updateLocation(1); // Jump to Alpha Centauri A
+      game.updateLocation(1); // Jump to Alpha Centauri A
     });
 
     // Animation is still running, button should still be disabled
@@ -280,8 +280,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should stop polling once animation completes', async () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting locked
     let isLocked = true;
@@ -294,15 +294,15 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     render(<QuickAccessButtons onDock={vi.fn()} />, { wrapper });
 
     // Trigger location change to start polling
     await act(async () => {
-      gameStateManager.updateLocation(1);
+      game.updateLocation(1);
     });
 
     // Wait a bit for initial polling to start
@@ -339,8 +339,8 @@ describe('Property 49: Animation lock disables quick access', () => {
   });
 
   it('should clean up polling interval on unmount', async () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting locked
     const mockAnimationSystem = {
@@ -352,9 +352,9 @@ describe('Property 49: Animation lock disables quick access', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     const { unmount } = render(<QuickAccessButtons onDock={vi.fn()} />, {
       wrapper,
@@ -362,7 +362,7 @@ describe('Property 49: Animation lock disables quick access', () => {
 
     // Trigger location change to start polling
     await act(async () => {
-      gameStateManager.updateLocation(1);
+      game.updateLocation(1);
     });
 
     // Wait for polling to start

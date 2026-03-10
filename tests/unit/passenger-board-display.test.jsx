@@ -11,7 +11,7 @@ vi.mock('../../src/hooks/useGameAction', () => ({
 }));
 
 vi.mock('../../src/context/GameContext', () => ({
-  useGameState: vi.fn(() => ({
+  useGame: vi.fn(() => ({
     navigationSystem: {
       calculateDistanceBetween: vi.fn(() => 4),
       calculateJumpTime: vi.fn(() => 3),

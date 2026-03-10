@@ -106,6 +106,7 @@
 .restricted-badge-wrapper {
   display: inline-flex;
   flex-direction: column;
+  align-items: flex-start;
   margin-left: 8px;
 }
 

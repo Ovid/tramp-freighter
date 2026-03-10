@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { RepairPanel } from '../../src/features/repair/RepairPanel.jsx';
 
 vi.mock('../../src/context/GameContext', () => ({
-  useGameState: () => ({
+  useGame: () => ({
     getServiceDiscount: () => ({ discount: 0, npcName: null }),
   }),
 }));

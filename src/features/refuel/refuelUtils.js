@@ -56,7 +56,7 @@ export function calculateMaxAffordable(credits, pricePerPercent) {
  *
  * Uses Math.ceil to round up fractional remaining capacity, allowing players
  * to refuel to exactly 100% even when current fuel has fractional values.
- * The validation epsilon in GameStateManager handles the slight overage.
+ * The validation epsilon in GameCoordinator handles the slight overage.
  *
  * @param {number} currentFuel - Current fuel percentage
  * @param {number} maxFuel - Maximum fuel capacity (default: 100%)

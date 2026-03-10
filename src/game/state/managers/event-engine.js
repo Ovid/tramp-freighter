@@ -9,8 +9,8 @@ import { evaluateCondition } from '../../event-conditions.js';
  * resolution logic or UI rendering — those are dispatched by category.
  */
 export class EventEngineManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
     this.events = [];
   }
 
@@ -63,7 +63,7 @@ export class EventEngineManager extends BaseManager {
     // Backwards compat: if a number is passed, convert to a function
     const rollFn = typeof rngFn === 'function' ? rngFn : () => rngFn;
 
-    const state = this.getState();
+    const state = this.capabilities.getGameState();
     const { narrativeEvents } = state.world;
 
     const eligible = this.events.filter((event) => {
@@ -118,9 +118,9 @@ export class EventEngineManager extends BaseManager {
    * @param {string} eventId
    */
   markFired(eventId) {
-    const { fired } = this.getState().world.narrativeEvents;
-    if (!fired.includes(eventId)) {
-      fired.push(eventId);
+    const ownState = this.capabilities.getOwnState();
+    if (!ownState.fired.includes(eventId)) {
+      ownState.fired.push(eventId);
     }
   }
 
@@ -130,9 +130,8 @@ export class EventEngineManager extends BaseManager {
    * @param {number} cooldownDays
    */
   setCooldown(eventId, cooldownDays) {
-    const state = this.getState();
-    state.world.narrativeEvents.cooldowns[eventId] =
-      state.player.daysElapsed + cooldownDays;
+    this.capabilities.getOwnState().cooldowns[eventId] =
+      this.capabilities.getDaysElapsed() + cooldownDays;
   }
 
   /**
@@ -140,7 +139,7 @@ export class EventEngineManager extends BaseManager {
    * @param {string} flagName
    */
   setFlag(flagName) {
-    this.getState().world.narrativeEvents.flags[flagName] = true;
+    this.capabilities.getOwnState().flags[flagName] = true;
   }
 
   /**
@@ -148,6 +147,6 @@ export class EventEngineManager extends BaseManager {
    * @returns {Object} Current narrative flags object
    */
   getFlags() {
-    return this.getState().world?.narrativeEvents?.flags ?? {};
+    return this.capabilities.getOwnState()?.flags ?? {};
   }
 }

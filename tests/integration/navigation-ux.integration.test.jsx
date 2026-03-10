@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -16,7 +16,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
  * React Migration Spec: Requirements 11.1, 11.4
  */
 describe('Navigation UX Integration (React)', () => {
-  let gameStateManager;
+  let game;
   let navSystem;
 
   beforeEach(() => {
@@ -24,9 +24,9 @@ describe('Navigation UX Integration (React)', () => {
     localStorage.clear();
 
     // Initialize game systems
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     navSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.navigationSystem = navSystem;
+    game.navigationSystem = navSystem;
 
     // Mock console methods to suppress expected errors during tests
     // WebGL is not supported in jsdom test environment
@@ -43,10 +43,10 @@ describe('Navigation UX Integration (React)', () => {
 
   it('should complete full navigation workflow from current system', async () => {
     // Step 1: Initialize game
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Step 2: Get current system
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const currentStar = STAR_DATA.find((s) => s.id === currentSystemId);
     expect(currentStar).toBeDefined();
 
@@ -61,12 +61,12 @@ describe('Navigation UX Integration (React)', () => {
         currentStar,
         targetStar
       );
-      const engineCondition = gameStateManager.getState().ship.engine;
-      const quirks = gameStateManager.getState().ship.quirks || [];
+      const engineCondition = game.getState().ship.engine;
+      const quirks = game.getState().ship.quirks || [];
       const fuelCost = navSystem.calculateFuelCostWithCondition(
         distance,
         engineCondition,
-        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        game.applyQuirkModifiers.bind(game),
         quirks
       );
       const jumpTime = navSystem.calculateJumpTimeWithCondition(
@@ -90,15 +90,15 @@ describe('Navigation UX Integration (React)', () => {
     const targetSystemId = targetSystem.id;
 
     // Step 6: Validate jump
-    const initialFuel = gameStateManager.getShip().fuel;
-    const engineCondition = gameStateManager.getShip().engine;
-    const quirks = gameStateManager.getShip().quirks || [];
+    const initialFuel = game.getShip().fuel;
+    const engineCondition = game.getShip().engine;
+    const quirks = game.getShip().quirks || [];
     const validation = navSystem.validateJump(
       currentSystemId,
       targetSystemId,
       initialFuel,
       engineCondition,
-      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      game.applyQuirkModifiers.bind(game),
       quirks
     );
 
@@ -108,19 +108,16 @@ describe('Navigation UX Integration (React)', () => {
     expect(validation.jumpTime).toBeGreaterThan(0);
 
     // Step 7: Execute jump
-    const initialDays = gameStateManager.getPlayer().daysElapsed;
-    const result = await navSystem.executeJump(
-      gameStateManager,
-      targetSystemId
-    );
+    const initialDays = game.getPlayer().daysElapsed;
+    const result = await navSystem.executeJump(game, targetSystemId);
 
     expect(result.success).toBe(true);
     expect(result.error).toBeNull();
 
     // Step 8: Verify state changes
-    const newLocation = gameStateManager.getPlayer().currentSystem;
-    const newFuel = gameStateManager.getShip().fuel;
-    const newDays = gameStateManager.getPlayer().daysElapsed;
+    const newLocation = game.getPlayer().currentSystem;
+    const newFuel = game.getShip().fuel;
+    const newDays = game.getPlayer().daysElapsed;
 
     expect(newLocation).toBe(targetSystemId);
     expect(newFuel).toBe(initialFuel - validation.fuelCost);
@@ -128,14 +125,14 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should prevent jump when insufficient fuel', async () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
     // Set fuel to very low
-    gameStateManager.updateFuel(5);
-    const lowFuel = gameStateManager.getShip().fuel;
+    game.updateFuel(5);
+    const lowFuel = game.getShip().fuel;
 
     // Try to find a system we can't reach
     let unreachableSystem = null;
@@ -146,12 +143,12 @@ describe('Navigation UX Integration (React)', () => {
         currentStar,
         targetStar
       );
-      const engineCondition = gameStateManager.getState().ship.engine;
-      const quirks = gameStateManager.getState().ship.quirks || [];
+      const engineCondition = game.getState().ship.engine;
+      const quirks = game.getState().ship.quirks || [];
       const fuelCost = navSystem.calculateFuelCostWithCondition(
         distance,
         engineCondition,
-        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        game.applyQuirkModifiers.bind(game),
         quirks
       );
 
@@ -172,23 +169,20 @@ describe('Navigation UX Integration (React)', () => {
       expect(validation.error).toContain('Insufficient fuel');
 
       // Attempt jump should fail
-      const result = await navSystem.executeJump(
-        gameStateManager,
-        unreachableSystem
-      );
+      const result = await navSystem.executeJump(game, unreachableSystem);
       expect(result.success).toBe(false);
 
       // Location should not change
-      expect(gameStateManager.getPlayer().currentSystem).toBe(currentSystemId);
+      expect(game.getPlayer().currentSystem).toBe(currentSystemId);
     }
   });
 
   it('should show all reachable systems with sufficient fuel', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const currentStar = STAR_DATA.find((s) => s.id === currentSystemId);
-    const currentFuel = gameStateManager.getShip().fuel;
+    const currentFuel = game.getShip().fuel;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
     const reachableSystems = [];
@@ -200,12 +194,12 @@ describe('Navigation UX Integration (React)', () => {
         currentStar,
         targetStar
       );
-      const engineCondition = gameStateManager.getState().ship.engine;
-      const quirks = gameStateManager.getState().ship.quirks || [];
+      const engineCondition = game.getState().ship.engine;
+      const quirks = game.getState().ship.quirks || [];
       const fuelCost = navSystem.calculateFuelCostWithCondition(
         distance,
         engineCondition,
-        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        game.applyQuirkModifiers.bind(game),
         quirks
       );
 
@@ -241,9 +235,9 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should maintain correct system highlighting state', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
     // Simulate highlighting connected systems
@@ -267,9 +261,9 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should sort connected systems by distance', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const currentStar = STAR_DATA.find((s) => s.id === currentSystemId);
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
@@ -302,9 +296,9 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should display connected systems in SystemPanel', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
     // Verify we have connected systems to test
@@ -340,15 +334,15 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should validate jump information before execution', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
     const targetSystemId = connectedIds[0];
 
-    const currentFuel = gameStateManager.getShip().fuel;
-    const engineCondition = gameStateManager.getShip().engine;
-    const quirks = gameStateManager.getShip().quirks || [];
+    const currentFuel = game.getShip().fuel;
+    const engineCondition = game.getShip().engine;
+    const quirks = game.getShip().quirks || [];
 
     // Validate jump
     const validation = navSystem.validateJump(
@@ -356,7 +350,7 @@ describe('Navigation UX Integration (React)', () => {
       targetSystemId,
       currentFuel,
       engineCondition,
-      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+      game.applyQuirkModifiers.bind(game),
       quirks
     );
 
@@ -375,9 +369,9 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should handle wormhole connection validation', () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
 
     // Find a system that is NOT connected
@@ -390,7 +384,7 @@ describe('Navigation UX Integration (React)', () => {
     }
 
     if (unconnectedSystemId !== null) {
-      const currentFuel = gameStateManager.getShip().fuel;
+      const currentFuel = game.getShip().fuel;
 
       // Attempt to validate jump to unconnected system
       const validation = navSystem.validateJump(
@@ -405,23 +399,20 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should update fuel display after jump', async () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
     const targetSystemId = connectedIds[0];
 
-    const initialFuel = gameStateManager.getShip().fuel;
+    const initialFuel = game.getShip().fuel;
 
     // Execute jump
-    const result = await navSystem.executeJump(
-      gameStateManager,
-      targetSystemId
-    );
+    const result = await navSystem.executeJump(game, targetSystemId);
 
     expect(result.success).toBe(true);
 
-    const newFuel = gameStateManager.getShip().fuel;
+    const newFuel = game.getShip().fuel;
 
     // Fuel should have decreased
     expect(newFuel).toBeLessThan(initialFuel);
@@ -431,23 +422,20 @@ describe('Navigation UX Integration (React)', () => {
   });
 
   it('should update time display after jump', async () => {
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
-    const currentSystemId = gameStateManager.getPlayer().currentSystem;
+    const currentSystemId = game.getPlayer().currentSystem;
     const connectedIds = navSystem.getConnectedSystems(currentSystemId);
     const targetSystemId = connectedIds[0];
 
-    const initialDays = gameStateManager.getPlayer().daysElapsed;
+    const initialDays = game.getPlayer().daysElapsed;
 
     // Execute jump
-    const result = await navSystem.executeJump(
-      gameStateManager,
-      targetSystemId
-    );
+    const result = await navSystem.executeJump(game, targetSystemId);
 
     expect(result.success).toBe(true);
 
-    const newDays = gameStateManager.getPlayer().daysElapsed;
+    const newDays = game.getPlayer().daysElapsed;
 
     // Time should have advanced
     expect(newDays).toBeGreaterThan(initialDays);

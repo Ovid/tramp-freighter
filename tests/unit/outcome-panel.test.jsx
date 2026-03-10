@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { OutcomePanel } from '../../src/features/danger/OutcomePanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 
-// Mock GameStateManager
-const mockGameStateManager = {
+// Mock GameCoordinator
+const mockGameCoordinator = {
   getState: vi.fn(() => ({
     player: {
       karma: 0,
@@ -78,7 +78,7 @@ describe('OutcomePanel', () => {
 
   const renderWithContext = (props = {}) => {
     return render(
-      <GameProvider gameStateManager={mockGameStateManager}>
+      <GameProvider game={mockGameCoordinator}>
         <OutcomePanel {...defaultProps} {...props} />
       </GameProvider>
     );

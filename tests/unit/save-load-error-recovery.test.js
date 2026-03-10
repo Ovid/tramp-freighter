@@ -5,13 +5,13 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Save/Load Error Recovery', () => {
   let gsm;
   beforeEach(() => {
     localStorage.clear();
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -32,7 +32,7 @@ describe('Save/Load Error Recovery', () => {
 
     it('does nothing when state is null', () => {
       const setItemSpy = vi.spyOn(localStorage, 'setItem');
-      vi.spyOn(gsm.saveLoadManager, 'getState').mockReturnValue(null);
+      gsm.saveLoadManager.capabilities.getFullState = () => null;
 
       gsm.saveLoadManager._forceSave();
 

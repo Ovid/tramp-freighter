@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useAnimationLock } from '../../src/hooks/useAnimationLock';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -21,11 +21,8 @@ describe('Property 44: Animation loop outside React', () => {
         fc.boolean(),
         fc.boolean(),
         (initialAnimating, newAnimating) => {
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Create mock animation system
           const mockAnimationSystem = {
@@ -37,9 +34,9 @@ describe('Property 44: Animation loop outside React', () => {
             },
           };
 
-          gameStateManager.setAnimationSystem(mockAnimationSystem);
+          game.setAnimationSystem(mockAnimationSystem);
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render hook
           const { result, rerender } = renderHook(() => useAnimationLock(), {
@@ -92,8 +89,8 @@ describe('Property 45: useAnimationLock disables interactions', () => {
   it('should provide lock state that components can use to disable interactions', () => {
     fc.assert(
       fc.property(fc.boolean(), (isLocked) => {
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Create mock animation system with specified lock state
         const mockAnimationSystem = {
@@ -105,9 +102,9 @@ describe('Property 45: useAnimationLock disables interactions', () => {
           },
         };
 
-        gameStateManager.setAnimationSystem(mockAnimationSystem);
+        game.setAnimationSystem(mockAnimationSystem);
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         const { result } = renderHook(() => useAnimationLock(), { wrapper });
 
@@ -125,8 +122,8 @@ describe('Property 45: useAnimationLock disables interactions', () => {
   });
 
   it('should reflect lock state changes when animation completes', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Create mock animation system starting locked
     const mockAnimationSystem = {
@@ -138,9 +135,9 @@ describe('Property 45: useAnimationLock disables interactions', () => {
       },
     };
 
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
 
     const { result } = renderHook(() => useAnimationLock(), { wrapper });
 

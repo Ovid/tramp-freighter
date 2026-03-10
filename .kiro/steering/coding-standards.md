@@ -392,7 +392,7 @@ Import statements should always be placed at the top of the file, immediately af
 // GOOD - All imports at the top
 import * as THREE from 'three';
 import {
-  GameStateManager,
+  GameCoordinator,
   sanitizeShipName,
 } from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
@@ -414,7 +414,7 @@ function myFunction() {
 }
 
 // BAD - Imports scattered throughout the file
-import { GameStateManager } from '../state/game-state-manager.js';
+import { GameCoordinator } from '../state/game-state-manager.js';
 
 function someFunction() {
   // ... code
@@ -460,7 +460,7 @@ import { useState, useEffect } from 'react';
 import * as THREE from 'three';
 
 // 2. Internal modules
-import { GameStateManager } from '../state/game-state-manager.js';
+import { GameCoordinator } from '../state/game-state-manager.js';
 import { NavigationSystem } from '../game-navigation.js';
 
 // 3. Components

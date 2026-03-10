@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { QuickAccessButtons } from '../../src/features/hud/QuickAccessButtons';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
@@ -37,11 +37,8 @@ describe('Property 48: Quick access button state updates', () => {
           cleanup();
 
           // Create game state manager
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Set up mock animation system (required for useAnimationLock)
           const mockAnimationSystem = {
@@ -50,23 +47,23 @@ describe('Property 48: Quick access button state updates', () => {
               isInputLocked: () => false,
             },
           };
-          gameStateManager.setAnimationSystem(mockAnimationSystem);
+          game.setAnimationSystem(mockAnimationSystem);
 
           // First move to a system without a station to ensure we're not at the target
           const systemWithoutStation = STAR_DATA.find((s) => s.st === 0);
           if (systemWithoutStation) {
-            gameStateManager.updateLocation(systemWithoutStation.id);
+            game.updateLocation(systemWithoutStation.id);
           }
 
           // Render QuickAccessButtons
           render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <QuickAccessButtons onDock={() => {}} />
             </GameProvider>
           );
 
           // Move to system with station
-          gameStateManager.updateLocation(systemIdWithStation);
+          game.updateLocation(systemIdWithStation);
 
           // Verify dock button is enabled
           await waitFor(() => {
@@ -92,11 +89,8 @@ describe('Property 48: Quick access button state updates', () => {
           cleanup();
 
           // Create game state manager
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Set up mock animation system (required for useAnimationLock)
           const mockAnimationSystem = {
@@ -105,17 +99,17 @@ describe('Property 48: Quick access button state updates', () => {
               isInputLocked: () => false,
             },
           };
-          gameStateManager.setAnimationSystem(mockAnimationSystem);
+          game.setAnimationSystem(mockAnimationSystem);
 
           // Render QuickAccessButtons
           render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <QuickAccessButtons onDock={() => {}} />
             </GameProvider>
           );
 
           // Move to system without station
-          gameStateManager.updateLocation(systemIdWithoutStation);
+          game.updateLocation(systemIdWithoutStation);
 
           // Verify dock button is disabled
           await waitFor(() => {

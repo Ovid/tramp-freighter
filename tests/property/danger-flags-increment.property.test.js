@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Danger Flags Increment Properties', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -18,8 +18,8 @@ describe('Danger Flags Increment Properties', () => {
       clear: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -43,14 +43,12 @@ describe('Danger Flags Increment Properties', () => {
           'distress_call'
         ),
         (choice) => {
-          gameStateManager.initNewGame();
-          const before =
-            gameStateManager.getState().world.dangerFlags.piratesFought;
+          game.initNewGame();
+          const before = game.getState().world.dangerFlags.piratesFought;
 
-          gameStateManager.resolveCombatChoice(encounter, choice);
+          game.resolveCombatChoice(encounter, choice);
 
-          const after =
-            gameStateManager.getState().world.dangerFlags.piratesFought;
+          const after = game.getState().world.dangerFlags.piratesFought;
           return after === before + 1;
         }
       ),
@@ -63,14 +61,12 @@ describe('Danger Flags Increment Properties', () => {
       fc.property(
         fc.constantFrom('counter_proposal', 'accept_demand'),
         (choice) => {
-          gameStateManager.initNewGame();
-          const before =
-            gameStateManager.getState().world.dangerFlags.piratesNegotiated;
+          game.initNewGame();
+          const before = game.getState().world.dangerFlags.piratesNegotiated;
 
-          gameStateManager.resolveNegotiation(encounter, choice);
+          game.resolveNegotiation(encounter, choice);
 
-          const after =
-            gameStateManager.getState().world.dangerFlags.piratesNegotiated;
+          const after = game.getState().world.dangerFlags.piratesNegotiated;
           return after === before + 1;
         }
       ),
@@ -79,56 +75,51 @@ describe('Danger Flags Increment Properties', () => {
   });
 
   it('should increment civiliansSaved on distress respond', () => {
-    const before = gameStateManager.getState().world.dangerFlags.civiliansSaved;
+    const before = game.getState().world.dangerFlags.civiliansSaved;
 
-    gameStateManager.resolveDistressCall({}, 'respond');
+    game.resolveDistressCall({}, 'respond');
 
-    const after = gameStateManager.getState().world.dangerFlags.civiliansSaved;
+    const after = game.getState().world.dangerFlags.civiliansSaved;
     expect(after).toBe(before + 1);
   });
 
   it('should increment civiliansLooted on distress loot', () => {
-    const before =
-      gameStateManager.getState().world.dangerFlags.civiliansLooted;
+    const before = game.getState().world.dangerFlags.civiliansLooted;
 
-    gameStateManager.resolveDistressCall({}, 'loot');
+    game.resolveDistressCall({}, 'loot');
 
-    const after = gameStateManager.getState().world.dangerFlags.civiliansLooted;
+    const after = game.getState().world.dangerFlags.civiliansLooted;
     expect(after).toBe(before + 1);
   });
 
   it('should increment inspectionsBribed on bribe attempt', () => {
-    const before =
-      gameStateManager.getState().world.dangerFlags.inspectionsBribed;
+    const before = game.getState().world.dangerFlags.inspectionsBribed;
 
-    gameStateManager.resolveInspection('bribe', gameStateManager.getState());
+    game.resolveInspection('bribe', game.getState());
 
-    const after =
-      gameStateManager.getState().world.dangerFlags.inspectionsBribed;
+    const after = game.getState().world.dangerFlags.inspectionsBribed;
     expect(after).toBe(before + 1);
   });
 
   it('should increment inspectionsFled on flee inspection', () => {
-    const before =
-      gameStateManager.getState().world.dangerFlags.inspectionsFled;
+    const before = game.getState().world.dangerFlags.inspectionsFled;
 
-    gameStateManager.resolveInspection('flee', gameStateManager.getState());
+    game.resolveInspection('flee', game.getState());
 
-    const after = gameStateManager.getState().world.dangerFlags.inspectionsFled;
+    const after = game.getState().world.dangerFlags.inspectionsFled;
     expect(after).toBe(before + 1);
   });
 
   it('should increment inspectionsPassed on clean cooperate', () => {
-    const state = gameStateManager.getState();
+    const state = game.getState();
     state.ship.cargo = [];
     state.ship.hiddenCargo = [];
 
     const before = state.world.dangerFlags.inspectionsPassed;
 
-    gameStateManager.resolveInspection('cooperate', state);
+    game.resolveInspection('cooperate', state);
 
-    const after =
-      gameStateManager.getState().world.dangerFlags.inspectionsPassed;
+    const after = game.getState().world.dangerFlags.inspectionsPassed;
     expect(after).toBe(before + 1);
   });
 });

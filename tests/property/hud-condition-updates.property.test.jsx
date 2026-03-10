@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import fc from 'fast-check';
 import { ShipStatus } from '../../src/features/hud/ShipStatus';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { GameProvider } from '../../src/context/GameContext';
@@ -35,15 +35,12 @@ describe('Property 22: HUD condition updates', () => {
           cleanup();
 
           // Create game state manager
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Render ShipStatus
           const { container } = render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <ShipStatus />
             </GameProvider>
           );
@@ -55,10 +52,10 @@ describe('Property 22: HUD condition updates', () => {
           });
 
           // Update ship condition
-          gameStateManager.state.ship.hull = newHull;
-          gameStateManager.state.ship.engine = newEngine;
-          gameStateManager.state.ship.lifeSupport = newLifeSupport;
-          gameStateManager.emit('shipConditionChanged', {
+          game.state.ship.hull = newHull;
+          game.state.ship.engine = newEngine;
+          game.state.ship.lifeSupport = newLifeSupport;
+          game.emit('shipConditionChanged', {
             hull: newHull,
             engine: newEngine,
             lifeSupport: newLifeSupport,

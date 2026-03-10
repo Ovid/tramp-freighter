@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, cleanup, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useGameEvent } from '../../src/hooks/useGameEvent.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -22,7 +22,7 @@ afterEach(() => {
  * Validates: Requirements 34.1
  *
  * For any call to useGameEvent with an event name, the hook should call
- * gameStateManager.subscribe with that event name.
+ * game.subscribe with that event name.
  */
 describe('Property: useGameEvent subscription correctness', () => {
   it('should subscribe to the specified event name', () => {
@@ -38,18 +38,15 @@ describe('Property: useGameEvent subscription correctness', () => {
         (eventName) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Spy on subscribe method
-          const subscribeSpy = vi.spyOn(gameStateManager, 'subscribe');
+          const subscribeSpy = vi.spyOn(game, 'subscribe');
 
           // Render hook
           renderHook(() => useGameEvent(eventName), {
-            wrapper: createWrapper(gameStateManager),
+            wrapper: createWrapper(game),
           });
 
           // Verify subscribe was called with the event name
@@ -82,15 +79,12 @@ describe('Property: useGameEvent state updates', () => {
         async (newCredits) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Render hook
           const { result } = renderHook(() => useGameEvent('creditsChanged'), {
-            wrapper: createWrapper(gameStateManager),
+            wrapper: createWrapper(game),
           });
 
           // Get initial value (should be 500 from new game)
@@ -98,7 +92,7 @@ describe('Property: useGameEvent state updates', () => {
           expect(initialCredits).toBe(500);
 
           // Trigger event by updating credits
-          gameStateManager.updateCredits(newCredits);
+          game.updateCredits(newCredits);
 
           // Wait for state to update
           await waitFor(() => {
@@ -118,7 +112,7 @@ describe('Property: useGameEvent state updates', () => {
  * Validates: Requirements 5.4, 34.4
  *
  * For any component using useGameEvent, unmounting the component should
- * automatically unsubscribe from GameStateManager events.
+ * automatically unsubscribe from GameCoordinator events.
  */
 describe('Property: Automatic unsubscription on unmount', () => {
   it('should unsubscribe when component unmounts', () => {
@@ -133,32 +127,26 @@ describe('Property: Automatic unsubscription on unmount', () => {
         (eventName) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Get initial subscriber count
-          const initialCount =
-            gameStateManager.subscribers[eventName]?.length || 0;
+          const initialCount = game.subscribers[eventName]?.length || 0;
 
           // Render hook
           const { unmount } = renderHook(() => useGameEvent(eventName), {
-            wrapper: createWrapper(gameStateManager),
+            wrapper: createWrapper(game),
           });
 
           // Verify subscription was added
-          const afterMountCount =
-            gameStateManager.subscribers[eventName]?.length || 0;
+          const afterMountCount = game.subscribers[eventName]?.length || 0;
           expect(afterMountCount).toBe(initialCount + 1);
 
           // Unmount
           unmount();
 
           // Verify subscription was removed
-          const afterUnmountCount =
-            gameStateManager.subscribers[eventName]?.length || 0;
+          const afterUnmountCount = game.subscribers[eventName]?.length || 0;
           expect(afterUnmountCount).toBe(initialCount);
 
           return afterUnmountCount === initialCount;
@@ -188,22 +176,19 @@ describe('Property: Selective re-rendering on events', () => {
           async (newCredits) => {
             cleanup();
 
-            const gameStateManager = new GameStateManager(
-              STAR_DATA,
-              WORMHOLE_DATA
-            );
-            gameStateManager.initNewGame();
+            const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+            game.initNewGame();
 
             // Render two hooks subscribed to different events
             const creditsHook = renderHook(
               () => useGameEvent('creditsChanged'),
               {
-                wrapper: createWrapper(gameStateManager),
+                wrapper: createWrapper(game),
               }
             );
 
             const fuelHook = renderHook(() => useGameEvent('fuelChanged'), {
-              wrapper: createWrapper(gameStateManager),
+              wrapper: createWrapper(game),
             });
 
             // Get initial values
@@ -211,7 +196,7 @@ describe('Property: Selective re-rendering on events', () => {
             expect(initialFuel).toBe(100); // New game starts with 100 fuel
 
             // Fire creditsChanged event
-            gameStateManager.updateCredits(newCredits);
+            game.updateCredits(newCredits);
 
             // Wait for credits hook to update
             await waitFor(() => {
@@ -243,11 +228,11 @@ describe('Property: All subscribers notified', () => {
       fc.property(fc.integer({ min: 2, max: 5 }), (subscriberCount) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Create a shared wrapper
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track how many times each callback is invoked
         const callCounts = [];
@@ -265,18 +250,16 @@ describe('Property: All subscribers notified', () => {
         }
 
         // Get the actual subscriber count
-        const actualSubscriberCount =
-          gameStateManager.subscribers.creditsChanged.length;
+        const actualSubscriberCount = game.subscribers.creditsChanged.length;
 
         // Verify we have the expected number of subscribers
         expect(actualSubscriberCount).toBe(subscriberCount);
 
         // Fire event
-        gameStateManager.updateCredits(12345);
+        game.updateCredits(12345);
 
         // Verify all subscribers are still registered (they weren't removed during the event)
-        const afterEventCount =
-          gameStateManager.subscribers.creditsChanged.length;
+        const afterEventCount = game.subscribers.creditsChanged.length;
         expect(afterEventCount).toBe(subscriberCount);
 
         return afterEventCount === subscriberCount;

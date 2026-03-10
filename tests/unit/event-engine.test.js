@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { EventEngineManager } from '../../src/game/state/managers/event-engine.js';
 import { SeededRandom } from '../../src/game/utils/seeded-random.js';
 
-function createMockGameStateManager(stateOverrides = {}) {
+function createMockGameCoordinator(stateOverrides = {}) {
   const defaultState = {
     player: {
       currentSystem: 0,
@@ -22,15 +22,14 @@ function createMockGameStateManager(stateOverrides = {}) {
     },
   };
 
+  const state = { ...defaultState, ...stateOverrides };
+
   return {
-    state: { ...defaultState, ...stateOverrides },
+    _state: state,
+    getOwnState: () => state.world.narrativeEvents,
+    getGameState: () => state,
+    getDaysElapsed: () => state.player.daysElapsed,
     isTestEnvironment: true,
-    emit: vi.fn(),
-    getState() {
-      return this.state;
-    },
-    saveGame: vi.fn(),
-    markDirty: vi.fn(),
   };
 }
 
@@ -39,7 +38,7 @@ describe('EventEngineManager', () => {
   let mockGSM;
 
   beforeEach(() => {
-    mockGSM = createMockGameStateManager();
+    mockGSM = createMockGameCoordinator();
     engine = new EventEngineManager(mockGSM);
   });
 
@@ -206,7 +205,7 @@ describe('EventEngineManager', () => {
     });
 
     it('should skip once-only events that have already fired', () => {
-      mockGSM.state.world.narrativeEvents.fired = ['once_event'];
+      mockGSM._state.world.narrativeEvents.fired = ['once_event'];
 
       engine.registerEvent({
         id: 'once_event',
@@ -223,8 +222,8 @@ describe('EventEngineManager', () => {
     });
 
     it('should skip events on cooldown', () => {
-      mockGSM.state.world.narrativeEvents.cooldowns = { cd_event: 20 };
-      mockGSM.state.player.daysElapsed = 15;
+      mockGSM._state.world.narrativeEvents.cooldowns = { cd_event: 20 };
+      mockGSM._state.player.daysElapsed = 15;
 
       engine.registerEvent({
         id: 'cd_event',
@@ -241,8 +240,8 @@ describe('EventEngineManager', () => {
     });
 
     it('should allow events whose cooldown has expired', () => {
-      mockGSM.state.world.narrativeEvents.cooldowns = { cd_event: 10 };
-      mockGSM.state.player.daysElapsed = 15;
+      mockGSM._state.world.narrativeEvents.cooldowns = { cd_event: 10 };
+      mockGSM._state.player.daysElapsed = 15;
 
       engine.registerEvent({
         id: 'cd_event',
@@ -278,7 +277,7 @@ describe('EventEngineManager', () => {
       );
 
       // Mark as visited
-      mockGSM.state.world.visitedSystems.push(4);
+      mockGSM._state.world.visitedSystems.push(4);
       expect(engine.checkEvents('dock', { system: 4 })).toBeNull();
     });
 
@@ -327,14 +326,16 @@ describe('EventEngineManager', () => {
   describe('markFired', () => {
     it('should add event id to fired list', () => {
       engine.markFired('test_event');
-      expect(mockGSM.state.world.narrativeEvents.fired).toContain('test_event');
+      expect(mockGSM._state.world.narrativeEvents.fired).toContain(
+        'test_event'
+      );
     });
 
     it('should not duplicate ids', () => {
       engine.markFired('test_event');
       engine.markFired('test_event');
       expect(
-        mockGSM.state.world.narrativeEvents.fired.filter(
+        mockGSM._state.world.narrativeEvents.fired.filter(
           (id) => id === 'test_event'
         )
       ).toHaveLength(1);
@@ -343,16 +344,18 @@ describe('EventEngineManager', () => {
 
   describe('setCooldown', () => {
     it('should set cooldown based on current day + cooldown days', () => {
-      mockGSM.state.player.daysElapsed = 10;
+      mockGSM._state.player.daysElapsed = 10;
       engine.setCooldown('test_event', 5);
-      expect(mockGSM.state.world.narrativeEvents.cooldowns.test_event).toBe(15);
+      expect(mockGSM._state.world.narrativeEvents.cooldowns.test_event).toBe(
+        15
+      );
     });
   });
 
   describe('setFlag', () => {
     it('should set a flag in narrativeEvents.flags', () => {
       engine.setFlag('met_chen');
-      expect(mockGSM.state.world.narrativeEvents.flags.met_chen).toBe(true);
+      expect(mockGSM._state.world.narrativeEvents.flags.met_chen).toBe(true);
     });
   });
 

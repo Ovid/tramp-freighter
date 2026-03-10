@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Mission Completion', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   describe('completing a delivery mission when at destination with cargo', () => {
@@ -237,7 +237,8 @@ describe('Mission Completion', () => {
       // 5% lien at low heat: ceil(500 * 0.05) = 25
       expect(result.withheld).toBe(25);
       expect(manager.getState().player.credits).toBe(creditsBefore + 475);
-      expect(manager.getState().player.debt).toBe(debtBefore - 25);
+      // Cole's cut is a pure penalty — debt unchanged
+      expect(manager.getState().player.debt).toBe(debtBefore);
     });
 
     it('should not withhold when debt is zero', () => {
@@ -278,7 +279,8 @@ describe('Mission Completion', () => {
       const result = manager.completeMission('test_passenger_wh');
 
       expect(result.withheld).toBeGreaterThan(0);
-      expect(manager.getState().player.debt).toBeLessThan(debtBefore);
+      // Cole's cut is a pure penalty — debt unchanged
+      expect(manager.getState().player.debt).toBe(debtBefore);
     });
   });
 });

@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import {
   showDialogue,
   buildDialogueContext,
@@ -19,8 +19,8 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dialogue Choice Filtering Properties', () => {
   it('should show only choices whose condition functions return true for the given reputation', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -31,7 +31,7 @@ describe('Dialogue Choice Filtering Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -41,14 +41,10 @@ describe('Dialogue Choice Filtering Properties', () => {
         }
 
         // Build context the same way showDialogue does
-        const context = buildDialogueContext(gameStateManager, npcId);
+        const context = buildDialogueContext(game, npcId);
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(
-          npcId,
-          'greeting',
-          gameStateManager
-        );
+        const dialogueResult = showDialogue(npcId, 'greeting', game);
         const availableChoices = dialogueResult.choices;
 
         // Check each choice in the original dialogue node
@@ -81,8 +77,8 @@ describe('Dialogue Choice Filtering Properties', () => {
   });
 
   it('should hide choices when condition functions throw exceptions', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Mock console.error to capture expected error messages
     const consoleErrorSpy = vi
@@ -116,15 +112,11 @@ describe('Dialogue Choice Filtering Properties', () => {
       fc.assert(
         fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
           // Set up NPC state with specific reputation
-          const npcState = gameStateManager.getNPCState(mockNPCId);
+          const npcState = game.getNPCState(mockNPCId);
           npcState.rep = reputation;
 
           // Show dialogue and get filtered choices
-          const dialogueResult = showDialogue(
-            mockNPCId,
-            'greeting',
-            gameStateManager
-          );
+          const dialogueResult = showDialogue(mockNPCId, 'greeting', game);
           const availableChoices = dialogueResult.choices;
 
           // The choice with throwing condition should not be in available choices
@@ -151,8 +143,8 @@ describe('Dialogue Choice Filtering Properties', () => {
   });
 
   it('should include all choices without condition functions in available choices', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Generator for valid NPC IDs
     const arbNPCId = fc.constantFrom(...ALL_NPCS.map((npc) => npc.id));
@@ -163,7 +155,7 @@ describe('Dialogue Choice Filtering Properties', () => {
     fc.assert(
       fc.property(arbNPCId, arbReputation, (npcId, reputation) => {
         // Set up NPC state with specific reputation
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = reputation;
 
         // Get dialogue tree for this NPC
@@ -173,11 +165,7 @@ describe('Dialogue Choice Filtering Properties', () => {
         }
 
         // Show dialogue and get filtered choices
-        const dialogueResult = showDialogue(
-          npcId,
-          'greeting',
-          gameStateManager
-        );
+        const dialogueResult = showDialogue(npcId, 'greeting', game);
         const availableChoices = dialogueResult.choices;
 
         // Check that all choices without conditions are available

@@ -3,31 +3,27 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
 describe('Property: System Panel', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    game.initNewGame();
   });
 
   describe('Current System View', () => {
     it('should display current system information with connected systems', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={() => {}}
@@ -54,10 +50,10 @@ describe('Property: System Panel', () => {
     });
 
     it('should display connected systems list', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={() => {}}
@@ -86,10 +82,10 @@ describe('Property: System Panel', () => {
     });
 
     it('should not display dock button', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={() => {}}
@@ -103,7 +99,7 @@ describe('Property: System Panel', () => {
     });
 
     it('should call selectStarById when connected system is clicked', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
 
@@ -119,7 +115,7 @@ describe('Property: System Panel', () => {
       };
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <StarmapProvider value={mockStarmapMethods}>
             <SystemPanel
               viewingSystemId={currentSystemId}
@@ -142,10 +138,10 @@ describe('Property: System Panel', () => {
     });
 
     it('should not display economic event info when Advanced Sensors not installed', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={() => {}}
@@ -162,7 +158,7 @@ describe('Property: System Panel', () => {
 
   describe('Different System View (Jump Info)', () => {
     it('should display jump information for different system', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
 
@@ -174,7 +170,7 @@ describe('Property: System Panel', () => {
       const targetSystemId = connectedIds[0];
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={targetSystemId}
             onClose={() => {}}
@@ -201,7 +197,7 @@ describe('Property: System Panel', () => {
     });
 
     it('should disable jump button when fuel is insufficient', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
 
@@ -212,10 +208,10 @@ describe('Property: System Panel', () => {
       const targetSystemId = connectedIds[0];
 
       // Set fuel to 0
-      gameStateManager.updateFuel(0);
+      game.updateFuel(0);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={targetSystemId}
             onClose={() => {}}
@@ -233,7 +229,7 @@ describe('Property: System Panel', () => {
     });
 
     it('should disable jump button when no wormhole connection exists', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
 
       // Find a system not connected to current system
       const unconnectedSystem = STAR_DATA.find((system) => {
@@ -250,7 +246,7 @@ describe('Property: System Panel', () => {
       }
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={unconnectedSystem.id}
             onClose={() => {}}
@@ -268,7 +264,7 @@ describe('Property: System Panel', () => {
     });
 
     it('should call onClose and onJumpStart when jump button is clicked', async () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
 
@@ -290,10 +286,10 @@ describe('Property: System Panel', () => {
           isLocked: vi.fn().mockReturnValue(false),
         },
       };
-      gameStateManager.setAnimationSystem(mockAnimationSystem);
+      game.setAnimationSystem(mockAnimationSystem);
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={targetSystemId}
             onClose={onClose}
@@ -317,7 +313,7 @@ describe('Property: System Panel', () => {
     });
 
     it('should calculate correct jump information', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =
         navigationSystem.getConnectedSystems(currentSystemId);
 
@@ -328,7 +324,7 @@ describe('Property: System Panel', () => {
       const targetSystemId = connectedIds[0];
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={targetSystemId}
             onClose={() => {}}
@@ -339,15 +335,15 @@ describe('Property: System Panel', () => {
       );
 
       // Get validation data with quirks and upgrades (matching useJumpValidation hook)
-      const state = gameStateManager.getState();
+      const state = game.getState();
       const quirks = state.ship?.quirks || [];
-      const capabilities = gameStateManager.calculateShipCapabilities();
+      const capabilities = game.calculateShipCapabilities();
       const validation = navigationSystem.validateJump(
         currentSystemId,
         targetSystemId,
         100,
         state.ship?.engine ?? 100,
-        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        game.applyQuirkModifiers.bind(game),
         quirks,
         capabilities.fuelConsumption,
         {
@@ -381,11 +377,11 @@ describe('Property: System Panel', () => {
 
   describe('Panel Controls', () => {
     it('should call onClose when close button is clicked', () => {
-      const currentSystemId = gameStateManager.getState().player.currentSystem;
+      const currentSystemId = game.getState().player.currentSystem;
       const onClose = vi.fn();
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <SystemPanel
             viewingSystemId={currentSystemId}
             onClose={onClose}

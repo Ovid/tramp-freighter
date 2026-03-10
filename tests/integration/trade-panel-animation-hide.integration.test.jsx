@@ -7,7 +7,7 @@ import {
   act,
 } from '@testing-library/react';
 import App from '../../src/App';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -20,7 +20,7 @@ import { GameProvider } from '../../src/context/GameContext';
  * and that the app handles view mode transitions correctly.
  */
 describe('Panel Animation Hide Integration', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
   let consoleErrorSpy;
 
@@ -32,9 +32,9 @@ describe('Panel Animation Hide Integration', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Initialize game state
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.navigationSystem = navigationSystem;
+    game.navigationSystem = navigationSystem;
 
     // Mock animation system to resolve immediately
     const mockAnimationSystem = {
@@ -46,7 +46,7 @@ describe('Panel Animation Hide Integration', () => {
         unlock: vi.fn(),
       },
     };
-    gameStateManager.setAnimationSystem(mockAnimationSystem);
+    game.setAnimationSystem(mockAnimationSystem);
   });
 
   afterEach(() => {
@@ -56,7 +56,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should handle jump animation without errors', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -81,11 +81,11 @@ describe('Panel Animation Hide Integration', () => {
     // Ensure player has enough fuel for jump and execute jump
     let result;
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       result = await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -95,7 +95,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should maintain app state during animation', async () => {
     const { container } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -122,11 +122,11 @@ describe('Panel Animation Hide Integration', () => {
 
     // Ensure player has enough fuel for jump and execute jump
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -136,7 +136,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should work correctly when no animation system is provided', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -161,9 +161,9 @@ describe('Panel Animation Hide Integration', () => {
     // Ensure player has enough fuel for jump and execute jump
     let result;
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       result = await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
         null // No animation system
       );
@@ -175,7 +175,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should handle animation state transitions', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -198,31 +198,27 @@ describe('Panel Animation Hide Integration', () => {
     });
 
     // Set animation to running
-    gameStateManager.animationSystem.isAnimating = true;
-    gameStateManager.animationSystem.inputLockManager.isInputLocked.mockReturnValue(
-      true
-    );
+    game.animationSystem.isAnimating = true;
+    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(true);
 
     // Wait for state to propagate
     await waitFor(() => {
-      expect(gameStateManager.animationSystem.isAnimating).toBe(true);
+      expect(game.animationSystem.isAnimating).toBe(true);
     });
 
     // Set animation to stopped
-    gameStateManager.animationSystem.isAnimating = false;
-    gameStateManager.animationSystem.inputLockManager.isInputLocked.mockReturnValue(
-      false
-    );
+    game.animationSystem.isAnimating = false;
+    game.animationSystem.inputLockManager.isInputLocked.mockReturnValue(false);
 
     // Wait for state to propagate
     await waitFor(() => {
-      expect(gameStateManager.animationSystem.isAnimating).toBe(false);
+      expect(game.animationSystem.isAnimating).toBe(false);
     });
   });
 
   it('should handle multiple jumps in sequence', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -247,11 +243,11 @@ describe('Panel Animation Hide Integration', () => {
     // Execute first jump
     let result1;
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       result1 = await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -260,11 +256,11 @@ describe('Panel Animation Hide Integration', () => {
     // Execute second jump back to Sol
     let result2;
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       result2 = await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         0, // Sol
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -273,7 +269,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should handle failed jumps gracefully', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -299,9 +295,9 @@ describe('Panel Animation Hide Integration', () => {
     let result;
     await act(async () => {
       result = await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         999, // Invalid system ID
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 
@@ -311,7 +307,7 @@ describe('Panel Animation Hide Integration', () => {
 
   it('should maintain HUD visibility during jumps', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App />
       </GameProvider>
     );
@@ -335,11 +331,11 @@ describe('Panel Animation Hide Integration', () => {
 
     // Execute jump
     await act(async () => {
-      gameStateManager.updateFuel(100);
+      game.updateFuel(100);
       await navigationSystem.executeJump(
-        gameStateManager,
+        game,
         1, // Alpha Centauri
-        gameStateManager.animationSystem
+        game.animationSystem
       );
     });
 

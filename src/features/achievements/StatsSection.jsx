@@ -1,4 +1,4 @@
-import { useGameState } from '../../context/GameContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   ACHIEVEMENTS_CONFIG,
@@ -68,10 +68,10 @@ const DANGER_FLAG_LABELS = {
  *
  * Subscribes to karmaChanged, factionRepChanged, jumpCompleted,
  * and timeChanged events via the Bridge Pattern. Reads additional
- * stats from GameStateManager on each render.
+ * stats from GameCoordinator on each render.
  */
 export function StatsSection() {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED) ?? 0;
   const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED) ?? {};
 
@@ -82,7 +82,7 @@ export function StatsSection() {
   useGameEvent(EVENT_NAMES.JUMP_COMPLETED);
   useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
-  const snapshot = gameStateManager.getStatsSnapshot();
+  const snapshot = game.getStatsSnapshot();
 
   return (
     <div className="stats-section">

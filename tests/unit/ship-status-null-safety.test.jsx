@@ -20,7 +20,7 @@ import { GameProvider } from '../../src/context/GameContext.jsx';
  * should never be null after proper game initialization.
  */
 describe('ShipStatus Null Safety', () => {
-  let mockGameStateManager;
+  let mockGameCoordinator;
   let mockState;
 
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe('ShipStatus Null Safety', () => {
       },
     };
 
-    mockGameStateManager = {
+    mockGameCoordinator = {
       getState: vi.fn(() => mockState),
       getShip: vi.fn(() => mockState.ship),
       subscribe: vi.fn(),
@@ -71,7 +71,7 @@ describe('ShipStatus Null Safety', () => {
 
   const renderShipStatus = () => {
     return render(
-      <GameProvider gameStateManager={mockGameStateManager}>
+      <GameProvider game={mockGameCoordinator}>
         <ShipStatus />
       </GameProvider>
     );
@@ -180,7 +180,7 @@ describe('ShipStatus Null Safety', () => {
     // Act & Assert: This should not crash with the null safety fixes
     expect(() => {
       render(
-        <GameProvider gameStateManager={mockGameStateManager}>
+        <GameProvider game={mockGameCoordinator}>
           <ShipStatus />
         </GameProvider>
       );
@@ -200,7 +200,7 @@ describe('ShipStatus Null Safety', () => {
     };
 
     // Mock getShip to return the corrupted ship data
-    mockGameStateManager.getShip = vi.fn(() => mockState.ship);
+    mockGameCoordinator.getShip = vi.fn(() => mockState.ship);
 
     // Act & Assert: Should handle gracefully
     expect(() => renderShipStatus()).not.toThrow();

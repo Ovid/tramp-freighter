@@ -1,7 +1,7 @@
 'use strict';
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 
 /**
  * Unit Tests for Market Conditions Initialization
@@ -18,14 +18,14 @@ const TEST_STAR_DATA = [
 const TEST_WORMHOLE_DATA = [];
 
 describe('Market Conditions Initialization', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    game = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
   });
 
   it('should initialize marketConditions as empty object in new game', () => {
-    const state = gameStateManager.initNewGame();
+    const state = game.initNewGame();
 
     // Verify marketConditions exists
     expect(state.world.marketConditions).toBeDefined();
@@ -38,15 +38,15 @@ describe('Market Conditions Initialization', () => {
   });
 
   it('should have correct structure for marketConditions', () => {
-    const state = gameStateManager.initNewGame();
+    const state = game.initNewGame();
 
     // Verify structure: { [systemId]: { [goodType]: netQuantity } }
     expect(state.world.marketConditions).toEqual({});
   });
 
   it('should preserve marketConditions in state', () => {
-    gameStateManager.initNewGame();
-    const state = gameStateManager.getState();
+    game.initNewGame();
+    const state = game.getState();
 
     // Verify marketConditions is accessible via getState
     expect(state.world.marketConditions).toBeDefined();

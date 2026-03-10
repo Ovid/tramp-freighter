@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { ENDGAME_CONFIG } from '@game/constants.js';
 import { buildDialogueContext } from '@game/game-dialogue.js';
 import { YUKI_TANAKA_DIALOGUE } from '@game/data/dialogue/tanaka-dialogue.js';
@@ -9,7 +9,7 @@ describe('Quest Requirement Hints', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     manager.getState().npcs.tanaka_barnards = {
       rep: 5,
       flags: ['tanaka_met'],
@@ -64,7 +64,7 @@ describe('Tanaka dialogue hints', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     manager.getState().npcs.tanaka_barnards = {
       rep: 5,
       flags: ['tanaka_met'],

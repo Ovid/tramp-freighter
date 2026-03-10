@@ -1,29 +1,22 @@
 import { createContext, useContext } from 'react';
 
 /**
- * React Context for providing GameStateManager instance to all components.
+ * React Context for providing the game coordinator instance to all components.
  *
  * This is the foundation of the Bridge Pattern that connects the imperative
- * GameStateManager to React's declarative component model.
- *
- * React Migration Spec: Requirements 5.1, 13.1, 13.2, 13.3, 13.4, 13.5
+ * game coordinator to React's declarative component model.
  */
 const GameContext = createContext(null);
 
 /**
- * Provider component that makes GameStateManager available to all child components.
- *
- * Handles initialization states:
- * - null gameStateManager: Shows loading state
- * - valid gameStateManager: Renders children with context
+ * Provider component that makes the game coordinator available to all child components.
  *
  * @param {Object} props
- * @param {GameStateManager} props.gameStateManager - Initialized GameStateManager instance
+ * @param {GameCoordinator} props.game - Game coordinator instance
  * @param {React.ReactNode} props.children - Child components
  */
-export function GameProvider({ gameStateManager, children }) {
-  // Handle null/undefined gameStateManager
-  if (!gameStateManager) {
+export function GameProvider({ game, children }) {
+  if (!game) {
     return (
       <div className="game-loading">
         <p>Loading game...</p>
@@ -31,26 +24,20 @@ export function GameProvider({ gameStateManager, children }) {
     );
   }
 
-  return (
-    <GameContext.Provider value={gameStateManager}>
-      {children}
-    </GameContext.Provider>
-  );
+  return <GameContext.Provider value={game}>{children}</GameContext.Provider>;
 }
 
 /**
- * Custom hook to access GameStateManager from context.
+ * Hook to access the game coordinator from context.
  *
- * Throws error if used outside GameProvider to catch integration bugs early.
- *
- * @returns {GameStateManager} The GameStateManager instance
+ * @returns {GameCoordinator} The game coordinator instance
  * @throws {Error} If used outside GameProvider
  */
-export function useGameState() {
+export function useGame() {
   const context = useContext(GameContext);
 
   if (!context) {
-    throw new Error('useGameState must be used within GameProvider');
+    throw new Error('useGame must be used within GameProvider');
   }
 
   return context;

@@ -3,7 +3,7 @@ import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SHIP_CONFIG } from '../../src/game/constants.js';
@@ -52,13 +52,10 @@ describe('Property: Ship name sanitization', () => {
         (inputName) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -128,13 +125,10 @@ describe('Property: Ship name sanitization', () => {
         (inputName) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Track what name was submitted
           let submittedName = null;
@@ -191,10 +185,10 @@ describe('Property: Ship name sanitization', () => {
     testCases.forEach(({ input, expected }) => {
       cleanup();
 
-      const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-      gameStateManager.initNewGame();
+      const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      game.initNewGame();
 
-      const wrapper = createWrapper(gameStateManager);
+      const wrapper = createWrapper(game);
 
       let submittedName = null;
       const onSubmit = (name) => {

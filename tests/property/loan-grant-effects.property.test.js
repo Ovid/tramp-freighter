@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -17,7 +17,7 @@ import {
  */
 
 describe('Loan Grant Effects Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -31,19 +31,19 @@ describe('Loan Grant Effects Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    const testGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    testGameStateManager.initNewGame();
-    return testGameStateManager;
+    const testGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    testGameCoordinator.initNewGame();
+    return testGameCoordinator;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -70,15 +70,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbTrustedReputation(),
         arbCurrentDay(),
         (npcId, initialCredits, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Trusted tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no existing loan and no recent favor
@@ -88,17 +88,17 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // Record initial state
           const initialPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Player credits should increase by exactly 500
           const finalPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
           const creditIncrease = finalPlayerCredits - initialPlayerCredits;
           expect(creditIncrease).toBe(
             NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
@@ -120,15 +120,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbTrustedReputation(),
         arbCurrentDay(),
         (npcId, initialCredits, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Trusted tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no existing loan and no recent favor
@@ -137,13 +137,13 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // NPC state should have loan information set
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           expect(updatedNpcState.loanAmount).toBe(
             NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
           );
@@ -162,15 +162,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbTrustedReputation(),
         arbCurrentDay(),
         (npcId, initialCredits, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Trusted tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no existing loan and no recent favor
@@ -182,13 +182,13 @@ describe('Loan Grant Effects Property Tests', () => {
           const initialReputation = npcState.rep;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // NPC reputation should increase by 5 points, but capped at maximum
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           const expectedReputation = Math.min(
             REPUTATION_BOUNDS.MAX,
             reputation + NPC_BENEFITS_CONFIG.LOAN_ACCEPTANCE_REP_BONUS
@@ -212,15 +212,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbTrustedReputation(),
         arbCurrentDay(),
         (npcId, initialCredits, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Trusted tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no existing loan and no recent favor
@@ -229,13 +229,13 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // lastFavorDay should be set to current day
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           expect(updatedNpcState.lastFavorDay).toBe(currentDay);
         }
       ),
@@ -251,15 +251,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbTrustedReputation(),
         arbCurrentDay(),
         (npcId, initialCredits, reputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation to Trusted tier or higher
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = reputation;
 
           // Ensure no existing loan and no recent favor
@@ -268,14 +268,14 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Verify all effects applied together
-          const finalState = testGameStateManager.getState();
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const finalState = testGameCoordinator.getState();
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
 
           // All four effects should be applied:
           // 1. Player credits increased by 500
@@ -313,15 +313,15 @@ describe('Loan Grant Effects Property Tests', () => {
         arbInitialCredits(),
         arbCurrentDay(),
         (npcId, initialCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation near maximum
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           const highReputation = REPUTATION_BOUNDS.MAX - 2; // 98, so +5 would exceed 100
           npcState.rep = highReputation;
 
@@ -331,13 +331,13 @@ describe('Loan Grant Effects Property Tests', () => {
           npcState.lastFavorDay = null;
 
           // Request loan
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Reputation should be capped at maximum (100)
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           expect(updatedNpcState.rep).toBeLessThanOrEqual(
             REPUTATION_BOUNDS.MAX
           );
@@ -365,15 +365,15 @@ describe('Loan Grant Effects Property Tests', () => {
         }),
         arbCurrentDay(),
         (npcId, initialCredits, lowReputation, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set reputation below Trusted tier
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = lowReputation;
 
           // Ensure no existing loan and no recent favor
@@ -383,11 +383,11 @@ describe('Loan Grant Effects Property Tests', () => {
 
           // Record initial state
           const initialPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
           const initialReputation = npcState.rep;
 
           // Request loan should fail
-          const result = testGameStateManager.requestLoan(npcId);
+          const result = testGameCoordinator.requestLoan(npcId);
 
           // Should fail
           expect(result.success).toBe(false);
@@ -395,8 +395,8 @@ describe('Loan Grant Effects Property Tests', () => {
           expect(typeof result.message).toBe('string');
 
           // No state should be modified
-          const finalState = testGameStateManager.getState();
-          const finalNpcState = testGameStateManager.getNPCState(npcId);
+          const finalState = testGameCoordinator.getState();
+          const finalNpcState = testGameCoordinator.getNPCState(npcId);
 
           expect(finalState.player.credits).toBe(initialPlayerCredits);
           expect(finalNpcState.rep).toBe(initialReputation);

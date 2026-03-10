@@ -7,8 +7,6 @@ describe('Customs – illegal mission cargo detection', () => {
 
   beforeEach(() => {
     manager = new DangerManager({
-      state: {},
-      emit: vi.fn(),
       isTestEnvironment: true,
     });
   });

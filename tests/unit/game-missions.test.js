@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
@@ -9,7 +9,7 @@ vi.mock('../../src/game/utils/dev-logger.js', () => ({
 }));
 
 function makeGSM() {
-  const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+  const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
   gsm.initNewGame();
   return gsm;
 }

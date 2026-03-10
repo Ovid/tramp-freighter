@@ -1,4 +1,4 @@
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { EVENT_NAMES } from '../../game/constants.js';
 
@@ -15,8 +15,8 @@ import { EVENT_NAMES } from '../../game/constants.js';
  * @param {Function} props.onClose - Callback to close the panel
  */
 export function ShipStatusPanel({ onClose }) {
-  // Access GameStateManager
-  const gameStateManager = useGameState();
+  // Access GameCoordinator
+  const game = useGame();
 
   // Subscribe to game events
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
@@ -51,7 +51,7 @@ export function ShipStatusPanel({ onClose }) {
    * @returns {JSX.Element} Quirk item element
    */
   const renderQuirk = (quirkId) => {
-    const quirk = gameStateManager.getQuirkDefinition(quirkId);
+    const quirk = game.getQuirkDefinition(quirkId);
 
     if (!quirk) {
       return null;
@@ -79,7 +79,7 @@ export function ShipStatusPanel({ onClose }) {
    * @returns {JSX.Element} Upgrade item element
    */
   const renderUpgrade = (upgradeId) => {
-    const upgrade = gameStateManager.getUpgradeDefinition(upgradeId);
+    const upgrade = game.getUpgradeDefinition(upgradeId);
 
     if (!upgrade) {
       return null;

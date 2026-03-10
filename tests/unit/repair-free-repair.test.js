@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import {
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
@@ -14,7 +14,7 @@ describe('RepairManager free repair', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -236,6 +236,28 @@ describe('RepairManager free repair', () => {
       gsm.repairManager.applyFreeRepair(TEST_NPC_ID, familyLimit);
 
       expect(gsm.getState().ship.hull).toBe(SHIP_CONFIG.CONDITION_BOUNDS.MAX);
+    });
+  });
+
+  describe('GSM facade delegation', () => {
+    it('getFreeRepair via GSM facade calls markDirty on success', () => {
+      setNpcRep(TEST_NPC_ID, REPUTATION_BOUNDS.TRUSTED_MIN);
+      gsm.getState().ship.hull = 70;
+
+      const markDirtySpy = vi.spyOn(gsm, 'markDirty');
+      gsm.getFreeRepair(TEST_NPC_ID, 30);
+
+      expect(markDirtySpy).toHaveBeenCalled();
+    });
+
+    it('getFreeRepair via GSM facade uses updateShipCondition', () => {
+      setNpcRep(TEST_NPC_ID, REPUTATION_BOUNDS.TRUSTED_MIN);
+      gsm.getState().ship.hull = 70;
+
+      const updateSpy = vi.spyOn(gsm.shipManager, 'updateShipCondition');
+      gsm.getFreeRepair(TEST_NPC_ID, 30);
+
+      expect(updateSpy).toHaveBeenCalled();
     });
   });
 });

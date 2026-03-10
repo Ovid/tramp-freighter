@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 
 describe('Save/Load System', () => {
@@ -12,7 +12,7 @@ describe('Save/Load System', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    manager = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    manager = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
   });
 
   afterEach(() => {
@@ -129,7 +129,7 @@ describe('Save/Load System', () => {
     manager.advanceQuest('tanaka');
     manager.saveGame();
 
-    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const manager2 = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     const loaded = manager2.loadGame();
     expect(loaded).not.toBeNull();
     expect(loaded.quests.tanaka.stage).toBe(1);
@@ -142,7 +142,7 @@ describe('Save/Load System', () => {
     delete manager.state.stats;
     manager.saveGame();
 
-    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const manager2 = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     const loaded = manager2.loadGame();
     expect(loaded.stats).toEqual(
       expect.objectContaining({ creditsEarned: 0, jumpsCompleted: 0 })
@@ -154,7 +154,7 @@ describe('Save/Load System', () => {
     delete manager.state.quests;
     manager.saveGame();
 
-    const manager2 = new GameStateManager(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
+    const manager2 = new GameCoordinator(TEST_STAR_DATA, TEST_WORMHOLE_DATA);
     const loaded = manager2.loadGame();
     expect(loaded.quests).toEqual(expect.any(Object));
   });

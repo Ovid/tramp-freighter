@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -14,7 +14,7 @@ import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
  */
 
 describe('Tip Availability Rules Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -28,8 +28,8 @@ describe('Tip Availability Rules Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -53,12 +53,12 @@ describe('Tip Availability Rules Property Tests', () => {
         arbDay(),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, reputation, currentDay, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -66,11 +66,11 @@ describe('Tip Availability Rules Property Tests', () => {
 
           try {
             // Set current day
-            testGameStateManager.updateTime(currentDay);
+            testGameCoordinator.updateTime(currentDay);
 
             // Get NPC data and state
             const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-            const npcState = testGameStateManager.getNPCState(npcId);
+            const npcState = testGameCoordinator.getNPCState(npcId);
 
             // Set reputation
             npcState.rep = reputation;
@@ -78,7 +78,7 @@ describe('Tip Availability Rules Property Tests', () => {
             // Test case 1: No previous tip (lastTipDay = null)
             npcState.lastTipDay = null;
 
-            const result1 = testGameStateManager.canGetTip(npcId);
+            const result1 = testGameCoordinator.canGetTip(npcId);
 
             // Should be available if and only if:
             // 1. Reputation >= 10 (Warm tier)
@@ -112,7 +112,7 @@ describe('Tip Availability Rules Property Tests', () => {
                 currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS + 1;
               npcState.lastTipDay = recentTipDay;
 
-              const result2 = testGameStateManager.canGetTip(npcId);
+              const result2 = testGameCoordinator.canGetTip(npcId);
 
               // Should not be available due to cooldown when other conditions are met
               expect(result2.available).toBe(false);
@@ -130,7 +130,7 @@ describe('Tip Availability Rules Property Tests', () => {
                 currentDay - NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS;
               npcState.lastTipDay = oldTipDay;
 
-              const result3 = testGameStateManager.canGetTip(npcId);
+              const result3 = testGameCoordinator.canGetTip(npcId);
 
               // Should follow same rules as case 1 (cooldown has passed)
               const expectedAvailable3 = hasWarmRep && hasTips;
@@ -160,12 +160,12 @@ describe('Tip Availability Rules Property Tests', () => {
         fc.integer({ min: -100, max: 9 }),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, lowReputation, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -177,11 +177,11 @@ describe('Tip Availability Rules Property Tests', () => {
 
             // Only test NPCs that have tips (otherwise they'd fail for different reason)
             if (npcData.tips && npcData.tips.length > 0) {
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = lowReputation;
               npcState.lastTipDay = null; // No cooldown
 
-              const result = testGameStateManager.canGetTip(npcId);
+              const result = testGameCoordinator.canGetTip(npcId);
 
               expect(result.available).toBe(false);
               expect(result.reason).toBeTruthy();
@@ -204,12 +204,12 @@ describe('Tip Availability Rules Property Tests', () => {
         fc.integer({ min: 10, max: 100 }),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, highReputation, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -221,11 +221,11 @@ describe('Tip Availability Rules Property Tests', () => {
 
             // Only test NPCs that don't have tips
             if (!npcData.tips || npcData.tips.length === 0) {
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = highReputation; // High enough reputation
               npcState.lastTipDay = null; // No cooldown
 
-              const result = testGameStateManager.canGetTip(npcId);
+              const result = testGameCoordinator.canGetTip(npcId);
 
               expect(result.available).toBe(false);
               expect(result.reason).toBeTruthy();
@@ -249,12 +249,12 @@ describe('Tip Availability Rules Property Tests', () => {
         fc.integer({ min: 1, max: NPC_BENEFITS_CONFIG.TIP_COOLDOWN_DAYS - 1 }),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, currentDay, daysSinceLastTip, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -266,13 +266,13 @@ describe('Tip Availability Rules Property Tests', () => {
 
             // Only test NPCs that have tips
             if (npcData.tips && npcData.tips.length > 0) {
-              testGameStateManager.updateTime(currentDay);
+              testGameCoordinator.updateTime(currentDay);
 
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = 50; // High enough reputation
               npcState.lastTipDay = currentDay - daysSinceLastTip;
 
-              const result = testGameStateManager.canGetTip(npcId);
+              const result = testGameCoordinator.canGetTip(npcId);
 
               // Should not be available due to cooldown
               expect(result.available).toBe(false);

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameAction } from '../../hooks/useGameAction';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
@@ -24,7 +24,7 @@ import { Modal } from '../../components/Modal';
  */
 export function StationMenu({ onOpenPanel, onUndock }) {
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
-  const gameStateManager = useGameState();
+  const game = useGame();
   const { getNarrativeFlags, dismissMissionFailureNotice } = useGameAction();
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const pendingNotices = missions?.pendingFailureNotices ?? [];
@@ -52,14 +52,14 @@ export function StationMenu({ onOpenPanel, onUndock }) {
 
   // Compute NPC display info using Bridge Pattern
   // This memoized computation updates when location changes (via currentSystemId dependency)
-  // and provides the NPC display data without direct GameStateManager method calls
+  // and provides the NPC display data without direct GameCoordinator method calls
   const npcDisplayData = useMemo(() => {
     return npcsAtSystem.map((npc) => {
-      // Access NPC state through GameStateManager (this is acceptable in useMemo)
+      // Access NPC state through GameCoordinator (this is acceptable in useMemo)
       // since it's computed once per location change, not on every render
-      const npcState = gameStateManager.getNPCState(npc.id);
+      const npcState = game.getNPCState(npc.id);
       const currentRep = npcState.rep;
-      const tier = gameStateManager.getRepTier(currentRep);
+      const tier = game.getRepTier(currentRep);
 
       return {
         id: npc.id,
@@ -68,7 +68,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
         tierName: tier.name,
       };
     });
-  }, [npcsAtSystem, gameStateManager]);
+  }, [npcsAtSystem, game]);
 
   return (
     <div id="station-interface" className="visible">

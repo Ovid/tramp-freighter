@@ -14,16 +14,20 @@ describe('Property: Cannibalization invariants', () => {
       player: { credits: 0 },
       ship: { ...ship },
     };
-    const mockGSM = {
-      state: mockState,
+    const capabilities = {
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
+      getCredits: () => mockState.player.credits,
+      getDaysElapsed: () => mockState.player?.daysElapsed ?? 0,
       updateShipCondition: vi.fn(),
-      saveGame: vi.fn(),
       markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
-    const mgr = new RepairManager(mockGSM);
-    mgr.getState = () => mockState;
-    mgr.validateState = () => {};
-    return { mgr, mockGSM };
+    const mgr = new RepairManager(capabilities);
+    return { mgr, capabilities };
   }
 
   it('successful cannibalization always sets target to exactly 21%', () => {
@@ -46,7 +50,7 @@ describe('Property: Cannibalization invariants', () => {
             requiredDonation - fromDonor1
           );
 
-          const { mgr, mockGSM } = makeManager({
+          const { mgr, capabilities } = makeManager({
             hull: targetCond,
             engine: donor1Cond,
             lifeSupport: donor2Cond,
@@ -61,7 +65,7 @@ describe('Property: Cannibalization invariants', () => {
           const result = mgr.cannibalizeSystem('hull', donations);
           if (!result.success) return true; // skip edge cases
 
-          const call = mockGSM.updateShipCondition.mock.calls[0];
+          const call = capabilities.updateShipCondition.mock.calls[0];
           expect(call[0]).toBe(TARGET); // hull always 21
         }
       ),
@@ -89,7 +93,7 @@ describe('Property: Cannibalization invariants', () => {
             requiredDonation - fromDonor1
           );
 
-          const { mgr, mockGSM } = makeManager({
+          const { mgr, capabilities } = makeManager({
             hull: targetCond,
             engine: donor1Cond,
             lifeSupport: donor2Cond,
@@ -104,7 +108,7 @@ describe('Property: Cannibalization invariants', () => {
           const result = mgr.cannibalizeSystem('hull', donations);
           if (!result.success) return true;
 
-          const call = mockGSM.updateShipCondition.mock.calls[0];
+          const call = capabilities.updateShipCondition.mock.calls[0];
           expect(call[1]).toBeGreaterThanOrEqual(DONOR_MIN); // engine
           expect(call[2]).toBeGreaterThanOrEqual(DONOR_MIN); // lifeSupport
         }

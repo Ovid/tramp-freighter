@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -19,7 +19,7 @@ import {
 /**
  * Create test game state with specified overrides
  *
- * @param {Object} baseState - Base game state from GameStateManager
+ * @param {Object} baseState - Base game state from GameCoordinator
  * @param {Object} overrides - Properties to override
  * @returns {Object} Modified game state for testing
  */
@@ -48,20 +48,20 @@ function createTestGameState(baseState, overrides = {}) {
 
 describe('Inspection Probability Scaling Properties', () => {
   it('should apply zone-specific base rates for inspection probability', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
-          const zone = gameStateManager.getDangerZone(systemId);
-          const gameState = gameStateManager.getState();
+          const zone = game.getDangerZone(systemId);
+          const gameState = game.getState();
 
           // Calculate inspection chance with no modifiers (empty cargo, neutral reputation)
           const baseGameState = createTestGameState(gameState);
 
-          const inspectionChance = gameStateManager.calculateInspectionChance(
+          const inspectionChance = game.calculateInspectionChance(
             systemId,
             baseGameState
           );
@@ -89,16 +89,16 @@ describe('Inspection Probability Scaling Properties', () => {
   });
 
   it('should apply restricted goods modifier correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         fc.integer({ min: 0, max: 5 }), // Number of cargo items (0-5)
         (systemId, cargoCount) => {
-          const zone = gameStateManager.getDangerZone(systemId);
-          const gameState = gameStateManager.getState();
+          const zone = game.getDangerZone(systemId);
+          const gameState = game.getState();
 
           // Create cargo using commodity names (the 'good' field)
           const cargo = [];
@@ -116,7 +116,7 @@ describe('Inspection Probability Scaling Properties', () => {
             },
           });
 
-          const inspectionChance = gameStateManager.calculateInspectionChance(
+          const inspectionChance = game.calculateInspectionChance(
             systemId,
             testGameState
           );
@@ -156,19 +156,19 @@ describe('Inspection Probability Scaling Properties', () => {
   });
 
   it('should apply core systems multiplier correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Test core systems (Sol = 0, Alpha Centauri = 1)
     const coreSystems = [0, 1];
 
     for (const systemId of coreSystems) {
-      const zone = gameStateManager.getDangerZone(systemId);
-      const gameState = gameStateManager.getState();
+      const zone = game.getDangerZone(systemId);
+      const gameState = game.getState();
 
       const baseGameState = createTestGameState(gameState);
 
-      const inspectionChance = gameStateManager.calculateInspectionChance(
+      const inspectionChance = game.calculateInspectionChance(
         systemId,
         baseGameState
       );
@@ -183,16 +183,16 @@ describe('Inspection Probability Scaling Properties', () => {
   });
 
   it('should apply faction reputation modifier correctly', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         fc.integer({ min: -100, max: 100 }), // Authority reputation
         (systemId, authorityRep) => {
-          const zone = gameStateManager.getDangerZone(systemId);
-          const gameState = gameStateManager.getState();
+          const zone = game.getDangerZone(systemId);
+          const gameState = game.getState();
 
           const testGameState = createTestGameState(gameState, {
             player: {
@@ -202,7 +202,7 @@ describe('Inspection Probability Scaling Properties', () => {
             },
           });
 
-          const inspectionChance = gameStateManager.calculateInspectionChance(
+          const inspectionChance = game.calculateInspectionChance(
             systemId,
             testGameState
           );
@@ -234,8 +234,8 @@ describe('Inspection Probability Scaling Properties', () => {
   });
 
   it('should clamp final probability to [0, 1] range', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -243,7 +243,7 @@ describe('Inspection Probability Scaling Properties', () => {
         fc.integer({ min: 0, max: 10 }), // Large number of restricted goods
         fc.integer({ min: -100, max: 100 }), // Authority reputation
         (systemId, restrictedGoodsCount, authorityRep) => {
-          const gameState = gameStateManager.getState();
+          const gameState = game.getState();
 
           // Create cargo with many goods to potentially exceed 1.0
           const cargo = [];
@@ -266,7 +266,7 @@ describe('Inspection Probability Scaling Properties', () => {
             },
           });
 
-          const inspectionChance = gameStateManager.calculateInspectionChance(
+          const inspectionChance = game.calculateInspectionChance(
             systemId,
             testGameState
           );

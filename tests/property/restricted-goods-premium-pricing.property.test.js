@@ -7,7 +7,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -17,8 +17,8 @@ import {
 
 describe('Restricted Goods Premium Pricing Properties', () => {
   it('should apply premium multiplier when selling restricted goods in legal zones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -27,13 +27,13 @@ describe('Restricted Goods Premium Pricing Properties', () => {
         fc.integer({ min: 10, max: 200 }), // Base price range
         (goodType, systemId, basePrice) => {
           // Check if good is restricted in this system
-          const isRestricted = gameStateManager.tradingManager.isGoodRestricted(
+          const isRestricted = game.tradingManager.isGoodRestricted(
             goodType,
             systemId
           );
 
           // Calculate sell price
-          const sellPrice = gameStateManager.tradingManager.calculateSellPrice(
+          const sellPrice = game.tradingManager.calculateSellPrice(
             goodType,
             systemId,
             basePrice
@@ -75,8 +75,8 @@ describe('Restricted Goods Premium Pricing Properties', () => {
   });
 
   it('should block normal trade for restricted goods in restricted zones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
@@ -84,11 +84,11 @@ describe('Restricted Goods Premium Pricing Properties', () => {
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         fc.boolean(), // hasBlackMarketContact
         (goodType, systemId, hasBlackMarketContact) => {
-          const isRestricted = gameStateManager.tradingManager.isGoodRestricted(
+          const isRestricted = game.tradingManager.isGoodRestricted(
             goodType,
             systemId
           );
-          const canSell = gameStateManager.tradingManager.canSellGood(
+          const canSell = game.tradingManager.canSellGood(
             goodType,
             systemId,
             hasBlackMarketContact
@@ -108,51 +108,47 @@ describe('Restricted Goods Premium Pricing Properties', () => {
   });
 
   it('should allow black market contact bypass for restricted zone sales', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (goodType, systemId) => {
-          const isRestricted = gameStateManager.tradingManager.isGoodRestricted(
+          const isRestricted = game.tradingManager.isGoodRestricted(
             goodType,
             systemId
           );
 
           if (isRestricted) {
             // Without black market contact, should not be able to sell
-            const canSellWithoutContact =
-              gameStateManager.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                false
-              );
+            const canSellWithoutContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              false
+            );
 
             // With black market contact, should be able to sell
-            const canSellWithContact =
-              gameStateManager.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                true
-              );
+            const canSellWithContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              true
+            );
 
             return !canSellWithoutContact && canSellWithContact;
           } else {
             // Non-restricted goods should be sellable regardless of contacts
-            const canSellWithoutContact =
-              gameStateManager.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                false
-              );
-            const canSellWithContact =
-              gameStateManager.tradingManager.canSellGood(
-                goodType,
-                systemId,
-                true
-              );
+            const canSellWithoutContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              false
+            );
+            const canSellWithContact = game.tradingManager.canSellGood(
+              goodType,
+              systemId,
+              true
+            );
 
             return canSellWithoutContact && canSellWithContact;
           }
@@ -163,19 +159,19 @@ describe('Restricted Goods Premium Pricing Properties', () => {
   });
 
   it('should correctly identify restricted goods by zone and system', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.constantFrom(...COMMODITY_TYPES),
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (goodType, systemId) => {
-          const isRestricted = gameStateManager.tradingManager.isGoodRestricted(
+          const isRestricted = game.tradingManager.isGoodRestricted(
             goodType,
             systemId
           );
-          const dangerZone = gameStateManager.getDangerZone(systemId);
+          const dangerZone = game.getDangerZone(systemId);
 
           // Check zone-based restrictions
           const zoneRestricted =

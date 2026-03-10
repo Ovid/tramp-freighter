@@ -10,18 +10,18 @@ import fc from 'fast-check';
 import { render, screen, cleanup } from '@testing-library/react';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { showDialogue } from '../../src/game/game-dialogue.js';
 
-// Create GameStateManager for testing
-let gameStateManager;
+// Create GameCoordinator for testing
+let game;
 
 beforeEach(() => {
   cleanup();
-  gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+  game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 });
 
 describe('Numbered Choice List Format Properties', () => {
@@ -29,18 +29,14 @@ describe('Numbered Choice List Format Properties', () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_NPCS), (npc) => {
         // Initialize game state
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         try {
           // Clean up any previous renders
           cleanup();
 
           // Use the actual dialogue system to get dialogue display
-          const dialogueDisplay = showDialogue(
-            npc.id,
-            'greeting',
-            gameStateManager
-          );
+          const dialogueDisplay = showDialogue(npc.id, 'greeting', game);
 
           // Skip if no choices available
           if (
@@ -52,7 +48,7 @@ describe('Numbered Choice List Format Properties', () => {
 
           // Render DialoguePanel
           render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <DialoguePanel npcId={npc.id} onClose={() => {}} />
             </GameProvider>
           );
@@ -97,21 +93,17 @@ describe('Numbered Choice List Format Properties', () => {
         fc.integer({ min: -100, max: 100 }),
         (npc, reputation) => {
           // Initialize game state with specific reputation
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
           try {
             // Clean up any previous renders
             cleanup();
 
             // Set reputation for the NPC
-            gameStateManager.modifyRep(npc.id, reputation, 'test');
+            game.modifyRep(npc.id, reputation, 'test');
 
             // Use the actual dialogue system to get dialogue display
-            const dialogueDisplay = showDialogue(
-              npc.id,
-              'greeting',
-              gameStateManager
-            );
+            const dialogueDisplay = showDialogue(npc.id, 'greeting', game);
 
             // Skip if no choices available
             if (
@@ -123,7 +115,7 @@ describe('Numbered Choice List Format Properties', () => {
 
             // Render DialoguePanel
             render(
-              <GameProvider gameStateManager={gameStateManager}>
+              <GameProvider game={game}>
                 <DialoguePanel npcId={npc.id} onClose={() => {}} />
               </GameProvider>
             );

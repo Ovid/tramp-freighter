@@ -18,8 +18,8 @@ import {
  * - Manage save debouncing to prevent performance issues
  */
 export class SaveLoadManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
+  constructor(capabilities) {
+    super(capabilities);
 
     // Track last save time for debouncing
     this.lastSaveTime = 0;
@@ -67,16 +67,17 @@ export class SaveLoadManager extends BaseManager {
    * @private
    */
   _forceSave() {
-    if (!this.getState()) {
+    const fullState = this.capabilities.getFullState();
+    if (!fullState) {
       return;
     }
 
     try {
       const now = Date.now();
       const stateToSave = {
-        ...this.getState(),
+        ...fullState,
         meta: {
-          ...this.getState().meta,
+          ...fullState.meta,
           timestamp: now,
         },
       };
@@ -85,7 +86,7 @@ export class SaveLoadManager extends BaseManager {
       this.lastSaveTime = now;
     } catch (error) {
       this.error('Save failed — game progress may be lost', error);
-      this.emit(EVENT_NAMES.SAVE_FAILED, {
+      this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
         message: 'Save failed — game progress may be lost',
       });
     }
@@ -102,7 +103,10 @@ export class SaveLoadManager extends BaseManager {
    * @returns {boolean} True if save succeeded or was debounced, false if failed
    */
   saveGame() {
-    const result = saveGameToStorage(this.getState(), this.lastSaveTime);
+    const result = saveGameToStorage(
+      this.capabilities.getFullState(),
+      this.lastSaveTime
+    );
 
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
@@ -113,7 +117,7 @@ export class SaveLoadManager extends BaseManager {
 
       if (timeSinceLastSave >= UI_CONFIG.SAVE_DEBOUNCE_MS) {
         this.error('Save failed — game progress may be lost');
-        this.emit(EVENT_NAMES.SAVE_FAILED, {
+        this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
           message: 'Save failed — game progress may be lost',
         });
       }
@@ -125,7 +129,7 @@ export class SaveLoadManager extends BaseManager {
   /**
    * Load game state from localStorage
    *
-   * Delegates to GameStateManager.restoreState() for version checking,
+   * Delegates to GameCoordinator.restoreState() for version checking,
    * migrations, validation, defaults, state assignment, and event emission.
    *
    * @returns {Object|null} Loaded and validated game state, or null if load failed
@@ -138,7 +142,7 @@ export class SaveLoadManager extends BaseManager {
         return null;
       }
 
-      const result = this.gameStateManager.restoreState(loadedState);
+      const result = this.capabilities.restoreState(loadedState);
 
       if (result.success) {
         return result.state;
@@ -190,7 +194,7 @@ export class SaveLoadManager extends BaseManager {
           };
         }
 
-        const result = this.gameStateManager.restoreState(recoveredState);
+        const result = this.capabilities.restoreState(recoveredState);
         if (result.success) {
           return result.state;
         }

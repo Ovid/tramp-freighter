@@ -12,13 +12,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dialogue Tips Integration', () => {
-  let gameStateManager;
+  let game;
   let mockOnClose;
 
   beforeEach(() => {
@@ -37,8 +37,8 @@ describe('Dialogue Tips Integration', () => {
       warn: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
     mockOnClose = vi.fn();
   });
 
@@ -50,12 +50,12 @@ describe('Dialogue Tips Integration', () => {
     it('should show tip option when NPC has tips and meets reputation requirement', async () => {
       // Use Whisper who has tips and test at Warm reputation
       const npcId = 'whisper_sirius';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 15; // Warm tier (>= 10)
       npcState.lastTipDay = null; // No cooldown
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -72,12 +72,12 @@ describe('Dialogue Tips Integration', () => {
     it('should hide tip option when NPC reputation is below Warm tier', async () => {
       // Use Whisper with Neutral reputation
       const npcId = 'whisper_sirius';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 5; // Neutral tier (< 10)
       npcState.lastTipDay = null; // No cooldown
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -96,16 +96,16 @@ describe('Dialogue Tips Integration', () => {
     it('should hide tip option when NPC is on tip cooldown', async () => {
       // Use Whisper with Warm reputation but recent tip
       const npcId = 'whisper_sirius';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
 
       // Set current day and recent tip day (within 7 days)
       const currentDay = 100;
-      gameStateManager.getState().player.daysElapsed = currentDay;
+      game.getState().player.daysElapsed = currentDay;
       npcState.lastTipDay = currentDay - 3; // 3 days ago (< 7 days)
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -124,12 +124,12 @@ describe('Dialogue Tips Integration', () => {
     it('should hide tip option when NPC has no tips', async () => {
       // Use Father Okonkwo who has empty tips array
       const npcId = 'okonkwo_ross154';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
       npcState.lastTipDay = null; // No cooldown
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -148,12 +148,12 @@ describe('Dialogue Tips Integration', () => {
     it('should display actual tip content when tip option is selected', async () => {
       // Use Whisper with available tip
       const npcId = 'whisper_sirius';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
       npcState.lastTipDay = null; // No cooldown
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -191,12 +191,12 @@ describe('Dialogue Tips Integration', () => {
     it('should display different tips from different NPCs', async () => {
       // Test Wei Chen's tips
       const weiChenId = 'chen_barnards';
-      const weiChenState = gameStateManager.getNPCState(weiChenId);
+      const weiChenState = game.getNPCState(weiChenId);
       weiChenState.rep = 15; // Warm tier
       weiChenState.lastTipDay = null; // No cooldown
 
       const { rerender } = render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={weiChenId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -229,12 +229,12 @@ describe('Dialogue Tips Integration', () => {
 
       // Now test Marcus Cole's tips
       const marcusId = 'cole_sol';
-      const marcusState = gameStateManager.getNPCState(marcusId);
+      const marcusState = game.getNPCState(marcusId);
       marcusState.rep = 15; // Warm tier
       marcusState.lastTipDay = null; // No cooldown
 
       rerender(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={marcusId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -269,16 +269,16 @@ describe('Dialogue Tips Integration', () => {
     it('should update tip cooldown after tip is given', async () => {
       // Use Captain Vasquez for this test
       const npcId = 'vasquez_epsilon';
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 15; // Warm tier
       npcState.lastTipDay = null; // No cooldown
 
       // Set current day
       const currentDay = 50;
-      gameStateManager.getState().player.daysElapsed = currentDay;
+      game.getState().player.daysElapsed = currentDay;
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -353,12 +353,12 @@ describe('Dialogue Tips Integration', () => {
         // Skip Father Okonkwo as he doesn't have tips
         if (npcId === 'okonkwo_ross154') continue;
 
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = 15; // Warm tier
         npcState.lastTipDay = null; // No cooldown
 
         const { rerender } = render(
-          <GameProvider gameStateManager={gameStateManager}>
+          <GameProvider game={game}>
             <DialoguePanel npcId={npcId} onClose={mockOnClose} />
           </GameProvider>
         );

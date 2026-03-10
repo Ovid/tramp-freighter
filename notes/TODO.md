@@ -1,11 +1,12 @@
 # TODO
 
-/superpowers:brainstorm The game is great, but there's no sound. When
-traveling via wormhole, no sound. No general
-background sound. No sci-fi click when I click on a button. Might be more. Is
-that something which is easy to add in? The
- sounds would have to be coherent and understandable. They'd also have to be
- something you could disable in the Settings.
+- We have various types of popups that occur while travelling: distress calls,
+  pirate attacks, custom checks. Are they reusing an interface? Can we make
+  them more consistent?
+- "Lucky" Liu, a gambler NPC who offers gambling tips and occasional insider
+  info as relationship benefits. But it's not clear how. We need a thorough
+  review of all the NPCs and their benefits to ensure they are implemented in
+  a way that is discoverable, meaningful, and actually exists.
 - Worth offering some kind of political issues with different factions and
   star systems?
 - Maybe make ship upgrades a key to the endgame? You can only get certain

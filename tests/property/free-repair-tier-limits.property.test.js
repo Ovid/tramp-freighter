@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -10,7 +10,7 @@ import {
 } from '../../src/game/constants.js';
 
 describe('Free Repair Tier Limits Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage
@@ -20,8 +20,8 @@ describe('Free Repair Tier Limits Property Tests', () => {
       removeItem: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -46,15 +46,15 @@ describe('Free Repair Tier Limits Property Tests', () => {
         fc.oneof(fc.constant(null), fc.integer({ min: 0, max: 100 })),
         (npcId, reputation, currentDay, lastFreeRepairDay) => {
           // Set up game state
-          gameStateManager.state.player.daysElapsed = currentDay;
+          game.state.player.daysElapsed = currentDay;
 
           // Initialize NPC state with specific reputation
-          const npcState = gameStateManager.getNPCState(npcId);
+          const npcState = game.getNPCState(npcId);
           npcState.rep = reputation;
           npcState.lastFreeRepairDay = lastFreeRepairDay;
 
           // Test canGetFreeRepair
-          const result = gameStateManager.canGetFreeRepair(npcId);
+          const result = game.canGetFreeRepair(npcId);
 
           // Determine expected tier
           const isTrusted =

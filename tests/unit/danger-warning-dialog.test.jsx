@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DangerWarningDialog } from '../../src/features/danger/DangerWarningDialog';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -17,18 +17,14 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
  * Validates: Requirements 1.3, 12.1, 12.2, 12.3, 12.4, 12.5
  */
 describe('DangerWarningDialog', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
-    // Create NavigationSystem and GameStateManager properly
+    // Create NavigationSystem and GameCoordinator properly
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager = new GameStateManager(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    game.initNewGame();
 
     // Mock console.error to avoid noise in test output
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -48,7 +44,7 @@ describe('DangerWarningDialog', () => {
     };
 
     return render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <DangerWarningDialog {...defaultProps} />
       </GameProvider>
     );
@@ -135,7 +131,7 @@ describe('DangerWarningDialog', () => {
 
     it('should show risk factors when cargo is present', () => {
       // Add cargo to trigger risk factors
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.ship.cargo.push({
         type: 'electronics',
         quantity: 10,
@@ -154,7 +150,7 @@ describe('DangerWarningDialog', () => {
 
     it('should show engine condition risk factor when engine is damaged', () => {
       // Damage engine to trigger risk factor
-      gameStateManager.updateShipCondition(100, 40, 100); // Engine at 40%
+      game.updateShipCondition(100, 40, 100); // Engine at 40%
 
       renderDangerWarningDialog();
 
@@ -166,7 +162,7 @@ describe('DangerWarningDialog', () => {
 
     it('should show advanced sensors benefit when installed', () => {
       // Add advanced sensors upgrade
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.ship.upgrades.push('advanced_sensors');
 
       renderDangerWarningDialog();
@@ -288,7 +284,7 @@ describe('DangerWarningDialog', () => {
   describe('Data Handling', () => {
     it('should handle null faction data gracefully', () => {
       // Corrupt faction data
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.player.factions = null;
 
       // Should not crash
@@ -310,7 +306,7 @@ describe('DangerWarningDialog', () => {
 
     it('should handle empty cargo array', () => {
       // Ensure cargo is empty
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.ship.cargo = [];
 
       renderDangerWarningDialog();
@@ -323,7 +319,7 @@ describe('DangerWarningDialog', () => {
 
     it('should handle missing upgrades array', () => {
       // Remove upgrades
-      const state = gameStateManager.getState();
+      const state = game.getState();
       state.ship.upgrades = [];
 
       renderDangerWarningDialog();

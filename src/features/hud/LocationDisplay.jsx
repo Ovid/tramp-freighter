@@ -6,7 +6,7 @@ import { calculateDistanceFromSol } from '../../game/constants';
 /**
  * LocationDisplay component displays current system and distance from Sol.
  *
- * Uses the Bridge Pattern to subscribe to GameStateManager events:
+ * Uses the Bridge Pattern to subscribe to GameCoordinator events:
  * - locationChanged: Updates when player location changes
  *
  * React Migration Spec: Requirements 7.1, 7.2, 24.4

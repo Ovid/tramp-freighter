@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { STAR_DATA } from '../../game/data/star-data';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 import { ENDGAME_CONFIG } from '../../game/constants';
 
 export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const systemId = ENDGAME_CONFIG.DELTA_PAVONIS_ID;
   const system = STAR_DATA.find((s) => s.id === systemId);
 
@@ -13,8 +13,8 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
 
   const npcDisplayData = useMemo(() => {
     return npcsAtSystem.map((npc) => {
-      const npcState = gameStateManager.getNPCState(npc.id);
-      const tier = gameStateManager.getRepTier(npcState.rep);
+      const npcState = game.getNPCState(npc.id);
+      const tier = game.getRepTier(npcState.rep);
       return {
         id: npc.id,
         name: npc.name,
@@ -22,7 +22,7 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
         tierName: tier.name,
       };
     });
-  }, [npcsAtSystem, gameStateManager]);
+  }, [npcsAtSystem, game]);
 
   return (
     <div id="station-interface" className="visible">

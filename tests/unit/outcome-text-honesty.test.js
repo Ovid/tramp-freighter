@@ -14,7 +14,7 @@ describe('Outcome text honesty', () => {
 
   describe('combat return fire success', () => {
     it('should mention hull damage in description', () => {
-      const manager = new CombatManager({ getState: () => ({}) });
+      const manager = new CombatManager({ state: {}, getState: () => ({}) });
       const encounter = { strength: 0.3 };
       const gameState = {
         player: { karma: 10 },
@@ -33,10 +33,14 @@ describe('Outcome text honesty', () => {
 
   describe('inspection bribe success', () => {
     it('should hint at reputation consequences', () => {
-      const manager = new InspectionManager({ getState: () => ({}) });
+      const manager = new InspectionManager({
+        emit: vi.fn(),
+        markDirty: vi.fn(),
+        isTestEnvironment: true,
+      });
 
       // Force bribe success (rng well below BRIBE.BASE_CHANCE)
-      const result = manager.resolveInspectionBribe({}, 0.01);
+      const result = manager.resolveInspectionBribe(0.01);
 
       expect(result.success).toBe(true);
       expect(result.description.toLowerCase()).toMatch(
@@ -48,16 +52,17 @@ describe('Outcome text honesty', () => {
   describe('inspection cooperate', () => {
     it('should describe clean inspection positively', () => {
       const manager = new InspectionManager({
-        getState: () => ({}),
+        getCurrentSystem: () => 0,
+        getShipCargo: () => [],
+        getShipHiddenCargo: () => [],
         getDangerZone: () => 'safe',
         countRestrictedGoods: () => 0,
+        emit: vi.fn(),
+        markDirty: vi.fn(),
+        isTestEnvironment: true,
       });
-      const cleanState = {
-        player: { currentSystem: 0 },
-        ship: { cargo: [], hiddenCargo: [] },
-      };
 
-      const result = manager.resolveInspectionCooperate(cleanState, 0.99);
+      const result = manager.resolveInspectionCooperate(0.99);
 
       expect(result.description.toLowerCase()).toMatch(
         /checks out|clean|clear|approv/

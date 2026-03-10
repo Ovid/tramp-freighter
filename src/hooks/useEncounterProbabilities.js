@@ -1,4 +1,4 @@
-import { useGameState } from '../context/GameContext';
+import { useGame } from '../context/GameContext';
 
 /**
  * Custom hook for encounter probability calculations
@@ -11,23 +11,21 @@ import { useGameState } from '../context/GameContext';
  * @returns {Object} Encounter probabilities: { pirateChance, inspectionChance }
  */
 export function useEncounterProbabilities(systemId, gameState) {
-  const gameStateManager = useGameState();
+  const game = useGame();
 
   if (!gameState) {
     return { pirateChance: 0, inspectionChance: 0 };
   }
 
-  const pirateChance =
-    gameStateManager.dangerManager.calculatePirateEncounterChance(
-      systemId,
-      gameState
-    );
+  const pirateChance = game.dangerManager.calculatePirateEncounterChance(
+    systemId,
+    gameState
+  );
 
-  const inspectionChance =
-    gameStateManager.dangerManager.calculateInspectionChance(
-      systemId,
-      gameState
-    );
+  const inspectionChance = game.dangerManager.calculateInspectionChance(
+    systemId,
+    gameState
+  );
 
   return { pirateChance, inspectionChance };
 }

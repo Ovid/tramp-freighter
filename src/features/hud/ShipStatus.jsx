@@ -5,7 +5,7 @@ import { EVENT_NAMES } from '../../game/constants.js';
 /**
  * ShipStatus component displays ship name, fuel, condition bars, and cargo.
  *
- * Uses the Bridge Pattern to subscribe to GameStateManager events:
+ * Uses the Bridge Pattern to subscribe to GameCoordinator events:
  * - shipNameChanged: Updates when ship name changes
  * - fuelChanged: Updates when ship fuel changes
  * - shipConditionChanged: Updates when ship condition changes

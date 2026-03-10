@@ -17,10 +17,6 @@ import { BaseManager } from './base-manager.js';
 import { EVENT_NAMES } from '../../constants.js';
 
 export class DialogueManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Set current dialogue state
    *
@@ -33,13 +29,12 @@ export class DialogueManager extends BaseManager {
   setDialogueState(npcId, nodeId) {
     this.validateState();
 
-    const state = this.getState();
-    state.dialogue.currentNpcId = npcId;
-    state.dialogue.currentNodeId = nodeId;
-    state.dialogue.isActive = true;
+    const dialogue = this.capabilities.getOwnState();
+    dialogue.currentNpcId = npcId;
+    dialogue.currentNodeId = nodeId;
+    dialogue.isActive = true;
 
-    // Emit dialogue state change
-    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+    this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
   }
 
   /**
@@ -53,8 +48,8 @@ export class DialogueManager extends BaseManager {
   getDialogueState() {
     this.validateState();
 
-    const state = this.getState();
-    return { ...state.dialogue };
+    const dialogue = this.capabilities.getOwnState();
+    return { ...dialogue };
   }
 
   /**
@@ -66,14 +61,13 @@ export class DialogueManager extends BaseManager {
   clearDialogueState() {
     this.validateState();
 
-    const state = this.getState();
-    state.dialogue.currentNpcId = null;
-    state.dialogue.currentNodeId = null;
-    state.dialogue.isActive = false;
-    state.dialogue.display = null;
+    const dialogue = this.capabilities.getOwnState();
+    dialogue.currentNpcId = null;
+    dialogue.currentNodeId = null;
+    dialogue.isActive = false;
+    dialogue.display = null;
 
-    // Emit dialogue state change
-    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+    this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
   }
 
   /**
@@ -90,20 +84,21 @@ export class DialogueManager extends BaseManager {
   async startDialogue(npcId, nodeId = 'greeting') {
     this.validateState();
 
-    // Import dialogue functions dynamically to avoid circular dependency
     const { showDialogue } = await import('../../game-dialogue.js');
 
-    const dialogueDisplay = showDialogue(npcId, nodeId, this.gameStateManager);
+    const dialogueDisplay = showDialogue(
+      npcId,
+      nodeId,
+      this.capabilities.coordinatorRef
+    );
 
-    // Update dialogue state with display
-    const state = this.getState();
-    state.dialogue.currentNpcId = npcId;
-    state.dialogue.currentNodeId = nodeId;
-    state.dialogue.isActive = true;
-    state.dialogue.display = dialogueDisplay;
+    const dialogue = this.capabilities.getOwnState();
+    dialogue.currentNpcId = npcId;
+    dialogue.currentNodeId = nodeId;
+    dialogue.isActive = true;
+    dialogue.display = dialogueDisplay;
 
-    // Emit dialogue state change
-    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+    this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
 
     return dialogueDisplay;
   }
@@ -122,34 +117,33 @@ export class DialogueManager extends BaseManager {
   async selectDialogueChoice(npcId, choiceIndex) {
     this.validateState();
 
-    // Import dialogue functions dynamically to avoid circular dependency
     const { selectChoice } = await import('../../game-dialogue.js');
 
-    const nextDisplay = selectChoice(npcId, choiceIndex, this.gameStateManager);
+    const nextDisplay = selectChoice(
+      npcId,
+      choiceIndex,
+      this.capabilities.coordinatorRef
+    );
 
-    const state = this.getState();
+    const dialogue = this.capabilities.getOwnState();
 
     if (nextDisplay) {
-      // Continue dialogue - update state with new display
-      state.dialogue.currentNpcId = npcId;
-      state.dialogue.currentNodeId =
-        nextDisplay.currentNodeId || state.dialogue.currentNodeId;
-      state.dialogue.isActive = true;
-      state.dialogue.display = nextDisplay;
+      dialogue.currentNpcId = npcId;
+      dialogue.currentNodeId =
+        nextDisplay.currentNodeId || dialogue.currentNodeId;
+      dialogue.isActive = true;
+      dialogue.display = nextDisplay;
 
-      // Emit dialogue state change
-      this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+      this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
 
       return nextDisplay;
     } else {
-      // Dialogue ended - clear state
-      state.dialogue.currentNpcId = null;
-      state.dialogue.currentNodeId = null;
-      state.dialogue.isActive = false;
-      state.dialogue.display = null;
+      dialogue.currentNpcId = null;
+      dialogue.currentNodeId = null;
+      dialogue.isActive = false;
+      dialogue.display = null;
 
-      // Emit dialogue state change
-      this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+      this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
 
       return null;
     }

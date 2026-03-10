@@ -14,8 +14,8 @@
 - Client-side application (no backend required)
 - React-based declarative UI with component architecture
 - Hardware-accelerated 3D rendering via WebGL (starmap)
-- Event-driven game state management via GameStateManager singleton
-- Bridge Pattern connecting imperative GameStateManager to React's declarative model
+- Event-driven game state management via GameCoordinator singleton
+- Bridge Pattern connecting imperative GameCoordinator to React's declarative model
 - Feature-based code organization with clear separation of concerns
 - Custom hooks for game state subscription and actions
 
@@ -25,10 +25,10 @@ The application uses React components with a Bridge Pattern to connect to game l
 
 **Bridge Pattern**:
 
-- **GameContext**: Provides GameStateManager instance to all components via React Context
-- **useGameEvent**: Custom hook for subscribing to GameStateManager events and triggering re-renders
-- **useGameAction**: Custom hook for triggering game actions through GameStateManager methods
-- Ensures GameStateManager remains single source of truth
+- **GameContext**: Provides GameCoordinator instance to all components via React Context
+- **useGameEvent**: Custom hook for subscribing to GameCoordinator events and triggering re-renders
+- **useGameAction**: Custom hook for triggering game actions through GameCoordinator methods
+- Ensures GameCoordinator remains single source of truth
 - Automatic cleanup of subscriptions on component unmount
 
 **Component Structure**:
@@ -58,7 +58,7 @@ function TradePanel({ onClose }) {
 - Declarative UI updates through React's rendering model
 - No manual DOM manipulation
 - Improved testability with React Testing Library
-- Clear data flow from GameStateManager to components
+- Clear data flow from GameCoordinator to components
 - Automatic re-rendering on state changes
 
 ### Module Organization
@@ -79,7 +79,7 @@ Code is organized by feature and responsibility in the `src/` directory:
 **Context** (`src/context/`):
 
 - React Context providers
-- GameContext provides GameStateManager instance to all components
+- GameContext provides GameCoordinator instance to all components
 
 **Hooks** (`src/hooks/`):
 
@@ -98,7 +98,7 @@ Code is organized by feature and responsibility in the `src/` directory:
 
 **Entry Points**:
 
-- `src/main.jsx`: Application entry point, initializes GameStateManager, imports global CSS
+- `src/main.jsx`: Application entry point, initializes GameCoordinator, imports global CSS
 - `src/App.jsx`: Root component, manages view mode state, conditional rendering
 
 **Starmap Integration**:
@@ -211,12 +211,12 @@ Wormhole connections stored as array of ID pairs.
 **Context** (`src/context/`):
 
 - React Context providers
-- `GameContext.jsx` - Provides GameStateManager to all components
+- `GameContext.jsx` - Provides GameCoordinator to all components
 
 **Hooks** (`src/hooks/`):
 
 - Custom React hooks for common patterns
-- `useGameEvent.js` - Subscribe to GameStateManager events
+- `useGameEvent.js` - Subscribe to GameCoordinator events
 - `useGameAction.js` - Trigger game actions
 - `useAnimationLock.js` - Animation state management
 - `useNotification.js` - Notification system
@@ -321,7 +321,7 @@ import { useGameAction } from './hooks/useGameAction';
 import { useGameState } from './context/GameContext';
 
 // Game logic
-import { GameStateManager } from './game/state/game-state-manager';
+import { GameCoordinator } from './game/state/game-state-manager';
 import { SHIP_CONFIG, ECONOMY_CONFIG } from './game/constants';
 
 // Data

@@ -2,39 +2,39 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { useGameAction } from '../../src/hooks/useGameAction.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 /**
- * React Migration Spec, Property 13: useGameAction delegates to GameStateManager
+ * React Migration Spec, Property 13: useGameAction delegates to GameCoordinator
  * Validates: Requirements 16.2, 16.3
  *
  * For any action triggered through useGameAction, the corresponding
- * GameStateManager method should be called.
+ * GameCoordinator method should be called.
  */
-describe('Property: useGameAction delegates to GameStateManager', () => {
-  it('should delegate refuel action to GameStateManager', () => {
+describe('Property: useGameAction delegates to GameCoordinator', () => {
+  it('should delegate refuel action to GameCoordinator', () => {
     fc.assert(
       fc.property(fc.integer({ min: 1, max: 50 }), (refuelAmount) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Spy on refuel method
-        const refuelSpy = vi.spyOn(gameStateManager, 'refuel');
+        const refuelSpy = vi.spyOn(game, 'refuel');
 
         // Render hook
         const { result } = renderHook(() => useGameAction(), {
-          wrapper: createWrapper(gameStateManager),
+          wrapper: createWrapper(game),
         });
 
         // Call refuel action
         result.current.refuel(refuelAmount);
 
-        // Verify GameStateManager method was called
+        // Verify GameCoordinator method was called
         expect(refuelSpy).toHaveBeenCalledWith(refuelAmount, undefined);
 
         refuelSpy.mockRestore();
@@ -44,7 +44,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
     );
   });
 
-  it('should delegate buyGood action to GameStateManager', () => {
+  it('should delegate buyGood action to GameCoordinator', () => {
     fc.assert(
       fc.property(
         fc.constantFrom('grain', 'electronics', 'medicine', 'machinery'),
@@ -53,24 +53,21 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
         (goodType, quantity, price) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Spy on buyGood method
-          const buyGoodSpy = vi.spyOn(gameStateManager, 'buyGood');
+          const buyGoodSpy = vi.spyOn(game, 'buyGood');
 
           // Render hook
           const { result } = renderHook(() => useGameAction(), {
-            wrapper: createWrapper(gameStateManager),
+            wrapper: createWrapper(game),
           });
 
           // Call buyGood action
           result.current.buyGood(goodType, quantity, price);
 
-          // Verify GameStateManager method was called
+          // Verify GameCoordinator method was called
           expect(buyGoodSpy).toHaveBeenCalledWith(goodType, quantity, price);
 
           buyGoodSpy.mockRestore();
@@ -81,7 +78,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
     );
   });
 
-  it('should delegate purchaseUpgrade action to GameStateManager', () => {
+  it('should delegate purchaseUpgrade action to GameCoordinator', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(
@@ -92,27 +89,21 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
         (upgradeId) => {
           cleanup();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Spy on purchaseUpgrade method
-          const purchaseUpgradeSpy = vi.spyOn(
-            gameStateManager,
-            'purchaseUpgrade'
-          );
+          const purchaseUpgradeSpy = vi.spyOn(game, 'purchaseUpgrade');
 
           // Render hook
           const { result } = renderHook(() => useGameAction(), {
-            wrapper: createWrapper(gameStateManager),
+            wrapper: createWrapper(game),
           });
 
           // Call purchaseUpgrade action
           result.current.purchaseUpgrade(upgradeId);
 
-          // Verify GameStateManager method was called
+          // Verify GameCoordinator method was called
           expect(purchaseUpgradeSpy).toHaveBeenCalledWith(upgradeId);
 
           purchaseUpgradeSpy.mockRestore();
@@ -128,7 +119,7 @@ describe('Property: useGameAction delegates to GameStateManager', () => {
  * React Migration Spec, Property 14: Actions trigger events
  * Validates: Requirements 16.4
  *
- * For any game action completing, the appropriate GameStateManager events
+ * For any game action completing, the appropriate GameCoordinator events
  * should be fired.
  */
 describe('Property: Actions trigger events', () => {
@@ -137,24 +128,24 @@ describe('Property: Actions trigger events', () => {
       fc.property(fc.integer({ min: 1, max: 10 }), (refuelAmount) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Ensure we have enough credits for refuel
-        gameStateManager.updateCredits(10000);
+        game.updateCredits(10000);
 
         // Reduce fuel so we can refuel
-        gameStateManager.updateFuel(50);
+        game.updateFuel(50);
 
         // Track event emissions
         let eventFired = false;
-        gameStateManager.subscribe('creditsChanged', () => {
+        game.subscribe('creditsChanged', () => {
           eventFired = true;
         });
 
         // Render hook
         const { result } = renderHook(() => useGameAction(), {
-          wrapper: createWrapper(gameStateManager),
+          wrapper: createWrapper(game),
         });
 
         // Call refuel action
@@ -178,24 +169,24 @@ describe('Property: Actions trigger events', () => {
       fc.property(fc.integer({ min: 1, max: 10 }), (refuelAmount) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Ensure we have enough credits for refuel
-        gameStateManager.updateCredits(10000);
+        game.updateCredits(10000);
 
         // Reduce fuel so we can refuel
-        gameStateManager.updateFuel(50);
+        game.updateFuel(50);
 
         // Track event emissions
         let eventFired = false;
-        gameStateManager.subscribe('fuelChanged', () => {
+        game.subscribe('fuelChanged', () => {
           eventFired = true;
         });
 
         // Render hook
         const { result } = renderHook(() => useGameAction(), {
-          wrapper: createWrapper(gameStateManager),
+          wrapper: createWrapper(game),
         });
 
         // Call refuel action
@@ -228,10 +219,10 @@ describe('Property: useGameAction consistency', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render multiple hooks
         const hook1 = renderHook(() => useGameAction(), { wrapper });
@@ -267,12 +258,12 @@ describe('Property: useGameAction consistency', () => {
       fc.property(fc.constant(null), () => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Render hook
         const { result, rerender } = renderHook(() => useGameAction(), {
-          wrapper: createWrapper(gameStateManager),
+          wrapper: createWrapper(game),
         });
 
         // Get initial action references

@@ -4,7 +4,7 @@ import { GameProvider } from '../../src/context/GameContext';
 import { RepairPanel } from '../../src/features/repair/RepairPanel';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -19,7 +19,7 @@ import { ALL_NPCS } from '../../src/game/data/npc-data';
  * Requirements: 11.1, 11.2
  */
 describe('Service Panel Discounts Integration', () => {
-  let gameStateManager;
+  let game;
   let navigationSystem;
 
   beforeEach(() => {
@@ -33,19 +33,15 @@ describe('Service Panel Discounts Integration', () => {
 
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
-    // Create GameStateManager instance with navigation system
-    gameStateManager = new GameStateManager(
-      STAR_DATA,
-      WORMHOLE_DATA,
-      navigationSystem
-    );
-    gameStateManager.isTestEnvironment = true;
+    // Create GameCoordinator instance with navigation system
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    game.isTestEnvironment = true;
 
     // Initialize game state
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Navigate to Alpha Centauri (system 1)
-    gameStateManager.updateLocation(1);
+    game.updateLocation(1);
 
     // Find an NPC with repair discount at Alpha Centauri
     const repairNPC = ALL_NPCS.find(
@@ -54,7 +50,7 @@ describe('Service Panel Discounts Integration', () => {
 
     if (repairNPC) {
       // Set NPC to Friendly tier for 10% discount
-      gameStateManager.setNPCReputation(repairNPC.id, 35);
+      game.setNPCReputation(repairNPC.id, 35);
     }
 
     // Find an NPC with refuel discount (if any)
@@ -64,7 +60,7 @@ describe('Service Panel Discounts Integration', () => {
 
     if (refuelNPC) {
       // Set NPC to Friendly tier for 10% discount
-      gameStateManager.setNPCReputation(refuelNPC.id, 35);
+      game.setNPCReputation(refuelNPC.id, 35);
     }
 
     // Find an NPC with intel discount at Alpha Centauri
@@ -74,7 +70,7 @@ describe('Service Panel Discounts Integration', () => {
 
     if (intelNPC) {
       // Set NPC to Friendly tier for 10% discount
-      gameStateManager.setNPCReputation(intelNPC.id, 35);
+      game.setNPCReputation(intelNPC.id, 35);
     }
   });
 
@@ -83,11 +79,7 @@ describe('Service Panel Discounts Integration', () => {
   });
 
   const renderWithGameContext = (component) => {
-    return render(
-      <GameProvider gameStateManager={gameStateManager}>
-        {component}
-      </GameProvider>
-    );
+    return render(<GameProvider game={game}>{component}</GameProvider>);
   };
 
   describe('RepairPanel Discounts', () => {
@@ -125,7 +117,7 @@ describe('Service Panel Discounts Integration', () => {
       );
 
       if (repairNPC) {
-        gameStateManager.setNPCReputation(repairNPC.id, 0);
+        game.setNPCReputation(repairNPC.id, 0);
       }
 
       renderWithGameContext(<RepairPanel onClose={() => {}} />);
@@ -166,7 +158,7 @@ describe('Service Panel Discounts Integration', () => {
       );
 
       if (refuelNPC) {
-        gameStateManager.setNPCReputation(refuelNPC.id, 0);
+        game.setNPCReputation(refuelNPC.id, 0);
       }
 
       renderWithGameContext(<RefuelPanel onClose={() => {}} />);
@@ -237,7 +229,7 @@ describe('Service Panel Discounts Integration', () => {
       );
 
       intelNPCs.forEach((npc) => {
-        gameStateManager.setNPCReputation(npc.id, 0);
+        game.setNPCReputation(npc.id, 0);
       });
 
       renderWithGameContext(<InfoBrokerPanel onClose={() => {}} />);
@@ -265,10 +257,10 @@ describe('Service Panel Discounts Integration', () => {
 
       if (repairNPCs.length >= 2) {
         // Set first NPC to Warm tier (5% discount)
-        gameStateManager.setNPCReputation(repairNPCs[0].id, 15);
+        game.setNPCReputation(repairNPCs[0].id, 15);
 
         // Set second NPC to Trusted tier (15% discount)
-        gameStateManager.setNPCReputation(repairNPCs[1].id, 65);
+        game.setNPCReputation(repairNPCs[1].id, 65);
 
         renderWithGameContext(<RepairPanel onClose={() => {}} />);
 

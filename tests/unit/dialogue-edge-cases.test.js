@@ -6,17 +6,17 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Dialogue Engine Edge Cases', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   describe('Dialogue ending when choice has no next node', () => {
@@ -24,11 +24,11 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 0;
 
       // Show initial dialogue
-      const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const initialDialogue = showDialogue(npcId, 'greeting', game);
 
       // Find the ending choice (should have next: null)
       const endingChoice = initialDialogue.choices.find(
@@ -38,7 +38,7 @@ describe('Dialogue Engine Edge Cases', () => {
       expect(endingChoice.text).toBe('Nothing right now. Take care.');
 
       // Select the ending choice
-      const result = selectChoice(npcId, endingChoice.index, gameStateManager);
+      const result = selectChoice(npcId, endingChoice.index, game);
 
       // Should return null to end dialogue
       expect(result).toBeNull();
@@ -49,15 +49,11 @@ describe('Dialogue Engine Edge Cases', () => {
 
       for (const npcId of npcIds) {
         // Set up NPC state
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = 0;
 
         // Show initial dialogue
-        const initialDialogue = showDialogue(
-          npcId,
-          'greeting',
-          gameStateManager
-        );
+        const initialDialogue = showDialogue(npcId, 'greeting', game);
 
         // Find ending choices
         const endingChoices = initialDialogue.choices.filter(
@@ -68,9 +64,9 @@ describe('Dialogue Engine Edge Cases', () => {
         // Test each ending choice
         for (const choice of endingChoices) {
           // Reset dialogue state
-          showDialogue(npcId, 'greeting', gameStateManager);
+          showDialogue(npcId, 'greeting', game);
 
-          const result = selectChoice(npcId, choice.index, gameStateManager);
+          const result = selectChoice(npcId, choice.index, game);
           expect(result).toBeNull();
         }
       }
@@ -82,11 +78,11 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 0;
 
       // Show dialogue without specifying node (should default to greeting)
-      const dialogue = showDialogue(npcId, undefined, gameStateManager);
+      const dialogue = showDialogue(npcId, undefined, game);
 
       // Should display greeting content
       expect(dialogue.text).toBe(
@@ -99,11 +95,11 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 0;
 
       // Show greeting dialogue explicitly
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
 
       // Should display greeting content
       expect(dialogue.text).toBe(
@@ -117,11 +113,11 @@ describe('Dialogue Engine Edge Cases', () => {
 
       for (const npcId of npcIds) {
         // Set up NPC state
-        const npcState = gameStateManager.getNPCState(npcId);
+        const npcState = game.getNPCState(npcId);
         npcState.rep = 0;
 
         // Show dialogue (should default to greeting)
-        const dialogue = showDialogue(npcId, undefined, gameStateManager);
+        const dialogue = showDialogue(npcId, undefined, game);
 
         // Should have valid dialogue content
         expect(typeof dialogue.text).toBe('string');
@@ -139,7 +135,7 @@ describe('Dialogue Engine Edge Cases', () => {
       // Don't initialize NPC state - should use initialRep from NPC data
       // Wei Chen has initialRep: 0, which should show neutral greeting
 
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
 
       // Should show neutral greeting (rep 0 is in neutral range)
       expect(dialogue.text).toBe(
@@ -154,7 +150,7 @@ describe('Dialogue Engine Edge Cases', () => {
       // Don't initialize NPC state - should use initialRep from NPC data
       // Marcus Cole has initialRep: -20, which should show cold greeting
 
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
 
       // Should show cold greeting (rep -20 is in cold range)
       expect(dialogue.text).toBe(
@@ -169,7 +165,7 @@ describe('Dialogue Engine Edge Cases', () => {
       // Don't initialize NPC state - should use initialRep from NPC data
       // Father Okonkwo has initialRep: 10, which should show warm greeting
 
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
 
       // Should show warm greeting (rep 10 is in warm range)
       expect(dialogue.text).toBe(
@@ -182,18 +178,18 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Show dialogue with uninitialized NPC (should use initialRep: 0)
-      const initialDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const initialDialogue = showDialogue(npcId, 'greeting', game);
       expect(initialDialogue.reputationTier.name).toBe('Neutral');
 
       // Now the NPC state should be initialized
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       expect(npcState.rep).toBe(0); // Should be initialized to 0
 
       // Modify reputation
       npcState.rep = 50; // Set to friendly range
 
       // Show dialogue again - should now use actual rep
-      const updatedDialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const updatedDialogue = showDialogue(npcId, 'greeting', game);
       expect(updatedDialogue.reputationTier.name).toBe('Friendly');
       expect(updatedDialogue.text).toBe(
         'Hey there, friend! Good to see you again. Ship treating you well?'
@@ -204,13 +200,13 @@ describe('Dialogue Engine Edge Cases', () => {
   describe('Error handling', () => {
     it('should throw error for unknown NPC ID in showDialogue', () => {
       expect(() => {
-        showDialogue('unknown_npc', 'greeting', gameStateManager);
+        showDialogue('unknown_npc', 'greeting', game);
       }).toThrow('Unknown NPC ID: unknown_npc');
     });
 
     it('should throw error for unknown NPC ID in selectChoice', () => {
       expect(() => {
-        selectChoice('unknown_npc', 0, gameStateManager);
+        selectChoice('unknown_npc', 0, game);
       }).toThrow('Unknown NPC ID: unknown_npc');
     });
 
@@ -218,7 +214,7 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       expect(() => {
-        showDialogue(npcId, 'nonexistent_node', gameStateManager);
+        showDialogue(npcId, 'nonexistent_node', game);
       }).toThrow(
         'Unknown dialogue node: nonexistent_node for NPC: chen_barnards'
       );
@@ -228,21 +224,21 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 0;
 
       // Show dialogue to establish state
-      showDialogue(npcId, 'greeting', gameStateManager);
+      showDialogue(npcId, 'greeting', game);
 
       // Try to select invalid choice index
       expect(() => {
-        selectChoice(npcId, 999, gameStateManager);
+        selectChoice(npcId, 999, game);
       }).toThrow(
         'Invalid choice index: 999 for node greeting in NPC chen_barnards'
       );
 
       expect(() => {
-        selectChoice(npcId, -1, gameStateManager);
+        selectChoice(npcId, -1, game);
       }).toThrow(
         'Invalid choice index: -1 for node greeting in NPC chen_barnards'
       );
@@ -254,11 +250,11 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 25; // Warm tier
 
       // Show initial dialogue
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
 
       // Verify NPC information is correct
       expect(dialogue.npcId).toBe('chen_barnards');
@@ -271,7 +267,7 @@ describe('Dialogue Engine Edge Cases', () => {
       const choice = dialogue.choices.find((c) => c.next === 'small_talk');
       expect(choice).toBeDefined();
 
-      const nextDialogue = selectChoice(npcId, choice.index, gameStateManager);
+      const nextDialogue = selectChoice(npcId, choice.index, game);
 
       // NPC information should remain consistent
       expect(nextDialogue.npcId).toBe('chen_barnards');
@@ -284,31 +280,27 @@ describe('Dialogue Engine Edge Cases', () => {
       const npcId = 'chen_barnards';
 
       // Set up NPC state
-      const npcState = gameStateManager.getNPCState(npcId);
+      const npcState = game.getNPCState(npcId);
       npcState.rep = 0;
 
       // Show initial dialogue
-      const dialogue = showDialogue(npcId, 'greeting', gameStateManager);
+      const dialogue = showDialogue(npcId, 'greeting', game);
       expect(dialogue.reputationTier.name).toBe('Neutral');
 
       // Select a choice that gives reputation gain
       const choice = dialogue.choices.find((c) => c.next === 'small_talk');
-      const nextDialogue = selectChoice(npcId, choice.index, gameStateManager);
+      const nextDialogue = selectChoice(npcId, choice.index, game);
 
       // Find a choice with reputation gain in the small_talk node
       const repGainChoice = nextDialogue.choices.find(
         (c) => c.repGain && c.repGain > 0
       );
       if (repGainChoice) {
-        const finalDialogue = selectChoice(
-          npcId,
-          repGainChoice.index,
-          gameStateManager
-        );
+        const finalDialogue = selectChoice(npcId, repGainChoice.index, game);
 
         // Reputation tier should be updated in the final dialogue
-        const finalRep = gameStateManager.getNPCState(npcId).rep;
-        const expectedTier = gameStateManager.getRepTier(finalRep);
+        const finalRep = game.getNPCState(npcId).rep;
+        const expectedTier = game.getRepTier(finalRep);
         expect(finalDialogue.reputationTier.name).toBe(expectedTier.name);
       }
     });

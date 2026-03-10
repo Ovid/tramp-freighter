@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { RefuelPanel } from '../../src/features/refuel/RefuelPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -14,7 +14,7 @@ import { createWrapper } from '../react-test-utils.jsx';
  * discounted transaction allows.
  */
 describe('RefuelPanel discount affects slider max', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -28,13 +28,13 @@ describe('RefuelPanel discount affects slider max', () => {
   });
 
   it('slider max should be higher when NPC discount is available', () => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Sol, price = 2 cr/%, fuel at 20% (80% capacity remaining)
-    gameStateManager.state.player.currentSystem = 0;
-    gameStateManager.state.ship.fuel = 20;
-    gameStateManager.state.player.credits = 80;
+    game.state.player.currentSystem = 0;
+    game.state.ship.fuel = 20;
+    game.state.player.credits = 80;
 
     // Without discount: max affordable = floor(80/2) = 40
     // With 20% discount: effective price = 1.6, max affordable = floor(80/1.6) = 50
@@ -43,9 +43,8 @@ describe('RefuelPanel discount affects slider max', () => {
     // Expected slider max with discount: 50
 
     // Mock getServiceDiscount to simulate a 20% refuel discount NPC
-    const originalGetServiceDiscount =
-      gameStateManager.getServiceDiscount.bind(gameStateManager);
-    vi.spyOn(gameStateManager, 'getServiceDiscount').mockImplementation(
+    const originalGetServiceDiscount = game.getServiceDiscount.bind(game);
+    vi.spyOn(game, 'getServiceDiscount').mockImplementation(
       (npcId, serviceType) => {
         if (serviceType === 'refuel') {
           return { discount: 0.2, npcName: 'Test NPC' };
@@ -54,7 +53,7 @@ describe('RefuelPanel discount affects slider max', () => {
       }
     );
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     render(<RefuelPanel onClose={() => {}} />, { wrapper });
 
     // The Max button shows the slider max value
@@ -67,18 +66,18 @@ describe('RefuelPanel discount affects slider max', () => {
   });
 
   it('slider max should use undiscounted price when no discount available', () => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // Sol, price = 2 cr/%, fuel at 20%, 80 credits
-    gameStateManager.state.player.currentSystem = 0;
-    gameStateManager.state.ship.fuel = 20;
-    gameStateManager.state.player.credits = 80;
+    game.state.player.currentSystem = 0;
+    game.state.ship.fuel = 20;
+    game.state.player.credits = 80;
 
     // No discount mock — default behavior (no refuel NPCs exist)
     // max affordable = floor(80/2) = 40
 
-    const wrapper = createWrapper(gameStateManager);
+    const wrapper = createWrapper(game);
     render(<RefuelPanel onClose={() => {}} />, { wrapper });
 
     const maxButton = screen.getByRole('button', { name: /Max/ });

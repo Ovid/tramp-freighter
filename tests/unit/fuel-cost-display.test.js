@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -11,7 +11,7 @@ describe('Fuel Cost Display (#33/61/88)', () => {
 
   beforeEach(() => {
     navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA, navigationSystem);
+    gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
     gsm.initNewGame();
   });
 

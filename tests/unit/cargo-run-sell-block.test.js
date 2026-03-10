@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 describe('Trading – mission cargo sell block', () => {
   let manager;
   let state;
-  let mockGSM;
 
   beforeEach(() => {
     state = {
@@ -22,27 +21,32 @@ describe('Trading – mission cargo sell block', () => {
       world: { marketConditions: {} },
     };
 
-    mockGSM = {
-      state,
-      getState: () => state,
+    const capabilities = {
+      getOwnState: () => ({
+        marketConditions: state.world.marketConditions,
+      }),
+      getCredits: () => state.player.credits,
+      getCurrentSystem: () => state.player.currentSystem,
+      getShipCargo: () => state.ship.cargo,
+      getCargoRemaining: () => 30,
+      getDaysElapsed: () => 0,
+      getStats: () => ({}),
+      getActiveEvents: () => [],
       updateCredits: vi.fn(),
       updateCargo: vi.fn(),
-      getCurrentSystem: () => ({ name: 'Sol' }),
-      getCargoRemaining: () => 30,
       applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
-      saveGame: vi.fn(),
+      checkAchievements: vi.fn(),
+      updateStats: vi.fn(),
       markDirty: vi.fn(),
       emit: vi.fn(),
-      checkAchievements: vi.fn(),
+      starData: [{ id: 0, name: 'Sol' }],
+      isTestEnvironment: true,
     };
 
     const {
       TradingManager,
     } = require('../../src/game/state/managers/trading.js');
-    manager = new TradingManager(mockGSM);
-    manager.validateState = vi.fn();
-    manager.getState = () => state;
-    manager.emit = vi.fn();
+    manager = new TradingManager(capabilities);
   });
 
   afterEach(() => {

@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { TANAKA_QUEST } from '../../src/game/data/quest-definitions.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Stats initialization', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('initializes state.stats with zero counters', () => {
@@ -29,7 +29,7 @@ describe('Stats tracking', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('increments jumpsCompleted on location change', () => {
@@ -62,7 +62,7 @@ describe('Karma-based stats', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('increments charitableActs on positive karma change', () => {
@@ -80,7 +80,7 @@ describe('QuestManager', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   describe('registerQuest', () => {
@@ -381,7 +381,7 @@ describe('Quest event hooks', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     manager.registerQuest({
       id: 'test_quest',
       stages: [
@@ -415,7 +415,7 @@ describe('Quest event hooks', () => {
 
 describe('Quest auto-registration', () => {
   it('registers Tanaka quest on initNewGame', () => {
-    const manager = createTestGameStateManager();
+    const manager = createTestGame();
     const questState = manager.getQuestState('tanaka');
     expect(questState).not.toBeNull();
     expect(questState.stage).toBe(0);
@@ -427,7 +427,7 @@ describe('Exotic material collection', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     // Advance Tanaka quest to stage 2
     manager.advanceQuest('tanaka');
     manager.advanceQuest('tanaka');
@@ -466,7 +466,7 @@ describe('Tanaka quest end-to-end', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   it('progresses through all 5 stages to victory', () => {
@@ -538,7 +538,7 @@ describe('Tanaka quest definition', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     manager.registerQuest(TANAKA_QUEST);
   });
 

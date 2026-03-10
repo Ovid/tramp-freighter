@@ -1,5 +1,4 @@
 import { EconomicEventsSystem } from '../../game-events.js';
-import { InformationBroker } from '../../game-information-broker.js';
 import { calculateUpdatedEvents } from '../../utils/calculators.js';
 import { BaseManager } from './base-manager.js';
 import { EVENT_NAMES } from '../../constants.js';
@@ -12,19 +11,36 @@ import { EVENT_NAMES } from '../../constants.js';
  * - Coordinate time advancement with other systems
  * - Update event states when time passes
  * - Provide event information to other systems
+ *
+ * Uses capability injection exclusively. Required capabilities:
+ * - getOwnState() → { activeEvents, daysElapsed }
+ * - setDaysElapsed(newDays)
+ * - setActiveEvents(events)
+ * - getPriceKnowledge()
+ * - getMarketConditions()
+ * - incrementPriceKnowledgeStaleness(days)
+ * - cleanupOldIntelligence()
+ * - applyMarketRecovery(daysPassed)
+ * - recalculatePricesForKnownSystems()
+ * - checkLoanDefaults()
+ * - processDebtTick()
+ * - checkMissionDeadlines()
+ * - markDirty()
+ * - emit(eventName, data)
+ * - starData
+ * - isTestEnvironment
  */
 export class EventsManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-    this.starData = gameStateManager.starData;
+  constructor(capabilities) {
+    super(capabilities);
   }
 
   /**
    * Get active events array
    */
   getActiveEvents() {
-    const state = this.getState();
-    return state.world.activeEvents;
+    const ownState = this.capabilities.getOwnState();
+    return ownState.activeEvents;
   }
 
   /**
@@ -35,10 +51,8 @@ export class EventsManager extends BaseManager {
    * @param {Array} newEvents - Updated events array
    */
   updateActiveEvents(newEvents) {
-    const state = this.getState();
-    // activeEvents is guaranteed to exist after initialization
-    state.world.activeEvents = newEvents;
-    this.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, newEvents);
+    this.capabilities.setActiveEvents(newEvents);
+    this.capabilities.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, newEvents);
   }
 
   /**
@@ -77,41 +91,57 @@ export class EventsManager extends BaseManager {
    * @param {number} newDays - New days elapsed value
    */
   updateTime(newDays) {
-    const state = this.getState();
-    const oldDays = state.player.daysElapsed;
-    state.player.daysElapsed = newDays;
+    const ownState = this.capabilities.getOwnState();
+    const oldDays = ownState.daysElapsed;
+    this.capabilities.setDaysElapsed(newDays);
 
     // When days advance, update price knowledge and events
     if (newDays > oldDays) {
       const daysPassed = newDays - oldDays;
 
       // Increment staleness for all systems
-      this.gameStateManager.incrementPriceKnowledgeStaleness(daysPassed);
+      this.capabilities.incrementPriceKnowledgeStaleness(daysPassed);
 
       // Clean up old intelligence data
-      InformationBroker.cleanupOldIntelligence(state.world.priceKnowledge);
+      this.capabilities.cleanupOldIntelligence();
 
       // Apply market recovery (decay surplus/deficit over time)
-      this.gameStateManager.applyMarketRecovery(daysPassed);
+      this.capabilities.applyMarketRecovery(daysPassed);
 
       // Update economic events (trigger new events, remove expired ones)
-      state.world.activeEvents = calculateUpdatedEvents(state, this.starData);
+      const stateForCalc = {
+        player: { daysElapsed: newDays },
+        world: {
+          activeEvents: this.capabilities.getOwnState().activeEvents,
+          priceKnowledge: this.capabilities.getPriceKnowledge(),
+          marketConditions: this.capabilities.getMarketConditions(),
+        },
+      };
+      const updatedEvents = calculateUpdatedEvents(
+        stateForCalc,
+        this.capabilities.starData
+      );
+      this.capabilities.setActiveEvents(updatedEvents);
 
       // Recalculate prices with new day number (for daily fluctuations)
-      this.gameStateManager.recalculatePricesForKnownSystems();
+      this.capabilities.recalculatePricesForKnownSystems();
 
       // Check for loan defaults and apply penalties
-      this.gameStateManager.checkLoanDefaults();
+      this.capabilities.checkLoanDefaults();
 
       // Process Cole debt: interest accrual and checkpoint checks
-      this.gameStateManager.processDebtTick();
+      this.capabilities.processDebtTick();
 
-      this.gameStateManager.checkMissionDeadlines();
+      this.capabilities.checkMissionDeadlines();
 
       // Emit event changes
-      this.emit(EVENT_NAMES.ACTIVE_EVENTS_CHANGED, state.world.activeEvents);
+      this.capabilities.emit(
+        EVENT_NAMES.ACTIVE_EVENTS_CHANGED,
+        this.capabilities.getOwnState().activeEvents
+      );
     }
 
-    this.emit(EVENT_NAMES.TIME_CHANGED, newDays);
+    this.capabilities.markDirty();
+    this.capabilities.emit(EVENT_NAMES.TIME_CHANGED, newDays);
   }
 }

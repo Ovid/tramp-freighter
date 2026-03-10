@@ -24,12 +24,19 @@ describe('SaveLoadManager emits SAVE_FAILED on save failure', () => {
       await import('../../src/game/state/managers/save-load.js');
 
     const emitSpy = vi.fn();
-    const mockGSM = {
-      state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
-      isTestEnvironment: true,
-      emit: emitSpy,
+    const mockState = {
+      meta: { version: '5.0.0' },
+      player: {},
+      ship: {},
+      world: {},
     };
-    const manager = new SaveLoadManager(mockGSM);
+    const mockCaps = {
+      getFullState: () => mockState,
+      restoreState: vi.fn(),
+      emit: emitSpy,
+      isTestEnvironment: true,
+    };
+    const manager = new SaveLoadManager(mockCaps);
 
     // Suppress expected console.error from the error() call
     vi.spyOn(console, 'error').mockImplementation(() => {});

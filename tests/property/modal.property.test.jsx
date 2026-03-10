@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { Modal, ConfirmModal } from '../../src/components/Modal.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
@@ -214,21 +214,21 @@ describe('Property: Modals block underlying UI', () => {
  * React Migration Spec, Property 43: Modals don't block state updates
  * Validates: Requirements 42.5
  *
- * For any modal being open, GameStateManager state updates should continue
+ * For any modal being open, GameCoordinator state updates should continue
  * to function normally.
  */
 describe("Property: Modals don't block state updates", () => {
-  it('should allow GameStateManager updates while modal is open', () => {
+  it('should allow GameCoordinator updates while modal is open', () => {
     fc.assert(
       fc.property(fc.integer({ min: 600, max: 100000 }), (newCredits) => {
         cleanup();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Track state updates
         let stateUpdated = false;
-        gameStateManager.subscribe('creditsChanged', () => {
+        game.subscribe('creditsChanged', () => {
           stateUpdated = true;
         });
 
@@ -240,11 +240,11 @@ describe("Property: Modals don't block state updates", () => {
         );
 
         // Update game state while modal is open
-        gameStateManager.updateCredits(newCredits);
+        game.updateCredits(newCredits);
 
         // Verify state was updated
         expect(stateUpdated).toBe(true);
-        expect(gameStateManager.getState().player.credits).toBe(newCredits);
+        expect(game.getState().player.credits).toBe(newCredits);
 
         return true;
       }),

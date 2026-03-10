@@ -3,7 +3,7 @@ import { RepairManager } from '../../src/game/state/managers/repair.js';
 
 describe('System Cannibalization', () => {
   let repairManager;
-  let mockGSM;
+  let capabilities;
   let mockState;
 
   beforeEach(() => {
@@ -12,16 +12,20 @@ describe('System Cannibalization', () => {
       ship: { hull: 5, engine: 80, lifeSupport: 90 },
     };
 
-    mockGSM = {
-      state: mockState,
+    capabilities = {
+      getShipCondition: () => ({
+        hull: mockState.ship.hull,
+        engine: mockState.ship.engine,
+        lifeSupport: mockState.ship.lifeSupport,
+      }),
+      getCredits: () => mockState.player.credits,
+      getDaysElapsed: () => mockState.player?.daysElapsed ?? 0,
       updateShipCondition: vi.fn(),
-      saveGame: vi.fn(),
       markDirty: vi.fn(),
+      isTestEnvironment: true,
     };
 
-    repairManager = new RepairManager(mockGSM);
-    repairManager.getState = () => mockState;
-    repairManager.validateState = () => {};
+    repairManager = new RepairManager(capabilities);
   });
 
   afterEach(() => {
@@ -37,7 +41,7 @@ describe('System Cannibalization', () => {
 
     expect(result.success).toBe(true);
     // Hull: 21%, Engine: 80-12=68, LifeSupport: 90-12=78
-    expect(mockGSM.updateShipCondition).toHaveBeenCalledWith(21, 68, 78);
+    expect(capabilities.updateShipCondition).toHaveBeenCalledWith(21, 68, 78);
   });
 
   it('should apply 1.5x waste multiplier — donated amount must be 1.5x gain', () => {
@@ -100,6 +104,6 @@ describe('System Cannibalization', () => {
   it('should save game after successful cannibalization', () => {
     repairManager.cannibalizeSystem('hull', [{ system: 'engine', amount: 24 }]);
 
-    expect(mockGSM.markDirty).toHaveBeenCalled();
+    expect(capabilities.markDirty).toHaveBeenCalled();
   });
 });

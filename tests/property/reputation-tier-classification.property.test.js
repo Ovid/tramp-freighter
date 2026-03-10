@@ -7,17 +7,17 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('Reputation Tier Classification Properties', () => {
   it('should classify any reputation value between -100 and 100 into exactly one tier', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
     fc.assert(
       fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
-        const tier = gameStateManager.getRepTier(reputation);
+        const tier = game.getRepTier(reputation);
 
         // Tier should exist and have required properties
         expect(tier).toBeDefined();
@@ -34,11 +34,11 @@ describe('Reputation Tier Classification Properties', () => {
   });
 
   it('should return tier bounds that contain the reputation value', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
     fc.assert(
       fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
-        const tier = gameStateManager.getRepTier(reputation);
+        const tier = game.getRepTier(reputation);
         expect(reputation).toBeGreaterThanOrEqual(tier.min);
         expect(reputation).toBeLessThanOrEqual(tier.max);
       }),
@@ -47,12 +47,12 @@ describe('Reputation Tier Classification Properties', () => {
   });
 
   it('should return consistent tier for the same reputation value', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
     fc.assert(
       fc.property(fc.integer({ min: -100, max: 100 }), (reputation) => {
-        const tier1 = gameStateManager.getRepTier(reputation);
-        const tier2 = gameStateManager.getRepTier(reputation);
+        const tier1 = game.getRepTier(reputation);
+        const tier2 = game.getRepTier(reputation);
 
         expect(tier1.name).toBe(tier2.name);
         expect(tier1.min).toBe(tier2.min);

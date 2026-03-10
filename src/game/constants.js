@@ -610,8 +610,8 @@ export const MISSION_CONFIG = {
     contested: 0.5,
     dangerous: 0.75,
   },
-  HOP_MULTIPLIERS: [1.0, 1.5, 2.5, 4.0],
-  DANGER_MULTIPLIERS: { safe: 1.0, contested: 1.5, dangerous: 2.0 },
+  HOP_MULTIPLIERS: [1.0, 1.05, 1.35, 1.75],
+  DANGER_MULTIPLIERS: { safe: 1.0, contested: 1.05, dangerous: 1.3 },
   MAX_MISSION_HOPS: 3,
   MIN_BOARD_SIZE: 1,
   DAYS_PER_HOP_ESTIMATE: 6,
@@ -626,7 +626,7 @@ export const MISSION_CONFIG = {
   PRIORITY_MISSION: {
     TRADER_REP_THRESHOLD: 30,
     CIVILIAN_REP_THRESHOLD: 30,
-    REWARD_MULTIPLIER: 2.0,
+    REWARD_MULTIPLIER: 1.2,
     BOARD_CHANCE: 0.3,
   },
 };

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useGameState } from '../context/GameContext.jsx';
+import { useGame } from '../context/GameContext.jsx';
 import { useGameEvent } from './useGameEvent.js';
 import { EVENT_NAMES } from '../game/constants.js';
 
@@ -9,7 +9,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  * This hook implements the Bridge Pattern for dialogue management by:
  * 1. Subscribing to dialogue state changes via useGameEvent
  * 2. Providing dialogue actions that handle async complexity internally
- * 3. Ensuring React components never directly call GameStateManager methods
+ * 3. Ensuring React components never directly call GameCoordinator methods
  *
  * The hook encapsulates the async nature of dialogue operations while maintaining
  * the Bridge Pattern's separation between imperative game logic and declarative UI.
@@ -34,7 +34,7 @@ import { EVENT_NAMES } from '../game/constants.js';
  * }
  */
 export function useDialogue() {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const dialogueState = useGameEvent(EVENT_NAMES.DIALOGUE_CHANGED);
 
   /**
@@ -51,15 +51,15 @@ export function useDialogue() {
   const startDialogue = useCallback(
     async (npcId, nodeId = 'greeting') => {
       try {
-        // Call the GameStateManager public API method
-        await gameStateManager.startDialogue(npcId, nodeId);
+        // Call the GameCoordinator public API method
+        await game.startDialogue(npcId, nodeId);
         return true;
       } catch (error) {
         console.error('Failed to start dialogue:', error);
         return false;
       }
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -76,15 +76,15 @@ export function useDialogue() {
   const selectChoice = useCallback(
     async (npcId, choiceIndex) => {
       try {
-        // Call the GameStateManager public API method
-        await gameStateManager.selectDialogueChoice(npcId, choiceIndex);
+        // Call the GameCoordinator public API method
+        await game.selectDialogueChoice(npcId, choiceIndex);
         return true;
       } catch (error) {
         console.error('Failed to select dialogue choice:', error);
         return false;
       }
     },
-    [gameStateManager]
+    [game]
   );
 
   /**
@@ -93,8 +93,8 @@ export function useDialogue() {
    * Immediately clears the dialogue state and updates UI through event system.
    */
   const clearDialogue = useCallback(() => {
-    gameStateManager.clearDialogueState();
-  }, [gameStateManager]);
+    game.clearDialogueState();
+  }, [game]);
 
   return {
     dialogueState,

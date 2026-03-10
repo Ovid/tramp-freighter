@@ -14,12 +14,12 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('DialoguePanel Lifecycle', () => {
-  let gameStateManager;
+  let game;
   let mockOnClose;
 
   beforeEach(() => {
@@ -38,8 +38,8 @@ describe('DialoguePanel Lifecycle', () => {
       warn: vi.fn(),
     });
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
     mockOnClose = vi.fn();
   });
 
@@ -52,7 +52,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -70,7 +70,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -88,7 +88,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -105,7 +105,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -129,7 +129,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -159,7 +159,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -191,7 +191,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -222,7 +222,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -247,7 +247,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -258,7 +258,7 @@ describe('DialoguePanel Lifecycle', () => {
       });
 
       // Verify dialogue is active
-      const dialogueState = gameStateManager.getDialogueState();
+      const dialogueState = game.getDialogueState();
       expect(dialogueState.isActive).toBe(true);
 
       // Click the close button
@@ -266,7 +266,7 @@ describe('DialoguePanel Lifecycle', () => {
       fireEvent.click(closeButton);
 
       // Dialogue state should be cleared
-      const clearedState = gameStateManager.getDialogueState();
+      const clearedState = game.getDialogueState();
       expect(clearedState.isActive).toBe(false);
       expect(clearedState.currentNpcId).toBeNull();
     });
@@ -277,7 +277,7 @@ describe('DialoguePanel Lifecycle', () => {
       const npcId = 'chen_barnards';
 
       const { rerender } = render(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );
@@ -302,7 +302,7 @@ describe('DialoguePanel Lifecycle', () => {
       rerender(<div />);
 
       rerender(
-        <GameProvider gameStateManager={gameStateManager}>
+        <GameProvider game={game}>
           <DialoguePanel npcId={npcId} onClose={mockOnClose} />
         </GameProvider>
       );

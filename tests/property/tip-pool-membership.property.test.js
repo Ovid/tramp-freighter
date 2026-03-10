@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -13,7 +13,7 @@ import { ALL_NPCS } from '../../src/game/data/npc-data.js';
  */
 
 describe('Tip Pool Membership Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -27,8 +27,8 @@ describe('Tip Pool Membership Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -48,12 +48,12 @@ describe('Tip Pool Membership Property Tests', () => {
         arbDay(),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, currentDay, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -65,15 +65,15 @@ describe('Tip Pool Membership Property Tests', () => {
 
             // Only test NPCs that have tips
             if (npcData.tips && npcData.tips.length > 0) {
-              testGameStateManager.updateTime(currentDay);
+              testGameCoordinator.updateTime(currentDay);
 
               // Set up NPC state for successful tip
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = 50; // High enough reputation (Warm tier)
               npcState.lastTipDay = null; // No previous tip
 
               // Get tip
-              const tip = testGameStateManager.getTip(npcId);
+              const tip = testGameCoordinator.getTip(npcId);
 
               // Verify tip was returned and is from the correct pool
               expect(tip).toBeTruthy();
@@ -98,12 +98,12 @@ describe('Tip Pool Membership Property Tests', () => {
         arbDay(),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, currentDay, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -115,20 +115,20 @@ describe('Tip Pool Membership Property Tests', () => {
 
             // Only test NPCs that don't have tips
             if (!npcData.tips || npcData.tips.length === 0) {
-              testGameStateManager.updateTime(currentDay);
+              testGameCoordinator.updateTime(currentDay);
 
               // Set up NPC state with high reputation (other conditions met)
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = 50; // High enough reputation
               npcState.lastTipDay = null; // No cooldown
 
               // Verify canGetTip returns false due to no tips
-              const availability = testGameStateManager.canGetTip(npcId);
+              const availability = testGameCoordinator.canGetTip(npcId);
               expect(availability.available).toBe(false);
               expect(availability.reason).toContain('no tips available');
 
               // Verify getTip returns null
-              const tip = testGameStateManager.getTip(npcId);
+              const tip = testGameCoordinator.getTip(npcId);
               expect(tip).toBeNull();
             }
           } finally {
@@ -148,12 +148,12 @@ describe('Tip Pool Membership Property Tests', () => {
         arbDay(),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, currentDay, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Mock Math.random for deterministic behavior
           const originalMathRandom = Math.random;
@@ -165,20 +165,20 @@ describe('Tip Pool Membership Property Tests', () => {
 
             // Only test NPCs that have empty tips array
             if (npcData.tips && npcData.tips.length === 0) {
-              testGameStateManager.updateTime(currentDay);
+              testGameCoordinator.updateTime(currentDay);
 
               // Set up NPC state with high reputation (other conditions met)
-              const npcState = testGameStateManager.getNPCState(npcId);
+              const npcState = testGameCoordinator.getNPCState(npcId);
               npcState.rep = 50; // High enough reputation
               npcState.lastTipDay = null; // No cooldown
 
               // Verify canGetTip returns false due to empty tips
-              const availability = testGameStateManager.canGetTip(npcId);
+              const availability = testGameCoordinator.canGetTip(npcId);
               expect(availability.available).toBe(false);
               expect(availability.reason).toContain('no tips available');
 
               // Verify getTip returns null
-              const tip = testGameStateManager.getTip(npcId);
+              const tip = testGameCoordinator.getTip(npcId);
               expect(tip).toBeNull();
             }
           } finally {
@@ -198,22 +198,22 @@ describe('Tip Pool Membership Property Tests', () => {
         arbDay(),
         fc.float({ min: 0, max: Math.fround(0.99999) }), // Deterministic "random" value
         (npcId, currentDay, randomValue) => {
-          // Create a fresh GameStateManager for this test iteration
-          const testGameStateManager = new GameStateManager(
+          // Create a fresh GameCoordinator for this test iteration
+          const testGameCoordinator = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA
           );
-          testGameStateManager.initNewGame();
+          testGameCoordinator.initNewGame();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
 
           // Only test NPCs that have multiple tips (to test selection logic)
           if (npcData.tips && npcData.tips.length > 1) {
-            testGameStateManager.updateTime(currentDay);
+            testGameCoordinator.updateTime(currentDay);
 
             // Set up NPC state for successful tips
-            const npcState = testGameStateManager.getNPCState(npcId);
+            const npcState = testGameCoordinator.getNPCState(npcId);
             npcState.rep = 50; // High enough reputation
             npcState.lastTipDay = null; // No previous tip
 
@@ -223,13 +223,13 @@ describe('Tip Pool Membership Property Tests', () => {
 
             try {
               // Get tip with deterministic random value
-              const tip1 = testGameStateManager.getTip(npcId);
+              const tip1 = testGameCoordinator.getTip(npcId);
               expect(tip1).toBeTruthy();
               expect(npcData.tips).toContain(tip1);
 
               // Reset cooldown and get another tip with same random value
               npcState.lastTipDay = null;
-              const tip2 = testGameStateManager.getTip(npcId);
+              const tip2 = testGameCoordinator.getTip(npcId);
               expect(tip2).toBeTruthy();
               expect(npcData.tips).toContain(tip2);
 

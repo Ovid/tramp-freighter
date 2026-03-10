@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 // 2. Internal modules (game logic, state management)
-import { GameStateManager } from './game/state/game-state-manager';
+import { GameCoordinator } from './game/state/game-coordinator';
 import { NavigationSystem } from './game/game-navigation';
 
 // 3. Components
@@ -50,33 +50,36 @@ import '../css/panel/achievements.css';
 import '../css/notification.css';
 
 /**
- * Initialize GameStateManager with either saved game or new game.
+ * Initialize GameCoordinator with either saved game or new game.
  *
  * React Migration Spec: Requirements 32.1, 32.2, 32.3, 32.4, 32.5
  *
- * @returns {GameStateManager} Initialized game state manager
+ * @returns {GameCoordinator} Initialized game coordinator
  * @throws {Error} If initialization fails
  */
-function initializeGameStateManager() {
+function initializeGame() {
   const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
 
-  const gameStateManager = new GameStateManager(
-    STAR_DATA,
-    WORMHOLE_DATA,
-    navigationSystem
-  );
+  const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, navigationSystem);
 
   // Try to load saved game through the manager's canonical restore path
-  const loaded = gameStateManager.loadGame();
+  const loaded = game.loadGame();
 
   if (loaded) {
     devLog('Game loaded from save');
   } else {
-    gameStateManager.initNewGame();
+    game.initNewGame();
     devLog('New game initialized');
   }
 
-  return gameStateManager;
+  // Flush pending saves when the browser tab closes
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+      game.flushSave();
+    });
+  }
+
+  return game;
 }
 
 /**
@@ -138,7 +141,7 @@ function renderErrorUI(error) {
 
 /**
  * Initialize the application.
- * Initializes dev mode detection, then GameStateManager, then renders the app.
+ * Initializes dev mode detection, then GameCoordinator, then renders the app.
  *
  * React Migration Spec: Requirements 45.1, 45.2, 45.3
  */
@@ -147,10 +150,10 @@ async function initializeApp() {
   // This ensures DEV_MODE is set before React evaluates the App component
   const isDevMode = await initDevMode();
 
-  // Initialize GameStateManager
-  let gameStateManager;
+  // Initialize GameCoordinator
+  let game;
   try {
-    gameStateManager = initializeGameStateManager();
+    game = initializeGame();
   } catch (error) {
     renderErrorUI(error);
     throw error; // Re-throw to prevent further execution
@@ -160,7 +163,7 @@ async function initializeApp() {
   // Pass devMode as a prop to ensure React knows about it
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <NotificationProvider>
           <App devMode={isDevMode} />
         </NotificationProvider>

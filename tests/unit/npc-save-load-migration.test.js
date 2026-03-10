@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { migrateFromV2_1ToV4 } from '../../src/game/state/state-validators.js';
@@ -13,7 +13,7 @@ import { migrateFromV2_1ToV4 } from '../../src/game/state/state-validators.js';
  */
 
 describe('NPC Save/Load Migration Unit Tests', () => {
-  let gameStateManager;
+  let game;
   let originalLocalStorage;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
       removeItem: () => {},
     };
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
   });
 
   afterEach(() => {
@@ -148,7 +148,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     };
 
     // Load the game (should trigger migration)
-    const loadedState = gameStateManager.loadGame();
+    const loadedState = game.loadGame();
 
     // Verify state was loaded and migrated
     expect(loadedState).not.toBeNull();
@@ -173,14 +173,14 @@ describe('NPC Save/Load Migration Unit Tests', () => {
 
   it('should include npcs field in version 4.1.0 save schema', () => {
     // Initialize new game (creates v4.1.0 state)
-    gameStateManager.initNewGame();
+    game.initNewGame();
 
     // Verify the state includes NPC fields
-    expect(gameStateManager.state.meta.version).toBe('5.0.0');
-    expect(gameStateManager.state.npcs).toBeDefined();
-    expect(gameStateManager.state.npcs).toEqual({});
-    expect(gameStateManager.state.dialogue).toBeDefined();
-    expect(gameStateManager.state.dialogue).toEqual({
+    expect(game.state.meta.version).toBe('5.0.0');
+    expect(game.state.npcs).toBeDefined();
+    expect(game.state.npcs).toEqual({});
+    expect(game.state.dialogue).toBeDefined();
+    expect(game.state.dialogue).toEqual({
       currentNpcId: null,
       currentNodeId: null,
       isActive: false,
@@ -188,7 +188,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     });
 
     // Add some NPC state
-    gameStateManager.state.npcs['test_npc'] = {
+    game.state.npcs['test_npc'] = {
       rep: 25,
       lastInteraction: 5,
       flags: ['met_before'],
@@ -208,7 +208,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     };
 
     // Save the game
-    gameStateManager.saveGame();
+    game.saveGame();
 
     // Verify save data includes NPC fields
     expect(savedData).not.toBeNull();
@@ -271,7 +271,7 @@ describe('NPC Save/Load Migration Unit Tests', () => {
     };
 
     // Attempt to load (should fail validation and return null)
-    const loadedState = gameStateManager.loadGame();
+    const loadedState = game.loadGame();
 
     // Verify load failed due to corrupted data
     expect(loadedState).toBeNull();

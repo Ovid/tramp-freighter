@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { REPAIR_CONFIG } from '../../src/game/constants.js';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Critical Damage Delegation', () => {
   let gsm;
@@ -9,7 +9,7 @@ describe('Critical Damage Delegation', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
 
     // Set up a critically damaged hull (at or below threshold) with 0 credits
     // so emergency patch is available
@@ -23,14 +23,14 @@ describe('Critical Damage Delegation', () => {
     vi.restoreAllMocks();
   });
 
-  it('GameStateManager should delegate applyEmergencyPatch to RepairManager', () => {
+  it('GameCoordinator should delegate applyEmergencyPatch to RepairManager', () => {
     const result = gsm.applyEmergencyPatch('hull');
 
     expect(result).toEqual({ success: true, reason: null });
     expect(gsm.state.ship.hull).toBe(REPAIR_CONFIG.EMERGENCY_PATCH_TARGET);
   });
 
-  it('GameStateManager should delegate cannibalizeSystem to RepairManager', () => {
+  it('GameCoordinator should delegate cannibalizeSystem to RepairManager', () => {
     const amountNeeded =
       REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - gsm.state.ship.hull;
     const donationRequired =

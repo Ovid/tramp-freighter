@@ -2,9 +2,41 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NavigationManager } from '../../src/game/state/managers/navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 
+/**
+ * Helper to create a capabilities object for NavigationManager tests.
+ */
+function makeCapabilities(mockState, overrides = {}) {
+  const emittedEvents = overrides.emittedEvents || [];
+  return {
+    getOwnState: () => ({
+      currentSystem: mockState.player.currentSystem,
+      visitedSystems: mockState.world.visitedSystems,
+    }),
+    setCurrentSystem: (systemId) => {
+      mockState.player.currentSystem = systemId;
+    },
+    setCurrentSystemPrices: (prices) => {
+      mockState.world.currentSystemPrices = prices;
+    },
+    getDaysElapsed: () => mockState.player.daysElapsed,
+    getActiveEvents: () => mockState.world.activeEvents,
+    getMarketConditions: () => mockState.world.marketConditions,
+    getStats: () => mockState.stats,
+    getDockedSystems: () => mockState.world.narrativeEvents?.dockedSystems,
+    updatePriceKnowledge: vi.fn(),
+    checkAchievements: vi.fn(),
+    markDirty: vi.fn(),
+    emit: vi.fn((eventType, data) => {
+      emittedEvents.push({ eventType, data });
+    }),
+    starData: STAR_DATA,
+    isTestEnvironment: true,
+    ...overrides,
+  };
+}
+
 describe('NavigationManager Event Compatibility', () => {
   let navigationManager;
-  let mockGameStateManager;
   let mockState;
   let emittedEvents;
 
@@ -23,24 +55,8 @@ describe('NavigationManager Event Compatibility', () => {
     // Track emitted events
     emittedEvents = [];
 
-    // Mock GameStateManager
-    mockGameStateManager = {
-      state: mockState,
-      starData: STAR_DATA,
-      isTestEnvironment: true,
-      updatePriceKnowledge: vi.fn(),
-      saveGame: vi.fn(),
-      markDirty: vi.fn(),
-      checkAchievements: vi.fn(),
-    };
-
-    // Mock emit function to capture events
-    const mockEmit = vi.fn((eventType, data) => {
-      emittedEvents.push({ eventType, data });
-    });
-
-    navigationManager = new NavigationManager(mockGameStateManager, STAR_DATA);
-    navigationManager.emit = mockEmit;
+    const capabilities = makeCapabilities(mockState, { emittedEvents });
+    navigationManager = new NavigationManager(capabilities);
   });
 
   afterEach(() => {
@@ -197,33 +213,33 @@ describe('NavigationManager Event Compatibility', () => {
     it('should fail if locationChanged emits the problematic object structure', () => {
       // This test documents the exact issue that was fixed and ensures it doesn't return
 
-      // Temporarily mock the emit function to simulate the problematic behavior
-      const problematicEmit = vi.fn((eventType, data) => {
-        if (eventType === 'locationChanged') {
-          // This is the problematic structure that was initially implemented
-          const problematicData = {
-            systemId: data,
-            systemName: 'Test System',
-            isFirstVisit: true,
-          };
-          emittedEvents.push({ eventType, data: problematicData });
-        } else {
-          emittedEvents.push({ eventType, data });
-        }
+      const problematicEvents = [];
+
+      // Create a new manager with a problematic emit function
+      const problematicCapabilities = makeCapabilities(mockState, {
+        emittedEvents: problematicEvents,
+        emit: vi.fn((eventType, data) => {
+          if (eventType === 'locationChanged') {
+            // This is the problematic structure that was initially implemented
+            const problematicData = {
+              systemId: data,
+              systemName: 'Test System',
+              isFirstVisit: true,
+            };
+            problematicEvents.push({ eventType, data: problematicData });
+          } else {
+            problematicEvents.push({ eventType, data });
+          }
+        }),
       });
 
-      // Create a new manager with the problematic emit function
-      const problematicManager = new NavigationManager(
-        mockGameStateManager,
-        STAR_DATA
-      );
-      problematicManager.emit = problematicEmit;
+      const problematicManager = new NavigationManager(problematicCapabilities);
 
       // Act: Update location with problematic manager
       problematicManager.updateLocation(4);
 
       // Assert: This should demonstrate what would break
-      const locationChangedEvents = emittedEvents.filter(
+      const locationChangedEvents = problematicEvents.filter(
         (event) => event.eventType === 'locationChanged'
       );
 

@@ -40,13 +40,13 @@ npm test -- --grep "Bridge Pattern"
 
 ### Bridge Pattern (Core Architectural Decision)
 
-The app uses a **Bridge Pattern** to connect the imperative `GameStateManager` singleton to React's declarative model. This is the most important pattern to understand:
+The app uses a **Bridge Pattern** to connect the imperative `GameCoordinator` singleton to React's declarative model. This is the most important pattern to understand:
 
-- **`GameContext`** (`src/context/GameContext.jsx`): Provides GameStateManager via React Context
+- **`GameContext`** (`src/context/GameContext.jsx`): Provides GameCoordinator via React Context
 - **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`): Subscribes to state changes, triggers re-renders. Auto-unsubscribes on unmount.
 - **`useGameAction()`** (`src/hooks/useGameAction.js`): Returns methods to trigger game actions (jump, buyGood, sellGood, refuel, etc.)
 
-**Critical rule:** Components must NEVER call `GameStateManager.getState()` directly or duplicate game state in React state. All game state flows through the Bridge Pattern hooks.
+**Critical rule:** Components must NEVER call `GameCoordinator.getState()` directly or duplicate game state in React state. All game state flows through the Bridge Pattern hooks.
 
 ### View Mode State Machine (App.jsx)
 
@@ -57,9 +57,9 @@ TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
                       ENCOUNTER
 ```
 
-### Manager Delegation (GameStateManager)
+### Manager Delegation (GameCoordinator)
 
-The `GameStateManager` delegates to 15+ focused domain managers in `src/game/state/managers/`:
+The `GameCoordinator` delegates to 15+ focused domain managers in `src/game/state/managers/`:
 - `EventSystemManager`: Event pub/sub for Bridge Pattern
 - `StateManager`: Core state access/mutations
 - `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `EventEngineManager`, `InfoBrokerManager`, `NPCManager`, `MissionManager`, `SaveLoadManager`, `InitializationManager`
@@ -70,7 +70,7 @@ The `GameStateManager` delegates to 15+ focused domain managers in `src/game/sta
 - `DistressManager`: Civilian distress call encounters (respond, ignore, loot)
 - `MechanicalFailureManager`: Ship system failure checks and repair options
 
-Each manager extends `BaseManager` and receives the GameStateManager reference. Public API is maintained through delegation methods on GameStateManager.
+Each manager extends `BaseManager` and receives the GameCoordinator reference. Public API is maintained through delegation methods on GameCoordinator.
 
 **Save pattern:** Managers call `this.gameStateManager.markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces saves with a 500ms trailing timer.
 

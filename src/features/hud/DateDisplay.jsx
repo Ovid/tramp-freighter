@@ -5,7 +5,7 @@ import { gameDayToDate } from '../../game/utils/date-utils.js';
 /**
  * DateDisplay component displays the current game time.
  *
- * Uses the Bridge Pattern to subscribe to GameStateManager events:
+ * Uses the Bridge Pattern to subscribe to GameCoordinator events:
  * - timeChanged: Updates when game time advances
  *
  * React Migration Spec: Requirements 7.3, 24.5

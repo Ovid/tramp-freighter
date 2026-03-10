@@ -149,14 +149,14 @@ describe('Wormhole Rendering', () => {
     it('should update connection colors based on current fuel', () => {
       const wormholes = createWormholeLines(scene, connections, starObjects);
 
-      const mockGameStateManager = {
+      const mockGameCoordinator = {
         state: {
           player: { currentSystem: 0 },
           ship: { fuel: 50 },
         },
       };
 
-      updateConnectionColors(mockGameStateManager);
+      updateConnectionColors(mockGameCoordinator);
 
       // Verify that materials were updated (colors should be set)
       wormholes.forEach((conn) => {
@@ -168,14 +168,14 @@ describe('Wormhole Rendering', () => {
     it('should set default color for connections not from current system', () => {
       const wormholes = createWormholeLines(scene, connections, starObjects);
 
-      const mockGameStateManager = {
+      const mockGameCoordinator = {
         state: {
           player: { currentSystem: 5 }, // Different system
           ship: { fuel: 50 },
         },
       };
 
-      updateConnectionColors(mockGameStateManager);
+      updateConnectionColors(mockGameCoordinator);
 
       // All connections should have default color
       wormholes.forEach((conn) => {
@@ -183,7 +183,7 @@ describe('Wormhole Rendering', () => {
       });
     });
 
-    it('should handle missing gameStateManager gracefully', () => {
+    it('should handle missing game gracefully', () => {
       createWormholeLines(scene, connections, starObjects);
 
       expect(() => {

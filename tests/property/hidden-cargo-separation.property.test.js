@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { COMMODITY_TYPES } from '../../src/game/constants.js';
 
@@ -16,11 +16,11 @@ import { COMMODITY_TYPES } from '../../src/game/constants.js';
  */
 
 describe('Hidden Cargo Separation Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, [], null);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, [], null);
+    game.initNewGame();
   });
 
   it('Property 14: Hidden cargo separation - hidden cargo is separate from regular cargo', () => {
@@ -50,7 +50,7 @@ describe('Hidden Cargo Separation Property Tests', () => {
         ),
         (regularCargo, hiddenCargo) => {
           // Set up ship state with both regular and hidden cargo
-          const state = gameStateManager.getState();
+          const state = game.getState();
           state.ship.cargo = [...regularCargo];
           state.ship.hiddenCargo = [...hiddenCargo];
 
@@ -144,7 +144,7 @@ describe('Hidden Cargo Separation Property Tests', () => {
         ),
         (regularCargo, hiddenCargo) => {
           // Set up ship state with both regular and hidden cargo
-          const state = gameStateManager.getState();
+          const state = game.getState();
           state.ship.cargo = [...regularCargo];
           state.ship.hiddenCargo = [...hiddenCargo];
 

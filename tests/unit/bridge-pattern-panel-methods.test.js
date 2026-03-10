@@ -10,24 +10,24 @@ describe('useGameAction exposes methods used by RefuelPanel and RepairPanel', ()
     expect(source).toContain('getServiceDiscount:');
   });
 
-  it('RefuelPanel does not call gameStateManager directly for price/discount', async () => {
+  it('RefuelPanel does not call game directly for price/discount', async () => {
     const fs = await import('fs');
     const source = fs.readFileSync(
       'src/features/refuel/RefuelPanel.jsx',
       'utf-8'
     );
 
-    expect(source).not.toContain('gameStateManager.getFuelPrice');
-    expect(source).not.toContain('gameStateManager.getServiceDiscount');
+    expect(source).not.toContain('game.getFuelPrice');
+    expect(source).not.toContain('game.getServiceDiscount');
   });
 
-  it('RepairPanel does not call gameStateManager directly for discount', async () => {
+  it('RepairPanel does not call game directly for discount', async () => {
     const fs = await import('fs');
     const source = fs.readFileSync(
       'src/features/repair/RepairPanel.jsx',
       'utf-8'
     );
 
-    expect(source).not.toContain('gameStateManager.getServiceDiscount');
+    expect(source).not.toContain('game.getServiceDiscount');
   });
 });

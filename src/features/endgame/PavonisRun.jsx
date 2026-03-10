@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameState } from '../../context/GameContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import { Button } from '../../components/Button.jsx';
 import './endgame.css';
 
@@ -13,12 +13,12 @@ const JUMP_SEQUENCE = [
 ];
 
 export function PavonisRun({ onComplete, onCancel }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const [phase, setPhase] = useState('confirm');
   const [textIndex, setTextIndex] = useState(0);
 
   const handleConfirm = () => {
-    gameStateManager.markDirty();
+    game.markDirty();
     setPhase('jumping');
   };
 

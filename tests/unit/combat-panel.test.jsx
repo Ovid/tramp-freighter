@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CombatPanel } from '../../src/features/danger/CombatPanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 
-// Mock the GameStateManager
-const mockGameStateManager = {
+// Mock the GameCoordinator
+const mockGameCoordinator = {
   getState: vi.fn(() => ({
     player: {
       currentSystem: 0,
@@ -77,7 +77,7 @@ describe('CombatPanel', () => {
 
   const renderWithContext = (props = {}) => {
     return render(
-      <GameProvider gameStateManager={mockGameStateManager}>
+      <GameProvider game={mockGameCoordinator}>
         <CombatPanel {...defaultProps} {...props} />
       </GameProvider>
     );

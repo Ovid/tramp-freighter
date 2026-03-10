@@ -74,7 +74,8 @@ export function MissionCompleteNotifier() {
                   {withheld > 0 && (
                     <>
                       <div className="withholding-line">
-                        Cole&apos;s cut: -₡{withheld}
+                        Cole&apos;s cut: -₡{withheld} (does not reduce your
+                        debt)
                       </div>
                       <div>You receive: ₡{playerReceives}</div>
                     </>

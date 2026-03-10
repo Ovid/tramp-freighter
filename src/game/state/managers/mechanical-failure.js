@@ -13,28 +13,22 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  * Validates: Requirements 6.1-6.11
  */
 export class MechanicalFailureManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Check for mechanical failures based on ship condition
    *
-   * @param {Object} gameState - Current game state
    * @returns {Object|null} Failure object with type and severity, or null if no failure
    */
-  checkMechanicalFailure(gameState) {
+  checkMechanicalFailure() {
     this.validateState();
 
-    const state = this.getState();
     const seed = buildEncounterSeed(
-      state.player.daysElapsed,
-      state.player.currentSystem,
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
       'check_mechanical'
     );
     const seededRng = new SeededRandom(seed).next();
 
-    const { ship } = gameState;
+    const ship = this.capabilities.getShipCondition();
 
     if (ship.hull < FAILURE_CONFIG.HULL_BREACH.CONDITION_THRESHOLD) {
       if (seededRng < FAILURE_CONFIG.HULL_BREACH.CHANCE) {
@@ -71,16 +65,14 @@ export class MechanicalFailureManager extends BaseManager {
    *
    * @param {string} failureType - Type of failure ('hull_breach', 'engine_failure', 'life_support')
    * @param {string|null} choice - Repair choice (null for immediate consequences)
-   * @param {Object} gameState - Current game state
    * @returns {Object} Failure resolution outcome with success, costs, and description
    */
-  resolveMechanicalFailure(failureType, choice, gameState) {
+  resolveMechanicalFailure(failureType, choice) {
     this.validateState();
 
-    const state = this.getState();
     const seed = buildEncounterSeed(
-      state.player.daysElapsed,
-      state.player.currentSystem,
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
       'resolve_mechanical'
     );
     const seededRng = new SeededRandom(seed).next();
@@ -89,7 +81,7 @@ export class MechanicalFailureManager extends BaseManager {
       case 'hull_breach':
         return this.resolveHullBreach();
       case 'engine_failure':
-        return this.resolveEngineFailure(choice, gameState, seededRng);
+        return this.resolveEngineFailure(choice, seededRng);
       case 'life_support':
         return this.resolveLifeSupportEmergency();
       default:
@@ -119,11 +111,10 @@ export class MechanicalFailureManager extends BaseManager {
    * Resolve engine failure with repair choice
    *
    * @param {string} choice - Repair choice ('emergency_restart', 'call_for_help', 'jury_rig')
-   * @param {Object} gameState - Current game state
    * @param {number} rng - Random number (0-1) for success determination
    * @returns {Object} Engine failure resolution outcome
    */
-  resolveEngineFailure(choice, gameState, rng) {
+  resolveEngineFailure(choice, rng) {
     switch (choice) {
       case 'emergency_restart':
         return this.resolveEmergencyRestart(rng);

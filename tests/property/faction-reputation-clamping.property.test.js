@@ -7,18 +7,18 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { FACTION_CONFIG } from '../../src/game/constants.js';
 
 describe('Faction Reputation Clamping Properties', () => {
   it('should initialize all factions to 0 within valid bounds', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     // All factions should be initialized to FACTION_CONFIG.INITIAL (0)
-    const factions = gameStateManager.state.player.factions;
+    const factions = game.state.player.factions;
 
     expect(factions).toBeDefined();
 
@@ -30,10 +30,10 @@ describe('Faction Reputation Clamping Properties', () => {
   });
 
   it('should have all expected factions defined', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
-    const factions = gameStateManager.state.player.factions;
+    const factions = game.state.player.factions;
     const expectedFactions = ['authorities', 'traders', 'outlaws', 'civilians'];
 
     for (const faction of expectedFactions) {
@@ -49,14 +49,11 @@ describe('Faction Reputation Clamping Properties', () => {
         factionArb,
         fc.integer({ min: -500, max: 500 }),
         (faction, amount) => {
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          gameStateManager.modifyFactionRep(faction, amount, 'test');
-          const rep = gameStateManager.getFactionRep(faction);
+          game.modifyFactionRep(faction, amount, 'test');
+          const rep = game.getFactionRep(faction);
 
           // Faction reputation must always be within bounds
           expect(rep).toBeGreaterThanOrEqual(FACTION_CONFIG.MIN);
@@ -77,19 +74,16 @@ describe('Faction Reputation Clamping Properties', () => {
           maxLength: 10,
         }),
         (modifications) => {
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           for (const [faction, amount] of modifications) {
-            gameStateManager.modifyFactionRep(faction, amount, 'test');
+            game.modifyFactionRep(faction, amount, 'test');
           }
 
           // All factions must be within bounds after any sequence of modifications
           for (const faction of FACTION_CONFIG.FACTIONS) {
-            const rep = gameStateManager.getFactionRep(faction);
+            const rep = game.getFactionRep(faction);
             expect(rep).toBeGreaterThanOrEqual(FACTION_CONFIG.MIN);
             expect(rep).toBeLessThanOrEqual(FACTION_CONFIG.MAX);
           }

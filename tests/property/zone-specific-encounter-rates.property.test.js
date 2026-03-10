@@ -7,24 +7,24 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { DANGER_CONFIG } from '../../src/game/constants.js';
 
 describe('Zone-Specific Encounter Rates Properties', () => {
   it('should have higher base pirate rates in dangerous zones than safe zones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
-          const zone = gameStateManager.getDangerZone(systemId);
-          const baseRate = gameStateManager.calculatePirateEncounterChance(
+          const zone = game.getDangerZone(systemId);
+          const baseRate = game.calculatePirateEncounterChance(
             systemId,
-            gameStateManager.getState()
+            game.getState()
           );
 
           // Test zone-specific base rates according to requirements
@@ -56,8 +56,8 @@ describe('Zone-Specific Encounter Rates Properties', () => {
   });
 
   it('should have dangerous zones with higher pirate rates than safe zones', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     const safeRate = DANGER_CONFIG.ZONES.safe.pirateChance;
     const contestedRate = DANGER_CONFIG.ZONES.contested.pirateChance;
@@ -69,14 +69,14 @@ describe('Zone-Specific Encounter Rates Properties', () => {
   });
 
   it('should have correct inspection rates for each zone type', () => {
-    const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
 
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: STAR_DATA.length - 1 }),
         (systemId) => {
-          const zone = gameStateManager.getDangerZone(systemId);
+          const zone = game.getDangerZone(systemId);
 
           // Test zone-specific inspection rates according to requirements
           if (zone === 'safe') {

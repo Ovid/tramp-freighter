@@ -2,11 +2,11 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  createTestGameStateManager,
+  createTestGame,
   TEST_STAR_DATA,
   TEST_WORMHOLE_DATA,
 } from '../test-utils.js';
-import { GameStateManager } from '@game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '@game/game-navigation.js';
 import { EVENT_NAMES } from '@game/constants.js';
 
@@ -26,7 +26,7 @@ describe('InfoBrokerManager', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -214,7 +214,7 @@ describe('InfoBrokerManager', () => {
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA
       );
-      gsm = new GameStateManager(
+      gsm = new GameCoordinator(
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA,
         navigationSystem

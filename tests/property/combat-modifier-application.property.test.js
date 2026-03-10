@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { KARMA_CONFIG } from '../../src/game/constants.js';
@@ -15,11 +15,11 @@ import { KARMA_CONFIG } from '../../src/game/constants.js';
  * applied to combat resolution outcomes according to the configuration.
  */
 describe('Combat Modifier Application Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   /**
@@ -77,7 +77,7 @@ describe('Combat Modifier Application Property Tests', () => {
         fc.integer({ min: -100, max: 100 }),
         (encounter, choice, shipModifiers, karma) => {
           // Set up the game state with specific modifiers and karma
-          const currentState = gameStateManager.getState();
+          const currentState = game.getState();
           currentState.ship.quirks = [...shipModifiers.quirks];
           currentState.ship.upgrades = [...shipModifiers.upgrades];
           currentState.player.karma = karma;
@@ -85,10 +85,7 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test modifier consistency
           const outcomes = [];
           for (let i = 0; i < 10; i++) {
-            const outcome = gameStateManager.resolveCombatChoice(
-              encounter,
-              choice
-            );
+            const outcome = game.resolveCombatChoice(encounter, choice);
             outcomes.push(outcome);
           }
 
@@ -203,7 +200,7 @@ describe('Combat Modifier Application Property Tests', () => {
         fc.constantFrom(-100, -50, 0, 50, 100),
         (encounter, choice, karma) => {
           // Set up the game state with specific karma
-          const currentState = gameStateManager.getState();
+          const currentState = game.getState();
           currentState.player.karma = karma;
           currentState.ship.quirks = []; // No quirks to isolate karma effect
           currentState.ship.upgrades = []; // No upgrades to isolate karma effect
@@ -211,10 +208,7 @@ describe('Combat Modifier Application Property Tests', () => {
           // Resolve combat choice multiple times to test karma effect
           const outcomes = [];
           for (let i = 0; i < 20; i++) {
-            const outcome = gameStateManager.resolveCombatChoice(
-              encounter,
-              choice
-            );
+            const outcome = game.resolveCombatChoice(encounter, choice);
             outcomes.push(outcome);
           }
 

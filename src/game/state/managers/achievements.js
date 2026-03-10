@@ -3,40 +3,39 @@ import { ACHIEVEMENTS } from '../../data/achievements-data.js';
 import { EVENT_NAMES, REPUTATION_BOUNDS } from '../../constants.js';
 
 export class AchievementsManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   resolveStatPath(statPath) {
-    const state = this.getState();
-
     if (statPath.startsWith('computed.')) {
-      return this._resolveComputed(statPath, state);
+      return this._resolveComputed(statPath);
     }
 
-    const parts = statPath.split('.');
-    let value = state;
-    for (const part of parts) {
-      if (value == null) return 0;
-      value = value[part];
+    if (statPath.startsWith('stats.')) {
+      const stats = this.capabilities.getStats();
+      const key = statPath.slice(6); // Remove 'stats.' prefix
+      return typeof stats?.[key] === 'number' ? stats[key] : 0;
     }
-    return typeof value === 'number' ? value : (value ?? 0);
+
+    if (statPath === 'world.visitedSystems.length') {
+      const visited = this.capabilities.getVisitedSystems();
+      return Array.isArray(visited) ? visited.length : 0;
+    }
+
+    return 0;
   }
 
-  _resolveComputed(statPath, state) {
+  _resolveComputed(statPath) {
     switch (statPath) {
       case 'computed.trustedNPCCount':
-        return Object.values(state.npcs || {}).filter(
+        return Object.values(this.capabilities.getNpcs() || {}).filter(
           (npc) => npc.rep >= REPUTATION_BOUNDS.TRUSTED_MIN
         ).length;
 
       case 'computed.totalDangerEncounters': {
-        const flags = state.world?.dangerFlags || {};
+        const flags = this.capabilities.getDangerFlags() || {};
         return Object.values(flags).reduce((sum, val) => sum + val, 0);
       }
 
       case 'computed.karmaAbsolute':
-        return Math.abs(state.player?.karma ?? 0);
+        return Math.abs(this.capabilities.getKarma() ?? 0);
 
       default:
         this.warn(`Unknown computed stat path: ${statPath}`);
@@ -45,25 +44,25 @@ export class AchievementsManager extends BaseManager {
   }
 
   checkAchievements() {
-    const state = this.getState();
-    if (!state.achievements) {
-      state.achievements = {};
+    let achievements = this.capabilities.getOwnState();
+    if (!achievements) {
+      return;
     }
 
     let anyUnlocked = false;
 
     for (const achievement of ACHIEVEMENTS) {
-      if (state.achievements[achievement.id]) continue;
+      if (achievements[achievement.id]) continue;
 
       const current = this.resolveStatPath(achievement.statPath);
       if (current >= achievement.target) {
-        state.achievements[achievement.id] = {
+        achievements[achievement.id] = {
           unlocked: true,
-          unlockedOnDay: state.player.daysElapsed,
+          unlockedOnDay: this.capabilities.getDaysElapsed(),
         };
         anyUnlocked = true;
 
-        this.emit(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, {
+        this.capabilities.emit(EVENT_NAMES.ACHIEVEMENT_UNLOCKED, {
           id: achievement.id,
           name: achievement.name,
           description: achievement.description,
@@ -76,19 +75,20 @@ export class AchievementsManager extends BaseManager {
     // Only emit on unlock — progress bars are computed live via getProgress()
     // each time the modal opens, so stale mid-session values aren't visible.
     if (anyUnlocked) {
-      this.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, { ...state.achievements });
-      this.gameStateManager.markDirty();
+      this.capabilities.emit(EVENT_NAMES.ACHIEVEMENTS_CHANGED, {
+        ...achievements,
+      });
+      this.capabilities.markDirty();
     }
   }
 
   getProgress() {
-    const state = this.getState();
+    const achievements = this.capabilities.getOwnState();
     return ACHIEVEMENTS.map((achievement) => ({
       ...achievement,
       current: this.resolveStatPath(achievement.statPath),
-      unlocked: !!state.achievements?.[achievement.id],
-      unlockedOnDay:
-        state.achievements?.[achievement.id]?.unlockedOnDay ?? null,
+      unlocked: !!achievements?.[achievement.id],
+      unlockedOnDay: achievements?.[achievement.id]?.unlockedOnDay ?? null,
     }));
   }
 }

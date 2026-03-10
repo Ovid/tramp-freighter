@@ -74,7 +74,7 @@ function RefuelButton() {
 
 ## State Management
 
-**Use local state for UI-only state, GameStateManager for game state**
+**Use local state for UI-only state, GameCoordinator for game state**
 
 ```javascript
 // GOOD - Local state for UI concerns

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -17,7 +17,7 @@ import {
  */
 
 describe('Loan Default Penalty Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -31,19 +31,19 @@ describe('Loan Default Penalty Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    const testGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    testGameStateManager.initNewGame();
-    return testGameStateManager;
+    const testGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    testGameCoordinator.initNewGame();
+    return testGameCoordinator;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -133,14 +133,14 @@ describe('Loan Default Penalty Property Tests', () => {
         arbCurrentDay(),
         arbInitialReputation(),
         (npcId, currentDay, initialReputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up overdue loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = initialReputation;
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
@@ -149,10 +149,10 @@ describe('Loan Default Penalty Property Tests', () => {
           const initialNpcReputation = npcState.rep;
 
           // Trigger loan default check (this method should be called by updateTime)
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify reputation was reduced by one tier
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           const expectedReputation =
             getExpectedReputationAfterTierReduction(initialReputation);
 
@@ -175,14 +175,14 @@ describe('Loan Default Penalty Property Tests', () => {
         arbCurrentDay(),
         arbInitialReputation(),
         (npcId, currentDay, initialReputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up overdue loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = initialReputation;
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
@@ -194,10 +194,10 @@ describe('Loan Default Penalty Property Tests', () => {
           expect(npcState.loanDay).toBe(currentDay - 31);
 
           // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify loan record is cleared
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           expect(updatedNpcState.loanAmount).toBe(null);
           expect(updatedNpcState.loanDay).toBe(null);
         }
@@ -213,14 +213,14 @@ describe('Loan Default Penalty Property Tests', () => {
         arbCurrentDay(),
         arbInitialReputation(),
         (npcId, currentDay, initialReputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up overdue loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = initialReputation;
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           const loanDay = currentDay - 31; // Loan is 31 days overdue
@@ -230,10 +230,10 @@ describe('Loan Default Penalty Property Tests', () => {
           const initialNpcReputation = npcState.rep;
 
           // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify both effects applied together
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           const expectedReputation =
             getExpectedReputationAfterTierReduction(initialReputation);
 
@@ -261,14 +261,14 @@ describe('Loan Default Penalty Property Tests', () => {
         arbCurrentDay(),
         arbInitialReputation(),
         (npcId, currentDay, initialReputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up loan that is not yet overdue (within 30 days)
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = initialReputation;
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           const loanDay = Math.max(0, currentDay - 30); // Loan is exactly 30 days old (not overdue)
@@ -278,10 +278,10 @@ describe('Loan Default Penalty Property Tests', () => {
           const initialNpcReputation = npcState.rep;
 
           // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify no changes were made
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
 
           // Reputation should remain unchanged
           expect(updatedNpcState.rep).toBe(initialNpcReputation);
@@ -304,14 +304,14 @@ describe('Loan Default Penalty Property Tests', () => {
         arbCurrentDay(),
         arbInitialReputation(),
         (npcId, currentDay, initialReputation) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and ensure no outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.rep = initialReputation;
           npcState.loanAmount = null;
           npcState.loanDay = null;
@@ -320,10 +320,10 @@ describe('Loan Default Penalty Property Tests', () => {
           const initialNpcReputation = npcState.rep;
 
           // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify no changes were made
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
 
           // Reputation should remain unchanged
           expect(updatedNpcState.rep).toBe(initialNpcReputation);
@@ -343,11 +343,11 @@ describe('Loan Default Penalty Property Tests', () => {
         fc.array(arbNPCId(), { minLength: 2, maxLength: 5 }),
         arbCurrentDay(),
         (npcIds, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up current day
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateTime(currentDay);
 
           // Remove duplicates to ensure each NPC is only processed once
           const uniqueNpcIds = [...new Set(npcIds)];
@@ -360,7 +360,7 @@ describe('Loan Default Penalty Property Tests', () => {
           // Set up multiple NPCs with overdue loans
           const initialStates = [];
           for (const npcId of uniqueNpcIds) {
-            const npcState = testGameStateManager.getNPCState(npcId);
+            const npcState = testGameCoordinator.getNPCState(npcId);
             const initialReputation = fc.sample(arbInitialReputation(), 1)[0];
             npcState.rep = initialReputation;
             npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
@@ -375,7 +375,7 @@ describe('Loan Default Penalty Property Tests', () => {
           }
 
           // Trigger loan default check
-          testGameStateManager.checkLoanDefaults();
+          testGameCoordinator.checkLoanDefaults();
 
           // Verify all NPCs were processed correctly
           for (const {
@@ -383,7 +383,7 @@ describe('Loan Default Penalty Property Tests', () => {
             initialReputation,
             expectedReputation,
           } of initialStates) {
-            const updatedNpcState = testGameStateManager.getNPCState(npcId);
+            const updatedNpcState = testGameCoordinator.getNPCState(npcId);
 
             // Reputation should be reduced by one tier
             // Only check "less than" if the expected reputation is actually different from initial
@@ -405,23 +405,23 @@ describe('Loan Default Penalty Property Tests', () => {
   it('should respect reputation bounds when reducing reputation', () => {
     fc.assert(
       fc.property(arbNPCId(), arbCurrentDay(), (npcId, currentDay) => {
-        // Reset GameStateManager for this test iteration
-        const testGameStateManager = resetGameState();
+        // Reset GameCoordinator for this test iteration
+        const testGameCoordinator = resetGameState();
 
         // Set up current day
-        testGameStateManager.updateTime(currentDay);
+        testGameCoordinator.updateTime(currentDay);
 
         // Test with reputation at minimum bound (hostile tier)
-        const npcState = testGameStateManager.getNPCState(npcId);
+        const npcState = testGameCoordinator.getNPCState(npcId);
         npcState.rep = REPUTATION_BOUNDS.MIN; // -100
         npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
         npcState.loanDay = currentDay - 31; // Loan is 31 days overdue
 
         // Trigger loan default check
-        testGameStateManager.checkLoanDefaults();
+        testGameCoordinator.checkLoanDefaults();
 
         // Verify reputation doesn't go below minimum bound
-        const updatedNpcState = testGameStateManager.getNPCState(npcId);
+        const updatedNpcState = testGameCoordinator.getNPCState(npcId);
         expect(updatedNpcState.rep).toBeGreaterThanOrEqual(
           REPUTATION_BOUNDS.MIN
         );

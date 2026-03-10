@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -14,7 +14,7 @@ import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
  */
 
 describe('Loan Repayment Effects Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -28,19 +28,19 @@ describe('Loan Repayment Effects Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    const testGameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    testGameStateManager.initNewGame();
-    return testGameStateManager;
+    const testGameCoordinator = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    testGameCoordinator.initNewGame();
+    return testGameCoordinator;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -60,31 +60,31 @@ describe('Loan Repayment Effects Property Tests', () => {
         arbSufficientCredits(),
         arbCurrentDay(),
         (npcId, initialCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
 
           // Record initial state
           const initialPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
 
           // Repay loan
-          const result = testGameStateManager.repayLoan(npcId);
+          const result = testGameCoordinator.repayLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Player credits should decrease by exactly 500
           const finalPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
           const creditDecrease = initialPlayerCredits - finalPlayerCredits;
           expect(creditDecrease).toBe(
             NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT
@@ -105,15 +105,15 @@ describe('Loan Repayment Effects Property Tests', () => {
         arbSufficientCredits(),
         arbCurrentDay(),
         (npcId, initialCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           const loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = loanDay;
@@ -125,13 +125,13 @@ describe('Loan Repayment Effects Property Tests', () => {
           expect(npcState.loanDay).toBe(loanDay);
 
           // Repay loan
-          const result = testGameStateManager.repayLoan(npcId);
+          const result = testGameCoordinator.repayLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // NPC state should have loan information cleared
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
           expect(updatedNpcState.loanAmount).toBe(null);
           expect(updatedNpcState.loanDay).toBe(null);
         }
@@ -147,28 +147,28 @@ describe('Loan Repayment Effects Property Tests', () => {
         arbSufficientCredits(),
         arbCurrentDay(),
         (npcId, initialCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           const loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = loanDay;
 
           // Repay loan
-          const result = testGameStateManager.repayLoan(npcId);
+          const result = testGameCoordinator.repayLoan(npcId);
 
           // Should succeed
           expect(result.success).toBe(true);
 
           // Verify both effects applied together
-          const finalState = testGameStateManager.getState();
-          const updatedNpcState = testGameStateManager.getNPCState(npcId);
+          const finalState = testGameCoordinator.getState();
+          const updatedNpcState = testGameCoordinator.getNPCState(npcId);
 
           // Both effects should be applied:
           // 1. Player credits decreased by 500
@@ -197,25 +197,25 @@ describe('Loan Repayment Effects Property Tests', () => {
         }),
         arbCurrentDay(),
         (npcId, insufficientCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state with insufficient credits
-          testGameStateManager.updateCredits(insufficientCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(insufficientCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and set up outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           const loanDay = Math.max(0, currentDay - 10); // Loan was granted 10 days ago
           npcState.loanAmount = NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT;
           npcState.loanDay = loanDay;
 
           // Record initial state
           const initialPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
 
           // Attempt to repay loan should fail
-          const result = testGameStateManager.repayLoan(npcId);
+          const result = testGameCoordinator.repayLoan(npcId);
 
           // Should fail
           expect(result.success).toBe(false);
@@ -223,8 +223,8 @@ describe('Loan Repayment Effects Property Tests', () => {
           expect(typeof result.message).toBe('string');
 
           // No state should be modified
-          const finalState = testGameStateManager.getState();
-          const finalNpcState = testGameStateManager.getNPCState(npcId);
+          const finalState = testGameCoordinator.getState();
+          const finalNpcState = testGameCoordinator.getNPCState(npcId);
 
           expect(finalState.player.credits).toBe(initialPlayerCredits);
           expect(finalNpcState.loanAmount).toBe(
@@ -244,24 +244,24 @@ describe('Loan Repayment Effects Property Tests', () => {
         arbSufficientCredits(),
         arbCurrentDay(),
         (npcId, initialCredits, currentDay) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Set up initial state
-          testGameStateManager.updateCredits(initialCredits);
-          testGameStateManager.updateTime(currentDay);
+          testGameCoordinator.updateCredits(initialCredits);
+          testGameCoordinator.updateTime(currentDay);
 
           // Get NPC state and ensure no outstanding loan
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
           npcState.loanAmount = null;
           npcState.loanDay = null;
 
           // Record initial state
           const initialPlayerCredits =
-            testGameStateManager.getState().player.credits;
+            testGameCoordinator.getState().player.credits;
 
           // Attempt to repay non-existent loan should fail
-          const result = testGameStateManager.repayLoan(npcId);
+          const result = testGameCoordinator.repayLoan(npcId);
 
           // Should fail
           expect(result.success).toBe(false);
@@ -269,8 +269,8 @@ describe('Loan Repayment Effects Property Tests', () => {
           expect(typeof result.message).toBe('string');
 
           // No state should be modified
-          const finalState = testGameStateManager.getState();
-          const finalNpcState = testGameStateManager.getNPCState(npcId);
+          const finalState = testGameCoordinator.getState();
+          const finalNpcState = testGameCoordinator.getNPCState(npcId);
 
           expect(finalState.player.credits).toBe(initialPlayerCredits);
           expect(finalNpcState.loanAmount).toBe(null);

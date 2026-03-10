@@ -13,7 +13,7 @@ import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterO
 import { generatePassengerMission } from '../../src/game/mission-generator.js';
 import { pluralizeUnit } from '../../src/game/utils/string-utils.js';
 import {
-  createTestGameStateManager,
+  createTestGame,
   TEST_STAR_DATA,
   TEST_WORMHOLE_DATA,
 } from '../test-utils.js';
@@ -47,7 +47,7 @@ describe('Passenger Cargo Space', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   describe('getCargoUsed / getTradeCargoUsed', () => {
@@ -142,7 +142,7 @@ describe('Pirate Credit Demand Fallback', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
   });
 
   describe('hasTradeCargoForPirates', () => {
@@ -323,7 +323,7 @@ describe('applyEncounterOutcome - kidnap', () => {
   let manager;
 
   beforeEach(() => {
-    manager = createTestGameStateManager();
+    manager = createTestGame();
     vi.spyOn(manager, 'saveGame').mockImplementation(() => {});
   });
 

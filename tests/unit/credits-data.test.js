@@ -37,6 +37,18 @@ describe('Credits data', () => {
     expect(closing).toBeDefined();
   });
 
+  it('navigation section distinguishes game stars from known stars', () => {
+    const navSection = CREDITS_SECTIONS.find(
+      (s) =>
+        s.type === 'credit-pair' &&
+        s.pairs?.some((p) => p[0] === 'Stars Featured')
+    );
+    expect(navSection).toBeDefined();
+    const starPair = navSection.pairs.find((p) => p[0] === 'Stars Featured');
+    expect(starPair[1]).toContain('117');
+    expect(starPair[1]).toContain('131');
+  });
+
   it('CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC is a positive number', () => {
     expect(CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC).toBeGreaterThan(0);
     expect(typeof CREDITS_CONFIG.SCROLL_SPEED_PX_PER_SEC).toBe('number');

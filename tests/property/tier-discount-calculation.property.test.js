@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
@@ -14,7 +14,7 @@ import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
  */
 
 describe('Tier Discount Calculation Property Tests', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     // Mock localStorage with Vitest
@@ -28,18 +28,18 @@ describe('Tier Discount Calculation Property Tests', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  // Helper function to reset GameStateManager for each property test iteration
+  // Helper function to reset GameCoordinator for each property test iteration
   const resetGameState = () => {
-    gameStateManager.initNewGame();
-    return gameStateManager;
+    game.initNewGame();
+    return game;
   };
 
   // Generator for valid NPC IDs from the game data
@@ -67,18 +67,18 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set reputation
           npcState.rep = reputation;
 
           // Get the result
-          const result = testGameStateManager.getServiceDiscount(
+          const result = testGameCoordinator.getServiceDiscount(
             npcId,
             serviceType
           );
@@ -90,7 +90,7 @@ describe('Tier Discount Calculation Property Tests', () => {
           // Only apply discount if NPC's discountService matches serviceType
           if (npcData.discountService === serviceType) {
             // Get reputation tier
-            const repTier = testGameStateManager.getRepTier(reputation);
+            const repTier = testGameCoordinator.getRepTier(reputation);
             const tierName = repTier.name.toLowerCase();
 
             // Get discount from configuration
@@ -125,19 +125,19 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set reputation to high value to ensure tier would give discount
           npcState.rep = reputation;
 
           // Only test when discountService doesn't match
           if (npcData.discountService !== serviceType) {
-            const result = testGameStateManager.getServiceDiscount(
+            const result = testGameCoordinator.getServiceDiscount(
               npcId,
               serviceType
             );
@@ -155,12 +155,12 @@ describe('Tier Discount Calculation Property Tests', () => {
   it('should return correct tier-based discounts for matching service types', () => {
     fc.assert(
       fc.property(arbNPCId(), (npcId) => {
-        // Reset GameStateManager for this test iteration
-        const testGameStateManager = resetGameState();
+        // Reset GameCoordinator for this test iteration
+        const testGameCoordinator = resetGameState();
 
         // Get NPC data
         const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-        const npcState = testGameStateManager.getNPCState(npcId);
+        const npcState = testGameCoordinator.getNPCState(npcId);
 
         // Only test NPCs that have a discountService
         if (npcData.discountService) {
@@ -178,7 +178,7 @@ describe('Tier Discount Calculation Property Tests', () => {
           for (const test of tierTests) {
             npcState.rep = test.rep;
 
-            const result = testGameStateManager.getServiceDiscount(
+            const result = testGameCoordinator.getServiceDiscount(
               npcId,
               npcData.discountService
             );
@@ -204,12 +204,12 @@ describe('Tier Discount Calculation Property Tests', () => {
         arbReputation(),
         arbServiceType(),
         (npcId, reputation, serviceType) => {
-          // Reset GameStateManager for this test iteration
-          const testGameStateManager = resetGameState();
+          // Reset GameCoordinator for this test iteration
+          const testGameCoordinator = resetGameState();
 
           // Get NPC data
           const npcData = ALL_NPCS.find((npc) => npc.id === npcId);
-          const npcState = testGameStateManager.getNPCState(npcId);
+          const npcState = testGameCoordinator.getNPCState(npcId);
 
           // Set reputation
           npcState.rep = reputation;
@@ -219,7 +219,7 @@ describe('Tier Discount Calculation Property Tests', () => {
             npcData.discountService === null ||
             npcData.discountService === undefined
           ) {
-            const result = testGameStateManager.getServiceDiscount(
+            const result = testGameCoordinator.getServiceDiscount(
               npcId,
               serviceType
             );

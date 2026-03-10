@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { DISTRESS_CONFIG } from '@game/constants.js';
 
 describe('DistressManager', () => {
@@ -8,7 +8,7 @@ describe('DistressManager', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {
@@ -70,8 +70,8 @@ describe('DistressManager', () => {
     });
 
     it('produces deterministic results for the same game state', () => {
-      const gsm1 = createTestGameStateManager();
-      const gsm2 = createTestGameStateManager();
+      const gsm1 = createTestGame();
+      const gsm2 = createTestGame();
 
       // Both at same daysElapsed and currentSystem
       gsm1.state.player.daysElapsed = 2;

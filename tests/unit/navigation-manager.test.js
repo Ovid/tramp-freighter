@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 import { EVENT_NAMES } from '@game/constants.js';
 
 /**
@@ -7,7 +7,7 @@ import { EVENT_NAMES } from '@game/constants.js';
  *
  * Validates location updates, docking/undocking, system visitation tracking,
  * and price snapshot management. NavigationManager is tested through the
- * GameStateManager delegation layer using createTestGameStateManager.
+ * GameCoordinator delegation layer using createTestGame.
  *
  * Test data systems (from tests/test-data.js):
  * - id:0 Sol (starting system)
@@ -23,7 +23,7 @@ describe('NavigationManager', () => {
   let gsm;
 
   beforeEach(() => {
-    gsm = createTestGameStateManager();
+    gsm = createTestGame();
   });
 
   afterEach(() => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { TradePanel } from '../../src/features/trade/TradePanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SOL_SYSTEM_ID } from '../../src/game/constants.js';
@@ -24,7 +24,7 @@ describe('TradePanel restricted badge rendering', () => {
   it('renders RESTRICTED badge for electronics in safe zone (Sol)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SOL_SYSTEM_ID; // Sol — safe zone
 
@@ -41,7 +41,7 @@ describe('TradePanel restricted badge rendering', () => {
   it('does not render RESTRICTED badge for medicine in safe zone (Sol)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SOL_SYSTEM_ID; // Sol — safe zone, medicine is NOT restricted
 
@@ -61,7 +61,7 @@ describe('TradePanel restricted badge rendering', () => {
   it('renders RESTRICTED badge for medicine in contested zone (Sirius)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SIRIUS_A_SYSTEM_ID; // Sirius — contested zone
 
@@ -80,7 +80,7 @@ describe('TradePanel restricted badge rendering', () => {
   it('renders RESTRICTED badge for parts in core system (Sol)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SOL_SYSTEM_ID; // Sol — core system
 
@@ -99,7 +99,7 @@ describe('TradePanel restricted badge rendering', () => {
   it('does not render RESTRICTED badge for parts in non-core system', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
     gsm.state.player.currentSystem = SIRIUS_A_SYSTEM_ID; // Sirius — not a core system
 

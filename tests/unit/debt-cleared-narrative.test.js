@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { EVENT_NAMES } from '../../src/game/constants.js';
@@ -12,7 +12,7 @@ describe('Debt-Cleared Narrative Event', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    gsm = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
   });
 
@@ -56,32 +56,17 @@ describe('Debt-Cleared Narrative Event', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('emits DEBT_CLEARED when applyWithholding reduces debt to zero', () => {
+    it('does not emit DEBT_CLEARED from applyWithholding (pure penalty)', () => {
       const spy = vi.fn();
       gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, spy);
 
-      // At low heat (0), lien rate is 5%. With debt=5 and revenue=100,
-      // withholding = ceil(100 * 0.05) = 5, which equals the debt exactly.
+      // Cole's cut no longer reduces debt, so DEBT_CLEARED never fires
       gsm.state.player.debt = 5;
       gsm.state.player.finance.heat = 0;
 
       gsm.debtManager.applyWithholding(100);
 
-      expect(gsm.state.player.debt).toBe(0);
-      expect(spy).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not emit DEBT_CLEARED when applyWithholding does not zero out debt', () => {
-      const spy = vi.fn();
-      gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, spy);
-
-      gsm.state.player.debt = 1000;
-      gsm.state.player.finance.heat = 0;
-
-      // Small revenue, won't zero out debt
-      gsm.debtManager.applyWithholding(10);
-
-      expect(gsm.state.player.debt).toBeGreaterThan(0);
+      expect(gsm.state.player.debt).toBe(5);
       expect(spy).not.toHaveBeenCalled();
     });
   });

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDialog';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { sanitizeShipName } from '../../src/game/utils/string-utils.js';
@@ -43,17 +43,14 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           const onSubmit = (name) => {
             // Simulate what App.jsx should do: update game state
-            gameStateManager.updateShipName(name);
+            game.updateShipName(name);
           };
 
           // Render ShipNamingDialog component
@@ -79,7 +76,7 @@ describe('Property: Ship name persists after submission', () => {
 
           // Verify the game state was updated with the sanitized name
           const expectedName = sanitizeShipName(shipNameInput);
-          const actualName = gameStateManager.getState().ship.name;
+          const actualName = game.getState().ship.name;
 
           expect(actualName).toBe(expectedName);
         }
@@ -98,18 +95,15 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           const onSubmit = (name) => {
             // Simulate what App.jsx should do: update game state and save
-            gameStateManager.updateShipName(name);
-            saveGame(gameStateManager.getState());
+            game.updateShipName(name);
+            saveGame(game.getState());
           };
 
           // Render ShipNamingDialog component
@@ -157,18 +151,15 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           const onSubmit = (name) => {
             // Simulate what App.jsx should do: update game state and save
-            gameStateManager.updateShipName(name);
-            saveGame(gameStateManager.getState());
+            game.updateShipName(name);
+            saveGame(game.getState());
           };
 
           // Render ShipNamingDialog component
@@ -211,18 +202,15 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
           localStorage.clear();
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           const onSubmit = (name) => {
             // Simulate what App.jsx should do: update game state and save
-            gameStateManager.updateShipName(name);
-            saveGame(gameStateManager.getState());
+            game.updateShipName(name);
+            saveGame(game.getState());
           };
 
           // Render ShipNamingDialog component
@@ -273,17 +261,14 @@ describe('Property: Ship name persists after submission', () => {
           localStorage.clear();
 
           // Create first game state manager and set ship name
-          const gameStateManager1 = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager1.initNewGame();
+          const game1 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game1.initNewGame();
 
-          const wrapper1 = createWrapper(gameStateManager1);
+          const wrapper1 = createWrapper(game1);
 
           const onSubmit = (name) => {
-            gameStateManager1.updateShipName(name);
-            saveGame(gameStateManager1.getState());
+            game1.updateShipName(name);
+            saveGame(game1.getState());
           };
 
           const { container } = render(
@@ -302,12 +287,9 @@ describe('Property: Ship name persists after submission', () => {
           cleanup();
 
           // Create second game state manager and load saved game
-          const gameStateManager2 = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
+          const game2 = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
 
-          const loadedState = gameStateManager2.loadGame();
+          const loadedState = game2.loadGame();
           expect(loadedState).toBeTruthy();
 
           const expectedName = sanitizeShipName(shipNameInput);
@@ -341,14 +323,14 @@ describe('Property: Ship name persists after submission', () => {
       cleanup();
       localStorage.clear();
 
-      const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-      gameStateManager.initNewGame();
+      const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      game.initNewGame();
 
-      const wrapper = createWrapper(gameStateManager);
+      const wrapper = createWrapper(game);
 
       const onSubmit = (name) => {
-        gameStateManager.updateShipName(name);
-        saveGame(gameStateManager.getState());
+        game.updateShipName(name);
+        saveGame(game.getState());
       };
 
       const { container } = render(<ShipNamingDialog onSubmit={onSubmit} />, {

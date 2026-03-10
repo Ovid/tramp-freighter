@@ -3,18 +3,16 @@ import { EVENT_NAMES } from '../../constants.js';
 /**
  * EventSystemManager - Bridges imperative game state with React's declarative rendering
  *
- * React components need to re-render when game state changes, but GameStateManager
+ * React components need to re-render when game state changes, but GameCoordinator
  * uses imperative mutations. This manager solves the impedance mismatch by providing
  * an event system that React components can subscribe to via useGameEvent hook.
  *
  * Without this bridge, components would either need to poll for changes (inefficient)
- * or GameStateManager would need React-specific knowledge (coupling violation).
+ * or GameCoordinator would need React-specific knowledge (coupling violation).
  * The event system maintains clean separation while enabling reactive UI updates.
  */
 export class EventSystemManager {
-  constructor(gameStateManager) {
-    this.gameStateManager = gameStateManager;
-
+  constructor() {
     // Supports multiple UI components subscribing to same state changes
     // Built dynamically from EVENT_NAMES so new events only need to be added in constants.js
     this.subscribers = {};

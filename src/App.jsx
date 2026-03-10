@@ -17,7 +17,7 @@ import { DistressCallPanel } from './features/danger/DistressCallPanel';
 import { OutcomePanel } from './features/danger/OutcomePanel';
 import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
 import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
-import { useGameState } from './context/GameContext';
+import { useGame } from './context/GameContext';
 import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
@@ -59,7 +59,7 @@ const VIEW_MODES = {
  * Root application orchestrator.
  *
  * Manages the UI state machine and coordinates between React's declarative
- * rendering and the imperative GameStateManager. Acts as the bridge between
+ * rendering and the imperative GameCoordinator. Acts as the bridge between
  * the game engine and the user interface.
  *
  * React Migration Spec: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 25.1, 25.2, 25.3, 25.4, 25.5, 47.1, 47.2, 47.3, 47.4, 47.5, 47.6, 48.1, 48.7
@@ -67,7 +67,7 @@ const VIEW_MODES = {
  * @param {boolean} devMode - Whether dev mode is enabled (from .dev file check)
  */
 export default function App({ devMode = false }) {
-  const gameStateManager = useGameState();
+  const game = useGame();
   const notificationCtx = useNotificationContext();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
@@ -98,7 +98,7 @@ export default function App({ devMode = false }) {
   const lastHandledNarrative = useRef(null);
   const [postCredits, setPostCredits] = useState(() => {
     try {
-      return !!gameStateManager.getNarrativeFlags()?.post_credits;
+      return !!game.getNarrativeFlags()?.post_credits;
     } catch {
       // State not yet initialized during first render — safe to default to false
       return false;
@@ -127,21 +127,20 @@ export default function App({ devMode = false }) {
   const handleStartGame = (isNewGame) => {
     if (isNewGame) {
       // Initialize new game
-      gameStateManager.initNewGame();
+      game.initNewGame();
       setPostCredits(false);
       // Show ship naming dialog
       setViewMode(VIEW_MODES.SHIP_NAMING);
     } else {
       // Load existing game
-      gameStateManager.loadGame();
-      const isPostCredits =
-        !!gameStateManager.getNarrativeFlags()?.post_credits;
+      game.loadGame();
+      const isPostCredits = !!game.getNarrativeFlags()?.post_credits;
       if (isPostCredits) {
         // Reset Yumi's interaction counter so the full dialogue progression
         // is available when returning from the title screen
-        const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+        const yumiState = game.getNPCState('yumi_delta_pavonis');
         yumiState.interactions = 0;
-        gameStateManager.markDirty();
+        game.markDirty();
       }
       setPostCredits(isPostCredits);
       // Transition to game
@@ -151,9 +150,9 @@ export default function App({ devMode = false }) {
 
   const handleShipNamed = (shipName) => {
     // Update ship name in game state
-    gameStateManager.updateShipName(shipName);
+    game.updateShipName(shipName);
     // Save game with ship name
-    gameStateManager.saveGame();
+    game.saveGame();
     // Transition to game
     setViewMode(VIEW_MODES.ORBIT);
     setShowInstructions(true);
@@ -166,13 +165,13 @@ export default function App({ devMode = false }) {
       setActivePanel(null);
     } else {
       // If in orbit mode, go to station
-      gameStateManager.dock();
+      game.dock();
       setViewMode(VIEW_MODES.STATION);
     }
   };
 
   const handleUndock = () => {
-    gameStateManager.undock();
+    game.undock();
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
   };
@@ -268,7 +267,7 @@ export default function App({ devMode = false }) {
       choice === 'flee'
     ) {
       try {
-        const outcome = gameStateManager.resolveCombatChoice(
+        const outcome = game.resolveCombatChoice(
           currentEncounter.encounter,
           'evasive'
         );
@@ -311,32 +310,32 @@ export default function App({ devMode = false }) {
       // Surrender resolves immediately (falls through)
     }
 
-    if (gameStateManager.resolveEncounter) {
+    if (game.resolveEncounter) {
       try {
         // Route combat/negotiation sub-choices to their specific resolvers
         let outcome;
         if (encounterPhase === 'combat') {
           // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
           const combatChoice = choice === 'flee' ? 'evasive' : choice;
-          outcome = gameStateManager.resolveCombatChoice(
+          outcome = game.resolveCombatChoice(
             currentEncounter.encounter,
             combatChoice
           );
         } else if (encounterPhase === 'negotiation') {
           if (choice === 'flee') {
             // Breaking off negotiation to flee triggers evasive maneuvers
-            outcome = gameStateManager.resolveCombatChoice(
+            outcome = game.resolveCombatChoice(
               currentEncounter.encounter,
               'evasive'
             );
           } else {
-            outcome = gameStateManager.resolveNegotiation(
+            outcome = game.resolveNegotiation(
               currentEncounter.encounter,
               choice
             );
           }
         } else {
-          outcome = gameStateManager.resolveEncounter(currentEncounter, choice);
+          outcome = game.resolveEncounter(currentEncounter, choice);
         }
 
         // Failed negotiation escalates to combat — skip applying empty outcome
@@ -411,7 +410,7 @@ export default function App({ devMode = false }) {
   };
 
   const handleApplyOutcome = (outcome) => {
-    const result = applyEncounterOutcome(gameStateManager, outcome);
+    const result = applyEncounterOutcome(game, outcome);
     if (result.salvageMessages.length > 0 && notificationCtx) {
       result.salvageMessages.forEach((msg) => notificationCtx.showInfo(msg));
     }
@@ -437,7 +436,7 @@ export default function App({ devMode = false }) {
 
   // Reveal buffered encounter when jump animation nears completion
   useEffect(() => {
-    if (!gameStateManager) return;
+    if (!game) return;
 
     const handleAnimationNearEnd = () => {
       if (pendingEncounterRef.current) {
@@ -446,16 +445,13 @@ export default function App({ devMode = false }) {
       }
     };
 
-    gameStateManager.subscribe(
-      EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
-      handleAnimationNearEnd
-    );
+    game.subscribe(EVENT_NAMES.JUMP_ANIMATION_NEAR_END, handleAnimationNearEnd);
     return () =>
-      gameStateManager.unsubscribe(
+      game.unsubscribe(
         EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
         handleAnimationNearEnd
       );
-  }, [gameStateManager]);
+  }, [game]);
 
   // Listen for narrative events (overlay — does not change viewMode)
   useEffect(() => {
@@ -478,20 +474,20 @@ export default function App({ devMode = false }) {
   }, []);
 
   const handlePavonisComplete = () => {
-    gameStateManager.markVictory();
+    game.markVictory();
     setViewMode(VIEW_MODES.EPILOGUE);
   };
 
   const handleCreditsComplete = useCallback(() => {
-    gameStateManager.setNarrativeFlag('post_credits');
+    game.setNarrativeFlag('post_credits');
     // Reset Yumi's interaction counter so the full dialogue progression
     // (rounds 0→1→2→loop) is available from the start
-    const yumiState = gameStateManager.getNPCState('yumi_delta_pavonis');
+    const yumiState = game.getNPCState('yumi_delta_pavonis');
     yumiState.interactions = 0;
-    gameStateManager.markDirty();
+    game.markDirty();
     setPostCredits(true);
     setViewMode(VIEW_MODES.STATION);
-  }, [gameStateManager]);
+  }, [game]);
 
   const handleReturnToTitle = () => {
     setPostCredits(false);
@@ -507,10 +503,10 @@ export default function App({ devMode = false }) {
   useEffect(() => {
     if (epiloguePreviewEvent) {
       setShowDevAdmin(false);
-      gameStateManager.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+      game.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
       setViewMode(VIEW_MODES.EPILOGUE);
     }
-  }, [epiloguePreviewEvent, gameStateManager]);
+  }, [epiloguePreviewEvent, game]);
 
   return (
     <ErrorBoundary>

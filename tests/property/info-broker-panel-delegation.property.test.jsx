@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { InfoBrokerPanel } from '../../src/features/info-broker/InfoBrokerPanel.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -24,41 +24,41 @@ afterEach(() => {
 });
 
 /**
- * Property: Info broker panel delegates to GameStateManager
+ * Property: Info broker panel delegates to GameCoordinator
  *
- * Validates that the InfoBrokerPanel component delegates all operations to GameStateManager
+ * Validates that the InfoBrokerPanel component delegates all operations to GameCoordinator
  * and does not duplicate logic.
  *
  * React Migration Spec: Requirements 26.1, 26.2, 26.3
  */
-describe('Property: Info broker panel delegates to GameStateManager', () => {
-  it('should call gameStateManager.purchaseIntelligence when purchasing intelligence', () => {
+describe('Property: Info broker panel delegates to GameCoordinator', () => {
+  it('should call game.purchaseIntelligence when purchasing intelligence', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Give player credits
-        gameStateManager.state.player.credits = 10000;
+        game.state.player.credits = 10000;
 
         // Move to a system with connections
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track purchaseIntelligence calls
         let purchaseIntelligenceCalled = false;
         let purchaseIntelligenceArgs = null;
         const originalPurchaseIntelligence =
-          gameStateManager.purchaseIntelligence.bind(gameStateManager);
-        gameStateManager.purchaseIntelligence = (systemId) => {
+          game.purchaseIntelligence.bind(game);
+        game.purchaseIntelligence = (systemId) => {
           purchaseIntelligenceCalled = true;
           purchaseIntelligenceArgs = { systemId };
           return originalPurchaseIntelligence(systemId);
@@ -85,30 +85,29 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
     );
   });
 
-  it('should call gameStateManager.generateRumor when buying rumor', () => {
+  it('should call game.generateRumor when buying rumor', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Give player credits
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track generateRumor calls
         let generateRumorCalled = false;
-        const originalGenerateRumor =
-          gameStateManager.generateRumor.bind(gameStateManager);
-        gameStateManager.generateRumor = () => {
+        const originalGenerateRumor = game.generateRumor.bind(game);
+        game.generateRumor = () => {
           generateRumorCalled = true;
           return originalGenerateRumor();
         };
@@ -129,32 +128,31 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
     );
   });
 
-  it('should call gameStateManager.updateCredits when buying rumor', () => {
+  it('should call game.updateCredits when buying rumor', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Give player credits
         const initialCredits = 10000;
-        gameStateManager.state.player.credits = initialCredits;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = initialCredits;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Track updateCredits calls
         let updateCreditsCalled = false;
         let updateCreditsArgs = null;
-        const originalUpdateCredits =
-          gameStateManager.updateCredits.bind(gameStateManager);
-        gameStateManager.updateCredits = (newCredits) => {
+        const originalUpdateCredits = game.updateCredits.bind(game);
+        game.updateCredits = (newCredits) => {
           updateCreditsCalled = true;
           updateCreditsArgs = { newCredits };
           return originalUpdateCredits(newCredits);
@@ -184,17 +182,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render InfoBrokerPanel
         render(<InfoBrokerPanel onClose={() => {}} />, {
@@ -206,7 +204,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         expect(buyRumorButton).not.toBeDisabled();
 
         // Update credits to insufficient amount
-        gameStateManager.updateCredits(1);
+        game.updateCredits(1);
 
         // Button should become disabled after re-render
         await waitFor(() => {
@@ -230,17 +228,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
             STAR_DATA,
             WORMHOLE_DATA
           );
-          const gameStateManager = new GameStateManager(
+          const game = new GameCoordinator(
             STAR_DATA,
             WORMHOLE_DATA,
             navigationSystem
           );
-          gameStateManager.initNewGame();
+          game.initNewGame();
 
-          gameStateManager.state.player.credits = 10000;
-          gameStateManager.state.player.currentSystem = 0; // Sol
+          game.state.player.credits = 10000;
+          game.state.player.currentSystem = 0; // Sol
 
-          const wrapper = createWrapper(gameStateManager);
+          const wrapper = createWrapper(game);
 
           // Render InfoBrokerPanel
           const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {
@@ -252,7 +250,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
           expect(container.textContent).toContain(initialSystemName);
 
           // Update location
-          gameStateManager.updateLocation(newSystemId);
+          game.updateLocation(newSystemId);
 
           // New system name should be displayed after re-render
           const newSystemName = STAR_DATA.find(
@@ -275,17 +273,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render InfoBrokerPanel
         const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {
@@ -293,8 +291,8 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         });
 
         // Clear price knowledge to test empty state
-        gameStateManager.state.world.priceKnowledge = {};
-        gameStateManager.emit('priceKnowledgeChanged', {});
+        game.state.world.priceKnowledge = {};
+        game.emit('priceKnowledgeChanged', {});
 
         // Switch to Market Data tab
         const marketDataTab = screen.getByText('Market Data');
@@ -306,7 +304,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         });
 
         // Add price knowledge
-        gameStateManager.state.world.priceKnowledge = {
+        game.state.world.priceKnowledge = {
           0: {
             lastVisit: 0,
             prices: {
@@ -317,10 +315,7 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
             },
           },
         };
-        gameStateManager.emit(
-          'priceKnowledgeChanged',
-          gameStateManager.state.world.priceKnowledge
-        );
+        game.emit('priceKnowledgeChanged', game.state.world.priceKnowledge);
 
         // Market data should now be displayed after re-render
         await waitFor(() => {
@@ -341,17 +336,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 1; // Very low credits
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 1; // Very low credits
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render InfoBrokerPanel
         render(<InfoBrokerPanel onClose={() => {}} />, {
@@ -380,17 +375,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 10; // Low credits (less than rumor cost of 25)
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10; // Low credits (less than rumor cost of 25)
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render InfoBrokerPanel
         render(<InfoBrokerPanel onClose={() => {}} />, {
@@ -415,17 +410,17 @@ describe('Property: Info broker panel delegates to GameStateManager', () => {
         cleanup();
 
         const navigationSystem = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
-        const gameStateManager = new GameStateManager(
+        const game = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA,
           navigationSystem
         );
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
-        gameStateManager.state.player.credits = 10000;
-        gameStateManager.state.player.currentSystem = 0; // Sol
+        game.state.player.credits = 10000;
+        game.state.player.currentSystem = 0; // Sol
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render InfoBrokerPanel
         const { container } = render(<InfoBrokerPanel onClose={() => {}} />, {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import App from '../../src/App.jsx';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { createWrapper } from '../react-test-utils.jsx';
@@ -110,10 +110,10 @@ describe('Property: ORBIT mode displays starmap and HUD', () => {
         // Clear localStorage to ensure no saved game exists
         localStorage.clear();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         // Don't initialize game - let App handle it
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
@@ -169,10 +169,10 @@ describe('Property: STATION mode displays station menu', () => {
         // Clear localStorage to ensure no saved game exists
         localStorage.clear();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         // Don't initialize game - let App handle it
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
@@ -230,10 +230,10 @@ describe('Property: PANEL mode displays active panel', () => {
         // Clear localStorage to ensure no saved game exists
         localStorage.clear();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         // Don't initialize game - let App handle it
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render App component
         const { container } = render(<App />, { wrapper });
@@ -299,10 +299,10 @@ describe('Property: View mode changes update visibility', () => {
         // Clear localStorage to ensure no saved game exists
         localStorage.clear();
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         // Don't initialize game - let App handle it
 
-        const wrapper = createWrapper(gameStateManager);
+        const wrapper = createWrapper(game);
 
         // Render App component
         const { container } = render(<App />, { wrapper });

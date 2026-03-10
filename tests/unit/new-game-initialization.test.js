@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createTestGameStateManager } from '../test-utils.js';
+import { createTestGame } from '../test-utils.js';
 
 describe('Property 0: New Game Initialization', () => {
   /**
@@ -15,7 +15,7 @@ describe('Property 0: New Game Initialization', () => {
    * - Meta: version and timestamp
    */
   it('should initialize with correct default values', () => {
-    const manager = createTestGameStateManager();
+    const manager = createTestGame();
     const state = manager.getState();
 
     // Verify player state
@@ -55,7 +55,7 @@ describe('Property 0: New Game Initialization', () => {
     const states = [];
 
     for (let i = 0; i < 5; i++) {
-      const manager = createTestGameStateManager();
+      const manager = createTestGame();
       const state = manager.getState();
       states.push(state);
     }
@@ -87,7 +87,7 @@ describe('Property 0: New Game Initialization', () => {
   });
 
   it('should initialize with cargo that does not exceed capacity', () => {
-    const manager = createTestGameStateManager();
+    const manager = createTestGame();
     const state = manager.getState();
 
     const totalCargo = state.ship.cargo.reduce(

@@ -20,11 +20,19 @@ describe('SaveLoadManager debounced save', () => {
     const { SaveLoadManager } =
       await import('../../src/game/state/managers/save-load.js');
 
-    const mockGSM = {
-      state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
+    const mockState = {
+      meta: { version: '5.0.0' },
+      player: {},
+      ship: {},
+      world: {},
+    };
+    const mockCaps = {
+      getFullState: () => mockState,
+      restoreState: vi.fn(),
+      emit: vi.fn(),
       isTestEnvironment: true,
     };
-    const manager = new SaveLoadManager(mockGSM);
+    const manager = new SaveLoadManager(mockCaps);
     const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
@@ -42,11 +50,19 @@ describe('SaveLoadManager debounced save', () => {
     const { SaveLoadManager } =
       await import('../../src/game/state/managers/save-load.js');
 
-    const mockGSM = {
-      state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
+    const mockState = {
+      meta: { version: '5.0.0' },
+      player: {},
+      ship: {},
+      world: {},
+    };
+    const mockCaps = {
+      getFullState: () => mockState,
+      restoreState: vi.fn(),
+      emit: vi.fn(),
       isTestEnvironment: true,
     };
-    const manager = new SaveLoadManager(mockGSM);
+    const manager = new SaveLoadManager(mockCaps);
     const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
@@ -67,11 +83,19 @@ describe('SaveLoadManager debounced save', () => {
     const { SaveLoadManager } =
       await import('../../src/game/state/managers/save-load.js');
 
-    const mockGSM = {
-      state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
+    const mockState = {
+      meta: { version: '5.0.0' },
+      player: {},
+      ship: {},
+      world: {},
+    };
+    const mockCaps = {
+      getFullState: () => mockState,
+      restoreState: vi.fn(),
+      emit: vi.fn(),
       isTestEnvironment: true,
     };
-    const manager = new SaveLoadManager(mockGSM);
+    const manager = new SaveLoadManager(mockCaps);
     const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.markDirty();
@@ -84,11 +108,19 @@ describe('SaveLoadManager debounced save', () => {
     const { SaveLoadManager } =
       await import('../../src/game/state/managers/save-load.js');
 
-    const mockGSM = {
-      state: { meta: { version: '5.0.0' }, player: {}, ship: {}, world: {} },
+    const mockState = {
+      meta: { version: '5.0.0' },
+      player: {},
+      ship: {},
+      world: {},
+    };
+    const mockCaps = {
+      getFullState: () => mockState,
+      restoreState: vi.fn(),
+      emit: vi.fn(),
       isTestEnvironment: true,
     };
-    const manager = new SaveLoadManager(mockGSM);
+    const manager = new SaveLoadManager(mockCaps);
     const saveSpy = vi.spyOn(manager, '_forceSave');
 
     manager.flushSave();

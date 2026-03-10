@@ -3,7 +3,7 @@ import { render, cleanup } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { StarMapCanvas } from '../../src/features/navigation/StarMapCanvas';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 
@@ -123,12 +123,12 @@ describe('Property: Scene initialization', () => {
           initSceneMock.mockClear();
         }
 
-        const gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-        gameStateManager.initNewGame();
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
 
         // Render StarMapCanvas
         render(
-          <GameProvider gameStateManager={gameStateManager}>
+          <GameProvider game={game}>
             <StarMapCanvas />
           </GameProvider>
         );
@@ -163,15 +163,12 @@ describe('Property: Scene initialization', () => {
             initSceneMock.mockClear();
           }
 
-          const gameStateManager = new GameStateManager(
-            STAR_DATA,
-            WORMHOLE_DATA
-          );
-          gameStateManager.initNewGame();
+          const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+          game.initNewGame();
 
           // Render StarMapCanvas
           const { rerender } = render(
-            <GameProvider gameStateManager={gameStateManager}>
+            <GameProvider game={game}>
               <StarMapCanvas />
             </GameProvider>
           );
@@ -184,7 +181,7 @@ describe('Property: Scene initialization', () => {
           // Force re-renders
           for (let i = 0; i < rerenderCount; i++) {
             rerender(
-              <GameProvider gameStateManager={gameStateManager}>
+              <GameProvider game={game}>
                 <StarMapCanvas />
               </GameProvider>
             );

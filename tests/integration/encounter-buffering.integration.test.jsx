@@ -7,7 +7,7 @@ import {
   act,
 } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import { EVENT_NAMES } from '../../src/game/constants';
@@ -106,7 +106,7 @@ vi.mock('../../src/features/navigation/SystemPanel', () => ({
 }));
 
 describe('Encounter Buffering During Jump Animations', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.stubGlobal('localStorage', {
@@ -120,8 +120,8 @@ describe('Encounter Buffering During Jump Animations', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -162,7 +162,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
   it('should show encounter immediately when no jump is in progress', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -171,10 +171,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit encounter event directly (no jump in progress)
     act(() => {
-      gameStateManager.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     // Encounter should appear immediately
@@ -185,7 +182,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
   it('should buffer encounter during jump and reveal on JUMP_ANIMATION_NEAR_END', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -205,17 +202,14 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit encounter while jump is in progress — should be buffered, not shown
     act(() => {
-      gameStateManager.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
 
     // Emit near-end event — buffered encounter should now be revealed
     act(() => {
-      gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
+      game.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
     });
 
     await waitFor(() => {
@@ -225,7 +219,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
   it('should not show encounter when JUMP_ANIMATION_NEAR_END fires with no pending encounter', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -234,7 +228,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit near-end event with no pending encounter — should be a safe no-op
     act(() => {
-      gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
+      game.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
     });
 
     // No encounter should appear
@@ -244,7 +238,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
   it('should not reveal encounter after near-end if encounter was already resolved', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -253,10 +247,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Trigger and fully resolve an encounter
     act(() => {
-      gameStateManager.emit(
-        EVENT_NAMES.ENCOUNTER_TRIGGERED,
-        pirateEncounterData
-      );
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
     });
 
     await waitFor(() => {
@@ -278,18 +269,18 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Emit near-end after encounter is fully resolved — no ghost encounter
     act(() => {
-      gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
+      game.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
     });
 
     expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
   });
 
   it('should subscribe to JUMP_ANIMATION_NEAR_END on mount and unsubscribe on unmount', async () => {
-    const subscribeSpy = vi.spyOn(gameStateManager, 'subscribe');
-    const unsubscribeSpy = vi.spyOn(gameStateManager, 'unsubscribe');
+    const subscribeSpy = vi.spyOn(game, 'subscribe');
+    const unsubscribeSpy = vi.spyOn(game, 'unsubscribe');
 
     const { unmount } = render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );

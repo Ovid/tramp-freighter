@@ -7,7 +7,7 @@ Tramp Freighter Blues is a single-player space trading survival game built with 
 **Key Architecture:**
 - React 18+ with Vite for UI and build system
 - THREE.js for hardware-accelerated 3D starmap visualization
-- GameStateManager singleton for imperative game state management
+- GameCoordinator singleton for imperative game state management
 - Bridge Pattern connecting React components to game logic via custom hooks
 - Property-based testing with Vitest and fast-check
 - Feature-based code organization
@@ -36,7 +36,7 @@ Tramp Freighter Blues is a single-player space trading survival game built with 
 - Use Bridge Pattern for all game state access:
   - `useGameEvent()` for subscribing to state changes
   - `useGameAction()` for triggering game actions
-  - Never call `GameStateManager.getState()` directly in components
+  - Never call `GameCoordinator.getState()` directly in components
 - Custom hooks for reusable logic
 - React Context for dependency injection
 
@@ -54,7 +54,7 @@ src/
 ├── hooks/             # Custom React hooks
 ├── context/           # React Context providers
 ├── game/              # Game logic (separate from UI)
-│   ├── state/         # GameStateManager and save/load
+│   ├── state/         # GameCoordinator and save/load
 │   │   └── managers/  # Focused state managers by domain
 │   ├── engine/        # THREE.js scene management
 │   ├── data/          # Static game data
@@ -92,7 +92,7 @@ For new functionality, follow RED/GREEN/REFACTOR:
 ## Game Architecture
 
 ### State Management
-- **GameStateManager:** Single source of truth for all game state, now organized with focused managers
+- **GameCoordinator:** Single source of truth for all game state, now organized with focused managers
 - **Manager Architecture:** Specialized managers handle specific domains:
   - **EventSystemManager:** Event subscription and emission for Bridge Pattern integration
   - **StateManager:** Core state access and mutation operations for player, ship, and cargo
@@ -144,7 +144,7 @@ All configuration values must be defined in `src/game/constants.js`:
 
 ### Code Review Checklist
 - [ ] No object allocation in hot loops
-- [ ] GameStateManager remains single source of truth
+- [ ] GameCoordinator remains single source of truth
 - [ ] Components use Bridge Pattern (no direct state access)
 - [ ] All constants defined in `game/constants.js`
 - [ ] Tests produce clean output (no stderr)
@@ -179,7 +179,7 @@ Target modern browsers:
 ## Debugging Tips
 
 - Use browser DevTools Performance tab for profiling
-- Check `GameStateManager.isTestEnvironment` for test-specific behavior
+- Check `GameCoordinator.isTestEnvironment` for test-specific behavior
 - Console logs are suppressed in tests but available in development
 - THREE.js objects must be disposed to prevent memory leaks
 - Use React DevTools for component debugging
@@ -188,17 +188,17 @@ Target modern browsers:
 
 ### Adding New Game Features
 1. Define constants in `game/constants.js`
-2. Add state fields to appropriate manager or GameStateManager
+2. Add state fields to appropriate manager or GameCoordinator
 3. Implement game logic methods in the relevant manager
 4. Create React components with Bridge Pattern
 5. Add comprehensive tests
 6. Update save/load migration if needed
 
 ### Manager Architecture
-The GameStateManager has been refactored into focused managers:
+The GameCoordinator has been refactored into focused managers:
 
 ```javascript
-// Manager initialization in GameStateManager constructor
+// Manager initialization in GameCoordinator constructor
 this.eventSystemManager = new EventSystemManager(this);
 this.stateManager = new StateManager(this);
 this.initializationManager = new InitializationManager(this);
@@ -220,7 +220,7 @@ this.distressManager = new DistressManager(this);
 this.mechanicalFailureManager = new MechanicalFailureManager(this);
 ```
 
-Each manager handles a specific domain and maintains the same public API through delegation methods in GameStateManager.
+Each manager handles a specific domain and maintains the same public API through delegation methods in GameCoordinator.
 
 ### Property-Based Testing
 ```javascript

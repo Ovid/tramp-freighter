@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
-import { GameStateManager } from '../../src/game/state/game-state-manager';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
 import App from '../../src/App';
@@ -89,7 +89,7 @@ vi.mock('../../src/game/engine/game-animation', () => {
  * Feature: danger-system
  */
 describe('Encounter Resolution Integration', () => {
-  let gameStateManager;
+  let game;
 
   beforeEach(() => {
     vi.stubGlobal('localStorage', {
@@ -103,8 +103,8 @@ describe('Encounter Resolution Integration', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
-    gameStateManager.initNewGame();
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
   });
 
   afterEach(() => {
@@ -147,7 +147,7 @@ describe('Encounter Resolution Integration', () => {
 
   it('should show OutcomePanel after resolving pirate encounter', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -174,7 +174,7 @@ describe('Encounter Resolution Integration', () => {
 
   it('should return to orbit after clicking Continue on OutcomePanel', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -208,7 +208,7 @@ describe('Encounter Resolution Integration', () => {
 
   it('should apply game state changes from encounter resolution', async () => {
     render(
-      <GameProvider gameStateManager={gameStateManager}>
+      <GameProvider game={game}>
         <App devMode={true} />
       </GameProvider>
     );
@@ -228,7 +228,7 @@ describe('Encounter Resolution Integration', () => {
     });
 
     // Surrender always resolves - game state should reflect the resolution
-    const state = gameStateManager.getState();
+    const state = game.getState();
     // Surrender costs cargo percentage, so state was mutated
     expect(state).toBeDefined();
   });

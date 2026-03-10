@@ -25,7 +25,7 @@ import {
 } from '../../game/engine/interaction';
 import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
-import { useGameState } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
@@ -45,7 +45,7 @@ import { CameraControls } from './CameraControls';
 export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
-  const gameStateManager = useGameState();
+  const game = useGame();
   const starData = useStarData();
   const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
   const autoRotationRef = useRef(autoRotationEnabled);
@@ -87,9 +87,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   // Update wormhole connection colors when fuel or system changes
   useEffect(() => {
     if (sceneRef.current) {
-      updateConnectionColors(gameStateManager);
+      updateConnectionColors(game);
     }
-  }, [fuel, currentSystem, gameStateManager]);
+  }, [fuel, currentSystem, game]);
 
   // Update current system indicator when system changes
   useEffect(() => {
@@ -195,8 +195,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         starData
       );
 
-      // Register animation system with GameStateManager for useAnimationLock hook
-      gameStateManager.setAnimationSystem(animationSystem);
+      // Register animation system with GameCoordinator for useAnimationLock hook
+      game.setAnimationSystem(animationSystem);
 
       // Store scene components for cleanup
       sceneRef.current = {
@@ -332,8 +332,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
         }
 
-        // Clear animation system reference from GameStateManager
-        gameStateManager.setAnimationSystem(null);
+        // Clear animation system reference from GameCoordinator
+        game.setAnimationSystem(null);
 
         // Dispose of Three.js resources
         if (renderer) {

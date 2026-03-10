@@ -13,7 +13,7 @@ import {
   getNPCsAtSystem,
   renderNPCListItem,
 } from '../../src/game/game-npcs.js';
-import { GameStateManager } from '../../src/game/state/game-state-manager.js';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { ALPHA_CENTAURI_SYSTEM_ID } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -31,7 +31,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 describe('NPC System Extensibility', () => {
   let originalAllNPCs;
   let originalAllDialogueTrees;
-  let gameStateManager;
+  let game;
 
   // Test NPC definition using the same structure as main NPCs
   const TEST_NPC = {
@@ -100,8 +100,8 @@ describe('NPC System Extensibility', () => {
     originalAllNPCs = [...ALL_NPCS];
     originalAllDialogueTrees = { ...ALL_DIALOGUE_TREES };
 
-    // Create fresh GameStateManager for each test
-    gameStateManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+    // Create fresh GameCoordinator for each test
+    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
   });
 
   afterEach(() => {
@@ -248,19 +248,19 @@ describe('NPC System Extensibility', () => {
 
       try {
         // Initialize game state
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Modify reputation for the test NPC
         // Expected calculation: 10 * 0.5 (trust) = 5, so 5 + 5 = 10 total
-        gameStateManager.modifyRep(TEST_NPC.id, 10, 'test interaction');
+        game.modifyRep(TEST_NPC.id, 10, 'test interaction');
 
         // Get the NPC state
-        const npcState = gameStateManager.getNPCState(TEST_NPC.id);
+        const npcState = game.getNPCState(TEST_NPC.id);
         expect(npcState.rep).toBe(10); // 5 initial + (10 * 0.5 trust) = 10
         expect(npcState.interactions).toBe(1);
 
         // Flush pending saves to localStorage
-        gameStateManager.flushSave();
+        game.flushSave();
 
         // Verify save data includes the test NPC
         expect(savedData).not.toBeNull();
@@ -269,16 +269,16 @@ describe('NPC System Extensibility', () => {
         expect(parsedSaveData.npcs[TEST_NPC.id].rep).toBe(10);
         expect(parsedSaveData.npcs[TEST_NPC.id].interactions).toBe(1);
 
-        // Create new GameStateManager and load the save
-        const newGameStateManager = new GameStateManager(
+        // Create new GameCoordinator and load the save
+        const newGameCoordinator = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA
         );
-        const loadedState = newGameStateManager.loadGame();
+        const loadedState = newGameCoordinator.loadGame();
 
         // Verify NPC state was preserved
         expect(loadedState).not.toBeNull();
-        const loadedNPCState = newGameStateManager.getNPCState(TEST_NPC.id);
+        const loadedNPCState = newGameCoordinator.getNPCState(TEST_NPC.id);
         expect(loadedNPCState.rep).toBe(10);
         expect(loadedNPCState.interactions).toBe(1);
         expect(loadedNPCState.flags).toEqual([]);
@@ -306,20 +306,20 @@ describe('NPC System Extensibility', () => {
 
       try {
         // Initialize game state
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Interact with both existing and new NPCs
         // Chen: 5 * 0.3 (trust) = 1.5, rounded = 2, so 0 + 2 = 2
-        gameStateManager.modifyRep('chen_barnards', 5, 'test');
+        game.modifyRep('chen_barnards', 5, 'test');
 
         // Reset lastSaveTime to ensure save is not debounced
-        gameStateManager.lastSaveTime = 0;
+        game.lastSaveTime = 0;
 
         // Test NPC: 8 * 0.5 (trust) = 4, so 5 + 4 = 9
-        gameStateManager.modifyRep(TEST_NPC.id, 8, 'test');
+        game.modifyRep(TEST_NPC.id, 8, 'test');
 
         // Flush pending saves to localStorage
-        gameStateManager.flushSave();
+        game.flushSave();
 
         // Verify save data includes both NPCs
         expect(savedData).not.toBeNull();
@@ -328,11 +328,11 @@ describe('NPC System Extensibility', () => {
         expect(parsedSaveData.npcs[TEST_NPC.id]).toBeDefined();
 
         // Load in new manager and verify both NPCs work
-        const newGameStateManager = new GameStateManager(
+        const newGameCoordinator = new GameCoordinator(
           STAR_DATA,
           WORMHOLE_DATA
         );
-        const loadedState = newGameStateManager.loadGame();
+        const loadedState = newGameCoordinator.loadGame();
 
         expect(loadedState).not.toBeNull();
 
@@ -340,8 +340,8 @@ describe('NPC System Extensibility', () => {
         expect(loadedState.npcs['chen_barnards']).toBeDefined();
         expect(loadedState.npcs[TEST_NPC.id]).toBeDefined();
 
-        const chenState = newGameStateManager.getNPCState('chen_barnards');
-        const testNPCState = newGameStateManager.getNPCState(TEST_NPC.id);
+        const chenState = newGameCoordinator.getNPCState('chen_barnards');
+        const testNPCState = newGameCoordinator.getNPCState(TEST_NPC.id);
 
         expect(chenState.rep).toBe(2); // 0 initial + (5 * 0.3 trust) rounded = 2
         expect(testNPCState.rep).toBe(9); // 5 initial + (8 * 0.5 trust) = 9
@@ -372,7 +372,7 @@ describe('NPC System Extensibility', () => {
 
       try {
         // Initialize game
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Test that all existing functionality still works
         expect(() => validateAllNPCs()).not.toThrow();
@@ -384,12 +384,12 @@ describe('NPC System Extensibility', () => {
 
         // Test reputation system works
         // Expected: 5 * 0.5 (trust) = 2.5, rounded = 3, so 5 + 3 = 8
-        gameStateManager.modifyRep(TEST_NPC.id, 5, 'test');
-        const npcState = gameStateManager.getNPCState(TEST_NPC.id);
+        game.modifyRep(TEST_NPC.id, 5, 'test');
+        const npcState = game.getNPCState(TEST_NPC.id);
         expect(npcState.rep).toBe(8); // 5 initial + (5 * 0.5 trust) rounded = 8
 
         // Flush pending saves to localStorage
-        gameStateManager.flushSave();
+        game.flushSave();
 
         // Test save/load works
         expect(savedData).not.toBeNull();
@@ -398,8 +398,8 @@ describe('NPC System Extensibility', () => {
 
         // Verify original NPCs still work
         // Expected: 3 * 0.3 (trust) = 0.9, rounded = 1, so 0 + 1 = 1
-        gameStateManager.modifyRep('chen_barnards', 3, 'test');
-        const chenState = gameStateManager.getNPCState('chen_barnards');
+        game.modifyRep('chen_barnards', 3, 'test');
+        const chenState = game.getNPCState('chen_barnards');
         expect(chenState.rep).toBe(1); // 0 initial + (3 * 0.3 trust) rounded = 1
       } finally {
         global.localStorage = originalLocalStorage;
@@ -425,31 +425,31 @@ describe('NPC System Extensibility', () => {
 
       try {
         // Initialize game
-        gameStateManager.initNewGame();
+        game.initNewGame();
 
         // Perform operations on both existing and new NPCs
         // Chen: 10 * 0.3 (trust) = 3, so 0 + 3 = 3
-        gameStateManager.modifyRep('chen_barnards', 10, 'test');
+        game.modifyRep('chen_barnards', 10, 'test');
 
         // Reset lastSaveTime to ensure save is not debounced
-        gameStateManager.lastSaveTime = 0;
+        game.lastSaveTime = 0;
 
         // Cole: -5 (negative, no trust modifier), so -20 + (-5) = -25
-        gameStateManager.modifyRep('cole_sol', -5, 'test');
+        game.modifyRep('cole_sol', -5, 'test');
 
         // Reset lastSaveTime to ensure save is not debounced
-        gameStateManager.lastSaveTime = 0;
+        game.lastSaveTime = 0;
 
         // Test NPC: 7 * 0.5 (trust) = 3.5, rounded = 4, so 5 + 4 = 9
-        gameStateManager.modifyRep(TEST_NPC.id, 7, 'test');
+        game.modifyRep(TEST_NPC.id, 7, 'test');
 
         // Flush pending saves to localStorage
-        gameStateManager.flushSave();
+        game.flushSave();
 
         // Verify all states are correct
-        const chenState = gameStateManager.getNPCState('chen_barnards');
-        const coleState = gameStateManager.getNPCState('cole_sol');
-        const testState = gameStateManager.getNPCState(TEST_NPC.id);
+        const chenState = game.getNPCState('chen_barnards');
+        const coleState = game.getNPCState('cole_sol');
+        const testState = game.getNPCState(TEST_NPC.id);
 
         expect(chenState.rep).toBe(3); // 0 initial + (10 * 0.3 trust) = 3
         expect(coleState.rep).toBe(-25); // -20 initial + (-5) = -25
@@ -461,7 +461,7 @@ describe('NPC System Extensibility', () => {
         expect(testState.interactions).toBe(1);
 
         // Test save/load preserves all states
-        const newManager = new GameStateManager(STAR_DATA, WORMHOLE_DATA);
+        const newManager = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
         const loadedState = newManager.loadGame();
 
         expect(loadedState).not.toBeNull();

@@ -12,10 +12,6 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  * Validates: Requirements 7.1-7.10, 8.6, 8.7
  */
 export class DistressManager extends BaseManager {
-  constructor(gameStateManager) {
-    super(gameStateManager);
-  }
-
   /**
    * Check for distress call encounters during jump
    *
@@ -24,10 +20,9 @@ export class DistressManager extends BaseManager {
   checkDistressCall() {
     this.validateState();
 
-    const state = this.getState();
     const seed = buildEncounterSeed(
-      state.player.daysElapsed,
-      state.player.currentSystem,
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
       'check_distress'
     );
     const seededRng = new SeededRandom(seed).next();
@@ -59,14 +54,14 @@ export class DistressManager extends BaseManager {
     switch (choice) {
       case 'respond':
         result = this.resolveDistressRespond();
-        this.gameStateManager.incrementDangerFlag('civiliansSaved');
+        this.capabilities.incrementDangerFlag('civiliansSaved');
         break;
       case 'ignore':
         result = this.resolveDistressIgnore();
         break;
       case 'loot':
         result = this.resolveDistressLoot();
-        this.gameStateManager.incrementDangerFlag('civiliansLooted');
+        this.capabilities.incrementDangerFlag('civiliansLooted');
         break;
       default:
         throw new Error(`Unknown distress call choice: ${choice}`);
