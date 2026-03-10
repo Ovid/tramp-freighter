@@ -1,5 +1,8 @@
 # TODO
 
+- We have various types of popups that occur while travelling: distress calls,
+  pirate attacks, custom checks. Are they reusing an interface? Can we make
+  them more consistent?
 - "Lucky" Liu, a gambler NPC who offers gambling tips and occasional insider
   info as relationship benefits. But it's not clear how. We need a thorough
   review of all the NPCs and their benefits to ensure they are implemented in
