@@ -805,21 +805,21 @@ describe('NPC dialogue greetings', () => {
 
     it('research_supply text returns appropriate line for high rep', () => {
       const textFn = YUKI_TANAKA_DIALOGUE.research_supply.text;
-      const result = textFn(REPUTATION_BOUNDS.NEUTRAL_HIGH);
+      const result = textFn(REPUTATION_BOUNDS.NEUTRAL_HIGH, { daysElapsed: 1 });
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
     });
 
     it('research_supply text returns appropriate line for mid rep', () => {
       const textFn = YUKI_TANAKA_DIALOGUE.research_supply.text;
-      const result = textFn(REPUTATION_BOUNDS.NEUTRAL_MID);
+      const result = textFn(REPUTATION_BOUNDS.NEUTRAL_MID, { daysElapsed: 1 });
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
     });
 
     it('research_supply text returns appropriate line for low rep', () => {
       const textFn = YUKI_TANAKA_DIALOGUE.research_supply.text;
-      const result = textFn(0);
+      const result = textFn(0, { daysElapsed: 1 });
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
     });
