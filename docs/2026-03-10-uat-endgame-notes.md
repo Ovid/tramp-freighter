@@ -87,7 +87,7 @@ Text wording differs from plan's verbatim examples but serves the same purpose: 
 
 1. "Of course. I'll deliver it personally." (5 rep, advances quest)
 2. "I'll take care of it." (3 rep, advances quest)
-3. "Tell me more about Yumi first." (1 rep, opens backstory, then accept/decline)
+3. "Tell me more about Yumi first." (opens backstory, then accept/decline)
 4. "I'm not heading that way yet." (decline, returns to greeting)
 
 New `mission_4_yumi_backstory` node provides Yumi's backstory, then offers accept ("I'll get it there", 5 rep, advances quest) or decline ("I need some time to think about it", returns to greeting). Matches plan requirements for player agency over pacing.
