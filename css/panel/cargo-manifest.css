@@ -1,26 +1,10 @@
 /* Import CSS Variables */
 @import '../variables.css';
 
-/* Cargo Manifest Panel Styling */
+/* Panel-specific overrides only — base from .panel-base */
 #cargo-manifest-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: var(--panel-width-medium);
-  max-height: var(--panel-max-height);
-  background: rgba(0, 20, 40, 0.98);
-  border: var(--panel-border-width) solid var(--border-primary);
-  border-radius: var(--panel-border-radius);
-  padding: 25px;
-  display: none;
-  overflow-y: auto;
-  z-index: 1500;
-}
-
-#cargo-manifest-panel.visible {
-  display: block;
+  width: var(--panel-width-medium);
+  border-color: var(--border-primary);
 }
 
 #cargo-manifest-panel h2 {
@@ -39,20 +23,7 @@
 }
 
 #cargo-manifest-panel .close-btn {
-  position: absolute;
-  top: var(--close-button-top);
-  right: var(--close-button-right);
-  background: none;
-  border: none;
   color: var(--color-primary);
-  font-size: 28px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  text-align: center;
-  transition: var(--transition-fast);
 }
 
 #cargo-manifest-panel .close-btn:hover {
