@@ -337,27 +337,27 @@
 }
 
 .summary-value.trusted {
-  color: #00ff88;
+  color: var(--rep-trusted);
 }
 
 .summary-value.friendly {
-  color: #88ff00;
+  color: var(--rep-friendly);
 }
 
 .summary-value.warm {
-  color: #ffaa00;
+  color: var(--rep-warm);
 }
 
 .summary-value.neutral {
-  color: #ffffff;
+  color: var(--rep-neutral);
 }
 
 .summary-value.cold {
-  color: #ff6b6b;
+  color: var(--rep-cold);
 }
 
 .summary-value.hostile {
-  color: #ff0000;
+  color: var(--rep-hostile);
 }
 
 /* Inspection Options Section */

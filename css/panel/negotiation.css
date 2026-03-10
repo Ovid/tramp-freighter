@@ -150,7 +150,7 @@
 }
 
 .status-value.neutral {
-  color: #ffffff;
+  color: var(--rep-neutral);
 }
 
 .status-value.bad {
@@ -162,23 +162,23 @@
 }
 
 .status-value.trusted {
-  color: #00ff88;
+  color: var(--rep-trusted);
 }
 
 .status-value.friendly {
-  color: #88ff88;
+  color: var(--rep-friendly);
 }
 
 .status-value.warm {
-  color: #aaffaa;
+  color: var(--rep-warm);
 }
 
 .status-value.cold {
-  color: #ffaa00;
+  color: var(--rep-cold);
 }
 
 .status-value.hostile {
-  color: #ff6b6b;
+  color: var(--rep-hostile);
 }
 
 /* Options Section */
