@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { PirateEncounterPanel } from '../danger/PirateEncounterPanel';
 import { CombatPanel } from '../danger/CombatPanel';
 import { NegotiationPanel } from '../danger/NegotiationPanel';
@@ -130,7 +131,7 @@ export function DevPanelPreview({ onClose }) {
     );
   };
 
-  return (
+  return createPortal(
     <div
       className="dev-panel-preview-overlay"
       onClick={handleBackdropClick}
@@ -153,6 +154,7 @@ export function DevPanelPreview({ onClose }) {
         </button>
       </div>
       <div className="dev-preview-container">{renderPanel()}</div>
-    </div>
+    </div>,
+    document.body
   );
 }
