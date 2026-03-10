@@ -125,6 +125,19 @@
   --zone-contested: #ffaa00;
   --zone-dangerous: #ff6b6b;
 
+  /* Reputation Tier Colors */
+  --rep-trusted: #00ff88;
+  --rep-friendly: #88ff00;
+  --rep-warm: #ffaa00;
+  --rep-neutral: #ffffff;
+  --rep-cold: #ff6b6b;
+  --rep-hostile: #ff0000;
+
+  /* Accent Colors */
+  --color-karma: #9966ff;
+  --color-info-accent: #66ccff;
+  --color-cyan: #00ffff;
+
   /* Close Button */
   --close-button-size: 24px;
   --close-button-padding: 5px;
