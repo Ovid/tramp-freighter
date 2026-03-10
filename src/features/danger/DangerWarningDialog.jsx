@@ -66,7 +66,7 @@ export function DangerWarningDialog({
   const zoneInfo = getZoneDisplayInfo(dangerZone);
 
   return (
-    <div id="danger-warning-dialog" className="visible">
+    <div id="danger-warning-dialog" className="panel-base visible">
       <button className="close-btn" onClick={onCancel} aria-label="Close">
         ×
       </button>
