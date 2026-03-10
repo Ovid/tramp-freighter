@@ -2,45 +2,42 @@
 
 /**
  * Mechanical Failure Panel Styles
- * 
+ *
  * Styles for the mechanical failure resolution panel component.
  * Provides clear visual hierarchy for failure information, repair options,
  * and success probabilities with appropriate color coding for severity levels.
+ *
+ * Base layout provided by .panel-base — this file contains overrides only.
  */
 
+/* Panel-specific overrides only — base from .panel-base */
 #mechanical-failure-panel {
-  background: rgba(20, 20, 30, 0.95);
-  border: 2px solid #444;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  color: #ffffff;
-  font-family: 'Courier New', monospace;
+  width: var(--panel-width-large);
+  border-color: var(--color-secondary);
 }
 
 #mechanical-failure-panel h2 {
-  color: #ff6b6b;
+  color: var(--color-danger);
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 1.5em;
+  margin-bottom: var(--section-gap);
+  font-size: var(--font-size-title);
   text-transform: uppercase;
   letter-spacing: 2px;
+  text-shadow: var(--shadow-glow-danger);
 }
 
 #mechanical-failure-panel h3 {
-  color: #ffaa00;
-  border-bottom: 1px solid #444;
+  color: var(--color-secondary);
+  border-bottom: var(--section-border-width) solid rgba(255, 170, 0, 0.3);
   padding-bottom: 5px;
-  margin-bottom: 15px;
-  font-size: 1.2em;
+  margin-bottom: var(--grid-gap-large);
+  font-size: var(--font-size-xlarge);
 }
 
 #mechanical-failure-panel h4 {
-  color: #cccccc;
-  margin-bottom: 10px;
-  font-size: 1em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: var(--grid-gap-small);
+  font-size: var(--font-size-large);
 }
 
 /* Failure Content Layout */
@@ -51,10 +48,10 @@
 }
 
 .failure-section {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 15px;
+  background-color: var(--bg-section-secondary);
+  border: var(--section-border-width) solid rgba(255, 170, 0, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
 }
 
 /* Failure Status Section */
@@ -73,12 +70,12 @@
 
 .type-label,
 .severity-label {
-  color: #aaaaaa;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: bold;
 }
 
 .type-value {
-  color: #ffffff;
+  color: var(--color-white);
   font-weight: bold;
   font-size: 1.1em;
 }
@@ -89,23 +86,23 @@
 }
 
 .severity-value.minor {
-  color: #ffaa00;
+  color: var(--color-secondary);
 }
 
 .severity-value.moderate {
-  color: #ff6b6b;
+  color: var(--color-danger);
 }
 
 .severity-value.serious {
-  color: #ff4444;
+  color: var(--color-danger);
 }
 
 .severity-value.critical {
-  color: #ff0000;
+  color: var(--color-critical);
 }
 
 .severity-value.emergency {
-  color: #ff0000;
+  color: var(--color-critical);
   animation: pulse 1s infinite;
 }
 
@@ -120,7 +117,7 @@
 }
 
 .failure-description {
-  color: #cccccc;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.4;
   margin-top: 10px;
   padding: 10px;
@@ -129,14 +126,14 @@
 }
 
 .system-alert {
-  color: #ff6b6b;
+  color: var(--color-danger);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 10px;
   padding: 8px;
   background: rgba(255, 0, 0, 0.1);
-  border: 1px solid #ff6b6b;
+  border: 1px solid var(--color-danger);
   border-radius: 4px;
 }
 
@@ -157,7 +154,7 @@
 }
 
 .status-label {
-  color: #aaaaaa;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9em;
 }
 
@@ -167,23 +164,23 @@
 }
 
 .status-value.good {
-  color: #00ff88;
+  color: var(--condition-good);
 }
 
 .status-value.fair {
-  color: #ffaa00;
+  color: var(--condition-fair);
 }
 
 .status-value.poor {
-  color: #ff6b6b;
+  color: var(--condition-poor);
 }
 
 .status-value.critical {
-  color: #ff0000;
+  color: var(--condition-critical);
 }
 
 .status-impact {
-  color: #888888;
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.8em;
   font-style: italic;
 }
@@ -196,39 +193,39 @@
 }
 
 .repair-option {
-  border: 2px solid #444;
-  border-radius: 6px;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--section-border-radius);
+  padding: var(--section-padding);
+  background: var(--bg-overlay);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-fast);
 }
 
 .repair-option:hover {
-  border-color: #666;
-  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--bg-overlay-dark);
 }
 
 .repair-option.selected {
-  border-color: #00ff88;
+  border-color: var(--color-primary);
   background: rgba(0, 255, 136, 0.1);
 }
 
 .repair-option.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: #333;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .repair-option.disabled:hover {
-  border-color: #333;
-  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--bg-overlay);
 }
 
 .repair-option.hull-breach-info,
 .repair-option.life-support-info {
   cursor: default;
-  border-color: #ff6b6b;
+  border-color: var(--color-danger);
   background: rgba(255, 107, 107, 0.1);
 }
 
@@ -240,20 +237,20 @@
 }
 
 .option-name {
-  color: #ffffff;
+  color: var(--color-white);
   font-weight: bold;
   font-size: 1.1em;
 }
 
 .option-type {
-  color: #aaaaaa;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9em;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .option-description {
-  color: #cccccc;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.4;
   margin-bottom: 15px;
 }
@@ -281,25 +278,25 @@
 .prob-label,
 .cost-label,
 .delay-label {
-  color: #aaaaaa;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .prob-value {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 .prob-value.guaranteed {
-  color: #00ff88;
+  color: var(--color-primary);
 }
 
 .cost-value {
-  color: #ffaa00;
+  color: var(--color-secondary);
   font-weight: bold;
 }
 
 .delay-value {
-  color: #ff6b6b;
+  color: var(--color-danger);
   font-weight: bold;
 }
 
@@ -309,7 +306,7 @@
 }
 
 .error-text {
-  color: #ff0000;
+  color: var(--color-critical);
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -331,47 +328,47 @@
 
 .outcome.success {
   background: rgba(0, 255, 136, 0.1);
-  border-left: 3px solid #00ff88;
+  border-left: 3px solid var(--color-primary);
 }
 
 .outcome.failure {
   background: rgba(255, 107, 107, 0.1);
-  border-left: 3px solid #ff6b6b;
+  border-left: 3px solid var(--color-danger);
 }
 
 .outcome.guaranteed {
   background: rgba(0, 255, 136, 0.15);
-  border-left: 3px solid #00ff88;
+  border-left: 3px solid var(--color-primary);
 }
 
 .outcome.damage {
   background: rgba(255, 107, 107, 0.15);
-  border-left: 3px solid #ff6b6b;
+  border-left: 3px solid var(--color-danger);
 }
 
 .outcome.warning {
   background: rgba(255, 170, 0, 0.1);
-  border-left: 3px solid #ffaa00;
+  border-left: 3px solid var(--color-secondary);
 }
 
 .outcome.critical {
   background: rgba(255, 0, 0, 0.15);
-  border-left: 3px solid #ff0000;
+  border-left: 3px solid var(--color-critical);
 }
 
 .outcome.risk {
   background: rgba(255, 170, 0, 0.15);
-  border-left: 3px solid #ffaa00;
+  border-left: 3px solid var(--color-secondary);
 }
 
 .outcome-label {
-  color: #ffffff;
+  color: var(--color-white);
   font-weight: bold;
   min-width: 80px;
 }
 
 .outcome-text {
-  color: #cccccc;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.3;
 }
 
@@ -379,56 +376,60 @@
 .failure-actions {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #444;
+  gap: var(--grid-gap-large);
+  margin-top: var(--section-gap);
+  padding-top: var(--section-gap);
+  border-top: var(--section-border-width) solid rgba(255, 170, 0, 0.3);
 }
 
 .failure-btn {
-  padding: 12px 24px;
-  border: 2px solid;
-  border-radius: 6px;
+  padding: var(--button-padding);
+  border: var(--button-border-width) solid;
+  border-radius: var(--button-border-radius);
   background: transparent;
-  color: #ffffff;
-  font-family: 'Courier New', monospace;
-  font-size: 1em;
+  color: var(--color-white);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-large);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
+  transition: var(--transition-fast);
+  min-width: var(--button-min-width);
 }
 
 .failure-btn.primary {
-  border-color: #00ff88;
-  color: #00ff88;
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  border-color: var(--color-primary);
 }
 
 .failure-btn.primary:hover:not(:disabled) {
-  background: #00ff88;
-  color: #000000;
+  background-color: #00cc6a;
+  border-color: #00cc6a;
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .failure-btn.primary:disabled {
-  border-color: #444;
-  color: #666;
+  background-color: #666666;
+  color: #999999;
+  border-color: #666666;
   cursor: not-allowed;
 }
 
 .failure-btn.secondary {
-  border-color: #666;
-  color: #cccccc;
+  background-color: transparent;
+  color: var(--color-white);
+  border-color: var(--color-white);
 }
 
 .failure-btn.secondary:hover {
-  border-color: #888;
-  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #cccccc;
 }
 
 .selection-prompt {
-  color: #aaaaaa;
+  color: rgba(255, 255, 255, 0.7);
   text-align: center;
   font-style: italic;
   padding: 10px;
@@ -436,32 +437,29 @@
 
 /* Close Button */
 #mechanical-failure-panel .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: transparent;
-  border: none;
-  color: #ff6b6b;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
+  color: var(--color-danger);
 }
 
 #mechanical-failure-panel .close-btn:hover {
-  color: #ff0000;
+  color: var(--color-white);
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   #mechanical-failure-panel {
-    max-width: 95vw;
-    padding: 15px;
+    width: 90vw;
+    max-width: 700px;
   }
 
   .status-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  #mechanical-failure-panel {
+    width: 95vw;
+    padding: var(--panel-padding-small);
   }
 
   .failure-actions {

@@ -130,11 +130,13 @@ export function DistressCallPanel({
           <div className="resources-grid">
             <div className="resource-item">
               <span className="resource-label">Fuel Reserves:</span>
-              <span className={`resource-value ${getResourceClass(fuel)}`}>
-                {Math.round(fuel)}%
+              <span
+                className={`resource-value ${getResourceClass(fuel ?? 100)}`}
+              >
+                {Math.round(fuel ?? 100)}%
               </span>
               <span className="resource-impact">
-                {fuel >= DISTRESS_CONFIG.RESPOND.FUEL_COST
+                {(fuel ?? 100) >= DISTRESS_CONFIG.RESPOND.FUEL_COST
                   ? 'Sufficient for rescue'
                   : 'Insufficient fuel reserves'}
               </span>
@@ -142,12 +144,13 @@ export function DistressCallPanel({
             <div className="resource-item">
               <span className="resource-label">Life Support:</span>
               <span
-                className={`resource-value ${getResourceClass(lifeSupport)}`}
+                className={`resource-value ${getResourceClass(lifeSupport ?? 100)}`}
               >
-                {Math.round(lifeSupport)}%
+                {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="resource-impact">
-                {lifeSupport >= DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST
+                {(lifeSupport ?? 100) >=
+                DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST
                   ? 'Can support additional crew'
                   : 'Limited life support capacity'}
               </span>
@@ -155,7 +158,7 @@ export function DistressCallPanel({
             <div className="resource-item">
               <span className="resource-label">Credits:</span>
               <span className="resource-value">
-                ₡{credits.toLocaleString()}
+                ₡{(credits ?? 0).toLocaleString()}
               </span>
               <span className="resource-impact">
                 Potential reward: ₡{DISTRESS_CONFIG.RESPOND.CREDITS_REWARD}
@@ -163,12 +166,12 @@ export function DistressCallPanel({
             </div>
             <div className="resource-item">
               <span className="resource-label">Current Karma:</span>
-              <span className={`resource-value ${getKarmaClass(karma)}`}>
-                {karma > 0 ? '+' : ''}
-                {karma}
+              <span className={`resource-value ${getKarmaClass(karma ?? 0)}`}>
+                {(karma ?? 0) > 0 ? '+' : ''}
+                {karma ?? 0}
               </span>
               <span className="resource-impact">
-                {getKarmaDescription(karma)}
+                {getKarmaDescription(karma ?? 0)}
               </span>
             </div>
           </div>
@@ -180,17 +183,17 @@ export function DistressCallPanel({
               <div className="rep-item">
                 <span className="rep-label">Civilians:</span>
                 <span
-                  className={`rep-value ${getReputationClass(factions.civilians)}`}
+                  className={`rep-value ${getReputationClass(factions?.civilians ?? 0)}`}
                 >
-                  {getReputationTier(factions.civilians)}
+                  {getReputationTier(factions?.civilians ?? 0)}
                 </span>
               </div>
               <div className="rep-item">
                 <span className="rep-label">Outlaws:</span>
                 <span
-                  className={`rep-value ${getReputationClass(factions.outlaws)}`}
+                  className={`rep-value ${getReputationClass(factions?.outlaws ?? 0)}`}
                 >
-                  {getReputationTier(factions.outlaws)}
+                  {getReputationTier(factions?.outlaws ?? 0)}
                 </span>
               </div>
             </div>
@@ -398,19 +401,22 @@ export function DistressCallPanel({
  * @returns {Object} Player status analysis
  */
 function calculatePlayerStatus(fuel, lifeSupport, credits, karma, factions) {
+  const safeFuel = fuel ?? 100;
+  const safeLifeSupport = lifeSupport ?? 100;
+
   // Check if player has sufficient resources to respond
   const canRespond =
-    fuel >= DISTRESS_CONFIG.RESPOND.FUEL_COST &&
-    lifeSupport >= DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST;
+    safeFuel >= DISTRESS_CONFIG.RESPOND.FUEL_COST &&
+    safeLifeSupport >= DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST;
 
   return {
     canRespond,
-    fuel,
-    lifeSupport,
-    credits,
-    karma,
-    civilianRep: factions.civilians,
-    outlawRep: factions.outlaws,
+    fuel: safeFuel,
+    lifeSupport: safeLifeSupport,
+    credits: credits ?? 0,
+    karma: karma ?? 0,
+    civilianRep: factions?.civilians ?? 0,
+    outlawRep: factions?.outlaws ?? 0,
   };
 }
 

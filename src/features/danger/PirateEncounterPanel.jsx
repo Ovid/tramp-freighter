@@ -93,7 +93,7 @@ export function PirateEncounterPanel({
   const threatColor = getThreatLevelColor(threatLevel);
 
   return (
-    <div id="pirate-encounter-panel" className="visible">
+    <div id="pirate-encounter-panel" className="panel-base visible">
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}

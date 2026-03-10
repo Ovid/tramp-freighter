@@ -12,6 +12,7 @@ import {
 } from '../../game/constants.js';
 import { ALL_NPCS } from '../../game/data/npc-data.js';
 import { STAR_DATA } from '../../game/data/star-data.js';
+import { DevPanelPreview } from './DevPanelPreview';
 
 /**
  * DevAdminPanel - Development admin panel for danger system testing
@@ -59,6 +60,7 @@ export function DevAdminPanel({ onClose }) {
   const [selectedCommodity, setSelectedCommodity] = useState('grain');
   const [cargoQuantity, setCargoQuantity] = useState('5');
   const [useHiddenCargo, setUseHiddenCargo] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Dev tool: direct state access is acceptable here since this panel is for
   // debugging and testing, not production gameplay. Bridge Pattern not required.
@@ -864,9 +866,17 @@ export function DevAdminPanel({ onClose }) {
         </div>
       </div>
 
+      {/* Panel Preview Section */}
+      <div className="dev-admin-section">
+        <h3>Panel Preview</h3>
+        <button onClick={() => setShowPreview(true)}>Preview All Panels</button>
+      </div>
+
       <div className="dev-admin-warning">
         ⚠ Dev Mode Only - Not visible in production
       </div>
+
+      {showPreview && <DevPanelPreview onClose={() => setShowPreview(false)} />}
     </div>
   );
 }

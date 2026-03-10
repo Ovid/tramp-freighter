@@ -1,65 +1,40 @@
 @import '../variables.css';
 
-/* Negotiation Panel Styling */
+/* Panel-specific overrides only — base positioning/sizing from .panel-base */
 #negotiation-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 850px;
-  max-height: 85vh;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #ffaa00;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
-  display: none;
-  z-index: 300;
-  overflow-y: auto;
-}
-
-#negotiation-panel.visible {
-  display: block;
+  width: var(--panel-width-large);
+  border-color: var(--color-secondary);
+  z-index: var(--z-modal);
 }
 
 #negotiation-panel h2 {
-  margin-bottom: 20px;
-  color: #ffaa00;
-  font-size: 22px;
+  margin-bottom: var(--section-gap);
+  color: var(--color-secondary);
+  font-size: var(--font-size-title);
   text-align: center;
-  text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+  text-shadow: var(--shadow-text-secondary);
 }
 
 #negotiation-panel h3 {
-  margin-bottom: 12px;
-  color: #ffaa00;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+  margin-bottom: var(--grid-gap-medium);
+  color: var(--color-secondary);
+  font-size: var(--font-size-xlarge);
+  border-bottom: var(--section-border-width) solid rgba(255, 170, 0, 0.3);
   padding-bottom: 5px;
 }
 
 #negotiation-panel h4 {
-  margin-bottom: 8px;
-  color: #ffffff;
-  font-size: 14px;
+  margin-bottom: var(--grid-gap-small);
+  color: var(--color-white);
+  font-size: var(--font-size-large);
 }
 
 #negotiation-panel .close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  color: #ffaa00;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
+  color: var(--color-secondary);
 }
 
 #negotiation-panel .close-btn:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .negotiation-content {
@@ -175,7 +150,7 @@
 }
 
 .status-value.neutral {
-  color: #ffffff;
+  color: var(--rep-neutral);
 }
 
 .status-value.bad {
@@ -187,23 +162,23 @@
 }
 
 .status-value.trusted {
-  color: #00ff88;
+  color: var(--rep-trusted);
 }
 
 .status-value.friendly {
-  color: #88ff88;
+  color: var(--rep-friendly);
 }
 
 .status-value.warm {
-  color: #aaffaa;
+  color: var(--rep-warm);
 }
 
 .status-value.cold {
-  color: #ffaa00;
+  color: var(--rep-cold);
 }
 
 .status-value.hostile {
-  color: #ff6b6b;
+  color: var(--rep-hostile);
 }
 
 /* Options Section */
@@ -467,15 +442,15 @@
 }
 
 .negotiation-btn.primary {
-  background-color: #ffaa00;
-  color: #000000;
-  border-color: #ffaa00;
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  border-color: var(--color-primary);
 }
 
 .negotiation-btn.primary:hover {
-  background-color: #cc8800;
-  border-color: #cc8800;
-  box-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+  background-color: #00cc6a;
+  border-color: #00cc6a;
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .negotiation-btn.secondary {

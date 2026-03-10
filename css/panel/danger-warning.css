@@ -1,27 +1,11 @@
 /* Import CSS Variables */
 @import '../variables.css';
 
-/* Danger Warning Dialog Styling */
+/* Panel-specific overrides only — base from .panel-base */
 #danger-warning-dialog {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: var(--panel-width-medium);
-  max-height: var(--panel-max-height);
-  padding: var(--panel-padding);
-  background-color: var(--bg-panel);
-  border: var(--panel-border-width) solid var(--color-secondary);
-  border-radius: var(--panel-border-radius);
-  color: var(--color-white);
-  font-size: var(--font-size-large);
-  display: none;
+  border-color: var(--color-secondary);
   z-index: var(--z-modal);
-  overflow-y: auto;
-}
-
-#danger-warning-dialog.visible {
-  display: block;
 }
 
 #danger-warning-dialog h2 {
@@ -47,17 +31,7 @@
 }
 
 #danger-warning-dialog .close-btn {
-  position: absolute;
-  top: var(--close-button-top);
-  right: var(--close-button-right);
-  background: none;
-  border: none;
   color: var(--color-secondary);
-  font-size: var(--close-button-size);
-  cursor: pointer;
-  padding: var(--close-button-padding);
-  line-height: 1;
-  transition: var(--transition-fast);
 }
 
 #danger-warning-dialog .close-btn:hover {

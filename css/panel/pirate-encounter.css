@@ -1,27 +1,11 @@
 /* Import CSS Variables */
 @import '../variables.css';
 
-/* Pirate Encounter Panel Styling */
+/* Panel-specific overrides only — base from .panel-base */
 #pirate-encounter-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: var(--panel-width-large);
-  max-height: var(--panel-max-height);
-  padding: var(--panel-padding);
-  background-color: var(--bg-panel);
-  border: var(--panel-border-width) solid var(--color-danger);
-  border-radius: var(--panel-border-radius);
-  color: var(--color-white);
-  font-size: var(--font-size-large);
-  display: none;
+  border-color: var(--color-danger);
   z-index: var(--z-modal);
-  overflow-y: auto;
-}
-
-#pirate-encounter-panel.visible {
-  display: block;
 }
 
 #pirate-encounter-panel h2 {
@@ -47,17 +31,7 @@
 }
 
 #pirate-encounter-panel .close-btn {
-  position: absolute;
-  top: var(--close-button-top);
-  right: var(--close-button-right);
-  background: none;
-  border: none;
   color: var(--color-danger);
-  font-size: var(--close-button-size);
-  cursor: pointer;
-  padding: var(--close-button-padding);
-  line-height: 1;
-  transition: var(--transition-fast);
 }
 
 #pirate-encounter-panel .close-btn:hover {

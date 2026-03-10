@@ -1,26 +1,10 @@
 /* Import CSS Variables */
 @import '../variables.css';
 
-/* Upgrades Panel Styling */
+/* Panel-specific overrides only — base from .panel-base */
 #upgrades-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 900px;
-  max-height: var(--panel-max-height);
-  background: rgba(0, 20, 40, 0.98);
-  border: var(--panel-border-width) solid var(--border-primary);
-  border-radius: var(--panel-border-radius);
-  padding: 30px;
-  display: none;
-  overflow-y: auto;
-  z-index: var(--z-modal);
-}
-
-#upgrades-panel.visible {
-  display: block;
+  width: var(--panel-width-large);
+  border-color: var(--color-primary);
 }
 
 #upgrades-panel h2 {
@@ -39,19 +23,7 @@
 }
 
 #upgrades-panel .close-btn {
-  position: absolute;
-  top: var(--close-button-top);
-  right: var(--close-button-right);
-  background: none;
-  border: none;
   color: var(--color-primary);
-  font-size: 28px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  transition: var(--transition-fast);
 }
 
 #upgrades-panel .close-btn:hover {

@@ -258,8 +258,8 @@
 }
 
 .resource-value.saint {
-  color: #00ffff;
-  text-shadow: 0 0 var(--grid-gap-small) #00ffff;
+  color: var(--color-cyan);
+  text-shadow: 0 0 var(--grid-gap-small) var(--color-cyan);
 }
 
 .resource-value.good {
@@ -319,27 +319,27 @@
 }
 
 .rep-value.trusted {
-  color: #00ffff;
+  color: var(--rep-trusted);
 }
 
 .rep-value.friendly {
-  color: #00ff88;
+  color: var(--rep-friendly);
 }
 
 .rep-value.warm {
-  color: #88ff00;
+  color: var(--rep-warm);
 }
 
 .rep-value.neutral {
-  color: #ffffff;
+  color: var(--rep-neutral);
 }
 
 .rep-value.cold {
-  color: #ffaa00;
+  color: var(--rep-cold);
 }
 
 .rep-value.hostile {
-  color: #ff6b6b;
+  color: var(--rep-hostile);
 }
 
 /* Moral Choice Options Section */
