@@ -226,7 +226,7 @@ export function UpgradesPanel({ onClose }) {
   const currentSystemName = currentSystem.name;
 
   return (
-    <div id="upgrades-panel" className="visible">
+    <div id="upgrades-panel" className="panel-base visible">
       <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
