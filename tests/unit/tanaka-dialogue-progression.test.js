@@ -57,3 +57,29 @@ describe('Tanaka supply response tiered by rep', () => {
     expect(text).toMatch(/won't forget|containment housing/);
   });
 });
+
+describe('Tanaka stage 4 greeting (message delivery)', () => {
+  const greeting = YUKI_TANAKA_DIALOGUE.greeting;
+
+  it('reminds player about delivery destination when message not delivered', () => {
+    const context = makeContext({
+      questStage: 4,
+      questState: { data: { messageDelivered: false } },
+    });
+
+    const text = greeting.text(50, context);
+    expect(text).toContain('Vasquez');
+    expect(text).toContain('Epsilon Eridani');
+    expect(text).not.toContain('something personal I need to ask');
+  });
+
+  it('acknowledges delivery when message has been delivered', () => {
+    const context = makeContext({
+      questStage: 4,
+      questState: { data: { messageDelivered: true } },
+    });
+
+    const text = greeting.text(50, context);
+    expect(text).toContain('delivered the message');
+  });
+});
