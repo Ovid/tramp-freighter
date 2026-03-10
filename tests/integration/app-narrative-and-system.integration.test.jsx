@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
@@ -172,12 +178,8 @@ describe('Narrative Events and System Panel Integration', () => {
       expect(
         screen.getByText('These are dangerous times.')
       ).toBeInTheDocument();
-      expect(
-        screen.getByText('Station Commander')
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('Understood, Commander.')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Station Commander')).toBeInTheDocument();
+      expect(screen.getByText('Understood, Commander.')).toBeInTheDocument();
       expect(screen.getByText('I can handle myself.')).toBeInTheDocument();
     });
 
@@ -264,9 +266,7 @@ describe('Narrative Events and System Panel Integration', () => {
 
       // SystemPanel should appear showing the current system
       await waitFor(() => {
-        expect(
-          document.querySelector('.system-panel')
-        ).toBeTruthy();
+        expect(document.querySelector('.system-panel')).toBeTruthy();
       });
 
       // Should show system details like Spectral Class
@@ -287,18 +287,14 @@ describe('Narrative Events and System Panel Integration', () => {
       fireEvent.click(systemInfoButton);
 
       await waitFor(() => {
-        expect(
-          document.querySelector('.system-panel')
-        ).toBeTruthy();
+        expect(document.querySelector('.system-panel')).toBeTruthy();
       });
 
       // Click System Info again to close (toggle behavior)
       fireEvent.click(systemInfoButton);
 
       await waitFor(() => {
-        expect(
-          document.querySelector('.system-panel')
-        ).toBeFalsy();
+        expect(document.querySelector('.system-panel')).toBeFalsy();
       });
     });
 
@@ -316,9 +312,7 @@ describe('Narrative Events and System Panel Integration', () => {
       fireEvent.click(systemInfoButton);
 
       await waitFor(() => {
-        expect(
-          document.querySelector('.system-panel')
-        ).toBeTruthy();
+        expect(document.querySelector('.system-panel')).toBeTruthy();
       });
 
       // Click the close button on the SystemPanel
@@ -326,9 +320,7 @@ describe('Narrative Events and System Panel Integration', () => {
       fireEvent.click(closeButton);
 
       await waitFor(() => {
-        expect(
-          document.querySelector('.system-panel')
-        ).toBeFalsy();
+        expect(document.querySelector('.system-panel')).toBeFalsy();
       });
     });
   });

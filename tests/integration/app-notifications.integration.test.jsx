@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  cleanup,
+} from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { NotificationProvider } from '../../src/context/NotificationContext';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
@@ -216,9 +222,7 @@ describe('App Notification Integration', () => {
       unmount();
 
       // Verify unsubscribe was called for both exotic matter events
-      const unsubscribeCalls = unsubscribeSpy.mock.calls.map(
-        (call) => call[0]
-      );
+      const unsubscribeCalls = unsubscribeSpy.mock.calls.map((call) => call[0]);
       expect(unsubscribeCalls).toContain(EVENT_NAMES.EXOTIC_MATTER_COLLECTED);
       expect(unsubscribeCalls).toContain(
         EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED

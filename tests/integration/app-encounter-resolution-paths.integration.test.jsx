@@ -322,7 +322,9 @@ describe('Combat and Negotiation Resolution Paths', () => {
     });
 
     // Negotiate option should be disabled (has aria-disabled)
-    const negotiateOption = screen.getByText('Negotiate').closest('.tactical-option');
+    const negotiateOption = screen
+      .getByText('Negotiate')
+      .closest('.tactical-option');
     expect(negotiateOption).toHaveAttribute('aria-disabled', 'true');
 
     // The "They're done talking." message should be visible
@@ -356,17 +358,11 @@ describe('Combat and Negotiation Resolution Paths', () => {
 
     // Should return to orbit — encounter panels gone
     await waitFor(() => {
-      expect(
-        screen.queryByText('Combat Resolution')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Combat Resolution')).not.toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByText('Pirate Encounter')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Encounter Outcome')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
+    expect(screen.queryByText('Encounter Outcome')).not.toBeInTheDocument();
 
     // Error was logged
     expect(console.error).toHaveBeenCalledWith(

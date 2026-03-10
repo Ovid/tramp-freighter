@@ -337,9 +337,7 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // SystemPanel should disappear because viewingSystemId is set to null
     await waitFor(() => {
-      expect(
-        screen.queryByTestId('mock-system-panel')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mock-system-panel')).not.toBeInTheDocument();
     });
   });
 
@@ -424,13 +422,21 @@ describe('Encounter Buffering During Jump Animations', () => {
 
     // Confirm the choice
     await waitFor(() => {
-      expect(screen.getByText('Salvage the Wreck', { selector: 'button.distress-btn' })).toBeInTheDocument();
+      expect(
+        screen.getByText('Salvage the Wreck', {
+          selector: 'button.distress-btn',
+        })
+      ).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByText('Salvage the Wreck', { selector: 'button.distress-btn' }));
+    fireEvent.click(
+      screen.getByText('Salvage the Wreck', { selector: 'button.distress-btn' })
+    );
 
     // Salvage notification should appear — only 1 of 2 parts fit
     await waitFor(() => {
-      expect(screen.getByText(/Could only fit 1 of 2 units/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Could only fit 1 of 2 units/)
+      ).toBeInTheDocument();
     });
   });
 });

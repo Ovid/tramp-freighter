@@ -232,18 +232,12 @@ describe('Pirate Flee Path Integration', () => {
 
     // Should return to orbit — pirate encounter panel gone
     await waitFor(() => {
-      expect(
-        screen.queryByText('Pirate Encounter')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
     });
 
     // CombatPanel and OutcomePanel should not be present
-    expect(
-      screen.queryByText('Combat Resolution')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Encounter Outcome')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Combat Resolution')).not.toBeInTheDocument();
+    expect(screen.queryByText('Encounter Outcome')).not.toBeInTheDocument();
 
     // Error was logged
     expect(console.error).toHaveBeenCalledWith(

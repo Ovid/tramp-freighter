@@ -194,7 +194,9 @@ describe('Endgame Flow Integration', () => {
     });
 
     // PostCreditsStation should be gone
-    expect(screen.queryByTestId('post-credits-station')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('post-credits-station')
+    ).not.toBeInTheDocument();
   });
 
   it('should return to station when Pavonis Run is cancelled', async () => {
@@ -225,7 +227,9 @@ describe('Endgame Flow Integration', () => {
     });
 
     // Should not show PostCreditsStation (postCredits is false)
-    expect(screen.queryByTestId('post-credits-station')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('post-credits-station')
+    ).not.toBeInTheDocument();
   });
 
   it('should show Epilogue directly when EPILOGUE_PREVIEW_TRIGGERED is emitted', async () => {

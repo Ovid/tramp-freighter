@@ -14,8 +14,7 @@ export function useShipActions() {
       refuel: (amount, discount) => game.refuel(amount, discount),
       repair: (systemType, amount, discount) =>
         game.repairShipSystem(systemType, amount, discount),
-      applyEmergencyPatch: (systemType) =>
-        game.applyEmergencyPatch(systemType),
+      applyEmergencyPatch: (systemType) => game.applyEmergencyPatch(systemType),
       cannibalizeSystem: (targetType, donations) =>
         game.cannibalizeSystem(targetType, donations),
       purchaseUpgrade: (upgradeId) => game.purchaseUpgrade(upgradeId),

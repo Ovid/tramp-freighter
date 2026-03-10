@@ -187,9 +187,7 @@ describe('Non-Pirate Encounter Integration', () => {
         expect(
           screen.queryByText('Customs Inspection')
         ).not.toBeInTheDocument();
-        expect(
-          screen.queryByText('Encounter Outcome')
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText('Encounter Outcome')).not.toBeInTheDocument();
       });
     });
   });
@@ -258,8 +256,7 @@ describe('Non-Pirate Encounter Integration', () => {
         id: 'dist_test_1',
         severity: 'moderate',
         type: 'mechanical',
-        description:
-          'A civilian transport is requesting emergency assistance.',
+        description: 'A civilian transport is requesting emergency assistance.',
         vesselType: 'Civilian Transport',
         crewCount: '4 persons',
         timeElapsed: '1.5 hours',
@@ -323,9 +320,7 @@ describe('Non-Pirate Encounter Integration', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('Distress Call')).not.toBeInTheDocument();
-        expect(
-          screen.queryByText('Encounter Outcome')
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText('Encounter Outcome')).not.toBeInTheDocument();
       });
     });
   });

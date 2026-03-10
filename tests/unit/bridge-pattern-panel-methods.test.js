@@ -13,10 +13,7 @@ describe('useGameAction exposes methods used by RefuelPanel and RepairPanel', ()
     expect(npcSource).toContain('getServiceDiscount:');
 
     // Verify useGameAction composes from domain hooks
-    const actionSource = fs.readFileSync(
-      'src/hooks/useGameAction.js',
-      'utf-8'
-    );
+    const actionSource = fs.readFileSync('src/hooks/useGameAction.js', 'utf-8');
     expect(actionSource).toContain('...ship');
     expect(actionSource).toContain('...npc');
   });

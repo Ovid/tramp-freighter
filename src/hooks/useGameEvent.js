@@ -69,7 +69,8 @@ export function useGameEvent(eventName) {
  */
 function extractStateForEvent(eventName, state) {
   if (!state) return null;
-  if (!state.player) throw new Error('Invalid game state: player object missing');
+  if (!state.player)
+    throw new Error('Invalid game state: player object missing');
   if (!state.ship) throw new Error('Invalid game state: ship object missing');
   if (!state.world) throw new Error('Invalid game state: world object missing');
   if (!state.dialogue)
