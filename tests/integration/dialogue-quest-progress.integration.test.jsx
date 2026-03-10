@@ -164,6 +164,37 @@ describe('DialoguePanel Quest Progress', () => {
       ).toBeInTheDocument();
     });
 
+    it('should show tier name instead of "Ready!" when rep meets threshold but other requirements are not met', async () => {
+      // Set rep above stage 1 threshold
+      game.modifyRepRaw(
+        'tanaka_barnards',
+        ENDGAME_CONFIG.STAGE_1_REP + 5,
+        'test'
+      );
+      // Set engine below the required 80% so non-rep requirement is unmet
+      game.getState().ship.engine = ENDGAME_CONFIG.STAGE_1_ENGINE - 10;
+
+      render(
+        <GameProvider game={game}>
+          <DialoguePanel npcId="tanaka_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Yuki Tanaka')).toBeInTheDocument();
+      });
+
+      // Should NOT show "Ready!" since engine requirement is unmet
+      expect(screen.queryByText(/Ready!/)).not.toBeInTheDocument();
+      // Should show the reputation tier name in the quest progress area
+      const questStageNames = screen.getAllByText(/Warm/);
+      const questProgressLabel = questStageNames.find(
+        (el) => el.className === 'quest-stage-name'
+      );
+      expect(questProgressLabel).toBeDefined();
+      expect(questProgressLabel.textContent).toContain('(Warm)');
+    });
+
     it('should show next stage name', async () => {
       game.modifyRepRaw('tanaka_barnards', 3, 'test');
 
