@@ -496,7 +496,6 @@ export const YUKI_TANAKA_DIALOGUE = {
       {
         text: '"Tell me more about Yumi first."',
         next: 'mission_4_yumi_backstory',
-        repGain: 1,
       },
       {
         text: '"I\'m not heading that way yet."',
