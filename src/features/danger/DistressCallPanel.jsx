@@ -130,7 +130,9 @@ export function DistressCallPanel({
           <div className="resources-grid">
             <div className="resource-item">
               <span className="resource-label">Fuel Reserves:</span>
-              <span className={`resource-value ${getResourceClass(fuel ?? 100)}`}>
+              <span
+                className={`resource-value ${getResourceClass(fuel ?? 100)}`}
+              >
                 {Math.round(fuel ?? 100)}%
               </span>
               <span className="resource-impact">
@@ -147,7 +149,8 @@ export function DistressCallPanel({
                 {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="resource-impact">
-                {(lifeSupport ?? 100) >= DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST
+                {(lifeSupport ?? 100) >=
+                DISTRESS_CONFIG.RESPOND.LIFE_SUPPORT_COST
                   ? 'Can support additional crew'
                   : 'Limited life support capacity'}
               </span>

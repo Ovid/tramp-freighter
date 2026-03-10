@@ -65,9 +65,7 @@ class PanelErrorBoundary extends React.Component {
             preview context.
           </p>
           {this.state.error && (
-            <div className="error-details">
-              {this.state.error.toString()}
-            </div>
+            <div className="error-details">{this.state.error.toString()}</div>
           )}
         </div>
       );

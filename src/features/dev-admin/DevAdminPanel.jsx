@@ -869,9 +869,7 @@ export function DevAdminPanel({ onClose }) {
       {/* Panel Preview Section */}
       <div className="dev-admin-section">
         <h3>Panel Preview</h3>
-        <button onClick={() => setShowPreview(true)}>
-          Preview All Panels
-        </button>
+        <button onClick={() => setShowPreview(true)}>Preview All Panels</button>
       </div>
 
       <div className="dev-admin-warning">

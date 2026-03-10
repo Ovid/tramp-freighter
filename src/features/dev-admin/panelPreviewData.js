@@ -122,9 +122,7 @@ export const PREVIEW_PANELS = {
           },
         ],
         consequences: {},
-        karmaChanges: [
-          { amount: 2, reason: 'Self-defense against pirates' },
-        ],
+        karmaChanges: [{ amount: 2, reason: 'Self-defense against pirates' }],
         reputationChanges: [
           { faction: 'outlaws', amount: -5, reason: 'Defeated pirate crew' },
           {
