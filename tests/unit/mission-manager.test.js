@@ -449,11 +449,7 @@ describe('MissionManager', () => {
       ];
       gsm.state.missions.completed = [];
       gsm.missionManager.completeMission('m1');
-      expect(modifyFactionRepSpy).toHaveBeenCalledWith(
-        'traders',
-        5,
-        'mission'
-      );
+      expect(modifyFactionRepSpy).toHaveBeenCalledWith('traders', 5, 'mission');
     });
 
     it('applies rep rewards on completion', () => {
@@ -619,9 +615,9 @@ describe('MissionManager', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'delay');
-      expect(
-        gsm.state.missions.active[0].passenger.satisfaction
-      ).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('reduces satisfaction for combat event', () => {
@@ -636,9 +632,9 @@ describe('MissionManager', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'combat');
-      expect(
-        gsm.state.missions.active[0].passenger.satisfaction
-      ).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('reduces satisfaction for low_life_support event', () => {
@@ -653,9 +649,9 @@ describe('MissionManager', () => {
         },
       ];
       gsm.missionManager.updatePassengerSatisfaction('p1', 'low_life_support');
-      expect(
-        gsm.state.missions.active[0].passenger.satisfaction
-      ).toBeLessThan(80);
+      expect(gsm.state.missions.active[0].passenger.satisfaction).toBeLessThan(
+        80
+      );
     });
 
     it('does nothing for non-passenger mission', () => {
