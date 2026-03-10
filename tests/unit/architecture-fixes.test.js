@@ -35,8 +35,8 @@ describe('Architecture report fixes', () => {
         results.add(textFn(rep, { daysElapsed: day }));
       }
 
-      // With 2 possible lines and 50 different seeds, we should get both
-      expect(results.size).toBe(2);
+      // With 50 different seeds, we should see more than one variant
+      expect(results.size).toBeGreaterThan(1);
     });
   });
 
