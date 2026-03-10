@@ -303,6 +303,17 @@ describe('Cole Debt System', () => {
         expect(result.success).toBe(false);
       });
 
+      it('rejects zero payment amount', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 1000;
+
+        const result = debtManager.makePayment(0);
+
+        expect(result.success).toBe(false);
+        expect(gsm.state.player.credits).toBe(5000);
+        expect(gsm.state.player.finance.totalRepaid).toBe(0);
+      });
+
       it('tracks totalRepaid', () => {
         gsm.state.player.credits = 5000;
         gsm.state.player.debt = 10000;
