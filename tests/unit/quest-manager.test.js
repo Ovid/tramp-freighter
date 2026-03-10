@@ -488,7 +488,10 @@ describe('Exotic matter scanner feedback', () => {
 
   it('emits EXOTIC_MATTER_ALREADY_SAMPLED for previously sampled stations', () => {
     const alreadySampled = vi.fn();
-    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED, alreadySampled);
+    manager.subscribe(
+      EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+      alreadySampled
+    );
 
     manager.questManager.onDock(4, () => 0);
     manager.questManager.onDock(4, () => 0);
@@ -500,7 +503,10 @@ describe('Exotic matter scanner feedback', () => {
     const collected = vi.fn();
     const alreadySampled = vi.fn();
     manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, collected);
-    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED, alreadySampled);
+    manager.subscribe(
+      EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+      alreadySampled
+    );
 
     manager.advanceQuest('tanaka'); // stage 3
 
