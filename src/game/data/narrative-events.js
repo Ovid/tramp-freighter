@@ -435,6 +435,37 @@ export const NARRATIVE_EVENTS = [
   },
 
   {
+    id: 'cole_first_payment_hint',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: null,
+      condition: [
+        { type: CONDITION_TYPES.FLAG_SET, flag: 'cole_first_payment_hint' },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_HIGH,
+    content: {
+      text: [
+        'A message from Marcus Cole.',
+        '"Good. You\'re learning." A pause. "But clearing your slate is just the first step \u2014 the captains who really get out of this life? They made the right friends along the way."',
+      ],
+      speaker: 'Marcus Cole',
+      mood: 'neutral',
+      choices: [
+        {
+          text: '"I\'ll keep that in mind."',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  {
     id: 'time_news_broadcast',
     type: 'time',
     category: 'narrative',
