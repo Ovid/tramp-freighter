@@ -258,8 +258,8 @@
 }
 
 .resource-value.saint {
-  color: #00ffff;
-  text-shadow: 0 0 var(--grid-gap-small) #00ffff;
+  color: var(--color-cyan);
+  text-shadow: 0 0 var(--grid-gap-small) var(--color-cyan);
 }
 
 .resource-value.good {
