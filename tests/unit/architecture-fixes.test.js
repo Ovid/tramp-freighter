@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createTestGame } from '../test-utils.js';
-import { REPUTATION_BOUNDS } from '../../src/game/constants.js';
 import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
 
 describe('Architecture report fixes', () => {
