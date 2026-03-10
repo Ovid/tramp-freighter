@@ -470,6 +470,7 @@ export class GameCoordinator {
         this.npcManager.modifyRepRaw(npcId, amount, reason),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
+      setNarrativeFlag: (flag) => this.setNarrativeFlag(flag),
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });

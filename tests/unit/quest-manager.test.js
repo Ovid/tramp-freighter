@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { TANAKA_QUEST } from '../../src/game/data/quest-definitions.js';
+import { EVENT_NAMES, ENDGAME_CONFIG } from '../../src/game/constants.js';
 import { createTestGame } from '../test-utils.js';
 
 describe('Stats initialization', () => {
@@ -440,25 +441,98 @@ describe('Exotic material collection', () => {
     ).toBeUndefined();
   });
 
-  it('collects from distant system when roll succeeds', () => {
-    // Barnard's Star is at ~83 LY from Sol in test data, well over 15
-    // Use a fixed "random" that always succeeds (returns 0, which is < 0.6 chance)
-    manager.questManager.onDock(4, () => 0);
-    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
-  });
-
-  it('does not collect twice from the same system', () => {
-    manager.questManager.onDock(4, () => 0);
-    manager.questManager.onDock(4, () => 0);
-    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
-  });
-
-  it('does not collect when quest is not at stage 2', () => {
-    manager.advanceQuest('tanaka'); // stage 3
+  it('does not collect from nearby system (under 15 LY)', () => {
+    // Barnard's Star is ~5.95 LY from Sol, under the 15 LY threshold
     manager.questManager.onDock(4, () => 0);
     expect(
       manager.getQuestState('tanaka').data.exoticMaterials
     ).toBeUndefined();
+  });
+
+  it('collects from distant system when roll succeeds', () => {
+    // Distant Star (id 99) is ~16.5 LY from Sol, over the 15 LY threshold
+    manager.questManager.onDock(99, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
+  });
+
+  it('does not collect twice from the same system', () => {
+    manager.questManager.onDock(99, () => 0);
+    manager.questManager.onDock(99, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
+  });
+
+  it('does not collect past the required amount', () => {
+    manager.updateQuestData(
+      'tanaka',
+      'exoticMaterials',
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
+    );
+    manager.questManager.onDock(99, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
+    );
+  });
+
+  it('does not collect when quest is not at stage 2', () => {
+    manager.advanceQuest('tanaka'); // stage 3
+    manager.questManager.onDock(99, () => 0);
+    expect(
+      manager.getQuestState('tanaka').data.exoticMaterials
+    ).toBeUndefined();
+  });
+});
+
+describe('Exotic matter scanner feedback', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGame();
+    manager.advanceQuest('tanaka');
+    manager.advanceQuest('tanaka');
+  });
+
+  it('emits EXOTIC_MATTER_COLLECTED when exotic matter is found', () => {
+    const collected = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, collected);
+
+    manager.questManager.onDock(99, () => 0);
+
+    expect(collected).toHaveBeenCalledWith(
+      expect.objectContaining({
+        count: 1,
+        total: ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED,
+      })
+    );
+  });
+
+  it('emits EXOTIC_MATTER_ALREADY_SAMPLED for previously sampled stations', () => {
+    const alreadySampled = vi.fn();
+    manager.subscribe(
+      EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+      alreadySampled
+    );
+
+    manager.questManager.onDock(99, () => 0);
+    manager.questManager.onDock(99, () => 0);
+
+    expect(alreadySampled).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not emit scanner events when not at stage 2', () => {
+    const collected = vi.fn();
+    const alreadySampled = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, collected);
+    manager.subscribe(
+      EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+      alreadySampled
+    );
+
+    manager.advanceQuest('tanaka'); // stage 3
+
+    manager.questManager.onDock(99, () => 0);
+
+    expect(collected).not.toHaveBeenCalled();
+    expect(alreadySampled).not.toHaveBeenCalled();
   });
 });
 

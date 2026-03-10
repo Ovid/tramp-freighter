@@ -228,11 +228,15 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
     if (questDef && questDef.stages) {
       const nextStage = questDef.stages.find((s) => s.stage === questStage + 1);
       const nextRepThreshold = nextStage?.requirements?.npcRep?.[1] ?? null;
+      const allRequirementsMet = nextStage
+        ? gameStateManager.canStartQuestStage(npcData.questId, nextStage.stage)
+        : false;
       questProgress = {
         currentRep,
         questStage,
         nextRepThreshold,
         stageName: nextStage?.name ?? null,
+        allRequirementsMet,
       };
     }
   }

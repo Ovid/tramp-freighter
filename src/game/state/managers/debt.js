@@ -200,6 +200,10 @@ export class DebtManager extends BaseManager {
     // Cap at actual debt before checking credits
     const actualPayment = Math.min(amount, debt);
 
+    if (actualPayment <= 0) {
+      return { success: false, reason: 'Invalid payment amount' };
+    }
+
     const credits = this.capabilities.getCredits();
 
     if (credits < actualPayment) {
@@ -208,6 +212,10 @@ export class DebtManager extends BaseManager {
 
     this.capabilities.updateDebt(debt - actualPayment);
     this.capabilities.updateCredits(credits - actualPayment);
+
+    if (finance.totalRepaid === 0 && this.capabilities.setNarrativeFlag) {
+      this.capabilities.setNarrativeFlag('cole_first_payment_hint');
+    }
 
     finance.totalRepaid += actualPayment;
 

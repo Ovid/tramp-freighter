@@ -215,7 +215,7 @@ export const NARRATIVE_EVENTS = [
     content: {
       text: [
         'A dockworker sidles up while you wait for clearance.',
-        '"Hey, you run a Tanaka drive, right? Heard the designer\'s daughter works out of Barnard\'s Star. Does something with experimental drive mods."',
+        '"Hey, you run a Tanaka drive, right? Heard the designer\'s daughter works out of Barnard\'s Star. Does something with experimental drive tech — pushing ships further than the wormhole network was meant to go."',
         'He lowers his voice. "Picky about who she works with, though."',
       ],
       speaker: null,
@@ -427,6 +427,37 @@ export const NARRATIVE_EVENTS = [
       choices: [
         {
           text: 'Delete message.',
+          next: null,
+          effects: { costs: {}, rewards: {} },
+        },
+      ],
+    },
+  },
+
+  {
+    id: 'cole_first_payment_hint',
+    type: 'dock',
+    category: 'narrative',
+    trigger: {
+      system: null,
+      condition: [
+        { type: CONDITION_TYPES.FLAG_SET, flag: 'cole_first_payment_hint' },
+      ],
+      chance: 1.0,
+    },
+    once: true,
+    cooldown: 0,
+    priority: NARRATIVE_PRIORITY_HIGH,
+    content: {
+      text: [
+        'A message from Marcus Cole.',
+        '"Good. You\'re learning." A pause. "But clearing your slate is just the first step \u2014 the captains who really get out of this life? They made the right friends along the way."',
+      ],
+      speaker: 'Marcus Cole',
+      mood: 'neutral',
+      choices: [
+        {
+          text: '"I\'ll keep that in mind."',
           next: null,
           effects: { costs: {}, rewards: {} },
         },
@@ -698,13 +729,13 @@ export const NARRATIVE_EVENTS = [
       text: [
         'You ask around about an engineer who works on drive modifications.',
         'A dock tech looks you over. "Tanaka? Yeah, she\'s here. But she doesn\'t talk to green pilots."',
-        '"Come back when you\'ve got some real flight time. She wants to see you\'ve been around — visited plenty of systems, know the lanes."',
+        '"She wants pilots who\'ve seen the sector — been to enough ports to prove they\'re not just running one lane back and forth."',
       ],
       speaker: null,
       mood: 'neutral',
       choices: [
         {
-          text: '"How much flight time are we talking?"',
+          text: '"How many ports are we talking?"',
           next: 'dock_barnards_pre_tanaka_followup',
           effects: { costs: {}, rewards: {} },
         },

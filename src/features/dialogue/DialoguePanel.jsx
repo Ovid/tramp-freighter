@@ -136,7 +136,11 @@ export function DialoguePanel({ npcId, onClose }) {
                 <>
                   Trust: {dialogueDisplay.questProgress.nextRepThreshold} /{' '}
                   {dialogueDisplay.questProgress.nextRepThreshold}
-                  <span className="quest-stage-name"> (Ready!)</span>
+                  <span className="quest-stage-name">
+                    {dialogueDisplay.questProgress.allRequirementsMet
+                      ? ' (Ready!)'
+                      : ` (${dialogueDisplay.reputationTier.name})`}
+                  </span>
                 </>
               ) : (
                 <>

@@ -42,7 +42,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         if (delivered) {
           return '"You delivered the message. Thank you." Her voice is steady, but her eyes say more. "When you are ready for the final preparations, we should talk."';
         }
-        return '"There is something personal I need to ask of you. A message that needs delivering."';
+        return '"My message for Captain Vasquez — have you delivered it yet?" She meets your eyes briefly. "They\'re at Eridani Hub. Epsilon Eridani."';
       }
       if (stage === 3) {
         return '"The prototype integration is complete. Your ship performed admirably." She pauses. "I have one more request. A personal one."';

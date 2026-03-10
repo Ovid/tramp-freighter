@@ -421,15 +421,10 @@ describe('Finance Boundary Tests', () => {
         state.player.credits = 5000;
         state.player.debt = 10000;
 
-        // makePayment with 0 - actualPayment = min(0, 10000) = 0
-        // credits(5000) < 0 is false, so payment proceeds with 0
-        // But debt remains unchanged since 0 is deducted
+        // makePayment with 0 is rejected to prevent free rep/heat exploits
         const result = debtManager.makePayment(0);
 
-        // Payment of 0 still technically succeeds (reduces debt by 0)
-        // The system caps payment at min(amount, debt) = min(0, 10000) = 0
-        expect(result.success).toBe(true);
-        expect(result.amount).toBe(0);
+        expect(result.success).toBe(false);
         expect(state.player.debt).toBe(10000);
       });
 
