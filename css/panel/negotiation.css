@@ -2,7 +2,7 @@
 
 /* Panel-specific overrides only — base positioning/sizing from .panel-base */
 #negotiation-panel {
-  width: var(--panel-width-xlarge);
+  width: var(--panel-width-large);
   border-color: var(--color-secondary);
   z-index: var(--z-modal);
 }

@@ -2,7 +2,7 @@
 
 /* Combat Panel Styling */
 #combat-panel {
-  width: var(--panel-width-xlarge);
+  width: var(--panel-width-large);
   border-color: var(--color-critical);
 }
 
