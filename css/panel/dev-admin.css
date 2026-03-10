@@ -108,6 +108,12 @@
   border-radius: 4px;
   color: white;
   font-size: 13px;
+  color-scheme: dark;
+}
+
+.dev-admin-control select option {
+  background: #1a1a2e;
+  color: #e0e0e0;
 }
 
 .dev-admin-control button {
