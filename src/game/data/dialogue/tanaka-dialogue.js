@@ -493,6 +493,33 @@ export const YUKI_TANAKA_DIALOGUE = {
           return context.advanceQuest('tanaka');
         },
       },
+      {
+        text: '"Tell me more about Yumi first."',
+        next: 'mission_4_yumi_backstory',
+        repGain: 1,
+      },
+      {
+        text: '"I\'m not heading that way yet."',
+        next: 'greeting',
+      },
+    ],
+  },
+
+  mission_4_yumi_backstory: {
+    text: '"Yumi is — was — a biologist. Brilliant. She joined the Meridian colony mission ten years ago. One-way trip to Delta Pavonis." Tanaka\'s voice is carefully controlled. "She left without saying goodbye. Just a note." A pause. "This message is everything I never told her. If Vasquez can get it to the colony somehow..." She trails off. "It matters to me. More than the drive. More than any of this."',
+    choices: [
+      {
+        text: '"I\'ll get it there."',
+        next: 'mission_4_accepted',
+        repGain: 5,
+        action: (context) => {
+          return context.advanceQuest('tanaka');
+        },
+      },
+      {
+        text: '"I need some time to think about it."',
+        next: 'greeting',
+      },
     ],
   },
 

@@ -722,6 +722,43 @@ describe('NPC dialogue greetings', () => {
       expect(advanceQuest).toHaveBeenCalledWith('tanaka');
     });
 
+    it('mission_4_offer backstory choice routes to mission_4_yumi_backstory', () => {
+      const backstoryChoice = YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.find(
+        (c) => c.text.includes('Tell me more about Yumi')
+      );
+      expect(backstoryChoice).toBeDefined();
+      expect(backstoryChoice.next).toBe('mission_4_yumi_backstory');
+    });
+
+    it('mission_4_offer decline choice routes to greeting', () => {
+      const declineChoice = YUKI_TANAKA_DIALOGUE.mission_4_offer.choices.find(
+        (c) => c.text.includes('not heading that way')
+      );
+      expect(declineChoice).toBeDefined();
+      expect(declineChoice.next).toBe('greeting');
+    });
+
+    it('mission_4_yumi_backstory accept choice calls advanceQuest', () => {
+      const advanceQuest = vi.fn().mockReturnValue({ success: true });
+      const acceptChoice =
+        YUKI_TANAKA_DIALOGUE.mission_4_yumi_backstory.choices.find(
+          (c) => c.action
+        );
+      expect(acceptChoice).toBeDefined();
+      acceptChoice.action({ advanceQuest });
+      expect(advanceQuest).toHaveBeenCalledWith('tanaka');
+      expect(acceptChoice.next).toBe('mission_4_accepted');
+    });
+
+    it('mission_4_yumi_backstory decline choice routes to greeting', () => {
+      const declineChoice =
+        YUKI_TANAKA_DIALOGUE.mission_4_yumi_backstory.choices.find(
+          (c) => !c.action
+        );
+      expect(declineChoice).toBeDefined();
+      expect(declineChoice.next).toBe('greeting');
+    });
+
     it('mission_4_complete first choice calls claimStageRewards', () => {
       const claimStageRewards = vi.fn().mockReturnValue({ success: true });
       const actionChoices =
