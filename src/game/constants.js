@@ -1869,6 +1869,8 @@ export const EVENT_NAMES = Object.freeze({
   // Missions & quests
   MISSIONS_CHANGED: 'missionsChanged',
   QUEST_CHANGED: 'questChanged',
+  EXOTIC_MATTER_COLLECTED: 'exoticMatterCollected',
+  EXOTIC_MATTER_ALREADY_SAMPLED: 'exoticMatterAlreadySampled',
 
   // Intelligence
   INTELLIGENCE_CHANGED: 'intelligenceChanged',

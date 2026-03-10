@@ -119,6 +119,33 @@ export default function App({ devMode = false }) {
     }
   }, [saveFailedEvent, notificationCtx]);
 
+  // Exotic matter scanner feedback during docking
+  useEffect(() => {
+    if (!game || !notificationCtx) return;
+
+    const handleCollected = (data) => {
+      notificationCtx.showInfo(
+        `Scanner: Exotic matter detected. Sample collected. [${data.count}/${data.total}]`
+      );
+    };
+    const handleAlreadySampled = () => {
+      notificationCtx.showInfo('Scanner: Already sampled this station.');
+    };
+
+    game.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
+    game.subscribe(
+      EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+      handleAlreadySampled
+    );
+    return () => {
+      game.unsubscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
+      game.unsubscribe(
+        EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
+        handleAlreadySampled
+      );
+    };
+  }, [game, notificationCtx]);
+
   // Determine if system panel should be shown
   // Show when a system is selected (regardless of view mode)
   // System Info should always be accessible, even when panels are open

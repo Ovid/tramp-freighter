@@ -322,7 +322,10 @@ export class QuestManager extends BaseManager {
     if (distance < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
 
     if (!tanakaState.data.exoticStations) tanakaState.data.exoticStations = [];
-    if (tanakaState.data.exoticStations.includes(systemId)) return;
+    if (tanakaState.data.exoticStations.includes(systemId)) {
+      this.capabilities.emit(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED);
+      return;
+    }
 
     if (rngFn() >= ENDGAME_CONFIG.STAGE_2_EXOTIC_CHANCE) return;
 
@@ -331,6 +334,10 @@ export class QuestManager extends BaseManager {
       (tanakaState.data.exoticMaterials || 0) + 1;
     const quests = this.capabilities.getOwnState();
     this.capabilities.emit(EVENT_NAMES.QUEST_CHANGED, { ...quests });
+    this.capabilities.emit(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, {
+      count: tanakaState.data.exoticMaterials,
+      total: ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED,
+    });
     this.capabilities.markDirty();
   }
 }

@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { TANAKA_QUEST } from '../../src/game/data/quest-definitions.js';
+import { EVENT_NAMES, ENDGAME_CONFIG } from '../../src/game/constants.js';
 import { createTestGame } from '../test-utils.js';
 
 describe('Stats initialization', () => {
@@ -459,6 +460,54 @@ describe('Exotic material collection', () => {
     expect(
       manager.getQuestState('tanaka').data.exoticMaterials
     ).toBeUndefined();
+  });
+});
+
+describe('Exotic matter scanner feedback', () => {
+  let manager;
+
+  beforeEach(() => {
+    manager = createTestGame();
+    manager.advanceQuest('tanaka');
+    manager.advanceQuest('tanaka');
+  });
+
+  it('emits EXOTIC_MATTER_COLLECTED when exotic matter is found', () => {
+    const collected = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, collected);
+
+    manager.questManager.onDock(4, () => 0);
+
+    expect(collected).toHaveBeenCalledWith(
+      expect.objectContaining({
+        count: 1,
+        total: ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED,
+      })
+    );
+  });
+
+  it('emits EXOTIC_MATTER_ALREADY_SAMPLED for previously sampled stations', () => {
+    const alreadySampled = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED, alreadySampled);
+
+    manager.questManager.onDock(4, () => 0);
+    manager.questManager.onDock(4, () => 0);
+
+    expect(alreadySampled).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not emit scanner events when not at stage 2', () => {
+    const collected = vi.fn();
+    const alreadySampled = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, collected);
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED, alreadySampled);
+
+    manager.advanceQuest('tanaka'); // stage 3
+
+    manager.questManager.onDock(4, () => 0);
+
+    expect(collected).not.toHaveBeenCalled();
+    expect(alreadySampled).not.toHaveBeenCalled();
   });
 });
 
