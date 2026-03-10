@@ -174,7 +174,7 @@ export class InformationBroker {
       visitedCount >= ENDGAME_CONFIG.BARNARDS_ENGINEER_RUMOR_SYSTEMS &&
       rng.next() < ENDGAME_CONFIG.INFO_BROKER_TANAKA_CHANCE
     ) {
-      return "There's an engineer at Barnard's Star — Tanaka, I think. Works on experimental drive tech. Doesn't talk to just anyone, though.";
+      return "There's an engineer at Barnard's Star — Tanaka. Works on drive tech that could push ships beyond the known lanes. Doesn't talk to just anyone, though.";
     }
 
     // If there are active events, 50% chance to hint about one
