@@ -57,6 +57,17 @@ export const TEST_STAR_DATA = [
     st: 5,
     r: 1,
   },
+  {
+    id: 99,
+    x: 230,
+    y: 0,
+    z: 0,
+    name: 'Distant Star',
+    type: 'K0',
+    wh: 2,
+    st: 3,
+    r: 1,
+  },
 ];
 
 export const TEST_WORMHOLE_DATA = [

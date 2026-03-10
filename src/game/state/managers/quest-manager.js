@@ -4,6 +4,7 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
   TANAKA_SUPPLY_CONFIG,
+  calculateDistanceFromSol,
 } from '../../constants.js';
 
 export class QuestManager extends BaseManager {
@@ -311,15 +312,10 @@ export class QuestManager extends BaseManager {
 
     const starData = this.capabilities.starData;
     const system = starData.find((s) => s.id === systemId);
-    const sol = starData.find((s) => s.id === 0);
-    if (!system || !sol) return;
+    if (!system) return;
 
-    const distance = Math.sqrt(
-      (system.x - sol.x) ** 2 +
-        (system.y - sol.y) ** 2 +
-        (system.z - sol.z) ** 2
-    );
-    if (distance < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
+    const distanceLY = calculateDistanceFromSol(system);
+    if (distanceLY < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
 
     if (!tanakaState.data.exoticStations) tanakaState.data.exoticStations = [];
     if (tanakaState.data.exoticStations.includes(systemId)) {
