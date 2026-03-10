@@ -608,7 +608,9 @@ export const YUKI_TANAKA_DIALOGUE = {
           '"I can use these. The drive prototype consumes components faster than I projected."',
         ];
       }
-      const rng = new SeededRandom(`tanaka-research-supply-${context.daysElapsed}`);
+      const rng = new SeededRandom(
+        `tanaka-research-supply-${context.daysElapsed}`
+      );
       return rng.pickRandom(lines);
     },
     choices: [
