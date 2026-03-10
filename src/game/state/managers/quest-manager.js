@@ -318,6 +318,11 @@ export class QuestManager extends BaseManager {
     if (distanceLY < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
 
     if (!tanakaState.data.exoticStations) tanakaState.data.exoticStations = [];
+    if (
+      (tanakaState.data.exoticMaterials || 0) >=
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
+    )
+      return;
     if (tanakaState.data.exoticStations.includes(systemId)) {
       this.capabilities.emit(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED);
       return;

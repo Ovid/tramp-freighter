@@ -461,9 +461,21 @@ describe('Exotic material collection', () => {
     expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
   });
 
+  it('does not collect past the required amount', () => {
+    manager.updateQuestData(
+      'tanaka',
+      'exoticMaterials',
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
+    );
+    manager.questManager.onDock(99, () => 0);
+    expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
+    );
+  });
+
   it('does not collect when quest is not at stage 2', () => {
     manager.advanceQuest('tanaka'); // stage 3
-    manager.questManager.onDock(4, () => 0);
+    manager.questManager.onDock(99, () => 0);
     expect(
       manager.getQuestState('tanaka').data.exoticMaterials
     ).toBeUndefined();
