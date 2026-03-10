@@ -9,7 +9,12 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'node',
+    environmentMatchGlobs: [
+      ['**/*.test.jsx', 'jsdom'],
+      ['tests/property/hud-condition-bar-*.property.test.js', 'jsdom'],
+      ['tests/unit/modal-dialog.test.js', 'jsdom'],
+    ],
     setupFiles: './tests/setup.js',
     exclude: [...configDefaults.exclude, '**/.worktrees/**'],
     coverage: {
@@ -18,7 +23,6 @@ export default defineConfig({
       include: ['src/**'],
       exclude: ['node_modules/', 'tests/', '*.config.js', 'dist/'],
     },
-    // Use default reporter for cleaner output
     reporters: ['default'],
   },
 });
