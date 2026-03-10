@@ -7,6 +7,7 @@ describe('ShipManager', () => {
   let gsm;
 
   beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
     gsm = createTestGame();
@@ -55,6 +56,11 @@ describe('ShipManager', () => {
       expect(state.ship.name).toBe('Nebula Runner');
       expect(events).toHaveLength(1);
       expect(events[0]).toBe('Nebula Runner');
+    });
+
+    it('sets sanitized ship name with whitespace trimmed', () => {
+      gsm.shipManager.updateShipName('  My Ship  ');
+      expect(gsm.state.ship.name).toBe('My Ship');
     });
   });
 
@@ -125,6 +131,13 @@ describe('ShipManager', () => {
       expect(def.effects.fuelConsumption).toBe(0.85);
     });
 
+    it('getQuirkDefinition returns definition with effects property', () => {
+      const quirkId = Object.keys(SHIP_CONFIG.QUIRKS)[0];
+      const def = gsm.shipManager.getQuirkDefinition(quirkId);
+      expect(def).toBeDefined();
+      expect(def).toHaveProperty('effects');
+    });
+
     it('getQuirkDefinition returns null for invalid ID', () => {
       const def = gsm.shipManager.getQuirkDefinition('nonexistent');
       expect(def).toBeNull();
@@ -161,6 +174,14 @@ describe('ShipManager', () => {
       expect(result.reason).toBe('Unknown quirk');
     });
 
+    it('addQuirk adds valid quirk via dynamic ID', () => {
+      const quirkId = Object.keys(SHIP_CONFIG.QUIRKS)[0];
+      gsm.state.ship.quirks = [];
+      const result = gsm.shipManager.addQuirk(quirkId);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.quirks).toContain(quirkId);
+    });
+
     it('removeQuirk removes and emits event', () => {
       const state = gsm.getState();
       state.ship.quirks = ['leaky_seals', 'hot_thruster'];
@@ -184,6 +205,14 @@ describe('ShipManager', () => {
       const result = gsm.shipManager.removeQuirk('fuel_sipper');
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Quirk not installed');
+    });
+
+    it('removeQuirk removes installed quirk via dynamic ID', () => {
+      const quirkId = Object.keys(SHIP_CONFIG.QUIRKS)[0];
+      gsm.state.ship.quirks = [quirkId];
+      const result = gsm.shipManager.removeQuirk(quirkId);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.quirks).not.toContain(quirkId);
     });
   });
 
@@ -296,6 +325,34 @@ describe('ShipManager', () => {
       expect(result.reason).toBe('Insufficient credits');
     });
 
+    it('validateUpgradePurchase returns invalid for unknown via dynamic ID', () => {
+      const result = gsm.shipManager.validateUpgradePurchase('fake');
+      expect(result.valid).toBe(false);
+    });
+
+    it('validateUpgradePurchase returns invalid for already installed via dynamic ID', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [upgradeId];
+      const result = gsm.shipManager.validateUpgradePurchase(upgradeId);
+      expect(result.valid).toBe(false);
+    });
+
+    it('validateUpgradePurchase returns invalid for zero credits via dynamic ID', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [];
+      gsm.state.player.credits = 0;
+      const result = gsm.shipManager.validateUpgradePurchase(upgradeId);
+      expect(result.valid).toBe(false);
+    });
+
+    it('validateUpgradePurchase returns valid when all conditions met via dynamic ID', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [];
+      gsm.state.player.credits = 999999;
+      const result = gsm.shipManager.validateUpgradePurchase(upgradeId);
+      expect(result.valid).toBe(true);
+    });
+
     it('purchaseUpgrade deducts credits and installs', () => {
       const state = gsm.getState();
       state.player.credits = 10000;
@@ -327,6 +384,89 @@ describe('ShipManager', () => {
       expect(events[0]).toContain('extended_tank');
     });
 
+    it('purchaseUpgrade returns failure for unknown upgrade', () => {
+      const result = gsm.shipManager.purchaseUpgrade('fake_upgrade');
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Unknown upgrade');
+    });
+
+    it('purchaseUpgrade returns failure for already installed', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [upgradeId];
+      const result = gsm.shipManager.purchaseUpgrade(upgradeId);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Already installed');
+    });
+
+    it('purchaseUpgrade returns failure for insufficient credits', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [];
+      gsm.state.player.credits = 0;
+      const result = gsm.shipManager.purchaseUpgrade(upgradeId);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Insufficient credits');
+    });
+
+    it('purchaseUpgrade deducts credits and installs via dynamic ID', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
+      gsm.state.ship.upgrades = [];
+      gsm.state.player.credits = upgrade.cost + 1000;
+      const creditsBefore = gsm.state.player.credits;
+      const result = gsm.shipManager.purchaseUpgrade(upgradeId);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.upgrades).toContain(upgradeId);
+      expect(gsm.state.player.credits).toBe(creditsBefore - upgrade.cost);
+    });
+
+    it('addUpgrade returns failure for unknown upgrade', () => {
+      const result = gsm.shipManager.addUpgrade('fake_upgrade');
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Unknown upgrade');
+    });
+
+    it('addUpgrade returns failure for already installed upgrade', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [upgradeId];
+      const result = gsm.shipManager.addUpgrade(upgradeId);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Upgrade already installed');
+    });
+
+    it('addUpgrade installs upgrade and updates capabilities', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [];
+      const result = gsm.shipManager.addUpgrade(upgradeId);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.upgrades).toContain(upgradeId);
+    });
+
+    it('removeUpgrade returns failure for upgrade not installed', () => {
+      gsm.state.ship.upgrades = [];
+      const result = gsm.shipManager.removeUpgrade('fake_upgrade');
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Upgrade not installed');
+    });
+
+    it('removeUpgrade removes installed upgrade', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      gsm.state.ship.upgrades = [upgradeId];
+      const result = gsm.shipManager.removeUpgrade(upgradeId);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.upgrades).not.toContain(upgradeId);
+    });
+
+    it('getUpgradeDefinition returns definition for valid upgrade', () => {
+      const upgradeId = Object.keys(SHIP_CONFIG.UPGRADES)[0];
+      const def = gsm.shipManager.getUpgradeDefinition(upgradeId);
+      expect(def).toBeDefined();
+      expect(def).toHaveProperty('cost');
+    });
+
+    it('getUpgradeDefinition returns null for unknown upgrade', () => {
+      expect(gsm.shipManager.getUpgradeDefinition('fake')).toBeNull();
+    });
+
     it('calculateShipCapabilities with no upgrades returns base values', () => {
       const state = gsm.getState();
       state.ship.upgrades = [];
@@ -351,6 +491,13 @@ describe('ShipManager', () => {
       expect(capabilities.cargoCapacity).toBe(
         50 + SHIP_CONFIG.UPGRADES.expanded_hold.effects.cargoCapacity
       );
+    });
+
+    it('calculateShipCapabilities warns for unknown upgrade ID', () => {
+      gsm.state.ship.upgrades = ['nonexistent_upgrade'];
+      const warnSpy = vi.spyOn(gsm.shipManager, 'warn');
+      gsm.shipManager.calculateShipCapabilities();
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('getFuelCapacity returns 100 base, 250 with extended_tank', () => {
@@ -429,6 +576,79 @@ describe('ShipManager', () => {
       expect(result.reason).toBe('Good not found in cargo');
     });
 
+    it('moveToHiddenCargo fails when quantity exceeds available', () => {
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 10, buyPrice: 200 }];
+      gsm.state.ship.hiddenCargo = [];
+      const smugglingUpgrade = Object.entries(SHIP_CONFIG.UPGRADES).find(
+        ([, u]) => u.effects.hiddenCargoCapacity > 0
+      );
+      if (smugglingUpgrade) {
+        gsm.state.ship.upgrades = [smugglingUpgrade[0]];
+      }
+
+      const result = gsm.shipManager.moveToHiddenCargo('electronics', 20);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Not enough quantity in cargo');
+    });
+
+    it('moveToHiddenCargo fails when hidden cargo is full', () => {
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 10, buyPrice: 200 }];
+      gsm.state.ship.hiddenCargo = [];
+      const smugglingUpgrade = Object.entries(SHIP_CONFIG.UPGRADES).find(
+        ([, u]) => u.effects.hiddenCargoCapacity > 0
+      );
+      if (smugglingUpgrade) {
+        gsm.state.ship.upgrades = [smugglingUpgrade[0]];
+      }
+
+      // Fill hidden cargo capacity
+      const capabilities = gsm.shipManager.calculateShipCapabilities();
+      gsm.state.ship.hiddenCargo = [
+        { good: 'ore', qty: capabilities.hiddenCargoCapacity, buyPrice: 100 },
+      ];
+      const result = gsm.shipManager.moveToHiddenCargo('electronics', 1);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Not enough hidden cargo space');
+    });
+
+    it('moveToHiddenCargo moves cargo to hidden compartment', () => {
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 10, buyPrice: 200 }];
+      gsm.state.ship.hiddenCargo = [];
+      const smugglingUpgrade = Object.entries(SHIP_CONFIG.UPGRADES).find(
+        ([, u]) => u.effects.hiddenCargoCapacity > 0
+      );
+      if (smugglingUpgrade) {
+        gsm.state.ship.upgrades = [smugglingUpgrade[0]];
+      }
+
+      const capabilities = gsm.shipManager.calculateShipCapabilities();
+      if (capabilities.hiddenCargoCapacity > 0) {
+        const result = gsm.shipManager.moveToHiddenCargo('electronics', 3);
+        expect(result.success).toBe(true);
+        expect(gsm.state.ship.cargo[0].qty).toBe(7);
+        expect(gsm.state.ship.hiddenCargo).toHaveLength(1);
+        expect(gsm.state.ship.hiddenCargo[0].qty).toBe(3);
+      }
+    });
+
+    it('moveToHiddenCargo removes cargo stack when fully moved', () => {
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 10, buyPrice: 200 }];
+      gsm.state.ship.hiddenCargo = [];
+      const smugglingUpgrade = Object.entries(SHIP_CONFIG.UPGRADES).find(
+        ([, u]) => u.effects.hiddenCargoCapacity > 0
+      );
+      if (smugglingUpgrade) {
+        gsm.state.ship.upgrades = [smugglingUpgrade[0]];
+      }
+
+      const capabilities = gsm.shipManager.calculateShipCapabilities();
+      if (capabilities.hiddenCargoCapacity >= 10) {
+        const result = gsm.shipManager.moveToHiddenCargo('electronics', 10);
+        expect(result.success).toBe(true);
+        expect(gsm.state.ship.cargo).toHaveLength(0);
+      }
+    });
+
     it('moveToRegularCargo succeeds', () => {
       const state = gsm.getState();
       state.ship.upgrades = [];
@@ -487,6 +707,77 @@ describe('ShipManager', () => {
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough regular cargo space');
     });
+
+    it('moveToRegularCargo fails when good not found in hidden cargo', () => {
+      gsm.state.ship.cargo = [];
+      gsm.state.ship.hiddenCargo = [
+        { good: 'electronics', qty: 5, buyPrice: 200 },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo('grain', 5);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Good not found in hidden cargo');
+    });
+
+    it('moveToRegularCargo fails when quantity exceeds available', () => {
+      gsm.state.ship.cargo = [];
+      gsm.state.ship.hiddenCargo = [
+        { good: 'electronics', qty: 5, buyPrice: 200 },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo('electronics', 20);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Not enough quantity in hidden cargo');
+    });
+
+    it('moveToRegularCargo moves cargo from hidden to regular', () => {
+      gsm.state.ship.cargo = [];
+      gsm.state.ship.hiddenCargo = [
+        { good: 'electronics', qty: 5, buyPrice: 200 },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo('electronics', 3);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.hiddenCargo[0].qty).toBe(2);
+      expect(gsm.state.ship.cargo).toHaveLength(1);
+      expect(gsm.state.ship.cargo[0].qty).toBe(3);
+    });
+
+    it('moveToRegularCargo removes hidden cargo stack when fully moved', () => {
+      gsm.state.ship.cargo = [];
+      gsm.state.ship.hiddenCargo = [
+        { good: 'electronics', qty: 5, buyPrice: 200 },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo('electronics', 5);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.hiddenCargo).toHaveLength(0);
+    });
+
+    it('moveToRegularCargo consolidates into existing regular cargo stack', () => {
+      gsm.state.ship.cargo = [{ good: 'electronics', qty: 3, buyPrice: 200 }];
+      gsm.state.ship.hiddenCargo = [
+        { good: 'electronics', qty: 5, buyPrice: 200 },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo('electronics', 2);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.cargo).toHaveLength(1);
+      expect(gsm.state.ship.cargo[0].qty).toBe(5);
+    });
+
+    it('clearHiddenCargo clears hidden cargo array', () => {
+      gsm.state.ship.hiddenCargo = [{ good: 'ore', qty: 5 }];
+      gsm.shipManager.clearHiddenCargo();
+      expect(gsm.state.ship.hiddenCargo).toEqual([]);
+    });
+
+    it('getHiddenCargo returns hidden cargo array', () => {
+      gsm.state.ship.hiddenCargo = [{ good: 'ore', qty: 5 }];
+      expect(gsm.shipManager.getHiddenCargo()).toEqual([
+        { good: 'ore', qty: 5 },
+      ]);
+    });
   });
 
   describe('removeCargoForMission', () => {
@@ -537,6 +828,27 @@ describe('ShipManager', () => {
       const result = gsm.shipManager.removeCargoForMission('grain', 50);
       expect(result.success).toBe(false);
       expect(result.reason).toContain('Not enough');
+    });
+
+    it('removes cargo across multiple stacks', () => {
+      gsm.state.ship.cargo = [
+        { good: 'ore', qty: 5, buyPrice: 100 },
+        { good: 'grain', qty: 10, buyPrice: 50 },
+        { good: 'ore', qty: 5, buyPrice: 200 },
+      ];
+      const result = gsm.shipManager.removeCargoForMission('ore', 8);
+      expect(result.success).toBe(true);
+      const oreRemaining = gsm.state.ship.cargo
+        .filter((c) => c.good === 'ore')
+        .reduce((sum, c) => sum + c.qty, 0);
+      expect(oreRemaining).toBe(2);
+    });
+
+    it('removes stacks entirely when depleted', () => {
+      gsm.state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 100 }];
+      const result = gsm.shipManager.removeCargoForMission('ore', 5);
+      expect(result.success).toBe(true);
+      expect(gsm.state.ship.cargo).toHaveLength(0);
     });
   });
 });
