@@ -1,5 +1,7 @@
 # TODO
 
+- Accepted tip from wealthy passenger (mission). At the end of the same
+  mission, they tipped me again. Too much money.
 - We have various types of popups that occur while travelling: distress calls,
   pirate attacks, custom checks. Are they reusing an interface? Can we make
   them more consistent?
