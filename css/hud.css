@@ -10,8 +10,8 @@
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   background-color: var(--bg-overlay-darker);
-  border: 2px solid var(--border-primary);
-  border-radius: var(--section-border-radius);
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
   padding: var(--section-padding);
   font-family: var(--font-family-mono);
   color: var(--color-primary);
@@ -516,8 +516,8 @@
   width: 400px;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.95);
-  border: 3px solid #00ff88;
-  border-radius: 8px;
+  border: var(--panel-border-width) solid var(--border-primary);
+  border-radius: var(--panel-border-radius);
   color: #ffffff;
   font-size: 14px;
   display: none;
