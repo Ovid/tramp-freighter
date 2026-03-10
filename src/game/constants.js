@@ -1897,6 +1897,85 @@ export const EVENT_NAMES = Object.freeze({
   SAVE_FAILED: 'saveFailed',
 });
 
+/**
+ * Declarative mapping from event names to state extraction functions.
+ *
+ * Each entry maps an EVENT_NAME to a function (state) => value that extracts
+ * the relevant slice of game state for that event. Used by useGameEvent to
+ * initialize component state from the current game state.
+ *
+ * Events NOT listed here are "direct-data" events: they pass data through
+ * the event payload rather than extracting from state (e.g., ENCOUNTER_TRIGGERED,
+ * CONDITION_WARNING, SAVE_FAILED, animation/signal events).
+ */
+export const EVENT_STATE_MAP = {
+  // Player resources
+  [EVENT_NAMES.CREDITS_CHANGED]: (state) => state.player.credits,
+  [EVENT_NAMES.DEBT_CHANGED]: (state) => state.player.debt,
+  [EVENT_NAMES.FINANCE_CHANGED]: (state) => state.player.finance || null,
+
+  // Ship systems
+  [EVENT_NAMES.FUEL_CHANGED]: (state) => state.ship.fuel,
+  [EVENT_NAMES.SHIP_CONDITION_CHANGED]: (state) => ({
+    hull: state.ship.hull,
+    engine: state.ship.engine,
+    lifeSupport: state.ship.lifeSupport,
+  }),
+  [EVENT_NAMES.HULL_CHANGED]: (state) => state.ship.hull,
+  [EVENT_NAMES.ENGINE_CHANGED]: (state) => state.ship.engine,
+  [EVENT_NAMES.LIFE_SUPPORT_CHANGED]: (state) => state.ship.lifeSupport,
+  [EVENT_NAMES.SHIP_NAME_CHANGED]: (state) => state.ship.name,
+
+  // Cargo & inventory
+  [EVENT_NAMES.CARGO_CHANGED]: (state) => state.ship.cargo,
+  [EVENT_NAMES.CARGO_CAPACITY_CHANGED]: (state) => state.ship.cargoCapacity,
+  [EVENT_NAMES.HIDDEN_CARGO_CHANGED]: (state) => state.ship.hiddenCargo,
+
+  // Navigation & location
+  [EVENT_NAMES.LOCATION_CHANGED]: (state) => state.player.currentSystem,
+  [EVENT_NAMES.CURRENT_SYSTEM_CHANGED]: (state) => state.player.currentSystem,
+
+  // Time & events
+  [EVENT_NAMES.TIME_CHANGED]: (state) => state.player.daysElapsed,
+  [EVENT_NAMES.ACTIVE_EVENTS_CHANGED]: (state) => state.world.activeEvents,
+
+  // Economy & trading
+  [EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED]: (state) => state.world.priceKnowledge,
+
+  // Upgrades & quirks
+  [EVENT_NAMES.UPGRADES_CHANGED]: (state) => state.ship.upgrades,
+  [EVENT_NAMES.QUIRKS_CHANGED]: (state) => state.ship.quirks,
+
+  // Dialogue & NPCs
+  [EVENT_NAMES.DIALOGUE_CHANGED]: (state) => state.dialogue,
+  [EVENT_NAMES.NPCS_CHANGED]: (state) => state.npcs || {},
+
+  // Factions & karma
+  [EVENT_NAMES.FACTION_REP_CHANGED]: (state) => state.player.factions || {},
+  [EVENT_NAMES.KARMA_CHANGED]: (state) => state.player.karma || 0,
+
+  // Missions & quests
+  [EVENT_NAMES.MISSIONS_CHANGED]: (state) =>
+    state.missions || {
+      active: [],
+      completed: [],
+      failed: [],
+      board: [],
+      boardLastRefresh: 0,
+      pendingFailureNotices: [],
+    },
+  [EVENT_NAMES.QUEST_CHANGED]: (state) => state.quests || {},
+
+  // Intelligence
+  [EVENT_NAMES.INTELLIGENCE_CHANGED]: (state) => state.world.intelligence || {},
+
+  // Achievements
+  [EVENT_NAMES.ACHIEVEMENTS_CHANGED]: (state) => state.achievements || {},
+
+  // Preferences
+  [EVENT_NAMES.PREFERENCES_CHANGED]: (state) => state.preferences || {},
+};
+
 export const CREDITS_CONFIG = Object.freeze({
   SCROLL_SPEED_PX_PER_SEC: 25,
   FADE_OUT_MS: 2000,
