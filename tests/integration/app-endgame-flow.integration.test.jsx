@@ -4,7 +4,7 @@ import { GameProvider } from '../../src/context/GameContext';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
-import { EVENT_NAMES } from '../../src/game/constants';
+import { EVENT_NAMES, ENDGAME_CONFIG } from '../../src/game/constants';
 import App from '../../src/App';
 
 // Mock scene to avoid WebGL in jsdom
@@ -254,7 +254,6 @@ describe('Endgame Flow Integration', () => {
 
     expect(screen.queryByTestId('pavonis-run')).not.toBeInTheDocument();
 
-    // devTeleport should have been called with DELTA_PAVONIS_ID (115)
-    expect(devTeleportSpy).toHaveBeenCalledWith(115);
+    expect(devTeleportSpy).toHaveBeenCalledWith(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
   });
 });
