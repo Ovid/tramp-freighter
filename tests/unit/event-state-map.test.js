@@ -64,7 +64,7 @@ describe('EVENT_STATE_MAP', () => {
       },
       ship: {
         fuel: 80,
-        cargo: [{ good: 'ore', quantity: 5 }],
+        cargo: [{ good: 'ore', qty: 5, buyPrice: 10 }],
         cargoCapacity: 100,
         hiddenCargo: [],
         hull: 90,
@@ -102,7 +102,7 @@ describe('EVENT_STATE_MAP', () => {
     );
     expect(EVENT_STATE_MAP[EVENT_NAMES.TIME_CHANGED](mockState)).toBe(42);
     expect(EVENT_STATE_MAP[EVENT_NAMES.CARGO_CHANGED](mockState)).toEqual([
-      { good: 'ore', quantity: 5 },
+      { good: 'ore', qty: 5, buyPrice: 10 },
     ]);
     expect(EVENT_STATE_MAP[EVENT_NAMES.CARGO_CAPACITY_CHANGED](mockState)).toBe(
       100
