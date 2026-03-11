@@ -7,6 +7,7 @@ import {
   act,
 } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
+import { NotificationProvider } from '../../src/context/NotificationContext';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
@@ -94,12 +95,15 @@ vi.mock('../../src/game/engine/game-animation', () => {
   };
 });
 
-// Mock SystemPanel to expose onJumpStart without needing full starmap context
+// Mock SystemPanel to expose onJumpStart and onJumpComplete without needing full starmap context
 vi.mock('../../src/features/navigation/SystemPanel', () => ({
-  SystemPanel: ({ onJumpStart }) => (
+  SystemPanel: ({ onJumpStart, onJumpComplete }) => (
     <div data-testid="mock-system-panel">
       <button onClick={onJumpStart} data-testid="mock-jump-start">
         Mock Jump Start
+      </button>
+      <button onClick={onJumpComplete} data-testid="mock-jump-complete">
+        Mock Jump Complete
       </button>
     </div>
   ),
@@ -302,5 +306,137 @@ describe('Encounter Buffering During Jump Animations', () => {
         eventName === EVENT_NAMES.JUMP_ANIMATION_NEAR_END && fn === handler
     );
     expect(nearEndUnsubscriptions.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should clear viewingSystemId and deselect star on jump complete', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+
+    // Open SystemPanel via System Info button
+    const systemInfoBtn = screen.getByText('System Info');
+    fireEvent.click(systemInfoBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-system-panel')).toBeInTheDocument();
+    });
+
+    // Trigger jump start (sets jumpInProgressRef = true)
+    fireEvent.click(screen.getByTestId('mock-jump-start'));
+
+    // SystemPanel should still be visible during jump (viewingSystemId not yet cleared)
+    // Note: viewMode changes to ORBIT but showSystemPanel depends on viewingSystemId
+    // After jump start, viewingSystemId is still set
+
+    // Complete the jump — should clear viewingSystemId and deselect star
+    fireEvent.click(screen.getByTestId('mock-jump-complete'));
+
+    // SystemPanel should disappear because viewingSystemId is set to null
+    await waitFor(() => {
+      expect(screen.queryByTestId('mock-system-panel')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should reveal buffered encounter on jump complete as safety fallback', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+
+    // Open SystemPanel via System Info button
+    const systemInfoBtn = screen.getByText('System Info');
+    fireEvent.click(systemInfoBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-system-panel')).toBeInTheDocument();
+    });
+
+    // Trigger jump start (sets jumpInProgressRef = true)
+    fireEvent.click(screen.getByTestId('mock-jump-start'));
+
+    // Emit encounter while jump is in progress — should be buffered
+    act(() => {
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, pirateEncounterData);
+    });
+
+    expect(screen.queryByText('Pirate Encounter')).not.toBeInTheDocument();
+
+    // Complete the jump without near-end event — safety fallback should reveal encounter
+    fireEvent.click(screen.getByTestId('mock-jump-complete'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Pirate Encounter')).toBeInTheDocument();
+    });
+  });
+
+  it('should show salvage notifications when encounter outcome produces salvage messages', async () => {
+    render(
+      <GameProvider game={game}>
+        <NotificationProvider>
+          <App devMode={true} />
+        </NotificationProvider>
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+
+    // Fill the cargo hold to near capacity so salvage messages are triggered
+    const state = game.getState();
+    const nearFullCargo = [
+      { good: 'grain', qty: state.ship.cargoCapacity - 1, buyPrice: 10 },
+    ];
+    game.updateCargo(nearFullCargo);
+
+    // Emit a distress call encounter
+    const distressCallData = {
+      type: 'distress_call',
+      encounter: {
+        id: 'dist_salvage_test',
+        severity: 'moderate',
+        type: 'mechanical',
+        description: 'A civilian transport needs help.',
+        vesselType: 'Civilian Transport',
+        crewCount: '3 persons',
+        timeElapsed: '1 hour',
+        choices: [{ id: 'loot', label: 'Loot' }],
+      },
+    };
+
+    act(() => {
+      game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, distressCallData);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Distress Call')).toBeInTheDocument();
+    });
+
+    // Select "Salvage the Wreck" (loot choice)
+    fireEvent.click(screen.getByText('Salvage the Wreck'));
+
+    // Confirm the choice
+    await waitFor(() => {
+      expect(
+        screen.getByText('Salvage the Wreck', {
+          selector: 'button.distress-btn',
+        })
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(
+      screen.getByText('Salvage the Wreck', { selector: 'button.distress-btn' })
+    );
+
+    // Salvage notification should appear — only 1 of 2 parts fit
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Could only fit 1 of 2 units/)
+      ).toBeInTheDocument();
+    });
   });
 });

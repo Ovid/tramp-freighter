@@ -1,5 +1,9 @@
 # TODO
 
+- Except for the HUD, every panel should be dismissable by clicking outside of
+  it. (But check for exceptions)
+- Go through and validate all mocks truly match what they're mocking.
+  Ruthlessly remove any mocks that aren't really needed.
 - Accepted tip from wealthy passenger (mission). At the end of the same
   mission, they tipped me again. Too much money.
 - "Lucky" Liu, a gambler NPC who offers gambling tips and occasional insider

@@ -86,6 +86,7 @@ export class NPCManager extends BaseManager {
         storedCargo: [],
         lastFreeRepairDay: null,
       };
+      this.capabilities.markDirty();
     }
 
     return npcs[npcId];

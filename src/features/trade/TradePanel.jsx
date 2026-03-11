@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameAction } from '../../hooks/useGameAction';
+import { useTradeActions } from '../../hooks/useTradeActions';
+import { useShipActions } from '../../hooks/useShipActions';
 import { useStarData } from '../../hooks/useStarData';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import {
@@ -48,15 +49,12 @@ export function TradePanel({ onClose }) {
   const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
-  // Get game actions
-  const {
-    buyGood,
-    sellGood,
-    moveToHiddenCargo,
-    moveToRegularCargo,
-    recordVisitedPrices,
-    getCurrentSystemPrices,
-  } = useGameAction();
+  // Get trade actions from domain hook
+  const { buyGood, sellGood, recordVisitedPrices, getCurrentSystemPrices } =
+    useTradeActions();
+
+  // Get ship actions for hidden cargo transfers
+  const { moveToHiddenCargo, moveToRegularCargo } = useShipActions();
 
   // Update price knowledge when panel opens (records "Visited" data)
   useEffect(() => {

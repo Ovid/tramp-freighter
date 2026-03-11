@@ -15,17 +15,12 @@ import { InspectionPanel } from './features/danger/InspectionPanel';
 import { MechanicalFailurePanel } from './features/danger/MechanicalFailurePanel';
 import { DistressCallPanel } from './features/danger/DistressCallPanel';
 import { OutcomePanel } from './features/danger/OutcomePanel';
-import { transformOutcomeForDisplay } from './features/danger/transformOutcome';
-import { applyEncounterOutcome } from './features/danger/applyEncounterOutcome';
 import { useGame } from './context/GameContext';
 import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
-import {
-  EVENT_NAMES,
-  NEGOTIATION_CONFIG,
-  ENDGAME_CONFIG,
-} from './game/constants.js';
+import { useEncounterOrchestration } from './hooks/useEncounterOrchestration';
+import { EVENT_NAMES, ENDGAME_CONFIG } from './game/constants.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -79,6 +74,20 @@ export default function App({ devMode = false }) {
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const saveFailedEvent = useGameEvent(EVENT_NAMES.SAVE_FAILED);
   useEventTriggers();
+
+  const {
+    currentEncounter,
+    encounterOutcome,
+    encounterPhase,
+    combatContext,
+    handleEncounterChoice,
+    handleEncounterClose,
+    handleOutcomeContinue,
+    handleJumpStart: encounterJumpStart,
+    handleJumpComplete: encounterJumpComplete,
+    registerSetViewMode,
+  } = useEncounterOrchestration(game, notificationCtx, encounterEvent);
+
   const starmapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
@@ -87,13 +96,6 @@ export default function App({ devMode = false }) {
   const [showDevAdmin, setShowDevAdmin] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [viewingSystemId, setViewingSystemId] = useState(null);
-  const [currentEncounter, setCurrentEncounter] = useState(null);
-  const [encounterOutcome, setEncounterOutcome] = useState(null);
-  const [encounterPhase, setEncounterPhase] = useState('initial');
-  const [combatContext, setCombatContext] = useState(null);
-  const lastHandledEncounter = useRef(null);
-  const jumpInProgressRef = useRef(false);
-  const pendingEncounterRef = useRef(null);
   const [activeNarrativeEvent, setActiveNarrativeEvent] = useState(null);
   const lastHandledNarrative = useRef(null);
   const [postCredits, setPostCredits] = useState(() => {
@@ -111,6 +113,11 @@ export default function App({ devMode = false }) {
     selectStarById: () => {},
     deselectStar: () => {},
   });
+
+  // Register setViewMode with the encounter orchestration hook
+  useEffect(() => {
+    registerSetViewMode(setViewMode);
+  }, [registerSetViewMode]);
 
   // Surface save failures to the player
   useEffect(() => {
@@ -257,228 +264,17 @@ export default function App({ devMode = false }) {
   const handleJumpStart = () => {
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
-    jumpInProgressRef.current = true;
-    // Don't deselect star - keep selection ring visible during jump
+    encounterJumpStart();
   };
 
   // After jump, deselect star so only current system indicator is visible.
   const handleJumpComplete = () => {
     setViewingSystemId(null);
-    jumpInProgressRef.current = false;
-    // Deselect star after jump completes - we've arrived at destination
-    // Only the current system indicator (green) should be visible
     if (starmapRef.current) {
       starmapRef.current.deselectStar();
     }
-    // Safety fallback: show any encounter that wasn't revealed by near-end event
-    if (pendingEncounterRef.current) {
-      handleEncounterTriggered(pendingEncounterRef.current);
-      pendingEncounterRef.current = null;
-    }
+    encounterJumpComplete();
   };
-
-  // Handle encounter events from the danger system
-  const handleEncounterTriggered = (encounterData) => {
-    setCurrentEncounter(encounterData);
-    setEncounterPhase('initial');
-    setViewMode(VIEW_MODES.ENCOUNTER);
-  };
-
-  const handleEncounterChoice = (choice) => {
-    if (!currentEncounter) return;
-
-    // Flee from initial panel resolves immediately via evasive maneuvers
-    if (
-      currentEncounter.type === 'pirate' &&
-      encounterPhase === 'initial' &&
-      choice === 'flee'
-    ) {
-      try {
-        const outcome = game.resolveCombatChoice(
-          currentEncounter.encounter,
-          'evasive'
-        );
-        handleApplyOutcome(outcome);
-        if (outcome.success) {
-          const displayOutcome = transformOutcomeForDisplay(
-            outcome,
-            'pirate',
-            'flee'
-          );
-          setEncounterOutcome(displayOutcome);
-        } else {
-          setCombatContext({
-            fleeAttemptFailed: true,
-            hullDamage: outcome.costs?.hull ?? 0,
-            description: outcome.description,
-          });
-          setEncounterPhase('combat');
-        }
-      } catch (error) {
-        console.error('Flee resolution failed:', error);
-        setCurrentEncounter(null);
-        setEncounterOutcome(null);
-        setEncounterPhase('initial');
-        setViewMode(VIEW_MODES.ORBIT);
-      }
-      return;
-    }
-
-    // Two-step pirate encounter: route to sub-panels
-    if (currentEncounter.type === 'pirate' && encounterPhase === 'initial') {
-      if (choice === 'fight') {
-        setEncounterPhase('combat');
-        return;
-      }
-      if (choice === 'negotiate') {
-        setEncounterPhase('negotiation');
-        return;
-      }
-      // Surrender resolves immediately (falls through)
-    }
-
-    if (game.resolveEncounter) {
-      try {
-        // Route combat/negotiation sub-choices to their specific resolvers
-        let outcome;
-        if (encounterPhase === 'combat') {
-          // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
-          const combatChoice = choice === 'flee' ? 'evasive' : choice;
-          outcome = game.resolveCombatChoice(
-            currentEncounter.encounter,
-            combatChoice
-          );
-        } else if (encounterPhase === 'negotiation') {
-          if (choice === 'flee') {
-            // Breaking off negotiation to flee triggers evasive maneuvers
-            outcome = game.resolveCombatChoice(
-              currentEncounter.encounter,
-              'evasive'
-            );
-          } else {
-            outcome = game.resolveNegotiation(
-              currentEncounter.encounter,
-              choice
-            );
-          }
-        } else {
-          outcome = game.resolveEncounter(currentEncounter, choice);
-        }
-
-        // Failed negotiation escalates to combat — skip applying empty outcome
-        if (outcome.escalate) {
-          // Bump threat tier for display and apply strength modifier for combat
-          const THREAT_ESCALATION = {
-            weak: 'moderate',
-            moderate: 'strong',
-            strong: 'dangerous',
-            dangerous: 'dangerous',
-          };
-          const current = currentEncounter.encounter.threatLevel || 'moderate';
-          currentEncounter.encounter.threatLevel =
-            THREAT_ESCALATION[current] || 'strong';
-          currentEncounter.encounter.strengthModifier =
-            NEGOTIATION_CONFIG.OUTCOME_VALUES.COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
-
-          const displayOutcome = transformOutcomeForDisplay(
-            outcome,
-            currentEncounter.type,
-            choice
-          );
-          setEncounterOutcome(displayOutcome);
-          setEncounterPhase('escalated_combat');
-          return;
-        }
-
-        // Apply the resolution outcome to game state
-        handleApplyOutcome(outcome);
-
-        // Transform for OutcomePanel display
-        const displayOutcome = transformOutcomeForDisplay(
-          outcome,
-          currentEncounter.type,
-          choice
-        );
-
-        // Show OutcomePanel (stay in ENCOUNTER mode)
-        setEncounterOutcome(displayOutcome);
-        setEncounterPhase('initial');
-      } catch (error) {
-        console.error('Encounter resolution failed:', error);
-        // On error, return to orbit
-        setCurrentEncounter(null);
-        setEncounterOutcome(null);
-        setEncounterPhase('initial');
-        setViewMode(VIEW_MODES.ORBIT);
-      }
-    }
-  };
-
-  const handleEncounterClose = () => {
-    setCurrentEncounter(null);
-    setEncounterPhase('initial');
-    setCombatContext(null);
-    setViewMode(VIEW_MODES.ORBIT);
-  };
-
-  const handleOutcomeContinue = () => {
-    if (encounterPhase === 'escalated_combat') {
-      // Transition from negotiation failure to encounter panel with negotiate disabled
-      setEncounterOutcome(null);
-      setEncounterPhase('initial');
-      setCombatContext({ escalated: true });
-      return;
-    }
-    setCurrentEncounter(null);
-    setEncounterOutcome(null);
-    setEncounterPhase('initial');
-    setCombatContext(null);
-    setViewMode(VIEW_MODES.ORBIT);
-  };
-
-  const handleApplyOutcome = (outcome) => {
-    const result = applyEncounterOutcome(game, outcome);
-    if (result.salvageMessages.length > 0 && notificationCtx) {
-      result.salvageMessages.forEach((msg) => notificationCtx.showInfo(msg));
-    }
-  };
-
-  // Listen for encounter events (only process each event once)
-  // During jump animations, buffer the encounter and wait for the near-end signal
-  useEffect(() => {
-    if (
-      encounterEvent &&
-      !currentEncounter &&
-      encounterEvent !== lastHandledEncounter.current
-    ) {
-      lastHandledEncounter.current = encounterEvent;
-      if (jumpInProgressRef.current) {
-        // Buffer encounter — will be shown when animation nears completion
-        pendingEncounterRef.current = encounterEvent;
-      } else {
-        handleEncounterTriggered(encounterEvent);
-      }
-    }
-  }, [encounterEvent, currentEncounter]);
-
-  // Reveal buffered encounter when jump animation nears completion
-  useEffect(() => {
-    if (!game) return;
-
-    const handleAnimationNearEnd = () => {
-      if (pendingEncounterRef.current) {
-        handleEncounterTriggered(pendingEncounterRef.current);
-        pendingEncounterRef.current = null;
-      }
-    };
-
-    game.subscribe(EVENT_NAMES.JUMP_ANIMATION_NEAR_END, handleAnimationNearEnd);
-    return () =>
-      game.unsubscribe(
-        EVENT_NAMES.JUMP_ANIMATION_NEAR_END,
-        handleAnimationNearEnd
-      );
-  }, [game]);
 
   // Listen for narrative events (overlay — does not change viewMode)
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { REPUTATION_BOUNDS, ENDGAME_CONFIG } from '../../constants.js';
+import { SeededRandom } from '../../utils/seeded-random.js';
 
 function getRequirementHint(context, nextStage) {
   const unmet = context.getUnmetRequirements('tanaka', nextStage);
@@ -589,7 +590,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   research_supply: {
-    text: (rep) => {
+    text: (rep, context) => {
       let lines;
       if (rep >= REPUTATION_BOUNDS.NEUTRAL_HIGH) {
         lines = [
@@ -607,7 +608,10 @@ export const YUKI_TANAKA_DIALOGUE = {
           '"I can use these. The drive prototype consumes components faster than I projected."',
         ];
       }
-      return lines[Math.floor(Math.random() * lines.length)];
+      const rng = new SeededRandom(
+        `tanaka-research-supply-${context.daysElapsed}`
+      );
+      return rng.pickRandom(lines);
     },
     choices: [
       {
