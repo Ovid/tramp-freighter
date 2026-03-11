@@ -254,6 +254,8 @@ describe('Endgame Flow Integration', () => {
 
     expect(screen.queryByTestId('pavonis-run')).not.toBeInTheDocument();
 
-    expect(devTeleportSpy).toHaveBeenCalledWith(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+    expect(devTeleportSpy).toHaveBeenCalledWith(
+      ENDGAME_CONFIG.DELTA_PAVONIS_ID
+    );
   });
 });
