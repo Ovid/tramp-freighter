@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { EVENT_NAMES, EVENT_STATE_MAP } from '../../src/game/constants.js';
+import {
+  EVENT_NAMES,
+  EVENT_STATE_MAP,
+  SOL_SYSTEM_ID,
+} from '../../src/game/constants.js';
 
 describe('EVENT_STATE_MAP', () => {
   // Events not in EVENT_STATE_MAP pass data directly (no state extraction).
@@ -55,7 +59,7 @@ describe('EVENT_STATE_MAP', () => {
       player: {
         credits: 1000,
         debt: 500,
-        currentSystem: 'Sol',
+        currentSystem: SOL_SYSTEM_ID,
         daysElapsed: 42,
         karma: 5,
         factions: { traders: 10 },
@@ -97,7 +101,7 @@ describe('EVENT_STATE_MAP', () => {
     expect(EVENT_STATE_MAP[EVENT_NAMES.DEBT_CHANGED](mockState)).toBe(500);
     expect(EVENT_STATE_MAP[EVENT_NAMES.FUEL_CHANGED](mockState)).toBe(80);
     expect(EVENT_STATE_MAP[EVENT_NAMES.LOCATION_CHANGED](mockState)).toBe(
-      'Sol'
+      SOL_SYSTEM_ID
     );
     expect(EVENT_STATE_MAP[EVENT_NAMES.TIME_CHANGED](mockState)).toBe(42);
     expect(EVENT_STATE_MAP[EVENT_NAMES.CARGO_CHANGED](mockState)).toEqual([
@@ -149,7 +153,7 @@ describe('EVENT_STATE_MAP', () => {
       pirateBase: 'Tau Ceti',
     });
     expect(EVENT_STATE_MAP[EVENT_NAMES.CURRENT_SYSTEM_CHANGED](mockState)).toBe(
-      'Sol'
+      SOL_SYSTEM_ID
     );
     expect(EVENT_STATE_MAP[EVENT_NAMES.FACTION_REP_CHANGED](mockState)).toEqual(
       {
