@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { transformOutcomeForDisplay } from '../features/danger/transformOutcome';
 import { applyEncounterOutcome } from '../features/danger/applyEncounterOutcome';
 import { EVENT_NAMES, NEGOTIATION_CONFIG } from '../game/constants.js';
@@ -52,9 +52,9 @@ export function useEncounterOrchestration(
    * Register App.jsx's setViewMode so the hook can drive view transitions.
    * Call once from App.jsx after creating the hook.
    */
-  const registerSetViewMode = (fn) => {
+  const registerSetViewMode = useCallback((fn) => {
     setViewModeRef.current = fn;
-  };
+  }, []);
 
   const handleEncounterTriggered = (encounterData) => {
     setCurrentEncounter(encounterData);
