@@ -74,7 +74,7 @@ describe('EVENT_STATE_MAP', () => {
         engine: 85,
         lifeSupport: 95,
         name: 'Rocinante',
-        upgrades: { scanner: true },
+        upgrades: ['scanner'],
         quirks: ['leaky'],
       },
       world: {
@@ -131,9 +131,9 @@ describe('EVENT_STATE_MAP', () => {
     expect(EVENT_STATE_MAP[EVENT_NAMES.SHIP_NAME_CHANGED](mockState)).toBe(
       'Rocinante'
     );
-    expect(EVENT_STATE_MAP[EVENT_NAMES.UPGRADES_CHANGED](mockState)).toEqual({
-      scanner: true,
-    });
+    expect(EVENT_STATE_MAP[EVENT_NAMES.UPGRADES_CHANGED](mockState)).toEqual([
+      'scanner',
+    ]);
     expect(EVENT_STATE_MAP[EVENT_NAMES.QUIRKS_CHANGED](mockState)).toEqual([
       'leaky',
     ]);
