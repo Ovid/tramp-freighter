@@ -2,9 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { EVENT_NAMES, EVENT_STATE_MAP } from '../../src/game/constants.js';
 
 describe('EVENT_STATE_MAP', () => {
-  // Events that pass data directly (no state extraction needed).
-  // These are either explicitly null in extractStateForEvent or
-  // not present in the switch at all (signal-only / data-via-emit events).
+  // Events not in EVENT_STATE_MAP pass data directly (no state extraction).
+  // They are signal-only or carry data via the emit call itself.
   const directDataEvents = [
     EVENT_NAMES.CONDITION_WARNING,
     EVENT_NAMES.ENCOUNTER_TRIGGERED,
