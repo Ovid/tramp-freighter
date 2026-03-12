@@ -224,9 +224,7 @@ export class EconomicEventsSystem {
         // so the event still affects trading instead of becoming a zombie that
         // blocks the system from getting new events
         const modifiers =
-          Object.keys(sanitized).length > 0
-            ? sanitized
-            : { ...validModifiers };
+          Object.keys(sanitized).length > 0 ? sanitized : { ...validModifiers };
         return { ...event, modifiers };
       });
   }
