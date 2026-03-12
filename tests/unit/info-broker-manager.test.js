@@ -257,14 +257,15 @@ describe('InfoBrokerManager', () => {
       const state = gsm.getState();
       state.ship.upgrades.push('advanced_sensors');
 
-      // Add an active event on a connected system
+      // Add an active event on a connected system (real event shape from createEvent)
       state.world.activeEvents = [
         {
-          systemId: 1,
-          name: 'Mining Strike',
-          commodity: 'ore',
-          modifier: 0.5,
+          id: 'mining_strike_1_10',
           type: 'mining_strike',
+          systemId: 1,
+          startDay: 10,
+          endDay: 50,
+          modifiers: { ore: 1.5, tritium: 1.3 },
         },
       ];
 
@@ -274,8 +275,8 @@ describe('InfoBrokerManager', () => {
       expect(alphaCentauri).toBeDefined();
       expect(alphaCentauri.event).toBeDefined();
       expect(alphaCentauri.event.name).toBe('Mining Strike');
-      expect(alphaCentauri.event.commodity).toBe('ore');
-      expect(alphaCentauri.event.modifier).toBe(0.5);
+      expect(alphaCentauri.event.commodities).toEqual(['ore', 'tritium']);
+      expect(alphaCentauri.event.modifiers).toEqual({ ore: 1.5, tritium: 1.3 });
     });
   });
 });

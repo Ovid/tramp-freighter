@@ -4,6 +4,7 @@ import {
   ENDGAME_CONFIG,
 } from './constants.js';
 import { TradingSystem } from './game-trading.js';
+import { EconomicEventsSystem } from './game-events.js';
 import { SeededRandom } from './utils/seeded-random.js';
 
 /**
@@ -188,7 +189,6 @@ export class InformationBroker {
           mining_strike: 'labor troubles',
           medical_emergency: 'a health crisis',
           festival: 'celebrations',
-          supply_glut: 'oversupply issues',
         };
 
         const description =
@@ -299,11 +299,19 @@ export class InformationBroker {
             (event) => event.systemId === system.id
           );
           if (systemEvent) {
-            result.event = {
-              name: systemEvent.name,
-              commodity: systemEvent.commodity,
-              modifier: systemEvent.modifier,
-            };
+            const eventTypeDef = Object.hasOwn(
+              EconomicEventsSystem.EVENT_TYPES,
+              systemEvent.type
+            )
+              ? EconomicEventsSystem.EVENT_TYPES[systemEvent.type]
+              : null;
+            if (eventTypeDef) {
+              result.event = {
+                name: eventTypeDef.name,
+                commodities: Object.keys(systemEvent.modifiers),
+                modifiers: systemEvent.modifiers,
+              };
+            }
           }
         }
 

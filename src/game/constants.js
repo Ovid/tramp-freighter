@@ -136,6 +136,10 @@ export const NAVIGATION_CONFIG = {
   // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
   FUEL_CAPACITY_EPSILON: 1.0,
 
+  // Jump time formula: max(MIN_JUMP_DAYS, ceil(distanceLY * DAYS_PER_LY))
+  DAYS_PER_LY: 0.5,
+  MIN_JUMP_DAYS: 1,
+
   // Wormhole fuel cost formula: BASE + (distance * DISTANCE_MULTIPLIER)
   WORMHOLE_FUEL_BASE_COST: 10,
   WORMHOLE_FUEL_DISTANCE_MULTIPLIER: 2,
@@ -160,6 +164,21 @@ export const NAVIGATION_CONFIG = {
 export function calculateDistanceFromSol(system) {
   const r = Math.hypot(system.x, system.y, system.z);
   return r * NAVIGATION_CONFIG.LY_PER_UNIT;
+}
+
+/**
+ * Calculate base jump time from distance in light-years.
+ * Single source of truth for the jump-time formula used by NavigationSystem,
+ * wormhole-graph, and mission-generator.
+ *
+ * @param {number} distanceLY - Distance in light years
+ * @returns {number} Jump time in days (integer, minimum 1)
+ */
+export function calculateBaseJumpTime(distanceLY) {
+  return Math.max(
+    NAVIGATION_CONFIG.MIN_JUMP_DAYS,
+    Math.ceil(distanceLY * NAVIGATION_CONFIG.DAYS_PER_LY)
+  );
 }
 
 /**
@@ -393,6 +412,8 @@ export const ECONOMY_CONFIG = {
 
   MARKET_CONDITION_PRUNE_THRESHOLD: 1.0, // Remove insignificant market impacts
 
+  EVENT_PREMIUM: 1.5, // Multiplier above galaxy max normal price for event pricing
+
   // Technology biases: negative = cheaper at low-tech, positive = cheaper at high-tech
   // Creates intuitive trade routes (buy grain/ore at frontier, electronics/medicine at core)
   TECH_BIASES: {
@@ -614,7 +635,6 @@ export const MISSION_CONFIG = {
   DANGER_MULTIPLIERS: { safe: 1.0, contested: 1.05, dangerous: 1.3 },
   MAX_MISSION_HOPS: 3,
   MIN_BOARD_SIZE: 1,
-  DAYS_PER_HOP_ESTIMATE: 6,
   SATURATION_WINDOW_DAYS: 30,
   SATURATION_PENALTY_PER_RUN: 0.25,
   SATURATION_FLOOR: 0.25,
@@ -910,8 +930,6 @@ export const ANIMATION_CONFIG = {
   SHIP_INDICATOR_SIZE: 8,
   SHIP_INDICATOR_COLOR: 0xff0000, // Red
   SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
-  SHIP_INDICATOR_TEXTURE_SIZE: 64, // Canvas texture dimensions (matches star sprites)
-
   // Reticle visual properties
   RETICLE_SIZE: 15, // Radius of reticle circle
   RETICLE_COLOR: 0x00ffff, // Cyan for contrast against red ship

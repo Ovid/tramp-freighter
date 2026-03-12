@@ -1,9 +1,5 @@
 import { SeededRandom } from './utils/seeded-random.js';
-import {
-  COMMODITY_TYPES,
-  SOL_SYSTEM_ID,
-  ALPHA_CENTAURI_SYSTEM_ID,
-} from './constants.js';
+import { SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID } from './constants.js';
 
 /**
  * EconomicEventsSystem - Manages random economic events that affect commodity prices
@@ -18,8 +14,8 @@ export class EconomicEventsSystem {
   static EVENT_TYPES = {
     mining_strike: {
       name: 'Mining Strike',
-      description: 'Workers demand better conditions',
-      duration: [5, 10], // Min/max days
+      description: 'Workers strike — ore and tritium in short supply',
+      duration: [10, 18], // Min/max days
       modifiers: {
         ore: 1.5,
         tritium: 1.3,
@@ -29,36 +25,24 @@ export class EconomicEventsSystem {
     },
     medical_emergency: {
       name: 'Medical Emergency',
-      description: 'Outbreak requires urgent supplies',
-      duration: [3, 5],
+      description: 'Outbreak requires urgent medicine',
+      duration: [8, 14],
       modifiers: {
         medicine: 2.0,
-        grain: 0.9,
-        ore: 0.9,
       },
       chance: 0.03,
       targetSystems: 'any',
     },
     festival: {
       name: 'Cultural Festival',
-      description: 'Celebration drives luxury demand',
-      duration: [2, 4],
+      description: 'Celebration drives demand for electronics and grain',
+      duration: [7, 12],
       modifiers: {
         electronics: 1.75,
         grain: 1.2,
       },
       chance: 0.04,
       targetSystems: 'core', // Sol Sphere systems
-    },
-    supply_glut: {
-      name: 'Supply Glut',
-      description: 'Oversupply crashes prices',
-      duration: [3, 7],
-      modifiers: {
-        // Random good at 0.6 (40% reduction) - determined at event creation
-      },
-      chance: 0.06,
-      targetSystems: 'any',
     },
   };
 
@@ -192,17 +176,7 @@ export class EconomicEventsSystem {
     // Calculate end day
     const endDay = currentDay + duration;
 
-    // Handle supply_glut special case - pick random commodity
-    let modifiers = { ...eventType.modifiers };
-    if (eventTypeKey === 'supply_glut') {
-      const commoditySeed = `commodity_${id}`;
-      const commodityRng = new SeededRandom(commoditySeed);
-      const commodityIndex = Math.floor(
-        commodityRng.next() * COMMODITY_TYPES.length
-      );
-      const randomCommodity = COMMODITY_TYPES[commodityIndex];
-      modifiers = { [randomCommodity]: 0.6 };
-    }
+    const modifiers = { ...eventType.modifiers };
 
     return {
       id,
@@ -226,9 +200,33 @@ export class EconomicEventsSystem {
       return [];
     }
 
-    return activeEvents.filter((event) => {
-      return event.endDay >= currentDay;
-    });
+    return activeEvents
+      .filter((event) => {
+        // Remove expired events
+        if (event.endDay < currentDay) return false;
+        // Remove events whose type no longer exists (e.g. supply_glut from old saves)
+        if (!Object.hasOwn(EconomicEventsSystem.EVENT_TYPES, event.type))
+          return false;
+        return true;
+      })
+      .map((event) => {
+        // Sanitize modifiers to match current EVENT_TYPES definition (old saves
+        // may carry stale modifier keys from previous versions)
+        const typeDef = EconomicEventsSystem.EVENT_TYPES[event.type];
+        const validModifiers = typeDef.modifiers;
+        const sanitized = {};
+        for (const key of Object.keys(event.modifiers || {})) {
+          if (key in validModifiers) {
+            sanitized[key] = event.modifiers[key];
+          }
+        }
+        // If all stored modifiers were stale, fall back to canonical modifiers
+        // so the event still affects trading instead of becoming a zombie that
+        // blocks the system from getting new events
+        const modifiers =
+          Object.keys(sanitized).length > 0 ? sanitized : { ...validModifiers };
+        return { ...event, modifiers };
+      });
   }
 
   /**

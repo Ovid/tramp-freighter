@@ -1,10 +1,12 @@
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
 import { STAR_DATA } from '../data/star-data.js';
+import { NAVIGATION_CONFIG, calculateBaseJumpTime } from '../constants.js';
 
 // Lazy-initialized cache — built once on first access, never recomputed
 let adjacencyMap = null;
 let shortestPaths = null;
 let starNameMap = null;
+let starByIdMap = null;
 
 /**
  * Build a Map<systemId, Set<systemId>> from the static wormhole pair array.
@@ -86,6 +88,27 @@ function buildShortestPaths(adjMap) {
 }
 
 /**
+ * Calculate total travel days along a path of system IDs.
+ * Falls back to MIN_JUMP_DAYS per hop if star coordinate data is missing.
+ */
+function calculatePathTravelDays(path) {
+  let totalDays = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const from = starByIdMap.get(path[i]);
+    const to = starByIdMap.get(path[i + 1]);
+    if (from && to) {
+      const distLY =
+        Math.hypot(from.x - to.x, from.y - to.y, from.z - to.z) *
+        NAVIGATION_CONFIG.LY_PER_UNIT;
+      totalDays += calculateBaseJumpTime(distLY);
+    } else {
+      totalDays += NAVIGATION_CONFIG.MIN_JUMP_DAYS;
+    }
+  }
+  return totalDays;
+}
+
+/**
  * Ensure the cache is initialized. Called lazily on first API access.
  */
 function ensureInitialized() {
@@ -93,6 +116,7 @@ function ensureInitialized() {
     adjacencyMap = buildAdjacencyMap();
     shortestPaths = buildShortestPaths(adjacencyMap);
     starNameMap = buildStarNameMap();
+    starByIdMap = new Map(STAR_DATA.map((s) => [s.id, s]));
   }
 }
 
@@ -142,7 +166,7 @@ export function getShortestPath(fromId, toId) {
  *
  * @param {number} systemId - Origin system ID
  * @param {number} maxHops - Maximum number of jumps
- * @returns {{ systemId: number, hopCount: number }[]}
+ * @returns {{ systemId: number, hopCount: number, travelDays: number }[]}
  *   Array sorted by hopCount ascending, then systemId ascending
  */
 export function getReachableSystems(systemId, maxHops) {
@@ -154,12 +178,14 @@ export function getReachableSystems(systemId, maxHops) {
   const result = [];
 
   // Scan all pre-computed paths from this source
+  const prefix = `${systemId}-`;
   for (const [key, value] of shortestPaths) {
     // Keys are "fromId-toId" — only consider paths from our source
-    if (!key.startsWith(`${systemId}-`)) continue;
+    if (!key.startsWith(prefix)) continue;
     if (value.hops <= maxHops) {
       const destId = value.path[value.path.length - 1];
-      result.push({ systemId: destId, hopCount: value.hops });
+      const travelDays = calculatePathTravelDays(value.path);
+      result.push({ systemId: destId, hopCount: value.hops, travelDays });
     }
   }
 
@@ -177,4 +203,5 @@ export function _resetCacheForTesting() {
   adjacencyMap = null;
   shortestPaths = null;
   starNameMap = null;
+  starByIdMap = null;
 }

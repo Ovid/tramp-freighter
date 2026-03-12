@@ -33,3 +33,13 @@
   color: #aaccee;
   line-height: 1.4;
 }
+
+.destination-event {
+  margin: var(--grid-gap-small) 0 0 0;
+}
+
+.event-time-remaining {
+  font-size: var(--font-size-small);
+  color: #ffcc66;
+  margin-top: var(--grid-gap-small);
+}

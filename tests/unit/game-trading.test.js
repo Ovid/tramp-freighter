@@ -2,7 +2,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { calculateProfit } from '../../src/features/trade/tradeUtils.js';
 import { TradingSystem } from '../../src/game/game-trading.js';
 import { createTestGame } from '../test-utils.js';
-import { EVENT_NAMES, COMMODITY_TYPES } from '../../src/game/constants.js';
+import {
+  EVENT_NAMES,
+  COMMODITY_TYPES,
+  BASE_PRICES,
+} from '../../src/game/constants.js';
 
 describe('calculateProfit', () => {
   it('percentage is a number, not a string', () => {
@@ -312,6 +316,38 @@ describe('TradingSystem.calculatePrice', () => {
     const price1 = TradingSystem.calculatePrice('electronics', system1, 10);
     const price2 = TradingSystem.calculatePrice('electronics', system2, 10);
     expect(price1).not.toBe(price2);
+  });
+
+  it('uses guaranteed event price when event affects the commodity', () => {
+    // Sol system — electronics normally cheap here due to tech bias
+    const solSystem = { id: 0, x: 0, y: 0, z: 0 };
+    const events = [{ systemId: 0, modifiers: { electronics: 1.75 } }];
+
+    const eventPrice = TradingSystem.calculatePrice(
+      'electronics',
+      solSystem,
+      10,
+      events
+    );
+    const expectedEventPrice = TradingSystem.getEventPrice('electronics');
+
+    expect(eventPrice).toBe(expectedEventPrice);
+  });
+
+  it('uses normal price for commodities NOT affected by the event', () => {
+    const solSystem = { id: 0, x: 0, y: 0, z: 0 };
+    // Event only affects electronics
+    const events = [{ systemId: 0, modifiers: { electronics: 1.75 } }];
+
+    const eventPrice = TradingSystem.calculatePrice(
+      'ore',
+      solSystem,
+      10,
+      events
+    );
+    const normalPrice = TradingSystem.calculatePrice('ore', solSystem, 10, []);
+
+    expect(eventPrice).toBe(normalPrice);
   });
 });
 
@@ -1010,5 +1046,46 @@ describe('TradingSystem.removeFromCargoStack', () => {
     // The original array still has 2 entries (splice operates on the copy)
     expect(cargo).toHaveLength(2);
     expect(result).toHaveLength(1);
+  });
+});
+
+describe('TradingSystem.getGalaxyMaxNormalPrice', () => {
+  it('returns a positive integer for each commodity', () => {
+    for (const goodType of COMMODITY_TYPES) {
+      const price = TradingSystem.getGalaxyMaxNormalPrice(goodType);
+      expect(Number.isInteger(price)).toBe(true);
+      expect(price).toBeGreaterThan(0);
+    }
+  });
+
+  it('exceeds the base price for every commodity', () => {
+    for (const goodType of COMMODITY_TYPES) {
+      const maxPrice = TradingSystem.getGalaxyMaxNormalPrice(goodType);
+      expect(maxPrice).toBeGreaterThan(BASE_PRICES[goodType]);
+    }
+  });
+
+  it('throws for unknown good type', () => {
+    expect(() =>
+      TradingSystem.getGalaxyMaxNormalPrice('unobtainium')
+    ).toThrow();
+  });
+});
+
+describe('TradingSystem.getEventPrice', () => {
+  it('exceeds galaxy max normal price for every commodity', () => {
+    for (const goodType of COMMODITY_TYPES) {
+      const eventPrice = TradingSystem.getEventPrice(goodType);
+      const maxNormal = TradingSystem.getGalaxyMaxNormalPrice(goodType);
+      expect(eventPrice).toBeGreaterThan(maxNormal);
+    }
+  });
+
+  it('returns a positive integer for each commodity', () => {
+    for (const goodType of COMMODITY_TYPES) {
+      const price = TradingSystem.getEventPrice(goodType);
+      expect(Number.isInteger(price)).toBe(true);
+      expect(price).toBeGreaterThan(0);
+    }
   });
 });

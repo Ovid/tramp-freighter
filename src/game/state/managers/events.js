@@ -72,7 +72,9 @@ export class EventsManager extends BaseManager {
    * @returns {Object|null} Event type definition or null
    */
   getEventType(eventTypeKey) {
-    return EconomicEventsSystem.EVENT_TYPES[eventTypeKey] || null;
+    return Object.hasOwn(EconomicEventsSystem.EVENT_TYPES, eventTypeKey)
+      ? EconomicEventsSystem.EVENT_TYPES[eventTypeKey]
+      : null;
   }
 
   /**

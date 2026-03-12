@@ -39,7 +39,21 @@ export class TradingSystem {
       throw new Error('System object required for price calculation');
     }
 
-    // Calculate all modifiers
+    // Check if an economic event overrides this commodity's price at this system.
+    // IMPORTANT: All event modifiers must be > 1.0. A sub-1.0 modifier (e.g. 0.6)
+    // would incorrectly trigger guaranteed-premium pricing instead of reducing prices.
+    // Supply Glut (the only sub-1.0 event) was removed for this reason.
+    const eventMod = TradingSystem.getEventModifier(
+      system.id,
+      goodType,
+      activeEvents
+    );
+    if (eventMod !== 1.0) {
+      // Event active for this commodity — use guaranteed-profit price
+      return TradingSystem.getEventPrice(goodType);
+    }
+
+    // Calculate all modifiers (normal formula)
     const techLevel = TradingSystem.calculateTechLevel(system);
     const techMod = TradingSystem.getTechModifier(goodType, techLevel);
     const temporalMod = TradingSystem.getTemporalModifier(
@@ -51,14 +65,9 @@ export class TradingSystem {
       goodType,
       marketConditions
     );
-    const eventMod = TradingSystem.getEventModifier(
-      system.id,
-      goodType,
-      activeEvents
-    );
 
-    // Apply complete formula
-    const price = basePrice * techMod * temporalMod * localMod * eventMod;
+    // Apply complete formula (no event modifier — it's been handled above)
+    const price = basePrice * techMod * temporalMod * localMod;
     return Math.round(price);
   }
 
@@ -253,6 +262,46 @@ export class TradingSystem {
       Math.min(ECONOMY_CONFIG.LOCAL_MODIFIER_MAX, modifier)
     );
     return clampedModifier;
+  }
+
+  /**
+   * Calculate the highest price a commodity could naturally reach at any system.
+   *
+   * Uses the worst-case tech modifier (the tech level that maximizes price
+   * for this commodity's bias) and peak temporal oscillation (1.15).
+   * Local modifier is excluded since it's player-driven.
+   *
+   * @param {string} goodType - Commodity type
+   * @returns {number} Galaxy max normal price (rounded integer)
+   */
+  static getGalaxyMaxNormalPrice(goodType) {
+    const basePrice = BASE_PRICES[goodType];
+    if (basePrice === undefined) {
+      throw new Error(`Unknown good type: ${goodType}`);
+    }
+
+    const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
+    // Worst-case tech level: frontier (1.0) for positive bias, core (10.0) for negative bias
+    const worstTechLevel =
+      bias > 0 ? ECONOMY_CONFIG.MIN_TECH_LEVEL : ECONOMY_CONFIG.MAX_TECH_LEVEL;
+    const techMod = TradingSystem.getTechModifier(goodType, worstTechLevel);
+    const peakTemporal = 1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE;
+
+    return Math.ceil(basePrice * techMod * peakTemporal);
+  }
+
+  /**
+   * Calculate guaranteed-profit event price for a commodity.
+   *
+   * Returns galaxyMaxNormalPrice × EVENT_PREMIUM, ensuring the event price
+   * exceeds the highest price this commodity could naturally reach anywhere.
+   *
+   * @param {string} goodType - Commodity type
+   * @returns {number} Event price (rounded integer)
+   */
+  static getEventPrice(goodType) {
+    const maxNormal = TradingSystem.getGalaxyMaxNormalPrice(goodType);
+    return Math.ceil(maxNormal * ECONOMY_CONFIG.EVENT_PREMIUM);
   }
 
   static calculateCargoUsed(cargo) {

@@ -3,6 +3,8 @@ import {
   MISSION_CARGO_TYPES,
   PASSENGER_CONFIG,
   COMMODITY_TYPES,
+  NAVIGATION_CONFIG,
+  calculateBaseJumpTime,
 } from './constants.js';
 import { calculateSystemPrices } from './utils/calculators.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
@@ -40,25 +42,58 @@ function getConnectedSystemsDirect(systemId, wormholeData) {
  * Get all systems reachable from systemId within maxHops jumps.
  * Delegates to the pre-computed cache when using production wormhole data;
  * falls back to BFS for test data.
+ *
+ * @param {number} systemId - Origin system ID
+ * @param {Array} wormholeData - Wormhole connection pairs
+ * @param {number} maxHops - Maximum number of jumps
+ * @param {Array} starData - Star data array (needed for travel time calculation in fallback BFS)
+ * @returns {{ systemId: number, hopCount: number, travelDays: number }[]}
  */
-export function getReachableSystems(systemId, wormholeData, maxHops) {
+export function getReachableSystems(
+  systemId,
+  wormholeData,
+  maxHops,
+  starData = []
+) {
   if (wormholeData === WORMHOLE_DATA) {
     return getCachedReachableSystems(systemId, maxHops);
   }
 
   // Fallback BFS for non-production data (tests)
+  const starById = new Map(starData.map((s) => [s.id, s]));
   const visited = new Set([systemId]);
   const result = [];
-  let frontier = [systemId];
+  // Track cumulative travel days per frontier node
+  let frontier = [{ id: systemId, days: 0 }];
 
   for (let hop = 1; hop <= maxHops; hop++) {
     const nextFrontier = [];
     for (const current of frontier) {
-      for (const neighbor of getConnectedSystemsDirect(current, wormholeData)) {
+      const currentStar = starById.get(current.id);
+      for (const neighbor of getConnectedSystemsDirect(
+        current.id,
+        wormholeData
+      )) {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
-          result.push({ systemId: neighbor, hopCount: hop });
-          nextFrontier.push(neighbor);
+          const neighborStar = starById.get(neighbor);
+          let hopDays = NAVIGATION_CONFIG.MIN_JUMP_DAYS;
+          if (currentStar && neighborStar) {
+            const distLY =
+              Math.hypot(
+                currentStar.x - neighborStar.x,
+                currentStar.y - neighborStar.y,
+                currentStar.z - neighborStar.z
+              ) * NAVIGATION_CONFIG.LY_PER_UNIT;
+            hopDays = calculateBaseJumpTime(distLY);
+          }
+          const totalDays = current.days + hopDays;
+          result.push({
+            systemId: neighbor,
+            hopCount: hop,
+            travelDays: totalDays,
+          });
+          nextFrontier.push({ id: neighbor, days: totalDays });
         }
       }
     }
@@ -81,7 +116,8 @@ export function generateCargoRun(
   const reachable = getReachableSystems(
     fromSystem,
     wormholeData,
-    MISSION_CONFIG.MAX_MISSION_HOPS
+    MISSION_CONFIG.MAX_MISSION_HOPS,
+    starData
   );
   if (reachable.length === 0) return null;
 
@@ -90,9 +126,7 @@ export function generateCargoRun(
   const hopCount = chosen.hopCount;
   const destStar = starData.find((s) => s.id === toSystem);
 
-  const deadline =
-    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
-    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+  const deadline = chosen.travelDays + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
   // Determine legal vs illegal based on origin zone
   const illegalChance =
@@ -201,7 +235,8 @@ export function generatePassengerMission(
   const reachable = getReachableSystems(
     fromSystem,
     wormholeData,
-    MISSION_CONFIG.MAX_MISSION_HOPS
+    MISSION_CONFIG.MAX_MISSION_HOPS,
+    starData
   );
   if (reachable.length === 0) return null;
 
@@ -217,9 +252,7 @@ export function generatePassengerMission(
   const name = generatePersonName(rng);
   const dialogue = pickRandomFrom(typeConfig.dialogue, rng);
 
-  const deadline =
-    hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
-    MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
+  const deadline = chosen.travelDays + MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
 
   // Route saturation
   const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
@@ -254,7 +287,7 @@ export function generatePassengerMission(
   return {
     id: `passenger_${Date.now()}_${Math.floor(rng() * 10000)}`,
     type: 'passenger',
-    title: `Passenger: ${name}`,
+    title: `Passenger: ${name} to ${destStar ? destStar.name : `System ${toSystem}`}`,
     description: `Transport ${name} to ${destStar ? destStar.name : `System ${toSystem}`}.`,
     giver: 'passenger',
     giverSystem: fromSystem,

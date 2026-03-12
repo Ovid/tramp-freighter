@@ -75,6 +75,10 @@ describe('Narrative Event Data', () => {
       const fullText = debtWarning.content.text.join(' ');
       expect(fullText).not.toMatch(/come looking|come find|hunt you/i);
     });
+
+    it('should fire only once (narrative milestone, not recurring)', () => {
+      expect(debtWarning.once).toBe(true);
+    });
   });
 
   describe('cargo reward schema', () => {

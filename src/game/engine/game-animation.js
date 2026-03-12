@@ -7,6 +7,7 @@
 
 import * as THREE from 'three';
 import { ANIMATION_CONFIG } from '../constants.js';
+import { createStarTexture } from './stars.js';
 
 /**
  * Animation timing calculator
@@ -157,49 +158,6 @@ class InputLockManager {
 }
 
 /**
- * Create a glowing canvas texture for the ship indicator sprite
- *
- * Uses the same pattern as star sprites for visual consistency.
- * Creates a radial gradient with glow effect.
- *
- * NOTE: This function creates a canvas element and should only be called
- * during initialization, never in animation loops or hot paths.
- * Canvas element is not added to DOM and will be garbage collected
- * when the CanvasTexture is disposed via the dispose() method.
- *
- * @returns {THREE.CanvasTexture} Texture for ship indicator
- */
-function createShipIndicatorCanvasTexture() {
-  const size = ANIMATION_CONFIG.SHIP_INDICATOR_TEXTURE_SIZE;
-  const center = size / 2;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const context2d = canvas.getContext('2d');
-
-  // Create radial gradient for glow effect (same pattern as star sprites)
-  const gradient = context2d.createRadialGradient(
-    center,
-    center,
-    0,
-    center,
-    center,
-    center
-  );
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-  gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
-  gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
-  gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
-  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-  context2d.fillStyle = gradient;
-  context2d.fillRect(0, 0, size, size);
-
-  return new THREE.CanvasTexture(canvas);
-}
-
-/**
  * Create ship indicator sprite
  *
  * Creates a glowing red sprite to represent the player's ship during jump animations.
@@ -209,8 +167,8 @@ function createShipIndicatorCanvasTexture() {
  * @returns {THREE.Sprite} Ship indicator sprite
  */
 function createShipIndicatorSprite() {
-  // Create texture using same pattern as star sprites
-  const texture = createShipIndicatorCanvasTexture();
+  // Create glow texture for ship indicator
+  const texture = createStarTexture();
 
   // Create sprite material with red color and additive blending
   const material = new THREE.SpriteMaterial({

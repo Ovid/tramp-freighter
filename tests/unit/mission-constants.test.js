@@ -42,10 +42,6 @@ describe('Mission Arbitrage Fix Constants', () => {
     expect(MISSION_CONFIG.MIN_BOARD_SIZE).toBe(1);
   });
 
-  it('should have DAYS_PER_HOP_ESTIMATE for deadline calculation', () => {
-    expect(MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE).toBe(6);
-  });
-
   it('should have route saturation constants', () => {
     expect(MISSION_CONFIG.SATURATION_WINDOW_DAYS).toBe(30);
     expect(MISSION_CONFIG.SATURATION_PENALTY_PER_RUN).toBe(0.25);

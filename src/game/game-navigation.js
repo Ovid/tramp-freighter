@@ -3,6 +3,7 @@ import {
   SHIP_CONFIG,
   REPAIR_CONFIG,
   EVENT_NAMES,
+  calculateBaseJumpTime,
 } from './constants.js';
 import { getConnectedSystems as getCachedConnectedSystems } from './utils/wormhole-graph.js';
 import { WORMHOLE_DATA } from './data/wormhole-data.js';
@@ -67,7 +68,7 @@ export class NavigationSystem {
    * @returns {number} Jump time in days
    */
   calculateJumpTime(distance) {
-    return Math.max(1, Math.ceil(distance * 0.5));
+    return calculateBaseJumpTime(distance);
   }
 
   /**
