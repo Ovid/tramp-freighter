@@ -14,8 +14,8 @@ export class EconomicEventsSystem {
   static EVENT_TYPES = {
     mining_strike: {
       name: 'Mining Strike',
-      description: 'Workers demand better conditions',
-      duration: [5, 10], // Min/max days
+      description: 'Workers strike — ore and tritium in short supply',
+      duration: [10, 18], // Min/max days
       modifiers: {
         ore: 1.5,
         tritium: 1.3,
@@ -25,20 +25,18 @@ export class EconomicEventsSystem {
     },
     medical_emergency: {
       name: 'Medical Emergency',
-      description: 'Outbreak requires urgent supplies',
-      duration: [3, 5],
+      description: 'Outbreak requires urgent medicine',
+      duration: [8, 14],
       modifiers: {
         medicine: 2.0,
-        grain: 0.9,
-        ore: 0.9,
       },
       chance: 0.03,
       targetSystems: 'any',
     },
     festival: {
       name: 'Cultural Festival',
-      description: 'Celebration drives luxury demand',
-      duration: [2, 4],
+      description: 'Celebration drives demand for electronics and grain',
+      duration: [7, 12],
       modifiers: {
         electronics: 1.75,
         grain: 1.2,

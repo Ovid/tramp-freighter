@@ -140,8 +140,6 @@ describe('EconomicEventsSystem', () => {
         100
       );
       expect(event.modifiers.medicine).toBe(2.0);
-      expect(event.modifiers.grain).toBe(0.9);
-      expect(event.modifiers.ore).toBe(0.9);
     });
 
     it('creates festival event with correct modifiers', () => {
@@ -173,6 +171,27 @@ describe('EconomicEventsSystem', () => {
       const duration = event.endDay - event.startDay;
       expect(duration).toBeGreaterThanOrEqual(minDuration);
       expect(duration).toBeLessThanOrEqual(maxDuration);
+    });
+
+    it('medical_emergency duration is between 8 and 14 days', () => {
+      const event = EconomicEventsSystem.createEvent('medical_emergency', 10, 100);
+      const duration = event.endDay - event.startDay;
+      expect(duration).toBeGreaterThanOrEqual(8);
+      expect(duration).toBeLessThanOrEqual(14);
+    });
+
+    it('festival duration is between 7 and 12 days', () => {
+      const event = EconomicEventsSystem.createEvent('festival', SOL_SYSTEM_ID, 100);
+      const duration = event.endDay - event.startDay;
+      expect(duration).toBeGreaterThanOrEqual(7);
+      expect(duration).toBeLessThanOrEqual(12);
+    });
+
+    it('mining_strike duration is between 10 and 18 days', () => {
+      const event = EconomicEventsSystem.createEvent('mining_strike', 10, 100);
+      const duration = event.endDay - event.startDay;
+      expect(duration).toBeGreaterThanOrEqual(10);
+      expect(duration).toBeLessThanOrEqual(18);
     });
   });
 
@@ -433,7 +452,7 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('triggered event has correct endDay within duration range', () => {
-      // mining_strike duration range is [5, 10]
+      // mining_strike duration range is [10, 18]
       const starData = [{ id: 15, type: 'M3V' }];
       const state = makeGameState(1);
 
@@ -442,8 +461,8 @@ describe('EconomicEventsSystem', () => {
       const triggered = result.find((e) => e.type === 'mining_strike');
       expect(triggered).toBeDefined();
       const duration = triggered.endDay - triggered.startDay;
-      expect(duration).toBeGreaterThanOrEqual(5);
-      expect(duration).toBeLessThanOrEqual(10);
+      expect(duration).toBeGreaterThanOrEqual(10);
+      expect(duration).toBeLessThanOrEqual(18);
     });
 
     it('does not trigger festival on non-core system regardless of roll', () => {
