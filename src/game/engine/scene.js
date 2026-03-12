@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VISUAL_CONFIG, SPECTRAL_COLORS } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
-import { createStarSystems } from './stars.js';
+import { createStarSystems, createStarTexture } from './stars.js';
 import { createWormholeLines } from './wormholes.js';
 import { STAR_DATA } from '../data/star-data.js';
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
@@ -269,8 +269,8 @@ function createStarfield(scene) {
   );
   starfieldGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  // Create texture for stars
-  const starTexture = createBackgroundStarTexture();
+  // Create texture for stars (shared glow texture from stars.js)
+  const starTexture = createStarTexture();
 
   // Create material for starfield
   const starfieldMaterial = new THREE.PointsMaterial({
@@ -293,49 +293,6 @@ function createStarfield(scene) {
   devLog(`Created starfield background with ${starCount} stars`);
 
   return starfield;
-}
-
-/**
- * Create a soft glowing star texture for background stars.
- *
- * PERFORMANCE NOTE: This function creates a canvas texture. The canvas element
- * is intentionally kept alive as THREE.CanvasTexture maintains a reference to it
- * for texture updates. Disposing the canvas would break the texture.
- * This function should only be called once during scene initialization.
- *
- * @returns {THREE.CanvasTexture} The star texture
- */
-function createBackgroundStarTexture() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-
-  const centerX = 32;
-  const centerY = 32;
-
-  // Create radial gradient for soft glow.
-  // Brightness is encoded in RGB (not alpha) to avoid premultiplied alpha
-  // artifacts on Safari — see createStarTexture() in stars.js for details.
-  const gradient = ctx.createRadialGradient(
-    centerX,
-    centerY,
-    0,
-    centerX,
-    centerY,
-    32
-  );
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-  gradient.addColorStop(0.2, 'rgba(204, 204, 204, 1.0)');
-  gradient.addColorStop(0.4, 'rgba(102, 102, 102, 1.0)');
-  gradient.addColorStop(0.7, 'rgba(26, 26, 26, 1.0)');
-  gradient.addColorStop(1, 'rgba(0, 0, 0, 1.0)');
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 64, 64);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  return texture;
 }
 
 // Temp vectors for camera control calculations (reused to avoid allocation during user interaction)

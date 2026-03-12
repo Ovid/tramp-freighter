@@ -912,8 +912,6 @@ export const ANIMATION_CONFIG = {
   SHIP_INDICATOR_SIZE: 8,
   SHIP_INDICATOR_COLOR: 0xff0000, // Red
   SHIP_INDICATOR_GLOW_INTENSITY: 1.5,
-  SHIP_INDICATOR_TEXTURE_SIZE: 64, // Canvas texture dimensions (matches star sprites)
-
   // Reticle visual properties
   RETICLE_SIZE: 15, // Radius of reticle circle
   RETICLE_COLOR: 0x00ffff, // Cyan for contrast against red ship
