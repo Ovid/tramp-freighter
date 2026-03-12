@@ -24,8 +24,8 @@ export class InformationBroker {
   static getIntelligenceCost(systemId, priceKnowledge) {
     const knowledge = priceKnowledge[systemId];
 
-    // Never visited
-    if (!knowledge) {
+    // Never visited or orbit-only (no price data)
+    if (!knowledge || knowledge.source === 'orbit') {
       return INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED;
     }
 
@@ -291,6 +291,7 @@ export class InformationBroker {
           systemName: system.name,
           cost: cost,
           lastVisit: lastVisit,
+          source: knowledge ? knowledge.source : null,
         };
 
         // Add event information if Advanced Sensor Array is installed

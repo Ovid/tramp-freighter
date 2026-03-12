@@ -8,6 +8,12 @@ import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import {
+  formatVisitInfo,
+  formatSource,
+  getKnownSystemsSortedByStaleness,
+} from '../../src/features/info-broker/infoBrokerUtils.js';
+import { InformationBroker } from '@game/game-information-broker.js';
 
 describe('Orbit visit tracking constants', () => {
   it('should define ORBIT source identifier', () => {
@@ -83,5 +89,56 @@ describe('NavigationManager orbit tracking', () => {
 
     const pkAfterJump = game.getPriceKnowledge();
     expect(pkAfterJump[targetSystem].source).toBe('intelligence_broker');
+  });
+});
+
+describe('Info Broker display for orbit-only entries', () => {
+  it('formatVisitInfo should return "Visited but never docked" for orbit source', () => {
+    expect(formatVisitInfo(5, 'orbit')).toBe('Visited but never docked');
+    expect(formatVisitInfo(0, 'orbit')).toBe('Visited but never docked');
+  });
+
+  it('formatVisitInfo should behave normally for non-orbit sources', () => {
+    expect(formatVisitInfo(null)).toBe('Never visited');
+    expect(formatVisitInfo(0)).toBe('Current prices');
+    expect(formatVisitInfo(5)).toBe('Last visited 5 days ago');
+    expect(formatVisitInfo(1)).toBe('Last visited 1 day ago');
+  });
+
+  it('formatSource should handle orbit source', () => {
+    expect(formatSource('orbit')).toBe('Orbit only');
+  });
+
+  it('getIntelligenceCost should treat orbit-only as never-visited pricing', () => {
+    const priceKnowledge = {
+      5: { lastVisit: 3, prices: null, source: 'orbit' },
+    };
+    const cost = InformationBroker.getIntelligenceCost(5, priceKnowledge);
+    expect(cost).toBe(100);
+  });
+
+  it('orbit-only entries should age normally via staleness increment', () => {
+    const priceKnowledge = {
+      5: { lastVisit: 0, prices: null, source: 'orbit' },
+    };
+    priceKnowledge[5].lastVisit += 1;
+    expect(priceKnowledge[5].lastVisit).toBe(1);
+    expect(formatVisitInfo(priceKnowledge[5].lastVisit, 'orbit')).toBe(
+      'Visited but never docked'
+    );
+  });
+
+  it('getKnownSystemsSortedByStaleness should exclude orbit-only entries (no prices)', () => {
+    const starData = [
+      { id: 0, name: 'Sol' },
+      { id: 5, name: 'Wolf 359' },
+    ];
+    const priceKnowledge = {
+      0: { lastVisit: 0, prices: { grain: 10 }, source: 'visited' },
+      5: { lastVisit: 3, prices: null, source: 'orbit' },
+    };
+    const result = getKnownSystemsSortedByStaleness(priceKnowledge, starData);
+    expect(result).toHaveLength(1);
+    expect(result[0].system.id).toBe(0);
   });
 });

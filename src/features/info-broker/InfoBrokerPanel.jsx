@@ -189,7 +189,7 @@ export function InfoBrokerPanel({ onClose }) {
         <div className="intelligence-info">
           <div className="intelligence-system-name">{option.systemName}</div>
           <div className="intelligence-visit-info">
-            {formatVisitInfo(option.lastVisit)}
+            {formatVisitInfo(option.lastVisit, option.source)}
           </div>
         </div>
         <div className="intelligence-actions">
