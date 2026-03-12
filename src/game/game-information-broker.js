@@ -188,7 +188,6 @@ export class InformationBroker {
           mining_strike: 'labor troubles',
           medical_emergency: 'a health crisis',
           festival: 'celebrations',
-          supply_glut: 'oversupply issues',
         };
 
         const description =

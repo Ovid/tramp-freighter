@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EconomicEventsSystem } from '../../src/game/game-events.js';
-import { COMMODITY_TYPES } from '../../src/game/constants.js';
 
 describe('EconomicEventsSystem Lifecycle', () => {
   beforeEach(() => {
@@ -118,7 +117,7 @@ describe('EconomicEventsSystem Lifecycle', () => {
       expect(event.endDay).toBe(currentDay + duration);
     });
 
-    it('copies modifiers from event type definition for non-supply_glut events', () => {
+    it('copies modifiers from event type definition', () => {
       const event = EconomicEventsSystem.createEvent('mining_strike', 4, 10);
       const expectedModifiers =
         EconomicEventsSystem.EVENT_TYPES.mining_strike.modifiers;
@@ -126,26 +125,6 @@ describe('EconomicEventsSystem Lifecycle', () => {
 
       // Verify it is a copy, not a reference
       expect(event.modifiers).not.toBe(expectedModifiers);
-    });
-
-    it('gives supply_glut events exactly one random commodity at 0.6 modifier', () => {
-      const event = EconomicEventsSystem.createEvent('supply_glut', 0, 10);
-      const modifierKeys = Object.keys(event.modifiers);
-      expect(modifierKeys).toHaveLength(1);
-      expect(Object.values(event.modifiers)).toEqual([0.6]);
-    });
-
-    it('picks supply_glut commodity from COMMODITY_TYPES', () => {
-      // Test across multiple seeds to check different commodities
-      for (let systemId = 0; systemId < 10; systemId++) {
-        const event = EconomicEventsSystem.createEvent(
-          'supply_glut',
-          systemId,
-          5
-        );
-        const commodity = Object.keys(event.modifiers)[0];
-        expect(COMMODITY_TYPES).toContain(commodity);
-      }
     });
 
     it('is deterministic — same inputs produce same outputs (seeded RNG)', () => {
@@ -312,13 +291,13 @@ describe('EconomicEventsSystem Lifecycle', () => {
     });
 
     it('keeps events where endDay equals currentDay', () => {
-      const events = [{ endDay: 10 }];
+      const events = [{ type: 'mining_strike', endDay: 10 }];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 10);
       expect(result).toHaveLength(1);
     });
 
     it('removes events where endDay is before currentDay', () => {
-      const events = [{ endDay: 9 }];
+      const events = [{ type: 'mining_strike', endDay: 9 }];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 10);
       expect(result).toHaveLength(0);
     });

@@ -1,9 +1,5 @@
 import { SeededRandom } from './utils/seeded-random.js';
-import {
-  COMMODITY_TYPES,
-  SOL_SYSTEM_ID,
-  ALPHA_CENTAURI_SYSTEM_ID,
-} from './constants.js';
+import { SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID } from './constants.js';
 
 /**
  * EconomicEventsSystem - Manages random economic events that affect commodity prices
@@ -49,16 +45,6 @@ export class EconomicEventsSystem {
       },
       chance: 0.04,
       targetSystems: 'core', // Sol Sphere systems
-    },
-    supply_glut: {
-      name: 'Supply Glut',
-      description: 'Oversupply crashes prices',
-      duration: [3, 7],
-      modifiers: {
-        // Random good at 0.6 (40% reduction) - determined at event creation
-      },
-      chance: 0.06,
-      targetSystems: 'any',
     },
   };
 
@@ -192,17 +178,7 @@ export class EconomicEventsSystem {
     // Calculate end day
     const endDay = currentDay + duration;
 
-    // Handle supply_glut special case - pick random commodity
-    let modifiers = { ...eventType.modifiers };
-    if (eventTypeKey === 'supply_glut') {
-      const commoditySeed = `commodity_${id}`;
-      const commodityRng = new SeededRandom(commoditySeed);
-      const commodityIndex = Math.floor(
-        commodityRng.next() * COMMODITY_TYPES.length
-      );
-      const randomCommodity = COMMODITY_TYPES[commodityIndex];
-      modifiers = { [randomCommodity]: 0.6 };
-    }
+    const modifiers = { ...eventType.modifiers };
 
     return {
       id,
@@ -227,7 +203,11 @@ export class EconomicEventsSystem {
     }
 
     return activeEvents.filter((event) => {
-      return event.endDay >= currentDay;
+      // Remove expired events
+      if (event.endDay < currentDay) return false;
+      // Remove events whose type no longer exists (e.g. supply_glut from old saves)
+      if (!EconomicEventsSystem.EVENT_TYPES[event.type]) return false;
+      return true;
     });
   }
 

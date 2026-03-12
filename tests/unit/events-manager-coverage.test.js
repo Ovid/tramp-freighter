@@ -37,7 +37,7 @@ describe('EventsManager coverage', () => {
 
     it('emits ACTIVE_EVENTS_CHANGED', () => {
       const spy = vi.spyOn(gsm, 'emit');
-      const newEvents = [{ systemId: 3, type: 'supply_glut' }];
+      const newEvents = [{ systemId: 3, type: 'mining_strike' }];
       gsm.eventsManager.updateActiveEvents(newEvents);
       expect(spy).toHaveBeenCalledWith(
         EVENT_NAMES.ACTIVE_EVENTS_CHANGED,

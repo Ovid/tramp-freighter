@@ -286,13 +286,11 @@ describe('InformationBroker coverage', () => {
         'mining_strike',
         'medical_emergency',
         'festival',
-        'supply_glut',
       ];
       const expectedDescriptions = [
         'labor troubles',
         'a health crisis',
         'celebrations',
-        'oversupply issues',
       ];
 
       for (let i = 0; i < eventTypes.length; i++) {

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EconomicEventsSystem } from '../../src/game/game-events.js';
 import {
-  COMMODITY_TYPES,
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
 } from '../../src/game/constants.js';
@@ -155,15 +154,6 @@ describe('EconomicEventsSystem', () => {
       expect(event.modifiers.grain).toBe(1.2);
     });
 
-    it('creates supply_glut event with single commodity at 0.6', () => {
-      const event = EconomicEventsSystem.createEvent('supply_glut', 10, 100);
-      const modifierKeys = Object.keys(event.modifiers);
-      expect(modifierKeys).toHaveLength(1);
-      const commodity = modifierKeys[0];
-      expect(COMMODITY_TYPES).toContain(commodity);
-      expect(event.modifiers[commodity]).toBe(0.6);
-    });
-
     it('generates deterministic duration for same inputs', () => {
       const event1 = EconomicEventsSystem.createEvent('mining_strike', 10, 100);
       const event2 = EconomicEventsSystem.createEvent('mining_strike', 10, 100);
@@ -198,8 +188,8 @@ describe('EconomicEventsSystem', () => {
 
     it('keeps events that have not expired', () => {
       const events = [
-        { id: 'e1', endDay: 150 },
-        { id: 'e2', endDay: 200 },
+        { id: 'e1', type: 'mining_strike', endDay: 150 },
+        { id: 'e2', type: 'festival', endDay: 200 },
       ];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
       expect(result).toHaveLength(2);
@@ -207,8 +197,8 @@ describe('EconomicEventsSystem', () => {
 
     it('removes expired events', () => {
       const events = [
-        { id: 'e1', endDay: 50 },
-        { id: 'e2', endDay: 200 },
+        { id: 'e1', type: 'mining_strike', endDay: 50 },
+        { id: 'e2', type: 'festival', endDay: 200 },
       ];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
       expect(result).toHaveLength(1);
@@ -216,15 +206,25 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('keeps event ending exactly on current day', () => {
-      const events = [{ id: 'e1', endDay: 100 }];
+      const events = [{ id: 'e1', type: 'mining_strike', endDay: 100 }];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
       expect(result).toHaveLength(1);
     });
 
     it('removes event ending before current day', () => {
-      const events = [{ id: 'e1', endDay: 99 }];
+      const events = [{ id: 'e1', type: 'mining_strike', endDay: 99 }];
       const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
       expect(result).toHaveLength(0);
+    });
+
+    it('removes events with unknown type (save compatibility)', () => {
+      const events = [
+        { id: 'e1', type: 'supply_glut', endDay: 200 },
+        { id: 'e2', type: 'mining_strike', endDay: 200 },
+      ];
+      const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('e2');
     });
   });
 
@@ -291,8 +291,8 @@ describe('EconomicEventsSystem', () => {
         player: { daysElapsed: 200 },
         world: {
           activeEvents: [
-            { id: 'e1', systemId: 0, endDay: 100 },
-            { id: 'e2', systemId: 1, endDay: 300 },
+            { id: 'e1', type: 'mining_strike', systemId: 0, endDay: 100 },
+            { id: 'e2', type: 'festival', systemId: 1, endDay: 300 },
           ],
         },
       };
@@ -309,7 +309,7 @@ describe('EconomicEventsSystem', () => {
       const state = {
         player: { daysElapsed: 10 },
         world: {
-          activeEvents: [{ id: 'existing', systemId: 0, endDay: 500 }],
+          activeEvents: [{ id: 'existing', type: 'medical_emergency', systemId: 0, endDay: 500 }],
         },
       };
       const starData = [{ id: 0, type: 'G2V' }];
@@ -362,8 +362,8 @@ describe('EconomicEventsSystem', () => {
         player: { daysElapsed: 50 },
         world: {
           activeEvents: [
-            { id: 'active1', systemId: 0, endDay: 100 },
-            { id: 'expired1', systemId: 1, endDay: 30 },
+            { id: 'active1', type: 'mining_strike', systemId: 0, endDay: 100 },
+            { id: 'expired1', type: 'festival', systemId: 1, endDay: 30 },
           ],
         },
       };
@@ -374,36 +374,6 @@ describe('EconomicEventsSystem', () => {
   });
 
   describe('updateEvents - triggering new events', () => {
-    it('triggers a supply_glut event when roll is below chance threshold', () => {
-      // Pre-computed: seed "event_supply_glut_0_1" produces roll 0.006906 < 0.06
-      const starData = [{ id: 0, type: 'G2V' }];
-      const state = makeGameState(1);
-
-      const result = EconomicEventsSystem.updateEvents(state, starData);
-
-      const triggered = result.find((e) => e.type === 'supply_glut');
-      expect(triggered).toBeDefined();
-      expect(triggered.systemId).toBe(0);
-      expect(triggered.startDay).toBe(1);
-      expect(triggered.id).toBe('supply_glut_0_1');
-    });
-
-    it('supply_glut event has a single commodity modifier at 0.6', () => {
-      // supply_glut on system 0, day 1 picks commodity via
-      // seed "commodity_supply_glut_0_1" -> index 0 -> 'grain'
-      const starData = [{ id: 0, type: 'G2V' }];
-      const state = makeGameState(1);
-
-      const result = EconomicEventsSystem.updateEvents(state, starData);
-
-      const triggered = result.find((e) => e.type === 'supply_glut');
-      expect(triggered).toBeDefined();
-      const modKeys = Object.keys(triggered.modifiers);
-      expect(modKeys).toHaveLength(1);
-      expect(COMMODITY_TYPES).toContain(modKeys[0]);
-      expect(triggered.modifiers[modKeys[0]]).toBe(0.6);
-    });
-
     it('triggers a mining_strike event on an eligible mining system', () => {
       // Pre-computed: seed "event_mining_strike_15_1" produces roll 0.040475 < 0.05
       // System 15 must have a mining spectral class (M, L, or T)
@@ -449,7 +419,6 @@ describe('EconomicEventsSystem', () => {
       //   mining_strike: 0.345 (no trigger, also ineligible - G2V not mining)
       //   medical_emergency: 0.675 (no trigger)
       //   festival: 0.005007 < 0.04 (triggers!)
-      //   supply_glut: 0.127 (no trigger)
       // So only festival fires on this system/day combination.
       const starData = [{ id: SOL_SYSTEM_ID, type: 'G2V' }];
       const state = makeGameState(4);
@@ -511,9 +480,7 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('can trigger different event types on different systems in same update', () => {
-      // Day 1: system 15 (M3V) triggers mining_strike (roll=0.040475 < 0.05)
-      // Day 1: system 0 triggers supply_glut (roll=0.006906 < 0.06)
-      // These are different event types, so both should fire (on different systems)
+      // Multiple systems can each get different event types in the same update
       const starData = [
         { id: 0, type: 'G2V' },
         { id: 15, type: 'M3V' },
@@ -522,10 +489,10 @@ describe('EconomicEventsSystem', () => {
 
       const result = EconomicEventsSystem.updateEvents(state, starData);
 
-      const types = result.map((e) => e.type);
-      // Both event types should have triggered
-      expect(types).toContain('mining_strike');
-      expect(types).toContain('supply_glut');
+      // mining_strike should trigger on system 15 (M-class, eligible)
+      const miningStrike = result.find((e) => e.type === 'mining_strike');
+      expect(miningStrike).toBeDefined();
+      expect(miningStrike.systemId).toBe(15);
     });
   });
 
@@ -636,25 +603,20 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('expired event on a system allows new event on that system', () => {
-      // System 0 had an expired supply_glut. After removal, system 0
-      // should be eligible for new events.
       const starData = [{ id: 0, type: 'G2V' }];
       const expiredEvent = {
-        id: 'old_supply_glut',
-        type: 'supply_glut',
+        id: 'old_event',
+        type: 'medical_emergency',
         systemId: 0,
         endDay: 0,
       };
-      // Day 1, system 0 triggers supply_glut (roll=0.006906 < 0.06)
       const state = makeGameState(1, [expiredEvent]);
 
       const result = EconomicEventsSystem.updateEvents(state, starData);
 
-      // Old event gone, new supply_glut triggered
-      expect(result.find((e) => e.id === 'old_supply_glut')).toBeUndefined();
-      const newEvent = result.find((e) => e.type === 'supply_glut');
-      expect(newEvent).toBeDefined();
-      expect(newEvent.id).toBe('supply_glut_0_1');
+      // Old event gone
+      expect(result.find((e) => e.id === 'old_event')).toBeUndefined();
+      // System 0 is now eligible for new events since the old one expired
     });
   });
 
@@ -666,7 +628,6 @@ describe('EconomicEventsSystem', () => {
       expect(types).toContain('mining_strike');
       expect(types).toContain('medical_emergency');
       expect(types).toContain('festival');
-      expect(types).toContain('supply_glut');
     });
 
     it('all event types have required fields', () => {
