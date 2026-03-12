@@ -86,6 +86,11 @@ export const INTELLIGENCE_CONFIG = {
     MIN_MANIPULATION_MULTIPLIER: 0.7, // Lower multiplier = appears cheaper to buy
     MAX_MANIPULATION_MULTIPLIER: 0.85, // Upper multiplier for manipulated prices
   },
+  SOURCES: {
+    ORBIT: 'orbit',
+    VISITED: 'visited',
+    INTELLIGENCE_BROKER: 'intelligence_broker',
+  },
 };
 
 /**
@@ -541,6 +546,9 @@ export const COLE_DEBT_CONFIG = {
   STARTING_LIEN_RATE: 0.05,
   STARTING_HEAT: 0,
   STARTING_CHECKPOINT_DAY: 30,
+
+  EARLY_REPAYMENT_FEE_RATE: 0.1,
+  EARLY_REPAYMENT_WINDOW_DAYS: 20,
 };
 
 /**
