@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
 import { useGame } from '../../context/GameContext';
+import { useStarmap } from '../../context/StarmapContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { EVENT_NAMES } from '../../game/constants';
+import { useStarData } from '../../hooks/useStarData';
+import { EVENT_NAMES, calculateDistanceFromSol } from '../../game/constants';
 
 export function CameraControls({
   cameraState,
@@ -13,8 +15,11 @@ export function CameraControls({
   onToggleBoundary,
 }) {
   const game = useGame();
+  const { selectStarById } = useStarmap();
+  const starData = useStarData();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
@@ -22,6 +27,16 @@ export function CameraControls({
   const [showAchievements, setShowAchievements] = useState(false);
 
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
+
+  const gameState = game.getState();
+  const visitedSet = new Set(gameState?.world?.visitedSystems || []);
+
+  const sortedStars = useMemo(() => {
+    if (!starData) return [];
+    return [...starData].sort(
+      (a, b) => calculateDistanceFromSol(a) - calculateDistanceFromSol(b)
+    );
+  }, [starData]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -107,6 +122,36 @@ export function CameraControls({
               />
               <span className="settings-toggle-slider" />
             </label>
+
+            <div className="settings-divider" />
+
+            <div className="settings-star-finder">
+              <span className="settings-label">Find Star</span>
+              <select
+                className="star-finder-select"
+                onChange={(e) => {
+                  const systemId = parseInt(e.target.value, 10);
+                  if (!isNaN(systemId)) {
+                    selectStarById(systemId);
+                  }
+                }}
+                defaultValue=""
+                aria-label="Find star system"
+              >
+                <option value="" disabled>
+                  -- Select --
+                </option>
+                {sortedStars.map((star) => {
+                  const visited = visitedSet.has(star.id);
+                  return (
+                    <option key={star.id} value={star.id}>
+                      {visited ? '\u2713 ' : '  '}
+                      {star.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
 
             <div className="settings-divider" />
 

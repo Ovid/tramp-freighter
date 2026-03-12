@@ -961,6 +961,30 @@
   pointer-events: none;
 }
 
+.settings-star-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.star-finder-select {
+  background: rgba(0, 0, 0, 0.6);
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  max-height: 200px;
+}
+
+.star-finder-select option {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
 .mission-hud-item.quest-mission {
   border-left: 3px solid #ffd700;
 }

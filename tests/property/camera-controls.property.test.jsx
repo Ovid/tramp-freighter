@@ -31,9 +31,20 @@ vi.mock('../../src/context/GameContext', () => {
       return true;
     }),
     setPreference: vi.fn(),
+    getState: vi.fn(() => ({ world: { visitedSystems: [0] } })),
   });
   return { useGame: hook };
 });
+
+// Mock StarmapContext
+vi.mock('../../src/context/StarmapContext', () => ({
+  useStarmap: () => ({ selectStarById: vi.fn() }),
+}));
+
+// Mock useStarData
+vi.mock('../../src/hooks/useStarData', () => ({
+  useStarData: () => [{ id: 0, name: 'Sol', x: 0, y: 0, z: 0 }],
+}));
 
 // Mock useGameEvent
 vi.mock('../../src/hooks/useGameEvent', () => ({
