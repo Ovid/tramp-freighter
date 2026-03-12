@@ -50,6 +50,7 @@ export function ShipNamingDialog({ onSubmit }) {
               onChange={(e) => setShipName(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter ship name..."
+              maxLength={SHIP_CONFIG.MAX_NAME_LENGTH}
               autoFocus
             />
           </div>

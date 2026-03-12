@@ -5,6 +5,7 @@ import { ShipNamingDialog } from '../../src/features/title-screen/ShipNamingDial
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { SHIP_CONFIG } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
 // Suppress console warnings during tests
@@ -72,6 +73,7 @@ describe('Property: Ship naming dialog displays', () => {
         // Verify input has correct attributes
         expect(input.type).toBe('text');
         expect(input.placeholder).toBe('Enter ship name...');
+        expect(input.maxLength).toBe(SHIP_CONFIG.MAX_NAME_LENGTH);
 
         // Verify suggestions section is displayed
         const suggestionsSection = container.querySelector(
