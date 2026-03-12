@@ -21,6 +21,10 @@ export function createStarTexture() {
   canvas.height = 64;
   const ctx = canvas.getContext('2d');
 
+  if (!ctx) {
+    throw new Error('Canvas 2D context not available');
+  }
+
   // Create radial gradient for glow effect.
   // Brightness is encoded in RGB (not alpha) to avoid premultiplied alpha
   // artifacts on Safari. Canvas 2D stores premultiplied data; AdditiveBlending
