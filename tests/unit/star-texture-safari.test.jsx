@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 /**
  * Safari WebGL premultiplied alpha compatibility test.
@@ -14,9 +14,11 @@ import { describe, it, expect, beforeEach } from 'vitest';
  */
 describe('Star glow texture Safari compatibility', () => {
   let capturedStops;
+  let originalGetContext;
 
   beforeEach(() => {
     capturedStops = [];
+    originalGetContext = HTMLCanvasElement.prototype.getContext;
 
     // Override the global canvas mock to capture gradient color stops
     HTMLCanvasElement.prototype.getContext = function (type) {
@@ -51,6 +53,10 @@ describe('Star glow texture Safari compatibility', () => {
       }
       return null;
     };
+  });
+
+  afterEach(() => {
+    HTMLCanvasElement.prototype.getContext = originalGetContext;
   });
 
   it('should use alpha=1.0 in all gradient stops to avoid premultiply artifacts', async () => {
