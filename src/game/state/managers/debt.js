@@ -368,6 +368,12 @@ export class DebtManager extends BaseManager {
     const finance = this.getFinance();
     const debt = this.getDebt();
     const credits = this.capabilities.getCredits();
+    const daysElapsed = this.capabilities.getDaysElapsed();
+
+    const isEarlyRepayment =
+      finance.lastBorrowDay !== null &&
+      daysElapsed - finance.lastBorrowDay <
+        COLE_DEBT_CONFIG.EARLY_REPAYMENT_WINDOW_DAYS;
 
     return {
       debt,
@@ -381,6 +387,9 @@ export class DebtManager extends BaseManager {
       totalBorrowed: finance.totalBorrowed,
       totalRepaid: finance.totalRepaid,
       nextCheckpoint: finance.nextCheckpoint,
+      earlyRepaymentFeeRate: isEarlyRepayment
+        ? COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
+        : 0,
     };
   }
 

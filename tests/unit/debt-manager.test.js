@@ -971,6 +971,27 @@ describe('Cole Debt System', () => {
       expect(result.fee).toBe(0);
     });
 
+    it('getDebtInfo should report earlyRepaymentFeeRate when within window', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 15;
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0.1);
+    });
+
+    it('getDebtInfo should report zero earlyRepaymentFeeRate when outside window', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 31;
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0);
+    });
+
+    it('getDebtInfo should report zero earlyRepaymentFeeRate when lastBorrowDay is null', () => {
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0);
+    });
+
     it('should reduce payment if credits insufficient for payment plus fee', () => {
       gsm.state.player.credits = 5000;
       gsm.state.player.daysElapsed = 10;
