@@ -299,8 +299,12 @@ export class InformationBroker {
             (event) => event.systemId === system.id
           );
           if (systemEvent) {
-            const eventTypeDef =
-              EconomicEventsSystem.EVENT_TYPES[systemEvent.type];
+            const eventTypeDef = Object.hasOwn(
+              EconomicEventsSystem.EVENT_TYPES,
+              systemEvent.type
+            )
+              ? EconomicEventsSystem.EVENT_TYPES[systemEvent.type]
+              : null;
             if (eventTypeDef) {
               result.event = {
                 name: eventTypeDef.name,

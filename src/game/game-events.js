@@ -205,21 +205,29 @@ export class EconomicEventsSystem {
         // Remove expired events
         if (event.endDay < currentDay) return false;
         // Remove events whose type no longer exists (e.g. supply_glut from old saves)
-        if (!EconomicEventsSystem.EVENT_TYPES[event.type]) return false;
+        if (!Object.hasOwn(EconomicEventsSystem.EVENT_TYPES, event.type))
+          return false;
         return true;
       })
       .map((event) => {
         // Sanitize modifiers to match current EVENT_TYPES definition (old saves
         // may carry stale modifier keys from previous versions)
-        const validModifiers =
-          EconomicEventsSystem.EVENT_TYPES[event.type].modifiers;
+        const typeDef = EconomicEventsSystem.EVENT_TYPES[event.type];
+        const validModifiers = typeDef.modifiers;
         const sanitized = {};
         for (const key of Object.keys(event.modifiers || {})) {
           if (key in validModifiers) {
             sanitized[key] = event.modifiers[key];
           }
         }
-        return { ...event, modifiers: sanitized };
+        // If all stored modifiers were stale, fall back to canonical modifiers
+        // so the event still affects trading instead of becoming a zombie that
+        // blocks the system from getting new events
+        const modifiers =
+          Object.keys(sanitized).length > 0
+            ? sanitized
+            : { ...validModifiers };
+        return { ...event, modifiers };
       });
   }
 
