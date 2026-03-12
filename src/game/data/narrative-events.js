@@ -414,8 +414,8 @@ export const NARRATIVE_EVENTS = [
       ],
       chance: 1.0,
     },
-    once: false,
-    cooldown: 10,
+    once: true,
+    cooldown: 0,
     priority: NARRATIVE_PRIORITY_HIGH,
     content: {
       text: [
