@@ -23,6 +23,7 @@ export class DebtManager extends BaseManager {
         totalRepaid: 0,
         borrowedThisPeriod: false,
         lastCheckpointRepaid: 0,
+        lastBorrowDay: null,
       };
       this.capabilities.initFinance(financeObj);
       return financeObj;
@@ -179,6 +180,7 @@ export class DebtManager extends BaseManager {
     // Track
     finance.totalBorrowed += amount;
     finance.borrowedThisPeriod = true;
+    finance.lastBorrowDay = daysElapsed;
 
     // Cole likes customers
     this.modifyColeRep(COLE_DEBT_CONFIG.REP_BORROW_BONUS);

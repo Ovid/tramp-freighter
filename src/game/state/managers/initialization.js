@@ -102,6 +102,7 @@ export class InitializationManager {
         totalRepaid: 0,
         lastCheckpointRepaid: 0,
         borrowedThisPeriod: false,
+        lastBorrowDay: null,
       },
     };
   }

@@ -895,4 +895,35 @@ describe('Cole Debt System', () => {
       expect(gsm.getNPCState('cole_sol').rep).toBe(17);
     });
   });
+
+  describe('Early repayment fee', () => {
+    let debtManager;
+
+    beforeEach(() => {
+      gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      gsm.initNewGame();
+      debtManager = new DebtManager(buildDebtCapabilities(gsm));
+    });
+
+    it('should track lastBorrowDay when borrowing', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBe(10);
+    });
+
+    it('should update lastBorrowDay on each borrow', () => {
+      gsm.state.player.daysElapsed = 5;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 15;
+      debtManager.borrow(200);
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBe(15);
+    });
+
+    it('should initialize lastBorrowDay to null', () => {
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBeNull();
+    });
+  });
 });
