@@ -36,6 +36,8 @@ export function SystemPanel({
   const { executeJump } = useGameAction();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
+  const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED) ?? 0;
+  useGameEvent(EVENT_NAMES.ACTIVE_EVENTS_CHANGED);
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
@@ -227,7 +229,6 @@ export function SystemPanel({
   const capabilities = game.calculateShipCapabilities();
   const engineCondition = shipCondition?.engine ?? 100;
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');
-  const currentDay = game.getState().player?.daysElapsed ?? 0;
 
   const connectedSystemIds =
     game.navigationSystem.getConnectedSystems(currentSystemId);
