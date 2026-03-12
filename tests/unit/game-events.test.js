@@ -253,6 +253,20 @@ describe('EconomicEventsSystem', () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('e2');
     });
+
+    it('sanitizes stale modifier keys from old saves', () => {
+      const events = [
+        {
+          id: 'e1',
+          type: 'medical_emergency',
+          endDay: 200,
+          modifiers: { medicine: 2.0, grain: 0.9, ore: 0.9 },
+        },
+      ];
+      const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
+      expect(result).toHaveLength(1);
+      expect(result[0].modifiers).toEqual({ medicine: 2.0 });
+    });
   });
 
   // ─── Active Event Lookup ───────────────────────────────────────────

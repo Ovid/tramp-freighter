@@ -200,13 +200,27 @@ export class EconomicEventsSystem {
       return [];
     }
 
-    return activeEvents.filter((event) => {
-      // Remove expired events
-      if (event.endDay < currentDay) return false;
-      // Remove events whose type no longer exists (e.g. supply_glut from old saves)
-      if (!EconomicEventsSystem.EVENT_TYPES[event.type]) return false;
-      return true;
-    });
+    return activeEvents
+      .filter((event) => {
+        // Remove expired events
+        if (event.endDay < currentDay) return false;
+        // Remove events whose type no longer exists (e.g. supply_glut from old saves)
+        if (!EconomicEventsSystem.EVENT_TYPES[event.type]) return false;
+        return true;
+      })
+      .map((event) => {
+        // Sanitize modifiers to match current EVENT_TYPES definition (old saves
+        // may carry stale modifier keys from previous versions)
+        const validModifiers =
+          EconomicEventsSystem.EVENT_TYPES[event.type].modifiers;
+        const sanitized = {};
+        for (const key of Object.keys(event.modifiers || {})) {
+          if (key in validModifiers) {
+            sanitized[key] = event.modifiers[key];
+          }
+        }
+        return { ...event, modifiers: sanitized };
+      });
   }
 
   /**
