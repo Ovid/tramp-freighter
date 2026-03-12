@@ -995,6 +995,29 @@ export class GameCoordinator {
     return this.questManager.isTanakaQuestActive();
   }
 
+  getTanakaMissionDisplay() {
+    if (!this.isTanakaQuestActive()) return null;
+    const questState = this.questManager.getQuestState('tanaka');
+    const questDef = this.questManager.getQuestDefinition('tanaka');
+    if (!questState || !questDef) return null;
+
+    const stageDef = questDef.stages.find((s) => s.stage === questState.stage);
+    const stageName = stageDef ? stageDef.name : 'Unknown';
+
+    let progress = null;
+    if (questState.stage === 1) {
+      progress = `${questState.data.jumpsCompleted || 0}/3 jumps`;
+    } else if (questState.stage === 2) {
+      progress = `${questState.data.exoticMaterials || 0}/5 samples`;
+    }
+
+    return {
+      title: `Tanaka: ${stageName}`,
+      progress,
+      stage: questState.stage,
+    };
+  }
+
   getEffectiveMissionCount() {
     const regularCount = this.state.missions.active.length;
     const tanakaSlot = this.isTanakaQuestActive() ? 1 : 0;

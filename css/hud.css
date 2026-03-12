@@ -960,3 +960,13 @@
   z-index: var(--z-modal);
   pointer-events: none;
 }
+
+.mission-hud-item.quest-mission {
+  border-left: 3px solid #ffd700;
+}
+
+.mission-hud-quest-label {
+  color: #ffd700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
