@@ -395,6 +395,7 @@ export class GameCoordinator {
           this.state.stats[key] = (this.state.stats[key] || 0) + delta;
         }
       },
+      isTanakaQuestActive: () => this.questManager.isTanakaQuestActive(),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,
@@ -988,6 +989,16 @@ export class GameCoordinator {
 
   contributeSupply() {
     return this.questManager.contributeSupply();
+  }
+
+  isTanakaQuestActive() {
+    return this.questManager.isTanakaQuestActive();
+  }
+
+  getEffectiveMissionCount() {
+    const regularCount = this.state.missions.active.length;
+    const tanakaSlot = this.isTanakaQuestActive() ? 1 : 0;
+    return regularCount + tanakaSlot;
   }
 
   startPavonisRun() {
