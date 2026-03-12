@@ -226,6 +226,8 @@ export function SystemPanel({
   // If viewing current system, show system info with connected systems
   const capabilities = game.calculateShipCapabilities();
   const engineCondition = shipCondition?.engine ?? 100;
+  const hasAdvancedSensors = upgrades.includes('advanced_sensors');
+  const currentDay = game.getState().player?.daysElapsed ?? 0;
 
   const connectedSystemIds =
     game.navigationSystem.getConnectedSystems(currentSystemId);
@@ -256,18 +258,6 @@ export function SystemPanel({
     })
     .filter(Boolean)
     .sort((a, b) => a.distance - b.distance);
-
-  // Check for active economic event (if Advanced Sensors installed)
-  const hasAdvancedSensors = upgrades.includes('advanced_sensors');
-  let activeEvent = null;
-  let eventType = null;
-
-  if (hasAdvancedSensors) {
-    activeEvent = game.getActiveEventForSystem(currentSystemId);
-    if (activeEvent) {
-      eventType = game.getEventType(activeEvent.type);
-    }
-  }
 
   return (
     <div className="system-panel">
@@ -309,40 +299,59 @@ export function SystemPanel({
           </div>
         </div>
 
-        {/* Economic Event Info (if Advanced Sensors installed) */}
-        {hasAdvancedSensors && activeEvent && eventType && (
-          <div className="system-event-info">
-            <div className="event-indicator">
-              <span className="event-icon">📊</span>
-              <span className="event-name">{eventType.name}</span>
-            </div>
-            <div className="event-description">{eventType.description}</div>
-          </div>
-        )}
-
         {/* Connected Systems */}
         <div className="connected-systems">
           {connectedSystems.length === 0 ? (
             <p className="no-connections">No wormhole connections</p>
           ) : (
             <div className="connections-list">
-              {connectedSystems.map((system) => (
-                <button
-                  key={system.id}
-                  className="connection-item"
-                  onClick={() => {
-                    if (selectStarById) {
-                      selectStarById(system.id);
-                    }
-                  }}
-                >
-                  <div className="connection-name">{system.name}</div>
-                  <div className="connection-details">
-                    {system.distance.toFixed(1)} LY •{' '}
-                    {system.fuelCost.toFixed(1)}% fuel • {system.jumpTime}d
-                  </div>
-                </button>
-              ))}
+              {connectedSystems.map((system) => {
+                let destinationEvent = null;
+                let destinationEventType = null;
+                if (hasAdvancedSensors) {
+                  destinationEvent = game.getActiveEventForSystem(system.id);
+                  if (destinationEvent) {
+                    destinationEventType = game.getEventType(destinationEvent.type);
+                  }
+                }
+                const daysRemaining = destinationEvent
+                  ? destinationEvent.endDay - currentDay
+                  : 0;
+
+                return (
+                  <button
+                    key={system.id}
+                    className="connection-item"
+                    onClick={() => {
+                      if (selectStarById) {
+                        selectStarById(system.id);
+                      }
+                    }}
+                  >
+                    <div className="connection-name">{system.name}</div>
+                    <div className="connection-details">
+                      {system.distance.toFixed(1)} LY •{' '}
+                      {system.fuelCost.toFixed(1)}% fuel • {system.jumpTime}d
+                    </div>
+                    {destinationEventType && daysRemaining > 0 && (
+                      <div className="system-event-info destination-event">
+                        <div className="event-indicator">
+                          <span className="event-icon">📊</span>
+                          <span className="event-name">
+                            {destinationEventType.name} at {system.name}
+                          </span>
+                        </div>
+                        <div className="event-description">
+                          {destinationEventType.description}
+                        </div>
+                        <div className="event-time-remaining">
+                          {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
