@@ -188,7 +188,10 @@ Expected: FAIL — the first test will fail because `calculatePrice` still uses 
 In `src/game/game-trading.js`, modify the `calculatePrice` method. Replace the body after the system validation with:
 
 ```javascript
-    // Check if an economic event overrides this commodity's price at this system
+    // Check if an economic event overrides this commodity's price at this system.
+    // IMPORTANT: All event modifiers must be > 1.0. A sub-1.0 modifier (e.g. 0.6)
+    // would incorrectly trigger guaranteed-premium pricing instead of reducing prices.
+    // Supply Glut (the only sub-1.0 event) was removed for this reason.
     const eventMod = TradingSystem.getEventModifier(
       system.id,
       goodType,
@@ -247,6 +250,39 @@ In `src/game/game-events.js`:
 
 1. Remove the entire `supply_glut` entry from `EVENT_TYPES` (lines 53-62).
 2. Remove the supply_glut special case in `createEvent` (lines 196-204). The code block starting with `if (eventTypeKey === 'supply_glut')` and ending before the `return` statement.
+3. In `removeExpiredEvents`, also filter out events whose type is not in `EVENT_TYPES`. This handles save compatibility — old saves may have active `supply_glut` events that would otherwise persist and (incorrectly) trigger guaranteed premium pricing via the `!== 1.0` check. Update the method to:
+
+```javascript
+  static removeExpiredEvents(activeEvents, currentDay) {
+    if (!Array.isArray(activeEvents)) {
+      return [];
+    }
+
+    return activeEvents.filter((event) => {
+      // Remove expired events
+      if (event.endDay < currentDay) return false;
+      // Remove events whose type no longer exists (e.g. supply_glut from old saves)
+      if (!EconomicEventsSystem.EVENT_TYPES[event.type]) return false;
+      return true;
+    });
+  }
+```
+
+**Step 1b: Add test for save compatibility filter**
+
+Add to the `removeExpiredEvents` describe block in `tests/unit/game-events.test.js`:
+
+```javascript
+    it('removes events with unknown type (save compatibility)', () => {
+      const events = [
+        { id: 'e1', type: 'supply_glut', endDay: 200 },
+        { id: 'e2', type: 'mining_strike', endDay: 200 },
+      ];
+      const result = EconomicEventsSystem.removeExpiredEvents(events, 100);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('e2');
+    });
+```
 
 **Step 2: Remove supply_glut from information broker**
 
@@ -524,7 +560,7 @@ Then update the destination system button rendering. Replace the existing `conne
                         <div className="event-indicator">
                           <span className="event-icon">📊</span>
                           <span className="event-name">
-                            {destinationEventType.name}
+                            {destinationEventType.name} at {system.name}
                           </span>
                         </div>
                         <div className="event-description">
