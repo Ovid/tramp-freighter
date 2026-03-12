@@ -191,6 +191,7 @@ export class GameCoordinator {
       getMarketConditions: () => this.state.world.marketConditions,
       getStats: () => this.state.stats,
       getDockedSystems: () => this.state.world.narrativeEvents?.dockedSystems,
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
       updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
         this.tradingManager.updatePriceKnowledge(
           systemId,

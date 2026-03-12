@@ -34,6 +34,12 @@ export class NavigationManager extends BaseManager {
       visitedSystems.push(newSystemId);
     }
 
+    // Create orbit-only priceKnowledge entry if none exists
+    const priceKnowledge = this.capabilities.getPriceKnowledge();
+    if (!priceKnowledge[newSystemId]) {
+      this.capabilities.updatePriceKnowledge(newSystemId, null, 0, 'orbit');
+    }
+
     // Snapshot prices at arrival to prevent intra-system arbitrage
     // Prices are locked until player leaves the system
     const system = this.capabilities.starData.find((s) => s.id === newSystemId);

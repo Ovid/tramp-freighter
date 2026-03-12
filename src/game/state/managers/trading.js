@@ -280,7 +280,7 @@ export class TradingManager extends BaseManager {
     // priceKnowledge is guaranteed to exist after initialization
     ownState.priceKnowledge[systemId] = {
       lastVisit: lastVisit,
-      prices: { ...prices },
+      prices: prices ? { ...prices } : null,
       source: source,
     };
 

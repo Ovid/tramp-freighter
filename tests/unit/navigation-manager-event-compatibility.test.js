@@ -23,6 +23,7 @@ function makeCapabilities(mockState, overrides = {}) {
     getMarketConditions: () => mockState.world.marketConditions,
     getStats: () => mockState.stats,
     getDockedSystems: () => mockState.world.narrativeEvents?.dockedSystems,
+    getPriceKnowledge: () => mockState.world.priceKnowledge || {},
     updatePriceKnowledge: vi.fn(),
     checkAchievements: vi.fn(),
     markDirty: vi.fn(),
