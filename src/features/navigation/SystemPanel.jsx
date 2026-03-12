@@ -336,7 +336,7 @@ export function SystemPanel({
                       {system.distance.toFixed(1)} LY •{' '}
                       {system.fuelCost.toFixed(1)}% fuel • {system.jumpTime}d
                     </div>
-                    {destinationEventType && daysRemaining > 0 && (
+                    {destinationEventType && daysRemaining >= 0 && (
                       <div className="system-event-info destination-event">
                         <div className="event-indicator">
                           <span className="event-icon">📊</span>
@@ -348,8 +348,9 @@ export function SystemPanel({
                           {destinationEventType.description}
                         </div>
                         <div className="event-time-remaining">
-                          {daysRemaining} day{daysRemaining !== 1 ? 's' : ''}{' '}
-                          remaining
+                          {daysRemaining === 0
+                            ? 'Final day'
+                            : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
                         </div>
                       </div>
                     )}
