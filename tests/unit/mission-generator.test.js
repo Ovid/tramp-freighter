@@ -101,8 +101,16 @@ describe('Mission Generator', () => {
     });
 
     it('should handle dead-end systems (1 connection)', () => {
-      const result = getReachableSystems(7, TEST_WORMHOLE_DATA, 1);
-      expect(result).toEqual([{ systemId: 0, hopCount: 1 }]);
+      const result = getReachableSystems(
+        7,
+        TEST_WORMHOLE_DATA,
+        1,
+        TEST_STAR_DATA
+      );
+      expect(result).toEqual([
+        expect.objectContaining({ systemId: 0, hopCount: 1 }),
+      ]);
+      expect(result[0].travelDays).toBeGreaterThan(0);
     });
 
     it('should find multi-hop destinations from dead-end systems', () => {
@@ -488,17 +496,26 @@ describe('Mission Generator', () => {
       );
     });
 
-    it('should use hop-based deadline', () => {
+    it('should use travel-time-based deadline', () => {
       const mission = generateCargoRun(
         0,
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA,
         'safe'
       );
-      const expectedDeadline =
-        mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
-        MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
-      expect(mission.requirements.deadline).toBe(expectedDeadline);
+      // Find the travelDays for the chosen destination
+      const reachable = getReachableSystems(
+        0,
+        TEST_WORMHOLE_DATA,
+        MISSION_CONFIG.MAX_MISSION_HOPS,
+        TEST_STAR_DATA
+      );
+      const chosen = reachable.find(
+        (r) => r.systemId === mission.requirements.destination
+      );
+      expect(mission.requirements.deadline).toBe(
+        chosen.travelDays + MISSION_CONFIG.DEADLINE_BUFFER_DAYS
+      );
     });
 
     it('should produce integer rewards', () => {
@@ -804,16 +821,24 @@ describe('Mission Generator', () => {
       expect(mission.hopCount).toBeGreaterThanOrEqual(1);
     });
 
-    it('should use hop-based deadline', () => {
+    it('should use travel-time-based deadline', () => {
       const mission = generatePassengerMission(
         0,
         TEST_STAR_DATA,
         TEST_WORMHOLE_DATA
       );
-      const expectedDeadline =
-        mission.hopCount * MISSION_CONFIG.DAYS_PER_HOP_ESTIMATE +
-        MISSION_CONFIG.DEADLINE_BUFFER_DAYS;
-      expect(mission.requirements.deadline).toBe(expectedDeadline);
+      const reachable = getReachableSystems(
+        0,
+        TEST_WORMHOLE_DATA,
+        MISSION_CONFIG.MAX_MISSION_HOPS,
+        TEST_STAR_DATA
+      );
+      const chosen = reachable.find(
+        (r) => r.systemId === mission.requirements.destination
+      );
+      expect(mission.requirements.deadline).toBe(
+        chosen.travelDays + MISSION_CONFIG.DEADLINE_BUFFER_DAYS
+      );
     });
 
     it('should apply saturation to passenger reward', () => {
