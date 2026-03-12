@@ -46,7 +46,7 @@ export function MissionBoardPanel({ onClose }) {
   // Pre-compute why each board mission can't be accepted (if any)
   const disabledReasons = useMemo(() => {
     if (!missions?.board) return {};
-    const activeCount = missions.active?.length ?? 0;
+    const activeCount = game.getEffectiveMissionCount();
     const cargoRemaining = game.getCargoRemaining();
     const activeIds = new Set((missions.active ?? []).map((m) => m.id));
 
