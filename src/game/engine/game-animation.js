@@ -167,7 +167,7 @@ class InputLockManager {
  * @returns {THREE.Sprite} Ship indicator sprite
  */
 function createShipIndicatorSprite() {
-  // Create texture using shared glow texture from stars.js
+  // Create glow texture for ship indicator
   const texture = createStarTexture();
 
   // Create sprite material with red color and additive blending

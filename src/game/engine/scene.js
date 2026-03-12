@@ -269,7 +269,7 @@ function createStarfield(scene) {
   );
   starfieldGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  // Create texture for stars (shared glow texture from stars.js)
+  // Create glow texture for background starfield points
   const starTexture = createStarTexture();
 
   // Create material for starfield
