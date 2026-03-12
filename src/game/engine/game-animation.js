@@ -187,11 +187,12 @@ function createShipIndicatorCanvasTexture() {
     center,
     center
   );
+  // Brightness in RGB (not alpha) to avoid Safari premultiplied alpha artifacts
   gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-  gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
-  gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
-  gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
-  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  gradient.addColorStop(0.2, 'rgba(204, 204, 204, 1.0)');
+  gradient.addColorStop(0.4, 'rgba(102, 102, 102, 1.0)');
+  gradient.addColorStop(0.7, 'rgba(26, 26, 26, 1.0)');
+  gradient.addColorStop(1, 'rgba(0, 0, 0, 1.0)');
 
   context2d.fillStyle = gradient;
   context2d.fillRect(0, 0, size, size);
