@@ -313,6 +313,34 @@ describe('TradingSystem.calculatePrice', () => {
     const price2 = TradingSystem.calculatePrice('electronics', system2, 10);
     expect(price1).not.toBe(price2);
   });
+
+  it('uses guaranteed event price when event affects the commodity', () => {
+    // Sol system — electronics normally cheap here due to tech bias
+    const solSystem = { id: 0, x: 0, y: 0, z: 0 };
+    const events = [{ systemId: 0, modifiers: { electronics: 1.75 } }];
+
+    const eventPrice = TradingSystem.calculatePrice(
+      'electronics', solSystem, 10, events
+    );
+    const expectedEventPrice = TradingSystem.getEventPrice('electronics');
+
+    expect(eventPrice).toBe(expectedEventPrice);
+  });
+
+  it('uses normal price for commodities NOT affected by the event', () => {
+    const solSystem = { id: 0, x: 0, y: 0, z: 0 };
+    // Event only affects electronics
+    const events = [{ systemId: 0, modifiers: { electronics: 1.75 } }];
+
+    const eventPrice = TradingSystem.calculatePrice(
+      'ore', solSystem, 10, events
+    );
+    const normalPrice = TradingSystem.calculatePrice(
+      'ore', solSystem, 10, []
+    );
+
+    expect(eventPrice).toBe(normalPrice);
+  });
 });
 
 describe('TradingSystem.calculateTechLevel', () => {

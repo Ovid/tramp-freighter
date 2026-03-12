@@ -39,7 +39,21 @@ export class TradingSystem {
       throw new Error('System object required for price calculation');
     }
 
-    // Calculate all modifiers
+    // Check if an economic event overrides this commodity's price at this system.
+    // IMPORTANT: All event modifiers must be > 1.0. A sub-1.0 modifier (e.g. 0.6)
+    // would incorrectly trigger guaranteed-premium pricing instead of reducing prices.
+    // Supply Glut (the only sub-1.0 event) was removed for this reason.
+    const eventMod = TradingSystem.getEventModifier(
+      system.id,
+      goodType,
+      activeEvents
+    );
+    if (eventMod !== 1.0) {
+      // Event active for this commodity — use guaranteed-profit price
+      return TradingSystem.getEventPrice(goodType);
+    }
+
+    // Calculate all modifiers (normal formula)
     const techLevel = TradingSystem.calculateTechLevel(system);
     const techMod = TradingSystem.getTechModifier(goodType, techLevel);
     const temporalMod = TradingSystem.getTemporalModifier(
@@ -51,14 +65,9 @@ export class TradingSystem {
       goodType,
       marketConditions
     );
-    const eventMod = TradingSystem.getEventModifier(
-      system.id,
-      goodType,
-      activeEvents
-    );
 
-    // Apply complete formula
-    const price = basePrice * techMod * temporalMod * localMod * eventMod;
+    // Apply complete formula (no event modifier — it's been handled above)
+    const price = basePrice * techMod * temporalMod * localMod;
     return Math.round(price);
   }
 
