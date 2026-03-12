@@ -57,6 +57,17 @@ describe('Passenger Mission Generation', () => {
       expect(mission.requirements.cargoSpace).toBe(expectedSpace);
     });
 
+    it('should include destination in title for scannable mission board', () => {
+      const mission = generatePassengerMission(
+        0,
+        TEST_STAR_DATA,
+        TEST_WORMHOLE_DATA
+      );
+
+      const destName = mission.destination.name;
+      expect(mission.title).toContain(`to ${destName}`);
+    });
+
     it('should generate destination that is a reachable system', () => {
       const mission = generatePassengerMission(
         0,

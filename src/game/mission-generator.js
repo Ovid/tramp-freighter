@@ -254,7 +254,7 @@ export function generatePassengerMission(
   return {
     id: `passenger_${Date.now()}_${Math.floor(rng() * 10000)}`,
     type: 'passenger',
-    title: `Passenger: ${name}`,
+    title: `Passenger: ${name} to ${destStar ? destStar.name : `System ${toSystem}`}`,
     description: `Transport ${name} to ${destStar ? destStar.name : `System ${toSystem}`}.`,
     giver: 'passenger',
     giverSystem: fromSystem,
