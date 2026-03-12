@@ -282,11 +282,7 @@ describe('InformationBroker coverage', () => {
     });
 
     it('handles event descriptions for all event types', () => {
-      const eventTypes = [
-        'mining_strike',
-        'medical_emergency',
-        'festival',
-      ];
+      const eventTypes = ['mining_strike', 'medical_emergency', 'festival'];
       const expectedDescriptions = [
         'labor troubles',
         'a health crisis',

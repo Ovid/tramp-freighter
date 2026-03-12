@@ -311,7 +311,9 @@ export function SystemPanel({
                 if (hasAdvancedSensors) {
                   destinationEvent = game.getActiveEventForSystem(system.id);
                   if (destinationEvent) {
-                    destinationEventType = game.getEventType(destinationEvent.type);
+                    destinationEventType = game.getEventType(
+                      destinationEvent.type
+                    );
                   }
                 }
                 const daysRemaining = destinationEvent
@@ -345,7 +347,8 @@ export function SystemPanel({
                           {destinationEventType.description}
                         </div>
                         <div className="event-time-remaining">
-                          {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining
+                          {daysRemaining} day{daysRemaining !== 1 ? 's' : ''}{' '}
+                          remaining
                         </div>
                       </div>
                     )}

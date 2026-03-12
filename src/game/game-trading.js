@@ -282,9 +282,8 @@ export class TradingSystem {
 
     const bias = ECONOMY_CONFIG.TECH_BIASES[goodType];
     // Worst-case tech level: frontier (1.0) for positive bias, core (10.0) for negative bias
-    const worstTechLevel = bias > 0
-      ? ECONOMY_CONFIG.MIN_TECH_LEVEL
-      : ECONOMY_CONFIG.MAX_TECH_LEVEL;
+    const worstTechLevel =
+      bias > 0 ? ECONOMY_CONFIG.MIN_TECH_LEVEL : ECONOMY_CONFIG.MAX_TECH_LEVEL;
     const techMod = TradingSystem.getTechModifier(goodType, worstTechLevel);
     const peakTemporal = 1.0 + ECONOMY_CONFIG.TEMPORAL_AMPLITUDE;
 

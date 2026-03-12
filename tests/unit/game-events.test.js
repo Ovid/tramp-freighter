@@ -174,14 +174,22 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('medical_emergency duration is between 8 and 14 days', () => {
-      const event = EconomicEventsSystem.createEvent('medical_emergency', 10, 100);
+      const event = EconomicEventsSystem.createEvent(
+        'medical_emergency',
+        10,
+        100
+      );
       const duration = event.endDay - event.startDay;
       expect(duration).toBeGreaterThanOrEqual(8);
       expect(duration).toBeLessThanOrEqual(14);
     });
 
     it('festival duration is between 7 and 12 days', () => {
-      const event = EconomicEventsSystem.createEvent('festival', SOL_SYSTEM_ID, 100);
+      const event = EconomicEventsSystem.createEvent(
+        'festival',
+        SOL_SYSTEM_ID,
+        100
+      );
       const duration = event.endDay - event.startDay;
       expect(duration).toBeGreaterThanOrEqual(7);
       expect(duration).toBeLessThanOrEqual(12);
@@ -328,7 +336,14 @@ describe('EconomicEventsSystem', () => {
       const state = {
         player: { daysElapsed: 10 },
         world: {
-          activeEvents: [{ id: 'existing', type: 'medical_emergency', systemId: 0, endDay: 500 }],
+          activeEvents: [
+            {
+              id: 'existing',
+              type: 'medical_emergency',
+              systemId: 0,
+              endDay: 500,
+            },
+          ],
         },
       };
       const starData = [{ id: 0, type: 'G2V' }];
