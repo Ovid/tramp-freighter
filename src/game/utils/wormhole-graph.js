@@ -1,6 +1,6 @@
 import { WORMHOLE_DATA } from '../data/wormhole-data.js';
 import { STAR_DATA } from '../data/star-data.js';
-import { NAVIGATION_CONFIG } from '../constants.js';
+import { NAVIGATION_CONFIG, calculateBaseJumpTime } from '../constants.js';
 
 // Lazy-initialized cache — built once on first access, never recomputed
 let adjacencyMap = null;
@@ -89,8 +89,7 @@ function buildShortestPaths(adjMap) {
 
 /**
  * Calculate total travel days along a path of system IDs.
- * Uses the jump time formula: max(1, ceil(distanceLY * 0.5))
- * Falls back to 1 day per hop if star coordinate data is missing.
+ * Falls back to MIN_JUMP_DAYS per hop if star coordinate data is missing.
  */
 function calculatePathTravelDays(path) {
   let totalDays = 0;
@@ -101,9 +100,9 @@ function calculatePathTravelDays(path) {
       const distLY =
         Math.hypot(from.x - to.x, from.y - to.y, from.z - to.z) *
         NAVIGATION_CONFIG.LY_PER_UNIT;
-      totalDays += Math.max(1, Math.ceil(distLY * 0.5));
+      totalDays += calculateBaseJumpTime(distLY);
     } else {
-      totalDays += 1;
+      totalDays += NAVIGATION_CONFIG.MIN_JUMP_DAYS;
     }
   }
   return totalDays;

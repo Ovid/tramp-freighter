@@ -4,6 +4,7 @@ import {
   PASSENGER_CONFIG,
   COMMODITY_TYPES,
   NAVIGATION_CONFIG,
+  calculateBaseJumpTime,
 } from './constants.js';
 import { calculateSystemPrices } from './utils/calculators.js';
 import { pickRandomFrom } from './utils/seeded-random.js';
@@ -76,7 +77,7 @@ export function getReachableSystems(
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
           const neighborStar = starById.get(neighbor);
-          let hopDays = 1;
+          let hopDays = NAVIGATION_CONFIG.MIN_JUMP_DAYS;
           if (currentStar && neighborStar) {
             const distLY =
               Math.hypot(
@@ -84,7 +85,7 @@ export function getReachableSystems(
                 currentStar.y - neighborStar.y,
                 currentStar.z - neighborStar.z
               ) * NAVIGATION_CONFIG.LY_PER_UNIT;
-            hopDays = Math.max(1, Math.ceil(distLY * 0.5));
+            hopDays = calculateBaseJumpTime(distLY);
           }
           const totalDays = current.days + hopDays;
           result.push({

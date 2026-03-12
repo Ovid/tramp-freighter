@@ -136,6 +136,10 @@ export const NAVIGATION_CONFIG = {
   // has fractional values (e.g., 99.5% + 1% = 100.5% is acceptable).
   FUEL_CAPACITY_EPSILON: 1.0,
 
+  // Jump time formula: max(MIN_JUMP_DAYS, ceil(distanceLY * DAYS_PER_LY))
+  DAYS_PER_LY: 0.5,
+  MIN_JUMP_DAYS: 1,
+
   // Wormhole fuel cost formula: BASE + (distance * DISTANCE_MULTIPLIER)
   WORMHOLE_FUEL_BASE_COST: 10,
   WORMHOLE_FUEL_DISTANCE_MULTIPLIER: 2,
@@ -160,6 +164,21 @@ export const NAVIGATION_CONFIG = {
 export function calculateDistanceFromSol(system) {
   const r = Math.hypot(system.x, system.y, system.z);
   return r * NAVIGATION_CONFIG.LY_PER_UNIT;
+}
+
+/**
+ * Calculate base jump time from distance in light-years.
+ * Single source of truth for the jump-time formula used by NavigationSystem,
+ * wormhole-graph, and mission-generator.
+ *
+ * @param {number} distanceLY - Distance in light years
+ * @returns {number} Jump time in days (integer, minimum 1)
+ */
+export function calculateBaseJumpTime(distanceLY) {
+  return Math.max(
+    NAVIGATION_CONFIG.MIN_JUMP_DAYS,
+    Math.ceil(distanceLY * NAVIGATION_CONFIG.DAYS_PER_LY)
+  );
 }
 
 /**
