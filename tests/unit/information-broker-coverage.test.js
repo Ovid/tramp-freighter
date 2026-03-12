@@ -392,7 +392,14 @@ describe('InformationBroker coverage', () => {
 
     it('does not include events without advanced sensors', () => {
       const events = [
-        { systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+        {
+          id: 'mining_strike_1_10',
+          type: 'mining_strike',
+          systemId: 1,
+          startDay: 10,
+          endDay: 20,
+          modifiers: { ore: 1.5, tritium: 1.3 },
+        },
       ];
       const result = InformationBroker.listAvailableIntelligence(
         {},
@@ -407,7 +414,14 @@ describe('InformationBroker coverage', () => {
 
     it('includes events with advanced sensors', () => {
       const events = [
-        { systemId: 1, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+        {
+          id: 'mining_strike_1_10',
+          type: 'mining_strike',
+          systemId: 1,
+          startDay: 10,
+          endDay: 20,
+          modifiers: { ore: 1.5, tritium: 1.3 },
+        },
       ];
       const result = InformationBroker.listAvailableIntelligence(
         {},
@@ -418,15 +432,22 @@ describe('InformationBroker coverage', () => {
         true
       );
       expect(result[0].event).toEqual({
-        name: 'Strike',
-        commodity: 'ore',
-        modifier: 1.5,
+        name: 'Mining Strike',
+        commodities: ['ore', 'tritium'],
+        modifiers: { ore: 1.5, tritium: 1.3 },
       });
     });
 
     it('does not include event for systems without one', () => {
       const events = [
-        { systemId: 99, name: 'Strike', commodity: 'ore', modifier: 1.5 },
+        {
+          id: 'mining_strike_99_10',
+          type: 'mining_strike',
+          systemId: 99,
+          startDay: 10,
+          endDay: 20,
+          modifiers: { ore: 1.5, tritium: 1.3 },
+        },
       ];
       const result = InformationBroker.listAvailableIntelligence(
         {},

@@ -4,6 +4,7 @@ import {
   ENDGAME_CONFIG,
 } from './constants.js';
 import { TradingSystem } from './game-trading.js';
+import { EconomicEventsSystem } from './game-events.js';
 import { SeededRandom } from './utils/seeded-random.js';
 
 /**
@@ -298,11 +299,15 @@ export class InformationBroker {
             (event) => event.systemId === system.id
           );
           if (systemEvent) {
-            result.event = {
-              name: systemEvent.name,
-              commodity: systemEvent.commodity,
-              modifier: systemEvent.modifier,
-            };
+            const eventTypeDef =
+              EconomicEventsSystem.EVENT_TYPES[systemEvent.type];
+            if (eventTypeDef) {
+              result.event = {
+                name: eventTypeDef.name,
+                commodities: Object.keys(systemEvent.modifiers),
+                modifiers: systemEvent.modifiers,
+              };
+            }
           }
         }
 
