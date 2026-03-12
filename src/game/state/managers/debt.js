@@ -199,21 +199,51 @@ export class DebtManager extends BaseManager {
       return { success: false, reason: 'No outstanding debt' };
     }
 
-    // Cap at actual debt before checking credits
-    const actualPayment = Math.min(amount, debt);
+    let actualPayment = Math.min(amount, debt);
 
     if (actualPayment <= 0) {
       return { success: false, reason: 'Invalid payment amount' };
     }
 
     const credits = this.capabilities.getCredits();
+    const daysElapsed = this.capabilities.getDaysElapsed();
 
-    if (credits < actualPayment) {
-      return { success: false, reason: 'Insufficient credits' };
+    // Calculate early repayment fee
+    let fee = 0;
+    if (
+      finance.lastBorrowDay !== null &&
+      daysElapsed - finance.lastBorrowDay <
+        COLE_DEBT_CONFIG.EARLY_REPAYMENT_WINDOW_DAYS
+    ) {
+      fee = Math.ceil(
+        actualPayment * COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
+      );
+    }
+
+    const totalCost = actualPayment + fee;
+
+    // If can't afford payment + fee, reduce payment to fit
+    if (credits < totalCost) {
+      if (fee > 0) {
+        actualPayment = Math.floor(
+          credits / (1 + COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE)
+        );
+        actualPayment = Math.min(actualPayment, debt);
+        if (actualPayment <= 0) {
+          return { success: false, reason: 'Insufficient credits' };
+        }
+        fee = Math.ceil(
+          actualPayment * COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
+        );
+      } else {
+        if (credits < actualPayment) {
+          return { success: false, reason: 'Insufficient credits' };
+        }
+      }
     }
 
     this.capabilities.updateDebt(debt - actualPayment);
-    this.capabilities.updateCredits(credits - actualPayment);
+    this.capabilities.updateCredits(credits - actualPayment - fee);
 
     if (finance.totalRepaid === 0 && this.capabilities.setNarrativeFlag) {
       this.capabilities.setNarrativeFlag('cole_first_payment_hint');
@@ -246,7 +276,7 @@ export class DebtManager extends BaseManager {
     }
     this.capabilities.markDirty();
 
-    return { success: true, amount: actualPayment };
+    return { success: true, amount: actualPayment, fee };
   }
 
   calculateWithholding(totalRevenue) {
