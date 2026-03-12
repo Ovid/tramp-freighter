@@ -393,6 +393,8 @@ export const ECONOMY_CONFIG = {
 
   MARKET_CONDITION_PRUNE_THRESHOLD: 1.0, // Remove insignificant market impacts
 
+  EVENT_PREMIUM: 1.5, // Multiplier above galaxy max normal price for event pricing
+
   // Technology biases: negative = cheaper at low-tech, positive = cheaper at high-tech
   // Creates intuitive trade routes (buy grain/ore at frontier, electronics/medicine at core)
   TECH_BIASES: {
