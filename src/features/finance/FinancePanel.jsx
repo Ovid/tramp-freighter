@@ -115,9 +115,7 @@ export function FinancePanel({ onClose }) {
                   <button
                     key={amount}
                     className="station-btn"
-                    disabled={
-                      credits < payAmount + fee || debtInfo.debt === 0
-                    }
+                    disabled={credits < payAmount + fee || debtInfo.debt === 0}
                     onClick={() => handlePayment(payAmount)}
                   >
                     Pay ₡{amount}
@@ -130,9 +128,7 @@ export function FinancePanel({ onClose }) {
                 let payAllAmount, payAllFee;
                 if (debtInfo.earlyRepaymentFeeRate > 0) {
                   payAllAmount = Math.min(
-                    Math.floor(
-                      credits / (1 + debtInfo.earlyRepaymentFeeRate)
-                    ),
+                    Math.floor(credits / (1 + debtInfo.earlyRepaymentFeeRate)),
                     maxDebt
                   );
                   payAllFee = Math.ceil(

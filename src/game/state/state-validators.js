@@ -903,7 +903,10 @@ export function addStateDefaults(state, systemData) {
   }
 
   // Add lastBorrowDay to finance if missing (pre-early-repayment-fee saves)
-  if (state.player.finance && state.player.finance.lastBorrowDay === undefined) {
+  if (
+    state.player.finance &&
+    state.player.finance.lastBorrowDay === undefined
+  ) {
     state.player.finance.lastBorrowDay = null;
   }
 
