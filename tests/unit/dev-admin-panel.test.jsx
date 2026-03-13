@@ -67,15 +67,16 @@ describe('DevAdminPanel', () => {
 
       expect(npcSection).toBeTruthy();
 
-      // Should have a select dropdown for NPC selection
-      const npcSelect = npcSection.querySelector('select');
-      expect(npcSelect).toBeTruthy();
+      // Should have a custom select dropdown for NPC selection
+      const customSelect = npcSection.querySelector('.custom-select');
+      expect(customSelect).toBeTruthy();
 
-      // Options should include all NPCs
-      const options = Array.from(npcSelect.querySelectorAll('option'));
-      // First option is placeholder
-      const npcOptions = options.filter((o) => o.value !== '');
-      expect(npcOptions.length).toBe(ALL_NPCS.length);
+      // Open the dropdown to see options
+      const trigger = customSelect.querySelector('.custom-select-trigger');
+      fireEvent.click(trigger);
+
+      const options = customSelect.querySelectorAll('.custom-select-option');
+      expect(options.length).toBe(ALL_NPCS.length);
     });
 
     it('should list NPC options in alphabetical order by name', () => {
@@ -88,11 +89,14 @@ describe('DevAdminPanel', () => {
         container.querySelectorAll('.dev-admin-section')
       ).find((section) => section.textContent.includes('NPC Reputation'));
 
-      const npcSelect = npcSection.querySelector('select');
-      const options = Array.from(npcSelect.querySelectorAll('option'));
-      const npcNames = options
-        .filter((o) => o.value !== '')
-        .map((o) => o.textContent);
+      const customSelect = npcSection.querySelector('.custom-select');
+      const trigger = customSelect.querySelector('.custom-select-trigger');
+      fireEvent.click(trigger);
+
+      const options = Array.from(
+        customSelect.querySelectorAll('.custom-select-option')
+      );
+      const npcNames = options.map((o) => o.textContent);
 
       const sorted = [...npcNames].sort((a, b) =>
         a.localeCompare(b, undefined, { sensitivity: 'base' })
@@ -114,9 +118,12 @@ describe('DevAdminPanel', () => {
       const repInputBefore = npcSection.querySelector('input[type="number"]');
       expect(repInputBefore).toBeFalsy();
 
-      // Select an NPC
-      const npcSelect = npcSection.querySelector('select');
-      fireEvent.change(npcSelect, { target: { value: ALL_NPCS[0].id } });
+      // Open the dropdown and select an NPC
+      const customSelect = npcSection.querySelector('.custom-select');
+      const trigger = customSelect.querySelector('.custom-select-trigger');
+      fireEvent.click(trigger);
+      const firstOption = customSelect.querySelector('.custom-select-option');
+      fireEvent.click(firstOption);
 
       // Now rep controls should be visible
       const repInputAfter = npcSection.querySelector('input[type="number"]');

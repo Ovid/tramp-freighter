@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
+import { CustomSelect } from '../../components/CustomSelect';
 import { useGame } from '../../context/GameContext';
 import { useStarmap } from '../../context/StarmapContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
@@ -127,30 +128,22 @@ export function CameraControls({
 
             <div className="settings-star-finder">
               <span className="settings-label">Find Star</span>
-              <select
+              <CustomSelect
                 className="star-finder-select"
-                onChange={(e) => {
-                  const systemId = parseInt(e.target.value, 10);
+                options={sortedStars.map((star) => ({
+                  value: String(star.id),
+                  label: `${visitedSet.has(star.id) ? '\u2713 ' : '  '}${star.name}`,
+                }))}
+                value=""
+                onChange={(val) => {
+                  const systemId = parseInt(val, 10);
                   if (!isNaN(systemId)) {
                     selectStarById(systemId);
                   }
                 }}
-                defaultValue=""
+                placeholder="-- Select --"
                 aria-label="Find star system"
-              >
-                <option value="" disabled>
-                  -- Select --
-                </option>
-                {sortedStars.map((star) => {
-                  const visited = visitedSet.has(star.id);
-                  return (
-                    <option key={star.id} value={star.id}>
-                      {visited ? '\u2713 ' : '  '}
-                      {star.name}
-                    </option>
-                  );
-                })}
-              </select>
+              />
             </div>
 
             <div className="settings-divider" />

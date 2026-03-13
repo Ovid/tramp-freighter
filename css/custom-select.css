@@ -1,0 +1,119 @@
+/* Import CSS Variables */
+@import './variables.css';
+
+/* Custom Select Component - replaces native <select> for consistent
+   dark-themed dropdown styling across macOS/Windows/Linux */
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease;
+}
+
+.custom-select-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.custom-select-trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.custom-select-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.custom-select-arrow {
+  margin-left: 8px;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.custom-select-option {
+  padding: 6px 10px;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.1s ease;
+}
+
+.custom-select-option:hover {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--color-white);
+}
+
+.custom-select-option.selected {
+  background: rgba(0, 255, 136, 0.25);
+  color: var(--color-primary);
+}
+
+/* Scrollbar styling for the dropdown */
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Dev admin panel variant - slightly different trigger style to fit
+   alongside input+button rows */
+.dev-admin-control .custom-select {
+  flex: 1;
+}
+
+.dev-admin-control .custom-select-trigger {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  color: white;
+}

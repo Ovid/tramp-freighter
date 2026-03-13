@@ -100,21 +100,7 @@
   font-size: 13px;
 }
 
-.dev-admin-control select {
-  flex: 1;
-  padding: 4px 6px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: white;
-  font-size: 13px;
-  color-scheme: dark;
-}
-
-.dev-admin-control select option {
-  background: #1a1a2e;
-  color: #e0e0e0;
-}
+/* Dev admin selects use CustomSelect component; see css/custom-select.css */
 
 .dev-admin-control button {
   padding: 4px 12px;

@@ -19,6 +19,7 @@ import { devLog } from './game/utils/dev-logger';
 
 // 5. Styles (CSS imports)
 import '../css/base.css';
+import '../css/custom-select.css';
 import '../css/hud.css';
 import '../css/modals.css';
 import '../css/starmap-scene.css';
