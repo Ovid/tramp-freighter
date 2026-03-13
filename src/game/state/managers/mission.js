@@ -17,13 +17,8 @@ export class MissionManager extends BaseManager {
   acceptMission(mission) {
     const missions = this.capabilities.getOwnState();
 
-    const effectiveCount =
-      missions.active.length +
-      (this.capabilities.isTanakaQuestActive
-        ? this.capabilities.isTanakaQuestActive()
-          ? 1
-          : 0
-        : 0);
+    const tanakaSlot = this.capabilities.isTanakaQuestActive?.() ? 1 : 0;
+    const effectiveCount = missions.active.length + tanakaSlot;
     if (effectiveCount >= MISSION_CONFIG.MAX_ACTIVE) {
       return {
         success: false,
