@@ -52,4 +52,15 @@ describe('Mission Abandonment', () => {
     expect(emitted).not.toBeNull();
     expect(emitted.active).toHaveLength(0);
   });
+
+  it('should emit a new active array reference for React reactivity', () => {
+    manager.acceptMission(testMission);
+    const activeBefore = manager.getState().missions.active;
+    let emittedActive = null;
+    manager.subscribe('missionsChanged', (data) => {
+      emittedActive = data.active;
+    });
+    manager.abandonMission(testMission.id);
+    expect(emittedActive).not.toBe(activeBefore);
+  });
 });

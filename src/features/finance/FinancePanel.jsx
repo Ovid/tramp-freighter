@@ -133,9 +133,7 @@ export function FinancePanel({ onClose }) {
               {(() => {
                 const payAllFee =
                   debtInfo.earlyRepaymentFeeRate > 0
-                    ? Math.ceil(
-                        payAllAmount * debtInfo.earlyRepaymentFeeRate
-                      )
+                    ? Math.ceil(payAllAmount * debtInfo.earlyRepaymentFeeRate)
                     : 0;
                 return (
                   <button

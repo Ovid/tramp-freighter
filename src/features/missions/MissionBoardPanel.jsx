@@ -13,7 +13,8 @@ import {
 
 export function MissionBoardPanel({ onClose }) {
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
-  const quests = useGameEvent(EVENT_NAMES.QUEST_CHANGED);
+  // Quest changes affect getEffectiveMissionCount() via Tanaka quest slot
+  useGameEvent(EVENT_NAMES.QUEST_CHANGED);
   const { acceptMission, refreshMissionBoard } = useGameAction();
   const game = useGame();
   const starData = useStarData();
@@ -44,8 +45,10 @@ export function MissionBoardPanel({ onClose }) {
     return indicators;
   }, [missions?.board, starData, game?.navigationSystem]);
 
-  // Pre-compute why each board mission can't be accepted (if any)
-  const disabledReasons = useMemo(() => {
+  // Compute why each board mission can't be accepted (if any).
+  // No useMemo — the computation is trivially cheap and avoiding it
+  // eliminates stale-dependency bugs with quests/active array references.
+  const disabledReasons = (() => {
     if (!missions?.board) return {};
     const activeCount = game.getEffectiveMissionCount();
     const cargoRemaining = game.getCargoRemaining();
@@ -73,7 +76,7 @@ export function MissionBoardPanel({ onClose }) {
       }
     }
     return reasons;
-  }, [missions?.board, missions?.active, quests, game]);
+  })();
 
   const handleAccept = (mission) => {
     const result = acceptMission(mission);

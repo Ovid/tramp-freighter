@@ -349,6 +349,7 @@ export class MissionManager extends BaseManager {
     }
 
     missions.active.splice(missionIndex, 1);
+    missions.active = [...missions.active];
     missions.failed.push(missionId);
 
     // Remove mission cargo from hold

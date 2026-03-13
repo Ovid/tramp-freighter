@@ -68,3 +68,9 @@ html.antimatter {
   /* No positioning or styling - panels handle their own */
   /* This is just a semantic wrapper for React component structure */
 }
+
+.panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-panel);
+}

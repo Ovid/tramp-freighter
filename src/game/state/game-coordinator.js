@@ -1013,9 +1013,7 @@ export class GameCoordinator {
       const deliverySystem = this.starData?.find(
         (s) => s.id === ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
       );
-      progress = deliverySystem
-        ? `Deliver to ${deliverySystem.name}`
-        : null;
+      progress = deliverySystem ? `Deliver to ${deliverySystem.name}` : null;
     }
 
     return {

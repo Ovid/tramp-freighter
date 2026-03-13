@@ -54,5 +54,10 @@ export function PanelContainer({ activePanel, npcId, onClose }) {
 
   // Minimal wrapper that doesn't interfere with panel styling
   // Each panel has its own complete styling from CSS
-  return <div className="panel-container">{renderPanel()}</div>;
+  return (
+    <div className="panel-container">
+      <div className="panel-backdrop" onClick={onClose} />
+      <div onClick={(e) => e.stopPropagation()}>{renderPanel()}</div>
+    </div>
+  );
 }
