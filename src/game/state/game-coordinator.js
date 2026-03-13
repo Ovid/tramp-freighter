@@ -3,6 +3,7 @@ import {
   EVENT_NAMES,
   DEFAULT_PREFERENCES,
   ENDGAME_CONFIG,
+  INTELLIGENCE_CONFIG,
 } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
@@ -842,7 +843,7 @@ export class GameCoordinator {
     return this.tradingManager.applyMarketRecovery(daysPassed);
   }
 
-  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
+  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = INTELLIGENCE_CONFIG.SOURCES.VISITED) {
     return this.tradingManager.updatePriceKnowledge(
       systemId,
       prices,

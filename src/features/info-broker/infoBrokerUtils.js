@@ -87,11 +87,11 @@ export function getIntelligencePriority(option) {
  * @returns {string} Human-readable source text
  */
 export function formatSource(source) {
-  if (source === 'visited') {
+  if (source === INTELLIGENCE_CONFIG.SOURCES.VISITED) {
     return 'Visited';
-  } else if (source === 'intelligence_broker') {
+  } else if (source === INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER) {
     return 'Information Broker';
-  } else if (source === 'orbit') {
+  } else if (source === INTELLIGENCE_CONFIG.SOURCES.ORBIT) {
     return 'Orbit only';
   } else {
     // Fallback for old saves without source field
@@ -129,7 +129,7 @@ export function formatStaleness(lastVisit) {
  * @returns {string} Human-readable visit information
  */
 export function formatVisitInfo(lastVisit, source) {
-  if (source === 'orbit') {
+  if (source === INTELLIGENCE_CONFIG.SOURCES.ORBIT) {
     return 'Visited but never docked';
   }
   if (lastVisit === null) {

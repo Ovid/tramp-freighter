@@ -25,7 +25,7 @@ export class InformationBroker {
     const knowledge = priceKnowledge[systemId];
 
     // Never visited or orbit-only (no price data)
-    if (!knowledge || knowledge.source === 'orbit') {
+    if (!knowledge || knowledge.source === INTELLIGENCE_CONFIG.SOURCES.ORBIT) {
       return INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED;
     }
 
@@ -114,7 +114,7 @@ export class InformationBroker {
     gameState.world.priceKnowledge[systemId] = {
       lastVisit: 0, // Intelligence is "current"
       prices: currentPrices,
-      source: 'intelligence_broker',
+      source: INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER,
     };
 
     return { success: true, reason: null };
@@ -140,7 +140,7 @@ export class InformationBroker {
 
       if (
         knowledge.lastVisit > INTELLIGENCE_CONFIG.MAX_AGE &&
-        knowledge.source !== 'orbit'
+        knowledge.source !== INTELLIGENCE_CONFIG.SOURCES.ORBIT
       ) {
         delete priceKnowledge[systemId];
         cleanedCount++;

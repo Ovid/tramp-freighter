@@ -7,6 +7,7 @@ import {
   SOL_SYSTEM_ID,
   ALPHA_CENTAURI_SYSTEM_ID,
   EVENT_NAMES,
+  INTELLIGENCE_CONFIG,
 } from '../../constants.js';
 
 /**
@@ -261,7 +262,7 @@ export class TradingManager extends BaseManager {
     const currentPrices = this.getCurrentSystemPrices();
 
     // Update price knowledge with source "Visited" (lastVisit = 0 means current)
-    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, 'visited');
+    this.updatePriceKnowledge(currentSystemId, currentPrices, 0, INTELLIGENCE_CONFIG.SOURCES.VISITED);
 
     // Persist immediately - price knowledge update should be saved
     this.capabilities.markDirty();
@@ -275,7 +276,7 @@ export class TradingManager extends BaseManager {
    * @param {number} lastVisit - Days since last visit (0 = current)
    * @param {string} source - Source of data: 'visited' or 'intelligence_broker'
    */
-  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
+  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = INTELLIGENCE_CONFIG.SOURCES.VISITED) {
     const ownState = this.capabilities.getOwnState();
     // priceKnowledge is guaranteed to exist after initialization
     ownState.priceKnowledge[systemId] = {

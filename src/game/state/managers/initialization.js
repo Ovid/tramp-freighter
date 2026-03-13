@@ -8,6 +8,7 @@ import {
   FACTION_CONFIG,
   COLE_DEBT_CONFIG,
   DEFAULT_PREFERENCES,
+  INTELLIGENCE_CONFIG,
 } from '../../constants.js';
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
@@ -183,7 +184,7 @@ export class InitializationManager {
         [SOL_SYSTEM_ID]: {
           lastVisit: 0,
           prices: solPrices,
-          source: 'visited',
+          source: INTELLIGENCE_CONFIG.SOURCES.VISITED,
         },
       },
       activeEvents: [],

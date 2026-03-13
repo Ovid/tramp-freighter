@@ -1,6 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import { calculateSystemPrices } from '../../utils/calculators.js';
-import { EVENT_NAMES } from '../../constants.js';
+import { EVENT_NAMES, INTELLIGENCE_CONFIG } from '../../constants.js';
 
 /**
  * NavigationManager - Manages player location, docking, and system exploration
@@ -37,7 +37,7 @@ export class NavigationManager extends BaseManager {
     // Create orbit-only priceKnowledge entry if none exists
     const priceKnowledge = this.capabilities.getPriceKnowledge();
     if (!priceKnowledge[newSystemId]) {
-      this.capabilities.updatePriceKnowledge(newSystemId, null, 0, 'orbit');
+      this.capabilities.updatePriceKnowledge(newSystemId, null, 0, INTELLIGENCE_CONFIG.SOURCES.ORBIT);
     }
 
     // Snapshot prices at arrival to prevent intra-system arbitrage
@@ -120,7 +120,7 @@ export class NavigationManager extends BaseManager {
       currentSystemId,
       currentPrices,
       0,
-      'visited'
+      INTELLIGENCE_CONFIG.SOURCES.VISITED
     );
 
     // Persist state transition - prevents loss if player closes browser while docked

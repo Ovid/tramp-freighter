@@ -3,6 +3,7 @@ import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
   DEFAULT_PREFERENCES,
+  INTELLIGENCE_CONFIG,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { devLog, devWarn } from '../utils/dev-logger.js';
@@ -762,7 +763,7 @@ export function addStateDefaults(state, systemData) {
     state.world.priceKnowledge[currentSystemId] = {
       lastVisit: 0,
       prices: currentPrices,
-      source: 'visited',
+      source: INTELLIGENCE_CONFIG.SOURCES.VISITED,
     };
   }
 
@@ -771,7 +772,7 @@ export function addStateDefaults(state, systemData) {
     for (const systemId in state.world.priceKnowledge) {
       if (!state.world.priceKnowledge[systemId].source) {
         // Default to 'visited' for old saves
-        state.world.priceKnowledge[systemId].source = 'visited';
+        state.world.priceKnowledge[systemId].source = INTELLIGENCE_CONFIG.SOURCES.VISITED;
       }
     }
   }
