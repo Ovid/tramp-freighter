@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useId } from 'react';
 
 /**
  * Custom styled select dropdown that replaces the native <select> element.
@@ -21,6 +21,7 @@ export function CustomSelect({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef(null);
   const listRef = useRef(null);
+  const instanceId = useId();
 
   const selectedOption = options.find((opt) => opt.value === value);
   const displayText = selectedOption ? selectedOption.label : placeholder;
@@ -126,7 +127,7 @@ export function CustomSelect({
         aria-expanded={isOpen}
         aria-activedescendant={
           isOpen && focusedIndex >= 0
-            ? `custom-select-opt-${focusedIndex}`
+            ? `cs-opt-${instanceId}-${focusedIndex}`
             : undefined
         }
         type="button"
@@ -139,7 +140,7 @@ export function CustomSelect({
           {options.map((opt, idx) => (
             <li
               key={opt.value}
-              id={`custom-select-opt-${idx}`}
+              id={`cs-opt-${instanceId}-${idx}`}
               className={`custom-select-option${opt.value === value ? ' selected' : ''}${idx === focusedIndex ? ' focused' : ''}`}
               role="option"
               aria-selected={opt.value === value}
