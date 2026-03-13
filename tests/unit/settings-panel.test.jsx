@@ -102,4 +102,30 @@ describe('Settings Panel', () => {
     fireEvent.click(screen.getByLabelText('Star Rotation'));
     expect(defaultProps.onToggleRotation).toHaveBeenCalled();
   });
+
+  it('should collapse when clicking outside the settings panel', () => {
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <CameraControls {...defaultProps} />
+      </div>
+    );
+    // Expand
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
+    expect(screen.getByText('Settings')).toBeTruthy();
+
+    // Click outside
+    fireEvent.mouseDown(screen.getByTestId('outside'));
+    expect(screen.queryByText('Settings')).toBeNull();
+  });
+
+  it('should not collapse when clicking inside the settings panel', () => {
+    render(<CameraControls {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('Toggle settings'));
+    expect(screen.getByText('Settings')).toBeTruthy();
+
+    // Click inside
+    fireEvent.mouseDown(screen.getByText('Settings'));
+    expect(screen.getByText('Settings')).toBeTruthy();
+  });
 });

@@ -406,469 +406,484 @@ export function DevAdminPanel({ onClose }) {
   };
 
   return (
-    <div id="dev-admin-panel" className="visible">
-      <button className="close-btn" onClick={onClose} aria-label="Close">
-        ×
-      </button>
-      <h2>🔧 Dev Admin Panel</h2>
-
-      {/* Player Resources Section */}
-      <div className="dev-admin-section">
-        <h3>Player Resources</h3>
-        <div className="dev-admin-control">
-          <label>Credits:</label>
-          <input
-            type="number"
-            value={creditsInput}
-            onChange={(e) => setCreditsInput(e.target.value)}
-            min="0"
-          />
-          <button onClick={handleSetCredits}>Set</button>
-        </div>
-        <div className="dev-admin-control">
-          <label>Debt:</label>
-          <input
-            type="number"
-            value={debtInput}
-            onChange={(e) => setDebtInput(e.target.value)}
-            min="0"
-          />
-          <button onClick={handleSetDebt}>Set</button>
-        </div>
-      </div>
-
-      {/* Ship Condition Section */}
-      <div className="dev-admin-section">
-        <h3>Ship Condition</h3>
-        <div className="dev-admin-control">
-          <label>Hull (%):</label>
-          <input
-            type="number"
-            value={hullInput}
-            onChange={(e) => setHullInput(e.target.value)}
-            min="0"
-            max="100"
-          />
-          <button onClick={handleSetHull}>Set</button>
-        </div>
-        <div className="dev-admin-control">
-          <label>Engine (%):</label>
-          <input
-            type="number"
-            value={engineInput}
-            onChange={(e) => setEngineInput(e.target.value)}
-            min="0"
-            max="100"
-          />
-          <button onClick={handleSetEngine}>Set</button>
-        </div>
-        <div className="dev-admin-control">
-          <label>Life Support (%):</label>
-          <input
-            type="number"
-            value={lifeSupportInput}
-            onChange={(e) => setLifeSupportInput(e.target.value)}
-            min="0"
-            max="100"
-          />
-          <button onClick={handleSetLifeSupport}>Set</button>
-        </div>
-        <div className="dev-admin-control">
-          <label>Fuel (%):</label>
-          <input
-            type="number"
-            value={fuelInput}
-            onChange={(e) => setFuelInput(e.target.value)}
-            min="0"
-            max="100"
-          />
-          <button onClick={handleSetFuel}>Set</button>
-        </div>
-        <button className="dev-admin-action-btn" onClick={handleRepairAll}>
-          Repair All Systems to 100%
+    <>
+      <div className="dev-admin-backdrop" onClick={onClose} />
+      <div
+        id="dev-admin-panel"
+        className="visible"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="close-btn" onClick={onClose} aria-label="Close">
+          ×
         </button>
-      </div>
+        <h2>🔧 Dev Admin Panel</h2>
 
-      {/* Karma Section */}
-      <div className="dev-admin-section">
-        <h3>Karma</h3>
-        <div className="dev-admin-control">
-          <label>Karma:</label>
-          <input
-            type="number"
-            value={karmaInput}
-            onChange={(e) => setKarmaInput(e.target.value)}
-            min="-100"
-            max="100"
-          />
-          <button onClick={handleSetKarma}>Set</button>
-        </div>
-        <div className="dev-admin-quick-buttons">
-          <button onClick={() => handleQuickKarma(-100)}>-100</button>
-          <button onClick={() => handleQuickKarma(0)}>0</button>
-          <button onClick={() => handleQuickKarma(100)}>+100</button>
-        </div>
-      </div>
-
-      {/* Faction Reputation Section */}
-      <div className="dev-admin-section">
-        <h3>Faction Reputation</h3>
-        {FACTION_CONFIG.FACTIONS.map((faction) => (
-          <div key={faction} className="dev-admin-faction-row">
-            <div className="dev-admin-control">
-              <label>{faction}:</label>
-              <input
-                type="number"
-                value={factionInputs[faction]}
-                onChange={(e) =>
-                  setFactionInputs((prev) => ({
-                    ...prev,
-                    [faction]: e.target.value,
-                  }))
-                }
-                min="-100"
-                max="100"
-              />
-              <button onClick={() => handleSetFactionRep(faction)}>Set</button>
-            </div>
-            <div className="dev-admin-quick-buttons">
-              <button onClick={() => handleQuickFactionRep(faction, -100)}>
-                -100
-              </button>
-              <button onClick={() => handleQuickFactionRep(faction, 0)}>
-                0
-              </button>
-              <button onClick={() => handleQuickFactionRep(faction, 100)}>
-                +100
-              </button>
-            </div>
+        {/* Player Resources Section */}
+        <div className="dev-admin-section">
+          <h3>Player Resources</h3>
+          <div className="dev-admin-control">
+            <label>Credits:</label>
+            <input
+              type="number"
+              value={creditsInput}
+              onChange={(e) => setCreditsInput(e.target.value)}
+              min="0"
+            />
+            <button onClick={handleSetCredits}>Set</button>
           </div>
-        ))}
-      </div>
-
-      {/* NPC Reputation Section */}
-      <div className="dev-admin-section">
-        <h3>NPC Reputation</h3>
-        <div className="dev-admin-control">
-          <CustomSelect
-            value={selectedNpcId}
-            onChange={(val) => setSelectedNpcId(val)}
-            placeholder="Select NPC..."
-            options={[...ALL_NPCS]
-              .sort((a, b) =>
-                a.name.localeCompare(b.name, undefined, {
-                  sensitivity: 'base',
-                })
-              )
-              .map((npc) => ({
-                value: npc.id,
-                label: `${npc.name} — ${npc.role}`,
-              }))}
-          />
+          <div className="dev-admin-control">
+            <label>Debt:</label>
+            <input
+              type="number"
+              value={debtInput}
+              onChange={(e) => setDebtInput(e.target.value)}
+              min="0"
+            />
+            <button onClick={handleSetDebt}>Set</button>
+          </div>
         </div>
-        {selectedNpcId &&
-          (() => {
-            const npc = ALL_NPCS.find((n) => n.id === selectedNpcId);
-            const rep = parseInt(npcRepInputs[selectedNpcId]) || 0;
-            const tierName =
-              Object.values(REPUTATION_TIERS).find(
-                (t) => rep >= t.min && rep <= t.max
-              )?.name || 'Unknown';
-            return (
-              <div className="dev-admin-faction-row">
-                <div className="dev-admin-npc-label">
-                  {npc.name}{' '}
-                  <span className="dev-admin-npc-tier">
-                    {rep} ({tierName})
-                  </span>
-                </div>
-                <div className="dev-admin-control">
-                  <input
-                    type="number"
-                    value={npcRepInputs[selectedNpcId] || '0'}
-                    onChange={(e) =>
-                      setNpcRepInputs((prev) => ({
-                        ...prev,
-                        [selectedNpcId]: e.target.value,
-                      }))
-                    }
-                    min="-100"
-                    max="100"
-                  />
-                  <button onClick={() => handleSetNpcRep(selectedNpcId)}>
-                    Set
-                  </button>
-                </div>
-                <div className="dev-admin-quick-buttons npc">
-                  {Object.entries(REPUTATION_TIER_PRESETS).map(
-                    ([tierKey, presetValue]) => (
-                      <button
-                        key={tierKey}
-                        onClick={() =>
-                          handleQuickNpcRep(selectedNpcId, presetValue)
-                        }
-                      >
-                        {REPUTATION_TIERS[tierKey].name}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            );
-          })()}
-      </div>
 
-      {/* Teleport Section */}
-      <div className="dev-admin-section">
-        <h3>Teleport</h3>
-        <div className="dev-admin-control">
-          <CustomSelect
-            value={selectedTeleportSystem}
-            onChange={(val) => setSelectedTeleportSystem(val)}
-            placeholder="Select star..."
-            options={[...STAR_DATA]
-              .filter(
-                (s) => s.r === 1 || s.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
-              )
-              .sort((a, b) =>
-                a.name.localeCompare(b.name, undefined, {
-                  sensitivity: 'base',
-                })
-              )
-              .map((star) => ({
-                value: String(star.id),
-                label: `${star.name}${star.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID ? ' (endgame)' : ''}`,
-              }))}
-          />
-          <button
-            onClick={() => {
-              if (selectedTeleportSystem !== '') {
-                game.devTeleport(Number(selectedTeleportSystem));
-              }
-            }}
-          >
-            Go
+        {/* Ship Condition Section */}
+        <div className="dev-admin-section">
+          <h3>Ship Condition</h3>
+          <div className="dev-admin-control">
+            <label>Hull (%):</label>
+            <input
+              type="number"
+              value={hullInput}
+              onChange={(e) => setHullInput(e.target.value)}
+              min="0"
+              max="100"
+            />
+            <button onClick={handleSetHull}>Set</button>
+          </div>
+          <div className="dev-admin-control">
+            <label>Engine (%):</label>
+            <input
+              type="number"
+              value={engineInput}
+              onChange={(e) => setEngineInput(e.target.value)}
+              min="0"
+              max="100"
+            />
+            <button onClick={handleSetEngine}>Set</button>
+          </div>
+          <div className="dev-admin-control">
+            <label>Life Support (%):</label>
+            <input
+              type="number"
+              value={lifeSupportInput}
+              onChange={(e) => setLifeSupportInput(e.target.value)}
+              min="0"
+              max="100"
+            />
+            <button onClick={handleSetLifeSupport}>Set</button>
+          </div>
+          <div className="dev-admin-control">
+            <label>Fuel (%):</label>
+            <input
+              type="number"
+              value={fuelInput}
+              onChange={(e) => setFuelInput(e.target.value)}
+              min="0"
+              max="100"
+            />
+            <button onClick={handleSetFuel}>Set</button>
+          </div>
+          <button className="dev-admin-action-btn" onClick={handleRepairAll}>
+            Repair All Systems to 100%
           </button>
         </div>
-      </div>
 
-      {/* Ship Quirks Section */}
-      <div className="dev-admin-section">
-        <h3>Ship Quirks</h3>
-        <div className="dev-admin-list">
-          {currentQuirks.map((quirkId) => {
-            const quirk = SHIP_CONFIG.QUIRKS[quirkId];
-            return (
-              <div key={quirkId} className="dev-admin-list-item">
-                <span title={quirk?.description}>{quirk?.name || quirkId}</span>
-                <button onClick={() => handleRemoveQuirk(quirkId)}>×</button>
-              </div>
-            );
-          })}
-          {currentQuirks.length === 0 && (
-            <div className="dev-admin-empty">No quirks installed</div>
-          )}
-        </div>
-        {availableQuirks.length > 0 && (
+        {/* Karma Section */}
+        <div className="dev-admin-section">
+          <h3>Karma</h3>
           <div className="dev-admin-control">
-            <CustomSelect
-              value={selectedQuirk}
-              onChange={(val) => setSelectedQuirk(val)}
-              placeholder="Select quirk..."
-              options={availableQuirks.map((quirkId) => ({
-                value: quirkId,
-                label: SHIP_CONFIG.QUIRKS[quirkId].name,
-              }))}
+            <label>Karma:</label>
+            <input
+              type="number"
+              value={karmaInput}
+              onChange={(e) => setKarmaInput(e.target.value)}
+              min="-100"
+              max="100"
             />
-            <button onClick={handleAddQuirk} disabled={!selectedQuirk}>
-              Add
-            </button>
+            <button onClick={handleSetKarma}>Set</button>
           </div>
-        )}
-      </div>
+          <div className="dev-admin-quick-buttons">
+            <button onClick={() => handleQuickKarma(-100)}>-100</button>
+            <button onClick={() => handleQuickKarma(0)}>0</button>
+            <button onClick={() => handleQuickKarma(100)}>+100</button>
+          </div>
+        </div>
 
-      {/* Ship Upgrades Section */}
-      <div className="dev-admin-section">
-        <h3>Ship Upgrades</h3>
-        <div className="dev-admin-list">
-          {currentUpgrades.map((upgradeId) => {
-            const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
-            return (
-              <div key={upgradeId} className="dev-admin-list-item">
-                <span title={upgrade?.description}>
-                  {upgrade?.name || upgradeId}
-                </span>
-                <button onClick={() => handleRemoveUpgrade(upgradeId)}>
-                  ×
+        {/* Faction Reputation Section */}
+        <div className="dev-admin-section">
+          <h3>Faction Reputation</h3>
+          {FACTION_CONFIG.FACTIONS.map((faction) => (
+            <div key={faction} className="dev-admin-faction-row">
+              <div className="dev-admin-control">
+                <label>{faction}:</label>
+                <input
+                  type="number"
+                  value={factionInputs[faction]}
+                  onChange={(e) =>
+                    setFactionInputs((prev) => ({
+                      ...prev,
+                      [faction]: e.target.value,
+                    }))
+                  }
+                  min="-100"
+                  max="100"
+                />
+                <button onClick={() => handleSetFactionRep(faction)}>
+                  Set
                 </button>
               </div>
-            );
-          })}
-          {currentUpgrades.length === 0 && (
-            <div className="dev-admin-empty">No upgrades installed</div>
-          )}
+              <div className="dev-admin-quick-buttons">
+                <button onClick={() => handleQuickFactionRep(faction, -100)}>
+                  -100
+                </button>
+                <button onClick={() => handleQuickFactionRep(faction, 0)}>
+                  0
+                </button>
+                <button onClick={() => handleQuickFactionRep(faction, 100)}>
+                  +100
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        {availableUpgrades.length > 0 && (
+
+        {/* NPC Reputation Section */}
+        <div className="dev-admin-section">
+          <h3>NPC Reputation</h3>
           <div className="dev-admin-control">
             <CustomSelect
-              value={selectedUpgrade}
-              onChange={(val) => setSelectedUpgrade(val)}
-              placeholder="Select upgrade..."
-              options={availableUpgrades.map((upgradeId) => ({
-                value: upgradeId,
-                label: SHIP_CONFIG.UPGRADES[upgradeId].name,
-              }))}
+              value={selectedNpcId}
+              onChange={(val) => setSelectedNpcId(val)}
+              placeholder="Select NPC..."
+              options={[...ALL_NPCS]
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, undefined, {
+                    sensitivity: 'base',
+                  })
+                )
+                .map((npc) => ({
+                  value: npc.id,
+                  label: `${npc.name} — ${npc.role}`,
+                }))}
             />
-            <button onClick={handleAddUpgrade} disabled={!selectedUpgrade}>
-              Add
+          </div>
+          {selectedNpcId &&
+            (() => {
+              const npc = ALL_NPCS.find((n) => n.id === selectedNpcId);
+              const rep = parseInt(npcRepInputs[selectedNpcId]) || 0;
+              const tierName =
+                Object.values(REPUTATION_TIERS).find(
+                  (t) => rep >= t.min && rep <= t.max
+                )?.name || 'Unknown';
+              return (
+                <div className="dev-admin-faction-row">
+                  <div className="dev-admin-npc-label">
+                    {npc.name}{' '}
+                    <span className="dev-admin-npc-tier">
+                      {rep} ({tierName})
+                    </span>
+                  </div>
+                  <div className="dev-admin-control">
+                    <input
+                      type="number"
+                      value={npcRepInputs[selectedNpcId] || '0'}
+                      onChange={(e) =>
+                        setNpcRepInputs((prev) => ({
+                          ...prev,
+                          [selectedNpcId]: e.target.value,
+                        }))
+                      }
+                      min="-100"
+                      max="100"
+                    />
+                    <button onClick={() => handleSetNpcRep(selectedNpcId)}>
+                      Set
+                    </button>
+                  </div>
+                  <div className="dev-admin-quick-buttons npc">
+                    {Object.entries(REPUTATION_TIER_PRESETS).map(
+                      ([tierKey, presetValue]) => (
+                        <button
+                          key={tierKey}
+                          onClick={() =>
+                            handleQuickNpcRep(selectedNpcId, presetValue)
+                          }
+                        >
+                          {REPUTATION_TIERS[tierKey].name}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+        </div>
+
+        {/* Teleport Section */}
+        <div className="dev-admin-section">
+          <h3>Teleport</h3>
+          <div className="dev-admin-control">
+            <CustomSelect
+              value={selectedTeleportSystem}
+              onChange={(val) => setSelectedTeleportSystem(val)}
+              placeholder="Select star..."
+              options={[...STAR_DATA]
+                .filter(
+                  (s) => s.r === 1 || s.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
+                )
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, undefined, {
+                    sensitivity: 'base',
+                  })
+                )
+                .map((star) => ({
+                  value: String(star.id),
+                  label: `${star.name}${star.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID ? ' (endgame)' : ''}`,
+                }))}
+            />
+            <button
+              onClick={() => {
+                if (selectedTeleportSystem !== '') {
+                  game.devTeleport(Number(selectedTeleportSystem));
+                }
+              }}
+            >
+              Go
             </button>
           </div>
-        )}
-      </div>
-
-      {/* Cargo Management Section */}
-      <div className="dev-admin-section">
-        <h3>Cargo Management</h3>
-        <div className="dev-admin-cargo-display">
-          <div className="dev-admin-cargo-header">Regular Cargo:</div>
-          {currentCargo.length > 0 ? (
-            currentCargo.map((item, idx) => (
-              <div key={idx} className="dev-admin-cargo-item">
-                {item.good}: {item.qty} @ ₡{item.buyPrice}
-              </div>
-            ))
-          ) : (
-            <div className="dev-admin-empty">Empty</div>
-          )}
-          {hasSmugglersPanel && (
-            <>
-              <div className="dev-admin-cargo-header">Hidden Cargo:</div>
-              {hiddenCargo.length > 0 ? (
-                hiddenCargo.map((item, idx) => (
-                  <div key={idx} className="dev-admin-cargo-item hidden">
-                    {item.good}: {item.qty} @ ₡{item.buyPrice}
-                  </div>
-                ))
-              ) : (
-                <div className="dev-admin-empty">Empty</div>
-              )}
-            </>
-          )}
         </div>
-        <div className="dev-admin-control">
-          <CustomSelect
-            value={selectedCommodity}
-            onChange={(val) => setSelectedCommodity(val)}
-            options={COMMODITY_TYPES.map((type) => ({
-              value: type,
-              label: type,
-            }))}
-          />
-          <input
-            type="number"
-            value={cargoQuantity}
-            onChange={(e) => setCargoQuantity(e.target.value)}
-            min="1"
-            max="50"
-            style={{ width: '60px' }}
-          />
-          <button onClick={handleAddCargo}>Add</button>
-        </div>
-        {hasSmugglersPanel && (
-          <div className="dev-admin-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                checked={useHiddenCargo}
-                onChange={(e) => setUseHiddenCargo(e.target.checked)}
-              />
-              Add to hidden cargo
-            </label>
-          </div>
-        )}
-        <button
-          className="dev-admin-action-btn danger"
-          onClick={handleClearCargo}
-        >
-          Clear All Cargo
-        </button>
-      </div>
 
-      {/* Encounter Triggers Section */}
-      <div className="dev-admin-section">
-        <h3>Trigger Encounters</h3>
-        <div className="dev-admin-encounter-buttons">
-          <button onClick={handleTriggerPirate}>🏴‍☠️ Pirate</button>
-          <button onClick={handleTriggerInspection}>🔍 Inspection</button>
-          <button onClick={handleTriggerMechanicalFailure}>
-            ⚙️ Mech Failure
-          </button>
-          <button onClick={handleTriggerDistressCall}>🆘 Distress Call</button>
-        </div>
-      </div>
-
-      {/* Danger State Display Section */}
-      {dangerState && (
+        {/* Ship Quirks Section */}
         <div className="dev-admin-section">
-          <h3>Danger State</h3>
-          <div className="dev-admin-state-display">
-            <div className="dev-admin-state-row">
-              <span>Danger Zone:</span>
-              <span className={`zone-${dangerState.dangerZone}`}>
-                {dangerState.dangerZone}
-              </span>
-            </div>
-            <div className="dev-admin-state-row">
-              <span>Pirate Chance:</span>
-              <span>{dangerState.pirateChance}%</span>
-            </div>
-            <div className="dev-admin-state-row">
-              <span>Inspection Chance:</span>
-              <span>{dangerState.inspectionChance}%</span>
-            </div>
-            {Object.keys(dangerState.dangerFlags).length > 0 && (
-              <div className="dev-admin-flags">
-                <span>Flags:</span>
-                <span>
-                  {Object.entries(dangerState.dangerFlags)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join(', ')}
-                </span>
-              </div>
+          <h3>Ship Quirks</h3>
+          <div className="dev-admin-list">
+            {currentQuirks.map((quirkId) => {
+              const quirk = SHIP_CONFIG.QUIRKS[quirkId];
+              return (
+                <div key={quirkId} className="dev-admin-list-item">
+                  <span title={quirk?.description}>
+                    {quirk?.name || quirkId}
+                  </span>
+                  <button onClick={() => handleRemoveQuirk(quirkId)}>×</button>
+                </div>
+              );
+            })}
+            {currentQuirks.length === 0 && (
+              <div className="dev-admin-empty">No quirks installed</div>
             )}
           </div>
+          {availableQuirks.length > 0 && (
+            <div className="dev-admin-control">
+              <CustomSelect
+                value={selectedQuirk}
+                onChange={(val) => setSelectedQuirk(val)}
+                placeholder="Select quirk..."
+                options={availableQuirks.map((quirkId) => ({
+                  value: quirkId,
+                  label: SHIP_CONFIG.QUIRKS[quirkId].name,
+                }))}
+              />
+              <button onClick={handleAddQuirk} disabled={!selectedQuirk}>
+                Add
+              </button>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Endgame Section */}
-      <div className="dev-admin-section">
-        <h3>Endgame</h3>
-        <div className="dev-admin-encounter-buttons">
+        {/* Ship Upgrades Section */}
+        <div className="dev-admin-section">
+          <h3>Ship Upgrades</h3>
+          <div className="dev-admin-list">
+            {currentUpgrades.map((upgradeId) => {
+              const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
+              return (
+                <div key={upgradeId} className="dev-admin-list-item">
+                  <span title={upgrade?.description}>
+                    {upgrade?.name || upgradeId}
+                  </span>
+                  <button onClick={() => handleRemoveUpgrade(upgradeId)}>
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+            {currentUpgrades.length === 0 && (
+              <div className="dev-admin-empty">No upgrades installed</div>
+            )}
+          </div>
+          {availableUpgrades.length > 0 && (
+            <div className="dev-admin-control">
+              <CustomSelect
+                value={selectedUpgrade}
+                onChange={(val) => setSelectedUpgrade(val)}
+                placeholder="Select upgrade..."
+                options={availableUpgrades.map((upgradeId) => ({
+                  value: upgradeId,
+                  label: SHIP_CONFIG.UPGRADES[upgradeId].name,
+                }))}
+              />
+              <button onClick={handleAddUpgrade} disabled={!selectedUpgrade}>
+                Add
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Cargo Management Section */}
+        <div className="dev-admin-section">
+          <h3>Cargo Management</h3>
+          <div className="dev-admin-cargo-display">
+            <div className="dev-admin-cargo-header">Regular Cargo:</div>
+            {currentCargo.length > 0 ? (
+              currentCargo.map((item, idx) => (
+                <div key={idx} className="dev-admin-cargo-item">
+                  {item.good}: {item.qty} @ ₡{item.buyPrice}
+                </div>
+              ))
+            ) : (
+              <div className="dev-admin-empty">Empty</div>
+            )}
+            {hasSmugglersPanel && (
+              <>
+                <div className="dev-admin-cargo-header">Hidden Cargo:</div>
+                {hiddenCargo.length > 0 ? (
+                  hiddenCargo.map((item, idx) => (
+                    <div key={idx} className="dev-admin-cargo-item hidden">
+                      {item.good}: {item.qty} @ ₡{item.buyPrice}
+                    </div>
+                  ))
+                ) : (
+                  <div className="dev-admin-empty">Empty</div>
+                )}
+              </>
+            )}
+          </div>
+          <div className="dev-admin-control">
+            <CustomSelect
+              value={selectedCommodity}
+              onChange={(val) => setSelectedCommodity(val)}
+              options={COMMODITY_TYPES.map((type) => ({
+                value: type,
+                label: type,
+              }))}
+            />
+            <input
+              type="number"
+              value={cargoQuantity}
+              onChange={(e) => setCargoQuantity(e.target.value)}
+              min="1"
+              max="50"
+              style={{ width: '60px' }}
+            />
+            <button onClick={handleAddCargo}>Add</button>
+          </div>
+          {hasSmugglersPanel && (
+            <div className="dev-admin-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={useHiddenCargo}
+                  onChange={(e) => setUseHiddenCargo(e.target.checked)}
+                />
+                Add to hidden cargo
+              </label>
+            </div>
+          )}
           <button
-            onClick={() =>
-              game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, Date.now())
-            }
+            className="dev-admin-action-btn danger"
+            onClick={handleClearCargo}
           >
-            Preview Epilogue
+            Clear All Cargo
           </button>
         </div>
-      </div>
 
-      {/* Panel Preview Section */}
-      <div className="dev-admin-section">
-        <h3>Panel Preview</h3>
-        <div className="dev-admin-encounter-buttons">
-          <button onClick={() => setShowPreview(true)}>
-            Preview All Panels
-          </button>
+        {/* Encounter Triggers Section */}
+        <div className="dev-admin-section">
+          <h3>Trigger Encounters</h3>
+          <div className="dev-admin-encounter-buttons">
+            <button onClick={handleTriggerPirate}>🏴‍☠️ Pirate</button>
+            <button onClick={handleTriggerInspection}>🔍 Inspection</button>
+            <button onClick={handleTriggerMechanicalFailure}>
+              ⚙️ Mech Failure
+            </button>
+            <button onClick={handleTriggerDistressCall}>
+              🆘 Distress Call
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="dev-admin-warning">
-        ⚠ Dev Mode Only - Not visible in production
-      </div>
+        {/* Danger State Display Section */}
+        {dangerState && (
+          <div className="dev-admin-section">
+            <h3>Danger State</h3>
+            <div className="dev-admin-state-display">
+              <div className="dev-admin-state-row">
+                <span>Danger Zone:</span>
+                <span className={`zone-${dangerState.dangerZone}`}>
+                  {dangerState.dangerZone}
+                </span>
+              </div>
+              <div className="dev-admin-state-row">
+                <span>Pirate Chance:</span>
+                <span>{dangerState.pirateChance}%</span>
+              </div>
+              <div className="dev-admin-state-row">
+                <span>Inspection Chance:</span>
+                <span>{dangerState.inspectionChance}%</span>
+              </div>
+              {Object.keys(dangerState.dangerFlags).length > 0 && (
+                <div className="dev-admin-flags">
+                  <span>Flags:</span>
+                  <span>
+                    {Object.entries(dangerState.dangerFlags)
+                      .map(([key, value]) => `${key}: ${value}`)
+                      .join(', ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-      {showPreview && <DevPanelPreview onClose={() => setShowPreview(false)} />}
-    </div>
+        {/* Endgame Section */}
+        <div className="dev-admin-section">
+          <h3>Endgame</h3>
+          <div className="dev-admin-encounter-buttons">
+            <button
+              onClick={() =>
+                game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, Date.now())
+              }
+            >
+              Preview Epilogue
+            </button>
+          </div>
+        </div>
+
+        {/* Panel Preview Section */}
+        <div className="dev-admin-section">
+          <h3>Panel Preview</h3>
+          <div className="dev-admin-encounter-buttons">
+            <button onClick={() => setShowPreview(true)}>
+              Preview All Panels
+            </button>
+          </div>
+        </div>
+
+        <div className="dev-admin-warning">
+          ⚠ Dev Mode Only - Not visible in production
+        </div>
+
+        {showPreview && (
+          <DevPanelPreview onClose={() => setShowPreview(false)} />
+        )}
+      </div>
+    </>
   );
 }

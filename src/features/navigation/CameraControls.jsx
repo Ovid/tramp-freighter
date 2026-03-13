@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
 import { CustomSelect } from '../../components/CustomSelect';
@@ -26,6 +26,7 @@ export function CameraControls({
   const [antimatter, setAntimatter] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const controlsRef = useRef(null);
 
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
@@ -41,6 +42,17 @@ export function CameraControls({
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const handleClickOutside = (e) => {
+      if (controlsRef.current && !controlsRef.current.contains(e.target)) {
+        setIsExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isExpanded]);
 
   useEffect(() => {
     if (antimatter) {
@@ -60,7 +72,11 @@ export function CameraControls({
   };
 
   return (
-    <div id="camera-controls" className={isExpanded ? 'expanded' : 'collapsed'}>
+    <div
+      id="camera-controls"
+      ref={controlsRef}
+      className={isExpanded ? 'expanded' : 'collapsed'}
+    >
       <button
         className="camera-controls-toggle"
         onClick={toggleExpanded}
