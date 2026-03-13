@@ -125,7 +125,7 @@ export function FinancePanel({ onClose }) {
                     disabled={credits < payAmount + fee || debtInfo.debt === 0}
                     onClick={() => handlePayment(payAmount)}
                   >
-                    Pay ₡{amount}
+                    Pay ₡{payAmount}
                     {fee > 0 ? ` (+₡${fee} fee)` : ''}
                   </button>
                 );
