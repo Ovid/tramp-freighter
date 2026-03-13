@@ -87,10 +87,12 @@ export function getIntelligencePriority(option) {
  * @returns {string} Human-readable source text
  */
 export function formatSource(source) {
-  if (source === 'visited') {
+  if (source === INTELLIGENCE_CONFIG.SOURCES.VISITED) {
     return 'Visited';
-  } else if (source === 'intelligence_broker') {
+  } else if (source === INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER) {
     return 'Information Broker';
+  } else if (source === INTELLIGENCE_CONFIG.SOURCES.ORBIT) {
+    return 'Orbit only';
   } else {
     // Fallback for old saves without source field
     return 'Unknown';
@@ -126,7 +128,10 @@ export function formatStaleness(lastVisit) {
  * @param {number|null} lastVisit - Days since last visit (null = never visited, 0 = current)
  * @returns {string} Human-readable visit information
  */
-export function formatVisitInfo(lastVisit) {
+export function formatVisitInfo(lastVisit, source) {
+  if (source === INTELLIGENCE_CONFIG.SOURCES.ORBIT) {
+    return 'Visited but never docked';
+  }
   if (lastVisit === null) {
     return 'Never visited';
   } else if (lastVisit === 0) {
@@ -158,7 +163,9 @@ export function sortIntelligenceByPriority(options) {
  * @returns {Array} Array of { system, knowledge } sorted by staleness (current first)
  */
 export function getKnownSystemsSortedByStaleness(priceKnowledge, starData) {
-  const knownSystemIds = Object.keys(priceKnowledge).map(Number);
+  const knownSystemIds = Object.keys(priceKnowledge)
+    .map(Number)
+    .filter((id) => priceKnowledge[id].prices !== null);
 
   if (knownSystemIds.length === 0) {
     return [];

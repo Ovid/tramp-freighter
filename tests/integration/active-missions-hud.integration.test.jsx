@@ -77,6 +77,12 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   }),
 }));
 
+vi.mock('../../src/context/GameContext', () => ({
+  useGame: () => ({
+    getTanakaMissionDisplay: () => null,
+  }),
+}));
+
 describe('ActiveMissions HUD - Cargo Progress', () => {
   beforeEach(() => {
     vi.clearAllMocks();

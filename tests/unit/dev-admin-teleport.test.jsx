@@ -31,10 +31,16 @@ describe('DevAdminPanel teleport', () => {
     expect(teleportHeading).toBeTruthy();
 
     const section = teleportHeading.closest('.dev-admin-section');
-    const select = section.querySelector('select');
-    expect(select).toBeTruthy();
+    const customSelect = section.querySelector('.custom-select');
+    expect(customSelect).toBeTruthy();
 
-    const options = Array.from(select.querySelectorAll('option'));
+    // Open dropdown to see options
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    fireEvent.click(trigger);
+
+    const options = Array.from(
+      customSelect.querySelectorAll('.custom-select-option')
+    );
     // Should include reachable stars plus Delta Pavonis
     expect(
       options.find((o) => o.textContent.includes('Delta Pavonis'))
@@ -51,15 +57,15 @@ describe('DevAdminPanel teleport', () => {
     const section = headings
       .find((h) => h.textContent === 'Teleport')
       .closest('.dev-admin-section');
-    const select = section.querySelector('select');
-    const options = Array.from(select.querySelectorAll('option'));
+    const customSelect = section.querySelector('.custom-select');
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    fireEvent.click(trigger);
 
-    // Filter out the placeholder option
-    const starOptions = options.filter((o) => o.value !== '');
+    const options = customSelect.querySelectorAll('.custom-select-option');
 
     const reachableCount = STAR_DATA.filter((s) => s.r === 1).length;
     // reachable stars + Delta Pavonis (which has r:0)
-    expect(starOptions).toHaveLength(reachableCount + 1);
+    expect(options).toHaveLength(reachableCount + 1);
   });
 
   it('teleports player to selected system when Go is clicked', () => {
@@ -71,13 +77,20 @@ describe('DevAdminPanel teleport', () => {
     const section = headings
       .find((h) => h.textContent === 'Teleport')
       .closest('.dev-admin-section');
-    const select = section.querySelector('select');
 
-    fireEvent.change(select, {
-      target: { value: String(ENDGAME_CONFIG.DELTA_PAVONIS_ID) },
-    });
+    // Open dropdown and select Delta Pavonis
+    const customSelect = section.querySelector('.custom-select');
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    fireEvent.click(trigger);
+    const deltaPavonisOption = Array.from(
+      customSelect.querySelectorAll('.custom-select-option')
+    ).find((o) => o.textContent.includes('Delta Pavonis'));
+    fireEvent.click(deltaPavonisOption);
 
-    const goBtn = section.querySelector('button');
+    // Click the Go button
+    const goBtn = section.querySelector(
+      '.dev-admin-control > button:not(.custom-select-trigger)'
+    );
     fireEvent.click(goBtn);
 
     expect(game.getState().player.currentSystem).toBe(

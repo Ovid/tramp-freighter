@@ -521,7 +521,7 @@
   color: #ffffff;
   font-size: 14px;
   display: none;
-  z-index: 200;
+  z-index: var(--z-panel);
   max-height: calc(100vh - 40px);
   overflow-y: auto;
 }
@@ -530,8 +530,21 @@
   display: block;
 }
 
+.station-header {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.95);
+  margin: -20px -20px 0;
+  padding: 20px 20px 10px;
+  border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+}
+
 #station-interface h2 {
-  margin-bottom: 15px;
+  margin: 0;
   color: #00ff88;
   font-size: 20px;
   text-align: center;
@@ -959,4 +972,23 @@
   font-family: var(--font-family-mono);
   z-index: var(--z-modal);
   pointer-events: none;
+}
+
+.settings-star-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+/* Star finder uses CustomSelect component; see css/custom-select.css */
+
+.mission-hud-item.quest-mission {
+  border-left: 3px solid #ffd700;
+}
+
+.mission-hud-quest-label {
+  color: #ffd700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }

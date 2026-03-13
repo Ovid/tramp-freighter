@@ -3,6 +3,7 @@ import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
   DEFAULT_PREFERENCES,
+  INTELLIGENCE_CONFIG,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { devLog, devWarn } from '../utils/dev-logger.js';
@@ -347,7 +348,7 @@ export function validateStateStructure(state) {
       if (
         !knowledge ||
         typeof knowledge.lastVisit !== 'number' ||
-        typeof knowledge.prices !== 'object'
+        (knowledge.prices !== null && typeof knowledge.prices !== 'object')
       ) {
         return false;
       }
@@ -762,7 +763,7 @@ export function addStateDefaults(state, systemData) {
     state.world.priceKnowledge[currentSystemId] = {
       lastVisit: 0,
       prices: currentPrices,
-      source: 'visited',
+      source: INTELLIGENCE_CONFIG.SOURCES.VISITED,
     };
   }
 
@@ -771,7 +772,8 @@ export function addStateDefaults(state, systemData) {
     for (const systemId in state.world.priceKnowledge) {
       if (!state.world.priceKnowledge[systemId].source) {
         // Default to 'visited' for old saves
-        state.world.priceKnowledge[systemId].source = 'visited';
+        state.world.priceKnowledge[systemId].source =
+          INTELLIGENCE_CONFIG.SOURCES.VISITED;
       }
     }
   }
@@ -900,6 +902,14 @@ export function addStateDefaults(state, systemData) {
 
   if (!state.preferences) {
     state.preferences = { ...DEFAULT_PREFERENCES };
+  }
+
+  // Add lastBorrowDay to finance if missing (pre-early-repayment-fee saves)
+  if (
+    state.player.finance &&
+    state.player.finance.lastBorrowDay === undefined
+  ) {
+    state.player.finance.lastBorrowDay = null;
   }
 
   return state;

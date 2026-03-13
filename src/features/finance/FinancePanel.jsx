@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { COLE_DEBT_CONFIG, EVENT_NAMES } from '../../game/constants';
@@ -23,10 +23,10 @@ export function FinancePanel({ onClose }) {
 
   const [message, setMessage] = useState(null);
 
-  const debtInfo = useMemo(() => {
-    if (debt === undefined || !finance || credits === undefined) return null;
-    return getDebtInfo();
-  }, [debt, finance, credits, getDebtInfo]);
+  const debtInfo =
+    debt === undefined || !finance || credits === undefined
+      ? null
+      : getDebtInfo();
 
   if (!debtInfo) return null;
 
@@ -42,19 +42,27 @@ export function FinancePanel({ onClose }) {
   const handlePayment = (amount) => {
     const result = makeDebtPayment(amount);
     if (result.success) {
+      const feeText = result.fee > 0 ? ` (+ ₡${result.fee} fee)` : '';
       setMessage({
         type: 'info',
         text:
           result.amount === debt
             ? 'Debt paid in full!'
-            : `Paid ₡${result.amount} toward debt`,
+            : `Paid ₡${result.amount}${feeText} toward debt`,
       });
     } else {
       setMessage({ type: 'error', text: result.reason });
     }
   };
 
-  const payAll = () => handlePayment(Math.min(credits, debt));
+  const payAllAmount =
+    debtInfo.earlyRepaymentFeeRate > 0
+      ? Math.min(
+          Math.floor(credits / (1 + debtInfo.earlyRepaymentFeeRate)),
+          debtInfo.debt
+        )
+      : Math.min(credits, debtInfo.debt);
+  const payAll = () => handlePayment(payAllAmount);
 
   const lienPercent = Math.round(debtInfo.lienRate * 100);
   const interestPercent = Math.round(debtInfo.interestRate * 100);
@@ -96,27 +104,48 @@ export function FinancePanel({ onClose }) {
         {debtInfo.debt > 0 && (
           <div className="finance-section">
             <h3>Make Payment</h3>
+            {debtInfo.earlyRepaymentFeeRate > 0 && (
+              <p className="finance-warning">
+                Early repayment:{' '}
+                {Math.round(debtInfo.earlyRepaymentFeeRate * 100)}% processing
+                fee applies.
+              </p>
+            )}
             <div className="finance-buttons">
-              {COLE_DEBT_CONFIG.PAYMENT_TIERS.map((amount) => (
-                <button
-                  key={amount}
-                  className="station-btn"
-                  disabled={
-                    credits < Math.min(amount, debtInfo.debt) ||
-                    debtInfo.debt === 0
-                  }
-                  onClick={() => handlePayment(Math.min(amount, debtInfo.debt))}
-                >
-                  Pay ₡{amount}
-                </button>
-              ))}
-              <button
-                className="station-btn"
-                disabled={credits === 0 || debtInfo.debt === 0}
-                onClick={payAll}
-              >
-                Pay All (₡{Math.min(credits, debtInfo.debt).toLocaleString()})
-              </button>
+              {COLE_DEBT_CONFIG.PAYMENT_TIERS.map((amount) => {
+                const payAmount = Math.min(amount, debtInfo.debt);
+                const fee =
+                  debtInfo.earlyRepaymentFeeRate > 0
+                    ? Math.ceil(payAmount * debtInfo.earlyRepaymentFeeRate)
+                    : 0;
+                return (
+                  <button
+                    key={amount}
+                    className="station-btn"
+                    disabled={credits < payAmount + fee || debtInfo.debt === 0}
+                    onClick={() => handlePayment(payAmount)}
+                  >
+                    Pay ₡{payAmount}
+                    {fee > 0 ? ` (+₡${fee} fee)` : ''}
+                  </button>
+                );
+              })}
+              {(() => {
+                const payAllFee =
+                  debtInfo.earlyRepaymentFeeRate > 0
+                    ? Math.ceil(payAllAmount * debtInfo.earlyRepaymentFeeRate)
+                    : 0;
+                return (
+                  <button
+                    className="station-btn"
+                    disabled={payAllAmount <= 0 || debtInfo.debt === 0}
+                    onClick={payAll}
+                  >
+                    Pay All (₡{payAllAmount.toLocaleString()}
+                    {payAllFee > 0 ? ` +₡${payAllFee} fee` : ''})
+                  </button>
+                );
+              })()}
             </div>
           </div>
         )}

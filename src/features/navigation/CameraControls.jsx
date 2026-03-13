@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
+import { CustomSelect } from '../../components/CustomSelect';
 import { useGame } from '../../context/GameContext';
+import { useStarmap } from '../../context/StarmapContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { EVENT_NAMES } from '../../game/constants';
+import { useStarData } from '../../hooks/useStarData';
+import { useClickOutside } from '../../hooks/useClickOutside';
+import { EVENT_NAMES, calculateDistanceFromSol } from '../../game/constants';
 
 export function CameraControls({
   cameraState,
@@ -13,15 +17,31 @@ export function CameraControls({
   onToggleBoundary,
 }) {
   const game = useGame();
+  const { selectStarById } = useStarmap();
+  const starData = useStarData();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
+  useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const controlsRef = useRef(null);
 
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
+
+  const visitedSet = new Set(game.getVisitedSystems());
+
+  const sortedStars = useMemo(() => {
+    if (!starData) return [];
+    return [...starData].sort(
+      (a, b) => calculateDistanceFromSol(a) - calculateDistanceFromSol(b)
+    );
+  }, [starData]);
+
+  const collapseSettings = useCallback(() => setIsExpanded(false), []);
+  useClickOutside(controlsRef, collapseSettings, isExpanded);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -45,7 +65,12 @@ export function CameraControls({
   };
 
   return (
-    <div id="camera-controls" className={isExpanded ? 'expanded' : 'collapsed'}>
+    <div
+      id="camera-controls"
+      ref={controlsRef}
+      data-panel
+      className={isExpanded ? 'expanded' : 'collapsed'}
+    >
       <button
         className="camera-controls-toggle"
         onClick={toggleExpanded}
@@ -107,6 +132,28 @@ export function CameraControls({
               />
               <span className="settings-toggle-slider" />
             </label>
+
+            <div className="settings-divider" />
+
+            <div className="settings-star-finder">
+              <span className="settings-label">Find Star</span>
+              <CustomSelect
+                className="star-finder-select"
+                options={sortedStars.map((star) => ({
+                  value: String(star.id),
+                  label: `${visitedSet.has(star.id) ? '\u2713 ' : '  '}${star.name}`,
+                }))}
+                value=""
+                onChange={(val) => {
+                  const systemId = parseInt(val, 10);
+                  if (!isNaN(systemId)) {
+                    selectStarById(systemId);
+                  }
+                }}
+                placeholder="-- Select --"
+                aria-label="Find star system"
+              />
+            </div>
 
             <div className="settings-divider" />
 

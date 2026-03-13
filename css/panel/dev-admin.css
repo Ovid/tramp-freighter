@@ -49,13 +49,24 @@
   display: block;
 }
 
+.dev-admin-header {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-panel);
+  margin: calc(-1 * var(--panel-padding)) calc(-1 * var(--panel-padding)) 0;
+  padding: var(--panel-padding) var(--panel-padding) 10px;
+  border-bottom: var(--section-border-width) solid rgba(255, 255, 255, 0.2);
+}
+
 #dev-admin-panel h2 {
-  margin: 0 0 var(--section-gap) 0;
+  margin: 0;
   color: #ff4444;
   font-size: var(--font-size-title);
   text-align: center;
-  border-bottom: var(--section-border-width) solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 10px;
 }
 
 .dev-admin-section {
@@ -100,21 +111,7 @@
   font-size: 13px;
 }
 
-.dev-admin-control select {
-  flex: 1;
-  padding: 4px 6px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: white;
-  font-size: 13px;
-  color-scheme: dark;
-}
-
-.dev-admin-control select option {
-  background: #1a1a2e;
-  color: #e0e0e0;
-}
+/* Dev admin selects use CustomSelect component; see css/custom-select.css */
 
 .dev-admin-control button {
   padding: 4px 12px;

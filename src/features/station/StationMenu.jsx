@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGame } from '../../context/GameContext';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import { EVENT_NAMES } from '../../game/constants.js';
 import { STAR_DATA } from '../../game/data/star-data';
 import { calculateDistanceFromSol } from '../../game/constants';
@@ -23,6 +24,9 @@ import { Modal } from '../../components/Modal';
  * @param {Function} onUndock - Callback to undock from station
  */
 export function StationMenu({ onOpenPanel, onUndock }) {
+  const ref = useRef(null);
+  useClickOutside(ref, onUndock);
+
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const game = useGame();
   const { getNarrativeFlags, dismissMissionFailureNotice } = useGameAction();
@@ -71,11 +75,13 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   }, [npcsAtSystem, game]);
 
   return (
-    <div id="station-interface" className="visible">
-      <button className="close-btn" onClick={onUndock} aria-label="Close">
-        ×
-      </button>
-      <h2>{system.name} Station</h2>
+    <div id="station-interface" className="visible" ref={ref} data-panel>
+      <div className="station-header">
+        <h2>{system.name} Station</h2>
+        <button className="close-btn" onClick={onUndock} aria-label="Close">
+          ×
+        </button>
+      </div>
       <div className="station-info">
         <div className="info-row">
           <span className="label">System:</span>

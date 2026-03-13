@@ -144,7 +144,7 @@ export function SystemPanel({
             </div>
           </div>
         )}
-        <div className="system-panel">
+        <div className="system-panel" data-panel>
           <div className="system-panel-header">
             <h3>{viewingSystem.name}</h3>
             <button className="close-btn" onClick={onClose} aria-label="Close">
@@ -261,7 +261,7 @@ export function SystemPanel({
     .sort((a, b) => a.distance - b.distance);
 
   return (
-    <div className="system-panel">
+    <div className="system-panel" data-panel>
       <div className="system-panel-header">
         <h3>{viewingSystem.name}</h3>
         <button className="close-btn" onClick={onClose} aria-label="Close">

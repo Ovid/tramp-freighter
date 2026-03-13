@@ -3,6 +3,7 @@ import {
   EVENT_NAMES,
   DEFAULT_PREFERENCES,
   ENDGAME_CONFIG,
+  INTELLIGENCE_CONFIG,
 } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
@@ -191,6 +192,7 @@ export class GameCoordinator {
       getMarketConditions: () => this.state.world.marketConditions,
       getStats: () => this.state.stats,
       getDockedSystems: () => this.state.world.narrativeEvents?.dockedSystems,
+      getPriceKnowledge: () => this.state.world.priceKnowledge,
       updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
         this.tradingManager.updatePriceKnowledge(
           systemId,
@@ -394,6 +396,7 @@ export class GameCoordinator {
           this.state.stats[key] = (this.state.stats[key] || 0) + delta;
         }
       },
+      isTanakaQuestActive: () => this.questManager.isTanakaQuestActive(),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,
@@ -840,7 +843,12 @@ export class GameCoordinator {
     return this.tradingManager.applyMarketRecovery(daysPassed);
   }
 
-  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = 'visited') {
+  updatePriceKnowledge(
+    systemId,
+    prices,
+    lastVisit = 0,
+    source = INTELLIGENCE_CONFIG.SOURCES.VISITED
+  ) {
     return this.tradingManager.updatePriceKnowledge(
       systemId,
       prices,
@@ -987,6 +995,44 @@ export class GameCoordinator {
 
   contributeSupply() {
     return this.questManager.contributeSupply();
+  }
+
+  isTanakaQuestActive() {
+    return this.questManager.isTanakaQuestActive();
+  }
+
+  getTanakaMissionDisplay() {
+    if (!this.isTanakaQuestActive()) return null;
+    const questState = this.questManager.getQuestState('tanaka');
+    const questDef = this.questManager.getQuestDefinition('tanaka');
+    if (!questState || !questDef) return null;
+
+    const stageDef = questDef.stages.find((s) => s.stage === questState.stage);
+    const stageName = stageDef ? stageDef.name : 'Unknown';
+
+    let progress = null;
+    if (questState.stage === 1) {
+      progress = `${questState.data.jumpsCompleted || 0}/${ENDGAME_CONFIG.STAGE_1_JUMPS} jumps`;
+    } else if (questState.stage === 2) {
+      progress = `${questState.data.exoticMaterials || 0}/${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples`;
+    } else if (questState.stage === 4) {
+      const deliverySystem = this.starData?.find(
+        (s) => s.id === ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
+      );
+      progress = deliverySystem ? `Deliver to ${deliverySystem.name}` : null;
+    }
+
+    return {
+      title: `Tanaka: ${stageName}`,
+      progress,
+      stage: questState.stage,
+    };
+  }
+
+  getEffectiveMissionCount() {
+    const regularCount = this.state.missions.active.length;
+    const tanakaSlot = this.isTanakaQuestActive() ? 1 : 0;
+    return regularCount + tanakaSlot;
   }
 
   startPavonisRun() {
@@ -1543,6 +1589,10 @@ export class GameCoordinator {
 
   getDaysElapsed() {
     return this.state?.player?.daysElapsed ?? 0;
+  }
+
+  getVisitedSystems() {
+    return this.state?.world?.visitedSystems ?? [];
   }
 
   getFactionReps() {

@@ -216,13 +216,14 @@ describe('Property: STATION mode displays station menu', () => {
 });
 
 /**
- * React Migration Spec, Property 28: PANEL mode displays active panel
+ * React Migration Spec, Property 28: Active panel displays alongside station menu
  * Validates: Requirements 9.4, 25.4
  *
- * For any view mode set to PANEL, the active panel should be displayed.
+ * When a panel is opened from the station menu, both the station menu and
+ * the panel are visible simultaneously (flattened view state).
  */
-describe('Property: PANEL mode displays active panel', () => {
-  it('should display active panel when opened', () => {
+describe('Property: Active panel displays alongside station menu', () => {
+  it('should display active panel alongside station menu when opened', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();
@@ -254,7 +255,7 @@ describe('Property: PANEL mode displays active panel', () => {
         const dockButton = screen.getByText('Dock');
         fireEvent.click(dockButton);
 
-        // Click open panel button to transition to PANEL mode
+        // Click open panel button
         const openPanelButton = screen.getByText('Trade');
         fireEvent.click(openPanelButton);
 
@@ -272,9 +273,9 @@ describe('Property: PANEL mode displays active panel', () => {
         const hud = container.querySelector('#game-hud');
         expect(hud).toBeTruthy();
 
-        // Verify station menu is NOT present (replaced by panel)
+        // Station menu stays visible alongside panel (flattened state)
         const stationMenu = container.querySelector('#station-interface');
-        expect(stationMenu).toBeFalsy();
+        expect(stationMenu).toBeTruthy();
 
         return true;
       }),
@@ -334,16 +335,16 @@ describe('Property: View mode changes update visibility', () => {
         expect(stationMenu).toBeTruthy();
         expect(panelContainer).toBeFalsy();
 
-        // Transition to PANEL mode
+        // Open a panel — station menu stays visible alongside it
         const openPanelButton = screen.getByText('Trade');
         fireEvent.click(openPanelButton);
 
         stationMenu = container.querySelector('#station-interface');
         panelContainer = container.querySelector('.panel-container');
-        expect(stationMenu).toBeFalsy();
+        expect(stationMenu).toBeTruthy();
         expect(panelContainer).toBeTruthy();
 
-        // Transition back to STATION mode
+        // Close the panel — station menu stays, panel goes away
         const closePanelButtons = screen.getAllByText('×');
         // Find the close button in the panel container (not the station menu)
         const closePanelButton = closePanelButtons.find((btn) =>

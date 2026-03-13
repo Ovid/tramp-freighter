@@ -895,4 +895,116 @@ describe('Cole Debt System', () => {
       expect(gsm.getNPCState('cole_sol').rep).toBe(17);
     });
   });
+
+  describe('Early repayment fee', () => {
+    let debtManager;
+
+    beforeEach(() => {
+      gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+      gsm.initNewGame();
+      debtManager = new DebtManager(buildDebtCapabilities(gsm));
+    });
+
+    it('should track lastBorrowDay when borrowing', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBe(10);
+    });
+
+    it('should update lastBorrowDay on each borrow', () => {
+      gsm.state.player.daysElapsed = 5;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 15;
+      debtManager.borrow(200);
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBe(15);
+    });
+
+    it('should initialize lastBorrowDay to null', () => {
+      const finance = debtManager.getFinance();
+      expect(finance.lastBorrowDay).toBeNull();
+    });
+
+    it('should charge 10% fee when repaying within 20 days of borrowing', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.daysElapsed = 10;
+      const borrowResult = debtManager.borrow(200);
+      expect(borrowResult.success).toBe(true);
+
+      gsm.state.player.daysElapsed = 25;
+      const creditsBefore = gsm.state.player.credits;
+      const debtBefore = gsm.state.player.debt;
+
+      const result = debtManager.makePayment(200);
+      expect(result.success).toBe(true);
+
+      // Fee = ceil(200 * 0.10) = 20
+      expect(gsm.state.player.credits).toBe(creditsBefore - 220);
+      expect(gsm.state.player.debt).toBe(debtBefore - 200);
+      expect(result.fee).toBe(20);
+    });
+
+    it('should NOT charge fee when repaying after 20 days', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+
+      gsm.state.player.daysElapsed = 31;
+      const creditsBefore = gsm.state.player.credits;
+
+      const result = debtManager.makePayment(200);
+      expect(result.success).toBe(true);
+
+      expect(gsm.state.player.credits).toBe(creditsBefore - 200);
+      expect(result.fee).toBe(0);
+    });
+
+    it('should NOT charge fee when lastBorrowDay is null (starting debt)', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.daysElapsed = 5;
+
+      const creditsBefore = gsm.state.player.credits;
+      const result = debtManager.makePayment(500);
+      expect(result.success).toBe(true);
+      expect(gsm.state.player.credits).toBe(creditsBefore - 500);
+      expect(result.fee).toBe(0);
+    });
+
+    it('getDebtInfo should report earlyRepaymentFeeRate when within window', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 15;
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0.1);
+    });
+
+    it('getDebtInfo should report zero earlyRepaymentFeeRate when outside window', () => {
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+      gsm.state.player.daysElapsed = 31;
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0);
+    });
+
+    it('getDebtInfo should report zero earlyRepaymentFeeRate when lastBorrowDay is null', () => {
+      const info = debtManager.getDebtInfo();
+      expect(info.earlyRepaymentFeeRate).toBe(0);
+    });
+
+    it('should reduce payment if credits insufficient for payment plus fee', () => {
+      gsm.state.player.credits = 5000;
+      gsm.state.player.daysElapsed = 10;
+      debtManager.borrow(200);
+
+      gsm.state.player.credits = 200;
+      gsm.state.player.daysElapsed = 15;
+
+      const result = debtManager.makePayment(200);
+      expect(result.success).toBe(true);
+      // Max payment where payment + ceil(payment * 0.1) <= 200
+      // payment=181: 181 + ceil(18.1) = 181 + 19 = 200 ✓
+      expect(gsm.state.player.credits).toBe(0);
+    });
+  });
 });

@@ -17,7 +17,9 @@ export class MissionManager extends BaseManager {
   acceptMission(mission) {
     const missions = this.capabilities.getOwnState();
 
-    if (missions.active.length >= MISSION_CONFIG.MAX_ACTIVE) {
+    const tanakaSlot = this.capabilities.isTanakaQuestActive?.() ? 1 : 0;
+    const effectiveCount = missions.active.length + tanakaSlot;
+    if (effectiveCount >= MISSION_CONFIG.MAX_ACTIVE) {
       return {
         success: false,
         reason: 'You have the maximum number of active missions.',
@@ -347,6 +349,7 @@ export class MissionManager extends BaseManager {
     }
 
     missions.active.splice(missionIndex, 1);
+    missions.active = [...missions.active];
     missions.failed.push(missionId);
 
     // Remove mission cargo from hold

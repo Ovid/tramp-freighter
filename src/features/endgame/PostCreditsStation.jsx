@@ -25,7 +25,7 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
   }, [npcsAtSystem, game]);
 
   return (
-    <div id="station-interface" className="visible">
+    <div id="station-interface" className="visible" data-panel>
       <h2>{system?.name || 'Delta Pavonis'} Colony</h2>
       <div className="station-info">
         <div className="info-row">

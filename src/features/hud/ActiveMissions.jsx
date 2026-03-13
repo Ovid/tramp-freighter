@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
+import { useGame } from '../../context/GameContext';
 import { ConfirmModal } from '../../components/Modal';
 import { EVENT_NAMES } from '../../game/constants.js';
 
@@ -25,8 +26,13 @@ export function ActiveMissions() {
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const { abandonMission } = useGameAction();
   const [missionToAbandon, setMissionToAbandon] = useState(null);
+  const game = useGame();
 
-  if (!missions?.active?.length) return null;
+  // Subscribe to quest changes so we re-render when Tanaka quest updates
+  useGameEvent(EVENT_NAMES.QUEST_CHANGED);
+  const tanakaMission = game.getTanakaMissionDisplay();
+
+  if (!missions?.active?.length && !tanakaMission) return null;
 
   const handleAbandonConfirm = () => {
     if (missionToAbandon) {
@@ -38,7 +44,17 @@ export function ActiveMissions() {
   return (
     <div className="active-missions-hud">
       <h4>Active Missions</h4>
-      {missions.active.map((mission) => {
+      {tanakaMission && (
+        <div className="mission-hud-item quest-mission">
+          <span className="mission-hud-quest-label">Quest</span>
+          <div className="mission-hud-title">{tanakaMission.title}</div>
+          {tanakaMission.progress && (
+            <div className="mission-hud-cargo">{tanakaMission.progress}</div>
+          )}
+          <div className="mission-hud-deadline">Ongoing</div>
+        </div>
+      )}
+      {missions?.active?.map((mission) => {
         const daysRemaining = Math.max(
           0,
           Math.ceil(mission.deadlineDay - daysElapsed)

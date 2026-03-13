@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
@@ -12,6 +13,7 @@ import {
 } from '../../game/constants.js';
 import { ALL_NPCS } from '../../game/data/npc-data.js';
 import { STAR_DATA } from '../../game/data/star-data.js';
+import { CustomSelect } from '../../components/CustomSelect';
 import { DevPanelPreview } from './DevPanelPreview';
 
 /**
@@ -24,6 +26,9 @@ import { DevPanelPreview } from './DevPanelPreview';
  * Only rendered when dev mode is enabled (detected via .dev file).
  */
 export function DevAdminPanel({ onClose }) {
+  const ref = useRef(null);
+  useClickOutside(ref, onClose);
+
   const game = useGame();
 
   // Subscribe to game state changes
@@ -405,11 +410,13 @@ export function DevAdminPanel({ onClose }) {
   };
 
   return (
-    <div id="dev-admin-panel" className="visible">
-      <button className="close-btn" onClick={onClose} aria-label="Close">
-        ×
-      </button>
-      <h2>🔧 Dev Admin Panel</h2>
+    <div id="dev-admin-panel" className="visible" ref={ref} data-panel>
+      <div className="dev-admin-header">
+        <h2>🔧 Dev Admin Panel</h2>
+        <button className="close-btn" onClick={onClose} aria-label="Close">
+          ×
+        </button>
+      </div>
 
       {/* Player Resources Section */}
       <div className="dev-admin-section">
@@ -549,23 +556,21 @@ export function DevAdminPanel({ onClose }) {
       <div className="dev-admin-section">
         <h3>NPC Reputation</h3>
         <div className="dev-admin-control">
-          <select
+          <CustomSelect
             value={selectedNpcId}
-            onChange={(e) => setSelectedNpcId(e.target.value)}
-          >
-            <option value="">Select NPC...</option>
-            {[...ALL_NPCS]
+            onChange={(val) => setSelectedNpcId(val)}
+            placeholder="Select NPC..."
+            options={[...ALL_NPCS]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {
                   sensitivity: 'base',
                 })
               )
-              .map((npc) => (
-                <option key={npc.id} value={npc.id}>
-                  {npc.name} — {npc.role}
-                </option>
-              ))}
-          </select>
+              .map((npc) => ({
+                value: npc.id,
+                label: `${npc.name} — ${npc.role}`,
+              }))}
+          />
         </div>
         {selectedNpcId &&
           (() => {
@@ -623,12 +628,11 @@ export function DevAdminPanel({ onClose }) {
       <div className="dev-admin-section">
         <h3>Teleport</h3>
         <div className="dev-admin-control">
-          <select
+          <CustomSelect
             value={selectedTeleportSystem}
-            onChange={(e) => setSelectedTeleportSystem(e.target.value)}
-          >
-            <option value="">Select star...</option>
-            {[...STAR_DATA]
+            onChange={(val) => setSelectedTeleportSystem(val)}
+            placeholder="Select star..."
+            options={[...STAR_DATA]
               .filter(
                 (s) => s.r === 1 || s.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
               )
@@ -637,15 +641,11 @@ export function DevAdminPanel({ onClose }) {
                   sensitivity: 'base',
                 })
               )
-              .map((star) => (
-                <option key={star.id} value={star.id}>
-                  {star.name}
-                  {star.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID
-                    ? ' (endgame)'
-                    : ''}
-                </option>
-              ))}
-          </select>
+              .map((star) => ({
+                value: String(star.id),
+                label: `${star.name}${star.id === ENDGAME_CONFIG.DELTA_PAVONIS_ID ? ' (endgame)' : ''}`,
+              }))}
+          />
           <button
             onClick={() => {
               if (selectedTeleportSystem !== '') {
@@ -677,17 +677,15 @@ export function DevAdminPanel({ onClose }) {
         </div>
         {availableQuirks.length > 0 && (
           <div className="dev-admin-control">
-            <select
+            <CustomSelect
               value={selectedQuirk}
-              onChange={(e) => setSelectedQuirk(e.target.value)}
-            >
-              <option value="">Select quirk...</option>
-              {availableQuirks.map((quirkId) => (
-                <option key={quirkId} value={quirkId}>
-                  {SHIP_CONFIG.QUIRKS[quirkId].name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedQuirk(val)}
+              placeholder="Select quirk..."
+              options={availableQuirks.map((quirkId) => ({
+                value: quirkId,
+                label: SHIP_CONFIG.QUIRKS[quirkId].name,
+              }))}
+            />
             <button onClick={handleAddQuirk} disabled={!selectedQuirk}>
               Add
             </button>
@@ -718,17 +716,15 @@ export function DevAdminPanel({ onClose }) {
         </div>
         {availableUpgrades.length > 0 && (
           <div className="dev-admin-control">
-            <select
+            <CustomSelect
               value={selectedUpgrade}
-              onChange={(e) => setSelectedUpgrade(e.target.value)}
-            >
-              <option value="">Select upgrade...</option>
-              {availableUpgrades.map((upgradeId) => (
-                <option key={upgradeId} value={upgradeId}>
-                  {SHIP_CONFIG.UPGRADES[upgradeId].name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedUpgrade(val)}
+              placeholder="Select upgrade..."
+              options={availableUpgrades.map((upgradeId) => ({
+                value: upgradeId,
+                label: SHIP_CONFIG.UPGRADES[upgradeId].name,
+              }))}
+            />
             <button onClick={handleAddUpgrade} disabled={!selectedUpgrade}>
               Add
             </button>
@@ -766,16 +762,14 @@ export function DevAdminPanel({ onClose }) {
           )}
         </div>
         <div className="dev-admin-control">
-          <select
+          <CustomSelect
             value={selectedCommodity}
-            onChange={(e) => setSelectedCommodity(e.target.value)}
-          >
-            {COMMODITY_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedCommodity(val)}
+            options={COMMODITY_TYPES.map((type) => ({
+              value: type,
+              label: type,
+            }))}
+          />
           <input
             type="number"
             value={cargoQuantity}

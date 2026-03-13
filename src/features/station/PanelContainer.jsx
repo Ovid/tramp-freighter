@@ -20,11 +20,9 @@ import { FinancePanel } from '../finance/FinancePanel';
  *
  * @param {string} activePanel - Name of the currently active panel
  * @param {string} npcId - NPC ID for dialogue panel (optional)
- * @param {Function} onClose - Callback to close the panel
+ * @param {Function} onClose - Callback to close just this panel
  */
 export function PanelContainer({ activePanel, npcId, onClose }) {
-  // Placeholder for panel rendering
-  // Actual panel components will be imported and rendered in later tasks
   const renderPanel = () => {
     switch (activePanel) {
       case 'trade':
@@ -52,7 +50,9 @@ export function PanelContainer({ activePanel, npcId, onClose }) {
     }
   };
 
-  // Minimal wrapper that doesn't interfere with panel styling
-  // Each panel has its own complete styling from CSS
-  return <div className="panel-container">{renderPanel()}</div>;
+  return (
+    <div className="panel-container" data-panel>
+      {renderPanel()}
+    </div>
+  );
 }
