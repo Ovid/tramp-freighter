@@ -1,6 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useClickOutside(ref, onClose, enabled = true) {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!enabled) return;
 
@@ -15,9 +18,9 @@ export function useClickOutside(ref, onClose, enabled = true) {
       if (e.target.closest('#dev-admin-btn')) return;
       if (e.target.closest('.modal-overlay')) return;
 
-      onClose();
+      onCloseRef.current();
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [ref, onClose, enabled]);
+  }, [ref, enabled]);
 }
