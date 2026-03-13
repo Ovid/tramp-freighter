@@ -76,7 +76,8 @@
   transition: background-color 0.1s ease;
 }
 
-.custom-select-option:hover {
+.custom-select-option:hover,
+.custom-select-option.focused {
   background: rgba(0, 255, 136, 0.15);
   color: var(--color-white);
 }
