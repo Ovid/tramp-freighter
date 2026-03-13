@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-import { useClickOutside } from '../../hooks/useClickOutside';
 import { TradePanel } from '../trade/TradePanel';
 import { RefuelPanel } from '../refuel/RefuelPanel';
 import { RepairPanel } from '../repair/RepairPanel';
@@ -23,12 +21,8 @@ import { FinancePanel } from '../finance/FinancePanel';
  * @param {string} activePanel - Name of the currently active panel
  * @param {string} npcId - NPC ID for dialogue panel (optional)
  * @param {Function} onClose - Callback to close just this panel
- * @param {Function} onUndock - Callback to undock (closes everything)
  */
-export function PanelContainer({ activePanel, npcId, onClose, onUndock }) {
-  const ref = useRef(null);
-  useClickOutside(ref, onUndock);
-
+export function PanelContainer({ activePanel, npcId, onClose }) {
   const renderPanel = () => {
     switch (activePanel) {
       case 'trade':
@@ -57,7 +51,7 @@ export function PanelContainer({ activePanel, npcId, onClose, onUndock }) {
   };
 
   return (
-    <div className="panel-container" ref={ref} data-panel>
+    <div className="panel-container" data-panel>
       {renderPanel()}
     </div>
   );

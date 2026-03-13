@@ -386,7 +386,6 @@ export default function App({ devMode = false }) {
                       activePanel={activePanel}
                       npcId={activePanelNpcId}
                       onClose={handleClosePanel}
-                      onUndock={handleUndock}
                     />
                   )}
                 </>
