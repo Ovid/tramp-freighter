@@ -75,7 +75,7 @@ This makes Cole's credit line a free, risk-free cash advance.
 
 ```javascript
 EARLY_REPAYMENT_FEE_RATE: 0.10,    // 10% surcharge
-EARLY_REPAYMENT_WINDOW: 20,        // days after borrowing
+EARLY_REPAYMENT_WINDOW_DAYS: 20,   // days after borrowing
 ```
 
 **Tracking**: Add `lastBorrowDay` to debt state, updated each time the player
@@ -83,7 +83,7 @@ borrows. This records the game day of the most recent borrow.
 
 **In `makePayment()`**:
 
-1. Check if `currentDay - lastBorrowDay < EARLY_REPAYMENT_WINDOW`
+1. Check if `currentDay - lastBorrowDay < EARLY_REPAYMENT_WINDOW_DAYS`
 2. If within window, calculate fee: `ceil(paymentAmount * EARLY_REPAYMENT_FEE_RATE)`
 3. Total deducted from credits: `paymentAmount + fee`
 4. Debt reduced by: `paymentAmount` (fee goes to Cole, not toward debt)
@@ -102,8 +102,7 @@ total deduction doesn't exceed available credits.
 
 - `src/game/constants.js` — add early repayment constants
 - `src/game/state/managers/debt.js` — track lastBorrowDay, apply fee in makePayment()
-- `src/game/state/managers/initialization.js` — initialize lastBorrowDay in debt state
-- `src/game/state/state-validators.js` — add lastBorrowDay to state validation/migration
+- `src/game/state/state-validators.js` — add lastBorrowDay to state migration for existing saves
 - Finance panel UI component — show fee amounts on payment buttons
 - Tests for fee calculation and window behavior
 

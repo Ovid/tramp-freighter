@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { InstructionsModal } from '../instructions/InstructionsModal';
 import { AchievementsModal } from '../achievements/AchievementsModal';
 import { CustomSelect } from '../../components/CustomSelect';
@@ -6,6 +6,7 @@ import { useGame } from '../../context/GameContext';
 import { useStarmap } from '../../context/StarmapContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import { EVENT_NAMES, calculateDistanceFromSol } from '../../game/constants';
 
 export function CameraControls({
@@ -39,20 +40,12 @@ export function CameraControls({
     );
   }, [starData]);
 
+  const collapseSettings = useCallback(() => setIsExpanded(false), []);
+  useClickOutside(controlsRef, collapseSettings, isExpanded);
+
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
-
-  useEffect(() => {
-    if (!isExpanded) return;
-    const handleClickOutside = (e) => {
-      if (controlsRef.current && !controlsRef.current.contains(e.target)) {
-        setIsExpanded(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isExpanded]);
 
   useEffect(() => {
     if (antimatter) {
@@ -75,6 +68,7 @@ export function CameraControls({
     <div
       id="camera-controls"
       ref={controlsRef}
+      data-panel
       className={isExpanded ? 'expanded' : 'collapsed'}
     >
       <button

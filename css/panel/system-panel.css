@@ -26,6 +26,10 @@
   margin-bottom: var(--section-padding);
   padding-bottom: 10px;
   border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--bg-panel);
 }
 
 .system-panel-header h3 {

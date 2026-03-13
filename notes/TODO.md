@@ -1,17 +1,5 @@
 # TODO
 
-- Sometimes I get the feeling that the system says "Never visited" for systems
-  I have visited. I'm not sure if this is true. Need to investigate.
-- Exotic matter should show as x/5 in the HUD under "Cargo", but only when
-  you're collecting it.
-- You can borrow from Cole and immediately pay him back with no penalty.
-- Need to track Tanaka quest status in missions. That counts as a mission and
-  will take up a mission slot. We need to make sure that the UI reflects that,
-  and that you can't accept more than 3 missions while doing the Tanaka quest.
-- Need something in settings to show a drop down of stars. Shows star name and
-  last visited status. Click on it highlights the star. Needs to be styled
-  correctly.
-
 - Yuki Tanaka:
     1. Unsure, but it seemed like when I had the money to make the final jump,
       she wasn't offering the option to complete the quest. I think my ship
@@ -35,17 +23,9 @@
     sister made the jump.
     4. accepting some positive dialog options seems to decrease trust. That's
        confusing.
-- Had three missions, wanted to accept another, but the accept button was
-  (correctly) disabled. When I abandoned one mission, I still couldn't accept.
-  I had to close the panel and reopen it to accept a new mission.
 - Missions: there should be consequences for failure and abandonment.
-- Cole's Cut "Grace Period Over" warning shows up too often, even after I've
-  paid some.
 - Customs inspections don't seem (I think) to have a follow up screen when you
   choose to flee, bribe, or whatever
-- Max input length for ship name.
-- Except for the HUD, every panel should be dismissable by clicking outside of
-  it. (But check for exceptions)
 - Go through and validate all mocks truly match what they're mocking.
   Ruthlessly remove any mocks that aren't really needed.
 - Accepted tip from wealthy passenger (mission). At the end of the same

@@ -44,7 +44,6 @@ const VIEW_MODES = {
   SHIP_NAMING: 'SHIP_NAMING',
   ORBIT: 'ORBIT',
   STATION: 'STATION',
-  PANEL: 'PANEL',
   ENCOUNTER: 'ENCOUNTER',
   PAVONIS_RUN: 'PAVONIS_RUN',
   EPILOGUE: 'EPILOGUE',
@@ -194,8 +193,8 @@ export default function App({ devMode = false }) {
   };
 
   const handleDock = () => {
-    if (viewMode === VIEW_MODES.STATION || viewMode === VIEW_MODES.PANEL) {
-      // If currently in station or panel mode, go back to orbit
+    if (viewMode === VIEW_MODES.STATION) {
+      // If currently in station mode, go back to orbit
       setViewMode(VIEW_MODES.ORBIT);
       setActivePanel(null);
     } else {
@@ -209,16 +208,15 @@ export default function App({ devMode = false }) {
     game.undock();
     setViewMode(VIEW_MODES.ORBIT);
     setActivePanel(null);
+    setViewingSystemId(null);
   };
 
   const handleOpenPanel = (panelName, npcId = null) => {
     setActivePanel(panelName);
     setActivePanelNpcId(npcId);
-    setViewMode(VIEW_MODES.PANEL);
   };
 
   const handleClosePanel = () => {
-    setViewMode(VIEW_MODES.STATION);
     setActivePanel(null);
     setActivePanelNpcId(null);
   };
@@ -382,16 +380,16 @@ export default function App({ devMode = false }) {
                       onUndock={handleUndock}
                     />
                   )}
+                  {/* Panel container displayed alongside station menu */}
+                  {activePanel && (
+                    <PanelContainer
+                      activePanel={activePanel}
+                      npcId={activePanelNpcId}
+                      onClose={handleClosePanel}
+                      onUndock={handleUndock}
+                    />
+                  )}
                 </>
-              )}
-
-              {/* Panel container displayed when a panel is open */}
-              {viewMode === VIEW_MODES.PANEL && (
-                <PanelContainer
-                  activePanel={activePanel}
-                  npcId={activePanelNpcId}
-                  onClose={handleClosePanel}
-                />
               )}
 
               {/* Dev admin button (only visible in dev mode) */}

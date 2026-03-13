@@ -263,6 +263,17 @@ describe('Info Broker display for orbit-only entries', () => {
     expect(cost).toBe(100); // NEVER_VISITED price
   });
 
+  it('orbit-only entries should age normally via staleness increment', () => {
+    const priceKnowledge = {
+      5: { lastVisit: 0, prices: null, source: 'orbit' },
+    };
+    // Simulate what incrementPriceKnowledgeStaleness does
+    priceKnowledge[5].lastVisit += 1;
+    expect(priceKnowledge[5].lastVisit).toBe(1);
+    // formatVisitInfo should still show "Visited but never docked" regardless of age
+    expect(formatVisitInfo(priceKnowledge[5].lastVisit, 'orbit')).toBe('Visited but never docked');
+  });
+
   it('getKnownSystemsSortedByStaleness should exclude orbit-only entries (no prices)', () => {
     const starData = [
       { id: 0, name: 'Sol' },
@@ -656,7 +667,39 @@ git commit -m "Apply 10% early repayment fee within 20-day borrow window"
 - Modify: `src/features/finance/FinancePanel.jsx`
 - Modify: `src/game/state/managers/debt.js` (getDebtInfo)
 
-**Step 1: Update getDebtInfo to include fee info**
+**Step 1: Write the failing test**
+
+Add to the 'Early repayment fee' describe block in `tests/unit/debt-manager.test.js`:
+
+```javascript
+  it('getDebtInfo should report earlyRepaymentFeeRate when within window', () => {
+    gsm.state.player.daysElapsed = 10;
+    debtManager.borrow(200);
+    gsm.state.player.daysElapsed = 15;
+    const info = debtManager.getDebtInfo();
+    expect(info.earlyRepaymentFeeRate).toBe(0.10);
+  });
+
+  it('getDebtInfo should report zero earlyRepaymentFeeRate when outside window', () => {
+    gsm.state.player.daysElapsed = 10;
+    debtManager.borrow(200);
+    gsm.state.player.daysElapsed = 31;
+    const info = debtManager.getDebtInfo();
+    expect(info.earlyRepaymentFeeRate).toBe(0);
+  });
+
+  it('getDebtInfo should report zero earlyRepaymentFeeRate when lastBorrowDay is null', () => {
+    const info = debtManager.getDebtInfo();
+    expect(info.earlyRepaymentFeeRate).toBe(0);
+  });
+```
+
+**Step 2: Run test to verify it fails**
+
+Run: `npm test -- tests/unit/debt-manager.test.js`
+Expected: FAIL — `earlyRepaymentFeeRate` is undefined
+
+**Step 3: Update getDebtInfo to include fee info**
 
 In `src/game/state/managers/debt.js`, modify `getDebtInfo()` (line 335+) to include early repayment fee info:
 
@@ -688,7 +731,12 @@ In `src/game/state/managers/debt.js`, modify `getDebtInfo()` (line 335+) to incl
   }
 ```
 
-**Step 2: Update FinancePanel to show fee in payment buttons**
+**Step 4: Run test to verify it passes**
+
+Run: `npm test -- tests/unit/debt-manager.test.js`
+Expected: PASS
+
+**Step 5: Update FinancePanel to show fee in payment buttons**
 
 In `src/features/finance/FinancePanel.jsx`, update the payment buttons section (line 96-122):
 
@@ -718,27 +766,45 @@ In `src/features/finance/FinancePanel.jsx`, update the payment buttons section (
                   </button>
                 );
               })}
-              <button
-                className="station-btn"
-                disabled={credits === 0 || debtInfo.debt === 0}
-                onClick={payAll}
-              >
-                Pay All (₡{Math.min(credits, debtInfo.debt).toLocaleString()})
-              </button>
+              {(() => {
+                const maxDebt = debtInfo.debt;
+                let payAllAmount, payAllFee;
+                if (debtInfo.earlyRepaymentFeeRate > 0) {
+                  // Max payment where payment + ceil(payment * rate) <= credits
+                  payAllAmount = Math.min(
+                    Math.floor(credits / (1 + debtInfo.earlyRepaymentFeeRate)),
+                    maxDebt
+                  );
+                  payAllFee = Math.ceil(payAllAmount * debtInfo.earlyRepaymentFeeRate);
+                } else {
+                  payAllAmount = Math.min(credits, maxDebt);
+                  payAllFee = 0;
+                }
+                return (
+                  <button
+                    className="station-btn"
+                    disabled={credits === 0 || debtInfo.debt === 0}
+                    onClick={payAll}
+                  >
+                    Pay All (₡{payAllAmount.toLocaleString()}
+                    {payAllFee > 0 ? ` +₡${payAllFee} fee` : ''})
+                  </button>
+                );
+              })()}
             </div>
           </div>
         )}
 ```
 
-**Step 3: Run full test suite**
+**Step 6: Run full test suite**
 
 Run: `npm test`
 Expected: All tests pass
 
-**Step 4: Commit**
+**Step 7: Commit**
 
 ```
-git add src/game/state/managers/debt.js src/features/finance/FinancePanel.jsx
+git add src/game/state/managers/debt.js src/features/finance/FinancePanel.jsx tests/unit/debt-manager.test.js
 git commit -m "Show early repayment fee in Finance panel payment buttons"
 ```
 
@@ -927,8 +993,6 @@ In `src/game/state/game-coordinator.js`, add:
       progress = `${questState.data.jumpsCompleted || 0}/3 jumps`;
     } else if (questState.stage === 2) {
       progress = `${questState.data.exoticMaterials || 0}/5 samples`;
-    } else if (questState.stage === 4) {
-      progress = questState.data.messageDelivered ? 'Delivered' : 'In progress';
     }
 
     return {
@@ -961,6 +1025,7 @@ Before the regular missions map, render the Tanaka entry if active:
 ```javascript
 {tanakaMission && (
   <div className="mission-hud-item quest-mission">
+    <span className="mission-hud-quest-label">Quest</span>
     <div className="mission-hud-title">{tanakaMission.title}</div>
     {tanakaMission.progress && (
       <div className="mission-hud-cargo">{tanakaMission.progress}</div>
@@ -972,11 +1037,17 @@ Before the regular missions map, render the Tanaka entry if active:
 
 No abandon button for quest missions.
 
-The `quest-mission` CSS class provides visual distinction. Add to the existing CSS file for active missions (find the relevant CSS file):
+The `quest-mission` CSS class provides visual distinction. Add to `css/hud.css` (the shared HUD stylesheet):
 
 ```css
 .mission-hud-item.quest-mission {
   border-left: 3px solid #ffd700;
+}
+
+.mission-hud-quest-label {
+  color: #ffd700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 ```
 
@@ -1001,7 +1072,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```
-git add src/features/hud/ActiveMissions.jsx src/game/state/game-coordinator.js
+git add src/features/hud/ActiveMissions.jsx src/game/state/game-coordinator.js css/hud.css
 git commit -m "Display Tanaka quest in active missions HUD with stage progress"
 ```
 
@@ -1153,7 +1224,7 @@ Add the dropdown in the settings panel, after the Jump Warnings toggle and befor
 
 **Step 4: Add CSS styling**
 
-Find the CSS file for camera controls. Search for existing `.camera-controls` or `#camera-controls` styles:
+Add to `css/hud.css` (the shared HUD stylesheet that styles CameraControls):
 
 ```css
 .settings-star-finder {
@@ -1179,13 +1250,9 @@ Find the CSS file for camera controls. Search for existing `.camera-controls` or
   background: #1a1a2e;
   color: #e0e0e0;
 }
-
-.star-finder-select option.visited {
-  color: #4ade80;
-}
 ```
 
-Note: HTML `<select>` `<option>` elements have very limited CSS styling. The checkmark character and color approach may vary by browser. The checkmark prefix in the option text is the accessible fallback.
+Note: Native `<select>` `<option>` elements have very limited CSS styling across browsers. The checkmark character prefix in the option text is the primary accessible visited indicator, per the design doc's accessibility guidance.
 
 **Step 5: Run full test suite**
 
@@ -1195,7 +1262,7 @@ Expected: All tests pass
 **Step 6: Commit**
 
 ```
-git add src/features/navigation/CameraControls.jsx tests/unit/star-finder.test.js
+git add src/features/navigation/CameraControls.jsx css/hud.css tests/unit/star-finder.test.js
 git commit -m "Add star finder dropdown to settings panel"
 ```
 

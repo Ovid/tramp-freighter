@@ -1,136 +1,149 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import { PanelContainer } from '../../src/features/station/PanelContainer.jsx';
-import { StationMenu } from '../../src/features/station/StationMenu.jsx';
-import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
-import { GameCoordinator } from '@game/state/game-coordinator.js';
-import { STAR_DATA } from '../../src/game/data/star-data.js';
-import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { createWrapper } from '../react-test-utils.jsx';
+import { useClickOutside } from '../../src/hooks/useClickOutside.js';
+import { useRef } from 'react';
 
-describe('PanelContainer click-outside-to-dismiss', () => {
-  let game;
+// Test harness component that uses the hook
+function TestPanel({ onClose, enabled = true }) {
+  const ref = useRef(null);
+  useClickOutside(ref, onClose, enabled);
+  return (
+    <div ref={ref} data-panel data-testid="panel">
+      <button data-testid="inner-btn">Inside</button>
+    </div>
+  );
+}
 
-  beforeEach(() => {
-    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
-    game.initNewGame();
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
+describe('useClickOutside hook', () => {
   afterEach(() => {
     cleanup();
-    vi.restoreAllMocks();
   });
 
-  it('should call onClose when clicking the backdrop', () => {
+  it('calls onClose when mousedown fires outside the panel', () => {
     const onClose = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(
-      <PanelContainer activePanel="ship-status" onClose={onClose} />,
-      { wrapper }
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <TestPanel onClose={onClose} />
+      </div>
     );
 
-    const backdrop = container.querySelector('.panel-backdrop');
-    expect(backdrop).toBeTruthy();
-    fireEvent.click(backdrop);
+    fireEvent.mouseDown(document.querySelector('[data-testid="outside"]'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should not call onClose when clicking inside the panel', () => {
+  it('does not call onClose when mousedown fires inside the panel', () => {
     const onClose = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(
-      <PanelContainer activePanel="ship-status" onClose={onClose} />,
-      { wrapper }
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <TestPanel onClose={onClose} />
+      </div>
     );
 
-    const panel = container.querySelector('#ship-status-panel');
-    expect(panel).toBeTruthy();
-    fireEvent.click(panel);
+    fireEvent.mouseDown(document.querySelector('[data-testid="inner-btn"]'));
     expect(onClose).not.toHaveBeenCalled();
   });
-});
 
-describe('StationMenu click-outside-to-dismiss', () => {
-  let game;
-
-  beforeEach(() => {
-    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
-    game.initNewGame();
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    cleanup();
-    vi.restoreAllMocks();
-  });
-
-  it('should call onUndock when clicking the backdrop', () => {
-    const onUndock = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(
-      <StationMenu onOpenPanel={() => {}} onUndock={onUndock} />,
-      { wrapper }
+  it('does not call onClose when mousedown fires on another data-panel element', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div data-panel data-testid="other-panel">
+          Other Panel
+        </div>
+        <TestPanel onClose={onClose} />
+      </div>
     );
 
-    const backdrop = container.querySelector('.station-backdrop');
-    expect(backdrop).toBeTruthy();
-    fireEvent.click(backdrop);
-    expect(onUndock).toHaveBeenCalledTimes(1);
+    fireEvent.mouseDown(document.querySelector('[data-testid="other-panel"]'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('should not call onUndock when clicking inside the station menu', () => {
-    const onUndock = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(
-      <StationMenu onOpenPanel={() => {}} onUndock={onUndock} />,
-      { wrapper }
+  it('does not call onClose when mousedown fires inside #game-hud', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div id="game-hud">
+          <button data-testid="hud-btn">HUD Button</button>
+        </div>
+        <TestPanel onClose={onClose} />
+      </div>
     );
 
-    const menu = container.querySelector('#station-interface');
-    expect(menu).toBeTruthy();
-    fireEvent.click(menu);
-    expect(onUndock).not.toHaveBeenCalled();
-  });
-});
-
-describe('DevAdminPanel click-outside-to-dismiss', () => {
-  let game;
-
-  beforeEach(() => {
-    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
-    game.initNewGame();
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    fireEvent.mouseDown(document.querySelector('[data-testid="hud-btn"]'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
-  afterEach(() => {
-    cleanup();
-    vi.restoreAllMocks();
-  });
-
-  it('should call onClose when clicking the backdrop', () => {
+  it('does not call onClose when mousedown fires inside #camera-controls', () => {
     const onClose = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(<DevAdminPanel onClose={onClose} />, {
-      wrapper,
-    });
+    render(
+      <div>
+        <div id="camera-controls">
+          <button data-testid="cam-btn">Settings</button>
+        </div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
 
-    const backdrop = container.querySelector('.dev-admin-backdrop');
-    expect(backdrop).toBeTruthy();
-    fireEvent.click(backdrop);
-    expect(onClose).toHaveBeenCalledTimes(1);
+    fireEvent.mouseDown(document.querySelector('[data-testid="cam-btn"]'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('should not call onClose when clicking inside the panel', () => {
+  it('does not call onClose when mousedown fires on #dev-admin-btn', () => {
     const onClose = vi.fn();
-    const wrapper = createWrapper(game);
-    const { container } = render(<DevAdminPanel onClose={onClose} />, {
-      wrapper,
-    });
+    render(
+      <div>
+        <button id="dev-admin-btn" data-testid="dev-btn">
+          Dev
+        </button>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
 
-    const panel = container.querySelector('#dev-admin-panel');
-    expect(panel).toBeTruthy();
-    fireEvent.click(panel);
+    fireEvent.mouseDown(document.querySelector('[data-testid="dev-btn"]'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('does not call onClose when mousedown fires inside .modal-overlay', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div className="modal-overlay" data-testid="modal">
+          Modal
+        </div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+
+    fireEvent.mouseDown(document.querySelector('[data-testid="modal"]'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('does not fire when enabled is false', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <TestPanel onClose={onClose} enabled={false} />
+      </div>
+    );
+
+    fireEvent.mouseDown(document.querySelector('[data-testid="outside"]'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('cleans up listener on unmount', () => {
+    const onClose = vi.fn();
+    const { unmount } = render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+
+    unmount();
+    fireEvent.mouseDown(document);
     expect(onClose).not.toHaveBeenCalled();
   });
 });

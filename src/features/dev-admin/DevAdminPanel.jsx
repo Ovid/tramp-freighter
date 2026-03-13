@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import {
   SHIP_CONFIG,
   COMMODITY_TYPES,
@@ -25,6 +26,9 @@ import { DevPanelPreview } from './DevPanelPreview';
  * Only rendered when dev mode is enabled (detected via .dev file).
  */
 export function DevAdminPanel({ onClose }) {
+  const ref = useRef(null);
+  useClickOutside(ref, onClose);
+
   const game = useGame();
 
   // Subscribe to game state changes
@@ -406,17 +410,18 @@ export function DevAdminPanel({ onClose }) {
   };
 
   return (
-    <>
-      <div className="dev-admin-backdrop" onClick={onClose} />
-      <div
-        id="dev-admin-panel"
-        className="visible"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className="close-btn" onClick={onClose} aria-label="Close">
-          ×
-        </button>
-        <h2>🔧 Dev Admin Panel</h2>
+    <div
+      id="dev-admin-panel"
+      className="visible"
+      ref={ref}
+      data-panel
+    >
+        <div className="dev-admin-header">
+          <h2>🔧 Dev Admin Panel</h2>
+          <button className="close-btn" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
 
         {/* Player Resources Section */}
         <div className="dev-admin-section">
@@ -883,7 +888,6 @@ export function DevAdminPanel({ onClose }) {
         {showPreview && (
           <DevPanelPreview onClose={() => setShowPreview(false)} />
         )}
-      </div>
-    </>
+    </div>
   );
 }
