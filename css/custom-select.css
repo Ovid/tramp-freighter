@@ -61,7 +61,7 @@
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1200;
+  z-index: var(--z-modal);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
