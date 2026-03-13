@@ -127,55 +127,41 @@ export function DialoguePanel({ npcId, onClose }) {
       </div>
 
       {/* Quest Progress (Tanaka and other quest NPCs) */}
-      {dialogueDisplay.questProgress &&
-        dialogueDisplay.questProgress.nextRepThreshold !== null && (
-          <div className="quest-progress">
-            <div className="quest-progress-label">
-              {dialogueDisplay.questProgress.currentRep >=
-              dialogueDisplay.questProgress.nextRepThreshold ? (
-                <>
-                  Trust: {dialogueDisplay.questProgress.nextRepThreshold} /{' '}
-                  {dialogueDisplay.questProgress.nextRepThreshold}
-                  <span className="quest-stage-name">
-                    {dialogueDisplay.questProgress.allRequirementsMet
-                      ? ' (Ready!)'
-                      : ` (${dialogueDisplay.reputationTier.name})`}
-                  </span>
-                </>
-              ) : (
-                <>
-                  Trust: {dialogueDisplay.questProgress.currentRep} /{' '}
-                  {dialogueDisplay.questProgress.nextRepThreshold}
-                  <span className="quest-stage-name">
-                    {' '}
-                    (Next: {dialogueDisplay.questProgress.stageName})
-                  </span>
-                </>
-              )}
-            </div>
-            <div
-              className="quest-progress-bar"
-              role="progressbar"
-              aria-valuenow={Math.max(
-                0,
-                Math.min(
-                  dialogueDisplay.questProgress.currentRep,
-                  dialogueDisplay.questProgress.nextRepThreshold
-                )
-              )}
-              aria-valuemin={0}
-              aria-valuemax={dialogueDisplay.questProgress.nextRepThreshold}
-              aria-label="Quest progress"
-            >
-              <div
-                className="quest-progress-fill"
-                style={{
-                  width: `${dialogueDisplay.questProgress.nextRepThreshold > 0 ? Math.max(0, Math.min(100, (dialogueDisplay.questProgress.currentRep / dialogueDisplay.questProgress.nextRepThreshold) * 100)) : 0}%`,
-                }}
-              />
-            </div>
+      {dialogueDisplay.questProgress && (
+        <div className="quest-progress">
+          <div className="quest-progress-label">
+            Trust: {dialogueDisplay.questProgress.currentRep} / 100
+            {dialogueDisplay.questProgress.nextRepThreshold !== null && (
+              <span className="quest-stage-name">
+                {dialogueDisplay.questProgress.currentRep >=
+                dialogueDisplay.questProgress.nextRepThreshold
+                  ? dialogueDisplay.questProgress.allRequirementsMet
+                    ? ' (Ready!)'
+                    : ` (${dialogueDisplay.reputationTier.name})`
+                  : ` (Next: ${dialogueDisplay.questProgress.stageName} at ${dialogueDisplay.questProgress.nextRepThreshold})`}
+              </span>
+            )}
           </div>
-        )}
+          <div
+            className="quest-progress-bar"
+            role="progressbar"
+            aria-valuenow={Math.max(
+              0,
+              dialogueDisplay.questProgress.currentRep
+            )}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Quest progress"
+          >
+            <div
+              className="quest-progress-fill"
+              style={{
+                width: `${Math.max(0, Math.min(100, dialogueDisplay.questProgress.currentRep))}%`,
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Dialogue Content */}
       <div className="dialogue-content">

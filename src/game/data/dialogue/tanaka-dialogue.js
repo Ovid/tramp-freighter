@@ -150,7 +150,7 @@ export const YUKI_TANAKA_DIALOGUE = {
           !context.hasClaimedStageRewards('tanaka'),
       },
       {
-        text: '"I can help you find those rare materials."',
+        text: '"What do you need?"',
         next: 'mission_2_offer',
         condition: (_rep, context) =>
           context &&
@@ -215,7 +215,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   range_extender: {
-    text: '"Delta Pavonis. Nineteen point eight-nine light-years from Sol. No wormhole connection. No one has ever made the jump." Her eyes light up — the only sign of emotion you\'ve seen from her. "One jump. One way. The Range Extender makes it possible."',
+    text: '"Delta Pavonis. Nineteen point eight-nine light-years from Sol. No wormhole connection. The colony ships took years to crawl there. No one has ever made the jump in a single leap." Her eyes light up — the only sign of emotion you\'ve seen from her. "The Range Extender makes it possible. One jump. One way."',
     choices: [
       {
         text: '"Why Delta Pavonis?"',
@@ -556,7 +556,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_5_offer: {
-    text: '"This is it. The final stage." She stands before your ship, tools in hand. "To make the Pavonis jump, you need: zero debt, twenty-five thousand credits for fuel and supplies, hull at eighty percent, engine at ninety." She meets your eyes. "And my trust. Completely."',
+    text: `"This is it. The final stage." She stands before your ship, tools in hand. "To make the Pavonis jump, you need: zero debt, ${ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString()} credits for fuel and supplies, hull at eighty percent, engine at ninety." She meets your eyes. "And my trust. Completely."`,
     choices: [
       {
         text: '"I\'m ready. Let\'s do this."',
