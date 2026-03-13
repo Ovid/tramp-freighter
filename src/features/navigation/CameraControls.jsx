@@ -29,8 +29,7 @@ export function CameraControls({
 
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
-  const gameState = game.getState();
-  const visitedSet = new Set(gameState?.world?.visitedSystems || []);
+  const visitedSet = new Set(game.getVisitedSystems());
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];

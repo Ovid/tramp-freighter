@@ -138,7 +138,10 @@ export class InformationBroker {
     for (const systemId in priceKnowledge) {
       const knowledge = priceKnowledge[systemId];
 
-      if (knowledge.lastVisit > INTELLIGENCE_CONFIG.MAX_AGE) {
+      if (
+        knowledge.lastVisit > INTELLIGENCE_CONFIG.MAX_AGE &&
+        knowledge.source !== 'orbit'
+      ) {
         delete priceKnowledge[systemId];
         cleanedCount++;
       }

@@ -1006,9 +1006,16 @@ export class GameCoordinator {
 
     let progress = null;
     if (questState.stage === 1) {
-      progress = `${questState.data.jumpsCompleted || 0}/3 jumps`;
+      progress = `${questState.data.jumpsCompleted || 0}/${ENDGAME_CONFIG.STAGE_1_JUMPS} jumps`;
     } else if (questState.stage === 2) {
-      progress = `${questState.data.exoticMaterials || 0}/5 samples`;
+      progress = `${questState.data.exoticMaterials || 0}/${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples`;
+    } else if (questState.stage === 4) {
+      const deliverySystem = this.starData?.find(
+        (s) => s.id === ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
+      );
+      progress = deliverySystem
+        ? `Deliver to ${deliverySystem.name}`
+        : null;
     }
 
     return {
@@ -1578,6 +1585,10 @@ export class GameCoordinator {
 
   getDaysElapsed() {
     return this.state?.player?.daysElapsed ?? 0;
+  }
+
+  getVisitedSystems() {
+    return this.state?.world?.visitedSystems ?? [];
   }
 
   getFactionReps() {

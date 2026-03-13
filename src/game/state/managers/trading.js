@@ -342,7 +342,7 @@ export class TradingManager extends BaseManager {
       const systemId = parseInt(systemIdStr);
       const system = starData.find((s) => s.id === systemId);
 
-      if (system) {
+      if (system && ownState.priceKnowledge[systemId].prices !== null) {
         const newPrices = {};
 
         // Calculate new prices for all commodities

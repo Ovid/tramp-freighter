@@ -20,7 +20,7 @@ vi.mock('../../src/context/GameContext', () => {
       return true;
     }),
     setPreference: vi.fn(),
-    getState: vi.fn(() => ({ world: { visitedSystems: [0] } })),
+    getVisitedSystems: vi.fn(() => [0]),
   });
   return { useGame: hook };
 });

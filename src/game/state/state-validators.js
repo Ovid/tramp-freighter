@@ -347,7 +347,7 @@ export function validateStateStructure(state) {
       if (
         !knowledge ||
         typeof knowledge.lastVisit !== 'number' ||
-        typeof knowledge.prices !== 'object'
+        (knowledge.prices !== null && typeof knowledge.prices !== 'object')
       ) {
         return false;
       }

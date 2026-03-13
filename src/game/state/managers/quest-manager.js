@@ -292,7 +292,11 @@ export class QuestManager extends BaseManager {
   isTanakaQuestActive() {
     const questState = this.getQuestState('tanaka');
     if (!questState || questState.stage === 0) return false;
-    if ((questState.data._rewardsClaimedStage || 0) >= 5) return false;
+    if (
+      (questState.data._rewardsClaimedStage || 0) >=
+      ENDGAME_CONFIG.VICTORY_STAGE - 1
+    )
+      return false;
     return true;
   }
 
