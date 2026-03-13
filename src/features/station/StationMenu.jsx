@@ -75,114 +75,103 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   }, [npcsAtSystem, game]);
 
   return (
-    <div
-      id="station-interface"
-      className="visible"
-      ref={ref}
-      data-panel
-    >
-        <div className="station-header">
-          <h2>{system.name} Station</h2>
-          <button className="close-btn" onClick={onUndock} aria-label="Close">
-            ×
-          </button>
+    <div id="station-interface" className="visible" ref={ref} data-panel>
+      <div className="station-header">
+        <h2>{system.name} Station</h2>
+        <button className="close-btn" onClick={onUndock} aria-label="Close">
+          ×
+        </button>
+      </div>
+      <div className="station-info">
+        <div className="info-row">
+          <span className="label">System:</span>
+          <span>{system.name}</span>
         </div>
-        <div className="station-info">
-          <div className="info-row">
-            <span className="label">System:</span>
-            <span>{system.name}</span>
-          </div>
-          <div className="info-row">
-            <span className="label">Distance from Sol:</span>
-            <span>{distance.toFixed(1)} LY</span>
-          </div>
+        <div className="info-row">
+          <span className="label">Distance from Sol:</span>
+          <span>{distance.toFixed(1)} LY</span>
         </div>
+      </div>
 
-        {/* PEOPLE section - only shown when NPCs are present */}
-        {npcsAtSystem.length > 0 && (
-          <div className="station-people">
-            <h3>PEOPLE</h3>
-            <div className="npc-list">
-              {npcDisplayData.map((npcDisplay) => (
-                <button
-                  key={npcDisplay.id}
-                  className="npc-btn"
-                  onClick={() => handleNPCClick(npcDisplay.id)}
+      {/* PEOPLE section - only shown when NPCs are present */}
+      {npcsAtSystem.length > 0 && (
+        <div className="station-people">
+          <h3>PEOPLE</h3>
+          <div className="npc-list">
+            {npcDisplayData.map((npcDisplay) => (
+              <button
+                key={npcDisplay.id}
+                className="npc-btn"
+                onClick={() => handleNPCClick(npcDisplay.id)}
+              >
+                <span className="npc-name">{npcDisplay.name}</span>
+                <span className="npc-role">{npcDisplay.role}</span>
+                <span
+                  className={`npc-tier tier-${npcDisplay.tierName.toLowerCase()}`}
                 >
-                  <span className="npc-name">{npcDisplay.name}</span>
-                  <span className="npc-role">{npcDisplay.role}</span>
-                  <span
-                    className={`npc-tier tier-${npcDisplay.tierName.toLowerCase()}`}
-                  >
-                    {npcDisplay.tierName}
-                  </span>
-                </button>
-              ))}
-            </div>
+                  {npcDisplay.tierName}
+                </span>
+              </button>
+            ))}
           </div>
-        )}
-
-        <div className="station-actions">
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('mission-board')}
-          >
-            Mission Board
-          </button>
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('finance')}
-          >
-            Finance
-          </button>
-          <button className="station-btn" onClick={() => onOpenPanel('trade')}>
-            Trade
-          </button>
-          <button className="station-btn" onClick={() => onOpenPanel('refuel')}>
-            Refuel
-          </button>
-          <button className="station-btn" onClick={() => onOpenPanel('repair')}>
-            Repairs
-          </button>
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('info-broker')}
-          >
-            Info Broker
-          </button>
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('upgrades')}
-          >
-            Upgrades
-          </button>
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('cargo-manifest')}
-          >
-            Cargo Manifest
-          </button>
-          <button
-            className="station-btn"
-            onClick={() => onOpenPanel('ship-status')}
-          >
-            Ship Status
-          </button>
         </div>
-        <Modal
-          isOpen={currentNotice !== null}
-          onClose={() => dismissMissionFailureNotice(currentNotice?.id)}
-          title="Mission Failed"
-          showCloseButton={true}
+      )}
+
+      <div className="station-actions">
+        <button
+          className="station-btn"
+          onClick={() => onOpenPanel('mission-board')}
         >
-          <p>
-            {currentNotice?.title}
-            {currentNotice?.destination
-              ? ` — delivery to ${currentNotice.destination} was not completed in time.`
-              : ' — the deadline has passed.'}
-          </p>
-          <p>The contact won&apos;t be working with you again.</p>
-        </Modal>
+          Mission Board
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('finance')}>
+          Finance
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('trade')}>
+          Trade
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('refuel')}>
+          Refuel
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('repair')}>
+          Repairs
+        </button>
+        <button
+          className="station-btn"
+          onClick={() => onOpenPanel('info-broker')}
+        >
+          Info Broker
+        </button>
+        <button className="station-btn" onClick={() => onOpenPanel('upgrades')}>
+          Upgrades
+        </button>
+        <button
+          className="station-btn"
+          onClick={() => onOpenPanel('cargo-manifest')}
+        >
+          Cargo Manifest
+        </button>
+        <button
+          className="station-btn"
+          onClick={() => onOpenPanel('ship-status')}
+        >
+          Ship Status
+        </button>
+      </div>
+      <Modal
+        isOpen={currentNotice !== null}
+        onClose={() => dismissMissionFailureNotice(currentNotice?.id)}
+        title="Mission Failed"
+        showCloseButton={true}
+      >
+        <p>
+          {currentNotice?.title}
+          {currentNotice?.destination
+            ? ` — delivery to ${currentNotice.destination} was not completed in time.`
+            : ' — the deadline has passed.'}
+        </p>
+        <p>The contact won&apos;t be working with you again.</p>
+      </Modal>
     </div>
   );
 }
