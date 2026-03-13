@@ -107,9 +107,10 @@ export default function App({ devMode = false }) {
     }
   });
 
-  // Starmap methods that will be provided to context
-  // These will be set by StarMapCanvas when it initializes
-  const starmapMethods = useRef({
+  // Starmap methods that will be provided to context.
+  // Uses state (not ref) so that updating methods triggers a re-render,
+  // propagating the real functions to context consumers.
+  const [starmapMethods, setStarmapMethods] = useState({
     selectStarById: () => {},
     deselectStar: () => {},
   });
@@ -347,7 +348,7 @@ export default function App({ devMode = false }) {
         {/* Game components only rendered after title screen flow completes */}
         {viewMode !== VIEW_MODES.TITLE &&
           viewMode !== VIEW_MODES.SHIP_NAMING && (
-            <StarmapProvider value={starmapMethods.current}>
+            <StarmapProvider value={starmapMethods}>
               {/* Starmap is always rendered (z-index 0) */}
               <ErrorBoundary>
                 <StarMapCanvas
@@ -355,7 +356,7 @@ export default function App({ devMode = false }) {
                   onSystemSelected={handleSystemSelected}
                   onSystemDeselected={handleSystemDeselected}
                   onStarmapMethodsReady={(methods) => {
-                    starmapMethods.current = methods;
+                    setStarmapMethods(methods);
                   }}
                 />
               </ErrorBoundary>

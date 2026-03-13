@@ -978,6 +978,7 @@
   font-family: inherit;
   cursor: pointer;
   max-height: 200px;
+  color-scheme: dark;
 }
 
 .star-finder-select option {
