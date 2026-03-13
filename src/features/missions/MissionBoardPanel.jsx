@@ -13,6 +13,7 @@ import {
 
 export function MissionBoardPanel({ onClose }) {
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
+  const quests = useGameEvent(EVENT_NAMES.QUEST_CHANGED);
   const { acceptMission, refreshMissionBoard } = useGameAction();
   const game = useGame();
   const starData = useStarData();
@@ -72,7 +73,7 @@ export function MissionBoardPanel({ onClose }) {
       }
     }
     return reasons;
-  }, [missions?.board, missions?.active, game]);
+  }, [missions?.board, missions?.active, quests, game]);
 
   const handleAccept = (mission) => {
     const result = acceptMission(mission);
