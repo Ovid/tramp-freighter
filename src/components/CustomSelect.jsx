@@ -68,7 +68,12 @@ export function CustomSelect({
     }
 
     if (!isOpen) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+      if (
+        e.key === 'ArrowDown' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'Enter' ||
+        e.key === ' '
+      ) {
         e.preventDefault();
         setIsOpen(true);
       }
@@ -78,7 +83,9 @@ export function CustomSelect({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setFocusedIndex((prev) => (prev < options.length - 1 ? prev + 1 : prev));
+        setFocusedIndex((prev) =>
+          prev < options.length - 1 ? prev + 1 : prev
+        );
         break;
       case 'ArrowUp':
         e.preventDefault();

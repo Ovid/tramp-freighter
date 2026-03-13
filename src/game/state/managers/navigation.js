@@ -37,7 +37,12 @@ export class NavigationManager extends BaseManager {
     // Create orbit-only priceKnowledge entry if none exists
     const priceKnowledge = this.capabilities.getPriceKnowledge();
     if (!priceKnowledge[newSystemId]) {
-      this.capabilities.updatePriceKnowledge(newSystemId, null, 0, INTELLIGENCE_CONFIG.SOURCES.ORBIT);
+      this.capabilities.updatePriceKnowledge(
+        newSystemId,
+        null,
+        0,
+        INTELLIGENCE_CONFIG.SOURCES.ORBIT
+      );
     }
 
     // Snapshot prices at arrival to prevent intra-system arbitrage

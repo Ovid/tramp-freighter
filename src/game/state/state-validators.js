@@ -772,7 +772,8 @@ export function addStateDefaults(state, systemData) {
     for (const systemId in state.world.priceKnowledge) {
       if (!state.world.priceKnowledge[systemId].source) {
         // Default to 'visited' for old saves
-        state.world.priceKnowledge[systemId].source = INTELLIGENCE_CONFIG.SOURCES.VISITED;
+        state.world.priceKnowledge[systemId].source =
+          INTELLIGENCE_CONFIG.SOURCES.VISITED;
       }
     }
   }

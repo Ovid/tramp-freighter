@@ -843,7 +843,12 @@ export class GameCoordinator {
     return this.tradingManager.applyMarketRecovery(daysPassed);
   }
 
-  updatePriceKnowledge(systemId, prices, lastVisit = 0, source = INTELLIGENCE_CONFIG.SOURCES.VISITED) {
+  updatePriceKnowledge(
+    systemId,
+    prices,
+    lastVisit = 0,
+    source = INTELLIGENCE_CONFIG.SOURCES.VISITED
+  ) {
     return this.tradingManager.updatePriceKnowledge(
       systemId,
       prices,
