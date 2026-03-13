@@ -136,7 +136,7 @@ export function CustomSelect({
         <span className="custom-select-arrow">{isOpen ? '▴' : '▾'}</span>
       </button>
       {isOpen && (
-        <ul className="custom-select-dropdown" role="listbox" ref={listRef}>
+        <ul className="custom-select-dropdown" role="listbox" ref={listRef} aria-label={ariaLabel}>
           {options.map((opt, idx) => (
             <li
               key={opt.value}
