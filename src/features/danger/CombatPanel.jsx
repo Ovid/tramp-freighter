@@ -233,7 +233,7 @@ export function CombatPanel({
           <h3>Combat Options</h3>
           <div className="options-list">
             {/* Evasive Maneuvers Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'evasive' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('evasive')}
             >
@@ -287,10 +287,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Return Fire Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'return_fire' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('return_fire')}
             >
@@ -343,10 +343,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Dump Cargo Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'dump_cargo' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('dump_cargo')}
             >
@@ -382,10 +382,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Distress Call Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'distress_call' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('distress_call')}
             >
@@ -444,7 +444,7 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

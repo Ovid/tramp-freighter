@@ -228,7 +228,7 @@
 
 .button-danger {
   background-color: var(--color-danger);
-  color: var(--color-white);
+  color: var(--color-black);
   border-color: var(--color-danger);
 }
 

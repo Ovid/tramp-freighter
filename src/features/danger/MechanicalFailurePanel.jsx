@@ -139,7 +139,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
             {failure.type === 'engine_failure' && (
               <>
                 {/* Emergency Restart Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'emergency_restart' ? 'selected' : ''}`}
                   onClick={() => handleOptionSelect('emergency_restart')}
                 >
@@ -198,16 +198,13 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Call for Help Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'call_for_help' ? 'selected' : ''} ${credits < FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST ? 'disabled' : ''}`}
-                  onClick={() =>
-                    credits >=
-                      FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP
-                        .CREDITS_COST && handleOptionSelect('call_for_help')
-                  }
+                  disabled={credits < FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST}
+                  onClick={() => handleOptionSelect('call_for_help')}
                 >
                   <div className="option-header">
                     <span className="option-name">Call for Help</span>
@@ -255,10 +252,10 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Jury-Rig Repair Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'jury_rig' ? 'selected' : ''}`}
                   onClick={() => handleOptionSelect('jury_rig')}
                 >
@@ -304,7 +301,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
               </>
             )}
 
