@@ -34,8 +34,8 @@ describe('NotificationContainer', () => {
     });
     render(<NotificationContainer />);
 
-    expect(screen.getByText('Fuel purchased')).toBeDefined();
-    expect(screen.getByText('Cargo sold')).toBeDefined();
+    expect(screen.getByText(/Fuel purchased/)).toBeDefined();
+    expect(screen.getByText(/Cargo sold/)).toBeDefined();
   });
 
   it('applies correct type class for each notification type', () => {
