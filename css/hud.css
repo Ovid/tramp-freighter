@@ -896,7 +896,7 @@
   border-top: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
 }
 
-.active-missions-hud h4 {
+.active-missions-hud h2 {
   color: var(--color-primary);
   font-size: var(--font-size-medium);
   margin-bottom: var(--grid-gap-small);

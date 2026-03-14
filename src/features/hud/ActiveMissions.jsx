@@ -43,7 +43,7 @@ export function ActiveMissions() {
 
   return (
     <div className="active-missions-hud">
-      <h4>Active Missions</h4>
+      <h2>Active Missions</h2>
       {tanakaMission && (
         <div className="mission-hud-item quest-mission">
           <span className="mission-hud-quest-label">Quest</span>
