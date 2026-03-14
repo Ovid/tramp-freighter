@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useCallback,
   forwardRef,
   useImperativeHandle,
 } from 'react';
@@ -406,9 +407,63 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }
   };
 
+  // Keyboard camera controls: arrow keys rotate, +/- zoom
+  const handleKeyDown = useCallback((event) => {
+    if (!sceneRef.current) return;
+    const { camera, controls } = sceneRef.current;
+
+    const step = VISUAL_CONFIG.keyboardRotationStep * (Math.PI / 180);
+
+    switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        event.preventDefault();
+        const offset = new THREE.Vector3().subVectors(
+          camera.position,
+          controls.target
+        );
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+
+        if (event.key === 'ArrowLeft') {
+          spherical.theta -= step;
+        } else if (event.key === 'ArrowRight') {
+          spherical.theta += step;
+        } else if (event.key === 'ArrowUp') {
+          spherical.phi = Math.max(0.1, spherical.phi - step);
+        } else if (event.key === 'ArrowDown') {
+          spherical.phi = Math.min(Math.PI - 0.1, spherical.phi + step);
+        }
+
+        offset.setFromSpherical(spherical);
+        camera.position.copy(controls.target).add(offset);
+        controls.update();
+        break;
+      }
+      case '+':
+      case '=':
+        event.preventDefault();
+        zoomIn(camera, controls);
+        break;
+      case '-':
+      case '_':
+        event.preventDefault();
+        zoomOut(camera, controls);
+        break;
+    }
+  }, []);
+
   return (
     <>
-      <div ref={containerRef} className="starmap-container" />
+      <div
+        ref={containerRef}
+        className="starmap-container"
+        tabIndex={0}
+        role="application"
+        aria-label="3D Star Map — use arrow keys to rotate, plus and minus to zoom"
+        onKeyDown={handleKeyDown}
+      />
       <CameraControls
         cameraState={{ autoRotationEnabled, boundaryVisible }}
         onZoomIn={handleZoomIn}
