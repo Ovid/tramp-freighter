@@ -21,6 +21,7 @@ import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
 import { useEncounterOrchestration } from './hooks/useEncounterOrchestration';
 import { EVENT_NAMES, ENDGAME_CONFIG } from './game/constants.js';
+import { getPageTitle } from './game/utils/page-title.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -171,6 +172,11 @@ export default function App({ devMode = false }) {
       }
     });
     return () => cancelAnimationFrame(id);
+  }, [viewMode]);
+
+  // Update page title when view mode changes (a11y: WCAG 2.4.2)
+  useEffect(() => {
+    document.title = getPageTitle(viewMode);
   }, [viewMode]);
 
   // Exotic matter scanner feedback during docking
