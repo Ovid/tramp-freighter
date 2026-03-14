@@ -6,7 +6,7 @@
  *
  * React Migration Spec: Requirements 33.2, 33.4, 33.5, 42.1, 42.2, 42.3, 42.4, 42.5
  */
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -32,6 +32,7 @@ export function Modal({
 }) {
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
+  const titleId = useId();
 
   // Save focus before modal opens, restore on close
   useEffect(() => {
@@ -116,24 +117,24 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-labelledby={title ? titleId : undefined}
       >
         <div className="modal-content">
           {title && (
             <div className="modal-header">
-              <h2 id="modal-title" className="modal-title">
+              <h2 id={titleId} className="modal-title">
                 {title}
               </h2>
-              {showCloseButton && (
-                <button
-                  className="modal-close"
-                  onClick={onClose}
-                  aria-label="Close modal"
-                >
-                  ×
-                </button>
-              )}
             </div>
+          )}
+          {showCloseButton && (
+            <button
+              className="modal-close"
+              onClick={onClose}
+              aria-label="Close modal"
+            >
+              ×
+            </button>
           )}
           <div className="modal-body">{children}</div>
         </div>
