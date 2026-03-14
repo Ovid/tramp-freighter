@@ -86,10 +86,10 @@ export function MissionCompleteNotifier() {
         </div>
         <div className="modal-actions">
           <button className="modal-cancel" onClick={handleDismiss}>
-            Dismiss
+            Later
           </button>
           <button className="modal-confirm" onClick={handleComplete}>
-            Complete
+            Claim Reward
           </button>
         </div>
       </div>
