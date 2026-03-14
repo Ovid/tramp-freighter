@@ -1,28 +1,5 @@
 # TODO
 
-- Yuki Tanaka:
-    1. Unsure, but it seemed like when I had the money to make the final jump,
-      she wasn't offering the option to complete the quest. I think my ship
-      needed to be repaired, but again, I'm not sure. Need to investigate.
-    2. "The field test data looks excellent. The drive modifications are
-    performing within expected parameters." She actually smiles. "I have
-    another task for you."
-    Your Response:
-    "I can help you find those rare materials."
-        Except that she didn't mention anything about finding materials. She
-        just said "another task".
-        It's the next message after you click that which says it:
-        "The Range Extender requires exotic matter — specific isotopes found
-        only at stations beyond fifteen light-years from Sol. I need five
-        samples." She hands you a scanner module. "The materials appear
-        randomly in station markets. This scanner will identify them."
-    3. Yuki Tanaka says, ""Delta Pavonis. Nineteen point eight-nine light-years
-    from Sol. No wormhole connection. No one has ever made the jump." Her eyes
-    light up — the only sign of emotion you've seen from her. "One jump. One
-    way. The Range Extender makes it possible." But isn't that untrue? Her
-    sister made the jump.
-    4. accepting some positive dialog options seems to decrease trust. That's
-       confusing.
 - Missions: there should be consequences for failure and abandonment.
 - Customs inspections don't seem (I think) to have a follow up screen when you
   choose to flee, bribe, or whatever
@@ -93,8 +70,6 @@ Endgame NOT FULLY TESTED (2)
 - Liskov and Law of Demeter?
 - GCT
 - We no longer need the migrateFromV1toV12 code
-- Economic events: we can find them, but do they last long enough to matter?
-- Economic events should last longer (and not have the popup every time)
 - Duplicate tests?
 - Lots of HTML in tests (<div id ...). Refactor?
 - Multi-route jumps?
