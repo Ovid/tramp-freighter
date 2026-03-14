@@ -451,6 +451,7 @@ export default function App({ devMode = false }) {
                   id="dev-admin-btn"
                   onClick={handleOpenDevAdmin}
                   style={{ display: 'flex' }}
+                  aria-label="Developer admin panel"
                 >
                   ⚙
                 </button>
