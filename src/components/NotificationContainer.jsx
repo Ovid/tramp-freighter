@@ -17,9 +17,22 @@ export function NotificationContainer() {
         <div
           key={notification.id}
           className={`notification notification-${notification.type}${notification.fadeOut ? ' fade-out' : ''}`}
+          onMouseEnter={() => ctx.pauseNotification(notification.id)}
+          onMouseLeave={() => ctx.resumeNotification(notification.id)}
+          onFocus={() => ctx.pauseNotification(notification.id)}
+          onBlur={() => ctx.resumeNotification(notification.id)}
         >
-          {NOTIFICATION_PREFIXES[notification.type] || ''}
-          {notification.message}
+          <span className="notification-message">
+            {NOTIFICATION_PREFIXES[notification.type] || ''}
+            {notification.message}
+          </span>
+          <button
+            className="notification-dismiss"
+            onClick={() => ctx.dismissNotification(notification.id)}
+            aria-label="Dismiss notification"
+          >
+            ×
+          </button>
         </div>
       ))}
     </div>
