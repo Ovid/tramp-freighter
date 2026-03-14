@@ -335,7 +335,10 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
             </button>
 
             {/* Flee Option */}
-            <button className="inspection-option" onClick={() => onChoice('flee')}>
+            <button
+              className="inspection-option"
+              onClick={() => onChoice('flee')}
+            >
               <div className="option-header">
                 <span className="option-name">Flee</span>
                 <span className="option-type">Evasion</span>
