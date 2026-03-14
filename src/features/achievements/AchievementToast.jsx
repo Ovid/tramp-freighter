@@ -75,7 +75,11 @@ export function AchievementToast() {
   if (!toast) return null;
 
   return (
-    <div className={`achievement-toast ${fadeOut ? 'fade-out' : ''}`} role="status" aria-live="polite">
+    <div
+      className={`achievement-toast ${fadeOut ? 'fade-out' : ''}`}
+      role="status"
+      aria-live="polite"
+    >
       <div className="achievement-toast-title">Achievement Unlocked!</div>
       <div className="achievement-toast-name">{toast.name}</div>
     </div>

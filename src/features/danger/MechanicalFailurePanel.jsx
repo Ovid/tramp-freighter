@@ -203,7 +203,10 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {/* Call for Help Option */}
                 <button
                   className={`repair-option ${selectedOption === 'call_for_help' ? 'selected' : ''} ${credits < FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST ? 'disabled' : ''}`}
-                  disabled={credits < FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST}
+                  disabled={
+                    credits <
+                    FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST
+                  }
                   onClick={() => handleOptionSelect('call_for_help')}
                 >
                   <div className="option-header">
