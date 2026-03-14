@@ -88,6 +88,7 @@ export default function App({ devMode = false }) {
   } = useEncounterOrchestration(game, notificationCtx, encounterEvent);
 
   const starmapRef = useRef(null);
+  const mainRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
   const [activePanel, setActivePanel] = useState(null);
@@ -125,6 +126,52 @@ export default function App({ devMode = false }) {
       notificationCtx.showError(saveFailedEvent.message);
     }
   }, [saveFailedEvent, notificationCtx]);
+
+  // Move focus to the appropriate element when the view mode changes.
+  // This ensures keyboard users maintain context across transitions.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      switch (viewMode) {
+        case VIEW_MODES.TITLE: {
+          const btn = document.querySelector('.menu-btn');
+          if (btn) btn.focus();
+          break;
+        }
+        case VIEW_MODES.ORBIT: {
+          if (mainRef.current) mainRef.current.focus();
+          break;
+        }
+        case VIEW_MODES.STATION: {
+          const heading = document.querySelector('#station-interface h2');
+          if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus();
+          }
+          break;
+        }
+        case VIEW_MODES.ENCOUNTER: {
+          const panel = document.querySelector('.panel-base.visible');
+          if (panel) {
+            const btn = panel.querySelector('button');
+            if (btn) btn.focus();
+          }
+          break;
+        }
+        case VIEW_MODES.PAVONIS_RUN:
+        case VIEW_MODES.EPILOGUE: {
+          const container = document.querySelector(
+            '.pavonis-run, .epilogue'
+          );
+          if (container) {
+            container.setAttribute('tabindex', '-1');
+            container.focus();
+          }
+          break;
+        }
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [viewMode]);
 
   // Exotic matter scanner feedback during docking
   useEffect(() => {
@@ -371,7 +418,7 @@ export default function App({ devMode = false }) {
               <AchievementToast />
               <NotificationContainer />
 
-              <main id="main-content">
+              <main id="main-content" ref={mainRef} tabIndex={-1}>
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (
                 <>
