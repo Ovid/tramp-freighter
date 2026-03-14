@@ -7,6 +7,7 @@ import { NOTIFICATION_CONFIG } from '../game/constants';
  * Provides methods to show error, success, and info notifications.
  * Manages a queue to display notifications sequentially without overlap.
  * Notifications automatically expire and fade out after their duration.
+ * Supports pause (hover/focus), resume, and manual dismiss.
  *
  * @returns {Object} Notification methods and state
  */
@@ -15,9 +16,24 @@ export function useNotification() {
   const queueRef = useRef([]);
   const isShowingRef = useRef(false);
   const nextIdRef = useRef(0);
+  // Tracks the active auto-dismiss timer: { timeoutId, startTime, remaining, notificationId }
+  const timerRef = useRef(null);
 
   /**
-   * Process the notification queue sequentially
+   * Fade out a notification and remove it, then process the next queued item.
+   */
+  const fadeOutAndRemove = useCallback((id, afterRemove) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, fadeOut: true } : n))
+    );
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      afterRemove();
+    }, NOTIFICATION_CONFIG.FADE_DURATION);
+  }, []);
+
+  /**
+   * Process the notification queue sequentially.
    *
    * Displays notifications one at a time with fade-in/fade-out animations.
    * Ensures messages don't overlap by processing the queue recursively.
@@ -34,26 +50,20 @@ export function useNotification() {
     // Add notification to visible list
     setNotifications((prev) => [...prev, notification]);
 
-    // Auto-dismiss after duration
-    setTimeout(() => {
-      // Mark as fading out
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === notification.id ? { ...n, fadeOut: true } : n
-        )
-      );
-
-      // Remove from DOM after animation completes
-      setTimeout(() => {
-        setNotifications((prev) =>
-          prev.filter((n) => n.id !== notification.id)
-        );
-
-        // Process next notification in queue
-        processQueue();
-      }, NOTIFICATION_CONFIG.FADE_DURATION);
+    // Schedule auto-dismiss with tracked timer
+    const startTime = Date.now();
+    const timeoutId = setTimeout(() => {
+      timerRef.current = null;
+      fadeOutAndRemove(notification.id, () => processQueue());
     }, notification.duration);
-  }, []);
+
+    timerRef.current = {
+      timeoutId,
+      startTime,
+      remaining: notification.duration,
+      notificationId: notification.id,
+    };
+  }, [fadeOutAndRemove]);
 
   /**
    * Show a notification
@@ -86,8 +96,6 @@ export function useNotification() {
   /**
    * Show an error notification
    *
-   * Convenience method for displaying error notifications with default error duration.
-   *
    * @param {string} message - Error message
    * @param {number} duration - Display duration in ms (defaults to error duration)
    */
@@ -100,8 +108,6 @@ export function useNotification() {
 
   /**
    * Show a success notification
-   *
-   * Convenience method for displaying success notifications with default success duration.
    *
    * @param {string} message - Success message
    * @param {number} duration - Display duration in ms (defaults to success duration)
@@ -116,7 +122,6 @@ export function useNotification() {
   /**
    * Show an info notification
    *
-   * Convenience method for displaying informational notifications with default error duration.
    * Uses error duration as default since info notifications are typically important.
    *
    * @param {string} message - Info message
@@ -130,12 +135,77 @@ export function useNotification() {
   );
 
   /**
+   * Pause the auto-dismiss timer for a notification (e.g. on hover or focus).
+   *
+   * @param {number} id - Notification ID
+   */
+  const pauseNotification = useCallback((id) => {
+    const timer = timerRef.current;
+    if (timer && timer.notificationId === id && timer.timeoutId !== null) {
+      clearTimeout(timer.timeoutId);
+      const elapsed = Date.now() - timer.startTime;
+      timer.remaining = Math.max(0, timer.remaining - elapsed);
+      timer.timeoutId = null;
+    }
+  }, []);
+
+  /**
+   * Resume the auto-dismiss timer for a notification (e.g. on mouse leave or blur).
+   *
+   * @param {number} id - Notification ID
+   */
+  const resumeNotification = useCallback(
+    (id) => {
+      const timer = timerRef.current;
+      if (timer && timer.notificationId === id && timer.timeoutId === null) {
+        const remaining = timer.remaining;
+        const startTime = Date.now();
+        const timeoutId = setTimeout(() => {
+          timerRef.current = null;
+          fadeOutAndRemove(id, () => processQueue());
+        }, remaining);
+
+        timerRef.current = {
+          timeoutId,
+          startTime,
+          remaining,
+          notificationId: id,
+        };
+      }
+    },
+    [fadeOutAndRemove, processQueue]
+  );
+
+  /**
+   * Immediately dismiss a notification (e.g. click the dismiss button).
+   *
+   * @param {number} id - Notification ID
+   */
+  const dismissNotification = useCallback(
+    (id) => {
+      const timer = timerRef.current;
+      if (timer && timer.notificationId === id) {
+        if (timer.timeoutId !== null) {
+          clearTimeout(timer.timeoutId);
+        }
+        timerRef.current = null;
+      }
+      fadeOutAndRemove(id, () => processQueue());
+    },
+    [fadeOutAndRemove, processQueue]
+  );
+
+  /**
    * Clear all notifications immediately
    *
    * Removes all notifications from the queue and visible list.
    * Useful for cleanup or when switching game states.
    */
   const clearNotifications = useCallback(() => {
+    if (timerRef.current && timerRef.current.timeoutId !== null) {
+      clearTimeout(timerRef.current.timeoutId);
+    }
+    timerRef.current = null;
     queueRef.current = [];
     isShowingRef.current = false;
     setNotifications([]);
@@ -147,6 +217,9 @@ export function useNotification() {
     showError,
     showSuccess,
     showInfo,
+    pauseNotification,
+    resumeNotification,
+    dismissNotification,
     clearNotifications,
   };
 }
