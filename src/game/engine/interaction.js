@@ -154,56 +154,75 @@ export function _resetState() {
 /**
  * Update selection ring animations
  * @param {number} time - Current time in seconds
+ * @param {boolean} reducedMotion - When true, use static values instead of pulsing
  */
-export function updateSelectionRingAnimations(time) {
+export function updateSelectionRingAnimations(time, reducedMotion = false) {
   if (selectedStar && selectedStar.selectionRing) {
-    // Subtle pulsing scale for targeting lock effect
-    const pulseScale =
-      1.0 +
-      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
-        VISUAL_CONFIG.selectionRingScaleAmplitude;
+    if (reducedMotion) {
+      selectedStar.selectionRing.scale.set(1, 1, 1);
+      selectedStar.selectionRing.material.opacity =
+        VISUAL_CONFIG.selectionRingBaseOpacity;
+      selectedStar.selectionRing.rotation.z = 0;
+    } else {
+      // Subtle pulsing scale for targeting lock effect
+      const pulseScale =
+        1.0 +
+        Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
+          VISUAL_CONFIG.selectionRingScaleAmplitude;
 
-    // Apply pulsing to reticle scale
-    selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
+      // Apply pulsing to reticle scale
+      selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
 
-    // Pulse the opacity for "scanning" effect
-    const pulseOpacity =
-      VISUAL_CONFIG.selectionRingBaseOpacity +
-      Math.sin(
-        time *
-          VISUAL_CONFIG.selectionRingPulseSpeed *
-          VISUAL_CONFIG.selectionRingOpacityFrequency
-      ) *
-        VISUAL_CONFIG.selectionRingOpacityAmplitude;
-    selectedStar.selectionRing.material.opacity = pulseOpacity;
+      // Pulse the opacity for "scanning" effect
+      const pulseOpacity =
+        VISUAL_CONFIG.selectionRingBaseOpacity +
+        Math.sin(
+          time *
+            VISUAL_CONFIG.selectionRingPulseSpeed *
+            VISUAL_CONFIG.selectionRingOpacityFrequency
+        ) *
+          VISUAL_CONFIG.selectionRingOpacityAmplitude;
+      selectedStar.selectionRing.material.opacity = pulseOpacity;
 
-    // Slow rotation for targeting system effect
-    selectedStar.selectionRing.rotation.z =
-      time * VISUAL_CONFIG.selectionRingRotationSpeed;
+      // Slow rotation for targeting system effect
+      selectedStar.selectionRing.rotation.z =
+        time * VISUAL_CONFIG.selectionRingRotationSpeed;
+    }
   }
 
   // Update current system indicator
   if (currentSystemIndicator) {
-    // Pulsing for current system indicator
-    const pulseScale =
-      VISUAL_CONFIG.currentSystemBaseScale +
-      Math.sin(
-        time *
-          VISUAL_CONFIG.selectionRingPulseSpeed *
-          VISUAL_CONFIG.currentSystemScaleFrequency
-      ) *
-        VISUAL_CONFIG.currentSystemScaleAmplitude;
-    currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
+    if (reducedMotion) {
+      currentSystemIndicator.scale.set(
+        VISUAL_CONFIG.currentSystemBaseScale,
+        VISUAL_CONFIG.currentSystemBaseScale,
+        1
+      );
+      currentSystemIndicator.material.opacity =
+        VISUAL_CONFIG.currentSystemBaseOpacity;
+      currentSystemIndicator.rotation.z = 0;
+    } else {
+      // Pulsing for current system indicator
+      const pulseScale =
+        VISUAL_CONFIG.currentSystemBaseScale +
+        Math.sin(
+          time *
+            VISUAL_CONFIG.selectionRingPulseSpeed *
+            VISUAL_CONFIG.currentSystemScaleFrequency
+        ) *
+          VISUAL_CONFIG.currentSystemScaleAmplitude;
+      currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
 
-    // Pulse opacity
-    const pulseOpacity =
-      VISUAL_CONFIG.currentSystemBaseOpacity +
-      Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
-        VISUAL_CONFIG.currentSystemOpacityAmplitude;
-    currentSystemIndicator.material.opacity = pulseOpacity;
+      // Pulse opacity
+      const pulseOpacity =
+        VISUAL_CONFIG.currentSystemBaseOpacity +
+        Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
+          VISUAL_CONFIG.currentSystemOpacityAmplitude;
+      currentSystemIndicator.material.opacity = pulseOpacity;
 
-    // Rotate in opposite direction from selection ring
-    currentSystemIndicator.rotation.z =
-      -time * VISUAL_CONFIG.currentSystemRotationSpeed;
+      // Rotate in opposite direction from selection ring
+      currentSystemIndicator.rotation.z =
+        -time * VISUAL_CONFIG.currentSystemRotationSpeed;
+    }
   }
 }

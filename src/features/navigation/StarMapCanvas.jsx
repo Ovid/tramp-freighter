@@ -30,6 +30,7 @@ import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
+import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
@@ -48,7 +49,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const sceneRef = useRef(null);
   const game = useGame();
   const starData = useStarData();
-  const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
+  const [autoRotationEnabled, setAutoRotationEnabled] = useState(
+    () => !prefersReducedMotion()
+  );
   const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
@@ -118,6 +121,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       lights,
       animationFrameId,
       animationSystem;
+
+    // Check once at init time — user can still toggle auto-rotation manually
+    const reducedMotion = prefersReducedMotion();
 
     try {
       // Initialize Three.js scene once
@@ -282,8 +288,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         // Update label scale and opacity based on camera distance
         updateLabelScale(stars, camera);
 
-        // Update selection ring animations
-        updateSelectionRingAnimations(currentTime);
+        // Update selection ring animations (static in reduced-motion mode)
+        updateSelectionRingAnimations(currentTime, reducedMotion);
 
         // Orient selection rings to face camera
         const selectedStar = getSelectedStar();
