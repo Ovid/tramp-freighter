@@ -1,5 +1,6 @@
 # TODO
 
+- Need dialogue explorer to check for issues. How should this be built?
 - Missions: there should be consequences for failure and abandonment.
 - Customs inspections don't seem (I think) to have a follow up screen when you
   choose to flee, bribe, or whatever
