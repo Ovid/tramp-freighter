@@ -409,6 +409,8 @@ export function TradePanel({ onClose }) {
                 id="toggle-hidden-cargo-btn"
                 className="toggle-hidden-cargo-btn"
                 onClick={() => setHiddenCargoCollapsed(!hiddenCargoCollapsed)}
+                aria-expanded={!hiddenCargoCollapsed}
+                aria-controls="hidden-cargo-content"
               >
                 {hiddenCargoCollapsed ? 'Show' : 'Hide'}
               </button>
