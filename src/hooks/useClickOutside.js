@@ -7,7 +7,7 @@ export function useClickOutside(ref, onClose, enabled = true) {
   useEffect(() => {
     if (!enabled) return;
 
-    const handler = (e) => {
+    const handleMouseDown = (e) => {
       // Click inside this panel — ignore
       if (ref.current?.contains(e.target)) return;
 
@@ -20,7 +20,18 @@ export function useClickOutside(ref, onClose, enabled = true) {
 
       onCloseRef.current();
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onCloseRef.current();
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [ref, enabled]);
 }
