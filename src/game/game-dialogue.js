@@ -130,9 +130,10 @@ function validateNPCId(npcId) {
  *   - npcName: string - Display name of the NPC
  *   - npcRole: string - Role/title of the NPC
  *   - npcStation: string - Station where NPC is located
- *   - reputationTier: string - Current reputation tier with this NPC
+ *   - reputationTier: Object - Current reputation tier { name: string, min: number, max: number }
  *   - text: string - Dialogue text to display (may include dynamic content)
  *   - choices: Array<Object> - Available dialogue choices with index, text, next, and repGain
+ *   - questProgress: Object|null - Quest progress info for quest NPCs { currentRep, questStage, nextRepThreshold, stageName, allRequirementsMet }
  * @throws {Error} If NPC ID or dialogue node is invalid
  */
 export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
