@@ -58,7 +58,12 @@ describe('DialoguePanel Quest Progress', () => {
 
       // Should show Trust label with current rep out of 100 and next milestone
       expect(
-        screen.getByText((content) => content.includes('Trust:') && content.includes('5') && content.includes('100'))
+        screen.getByText(
+          (content) =>
+            content.includes('Trust:') &&
+            content.includes('5') &&
+            content.includes('100')
+        )
       ).toBeInTheDocument();
 
       // Should render the progressbar with absolute 0-100 ARIA attributes
