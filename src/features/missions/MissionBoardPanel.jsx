@@ -161,6 +161,7 @@ export function MissionBoardPanel({ onClose }) {
                   <span
                     className="saturation-hint"
                     title="Haulers on this route are plentiful — reduced pay"
+                    aria-label="Reduced pay: haulers on this route are plentiful"
                   >
                     {' '}
                     ▼

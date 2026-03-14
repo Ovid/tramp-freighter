@@ -493,6 +493,7 @@ export function RepairPanel({ onClose }) {
                             min={0}
                             max={maxDonation}
                             value={currentAlloc}
+                            aria-label={`Cannibalize ${getSystemName(donorSys)}`}
                             onChange={(e) =>
                               setCannibalizeAllocation((prev) => ({
                                 ...prev,
