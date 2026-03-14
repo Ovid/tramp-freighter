@@ -226,14 +226,3 @@
   border-color: #cccccc;
 }
 
-.button-danger {
-  background-color: var(--color-danger);
-  color: var(--color-black);
-  border-color: var(--color-danger);
-}
-
-.button-danger:hover {
-  background-color: #ff5252;
-  border-color: #ff5252;
-  box-shadow: var(--shadow-glow-danger);
-}
