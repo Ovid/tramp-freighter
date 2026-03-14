@@ -54,7 +54,14 @@ export function AchievementsList() {
                   <div className="achievement-description">
                     {achievement.description}
                   </div>
-                  <div className="achievement-progress-bar">
+                  <div
+                    className="achievement-progress-bar"
+                    role="progressbar"
+                    aria-label={achievement.name}
+                    aria-valuenow={achievement.current}
+                    aria-valuemin={0}
+                    aria-valuemax={achievement.target}
+                  >
                     <div
                       className={`achievement-progress-fill ${achievement.unlocked ? 'complete' : ''}`}
                       style={{ width: `${percent}%` }}
