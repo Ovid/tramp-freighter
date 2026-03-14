@@ -640,7 +640,7 @@ export function RepairPanel({ onClose }) {
 
         {/* Validation Message */}
         {validationMessage && (
-          <div className={`validation-message ${validationClass}`}>
+          <div className={`validation-message ${validationClass}`} role="alert">
             {validationMessage}
           </div>
         )}

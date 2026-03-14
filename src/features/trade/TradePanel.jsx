@@ -277,6 +277,7 @@ export function TradePanel({ onClose }) {
                       className={`validation-message ${
                         !validation.valid ? 'error' : ''
                       }`}
+                      role="alert"
                     >
                       {!validation.valid && validation.reason}
                     </div>
