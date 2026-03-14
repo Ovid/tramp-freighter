@@ -188,8 +188,8 @@ export function MissionBoardPanel({ onClose }) {
           <p>No contracts available. Check back tomorrow.</p>
         )}
       </div>
-      <button className="station-btn" onClick={onClose}>
-        Back
+      <button className="station-btn secondary" onClick={onClose}>
+        Back to Station
       </button>
     </div>
   );
