@@ -60,3 +60,18 @@ Source: `docs/reviews/a11y-2026-03-14-14-02-30.md`
 
 ### [C5] AchievementsList progress bars lack ARIA — FIXED
 - Added `role="progressbar"`, `aria-label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` to achievement progress bars.
+
+### [C10] UpgradesPanel warning emoji uses `title` attribute — FIXED
+- Replaced `title` with `aria-hidden="true"` on decorative warning emoji. Tradeoff info is already shown in text below.
+
+### [F3] MissionComplete button labels ambiguous — FIXED
+- Changed "Dismiss" to "Later" and "Complete" to "Claim Reward" for clarity.
+
+### [E3]+[E4] Three.js JS animations ignore prefers-reduced-motion — FIXED
+- Auto-rotation defaults to off when OS prefers reduced motion. Selection ring and current system indicator use static values (no pulsing/rotating) in reduced motion mode.
+
+### [F1] Inconsistent Back/Close button labels — FIXED
+- Standardized MissionBoardPanel "Back" to "Back to Station" to match other panels.
+
+### [E8] End credits have skip but no pause — FIXED
+- Added Pause/Play button and Space key toggle. Credits scroll can now be paused and resumed.
