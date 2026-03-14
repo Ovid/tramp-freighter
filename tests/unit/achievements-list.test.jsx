@@ -127,6 +127,18 @@ describe('AchievementsList', () => {
     expect(nameEl.textContent).toContain('Unlocked One');
   });
 
+  it('progress bar has ARIA progressbar semantics', () => {
+    mockGSM.getAchievementProgress.mockReturnValue([
+      buildAchievement({ id: 'e1', name: 'Star Hopper', current: 3, target: 10 }),
+    ]);
+    render(<AchievementsList />);
+
+    const progressbar = screen.getByRole('progressbar', { name: /star hopper/i });
+    expect(progressbar).toHaveAttribute('aria-valuenow', '3');
+    expect(progressbar).toHaveAttribute('aria-valuemin', '0');
+    expect(progressbar).toHaveAttribute('aria-valuemax', '10');
+  });
+
   it('sorts achievements within a category by tier', () => {
     mockGSM.getAchievementProgress.mockReturnValue([
       buildAchievement({ id: 'e3', name: 'Tier 3', tier: 3 }),
