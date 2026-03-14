@@ -290,10 +290,17 @@
   font-style: italic;
 }
 
-.credits-skip-btn {
+.credits-controls {
   position: fixed;
   bottom: 30px;
   right: 30px;
+  display: flex;
+  gap: 8px;
+  z-index: calc(var(--z-modal) + 1);
+}
+
+.credits-skip-btn,
+.credits-pause-btn {
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.6);
@@ -303,10 +310,10 @@
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: var(--transition-fast);
-  z-index: calc(var(--z-modal) + 1);
 }
 
-.credits-skip-btn:hover {
+.credits-skip-btn:hover,
+.credits-pause-btn:hover {
   color: var(--color-white);
   border-color: rgba(255, 255, 255, 0.6);
 }
