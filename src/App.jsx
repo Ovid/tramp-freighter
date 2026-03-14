@@ -333,6 +333,10 @@ export default function App({ devMode = false }) {
   return (
     <ErrorBoundary>
       <div className="app-container">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+
         {/* Title screen displayed on initial load */}
         {viewMode === VIEW_MODES.TITLE && (
           <TitleScreen onStartGame={handleStartGame} />
@@ -360,11 +364,14 @@ export default function App({ devMode = false }) {
               </ErrorBoundary>
 
               {/* HUD is always rendered */}
-              <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              <nav aria-label="Game HUD">
+                <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              </nav>
               <RumorAlert />
               <AchievementToast />
               <NotificationContainer />
 
+              <main id="main-content">
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (
                 <>
@@ -496,6 +503,7 @@ export default function App({ devMode = false }) {
                 onClose={() => setShowInstructions(false)}
                 shipName={shipName}
               />
+              </main>
             </StarmapProvider>
           )}
 

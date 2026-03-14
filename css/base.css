@@ -48,6 +48,25 @@ canvas {
   height: 100%;
 }
 
+/* Skip link — visible only on focus for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--bg-panel);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-normal);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 /* Replace default browser focus ring with game-themed outline */
 button:focus-visible {
   outline: 1px solid var(--color-primary);
