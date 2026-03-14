@@ -81,10 +81,7 @@ export function UpgradesPanel({ onClose }) {
           <div className="upgrade-name-container">
             <span className="upgrade-name">{upgrade.name}</span>
             {hasTradeoff && (
-              <span
-                className="upgrade-warning-symbol"
-                title="This upgrade has tradeoffs"
-              >
+              <span className="upgrade-warning-symbol" aria-hidden="true">
                 {' '}
                 ⚠
               </span>
@@ -159,7 +156,8 @@ export function UpgradesPanel({ onClose }) {
             ))}
             {hasTradeoff && (
               <div className="upgrade-effect-item upgrade-tradeoff-item">
-                ⚠ {upgrade.tradeoff}
+                <span aria-hidden="true">⚠ </span>
+                {upgrade.tradeoff}
               </div>
             )}
           </div>
