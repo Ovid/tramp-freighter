@@ -4,6 +4,7 @@ import { aliases } from './shared-config.js';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [react()],
   resolve: {
     alias: aliases,
