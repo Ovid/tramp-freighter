@@ -52,6 +52,7 @@ export function ShipNamingDialog({ onSubmit }) {
               placeholder="Enter ship name..."
               maxLength={SHIP_CONFIG.MAX_NAME_LENGTH}
               autoFocus
+              aria-label="Ship name"
             />
           </div>
 
