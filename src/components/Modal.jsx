@@ -54,13 +54,23 @@ export function Modal({
     }
   }, [isOpen]);
 
-  // Handle escape key and focus trap
-  const handleKeyDown = useCallback(
-    (event) => {
+  // Handle escape key to close modal (document-level so it works regardless of focus)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event) => {
       if (event.key === 'Escape') {
         onClose();
-        return;
       }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  // Focus trap: keep Tab/Shift-Tab within the modal
+  const handleKeyDown = useCallback(
+    (event) => {
       if (event.key !== 'Tab' || !dialogRef.current) return;
 
       const focusable = dialogRef.current.querySelectorAll(
@@ -79,7 +89,7 @@ export function Modal({
         first.focus();
       }
     },
-    [onClose]
+    []
   );
 
   // Prevent body scroll when modal is open
