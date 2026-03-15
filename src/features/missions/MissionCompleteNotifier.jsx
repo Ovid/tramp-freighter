@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { Modal } from '../../components/Modal';
@@ -19,11 +19,18 @@ export function MissionCompleteNotifier() {
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
   const [completable, setCompletable] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const prevIdsRef = useRef(null);
 
   useEffect(() => {
     const found = getCompletableMissions();
+    const newIds = found.map((m) => m.id).join(',');
     setCompletable(found);
-    setCurrentIndex(0);
+    // Only reset index when the set of completable missions actually changes,
+    // not on every MISSIONS_CHANGED event (which fires from our own completeMission call)
+    if (newIds !== prevIdsRef.current) {
+      prevIdsRef.current = newIds;
+      setCurrentIndex(0);
+    }
   }, [missions, getCompletableMissions]);
 
   const current = completable[currentIndex];
