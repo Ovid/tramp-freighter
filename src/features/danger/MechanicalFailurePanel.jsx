@@ -405,7 +405,10 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
           )}
           {(failure.type === 'hull_breach' ||
             failure.type === 'life_support') && (
-            <button className="failure-btn primary" onClick={onClose}>
+            <button
+              className="failure-btn primary"
+              onClick={() => onChoice('acknowledge')}
+            >
               Acknowledge
             </button>
           )}
