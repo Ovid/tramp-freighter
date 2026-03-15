@@ -269,7 +269,11 @@ export function InfoBrokerPanel({ onClose }) {
       </h2>
 
       {/* Tab Navigation */}
-      <div className="info-broker-tabs" role="tablist" aria-label="Information broker sections">
+      <div
+        className="info-broker-tabs"
+        role="tablist"
+        aria-label="Information broker sections"
+      >
         <button
           ref={purchaseTabRef}
           role="tab"

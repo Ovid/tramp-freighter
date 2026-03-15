@@ -62,10 +62,6 @@ describe('Star finder dropdown sort order', () => {
     const options = container.querySelectorAll('[role="option"]');
     const labels = Array.from(options).map((opt) => opt.textContent.trim());
 
-    expect(labels).toEqual([
-      'Alpha Centauri A',
-      'Sol',
-      'Zeta Reticuli',
-    ]);
+    expect(labels).toEqual(['Alpha Centauri A', 'Sol', 'Zeta Reticuli']);
   });
 });

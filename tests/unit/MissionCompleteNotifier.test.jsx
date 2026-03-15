@@ -45,10 +45,14 @@ describe('MissionCompleteNotifier MISSIONS_CHANGED reactivity', () => {
 
     render(<MissionCompleteNotifier />);
 
-    expect(screen.getByRole('button', { name: /claim reward/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /claim reward/i })
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /later/i })).toBeInTheDocument();
     // Old ambiguous labels should not exist
-    expect(screen.queryByRole('button', { name: /^dismiss$/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^dismiss$/i })
+    ).not.toBeInTheDocument();
   });
 
   it('re-checks completable missions when MISSIONS_CHANGED fires', () => {

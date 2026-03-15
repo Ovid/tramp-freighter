@@ -145,8 +145,15 @@ export function UpgradesPanel({ onClose }) {
 
     return (
       <div className="upgrade-confirmation-overlay">
-        <div className="upgrade-confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="upgrade-confirm-title">
-          <h3 id="upgrade-confirm-title" className="upgrade-confirmation-title">{upgrade.name}</h3>
+        <div
+          className="upgrade-confirmation-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="upgrade-confirm-title"
+        >
+          <h3 id="upgrade-confirm-title" className="upgrade-confirmation-title">
+            {upgrade.name}
+          </h3>
 
           <div className="upgrade-confirmation-effects">
             {effectsText.map((effect, index) => (

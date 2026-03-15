@@ -129,11 +129,18 @@ describe('AchievementsList', () => {
 
   it('progress bar has ARIA progressbar semantics', () => {
     mockGSM.getAchievementProgress.mockReturnValue([
-      buildAchievement({ id: 'e1', name: 'Star Hopper', current: 3, target: 10 }),
+      buildAchievement({
+        id: 'e1',
+        name: 'Star Hopper',
+        current: 3,
+        target: 10,
+      }),
     ]);
     render(<AchievementsList />);
 
-    const progressbar = screen.getByRole('progressbar', { name: /star hopper/i });
+    const progressbar = screen.getByRole('progressbar', {
+      name: /star hopper/i,
+    });
     expect(progressbar).toHaveAttribute('aria-valuenow', '3');
     expect(progressbar).toHaveAttribute('aria-valuemin', '0');
     expect(progressbar).toHaveAttribute('aria-valuemax', '10');

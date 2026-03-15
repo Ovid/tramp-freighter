@@ -10,14 +10,14 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
             You've spent years hauling cargo through the wormhole lanes of Sol
             Sector. Bad deals, rough encounters, and the relentless cost of
             keeping a ship running have taken their toll. You're tired. All you
-            want is enough credits to retire somewhere quiet and never look at
-            a cargo manifest again.
+            want is enough credits to retire somewhere quiet and never look at a
+            cargo manifest again.
           </p>
           <p>
-            There's just one problem: you owe Marcus Cole ten thousand credits
-            — and he's not the patient type. Interest is ticking. You'll want
-            to check the <strong>Finance</strong> menu at any station before
-            the terms surprise you.
+            There's just one problem: you owe Marcus Cole ten thousand credits —
+            and he's not the patient type. Interest is ticking. You'll want to
+            check the <strong>Finance</strong> menu at any station before the
+            terms surprise you.
           </p>
           <p>
             Trade smart, pay down the debt, and build a reputation. The traders

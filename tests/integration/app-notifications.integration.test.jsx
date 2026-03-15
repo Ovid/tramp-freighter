@@ -153,9 +153,7 @@ describe('App Notification Integration', () => {
       });
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Storage quota exceeded/)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Storage quota exceeded/)).toBeInTheDocument();
       });
 
       // Verify it's rendered as an error notification

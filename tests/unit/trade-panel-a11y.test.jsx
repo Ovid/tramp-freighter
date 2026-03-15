@@ -66,15 +66,17 @@ describe('TradePanel accessibility', () => {
   });
 
   it('hidden cargo toggle button should have aria-expanded reflecting collapsed state', async () => {
-    const { TradePanel } = await import(
-      '../../src/features/trade/TradePanel.jsx'
-    );
+    const { TradePanel } =
+      await import('../../src/features/trade/TradePanel.jsx');
     render(<TradePanel onClose={() => {}} />);
 
     const toggleButton = screen.getByRole('button', { name: /show|hide/i });
     // Initially not collapsed, so aria-expanded should be true
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-    expect(toggleButton).toHaveAttribute('aria-controls', 'hidden-cargo-content');
+    expect(toggleButton).toHaveAttribute(
+      'aria-controls',
+      'hidden-cargo-content'
+    );
 
     // Click to collapse
     fireEvent.click(toggleButton);

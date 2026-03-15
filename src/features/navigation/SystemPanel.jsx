@@ -131,7 +131,12 @@ export function SystemPanel({
         )}
         {showCriticalDamageModal && (
           <div className="modal-overlay">
-            <div className="modal critical-damage-modal" role="alertdialog" aria-modal="true" aria-labelledby="critical-damage-title">
+            <div
+              className="modal critical-damage-modal"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="critical-damage-title"
+            >
               <h3 id="critical-damage-title">Ship Damaged</h3>
               <p>{validation.error}</p>
               <p>Dock at a station for repairs before attempting a jump.</p>

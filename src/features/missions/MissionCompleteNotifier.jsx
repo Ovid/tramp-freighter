@@ -49,8 +49,15 @@ export function MissionCompleteNotifier() {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-complete-title">
-        <h2 id="mission-complete-title" className="modal-title">Mission Complete!</h2>
+      <div
+        className="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mission-complete-title"
+      >
+        <h2 id="mission-complete-title" className="modal-title">
+          Mission Complete!
+        </h2>
         <div className="mission-complete-body">
           <p className="mission-complete-title">{current.title}</p>
           {current.type === 'passenger' && current.passenger && (

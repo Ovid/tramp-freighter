@@ -274,10 +274,7 @@ export function TradePanel({ onClose }) {
                     </div>
 
                     {!validation.valid && (
-                      <div
-                        className="validation-message error"
-                        role="status"
-                      >
+                      <div className="validation-message error" role="status">
                         {validation.reason}
                       </div>
                     )}

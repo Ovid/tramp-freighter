@@ -160,9 +160,7 @@ export default function App({ devMode = false }) {
         }
         case VIEW_MODES.PAVONIS_RUN:
         case VIEW_MODES.EPILOGUE: {
-          const container = document.querySelector(
-            '.pavonis-run, .epilogue'
-          );
+          const container = document.querySelector('.pavonis-run, .epilogue');
           if (container) {
             container.setAttribute('tabindex', '-1');
             container.focus();
@@ -425,138 +423,138 @@ export default function App({ devMode = false }) {
               <NotificationContainer />
 
               <main id="main-content" ref={mainRef} tabIndex={-1}>
-              {/* Station menu displayed when docked */}
-              {viewMode === VIEW_MODES.STATION && (
-                <>
-                  <MissionCompleteNotifier />
-                  {postCredits ? (
-                    <PostCreditsStation
-                      onOpenPanel={handleOpenPanel}
-                      onReturnToTitle={handleReturnToTitle}
-                    />
-                  ) : (
-                    <StationMenu
-                      onOpenPanel={handleOpenPanel}
-                      onUndock={handleUndock}
-                    />
-                  )}
-                  {/* Panel container displayed alongside station menu */}
-                  {activePanel && (
-                    <PanelContainer
-                      activePanel={activePanel}
-                      npcId={activePanelNpcId}
-                      onClose={handleClosePanel}
-                    />
-                  )}
-                </>
-              )}
+                {/* Station menu displayed when docked */}
+                {viewMode === VIEW_MODES.STATION && (
+                  <>
+                    <MissionCompleteNotifier />
+                    {postCredits ? (
+                      <PostCreditsStation
+                        onOpenPanel={handleOpenPanel}
+                        onReturnToTitle={handleReturnToTitle}
+                      />
+                    ) : (
+                      <StationMenu
+                        onOpenPanel={handleOpenPanel}
+                        onUndock={handleUndock}
+                      />
+                    )}
+                    {/* Panel container displayed alongside station menu */}
+                    {activePanel && (
+                      <PanelContainer
+                        activePanel={activePanel}
+                        npcId={activePanelNpcId}
+                        onClose={handleClosePanel}
+                      />
+                    )}
+                  </>
+                )}
 
-              {/* Dev admin button (only visible in dev mode) */}
-              {devMode && (
-                <button
-                  id="dev-admin-btn"
-                  onClick={handleOpenDevAdmin}
-                  style={{ display: 'flex' }}
-                  aria-label="Developer admin panel"
-                >
-                  ⚙
-                </button>
-              )}
+                {/* Dev admin button (only visible in dev mode) */}
+                {devMode && (
+                  <button
+                    id="dev-admin-btn"
+                    onClick={handleOpenDevAdmin}
+                    style={{ display: 'flex' }}
+                    aria-label="Developer admin panel"
+                  >
+                    ⚙
+                  </button>
+                )}
 
-              {/* Dev admin panel (only rendered in dev mode when open) */}
-              {devMode && showDevAdmin && (
-                <DevAdminPanel onClose={handleCloseDevAdmin} />
-              )}
+                {/* Dev admin panel (only rendered in dev mode when open) */}
+                {devMode && showDevAdmin && (
+                  <DevAdminPanel onClose={handleCloseDevAdmin} />
+                )}
 
-              {/* System panel (rendered when viewing a system) */}
-              {showSystemPanel && (
-                <SystemPanel
-                  viewingSystemId={viewingSystemId}
-                  onClose={handleCloseSystemPanel}
-                  onJumpStart={handleJumpStart}
-                  onJumpComplete={handleJumpComplete}
-                />
-              )}
-
-              {/* Encounter panels (rendered when an encounter is active) */}
-              <ErrorBoundary>
-                {viewMode === VIEW_MODES.ENCOUNTER &&
-                  currentEncounter &&
-                  !encounterOutcome && (
-                    <>
-                      {currentEncounter.type === 'pirate' &&
-                        encounterPhase === 'initial' && (
-                          <PirateEncounterPanel
-                            encounter={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                            escalated={combatContext?.escalated || false}
-                          />
-                        )}
-                      {currentEncounter.type === 'pirate' &&
-                        encounterPhase === 'combat' && (
-                          <CombatPanel
-                            combat={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                            fleeContext={combatContext}
-                          />
-                        )}
-                      {currentEncounter.type === 'pirate' &&
-                        encounterPhase === 'negotiation' && (
-                          <NegotiationPanel
-                            encounter={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                          />
-                        )}
-                      {currentEncounter.type === 'inspection' && (
-                        <InspectionPanel
-                          inspection={currentEncounter.encounter}
-                          onChoice={handleEncounterChoice}
-                          onClose={handleEncounterClose}
-                        />
-                      )}
-                      {currentEncounter.type === 'mechanical_failure' && (
-                        <MechanicalFailurePanel
-                          failure={currentEncounter.encounter}
-                          onChoice={handleEncounterChoice}
-                          onClose={handleEncounterClose}
-                        />
-                      )}
-                      {currentEncounter.type === 'distress_call' && (
-                        <DistressCallPanel
-                          distressCall={currentEncounter.encounter}
-                          onChoice={handleEncounterChoice}
-                          onClose={handleEncounterClose}
-                        />
-                      )}
-                    </>
-                  )}
-
-                {/* Outcome panel (shown after encounter choice is resolved) */}
-                {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
-                  <OutcomePanel
-                    outcome={encounterOutcome}
-                    onContinue={handleOutcomeContinue}
-                    onClose={handleOutcomeContinue}
+                {/* System panel (rendered when viewing a system) */}
+                {showSystemPanel && (
+                  <SystemPanel
+                    viewingSystemId={viewingSystemId}
+                    onClose={handleCloseSystemPanel}
+                    onJumpStart={handleJumpStart}
+                    onJumpComplete={handleJumpComplete}
                   />
                 )}
-              </ErrorBoundary>
 
-              {/* Narrative event overlay (renders on top of any view mode) */}
-              {activeNarrativeEvent && (
-                <NarrativeEventPanel
-                  event={activeNarrativeEvent}
-                  onClose={handleNarrativeClose}
+                {/* Encounter panels (rendered when an encounter is active) */}
+                <ErrorBoundary>
+                  {viewMode === VIEW_MODES.ENCOUNTER &&
+                    currentEncounter &&
+                    !encounterOutcome && (
+                      <>
+                        {currentEncounter.type === 'pirate' &&
+                          encounterPhase === 'initial' && (
+                            <PirateEncounterPanel
+                              encounter={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                              escalated={combatContext?.escalated || false}
+                            />
+                          )}
+                        {currentEncounter.type === 'pirate' &&
+                          encounterPhase === 'combat' && (
+                            <CombatPanel
+                              combat={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                              fleeContext={combatContext}
+                            />
+                          )}
+                        {currentEncounter.type === 'pirate' &&
+                          encounterPhase === 'negotiation' && (
+                            <NegotiationPanel
+                              encounter={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                            />
+                          )}
+                        {currentEncounter.type === 'inspection' && (
+                          <InspectionPanel
+                            inspection={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                          />
+                        )}
+                        {currentEncounter.type === 'mechanical_failure' && (
+                          <MechanicalFailurePanel
+                            failure={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                          />
+                        )}
+                        {currentEncounter.type === 'distress_call' && (
+                          <DistressCallPanel
+                            distressCall={currentEncounter.encounter}
+                            onChoice={handleEncounterChoice}
+                            onClose={handleEncounterClose}
+                          />
+                        )}
+                      </>
+                    )}
+
+                  {/* Outcome panel (shown after encounter choice is resolved) */}
+                  {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
+                    <OutcomePanel
+                      outcome={encounterOutcome}
+                      onContinue={handleOutcomeContinue}
+                      onClose={handleOutcomeContinue}
+                    />
+                  )}
+                </ErrorBoundary>
+
+                {/* Narrative event overlay (renders on top of any view mode) */}
+                {activeNarrativeEvent && (
+                  <NarrativeEventPanel
+                    event={activeNarrativeEvent}
+                    onClose={handleNarrativeClose}
+                  />
+                )}
+
+                <InstructionsModal
+                  isOpen={showInstructions}
+                  onClose={() => setShowInstructions(false)}
+                  shipName={shipName}
                 />
-              )}
-
-              <InstructionsModal
-                isOpen={showInstructions}
-                onClose={() => setShowInstructions(false)}
-                shipName={shipName}
-              />
               </main>
             </StarmapProvider>
           )}

@@ -146,7 +146,9 @@ describe('Modal Component', () => {
 
     const dialogs = document.querySelectorAll('[role="dialog"]');
     expect(dialogs.length).toBe(2);
-    const labelledByIds = [...dialogs].map((d) => d.getAttribute('aria-labelledby'));
+    const labelledByIds = [...dialogs].map((d) =>
+      d.getAttribute('aria-labelledby')
+    );
     // Both should have aria-labelledby pointing to unique IDs
     expect(labelledByIds[0]).toBeTruthy();
     expect(labelledByIds[1]).toBeTruthy();

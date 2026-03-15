@@ -77,7 +77,9 @@ describe('EndCredits', () => {
     fireEvent.click(pauseBtn);
 
     // After clicking pause, button should say "Play" or "Resume"
-    expect(screen.getByRole('button', { name: /play|resume/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /play|resume/i })
+    ).toBeInTheDocument();
   });
 
   it('toggles pause/play on Space key', () => {
@@ -93,7 +95,9 @@ describe('EndCredits', () => {
 
     // Press Space to pause
     fireEvent.keyDown(window, { key: ' ' });
-    expect(screen.getByRole('button', { name: /play|resume/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /play|resume/i })
+    ).toBeInTheDocument();
 
     // Press Space to resume
     fireEvent.keyDown(window, { key: ' ' });

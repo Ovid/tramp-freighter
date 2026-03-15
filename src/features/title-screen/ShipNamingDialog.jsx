@@ -37,9 +37,16 @@ export function ShipNamingDialog({ onSubmit }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ship-naming-title">
+      <div
+        className="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ship-naming-title"
+      >
         <div className="modal-content">
-          <h2 id="ship-naming-title" className="modal-title">Name Your Ship</h2>
+          <h2 id="ship-naming-title" className="modal-title">
+            Name Your Ship
+          </h2>
           <p className="modal-description">What will you call your vessel?</p>
 
           <div className="ship-naming-input-group">
