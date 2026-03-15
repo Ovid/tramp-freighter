@@ -32,6 +32,10 @@ import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
 import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 
+// Reusable Three.js objects for keyboard rotation (avoid per-keypress allocation)
+const _keyboardOffset = new THREE.Vector3();
+const _keyboardSpherical = new THREE.Spherical();
+
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
  *
@@ -426,11 +430,11 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       case 'ArrowUp':
       case 'ArrowDown': {
         event.preventDefault();
-        const offset = new THREE.Vector3().subVectors(
+        const offset = _keyboardOffset.subVectors(
           camera.position,
           controls.target
         );
-        const spherical = new THREE.Spherical().setFromVector3(offset);
+        const spherical = _keyboardSpherical.setFromVector3(offset);
 
         if (event.key === 'ArrowLeft') {
           spherical.theta -= step;

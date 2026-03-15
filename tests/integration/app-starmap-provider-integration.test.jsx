@@ -38,6 +38,9 @@ describe('Integration: App StarmapProvider Integration', () => {
         sub: vi.fn(),
         add: vi.fn(),
       })),
+      Spherical: vi.fn(() => ({
+        setFromVector3: vi.fn(),
+      })),
       Raycaster: vi.fn(() => ({
         setFromCamera: vi.fn(),
         intersectObjects: vi.fn(() => []),
