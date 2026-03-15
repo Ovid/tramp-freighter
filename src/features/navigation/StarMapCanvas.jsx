@@ -403,7 +403,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   };
 
   const handleToggleRotation = () => {
-    setAutoRotationEnabled(!autoRotationEnabled);
+    setAutoRotationEnabled((prev) => !prev);
   };
 
   const handleToggleBoundary = () => {
