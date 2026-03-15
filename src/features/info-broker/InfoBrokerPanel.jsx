@@ -159,6 +159,14 @@ export function InfoBrokerPanel({ onClose }) {
     }
   };
 
+  const handleTabKeyDown = (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const next = activeTab === 'purchase' ? 'marketData' : 'purchase';
+      handleTabSwitch(next, true);
+    }
+  };
+
   const renderIntelligenceItem = (option) => {
     const baseCost = option.cost;
     const discountedCost = calculateDiscountedIntelligenceCost(
@@ -282,13 +290,7 @@ export function InfoBrokerPanel({ onClose }) {
           aria-controls="tabpanel-purchase"
           className={`info-broker-tab ${activeTab === 'purchase' ? 'active' : ''}`}
           onClick={() => handleTabSwitch('purchase')}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-              e.preventDefault();
-              const next = activeTab === 'purchase' ? 'marketData' : 'purchase';
-              handleTabSwitch(next, true);
-            }
-          }}
+          onKeyDown={handleTabKeyDown}
           tabIndex={activeTab === 'purchase' ? 0 : -1}
         >
           Purchase Intelligence
@@ -301,13 +303,7 @@ export function InfoBrokerPanel({ onClose }) {
           aria-controls="tabpanel-marketData"
           className={`info-broker-tab ${activeTab === 'marketData' ? 'active' : ''}`}
           onClick={() => handleTabSwitch('marketData')}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-              e.preventDefault();
-              const next = activeTab === 'purchase' ? 'marketData' : 'purchase';
-              handleTabSwitch(next, true);
-            }
-          }}
+          onKeyDown={handleTabKeyDown}
           tabIndex={activeTab === 'marketData' ? 0 : -1}
         >
           Market Data
