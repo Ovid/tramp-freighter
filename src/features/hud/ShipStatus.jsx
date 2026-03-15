@@ -108,7 +108,7 @@ export function ShipStatus() {
         </div>
       </div>
       <div className="hud-row">
-        <span className="hud-label">Life Support:</span>
+        <span className="hud-label">Life Sup:</span>
         <div
           className="life-support-bar-container condition-bar-container"
           role="meter"
