@@ -24,6 +24,8 @@ export function useNotification() {
    * Fade out a notification and remove it, then process the next queued item.
    */
   const fadeOutAndRemove = useCallback((id, afterRemove) => {
+    // Guard against double-fade (e.g. auto-dismiss fires, then user clicks dismiss)
+    if (fadeTimerRef.current !== null) return;
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, fadeOut: true } : n))
     );
