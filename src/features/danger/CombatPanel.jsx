@@ -519,11 +519,10 @@ function calculateCombatProbabilities(
 
   // Apply engine condition modifier
   if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
-    const enginePenalty = -0.1;
-    evasiveChance += enginePenalty;
+    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
     evasiveModifiers.push({
       name: 'Poor Engine Condition',
-      value: enginePenalty,
+      value: COMBAT_CONFIG.ENGINE_PENALTY_VALUE,
       type: 'penalty',
     });
   }

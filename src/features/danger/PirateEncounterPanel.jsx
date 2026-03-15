@@ -404,6 +404,11 @@ function calculateTacticalProbabilities(
   // Calculate evasive maneuvers probability
   let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
 
+  // Apply engine condition modifier
+  if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
+    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
+  }
+
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
     evasiveChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
