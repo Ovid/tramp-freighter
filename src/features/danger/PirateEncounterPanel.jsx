@@ -5,9 +5,12 @@ import {
   KARMA_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
-  SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import {
+  getConditionClass,
+  formatCargoDisplayName as formatModifierName,
+} from '../../game/utils/string-utils.js';
 
 /**
  * PirateEncounterPanel - React component for pirate encounter resolution
@@ -459,29 +462,3 @@ function getThreatLevelColor(threatLevel) {
   }
 }
 
-/**
- * Get CSS class for condition display based on value
- *
- * @param {number} condition - The condition value (0-100)
- * @returns {string} CSS class name
- */
-function getConditionClass(condition) {
-  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
-  if (condition >= thresholds.EXCELLENT) return 'good';
-  if (condition >= thresholds.FAIR) return 'fair';
-  if (condition >= thresholds.POOR) return 'poor';
-  return 'critical';
-}
-
-/**
- * Format modifier names for display
- *
- * @param {string} modifierName - The modifier name (snake_case)
- * @returns {string} Formatted display name
- */
-function formatModifierName(modifierName) {
-  return modifierName
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}

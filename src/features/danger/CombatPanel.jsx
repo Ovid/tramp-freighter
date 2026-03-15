@@ -6,6 +6,10 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import {
+  getConditionClass,
+  formatCargoDisplayName as formatModifierName,
+} from '../../game/utils/string-utils.js';
 
 /**
  * CombatPanel - React component for combat resolution
@@ -621,36 +625,6 @@ function getCombatIntensityColor(intensity) {
   }
 }
 
-/**
- * Get CSS class for ship condition display based on percentage value.
- * Thresholds reflect game balance: 75%+ good, 50%+ fair, 25%+ poor, <25% critical.
- * These thresholds align with gameplay mechanics where systems start failing below 50%.
- *
- * @param {number} condition - The condition value (0-100 percentage)
- * @returns {string} CSS class name for styling the condition display
- */
-function getConditionClass(condition) {
-  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
-  if (condition >= thresholds.EXCELLENT) return 'good';
-  if (condition >= thresholds.FAIR) return 'fair';
-  if (condition >= thresholds.POOR) return 'poor';
-  return 'critical';
-}
-
-/**
- * Format modifier names from snake_case to human-readable format.
- * Converts internal identifier format (hot_thruster) to display format (Hot Thruster).
- * Used for showing ship upgrades and quirks in the UI.
- *
- * @param {string} modifierName - The modifier name in snake_case format
- * @returns {string} Formatted display name with proper capitalization
- */
-function formatModifierName(modifierName) {
-  return modifierName
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 /**
  * Format option names from snake_case to human-readable format for button labels.

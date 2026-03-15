@@ -67,3 +67,17 @@ export function formatCargoDisplayName(id) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
+
+/**
+ * Map a ship condition percentage to a CSS class name
+ *
+ * @param {number} condition - Condition percentage (0-100)
+ * @returns {string} CSS class name: 'good', 'fair', 'poor', or 'critical'
+ */
+export function getConditionClass(condition) {
+  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
+  if (condition >= thresholds.EXCELLENT) return 'good';
+  if (condition >= thresholds.FAIR) return 'fair';
+  if (condition >= thresholds.POOR) return 'poor';
+  return 'critical';
+}

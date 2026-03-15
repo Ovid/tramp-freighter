@@ -5,6 +5,7 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import { getConditionClass } from '../../game/utils/string-utils.js';
 
 /**
  * MechanicalFailurePanel - React component for mechanical failure resolution
@@ -510,21 +511,6 @@ function getSystemAlert(failureType) {
   }
 }
 
-/**
- * Get CSS class for ship condition display based on percentage value
- *
- * @param {number} condition - The condition value (0-100 percentage)
- * @returns {string} CSS class name for styling the condition display
- */
-function getConditionClass(condition) {
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT)
-    return 'good';
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR)
-    return 'fair';
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR)
-    return 'poor';
-  return 'critical';
-}
 
 /**
  * Get action button text based on selected repair option
