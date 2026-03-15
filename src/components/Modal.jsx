@@ -42,7 +42,9 @@ export function Modal({
     if (isOpen) {
       previousFocusRef.current = document.activeElement;
     } else if (previousFocusRef.current) {
-      previousFocusRef.current.focus();
+      if (document.body.contains(previousFocusRef.current)) {
+        previousFocusRef.current.focus();
+      }
       previousFocusRef.current = null;
     }
   }, [isOpen]);
