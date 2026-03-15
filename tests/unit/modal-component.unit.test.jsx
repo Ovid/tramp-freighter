@@ -144,10 +144,13 @@ describe('Modal Component', () => {
       </>
     );
 
-    const titleElements = document.querySelectorAll('[id^="modal-title"]');
-    const ids = [...titleElements].map((el) => el.id);
-    const uniqueIds = new Set(ids);
-    expect(uniqueIds.size).toBe(ids.length);
+    const dialogs = document.querySelectorAll('[role="dialog"]');
+    expect(dialogs.length).toBe(2);
+    const labelledByIds = [...dialogs].map((d) => d.getAttribute('aria-labelledby'));
+    // Both should have aria-labelledby pointing to unique IDs
+    expect(labelledByIds[0]).toBeTruthy();
+    expect(labelledByIds[1]).toBeTruthy();
+    expect(labelledByIds[0]).not.toBe(labelledByIds[1]);
   });
 });
 
