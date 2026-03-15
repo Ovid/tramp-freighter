@@ -517,7 +517,6 @@ function getSystemAlert(failureType) {
   }
 }
 
-
 /**
  * Get action button text based on selected repair option
  *

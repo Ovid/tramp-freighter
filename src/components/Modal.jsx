@@ -52,9 +52,7 @@ export function Modal({
   // Focus first focusable element when modal opens
   useEffect(() => {
     if (!isOpen || !dialogRef.current) return;
-    const focusable = dialogRef.current.querySelectorAll(
-      FOCUSABLE_SELECTOR
-    );
+    const focusable = dialogRef.current.querySelectorAll(FOCUSABLE_SELECTOR);
     if (focusable.length > 0) {
       focusable[0].focus();
     }
@@ -78,9 +76,7 @@ export function Modal({
   const handleKeyDown = useCallback((event) => {
     if (event.key !== 'Tab' || !dialogRef.current) return;
 
-    const focusable = dialogRef.current.querySelectorAll(
-      FOCUSABLE_SELECTOR
-    );
+    const focusable = dialogRef.current.querySelectorAll(FOCUSABLE_SELECTOR);
     if (focusable.length === 0) return;
 
     const first = focusable[0];

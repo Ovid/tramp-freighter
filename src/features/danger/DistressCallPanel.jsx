@@ -455,7 +455,6 @@ function getResourceClass(resource) {
   return 'critical';
 }
 
-
 /**
  * Get karma description for display in resource impact text.
  * Provides context about the player's moral standing.

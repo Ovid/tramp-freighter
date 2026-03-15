@@ -633,7 +633,6 @@ function getCombatIntensityColor(intensity) {
   }
 }
 
-
 /**
  * Format option names from snake_case to human-readable format for button labels.
  * Converts internal action identifiers to user-facing text.

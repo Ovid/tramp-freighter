@@ -467,4 +467,3 @@ function getThreatLevelColor(threatLevel) {
       return '#ffffff'; // White - unknown threat
   }
 }
-
