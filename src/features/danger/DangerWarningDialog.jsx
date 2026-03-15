@@ -169,11 +169,27 @@ export function DangerWarningDialog({
                     </span>
                   </div>
                 )}
+                {factions?.authorities < 0 && (
+                  <div className="factor warning">
+                    <span className="factor-icon">🛡️</span>
+                    <span className="factor-text">
+                      Poor authority standing increases inspection risk
+                    </span>
+                  </div>
+                )}
                 {factions?.outlaws > 0 && (
                   <div className="factor positive">
                     <span className="factor-icon">🏴‍☠️</span>
                     <span className="factor-text">
                       Outlaw reputation may deter some pirates
+                    </span>
+                  </div>
+                )}
+                {factions?.outlaws < 0 && (
+                  <div className="factor warning">
+                    <span className="factor-icon">🏴‍☠️</span>
+                    <span className="factor-text">
+                      Poor outlaw standing increases pirate aggression
                     </span>
                   </div>
                 )}

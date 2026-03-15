@@ -378,8 +378,8 @@
 }
 
 #outcome-panel .neutral {
-  color: #ffffff;
-  border: 1px solid #ffffff;
+  color: var(--rep-neutral);
+  border: 1px solid var(--rep-neutral);
 }
 
 #outcome-panel .bad {

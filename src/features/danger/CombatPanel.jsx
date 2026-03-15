@@ -182,7 +182,9 @@ export function CombatPanel({
                 {Math.round(fuel ?? 100)}%
               </span>
               <span className="condition-impact">
-                {fuel < 25 ? 'Limited maneuvering' : 'Sufficient for combat'}
+                {fuel < COMBAT_CONFIG.DISPLAY_THRESHOLDS.LOW_FUEL
+                  ? 'Limited maneuvering'
+                  : 'Sufficient for combat'}
               </span>
             </div>
             <div className="condition-item">
@@ -193,7 +195,7 @@ export function CombatPanel({
                 {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="condition-impact">
-                {lifeSupport < 30
+                {lifeSupport < COMBAT_CONFIG.DISPLAY_THRESHOLDS.LOW_LIFE_SUPPORT
                   ? 'Emergency protocols active'
                   : 'Stable environment'}
               </span>

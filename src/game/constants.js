@@ -1260,6 +1260,11 @@ export const INSPECTION_SEVERITY_CONFIG = {
  * All modifier values are centralized here for consistency and tuning.
  */
 export const COMBAT_CONFIG = {
+  // Display thresholds for combat status panel
+  DISPLAY_THRESHOLDS: {
+    LOW_FUEL: 25, // Below this, fuel is "limited maneuvering"
+    LOW_LIFE_SUPPORT: 30, // Below this, life support triggers "emergency protocols"
+  },
   // Base success rates for combat options
   BASE_SUCCESS_RATES: {
     EVASIVE_MANEUVERS_RATE: 0.7, // 70% base success chance for evasive maneuvers
