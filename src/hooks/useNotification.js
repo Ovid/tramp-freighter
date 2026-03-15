@@ -194,6 +194,15 @@ export function useNotification() {
         }
         timerRef.current = null;
       }
+      // If a fade is already in progress (auto-dismiss started it), cancel it
+      // and remove immediately to avoid stalling the queue
+      if (fadeTimerRef.current !== null) {
+        clearTimeout(fadeTimerRef.current);
+        fadeTimerRef.current = null;
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        processQueue();
+        return;
+      }
       fadeOutAndRemove(id, () => processQueue());
     },
     [fadeOutAndRemove, processQueue]
