@@ -79,7 +79,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee negotiation"
       >
         ×
       </button>

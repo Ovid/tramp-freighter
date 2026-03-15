@@ -104,7 +104,7 @@ export function CombatPanel({
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee combat"
       >
         ×
       </button>

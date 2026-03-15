@@ -75,7 +75,7 @@ export function DistressCallPanel({
       <button
         className="close-btn"
         onClick={() => onChoice('ignore')}
-        aria-label="Close"
+        aria-label="Ignore distress call"
       >
         ×
       </button>
