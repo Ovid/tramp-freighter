@@ -18,6 +18,7 @@ export function useNotification() {
   const nextIdRef = useRef(0);
   // Tracks the active auto-dismiss timer: { timeoutId, startTime, remaining, notificationId }
   const timerRef = useRef(null);
+  const fadeTimerRef = useRef(null);
 
   /**
    * Fade out a notification and remove it, then process the next queued item.
@@ -26,7 +27,8 @@ export function useNotification() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, fadeOut: true } : n))
     );
-    setTimeout(() => {
+    fadeTimerRef.current = setTimeout(() => {
+      fadeTimerRef.current = null;
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       afterRemove();
     }, NOTIFICATION_CONFIG.FADE_DURATION);
@@ -206,6 +208,10 @@ export function useNotification() {
       clearTimeout(timerRef.current.timeoutId);
     }
     timerRef.current = null;
+    if (fadeTimerRef.current !== null) {
+      clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
     queueRef.current = [];
     isShowingRef.current = false;
     setNotifications([]);
