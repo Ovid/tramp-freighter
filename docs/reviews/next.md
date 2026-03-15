@@ -84,9 +84,9 @@ Source: `docs/reviews/a11y-2026-03-14-14-02-30.md`
 - **[D4]** Disabled buttons `opacity: 0.5` — All `:disabled` selectors are on elements that have the semantic HTML `disabled` attribute. Screen readers convey disabled state. Not a barrier.
 - **[D5]** Color-only status scales — All status scales include text labels (Good/Fair/Poor/Critical, safe/contested/dangerous). Color is supplemental. Not a barrier.
 - **[D13]** Mission urgency border color — "Xd remaining" and "EXPIRED" text conveys urgency. Border color is supplemental. Not a barrier.
+- **[E2]** Jump animation unskippable (3-5s) — Brief smooth camera pan and linear ship movement. WCAG 2.2.1 has an essential-timing exception. Motion concerns already addressed by E3/E4 reduced-motion fixes. Not a barrier.
 
 ## Deferred (not quick fixes)
 
-- **[E2]** Jump animation unskippable (3-5s) — Animation system uses 3-phase async with encounter callback timing. Adding skip support would need careful handling to avoid buffered encounters getting stuck. Brief duration (3-5s).
 - **[D7]** `body { overflow: hidden }` clips at high zoom — Intentional for fullscreen game. Removing would break layout.
 - **[F2]** Help/Instructions nested in settings — Requires significant UI change to relocate.
