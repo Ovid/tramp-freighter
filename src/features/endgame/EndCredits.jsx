@@ -25,7 +25,7 @@ export function EndCredits({ onCreditsComplete }) {
 
   const handleTogglePause = useCallback(() => {
     const anim = animationRef.current;
-    if (!anim) return;
+    if (!anim || anim.playState === 'finished') return;
     if (pausedRef.current) {
       anim.play();
       pausedRef.current = false;
@@ -38,8 +38,8 @@ export function EndCredits({ onCreditsComplete }) {
   }, []);
 
   useEffect(() => {
+    if (scrollFinished) return;
     const handleKeyDown = (e) => {
-      if (scrollFinished) return;
       if (e.key === 'Escape') handleSkip();
       // Only handle Space when focus is NOT on an interactive control,
       // so that button activation via Space still works normally.
