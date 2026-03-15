@@ -160,7 +160,7 @@ export default function App({ devMode = false }) {
         }
         case VIEW_MODES.PAVONIS_RUN:
         case VIEW_MODES.EPILOGUE: {
-          const container = document.querySelector('.pavonis-run, .epilogue');
+          const container = document.querySelector('#pavonis-run, #epilogue');
           if (container) {
             container.setAttribute('tabindex', '-1');
             container.focus();
