@@ -166,8 +166,8 @@ describe('MechanicalFailurePanel', () => {
     expect(screen.queryByText('Emergency Restart')).toBeNull();
   });
 
-  // 8. Hull breach Acknowledge calls onClose
-  it('hull breach Acknowledge calls onClose', () => {
+  // 8. Hull breach Acknowledge calls onChoice to route through encounter resolution
+  it('hull breach Acknowledge calls onChoice with acknowledge', () => {
     render(
       <MechanicalFailurePanel
         failure={makeFailure('hull_breach')}
@@ -177,7 +177,7 @@ describe('MechanicalFailurePanel', () => {
     );
 
     fireEvent.click(screen.getByText('Acknowledge'));
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onChoice).toHaveBeenCalledWith('acknowledge');
   });
 
   // 9. Life support renders info panel with Acknowledge button
