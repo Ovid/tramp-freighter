@@ -509,12 +509,12 @@ function getReputationClass(reputation = 0) {
  * @returns {string} Reputation tier name
  */
 function getReputationTier(reputation = 0) {
-  if (reputation >= 90) return 'Family';
-  if (reputation >= 60) return 'Trusted';
-  if (reputation >= 30) return 'Friendly';
-  if (reputation >= 10) return 'Warm';
-  if (reputation >= -10) return 'Neutral';
-  if (reputation >= -50) return 'Cold';
+  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Family';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Cold';
   return 'Hostile';
 }
 

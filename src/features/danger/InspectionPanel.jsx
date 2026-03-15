@@ -3,7 +3,11 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGame } from '../../context/GameContext.jsx';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
 import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
-import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  INSPECTION_CONFIG,
+  EVENT_NAMES,
+  REPUTATION_BOUNDS,
+} from '../../game/constants.js';
 
 /**
  * InspectionPanel - React component for customs inspection resolution
@@ -417,11 +421,11 @@ function getSecurityLevelName(securityLevel) {
  * @returns {string} CSS class name
  */
 function getReputationClass(reputation = 0) {
-  if (reputation >= 60) return 'trusted';
-  if (reputation >= 30) return 'friendly';
-  if (reputation >= 10) return 'warm';
-  if (reputation >= -10) return 'neutral';
-  if (reputation >= -50) return 'cold';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
 }
 
@@ -432,11 +436,11 @@ function getReputationClass(reputation = 0) {
  * @returns {string} Reputation tier name
  */
 function getReputationTier(reputation = 0) {
-  if (reputation >= 90) return 'Exemplary';
-  if (reputation >= 60) return 'Trusted';
-  if (reputation >= 30) return 'Respected';
-  if (reputation >= 10) return 'Good Standing';
-  if (reputation >= -10) return 'Neutral';
-  if (reputation >= -50) return 'Suspicious';
+  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Exemplary';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Respected';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Good Standing';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Suspicious';
   return 'Wanted';
 }
