@@ -257,7 +257,7 @@
   color: var(--color-danger);
 }
 
-.resource-value.saint {
+.resource-value.very-good {
   color: var(--color-cyan);
   text-shadow: 0 0 var(--grid-gap-small) var(--color-cyan);
 }
@@ -274,7 +274,7 @@
   color: var(--color-danger);
 }
 
-.resource-value.villain {
+.resource-value.very-bad {
   color: var(--color-critical);
   text-shadow: var(--shadow-text-critical);
 }

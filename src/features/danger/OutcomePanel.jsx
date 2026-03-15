@@ -3,9 +3,9 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   FACTION_CONFIG,
   EVENT_NAMES,
-  KARMA_CONFIG,
   REPUTATION_BOUNDS,
 } from '../../game/constants.js';
+import { getKarmaClass } from './dangerDisplayUtils';
 
 /**
  * OutcomePanel - React component for displaying encounter outcomes
@@ -210,7 +210,7 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
                               factions[faction]
                             )}`}
                           >
-                            {factions[faction]}
+                            {factions[faction] ?? 0}
                           </span>
                         </div>
                       ))}
@@ -393,20 +393,6 @@ function formatFactionName(faction) {
     default:
       return faction.charAt(0).toUpperCase() + faction.slice(1);
   }
-}
-
-/**
- * Get CSS class for karma value display
- *
- * @param {number} karma - The karma value
- * @returns {string} CSS class name
- */
-function getKarmaClass(karma = 0) {
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.SAINT) return 'very-good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.GOOD) return 'good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.BAD) return 'neutral';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.VILLAIN) return 'bad';
-  return 'very-bad';
 }
 
 /**

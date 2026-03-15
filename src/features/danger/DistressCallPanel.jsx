@@ -7,6 +7,7 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import { getKarmaClass } from './dangerDisplayUtils';
 
 /**
  * DistressCallPanel - React component for distress call moral choice resolution
@@ -454,21 +455,6 @@ function getResourceClass(resource) {
   return 'critical';
 }
 
-/**
- * Get CSS class for karma display based on moral alignment value.
- * Reflects the player's moral standing and affects NPC interactions.
- *
- * @param {number} karma - Current karma value (-100 to +100)
- * @returns {string} CSS class name for karma display styling
- */
-function getKarmaClass(karma) {
-  const thresholds = KARMA_CONFIG.DISPLAY_THRESHOLDS;
-  if (karma >= thresholds.SAINT) return 'saint';
-  if (karma >= thresholds.GOOD) return 'good';
-  if (karma >= thresholds.BAD) return 'neutral';
-  if (karma >= thresholds.VILLAIN) return 'bad';
-  return 'villain';
-}
 
 /**
  * Get karma description for display in resource impact text.

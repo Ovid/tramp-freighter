@@ -1,6 +1,7 @@
 const BASE_TITLE = 'Tramp Freighter Blues';
 
 const VIEW_MODE_TITLES = {
+  SHIP_NAMING: 'Name Your Ship',
   ORBIT: 'Starmap',
   STATION: 'Station',
   ENCOUNTER: 'Encounter',

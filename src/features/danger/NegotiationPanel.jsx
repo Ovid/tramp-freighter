@@ -8,6 +8,7 @@ import {
   BASE_PRICES,
   REPUTATION_BOUNDS,
 } from '../../game/constants.js';
+import { getKarmaClass } from './dangerDisplayUtils';
 
 /**
  * NegotiationPanel - React component for pirate negotiation resolution
@@ -477,20 +478,6 @@ function calculateCargoValue(cargo) {
  */
 function getEstimatedPrice(good) {
   return BASE_PRICES[good] || 20;
-}
-
-/**
- * Get CSS class for karma display based on value
- *
- * @param {number} karma - Current karma value
- * @returns {string} CSS class name
- */
-function getKarmaClass(karma = 0) {
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.SAINT) return 'very-good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.GOOD) return 'good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.BAD) return 'neutral';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.VILLAIN) return 'bad';
-  return 'very-bad';
 }
 
 /**

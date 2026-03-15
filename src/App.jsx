@@ -384,9 +384,12 @@ export default function App({ devMode = false }) {
   return (
     <ErrorBoundary>
       <div className="app-container">
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
+        {viewMode !== VIEW_MODES.TITLE &&
+          viewMode !== VIEW_MODES.SHIP_NAMING && (
+            <a href="#main-content" className="skip-link">
+              Skip to main content
+            </a>
+          )}
 
         {/* Title screen displayed on initial load */}
         {viewMode === VIEW_MODES.TITLE && (
