@@ -7,7 +7,7 @@ import { useStarmap } from '../../context/StarmapContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { useClickOutside } from '../../hooks/useClickOutside';
-import { EVENT_NAMES, calculateDistanceFromSol } from '../../game/constants';
+import { EVENT_NAMES } from '../../game/constants';
 
 export function CameraControls({
   cameraState,
@@ -35,9 +35,7 @@ export function CameraControls({
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];
-    return [...starData].sort(
-      (a, b) => calculateDistanceFromSol(a) - calculateDistanceFromSol(b)
-    );
+    return [...starData].sort((a, b) => a.name.localeCompare(b.name));
   }, [starData]);
 
   const collapseSettings = useCallback(() => setIsExpanded(false), []);
