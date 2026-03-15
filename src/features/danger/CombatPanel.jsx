@@ -94,7 +94,13 @@ export function CombatPanel({
   const intensityColor = getCombatIntensityColor(intensity);
 
   return (
-    <div id="combat-panel" className="panel-base visible">
+    <div
+      id="combat-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="combat-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
@@ -102,7 +108,7 @@ export function CombatPanel({
       >
         ×
       </button>
-      <h2>Combat Resolution</h2>
+      <h2 id="combat-panel-title">Combat Resolution</h2>
 
       <div className="combat-content">
         {/* Flee failed alert — shown when evasion was attempted and failed */}

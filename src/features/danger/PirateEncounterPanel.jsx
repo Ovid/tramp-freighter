@@ -96,7 +96,13 @@ export function PirateEncounterPanel({
   const threatColor = getThreatLevelColor(threatLevel);
 
   return (
-    <div id="pirate-encounter-panel" className="panel-base visible">
+    <div
+      id="pirate-encounter-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pirate-encounter-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
@@ -104,7 +110,7 @@ export function PirateEncounterPanel({
       >
         ×
       </button>
-      <h2>Pirate Encounter</h2>
+      <h2 id="pirate-encounter-title">Pirate Encounter</h2>
 
       <div className="encounter-content">
         {/* Threat Assessment Section */}

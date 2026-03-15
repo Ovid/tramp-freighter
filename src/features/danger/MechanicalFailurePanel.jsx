@@ -50,11 +50,17 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
   const severityColor = getFailureSeverityColor(severity);
 
   return (
-    <div id="mechanical-failure-panel" className="panel-base visible">
+    <div
+      id="mechanical-failure-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mechanical-failure-title"
+    >
       <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      <h2>Mechanical Failure</h2>
+      <h2 id="mechanical-failure-title">Mechanical Failure</h2>
 
       <div className="failure-content">
         {/* Failure Status Section */}

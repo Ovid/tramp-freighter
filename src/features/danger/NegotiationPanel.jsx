@@ -68,7 +68,13 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
     `The pirates are demanding ${demandPercent}% of your cargo as tribute.`;
 
   return (
-    <div id="negotiation-panel" className="panel-base visible">
+    <div
+      id="negotiation-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="negotiation-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
@@ -76,7 +82,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
       >
         ×
       </button>
-      <h2>Negotiation</h2>
+      <h2 id="negotiation-panel-title">Negotiation</h2>
 
       <div className="negotiation-content">
         {/* Negotiation Context Section */}

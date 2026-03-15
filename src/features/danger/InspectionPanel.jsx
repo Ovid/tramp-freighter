@@ -55,7 +55,13 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   const severityColor = getInspectionSeverityColor(severity);
 
   return (
-    <div id="inspection-panel" className="panel-base visible">
+    <div
+      id="inspection-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="inspection-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
@@ -63,7 +69,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
       >
         ×
       </button>
-      <h2>Customs Inspection</h2>
+      <h2 id="inspection-panel-title">Customs Inspection</h2>
 
       <div className="inspection-content">
         {/* Inspection Status Section */}

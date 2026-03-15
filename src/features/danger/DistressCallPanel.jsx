@@ -64,7 +64,13 @@ export function DistressCallPanel({
   const severityColor = getDistressSeverityColor(severity);
 
   return (
-    <div id="distress-call-panel" className="panel-base visible">
+    <div
+      id="distress-call-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="distress-call-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('ignore')}
@@ -72,7 +78,7 @@ export function DistressCallPanel({
       >
         ×
       </button>
-      <h2>Distress Call</h2>
+      <h2 id="distress-call-title">Distress Call</h2>
 
       <div className="distress-content">
         {/* Distress Call Information Section */}

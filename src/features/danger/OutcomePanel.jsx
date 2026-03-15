@@ -55,11 +55,17 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
   };
 
   return (
-    <div id="outcome-panel" className="panel-base visible">
+    <div
+      id="outcome-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="outcome-panel-title"
+    >
       <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      <h2>Encounter Outcome</h2>
+      <h2 id="outcome-panel-title">Encounter Outcome</h2>
 
       <div className="outcome-content">
         {/* Outcome Summary Section */}
