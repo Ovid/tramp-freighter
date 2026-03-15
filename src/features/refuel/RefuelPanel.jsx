@@ -203,7 +203,7 @@ export function RefuelPanel({ onClose }) {
           </div>
 
           {validationMessage && (
-            <div className={validationClass} role="status">
+            <div className={validationClass} role="alert">
               {validationMessage}
             </div>
           )}

@@ -8,6 +8,7 @@ import {
   EVENT_NAMES,
   REPUTATION_BOUNDS,
 } from '../../game/constants.js';
+import { getReputationTier } from './dangerDisplayUtils';
 
 /**
  * InspectionPanel - React component for customs inspection resolution
@@ -185,7 +186,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
               <span
                 className={`summary-value ${getReputationClass(factions?.authorities)}`}
               >
-                {getReputationTier(factions?.authorities || 0)}
+                {getReputationTier(factions?.authorities || 0, 'authority')}
               </span>
             </div>
           </div>
@@ -435,18 +436,3 @@ function getReputationClass(reputation = 0) {
   return 'hostile';
 }
 
-/**
- * Get reputation tier name for display
- *
- * @param {number} reputation - Current reputation value
- * @returns {string} Reputation tier name
- */
-function getReputationTier(reputation = 0) {
-  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Exemplary';
-  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
-  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Respected';
-  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Good Standing';
-  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
-  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Suspicious';
-  return 'Wanted';
-}

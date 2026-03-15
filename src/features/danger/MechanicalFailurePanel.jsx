@@ -99,7 +99,8 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="status-impact">
-                {hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
+                {(hull ?? 100) <
+                SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
                   ? 'Structural weakness detected'
                   : 'Hull stable'}
               </span>
@@ -110,7 +111,8 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(engine ?? 100)}%
               </span>
               <span className="status-impact">
-                {engine < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE
+                {(engine ?? 100) <
+                SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE
                   ? 'Critical engine condition'
                   : 'Engine operational'}
               </span>
@@ -123,7 +125,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="status-impact">
-                {lifeSupport <
+                {(lifeSupport ?? 100) <
                 SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
                   ? 'Life support failing'
                   : 'Environment stable'}

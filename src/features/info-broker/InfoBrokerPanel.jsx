@@ -86,7 +86,11 @@ export function InfoBrokerPanel({ onClose }) {
 
   const sortedIntelligence = sortIntelligenceByPriority(intelligenceOptions);
 
+  const purchasingRef = useRef(false);
+
   const handleBuyRumor = () => {
+    if (purchasingRef.current) return;
+
     const rumorCost = INTELLIGENCE_CONFIG.PRICES.RUMOR;
     const discountedRumorCost = calculateDiscountedRumorCost(
       bestDiscount.discount
@@ -98,11 +102,7 @@ export function InfoBrokerPanel({ onClose }) {
 
     // Override validation for discounted cost if applicable
     let finalValidation = validation;
-    if (
-      bestDiscount.discount > 0 &&
-      !validation.valid &&
-      validation.reason.includes('Insufficient credits')
-    ) {
+    if (bestDiscount.discount > 0 && !validation.valid) {
       finalValidation = validateIntelligencePurchase(finalRumorCost, credits);
     }
 
@@ -111,6 +111,12 @@ export function InfoBrokerPanel({ onClose }) {
       setValidationClass('error');
       return;
     }
+
+    // Guard against stale closure from rapid double-click
+    purchasingRef.current = true;
+    requestAnimationFrame(() => {
+      purchasingRef.current = false;
+    });
 
     // Deduct credits
     updateCredits(credits - finalRumorCost);
@@ -242,7 +248,9 @@ export function InfoBrokerPanel({ onClose }) {
                 {capitalizeFirst(commodity)}
               </span>
               <span className="market-data-price">
-                ₡{knowledge.prices[commodity]}
+                {knowledge.prices[commodity] != null
+                  ? `₡${knowledge.prices[commodity]}`
+                  : '—'}
               </span>
             </div>
           ))}

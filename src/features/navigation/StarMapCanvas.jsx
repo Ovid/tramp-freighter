@@ -23,6 +23,7 @@ import {
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
   updateSelectionRingAnimations,
+  _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
 import { updateLabelScale } from '../../game/engine/stars';
 import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
@@ -381,6 +382,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
             }
           });
         }
+
+        // Reset module-level interaction state to avoid disposed material on remount
+        resetInteractionState();
 
         // Clear scene reference
         sceneRef.current = null;

@@ -274,7 +274,7 @@ export function TradePanel({ onClose }) {
                     </div>
 
                     {!validation.valid && (
-                      <div className="validation-message error" role="status">
+                      <div className="validation-message error" role="alert">
                         {validation.reason}
                       </div>
                     )}
@@ -317,14 +317,12 @@ export function TradePanel({ onClose }) {
                   const purchaseSystem = starData.find(
                     (s) => s.id === stack.buySystem
                   );
-                  if (!purchaseSystem) {
-                    throw new Error(
-                      `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
-                    );
-                  }
 
                   const ageText = formatCargoAge(currentDay, stack.buyDate);
-                  detailsText += ` in ${purchaseSystem.name} (${ageText})`;
+                  const systemName = purchaseSystem
+                    ? purchaseSystem.name
+                    : 'Unknown System';
+                  detailsText += ` in ${systemName} (${ageText})`;
                 }
 
                 let profitText = '';

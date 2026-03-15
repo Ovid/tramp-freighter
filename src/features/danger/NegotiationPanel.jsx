@@ -8,7 +8,7 @@ import {
   BASE_PRICES,
   REPUTATION_BOUNDS,
 } from '../../game/constants.js';
-import { getKarmaClass } from './dangerDisplayUtils';
+import { getKarmaClass, getReputationTier } from './dangerDisplayUtils';
 
 /**
  * NegotiationPanel - React component for pirate negotiation resolution
@@ -409,7 +409,7 @@ function calculateNegotiationProbabilities(
   _intelligence = {}
 ) {
   // Calculate karma modifier
-  const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE || 0.0005);
+  const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE ?? 0.0005);
 
   // Counter-proposal analysis
   const counterProposalModifiers = [];
@@ -493,22 +493,6 @@ function getReputationClass(reputation = 0) {
   if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
   if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
-}
-
-/**
- * Get reputation tier name for display
- *
- * @param {number} reputation - Current reputation value
- * @returns {string} Reputation tier name
- */
-function getReputationTier(reputation = 0) {
-  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Family';
-  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
-  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Friendly';
-  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Warm';
-  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
-  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Cold';
-  return 'Hostile';
 }
 
 /**

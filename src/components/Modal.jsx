@@ -91,16 +91,20 @@ export function Modal({
     }
   }, []);
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll when modal is open (reference-counted for nested modals)
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (!isOpen) return;
+
+    if (!Modal._overflowCount) Modal._overflowCount = 0;
+    Modal._overflowCount++;
+    document.body.style.overflow = 'hidden';
 
     return () => {
-      document.body.style.overflow = '';
+      Modal._overflowCount--;
+      if (Modal._overflowCount <= 0) {
+        Modal._overflowCount = 0;
+        document.body.style.overflow = '';
+      }
     };
   }, [isOpen]);
 
