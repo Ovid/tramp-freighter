@@ -106,7 +106,6 @@ export function Modal({
   if (!isOpen) return null;
 
   const modalContent = (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div className="modal-overlay" onClick={onClose} onKeyDown={handleKeyDown}>
       <div
         ref={dialogRef}
