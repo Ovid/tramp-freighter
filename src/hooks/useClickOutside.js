@@ -23,6 +23,7 @@ export function useClickOutside(ref, onClose, enabled = true) {
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
+        if (document.querySelector('.modal-overlay')) return;
         onCloseRef.current();
       }
     };
