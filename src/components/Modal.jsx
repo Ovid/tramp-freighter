@@ -9,6 +9,9 @@
 import React, { useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * Modal component that renders content in a portal.
  *
@@ -48,7 +51,7 @@ export function Modal({
   useEffect(() => {
     if (!isOpen || !dialogRef.current) return;
     const focusable = dialogRef.current.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      FOCUSABLE_SELECTOR
     );
     if (focusable.length > 0) {
       focusable[0].focus();
@@ -74,7 +77,7 @@ export function Modal({
     if (event.key !== 'Tab' || !dialogRef.current) return;
 
     const focusable = dialogRef.current.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      FOCUSABLE_SELECTOR
     );
     if (focusable.length === 0) return;
 
