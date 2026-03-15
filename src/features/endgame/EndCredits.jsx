@@ -39,15 +39,25 @@ export function EndCredits({ onCreditsComplete }) {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (scrollFinished) return;
       if (e.key === 'Escape') handleSkip();
-      if (e.key === ' ') {
+      // Only handle Space when focus is NOT on an interactive control,
+      // so that button activation via Space still works normally.
+      const tag = e.target?.tagName?.toLowerCase();
+      if (
+        e.key === ' ' &&
+        tag !== 'button' &&
+        tag !== 'input' &&
+        tag !== 'select' &&
+        tag !== 'textarea'
+      ) {
         e.preventDefault();
         handleTogglePause();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSkip, handleTogglePause]);
+  }, [handleSkip, handleTogglePause, scrollFinished]);
 
   useEffect(() => {
     const el = scrollRef.current;
