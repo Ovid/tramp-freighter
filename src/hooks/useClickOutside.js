@@ -24,14 +24,19 @@ export function useClickOutside(ref, onClose, enabled = true) {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         if (document.querySelector('.modal-overlay')) return;
-        // Don't close if another panel is open (mirrors mousedown data-panel guard)
+        // If focus is inside this panel, always allow close
+        if (ref.current?.contains(document.activeElement)) {
+          onCloseRef.current();
+          return;
+        }
+        // Otherwise, only close if no other panels are in the DOM
         const panels = document.querySelectorAll(
           '[data-panel]:not(#camera-controls)'
         );
-        for (const panel of panels) {
-          if (panel !== ref.current) return;
+        const hasOtherPanel = [...panels].some((p) => p !== ref.current);
+        if (!hasOtherPanel) {
+          onCloseRef.current();
         }
-        onCloseRef.current();
       }
     };
 
