@@ -392,6 +392,32 @@
   border: 1px solid #ff6b6b;
 }
 
+/* Reputation Tier Colors (scoped to outcome panel) */
+#outcome-panel .trusted {
+  color: var(--rep-trusted);
+  border: 1px solid var(--rep-trusted);
+}
+
+#outcome-panel .friendly {
+  color: var(--rep-friendly);
+  border: 1px solid var(--rep-friendly);
+}
+
+#outcome-panel .warm {
+  color: var(--rep-warm);
+  border: 1px solid var(--rep-warm);
+}
+
+#outcome-panel .cold {
+  color: var(--rep-cold);
+  border: 1px solid var(--rep-cold);
+}
+
+#outcome-panel .hostile {
+  color: var(--rep-hostile);
+  border: 1px solid var(--rep-hostile);
+}
+
 /* Additional Effects Section */
 .additional-effects {
   background-color: rgba(102, 204, 255, 0.05);

@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { FACTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  FACTION_CONFIG,
+  EVENT_NAMES,
+  KARMA_CONFIG,
+  REPUTATION_BOUNDS,
+} from '../../game/constants.js';
 
 /**
  * OutcomePanel - React component for displaying encounter outcomes
@@ -390,11 +395,11 @@ function formatFactionName(faction) {
  * @param {number} karma - The karma value
  * @returns {string} CSS class name
  */
-function getKarmaClass(karma) {
-  if (karma >= 50) return 'very-good';
-  if (karma >= 25) return 'good';
-  if (karma >= -25) return 'neutral';
-  if (karma >= -50) return 'bad';
+function getKarmaClass(karma = 0) {
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.SAINT) return 'very-good';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.GOOD) return 'good';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.BAD) return 'neutral';
+  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.VILLAIN) return 'bad';
   return 'very-bad';
 }
 
@@ -404,10 +409,11 @@ function getKarmaClass(karma) {
  * @param {number} reputation - The reputation value
  * @returns {string} CSS class name
  */
-function getReputationClass(reputation) {
-  if (reputation >= 50) return 'very-good';
-  if (reputation >= 25) return 'good';
-  if (reputation >= -25) return 'neutral';
-  if (reputation >= -50) return 'bad';
-  return 'very-bad';
+function getReputationClass(reputation = 0) {
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
+  return 'hostile';
 }
