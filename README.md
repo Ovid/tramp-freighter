@@ -59,7 +59,7 @@ You're a broke freighter captain hauling cargo through wormhole networks, dodgin
 
 ## Try It
 
-*Online version coming soon.*
+[Tramp Freighter Blues](https://curtispoe.org/paad/tramp-freighter/).
 
 To run locally:
 
