@@ -120,6 +120,35 @@ describe('Modal Component', () => {
 
     expect(document.body.style.overflow).toBe('');
   });
+
+  it('should show close button even when no title is provided', () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}} showCloseButton={true}>
+        <p>Content without title</p>
+      </Modal>
+    );
+
+    const closeButton = screen.getByRole('button', { name: /close modal/i });
+    expect(closeButton).toBeInTheDocument();
+  });
+
+  it('should use unique modal-title IDs when multiple modals render', () => {
+    render(
+      <>
+        <Modal isOpen={true} onClose={() => {}} title="First Modal">
+          <p>First</p>
+        </Modal>
+        <Modal isOpen={true} onClose={() => {}} title="Second Modal">
+          <p>Second</p>
+        </Modal>
+      </>
+    );
+
+    const titleElements = document.querySelectorAll('[id^="modal-title"]');
+    const ids = [...titleElements].map((el) => el.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length);
+  });
 });
 
 /**

@@ -48,9 +48,28 @@ canvas {
   height: 100%;
 }
 
+/* Skip link — visible only on focus for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--bg-panel);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-normal);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 /* Replace default browser focus ring with game-themed outline */
 button:focus-visible {
-  outline: 1px solid var(--color-primary);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -58,9 +77,34 @@ button:focus:not(:focus-visible) {
   outline: none;
 }
 
+/* Respect OS-level reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Antimatter Mode - inverts all colors */
 html.antimatter {
   filter: invert(1);
+}
+
+/* Reset button defaults for encounter option buttons */
+button.combat-option,
+button.tactical-option,
+button.negotiation-option,
+button.inspection-option,
+button.moral-choice,
+button.repair-option {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  appearance: none;
 }
 
 /* Panel Container - minimal wrapper for React panels */

@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useCallback,
   forwardRef,
   useImperativeHandle,
 } from 'react';
@@ -29,6 +30,7 @@ import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { CameraControls } from './CameraControls';
+import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 
 /**
  * StarMapCanvas component wraps the Three.js starmap rendering.
@@ -47,7 +49,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const sceneRef = useRef(null);
   const game = useGame();
   const starData = useStarData();
-  const [autoRotationEnabled, setAutoRotationEnabled] = useState(true);
+  const [autoRotationEnabled, setAutoRotationEnabled] = useState(
+    () => !prefersReducedMotion()
+  );
   const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
@@ -117,6 +121,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       lights,
       animationFrameId,
       animationSystem;
+
+    // Check once at init time — user can still toggle auto-rotation manually
+    const reducedMotion = prefersReducedMotion();
 
     try {
       // Initialize Three.js scene once
@@ -281,8 +288,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         // Update label scale and opacity based on camera distance
         updateLabelScale(stars, camera);
 
-        // Update selection ring animations
-        updateSelectionRingAnimations(currentTime);
+        // Update selection ring animations (static in reduced-motion mode)
+        updateSelectionRingAnimations(currentTime, reducedMotion);
 
         // Orient selection rings to face camera
         const selectedStar = getSelectedStar();
@@ -406,9 +413,63 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }
   };
 
+  // Keyboard camera controls: arrow keys rotate, +/- zoom
+  const handleKeyDown = useCallback((event) => {
+    if (!sceneRef.current) return;
+    const { camera, controls } = sceneRef.current;
+
+    const step = VISUAL_CONFIG.keyboardRotationStep * (Math.PI / 180);
+
+    switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        event.preventDefault();
+        const offset = new THREE.Vector3().subVectors(
+          camera.position,
+          controls.target
+        );
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+
+        if (event.key === 'ArrowLeft') {
+          spherical.theta -= step;
+        } else if (event.key === 'ArrowRight') {
+          spherical.theta += step;
+        } else if (event.key === 'ArrowUp') {
+          spherical.phi = Math.max(0.1, spherical.phi - step);
+        } else if (event.key === 'ArrowDown') {
+          spherical.phi = Math.min(Math.PI - 0.1, spherical.phi + step);
+        }
+
+        offset.setFromSpherical(spherical);
+        camera.position.copy(controls.target).add(offset);
+        controls.update();
+        break;
+      }
+      case '+':
+      case '=':
+        event.preventDefault();
+        zoomIn(camera, controls);
+        break;
+      case '-':
+      case '_':
+        event.preventDefault();
+        zoomOut(camera, controls);
+        break;
+    }
+  }, []);
+
   return (
     <>
-      <div ref={containerRef} className="starmap-container" />
+      <div
+        ref={containerRef}
+        className="starmap-container"
+        tabIndex={0}
+        role="application"
+        aria-label="3D Star Map — use arrow keys to rotate, plus and minus to zoom"
+        onKeyDown={handleKeyDown}
+      />
       <CameraControls
         cameraState={{ autoRotationEnabled, boundaryVisible }}
         onZoomIn={handleZoomIn}

@@ -71,7 +71,7 @@ export function NarrativeEventPanel({ event, onClose }) {
   const { content } = currentEvent;
 
   return (
-    <div id="narrative-event-panel" className="visible" data-panel>
+    <div id="narrative-event-panel" className="visible" data-panel role="dialog" aria-modal="true" aria-label="Narrative event">
       {content.speaker && (
         <div className="event-speaker">{content.speaker}</div>
       )}

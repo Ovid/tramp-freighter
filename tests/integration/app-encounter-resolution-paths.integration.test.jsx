@@ -321,11 +321,11 @@ describe('Combat and Negotiation Resolution Paths', () => {
       expect(screen.getByText('Pirate Encounter')).toBeInTheDocument();
     });
 
-    // Negotiate option should be disabled (has aria-disabled)
+    // Negotiate option should be disabled (native disabled attribute)
     const negotiateOption = screen
       .getByText('Negotiate')
       .closest('.tactical-option');
-    expect(negotiateOption).toHaveAttribute('aria-disabled', 'true');
+    expect(negotiateOption).toBeDisabled();
 
     // The "They're done talking." message should be visible
     expect(screen.getByText("They're done talking.")).toBeInTheDocument();

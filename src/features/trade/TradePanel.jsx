@@ -273,13 +273,14 @@ export function TradePanel({ onClose }) {
                       </button>
                     </div>
 
-                    <div
-                      className={`validation-message ${
-                        !validation.valid ? 'error' : ''
-                      }`}
-                    >
-                      {!validation.valid && validation.reason}
-                    </div>
+                    {!validation.valid && (
+                      <div
+                        className="validation-message error"
+                        role="status"
+                      >
+                        {validation.reason}
+                      </div>
+                    )}
                   </div>
                 );
               });
@@ -408,6 +409,8 @@ export function TradePanel({ onClose }) {
                 id="toggle-hidden-cargo-btn"
                 className="toggle-hidden-cargo-btn"
                 onClick={() => setHiddenCargoCollapsed(!hiddenCargoCollapsed)}
+                aria-expanded={!hiddenCargoCollapsed}
+                aria-controls="hidden-cargo-content"
               >
                 {hiddenCargoCollapsed ? 'Show' : 'Hide'}
               </button>

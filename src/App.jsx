@@ -21,6 +21,7 @@ import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
 import { useEncounterOrchestration } from './hooks/useEncounterOrchestration';
 import { EVENT_NAMES, ENDGAME_CONFIG } from './game/constants.js';
+import { getPageTitle } from './game/utils/page-title.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
@@ -88,6 +89,7 @@ export default function App({ devMode = false }) {
   } = useEncounterOrchestration(game, notificationCtx, encounterEvent);
 
   const starmapRef = useRef(null);
+  const mainRef = useRef(null);
 
   const [viewMode, setViewMode] = useState(VIEW_MODES.TITLE);
   const [activePanel, setActivePanel] = useState(null);
@@ -125,6 +127,57 @@ export default function App({ devMode = false }) {
       notificationCtx.showError(saveFailedEvent.message);
     }
   }, [saveFailedEvent, notificationCtx]);
+
+  // Move focus to the appropriate element when the view mode changes.
+  // This ensures keyboard users maintain context across transitions.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      switch (viewMode) {
+        case VIEW_MODES.TITLE: {
+          const btn = document.querySelector('.menu-btn');
+          if (btn) btn.focus();
+          break;
+        }
+        case VIEW_MODES.ORBIT: {
+          if (mainRef.current) mainRef.current.focus();
+          break;
+        }
+        case VIEW_MODES.STATION: {
+          const heading = document.querySelector('#station-interface h2');
+          if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus();
+          }
+          break;
+        }
+        case VIEW_MODES.ENCOUNTER: {
+          const panel = document.querySelector('.panel-base.visible');
+          if (panel) {
+            const btn = panel.querySelector('button');
+            if (btn) btn.focus();
+          }
+          break;
+        }
+        case VIEW_MODES.PAVONIS_RUN:
+        case VIEW_MODES.EPILOGUE: {
+          const container = document.querySelector(
+            '.pavonis-run, .epilogue'
+          );
+          if (container) {
+            container.setAttribute('tabindex', '-1');
+            container.focus();
+          }
+          break;
+        }
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [viewMode]);
+
+  // Update page title when view mode changes (a11y: WCAG 2.4.2)
+  useEffect(() => {
+    document.title = getPageTitle(viewMode);
+  }, [viewMode]);
 
   // Exotic matter scanner feedback during docking
   useEffect(() => {
@@ -333,6 +386,10 @@ export default function App({ devMode = false }) {
   return (
     <ErrorBoundary>
       <div className="app-container">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+
         {/* Title screen displayed on initial load */}
         {viewMode === VIEW_MODES.TITLE && (
           <TitleScreen onStartGame={handleStartGame} />
@@ -360,11 +417,14 @@ export default function App({ devMode = false }) {
               </ErrorBoundary>
 
               {/* HUD is always rendered */}
-              <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              <nav aria-label="Game HUD">
+                <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+              </nav>
               <RumorAlert />
               <AchievementToast />
               <NotificationContainer />
 
+              <main id="main-content" ref={mainRef} tabIndex={-1}>
               {/* Station menu displayed when docked */}
               {viewMode === VIEW_MODES.STATION && (
                 <>
@@ -397,6 +457,7 @@ export default function App({ devMode = false }) {
                   id="dev-admin-btn"
                   onClick={handleOpenDevAdmin}
                   style={{ display: 'flex' }}
+                  aria-label="Developer admin panel"
                 >
                   ⚙
                 </button>
@@ -496,6 +557,7 @@ export default function App({ devMode = false }) {
                 onClose={() => setShowInstructions(false)}
                 shipName={shipName}
               />
+              </main>
             </StarmapProvider>
           )}
 

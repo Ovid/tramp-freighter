@@ -186,7 +186,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
           <h3>Response Options</h3>
           <div className="options-list">
             {/* Cooperate Option */}
-            <div
+            <button
               className="inspection-option"
               onClick={() => onChoice('cooperate')}
             >
@@ -274,14 +274,13 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </div>
                 )}
               </div>
-            </div>
+            </button>
 
             {/* Bribe Option */}
-            <div
+            <button
               className={`inspection-option ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
-              onClick={() =>
-                credits >= INSPECTION_CONFIG.BRIBE.COST && onChoice('bribe')
-              }
+              disabled={credits < INSPECTION_CONFIG.BRIBE.COST}
+              onClick={() => onChoice('bribe')}
             >
               <div className="option-header">
                 <span className="option-name">Attempt Bribery</span>
@@ -333,10 +332,13 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Flee Option */}
-            <div className="inspection-option" onClick={() => onChoice('flee')}>
+            <button
+              className="inspection-option"
+              onClick={() => onChoice('flee')}
+            >
               <div className="option-header">
                 <span className="option-name">Flee</span>
                 <span className="option-type">Evasion</span>
@@ -367,7 +369,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

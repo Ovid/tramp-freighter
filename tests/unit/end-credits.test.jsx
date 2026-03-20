@@ -55,4 +55,48 @@ describe('EndCredits', () => {
     render(<EndCredits onCreditsComplete={onCreditsComplete} />);
     expect(screen.getByText(/fictitious/)).toBeTruthy();
   });
+
+  it('renders a pause button for pausing the credits scroll', () => {
+    render(<EndCredits onCreditsComplete={onCreditsComplete} />);
+    const pauseBtn = screen.getByRole('button', { name: /pause/i });
+    expect(pauseBtn).toBeInTheDocument();
+  });
+
+  it('toggles pause/play when pause button is clicked', () => {
+    // Need a real animation mock that supports pause/play
+    Element.prototype.animate = vi.fn(() => ({
+      onfinish: null,
+      cancel: vi.fn(),
+      pause: vi.fn(),
+      play: vi.fn(),
+      playState: 'running',
+    }));
+
+    render(<EndCredits onCreditsComplete={onCreditsComplete} />);
+    const pauseBtn = screen.getByRole('button', { name: /pause/i });
+    fireEvent.click(pauseBtn);
+
+    // After clicking pause, button should say "Play" or "Resume"
+    expect(screen.getByRole('button', { name: /play|resume/i })).toBeInTheDocument();
+  });
+
+  it('toggles pause/play on Space key', () => {
+    Element.prototype.animate = vi.fn(() => ({
+      onfinish: null,
+      cancel: vi.fn(),
+      pause: vi.fn(),
+      play: vi.fn(),
+      playState: 'running',
+    }));
+
+    render(<EndCredits onCreditsComplete={onCreditsComplete} />);
+
+    // Press Space to pause
+    fireEvent.keyDown(window, { key: ' ' });
+    expect(screen.getByRole('button', { name: /play|resume/i })).toBeInTheDocument();
+
+    // Press Space to resume
+    fireEvent.keyDown(window, { key: ' ' });
+    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
+  });
 });

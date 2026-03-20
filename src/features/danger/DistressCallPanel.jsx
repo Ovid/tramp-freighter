@@ -205,11 +205,10 @@ export function DistressCallPanel({
           <h3>Your Response</h3>
           <div className="choices-list">
             {/* Respond Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'respond' ? 'selected' : ''} ${playerStatus.canRespond ? 'available' : 'unavailable'}`}
-              onClick={() =>
-                playerStatus.canRespond && handleChoiceSelect('respond')
-              }
+              disabled={!playerStatus.canRespond}
+              onClick={() => handleChoiceSelect('respond')}
             >
               <div className="choice-header">
                 <span className="choice-name">Respond to Distress Call</span>
@@ -270,10 +269,10 @@ export function DistressCallPanel({
                   </span>
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Ignore Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'ignore' ? 'selected' : ''} available`}
               onClick={() => handleChoiceSelect('ignore')}
             >
@@ -307,10 +306,10 @@ export function DistressCallPanel({
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Loot Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'loot' ? 'selected' : ''} available`}
               onClick={() => handleChoiceSelect('loot')}
             >
@@ -363,7 +362,7 @@ export function DistressCallPanel({
                   ⚠ This action will be remembered by the sector
                 </span>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

@@ -10,6 +10,15 @@ import { resolve } from 'path';
  */
 describe('ActiveMissions HUD CSS', () => {
   const css = readFileSync(resolve('css/hud.css'), 'utf-8');
+  const jsx = readFileSync(
+    resolve('src/features/hud/ActiveMissions.jsx'),
+    'utf-8'
+  );
+
+  it('should use h2 heading for proper hierarchy within nav landmark', () => {
+    expect(jsx).toContain('<h2>');
+    expect(jsx).not.toMatch(/<h[3-6]>/);
+  });
 
   it('should style the mission-abandon-btn with game fonts and colors', () => {
     expect(css).toMatch(/\.mission-abandon-btn/);

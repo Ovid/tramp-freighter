@@ -49,15 +49,11 @@ export function InfoBrokerPanel({ onClose }) {
   } = useGameAction();
 
   const [activeTab, setActiveTab] = useState('purchase');
+  const purchaseTabRef = useRef(null);
+  const marketDataTabRef = useRef(null);
   const [rumor, setRumor] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
   const [validationClass, setValidationClass] = useState('');
-  const messageTimerRef = useRef(null);
-
-  useEffect(() => {
-    return () => clearTimeout(messageTimerRef.current);
-  }, []);
-
   // Get available intelligence options using Bridge Pattern
   const [intelligenceOptions, setIntelligenceOptions] = useState([]);
 
@@ -123,16 +119,9 @@ export function InfoBrokerPanel({ onClose }) {
     const generatedRumor = generateRumor();
     setRumor(generatedRumor);
 
-    // Show success message
+    // Show success message — persists until next user action
     setValidationMessage('Rumor purchased successfully');
     setValidationClass('info');
-
-    // Clear success message after 2 seconds
-    clearTimeout(messageTimerRef.current);
-    messageTimerRef.current = setTimeout(() => {
-      setValidationMessage('');
-      setValidationClass('');
-    }, 2000);
   };
 
   const handlePurchaseIntelligence = (systemId) => {
@@ -147,18 +136,11 @@ export function InfoBrokerPanel({ onClose }) {
       return;
     }
 
-    // Show success message
+    // Show success message — persists until next user action
     const systemName =
       starData.find((s) => s.id === systemId)?.name || 'Unknown System';
     setValidationMessage(`Intelligence purchased for ${systemName}`);
     setValidationClass('info');
-
-    // Clear success message after 2 seconds
-    clearTimeout(messageTimerRef.current);
-    messageTimerRef.current = setTimeout(() => {
-      setValidationMessage('');
-      setValidationClass('');
-    }, 2000);
 
     // Refresh intelligence options to reflect the purchase
     // This ensures the UI immediately shows the updated state
@@ -166,11 +148,15 @@ export function InfoBrokerPanel({ onClose }) {
     setIntelligenceOptions(updatedOptions);
   };
 
-  const handleTabSwitch = (tabName) => {
+  const handleTabSwitch = (tabName, focusTab = false) => {
     setActiveTab(tabName);
     // Clear validation message when switching tabs
     setValidationMessage('');
     setValidationClass('');
+    if (focusTab) {
+      const ref = tabName === 'purchase' ? purchaseTabRef : marketDataTabRef;
+      ref.current?.focus();
+    }
   };
 
   const renderIntelligenceItem = (option) => {
@@ -283,16 +269,42 @@ export function InfoBrokerPanel({ onClose }) {
       </h2>
 
       {/* Tab Navigation */}
-      <div className="info-broker-tabs">
+      <div className="info-broker-tabs" role="tablist" aria-label="Information broker sections">
         <button
+          ref={purchaseTabRef}
+          role="tab"
+          id="tab-purchase"
+          aria-selected={activeTab === 'purchase'}
+          aria-controls="tabpanel-purchase"
           className={`info-broker-tab ${activeTab === 'purchase' ? 'active' : ''}`}
           onClick={() => handleTabSwitch('purchase')}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              const next = activeTab === 'purchase' ? 'marketData' : 'purchase';
+              handleTabSwitch(next, true);
+            }
+          }}
+          tabIndex={activeTab === 'purchase' ? 0 : -1}
         >
           Purchase Intelligence
         </button>
         <button
+          ref={marketDataTabRef}
+          role="tab"
+          id="tab-marketData"
+          aria-selected={activeTab === 'marketData'}
+          aria-controls="tabpanel-marketData"
           className={`info-broker-tab ${activeTab === 'marketData' ? 'active' : ''}`}
           onClick={() => handleTabSwitch('marketData')}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              const next = activeTab === 'purchase' ? 'marketData' : 'purchase';
+              handleTabSwitch(next, true);
+            }
+          }}
+          tabIndex={activeTab === 'marketData' ? 0 : -1}
         >
           Market Data
         </button>
@@ -300,7 +312,12 @@ export function InfoBrokerPanel({ onClose }) {
 
       {/* Purchase Intelligence Tab */}
       {activeTab === 'purchase' && (
-        <div className="info-broker-content active">
+        <div
+          role="tabpanel"
+          id="tabpanel-purchase"
+          aria-labelledby="tab-purchase"
+          className="info-broker-content active"
+        >
           {/* Rumor Section */}
           <div className="rumor-section">
             <h3>Market Rumors</h3>
@@ -374,7 +391,12 @@ export function InfoBrokerPanel({ onClose }) {
 
       {/* Market Data Tab */}
       {activeTab === 'marketData' && (
-        <div className="info-broker-content active">
+        <div
+          role="tabpanel"
+          id="tabpanel-marketData"
+          aria-labelledby="tab-marketData"
+          className="info-broker-content active"
+        >
           <div className="market-data-section">
             <h3>Known Market Prices</h3>
             <div id="market-data-list" className="market-data-list">

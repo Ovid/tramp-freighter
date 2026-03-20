@@ -161,6 +161,7 @@ export function MissionBoardPanel({ onClose }) {
                   <span
                     className="saturation-hint"
                     title="Haulers on this route are plentiful — reduced pay"
+                    aria-label="Reduced pay: haulers on this route are plentiful"
                   >
                     {' '}
                     ▼
@@ -187,8 +188,8 @@ export function MissionBoardPanel({ onClose }) {
           <p>No contracts available. Check back tomorrow.</p>
         )}
       </div>
-      <button className="station-btn" onClick={onClose}>
-        Back
+      <button className="station-btn secondary" onClick={onClose}>
+        Back to Station
       </button>
     </div>
   );

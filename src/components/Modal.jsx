@@ -6,7 +6,7 @@
  *
  * React Migration Spec: Requirements 33.2, 33.4, 33.5, 42.1, 42.2, 42.3, 42.4, 42.5
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -30,7 +30,32 @@ export function Modal({
   title,
   showCloseButton = true,
 }) {
-  // Handle escape key to close modal
+  const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
+  const titleId = useId();
+
+  // Save focus before modal opens, restore on close
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement;
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
+
+  // Focus first focusable element when modal opens
+  useEffect(() => {
+    if (!isOpen || !dialogRef.current) return;
+    const focusable = dialogRef.current.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+  }, [isOpen]);
+
+  // Handle escape key to close modal (document-level so it works regardless of focus)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -43,6 +68,30 @@ export function Modal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
+
+  // Focus trap: keep Tab/Shift-Tab within the modal
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+    []
+  );
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -60,30 +109,32 @@ export function Modal({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="modal-overlay" onClick={onClose}>
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div className="modal-overlay" onClick={onClose} onKeyDown={handleKeyDown}>
       <div
+        ref={dialogRef}
         className="modal-dialog"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-labelledby={title ? titleId : undefined}
       >
         <div className="modal-content">
           {title && (
             <div className="modal-header">
-              <h2 id="modal-title" className="modal-title">
+              <h2 id={titleId} className="modal-title">
                 {title}
               </h2>
-              {showCloseButton && (
-                <button
-                  className="modal-close"
-                  onClick={onClose}
-                  aria-label="Close modal"
-                >
-                  ×
-                </button>
-              )}
             </div>
+          )}
+          {showCloseButton && (
+            <button
+              className="modal-close"
+              onClick={onClose}
+              aria-label="Close modal"
+            >
+              ×
+            </button>
           )}
           <div className="modal-body">{children}</div>
         </div>

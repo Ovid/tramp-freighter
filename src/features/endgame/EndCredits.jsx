@@ -7,6 +7,8 @@ import './endgame.css';
 export function EndCredits({ onCreditsComplete }) {
   const game = useGame();
   const [scrollFinished, setScrollFinished] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
   const scrollRef = useRef(null);
   const animationRef = useRef(null);
 
@@ -21,13 +23,31 @@ export function EndCredits({ onCreditsComplete }) {
     setScrollFinished(true);
   }, []);
 
+  const handleTogglePause = useCallback(() => {
+    const anim = animationRef.current;
+    if (!anim) return;
+    if (pausedRef.current) {
+      anim.play();
+      pausedRef.current = false;
+      setPaused(false);
+    } else {
+      anim.pause();
+      pausedRef.current = true;
+      setPaused(true);
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') handleSkip();
+      if (e.key === ' ') {
+        e.preventDefault();
+        handleTogglePause();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSkip]);
+  }, [handleSkip, handleTogglePause]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -164,13 +184,22 @@ export function EndCredits({ onCreditsComplete }) {
       </div>
 
       {!scrollFinished && (
-        <button
-          className="credits-skip-btn"
-          onClick={handleSkip}
-          aria-label="Skip credits"
-        >
-          Skip
-        </button>
+        <div className="credits-controls">
+          <button
+            className="credits-pause-btn"
+            onClick={handleTogglePause}
+            aria-label={paused ? 'Play credits' : 'Pause credits'}
+          >
+            {paused ? 'Play' : 'Pause'}
+          </button>
+          <button
+            className="credits-skip-btn"
+            onClick={handleSkip}
+            aria-label="Skip credits"
+          >
+            Skip
+          </button>
+        </div>
       )}
     </div>
   );

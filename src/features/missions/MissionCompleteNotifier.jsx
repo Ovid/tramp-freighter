@@ -49,8 +49,8 @@ export function MissionCompleteNotifier() {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-dialog">
-        <h2 className="modal-title">Mission Complete!</h2>
+      <div className="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-complete-title">
+        <h2 id="mission-complete-title" className="modal-title">Mission Complete!</h2>
         <div className="mission-complete-body">
           <p className="mission-complete-title">{current.title}</p>
           {current.type === 'passenger' && current.passenger && (
@@ -86,10 +86,10 @@ export function MissionCompleteNotifier() {
         </div>
         <div className="modal-actions">
           <button className="modal-cancel" onClick={handleDismiss}>
-            Dismiss
+            Later
           </button>
           <button className="modal-confirm" onClick={handleComplete}>
-            Complete
+            Claim Reward
           </button>
         </div>
       </div>

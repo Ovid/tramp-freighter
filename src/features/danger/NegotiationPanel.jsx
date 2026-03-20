@@ -133,7 +133,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
           <h3>Dialogue Options</h3>
           <div className="options-list">
             {/* Counter-Proposal Option */}
-            <div
+            <button
               className={`negotiation-option ${selectedOption === 'counter_proposal' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('counter_proposal')}
             >
@@ -189,11 +189,11 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Medicine Claim Option - Only if player has medicine */}
             {hasMedicine && (
-              <div
+              <button
                 className={`negotiation-option conditional ${selectedOption === 'medicine_claim' ? 'selected' : ''}`}
                 onClick={() => handleOptionSelect('medicine_claim')}
               >
@@ -234,12 +234,12 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Intel Offer Option - Only if player has intelligence */}
             {hasIntelligence && (
-              <div
+              <button
                 className={`negotiation-option conditional ${selectedOption === 'intel_offer' ? 'selected' : ''}`}
                 onClick={() => handleOptionSelect('intel_offer')}
               >
@@ -297,11 +297,11 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Accept Demand Option */}
-            <div
+            <button
               className={`negotiation-option ${selectedOption === 'accept_demand' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('accept_demand')}
             >
@@ -353,7 +353,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                   </>
                 )}
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

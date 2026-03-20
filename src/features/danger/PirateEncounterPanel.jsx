@@ -181,7 +181,7 @@ export function PirateEncounterPanel({
           <h3>Tactical Options</h3>
           <div className="options-list">
             {/* Fight Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'fight' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('fight')}
             >
@@ -209,10 +209,10 @@ export function PirateEncounterPanel({
                   Failure: Heavy hull damage (-30%), lose all cargo and ₡500
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Flee Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'flee' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('flee')}
             >
@@ -239,13 +239,13 @@ export function PirateEncounterPanel({
                   Failure: Hull damage (-20%), combat continues
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Negotiate Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''} ${escalated ? 'disabled' : ''}`}
-              aria-disabled={escalated || undefined}
-              onClick={() => !escalated && handleOptionSelect('negotiate')}
+              disabled={escalated}
+              onClick={() => handleOptionSelect('negotiate')}
             >
               <div className="option-header">
                 <span className="option-name">Negotiate</span>
@@ -286,10 +286,10 @@ export function PirateEncounterPanel({
                   They're done talking.
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Surrender Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'surrender' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('surrender')}
             >
@@ -332,7 +332,7 @@ export function PirateEncounterPanel({
                   </>
                 )}
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
