@@ -2,29 +2,30 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const ENCOUNTER_PANELS = [
-  { file: 'combat.css', selector: '.combat-panel' },
-  { file: 'danger-warning.css', selector: '.danger-warning-dialog' },
-  { file: 'dialogue.css', selector: '.dialogue-panel' },
-  { file: 'distress-call.css', selector: '.distress-call-panel' },
-  { file: 'inspection.css', selector: '.inspection-panel' },
-  { file: 'mechanical-failure.css', selector: '.mechanical-failure-panel' },
-  { file: 'negotiation.css', selector: '.negotiation-panel' },
-  { file: 'outcome.css', selector: '.outcome-panel' },
-  { file: 'pirate-encounter.css', selector: '.pirate-encounter-panel' },
-];
+describe('Encounter panels mobile override consolidated in variables.css', () => {
+  const css = readFileSync(resolve('css/variables.css'), 'utf-8');
 
-describe('Encounter panels full-screen on mobile', () => {
-  it.each(ENCOUNTER_PANELS)(
-    '$file should have position: fixed in 600px media query',
-    ({ file }) => {
-      const css = readFileSync(resolve('css/panel', file), 'utf-8');
-      const mobileBlock = css.match(
-        /@media\s*\(max-width:\s*600px\)\s*\{([^]*?)\n\}/g
-      );
-      expect(mobileBlock).not.toBeNull();
-      const combined = mobileBlock.join('\n');
-      expect(combined).toContain('position: fixed');
+  const ENCOUNTER_SELECTORS = [
+    '#combat-panel',
+    '#danger-warning-dialog',
+    '#distress-call-panel',
+    '#inspection-panel',
+    '#mechanical-failure-panel',
+    '#negotiation-panel',
+    '#outcome-panel',
+    '#pirate-encounter-panel',
+    '.dialogue-panel',
+  ];
+
+  it.each(ENCOUNTER_SELECTORS)(
+    '%s should be in the consolidated mobile override in variables.css',
+    (sel) => {
+      const escaped = sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      expect(css).toMatch(new RegExp(escaped));
     }
   );
+
+  it('should use --mobile-hud-height for top position', () => {
+    expect(css).toContain('top: var(--mobile-hud-height');
+  });
 });

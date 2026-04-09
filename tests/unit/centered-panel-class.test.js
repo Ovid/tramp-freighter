@@ -22,7 +22,7 @@ describe('.centered-panel utility class', () => {
     const rules = mobileBlock[1];
     expect(rules).toContain('position: fixed');
     expect(rules).toContain('width: 100%');
-    expect(rules).toContain('height: 100%');
+    expect(rules).toContain('height: calc(100% - var(--mobile-hud-height, 0px))');
     expect(rules).toContain('transform: none');
   });
 });

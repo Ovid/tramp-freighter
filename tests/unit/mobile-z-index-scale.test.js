@@ -7,8 +7,8 @@ describe('Mobile z-index scale', () => {
 
   const layers = [
     { name: '--z-camera-toolbar', expected: 10 },
-    { name: '--z-hud-collapsed', expected: 20 },
-    { name: '--z-panel-fullscreen', expected: 30 },
+    { name: '--z-panel-fullscreen', expected: 20 },
+    { name: '--z-hud-collapsed', expected: 30 },
     { name: '--z-hud-expanded', expected: 40 },
   ];
 

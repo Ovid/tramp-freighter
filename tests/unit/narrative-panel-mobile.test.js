@@ -2,28 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-describe('Narrative event panel mobile treatment', () => {
-  const css = readFileSync(resolve('css/panel/narrative-event.css'), 'utf-8');
+describe('Narrative event panel mobile override consolidated in variables.css', () => {
+  const css = readFileSync(resolve('css/variables.css'), 'utf-8');
 
-  it('should have a 600px mobile media query for #narrative-event-panel', () => {
-    expect(css).toMatch(
-      /@media\s*\(max-width:\s*600px\)[^]*#narrative-event-panel\s*\{/s
-    );
+  it('should include #narrative-event-panel in consolidated mobile override', () => {
+    expect(css).toContain('#narrative-event-panel');
   });
 
-  it('should set position: fixed on mobile', () => {
-    const mobileBlock = css.match(
-      /@media\s*\(max-width:\s*600px\)\s*\{[^}]*#narrative-event-panel\s*\{([^}]*)\}/s
-    );
-    expect(mobileBlock).not.toBeNull();
-    expect(mobileBlock[1]).toContain('position: fixed');
-  });
-
-  it('should set width: 100% on mobile', () => {
-    const mobileBlock = css.match(
-      /@media\s*\(max-width:\s*600px\)\s*\{[^}]*#narrative-event-panel\s*\{([^}]*)\}/s
-    );
-    expect(mobileBlock).not.toBeNull();
-    expect(mobileBlock[1]).toContain('width: 100%');
+  it('should use --mobile-hud-height for top position', () => {
+    expect(css).toContain('top: var(--mobile-hud-height');
   });
 });

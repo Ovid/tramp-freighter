@@ -18,6 +18,6 @@ describe('Station menu mobile styles', () => {
     expect(mobileBlock).not.toBeNull();
     expect(mobileBlock[1]).toContain('position: fixed');
     expect(mobileBlock[1]).toContain('width: 100%');
-    expect(mobileBlock[1]).toContain('height: 100%');
+    expect(mobileBlock[1]).toContain('height: calc(100% - var(--mobile-hud-height, 0px))');
   });
 });

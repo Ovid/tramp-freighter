@@ -19,11 +19,11 @@ describe('.panel-base mobile treatment', () => {
     expect(mobileSection[1]).toContain('background-color');
   });
 
-  it('should apply safe area top padding on mobile .panel-base', () => {
+  it('should use --mobile-hud-height for top position on mobile .panel-base', () => {
     const mobileSection = css.match(
       /@media\s*\(max-width:\s*600px\)\s*\{[^}]*\.panel-base\s*\{([^}]*)\}/s
     );
     expect(mobileSection).not.toBeNull();
-    expect(mobileSection[1]).toContain('--safe-top');
+    expect(mobileSection[1]).toContain('--mobile-hud-height');
   });
 });
