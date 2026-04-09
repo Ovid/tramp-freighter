@@ -435,4 +435,3 @@ function getReputationClass(reputation = 0) {
   if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
 }
-

@@ -99,8 +99,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="status-impact">
-                {(hull ?? 100) <
-                SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
+                {(hull ?? 100) < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
                   ? 'Structural weakness detected'
                   : 'Hull stable'}
               </span>
