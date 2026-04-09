@@ -10,17 +10,13 @@ describe('Mission accept button disabled styling', () => {
   });
 
   it('should use cursor: not-allowed when disabled', () => {
-    const disabledBlock = css.match(
-      /\.accept-btn:disabled\s*\{([^}]*)\}/s
-    );
+    const disabledBlock = css.match(/\.accept-btn:disabled\s*\{([^}]*)\}/s);
     expect(disabledBlock).not.toBeNull();
     expect(disabledBlock[1]).toContain('cursor: not-allowed');
   });
 
   it('should reduce opacity when disabled', () => {
-    const disabledBlock = css.match(
-      /\.accept-btn:disabled\s*\{([^}]*)\}/s
-    );
+    const disabledBlock = css.match(/\.accept-btn:disabled\s*\{([^}]*)\}/s);
     expect(disabledBlock).not.toBeNull();
     expect(disabledBlock[1]).toContain('opacity');
   });
