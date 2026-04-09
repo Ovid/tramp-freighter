@@ -426,7 +426,7 @@ export default function App({ devMode = false }) {
 
               {/* HUD is always rendered */}
               <nav aria-label="Game HUD">
-                <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
+                <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} panelActive={activePanel !== null || viewMode === VIEW_MODES.ENCOUNTER} />
               </nav>
               <RumorAlert />
               <AchievementToast />
