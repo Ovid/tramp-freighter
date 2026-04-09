@@ -61,7 +61,7 @@ describe('MobileHUD', () => {
   it('should render collapsed summary bar by default', () => {
     renderMobileHUD();
     expect(screen.getByText('Test Ship')).toBeTruthy();
-    expect(screen.getByText('500 CR')).toBeTruthy();
+    expect(screen.getByText('₡500')).toBeTruthy();
   });
 
   it('should show worst resource indicator', () => {

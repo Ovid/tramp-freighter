@@ -62,7 +62,9 @@ export function MobileHUD({
         aria-expanded={expanded}
       >
         <span className="mobile-hud-ship">{shipName}</span>
-        <span className="mobile-hud-credits">{credits ?? 0} CR</span>
+        <span className="mobile-hud-credits">
+          ₡{(credits ?? 0).toLocaleString()}
+        </span>
         <span className="mobile-hud-resources">
           {worst.map((r) => (
             <span

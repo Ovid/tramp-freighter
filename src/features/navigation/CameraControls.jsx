@@ -92,6 +92,8 @@ export function CameraControls({
             };
             handlers[key]?.();
           }}
+          onShowInstructions={() => setShowInstructions(true)}
+          onShowAchievements={() => setShowAchievements(true)}
         />
         <InstructionsModal
           isOpen={showInstructions}

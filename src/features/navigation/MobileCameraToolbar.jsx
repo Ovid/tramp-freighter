@@ -7,6 +7,8 @@ export function MobileCameraToolbar({
   stars,
   toggles,
   onToggle,
+  onShowInstructions,
+  onShowAchievements,
 }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -33,8 +35,8 @@ export function MobileCameraToolbar({
       <label className="mobile-toolbar-find">
         <select
           className="mobile-toolbar-select"
+          value=""
           onChange={(e) => onFindStar(e.target.value)}
-          defaultValue=""
           aria-label="Find star"
         >
           <option value="" disabled>
@@ -74,6 +76,24 @@ export function MobileCameraToolbar({
               </label>
             );
           })}
+          <button
+            className="mobile-toolbar-action"
+            onClick={() => {
+              setShowSettings(false);
+              onShowInstructions();
+            }}
+          >
+            Instructions
+          </button>
+          <button
+            className="mobile-toolbar-action"
+            onClick={() => {
+              setShowSettings(false);
+              onShowAchievements();
+            }}
+          >
+            Achievements
+          </button>
         </div>
       )}
     </div>

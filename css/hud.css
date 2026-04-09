@@ -1194,3 +1194,20 @@
   font-size: var(--font-size-medium);
   white-space: nowrap;
 }
+
+.mobile-toolbar-action {
+  background: none;
+  border: none;
+  color: var(--color-white);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-medium);
+  padding: 8px 0;
+  cursor: pointer;
+  text-align: left;
+  border-top: 1px solid rgba(0, 255, 136, 0.3);
+  width: 100%;
+}
+
+.mobile-toolbar-action:active {
+  color: var(--color-primary);
+}
