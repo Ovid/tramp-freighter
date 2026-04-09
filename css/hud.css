@@ -1111,10 +1111,10 @@
 
 .mobile-hud-expanded {
   position: fixed;
-  top: calc(48px + var(--safe-top, 0px));
+  top: var(--mobile-hud-height, 48px);
   left: 0;
   width: 100%;
-  max-height: calc(100vh - 48px - var(--safe-top, 0px));
+  max-height: calc(100vh - var(--mobile-hud-height, 48px));
   overflow-y: auto;
   background-color: var(--bg-overlay-darker);
   border-bottom: 1px solid var(--border-primary);
