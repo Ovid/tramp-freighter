@@ -26,7 +26,7 @@ import { useMobile } from '../../context/MobileContext';
  * @param {Function} onSystemInfo - Callback to open system info panel
  * @param {boolean} panelActive - Whether a panel or encounter is currently active
  */
-export function HUD({ onDock, onSystemInfo, panelActive }) {
+export function HUD({ onDock, onSystemInfo, panelActive, onDismissPanel }) {
   const { isMobile } = useMobile();
 
   if (isMobile) {
@@ -35,6 +35,7 @@ export function HUD({ onDock, onSystemInfo, panelActive }) {
         onDock={onDock}
         onSystemInfo={onSystemInfo}
         panelActive={panelActive}
+        onDismissPanel={onDismissPanel}
       />
     );
   }

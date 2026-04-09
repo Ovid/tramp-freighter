@@ -432,6 +432,10 @@ export default function App({ devMode = false }) {
                     panelActive={
                       activePanel !== null || viewMode === VIEW_MODES.ENCOUNTER
                     }
+                    onDismissPanel={() => {
+                      handleClosePanel();
+                      setViewingSystemId(null);
+                    }}
                   />
                 </nav>
                 <RumorAlert />

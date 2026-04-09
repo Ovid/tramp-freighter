@@ -31,7 +31,7 @@ function getSeverityClass(value) {
   return 'ok';
 }
 
-export function MobileHUD({ onDock, onSystemInfo, panelActive }) {
+export function MobileHUD({ onDock, onSystemInfo, panelActive, onDismissPanel }) {
   const [expanded, setExpanded] = useState(false);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
@@ -48,7 +48,11 @@ export function MobileHUD({ onDock, onSystemInfo, panelActive }) {
     <>
       <button
         className="mobile-hud-bar"
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => {
+          const willExpand = !expanded;
+          setExpanded(willExpand);
+          if (willExpand && onDismissPanel) onDismissPanel();
+        }}
         aria-label={expanded ? 'Collapse HUD' : 'Expand HUD'}
         aria-expanded={expanded}
       >
