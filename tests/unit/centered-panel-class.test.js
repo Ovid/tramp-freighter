@@ -9,7 +9,9 @@ describe('.centered-panel utility class', () => {
     expect(css).toMatch(/\.centered-panel\s*\{[^}]*position:\s*absolute/s);
     expect(css).toMatch(/\.centered-panel\s*\{[^}]*top:\s*50%/s);
     expect(css).toMatch(/\.centered-panel\s*\{[^}]*left:\s*50%/s);
-    expect(css).toMatch(/\.centered-panel\s*\{[^}]*transform:\s*translate\(-50%,\s*-50%\)/s);
+    expect(css).toMatch(
+      /\.centered-panel\s*\{[^}]*transform:\s*translate\(-50%,\s*-50%\)/s
+    );
   });
 
   it('should override to fixed full-screen at 600px breakpoint', () => {

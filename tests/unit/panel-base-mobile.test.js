@@ -6,7 +6,9 @@ describe('.panel-base mobile treatment', () => {
   const css = readFileSync(resolve('css/variables.css'), 'utf-8');
 
   it('should have a 600px mobile media query for .panel-base', () => {
-    expect(css).toMatch(/@media\s*\(max-width:\s*600px\)[^]*\.panel-base\s*\{/s);
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*600px\)[^]*\.panel-base\s*\{/s
+    );
   });
 
   it('should set solid background on mobile .panel-base', () => {

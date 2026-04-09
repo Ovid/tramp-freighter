@@ -1086,9 +1086,15 @@
   margin-left: 8px;
 }
 
-.mobile-hud-indicator.ok { color: var(--color-primary); }
-.mobile-hud-indicator.warning { color: var(--color-warning); }
-.mobile-hud-indicator.critical { color: var(--color-danger); }
+.mobile-hud-indicator.ok {
+  color: var(--color-primary);
+}
+.mobile-hud-indicator.warning {
+  color: var(--color-warning);
+}
+.mobile-hud-indicator.critical {
+  color: var(--color-danger);
+}
 
 /* Mobile HUD — expanded overlay */
 .mobile-hud-backdrop {

@@ -65,6 +65,9 @@ describe('useMobileLayout hook', () => {
 
     const { unmount } = renderHook(() => useMobileLayout());
     unmount();
-    expect(removeListenerSpy).toHaveBeenCalledWith('change', expect.any(Function));
+    expect(removeListenerSpy).toHaveBeenCalledWith(
+      'change',
+      expect.any(Function)
+    );
   });
 });

@@ -35,9 +35,8 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('CameraControls mobile/desktop switch', () => {
   it('should render mobile toolbar when isMobile is true', async () => {
-    const { CameraControls } = await import(
-      '../../src/features/navigation/CameraControls'
-    );
+    const { CameraControls } =
+      await import('../../src/features/navigation/CameraControls');
     const { container } = render(
       <MobileProvider isMobile={true}>
         <CameraControls
@@ -47,18 +46,17 @@ describe('CameraControls mobile/desktop switch', () => {
           onToggleRotation={() => {}}
           onToggleBoundary={() => {}}
         />
-      </MobileProvider>,
+      </MobileProvider>
     );
     expect(
-      container.querySelector('[data-testid="mobile-camera-toolbar"]'),
+      container.querySelector('[data-testid="mobile-camera-toolbar"]')
     ).toBeTruthy();
     expect(container.querySelector('#camera-controls')).toBeNull();
   });
 
   it('should render desktop controls when isMobile is false', async () => {
-    const { CameraControls } = await import(
-      '../../src/features/navigation/CameraControls'
-    );
+    const { CameraControls } =
+      await import('../../src/features/navigation/CameraControls');
     const { container } = render(
       <MobileProvider isMobile={false}>
         <CameraControls
@@ -68,11 +66,11 @@ describe('CameraControls mobile/desktop switch', () => {
           onToggleRotation={() => {}}
           onToggleBoundary={() => {}}
         />
-      </MobileProvider>,
+      </MobileProvider>
     );
     expect(container.querySelector('#camera-controls')).toBeTruthy();
     expect(
-      container.querySelector('[data-testid="mobile-camera-toolbar"]'),
+      container.querySelector('[data-testid="mobile-camera-toolbar"]')
     ).toBeNull();
   });
 });

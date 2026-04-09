@@ -30,7 +30,13 @@ export function HUD({ onDock, onSystemInfo, panelActive }) {
   const { isMobile } = useMobile();
 
   if (isMobile) {
-    return <MobileHUD onDock={onDock} onSystemInfo={onSystemInfo} panelActive={panelActive} />;
+    return (
+      <MobileHUD
+        onDock={onDock}
+        onSystemInfo={onSystemInfo}
+        panelActive={panelActive}
+      />
+    );
   }
 
   return (

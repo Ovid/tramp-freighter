@@ -5,7 +5,8 @@ import { resolve } from 'path';
 describe('NarrativeEventPanel uses .centered-panel', () => {
   it('NarrativeEventPanel.jsx should include centered-panel class', () => {
     const jsx = readFileSync(
-      resolve('src/features/narrative/NarrativeEventPanel.jsx'), 'utf-8'
+      resolve('src/features/narrative/NarrativeEventPanel.jsx'),
+      'utf-8'
     );
     expect(jsx).toContain('centered-panel');
   });

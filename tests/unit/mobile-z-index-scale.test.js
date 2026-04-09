@@ -15,7 +15,9 @@ describe('Mobile z-index scale', () => {
   it.each(layers)(
     'should define $name with value $expected',
     ({ name, expected }) => {
-      const regex = new RegExp(`${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(\\d+)`);
+      const regex = new RegExp(
+        `${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(\\d+)`
+      );
       const match = css.match(regex);
       expect(match).not.toBeNull();
       expect(parseInt(match[1], 10)).toBe(expected);
@@ -24,7 +26,9 @@ describe('Mobile z-index scale', () => {
 
   it('should maintain ascending z-index order', () => {
     const values = layers.map(({ name }) => {
-      const regex = new RegExp(`${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(\\d+)`);
+      const regex = new RegExp(
+        `${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(\\d+)`
+      );
       const match = css.match(regex);
       return parseInt(match[1], 10);
     });

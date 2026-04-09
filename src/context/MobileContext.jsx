@@ -4,7 +4,9 @@ const MobileContext = createContext(null);
 
 export function MobileProvider({ isMobile, children }) {
   const value = useMemo(() => ({ isMobile }), [isMobile]);
-  return <MobileContext.Provider value={value}>{children}</MobileContext.Provider>;
+  return (
+    <MobileContext.Provider value={value}>{children}</MobileContext.Provider>
+  );
 }
 
 export function useMobile() {

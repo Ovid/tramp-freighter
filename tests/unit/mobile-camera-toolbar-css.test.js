@@ -4,11 +4,19 @@ import { resolve } from 'path';
 
 describe('Mobile camera toolbar CSS', () => {
   // Find the CSS file containing toolbar styles
-  const possiblePaths = ['css/panel/camera-controls.css', 'css/camera-controls.css', 'css/hud.css'];
+  const possiblePaths = [
+    'css/panel/camera-controls.css',
+    'css/camera-controls.css',
+    'css/hud.css',
+  ];
   const cssPath = possiblePaths.find((p) => {
     try {
-      return readFileSync(resolve(p), 'utf-8').includes('.mobile-camera-toolbar');
-    } catch { return false; }
+      return readFileSync(resolve(p), 'utf-8').includes(
+        '.mobile-camera-toolbar'
+      );
+    } catch {
+      return false;
+    }
   });
 
   it('should define .mobile-camera-toolbar', () => {

@@ -19,7 +19,9 @@ describe('Encounter panels full-screen on mobile', () => {
     '$file should have position: fixed in 600px media query',
     ({ file }) => {
       const css = readFileSync(resolve('css/panel', file), 'utf-8');
-      const mobileBlock = css.match(/@media\s*\(max-width:\s*600px\)\s*\{([^]*?)\n\}/g);
+      const mobileBlock = css.match(
+        /@media\s*\(max-width:\s*600px\)\s*\{([^]*?)\n\}/g
+      );
       expect(mobileBlock).not.toBeNull();
       const combined = mobileBlock.join('\n');
       expect(combined).toContain('position: fixed');
