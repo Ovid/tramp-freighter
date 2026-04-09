@@ -48,9 +48,9 @@ Define a mobile stacking order in `variables.css` to prevent layering bugs betwe
 | Layer | Variable | Value | Elements |
 |-------|----------|-------|----------|
 | Starmap | (base) | 0 | Three.js canvas |
-| Camera toolbar | `--z-camera-toolbar` | 10 | Floating bottom toolbar |
-| Collapsed HUD | `--z-hud-collapsed` | 20 | Top summary bar |
-| Full-screen panels | `--z-panel-fullscreen` | 30 | Trade, cargo, station panels, SystemPanel, NarrativeEventPanel |
+| Camera toolbar | `--z-camera-toolbar` | 10 | Floating bottom toolbar, station menu |
+| Full-screen panels | `--z-panel-fullscreen` | 20 | Trade, cargo, station sub-panels, SystemPanel, NarrativeEventPanel |
+| Collapsed HUD | `--z-hud-collapsed` | 30 | Top summary bar (always accessible above panels) |
 | Expanded HUD + backdrop | `--z-hud-expanded` | 40 | HUD overlay and semi-transparent backdrop |
 | Modals | `--z-modal` | 50 | Modal dialogs |
 
