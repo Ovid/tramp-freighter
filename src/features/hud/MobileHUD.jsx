@@ -63,7 +63,7 @@ export function MobileHUD({
       >
         <span className="mobile-hud-ship">{shipName}</span>
         <span className="mobile-hud-credits">
-          ₡{(credits ?? 0).toLocaleString()}
+          ₡{(Number.isFinite(credits) ? credits : 0).toLocaleString()}
         </span>
         <span className="mobile-hud-resources">
           {worst.map((r) => (
