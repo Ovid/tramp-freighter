@@ -880,6 +880,7 @@ export const VISUAL_CONFIG = {
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
   autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
+  keyboardRotationStep: 5, // Degrees per key press for camera orbit
   // Initial camera position (slightly closer view for better label visibility)
   initialCameraDistance: 700, // Distance from origin (0,0,0) - equivalent to ~2 zoom clicks from default
   // Sector boundary
@@ -1259,6 +1260,11 @@ export const INSPECTION_SEVERITY_CONFIG = {
  * All modifier values are centralized here for consistency and tuning.
  */
 export const COMBAT_CONFIG = {
+  // Display thresholds for combat status panel
+  DISPLAY_THRESHOLDS: {
+    LOW_FUEL: 25, // Below this, fuel is "limited maneuvering"
+    LOW_LIFE_SUPPORT: 30, // Below this, life support triggers "emergency protocols"
+  },
   // Base success rates for combat options
   BASE_SUCCESS_RATES: {
     EVASIVE_MANEUVERS_RATE: 0.7, // 70% base success chance for evasive maneuvers
@@ -1313,6 +1319,7 @@ export const COMBAT_CONFIG = {
 
   // Engine condition threshold for combat penalties (different from SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD which is for fuel/time)
   ENGINE_PENALTY_THRESHOLD: 50,
+  ENGINE_PENALTY_VALUE: -0.1, // -10% evasive chance when engine below threshold
 
   // Quirk and upgrade modifier values
   QUIRK_UPGRADE_BONUSES: {

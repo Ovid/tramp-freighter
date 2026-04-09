@@ -7,6 +7,7 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import { getKarmaClass, getReputationTier } from './dangerDisplayUtils';
 
 /**
  * DistressCallPanel - React component for distress call moral choice resolution
@@ -64,15 +65,21 @@ export function DistressCallPanel({
   const severityColor = getDistressSeverityColor(severity);
 
   return (
-    <div id="distress-call-panel" className="panel-base visible">
+    <div
+      id="distress-call-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="distress-call-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('ignore')}
-        aria-label="Close"
+        aria-label="Ignore distress call"
       >
         ×
       </button>
-      <h2>Distress Call</h2>
+      <h2 id="distress-call-title">Distress Call</h2>
 
       <div className="distress-content">
         {/* Distress Call Information Section */}
@@ -205,11 +212,10 @@ export function DistressCallPanel({
           <h3>Your Response</h3>
           <div className="choices-list">
             {/* Respond Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'respond' ? 'selected' : ''} ${playerStatus.canRespond ? 'available' : 'unavailable'}`}
-              onClick={() =>
-                playerStatus.canRespond && handleChoiceSelect('respond')
-              }
+              disabled={!playerStatus.canRespond}
+              onClick={() => handleChoiceSelect('respond')}
             >
               <div className="choice-header">
                 <span className="choice-name">Respond to Distress Call</span>
@@ -270,10 +276,10 @@ export function DistressCallPanel({
                   </span>
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Ignore Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'ignore' ? 'selected' : ''} available`}
               onClick={() => handleChoiceSelect('ignore')}
             >
@@ -307,10 +313,10 @@ export function DistressCallPanel({
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Loot Option */}
-            <div
+            <button
               className={`moral-choice ${selectedChoice === 'loot' ? 'selected' : ''} available`}
               onClick={() => handleChoiceSelect('loot')}
             >
@@ -363,7 +369,7 @@ export function DistressCallPanel({
                   ⚠ This action will be remembered by the sector
                 </span>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -450,22 +456,6 @@ function getResourceClass(resource) {
 }
 
 /**
- * Get CSS class for karma display based on moral alignment value.
- * Reflects the player's moral standing and affects NPC interactions.
- *
- * @param {number} karma - Current karma value (-100 to +100)
- * @returns {string} CSS class name for karma display styling
- */
-function getKarmaClass(karma) {
-  const thresholds = KARMA_CONFIG.DISPLAY_THRESHOLDS;
-  if (karma >= thresholds.SAINT) return 'saint';
-  if (karma >= thresholds.GOOD) return 'good';
-  if (karma >= thresholds.BAD) return 'neutral';
-  if (karma >= thresholds.VILLAIN) return 'bad';
-  return 'villain';
-}
-
-/**
  * Get karma description for display in resource impact text.
  * Provides context about the player's moral standing.
  *
@@ -495,23 +485,6 @@ function getReputationClass(reputation) {
   if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
   if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
-}
-
-/**
- * Get reputation tier name for display in faction standing.
- * Converts numeric reputation to human-readable relationship status.
- *
- * @param {number} reputation - Current reputation value
- * @returns {string} Reputation tier name
- */
-function getReputationTier(reputation) {
-  if (reputation >= REPUTATION_BOUNDS.FAMILY_MIN) return 'Family';
-  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'Trusted';
-  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'Friendly';
-  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'Warm';
-  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'Neutral';
-  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'Cold';
-  return 'Hostile';
 }
 
 /**

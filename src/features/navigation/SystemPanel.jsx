@@ -7,6 +7,7 @@ import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
+import { Modal } from '../../components/Modal';
 import { calculateDistanceFromSol, EVENT_NAMES } from '../../game/constants';
 
 /**
@@ -129,21 +130,21 @@ export function SystemPanel({
             onCancel={handleDangerWarningCancel}
           />
         )}
-        {showCriticalDamageModal && (
-          <div className="modal-overlay">
-            <div className="modal critical-damage-modal">
-              <h3>Ship Damaged</h3>
-              <p>{validation.error}</p>
-              <p>Dock at a station for repairs before attempting a jump.</p>
-              <button
-                className="modal-btn"
-                onClick={() => setShowCriticalDamageModal(false)}
-              >
-                Understood
-              </button>
-            </div>
-          </div>
-        )}
+        <Modal
+          isOpen={showCriticalDamageModal}
+          onClose={() => setShowCriticalDamageModal(false)}
+          title="Ship Damaged"
+          showCloseButton={false}
+        >
+          <p>{validation.error}</p>
+          <p>Dock at a station for repairs before attempting a jump.</p>
+          <button
+            className="modal-btn"
+            onClick={() => setShowCriticalDamageModal(false)}
+          >
+            Understood
+          </button>
+        </Modal>
         <div className="system-panel" data-panel>
           <div className="system-panel-header">
             <h3>{viewingSystem.name}</h3>

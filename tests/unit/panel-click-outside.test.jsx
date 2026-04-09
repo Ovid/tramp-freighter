@@ -133,6 +133,61 @@ describe('useClickOutside hook', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it('calls onClose when Escape is pressed', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClose on Escape when a modal overlay is present', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div className="modal-overlay">Modal</div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('does not call onClose on Escape when another data-panel is open', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <TestPanel onClose={onClose} />
+        <div data-panel className="panel-container">
+          Sub Panel
+        </div>
+      </div>
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('allows Escape when only camera-controls data-panel is present', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <TestPanel onClose={onClose} />
+        <div id="camera-controls" data-panel>
+          Camera
+        </div>
+      </div>
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('cleans up listener on unmount', () => {
     const onClose = vi.fn();
     const { unmount } = render(

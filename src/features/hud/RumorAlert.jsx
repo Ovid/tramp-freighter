@@ -28,7 +28,7 @@ export function RumorAlert() {
   if (!visible) return null;
 
   return (
-    <div className="rumor-alert">
+    <div className="rumor-alert" role="alert">
       Word of your illicit cargo is spreading...
     </div>
   );

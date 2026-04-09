@@ -37,9 +37,16 @@ export function ShipNamingDialog({ onSubmit }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-dialog">
+      <div
+        className="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ship-naming-title"
+      >
         <div className="modal-content">
-          <h2 className="modal-title">Name Your Ship</h2>
+          <h2 id="ship-naming-title" className="modal-title">
+            Name Your Ship
+          </h2>
           <p className="modal-description">What will you call your vessel?</p>
 
           <div className="ship-naming-input-group">
@@ -52,6 +59,7 @@ export function ShipNamingDialog({ onSubmit }) {
               placeholder="Enter ship name..."
               maxLength={SHIP_CONFIG.MAX_NAME_LENGTH}
               autoFocus
+              aria-label="Ship name"
             />
           </div>
 

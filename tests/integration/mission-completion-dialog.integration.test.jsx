@@ -51,7 +51,7 @@ describe('MissionCompleteNotifier', () => {
 
   it('should call completeMission when player confirms', () => {
     render(<MissionCompleteNotifier />);
-    const completeBtn = screen.getByText('Complete');
+    const completeBtn = screen.getByText('Claim Reward');
     fireEvent.click(completeBtn);
     expect(mockCompleteMission).toHaveBeenCalledWith('delivery_001');
   });

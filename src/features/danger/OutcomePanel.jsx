@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
-import { FACTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  FACTION_CONFIG,
+  EVENT_NAMES,
+  REPUTATION_BOUNDS,
+} from '../../game/constants.js';
+import { getKarmaClass } from './dangerDisplayUtils';
 
 /**
  * OutcomePanel - React component for displaying encounter outcomes
@@ -50,11 +55,17 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
   };
 
   return (
-    <div id="outcome-panel" className="panel-base visible">
+    <div
+      id="outcome-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="outcome-panel-title"
+    >
       <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      <h2>Encounter Outcome</h2>
+      <h2 id="outcome-panel-title">Encounter Outcome</h2>
 
       <div className="outcome-content">
         {/* Outcome Summary Section */}
@@ -199,7 +210,7 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
                               factions[faction]
                             )}`}
                           >
-                            {factions[faction]}
+                            {factions[faction] ?? 0}
                           </span>
                         </div>
                       ))}
@@ -385,29 +396,16 @@ function formatFactionName(faction) {
 }
 
 /**
- * Get CSS class for karma value display
- *
- * @param {number} karma - The karma value
- * @returns {string} CSS class name
- */
-function getKarmaClass(karma) {
-  if (karma >= 50) return 'very-good';
-  if (karma >= 25) return 'good';
-  if (karma >= -25) return 'neutral';
-  if (karma >= -50) return 'bad';
-  return 'very-bad';
-}
-
-/**
  * Get CSS class for reputation value display
  *
  * @param {number} reputation - The reputation value
  * @returns {string} CSS class name
  */
-function getReputationClass(reputation) {
-  if (reputation >= 50) return 'very-good';
-  if (reputation >= 25) return 'good';
-  if (reputation >= -25) return 'neutral';
-  if (reputation >= -50) return 'bad';
-  return 'very-bad';
+function getReputationClass(reputation = 0) {
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
+  return 'hostile';
 }

@@ -1016,10 +1016,19 @@ export class GameCoordinator {
     } else if (questState.stage === 2) {
       progress = `${questState.data.exoticMaterials || 0}/${ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED} samples`;
     } else if (questState.stage === 4) {
-      const deliverySystem = this.starData?.find(
-        (s) => s.id === ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
-      );
-      progress = deliverySystem ? `Deliver to ${deliverySystem.name}` : null;
+      if (questState.data.messageDelivered) {
+        const tanakaSystem = this.starData?.find(
+          (s) => s.id === ENDGAME_CONFIG.TANAKA_SYSTEM
+        );
+        progress = tanakaSystem
+          ? `Return to Tanaka at ${tanakaSystem.name}`
+          : null;
+      } else {
+        const deliverySystem = this.starData?.find(
+          (s) => s.id === ENDGAME_CONFIG.STAGE_4_DELIVERY_SYSTEM
+        );
+        progress = deliverySystem ? `Deliver to ${deliverySystem.name}` : null;
+      }
     }
 
     return {

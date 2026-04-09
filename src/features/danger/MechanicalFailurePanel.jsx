@@ -5,6 +5,7 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import { getConditionClass } from '../../game/utils/string-utils.js';
 
 /**
  * MechanicalFailurePanel - React component for mechanical failure resolution
@@ -49,11 +50,17 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
   const severityColor = getFailureSeverityColor(severity);
 
   return (
-    <div id="mechanical-failure-panel" className="panel-base visible">
+    <div
+      id="mechanical-failure-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mechanical-failure-title"
+    >
       <button className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      <h2>Mechanical Failure</h2>
+      <h2 id="mechanical-failure-title">Mechanical Failure</h2>
 
       <div className="failure-content">
         {/* Failure Status Section */}
@@ -92,7 +99,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="status-impact">
-                {hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
+                {(hull ?? 100) < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
                   ? 'Structural weakness detected'
                   : 'Hull stable'}
               </span>
@@ -103,7 +110,8 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(engine ?? 100)}%
               </span>
               <span className="status-impact">
-                {engine < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE
+                {(engine ?? 100) <
+                SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.ENGINE
                   ? 'Critical engine condition'
                   : 'Engine operational'}
               </span>
@@ -116,7 +124,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                 {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="status-impact">
-                {lifeSupport <
+                {(lifeSupport ?? 100) <
                 SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.LIFE_SUPPORT
                   ? 'Life support failing'
                   : 'Environment stable'}
@@ -139,7 +147,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
             {failure.type === 'engine_failure' && (
               <>
                 {/* Emergency Restart Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'emergency_restart' ? 'selected' : ''}`}
                   onClick={() => handleOptionSelect('emergency_restart')}
                 >
@@ -198,16 +206,16 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Call for Help Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'call_for_help' ? 'selected' : ''} ${credits < FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST ? 'disabled' : ''}`}
-                  onClick={() =>
-                    credits >=
-                      FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP
-                        .CREDITS_COST && handleOptionSelect('call_for_help')
+                  disabled={
+                    credits <
+                    FAILURE_CONFIG.ENGINE_FAILURE.CALL_FOR_HELP.CREDITS_COST
                   }
+                  onClick={() => handleOptionSelect('call_for_help')}
                 >
                   <div className="option-header">
                     <span className="option-name">Call for Help</span>
@@ -255,10 +263,10 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Jury-Rig Repair Option */}
-                <div
+                <button
                   className={`repair-option ${selectedOption === 'jury_rig' ? 'selected' : ''}`}
                   onClick={() => handleOptionSelect('jury_rig')}
                 >
@@ -304,7 +312,7 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
               </>
             )}
 
@@ -398,7 +406,10 @@ export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
           )}
           {(failure.type === 'hull_breach' ||
             failure.type === 'life_support') && (
-            <button className="failure-btn primary" onClick={onClose}>
+            <button
+              className="failure-btn primary"
+              onClick={() => onChoice('acknowledge')}
+            >
               Acknowledge
             </button>
           )}
@@ -508,22 +519,6 @@ function getSystemAlert(failureType) {
     default:
       return 'ALERT: System malfunction detected.';
   }
-}
-
-/**
- * Get CSS class for ship condition display based on percentage value
- *
- * @param {number} condition - The condition value (0-100 percentage)
- * @returns {string} CSS class name for styling the condition display
- */
-function getConditionClass(condition) {
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT)
-    return 'good';
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR)
-    return 'fair';
-  if (condition >= SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR)
-    return 'poor';
-  return 'critical';
 }
 
 /**

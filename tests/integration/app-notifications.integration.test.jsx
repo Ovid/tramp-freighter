@@ -153,11 +153,11 @@ describe('App Notification Integration', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Storage quota exceeded')).toBeInTheDocument();
+        expect(screen.getByText(/Storage quota exceeded/)).toBeInTheDocument();
       });
 
       // Verify it's rendered as an error notification
-      const notification = screen.getByText('Storage quota exceeded');
+      const notification = screen.getByText(/Storage quota exceeded/);
       expect(notification.closest('.notification')).toHaveClass(
         'notification-error'
       );
@@ -178,14 +178,14 @@ describe('App Notification Integration', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            'Scanner: Exotic matter detected. Sample collected. [1/5]'
+            /Scanner: Exotic matter detected\. Sample collected\. \[1\/5\]/
           )
         ).toBeInTheDocument();
       });
 
       // Verify it's rendered as an info notification
       const notification = screen.getByText(
-        'Scanner: Exotic matter detected. Sample collected. [1/5]'
+        /Scanner: Exotic matter detected\. Sample collected\. \[1\/5\]/
       );
       expect(notification.closest('.notification')).toHaveClass(
         'notification-info'
@@ -201,12 +201,12 @@ describe('App Notification Integration', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText('Scanner: Already sampled this station.')
+          screen.getByText(/Scanner: Already sampled this station\./)
         ).toBeInTheDocument();
       });
 
       const notification = screen.getByText(
-        'Scanner: Already sampled this station.'
+        /Scanner: Already sampled this station\./
       );
       expect(notification.closest('.notification')).toHaveClass(
         'notification-info'

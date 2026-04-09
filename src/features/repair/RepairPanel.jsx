@@ -493,6 +493,7 @@ export function RepairPanel({ onClose }) {
                             min={0}
                             max={maxDonation}
                             value={currentAlloc}
+                            aria-label={`Cannibalize ${getSystemName(donorSys)}`}
                             onChange={(e) =>
                               setCannibalizeAllocation((prev) => ({
                                 ...prev,
@@ -640,7 +641,7 @@ export function RepairPanel({ onClose }) {
 
         {/* Validation Message */}
         {validationMessage && (
-          <div className={`validation-message ${validationClass}`}>
+          <div className={`validation-message ${validationClass}`} role="alert">
             {validationMessage}
           </div>
         )}

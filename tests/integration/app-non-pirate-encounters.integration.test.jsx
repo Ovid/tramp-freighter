@@ -237,14 +237,24 @@ describe('Non-Pirate Encounter Integration', () => {
         expect(screen.getByText('Mechanical Failure')).toBeInTheDocument();
       });
 
-      // Hull breach has an "Acknowledge" button that calls onClose directly
+      // Hull breach Acknowledge button resolves through encounter resolution
       const acknowledgeButton = screen.getByText('Acknowledge');
       fireEvent.click(acknowledgeButton);
+
+      // OutcomePanel should appear after resolution
+      await waitFor(() => {
+        expect(screen.getByText('Encounter Outcome')).toBeInTheDocument();
+      });
+
+      // Click Continue to return to orbit
+      const continueButton = screen.getByText('Continue');
+      fireEvent.click(continueButton);
 
       await waitFor(() => {
         expect(
           screen.queryByText('Mechanical Failure')
         ).not.toBeInTheDocument();
+        expect(screen.queryByText('Encounter Outcome')).not.toBeInTheDocument();
       });
     });
   });

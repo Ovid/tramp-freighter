@@ -7,9 +7,17 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
         <section className="instructions-section">
           <h3>Your Goal</h3>
           <p>
-            You owe Marcus Cole ten thousand credits — and he's not the patient
-            type. Check the <strong>Finance</strong> menu at any station to see
-            your debt terms: interest, withholding, and payment options.
+            You've spent years hauling cargo through the wormhole lanes of Sol
+            Sector. Bad deals, rough encounters, and the relentless cost of
+            keeping a ship running have taken their toll. You're tired. All you
+            want is enough credits to retire somewhere quiet and never look at a
+            cargo manifest again.
+          </p>
+          <p>
+            There's just one problem: you owe Marcus Cole ten thousand credits —
+            and he's not the patient type. Interest is ticking. You'll want to
+            check the <strong>Finance</strong> menu at any station before the
+            terms surprise you.
           </p>
           <p>
             Trade smart, pay down the debt, and build a reputation. The traders
@@ -18,15 +26,15 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
             nobody's going to share those with a stranger. Earn your way in.
           </p>
           <p>
-            Clear your debt and the sector may have more to offer than you
-            expect.
+            Clear your debt and the sector may have{' '}
+            <em>more to offer than you expect</em>.
           </p>
           <p>
-            Your hold has 20 units of grain — enough to start trading, but raw
+            Your hold has 20 units of grain — enough to start, but raw
             commodities like grain and ore have thin margins. The real money is
             in manufactured goods: <strong>electronics</strong>,{' '}
-            <strong>parts</strong>, <strong>medicine</strong>. Check the{' '}
-            <strong>Cargo Manifest</strong> to see what you're carrying.
+            <strong>parts</strong>, <strong>medicine</strong>. Your{' '}
+            <strong>Cargo Manifest</strong> will show you what you're hauling.
           </p>
         </section>
 

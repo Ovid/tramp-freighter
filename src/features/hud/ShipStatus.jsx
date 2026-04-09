@@ -54,7 +54,14 @@ export function ShipStatus() {
       </div>
       <div className="hud-row">
         <span className="hud-label">Fuel:</span>
-        <div className="fuel-bar-container condition-bar-container">
+        <div
+          className="fuel-bar-container condition-bar-container"
+          role="meter"
+          aria-label="Fuel"
+          aria-valuenow={Math.round(safeFuel)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="fuel-bar condition-bar"
             style={{ width: `${safeFuel}%` }}
@@ -64,7 +71,14 @@ export function ShipStatus() {
       </div>
       <div className="hud-row">
         <span className="hud-label">Hull:</span>
-        <div className="hull-bar-container condition-bar-container">
+        <div
+          className="hull-bar-container condition-bar-container"
+          role="meter"
+          aria-label="Hull"
+          aria-valuenow={Math.round(safeCondition.hull)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="hull-bar condition-bar"
             style={{ width: `${safeCondition.hull}%` }}
@@ -76,7 +90,14 @@ export function ShipStatus() {
       </div>
       <div className="hud-row">
         <span className="hud-label">Engine:</span>
-        <div className="engine-bar-container condition-bar-container">
+        <div
+          className="engine-bar-container condition-bar-container"
+          role="meter"
+          aria-label="Engine"
+          aria-valuenow={Math.round(safeCondition.engine)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="engine-bar condition-bar"
             style={{ width: `${safeCondition.engine}%` }}
@@ -87,8 +108,15 @@ export function ShipStatus() {
         </div>
       </div>
       <div className="hud-row">
-        <span className="hud-label">Life Support:</span>
-        <div className="life-support-bar-container condition-bar-container">
+        <span className="hud-label">Life Sup:</span>
+        <div
+          className="life-support-bar-container condition-bar-container"
+          role="meter"
+          aria-label="Life support"
+          aria-valuenow={Math.round(safeCondition.lifeSupport)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="life-support-bar condition-bar"
             style={{ width: `${safeCondition.lifeSupport}%` }}

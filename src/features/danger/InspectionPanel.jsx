@@ -3,7 +3,12 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGame } from '../../context/GameContext.jsx';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
 import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
-import { INSPECTION_CONFIG, EVENT_NAMES } from '../../game/constants.js';
+import {
+  INSPECTION_CONFIG,
+  EVENT_NAMES,
+  REPUTATION_BOUNDS,
+} from '../../game/constants.js';
+import { getReputationTier } from './dangerDisplayUtils';
 
 /**
  * InspectionPanel - React component for customs inspection resolution
@@ -51,15 +56,21 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
   const severityColor = getInspectionSeverityColor(severity);
 
   return (
-    <div id="inspection-panel" className="panel-base visible">
+    <div
+      id="inspection-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="inspection-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee inspection"
       >
         ×
       </button>
-      <h2>Customs Inspection</h2>
+      <h2 id="inspection-panel-title">Customs Inspection</h2>
 
       <div className="inspection-content">
         {/* Inspection Status Section */}
@@ -175,7 +186,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
               <span
                 className={`summary-value ${getReputationClass(factions?.authorities)}`}
               >
-                {getReputationTier(factions?.authorities || 0)}
+                {getReputationTier(factions?.authorities || 0, 'authority')}
               </span>
             </div>
           </div>
@@ -186,7 +197,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
           <h3>Response Options</h3>
           <div className="options-list">
             {/* Cooperate Option */}
-            <div
+            <button
               className="inspection-option"
               onClick={() => onChoice('cooperate')}
             >
@@ -274,14 +285,13 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </div>
                 )}
               </div>
-            </div>
+            </button>
 
             {/* Bribe Option */}
-            <div
+            <button
               className={`inspection-option ${credits < INSPECTION_CONFIG.BRIBE.COST ? 'disabled' : ''}`}
-              onClick={() =>
-                credits >= INSPECTION_CONFIG.BRIBE.COST && onChoice('bribe')
-              }
+              disabled={credits < INSPECTION_CONFIG.BRIBE.COST}
+              onClick={() => onChoice('bribe')}
             >
               <div className="option-header">
                 <span className="option-name">Attempt Bribery</span>
@@ -333,10 +343,13 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Flee Option */}
-            <div className="inspection-option" onClick={() => onChoice('flee')}>
+            <button
+              className="inspection-option"
+              onClick={() => onChoice('flee')}
+            >
               <div className="option-header">
                 <span className="option-name">Flee</span>
                 <span className="option-type">Evasion</span>
@@ -367,7 +380,7 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -415,26 +428,10 @@ function getSecurityLevelName(securityLevel) {
  * @returns {string} CSS class name
  */
 function getReputationClass(reputation = 0) {
-  if (reputation >= 60) return 'trusted';
-  if (reputation >= 30) return 'friendly';
-  if (reputation >= 10) return 'warm';
-  if (reputation >= -10) return 'neutral';
-  if (reputation >= -50) return 'cold';
+  if (reputation >= REPUTATION_BOUNDS.TRUSTED_MIN) return 'trusted';
+  if (reputation >= REPUTATION_BOUNDS.FRIENDLY_MIN) return 'friendly';
+  if (reputation >= REPUTATION_BOUNDS.WARM_MIN) return 'warm';
+  if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
+  if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
-}
-
-/**
- * Get reputation tier name for display
- *
- * @param {number} reputation - Current reputation value
- * @returns {string} Reputation tier name
- */
-function getReputationTier(reputation = 0) {
-  if (reputation >= 90) return 'Exemplary';
-  if (reputation >= 60) return 'Trusted';
-  if (reputation >= 30) return 'Respected';
-  if (reputation >= 10) return 'Good Standing';
-  if (reputation >= -10) return 'Neutral';
-  if (reputation >= -50) return 'Suspicious';
-  return 'Wanted';
 }

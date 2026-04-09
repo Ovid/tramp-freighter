@@ -6,6 +6,10 @@ import {
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import {
+  getConditionClass,
+  formatCargoDisplayName as formatModifierName,
+} from '../../game/utils/string-utils.js';
 
 /**
  * CombatPanel - React component for combat resolution
@@ -90,15 +94,21 @@ export function CombatPanel({
   const intensityColor = getCombatIntensityColor(intensity);
 
   return (
-    <div id="combat-panel" className="panel-base visible">
+    <div
+      id="combat-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="combat-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee combat"
       >
         ×
       </button>
-      <h2>Combat Resolution</h2>
+      <h2 id="combat-panel-title">Combat Resolution</h2>
 
       <div className="combat-content">
         {/* Flee failed alert — shown when evasion was attempted and failed */}
@@ -150,7 +160,7 @@ export function CombatPanel({
                 {Math.round(hull ?? 100)}%
               </span>
               <span className="condition-impact">
-                {hull < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
+                {(hull ?? 100) < SHIP_CONFIG.CONDITION_WARNING_THRESHOLDS.HULL
                   ? 'Reduced maneuverability'
                   : 'Normal operation'}
               </span>
@@ -161,7 +171,7 @@ export function CombatPanel({
                 {Math.round(engine ?? 100)}%
               </span>
               <span className="condition-impact">
-                {engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD
+                {(engine ?? 100) < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD
                   ? 'Reduced evasion capability'
                   : 'Full power available'}
               </span>
@@ -172,7 +182,9 @@ export function CombatPanel({
                 {Math.round(fuel ?? 100)}%
               </span>
               <span className="condition-impact">
-                {fuel < 25 ? 'Limited maneuvering' : 'Sufficient for combat'}
+                {fuel < COMBAT_CONFIG.DISPLAY_THRESHOLDS.LOW_FUEL
+                  ? 'Limited maneuvering'
+                  : 'Sufficient for combat'}
               </span>
             </div>
             <div className="condition-item">
@@ -183,7 +195,7 @@ export function CombatPanel({
                 {Math.round(lifeSupport ?? 100)}%
               </span>
               <span className="condition-impact">
-                {lifeSupport < 30
+                {lifeSupport < COMBAT_CONFIG.DISPLAY_THRESHOLDS.LOW_LIFE_SUPPORT
                   ? 'Emergency protocols active'
                   : 'Stable environment'}
               </span>
@@ -233,7 +245,7 @@ export function CombatPanel({
           <h3>Combat Options</h3>
           <div className="options-list">
             {/* Evasive Maneuvers Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'evasive' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('evasive')}
             >
@@ -287,10 +299,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Return Fire Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'return_fire' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('return_fire')}
             >
@@ -343,10 +355,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Dump Cargo Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'dump_cargo' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('dump_cargo')}
             >
@@ -382,10 +394,10 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Distress Call Option */}
-            <div
+            <button
               className={`combat-option ${selectedOption === 'distress_call' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('distress_call')}
             >
@@ -444,7 +456,7 @@ export function CombatPanel({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -507,11 +519,10 @@ function calculateCombatProbabilities(
 
   // Apply engine condition modifier
   if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
-    const enginePenalty = -0.1;
-    evasiveChance += enginePenalty;
+    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
     evasiveModifiers.push({
       name: 'Poor Engine Condition',
-      value: enginePenalty,
+      value: COMBAT_CONFIG.ENGINE_PENALTY_VALUE,
       type: 'penalty',
     });
   }
@@ -619,37 +630,6 @@ function getCombatIntensityColor(intensity) {
     default:
       return '#ffffff'; // White - unknown/default
   }
-}
-
-/**
- * Get CSS class for ship condition display based on percentage value.
- * Thresholds reflect game balance: 75%+ good, 50%+ fair, 25%+ poor, <25% critical.
- * These thresholds align with gameplay mechanics where systems start failing below 50%.
- *
- * @param {number} condition - The condition value (0-100 percentage)
- * @returns {string} CSS class name for styling the condition display
- */
-function getConditionClass(condition) {
-  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
-  if (condition >= thresholds.EXCELLENT) return 'good';
-  if (condition >= thresholds.FAIR) return 'fair';
-  if (condition >= thresholds.POOR) return 'poor';
-  return 'critical';
-}
-
-/**
- * Format modifier names from snake_case to human-readable format.
- * Converts internal identifier format (hot_thruster) to display format (Hot Thruster).
- * Used for showing ship upgrades and quirks in the UI.
- *
- * @param {string} modifierName - The modifier name in snake_case format
- * @returns {string} Formatted display name with proper capitalization
- */
-function formatModifierName(modifierName) {
-  return modifierName
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 /**

@@ -120,6 +120,40 @@ describe('Modal Component', () => {
 
     expect(document.body.style.overflow).toBe('');
   });
+
+  it('should show close button even when no title is provided', () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}} showCloseButton={true}>
+        <p>Content without title</p>
+      </Modal>
+    );
+
+    const closeButton = screen.getByRole('button', { name: /close modal/i });
+    expect(closeButton).toBeInTheDocument();
+  });
+
+  it('should use unique modal-title IDs when multiple modals render', () => {
+    render(
+      <>
+        <Modal isOpen={true} onClose={() => {}} title="First Modal">
+          <p>First</p>
+        </Modal>
+        <Modal isOpen={true} onClose={() => {}} title="Second Modal">
+          <p>Second</p>
+        </Modal>
+      </>
+    );
+
+    const dialogs = document.querySelectorAll('[role="dialog"]');
+    expect(dialogs.length).toBe(2);
+    const labelledByIds = [...dialogs].map((d) =>
+      d.getAttribute('aria-labelledby')
+    );
+    // Both should have aria-labelledby pointing to unique IDs
+    expect(labelledByIds[0]).toBeTruthy();
+    expect(labelledByIds[1]).toBeTruthy();
+    expect(labelledByIds[0]).not.toBe(labelledByIds[1]);
+  });
 });
 
 /**

@@ -5,9 +5,12 @@ import {
   KARMA_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
-  SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
+import {
+  getConditionClass,
+  formatCargoDisplayName as formatModifierName,
+} from '../../game/utils/string-utils.js';
 
 /**
  * PirateEncounterPanel - React component for pirate encounter resolution
@@ -93,15 +96,21 @@ export function PirateEncounterPanel({
   const threatColor = getThreatLevelColor(threatLevel);
 
   return (
-    <div id="pirate-encounter-panel" className="panel-base visible">
+    <div
+      id="pirate-encounter-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pirate-encounter-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee encounter"
       >
         ×
       </button>
-      <h2>Pirate Encounter</h2>
+      <h2 id="pirate-encounter-title">Pirate Encounter</h2>
 
       <div className="encounter-content">
         {/* Threat Assessment Section */}
@@ -181,7 +190,7 @@ export function PirateEncounterPanel({
           <h3>Tactical Options</h3>
           <div className="options-list">
             {/* Fight Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'fight' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('fight')}
             >
@@ -209,10 +218,10 @@ export function PirateEncounterPanel({
                   Failure: Heavy hull damage (-30%), lose all cargo and ₡500
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Flee Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'flee' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('flee')}
             >
@@ -239,13 +248,13 @@ export function PirateEncounterPanel({
                   Failure: Hull damage (-20%), combat continues
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Negotiate Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'negotiate' ? 'selected' : ''} ${escalated ? 'disabled' : ''}`}
-              aria-disabled={escalated || undefined}
-              onClick={() => !escalated && handleOptionSelect('negotiate')}
+              disabled={escalated}
+              onClick={() => handleOptionSelect('negotiate')}
             >
               <div className="option-header">
                 <span className="option-name">Negotiate</span>
@@ -286,10 +295,10 @@ export function PirateEncounterPanel({
                   They're done talking.
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Surrender Option */}
-            <div
+            <button
               className={`tactical-option ${selectedOption === 'surrender' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('surrender')}
             >
@@ -332,7 +341,7 @@ export function PirateEncounterPanel({
                   </>
                 )}
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -394,6 +403,11 @@ function calculateTacticalProbabilities(
 
   // Calculate evasive maneuvers probability
   let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
+
+  // Apply engine condition modifier
+  if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
+    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
+  }
 
   // Apply hot_thruster quirk bonus
   if (quirks.includes('hot_thruster')) {
@@ -457,31 +471,4 @@ function getThreatLevelColor(threatLevel) {
     default:
       return '#ffffff'; // White - unknown threat
   }
-}
-
-/**
- * Get CSS class for condition display based on value
- *
- * @param {number} condition - The condition value (0-100)
- * @returns {string} CSS class name
- */
-function getConditionClass(condition) {
-  const thresholds = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS;
-  if (condition >= thresholds.EXCELLENT) return 'good';
-  if (condition >= thresholds.FAIR) return 'fair';
-  if (condition >= thresholds.POOR) return 'poor';
-  return 'critical';
-}
-
-/**
- * Format modifier names for display
- *
- * @param {string} modifierName - The modifier name (snake_case)
- * @returns {string} Formatted display name
- */
-function formatModifierName(modifierName) {
-  return modifierName
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }

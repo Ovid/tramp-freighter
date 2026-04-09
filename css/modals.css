@@ -191,7 +191,7 @@
 }
 
 .ship-name-input:focus {
-  outline: none;
+  outline: 2px solid transparent;
   border-color: #00dd77;
   box-shadow: var(--shadow-glow-primary);
 }

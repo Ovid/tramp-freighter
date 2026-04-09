@@ -8,6 +8,7 @@ import {
   BASE_PRICES,
   REPUTATION_BOUNDS,
 } from '../../game/constants.js';
+import { getKarmaClass, getReputationTier } from './dangerDisplayUtils';
 
 /**
  * NegotiationPanel - React component for pirate negotiation resolution
@@ -68,15 +69,21 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
     `The pirates are demanding ${demandPercent}% of your cargo as tribute.`;
 
   return (
-    <div id="negotiation-panel" className="panel-base visible">
+    <div
+      id="negotiation-panel"
+      className="panel-base visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="negotiation-panel-title"
+    >
       <button
         className="close-btn"
         onClick={() => onChoice('flee')}
-        aria-label="Close"
+        aria-label="Flee negotiation"
       >
         ×
       </button>
-      <h2>Negotiation</h2>
+      <h2 id="negotiation-panel-title">Negotiation</h2>
 
       <div className="negotiation-content">
         {/* Negotiation Context Section */}
@@ -133,7 +140,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
           <h3>Dialogue Options</h3>
           <div className="options-list">
             {/* Counter-Proposal Option */}
-            <div
+            <button
               className={`negotiation-option ${selectedOption === 'counter_proposal' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('counter_proposal')}
             >
@@ -189,11 +196,11 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Medicine Claim Option - Only if player has medicine */}
             {hasMedicine && (
-              <div
+              <button
                 className={`negotiation-option conditional ${selectedOption === 'medicine_claim' ? 'selected' : ''}`}
                 onClick={() => handleOptionSelect('medicine_claim')}
               >
@@ -234,12 +241,12 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Intel Offer Option - Only if player has intelligence */}
             {hasIntelligence && (
-              <div
+              <button
                 className={`negotiation-option conditional ${selectedOption === 'intel_offer' ? 'selected' : ''}`}
                 onClick={() => handleOptionSelect('intel_offer')}
               >
@@ -297,11 +304,11 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Accept Demand Option */}
-            <div
+            <button
               className={`negotiation-option ${selectedOption === 'accept_demand' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('accept_demand')}
             >
@@ -353,7 +360,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                   </>
                 )}
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -402,7 +409,7 @@ function calculateNegotiationProbabilities(
   _intelligence = {}
 ) {
   // Calculate karma modifier
-  const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE || 0.0005);
+  const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE ?? 0.0005);
 
   // Counter-proposal analysis
   const counterProposalModifiers = [];
@@ -474,20 +481,6 @@ function getEstimatedPrice(good) {
 }
 
 /**
- * Get CSS class for karma display based on value
- *
- * @param {number} karma - Current karma value
- * @returns {string} CSS class name
- */
-function getKarmaClass(karma = 0) {
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.SAINT) return 'very-good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.GOOD) return 'good';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.BAD) return 'neutral';
-  if (karma >= KARMA_CONFIG.DISPLAY_THRESHOLDS.VILLAIN) return 'bad';
-  return 'very-bad';
-}
-
-/**
  * Get CSS class for reputation display based on value
  *
  * @param {number} reputation - Current reputation value
@@ -500,22 +493,6 @@ function getReputationClass(reputation = 0) {
   if (reputation >= REPUTATION_BOUNDS.NEUTRAL_MIN) return 'neutral';
   if (reputation >= REPUTATION_BOUNDS.COLD_MIN) return 'cold';
   return 'hostile';
-}
-
-/**
- * Get reputation tier name for display
- *
- * @param {number} reputation - Current reputation value
- * @returns {string} Reputation tier name
- */
-function getReputationTier(reputation = 0) {
-  if (reputation >= 90) return 'Family';
-  if (reputation >= 60) return 'Trusted';
-  if (reputation >= 30) return 'Friendly';
-  if (reputation >= 10) return 'Warm';
-  if (reputation >= -10) return 'Neutral';
-  if (reputation >= -50) return 'Cold';
-  return 'Hostile';
 }
 
 /**

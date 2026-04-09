@@ -66,11 +66,17 @@ export function DangerWarningDialog({
   const zoneInfo = getZoneDisplayInfo(dangerZone);
 
   return (
-    <div id="danger-warning-dialog" className="panel-base visible">
+    <div
+      id="danger-warning-dialog"
+      className="panel-base visible"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="danger-warning-title"
+    >
       <button className="close-btn" onClick={onCancel} aria-label="Close">
         ×
       </button>
-      <h2>Jump Warning</h2>
+      <h2 id="danger-warning-title">Jump Warning</h2>
 
       <div className="warning-content">
         {/* Destination Info Section */}
@@ -163,11 +169,27 @@ export function DangerWarningDialog({
                     </span>
                   </div>
                 )}
+                {factions?.authorities < 0 && (
+                  <div className="factor warning">
+                    <span className="factor-icon">🛡️</span>
+                    <span className="factor-text">
+                      Poor authority standing increases inspection risk
+                    </span>
+                  </div>
+                )}
                 {factions?.outlaws > 0 && (
                   <div className="factor positive">
                     <span className="factor-icon">🏴‍☠️</span>
                     <span className="factor-text">
                       Outlaw reputation may deter some pirates
+                    </span>
+                  </div>
+                )}
+                {factions?.outlaws < 0 && (
+                  <div className="factor warning">
+                    <span className="factor-icon">🏴‍☠️</span>
+                    <span className="factor-text">
+                      Poor outlaw standing increases pirate aggression
                     </span>
                   </div>
                 )}

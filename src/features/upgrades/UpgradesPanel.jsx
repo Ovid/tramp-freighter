@@ -81,10 +81,7 @@ export function UpgradesPanel({ onClose }) {
           <div className="upgrade-name-container">
             <span className="upgrade-name">{upgrade.name}</span>
             {hasTradeoff && (
-              <span
-                className="upgrade-warning-symbol"
-                title="This upgrade has tradeoffs"
-              >
+              <span className="upgrade-warning-symbol" aria-hidden="true">
                 {' '}
                 ⚠
               </span>
@@ -148,8 +145,15 @@ export function UpgradesPanel({ onClose }) {
 
     return (
       <div className="upgrade-confirmation-overlay">
-        <div className="upgrade-confirmation-dialog">
-          <h3 className="upgrade-confirmation-title">{upgrade.name}</h3>
+        <div
+          className="upgrade-confirmation-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="upgrade-confirm-title"
+        >
+          <h3 id="upgrade-confirm-title" className="upgrade-confirmation-title">
+            {upgrade.name}
+          </h3>
 
           <div className="upgrade-confirmation-effects">
             {effectsText.map((effect, index) => (
@@ -159,7 +163,8 @@ export function UpgradesPanel({ onClose }) {
             ))}
             {hasTradeoff && (
               <div className="upgrade-effect-item upgrade-tradeoff-item">
-                ⚠ {upgrade.tradeoff}
+                <span aria-hidden="true">⚠ </span>
+                {upgrade.tradeoff}
               </div>
             )}
           </div>

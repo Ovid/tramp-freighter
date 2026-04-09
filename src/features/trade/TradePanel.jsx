@@ -273,13 +273,11 @@ export function TradePanel({ onClose }) {
                       </button>
                     </div>
 
-                    <div
-                      className={`validation-message ${
-                        !validation.valid ? 'error' : ''
-                      }`}
-                    >
-                      {!validation.valid && validation.reason}
-                    </div>
+                    {!validation.valid && (
+                      <div className="validation-message error" role="alert">
+                        {validation.reason}
+                      </div>
+                    )}
                   </div>
                 );
               });
@@ -319,14 +317,12 @@ export function TradePanel({ onClose }) {
                   const purchaseSystem = starData.find(
                     (s) => s.id === stack.buySystem
                   );
-                  if (!purchaseSystem) {
-                    throw new Error(
-                      `Invalid cargo stack: purchase system ID ${stack.buySystem} not found in star data`
-                    );
-                  }
 
                   const ageText = formatCargoAge(currentDay, stack.buyDate);
-                  detailsText += ` in ${purchaseSystem.name} (${ageText})`;
+                  const systemName = purchaseSystem
+                    ? purchaseSystem.name
+                    : 'Unknown System';
+                  detailsText += ` in ${systemName} (${ageText})`;
                 }
 
                 let profitText = '';
@@ -408,6 +404,8 @@ export function TradePanel({ onClose }) {
                 id="toggle-hidden-cargo-btn"
                 className="toggle-hidden-cargo-btn"
                 onClick={() => setHiddenCargoCollapsed(!hiddenCargoCollapsed)}
+                aria-expanded={!hiddenCargoCollapsed}
+                aria-controls="hidden-cargo-content"
               >
                 {hiddenCargoCollapsed ? 'Show' : 'Hide'}
               </button>
