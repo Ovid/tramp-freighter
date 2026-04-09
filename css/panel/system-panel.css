@@ -132,18 +132,18 @@
 }
 
 .event-icon {
-  font-size: 20px;
+  font-size: var(--font-size-title);
 }
 
 .event-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .event-description {
   color: #ffffff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   line-height: 1.4;
 }
 
@@ -193,13 +193,13 @@
 .connection-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   margin-bottom: 4px;
 }
 
 .connection-details {
   color: #aaa;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 /* Security Level Styling */
@@ -220,7 +220,7 @@
   margin: 10px 0;
   padding: 10px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .system-panel .validation-message.error {
@@ -239,7 +239,7 @@
   border-radius: 5px;
   color: #00ff88;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
@@ -257,4 +257,3 @@
   border-color: #666;
   color: #666;
 }
-

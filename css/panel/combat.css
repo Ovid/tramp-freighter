@@ -61,7 +61,7 @@
 .flee-failed-title {
   color: #ff0000;
   font-weight: bold;
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   text-transform: uppercase;
   letter-spacing: 2px;
   text-shadow: 0 0 8px #ff0000;
@@ -76,13 +76,13 @@
 
 .flee-failed-body p {
   color: #ffffff;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   margin: 0;
 }
 
 .flee-failed-damage {
   color: #ff6b6b;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   padding: 8px 10px;
   background-color: rgba(255, 0, 0, 0.15);
   border-left: 3px solid #ff0000;
@@ -125,7 +125,7 @@
 
 .intensity-value {
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   text-transform: uppercase;
   text-shadow: 0 0 5px currentColor;
   padding: 4px 8px;
@@ -194,7 +194,7 @@
 .condition-label {
   color: #ffaa00;
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .condition-value {
@@ -228,7 +228,7 @@
 
 .condition-impact {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-style: italic;
   text-align: right;
 }
@@ -269,12 +269,12 @@
 .modifier-name {
   color: #ffffff;
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .modifier-effects {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 /* Combat Options Section */
@@ -319,12 +319,12 @@
 .option-name {
   color: #ffffff;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .option-type {
   color: #ffaa00;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   text-transform: uppercase;
   background-color: rgba(255, 170, 0, 0.2);
   padding: 2px 6px;
@@ -334,7 +334,7 @@
 .option-description {
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 12px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 /* Probability Analysis */
@@ -393,22 +393,22 @@
 
 .breakdown-label {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .breakdown-value {
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .breakdown-value.final {
   color: #ffaa00;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .breakdown-value.guaranteed {
   color: #00ff88;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 /* Option Outcomes */
@@ -423,7 +423,7 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   border-left: 3px solid;
 }
 
@@ -465,7 +465,7 @@
 .combat-btn {
   padding: 12px 24px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -541,10 +541,10 @@
   }
 
   .probability-breakdown {
-    font-size: 11px;
+    font-size: var(--font-size-small);
   }
 
   .option-name {
-    font-size: 14px;
+    font-size: var(--font-size-large);
   }
 }

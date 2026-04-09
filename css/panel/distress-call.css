@@ -490,7 +490,7 @@
 
 .restriction-text {
   color: #ff6b6b;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-weight: bold;
   text-align: center;
 }

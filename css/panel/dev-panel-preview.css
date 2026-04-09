@@ -32,7 +32,7 @@
   border-radius: 4px;
   color: var(--color-white);
   font-family: var(--font-family-mono);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   cursor: pointer;
   transition: var(--transition-fast);
 }

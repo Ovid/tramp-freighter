@@ -130,7 +130,7 @@
   color: #00ff88;
   border: 1px solid #00ff88;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -161,7 +161,7 @@
   color: #000000;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 15px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -224,7 +224,7 @@
 .free-repair-info h4 {
   margin-bottom: 8px;
   color: #00ff88;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .free-repair-details {
@@ -235,7 +235,7 @@
 
 .free-repair-details p {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .free-repair-details .tier-info {
@@ -262,7 +262,7 @@
   color: #000000;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -295,7 +295,7 @@
 .validation-info h4 {
   margin-bottom: 12px;
   color: #ffaa00;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .npc-status-list {
@@ -316,12 +316,12 @@
 
 .npc-info {
   color: #ffffff;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .status-message {
   color: #ffaa00;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-style: italic;
   text-align: right;
   max-width: 200px;
@@ -335,7 +335,7 @@
 .tier-requirements p {
   margin-bottom: 8px;
   color: #ffaa00;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-weight: bold;
 }
 
@@ -348,7 +348,7 @@
 .tier-requirements li {
   margin-bottom: 4px;
   color: #cccccc;
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 .no-npcs {
@@ -453,7 +453,7 @@
   padding: 10px;
   margin-top: 10px;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   display: none;
 }
 
@@ -484,4 +484,3 @@
   border: 1px solid #00ff88;
   color: #00ff88;
 }
-

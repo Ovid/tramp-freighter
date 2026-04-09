@@ -158,32 +158,32 @@
 }
 
 .quirk-icon {
-  font-size: 20px;
+  font-size: var(--font-size-title);
   color: #00ff88;
 }
 
 .quirk-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 .quirk-description {
   color: #ffffff;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   line-height: 1.5;
   margin-bottom: 8px;
 }
 
 .quirk-effect {
   color: #4fc3f7;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   margin-bottom: 4px;
 }
 
 .quirk-flavor {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-style: italic;
   line-height: 1.4;
 }
@@ -211,4 +211,3 @@
   background-color: rgba(0, 255, 136, 0.2);
   color: #ffffff;
 }
-

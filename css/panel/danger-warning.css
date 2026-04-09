@@ -65,7 +65,7 @@
 }
 
 .destination-name {
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   font-weight: bold;
   color: #ffffff;
   text-align: center;
@@ -88,7 +88,7 @@
 
 .classification-value {
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   text-transform: uppercase;
   text-shadow: 0 0 5px currentColor;
   padding: 4px 8px;
@@ -156,12 +156,12 @@
 .risk-label {
   color: #ffffff;
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .risk-value {
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   padding: 2px 6px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -189,7 +189,7 @@
 
 .risk-description {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 /* Risk Factors */
@@ -227,14 +227,14 @@
 }
 
 .factor-icon {
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   width: 20px;
   text-align: center;
 }
 
 .factor-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 /* Safety Recommendations Section */
@@ -275,14 +275,14 @@
 }
 
 .rec-icon {
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   width: 20px;
   text-align: center;
 }
 
 .rec-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 /* Action Buttons */
@@ -299,14 +299,14 @@
   color: #ff6b6b;
   font-weight: bold;
   text-align: center;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   margin-bottom: 10px;
 }
 
 .warning-actions .warning-btn {
   padding: 12px 24px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -372,10 +372,10 @@
   }
 
   .destination-name {
-    font-size: 16px;
+    font-size: var(--font-size-xlarge);
   }
 
   .classification-value {
-    font-size: 14px;
+    font-size: var(--font-size-large);
   }
 }

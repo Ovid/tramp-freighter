@@ -109,12 +109,12 @@
 .encounter-type {
   color: #ffffff;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .result-status {
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   text-transform: uppercase;
   padding: 4px 12px;
   border-radius: 3px;
@@ -212,12 +212,12 @@
 .modifier-name {
   color: #ffffff;
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .modifier-impact {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   padding: 2px 8px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -240,7 +240,7 @@
 
 .modifier-description {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   margin-top: 5px;
 }
 
@@ -271,7 +271,7 @@
 .consequence-category h4 {
   margin-bottom: 12px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -303,13 +303,13 @@
 
 .change-label {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   min-width: 80px;
 }
 
 .change-value {
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   padding: 2px 6px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -327,7 +327,7 @@
 
 .change-reason {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-style: italic;
 }
 
@@ -341,14 +341,14 @@
 
 .current-label {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   margin-right: 8px;
 }
 
 .current-value,
 .faction-value {
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   padding: 2px 6px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -363,7 +363,7 @@
 
 .faction-name {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 /* Karma and Reputation Value Colors (scoped to outcome panel) */
@@ -448,14 +448,14 @@
 .effect-icon {
   color: var(--color-info-accent);
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   width: 20px;
   text-align: center;
 }
 
 .effect-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 /* Action Buttons */
@@ -471,7 +471,7 @@
 .outcome-btn {
   padding: 12px 24px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;

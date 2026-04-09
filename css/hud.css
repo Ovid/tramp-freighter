@@ -228,7 +228,7 @@
   background: none;
   border: none;
   color: var(--color-primary);
-  font-size: 20px;
+  font-size: var(--font-size-title);
   cursor: pointer;
   padding: var(--close-button-padding);
 }
@@ -312,7 +312,7 @@
 
 .connected-system-info {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 11px;
+  font-size: var(--font-size-small);
   margin-top: 2px;
 }
 
@@ -330,7 +330,7 @@
   color: #00ff88;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -375,7 +375,7 @@
   color: #ffffff;
   border: 2px solid var(--border-primary);
   border-radius: 5px;
-  font-size: 20px;
+  font-size: var(--font-size-title);
   font-family: var(--font-family-mono);
   cursor: pointer;
   transition: var(--transition-fast);
@@ -521,7 +521,7 @@
   border: var(--panel-border-width) solid var(--border-primary);
   border-radius: var(--panel-border-radius);
   color: #ffffff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   display: none;
   z-index: var(--z-panel);
   max-height: calc(100vh - 40px);
@@ -548,7 +548,7 @@
 #station-interface h2 {
   margin: 0;
   color: #00ff88;
-  font-size: 20px;
+  font-size: var(--font-size-title);
   text-align: center;
 }
 
@@ -595,7 +595,7 @@
 
 .station-people h3 {
   color: #00ff88;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   margin-bottom: 10px;
   letter-spacing: 1px;
 }
@@ -614,7 +614,7 @@
   border: 2px solid #00ff88;
   border-radius: 5px;
   font-family: 'Courier New', monospace;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -646,16 +646,16 @@
 .npc-btn .npc-name {
   color: #ffffff;
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .npc-btn .npc-role {
   color: #aaaaaa;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .npc-tier {
-  font-size: 10px;
+  font-size: var(--font-size-small);
   padding: 2px 6px;
   border-radius: 3px;
   text-transform: uppercase;
@@ -697,7 +697,7 @@
   color: #ffffff;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -750,7 +750,7 @@
   margin-bottom: 10px;
   color: #ffffff;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   animation: slideIn 0.3s ease-out;
@@ -851,7 +851,7 @@
 
 .menu-subtitle {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
+  font-size: var(--font-size-large);
   margin-bottom: 40px;
   font-family: 'Courier New', monospace;
 }
@@ -870,7 +870,7 @@
   color: #ffffff;
   border: 2px solid #00ff88;
   border-radius: 5px;
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -906,7 +906,7 @@
 
 .menu-version {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-family: 'Courier New', monospace;
 }
 
@@ -923,7 +923,7 @@
   }
 
   .menu-subtitle {
-    font-size: 12px;
+    font-size: var(--font-size-normal);
     margin-bottom: 24px;
   }
 
@@ -933,7 +933,7 @@
   }
 
   .menu-footer {
-    font-size: 10px;
+    font-size: var(--font-size-small);
   }
 }
 
