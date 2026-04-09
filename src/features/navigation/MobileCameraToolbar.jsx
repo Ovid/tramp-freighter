@@ -5,6 +5,7 @@ export function MobileCameraToolbar({
   onZoomOut,
   onFindStar,
   stars,
+  visitedSet,
   toggles,
   onToggle,
   onShowInstructions,
@@ -44,6 +45,7 @@ export function MobileCameraToolbar({
           </option>
           {stars.map((star) => (
             <option key={star.id} value={star.id}>
+              {visitedSet?.has(star.id) ? '\u2713 ' : '  '}
               {star.name}
             </option>
           ))}

@@ -23,7 +23,7 @@ export function CameraControls({
   const starData = useStarData();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
-  useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const currentLocation = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
@@ -31,9 +31,13 @@ export function CameraControls({
   const [showAchievements, setShowAchievements] = useState(false);
   const controlsRef = useRef(null);
 
+  const { isMobile } = useMobile();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
-  const visitedSet = new Set(game.getVisitedSystems());
+  const visitedSet = useMemo(
+    () => new Set(game.getVisitedSystems()),
+    [game, currentLocation]
+  );
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];
@@ -41,7 +45,7 @@ export function CameraControls({
   }, [starData]);
 
   const collapseSettings = useCallback(() => setIsExpanded(false), []);
-  useClickOutside(controlsRef, collapseSettings, isExpanded);
+  useClickOutside(controlsRef, collapseSettings, isExpanded && !isMobile);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -64,8 +68,6 @@ export function CameraControls({
     game.setPreference('jumpWarningsEnabled', !jumpWarningsEnabled);
   };
 
-  const { isMobile } = useMobile();
-
   if (isMobile) {
     return (
       <>
@@ -77,6 +79,7 @@ export function CameraControls({
             if (!isNaN(systemId)) selectStarById(systemId);
           }}
           stars={sortedStars}
+          visitedSet={visitedSet}
           toggles={{
             showAntimatter: antimatter,
             showJumpWarnings: jumpWarningsEnabled,
