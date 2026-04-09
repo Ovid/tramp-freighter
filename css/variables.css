@@ -252,7 +252,9 @@
   }
 }
 
-/* Consolidated mobile full-screen override for all game panels */
+/* Consolidated mobile full-screen override for all game panels.
+   Uses fully opaque black (not var(--bg-panel) at 0.95) to prevent
+   starmap bleed-through on small screens during encounters. */
 @media (max-width: 600px) {
   #refuel-panel,
   #trade-panel,
@@ -271,7 +273,6 @@
   #pirate-encounter-panel,
   .dialogue-panel,
   .ship-status-panel,
-  .system-info-panel,
   .jump-dialog,
   .system-panel {
     position: fixed;
