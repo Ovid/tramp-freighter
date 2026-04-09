@@ -304,3 +304,20 @@
   outline: 2px solid var(--color-danger);
   outline-offset: 2px;
 }
+
+/* Mobile modal styles — breakpoint: 600px matches --breakpoint-mobile */
+@media (max-width: 600px) {
+  .modal-dialog {
+    padding: 16px;
+    width: 100%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
