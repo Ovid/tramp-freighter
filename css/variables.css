@@ -155,6 +155,15 @@
   --breakpoint-small-mobile: 480px;
 }
 
+/* Mobile safe area insets — applied on notched/island devices */
+/* Breakpoint: 600px matches --breakpoint-mobile (CSS vars can't be used in @media) */
+@media (max-width: 600px) {
+  :root {
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* Utility Classes for Common Patterns */
 .panel-base {
   position: absolute;
