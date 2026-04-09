@@ -24,8 +24,8 @@
   border: 2px solid var(--border-primary);
   border-radius: var(--panel-border-radius);
   padding: 30px;
-  max-width: 500px;
-  min-width: 400px;
+  max-width: var(--modal-max-width, 500px);
+  min-width: var(--modal-min-width, 400px);
   max-height: 85vh;
   display: flex;
   flex-direction: column;

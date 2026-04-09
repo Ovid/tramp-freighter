@@ -161,6 +161,10 @@
   :root {
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
+    --hud-width: 100%;
+    --station-width: 100%;
+    --modal-min-width: 0;
+    --modal-max-width: 100%;
   }
 }
 

@@ -6,7 +6,7 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  width: 300px;
+  width: var(--hud-width, 300px);
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   background-color: var(--bg-overlay-darker);
@@ -515,7 +515,7 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 400px;
+  width: var(--station-width, 400px);
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.95);
   border: var(--panel-border-width) solid var(--border-primary);
