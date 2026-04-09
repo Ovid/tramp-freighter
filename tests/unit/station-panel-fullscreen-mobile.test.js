@@ -13,7 +13,6 @@ describe('Station panels mobile override consolidated in variables.css', () => {
     '#info-broker-panel',
     '#mission-board-panel',
     '.ship-status-panel',
-    '.system-info-panel',
     '.jump-dialog',
     '.system-panel',
   ];

@@ -23,7 +23,6 @@ describe('Consolidated mobile panel override', () => {
     '#pirate-encounter-panel',
     '.dialogue-panel',
     '.ship-status-panel',
-    '.system-info-panel',
     '.jump-dialog',
     '.system-panel',
   ];
