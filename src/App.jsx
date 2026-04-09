@@ -577,21 +577,21 @@ export default function App({ devMode = false }) {
                   />
                 </main>
               </StarmapProvider>
+
+              {/* Pavonis Run endgame sequence */}
+              {viewMode === VIEW_MODES.PAVONIS_RUN && (
+                <PavonisRun
+                  onComplete={handlePavonisComplete}
+                  onCancel={() => setViewMode(VIEW_MODES.STATION)}
+                />
+              )}
+
+              {/* Epilogue after Pavonis Run */}
+              {viewMode === VIEW_MODES.EPILOGUE && (
+                <Epilogue onCreditsComplete={handleCreditsComplete} />
+              )}
             </MobileProvider>
           )}
-
-        {/* Pavonis Run endgame sequence */}
-        {viewMode === VIEW_MODES.PAVONIS_RUN && (
-          <PavonisRun
-            onComplete={handlePavonisComplete}
-            onCancel={() => setViewMode(VIEW_MODES.STATION)}
-          />
-        )}
-
-        {/* Epilogue after Pavonis Run */}
-        {viewMode === VIEW_MODES.EPILOGUE && (
-          <Epilogue onCreditsComplete={handleCreditsComplete} />
-        )}
       </div>
     </ErrorBoundary>
   );
