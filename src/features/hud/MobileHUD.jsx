@@ -87,7 +87,10 @@ export function MobileHUD({ onDock, onSystemInfo, panelActive, onDismissPanel })
             <DateDisplay />
             <ShipStatus />
             <LocationDisplay />
-            <QuickAccessButtons onDock={onDock} onSystemInfo={onSystemInfo} />
+            <QuickAccessButtons
+              onDock={() => { setExpanded(false); onDock(); }}
+              onSystemInfo={() => { setExpanded(false); onSystemInfo(); }}
+            />
             <ActiveMissions />
           </div>
         </>

@@ -43,4 +43,14 @@ describe('Consolidated mobile panel override', () => {
     expect(css).toContain('--mobile-hud-height');
     expect(css).toContain('48px');
   });
+
+  it('should set z-index to --z-panel-fullscreen so HUD bar stays above panels', () => {
+    const consolidatedBlock = css.match(
+      /Consolidated mobile full-screen override[^]*?@media\s*\(max-width:\s*600px\)\s*\{([^]*?)\n\}/s
+    );
+    expect(consolidatedBlock).not.toBeNull();
+    expect(consolidatedBlock[1]).toContain(
+      'z-index: var(--z-panel-fullscreen)'
+    );
+  });
 });

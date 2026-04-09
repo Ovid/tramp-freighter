@@ -248,6 +248,7 @@
     background-color: var(--bg-panel);
     padding-top: var(--panel-padding);
     overflow-y: auto;
+    z-index: var(--z-panel-fullscreen);
   }
 }
 
@@ -283,6 +284,7 @@
     border-radius: 0;
     overflow-y: auto;
     padding-top: var(--panel-padding, 20px);
+    z-index: var(--z-panel-fullscreen);
   }
 }
 
