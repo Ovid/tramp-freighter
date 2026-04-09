@@ -40,6 +40,15 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+// Mock window.matchMedia for components using useMobileLayout
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.matchMedia = () => ({
+    matches: false,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  });
+}
+
 // Mock canvas for tests that create textures
 class CanvasRenderingContext2DMock {
   constructor() {

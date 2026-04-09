@@ -25,6 +25,8 @@ import { getPageTitle } from './game/utils/page-title.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
+import { MobileProvider } from './context/MobileContext';
+import { useMobileLayout } from './hooks/useMobileLayout';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
 import { AchievementToast } from './features/achievements/AchievementToast';
@@ -63,6 +65,7 @@ const VIEW_MODES = {
  */
 export default function App({ devMode = false }) {
   const game = useGame();
+  const { isMobile } = useMobileLayout();
   const notificationCtx = useNotificationContext();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
@@ -404,6 +407,7 @@ export default function App({ devMode = false }) {
         {/* Game components only rendered after title screen flow completes */}
         {viewMode !== VIEW_MODES.TITLE &&
           viewMode !== VIEW_MODES.SHIP_NAMING && (
+            <MobileProvider isMobile={isMobile}>
             <StarmapProvider value={starmapMethods}>
               {/* Starmap is always rendered (z-index 0) */}
               <ErrorBoundary>
@@ -560,6 +564,7 @@ export default function App({ devMode = false }) {
                 />
               </main>
             </StarmapProvider>
+            </MobileProvider>
           )}
 
         {/* Pavonis Run endgame sequence */}
