@@ -67,6 +67,11 @@ function createMockSceneComponents() {
   };
 }
 
+// Mock MobileContext
+vi.mock('../../src/context/MobileContext', () => ({
+  useMobile: () => ({ isMobile: false }),
+}));
+
 // Mock the scene module before tests run
 vi.mock('../../src/game/engine/scene', () => {
   const mockComponents = createMockSceneComponents();

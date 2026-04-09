@@ -51,6 +51,11 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: () => ({ jumpWarningsEnabled: true }),
 }));
 
+// Mock MobileContext
+vi.mock('../../src/context/MobileContext', () => ({
+  useMobile: () => ({ isMobile: false }),
+}));
+
 describe('Property: Settings Panel', () => {
   it('should start in collapsed state by default', () => {
     const mockHandlers = {

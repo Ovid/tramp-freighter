@@ -40,6 +40,11 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: () => ({ jumpWarningsEnabled: true }),
 }));
 
+// Mock MobileContext
+vi.mock('../../src/context/MobileContext', () => ({
+  useMobile: () => ({ isMobile: false }),
+}));
+
 describe('Settings Panel', () => {
   const defaultProps = {
     cameraState: { autoRotationEnabled: true, boundaryVisible: true },
