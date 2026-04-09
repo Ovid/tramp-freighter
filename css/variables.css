@@ -212,6 +212,17 @@
   }
 }
 
+/* Touch-friendly close buttons on mobile (44px minimum per WCAG 2.5.5) */
+@media (max-width: 600px) {
+  .close-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 /* Mirrors .centered-panel mobile override — kept separate due to .panel-base visibility logic */
 @media (max-width: 600px) {
   .panel-base {
