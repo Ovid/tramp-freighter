@@ -889,6 +889,33 @@
   font-family: 'Courier New', monospace;
 }
 
+/* Mobile title screen — breakpoint: 600px matches --breakpoint-mobile */
+@media (max-width: 600px) {
+  .menu-content {
+    min-width: 0;
+    padding: 20px;
+  }
+
+  .menu-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+
+  .menu-subtitle {
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+
+  .menu-buttons {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .menu-footer {
+    font-size: 10px;
+  }
+}
+
 /* Active Missions HUD */
 .active-missions-hud {
   margin-top: 10px;
