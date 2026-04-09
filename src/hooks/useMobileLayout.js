@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { UI_CONFIG } from '../game/constants.js';
 
-// Matches --breakpoint-mobile in CSS
-const MOBILE_QUERY = '(max-width: 600px)';
+const MOBILE_QUERY = `(max-width: ${UI_CONFIG.MOBILE_BREAKPOINT_PX}px)`;
 
 export function useMobileLayout() {
   const [isMobile, setIsMobile] = useState(

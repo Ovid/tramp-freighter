@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { MobileProvider, useMobile } from '../../src/context/MobileContext';
 
@@ -21,8 +21,10 @@ describe('MobileContext', () => {
   });
 
   it('should throw when useMobile is called outside provider', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => {
       renderHook(() => useMobile());
     }).toThrow('useMobile must be used within MobileProvider');
+    spy.mockRestore();
   });
 });
