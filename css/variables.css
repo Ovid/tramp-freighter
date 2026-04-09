@@ -86,6 +86,12 @@
   --z-hud: 200;
   --z-background: 1;
 
+  /* Mobile z-index scale (used for mobile layout stacking order) */
+  --z-camera-toolbar: 10;
+  --z-hud-collapsed: 20;
+  --z-panel-fullscreen: 30;
+  --z-hud-expanded: 40;
+
   /* Shadows and Effects */
   --shadow-glow-primary: 0 0 10px rgba(0, 255, 136, 0.5);
   --shadow-glow-secondary: 0 0 10px rgba(255, 170, 0, 0.5);
