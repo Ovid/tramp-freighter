@@ -255,6 +255,9 @@ export default function App({ devMode = false }) {
       // If in orbit mode, go to station
       game.dock();
       setViewMode(VIEW_MODES.STATION);
+      if (isMobile) {
+        setViewingSystemId(null);
+      }
     }
   };
 
