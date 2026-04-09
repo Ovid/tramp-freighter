@@ -285,6 +285,7 @@
     overflow-y: auto;
     padding-top: var(--panel-padding, 20px);
     z-index: var(--z-panel-fullscreen);
+    background-color: rgba(0, 0, 0, 1);
   }
 }
 
