@@ -165,6 +165,15 @@
     --station-width: 100%;
     --modal-min-width: 0;
     --modal-max-width: 100%;
+
+    /* Bump font sizes for mobile readability */
+    --font-size-small: 0.8125rem;
+    --font-size-normal: 0.875rem;
+    --font-size-medium: 0.9375rem;
+    --font-size-large: 1rem;
+    --font-size-xlarge: 1.125rem;
+    --font-size-xxlarge: 1.25rem;
+    --font-size-title: 1.5rem;
   }
 }
 
