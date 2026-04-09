@@ -10,10 +10,10 @@
 set -euo pipefail
 
 violations=$(
-  grep -rn 'font-size:\s*[0-9]*px' css/ \
+  grep -rn 'font-size:[[:space:]]*[0-9]*px' css/ \
     --include='*.css' \
     | grep -v 'css/variables.css' \
-    | grep -vE 'font-size:\s*(2[4-9]|[3-9][0-9]|[0-9]{3,})px' \
+    | grep -vE 'font-size:[[:space:]]*(2[4-9]|[3-9][0-9]|[0-9]{3,})px' \
   || true
 )
 
