@@ -504,7 +504,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
   #outcome-panel {
     width: 90vw;
     max-width: 800px;

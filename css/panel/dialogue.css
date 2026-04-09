@@ -252,7 +252,7 @@
 }
 
 /* Responsive Design for Smaller Screens */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dialogue-panel {
     width: 90vw;
     max-width: 500px;
