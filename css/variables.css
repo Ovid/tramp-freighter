@@ -264,7 +264,6 @@
   #mission-board-panel,
   #narrative-event-panel,
   #combat-panel,
-  #danger-warning-dialog,
   #distress-call-panel,
   #inspection-panel,
   #mechanical-failure-panel,
@@ -286,6 +285,22 @@
     overflow-y: auto;
     padding-top: var(--panel-padding, 20px);
     z-index: var(--z-panel-fullscreen);
+    background-color: rgba(0, 0, 0, 1);
+  }
+
+  /* Danger warning needs fullscreen layout but must stay above the system panel
+     that triggered it (both are position:fixed, so z-index decides paint order) */
+  #danger-warning-dialog {
+    position: fixed;
+    top: var(--mobile-hud-height, 0px);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--mobile-hud-height, 0px));
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+    overflow-y: auto;
+    padding-top: var(--panel-padding, 20px);
     background-color: rgba(0, 0, 0, 1);
   }
 }

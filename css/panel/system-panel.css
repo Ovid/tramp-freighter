@@ -39,6 +39,7 @@
 }
 
 .system-panel .close-btn {
+  position: static;
   background: none;
   border: none;
   color: var(--color-primary);

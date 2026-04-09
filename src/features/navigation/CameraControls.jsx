@@ -34,10 +34,10 @@ export function CameraControls({
   const { isMobile } = useMobile();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
-  const visitedSet = useMemo(
-    () => new Set(game.getVisitedSystems()),
-    [game, currentLocation]
-  );
+  const visitedSet = useMemo(() => {
+    void currentLocation;
+    return new Set(game.getVisitedSystems());
+  }, [game, currentLocation]);
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];
