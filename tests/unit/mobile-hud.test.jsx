@@ -91,37 +91,21 @@ describe('MobileHUD', () => {
     expect(screen.queryByTestId('resource-bar')).toBeNull();
   });
 
-  it('should expand on single click when a panel is active (dismisses panel)', () => {
-    const onDismissPanel = vi.fn();
-    const { rerender } = render(
+  it('should block expansion when a panel is active', () => {
+    render(
       <MobileProvider isMobile={true}>
         <MobileHUD
           onDock={() => {}}
           onSystemInfo={() => {}}
           panelActive={true}
-          onDismissPanel={onDismissPanel}
+          onDismissPanel={() => {}}
         />
       </MobileProvider>
     );
 
-    // Click the HUD bar — should dismiss panel AND expand
+    // Click the HUD bar — should NOT expand when panelActive is true
     fireEvent.click(screen.getByRole('button', { name: /expand hud/i }));
-    expect(onDismissPanel).toHaveBeenCalled();
-
-    // Simulate parent re-rendering with panelActive=false after dismiss
-    rerender(
-      <MobileProvider isMobile={true}>
-        <MobileHUD
-          onDock={() => {}}
-          onSystemInfo={() => {}}
-          panelActive={false}
-          onDismissPanel={onDismissPanel}
-        />
-      </MobileProvider>
-    );
-
-    // HUD should be expanded after single click
-    expect(screen.getByTestId('resource-bar')).toBeTruthy();
+    expect(screen.queryByTestId('resource-bar')).toBeNull();
   });
 
   it('should auto-collapse when panelActive becomes true', () => {

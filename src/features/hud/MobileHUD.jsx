@@ -61,9 +61,9 @@ export function MobileHUD({
       <button
         className="mobile-hud-bar"
         onClick={() => {
+          if (!expanded && panelActive) return;
           const willExpand = !expanded;
           setExpanded(willExpand);
-          if (willExpand && onDismissPanel) onDismissPanel();
         }}
         aria-label={expanded ? 'Collapse HUD' : 'Expand HUD'}
         aria-expanded={expanded}
