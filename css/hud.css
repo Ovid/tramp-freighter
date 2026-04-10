@@ -725,7 +725,7 @@
     border-radius: 0;
     padding-top: 20px;
     padding-bottom: calc(20px + var(--safe-bottom, 0px));
-    z-index: var(--z-camera-toolbar);
+    z-index: var(--z-panel-fullscreen);
     background-color: rgba(0, 0, 0, 1);
   }
 
