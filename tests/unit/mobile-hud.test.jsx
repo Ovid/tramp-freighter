@@ -98,7 +98,6 @@ describe('MobileHUD', () => {
           onDock={() => {}}
           onSystemInfo={() => {}}
           panelActive={true}
-          onDismissPanel={() => {}}
         />
       </MobileProvider>
     );

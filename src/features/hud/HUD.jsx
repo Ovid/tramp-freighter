@@ -25,9 +25,8 @@ import { useMobile } from '../../context/MobileContext';
  * @param {Function} onDock - Callback to trigger docking at a station
  * @param {Function} onSystemInfo - Callback to open system info panel
  * @param {boolean} panelActive - Whether a panel or encounter is currently active
- * @param {Function} onDismissPanel - Callback to dismiss the active station panel
  */
-export function HUD({ onDock, onSystemInfo, panelActive, onDismissPanel }) {
+export function HUD({ onDock, onSystemInfo, panelActive }) {
   const { isMobile } = useMobile();
 
   if (isMobile) {
@@ -36,7 +35,6 @@ export function HUD({ onDock, onSystemInfo, panelActive, onDismissPanel }) {
         onDock={onDock}
         onSystemInfo={onSystemInfo}
         panelActive={panelActive}
-        onDismissPanel={onDismissPanel}
       />
     );
   }

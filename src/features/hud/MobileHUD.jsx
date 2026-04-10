@@ -37,12 +37,7 @@ function getSeverityClass(value) {
   return CONDITION_TO_SEVERITY[getConditionClass(value)];
 }
 
-export function MobileHUD({
-  onDock,
-  onSystemInfo,
-  panelActive,
-  onDismissPanel,
-}) {
+export function MobileHUD({ onDock, onSystemInfo, panelActive }) {
   const [expanded, setExpanded] = useState(false);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);

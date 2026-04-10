@@ -434,9 +434,6 @@ export default function App({ devMode = false }) {
                       viewMode === VIEW_MODES.ENCOUNTER ||
                       showSystemPanel
                     }
-                    onDismissPanel={() => {
-                      handleClosePanel();
-                    }}
                   />
                 </nav>
                 <RumorAlert />
