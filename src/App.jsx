@@ -430,11 +430,12 @@ export default function App({ devMode = false }) {
                     onDock={handleDock}
                     onSystemInfo={handleOpenSystemInfo}
                     panelActive={
-                      activePanel !== null || viewMode === VIEW_MODES.ENCOUNTER
+                      activePanel !== null ||
+                      viewMode === VIEW_MODES.ENCOUNTER ||
+                      showSystemPanel
                     }
                     onDismissPanel={() => {
                       handleClosePanel();
-                      setViewingSystemId(null);
                     }}
                   />
                 </nav>

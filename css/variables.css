@@ -245,7 +245,7 @@
     max-height: none;
     transform: none;
     border-radius: 0;
-    background-color: var(--bg-panel);
+    background-color: rgba(0, 0, 0, 1);
     padding-top: var(--panel-padding);
     overflow-y: auto;
     z-index: var(--z-panel-fullscreen);

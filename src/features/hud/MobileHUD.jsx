@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { EVENT_NAMES, SHIP_CONFIG } from '../../game/constants.js';
+import { getConditionClass } from '../../game/utils/string-utils.js';
 import { ResourceBar } from './ResourceBar';
 import { DateDisplay } from './DateDisplay';
 import { ShipStatus } from './ShipStatus';
@@ -23,12 +24,15 @@ function getWorstResources(fuel, condition) {
   return [resources[0]];
 }
 
+const CONDITION_TO_SEVERITY = {
+  good: 'ok',
+  fair: 'ok',
+  poor: 'warning',
+  critical: 'critical',
+};
+
 function getSeverityClass(value) {
-  if (value < SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR)
-    return 'critical';
-  if (value < SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR)
-    return 'warning';
-  return 'ok';
+  return CONDITION_TO_SEVERITY[getConditionClass(value)];
 }
 
 export function MobileHUD({

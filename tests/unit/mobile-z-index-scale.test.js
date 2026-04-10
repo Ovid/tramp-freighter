@@ -30,6 +30,7 @@ describe('Mobile z-index scale', () => {
         `${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*(\\d+)`
       );
       const match = css.match(regex);
+      expect(match, `${name} should be defined in variables.css`).not.toBeNull();
       return parseInt(match[1], 10);
     });
     for (let i = 1; i < values.length; i++) {
@@ -39,6 +40,7 @@ describe('Mobile z-index scale', () => {
 
   it('should keep --z-modal higher than all mobile layers', () => {
     const modalMatch = css.match(/--z-modal:\s*(\d+)/);
+    expect(modalMatch, '--z-modal should be defined in variables.css').not.toBeNull();
     expect(parseInt(modalMatch[1], 10)).toBeGreaterThan(40);
   });
 });
