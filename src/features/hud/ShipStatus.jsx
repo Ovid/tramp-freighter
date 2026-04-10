@@ -24,7 +24,7 @@ export function ShipStatus() {
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
   // Null safety: Handle corrupted save data gracefully by providing defaults
-  const safeFuelCapacity = fuelCapacity ?? 100;
+  const safeFuelCapacity = fuelCapacity > 0 ? fuelCapacity : 100;
   const safeFuel = Math.round(
     ((fuel ?? safeFuelCapacity) / safeFuelCapacity) * 100
   );
