@@ -1,6 +1,7 @@
 import {
   GAME_VERSION,
   SHIP_CONFIG,
+  NEW_GAME_DEFAULTS,
   COMMODITY_TYPES,
   DEFAULT_PREFERENCES,
   INTELLIGENCE_CONFIG,
@@ -693,6 +694,9 @@ export function addStateDefaults(state, systemData) {
   if (state.ship.hiddenCargoCapacity === undefined) {
     state.ship.hiddenCargoCapacity = 0;
   }
+  if (state.ship.fuelCapacity === undefined) {
+    state.ship.fuelCapacity = SHIP_CONFIG.FUEL_CAPACITY;
+  }
 
   // Validate quirk IDs and remove unknown ones
   if (Array.isArray(state.ship.quirks)) {
@@ -710,6 +714,30 @@ export function addStateDefaults(state, systemData) {
       SHIP_CONFIG.UPGRADES,
       'upgrade'
     );
+  }
+
+  // Recompute capacities from validated upgrades so stale cached values
+  // (from older saves or corrected upgrade deltas) are replaced with the
+  // authoritative base + upgrade-delta sum.
+  {
+    let fuelCap = SHIP_CONFIG.FUEL_CAPACITY;
+    let cargoCap = NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY;
+    let hiddenCap = 0;
+    for (const id of state.ship.upgrades) {
+      const u = SHIP_CONFIG.UPGRADES[id];
+      if (!u) continue;
+      if (u.effects.fuelCapacity) fuelCap += u.effects.fuelCapacity;
+      if (u.effects.cargoCapacity) cargoCap += u.effects.cargoCapacity;
+      if (u.effects.hiddenCargoCapacity)
+        hiddenCap += u.effects.hiddenCargoCapacity;
+    }
+    state.ship.fuelCapacity = fuelCap;
+    state.ship.cargoCapacity = cargoCap;
+    state.ship.hiddenCargoCapacity = hiddenCap;
+    // Clamp fuel to the recalculated max so we never persist fuel > capacity
+    if (state.ship.fuel > fuelCap) {
+      state.ship.fuel = fuelCap;
+    }
   }
 
   // Validate cargo structure completeness

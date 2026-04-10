@@ -22,6 +22,11 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: () => ({ jumpWarningsEnabled: true }),
 }));
 
+// Mock MobileContext
+vi.mock('../../src/context/MobileContext', () => ({
+  useMobile: () => ({ isMobile: false }),
+}));
+
 // Stars where alphabetical order differs from distance order:
 // By distance: Sol (0), Zeta (5), Alpha (10)
 // By name:     Alpha, Sol, Zeta

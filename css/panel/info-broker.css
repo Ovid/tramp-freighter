@@ -79,7 +79,7 @@
 
 .rumor-description {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   line-height: 1.5;
   margin: 0;
 }
@@ -96,7 +96,7 @@
   border-radius: 3px;
   color: #00ff88;
   font-style: italic;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   line-height: 1.5;
   display: none;
 }
@@ -111,7 +111,7 @@
 
 .intelligence-description p {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   line-height: 1.5;
   margin: 0;
 }
@@ -141,12 +141,12 @@
 .intelligence-system-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .intelligence-visit-info {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   margin-top: 3px;
 }
 
@@ -158,7 +158,7 @@
 
 .intelligence-cost {
   color: #ffffff;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   font-weight: bold;
   min-width: 60px;
   text-align: right;
@@ -170,7 +170,7 @@
   color: #00ff88;
   border: 1px solid #00ff88;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -210,7 +210,7 @@
   border: none;
   border-bottom: 3px solid transparent;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -241,7 +241,7 @@
 
 .market-data-description p {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   line-height: 1.5;
   margin: 0;
 }
@@ -273,7 +273,7 @@
 .market-data-system-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 .market-data-meta {
@@ -285,13 +285,13 @@
 
 .market-data-source {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-style: italic;
 }
 
 .market-data-staleness {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .market-data-staleness.stale {
@@ -314,7 +314,7 @@
   padding: 6px 8px;
   background-color: rgba(0, 255, 136, 0.05);
   border-radius: 3px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .market-data-commodity {

@@ -1,4 +1,5 @@
 import { GameProvider } from '../src/context/GameContext.jsx';
+import { MobileProvider } from '../src/context/MobileContext.jsx';
 
 /**
  * React Testing Library utilities for testing React components and hooks.
@@ -7,15 +8,19 @@ import { GameProvider } from '../src/context/GameContext.jsx';
  */
 
 /**
- * Creates a wrapper component with GameProvider for testing hooks and components.
+ * Creates a wrapper component with GameProvider and MobileProvider for testing
+ * hooks and components.
  *
- * This wrapper provides the GameCoordinator context to components under test,
- * enabling them to use useGame, useGameEvent, and useGameAction hooks.
+ * This wrapper provides the GameCoordinator context and mobile detection context
+ * to components under test, enabling them to use useGame, useGameEvent,
+ * useGameAction, and useMobile hooks.
  *
  * Used with React Testing Library's renderHook and render functions.
  *
  * @param {GameCoordinator} game - The GameCoordinator instance to provide
- * @returns {Function} Wrapper component that provides GameContext
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.isMobile=false] - Whether to simulate mobile mode
+ * @returns {Function} Wrapper component that provides GameContext and MobileContext
  *
  * @example
  * const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
@@ -25,8 +30,12 @@ import { GameProvider } from '../src/context/GameContext.jsx';
  *   wrapper: createWrapper(game),
  * });
  */
-export function createWrapper(game) {
+export function createWrapper(game, { isMobile = false } = {}) {
   return function Wrapper({ children }) {
-    return <GameProvider game={game}>{children}</GameProvider>;
+    return (
+      <GameProvider game={game}>
+        <MobileProvider isMobile={isMobile}>{children}</MobileProvider>
+      </GameProvider>
+    );
   };
 }

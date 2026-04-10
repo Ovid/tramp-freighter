@@ -4,9 +4,11 @@ import { AchievementsModal } from '../achievements/AchievementsModal';
 import { CustomSelect } from '../../components/CustomSelect';
 import { useGame } from '../../context/GameContext';
 import { useStarmap } from '../../context/StarmapContext';
+import { useMobile } from '../../context/MobileContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { MobileCameraToolbar } from './MobileCameraToolbar';
 import { EVENT_NAMES } from '../../game/constants';
 
 export function CameraControls({
@@ -21,7 +23,7 @@ export function CameraControls({
   const starData = useStarData();
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
-  useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const currentLocation = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [antimatter, setAntimatter] = useState(false);
@@ -29,9 +31,14 @@ export function CameraControls({
   const [showAchievements, setShowAchievements] = useState(false);
   const controlsRef = useRef(null);
 
+  const { isMobile } = useMobile();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
-  const visitedSet = new Set(game.getVisitedSystems());
+  // Invalidate when location changes — visited set only grows on jump
+  const visitedSet = useMemo(() => {
+    void currentLocation;
+    return new Set(game.getVisitedSystems());
+  }, [game, currentLocation]);
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];
@@ -39,7 +46,7 @@ export function CameraControls({
   }, [starData]);
 
   const collapseSettings = useCallback(() => setIsExpanded(false), []);
-  useClickOutside(controlsRef, collapseSettings, isExpanded);
+  useClickOutside(controlsRef, collapseSettings, isExpanded && !isMobile);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -61,6 +68,49 @@ export function CameraControls({
   const toggleJumpWarnings = () => {
     game.setPreference('jumpWarningsEnabled', !jumpWarningsEnabled);
   };
+
+  if (isMobile) {
+    return (
+      <>
+        <MobileCameraToolbar
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          onFindStar={(val) => {
+            const systemId = parseInt(val, 10);
+            if (!isNaN(systemId)) selectStarById(systemId);
+          }}
+          stars={sortedStars}
+          visitedSet={visitedSet}
+          toggles={{
+            showAntimatter: antimatter,
+            showJumpWarnings: jumpWarningsEnabled,
+            showStarRotation: cameraState.autoRotationEnabled,
+            showBoundary: cameraState.boundaryVisible,
+          }}
+          onToggle={(key) => {
+            const handlers = {
+              showAntimatter: toggleAntimatter,
+              showJumpWarnings: toggleJumpWarnings,
+              showStarRotation: onToggleRotation,
+              showBoundary: onToggleBoundary,
+            };
+            handlers[key]?.();
+          }}
+          onShowInstructions={() => setShowInstructions(true)}
+          onShowAchievements={() => setShowAchievements(true)}
+        />
+        <InstructionsModal
+          isOpen={showInstructions}
+          onClose={() => setShowInstructions(false)}
+          shipName={shipName}
+        />
+        <AchievementsModal
+          isOpen={showAchievements}
+          onClose={() => setShowAchievements(false)}
+        />
+      </>
+    );
+  }
 
   return (
     <div

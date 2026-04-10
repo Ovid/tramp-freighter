@@ -81,7 +81,7 @@
 .demand-value {
   color: #ffffff;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .situation-description {
@@ -100,7 +100,7 @@
   padding: 8px;
   background-color: rgba(255, 170, 0, 0.1);
   border-radius: 3px;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 /* Status Section */
@@ -133,12 +133,12 @@
 .status-label {
   color: #00ff88;
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .status-value {
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .status-value.very-good {
@@ -237,12 +237,12 @@
 .option-name {
   color: #ffffff;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .option-type {
   color: #ffaa00;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   text-transform: uppercase;
   background-color: rgba(255, 170, 0, 0.2);
   padding: 2px 6px;
@@ -262,7 +262,7 @@
   background-color: rgba(255, 170, 0, 0.05);
   border-left: 3px solid #ffaa00;
   border-radius: 3px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   line-height: 1.4;
 }
 
@@ -297,13 +297,13 @@
 
 .prob-label {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-weight: bold;
 }
 
 .prob-value {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   color: #ffaa00;
 }
 
@@ -318,7 +318,7 @@
   padding: 4px 8px;
   margin-bottom: 4px;
   border-radius: 2px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 .modifier-display.bonus {
@@ -337,7 +337,7 @@
 
 .modifier-value {
   font-weight: bold;
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 .modifier-display.bonus .modifier-value {
@@ -361,13 +361,13 @@
 
 .condition-label {
   color: #00ff88;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: bold;
 }
 
 .condition-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 /* Option Outcomes */
@@ -382,7 +382,7 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   border-left: 3px solid;
 }
 
@@ -431,7 +431,7 @@
 .negotiation-btn {
   padding: 12px 24px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -469,7 +469,7 @@
   font-style: italic;
   text-align: center;
   padding: 10px;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 /* Responsive Design */
@@ -495,11 +495,6 @@
 }
 
 @media (max-width: 600px) {
-  #negotiation-panel {
-    width: 95vw;
-    padding: 15px;
-  }
-
   .negotiation-actions {
     flex-direction: column;
     gap: 10px;
@@ -511,11 +506,11 @@
   }
 
   .option-dialogue {
-    font-size: 13px;
+    font-size: var(--font-size-medium);
   }
 
   .option-name {
-    font-size: 14px;
+    font-size: var(--font-size-large);
   }
 
   .probability-display,

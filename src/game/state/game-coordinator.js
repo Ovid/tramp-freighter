@@ -679,6 +679,10 @@ export class GameCoordinator {
     });
     this.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
     this.emit(EVENT_NAMES.CARGO_CAPACITY_CHANGED, ship.cargoCapacity);
+    this.emit(
+      EVENT_NAMES.FUEL_CAPACITY_CHANGED,
+      this.shipManager.getFuelCapacity()
+    );
     this.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
     this.emit(EVENT_NAMES.KARMA_CHANGED, player.karma || 0);
     this.emit(EVENT_NAMES.FACTION_REP_CHANGED, player.factions || {});

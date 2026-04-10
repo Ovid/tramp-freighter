@@ -1,4 +1,4 @@
-.PHONY: all build test cover lint format clean open dev preview knip deploy help
+.PHONY: all build test cover lint lint-css format clean open dev preview knip deploy help
 
 all: lint format build test ## Lint, format, build, and test
 
@@ -11,8 +11,11 @@ test: ## Run full test suite
 cover: ## Generate code coverage report (one-shot)
 	npm run test:coverage -- --run
 
-lint: ## Run ESLint with autofix
+lint: lint-css ## Run ESLint with autofix
 	npm run lint:fix
+
+lint-css: ## Forbid hardcoded pixel font-sizes in CSS
+	@bash scripts/lint-css-font-sizes.sh
 
 format: ## Run Prettier formatter
 	@output=$$(npm run format:write --silent 2>&1); \

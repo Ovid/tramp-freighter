@@ -89,7 +89,7 @@
 .reputation-tier {
   padding: 4px 8px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -147,7 +147,7 @@
 }
 
 .quest-progress-label {
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   color: #00bfff;
   margin-bottom: 6px;
 }
@@ -190,14 +190,14 @@
 .dialogue-text p {
   color: #ffffff;
   line-height: 1.6;
-  font-size: 15px;
+  font-size: var(--font-size-large);
   margin: 0;
 }
 
 /* Dialogue Choices Section */
 .dialogue-choices h3 {
   color: #00ff88;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   margin-bottom: 15px;
   border-bottom: 1px solid rgba(0, 255, 136, 0.3);
   padding-bottom: 5px;
@@ -220,7 +220,7 @@
   border-radius: 5px;
   color: #ffffff;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
@@ -241,7 +241,7 @@
 .choice-number {
   color: #00ff88;
   font-weight: bold;
-  font-size: 15px;
+  font-size: var(--font-size-large);
   min-width: 20px;
   flex-shrink: 0;
 }
@@ -252,7 +252,7 @@
 }
 
 /* Responsive Design for Smaller Screens */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dialogue-panel {
     width: 90vw;
     max-width: 500px;
@@ -271,7 +271,7 @@
 
   .choice-btn {
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--font-size-medium);
   }
 }
 

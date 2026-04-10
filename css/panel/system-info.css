@@ -98,25 +98,25 @@
 }
 
 .event-icon {
-  font-size: 20px;
+  font-size: var(--font-size-title);
 }
 
 .event-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
 }
 
 .event-description {
   color: #ffffff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   line-height: 1.4;
 }
 
 /* Connected Systems */
 .connected-systems h4 {
   color: #00ff88;
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   margin-bottom: 12px;
 }
 
@@ -154,11 +154,11 @@
 .connection-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   margin-bottom: 4px;
 }
 
 .connection-details {
   color: #aaa;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }

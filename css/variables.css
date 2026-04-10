@@ -86,6 +86,12 @@
   --z-hud: 200;
   --z-background: 1;
 
+  /* Mobile z-index scale (used for mobile layout stacking order) */
+  --z-camera-toolbar: 10;
+  --z-panel-fullscreen: 20;
+  --z-hud-collapsed: 30;
+  --z-hud-expanded: 40;
+
   /* Shadows and Effects */
   --shadow-glow-primary: 0 0 10px rgba(0, 255, 136, 0.5);
   --shadow-glow-secondary: 0 0 10px rgba(255, 170, 0, 0.5);
@@ -149,6 +155,30 @@
   --breakpoint-small-mobile: 480px;
 }
 
+/* Mobile safe area insets — applied on notched/island devices */
+/* Breakpoint: 600px matches --breakpoint-mobile (CSS vars can't be used in @media) */
+@media (max-width: 600px) {
+  :root {
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --hud-width: 100%;
+    --station-width: 100%;
+    --modal-min-width: 0;
+    --modal-max-width: 100%;
+
+    --mobile-hud-height: calc(48px + var(--safe-top, 0px));
+
+    /* Bump font sizes for mobile readability */
+    --font-size-small: 0.875rem;
+    --font-size-normal: 1rem;
+    --font-size-medium: 1.0625rem;
+    --font-size-large: 1.125rem;
+    --font-size-xlarge: 1.25rem;
+    --font-size-xxlarge: 1.375rem;
+    --font-size-title: 1.625rem;
+  }
+}
+
 /* Utility Classes for Common Patterns */
 .panel-base {
   position: absolute;
@@ -170,6 +200,87 @@
 
 .panel-base.visible {
   display: block;
+}
+
+.centered-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Breakpoint: 600px matches --breakpoint-mobile (CSS vars can't be used in @media) */
+@media (max-width: 600px) {
+  .centered-panel {
+    position: fixed;
+    top: var(--mobile-hud-height, 0px);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--mobile-hud-height, 0px));
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+  }
+}
+
+/* Touch-friendly close buttons on mobile (44px minimum per WCAG 2.5.5) */
+@media (max-width: 600px) {
+  .close-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Mirrors .centered-panel mobile override — kept separate due to .panel-base visibility logic */
+@media (max-width: 600px) {
+  .panel-base {
+    position: fixed;
+    top: var(--mobile-hud-height, 0px);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--mobile-hud-height, 0px));
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 1);
+    padding-top: var(--panel-padding, 20px);
+    overflow-y: auto;
+    z-index: var(--z-panel-fullscreen);
+  }
+}
+
+/* Consolidated mobile full-screen override for panels that do NOT use .panel-base.
+   Panels using .panel-base already get fullscreen treatment from the rule above.
+   Uses fully opaque black (not var(--bg-panel) at 0.95) to prevent
+   starmap bleed-through on small screens. */
+@media (max-width: 600px) {
+  #refuel-panel,
+  #trade-panel,
+  #repair-panel,
+  #finance-panel,
+  #info-broker-panel,
+  #mission-board-panel,
+  #narrative-event-panel,
+  .dialogue-panel,
+  .ship-status-panel,
+  .jump-dialog,
+  .system-panel {
+    position: fixed;
+    top: var(--mobile-hud-height, 0px);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--mobile-hud-height, 0px));
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+    overflow-y: auto;
+    padding-top: var(--panel-padding, 20px);
+    z-index: var(--z-panel-fullscreen);
+    background-color: rgba(0, 0, 0, 1);
+  }
 }
 
 .close-btn {

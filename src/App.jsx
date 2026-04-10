@@ -25,6 +25,8 @@ import { getPageTitle } from './game/utils/page-title.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
 import { StarmapProvider } from './context/StarmapContext';
+import { MobileProvider } from './context/MobileContext';
+import { useMobileLayout } from './hooks/useMobileLayout';
 import { MissionCompleteNotifier } from './features/missions/MissionCompleteNotifier';
 import { RumorAlert } from './features/hud/RumorAlert';
 import { AchievementToast } from './features/achievements/AchievementToast';
@@ -63,6 +65,7 @@ const VIEW_MODES = {
  */
 export default function App({ devMode = false }) {
   const game = useGame();
+  const { isMobile } = useMobileLayout();
   const notificationCtx = useNotificationContext();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const encounterEvent = useGameEvent(EVENT_NAMES.ENCOUNTER_TRIGGERED);
@@ -252,6 +255,14 @@ export default function App({ devMode = false }) {
       // If in orbit mode, go to station
       game.dock();
       setViewMode(VIEW_MODES.STATION);
+      // On mobile, dismiss the system panel since fullscreen panels can't
+      // coexist. Desktop keeps it open (there's room for both).
+      if (isMobile) {
+        setViewingSystemId(null);
+        if (starmapRef.current) {
+          starmapRef.current.deselectStar();
+        }
+      }
     }
   };
 
@@ -404,176 +415,186 @@ export default function App({ devMode = false }) {
         {/* Game components only rendered after title screen flow completes */}
         {viewMode !== VIEW_MODES.TITLE &&
           viewMode !== VIEW_MODES.SHIP_NAMING && (
-            <StarmapProvider value={starmapMethods}>
-              {/* Starmap is always rendered (z-index 0) */}
-              <ErrorBoundary>
-                <StarMapCanvas
-                  ref={starmapRef}
-                  onSystemSelected={handleSystemSelected}
-                  onSystemDeselected={handleSystemDeselected}
-                  onStarmapMethodsReady={(methods) => {
-                    setStarmapMethods(methods);
-                  }}
-                />
-              </ErrorBoundary>
-
-              {/* HUD is always rendered */}
-              <nav aria-label="Game HUD">
-                <HUD onDock={handleDock} onSystemInfo={handleOpenSystemInfo} />
-              </nav>
-              <RumorAlert />
-              <AchievementToast />
-              <NotificationContainer />
-
-              <main id="main-content" ref={mainRef} tabIndex={-1}>
-                {/* Station menu displayed when docked */}
-                {viewMode === VIEW_MODES.STATION && (
-                  <>
-                    <MissionCompleteNotifier />
-                    {postCredits ? (
-                      <PostCreditsStation
-                        onOpenPanel={handleOpenPanel}
-                        onReturnToTitle={handleReturnToTitle}
-                      />
-                    ) : (
-                      <StationMenu
-                        onOpenPanel={handleOpenPanel}
-                        onUndock={handleUndock}
-                      />
-                    )}
-                    {/* Panel container displayed alongside station menu */}
-                    {activePanel && (
-                      <PanelContainer
-                        activePanel={activePanel}
-                        npcId={activePanelNpcId}
-                        onClose={handleClosePanel}
-                      />
-                    )}
-                  </>
-                )}
-
-                {/* Dev admin button (only visible in dev mode) */}
-                {devMode && (
-                  <button
-                    id="dev-admin-btn"
-                    onClick={handleOpenDevAdmin}
-                    style={{ display: 'flex' }}
-                    aria-label="Developer admin panel"
-                  >
-                    ⚙
-                  </button>
-                )}
-
-                {/* Dev admin panel (only rendered in dev mode when open) */}
-                {devMode && showDevAdmin && (
-                  <DevAdminPanel onClose={handleCloseDevAdmin} />
-                )}
-
-                {/* System panel (rendered when viewing a system) */}
-                {showSystemPanel && (
-                  <SystemPanel
-                    viewingSystemId={viewingSystemId}
-                    onClose={handleCloseSystemPanel}
-                    onJumpStart={handleJumpStart}
-                    onJumpComplete={handleJumpComplete}
-                  />
-                )}
-
-                {/* Encounter panels (rendered when an encounter is active) */}
+            <MobileProvider isMobile={isMobile}>
+              <StarmapProvider value={starmapMethods}>
+                {/* Starmap is always rendered (z-index 0) */}
                 <ErrorBoundary>
-                  {viewMode === VIEW_MODES.ENCOUNTER &&
-                    currentEncounter &&
-                    !encounterOutcome && (
-                      <>
-                        {currentEncounter.type === 'pirate' &&
-                          encounterPhase === 'initial' && (
-                            <PirateEncounterPanel
-                              encounter={currentEncounter.encounter}
-                              onChoice={handleEncounterChoice}
-                              onClose={handleEncounterClose}
-                              escalated={combatContext?.escalated || false}
-                            />
-                          )}
-                        {currentEncounter.type === 'pirate' &&
-                          encounterPhase === 'combat' && (
-                            <CombatPanel
-                              combat={currentEncounter.encounter}
-                              onChoice={handleEncounterChoice}
-                              onClose={handleEncounterClose}
-                              fleeContext={combatContext}
-                            />
-                          )}
-                        {currentEncounter.type === 'pirate' &&
-                          encounterPhase === 'negotiation' && (
-                            <NegotiationPanel
-                              encounter={currentEncounter.encounter}
-                              onChoice={handleEncounterChoice}
-                              onClose={handleEncounterClose}
-                            />
-                          )}
-                        {currentEncounter.type === 'inspection' && (
-                          <InspectionPanel
-                            inspection={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                          />
-                        )}
-                        {currentEncounter.type === 'mechanical_failure' && (
-                          <MechanicalFailurePanel
-                            failure={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                          />
-                        )}
-                        {currentEncounter.type === 'distress_call' && (
-                          <DistressCallPanel
-                            distressCall={currentEncounter.encounter}
-                            onChoice={handleEncounterChoice}
-                            onClose={handleEncounterClose}
-                          />
-                        )}
-                      </>
-                    )}
-
-                  {/* Outcome panel (shown after encounter choice is resolved) */}
-                  {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
-                    <OutcomePanel
-                      outcome={encounterOutcome}
-                      onContinue={handleOutcomeContinue}
-                      onClose={handleOutcomeContinue}
-                    />
-                  )}
+                  <StarMapCanvas
+                    ref={starmapRef}
+                    onSystemSelected={handleSystemSelected}
+                    onSystemDeselected={handleSystemDeselected}
+                    onStarmapMethodsReady={(methods) => {
+                      setStarmapMethods(methods);
+                    }}
+                  />
                 </ErrorBoundary>
 
-                {/* Narrative event overlay (renders on top of any view mode) */}
-                {activeNarrativeEvent && (
-                  <NarrativeEventPanel
-                    event={activeNarrativeEvent}
-                    onClose={handleNarrativeClose}
+                {/* HUD is always rendered */}
+                <nav aria-label="Game HUD">
+                  <HUD
+                    onDock={handleDock}
+                    onSystemInfo={handleOpenSystemInfo}
+                    panelActive={
+                      activePanel !== null ||
+                      viewMode === VIEW_MODES.ENCOUNTER ||
+                      showSystemPanel
+                    }
                   />
-                )}
+                </nav>
+                <RumorAlert />
+                <AchievementToast />
+                <NotificationContainer />
 
-                <InstructionsModal
-                  isOpen={showInstructions}
-                  onClose={() => setShowInstructions(false)}
-                  shipName={shipName}
+                <main id="main-content" ref={mainRef} tabIndex={-1}>
+                  {/* Station menu displayed when docked */}
+                  {viewMode === VIEW_MODES.STATION && (
+                    <>
+                      <MissionCompleteNotifier />
+                      {postCredits ? (
+                        <PostCreditsStation
+                          onOpenPanel={handleOpenPanel}
+                          onReturnToTitle={handleReturnToTitle}
+                        />
+                      ) : (
+                        <StationMenu
+                          onOpenPanel={handleOpenPanel}
+                          onUndock={handleUndock}
+                        />
+                      )}
+                      {/* Panel container displayed alongside station menu */}
+                      {activePanel && (
+                        <PanelContainer
+                          activePanel={activePanel}
+                          npcId={activePanelNpcId}
+                          onClose={handleClosePanel}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {/* Dev admin button (only visible in dev mode) */}
+                  {devMode && (
+                    <button
+                      id="dev-admin-btn"
+                      onClick={handleOpenDevAdmin}
+                      style={{ display: 'flex' }}
+                      aria-label="Developer admin panel"
+                    >
+                      ⚙
+                    </button>
+                  )}
+
+                  {/* Dev admin panel (only rendered in dev mode when open) */}
+                  {devMode && showDevAdmin && (
+                    <DevAdminPanel onClose={handleCloseDevAdmin} />
+                  )}
+
+                  {/* System panel (rendered when viewing a system) */}
+                  {showSystemPanel && (
+                    <SystemPanel
+                      viewingSystemId={viewingSystemId}
+                      onClose={handleCloseSystemPanel}
+                      onJumpStart={handleJumpStart}
+                      onJumpComplete={handleJumpComplete}
+                    />
+                  )}
+
+                  {/* Encounter panels (rendered when an encounter is active) */}
+                  <ErrorBoundary>
+                    {viewMode === VIEW_MODES.ENCOUNTER &&
+                      currentEncounter &&
+                      !encounterOutcome && (
+                        <>
+                          {currentEncounter.type === 'pirate' &&
+                            encounterPhase === 'initial' && (
+                              <PirateEncounterPanel
+                                encounter={currentEncounter.encounter}
+                                onChoice={handleEncounterChoice}
+                                onClose={handleEncounterClose}
+                                escalated={combatContext?.escalated || false}
+                              />
+                            )}
+                          {currentEncounter.type === 'pirate' &&
+                            encounterPhase === 'combat' && (
+                              <CombatPanel
+                                combat={currentEncounter.encounter}
+                                onChoice={handleEncounterChoice}
+                                onClose={handleEncounterClose}
+                                fleeContext={combatContext}
+                              />
+                            )}
+                          {currentEncounter.type === 'pirate' &&
+                            encounterPhase === 'negotiation' && (
+                              <NegotiationPanel
+                                encounter={currentEncounter.encounter}
+                                onChoice={handleEncounterChoice}
+                                onClose={handleEncounterClose}
+                              />
+                            )}
+                          {currentEncounter.type === 'inspection' && (
+                            <InspectionPanel
+                              inspection={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                            />
+                          )}
+                          {currentEncounter.type === 'mechanical_failure' && (
+                            <MechanicalFailurePanel
+                              failure={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                            />
+                          )}
+                          {currentEncounter.type === 'distress_call' && (
+                            <DistressCallPanel
+                              distressCall={currentEncounter.encounter}
+                              onChoice={handleEncounterChoice}
+                              onClose={handleEncounterClose}
+                            />
+                          )}
+                        </>
+                      )}
+
+                    {/* Outcome panel (shown after encounter choice is resolved) */}
+                    {viewMode === VIEW_MODES.ENCOUNTER && encounterOutcome && (
+                      <OutcomePanel
+                        outcome={encounterOutcome}
+                        onContinue={handleOutcomeContinue}
+                        onClose={handleOutcomeContinue}
+                      />
+                    )}
+                  </ErrorBoundary>
+
+                  {/* Narrative event overlay (renders on top of any view mode) */}
+                  {activeNarrativeEvent && (
+                    <NarrativeEventPanel
+                      event={activeNarrativeEvent}
+                      onClose={handleNarrativeClose}
+                    />
+                  )}
+
+                  <InstructionsModal
+                    isOpen={showInstructions}
+                    onClose={() => setShowInstructions(false)}
+                    shipName={shipName}
+                  />
+                </main>
+              </StarmapProvider>
+
+              {/* Pavonis Run endgame sequence */}
+              {viewMode === VIEW_MODES.PAVONIS_RUN && (
+                <PavonisRun
+                  onComplete={handlePavonisComplete}
+                  onCancel={() => setViewMode(VIEW_MODES.STATION)}
                 />
-              </main>
-            </StarmapProvider>
+              )}
+
+              {/* Epilogue after Pavonis Run */}
+              {viewMode === VIEW_MODES.EPILOGUE && (
+                <Epilogue onCreditsComplete={handleCreditsComplete} />
+              )}
+            </MobileProvider>
           )}
-
-        {/* Pavonis Run endgame sequence */}
-        {viewMode === VIEW_MODES.PAVONIS_RUN && (
-          <PavonisRun
-            onComplete={handlePavonisComplete}
-            onCancel={() => setViewMode(VIEW_MODES.STATION)}
-          />
-        )}
-
-        {/* Epilogue after Pavonis Run */}
-        {viewMode === VIEW_MODES.EPILOGUE && (
-          <Epilogue onCreditsComplete={handleCreditsComplete} />
-        )}
       </div>
     </ErrorBoundary>
   );

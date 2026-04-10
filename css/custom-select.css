@@ -115,6 +115,6 @@
 .dev-admin-control .custom-select-trigger {
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   color: white;
 }

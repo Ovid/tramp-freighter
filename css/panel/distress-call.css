@@ -490,7 +490,7 @@
 
 .restriction-text {
   color: #ff6b6b;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-weight: bold;
   text-align: center;
 }
@@ -587,11 +587,6 @@
 }
 
 @media (max-width: 600px) {
-  #distress-call-panel {
-    width: 95vw;
-    padding: var(--panel-padding-small);
-  }
-
   .distress-actions {
     flex-direction: column;
     gap: var(--grid-gap-small);

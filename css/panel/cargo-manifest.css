@@ -44,7 +44,7 @@
   border-radius: 4px;
   padding: 12px;
   text-align: center;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   color: #cccccc;
 }
 
@@ -80,7 +80,7 @@
 
 .cargo-manifest-name {
   color: #00ff88;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -95,7 +95,7 @@
   display: flex;
   justify-content: space-between;
   color: #cccccc;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .cargo-manifest-detail .detail-label {
@@ -109,7 +109,7 @@
 
 .cargo-manifest-value .detail-value {
   color: #00ff88;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 .cargo-manifest-total {
@@ -124,13 +124,13 @@
 
 .cargo-manifest-total .total-label {
   color: #00ff88;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   font-weight: bold;
 }
 
 .cargo-manifest-total .total-value {
   color: #00ff88;
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   font-weight: bold;
 }
 

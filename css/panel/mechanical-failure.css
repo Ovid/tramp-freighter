@@ -457,11 +457,6 @@
 }
 
 @media (max-width: 600px) {
-  #mechanical-failure-panel {
-    width: 95vw;
-    padding: var(--panel-padding-small);
-  }
-
   .failure-actions {
     flex-direction: column;
     align-items: center;

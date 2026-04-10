@@ -4,9 +4,12 @@
 
 Tramp Freighter Blues is a space trading survival game: 117 real star systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built first with [Kiro](https://kiro.dev/) and continued with[Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-It's not a polished product. It's alpha — minimal game balancing and rough edges. Perfect was never the point. The point was to push AI-assisted development as far as it goes and document where it fails.
+It's not a perfect product. Perfect was never the point. The point was to push AI-assisted development as far as it goes and document where it fails.
 
 What I found: four problems. I call them PAAD.
+
+
+[Tramp Freighter Blues](https://curtispoe.org/paad/tramp-freighter/).
 
 ![Tramp Freighter Blues](screenshots/main.png)
 
@@ -58,8 +61,6 @@ You're a broke freighter captain hauling cargo through wormhole networks, dodgin
 **What's not in it:** Game balance. This is alpha. Prices may be off, difficulty curves are untested, and some encounters are rougher than others. The goal was to build it, not perfect it.
 
 ## Try It
-
-[Tramp Freighter Blues](https://curtispoe.org/paad/tramp-freighter/).
 
 To run locally:
 

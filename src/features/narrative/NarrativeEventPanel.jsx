@@ -73,7 +73,7 @@ export function NarrativeEventPanel({ event, onClose }) {
   return (
     <div
       id="narrative-event-panel"
-      className="visible"
+      className="centered-panel visible"
       data-panel
       role="dialog"
       aria-modal="true"

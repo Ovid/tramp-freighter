@@ -79,7 +79,7 @@
 .dev-admin-section h3 {
   margin: 0 0 10px 0;
   color: #ffaa44;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   border-bottom: 1px solid rgba(255, 170, 68, 0.3);
   padding-bottom: 6px;
 }
@@ -97,7 +97,7 @@
 
 .dev-admin-control label {
   flex: 0 0 100px;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   text-transform: capitalize;
 }
 
@@ -108,7 +108,7 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   color: white;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 /* Dev admin selects use CustomSelect component; see css/custom-select.css */
@@ -119,7 +119,7 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   color: white;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -148,7 +148,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 3px;
   color: white;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   cursor: pointer;
 }
 
@@ -171,13 +171,13 @@
 
 /* NPC reputation row styling */
 .dev-admin-npc-label {
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   margin-bottom: 6px;
 }
 
 .dev-admin-npc-tier {
   color: #aaa;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .dev-admin-quick-buttons.npc {
@@ -199,7 +199,7 @@
   background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   margin-bottom: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .dev-admin-list-item span {
@@ -215,7 +215,7 @@
   border: none;
   border-radius: 3px;
   color: white;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   cursor: pointer;
   margin-left: 8px;
 }
@@ -226,7 +226,7 @@
 
 .dev-admin-empty {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-style: italic;
   padding: 4px 8px;
 }
@@ -239,7 +239,7 @@
 }
 
 .dev-admin-cargo-header {
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   color: #aaa;
   margin-top: 8px;
   margin-bottom: 4px;
@@ -254,7 +254,7 @@
   background: rgba(0, 100, 0, 0.3);
   border-radius: 3px;
   margin-bottom: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .dev-admin-cargo-item.hidden {
@@ -265,7 +265,7 @@
 /* Checkbox styling */
 .dev-admin-checkbox {
   margin: 8px 0;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .dev-admin-checkbox label {
@@ -288,7 +288,7 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   color: white;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   cursor: pointer;
   transition: background 0.2s ease;
   margin-top: 8px;
@@ -319,7 +319,7 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   color: white;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -330,7 +330,7 @@
 
 /* Danger state display */
 .dev-admin-state-display {
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .dev-admin-state-row {
@@ -360,7 +360,7 @@
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #aaa;
 }
 
@@ -371,7 +371,7 @@
   background: rgba(255, 200, 0, 0.2);
   border: 1px solid rgba(255, 200, 0, 0.5);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   text-align: center;
   color: #ffcc00;
 }
@@ -387,7 +387,7 @@
   border: none;
   border-radius: 50%;
   color: white;
-  font-size: 18px;
+  font-size: var(--font-size-xxlarge);
   cursor: pointer;
   display: flex;
   align-items: center;

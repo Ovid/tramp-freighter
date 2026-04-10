@@ -177,7 +177,7 @@
   border: 1px solid rgba(0, 255, 136, 0.3);
   border-radius: 3px;
   margin-bottom: 12px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
 }
 
 .cargo-capacity-display .capacity-label {
@@ -196,7 +196,7 @@
 
 .cargo-capacity-display .capacity-remaining {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   margin-left: 8px;
 }
 
@@ -234,18 +234,18 @@
 .stack-name {
   color: #00ff88;
   font-weight: bold;
-  font-size: 15px;
+  font-size: var(--font-size-large);
 }
 
 .stack-details {
   color: #ffffff;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   margin-top: 3px;
 }
 
 .stack-profit {
   margin-top: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
 }
 
 .stack-profit.positive {
@@ -272,7 +272,7 @@
   color: #00ff88;
   border: 1px solid #00ff88;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -294,7 +294,7 @@
   color: #ffaa00;
   border: 1px solid #ffaa00;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -344,7 +344,7 @@
   color: #ffaa00;
   border: 1px solid #ffaa00;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--font-size-normal);
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s;
@@ -378,4 +378,35 @@
 
 .hidden-cargo-section.hidden {
   display: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+  #trade-panel h2 {
+    padding-right: 30px;
+    word-break: break-word;
+  }
+
+  .good-item {
+    flex-wrap: wrap;
+  }
+
+  .good-actions {
+    flex-wrap: wrap;
+  }
+
+  .validation-message {
+    flex-basis: 100%;
+    margin-top: 8px;
+  }
+
+  .cargo-stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stack-actions {
+    align-self: flex-end;
+  }
 }

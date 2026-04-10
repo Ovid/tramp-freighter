@@ -99,26 +99,26 @@
 
 .upgrade-name {
   color: #00ff88;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   font-weight: bold;
 }
 
 .upgrade-warning-symbol {
   color: #ffaa00;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   margin-left: 5px;
 }
 
 .upgrade-cost {
   color: #ffffff;
-  font-size: 16px;
+  font-size: var(--font-size-xlarge);
   font-weight: bold;
 }
 
 .upgrade-description {
   color: #cccccc;
   margin-bottom: 12px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   line-height: 1.4;
 }
 
@@ -128,7 +128,7 @@
 
 .upgrade-effects-label {
   color: #aaaaaa;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   margin-bottom: 6px;
 }
 
@@ -140,7 +140,7 @@
 
 .upgrade-effects-list li {
   color: #00ccff;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   padding: 3px 0;
   padding-left: 15px;
   position: relative;
@@ -163,14 +163,14 @@
 
 .upgrade-tradeoff-label {
   color: #ffaa00;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
   font-weight: bold;
   margin-bottom: 4px;
 }
 
 .upgrade-tradeoff-text {
   color: #ffcc66;
-  font-size: 13px;
+  font-size: var(--font-size-medium);
 }
 
 .upgrade-actions {
@@ -186,7 +186,7 @@
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   transition: all 0.2s;
 }
 
@@ -243,7 +243,7 @@
 
 #upgrade-confirmation-overlay .modal-title {
   color: #00ff88;
-  font-size: 20px;
+  font-size: var(--font-size-title);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -258,13 +258,13 @@
 
 .upgrade-confirmation-section h4 {
   color: #00ff88;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   margin-bottom: 10px;
 }
 
 .upgrade-effect-item {
   color: #00ccff;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   padding: 4px 0;
 }
 
@@ -313,7 +313,7 @@
   padding: 12px;
   text-align: center;
   color: #ffaa00;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   font-weight: bold;
 }
 
@@ -328,7 +328,7 @@
 #upgrade-confirmation-overlay .modal-confirm {
   padding: 10px 25px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: var(--font-size-large);
   cursor: pointer;
   transition: all 0.2s;
 }

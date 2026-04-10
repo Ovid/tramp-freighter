@@ -79,7 +79,7 @@
 
 .achievement-description {
   font-family: var(--font-family-mono);
-  font-size: 10px;
+  font-size: var(--font-size-small);
   color: rgba(255, 255, 255, 0.5);
   margin-top: 2px;
 }

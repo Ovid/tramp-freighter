@@ -69,6 +69,7 @@ describe('EVENT_STATE_MAP', () => {
         fuel: 80,
         cargo: [{ good: 'ore', qty: 5, buyPrice: 10 }],
         cargoCapacity: 100,
+        fuelCapacity: 150,
         hiddenCargo: [],
         hull: 90,
         engine: 85,
@@ -109,6 +110,9 @@ describe('EVENT_STATE_MAP', () => {
     ]);
     expect(EVENT_STATE_MAP[EVENT_NAMES.CARGO_CAPACITY_CHANGED](mockState)).toBe(
       100
+    );
+    expect(EVENT_STATE_MAP[EVENT_NAMES.FUEL_CAPACITY_CHANGED](mockState)).toBe(
+      150
     );
     expect(
       EVENT_STATE_MAP[EVENT_NAMES.HIDDEN_CARGO_CHANGED](mockState)
@@ -191,6 +195,7 @@ describe('EVENT_STATE_MAP', () => {
         fuel: 0,
         cargo: [],
         cargoCapacity: 0,
+        fuelCapacity: 100,
         hiddenCargo: [],
         hull: 100,
         engine: 100,
