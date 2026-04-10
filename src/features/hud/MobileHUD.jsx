@@ -10,7 +10,7 @@ import { QuickAccessButtons } from './QuickAccessButtons';
 import { ActiveMissions } from './ActiveMissions.jsx';
 
 function getWorstResources(fuel, fuelCapacity, condition) {
-  const safeFuelCap = fuelCapacity ?? 100;
+  const safeFuelCap = fuelCapacity > 0 ? fuelCapacity : 100;
   const fuelPct = ((fuel ?? safeFuelCap) / safeFuelCap) * 100;
   const resources = [
     { name: 'Fuel', value: Math.round(fuelPct) },
@@ -20,9 +20,9 @@ function getWorstResources(fuel, fuelCapacity, condition) {
   ];
   resources.sort((a, b) => a.value - b.value);
 
-  const critical = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR;
-  const criticalResources = resources.filter((r) => r.value < critical);
-  if (criticalResources.length >= 2) return criticalResources.slice(0, 2);
+  const poorThreshold = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR;
+  const severeResources = resources.filter((r) => r.value < poorThreshold);
+  if (severeResources.length >= 2) return severeResources.slice(0, 2);
   return [resources[0]];
 }
 

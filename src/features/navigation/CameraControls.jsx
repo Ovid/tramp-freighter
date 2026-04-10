@@ -34,6 +34,7 @@ export function CameraControls({
   const { isMobile } = useMobile();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
 
+  // Invalidate when location changes — visited set only grows on jump
   const visitedSet = useMemo(() => {
     void currentLocation;
     return new Set(game.getVisitedSystems());
