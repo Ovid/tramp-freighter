@@ -728,7 +728,8 @@ export function addStateDefaults(state, systemData) {
       if (!u) continue;
       if (u.effects.fuelCapacity) fuelCap += u.effects.fuelCapacity;
       if (u.effects.cargoCapacity) cargoCap += u.effects.cargoCapacity;
-      if (u.effects.hiddenCargoCapacity) hiddenCap += u.effects.hiddenCargoCapacity;
+      if (u.effects.hiddenCargoCapacity)
+        hiddenCap += u.effects.hiddenCargoCapacity;
     }
     state.ship.fuelCapacity = fuelCap;
     state.ship.cargoCapacity = cargoCap;
