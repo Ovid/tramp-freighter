@@ -363,6 +363,10 @@
 }
 
 @media (max-width: 600px) {
+  #danger-warning-dialog {
+    z-index: calc(var(--z-panel-fullscreen) + 1);
+  }
+
   .warning-actions {
     gap: 10px;
   }
