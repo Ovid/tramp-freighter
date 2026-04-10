@@ -437,7 +437,7 @@ export default function App({ devMode = false }) {
                     panelActive={
                       activePanel !== null ||
                       viewMode === VIEW_MODES.ENCOUNTER ||
-                      (!isMobile && showSystemPanel)
+                      showSystemPanel
                     }
                   />
                 </nav>
