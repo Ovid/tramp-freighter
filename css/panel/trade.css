@@ -379,3 +379,34 @@
 .hidden-cargo-section.hidden {
   display: none;
 }
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+  #trade-panel h2 {
+    padding-right: 30px;
+    word-break: break-word;
+  }
+
+  .good-item {
+    flex-wrap: wrap;
+  }
+
+  .good-actions {
+    flex-wrap: wrap;
+  }
+
+  .validation-message {
+    flex-basis: 100%;
+    margin-top: 8px;
+  }
+
+  .cargo-stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stack-actions {
+    align-self: flex-end;
+  }
+}

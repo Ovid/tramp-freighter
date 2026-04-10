@@ -484,3 +484,15 @@
   border: 1px solid #00ff88;
   color: #00ff88;
 }
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+  #repair-panel h2 {
+    padding-right: 30px;
+    word-break: break-word;
+  }
+
+  .repair-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
