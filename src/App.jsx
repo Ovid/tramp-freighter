@@ -255,6 +255,8 @@ export default function App({ devMode = false }) {
       // If in orbit mode, go to station
       game.dock();
       setViewMode(VIEW_MODES.STATION);
+      // On mobile, dismiss the system panel since fullscreen panels can't
+      // coexist. Desktop keeps it open (there's room for both).
       if (isMobile) {
         setViewingSystemId(null);
       }
