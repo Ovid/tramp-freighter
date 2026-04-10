@@ -84,14 +84,14 @@ export function CameraControls({
           toggles={{
             showAntimatter: antimatter,
             showJumpWarnings: jumpWarningsEnabled,
-            showRotation: cameraState.autoRotationEnabled,
+            showStarRotation: cameraState.autoRotationEnabled,
             showBoundary: cameraState.boundaryVisible,
           }}
           onToggle={(key) => {
             const handlers = {
               showAntimatter: toggleAntimatter,
               showJumpWarnings: toggleJumpWarnings,
-              showRotation: onToggleRotation,
+              showStarRotation: onToggleRotation,
               showBoundary: onToggleBoundary,
             };
             handlers[key]?.();

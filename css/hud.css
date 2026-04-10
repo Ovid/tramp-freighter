@@ -920,7 +920,7 @@
   }
 
   .menu-title {
-    font-size: 24px;
+    font-size: var(--font-size-title);
     letter-spacing: 1px;
   }
 

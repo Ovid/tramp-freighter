@@ -14,6 +14,7 @@ export function useClickOutside(ref, onClose, enabled = true) {
       // Click inside any other interactive zone — ignore
       if (e.target.closest('[data-panel]')) return;
       if (e.target.closest('#game-hud')) return;
+      if (e.target.closest('.mobile-hud-bar, .mobile-hud-expanded, .mobile-hud-backdrop')) return;
       if (e.target.closest('#camera-controls')) return;
       if (e.target.closest('#dev-admin-btn')) return;
       if (e.target.closest('.modal-overlay')) return;

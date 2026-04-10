@@ -5,7 +5,8 @@ import { resolve } from 'path';
 describe('Consolidated mobile panel override', () => {
   const css = readFileSync(resolve('css/variables.css'), 'utf-8');
 
-  const EXPECTED_SELECTORS = [
+  // Panels that need explicit rules (they don't use .panel-base)
+  const CONSOLIDATED_SELECTORS = [
     '#refuel-panel',
     '#trade-panel',
     '#repair-panel',
@@ -13,22 +14,14 @@ describe('Consolidated mobile panel override', () => {
     '#info-broker-panel',
     '#mission-board-panel',
     '#narrative-event-panel',
-    '#combat-panel',
-    '#danger-warning-dialog',
-    '#distress-call-panel',
-    '#inspection-panel',
-    '#mechanical-failure-panel',
-    '#negotiation-panel',
-    '#outcome-panel',
-    '#pirate-encounter-panel',
     '.dialogue-panel',
     '.ship-status-panel',
     '.jump-dialog',
     '.system-panel',
   ];
 
-  it('should contain all panel selectors in a 600px media query', () => {
-    EXPECTED_SELECTORS.forEach((sel) => {
+  it('should contain non-panel-base selectors in a 600px media query', () => {
+    CONSOLIDATED_SELECTORS.forEach((sel) => {
       const escaped = sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       expect(css).toMatch(new RegExp(escaped));
     });

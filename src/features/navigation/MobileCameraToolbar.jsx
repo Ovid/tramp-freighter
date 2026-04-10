@@ -13,6 +13,7 @@ export function MobileCameraToolbar({
   onShowAchievements,
 }) {
   const [showSettings, setShowSettings] = useState(false);
+  const [selectKey, setSelectKey] = useState(0);
   const toolbarRef = useRef(null);
   const collapseSettings = useCallback(() => setShowSettings(false), []);
   useClickOutside(toolbarRef, collapseSettings, showSettings);
@@ -40,9 +41,13 @@ export function MobileCameraToolbar({
       </button>
       <label className="mobile-toolbar-find">
         <select
+          key={selectKey}
           className="mobile-toolbar-select"
           value=""
-          onChange={(e) => onFindStar(e.target.value)}
+          onChange={(e) => {
+            onFindStar(e.target.value);
+            setSelectKey((k) => k + 1);
+          }}
           aria-label="Find star"
         >
           <option value="" disabled>

@@ -13,7 +13,7 @@ describe('Title screen mobile styles', () => {
 
   it('should reduce .menu-title font-size on mobile', () => {
     expect(css).toMatch(
-      /@media\s*\(max-width:\s*600px\)[^]*\.menu-title\s*\{[^}]*font-size:\s*24px/s
+      /@media\s*\(max-width:\s*600px\)[^]*\.menu-title\s*\{[^}]*font-size:\s*var\(--font-size-title\)/s
     );
   });
 });

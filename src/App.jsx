@@ -259,6 +259,9 @@ export default function App({ devMode = false }) {
       // coexist. Desktop keeps it open (there's room for both).
       if (isMobile) {
         setViewingSystemId(null);
+        if (starmapRef.current) {
+          starmapRef.current.deselectStar();
+        }
       }
     }
   };
@@ -434,7 +437,7 @@ export default function App({ devMode = false }) {
                     panelActive={
                       activePanel !== null ||
                       viewMode === VIEW_MODES.ENCOUNTER ||
-                      showSystemPanel
+                      (!isMobile && showSystemPanel)
                     }
                   />
                 </nav>
