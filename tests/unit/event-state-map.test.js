@@ -111,9 +111,9 @@ describe('EVENT_STATE_MAP', () => {
     expect(EVENT_STATE_MAP[EVENT_NAMES.CARGO_CAPACITY_CHANGED](mockState)).toBe(
       100
     );
-    expect(
-      EVENT_STATE_MAP[EVENT_NAMES.FUEL_CAPACITY_CHANGED](mockState)
-    ).toBe(150);
+    expect(EVENT_STATE_MAP[EVENT_NAMES.FUEL_CAPACITY_CHANGED](mockState)).toBe(
+      150
+    );
     expect(
       EVENT_STATE_MAP[EVENT_NAMES.HIDDEN_CARGO_CHANGED](mockState)
     ).toEqual([]);
