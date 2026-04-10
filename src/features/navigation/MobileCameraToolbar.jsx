@@ -4,9 +4,9 @@ export function MobileCameraToolbar({
   onZoomIn,
   onZoomOut,
   onFindStar,
-  stars,
+  stars = [],
   visitedSet,
-  toggles,
+  toggles = {},
   onToggle,
   onShowInstructions,
   onShowAchievements,
@@ -78,24 +78,28 @@ export function MobileCameraToolbar({
               </label>
             );
           })}
-          <button
-            className="mobile-toolbar-action"
-            onClick={() => {
-              setShowSettings(false);
-              onShowInstructions();
-            }}
-          >
-            Instructions
-          </button>
-          <button
-            className="mobile-toolbar-action"
-            onClick={() => {
-              setShowSettings(false);
-              onShowAchievements();
-            }}
-          >
-            Achievements
-          </button>
+          {onShowInstructions && (
+            <button
+              className="mobile-toolbar-action"
+              onClick={() => {
+                setShowSettings(false);
+                onShowInstructions();
+              }}
+            >
+              Instructions
+            </button>
+          )}
+          {onShowAchievements && (
+            <button
+              className="mobile-toolbar-action"
+              onClick={() => {
+                setShowSettings(false);
+                onShowAchievements();
+              }}
+            >
+              Achievements
+            </button>
+          )}
         </div>
       )}
     </div>
