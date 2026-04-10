@@ -139,6 +139,7 @@ export class InitializationManager {
       hull: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
       engine: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
       lifeSupport: SHIP_CONFIG.CONDITION_BOUNDS.MAX,
+      fuelCapacity: SHIP_CONFIG.FUEL_CAPACITY,
       cargoCapacity: NEW_GAME_DEFAULTS.STARTING_CARGO_CAPACITY,
       cargo: [
         {

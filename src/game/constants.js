@@ -321,7 +321,7 @@ export const SHIP_CONFIG = {
       cost: 3000,
       description: 'Increases fuel capacity by 50%',
       effects: {
-        fuelCapacity: 150, // Up from 100
+        fuelCapacity: 50, // +50% of base 100
       },
       tradeoff: 'Larger tank is more vulnerable to weapons fire.',
     },
@@ -331,7 +331,7 @@ export const SHIP_CONFIG = {
       description: 'Reduces hull degradation by 50%',
       effects: {
         hullDegradation: 0.5, // Half degradation
-        cargoCapacity: 45, // Down from 50
+        cargoCapacity: -5, // Costs 5 cargo space
       },
       tradeoff: 'Extra plating takes up cargo space.',
     },
@@ -349,7 +349,7 @@ export const SHIP_CONFIG = {
       cost: 6000,
       description: 'Increases cargo capacity by 50%',
       effects: {
-        cargoCapacity: 75, // Up from 50
+        cargoCapacity: 25, // +50% of base 50
       },
       tradeoff: 'Heavier ship is less maneuverable.',
     },
@@ -377,7 +377,7 @@ export const SHIP_CONFIG = {
       description: 'Slower life support degradation',
       effects: {
         lifeSupportDrain: 0.7, // -30% drain
-        cargoCapacity: 45, // Down from 50
+        cargoCapacity: -5, // Costs 5 cargo space
       },
       tradeoff: 'Takes up cargo space.',
     },
@@ -1874,6 +1874,7 @@ export const EVENT_NAMES = Object.freeze({
   // Cargo & inventory
   CARGO_CHANGED: 'cargoChanged',
   CARGO_CAPACITY_CHANGED: 'cargoCapacityChanged',
+  FUEL_CAPACITY_CHANGED: 'fuelCapacityChanged',
   HIDDEN_CARGO_CHANGED: 'hiddenCargoChanged',
 
   // Navigation & location
@@ -1965,6 +1966,7 @@ export const EVENT_STATE_MAP = {
   // Cargo & inventory
   [EVENT_NAMES.CARGO_CHANGED]: (state) => state.ship.cargo,
   [EVENT_NAMES.CARGO_CAPACITY_CHANGED]: (state) => state.ship.cargoCapacity,
+  [EVENT_NAMES.FUEL_CAPACITY_CHANGED]: (state) => state.ship.fuelCapacity,
   [EVENT_NAMES.HIDDEN_CARGO_CHANGED]: (state) => state.ship.hiddenCargo,
 
   // Navigation & location

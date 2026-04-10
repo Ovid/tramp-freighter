@@ -9,9 +9,11 @@ import { LocationDisplay } from './LocationDisplay';
 import { QuickAccessButtons } from './QuickAccessButtons';
 import { ActiveMissions } from './ActiveMissions.jsx';
 
-function getWorstResources(fuel, condition) {
+function getWorstResources(fuel, fuelCapacity, condition) {
+  const safeFuelCap = fuelCapacity ?? 100;
+  const fuelPct = ((fuel ?? safeFuelCap) / safeFuelCap) * 100;
   const resources = [
-    { name: 'Fuel', value: Math.round(fuel ?? 100) },
+    { name: 'Fuel', value: Math.round(fuelPct) },
     { name: 'Hull', value: Math.round(condition?.hull ?? 100) },
     { name: 'Engine', value: Math.round(condition?.engine ?? 100) },
     { name: 'Life Sup', value: Math.round(condition?.lifeSupport ?? 100) },
@@ -45,13 +47,14 @@ export function MobileHUD({
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const fuelCapacity = useGameEvent(EVENT_NAMES.FUEL_CAPACITY_CHANGED);
   const condition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
 
   useEffect(() => {
     if (panelActive) setExpanded(false);
   }, [panelActive]);
 
-  const worst = getWorstResources(fuel, condition);
+  const worst = getWorstResources(fuel, fuelCapacity, condition);
 
   return (
     <>

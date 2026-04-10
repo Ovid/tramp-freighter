@@ -203,6 +203,13 @@ export class ShipManager extends BaseManager {
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
+    if (capabilities.fuelCapacity !== ship.fuelCapacity) {
+      ship.fuelCapacity = capabilities.fuelCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.FUEL_CAPACITY_CHANGED,
+        capabilities.fuelCapacity
+      );
+    }
 
     this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
     this.capabilities.markDirty();
@@ -242,6 +249,13 @@ export class ShipManager extends BaseManager {
     }
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
+    }
+    if (capabilities.fuelCapacity !== ship.fuelCapacity) {
+      ship.fuelCapacity = capabilities.fuelCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.FUEL_CAPACITY_CHANGED,
+        capabilities.fuelCapacity
+      );
     }
 
     this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
@@ -440,10 +454,13 @@ export class ShipManager extends BaseManager {
     if (capabilities.hiddenCargoCapacity !== ship.hiddenCargoCapacity) {
       ship.hiddenCargoCapacity = capabilities.hiddenCargoCapacity;
     }
-
-    // Note: Fuel capacity is calculated on-demand via getFuelCapacity()
-    // Note: Rate modifiers (fuelConsumption, hullDegradation, lifeSupportDrain)
-    // are applied during calculations via calculateShipCapabilities(), not stored
+    if (capabilities.fuelCapacity !== ship.fuelCapacity) {
+      ship.fuelCapacity = capabilities.fuelCapacity;
+      this.capabilities.emit(
+        EVENT_NAMES.FUEL_CAPACITY_CHANGED,
+        capabilities.fuelCapacity
+      );
+    }
 
     // Emit upgrade change event
     this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
@@ -512,11 +529,10 @@ export class ShipManager extends BaseManager {
   /**
    * Get current fuel capacity based on installed upgrades
    *
-   * Fuel capacity is calculated on-demand rather than stored in state
-   * because it's derived from upgrades. Base capacity is 100, Extended
-   * Fuel Tank upgrade increases it to 150.
+   * Base capacity is 100, Extended Fuel Tank upgrade increases it to 150.
+   * Also stored in state for event system initial-state extraction.
    *
-   * @returns {number} Maximum fuel capacity in percentage points
+   * @returns {number} Maximum fuel capacity
    */
   getFuelCapacity() {
     this.validateState();

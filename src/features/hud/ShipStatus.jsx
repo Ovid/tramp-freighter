@@ -17,13 +17,17 @@ import { EVENT_NAMES } from '../../game/constants.js';
 export function ShipStatus() {
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  const fuelCapacity = useGameEvent(EVENT_NAMES.FUEL_CAPACITY_CHANGED);
   const condition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const cargoCapacity = useGameEvent(EVENT_NAMES.CARGO_CAPACITY_CHANGED);
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
 
   // Null safety: Handle corrupted save data gracefully by providing defaults
-  const safeFuel = fuel ?? 100;
+  const safeFuelCapacity = fuelCapacity ?? 100;
+  const safeFuel = Math.round(
+    ((fuel ?? safeFuelCapacity) / safeFuelCapacity) * 100
+  );
   const safeCondition = {
     hull: condition?.hull ?? 100,
     engine: condition?.engine ?? 100,

@@ -693,6 +693,9 @@ export function addStateDefaults(state, systemData) {
   if (state.ship.hiddenCargoCapacity === undefined) {
     state.ship.hiddenCargoCapacity = 0;
   }
+  if (state.ship.fuelCapacity === undefined) {
+    state.ship.fuelCapacity = SHIP_CONFIG.FUEL_CAPACITY;
+  }
 
   // Validate quirk IDs and remove unknown ones
   if (Array.isArray(state.ship.quirks)) {

@@ -487,10 +487,8 @@ describe('ShipManager', () => {
 
       const capabilities = gsm.shipManager.calculateShipCapabilities();
 
-      // Base 50 + expanded_hold effect 75 = 125
-      expect(capabilities.cargoCapacity).toBe(
-        50 + SHIP_CONFIG.UPGRADES.expanded_hold.effects.cargoCapacity
-      );
+      // Base 50 + expanded_hold delta (+25) = 75
+      expect(capabilities.cargoCapacity).toBe(75);
     });
 
     it('calculateShipCapabilities warns for unknown upgrade ID', () => {
@@ -500,7 +498,7 @@ describe('ShipManager', () => {
       expect(warnSpy).toHaveBeenCalled();
     });
 
-    it('getFuelCapacity returns 100 base, 250 with extended_tank', () => {
+    it('getFuelCapacity returns 100 base, 150 with extended_tank', () => {
       const state = gsm.getState();
       state.ship.upgrades = [];
 
@@ -508,8 +506,8 @@ describe('ShipManager', () => {
 
       state.ship.upgrades = ['extended_tank'];
 
-      // Base 100 + extended_tank adds 150 = 250
-      expect(gsm.shipManager.getFuelCapacity()).toBe(250);
+      // Base 100 + extended_tank delta (+50) = 150
+      expect(gsm.shipManager.getFuelCapacity()).toBe(150);
     });
   });
 
