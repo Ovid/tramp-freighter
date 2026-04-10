@@ -54,7 +54,7 @@ export function MobileHUD({ onDock, onSystemInfo, panelActive }) {
   return (
     <>
       <button
-        className="mobile-hud-bar"
+        className={`mobile-hud-bar${!expanded && panelActive ? ' disabled' : ''}`}
         onClick={() => {
           if (!expanded && panelActive) return;
           const willExpand = !expanded;
@@ -62,6 +62,7 @@ export function MobileHUD({ onDock, onSystemInfo, panelActive }) {
         }}
         aria-label={expanded ? 'Collapse HUD' : 'Expand HUD'}
         aria-expanded={expanded}
+        aria-disabled={!expanded && panelActive ? 'true' : undefined}
       >
         <span className="mobile-hud-ship">{shipName}</span>
         <span className="mobile-hud-credits">
