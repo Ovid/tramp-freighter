@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 export function MobileCameraToolbar({
   onZoomIn,
@@ -12,10 +13,14 @@ export function MobileCameraToolbar({
   onShowAchievements,
 }) {
   const [showSettings, setShowSettings] = useState(false);
+  const toolbarRef = useRef(null);
+  const collapseSettings = useCallback(() => setShowSettings(false), []);
+  useClickOutside(toolbarRef, collapseSettings, showSettings);
 
   return (
     <div
       className="mobile-camera-toolbar"
+      ref={toolbarRef}
       role="toolbar"
       aria-label="Starmap controls"
     >
