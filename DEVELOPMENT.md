@@ -1,523 +1,371 @@
-# Development Guide - React Migration
+# Development Guide
 
 ## Overview
 
-This guide documents the React migration of Tramp Freighter Blues from vanilla JavaScript to React 18+ using Vite as the build tool. The migration preserves all existing game logic while modernizing the UI layer with React's declarative component model.
+Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real star systems within 20 light-years of Sol, connected by a wormhole network. The gameplay loop is: trade commodities between systems, manage ship resources (fuel, hull, life support), build NPC relationships, and survive encounters with pirates, customs inspectors, and distressed ships.
 
-## Running the Application
+This document is the entry point for developers working on the codebase. Read it alongside `CLAUDE.md`, which contains the canonical coding standards (constants, rounding, commits, TDD).
 
-The application uses Vite as the build tool and development server.
-
-```bash
-# Start the Vite dev server
-npm run dev
-```
-
-The application will be available at: http://localhost:5173/
-
-Features:
-
-- Hot Module Replacement (HMR) for instant updates
-- Fast build times with Vite
-- React 18+ with modern features
-- Optimized development experience
-
-## Migration Complete
-
-**The React migration is now complete!** The vanilla JavaScript version has been removed. All game functionality has been successfully migrated to React 18+ while preserving all game logic and behavior.
-
-### What Changed
-
-- **UI Layer**: Migrated from vanilla JavaScript DOM manipulation to React declarative components
-- **Build System**: Migrated from simple HTTP server to Vite build tool
-- **Testing**: Migrated from vanilla JS tests to Vitest with React Testing Library
-- **Architecture**: Implemented Bridge Pattern to connect GameCoordinator to React
-
-### What Stayed the Same
-
-- **Game Logic**: All game mechanics, calculations, and state management preserved
-- **Three.js Rendering**: Starmap rendering unchanged, wrapped in React component
-- **Save/Load**: Save file format and localStorage keys unchanged
-- **Styling**: All CSS preserved and reused
-- **Behavior**: Game behaves identically to vanilla version
-
-## Build Commands
-
-### Development
+## Quick Start
 
 ```bash
-npm run dev          # Start Vite dev server
+npm install
+npm run dev    # http://localhost:5173/
 ```
 
-### Production
+## Where to Start Reading
+
+When orienting yourself in the codebase, follow this trail:
+
+1. **`src/App.jsx`** — view mode state machine and top-level orchestration
+2. **`src/context/GameContext.jsx`** — how React reaches into game logic
+3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useGameAction.js`** — Bridge Pattern read/write hooks
+4. **`src/game/state/game-coordinator.js`** — the singleton facade (~1640 lines, mostly delegation)
+5. **`src/game/state/capabilities.js`** — capability interfaces defining what each manager can read/write
+6. **One manager** in `src/game/state/managers/` (e.g. `trading.js`, `combat.js`) to see the pattern in practice
+7. **`src/game/constants.js`** — every tunable number in the game
+
+## Commands
 
 ```bash
-npm run build        # Build React app for production
-npm run preview      # Preview production build locally
+npm run dev              # Vite dev server (port 5173, HMR)
+npm run build            # Production build to dist/
+npm run preview          # Preview production build locally
+
+npm test                 # Run all tests once (vitest --run)
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report (v8, HTML)
+
+npm run lint             # ESLint (zero warnings)
+npm run lint:fix         # ESLint autofix
+npm run format:check     # Prettier check
+npm run format:write     # Prettier format
+npm run clean            # lint:fix + format:write across the repo
+npm run knip             # Find unused exports
+npm run all              # clean + test + knip
+
+# Run a single test file
+npm test -- tests/unit/game-trading.test.js
+
+# Run tests matching a pattern
+npm test -- --grep "Bridge Pattern"
 ```
 
-The production build outputs to the `dist/` directory with:
+**Gotcha:** The `test` script is `vitest --run`. Do **not** pass `--run` again on the command line (`npm test --run`) — npm in this project does not strip it correctly. Just use `npm test`.
 
-- Optimized and minified JavaScript bundles
-- Minified CSS with unused styles removed
-- Static assets with cache-busting hashes
-- Source maps for debugging
+## Architecture
 
-### Testing
+### View Mode State Machine
 
-```bash
-npm test             # Run all tests once
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
+The application has no router. `App.jsx` manages a single state machine over seven view modes (defined at `src/App.jsx:45-53`):
+
+```
+         ┌─────────┐
+         │  TITLE  │
+         └────┬────┘
+              ▼
+         ┌─────────────┐
+         │ SHIP_NAMING │
+         └────┬────────┘
+              ▼
+         ┌──────────┐      ┌──────────┐
+         │  ORBIT   │ ◄──► │ STATION  │
+         └────┬─────┘      └──────────┘
+              ▼
+         ┌───────────┐
+         │ ENCOUNTER │
+         └────┬──────┘
+              ▼
+         ┌─────────────┐      ┌──────────┐
+         │ PAVONIS_RUN │ ───► │ EPILOGUE │
+         └─────────────┘      └──────────┘
 ```
 
-Test output includes:
+`PANEL`-style overlays (trade, refuel, repair, upgrades, info broker, cargo, ship status) are rendered on top of `STATION` rather than being separate modes. The `ENCOUNTER` view is driven by `useEncounterOrchestration`, which receives `setViewMode` from `App.jsx` and switches mode when the game raises an encounter event.
 
-- Pass/fail status for all tests
-- Coverage percentages by file
-- Detailed error messages for failures
-- Property-based test statistics
+### Bridge Pattern
 
-### Code Quality
+The single most important pattern in this codebase. It connects the imperative `GameCoordinator` singleton to React's declarative model. Three pieces:
 
-```bash
-npm run lint         # Check for linting errors
-npm run lint:fix     # Fix linting errors automatically
-npm run format:check # Check code formatting
-npm run format:write # Format code automatically
-npm run clean        # Lint and format all code
-npm run all          # Clean and test
+- **`GameContext`** (`src/context/GameContext.jsx`) — exposes `GameCoordinator` via React Context.
+- **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount.
+- **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns methods that mutate game state (`jump`, `buyGood`, `sellGood`, `refuel`, etc.).
+
+**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. All reactive reads flow through `useGameEvent`; all mutations flow through `useGameAction` or a feature-specific action hook (e.g. `useTradeActions`, `useShipActions`, `useMissionActions`).
+
+#### Example
+
+```javascript
+import { useState } from 'react';
+import { useGameState } from '@context/GameContext';
+import { useGameEvent } from '@hooks/useGameEvent';
+import { useTradeActions } from '@hooks/useTradeActions';
+
+function TradePanel({ onClose }) {
+  // Local UI state only — not game state
+  const [selectedGood, setSelectedGood] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  // Reactive reads
+  const cargo = useGameEvent('cargoChanged');
+  const credits = useGameEvent('creditsChanged');
+
+  // Actions
+  const { buyGood, sellGood } = useTradeActions();
+
+  // Non-reactive lookups still go through GameCoordinator
+  const gsm = useGameState();
+  const knownPrices = gsm.getKnownPrices(gsm.getState().player.currentSystem);
+
+  return /* ... */;
+}
 ```
 
-## Port Configuration
+**Why it works:**
 
-- **Vite Dev Server**: Port 5173 (default Vite port)
+1. `useGameEvent('creditsChanged')` subscribes to the event.
+2. When credits change, `EventSystemManager` fires the event.
+3. The hook bumps local state, triggering a re-render.
+4. Unmount cleans up the subscription automatically.
+
+### GameCoordinator + Manager Delegation
+
+`GameCoordinator` (`src/game/state/game-coordinator.js`, ~1640 lines) is a facade. Almost all of its body is delegation methods — the real logic lives in domain managers under `src/game/state/managers/`. This is the result of the GSM refactor and is intentional; the facade is the project's public API surface.
+
+#### The 24 managers
+
+| Manager | Responsibility | File |
+|---------|----------------|------|
+| StateManager | Core state mutations (credits, cargo, fuel primitives) | `state.js` |
+| ShipManager | Ship attributes, upgrades, quirks | `ship.js` |
+| TradingManager | Prices, market conditions, price knowledge | `trading.js` |
+| NavigationManager | Jumps, current system, visited systems | `navigation.js` |
+| RefuelManager | Refuel calculations and transactions | `refuel.js` |
+| RepairManager | Hull / engine / life-support repair | `repair.js` |
+| DangerManager | Karma, faction reputation, encounter probability | `danger.js` |
+| CombatManager | Pirate combat resolution | `combat.js` |
+| NegotiationManager | Pirate negotiation paths | `negotiation.js` |
+| InspectionManager | Customs inspection encounters | `inspection.js` |
+| DistressManager | Civilian distress calls | `distress.js` |
+| MechanicalFailureManager | Ship system failure checks | `mechanical-failure.js` |
+| NPCManager | NPC presence and relationships | `npc.js` |
+| DialogueManager | Dialogue tree state | `dialogue.js` |
+| MissionManager | Generated cargo missions | `mission.js` |
+| QuestManager | Hand-written quest definitions | `quest-manager.js` |
+| AchievementsManager | Unlock tracking | `achievements.js` |
+| DebtManager | Loans and debt obligations | `debt.js` |
+| InfoBrokerManager | Intelligence purchases | `info-broker.js` |
+| EventSystemManager | Event pub/sub (powers Bridge Pattern) | `event-system.js` |
+| EventsManager | Active world events | `events.js` |
+| EventEngineManager | Narrative event flags, cooldowns, triggers | `event-engine.js` |
+| InitializationManager | New-game and load-game initialization | `initialization.js` |
+| SaveLoadManager | Save / load with debounced writes | `save-load.js` |
+
+Each manager extends `BaseManager` and receives a **capabilities** object (not the full GameCoordinator) — see `src/game/state/capabilities.js` for the per-manager getter/mutator interfaces. This is how cross-manager reads and writes stay explicit rather than turning into a god object.
+
+#### Save pattern
+
+Managers call `this.gameStateManager.markDirty()` after mutations. They never call `saveGame()` directly. `SaveLoadManager` debounces all dirty marks with a 500ms trailing write, so a burst of mutations produces a single `localStorage` write.
+
+#### Encounter RNG
+
+Combat, inspection, distress, and mechanical-failure paths use `SeededRandom` (`src/game/utils/seeded-random.js`) with deterministic seeds shaped like `gameDay_systemId_encounterType`. **Never use `Math.random()` in gameplay paths** — same game day + same system + same encounter type must produce the same outcome.
 
 ## Directory Structure
-
-The React migration introduces a new directory structure organized by feature and responsibility:
 
 ```
 project-root/
 ├── index.html                    # Vite entry point
-├── vite.config.js               # Vite build configuration
-├── vitest.config.js             # Vitest test configuration
-├── package.json                 # Dependencies and scripts
+├── vite.config.js                # Build configuration
+├── vitest.config.js              # Test configuration
+├── shared-config.js              # Path aliases (shared by Vite + Vitest)
+├── package.json
 │
-├── src/                         # React application source
-│   ├── main.jsx                 # Application entry point
-│   ├── App.jsx                  # Root component with view mode management
+├── src/
+│   ├── main.jsx                  # React entry
+│   ├── App.jsx                   # View mode state machine
 │   │
-│   ├── assets/                  # Images and static resources
+│   ├── assets/                   # Images and static resources
 │   │
-│   ├── components/              # Shared UI components
-│   │   ├── Button.jsx           # Reusable button component
-│   │   ├── Modal.jsx            # Modal dialog with React Portals
-│   │   ├── Card.jsx             # Card container component
-│   │   └── ErrorBoundary.jsx    # Error boundary for graceful failures
+│   ├── components/               # Shared UI primitives
+│   │   ├── Button.jsx
+│   │   ├── Card.jsx
+│   │   ├── CustomSelect.jsx
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── Modal.jsx
+│   │   └── NotificationContainer.jsx
 │   │
-│   ├── context/                 # React Context providers
-│   │   └── GameContext.jsx      # Provides GameCoordinator to all components
+│   ├── context/
+│   │   ├── GameContext.jsx       # GameCoordinator provider (Bridge Pattern)
+│   │   ├── StarmapContext.jsx    # Three.js scene context
+│   │   ├── MobileContext.jsx     # Viewport / mobile layout
+│   │   └── NotificationContext.jsx
 │   │
-│   ├── hooks/                   # Custom React hooks
-│   │   ├── useGameEvent.js      # Subscribe to GameCoordinator events
-│   │   ├── useGameAction.js     # Trigger game actions
-│   │   ├── useAnimationLock.js  # Animation state management
-│   │   └── useNotification.js   # Notification system
+│   ├── hooks/                    # ~20 hooks; key ones:
+│   │   ├── useGameEvent.js       # Bridge Pattern: subscribe
+│   │   ├── useGameAction.js      # Bridge Pattern: act
+│   │   ├── useEncounterOrchestration.js   # Drives ENCOUNTER mode
+│   │   ├── useTradeActions.js / useShipActions.js / useNavigationActions.js
+│   │   ├── useMissionActions.js / useQuestActions.js / useNPCActions.js
+│   │   ├── useDangerZone.js / useEncounterProbabilities.js / useJumpValidation.js
+│   │   ├── useDialogue.js / useEventTriggers.js / useStarData.js
+│   │   ├── useAnimationLock.js / useNotification.js
+│   │   ├── useMobileLayout.js / useClickOutside.js / useDebtActions.js
 │   │
-│   ├── features/                # Feature modules (components + utilities)
-│   │   ├── hud/                 # Heads-up display
-│   │   │   ├── HUD.jsx
-│   │   │   ├── ResourceBar.jsx
-│   │   │   ├── DateDisplay.jsx
-│   │   │   ├── ShipStatus.jsx
-│   │   │   ├── QuickAccessButtons.jsx
-│   │   │   └── hudUtils.js
-│   │   │
-│   │   ├── navigation/          # Starmap and navigation
-│   │   │   ├── StarMapCanvas.jsx
-│   │   │   ├── JumpDialog.jsx
-│   │   │   ├── SystemPanel.jsx
-│   │   │   └── CameraControls.jsx
-│   │   │
-│   │   ├── station/             # Station interface
-│   │   │   ├── StationMenu.jsx
-│   │   │   └── PanelContainer.jsx
-│   │   │
-│   │   ├── trade/               # Trading panel
-│   │   │   ├── TradePanel.jsx
-│   │   │   └── tradeUtils.js
-│   │   │
-│   │   ├── refuel/              # Refueling panel
-│   │   │   ├── RefuelPanel.jsx
-│   │   │   └── refuelUtils.js
-│   │   │
-│   │   ├── repair/              # Repair panel
-│   │   │   ├── RepairPanel.jsx
-│   │   │   └── repairUtils.js
-│   │   │
-│   │   ├── upgrades/            # Upgrades panel
-│   │   │   ├── UpgradesPanel.jsx
-│   │   │   └── upgradesUtils.js
-│   │   │
-│   │   ├── info-broker/         # Information broker panel
-│   │   │   ├── InfoBrokerPanel.jsx
-│   │   │   └── infoBrokerUtils.js
-│   │   │
-│   │   ├── cargo/               # Cargo manifest panel
-│   │   │   ├── CargoManifestPanel.jsx
-│   │   │   └── cargoUtils.js
-│   │   │
-│   │   ├── ship-status/         # Ship status panel
-│   │   │   └── ShipStatusPanel.jsx
-│   │   │
-│   │   ├── title-screen/        # Title screen and ship naming
-│   │   │   ├── TitleScreen.jsx
-│   │   │   └── ShipNamingDialog.jsx
-│   │   │
-│   │   └── dev-admin/           # Development admin panel
-│   │       └── DevAdminPanel.jsx
+│   ├── features/                 # Feature modules (component + utils co-located)
+│   │   ├── achievements/         # Achievement tracking and display
+│   │   ├── cargo/                # Cargo manifest panel
+│   │   ├── danger/               # Encounter UI (combat, negotiation, inspection, distress)
+│   │   ├── dev-admin/            # Developer admin panel
+│   │   ├── dialogue/             # Dialogue tree UI
+│   │   ├── endgame/              # Pavonis Run + epilogue
+│   │   ├── finance/              # Loans and debt UI
+│   │   ├── hud/                  # HUD overlay (resources, ship, quick access)
+│   │   ├── info-broker/          # Intelligence purchase panel
+│   │   ├── instructions/         # In-game help
+│   │   ├── missions/             # Mission board and cargo missions
+│   │   ├── narrative/            # Narrative event overlays
+│   │   ├── navigation/           # StarMapCanvas (Three.js), JumpDialog, SystemPanel
+│   │   ├── refuel/               # Refueling panel
+│   │   ├── repair/               # Repair panel
+│   │   ├── ship-status/          # Ship status panel
+│   │   ├── station/              # StationMenu, PanelContainer
+│   │   ├── title-screen/         # Title and ship-naming
+│   │   ├── trade/                # Trading panel
+│   │   └── upgrades/             # Upgrades panel
 │   │
-│   └── game/                    # Migrated game logic (preserved)
-│       ├── constants.js         # Game configuration constants
-│       ├── game-trading.js      # Trading calculations
-│       ├── game-navigation.js   # Navigation mechanics
-│       ├── game-events.js       # Event system
-│       ├── game-information-broker.js
+│   └── game/                     # Pure game logic — no React
+│       ├── constants.js          # All tunable numbers
+│       ├── event-conditions.js
+│       ├── game-trading.js / game-navigation.js / game-events.js
+│       ├── game-dialogue.js / game-npcs.js / game-information-broker.js
+│       ├── mission-generator.js
 │       │
-│       ├── state/               # State management
-│       │   ├── game-state-manager.js  # Central state manager (singleton)
-│       │   ├── save-load.js           # Save/load functionality
-│       │   └── state-validators.js    # State validation
+│       ├── state/
+│       │   ├── game-coordinator.js  # The facade singleton
+│       │   ├── capabilities.js      # Per-manager capability interfaces
+│       │   ├── save-load.js
+│       │   ├── state-validators.js
+│       │   └── managers/            # 24 domain managers (see table above)
 │       │
-│       ├── engine/              # Rendering and animation
-│       │   ├── game-animation.js      # Animation system
-│       │   ├── scene.js               # Three.js scene setup
-│       │   ├── stars.js               # Star rendering
-│       │   ├── wormholes.js           # Wormhole rendering
-│       │   └── interaction.js         # User interaction
+│       ├── engine/                  # Three.js
+│       │   ├── scene.js
+│       │   ├── stars.js
+│       │   ├── wormholes.js
+│       │   ├── interaction.js
+│       │   └── game-animation.js
 │       │
-│       ├── data/                # Static game data
-│       │   ├── star-data.js           # Star system data
-│       │   └── wormhole-data.js       # Wormhole connections
+│       ├── data/                    # Static game data
+│       │   ├── star-data.js         # 117 star systems
+│       │   ├── wormhole-data.js
+│       │   ├── dialogue-trees.js / dialogue/
+│       │   ├── danger-events.js / narrative-events.js
+│       │   ├── npc-data.js
+│       │   ├── achievements-data.js
+│       │   ├── cole-missions.js / quest-definitions.js
+│       │   └── epilogue-data.js
 │       │
-│       └── utils/               # Utility functions
-│           ├── seeded-random.js       # Deterministic RNG
-│           ├── string-utils.js        # String utilities
-│           └── star-visuals.js        # Star visualization
+│       └── utils/
+│           ├── seeded-random.js     # Deterministic RNG for encounters
+│           ├── calculators.js
+│           ├── danger-utils.js / date-utils.js
+│           ├── string-utils.js / star-visuals.js / wormhole-graph.js
+│           ├── page-title.js / reduced-motion.js / dev-logger.js
 │
-├── css/                         # Stylesheets (preserved from vanilla)
-│   ├── base.css                 # Global styles and resets
-│   ├── hud.css                  # HUD overlay styles
-│   ├── modals.css               # Modal dialog styles
-│   ├── starmap-scene.css        # Starmap visualization
-│   └── panel/                   # Panel-specific styles
-│       ├── trade.css
-│       ├── refuel.css
-│       ├── repair.css
-│       ├── upgrades.css
-│       ├── info-broker.css
-│       ├── cargo-manifest.css
-│       ├── ship-status.css
-│       └── dev-admin.css
+├── css/                          # Stylesheets
+│   ├── base.css / hud.css / modals.css / starmap-scene.css
+│   └── panel/                    # Panel-specific styles
 │
-└── tests/                       # Test suite (Vitest)
-    ├── unit/                    # Unit tests
-    ├── property/                # Property-based tests
-    ├── integration/             # Integration tests
-    ├── setup.js                 # Test setup
-    ├── react-test-utils.jsx     # React testing utilities
-    └── test-utils.js            # General test utilities
+└── tests/
+    ├── unit/                     # Unit tests
+    ├── property/                 # Property-based tests (fast-check)
+    ├── integration/              # Integration tests
+    ├── setup.js / setup-three-mock.js
+    ├── react-test-utils.jsx
+    ├── test-utils.js / test-data.js
 ```
 
-### Directory Organization Principles
+### Path Aliases
 
-- **Feature-based organization**: Related components, hooks, and utilities are co-located in feature directories
-- **Separation of concerns**: UI components (src/features/) are separate from game logic (src/game/)
-- **Shared components**: Reusable UI components live in src/components/
-- **Custom hooks**: React hooks for common patterns live in src/hooks/
-- **Preserved game logic**: All game logic from vanilla version is preserved in src/game/
+Defined in `shared-config.js` and used by both Vite and Vitest:
 
-## Bridge Pattern Architecture
+| Alias | Resolves to |
+|-------|-------------|
+| `@` | `src/` |
+| `@components` | `src/components/` |
+| `@features` | `src/features/` |
+| `@hooks` | `src/hooks/` |
+| `@context` | `src/context/` |
+| `@game` | `src/game/` |
+| `@assets` | `src/assets/` |
 
-The React migration uses a **Bridge Pattern** to connect the imperative GameCoordinator (single source of truth) to React's declarative component model. This ensures zero behavioral changes to game mechanics while enabling reactive UI updates.
+## Coding Standards
 
-### Architecture Overview
+`CLAUDE.md` is the canonical reference. Key points repeated here:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      React Application                       │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │                    App Component                        │ │
-│  │  - View Mode State (ORBIT/STATION/PANEL)              │ │
-│  │  - Conditional Rendering Logic                         │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                            │                                 │
-│         ┌──────────────────┼──────────────────┐            │
-│         ▼                  ▼                   ▼            │
-│  ┌──────────┐      ┌──────────┐       ┌──────────┐        │
-│  │StarMapCanvas│    │   HUD    │       │ Panels   │        │
-│  │(Three.js)│      │Components│       │Components│        │
-│  └──────────┘      └──────────┘       └──────────┘        │
-│         │                  │                   │            │
-│         └──────────────────┼───────────────────┘            │
-│                            ▼                                 │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │              Bridge Pattern Layer                       │ │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │ │
-│  │  │ GameContext  │  │ useGameEvent │  │useGameAction │ │ │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘ │ │
-│  └────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│              GameCoordinator (Singleton)                    │
-│  - Single Source of Truth                                   │
-│  - Event Subscription System                                │
-│  - Game Logic Methods                                       │
-└─────────────────────────────────────────────────────────────┘
-                            │
-         ┌──────────────────┼──────────────────┐
-         ▼                  ▼                   ▼
-┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│   Trading    │   │  Navigation  │   │   Events     │
-│   Logic      │   │    Logic     │   │   System     │
-└──────────────┘   └──────────────┘   └──────────────┘
-         │                  │                   │
-         ▼                  ▼                   ▼
-┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│   Danger     │   │   Combat /   │   │  Inspection  │
-│   Manager    │   │ Negotiation  │   │  / Distress  │
-└──────────────┘   └──────────────┘   └──────────────┘
-```
+### Constants
 
-### Bridge Pattern Components
+All magic numbers live in `src/game/constants.js`. Prices, capacities, thresholds, percentages, durations — never hard-code them in implementation files.
 
-#### 1. GameContext
+### Numeric display
 
-Provides the GameCoordinator instance to all React components via React Context.
+Round at the calculation layer, not the display layer. Utility functions return integers.
 
-**Location**: `src/context/GameContext.jsx`
+- **Credits / costs:** `Math.ceil()` — the player never pays less than the true cost.
+- **Percentages (condition, capacity):** `Math.round()` — standard display rounding.
+- Never interpolate a raw float into JSX.
 
-**Purpose**: Makes GameCoordinator available throughout the component tree without prop drilling.
+### TDD
 
-**Usage**:
+Required for all feature work. RED (one failing test) → GREEN (minimal passing code) → REFACTOR. Never batch multiple failing tests.
 
-```javascript
-import { useGameState } from '../context/GameContext';
+### Tests
 
-function MyComponent() {
-  const gameStateManager = useGameState();
-  // Access GameCoordinator methods
-}
-```
+- Three suites: unit (`tests/unit/`), property-based with fast-check (`tests/property/`), integration (`tests/integration/`).
+- Property tests: minimum 100 iterations, tagged with feature/property references.
+- Tests must produce **no stderr warnings** — mock `console` methods when testing error paths.
+- Every commit must leave the full suite passing.
 
-#### 2. useGameEvent Hook
+### React patterns
 
-Subscribes to GameCoordinator events and triggers React re-renders when events fire.
+- Functional components with hooks only.
+- Three.js scenes initialize once in a `useEffect` with empty deps; dispose all resources on unmount.
+- Never allocate objects in hot loops (animation frames, frequent events).
 
-**Location**: `src/hooks/useGameEvent.js`
+### Accessibility
 
-**Purpose**: Enables reactive UI updates based on game state changes.
+Basic a11y is expected on new and modified components: `aria-label` on icon-only buttons, semantic HTML, keyboard-navigable controls. A full a11y pass is planned.
 
-**Usage**:
+### Style
 
-```javascript
-import { useGameEvent } from '../hooks/useGameEvent';
-
-function ResourceBar() {
-  const credits = useGameEvent('creditsChanged');
-  const fuel = useGameEvent('fuelChanged');
-
-  return (
-    <div>
-      <div>Credits: {credits}</div>
-      <div>Fuel: {fuel}%</div>
-    </div>
-  );
-}
-```
-
-**How it works**:
-
-1. Component calls `useGameEvent('creditsChanged')`
-2. Hook subscribes to GameCoordinator's 'creditsChanged' event
-3. When credits change, GameCoordinator fires event
-4. Hook updates local state, triggering React re-render
-5. Component automatically unsubscribes on unmount
-
-#### 3. useGameAction Hook
-
-Provides methods to trigger game actions through GameCoordinator.
-
-**Location**: `src/hooks/useGameAction.js`
-
-**Purpose**: Enables components to trigger game actions without direct GameCoordinator access.
-
-**Usage**:
-
-```javascript
-import { useGameAction } from '../hooks/useGameAction';
-
-function RefuelButton() {
-  const { refuel } = useGameAction();
-
-  const handleRefuel = () => {
-    refuel(50); // Refuel 50 units
-  };
-
-  return <button onClick={handleRefuel}>Refuel</button>;
-}
-```
-
-**Available actions**:
-
-- `jump(targetSystemId)` - Jump to another system
-- `buyGood(goodType, quantity)` - Buy goods
-- `sellGood(stackIndex, quantity)` - Sell goods
-- `refuel(amount)` - Refuel ship
-- `repair(component, amount)` - Repair ship component
-- `purchaseUpgrade(upgradeId)` - Purchase upgrade
-- `purchaseIntelligence(systemId, goodType)` - Buy intelligence
-- `saveGame()` - Save game state
-- `newGame()` - Start new game
-
-### Bridge Pattern Benefits
-
-1. **Single Source of Truth**: GameCoordinator remains the only source of game state
-2. **No State Duplication**: React components don't duplicate game state in local state
-3. **Automatic Cleanup**: Subscriptions automatically cleaned up on component unmount
-4. **Selective Re-rendering**: Only components subscribed to specific events re-render
-5. **Preserved Game Logic**: All game logic remains unchanged in GameCoordinator
-6. **Testability**: Components can be tested with mock GameCoordinator
-
-### Example: Complete Component
-
-```javascript
-import { useState } from 'react';
-import { useGameState } from '../../context/GameContext';
-import { useGameEvent } from '../../hooks/useGameEvent';
-import { useGameAction } from '../../hooks/useGameAction';
-
-function TradePanel({ onClose }) {
-  // Local UI state (not game state)
-  const [selectedGood, setSelectedGood] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-
-  // Access GameCoordinator
-  const gameStateManager = useGameState();
-
-  // Subscribe to game events
-  const cargo = useGameEvent('cargoChanged');
-  const credits = useGameEvent('creditsChanged');
-
-  // Get action methods
-  const { buyGood, sellGood } = useGameAction();
-
-  // Get current state for calculations
-  const state = gameStateManager.getState();
-  const knownPrices = gameStateManager.getKnownPrices(
-    state.player.currentSystem
-  );
-
-  const handleBuy = () => {
-    buyGood(selectedGood, quantity);
-    setQuantity(1); // Reset UI state
-  };
-
-  return (
-    <div className="trade-panel">
-      {/* UI rendering */}
-      <button onClick={handleBuy}>Buy</button>
-      <button onClick={onClose}>Close</button>
-    </div>
-  );
-}
-```
-
-## Migration Status
-
-**✅ Migration Complete!**
-
-The React migration has been successfully completed. All phases are done:
-
-- ✅ **Phase 1: Foundation** - Vite scaffolding, Bridge Pattern, StarMapCanvas
-- ✅ **Phase 2: Core UI** - All panels migrated to React components
-- ✅ **Phase 3: Animation & Polish** - Animation integration, dev admin panel
-- ✅ **Phase 4: Testing** - All tests migrated to Vitest
-- ✅ **Phase 5: Cleanup** - Vanilla JavaScript version removed, documentation updated
-
-The application is now running entirely on React 18+ with Vite, while preserving all game logic and behavior from the original vanilla JavaScript implementation.
+ES Modules, 2-space indentation, `const`/`let` only. Comments explain WHY not WHAT, and never mention task numbers. Import order: external libraries → internal modules → components → utilities → data/constants → styles.
 
 ## Development Workflow
 
-1. **Start Development Server**: `npm run dev`
-2. **Make Changes**: Edit files in `src/`
-3. **Hot Reload**: Changes appear instantly in browser (HMR)
-4. **Run Tests**: `npm test` to verify changes
-5. **Check Linting**: `npm run lint` to check code quality
-6. **Commit**: Ensure tests pass and linting is clean before committing
+1. `npm run dev` — start Vite (HMR is reliable; full reload is rare).
+2. Edit files under `src/`.
+3. `npm run test:watch` — keep tests running in the background while editing.
+4. `npm run lint` and `npm run format:check` before committing.
+5. Run `npm run all` (clean + test + knip) before opening a PR.
 
-### Best Practices
+## Testing
 
-- **Use Bridge Pattern hooks**: Always use `useGameEvent` and `useGameAction` to interact with game state
-- **Keep UI state local**: Only store UI-specific state in React state (slider values, form inputs)
-- **Don't duplicate game state**: Never copy game state into React state
-- **Clean up subscriptions**: useGameEvent handles cleanup automatically
-- **Test behavioral equivalence**: Compare React behavior to vanilla version
+### Suites
 
-## Testing Strategy
+- **Unit** (`tests/unit/`) — functions and components in isolation.
+- **Property-based** (`tests/property/`) — invariants verified across generated inputs with `fast-check` (≥100 runs).
+- **Integration** (`tests/integration/`) — multi-component workflows (a complete trade, a jump cycle, an encounter).
 
-### Test Types
-
-1. **Unit Tests**: Test individual functions and components in isolation
-2. **Property-Based Tests**: Test universal properties with generated inputs using fast-check
-3. **Integration Tests**: Test complete workflows across multiple components
-4. **Behavioral Equivalence Tests**: Compare React vs Vanilla behavior to ensure identical game mechanics
-
-### Running Tests
-
-```bash
-# Run all tests once
-npm test
-
-# Run tests in watch mode (re-run on file changes)
-npm run test:watch
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run specific test file
-npm test -- path/to/test.js
-
-# Run tests matching pattern
-npm test -- --grep "Bridge Pattern"
-```
-
-### Test Coverage Goals
-
-- **Unit Tests**: 80%+ coverage of utility functions and hooks
-- **Property Tests**: All correctness properties from design document implemented
-- **Integration Tests**: All major workflows covered (trade, refuel, navigation, etc.)
-- **Behavioral Equivalence**: All game actions verified to produce identical results
-
-### Writing Tests
-
-#### Unit Test Example
+### Unit test example
 
 ```javascript
-// src/features/trade/tradeUtils.test.js
+// tests/unit/trade-utils.test.js
 import { describe, it, expect } from 'vitest';
-import { validateTrade } from './tradeUtils';
+import { validateTrade } from '@features/trade/tradeUtils';
 
 describe('validateTrade', () => {
-  it('should reject trades with insufficient credits', () => {
-    const state = {
-      player: { credits: 100 },
-      ship: { cargo: [] },
-    };
-
+  it('rejects buys with insufficient credits', () => {
+    const state = { player: { credits: 100 }, ship: { cargo: [] } };
     const result = validateTrade('buy', 'electronics', 10, state);
 
     expect(result.valid).toBe(false);
@@ -526,20 +374,16 @@ describe('validateTrade', () => {
 });
 ```
 
-#### Property-Based Test Example
+### Property test example
 
 ```javascript
-// tests/property/bridge-pattern.property.test.js
 import { describe, it } from 'vitest';
 import * as fc from 'fast-check';
 import { renderHook } from '@testing-library/react';
-import { useGameEvent } from '../../src/hooks/useGameEvent';
+import { useGameEvent } from '@hooks/useGameEvent';
 
-/**
- * React Migration Spec, Property 9: Automatic unsubscription on unmount
- */
-describe('Property: Automatic unsubscription on unmount', () => {
-  it('should unsubscribe from all events when component unmounts', () => {
+describe('useGameEvent: automatic unsubscription on unmount', () => {
+  it('removes its subscription when the component unmounts', () => {
     fc.assert(
       fc.property(
         fc.constantFrom('creditsChanged', 'fuelChanged', 'cargoChanged'),
@@ -548,12 +392,9 @@ describe('Property: Automatic unsubscription on unmount', () => {
           const { unmount } = renderHook(() => useGameEvent(eventName), {
             wrapper: createWrapper(mockGSM),
           });
-
-          const beforeCount = mockGSM.getSubscriptionCount(eventName);
+          const before = mockGSM.getSubscriptionCount(eventName);
           unmount();
-          const afterCount = mockGSM.getSubscriptionCount(eventName);
-
-          return afterCount === beforeCount - 1;
+          return mockGSM.getSubscriptionCount(eventName) === before - 1;
         }
       ),
       { numRuns: 100 }
@@ -564,114 +405,75 @@ describe('Property: Automatic unsubscription on unmount', () => {
 
 ## Troubleshooting
 
-### Port Already in Use
-
-If you see "Port 5173 is already in use":
+### Port already in use
 
 ```bash
-# Find and kill the process using port 5173
 lsof -ti:5173 | xargs kill -9
 ```
 
-If you see "Port 8080 is already in use":
+### Module resolution errors
 
 ```bash
-# Find and kill the process using port 8080
-lsof -ti:8080 | xargs kill -9
-```
-
-### Module Not Found Errors
-
-If you see module resolution errors:
-
-```bash
-# Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-### Vite Cache Issues
-
-If you experience strange build issues:
+### Vite cache issues
 
 ```bash
-# Clear Vite cache
 rm -rf node_modules/.vite
 npm run dev
 ```
 
-### React DevTools Not Working
+### Three.js scene doesn't render
 
-If React DevTools don't detect the app:
+1. Check browser console for WebGL errors.
+2. Verify `StarMapCanvas` is mounted (React DevTools).
+3. Confirm `initScene` is called exactly once (empty-deps `useEffect`).
+4. Verify the container ref is attached before scene init.
+5. Make sure Three.js resources aren't disposed prematurely on a parent re-render.
 
-1. Ensure you're running the development build (`npm run dev`)
-2. Check that React DevTools extension is installed
-3. Refresh the page
-4. Check browser console for errors
+### Tests fail after a refactor
 
-### Tests Failing After Changes
+1. Run `npm run test:watch` and read the first failing assertion.
+2. Check that Bridge Pattern hooks haven't been bypassed (no direct `getState()` in render).
+3. Confirm subscriptions are cleaned up (`useGameEvent` does this automatically; custom listeners must too).
+4. Check `tests/setup-three-mock.js` if a Three.js mock is missing.
 
-If tests fail after making changes:
+## Performance
 
-1. Run tests in watch mode: `npm run test:watch`
-2. Check test output for specific failures
-3. Verify game logic hasn't changed unintentionally
-4. Check that Bridge Pattern hooks are used correctly
-5. Ensure subscriptions are cleaned up properly
+### React
 
-### Three.js Scene Not Rendering
+- `React.memo` on panels that re-render frequently.
+- `useMemo` / `useCallback` for expensive derivations and stable references.
+- React 18 automatic batching covers most multi-update flows.
 
-If the starmap doesn't appear:
+### Three.js
 
-1. Check browser console for WebGL errors
-2. Verify StarMapCanvas component is mounted
-3. Check that initScene is called only once
-4. Verify Three.js resources are not disposed prematurely
-5. Check that container ref is properly attached
+- Scene initialized once; never re-initialized.
+- `requestAnimationFrame` loop runs outside React's render cycle.
+- All geometries, materials, textures disposed on unmount.
+- Container access via ref, not `document.querySelector`.
 
-## Performance Optimization
+### Bundle
 
-### React Rendering
-
-- **React.memo**: Wrap expensive components to prevent unnecessary re-renders
-- **useMemo**: Cache expensive calculations
-- **useCallback**: Stabilize callback references for memoized components
-- **React 18 Automatic Batching**: Multiple state updates are automatically batched
-
-### Three.js Integration
-
-- **Single Initialization**: Scene initialized once, never re-initialized
-- **Animation Loop Outside React**: requestAnimationFrame runs outside React render cycle
-- **Resource Cleanup**: All Three.js resources properly disposed on unmount
-- **Ref-based DOM Access**: Use refs to access container, avoid querying DOM
-
-### Bundle Size
-
-- **Tree Shaking**: Unused code automatically eliminated in production build
-- **Code Splitting**: Features split into separate chunks for lazy loading
-- **CSS Optimization**: Unused CSS removed, styles minified
-- **Asset Optimization**: Images and static assets optimized
+- Vendor and Three.js are split into separate chunks (`vite.config.js`).
+- Tree shaking removes unused exports — run `npm run knip` periodically to surface dead code.
 
 ## Resources
 
-### Documentation
+### External docs
 
-- [Vite Documentation](https://vitejs.dev/) - Build tool and dev server
-- [React Documentation](https://react.dev/) - React framework
-- [Vitest Documentation](https://vitest.dev/) - Testing framework
-- [React Testing Library](https://testing-library.com/react) - Component testing
-- [fast-check](https://fast-check.dev/) - Property-based testing
-- [Three.js Documentation](https://threejs.org/docs/) - 3D rendering
+- [Vite](https://vitejs.dev/)
+- [React](https://react.dev/)
+- [Vitest](https://vitest.dev/)
+- [React Testing Library](https://testing-library.com/react)
+- [fast-check](https://fast-check.dev/)
+- [Three.js](https://threejs.org/docs/)
 
-### Migration Specification
+### In-repo
 
-For detailed migration requirements, design, and tasks, see:
-
-- `.kiro/specs/react-migration/requirements.md` - Detailed requirements with acceptance criteria
-- `.kiro/specs/react-migration/design.md` - Architecture and design decisions
-- `.kiro/specs/react-migration/tasks.md` - Implementation task list
-
-### Project Documentation
-
-- `notes/tramp-freighter.md` - Complete product requirements
-- `.kiro/steering/` - Development guidelines and standards
+- `CLAUDE.md` — canonical coding standards (constants, rounding, commits, TDD).
+- `notes/tramp-freighter.md` — product requirements and design notes.
+- `.kiro/steering/` — additional development guidelines.
+- `.kiro/specs/react-migration/` — historical migration spec (kept for reference; current architecture is documented above).
