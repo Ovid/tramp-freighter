@@ -19,10 +19,10 @@ When orienting yourself in the codebase, follow this trail:
 
 1. **`src/App.jsx`** — view mode state machine and top-level orchestration
 2. **`src/context/GameContext.jsx`** — how React reaches into game logic
-3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useTradeActions.js`** — Bridge Pattern read/write hooks. `useGameAction.js` is the generic underlying hook; feature-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.) are what real components actually use.
+3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useGameAction.js`** — Bridge Pattern read/write hooks. `useGameAction()` is composed from 7 domain-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.), which you can import directly when you want a narrower API.
 4. **`src/game/state/game-coordinator.js`** — the singleton facade (~1640 lines, mostly delegation)
 5. **`src/game/state/capabilities.js`** — capability interfaces defining what each manager can read/write
-6. **One manager** in `src/game/state/managers/` (e.g. `trading.js`, `combat.js`) to see the pattern in practice
+6. **One manager** in `src/game/state/managers/` (e.g. `refuel.js`) to see the pattern in practice
 7. **`src/game/constants.js`** — every tunable number in the game
 
 ## Commands
@@ -47,8 +47,8 @@ npm run all              # clean + test + knip
 # Run a single test file
 npm test -- tests/unit/game-trading.test.js
 
-# Run tests matching a pattern
-npm test -- --grep "Bridge Pattern"
+# Run tests matching a pattern (vitest uses --testNamePattern, not --grep)
+npm test -- --testNamePattern "Bridge Pattern"
 ```
 
 **Gotcha:** The `test` script already includes `--run` (`vitest --run`), so you don't need to pass it again. If you write `npm test --run` without a `--` separator, npm interprets `--run` as one of its own CLI flags (it isn't), and the arg never reaches vitest — so the command behaves the same as `npm test` rather than failing loudly. Just use `npm test`. (To intentionally pass an arg through to vitest, use `npm test -- <args>`.)
@@ -114,10 +114,10 @@ Key transitions (all live in `src/App.jsx`):
 The single most important pattern in this codebase. It connects the imperative `GameCoordinator` singleton to React's declarative model. Three pieces:
 
 - **`GameContext`** (`src/context/GameContext.jsx`) — exposes `GameCoordinator` via React Context.
-- **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount.
-- **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns methods that mutate game state (`jump`, `buyGood`, `sellGood`, `refuel`, etc.).
+- **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount. Returns the event's payload — for state-tracked events, the value extracted via `EVENT_STATE_MAP` in `src/game/constants.js`; for direct-data events (encounters, narrative), the raw payload the manager emitted.
+- **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns action methods composed from 7 domain-specific hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, `useQuestActions`, `useNPCActions`, `useDebtActions`) plus a few `GameCoordinator` lifecycle pass-throughs (`dock`, `undock`, `saveGame`, `updateCredits`). Use whichever fits: `useGameAction()` for convenience, or the feature-specific hooks when you want a narrower surface and clearer dependencies.
 
-**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. Anywhere `getState()` does appear under `src/features/`, it's inside a `useEffect` or in a non-component helper called from an action handler — never in a render path.
+**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. `getState()` returns a snapshot, not a subscription — values read during render won't update when the underlying state changes, so the UI silently goes stale. Copying game state into `useState` creates a second source of truth that drifts from the coordinator as soon as the coordinator mutates without going through your setter. If you see `getState()` under `src/features/`, it must be inside a `useEffect` or in a non-component helper called from an action handler — never in a render path.
 
 #### The three-tier read/write pattern
 
@@ -125,7 +125,7 @@ The single most important pattern in this codebase. It connects the imperative `
 |---|---|---|
 | **Reactive read** | Values that must trigger a re-render when they change (credits, cargo, fuel, current system) | `useGameEvent(EVENT_NAMES.CARGO_CHANGED)` |
 | **One-shot read** | Values needed *once* per render that don't need to re-render on change, or where the relevant event already triggers the re-render | Specific getter methods: `game.getCurrentSystem()`, `game.getKnownPrices(systemId)`, `game.getShip()`, `game.getAchievementProgress()` |
-| **Write / action** | Any state mutation | Feature-specific action hooks: `useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, etc. `useGameAction` is the generic base they build on. |
+| **Write / action** | Any state mutation | `useGameAction()` for convenience, or feature-specific hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, etc.) for a narrower surface. |
 
 **Never** call `game.getState()` during render — use a specific getter instead.
 
@@ -162,7 +162,7 @@ function TradePanel({ onClose }) {
 
 **Why it works:**
 
-1. `useGameEvent('creditsChanged')` subscribes to the event.
+1. `useGameEvent(EVENT_NAMES.CREDITS_CHANGED)` subscribes to the event.
 2. When credits change, `EventSystemManager` fires the event.
 3. The hook bumps local state, triggering a re-render.
 4. Unmount cleans up the subscription automatically.
@@ -172,7 +172,7 @@ function TradePanel({ onClose }) {
 
 `GameCoordinator` (`src/game/state/game-coordinator.js`, ~1640 lines) is a facade. Almost all of its body is delegation methods — the real logic lives in domain managers under `src/game/state/managers/`. This is the result of the GSM refactor and is intentional; the facade is the project's public API surface.
 
-#### The 24 managers
+#### The 24 domain managers
 
 | Manager | Responsibility | File |
 |---------|----------------|------|
@@ -201,7 +201,7 @@ function TradePanel({ onClose }) {
 | InitializationManager | New-game and load-game initialization | `initialization.js` |
 | SaveLoadManager | Save / load with debounced writes | `save-load.js` |
 
-Each manager extends `BaseManager` and receives a **capabilities** object (not the full GameCoordinator) — see `src/game/state/capabilities.js` for the per-manager getter/mutator interfaces. This is how cross-manager reads and writes stay explicit rather than turning into a god object.
+Each manager extends `BaseManager` (`src/game/state/managers/base-manager.js`) and receives a **capabilities** object (not the full GameCoordinator) — see `src/game/state/capabilities.js` for the per-manager getter/mutator interfaces. This is how cross-manager reads and writes stay explicit rather than turning into a god object. The `managers/` directory contains 25 files: the 24 domain managers above plus `base-manager.js`.
 
 #### Save pattern
 
@@ -211,6 +211,20 @@ Managers call `this.gameStateManager.markDirty()` after mutations. They never ca
 
 Combat, inspection, distress, and mechanical-failure paths use `SeededRandom` (`src/game/utils/seeded-random.js`) with deterministic seeds shaped like `gameDay_systemId_encounterType`. **Never use `Math.random()` in gameplay paths** — same game day + same system + same encounter type must produce the same outcome.
 
+### Three.js Engine
+
+The Three.js stack lives in `src/game/engine/` (`scene.js`, `stars.js`, `wormholes.js`, `interaction.js`, `game-animation.js`) and is mounted by `src/features/navigation/StarMapCanvas.jsx`. `initScene()` (`scene.js`) is called once in an empty-deps `useEffect`, guarded by `sceneRef.current` so React StrictMode double-mounts don't reinitialize. It returns an object containing `scene`, `camera`, `renderer`, `controls`, `lights`, `stars`, `wormholes`, and `sectorBoundary`, which `StarMapCanvas` stores in `sceneRef` for the lifetime of the component.
+
+**Container handoff:** the renderer's `domElement` is appended to a stable `containerRef` `<div>`. The ref is set once and the renderer never re-attaches.
+
+**Animation loop:** `requestAnimationFrame` runs inside `StarMapCanvas` (`animate()` closure), decoupled from React's render cycle. It animates label scale, selection rings, and camera damping, then calls `renderer.render()`. It never sets React state; React updates come only from `useGameEvent` subscriptions.
+
+**Data flow:** `createStarSystems(scene, starData)` and `createWormholeLines(scene, connections, starObjects)` receive their data as parameters at init time — they do not read from `GameCoordinator`. Dynamic updates (current-system indicator, selection ring, fuel-range coloring) are imperative function calls from `StarMapCanvas` in response to `useGameEvent` re-renders.
+
+**Click routing:** a raycaster in `StarMapCanvas` intersects star sprites/labels; on hit it calls `selectStar()` (`interaction.js`) to mutate the scene, then fires the `onSystemSelected(systemId)` callback prop so React can open the system panel. Programmatic selection (e.g. from the system panel itself) goes through `StarmapContext` (`src/context/StarmapContext.jsx`), which exposes `selectStarById` / `deselectStar` backed by the same `interaction.js` functions.
+
+**Cleanup:** on unmount, `StarMapCanvas` cancels the rAF loop, disposes the renderer, traverses the scene to dispose geometries and materials, removes DOM listeners, and calls `_resetState()` in `interaction.js`. Selection and current-system rings reuse shared materials/geometries to keep GPU memory bounded; that cleanup path is the only place they're disposed.
+
 ### Save System
 
 The save system is the only persistence mechanism. Treat it as load-bearing.
@@ -219,7 +233,7 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 
 **Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `GAME_VERSION` (currently `'5.0.0'`).
 
-**Versioning and migration:** Save schema versioning is real. `game-coordinator.js` imports migration functions (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `GAME_VERSION` and (b) add a migration function so existing saves don't break.
+**Versioning and migration:** Save schema versioning is real. Migration functions live in `src/game/state/state-validators.js`; `game-coordinator.js` imports them (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `GAME_VERSION`, (b) add a new migration function in `state-validators.js`, and (c) register it in the migration chain in `game-coordinator.js` so existing saves don't break.
 
 **Error handling:**
 - Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.
@@ -228,7 +242,7 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 **Wiping a save during development:**
 1. DevTools → Application → Local Storage → `http://localhost:5173` → delete the `trampFreighterSave` key. Or:
 2. From the browser console: `localStorage.removeItem('trampFreighterSave')`.
-3. The Dev Admin panel (gear icon, when `.dev` file is present) has a clear-save button.
+3. The Dev Admin panel (gear icon, when a `.dev` file is present at the repo root — `touch .dev` to enable; it's in `.gitignore`) has a clear-save button.
 
 **Testing:** `tests/setup.js` provides a `localStorage` mock so tests do not pollute the host environment. Integration tests that exercise save/load should reset the mock between cases.
 
@@ -300,7 +314,7 @@ project-root/
 │   │   ├── useDangerZone.js / useEncounterProbabilities.js / useJumpValidation.js
 │   │   ├── useDialogue.js / useEventTriggers.js / useStarData.js
 │   │   ├── useAnimationLock.js / useNotification.js
-│   │   ├── useMobileLayout.js / useClickOutside.js / useDebtActions.js
+│   │   └── useMobileLayout.js / useClickOutside.js / useDebtActions.js
 │   │
 │   ├── features/                 # Feature modules (component + utils co-located)
 │   │   ├── achievements/         # Achievement tracking and display
@@ -360,7 +374,7 @@ project-root/
 │           ├── calculators.js
 │           ├── danger-utils.js / date-utils.js
 │           ├── string-utils.js / star-visuals.js / wormhole-graph.js
-│           ├── page-title.js / reduced-motion.js / dev-logger.js
+│           └── page-title.js / reduced-motion.js / dev-logger.js
 │
 ├── css/                          # Stylesheets
 │   ├── base.css / hud.css / modals.css / starmap-scene.css
@@ -372,7 +386,7 @@ project-root/
     ├── integration/              # Integration tests
     ├── setup.js / setup-three-mock.js
     ├── react-test-utils.jsx
-    ├── test-utils.js / test-data.js
+    └── test-utils.js / test-data.js
 ```
 
 ### Path Aliases
@@ -427,7 +441,44 @@ describe('validateTrade', () => {
 });
 ```
 
-For property-test patterns, browse existing examples under `tests/property/`. Shared test helpers live in `tests/react-test-utils.jsx` (React rendering wrappers) and `tests/test-utils.js` (game-state factories and DOM setup).
+### Property test example
+
+```javascript
+// tests/property/karma-clamping.property.test.js
+/**
+ * Feature: danger-system, Property 12: Karma Clamping
+ * Validates: Requirements 9.1, 9.2, 9.3, 9.8
+ */
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
+import { STAR_DATA } from '@game/data/star-data.js';
+import { WORMHOLE_DATA } from '@game/data/wormhole-data.js';
+import { KARMA_CONFIG } from '@game/constants.js';
+
+describe('Karma Clamping Properties', () => {
+  it('stays within bounds after any single modification', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: -500, max: 500 }), (amount) => {
+        const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+        game.initNewGame();
+        game.modifyKarma(amount, 'test');
+        const karma = game.getKarma();
+        return karma >= KARMA_CONFIG.MIN && karma <= KARMA_CONFIG.MAX;
+      }),
+      { numRuns: 100 }
+    );
+  });
+});
+```
+
+Conventions to follow:
+- **Tag the file** with a docstring naming the feature, property number, and requirement IDs it validates. This makes coverage traceable.
+- **Pass `{ numRuns: 100 }`** explicitly to `fc.assert` — CLAUDE.md mandates ≥100 iterations.
+- **Build state through `GameCoordinator`**, not ad-hoc objects. Property tests exercise the real coordinator the same way integration tests do.
+- **Return a boolean predicate** from `fc.property` for clear pass/fail. Use `expect()` for one-shot setup assertions outside `fc.assert`.
+
+Shared test helpers live in `tests/react-test-utils.jsx` (React rendering wrappers) and `tests/test-utils.js` (game-state factories and DOM setup).
 
 ## Troubleshooting
 
