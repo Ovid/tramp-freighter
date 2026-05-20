@@ -62,7 +62,6 @@ function createMockGame() {
     dock: vi.fn(),
     undock: vi.fn(),
     saveGame: vi.fn(),
-    initNewGame: vi.fn(),
     updateCredits: vi.fn(),
   };
 }
@@ -490,7 +489,6 @@ describe('Domain Action Hooks', () => {
         'makeDebtPayment',
         'moveToHiddenCargo',
         'moveToRegularCargo',
-        'newGame',
         'purchaseIntelligence',
         'purchaseUpgrade',
         'recordVisitedPrices',
@@ -520,9 +518,6 @@ describe('Domain Action Hooks', () => {
 
       result.current.saveGame();
       expect(mockGame.saveGame).toHaveBeenCalled();
-
-      result.current.newGame();
-      expect(mockGame.initNewGame).toHaveBeenCalled();
 
       result.current.updateCredits(5000);
       expect(mockGame.updateCredits).toHaveBeenCalledWith(5000);

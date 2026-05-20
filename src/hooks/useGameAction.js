@@ -60,9 +60,6 @@ export function useGameAction() {
       /** Save the game */
       saveGame: () => game.saveGame(),
 
-      /** Start a new game */
-      newGame: () => game.initNewGame(),
-
       /** Update player credits */
       updateCredits: (newCredits) => game.updateCredits(newCredits),
     }),

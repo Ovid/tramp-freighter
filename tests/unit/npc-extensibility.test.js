@@ -9,10 +9,7 @@ import {
   validateDialogueTree,
   validateAllDialogueTrees,
 } from '../../src/game/data/dialogue-trees.js';
-import {
-  getNPCsAtSystem,
-  renderNPCListItem,
-} from '../../src/game/game-npcs.js';
+import { getNPCsAtSystem } from '../../src/game/game-npcs.js';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { ALPHA_CENTAURI_SYSTEM_ID } from '../../src/game/constants.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -159,25 +156,6 @@ describe('NPC System Extensibility', () => {
       // Test that getNPCsAtSystem finds the new NPC
       const npcsAtAlphaCentauri = getNPCsAtSystem(ALPHA_CENTAURI_SYSTEM_ID);
       expect(npcsAtAlphaCentauri).toContain(TEST_NPC);
-
-      // Test that renderNPCListItem works with the new NPC
-      const mockGetRepTier = () => ({ name: 'Warm' });
-      const mockNPCState = { rep: 5 };
-
-      const displayText = renderNPCListItem(
-        TEST_NPC,
-        mockNPCState,
-        mockGetRepTier
-      );
-      expect(displayText).toBe('Test Trader (Merchant) [Warm]');
-
-      // Test with no NPC state (should use initialRep)
-      const displayTextNoState = renderNPCListItem(
-        TEST_NPC,
-        null,
-        mockGetRepTier
-      );
-      expect(displayTextNoState).toBe('Test Trader (Merchant) [Warm]');
     });
 
     it('should validate all NPCs including new NPC without errors', () => {
