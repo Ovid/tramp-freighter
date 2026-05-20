@@ -51,13 +51,13 @@ npm test -- tests/unit/game-trading.test.js
 npm test -- --grep "Bridge Pattern"
 ```
 
-**Gotcha:** The `test` script is `vitest --run`. Do **not** pass `--run` again on the command line (`npm test --run`) — npm in this project does not strip it correctly. Just use `npm test`.
+**Gotcha:** The `test` script already includes `--run` (`vitest --run`), so you don't need to pass it again. If you write `npm test --run` without a `--` separator, npm interprets `--run` as one of its own CLI flags (it isn't), and the arg never reaches vitest — so the command behaves the same as `npm test` rather than failing loudly. Just use `npm test`. (To intentionally pass an arg through to vitest, use `npm test -- <args>`.)
 
 ## Architecture
 
 ### View Mode State Machine
 
-The application has no router. `App.jsx` manages a single state machine over seven view modes (defined at `src/App.jsx:45-53`):
+The application has no router. `App.jsx` manages a single state machine over seven view modes (see the `VIEW_MODES` constant near the top of `src/App.jsx`):
 
 ```
                 ┌─────────┐
@@ -98,14 +98,14 @@ The application has no router. `App.jsx` manages a single state machine over sev
        └───────────┘
 ```
 
-Key transitions (citations from `src/App.jsx`):
+Key transitions (all live in `src/App.jsx`):
 
-- `TITLE → SHIP_NAMING` on new game (line 221); `TITLE → ORBIT` on load (line 245).
-- `ORBIT ↔ STATION` via dock/undock (lines 250–257).
-- `ORBIT → ENCOUNTER` is driven by `useEncounterOrchestration`, which receives `setViewMode` from `App.jsx`. `ENCOUNTER → ORBIT` after resolution (line 326). Encounters **never** transition directly to PAVONIS_RUN or EPILOGUE.
-- `STATION → PAVONIS_RUN` is triggered by a `pavonisRunEvent` from the game engine (lines 357, 364). `PAVONIS_RUN → STATION` on cancel (line 588). `PAVONIS_RUN → EPILOGUE` on completion (line 362).
-- `EPILOGUE → STATION` after post-credits (line 373), with `postCredits=true` state on the station screen. Then `STATION → TITLE` via return-to-title (line 378).
-- The dev-admin panel can teleport straight to EPILOGUE for testing (line 391).
+- `TITLE → SHIP_NAMING` on new game; `TITLE → ORBIT` on load.
+- `ORBIT ↔ STATION` via dock/undock.
+- `ORBIT → ENCOUNTER` is driven by `useEncounterOrchestration`, which receives `setViewMode` from `App.jsx`. `ENCOUNTER → ORBIT` after resolution. Encounters **never** transition directly to PAVONIS_RUN or EPILOGUE.
+- `STATION → PAVONIS_RUN` is triggered by a `pavonisRunEvent` from the game engine. `PAVONIS_RUN → STATION` on cancel. `PAVONIS_RUN → EPILOGUE` on completion.
+- `EPILOGUE → STATION` after post-credits, with `postCredits=true` state on the station screen. Then `STATION → TITLE` via return-to-title.
+- The dev-admin panel can teleport straight to EPILOGUE for testing.
 
 `PANEL`-style overlays (trade, refuel, repair, upgrades, info broker, cargo, ship status) are rendered on top of `STATION` rather than being separate modes — `activePanel` is a sibling state variable to `viewMode`, not a viewMode value. Narrative event overlays work the same way: they render on top of whatever view mode is active, without changing `viewMode`.
 
@@ -117,7 +117,7 @@ The single most important pattern in this codebase. It connects the imperative `
 - **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount.
 - **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns methods that mutate game state (`jump`, `buyGood`, `sellGood`, `refuel`, etc.).
 
-**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. The codebase enforces this strictly — `getState()` appears in exactly two places under `src/features/`, both inside `useEffect` or in a non-component helper called from an action handler.
+**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. Anywhere `getState()` does appear under `src/features/`, it's inside a `useEffect` or in a non-component helper called from an action handler — never in a render path.
 
 #### The three-tier read/write pattern
 
@@ -127,13 +127,13 @@ The single most important pattern in this codebase. It connects the imperative `
 | **One-shot read** | Values needed *once* per render that don't need to re-render on change, or where the relevant event already triggers the re-render | Specific getter methods: `game.getCurrentSystem()`, `game.getKnownPrices(systemId)`, `game.getShip()`, `game.getAchievementProgress()` |
 | **Write / action** | Any state mutation | Feature-specific action hooks: `useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, etc. `useGameAction` is the generic base they build on. |
 
-**Never** call `gsm.getState()` during render — use a specific getter instead.
+**Never** call `game.getState()` during render — use a specific getter instead.
 
 #### Example
 
 ```javascript
 import { useState } from 'react';
-import { useGameState } from '@context/GameContext';
+import { useGame } from '@context/GameContext';
 import { useGameEvent } from '@hooks/useGameEvent';
 import { useTradeActions } from '@hooks/useTradeActions';
 import { EVENT_NAMES } from '@game/constants';
@@ -153,8 +153,8 @@ function TradePanel({ onClose }) {
 
   // One-shot non-reactive lookup via specific getter — re-runs whenever
   // currentSystemId changes (because that subscription already triggered a re-render)
-  const gsm = useGameState();
-  const knownPrices = gsm.getKnownPrices(currentSystemId);
+  const game = useGame();
+  const knownPrices = game.getKnownPrices(currentSystemId);
 
   return /* ... */;
 }
@@ -391,44 +391,7 @@ Defined in `shared-config.js` and used by both Vite and Vitest:
 
 ## Coding Standards
 
-`CLAUDE.md` is the canonical reference. Key points repeated here:
-
-### Constants
-
-All magic numbers live in `src/game/constants.js`. Prices, capacities, thresholds, percentages, durations — never hard-code them in implementation files.
-
-### Numeric display
-
-Round at the calculation layer, not the display layer. Utility functions return integers.
-
-- **Credits / costs:** `Math.ceil()` — the player never pays less than the true cost.
-- **Percentages (condition, capacity):** `Math.round()` — standard display rounding.
-- Never interpolate a raw float into JSX.
-
-### TDD
-
-Required for all feature work. RED (one failing test) → GREEN (minimal passing code) → REFACTOR. Never batch multiple failing tests.
-
-### Tests
-
-- Three suites: unit (`tests/unit/`), property-based with fast-check (`tests/property/`), integration (`tests/integration/`).
-- Property tests: minimum 100 iterations, tagged with feature/property references.
-- Tests must produce **no stderr warnings** — mock `console` methods when testing error paths.
-- Every commit must leave the full suite passing.
-
-### React patterns
-
-- Functional components with hooks only.
-- Three.js scenes initialize once in a `useEffect` with empty deps; dispose all resources on unmount.
-- Never allocate objects in hot loops (animation frames, frequent events).
-
-### Accessibility
-
-Basic a11y is expected on new and modified components: `aria-label` on icon-only buttons, semantic HTML, keyboard-navigable controls. A full a11y pass is planned.
-
-### Style
-
-ES Modules, 2-space indentation, `const`/`let` only. Comments explain WHY not WHAT, and never mention task numbers. Import order: external libraries → internal modules → components → utilities → data/constants → styles.
+See [`CLAUDE.md`](./CLAUDE.md) — it is the single source of truth for constants, numeric rounding, TDD discipline, testing requirements, React patterns, accessibility expectations, git commit format, and style. Do not duplicate those rules here; if you find a gap, update `CLAUDE.md`.
 
 ## Development Workflow
 
@@ -464,34 +427,7 @@ describe('validateTrade', () => {
 });
 ```
 
-### Property test example
-
-```javascript
-import { describe, it } from 'vitest';
-import * as fc from 'fast-check';
-import { renderHook } from '@testing-library/react';
-import { useGameEvent } from '@hooks/useGameEvent';
-
-describe('useGameEvent: automatic unsubscription on unmount', () => {
-  it('removes its subscription when the component unmounts', () => {
-    fc.assert(
-      fc.property(
-        fc.constantFrom('creditsChanged', 'fuelChanged', 'cargoChanged'),
-        (eventName) => {
-          const mockGSM = createMockGameCoordinator();
-          const { unmount } = renderHook(() => useGameEvent(eventName), {
-            wrapper: createWrapper(mockGSM),
-          });
-          const before = mockGSM.getSubscriptionCount(eventName);
-          unmount();
-          return mockGSM.getSubscriptionCount(eventName) === before - 1;
-        }
-      ),
-      { numRuns: 100 }
-    );
-  });
-});
-```
+For property-test patterns, browse existing examples under `tests/property/`. Shared test helpers live in `tests/react-test-utils.jsx` (React rendering wrappers) and `tests/test-utils.js` (game-state factories and DOM setup).
 
 ## Troubleshooting
 
