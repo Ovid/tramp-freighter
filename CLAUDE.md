@@ -38,69 +38,21 @@ npm test -- --grep "Bridge Pattern"
 
 ## Architecture
 
-### Bridge Pattern (Core Architectural Decision)
+**For architecture details, read `DEVELOPMENT.md`.** This file is the canonical reference for coding standards (constants, rounding, TDD, commits). The summary below is enough to orient — go to `DEVELOPMENT.md` for diagrams, full manager tables, the Bridge Pattern example, the save system, and mobile.
 
-The app uses a **Bridge Pattern** to connect the imperative `GameCoordinator` singleton to React's declarative model. This is the most important pattern to understand:
+### Bridge Pattern (one-paragraph summary)
 
-- **`GameContext`** (`src/context/GameContext.jsx`): Provides GameCoordinator via React Context
-- **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`): Subscribes to state changes, triggers re-renders. Auto-unsubscribes on unmount.
-- **`useGameAction()`** (`src/hooks/useGameAction.js`): Returns methods to trigger game actions (jump, buyGood, sellGood, refuel, etc.)
+`GameCoordinator` (`src/game/state/game-coordinator.js`) is the imperative singleton. React reaches it via `useGameEvent(eventName)` for reactive reads, specific getters like `game.getCurrentSystem()` for one-shot lookups, and feature-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.) for writes. **Never call `gsm.getState()` during render.** Never copy game state into React `useState`.
 
-**Critical rule:** Components must NEVER call `GameCoordinator.getState()` directly or duplicate game state in React state. All game state flows through the Bridge Pattern hooks.
+### View Mode State Machine (one-paragraph summary)
 
-### View Mode State Machine (App.jsx)
+No router. `App.jsx` manages seven view modes: `TITLE`, `SHIP_NAMING`, `ORBIT`, `STATION`, `ENCOUNTER`, `PAVONIS_RUN`, `EPILOGUE`. Panels (trade, refuel, etc.) and narrative overlays are not view modes — they render on top of `STATION` (or any mode) via separate state. Encounters return to `ORBIT`, not forward to PAVONIS_RUN. See `DEVELOPMENT.md` for the full diagram and transition citations.
 
-No router. App.jsx manages a view mode state machine:
-```
-TITLE → SHIP_NAMING → ORBIT ↔ STATION ↔ PANEL
-                         ↕
-                      ENCOUNTER
-```
+### Manager Delegation (one-paragraph summary)
 
-### Manager Delegation (GameCoordinator)
+`GameCoordinator` is a ~1640-line facade. Real logic lives in 24 domain managers under `src/game/state/managers/`, each extending `BaseManager` and receiving a capabilities object (see `src/game/state/capabilities.js`). Managers call `this.gameStateManager.markDirty()` after mutations — never `saveGame()` directly. `SaveLoadManager` debounces dirty marks with a 500ms trailing write to `localStorage`. Combat, inspection, distress, and mechanical-failure paths use `SeededRandom` with seeds shaped like `gameDay_systemId_encounterType`. **Never use `Math.random()` in gameplay paths.** See the full manager table in `DEVELOPMENT.md`.
 
-The `GameCoordinator` delegates to 15+ focused domain managers in `src/game/state/managers/`:
-- `EventSystemManager`: Event pub/sub for Bridge Pattern
-- `StateManager`: Core state access/mutations
-- `TradingManager`, `ShipManager`, `NavigationManager`, `RefuelManager`, `RepairManager`, `DialogueManager`, `EventsManager`, `EventEngineManager`, `InfoBrokerManager`, `NPCManager`, `MissionManager`, `SaveLoadManager`, `InitializationManager`
-- `DangerManager`: Danger zones, karma, faction reputation, encounter probability calculations
-- `CombatManager`: Pirate combat resolution (evasive, return fire, dump cargo, distress call)
-- `NegotiationManager`: Pirate negotiation resolution (counter-proposal, medicine, intel, surrender)
-- `InspectionManager`: Customs inspection resolution (cooperate, bribe, flee)
-- `DistressManager`: Civilian distress call encounters (respond, ignore, loot)
-- `MechanicalFailureManager`: Ship system failure checks and repair options
-
-Each manager extends `BaseManager` and receives the GameCoordinator reference. Public API is maintained through delegation methods on GameCoordinator.
-
-**Save pattern:** Managers call `this.gameStateManager.markDirty()` after mutations (not `saveGame()` directly). SaveLoadManager debounces saves with a 500ms trailing timer.
-
-**Encounter RNG:** Combat/encounter paths use `SeededRandom` with deterministic seeds (`gameDay_systemId_encounterType`). Do not use `Math.random()` in gameplay paths.
-
-### Source Organization
-
-```
-src/
-├── features/          # Feature modules (component + utils co-located)
-│   ├── danger/        # Encounter system (pirates, inspections, distress calls)
-│   ├── navigation/    # StarMapCanvas (Three.js), JumpDialog, SystemPanel
-│   ├── trade/         # TradePanel + tradeUtils
-│   ├── hud/           # HUD overlay components
-│   ├── station/       # StationMenu, PanelContainer
-│   └── [refuel|repair|upgrades|cargo|info-broker|ship-status|dialogue|title-screen|dev-admin|missions|narrative|system-info]/
-├── components/        # Shared: Button, Modal, Card, ErrorBoundary
-├── hooks/             # useGameEvent, useGameAction, useAnimationLock, useNotification, useDangerZone, useDialogue, useEncounterProbabilities, useEventTriggers, useJumpValidation, useStarData
-├── context/           # GameContext, StarmapContext
-└── game/
-    ├── constants.js   # ALL game configuration values (prices, capacities, thresholds)
-    ├── state/
-    │   ├── game-state-manager.js  # Central singleton
-    │   └── managers/              # 15+ domain managers
-    ├── engine/        # Three.js: scene.js, stars.js, wormholes.js, interaction.js, game-animation.js
-    ├── data/          # star-data.js (117 systems), wormhole-data.js, dialogue-trees.js, danger-events.js, narrative-events.js, npc-data.js
-    └── utils/         # seeded-random.js, string-utils.js, star-visuals.js, dev-logger.js
-```
-
-Path aliases available: `@` → `src/`, `@components`, `@features`, `@hooks`, `@context`, `@game`, `@assets`
+Path aliases: `@` → `src/`, `@components`, `@features`, `@hooks`, `@context`, `@game`, `@assets`.
 
 ## Coding Standards
 
