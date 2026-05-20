@@ -31,10 +31,10 @@ npm run all              # Clean + test
 npm test -- tests/unit/game-trading.test.js
 
 # Run tests matching a pattern
-npm test -- --grep "Bridge Pattern"
+npm test -- --testNamePattern "Bridge Pattern"
 ```
 
-**Important:** This project's npm version does NOT accept the `--run` argument. Use `npm test` not `npm test --run`.
+**Important:** Args to `npm test` need a `--` separator to reach vitest. `npm test --run` silently drops the flag instead of failing — use `npm test` (the script already includes `--run`). See `DEVELOPMENT.md` for the full explanation.
 
 ## Architecture
 
