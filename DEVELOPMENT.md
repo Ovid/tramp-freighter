@@ -19,7 +19,7 @@ When orienting yourself in the codebase, follow this trail:
 
 1. **`src/App.jsx`** — view mode state machine and top-level orchestration
 2. **`src/context/GameContext.jsx`** — how React reaches into game logic
-3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useGameAction.js`** — Bridge Pattern read/write hooks
+3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useTradeActions.js`** — Bridge Pattern read/write hooks. `useGameAction.js` is the generic underlying hook; feature-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.) are what real components actually use.
 4. **`src/game/state/game-coordinator.js`** — the singleton facade (~1640 lines, mostly delegation)
 5. **`src/game/state/capabilities.js`** — capability interfaces defining what each manager can read/write
 6. **One manager** in `src/game/state/managers/` (e.g. `trading.js`, `combat.js`) to see the pattern in practice
@@ -60,28 +60,54 @@ npm test -- --grep "Bridge Pattern"
 The application has no router. `App.jsx` manages a single state machine over seven view modes (defined at `src/App.jsx:45-53`):
 
 ```
-         ┌─────────┐
-         │  TITLE  │
-         └────┬────┘
-              ▼
-         ┌─────────────┐
-         │ SHIP_NAMING │
-         └────┬────────┘
-              ▼
-         ┌──────────┐      ┌──────────┐
-         │  ORBIT   │ ◄──► │ STATION  │
-         └────┬─────┘      └──────────┘
-              ▼
-         ┌───────────┐
-         │ ENCOUNTER │
-         └────┬──────┘
-              ▼
-         ┌─────────────┐      ┌──────────┐
-         │ PAVONIS_RUN │ ───► │ EPILOGUE │
-         └─────────────┘      └──────────┘
+                ┌─────────┐
+       ┌───────►│  TITLE  │
+       │        └────┬────┘
+       │             │ new game
+       │             ▼
+       │      ┌─────────────┐
+       │      │ SHIP_NAMING │
+       │      └────┬────────┘
+       │           │
+       │           ▼                      (load game returns straight to ORBIT)
+       │      ┌──────────┐         ┌───────────┐
+       │      │  ORBIT   │ ──────► │ ENCOUNTER │
+       │      └────┬─▲───┘ encounter└─────┬─────┘
+       │      dock │ │ undock   resolves  │
+       │           ▼ │ ◄──────────────────┘
+       │      ┌──────────┐
+       │      │ STATION  │
+       │      └────┬─▲───┘
+       │ pavonisRunEvent │ cancel
+       │           ▼ │
+       │      ┌─────────────┐
+       │      │ PAVONIS_RUN │
+       │      └────┬────────┘
+       │           │ complete (markVictory)
+       │           ▼
+       │      ┌──────────┐
+       │      │ EPILOGUE │
+       │      └────┬─────┘
+       │           │ post-credits
+       │           ▼
+       │      ┌──────────────────┐
+       │      │ STATION          │
+       │      │ (postCredits=true)│
+       │      └────┬─────────────┘
+       │           │ return to title
+       └───────────┘
 ```
 
-`PANEL`-style overlays (trade, refuel, repair, upgrades, info broker, cargo, ship status) are rendered on top of `STATION` rather than being separate modes. The `ENCOUNTER` view is driven by `useEncounterOrchestration`, which receives `setViewMode` from `App.jsx` and switches mode when the game raises an encounter event.
+Key transitions (citations from `src/App.jsx`):
+
+- `TITLE → SHIP_NAMING` on new game (line 221); `TITLE → ORBIT` on load (line 245).
+- `ORBIT ↔ STATION` via dock/undock (lines 250–257).
+- `ORBIT → ENCOUNTER` is driven by `useEncounterOrchestration`, which receives `setViewMode` from `App.jsx`. `ENCOUNTER → ORBIT` after resolution (line 326). Encounters **never** transition directly to PAVONIS_RUN or EPILOGUE.
+- `STATION → PAVONIS_RUN` is triggered by a `pavonisRunEvent` from the game engine (lines 357, 364). `PAVONIS_RUN → STATION` on cancel (line 588). `PAVONIS_RUN → EPILOGUE` on completion (line 362).
+- `EPILOGUE → STATION` after post-credits (line 373), with `postCredits=true` state on the station screen. Then `STATION → TITLE` via return-to-title (line 378).
+- The dev-admin panel can teleport straight to EPILOGUE for testing (line 391).
+
+`PANEL`-style overlays (trade, refuel, repair, upgrades, info broker, cargo, ship status) are rendered on top of `STATION` rather than being separate modes — `activePanel` is a sibling state variable to `viewMode`, not a viewMode value. Narrative event overlays work the same way: they render on top of whatever view mode is active, without changing `viewMode`.
 
 ### Bridge Pattern
 
@@ -91,7 +117,17 @@ The single most important pattern in this codebase. It connects the imperative `
 - **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount.
 - **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns methods that mutate game state (`jump`, `buyGood`, `sellGood`, `refuel`, etc.).
 
-**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. All reactive reads flow through `useGameEvent`; all mutations flow through `useGameAction` or a feature-specific action hook (e.g. `useTradeActions`, `useShipActions`, `useMissionActions`).
+**Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. The codebase enforces this strictly — `getState()` appears in exactly two places under `src/features/`, both inside `useEffect` or in a non-component helper called from an action handler.
+
+#### The three-tier read/write pattern
+
+| Tier | Use for | How |
+|---|---|---|
+| **Reactive read** | Values that must trigger a re-render when they change (credits, cargo, fuel, current system) | `useGameEvent(EVENT_NAMES.CARGO_CHANGED)` |
+| **One-shot read** | Values needed *once* per render that don't need to re-render on change, or where the relevant event already triggers the re-render | Specific getter methods: `game.getCurrentSystem()`, `game.getKnownPrices(systemId)`, `game.getShip()`, `game.getAchievementProgress()` |
+| **Write / action** | Any state mutation | Feature-specific action hooks: `useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, etc. `useGameAction` is the generic base they build on. |
+
+**Never** call `gsm.getState()` during render — use a specific getter instead.
 
 #### Example
 
@@ -100,22 +136,25 @@ import { useState } from 'react';
 import { useGameState } from '@context/GameContext';
 import { useGameEvent } from '@hooks/useGameEvent';
 import { useTradeActions } from '@hooks/useTradeActions';
+import { EVENT_NAMES } from '@game/constants';
 
 function TradePanel({ onClose }) {
   // Local UI state only — not game state
   const [selectedGood, setSelectedGood] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Reactive reads
-  const cargo = useGameEvent('cargoChanged');
-  const credits = useGameEvent('creditsChanged');
+  // Reactive reads — these re-render the panel when state changes
+  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
+  const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
 
   // Actions
   const { buyGood, sellGood } = useTradeActions();
 
-  // Non-reactive lookups still go through GameCoordinator
+  // One-shot non-reactive lookup via specific getter — re-runs whenever
+  // currentSystemId changes (because that subscription already triggered a re-render)
   const gsm = useGameState();
-  const knownPrices = gsm.getKnownPrices(gsm.getState().player.currentSystem);
+  const knownPrices = gsm.getKnownPrices(currentSystemId);
 
   return /* ... */;
 }
@@ -127,6 +166,7 @@ function TradePanel({ onClose }) {
 2. When credits change, `EventSystemManager` fires the event.
 3. The hook bumps local state, triggering a re-render.
 4. Unmount cleans up the subscription automatically.
+5. The non-reactive lookup (`getKnownPrices`) does not subscribe — but it re-runs on every render, and renders are driven by the reactive subscriptions above. If you need a value to drive a re-render, subscribe to its event.
 
 ### GameCoordinator + Manager Delegation
 
@@ -165,11 +205,61 @@ Each manager extends `BaseManager` and receives a **capabilities** object (not t
 
 #### Save pattern
 
-Managers call `this.gameStateManager.markDirty()` after mutations. They never call `saveGame()` directly. `SaveLoadManager` debounces all dirty marks with a 500ms trailing write, so a burst of mutations produces a single `localStorage` write.
+Managers call `this.gameStateManager.markDirty()` after mutations. They never call `saveGame()` directly. `SaveLoadManager` debounces all dirty marks with a 500ms trailing write (`UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS`), so a burst of mutations produces a single `localStorage` write.
 
 #### Encounter RNG
 
 Combat, inspection, distress, and mechanical-failure paths use `SeededRandom` (`src/game/utils/seeded-random.js`) with deterministic seeds shaped like `gameDay_systemId_encounterType`. **Never use `Math.random()` in gameplay paths** — same game day + same system + same encounter type must produce the same outcome.
+
+### Save System
+
+The save system is the only persistence mechanism. Treat it as load-bearing.
+
+**Backend:** `localStorage`, single key `'trampFreighterSave'` (`SAVE_KEY` in `src/game/constants.js`). No remote sync, no IndexedDB, no file export. Private browsing breaks saves.
+
+**Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `GAME_VERSION` (currently `'5.0.0'`).
+
+**Versioning and migration:** Save schema versioning is real. `game-coordinator.js` imports migration functions (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `GAME_VERSION` and (b) add a migration function so existing saves don't break.
+
+**Error handling:**
+- Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.
+- Load failures attempt recovery. If NPC data is corrupted, `SaveLoadManager.attemptNPCRecovery()` resets NPC state and dialogue and retries. Other corruption returns `null`, which the initialization path treats as "no save."
+
+**Wiping a save during development:**
+1. DevTools → Application → Local Storage → `http://localhost:5173` → delete the `trampFreighterSave` key. Or:
+2. From the browser console: `localStorage.removeItem('trampFreighterSave')`.
+3. The Dev Admin panel (gear icon, when `.dev` file is present) has a clear-save button.
+
+**Testing:** `tests/setup.js` provides a `localStorage` mock so tests do not pollute the host environment. Integration tests that exercise save/load should reset the mock between cases.
+
+### Mobile
+
+Mobile is a first-class target. The HUD, panels, camera toolbar, and z-index layering all branch on viewport.
+
+**Detection:** `useMobileLayout()` (`src/hooks/useMobileLayout.js`) watches `matchMedia('(max-width: 600px)')` (`UI_CONFIG.MOBILE_BREAKPOINT_PX`). It returns `{ isMobile }`. `App.jsx` calls this once and wraps the tree in `<MobileProvider isMobile={isMobile}>`.
+
+**Consumer hook:** Components read mobile state with `useMobile()` from `@context/MobileContext`. It throws if used outside `MobileProvider`, so the consumer assumption is safe.
+
+**Z-index layering:** Mobile uses a separate z-index scale to keep the camera toolbar, expanded HUD, and full-screen panels from overlapping incorrectly. The values live in `css/variables.css`:
+
+| Token | Value | Purpose |
+|---|---|---|
+| `--z-camera-toolbar` | 10 | Mobile camera/zoom toolbar |
+| `--z-panel-fullscreen` | 20 | Mobile full-screen panels (trade, repair, etc.) |
+| `--z-hud-collapsed` | 30 | Collapsed mobile HUD |
+| `--z-hud-expanded` | 40 | Expanded mobile HUD with quick-access buttons |
+| `--z-hud` | 200 | Desktop HUD |
+| `--z-overlay` | 250 | Narrative overlays |
+| `--z-panel` | 300 | Desktop panels |
+| `--z-modal` | 1100 | Modals |
+
+When adding new mobile-aware UI, prefer these tokens over raw `z-index` numbers. The "system panel above HUD, below camera toolbar" relationship is encoded by these values — using ad-hoc numbers will reintroduce overlap bugs that have already been fixed.
+
+**Testing mobile:**
+- See `notes/uat.md` for the canonical mobile UAT checklist, including viewport sizing tips and the "Expand HUD" interaction model.
+- Use a 375×812 viewport for iPhone-sized testing.
+- The `find` tool by `ref` is more reliable than coordinate clicks when driving the browser at mobile sizes.
+- Trade and repair panels go full-screen on mobile; ensure changes don't break the full-screen layout.
 
 ## Directory Structure
 
