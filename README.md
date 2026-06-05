@@ -2,7 +2,7 @@
 
 **A full game, built entirely with AI — to find out where AI coding actually breaks.**
 
-Tramp Freighter Blues is a space trading survival game: 117 real star systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built first with [Kiro](https://kiro.dev/) and continued with[Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+Tramp Freighter Blues is a space trading survival game: 117 real star systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built first with [Kiro](https://kiro.dev/) and continued with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
 It's not a perfect product. Perfect was never the point. The point was to push AI-assisted development as far as it goes and document where it fails.
 
@@ -15,7 +15,7 @@ What I found: four problems. I call them PAAD.
 
 ## PAAD: The Four Problems with AI Coding
 
-**PAAD = Pushback · Alignment · Architecture · Degradation**
+**PAAD = Pushback · Alignment · Architecture · Discipline**
 
 ### Pushback
 
@@ -33,9 +33,9 @@ For larger tasks, AI "understands" the assignment — then implements most of it
 
 AI is often bad at architecture. When a feature is hard to implement because the architecture is wrong, AI forces the feature through instead of recognizing the structural problem. It builds around bad foundations.
 
-**Status:** Partially solved. Pausing between tasks to run specialized architectural review catches issues, but requires diligence and is still risky at scale.
+**Status:** Partially solved. Pausing between tasks to run specialized architectural review catches issues, but requires diligence and skipping this will kill you.
 
-### Degradation
+### Discipline
 
 A broad category. As software grows, complexity creates edge cases — security holes, subtle logic bugs, weird interactions. AI can't see these patterns. Humans struggle to articulate them clearly enough to teach AI what to watch for.
 
