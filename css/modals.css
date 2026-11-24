@@ -122,6 +122,14 @@
   border-color: #00dd77;
 }
 
+/* After :hover so a disabled button doesn't light up under the cursor */
+.modal-confirm:disabled {
+  background-color: var(--color-primary);
+  border-color: var(--border-primary);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .modal-confirm:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
