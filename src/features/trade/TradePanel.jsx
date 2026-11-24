@@ -103,6 +103,7 @@ export function TradePanel({ onClose }) {
   const hiddenCargoCapacity = hasSmugglersPanel
     ? SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity
     : 0;
+  const hiddenCargoRemaining = hiddenCargoCapacity - hiddenCargoUsed;
 
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
@@ -159,16 +160,16 @@ export function TradePanel({ onClose }) {
     }
   };
 
-  const handleMoveToHidden = (goodType, quantity) => {
-    const result = moveToHiddenCargo(goodType, quantity);
+  const handleMoveToHidden = (stackIndex, quantity) => {
+    const result = moveToHiddenCargo(stackIndex, quantity);
 
     if (!result.success) {
       throw new Error(`Transfer failed: ${result.reason}`);
     }
   };
 
-  const handleMoveToRegular = (goodType, quantity) => {
-    const result = moveToRegularCargo(goodType, quantity);
+  const handleMoveToRegular = (stackIndex, quantity) => {
+    const result = moveToRegularCargo(stackIndex, quantity);
 
     if (!result.success) {
       throw new Error(`Transfer failed: ${result.reason}`);
@@ -376,8 +377,13 @@ export function TradePanel({ onClose }) {
                         {hasSmugglersPanel && (
                           <button
                             className="transfer-btn"
+                            disabled={hiddenCargoRemaining <= 0}
                             onClick={() =>
-                              handleMoveToHidden(stack.good, stack.qty)
+                              // Move what fits rather than failing outright
+                              handleMoveToHidden(
+                                index,
+                                Math.min(stack.qty, hiddenCargoRemaining)
+                              )
                             }
                           >
                             Move to Hidden
@@ -468,8 +474,12 @@ export function TradePanel({ onClose }) {
                         <div className="stack-actions">
                           <button
                             className="transfer-btn"
+                            disabled={cargoRemaining <= 0}
                             onClick={() =>
-                              handleMoveToRegular(stack.good, stack.qty)
+                              handleMoveToRegular(
+                                index,
+                                Math.min(stack.qty, cargoRemaining)
+                              )
                             }
                           >
                             Move to Regular

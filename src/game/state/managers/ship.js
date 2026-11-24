@@ -572,19 +572,18 @@ export class ShipManager extends BaseManager {
   /**
    * Move cargo from regular cargo to hidden cargo
    *
-   * @param {string} good - Good type to move
+   * @param {number} cargoIndex - Index of the stack in regular cargo
    * @param {number} qty - Quantity to move
    * @returns {Object} { success: boolean, reason: string }
    */
-  moveToHiddenCargo(good, qty) {
+  moveToHiddenCargo(cargoIndex, qty) {
     this.validateState();
 
     const ship = this.capabilities.getOwnState();
 
-    // Find cargo stack with matching good
-    const cargoIndex = ship.cargo.findIndex((stack) => stack.good === good);
-    if (cargoIndex === -1) {
-      return { success: false, reason: 'Good not found in cargo' };
+    // By index, not good name: stacks can share a good (e.g. two missions)
+    if (!ship.cargo[cargoIndex]) {
+      return { success: false, reason: 'Invalid cargo stack' };
     }
 
     const cargoStack = ship.cargo[cargoIndex];
@@ -629,21 +628,17 @@ export class ShipManager extends BaseManager {
   /**
    * Move cargo from hidden cargo to regular cargo
    *
-   * @param {string} good - Good type to move
+   * @param {number} hiddenIndex - Index of the stack in hidden cargo
    * @param {number} qty - Quantity to move
    * @returns {Object} { success: boolean, reason: string }
    */
-  moveToRegularCargo(good, qty) {
+  moveToRegularCargo(hiddenIndex, qty) {
     this.validateState();
 
     const ship = this.capabilities.getOwnState();
 
-    // Find hidden cargo stack with matching good
-    const hiddenIndex = ship.hiddenCargo.findIndex(
-      (stack) => stack.good === good
-    );
-    if (hiddenIndex === -1) {
-      return { success: false, reason: 'Good not found in hidden cargo' };
+    if (!ship.hiddenCargo[hiddenIndex]) {
+      return { success: false, reason: 'Invalid cargo stack' };
     }
 
     const hiddenStack = ship.hiddenCargo[hiddenIndex];

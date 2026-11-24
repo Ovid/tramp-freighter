@@ -19,8 +19,8 @@ export function useShipActions() {
         game.cannibalizeSystem(targetType, donations),
       purchaseUpgrade: (upgradeId) => game.purchaseUpgrade(upgradeId),
       updateShipName: (newName) => game.updateShipName(newName),
-      moveToHiddenCargo: (good, qty) => game.moveToHiddenCargo(good, qty),
-      moveToRegularCargo: (good, qty) => game.moveToRegularCargo(good, qty),
+      moveToHiddenCargo: (index, qty) => game.moveToHiddenCargo(index, qty),
+      moveToRegularCargo: (index, qty) => game.moveToRegularCargo(index, qty),
       validateRefuel: (currentFuel, amount, credits, fuelPrice) =>
         game.validateRefuel(currentFuel, amount, credits, fuelPrice),
       getFuelPrice: (systemId) => game.getFuelPrice(systemId),

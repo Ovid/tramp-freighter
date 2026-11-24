@@ -1302,12 +1302,12 @@ export class GameCoordinator {
   // HIDDEN CARGO SYSTEM
   // ========================================================================
 
-  moveToHiddenCargo(good, qty) {
-    return this.shipManager.moveToHiddenCargo(good, qty);
+  moveToHiddenCargo(index, qty) {
+    return this.shipManager.moveToHiddenCargo(index, qty);
   }
 
-  moveToRegularCargo(good, qty) {
-    return this.shipManager.moveToRegularCargo(good, qty);
+  moveToRegularCargo(index, qty) {
+    return this.shipManager.moveToRegularCargo(index, qty);
   }
 
   getHiddenCargo() {
