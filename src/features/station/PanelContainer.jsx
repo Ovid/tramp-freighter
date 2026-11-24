@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { TradePanel } from '../trade/TradePanel';
 import { RefuelPanel } from '../refuel/RefuelPanel';
 import { RepairPanel } from '../repair/RepairPanel';
@@ -23,6 +24,20 @@ import { FinancePanel } from '../finance/FinancePanel';
  * @param {Function} onClose - Callback to close just this panel
  */
 export function PanelContainer({ activePanel, npcId, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      // A modal over the panel (e.g. the cargo storage picker) closes first
+      if (document.querySelector('.modal-overlay')) return;
+      // Capture phase + stopPropagation: the panel sits above the station
+      // menu, so it takes this Escape and the menu must not undock as well
+      e.stopPropagation();
+      onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [onClose]);
+
   const renderPanel = () => {
     switch (activePanel) {
       case 'trade':
