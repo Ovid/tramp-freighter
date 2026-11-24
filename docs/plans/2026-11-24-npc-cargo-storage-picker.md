@@ -1658,6 +1658,17 @@ describe.each(STORAGE_NPCS)('%s storage dialogue', (npcId) => {
     }
   });
 
+  it('uses the helper confirm choices, not edited old ones', () => {
+    // A converted file that kept its old retrieve confirm would show stale
+    // text and grant farmable repGain on every retrieve
+    expect(tree.request_storage.choices[0].repGain).toBe(2);
+    expect(tree.retrieve_cargo.choices[0]).toEqual({
+      text: 'Let me choose what to take.',
+      next: 'greeting',
+      picker: 'retrieve',
+    });
+  });
+
   it('states the limit from CARGO_STORAGE_LIMIT', () => {
     expect(tree.request_storage.text).toContain(String(LIMIT));
     expect(tree.request_storage.text).not.toMatch(/\bten\b/i);
@@ -1965,9 +1976,10 @@ import { GameProvider } from '../../src/context/GameContext.jsx';
 import { CargoStoragePicker } from '../../src/features/cargo-storage/CargoStoragePicker.jsx';
 import { createTestGame } from '../test-utils.js';
 import { NPC_BENEFITS_CONFIG } from '../../src/game/constants.js';
+import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 const NPC_ID = 'rodriguez_procyon';
-const NPC_NAME = '"Rusty" Rodriguez';
+const NPC_NAME = ALL_NPCS.find((npc) => npc.id === NPC_ID).name;
 
 describe('CargoStoragePicker', () => {
   let game;
@@ -2103,6 +2115,16 @@ describe('CargoStoragePicker', () => {
     game.updateCargo([
       { good: 'sealed_containers', qty: 2, buyPrice: 0, missionId: 'm1' },
     ]);
+    renderPicker('store');
+    expect(screen.getByText('No cargo you can store')).toBeInTheDocument();
+  });
+
+  it('shows "No cargo you can store" when storage is already over the cap', () => {
+    // Older saves can hold more than the cap
+    game.getNPCState(NPC_ID).storedCargo = [
+      { good: 'ore', qty: NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT + 5, buyPrice: 1 },
+    ];
+    game.updateCargo([{ good: 'grain', qty: 5, buyPrice: 10 }]);
     renderPicker('store');
     expect(screen.getByText('No cargo you can store')).toBeInTheDocument();
   });
