@@ -611,7 +611,7 @@ export class ShipManager extends BaseManager {
       ship.cargo.splice(cargoIndex, 1);
     }
 
-    // Add to hidden cargo (stacks with matching good and buyPrice)
+    // Add to hidden cargo (stacks with matching good, buyPrice and missionId)
     this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
     // Emit cargo change events (new references for React re-renders)
@@ -665,7 +665,7 @@ export class ShipManager extends BaseManager {
       ship.hiddenCargo.splice(hiddenIndex, 1);
     }
 
-    // Add to regular cargo (stacks with matching good and buyPrice)
+    // Add to regular cargo (stacks with matching good, buyPrice and missionId)
     this.addToCargoArray(ship.cargo, hiddenStack, qty);
 
     // Emit cargo change events (new references for React re-renders)
@@ -688,11 +688,12 @@ export class ShipManager extends BaseManager {
    * @param {number} qty - Quantity to add
    */
   addToCargoArray(cargoArray, sourceStack, qty) {
-    // Find existing stack with matching good and buyPrice
+    // Find existing stack with matching good, buyPrice and missionId
     const existingIndex = cargoArray.findIndex(
       (stack) =>
         stack.good === sourceStack.good &&
-        stack.buyPrice === sourceStack.buyPrice
+        stack.buyPrice === sourceStack.buyPrice &&
+        stack.missionId === sourceStack.missionId
     );
 
     if (existingIndex !== -1) {
@@ -700,14 +701,9 @@ export class ShipManager extends BaseManager {
       cargoArray[existingIndex].qty += qty;
     } else {
       // Create new stack
-      cargoArray.push({
-        good: sourceStack.good,
-        qty: qty,
-        buyPrice: sourceStack.buyPrice,
-        buySystem: sourceStack.buySystem,
-        buySystemName: sourceStack.buySystemName,
-        buyDate: sourceStack.buyDate,
-      });
+      // Spread so missionId survives; dropping it turns mission cargo into
+      // unpriced "sellable" goods (issue #57)
+      cargoArray.push({ ...sourceStack, qty });
     }
   }
 
