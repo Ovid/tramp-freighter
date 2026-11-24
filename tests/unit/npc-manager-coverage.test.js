@@ -410,20 +410,22 @@ describe('NPCManager coverage', () => {
       expect(result.success).toBe(false);
     });
 
-    it('fails when no cargo to store', () => {
+    it('fails when nothing is selected', () => {
       gsm.npcManager.getNPCState('chen_barnards').rep =
         REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [];
-      const result = gsm.npcManager.storeCargo('chen_barnards');
+      const result = gsm.npcManager.storeCargo('chen_barnards', []);
       expect(result.success).toBe(false);
-      expect(result.message).toBe('No cargo to store');
+      expect(result.message).toBe('Nothing selected');
     });
 
-    it('stores cargo successfully', () => {
+    it('stores the selected cargo', () => {
       gsm.npcManager.getNPCState('chen_barnards').rep =
         REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 100 }];
-      const result = gsm.npcManager.storeCargo('chen_barnards');
+      const result = gsm.npcManager.storeCargo('chen_barnards', [
+        { stackIndex: 0, qty: 5 },
+      ]);
       expect(result.success).toBe(true);
       expect(result.stored).toBe(5);
       expect(
@@ -431,13 +433,14 @@ describe('NPCManager coverage', () => {
       ).toHaveLength(1);
     });
 
-    it('limits storage to CARGO_STORAGE_LIMIT', () => {
+    it('refuses a total over CARGO_STORAGE_LIMIT', () => {
       gsm.npcManager.getNPCState('chen_barnards').rep =
         REPUTATION_BOUNDS.FRIENDLY_MIN;
       gsm.state.ship.cargo = [{ good: 'ore', qty: 20, buyPrice: 100 }];
-      const result = gsm.npcManager.storeCargo('chen_barnards');
-      expect(result.success).toBe(true);
-      expect(result.stored).toBe(NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT);
+      const result = gsm.npcManager.storeCargo('chen_barnards', [
+        { stackIndex: 0, qty: NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT + 1 },
+      ]);
+      expect(result.success).toBe(false);
     });
 
     it('throws for invalid npcId', () => {

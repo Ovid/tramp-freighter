@@ -1206,8 +1206,8 @@ export class GameCoordinator {
     this.npcManager.checkLoanDefaults();
   }
 
-  storeCargo(npcId) {
-    return this.npcManager.storeCargo(npcId);
+  storeCargo(npcId, selections) {
+    return this.npcManager.storeCargo(npcId, selections);
   }
 
   retrieveCargo(npcId) {
