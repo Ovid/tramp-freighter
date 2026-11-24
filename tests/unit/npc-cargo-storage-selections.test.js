@@ -188,9 +188,12 @@ describe('NPC cargo storage with selections', () => {
 
     it('caps the total against what is already stored', () => {
       npcState.storedCargo = [{ good: 'tritium', qty: LIMIT - 2, buyPrice: 5 }];
-      expect(game.storeCargo(NPC_ID, [{ stackIndex: 0, qty: 3 }]).success).toBe(
-        false
-      );
+      expect(
+        game.storeCargo(NPC_ID, [{ stackIndex: 0, qty: 3 }])
+      ).toMatchObject({
+        success: false,
+        message: 'Only 2 units of storage left',
+      });
       expect(game.storeCargo(NPC_ID, [{ stackIndex: 0, qty: 2 }]).success).toBe(
         true
       );
