@@ -345,15 +345,13 @@ export function TradePanel({ onClose }) {
                       )}
                     </div>
 
-                    {stack.missionId ? (
-                      <div className="stack-actions">
+                    <div className="stack-actions">
+                      {stack.missionId ? (
                         <span className="mission-cargo-label">
                           Mission Cargo
                         </span>
-                      </div>
-                    ) : (
-                      <div className="stack-actions">
-                        {hasMarket && (
+                      ) : (
+                        hasMarket && (
                           <>
                             <button
                               className="sell-btn"
@@ -373,24 +371,25 @@ export function TradePanel({ onClose }) {
                               Sell All ({stack.qty})
                             </button>
                           </>
-                        )}
-                        {hasSmugglersPanel && (
-                          <button
-                            className="transfer-btn"
-                            disabled={hiddenCargoRemaining <= 0}
-                            onClick={() =>
-                              // Move what fits rather than failing outright
-                              handleMoveToHidden(
-                                index,
-                                Math.min(stack.qty, hiddenCargoRemaining)
-                              )
-                            }
-                          >
-                            Move to Hidden
-                          </button>
-                        )}
-                      </div>
-                    )}
+                        )
+                      )}
+                      {/* Mission cargo too: smuggling contracts is the point */}
+                      {hasSmugglersPanel && (
+                        <button
+                          className="transfer-btn"
+                          disabled={hiddenCargoRemaining <= 0}
+                          onClick={() =>
+                            // Move what fits rather than failing outright
+                            handleMoveToHidden(
+                              index,
+                              Math.min(stack.qty, hiddenCargoRemaining)
+                            )
+                          }
+                        >
+                          Move to Hidden
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })

@@ -380,6 +380,7 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): number} getCredits
  * @property {function(): Array} getShipCargo
+ * @property {function(): Array} getShipHiddenCargo
  * @property {function(): number} getCargoRemaining
  * @property {function(): Object|undefined} getStats
  * @property {function(): Array} getVisitedSystems

@@ -107,8 +107,7 @@ export class MissionManager extends BaseManager {
       }
       // New-style cargo runs: check missionId-tagged cargo
       if (mission.missionCargo) {
-        const hasMissionCargo = cargo.some((c) => c.missionId === mission.id);
-        if (!hasMissionCargo) {
+        if (!this.hasMissionCargo(mission.id)) {
           return {
             success: false,
             reason: 'Mission cargo is no longer in your hold.',
@@ -247,12 +246,7 @@ export class MissionManager extends BaseManager {
 
     // Remove delivered cargo for delivery/fetch missions
     if (mission.type === 'delivery' && mission.missionCargo) {
-      // New-style: remove by missionId
-      const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
-      // Update the cargo array in-place by splicing
-      cargo.length = 0;
-      cargo.push(...updatedCargo);
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
+      this.removeMissionCargo(mission.id);
     } else if (
       (mission.type === 'delivery' || mission.type === 'fetch') &&
       mission.requirements.cargo
@@ -352,13 +346,8 @@ export class MissionManager extends BaseManager {
     missions.active = [...missions.active];
     missions.failed.push(missionId);
 
-    // Remove mission cargo from hold
     if (mission.missionCargo) {
-      const cargo = this.capabilities.getShipCargo();
-      const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
-      cargo.length = 0;
-      cargo.push(...updatedCargo);
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
+      this.removeMissionCargo(mission.id);
     }
 
     if (mission.penalties && mission.penalties.failure) {
@@ -395,9 +384,6 @@ export class MissionManager extends BaseManager {
 
     missions.active = remaining;
 
-    let cargoChanged = false;
-    const cargo = this.capabilities.getShipCargo();
-
     for (const mission of expired) {
       missions.failed.push(mission.id);
 
@@ -411,12 +397,8 @@ export class MissionManager extends BaseManager {
         destination: mission.destination ? mission.destination.name : null,
       });
 
-      // Remove mission cargo from hold
       if (mission.missionCargo) {
-        const updatedCargo = cargo.filter((c) => c.missionId !== mission.id);
-        cargo.length = 0;
-        cargo.push(...updatedCargo);
-        cargoChanged = true;
+        this.removeMissionCargo(mission.id);
       }
 
       if (mission.penalties && mission.penalties.failure) {
@@ -446,10 +428,6 @@ export class MissionManager extends BaseManager {
       if (mission.source === 'cole') {
         this.capabilities.modifyColeRep(COLE_DEBT_CONFIG.REP_FAVOR_FAIL);
       }
-    }
-
-    if (cargoChanged) {
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
     }
 
     this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
@@ -506,6 +484,31 @@ export class MissionManager extends BaseManager {
     return board;
   }
 
+  // Smuggled mission cargo in the hidden compartment still counts
+  hasMissionCargo(missionId) {
+    return [
+      ...this.capabilities.getShipCargo(),
+      ...this.capabilities.getShipHiddenCargo(),
+    ].some((c) => c.missionId === missionId);
+  }
+
+  // Filters in place: other managers hold references to these arrays
+  removeMissionCargo(missionId) {
+    for (const [hold, event] of [
+      [this.capabilities.getShipCargo(), EVENT_NAMES.CARGO_CHANGED],
+      [
+        this.capabilities.getShipHiddenCargo(),
+        EVENT_NAMES.HIDDEN_CARGO_CHANGED,
+      ],
+    ]) {
+      const kept = hold.filter((c) => c.missionId !== missionId);
+      if (kept.length === hold.length) continue;
+      hold.length = 0;
+      hold.push(...kept);
+      this.capabilities.emit(event, [...hold]);
+    }
+  }
+
   getCompletableMissions() {
     const missions = this.capabilities.getOwnState();
     const currentSystem = this.capabilities.getCurrentSystem();
@@ -517,7 +520,7 @@ export class MissionManager extends BaseManager {
         if (mission.type === 'delivery') {
           if (mission.requirements.destination !== currentSystem) return false;
           if (mission.missionCargo) {
-            return cargo.some((c) => c.missionId === mission.id);
+            return this.hasMissionCargo(mission.id);
           }
           if (mission.requirements.cargo) {
             const totalCargo = cargo
@@ -559,16 +562,13 @@ export class MissionManager extends BaseManager {
 
   failMissionsDueToCargoLoss() {
     const missions = this.capabilities.getOwnState();
-    const cargo = this.capabilities.getShipCargo();
 
     const toFail = [];
     const toKeep = [];
 
     for (const mission of missions.active) {
       if (mission.missionCargo) {
-        // Check if this mission's cargo is still in the hold
-        const hasCargo = cargo.some((c) => c.missionId === mission.id);
-        if (!hasCargo) {
+        if (!this.hasMissionCargo(mission.id)) {
           toFail.push(mission);
         } else {
           toKeep.push(mission);

@@ -374,6 +374,7 @@ export class GameCoordinator {
       getCurrentSystem: () => this.state.player.currentSystem,
       getCredits: () => this.state.player.credits,
       getShipCargo: () => this.state.ship.cargo,
+      getShipHiddenCargo: () => this.state.ship.hiddenCargo,
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       getStats: () => this.state.stats,
       getVisitedSystems: () => this.state.world.visitedSystems,
