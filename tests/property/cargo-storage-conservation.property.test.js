@@ -21,8 +21,8 @@ const units = (stacks) => stacks.reduce((t, s) => t + s.qty, 0);
 // The generator is biased so that valid stores are common enough to push
 // storage past the cap within 100 runs: most stacks are not mission cargo,
 // most indexes hit a real stack, stacks hold at least 3 units, and each run
-// makes at least 3 moves. Invalid selections (index past a short hold, qty
-// above the stack, mission cargo) still occur.
+// makes at least 8 moves, two thirds of them stores. Invalid selections
+// (index past a short hold, qty above the stack, mission cargo) still occur.
 const MAX_HOLD_STACKS = 5;
 
 const arbStack = fc
@@ -45,7 +45,10 @@ const arbHold = fc.array(arbStack, {
 });
 
 const arbOp = fc.record({
-  kind: fc.constantFrom('store', 'retrieve'),
+  kind: fc.oneof(
+    { arbitrary: fc.constant('store'), weight: 2 },
+    { arbitrary: fc.constant('retrieve'), weight: 1 }
+  ),
   selections: fc.array(
     fc.record({
       stackIndex: fc.integer({ min: 0, max: MAX_HOLD_STACKS - 1 }),
@@ -66,10 +69,13 @@ describe('Cargo Storage Conservation Property Tests', () => {
   });
 
   it('conserves units and keeps storage free of mission cargo and under the cap', () => {
+    // Guards against a vacuous pass, e.g. every store refused by a rep or
+    // cooldown change, which would leave storage empty and the cap untested
+    let runsAtCap = 0;
     fc.assert(
       fc.property(
         arbHold,
-        fc.array(arbOp, { minLength: 3, maxLength: 8 }),
+        fc.array(arbOp, { minLength: 8, maxLength: 16 }),
         (hold, ops) => {
           const game = createTestGame();
           const npcState = game.getNPCState(NPC_ID);
@@ -77,6 +83,7 @@ describe('Cargo Storage Conservation Property Tests', () => {
           npcState.storedCargo = [];
           game.updateCargo(hold.map((s) => ({ ...s })));
           const total = units(hold);
+          let reachedCap = false;
 
           for (const op of ops) {
             // Clear the cooldown so stores are judged on their selections only
@@ -89,10 +96,13 @@ describe('Cargo Storage Conservation Property Tests', () => {
             ).toBe(total);
             expect(npcState.storedCargo.some((s) => s.missionId)).toBe(false);
             expect(units(npcState.storedCargo)).toBeLessThanOrEqual(LIMIT);
+            if (units(npcState.storedCargo) === LIMIT) reachedCap = true;
           }
+          if (reachedCap) runsAtCap += 1;
         }
       ),
       { numRuns: 100 }
     );
+    expect(runsAtCap).toBeGreaterThan(0);
   });
 });
