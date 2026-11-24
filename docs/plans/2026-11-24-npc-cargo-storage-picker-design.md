@@ -217,6 +217,14 @@ ends through its deadline, through abandonment, or through
 `failMissionsDueToCargoLoss` after the next encounter that takes cargo. This is accepted because few or no
 players have such saves.
 
+Known old-save quirk: older saves can hold duplicate stored stacks that match
+on `good`, `buyPrice` and `missionId`, because the old `storeCargo` appended
+stacks without merging them. The retrieve picker shows these as identical rows
+with identical aria-labels. Retrieval still works, because each row has its
+own index. The migration does not merge them. This is accepted for the same
+reason as above: few or no players have such saves, and they can start a new
+game.
+
 ## Section 4: Testing
 
 TDD, one failing test at a time, with a separate commit per group:
