@@ -46,23 +46,37 @@ player never sees the result message.
   displayed choice.
 - `DialoguePanel` opens a `Modal` containing `CargoStoragePicker` when a picker
   choice is clicked, instead of advancing.
-- Confirm calls `storeCargo(npcId, selections)` / `retrieveCargo(npcId, selections)`.
-  - Success: show `result.message` with the existing notification system,
-    close the modal, then
-    `selectChoice(npcId, choiceIndex)`. This works
-    because `selectChoice` reads the current node from dialogue state when it
-    runs, and the node does not change while the modal is open. `repGain` and
-    `next` apply as normal. Follow the existing null-safe pattern
+- The dialogue engine, not the UI, runs the picker operation (see
+  `paad/adrs/0001-dialogue-engine-owns-picker-choices.md`).
+  `selectChoice(npcId, choiceIndex, gameStateManager, { selections })`: when
+  the selected choice has `picker`, the engine calls
+  `storeCargo(npcId, selections)` or `retrieveCargo(npcId, selections)`. It
+  applies `repGain` and `next` only if that call succeeds, and it returns the
+  manager's result (including `message`) to the caller. A `picker` choice
+  selected without `selections`, or whose manager call fails, grants no
+  reputation, does not advance, and returns `{ success: false, message }`.
+  This way, a caller that skips the picker (for example, a future number-key
+  shortcut) cannot get the store `repGain` without storing anything.
+  `selectDialogueChoice` on `DialogueManager` / `GameCoordinator` and
+  `useDialogue().selectChoice` pass the options through and return the result.
+- Confirm calls `selectChoice(npcId, choiceIndex, { selections })` through
+  `useDialogue`. This works because `selectChoice` reads the current node from
+  dialogue state when it runs, and the node does not change while the modal is
+  open.
+  - Success: show `result.message` with the existing notification system and
+    close the modal. Follow the existing null-safe pattern
     (`App.jsx`, `NarrativeEventPanel.jsx`):
     `const notificationCtx = useNotificationContext()`, then
     `notificationCtx?.showSuccess(result.message)`. The context is `null`
     outside `NotificationProvider`, and existing `DialoguePanel` tests render
     without one.
-  - Failure: show `result.message` in the modal and do not advance.
+  - Failure: show `result.message` in the modal. The dialogue does not
+    advance.
 - Cancel: close the modal. No reputation gain, no cooldown, and the dialogue
   stays on the same node.
 - `storeCargo` / `retrieveCargo` are removed from `buildDialogueContext`,
-  because nothing uses them any more.
+  because dialogue files no longer call them. The engine calls the
+  `gameStateManager` methods directly.
 
 Rejected:
 - Having the action emit an "open picker" event. The dialogue advances and
@@ -104,7 +118,12 @@ so two Grain rows do not share a label.
 When storing, a mission stack shows "Mission Cargo (cannot be stored)" in the
 `mission-cargo-label` style and has no controls.
 
-Footer: "Selected: 3 / 7 (3 already stored)", then `[Cancel]` and
+The modal gets a `title` so the dialog has an accessible name (`Modal` sets
+`aria-labelledby` only when a title is passed): "Store cargo with {npcName}" or
+"Retrieve cargo from {npcName}".
+
+Footer: when storing, "Selected: 3 / 7 (3 already stored)". When retrieving,
+"Selected: 3 / 5 (hold space)". Then `[Cancel]` and
 `[Store 3 units]` / `[Retrieve 3 units]`. The confirm button is disabled at 0.
 Unit counts in labels go through `pluralizeUnit` (`src/game/utils/string-utils.js`),
 so a count of 1 reads "Store 1 unit".
@@ -120,9 +139,11 @@ be stored, the picker shows "No cargo you can store". When retrieving with
 `getCargoRemaining()` at 0, it shows "No room in your hold". The dialogue
 choice conditions do not change.
 
-Actions go through `useNPCActions` (gains `storeCargo` and `retrieveCargo`),
-following the Bridge Pattern. `GameCoordinator.storeCargo` / `retrieveCargo`
-pass `selections` through.
+The picker does not call the manager itself. It hands `selections` to
+`onConfirm`, and `DialoguePanel` passes them to `selectChoice` through
+`useDialogue`, following the Bridge Pattern. `useNPCActions` does not change.
+`GameCoordinator.storeCargo` / `retrieveCargo` pass `selections` through to
+the manager for the engine to use.
 
 Left out: an "Everything" button and a slider. Per-row `Max` covers both.
 
@@ -171,8 +192,9 @@ Save migration: on load, `state-validators.js` drops every `storedCargo`
 stack that has a `missionId`, whether or not its mission is still active.
 Older saves could store mission cargo. With this rule NPC storage never holds
 mission cargo, so `removeMissionCargo` and mission completion never need to
-look there. A mission whose cargo is dropped can no longer be completed and
-ends through its deadline or abandonment. This is accepted because few or no
+look there. A mission whose cargo is dropped can no longer be completed. It
+ends through its deadline, through abandonment, or through
+`failMissionsDueToCargoLoss` after the next encounter that takes cargo. This is accepted because few or no
 players have such saves.
 
 ## Section 4: Testing
@@ -209,6 +231,14 @@ TDD, one failing test at a time, with a separate commit per group:
    - At least 100 iterations each.
 3. Dialogue:
    - `picker` passes through `showDialogue`.
+   - `selectChoice` on a `picker` choice without `selections` grants no
+     reputation, does not advance, and returns failure.
+   - `selectChoice` on a `picker` choice whose manager call fails (for
+     example, a total over the cap) grants no reputation and does not
+     advance.
+   - `selectChoice` on the store `picker` choice with valid `selections`
+     stores the cargo, applies `repGain`, advances to `next`, and returns the
+     manager's `message`.
    - The shared storage helper: builds both greeting choices with the right
      conditions, builds both nodes with `picker` and no `action`, gives the
      retrieve confirm no `repGain` and the shared "Let me choose what to
@@ -230,6 +260,9 @@ TDD, one failing test at a time, with a separate commit per group:
      unit", "Store 3 units").
    - `onConfirm` receives the right selections.
    - Empty states: "No cargo you can store" and "No room in your hold".
+   - The dialog has an accessible name
+     (`getByRole('dialog', { name: /Store cargo/ })`), and the retrieve footer
+     reads "(hold space)".
 6. `DialoguePanel` (new tests wrap it in `NotificationProvider` so they can
    check the success message; existing tests that render it without one keep
    passing):
