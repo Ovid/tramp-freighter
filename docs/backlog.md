@@ -59,3 +59,50 @@ Possible fix: skip stacks with a `missionId` when counting and removing in
 `canContributeSupply`, `contributeSupply` and `removeCargoForMission`.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Cargo-loss mission failures are silent and not saved
+
+`failMissionsDueToCargoLoss` in `src/game/state/managers/mission.js` never
+calls `markDirty()` and never adds an entry to `missions.pendingFailureNotices`.
+`checkMissionDeadlines` does both. A mission failed by an encounter is not
+saved until something else marks the state dirty, and the player gets no
+failure notice when they next dock.
+
+Possible fix: queue a notice and call `markDirty()`, the same way
+`checkMissionDeadlines` does.
+
+Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Cargo-loss mission failures skip some penalties
+
+`failMissionsDueToCargoLoss` (`src/game/state/managers/mission.js`) applies
+only `penalties.failure.faction`. The deadline and abandon paths also apply
+`penalties.failure.rep` and `karma`, and the deadline path applies Cole's rep
+penalty for Cole favor missions. This may be on purpose (losing cargo to
+pirates is not the player's fault). Confirm, then either match the other paths
+or add a comment explaining why.
+
+Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Delivery missions pay in full after partial cargo loss
+
+`getCompletableMissions` in `src/game/state/managers/mission.js` treats a
+`missionCargo` delivery as completable when any stack with its `missionId`
+exists (`hasMissionCargo`), whatever the quantity. If an encounter's
+`cargoPercent` loss takes some of the mission's units, the player can still
+deliver what is left for the full reward. This may be on purpose (forgiving
+design). Confirm, then either check quantity or add a comment explaining why.
+
+Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Moving cargo out of the hidden compartment ignores passenger space
+
+`moveToRegularCargo` in `src/game/state/managers/ship.js` checks free space as
+`ship.cargoCapacity - cargoUsed`, where `cargoUsed` sums cargo stacks only.
+`getCargoRemaining()` (`src/game/state/managers/state.js`) also subtracts
+passenger space. With a passenger aboard, moving hidden cargo into the main
+hold can fill it past capacity.
+
+Possible fix: use `getCargoRemaining()` for the capacity check.
+
+Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
