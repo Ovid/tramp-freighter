@@ -121,7 +121,7 @@ export function CargoStoragePicker({
       )}
 
       <div className="cargo-storage-footer">
-        <p>
+        <p aria-live="polite">
           {isStore
             ? `Selected: ${selected} / ${limit} (${storedUnits} already stored)`
             : `Selected: ${selected} / ${limit} (hold space)`}

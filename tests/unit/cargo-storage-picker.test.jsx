@@ -213,4 +213,13 @@ describe('CargoStoragePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onCancel).toHaveBeenCalled();
   });
+
+  it('announces the selected total to screen readers', () => {
+    game.updateCargo([{ good: 'grain', qty: 5, buyPrice: 10 }]);
+    renderPicker('store');
+    expect(screen.getByText(/^Selected: /)).toHaveAttribute(
+      'aria-live',
+      'polite'
+    );
+  });
 });
