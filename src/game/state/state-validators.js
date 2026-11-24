@@ -850,6 +850,16 @@ export function addStateDefaults(state, systemData) {
     state.npcs = {};
   }
 
+  // NPC storage never holds mission cargo. Older saves could store it, so
+  // drop it whether or not its mission is still active.
+  for (const npcState of Object.values(state.npcs)) {
+    if (Array.isArray(npcState?.storedCargo)) {
+      npcState.storedCargo = npcState.storedCargo.filter(
+        (stack) => !stack.missionId
+      );
+    }
+  }
+
   // Initialize dialogue state if missing
   if (!state.dialogue) {
     state.dialogue = {

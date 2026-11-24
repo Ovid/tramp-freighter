@@ -350,6 +350,40 @@ describe('State Validators Module', () => {
       };
     });
 
+    it('drops stored NPC cargo that has a missionId', () => {
+      partialState.npcs = {
+        rodriguez_procyon: {
+          storedCargo: [
+            { good: 'grain', qty: 2, buyPrice: 10 },
+            {
+              good: 'sealed_containers',
+              qty: 3,
+              buyPrice: 0,
+              missionId: 'active_mission',
+            },
+            {
+              good: 'medicine',
+              qty: 1,
+              buyPrice: 0,
+              missionId: 'gone_mission',
+            },
+          ],
+        },
+      };
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+
+      expect(normalized.npcs.rodriguez_procyon.storedCargo).toEqual([
+        { good: 'grain', qty: 2, buyPrice: 10 },
+      ]);
+    });
+
+    it('leaves NPCs without storedCargo alone', () => {
+      partialState.npcs = { chen_barnards: { rep: 5 } };
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      expect(normalized.npcs.chen_barnards).toEqual({ rep: 5 });
+    });
+
     it('should add missing ship condition fields', () => {
       const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 
