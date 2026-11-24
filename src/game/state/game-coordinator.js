@@ -5,7 +5,7 @@ import {
   ENDGAME_CONFIG,
   INTELLIGENCE_CONFIG,
 } from '../constants.js';
-import { devLog } from '../utils/dev-logger.js';
+import { devLog, devWarn } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
@@ -593,6 +593,13 @@ export class GameCoordinator {
     }
 
     let migratedState = this._applyMigrations(rawState);
+
+    // NaN credits persist as null (issue #57). The true balance is
+    // unrecoverable, but resetting it beats rejecting the whole save.
+    if (migratedState.player && migratedState.player.credits === null) {
+      devWarn('Save had corrupted credits (NaN), resetting to 0');
+      migratedState.player.credits = 0;
+    }
 
     if (!validateStateStructure(migratedState)) {
       return {

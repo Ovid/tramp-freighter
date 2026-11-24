@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
 import { GAME_VERSION } from '../../src/game/constants.js';
@@ -13,6 +13,7 @@ describe('GameCoordinator.restoreState', () => {
 
   afterEach(() => {
     localStorage.clear();
+    vi.restoreAllMocks();
   });
 
   it('restores valid current-version state and returns success', () => {
@@ -55,6 +56,24 @@ describe('GameCoordinator.restoreState', () => {
     });
     expect(result.success).toBe(false);
     expect(result.reason).toContain('structure validation');
+  });
+
+  // Regression (issue #57): credits once became NaN, which JSON persists as
+  // null; such saves were rejected outright and the game was lost.
+  it('repairs null credits (persisted NaN) instead of rejecting the save', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const sourceManager = new GameCoordinator(
+      TEST_STAR_DATA,
+      TEST_WORMHOLE_DATA
+    );
+    sourceManager.initNewGame();
+    sourceManager.state.player.credits = NaN;
+    const corrupted = JSON.parse(JSON.stringify(sourceManager.state));
+
+    const result = manager.restoreState(corrupted);
+
+    expect(result.success).toBe(true);
+    expect(manager.state.player.credits).toBe(0);
   });
 
   it('migrates v1.0.0 state to current version', () => {
