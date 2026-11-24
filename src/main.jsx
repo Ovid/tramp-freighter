@@ -25,6 +25,7 @@ import '../css/modals.css';
 import '../css/starmap-scene.css';
 import '../css/system-event-info.css';
 import '../css/panel/cargo-manifest.css';
+import '../css/panel/cargo-storage.css';
 import '../css/panel/combat.css';
 import '../css/panel/danger-warning.css';
 import '../css/panel/dev-admin.css';

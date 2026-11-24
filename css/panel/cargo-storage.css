@@ -1,0 +1,20 @@
+/* Cargo storage picker: rows reuse trade.css stack styles */
+.cargo-storage-picker .picker-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cargo-storage-picker .picker-qty {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.cargo-storage-footer {
+  margin-top: 1rem;
+}
+
+.cargo-storage-warning {
+  font-size: 0.9em;
+  opacity: 0.85;
+}
