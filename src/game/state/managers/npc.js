@@ -8,6 +8,10 @@ import {
 import { ALL_NPCS } from '../../data/npc-data.js';
 import { SeededRandom } from '../../utils/seeded-random.js';
 
+function totalUnits(stacks) {
+  return stacks.reduce((total, stack) => total + stack.qty, 0);
+}
+
 /**
  * NPCManager - Manages NPC reputation, benefits, loans, and storage
  *
@@ -316,6 +320,7 @@ export class NPCManager extends BaseManager {
    * 2. Reputation tier meets requirement (Trusted for loan, Friendly for storage)
    * 3. Favor cooldown has passed (30 days since lastFavorDay)
    * 4. No outstanding loan for loan requests
+   * 5. Storage is not full (storage requests)
    *
    * @param {string} npcId - NPC identifier
    * @param {string} favorType - 'loan' or 'storage'
@@ -355,6 +360,11 @@ export class NPCManager extends BaseManager {
           available: false,
           reason: `Requires Friendly relationship (currently ${repTier.name})`,
         };
+      }
+      // >= because older saves can already hold more than the cap
+      const storedUnits = totalUnits(npcState.storedCargo ?? []);
+      if (storedUnits >= NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT) {
+        return { available: false, reason: 'Storage full' };
       }
     } else {
       return {
