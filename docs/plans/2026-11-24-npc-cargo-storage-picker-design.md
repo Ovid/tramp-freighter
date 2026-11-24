@@ -68,6 +68,11 @@ When storing, a mission stack shows "Mission Cargo (cannot be stored)" in the
 Footer: "Selected: 3 / 7 (3 already stored)", then `[Cancel]` and
 `[Store 3 units]` / `[Retrieve 3 units]`. The confirm button is disabled at 0.
 
+Empty states: when storing and either the remaining limit is 0 or no stack can
+be stored, the picker shows "No cargo you can store". When retrieving with
+`getCargoRemaining()` at 0, it shows "No room in your hold". The dialogue
+choice conditions do not change.
+
 Actions go through `useNPCActions` (gains `storeCargo` and `retrieveCargo`),
 following the Bridge Pattern. `GameCoordinator.storeCargo` / `retrieveCargo`
 pass `selections` through.
@@ -98,6 +103,16 @@ cooldown.
 Every check returns `{ success: false, message }` before any change, so
 nothing is half-applied. A missing or non-string `npcId` still throws.
 
+Apply against a copy: build the new hold and storage arrays from the original
+indices, then assign them once. Never splice in place while going through the
+selections, because removing an earlier stack shifts the indices of later ones.
+
+Save migration: on load, `state-validators.js` drops `storedCargo` stacks
+whose `missionId` is not in `missions.active`. Older saves could store mission
+cargo, and `removeMissionCargo` never cleans NPC storage. Retrieving such a
+stack would leave cargo in the hold that cannot be sold, stored or removed.
+Stored cargo for missions that are still active is kept and stays retrievable.
+
 ## Section 4: Testing
 
 TDD, one failing test at a time, with a separate commit per group:
@@ -111,6 +126,11 @@ TDD, one failing test at a time, with a separate commit per group:
    - Returns "Storage full" at the cap.
    - Retrieval: takes the selected stacks, respects capacity, keeps
      `missionId`, and does not start the cooldown.
+   - Several selections where an earlier stack reaches 0 and a later stack is
+     partly taken, for both store and retrieve. The right stacks change.
+   - Migration (`state-validators`): a stored stack for an inactive mission is
+     dropped, a stored stack for an active mission is kept, and stacks without
+     a `missionId` are kept.
 2. Property tests:
    - Rewrite `cargo-storage-transfer` and `cargo-retrieval-completeness`
      around selections.
@@ -128,6 +148,7 @@ TDD, one failing test at a time, with a separate commit per group:
    - `+`/`−` change the quantity and `+` stops at the limit.
    - Confirm is disabled at 0 and its label shows the count.
    - `onConfirm` receives the right selections.
+   - Empty states: "No cargo you can store" and "No room in your hold".
 6. `DialoguePanel`:
    - A picker choice opens the modal and does not advance.
    - Cancel stays on the same node and grants no reputation.
