@@ -132,4 +132,54 @@ describe('DialoguePanel cargo storage picker', () => {
     ).toBeInTheDocument();
     expect(npcState.storedCargo).toEqual([]);
   });
+  it('a failure without a message still shows an error', async () => {
+    await openStorePicker();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(game, 'selectDialogueChoice').mockImplementation(() => {
+      throw new Error('boom');
+    });
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Store one more Grain bought at 10 credits',
+      })
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Store 1 unit' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Something went wrong. Please try again.'
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+  it('closes the picker when the dialogue switches to another NPC', async () => {
+    const { rerender } = renderPanel();
+    fireEvent.click(
+      await screen.findByText('Can you store some cargo for me?')
+    );
+    fireEvent.click(await screen.findByText('That would be a huge help.'));
+    await screen.findByRole('dialog');
+
+    rerender(
+      <GameProvider game={game}>
+        <NotificationProvider>
+          <NotificationContainer />
+          <DialoguePanel npcId="kim_tau_ceti" onClose={vi.fn()} />
+        </NotificationProvider>
+      </GameProvider>
+    );
+
+    await waitFor(() =>
+      expect(game.getDialogueState().currentNpcId).toBe('kim_tau_ceti')
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+  it('Escape closes the picker and keeps the dialogue on the same node', async () => {
+    await openStorePicker();
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    expect(game.getDialogueState().currentNodeId).toBe('request_storage');
+    expect(screen.getByText('That would be a huge help.')).toBeInTheDocument();
+  });
 });

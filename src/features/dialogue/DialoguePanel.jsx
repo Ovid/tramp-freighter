@@ -4,6 +4,9 @@ import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { Modal } from '../../components/Modal.jsx';
 import { CargoStoragePicker } from '../cargo-storage/CargoStoragePicker.jsx';
 
+// selectChoice returns no message when the call throws
+const PICKER_FALLBACK_ERROR = 'Something went wrong. Please try again.';
+
 /**
  * DialoguePanel - React component for NPC dialogue interactions
  *
@@ -29,6 +32,10 @@ export function DialoguePanel({ npcId, onClose }) {
 
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
+    // A restarted dialogue invalidates the open picker's choiceIndex
+    setPicker(null);
+    setPickerError(null);
+
     if (!npcId) {
       return;
     }
@@ -83,7 +90,7 @@ export function DialoguePanel({ npcId, onClose }) {
       selections,
     });
     if (!result.success) {
-      setPickerError(result.message);
+      setPickerError(result.message || PICKER_FALLBACK_ERROR);
       return;
     }
     notificationCtx?.showSuccess(result.message);
