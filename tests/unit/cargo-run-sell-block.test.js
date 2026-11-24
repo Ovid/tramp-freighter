@@ -60,6 +60,18 @@ describe('Trading – mission cargo sell block', () => {
     expect(result.reason).toMatch(/mission/i);
   });
 
+  // Regression (issue #57): saves with mission cargo stripped of missionId
+  // have unpriced goods; selling at an undefined price set credits to NaN.
+  it.each([undefined, NaN, Infinity])(
+    'should reject a sale at a non-finite price (%s)',
+    (price) => {
+      const result = manager.sellGood(0, 5, price);
+
+      expect(result.success).toBe(false);
+      expect(state.ship.cargo[0].qty).toBe(10);
+    }
+  );
+
   it('should allow selling regular cargo', () => {
     const result = manager.sellGood(0, 5, 20); // stack index 0 = regular ore
 
