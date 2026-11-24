@@ -47,12 +47,17 @@ player never sees the result message.
 - `DialoguePanel` opens a `Modal` containing `CargoStoragePicker` when a picker
   choice is clicked, instead of advancing.
 - Confirm calls `storeCargo(npcId, selections)` / `retrieveCargo(npcId, selections)`.
-  - Success: show `result.message` with the existing notification system
-    (`useNotificationContext().showSuccess`), close the modal, then
+  - Success: show `result.message` with the existing notification system,
+    close the modal, then
     `selectChoice(npcId, choiceIndex)`. This works
     because `selectChoice` reads the current node from dialogue state when it
     runs, and the node does not change while the modal is open. `repGain` and
-    `next` apply as normal.
+    `next` apply as normal. Follow the existing null-safe pattern
+    (`App.jsx`, `NarrativeEventPanel.jsx`):
+    `const notificationCtx = useNotificationContext()`, then
+    `notificationCtx?.showSuccess(result.message)`. The context is `null`
+    outside `NotificationProvider`, and existing `DialoguePanel` tests render
+    without one.
   - Failure: show `result.message` in the modal and do not advance.
 - Cancel: close the modal. No reputation gain, no cooldown, and the dialogue
   stays on the same node.
@@ -73,28 +78,36 @@ New folder: `src/features/cargo-storage/`.
 - `cargoStorageUtils.js`: pure functions for clamping, totals, per-row max,
   and building the selections list. A row's max is
   `min(stack.qty, limit - unitsSelectedInOtherRows)`, clamped to 0. Both `+`
-  and `Max` use it, so the total can never pass the limit.
+  and `Max` use it, so the total can never pass the limit. The selections
+  builder leaves out rows whose quantity is 0 (for example, after `+` then
+  `−`), because the manager rejects any `qty` that is not a positive integer.
 
 Data sources:
 - Store: ship cargo via `useGameEvent(CARGO_CHANGED)`. The limit is
   `Math.max(0, CARGO_STORAGE_LIMIT - unitsAlreadyStored)`. Older saves can
   hold more than the cap, so the subtraction can be negative.
 - Retrieve: `useGameEvent(NPCS_CHANGED)[npcId].storedCargo`. The limit is
-  `Math.max(0, getCargoRemaining())`. `getCargoRemaining()` must subtract
-  passenger space (see Section 3), so this limit matches the hold space
-  shown in `TradePanel` and `ShipStatus`.
+  `Math.max(0, getCargoRemaining())`. `getCargoRemaining()` already subtracts
+  passenger space, so this limit matches the hold space shown in
+  `TradePanel` and `ShipStatus`.
 
 Local `useState({ [stackIndex]: qty })` holds in-progress UI choices only. It
 is not copied game state.
 
 Rows reuse the `TradePanel` stack display: `formatCargoDisplayName(stack.good)`,
-the `.cargo-stack` / `.stack-info` classes, and the quantity held. Controls are
-`[−] n [+] [Max]`, and `−`/`+` get aria-labels (e.g. "Store one less Grain").
+the `.cargo-stack` / `.stack-info` classes, and the `stack-details` line
+(`Qty: n | Bought at: X ₡/unit`). The buy price tells apart stacks of the
+same good bought at different prices, which `addToCargoArray` keeps as
+separate stacks. Controls are `[−] n [+] [Max]`, and `−`/`+` get aria-labels
+that include the buy price (e.g. "Store one less Grain bought at 10 credits"),
+so two Grain rows do not share a label.
 When storing, a mission stack shows "Mission Cargo (cannot be stored)" in the
 `mission-cargo-label` style and has no controls.
 
 Footer: "Selected: 3 / 7 (3 already stored)", then `[Cancel]` and
 `[Store 3 units]` / `[Retrieve 3 units]`. The confirm button is disabled at 0.
+Unit counts in labels go through `pluralizeUnit` (`src/game/utils/string-utils.js`),
+so a count of 1 reads "Store 1 unit".
 
 When storing, the footer also warns: "Storing uses Rusty's favor: no more
 storage or loans from them for 30 days." The number comes from
@@ -137,43 +150,30 @@ Left out: an "Everything" button and a slider. Per-row `Max` covers both.
 
 `retrieveCargo(npcId, selections)`: the same shape checks against
 `storedCargo`, plus a total no more than `getCargoRemaining()`. Merges into the
-hold through `addToCargoArray`, which keeps `missionId`. Does not set the
-cooldown.
+hold through `addToCargoArray`. Does not set the cooldown.
 
-Hold space: `getCargoRemaining()` (`StateManager`) becomes capacity minus
-cargo units minus the `requirements.cargoSpace` of active passenger
-missions, which is the same sum `tradeUtils.js`, `TradePanel`, `ShipStatus` and
-`CargoManifestPanel` already use. `StateManager` gets read access to
-`missions.active` through its capabilities. This also corrects the other
-callers, passenger-mission acceptance (`mission.js`) and `MissionBoardPanel`,
-which today ignore space already taken by passengers.
+Hold space: retrieval uses `getCargoRemaining()`, which already subtracts
+passenger space (`src/game/state/managers/state.js`). No change is needed.
 
 Every check returns `{ success: false, message }` before any change, so
 nothing is half-applied. A missing or non-string `npcId` still throws.
 
 Both methods return a `message` on success as well, which `DialoguePanel`
-shows: for example "Stored 3 cargo units with Rusty" and "Retrieved 3 cargo
-units from Rusty". Today `retrieveCargo` returns no `message`.
+shows: for example "Stored 3 units with Rusty" and "Retrieved 3 units from
+Rusty". The count goes through `pluralizeUnit`, so 1 reads "Stored 1 unit
+with Rusty". Today `retrieveCargo` returns no `message`.
 
 Apply against a copy: build the new hold and storage arrays from the original
 indices, then assign them once. Never splice in place while going through the
 selections, because removing an earlier stack shifts the indices of later ones.
 
-Save migration: on load, `state-validators.js` drops `storedCargo` stacks
-whose `missionId` is not in `missions.active`. Older saves could store mission
-cargo, and `removeMissionCargo` never cleans NPC storage. Retrieving such a
-stack would leave cargo in the hold that cannot be sold, stored or removed.
-Stored cargo for missions that are still active is kept and stays retrievable.
-
-Mission end: `removeMissionCargo` (`mission.js`) also removes the mission's
-stacks from every NPC's `storedCargo`, through a new capability that gives
-`MissionManager` access to NPC state. Missions end in four places: expiry,
-abandonment, completion, and `failMissionsDueToCargoLoss` (called after an
-encounter takes cargo). The last of these does not call `removeMissionCargo`
-today, so it must now call it for each mission it fails. With all four going
-through it, a stack for an active mission that is kept in storage cannot
-outlive its mission within a session. The load-time migration covers saves
-where the mission had already ended.
+Save migration: on load, `state-validators.js` drops every `storedCargo`
+stack that has a `missionId`, whether or not its mission is still active.
+Older saves could store mission cargo. With this rule NPC storage never holds
+mission cargo, so `removeMissionCargo` and mission completion never need to
+look there. A mission whose cargo is dropped can no longer be completed and
+ends through its deadline or abandonment. This is accepted because few or no
+players have such saves.
 
 ## Section 4: Testing
 
@@ -190,23 +190,17 @@ TDD, one failing test at a time, with a separate commit per group:
      remaining cap.
    - Returns "Storage full" at the cap and over it (for example, 15 already
      stored).
-   - Both methods return a `message` on success.
-   - Retrieval: takes the selected stacks, respects capacity, keeps
-     `missionId`, and does not start the cooldown.
-   - `getCargoRemaining()` subtracts passenger space. With a passenger
-     aboard, retrieve refuses a total that fits capacity minus cargo but not
-     capacity minus cargo minus passenger space. Passenger-mission
-     acceptance counts space taken by passengers already aboard. Existing
-     tests that assume capacity minus cargo are updated in the same commit.
+   - Both methods return a `message` on success, singular for 1 unit
+     ("Stored 1 unit with Rusty").
+   - Retrieval: takes the selected stacks, respects capacity, and does not
+     start the cooldown.
+   - With a passenger aboard, retrieve refuses a total that fits capacity
+     minus cargo but not capacity minus cargo minus passenger space.
    - Several selections where an earlier stack reaches 0 and a later stack is
      partly taken, for both store and retrieve. The right stacks change.
-   - Migration (`state-validators`): a stored stack for an inactive mission is
-     dropped, a stored stack for an active mission is kept, and stacks without
-     a `missionId` are kept.
-   - `removeMissionCargo`: a stored stack for an active mission is removed
-     from NPC storage when the mission is abandoned, expires, or is failed by
-     `failMissionsDueToCargoLoss`. Stacks for
-     other missions, and stacks without a `missionId`, are left alone.
+   - Migration (`state-validators`): stored stacks with a `missionId` are
+     dropped, for both active and inactive missions. Stacks without a
+     `missionId` are kept.
 2. Property tests:
    - Rewrite `cargo-storage-transfer` and `cargo-retrieval-completeness`
      around selections.
@@ -223,16 +217,22 @@ TDD, one failing test at a time, with a separate commit per group:
      (checked through `ALL_DIALOGUE_TREES`).
    - Update `dialogue-context.test.js`.
 4. `cargoStorageUtils` pure functions, including a remaining limit clamped to
-   0 when more than the cap is already stored, or when hold space is negative.
+   0 when more than the cap is already stored, or when hold space is negative,
+   and a row set back to 0 is left out of the selections.
 5. `CargoStoragePicker` (React Testing Library):
    - Mission row is shown as disabled.
+   - Two stacks of the same good at different buy prices show their prices
+     and have different aria-labels.
    - `+`/`−` change the quantity and `+` stops at the limit.
    - After `Max` on one row, `Max` on another row fills only what is left.
    - The store footer shows the favor-cooldown warning with the day count.
-   - Confirm is disabled at 0 and its label shows the count.
+   - Confirm is disabled at 0 and its label shows the count ("Store 1
+     unit", "Store 3 units").
    - `onConfirm` receives the right selections.
    - Empty states: "No cargo you can store" and "No room in your hold".
-6. `DialoguePanel`:
+6. `DialoguePanel` (new tests wrap it in `NotificationProvider` so they can
+   check the success message; existing tests that render it without one keep
+   passing):
    - A picker choice opens the modal and does not advance.
    - Cancel stays on the same node and grants no reputation.
    - Confirm stores, shows the success message, then advances with `repGain`.
@@ -240,6 +240,12 @@ TDD, one failing test at a time, with a separate commit per group:
    - A failure keeps the modal open and shows the message.
 
 Existing tests that use the old no-argument API (`npc-manager-coverage`,
-`game-dialogue-coverage`, `vasquez-whisper-coverage`, `npc-manager-markdirty`)
-are updated in the same commit as the change that breaks them. The full suite
+`game-dialogue-coverage`, `vasquez-whisper-coverage`, `npc-manager-markdirty`),
+and tests of the old storage dialogue (`npc-dialogue-greetings`, which expects
+the storage choices to have an `action`, and `dialogue-tree-structure`), are
+updated in the same commit as the change that breaks them. In
+`dialogue-tree-structure`, the assertion that the storage choice's condition
+is false below the Friendly tier moves to a `canRequestFavor` test, because
+the helper drops the duplicate tier check. Do not put that check back in the
+helper to keep the old test passing. The full suite
 and `npm run lint` stay clean after every commit.
