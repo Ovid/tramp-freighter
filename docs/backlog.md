@@ -16,3 +16,18 @@ once (for example, gated on a flag). Check other nodes, such as loan offers,
 for the same loop.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## NPC storage changes don't emit `NPCS_CHANGED`
+
+`storeCargo` and `retrieveCargo` in `src/game/state/managers/npc.js` change
+`storedCargo` (and `interactions`/`lastFavorDay`) but never emit
+`EVENT_NAMES.NPCS_CHANGED`. Only `modifyRep` and `setNpcRep` emit it. Any
+component subscribed with `useGameEvent(NPCS_CHANGED)` keeps showing old NPC
+state until something else emits. Today that is `DevAdminPanel`. A component
+that reads the event only on mount (like the planned cargo storage picker) is
+unaffected.
+
+Possible fix: emit `NPCS_CHANGED` with a copy of NPC state after each storage
+mutation, the same way `modifyRep` does.
+
+Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.

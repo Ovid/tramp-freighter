@@ -17,16 +17,35 @@ player never sees the result message.
 
 ## Section 1: Dialogue integration
 
-- The storage and retrieval choices in the 7 NPC dialogue files
+- The storage mechanics in the 7 NPC dialogue files
   (`src/game/data/dialogue/`: rusty-rodriguez, dr-sarah-kim, whisper,
-  station-master-kowalski, captain-vasquez, zara-osman, lucky-liu) drop
-  `action` and gain a declarative `picker: 'store' | 'retrieve'`.
+  station-master-kowalski, captain-vasquez, zara-osman, lucky-liu) move into
+  one shared helper in `src/game/data/dialogue/` (for example
+  `storage-dialogue.js`). It builds, from per-NPC text only:
+  - the two greeting choices: "store", gated on
+    `context.canRequestStorage.available`, and "retrieve", gated on stored
+    cargo being non-empty;
+  - the `request_storage` and `retrieve_cargo` nodes, with their flags, their
+    confirm and decline choices, `next: 'greeting'`, and `repGain`.
+
+  Each NPC file passes its own lines and flag names. The helper writes the
+  mechanics once. Node text that states the limit takes it from
+  `CARGO_STORAGE_LIMIT` rather than spelling out "ten". The helper drops the
+  separate Friendly-tier check, because `canRequestFavor` already does it, and
+  the "no context" fallback that only 2 of the 7 files have.
+- The confirm choices are declarative: they have no `action` and carry
+  `picker: 'store' | 'retrieve'`.
+- The retrieve confirm choice has no `repGain`. Getting your own cargo back
+  is not a favor to the NPC, and since retrieval has no cooldown, a per-retrieve
+  gain could be farmed one unit at a time. The store confirm keeps `repGain: 2`.
 - `showDialogue` (`src/game/game-dialogue.js`) passes `picker` through on each
   displayed choice.
 - `DialoguePanel` opens a `Modal` containing `CargoStoragePicker` when a picker
   choice is clicked, instead of advancing.
 - Confirm calls `storeCargo(npcId, selections)` / `retrieveCargo(npcId, selections)`.
-  - Success: close the modal, then `selectChoice(npcId, choiceIndex)`. This works
+  - Success: show `result.message` with the existing notification system
+    (`useNotificationContext().showSuccess`), close the modal, then
+    `selectChoice(npcId, choiceIndex)`. This works
     because `selectChoice` reads the current node from dialogue state when it
     runs, and the node does not change while the modal is open. `repGain` and
     `next` apply as normal.
@@ -87,8 +106,10 @@ Left out: an "Everything" button and a slider. Per-row `Max` covers both.
 1. `canRequestFavor(npcId, 'storage')`, which now also returns
    `{ available: false, reason: 'Storage full' }` when stored units have
    reached `CARGO_STORAGE_LIMIT`. That hides the dialogue choice.
-2. `selections` is a non-empty array, with unique `stackIndex` values and
-   positive integer `qty` values.
+2. `selections` is a non-empty array. Each `stackIndex` is a non-negative
+   integer (`Number.isInteger`), the `stackIndex` values are unique, and each
+   `qty` is a positive integer. The integer check matters: `0` and `'0'` are
+   different values in a `Set` but name the same array slot.
 3. Each stack exists, has no `missionId`, and `qty <= stack.qty`.
 4. The total is no more than `CARGO_STORAGE_LIMIT - storedUnits`.
 5. Apply the change: lower each selected stack's quantity, drop stacks that
@@ -121,8 +142,9 @@ TDD, one failing test at a time, with a separate commit per group:
    - Stores exactly the selected quantities.
    - Removes stacks that reach 0.
    - Refuses mission cargo, quantities above `stack.qty`, missing indexes,
-     duplicate indexes, zero or negative quantities, non-integer quantities,
-     and totals over the remaining cap.
+     duplicate indexes, non-integer indexes (including `'0'` alongside `0`),
+     zero or negative quantities, non-integer quantities, and totals over the
+     remaining cap.
    - Returns "Storage full" at the cap.
    - Retrieval: takes the selected stacks, respects capacity, keeps
      `missionId`, and does not start the cooldown.
@@ -139,8 +161,11 @@ TDD, one failing test at a time, with a separate commit per group:
    - At least 100 iterations each.
 3. Dialogue:
    - `picker` passes through `showDialogue`.
-   - Every storage and retrieval choice in `ALL_DIALOGUE_TREES` has `picker`
-     and no `action`.
+   - The shared storage helper: builds both greeting choices with the right
+     conditions, builds both nodes with `picker` and no `action`, gives the
+     retrieve confirm no `repGain`, and puts `CARGO_STORAGE_LIMIT` in the text.
+   - All 7 storage NPCs get their storage choices and nodes from the helper
+     (checked through `ALL_DIALOGUE_TREES`).
    - Update `dialogue-context.test.js`.
 4. `cargoStorageUtils` pure functions.
 5. `CargoStoragePicker` (React Testing Library):
@@ -152,7 +177,7 @@ TDD, one failing test at a time, with a separate commit per group:
 6. `DialoguePanel`:
    - A picker choice opens the modal and does not advance.
    - Cancel stays on the same node and grants no reputation.
-   - Confirm stores, then advances with `repGain`.
+   - Confirm stores, shows the success message, then advances with `repGain`.
    - A failure keeps the modal open and shows the message.
 
 Existing tests that use the old no-argument API (`npc-manager-coverage`,
