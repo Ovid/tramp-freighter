@@ -106,46 +106,47 @@ export class DialogueManager extends BaseManager {
   /**
    * Select a dialogue choice and advance conversation
    *
-   * Processes the player's choice selection and advances the conversation.
-   * Uses dynamic import to load the dialogue engine. Returns the next dialogue
-   * display object or null if the conversation has ended.
+   * On failure nothing changes and nothing is emitted: a picker choice whose
+   * operation failed must leave the player on the same node.
    *
    * @param {string} npcId - NPC identifier
    * @param {number} choiceIndex - Index of selected choice
-   * @returns {Promise<Object|null>} Next dialogue display object or null if dialogue ended
+   * @param {Object} [options] - e.g. { selections } for picker choices
+   * @returns {Promise<{success: boolean, message?: string}>}
    */
-  async selectDialogueChoice(npcId, choiceIndex) {
+  async selectDialogueChoice(npcId, choiceIndex, options = {}) {
     this.validateState();
 
     const { selectChoice } = await import('../../game-dialogue.js');
 
-    const nextDisplay = selectChoice(
+    const result = selectChoice(
       npcId,
       choiceIndex,
-      this.capabilities.coordinatorRef
+      this.capabilities.coordinatorRef,
+      options
     );
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
 
     const dialogue = this.capabilities.getOwnState();
 
-    if (nextDisplay) {
+    if (result.display) {
       dialogue.currentNpcId = npcId;
       dialogue.currentNodeId =
-        nextDisplay.currentNodeId || dialogue.currentNodeId;
+        result.display.currentNodeId || dialogue.currentNodeId;
       dialogue.isActive = true;
-      dialogue.display = nextDisplay;
-
-      this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
-
-      return nextDisplay;
+      dialogue.display = result.display;
     } else {
       dialogue.currentNpcId = null;
       dialogue.currentNodeId = null;
       dialogue.isActive = false;
       dialogue.display = null;
-
-      this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
-
-      return null;
     }
+
+    this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
+
+    return { success: true, message: result.message };
   }
 }

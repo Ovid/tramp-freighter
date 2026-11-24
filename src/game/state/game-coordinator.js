@@ -1162,8 +1162,12 @@ export class GameCoordinator {
     return await this.dialogueManager.startDialogue(npcId, nodeId);
   }
 
-  async selectDialogueChoice(npcId, choiceIndex) {
-    return await this.dialogueManager.selectDialogueChoice(npcId, choiceIndex);
+  async selectDialogueChoice(npcId, choiceIndex, options) {
+    return await this.dialogueManager.selectDialogueChoice(
+      npcId,
+      choiceIndex,
+      options
+    );
   }
 
   // ========================================================================

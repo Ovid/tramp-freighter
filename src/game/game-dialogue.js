@@ -264,10 +264,16 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {number} choiceIndex - Index of selected choice from the current dialogue node's choices array
  * @param {GameCoordinator} gameStateManager - Game state manager instance for state modifications
- * @returns {Object|null} Next dialogue display object (same format as showDialogue) or null if dialogue ends
+ * @param {Object} [_options] - e.g. { selections } for picker choices
+ * @returns {Object} { success: boolean, message?: string, display: Object|null }
  * @throws {Error} If NPC ID is invalid or choice index is out of bounds
  */
-export function selectChoice(npcId, choiceIndex, gameStateManager) {
+export function selectChoice(
+  npcId,
+  choiceIndex,
+  gameStateManager,
+  _options = {}
+) {
   // Validate NPC ID exists in NPC data
   validateNPCId(npcId);
 
@@ -355,9 +361,11 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   if (!selectedChoice.next) {
     // Clear dialogue state in GameCoordinator
     gameStateManager.clearDialogueState();
-    return null;
+    return { success: true, display: null };
   }
 
-  // Advance to next dialogue node
-  return showDialogue(npcId, selectedChoice.next, gameStateManager);
+  return {
+    success: true,
+    display: showDialogue(npcId, selectedChoice.next, gameStateManager),
+  };
 }

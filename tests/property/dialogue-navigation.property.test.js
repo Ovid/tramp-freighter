@@ -52,7 +52,11 @@ describe('Dialogue Navigation Properties', () => {
 
           if (choice.next) {
             // Choice has a next node - should navigate there
-            const nextDialogue = selectChoice(npcId, choice.index, game);
+            const nextDialogue = selectChoice(
+              npcId,
+              choice.index,
+              game
+            ).display;
 
             expect(nextDialogue).toBeDefined();
 
@@ -69,7 +73,7 @@ describe('Dialogue Navigation Properties', () => {
           } else {
             // Choice has no next node - should end dialogue
             const result = selectChoice(npcId, choice.index, game);
-            expect(result).toBeNull();
+            expect(result.display).toBeNull();
           }
         }
       }),
@@ -115,7 +119,7 @@ describe('Dialogue Navigation Properties', () => {
         // Test each ending choice
         for (const choice of endingChoices) {
           const result = selectChoice(npcId, choice.index, game);
-          expect(result).toBeNull();
+          expect(result.display).toBeNull();
         }
       }),
       { numRuns: 100 }

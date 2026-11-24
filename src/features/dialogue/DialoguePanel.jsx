@@ -44,9 +44,9 @@ export function DialoguePanel({ npcId, onClose }) {
 
     try {
       // Process choice selection through Bridge Pattern
-      const success = await selectChoice(npcId, choiceIndex);
+      const result = await selectChoice(npcId, choiceIndex);
 
-      if (!success) {
+      if (!result.success) {
         // Error occurred, clear dialogue state and close panel
         clearDialogue();
         onClose();

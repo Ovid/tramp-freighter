@@ -71,17 +71,16 @@ export function useDialogue() {
    *
    * @param {string} npcId - NPC identifier
    * @param {number} choiceIndex - Index of selected choice
-   * @returns {Promise<boolean>} Success status (true if choice processed)
+   * @param {Object} [options] - e.g. { selections } for picker choices
+   * @returns {Promise<{success: boolean, message?: string}>}
    */
   const selectChoice = useCallback(
-    async (npcId, choiceIndex) => {
+    async (npcId, choiceIndex, options) => {
       try {
-        // Call the GameCoordinator public API method
-        await game.selectDialogueChoice(npcId, choiceIndex);
-        return true;
+        return await game.selectDialogueChoice(npcId, choiceIndex, options);
       } catch (error) {
         console.error('Failed to select dialogue choice:', error);
-        return false;
+        return { success: false };
       }
     },
     [game]
