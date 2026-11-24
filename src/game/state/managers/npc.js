@@ -725,115 +725,55 @@ export class NPCManager extends BaseManager {
   }
 
   /**
-   * Retrieve stored cargo from NPC
+   * Retrieve player-selected cargo from an NPC
    *
-   * Calculates available ship capacity and transfers min(storedCargo, availableCapacity)
-   * to ship. Leaves remainder in NPC storage if ship capacity is insufficient.
+   * Limited by free hold space, which already counts passengers.
+   * Getting your own cargo back is not a favor, so no cooldown.
    *
    * @param {string} npcId - NPC identifier
-   * @returns {Object} { success: boolean, retrieved: CargoStack[], remaining: CargoStack[] }
+   * @param {Array<{stackIndex: number, qty: number}>} selections - Indexes into storedCargo
+   * @returns {Object} { success: boolean, retrieved: number, message: string }
    */
-  retrieveCargo(npcId) {
+  retrieveCargo(npcId, selections) {
     if (!npcId || typeof npcId !== 'string') {
       throw new Error(
         'Invalid npcId: retrieveCargo requires a valid NPC identifier'
       );
     }
 
-    // Get NPC state
     const npcState = this.getNPCState(npcId);
+    const storedCargo = npcState.storedCargo ?? [];
 
-    // Initialize storedCargo if it doesn't exist
-    if (!npcState.storedCargo) {
-      npcState.storedCargo = [];
+    const check = this._checkSelections(selections, storedCargo, false);
+    if (check.error) {
+      return { success: false, retrieved: 0, message: check.error };
     }
 
-    // If no stored cargo, return empty result
-    if (npcState.storedCargo.length === 0) {
+    if (check.total > this.capabilities.getCargoRemaining()) {
       return {
-        success: true,
-        retrieved: [],
-        remaining: [],
+        success: false,
+        retrieved: 0,
+        message: 'Not enough cargo space',
       };
     }
 
-    // Calculate available ship capacity
-    const availableCapacity = this.capabilities.getCargoRemaining();
-
-    // Calculate total stored cargo units
-    const totalStoredUnits = npcState.storedCargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
+    const { newSource, newTarget } = this._moveSelections(
+      selections,
+      storedCargo,
+      this.capabilities.getShipCargo()
     );
+    npcState.storedCargo = newSource;
+    this.capabilities.updateCargo(newTarget);
 
-    // Determine how much to transfer
-    const unitsToTransfer = Math.min(totalStoredUnits, availableCapacity);
-
-    if (unitsToTransfer === 0) {
-      // No capacity available, return current stored cargo as remaining
-      return {
-        success: true,
-        retrieved: [],
-        remaining: [...npcState.storedCargo],
-      };
-    }
-
-    // Transfer cargo from NPC storage to ship
-    let remainingToTransfer = unitsToTransfer;
-    const currentShipCargo = [...this.capabilities.getShipCargo()];
-    const retrievedCargo = [];
-    const remainingStoredCargo = [];
-
-    for (const stack of npcState.storedCargo) {
-      if (remainingToTransfer <= 0) {
-        // No more to transfer, keep remaining in storage
-        remainingStoredCargo.push(stack);
-      } else if (stack.qty <= remainingToTransfer) {
-        // Transfer entire stack
-        retrievedCargo.push({ ...stack });
-        remainingToTransfer -= stack.qty;
-      } else {
-        // Partial stack - transfer some, keep rest in storage
-        const transferQty = remainingToTransfer;
-        const keepQty = stack.qty - transferQty;
-
-        retrievedCargo.push({
-          ...stack,
-          qty: transferQty,
-        });
-
-        remainingStoredCargo.push({
-          ...stack,
-          qty: keepQty,
-        });
-
-        remainingToTransfer = 0;
-      }
-    }
-
-    // Add retrieved cargo to ship using the same stacking logic as storeCargo
-    for (const stack of retrievedCargo) {
-      this.capabilities.addToCargoArray(currentShipCargo, stack, stack.qty);
-    }
-
-    // Update ship cargo
-    this.capabilities.updateCargo(currentShipCargo);
-
-    // Update NPC's stored cargo
-    npcState.storedCargo = remainingStoredCargo;
-
-    // Update interaction tracking
     npcState.lastInteraction = this.capabilities.getDaysElapsed();
     npcState.interactions += 1;
 
-    if (retrievedCargo.length > 0) {
-      this.capabilities.markDirty();
-    }
+    this.capabilities.markDirty();
 
     return {
       success: true,
-      retrieved: retrievedCargo,
-      remaining: remainingStoredCargo,
+      retrieved: check.total,
+      message: `Retrieved ${pluralizeUnit(check.total)} from ${this.validateAndGetNPCData(npcId).name}`,
     };
   }
 }

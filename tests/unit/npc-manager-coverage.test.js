@@ -449,20 +449,21 @@ describe('NPCManager coverage', () => {
   });
 
   describe('retrieveCargo', () => {
-    it('returns empty when no stored cargo', () => {
+    it('fails when nothing is selected', () => {
       gsm.npcManager.getNPCState('chen_barnards');
-      const result = gsm.npcManager.retrieveCargo('chen_barnards');
-      expect(result.success).toBe(true);
-      expect(result.retrieved).toEqual([]);
+      const result = gsm.npcManager.retrieveCargo('chen_barnards', []);
+      expect(result.success).toBe(false);
     });
 
-    it('retrieves stored cargo', () => {
+    it('retrieves the selected cargo', () => {
       const npcState = gsm.npcManager.getNPCState('chen_barnards');
       npcState.storedCargo = [{ good: 'ore', qty: 5, buyPrice: 100 }];
       gsm.state.ship.cargo = [];
-      const result = gsm.npcManager.retrieveCargo('chen_barnards');
+      const result = gsm.npcManager.retrieveCargo('chen_barnards', [
+        { stackIndex: 0, qty: 5 },
+      ]);
       expect(result.success).toBe(true);
-      expect(result.retrieved).toHaveLength(1);
+      expect(result.retrieved).toBe(5);
       expect(npcState.storedCargo).toHaveLength(0);
     });
 

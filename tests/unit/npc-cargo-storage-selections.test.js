@@ -213,4 +213,120 @@ describe('NPC cargo storage with selections', () => {
       expect(() => game.storeCargo(null, [])).toThrow('Invalid npcId');
     });
   });
+
+  describe('retrieveCargo', () => {
+    const hold = () => game.getState().ship.cargo;
+
+    beforeEach(() => {
+      game.updateCargo([]);
+      npcState.storedCargo = [
+        { good: 'grain', qty: 4, buyPrice: 10 },
+        { good: 'ore', qty: 3, buyPrice: 20 },
+        { good: 'tritium', qty: 2, buyPrice: 30 },
+      ];
+    });
+
+    it('takes the selected stacks', () => {
+      const result = game.retrieveCargo(NPC_ID, [{ stackIndex: 1, qty: 2 }]);
+      expect(result.success).toBe(true);
+      expect(result.retrieved).toBe(2);
+      expect(hold()).toEqual([{ good: 'ore', qty: 2, buyPrice: 20 }]);
+      expect(npcState.storedCargo.map((s) => s.qty)).toEqual([4, 1, 2]);
+    });
+
+    it('changes the right stacks when an earlier stack reaches 0', () => {
+      game.retrieveCargo(NPC_ID, [
+        { stackIndex: 0, qty: 4 },
+        { stackIndex: 2, qty: 1 },
+      ]);
+      expect(npcState.storedCargo).toEqual([
+        { good: 'ore', qty: 3, buyPrice: 20 },
+        { good: 'tritium', qty: 1, buyPrice: 30 },
+      ]);
+    });
+
+    it('merges into a matching hold stack', () => {
+      game.updateCargo([{ good: 'grain', qty: 1, buyPrice: 10 }]);
+      game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 2 }]);
+      expect(hold()).toEqual([{ good: 'grain', qty: 3, buyPrice: 10 }]);
+    });
+
+    it('does not start the favor cooldown', () => {
+      game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]);
+      expect(npcState.lastFavorDay).toBeNull();
+    });
+
+    it('works below the Friendly tier', () => {
+      npcState.rep = 0;
+      expect(
+        game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]).success
+      ).toBe(true);
+    });
+
+    it('returns a pluralized message with the NPC name', () => {
+      expect(
+        game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]).message
+      ).toBe(`Retrieved 1 unit from ${NPC_NAME}`);
+      expect(
+        game.retrieveCargo(NPC_ID, [{ stackIndex: 1, qty: 3 }]).message
+      ).toBe(`Retrieved 3 units from ${NPC_NAME}`);
+    });
+
+    it('refuses a total over the free hold space', () => {
+      const space = game.getCargoRemaining();
+      game.updateCargo([{ good: 'medicine', qty: space - 1, buyPrice: 5 }]);
+      const result = game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 2 }]);
+      expect(result).toMatchObject({
+        success: false,
+        message: 'Not enough cargo space',
+      });
+      expect(npcState.storedCargo[0].qty).toBe(4);
+    });
+
+    it('counts passenger space against the hold', () => {
+      const capacity = game.getState().ship.cargoCapacity;
+      game.updateCargo([{ good: 'medicine', qty: capacity - 3, buyPrice: 5 }]);
+      game.getState().missions.active.push({
+        id: 'p1',
+        type: 'passenger',
+        requirements: { cargoSpace: 2 },
+      });
+      // 3 units fit capacity minus cargo, but only 1 fits once the passenger counts
+      expect(
+        game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 2 }]).success
+      ).toBe(false);
+      expect(
+        game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]).success
+      ).toBe(true);
+    });
+
+    it.each([
+      ['undefined', undefined],
+      ['an empty array', []],
+      ['a missing index', [{ stackIndex: 7, qty: 1 }]],
+      [
+        'duplicate indexes',
+        [
+          { stackIndex: 0, qty: 1 },
+          { stackIndex: 0, qty: 1 },
+        ],
+      ],
+      [
+        "'0' alongside 0",
+        [
+          { stackIndex: 0, qty: 1 },
+          { stackIndex: '0', qty: 1 },
+        ],
+      ],
+      ['zero quantity', [{ stackIndex: 0, qty: 0 }]],
+      ['fractional quantity', [{ stackIndex: 0, qty: 0.5 }]],
+      ['more than the stack holds', [{ stackIndex: 2, qty: 3 }]],
+    ])('refuses %s and changes nothing', (_label, selections) => {
+      const storedBefore = structuredClone(npcState.storedCargo);
+      const result = game.retrieveCargo(NPC_ID, selections);
+      expect(result.success).toBe(false);
+      expect(npcState.storedCargo).toEqual(storedBefore);
+      expect(hold()).toEqual([]);
+    });
+  });
 });

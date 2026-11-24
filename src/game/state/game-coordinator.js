@@ -1210,8 +1210,8 @@ export class GameCoordinator {
     return this.npcManager.storeCargo(npcId, selections);
   }
 
-  retrieveCargo(npcId) {
-    return this.npcManager.retrieveCargo(npcId);
+  retrieveCargo(npcId, selections) {
+    return this.npcManager.retrieveCargo(npcId, selections);
   }
 
   // ========================================================================

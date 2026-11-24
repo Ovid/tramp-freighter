@@ -118,15 +118,15 @@ describe('NPCManager markDirty contract', () => {
 
   it('retrieveCargo calls markDirty when cargo is retrieved', () => {
     const npcState = gsm.npcManager.getNPCState(TEST_NPC_ID);
-    npcState.storedCargo = [
-      { type: 'food', qty: 3, source: 'Sol', purchasePrice: 10 },
-    ];
+    npcState.storedCargo = [{ good: 'grain', qty: 3, buyPrice: 10 }];
     gsm.getState().ship.cargo = [];
 
     const spy = vi.spyOn(gsm, 'markDirty');
-    const result = gsm.npcManager.retrieveCargo(TEST_NPC_ID);
+    const result = gsm.npcManager.retrieveCargo(TEST_NPC_ID, [
+      { stackIndex: 0, qty: 3 },
+    ]);
 
-    expect(result.retrieved.length).toBeGreaterThan(0);
+    expect(result.success).toBe(true);
     expect(spy).toHaveBeenCalled();
   });
 });
