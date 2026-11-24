@@ -31,3 +31,31 @@ Possible fix: emit `NPCS_CHANGED` with a copy of NPC state after each storage
 mutation, the same way `modifyRep` does.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Hidden cargo moves accept zero, negative or fractional quantities
+
+`moveToHiddenCargo` and `moveToRegularCargo` in
+`src/game/state/managers/ship.js` check only `qty > stack.qty` and the capacity
+limit. A negative `qty` passes both checks, so cargo moves the opposite way
+without any capacity check, and a fractional `qty` leaves fractional stacks.
+Today only the UI calls these functions.
+
+Possible fix: reject `qty` unless `Number.isInteger(qty) && qty > 0`, the same
+rule as the NPC storage selections.
+
+Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Tanaka supply donation can take mission cargo
+
+`contributeSupply` in `src/game/state/managers/quest-manager.js` counts and
+removes goods by `good` alone, through `removeCargoForMission`
+(`src/game/state/managers/ship.js`), which ignores `missionId`. If an active
+cargo-run mission is carrying `electronics` or `medicine` (the
+`TANAKA_SUPPLY_CONFIG.GOODS`), donating can use up the mission cargo, and the
+mission then fails for lost cargo. The legacy branch of `completeMission` uses
+the same removal.
+
+Possible fix: skip stacks with a `missionId` when counting and removing in
+`canContributeSupply`, `contributeSupply` and `removeCargoForMission`.
+
+Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
