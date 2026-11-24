@@ -104,6 +104,25 @@ describe('Dialogue engine picker choices', () => {
     expect(result.success).toBe(true);
     expect(result.message).toBe(`Retrieved 3 units from ${NPC_NAME}`);
     expect(npcState.rep).toBe(repBefore);
+    expect(game.getState().ship.cargo).toContainEqual(
+      expect.objectContaining({ good: 'ore', qty: 3, buyPrice: 20 })
+    );
+    expect(npcState.storedCargo).toEqual([]);
+  });
+
+  it('throws on an unknown picker value', () => {
+    ALL_DIALOGUE_TREES[NPC_ID] = {
+      greeting: {
+        text: 'Hello.',
+        choices: [{ text: 'Odd.', next: null, picker: 'bogus' }],
+      },
+    };
+    showDialogue(NPC_ID, 'greeting', game);
+    expect(() =>
+      selectChoice(NPC_ID, 0, game, {
+        selections: [{ stackIndex: 0, qty: 1 }],
+      })
+    ).toThrow(/Unknown picker/);
   });
 
   it('DialogueManager: a failed picker choice changes nothing and emits nothing', async () => {
