@@ -51,14 +51,34 @@ player never sees the result message.
   `selectChoice(npcId, choiceIndex, gameStateManager, { selections })`: when
   the selected choice has `picker`, the engine calls
   `storeCargo(npcId, selections)` or `retrieveCargo(npcId, selections)`. It
-  applies `repGain` and `next` only if that call succeeds, and it returns the
-  manager's result (including `message`) to the caller. A `picker` choice
+  applies `repGain` and `next` only if that call succeeds. A `picker` choice
   selected without `selections`, or whose manager call fails, grants no
-  reputation, does not advance, and returns `{ success: false, message }`.
+  reputation and does not advance: the engine returns before
+  `modifyRepRaw` and before `showDialogue`, so it changes no dialogue state.
   This way, a caller that skips the picker (for example, a future number-key
   shortcut) cannot get the store `repGain` without storing anything.
-  `selectDialogueChoice` on `DialogueManager` / `GameCoordinator` and
-  `useDialogue().selectChoice` pass the options through and return the result.
+- `selectChoice` returns one shape for every choice, picker or not:
+  `{ success, message, display }`. `display` is the next node's display
+  object, or `null` when the dialogue ends. `message` is the manager's
+  message for picker choices (on success and on failure) and is omitted
+  otherwise. A failed picker choice returns
+  `{ success: false, message, display: null }`.
+  - `DialogueManager.selectDialogueChoice(npcId, choiceIndex, options)`
+    passes the options through. When `success` is false it changes nothing
+    and emits nothing. When `success` is true it behaves as today, using
+    `display` where it used the old return value: a non-null `display` is
+    stored and emitted, and `null` clears the dialogue. It returns
+    `{ success, message }`. `GameCoordinator.selectDialogueChoice` passes the
+    options through and returns the same.
+  - `useDialogue().selectChoice(npcId, choiceIndex, options)` returns
+    `{ success, message }`, or `{ success: false }` if the call throws (as
+    it returns `false` today).
+  - `DialoguePanel` treats `success: false` from a non-picker choice as it
+    treats `false` today (clear and close). A picker confirm with
+    `success: false` keeps the panel and modal open (see below).
+  - Reason: `DialogueManager` stores any truthy return from `selectChoice`
+    as `dialogue.display`, so a bare `{ success, message }` would be drawn
+    as a dialogue node and crash the app to the error boundary.
 - Confirm calls `selectChoice(npcId, choiceIndex, { selections })` through
   `useDialogue`. This works because `selectChoice` reads the current node from
   dialogue state when it runs, and the node does not change while the modal is
@@ -237,8 +257,13 @@ TDD, one failing test at a time, with a separate commit per group:
      example, a total over the cap) grants no reputation and does not
      advance.
    - `selectChoice` on the store `picker` choice with valid `selections`
-     stores the cargo, applies `repGain`, advances to `next`, and returns the
-     manager's `message`.
+     stores the cargo, applies `repGain`, advances to `next`, and returns
+     `{ success: true, message, display }` with the manager's `message`.
+   - `selectChoice` on a non-picker choice returns
+     `{ success: true, display }`, with `display: null` when the dialogue
+     ends.
+   - `DialogueManager.selectDialogueChoice` on a failed picker choice leaves
+     dialogue state unchanged and emits no `DIALOGUE_CHANGED`.
    - The shared storage helper: builds both greeting choices with the right
      conditions, builds both nodes with `picker` and no `action`, gives the
      retrieve confirm no `repGain` and the shared "Let me choose what to
@@ -276,7 +301,11 @@ Existing tests that use the old no-argument API (`npc-manager-coverage`,
 `game-dialogue-coverage`, `vasquez-whisper-coverage`, `npc-manager-markdirty`),
 and tests of the old storage dialogue (`npc-dialogue-greetings`, which expects
 the storage choices to have an `action`, and `dialogue-tree-structure`), are
-updated in the same commit as the change that breaks them. In
+updated in the same commit as the change that breaks them. So are the tests
+that read `selectChoice`'s return value as a display or `null`
+(`dialogue-edge-cases`, `game-dialogue-coverage`, `dialogue-navigation`,
+`dialogue-flag-timing`, and the `toBeDefined`-only checks in
+`dialogue-reputation-timing`); they move to `result.display`. In
 `dialogue-tree-structure`, the assertion that the storage choice's condition
 is false below the Friendly tier moves to a `canRequestFavor` test, because
 the helper drops the duplicate tier check. Do not put that check back in the

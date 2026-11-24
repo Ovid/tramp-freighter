@@ -44,8 +44,13 @@ returned `message`.
 - The rule "reputation only for cargo actually stored" lives in the game
   layer and gets unit tests without React.
 - Store and advance happen in one call, so the two steps can't drift apart.
+- `selectChoice` returns `{ success, message, display }` for every choice,
+  not a display or `null`. `DialogueManager` stores any truthy return as the
+  display, so returning a bare result for picker choices would be drawn as a
+  dialogue node and crash the app. On `success: false`, `DialogueManager`
+  changes no dialogue state.
 - `selectDialogueChoice` and `useDialogue().selectChoice` gain an options
-  argument and return the result instead of only a success flag.
+  argument and return `{ success, message }` instead of only a success flag.
 - Any future choice that needs player input before it takes effect should
   follow the same pattern: a declarative marker on the choice, with the input
   passed to `selectChoice`.
