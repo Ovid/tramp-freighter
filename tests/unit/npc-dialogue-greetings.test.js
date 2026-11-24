@@ -92,15 +92,16 @@ describe('NPC dialogue greetings', () => {
       expect(result).toEqual({ success: true });
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const ctx = { storeCargo };
-      const actionChoice = DR_SARAH_KIM_DIALOGUE.request_storage.choices.find(
-        (c) => c.action
-      );
-      const result = actionChoice.action(ctx);
-      expect(storeCargo).toHaveBeenCalledOnce();
-      expect(result).toEqual({ success: true });
+    it('request_storage confirm is a store picker', () => {
+      const confirm = DR_SARAH_KIM_DIALOGUE.request_storage.choices[0];
+      expect(confirm.picker).toBe('store');
+      expect(confirm.action).toBeUndefined();
+    });
+
+    it('retrieve_cargo confirm is a retrieve picker', () => {
+      const confirm = DR_SARAH_KIM_DIALOGUE.retrieve_cargo.choices[0];
+      expect(confirm.picker).toBe('retrieve');
+      expect(confirm.action).toBeUndefined();
     });
 
     it('repay_loan action calls context.repayLoan', () => {
@@ -111,17 +112,6 @@ describe('NPC dialogue greetings', () => {
       );
       const result = actionChoice.action(ctx);
       expect(repayLoan).toHaveBeenCalledOnce();
-      expect(result).toEqual({ success: true });
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const ctx = { retrieveCargo };
-      const actionChoice = DR_SARAH_KIM_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.action
-      );
-      const result = actionChoice.action(ctx);
-      expect(retrieveCargo).toHaveBeenCalledOnce();
       expect(result).toEqual({ success: true });
     });
   });
@@ -158,15 +148,6 @@ describe('NPC dialogue greetings', () => {
       expect(result).toEqual({ success: true });
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = LUCKY_LIU_DIALOGUE.request_storage.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ storeCargo });
-      expect(storeCargo).toHaveBeenCalledOnce();
-    });
-
     it('repay_loan action calls context.repayLoan', () => {
       const repayLoan = vi.fn().mockReturnValue({ success: true });
       const actionChoice = LUCKY_LIU_DIALOGUE.repay_loan.choices.find(
@@ -174,15 +155,6 @@ describe('NPC dialogue greetings', () => {
       );
       actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = LUCKY_LIU_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ retrieveCargo });
-      expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
 
@@ -219,14 +191,6 @@ describe('NPC dialogue greetings', () => {
       expect(result).toEqual({ success: true });
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        RUSTY_RODRIGUEZ_DIALOGUE.request_storage.choices.find((c) => c.action);
-      actionChoice.action({ storeCargo });
-      expect(storeCargo).toHaveBeenCalledOnce();
-    });
-
     it('repay_loan action calls context.repayLoan', () => {
       const repayLoan = vi.fn().mockReturnValue({ success: true });
       const actionChoice = RUSTY_RODRIGUEZ_DIALOGUE.repay_loan.choices.find(
@@ -234,15 +198,6 @@ describe('NPC dialogue greetings', () => {
       );
       actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = RUSTY_RODRIGUEZ_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ retrieveCargo });
-      expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
 
@@ -280,16 +235,6 @@ describe('NPC dialogue greetings', () => {
       expect(requestLoan).toHaveBeenCalledOnce();
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        STATION_MASTER_KOWALSKI_DIALOGUE.request_storage.choices.find(
-          (c) => c.action
-        );
-      actionChoice.action({ storeCargo });
-      expect(storeCargo).toHaveBeenCalledOnce();
-    });
-
     it('repay_loan action calls context.repayLoan', () => {
       const repayLoan = vi.fn().mockReturnValue({ success: true });
       const actionChoice =
@@ -298,16 +243,6 @@ describe('NPC dialogue greetings', () => {
         );
       actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice =
-        STATION_MASTER_KOWALSKI_DIALOGUE.retrieve_cargo.choices.find(
-          (c) => c.action
-        );
-      actionChoice.action({ retrieveCargo });
-      expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
 
@@ -343,15 +278,6 @@ describe('NPC dialogue greetings', () => {
       expect(requestLoan).toHaveBeenCalledOnce();
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = ZARA_OSMAN_DIALOGUE.request_storage.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ storeCargo });
-      expect(storeCargo).toHaveBeenCalledOnce();
-    });
-
     it('repay_loan action calls context.repayLoan', () => {
       const repayLoan = vi.fn().mockReturnValue({ success: true });
       const actionChoice = ZARA_OSMAN_DIALOGUE.repay_loan.choices.find(
@@ -359,15 +285,6 @@ describe('NPC dialogue greetings', () => {
       );
       actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = ZARA_OSMAN_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ retrieveCargo });
-      expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
 
@@ -470,15 +387,6 @@ describe('NPC dialogue greetings', () => {
       expect(result).toEqual({ success: true });
     });
 
-    it('request_storage action calls context.storeCargo', () => {
-      const storeCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = WHISPER_DIALOGUE.request_storage.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ storeCargo });
-      expect(storeCargo).toHaveBeenCalledOnce();
-    });
-
     it('repay_loan action calls context.repayLoan', () => {
       const repayLoan = vi.fn().mockReturnValue({ success: true });
       const actionChoice = WHISPER_DIALOGUE.repay_loan.choices.find(
@@ -486,15 +394,6 @@ describe('NPC dialogue greetings', () => {
       );
       actionChoice.action({ repayLoan });
       expect(repayLoan).toHaveBeenCalledOnce();
-    });
-
-    it('retrieve_cargo action calls context.retrieveCargo', () => {
-      const retrieveCargo = vi.fn().mockReturnValue({ success: true });
-      const actionChoice = WHISPER_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.action
-      );
-      actionChoice.action({ retrieveCargo });
-      expect(retrieveCargo).toHaveBeenCalledOnce();
     });
   });
 

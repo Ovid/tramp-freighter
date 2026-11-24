@@ -44,9 +44,9 @@ describe('game-dialogue coverage', () => {
     it('provides working action callbacks', () => {
       const ctx = buildDialogueContext(gsm, 'chen_barnards');
       expect(typeof ctx.requestLoan).toBe('function');
-      expect(typeof ctx.storeCargo).toBe('function');
+      expect(ctx.storeCargo).toBeUndefined();
       expect(typeof ctx.repayLoan).toBe('function');
-      expect(typeof ctx.retrieveCargo).toBe('function');
+      expect(ctx.retrieveCargo).toBeUndefined();
     });
   });
 

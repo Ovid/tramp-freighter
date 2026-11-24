@@ -87,9 +87,7 @@ export function buildDialogueContext(gameStateManager, npcId) {
 
     // Action callbacks (bound to npcId where appropriate)
     requestLoan: () => gameStateManager.requestLoan(npcId),
-    storeCargo: () => gameStateManager.storeCargo(npcId),
     repayLoan: () => gameStateManager.repayLoan(npcId),
-    retrieveCargo: () => gameStateManager.retrieveCargo(npcId),
     advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
     claimStageRewards: (questId) => gameStateManager.claimStageRewards(questId),
     startPavonisRun: () => gameStateManager.startPavonisRun(),

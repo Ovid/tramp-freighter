@@ -17,6 +17,18 @@ import {
   isFriendToCivilians,
   getKarmaFirstImpression,
 } from './faction-karma-conditions.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage? Of course! I've got secure space here at the hub. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, safe and sound until you return. Consider it a favor between traders - we look out for each other in this business.`,
+  requestFlag: 'vasquez_storage_discussed',
+  storeConfirmText: 'That would be a huge help.',
+  storeDeclineText: 'I appreciate the offer.',
+  retrieveText:
+    "Retrieve your cargo? Of course! *checks storage logs* I've got your items safe and sound. Let me get them transferred back to your ship. If your hold's getting full, just let me know - we can work something out.",
+  retrieveFlag: 'vasquez_cargo_retrieved',
+  retrieveDeclineText: 'Let me make some room first.',
+});
 
 /**
  * Captain Vasquez Dialogue Tree - Retired Trader at Epsilon Eridani
@@ -32,7 +44,7 @@ import {
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → backstory (FRIENDLY_MIN tier) → pavonis_hints → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const CAPTAIN_VASQUEZ_DIALOGUE = {
   greeting: {
@@ -137,17 +149,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          // Fall back to reputation-only check if context not available (e.g., in tests)
-          if (!context || !context.canRequestStorage) return true;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -157,17 +159,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: '"I have a message from Yuki Tanaka."',
         next: 'tanaka_message',
@@ -437,26 +429,6 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: "Cargo storage? Of course! I've got secure space here at the hub. Up to ten units, safe and sound until you return. Consider it a favor between traders - we look out for each other in this business.",
-    flags: ['vasquez_storage_discussed'],
-    choices: [
-      {
-        text: 'That would be a huge help.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'I appreciate the offer.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: "Loan repayment? Of course! *checks records* Five hundred credits, right on schedule. I appreciate traders who honor their commitments - it's what keeps this business running on trust.",
     flags: ['vasquez_loan_repaid'],
@@ -471,25 +443,6 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       },
       {
         text: 'I need a bit more time to get the credits.',
-        next: 'greeting',
-      },
-    ],
-  },
-
-  retrieve_cargo: {
-    text: "Retrieve your cargo? Of course! *checks storage logs* I've got your items safe and sound. Let me get them transferred back to your ship. If your hold's getting full, just let me know - we can work something out.",
-    flags: ['vasquez_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make some room first.',
         next: 'greeting',
       },
     ],
@@ -664,4 +617,6 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
       },
     ],
   },
+
+  ...STORAGE.nodes,
 };

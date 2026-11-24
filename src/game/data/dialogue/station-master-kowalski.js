@@ -13,6 +13,18 @@ import {
   NPC_BENEFITS_CONFIG,
   COLE_DEBT_CONFIG,
 } from '../../constants.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage? We maintain secure storage for established traders. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units in our bonded warehouse. Professional service for professional traders. Standard security protocols apply.`,
+  requestFlag: 'kowalski_storage_discussed',
+  storeConfirmText: 'That would be very helpful.',
+  storeDeclineText: 'I appreciate the professional service.',
+  retrieveText:
+    'Cargo retrieval request processed. *accesses station inventory* Your items are secured in bonded storage per standard protocols. Initiating transfer to your vessel. Note that transfer capacity is limited by your current cargo hold status.',
+  retrieveFlag: 'kowalski_cargo_retrieved',
+  retrieveDeclineText: 'Let me make room in my hold first.',
+});
 
 /**
  * Station Master Kowalski Dialogue Tree - Station Master at Alpha Centauri
@@ -28,7 +40,7 @@ import {
  * - greeting → station_business → (competence_matters | standards_important) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const STATION_MASTER_KOWALSKI_DIALOGUE = {
   greeting: {
@@ -95,15 +107,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -113,17 +117,7 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'Nothing right now. Thanks, Station Master.',
         next: null,
@@ -245,26 +239,6 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: `Cargo storage? We maintain secure storage for established traders. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units in our bonded warehouse. Professional service for professional traders. Standard security protocols apply.`,
-    flags: ['kowalski_storage_discussed'],
-    choices: [
-      {
-        text: 'That would be very helpful.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'I appreciate the professional service.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: `Loan repayment acknowledged. *checks station records* ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, as agreed. Your prompt attention to financial obligations is noted. Professional conduct like this keeps the station running smoothly.`,
     flags: ['kowalski_loan_repaid'],
@@ -284,22 +258,5 @@ export const STATION_MASTER_KOWALSKI_DIALOGUE = {
     ],
   },
 
-  retrieve_cargo: {
-    text: 'Cargo retrieval request processed. *accesses station inventory* Your items are secured in bonded storage per standard protocols. Initiating transfer to your vessel. Note that transfer capacity is limited by your current cargo hold status.',
-    flags: ['kowalski_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make room in my hold first.',
-        next: 'greeting',
-      },
-    ],
-  },
+  ...STORAGE.nodes,
 };

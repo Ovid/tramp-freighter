@@ -32,9 +32,7 @@ describe('buildDialogueContext', () => {
     hasClaimedStageRewards: () => false,
     getNarrativeFlags: () => ({ tanaka_met: true }),
     requestLoan: () => ({ success: true }),
-    storeCargo: () => ({ success: true }),
     repayLoan: () => ({ success: true }),
-    retrieveCargo: () => ({ success: true }),
     advanceQuest: () => ({ success: true }),
     claimStageRewards: () => ({ success: true }),
     startPavonisRun: () => {},
@@ -60,9 +58,9 @@ describe('buildDialogueContext', () => {
   it('builds context with action callbacks', () => {
     const ctx = buildDialogueContext(mockGSM, 'test_npc');
     expect(typeof ctx.requestLoan).toBe('function');
-    expect(typeof ctx.storeCargo).toBe('function');
     expect(typeof ctx.repayLoan).toBe('function');
-    expect(typeof ctx.retrieveCargo).toBe('function');
+    expect(ctx.retrieveCargo).toBeUndefined();
+    expect(ctx.storeCargo).toBeUndefined();
   });
 
   it('builds context with quest accessors', () => {

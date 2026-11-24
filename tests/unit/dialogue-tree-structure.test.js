@@ -347,22 +347,26 @@ describe('Dialogue Tree Structure', () => {
         factionReps: { authorities: 0, outlaws: 0, civilians: 0 },
       };
 
+      // The Friendly tier gate for storage lives in canRequestFavor, so the
+      // context has to reflect it for each rep level
+      const choicesAt = (rep) => {
+        const ctx = {
+          ...mockContext,
+          canRequestStorage: {
+            available: rep >= REPUTATION_BOUNDS.FRIENDLY_MIN,
+          },
+        };
+        return WHISPER_DIALOGUE.greeting.choices.filter(
+          (choice) => !choice.condition || choice.condition(rep, ctx)
+        );
+      };
+
       // Test different reputation levels unlock different options
-      const hostileRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(-50, mockContext)
-      );
-      const neutralRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(0, mockContext)
-      );
-      const warmRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(15, mockContext)
-      );
-      const friendlyRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(35, mockContext)
-      );
-      const trustedRepChoices = WHISPER_DIALOGUE.greeting.choices.filter(
-        (choice) => !choice.condition || choice.condition(65, mockContext)
-      );
+      const hostileRepChoices = choicesAt(-50);
+      const neutralRepChoices = choicesAt(0);
+      const warmRepChoices = choicesAt(15);
+      const friendlyRepChoices = choicesAt(35);
+      const trustedRepChoices = choicesAt(65);
 
       // Higher reputation should unlock more options
       expect(trustedRepChoices.length).toBeGreaterThan(
@@ -433,20 +437,21 @@ describe('Dialogue Tree Structure', () => {
       expect(loanChoice.condition(70, mockContext)).toBe(true); // Above threshold
     });
 
-    it('should have storage choice with reputation condition', () => {
+    it('should have storage choice gated on canRequestStorage', () => {
       const storageChoice = WHISPER_DIALOGUE.greeting.choices.find(
-        (choice) => choice.text === 'Can you store some cargo for me?'
+        (choice) => choice.next === 'request_storage'
       );
 
       expect(storageChoice).toBeDefined();
       expect(storageChoice.next).toBe('request_storage');
       expect(typeof storageChoice.condition).toBe('function');
 
-      // Test the condition function (rep >= FRIENDLY_MIN which is 30)
+      // canRequestFavor owns the tier gate; the choice follows availability
       const ctx = { canRequestStorage: { available: true } };
-      expect(storageChoice.condition(29, ctx)).toBe(false); // Below threshold
-      expect(storageChoice.condition(30, ctx)).toBe(true); // At threshold
-      expect(storageChoice.condition(40, ctx)).toBe(true); // Above threshold
+      expect(storageChoice.condition(30, ctx)).toBe(true);
+      expect(
+        storageChoice.condition(30, { canRequestStorage: { available: false } })
+      ).toBe(false);
     });
 
     it('should have all required dialogue nodes', () => {
@@ -764,17 +769,16 @@ describe('Dialogue Tree Structure', () => {
         loanChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockContext)
       ).toBe(false);
 
-      // Should have storage choice with Friendly tier condition
+      // Should have storage choice gated on canRequestStorage
       const storageChoice = choices.find((choice) =>
         choice.text.includes('store some cargo')
       );
       expect(storageChoice).toBeDefined();
       expect(storageChoice.condition).toBeDefined();
       expect(typeof storageChoice.condition).toBe('function');
-      expect(storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN)).toBe(
-        true
-      );
-      expect(storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN)).toBe(false);
+      expect(
+        storageChoice.condition(0, { canRequestStorage: { available: true } })
+      ).toBe(true);
     });
 
     it('should have all required dialogue nodes', () => {
@@ -915,9 +919,6 @@ describe('Dialogue Tree Structure', () => {
       expect(
         storageChoice.condition(REPUTATION_BOUNDS.FRIENDLY_MIN, mockContext)
       ).toBe(true);
-      expect(
-        storageChoice.condition(REPUTATION_BOUNDS.WARM_MIN, mockContext)
-      ).toBe(false);
     });
 
     it('should have all required dialogue nodes', () => {
