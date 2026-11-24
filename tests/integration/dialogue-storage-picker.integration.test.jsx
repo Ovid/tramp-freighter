@@ -1,7 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
-import { NotificationProvider } from '../../src/context/NotificationContext.jsx';
+import {
+  NotificationProvider,
+  useNotificationContext,
+} from '../../src/context/NotificationContext.jsx';
 import { NotificationContainer } from '../../src/components/NotificationContainer.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
 import { createTestGame } from '../test-utils.js';
@@ -181,5 +190,33 @@ describe('DialoguePanel cargo storage picker', () => {
     );
     expect(game.getDialogueState().currentNodeId).toBe('request_storage');
     expect(screen.getByText('That would be a huge help.')).toBeInTheDocument();
+  });
+  it('a parent re-render with a new onClose does not restart the dialogue', async () => {
+    // Mirrors App: it reads the notification context and passes an inline
+    // onClose, so every toast re-renders it with a new function
+    let notificationCtx;
+    function NotificationReadingParent() {
+      notificationCtx = useNotificationContext();
+      return <DialoguePanel npcId={NPC_ID} onClose={() => {}} />;
+    }
+    render(
+      <GameProvider game={game}>
+        <NotificationProvider>
+          <NotificationReadingParent />
+        </NotificationProvider>
+      </GameProvider>
+    );
+    fireEvent.click(
+      await screen.findByText('Can you store some cargo for me?')
+    );
+    fireEvent.click(await screen.findByText('That would be a huge help.'));
+    await screen.findByRole('dialog');
+
+    await act(async () => {
+      notificationCtx.showSuccess('Unrelated toast');
+    });
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(game.getDialogueState().currentNodeId).toBe('request_storage');
   });
 });

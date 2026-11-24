@@ -30,6 +30,11 @@ export function DialoguePanel({ npcId, onClose }) {
   const [picker, setPicker] = useState(null);
   const [pickerError, setPickerError] = useState(null);
 
+  // Parents pass inline onClose callbacks that change on every render (App
+  // re-renders on each toast); depending on it would restart the dialogue
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
     // A restarted dialogue invalidates the open picker's choiceIndex
@@ -47,12 +52,12 @@ export function DialoguePanel({ npcId, onClose }) {
       } catch (err) {
         console.error('Failed to initialize dialogue:', err);
         clearDialogue();
-        onClose();
+        onCloseRef.current();
       }
     };
 
     initializeDialogue();
-  }, [npcId, startDialogue, clearDialogue, onClose]);
+  }, [npcId, startDialogue, clearDialogue]);
 
   const handleChoiceSelection = async (choice) => {
     if (!dialogueState.display || !npcId) return;
