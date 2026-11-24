@@ -148,8 +148,8 @@ Footer: when storing, "Selected: 3 / 7 (3 already stored)". When retrieving,
 Unit counts in labels go through `pluralizeUnit` (`src/game/utils/string-utils.js`),
 so a count of 1 reads "Store 1 unit".
 
-When storing, the footer also warns: "Storing uses Rusty's favor: no more
-storage or loans from them for 30 days." The number comes from
+When storing, the footer also warns: "Storing uses "Rusty" Rodriguez's
+favor: no more storage or loans from them for 30 days." The number comes from
 `FAVOR_COOLDOWN_DAYS`. Storage and loans share `lastFavorDay`, and the picker
 starts with nothing selected, so without the warning a 1-unit store would use
 up the favor without the player knowing.
@@ -200,9 +200,16 @@ Every check returns `{ success: false, message }` before any change, so
 nothing is half-applied. A missing or non-string `npcId` still throws.
 
 Both methods return a `message` on success as well, which `DialoguePanel`
-shows: for example "Stored 3 units with Rusty" and "Retrieved 3 units from
-Rusty". The count goes through `pluralizeUnit`, so 1 reads "Stored 1 unit
-with Rusty". Today `retrieveCargo` returns no `message`.
+shows: for example `Stored 3 units with "Rusty" Rodriguez` and
+`Retrieved 3 units from "Rusty" Rodriguez`. The count goes through
+`pluralizeUnit`, so 1 reads `Stored 1 unit with "Rusty" Rodriguez`. Today
+`retrieveCargo` returns no `message`.
+
+NPC names: the success messages, the picker title and the favor warning all
+use the NPC's display `name` from `npc-data.js` as it is (for example
+`"Rusty" Rodriguez`, `Station Master Kowalski`), the same name today's
+`storeCargo` message uses. No short-name field is added. Tests read the
+expected name from the NPC data instead of hard-coding it.
 
 Apply against a copy: build the new hold and storage arrays from the original
 indices, then assign them once. Never splice in place while going through the
@@ -241,7 +248,7 @@ TDD, one failing test at a time, with a separate commit per group:
    - Returns "Storage full" at the cap and over it (for example, 15 already
      stored).
    - Both methods return a `message` on success, singular for 1 unit
-     ("Stored 1 unit with Rusty").
+     (`Stored 1 unit with ${npcData.name}`).
    - Retrieval: takes the selected stacks, respects capacity, and does not
      start the cooldown.
    - With a passenger aboard, retrieve refuses a total that fits capacity
