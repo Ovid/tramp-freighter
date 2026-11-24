@@ -138,6 +138,27 @@ export function calculateProfit(stack, currentPrice) {
 }
 
 /**
+ * Describe a cargo stack's sale price and profit for display
+ *
+ * Unpriced goods (e.g. untagged mission cargo from old saves) get a
+ * "no market" message instead of "Sell at: undefined".
+ *
+ * @param {number|undefined} currentPrice - Local market price for the good
+ * @param {Object} profit - Result of calculateProfit
+ * @returns {string} Display text
+ */
+export function formatProfitText(currentPrice, profit) {
+  if (!Number.isFinite(currentPrice)) return 'No market for this good';
+  if (profit.direction === 'positive') {
+    return `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
+  }
+  if (profit.direction === 'negative') {
+    return `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
+  }
+  return `Sell at: ${currentPrice} ₡/unit | Break even`;
+}
+
+/**
  * Calculate cargo space consumed by active passenger missions
  *
  * @param {Object} state - The current game state

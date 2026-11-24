@@ -21,6 +21,7 @@ import {
   calculateMaxBuyQuantity,
   calculateProfit,
   formatCargoAge,
+  formatProfitText,
 } from './tradeUtils';
 import { isGoodRestrictedInZone } from '../danger/inspectionUtils.js';
 
@@ -325,14 +326,9 @@ export function TradePanel({ onClose }) {
                   detailsText += ` in ${systemName} (${ageText})`;
                 }
 
-                let profitText = '';
-                if (profit.direction === 'positive') {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
-                } else if (profit.direction === 'negative') {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
-                } else {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
-                }
+                // Untagged mission cargo from old saves has no market price
+                const hasMarket = Number.isFinite(currentPrice);
+                const profitText = formatProfitText(currentPrice, profit);
 
                 return (
                   <div key={index} className="cargo-stack">
@@ -356,23 +352,27 @@ export function TradePanel({ onClose }) {
                       </div>
                     ) : (
                       <div className="stack-actions">
-                        <button
-                          className="sell-btn"
-                          disabled={stack.qty < 1}
-                          onClick={() =>
-                            handleSellStack(index, 1, currentPrice)
-                          }
-                        >
-                          Sell 1
-                        </button>
-                        <button
-                          className="sell-btn"
-                          onClick={() =>
-                            handleSellStack(index, stack.qty, currentPrice)
-                          }
-                        >
-                          Sell All ({stack.qty})
-                        </button>
+                        {hasMarket && (
+                          <>
+                            <button
+                              className="sell-btn"
+                              disabled={stack.qty < 1}
+                              onClick={() =>
+                                handleSellStack(index, 1, currentPrice)
+                              }
+                            >
+                              Sell 1
+                            </button>
+                            <button
+                              className="sell-btn"
+                              onClick={() =>
+                                handleSellStack(index, stack.qty, currentPrice)
+                              }
+                            >
+                              Sell All ({stack.qty})
+                            </button>
+                          </>
+                        )}
                         {hasSmugglersPanel && (
                           <button
                             className="transfer-btn"
@@ -449,14 +449,7 @@ export function TradePanel({ onClose }) {
                       detailsText += ` in ${purchaseSystem.name} (${ageText})`;
                     }
 
-                    let profitText = '';
-                    if (profit.direction === 'positive') {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
-                    } else if (profit.direction === 'negative') {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
-                    } else {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
-                    }
+                    const profitText = formatProfitText(currentPrice, profit);
 
                     return (
                       <div key={index} className="cargo-stack">
