@@ -1,5 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDialogue } from '../../hooks/useDialogue';
+import { useNotificationContext } from '../../context/NotificationContext.jsx';
+import { Modal } from '../../components/Modal.jsx';
+import { CargoStoragePicker } from '../cargo-storage/CargoStoragePicker.jsx';
 
 /**
  * DialoguePanel - React component for NPC dialogue interactions
@@ -18,6 +21,11 @@ export function DialoguePanel({ npcId, onClose }) {
   // Bridge Pattern: Use dialogue hook for state and actions
   const { dialogueState, startDialogue, selectChoice, clearDialogue } =
     useDialogue();
+  // Null-safe: tests and some trees render without NotificationProvider
+  const notificationCtx = useNotificationContext();
+  // { mode, choiceIndex } while the storage picker is open
+  const [picker, setPicker] = useState(null);
+  const [pickerError, setPickerError] = useState(null);
 
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
@@ -39,12 +47,20 @@ export function DialoguePanel({ npcId, onClose }) {
     initializeDialogue();
   }, [npcId, startDialogue, clearDialogue, onClose]);
 
-  const handleChoiceSelection = async (choiceIndex) => {
+  const handleChoiceSelection = async (choice) => {
     if (!dialogueState.display || !npcId) return;
+
+    // Picker choices only run once the player confirms selections, so
+    // opening the picker must not advance the dialogue or grant reputation
+    if (choice.picker) {
+      setPickerError(null);
+      setPicker({ mode: choice.picker, choiceIndex: choice.index });
+      return;
+    }
 
     try {
       // Process choice selection through Bridge Pattern
-      const result = await selectChoice(npcId, choiceIndex);
+      const result = await selectChoice(npcId, choice.index);
 
       if (!result.success) {
         // Error occurred, clear dialogue state and close panel
@@ -59,6 +75,24 @@ export function DialoguePanel({ npcId, onClose }) {
       clearDialogue();
       onClose();
     }
+  };
+
+  // The node can't change while the modal is open, so choiceIndex stays valid
+  const handlePickerConfirm = async (selections) => {
+    const result = await selectChoice(npcId, picker.choiceIndex, {
+      selections,
+    });
+    if (!result.success) {
+      setPickerError(result.message);
+      return;
+    }
+    notificationCtx?.showSuccess(result.message);
+    setPicker(null);
+  };
+
+  const handlePickerCancel = () => {
+    setPicker(null);
+    setPickerError(null);
   };
 
   const handleClose = () => {
@@ -178,7 +212,7 @@ export function DialoguePanel({ npcId, onClose }) {
               <button
                 key={choice.index}
                 className="choice-btn"
-                onClick={() => handleChoiceSelection(choice.index)}
+                onClick={() => handleChoiceSelection(choice)}
               >
                 <span className="choice-number">{index + 1}.</span>
                 <span className="choice-text">{choice.text}</span>
@@ -187,6 +221,31 @@ export function DialoguePanel({ npcId, onClose }) {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={picker !== null}
+        onClose={handlePickerCancel}
+        title={
+          picker?.mode === 'store'
+            ? `Store cargo with ${dialogueDisplay.npcName}`
+            : `Retrieve cargo from ${dialogueDisplay.npcName}`
+        }
+      >
+        {pickerError && (
+          <div className="validation-message error" role="alert">
+            {pickerError}
+          </div>
+        )}
+        {picker && (
+          <CargoStoragePicker
+            mode={picker.mode}
+            npcId={npcId}
+            npcName={dialogueDisplay.npcName}
+            onConfirm={handlePickerConfirm}
+            onCancel={handlePickerCancel}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
