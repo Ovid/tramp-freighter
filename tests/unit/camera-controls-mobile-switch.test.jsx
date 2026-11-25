@@ -40,10 +40,9 @@ describe('CameraControls mobile/desktop switch', () => {
     const { container } = render(
       <MobileProvider isMobile={true}>
         <CameraControls
-          cameraState={{ autoRotationEnabled: true, boundaryVisible: false }}
+          cameraState={{ boundaryVisible: false }}
           onZoomIn={() => {}}
           onZoomOut={() => {}}
-          onToggleRotation={() => {}}
           onToggleBoundary={() => {}}
         />
       </MobileProvider>
@@ -60,10 +59,9 @@ describe('CameraControls mobile/desktop switch', () => {
     const { container } = render(
       <MobileProvider isMobile={false}>
         <CameraControls
-          cameraState={{ autoRotationEnabled: true, boundaryVisible: false }}
+          cameraState={{ boundaryVisible: false }}
           onZoomIn={() => {}}
           onZoomOut={() => {}}
-          onToggleRotation={() => {}}
           onToggleBoundary={() => {}}
         />
       </MobileProvider>

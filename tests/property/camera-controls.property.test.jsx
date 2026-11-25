@@ -10,7 +10,7 @@ import { VISUAL_CONFIG } from '../../src/game/constants';
  * Tests verify:
  * - Settings panel is collapsible
  * - Zoom In/Out buttons work correctly
- * - Star Rotation toggle changes state
+ * - Star Rotation slider saves the chosen speed
  * - Boundary toggle changes visibility
  */
 
@@ -60,13 +60,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -85,13 +84,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -163,13 +161,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container, rerender } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -195,7 +192,7 @@ describe('Property: Settings Panel', () => {
     // Re-render with boundary hidden
     rerender(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: false }}
+        cameraState={{ boundaryVisible: false }}
         {...mockHandlers}
       />
     );
@@ -247,13 +244,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );
@@ -284,13 +280,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -315,13 +310,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -354,13 +348,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -384,13 +377,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -419,13 +411,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );
@@ -456,13 +447,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );
