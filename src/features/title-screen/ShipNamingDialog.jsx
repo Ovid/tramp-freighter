@@ -6,7 +6,8 @@
  *
  * React Migration Spec: Requirements 48.1, 48.2, 48.3, 48.4, 48.5, 48.6, 48.7
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { SHIP_CONFIG } from '../../game/constants';
 import { sanitizeShipName } from '../../game/utils/string-utils';
 
@@ -19,6 +20,8 @@ import { sanitizeShipName } from '../../game/utils/string-utils';
  */
 export function ShipNamingDialog({ onSubmit }) {
   const [shipName, setShipName] = useState('');
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
 
   const handleSubmit = () => {
     const sanitized = sanitizeShipName(shipName);
@@ -38,6 +41,7 @@ export function ShipNamingDialog({ onSubmit }) {
   return (
     <div className="modal-overlay">
       <div
+        ref={dialogRef}
         className="modal-dialog"
         role="dialog"
         aria-modal="true"

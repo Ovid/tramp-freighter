@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useGame } from '../../context/GameContext.jsx';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
+import { useFocusTrap } from '../../hooks/useFocusTrap.js';
 import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
 import '../../../css/panel/narrative-event.css';
 
@@ -18,6 +19,8 @@ export function NarrativeEventPanel({ event, onClose }) {
   const game = useGame();
   const notificationCtx = useNotificationContext();
   const [currentEvent, setCurrentEvent] = useState(event);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef);
 
   const handleChoice = useCallback(
     (choice) => {
@@ -75,6 +78,7 @@ export function NarrativeEventPanel({ event, onClose }) {
   return (
     <div className="modal-overlay">
       <div
+        ref={panelRef}
         id="narrative-event-panel"
         className="centered-panel visible"
         data-panel

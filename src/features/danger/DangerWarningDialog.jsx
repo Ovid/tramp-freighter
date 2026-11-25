@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { EVENT_NAMES } from '../../game/constants.js';
 import '../../../css/panel/danger-warning.css';
 
@@ -25,6 +27,9 @@ export function DangerWarningDialog({
   onProceed,
   onCancel,
 }) {
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
+
   // Subscribe to relevant game events for probability calculations
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
@@ -70,6 +75,7 @@ export function DangerWarningDialog({
   return (
     <div className="modal-overlay">
       <div
+        ref={dialogRef}
         id="danger-warning-dialog"
         className="panel-base visible"
         role="alertdialog"
