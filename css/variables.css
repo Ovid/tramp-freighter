@@ -266,7 +266,6 @@
   #narrative-event-panel,
   .dialogue-panel,
   .ship-status-panel,
-  .jump-dialog,
   .system-panel {
     position: fixed;
     top: var(--mobile-hud-height, 0px);

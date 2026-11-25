@@ -329,7 +329,7 @@ project-root/
 │   │   ├── instructions/         # In-game help
 │   │   ├── missions/             # Mission board and cargo missions
 │   │   ├── narrative/            # Narrative event overlays
-│   │   ├── navigation/           # StarMapCanvas (Three.js), JumpDialog, SystemPanel
+│   │   ├── navigation/           # StarMapCanvas (Three.js), SystemPanel
 │   │   ├── refuel/               # Refueling panel
 │   │   ├── repair/               # Repair panel
 │   │   ├── ship-status/          # Ship status panel

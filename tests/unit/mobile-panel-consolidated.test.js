@@ -16,7 +16,6 @@ describe('Consolidated mobile panel override', () => {
     '#narrative-event-panel',
     '.dialogue-panel',
     '.ship-status-panel',
-    '.jump-dialog',
     '.system-panel',
   ];
 

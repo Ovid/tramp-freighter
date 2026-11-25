@@ -35,7 +35,6 @@ import '../css/panel/finance.css';
 import '../css/panel/info-broker.css';
 import '../css/panel/inspection.css';
 import '../css/panel/instructions.css';
-import '../css/panel/jump-dialog.css';
 import '../css/panel/mechanical-failure.css';
 import '../css/panel/negotiation.css';
 import '../css/panel/outcome.css';
