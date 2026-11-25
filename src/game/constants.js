@@ -880,6 +880,9 @@ export const VISUAL_CONFIG = {
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
   autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
+  autoRotationDefaultSpeed: 3, // degrees per second
+  autoRotationMaxSpeed: 12, // degrees per second (old 0.2°/frame at 60Hz)
+  autoRotationStep: 0.5,
   keyboardRotationStep: 5, // Degrees per key press for camera orbit
   // Initial camera position (slightly closer view for better label visibility)
   initialCameraDistance: 700, // Distance from origin (0,0,0) - equivalent to ~2 zoom clicks from default

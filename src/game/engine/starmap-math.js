@@ -1,4 +1,4 @@
-import { STARMAP_CONFIG } from '../constants.js';
+import { STARMAP_CONFIG, VISUAL_CONFIG } from '../constants.js';
 
 /**
  * OrbitControls still fires `click` after a drag. Comparing the click
@@ -19,4 +19,18 @@ export function minPickRadiusFor(pointerType) {
   return pointerType === 'touch'
     ? STARMAP_CONFIG.MIN_PICK_RADIUS_TOUCH_PX
     : STARMAP_CONFIG.MIN_PICK_RADIUS_PX;
+}
+
+const DEG_TO_RAD = Math.PI / 180;
+
+/** Rotation for one frame. Frame time is capped so rotation stays smooth. */
+export function rotationAngle(speedDegPerSec, dtSec) {
+  const dt = Math.min(Math.max(dtSec, 0), STARMAP_CONFIG.MAX_FRAME_DT_SEC);
+  return speedDegPerSec * dt * DEG_TO_RAD;
+}
+
+/** null/undefined means "player never chose": default, or 0 for reduced motion. */
+export function resolveAutoRotationSpeed(preference, reducedMotion) {
+  if (preference !== null && preference !== undefined) return preference;
+  return reducedMotion ? 0 : VISUAL_CONFIG.autoRotationDefaultSpeed;
 }
