@@ -21,6 +21,7 @@ import {
   calculateMaxBuyQuantity,
   calculateProfit,
   formatCargoAge,
+  formatProfitText,
 } from './tradeUtils';
 import { isGoodRestrictedInZone } from '../danger/inspectionUtils.js';
 
@@ -102,6 +103,7 @@ export function TradePanel({ onClose }) {
   const hiddenCargoCapacity = hasSmugglersPanel
     ? SHIP_CONFIG.UPGRADES.smuggler_panels.effects.hiddenCargoCapacity
     : 0;
+  const hiddenCargoRemaining = hiddenCargoCapacity - hiddenCargoUsed;
 
   // Local state for hidden cargo section toggle
   const [hiddenCargoCollapsed, setHiddenCargoCollapsed] = useState(false);
@@ -158,16 +160,16 @@ export function TradePanel({ onClose }) {
     }
   };
 
-  const handleMoveToHidden = (goodType, quantity) => {
-    const result = moveToHiddenCargo(goodType, quantity);
+  const handleMoveToHidden = (stackIndex, quantity) => {
+    const result = moveToHiddenCargo(stackIndex, quantity);
 
     if (!result.success) {
       throw new Error(`Transfer failed: ${result.reason}`);
     }
   };
 
-  const handleMoveToRegular = (goodType, quantity) => {
-    const result = moveToRegularCargo(goodType, quantity);
+  const handleMoveToRegular = (stackIndex, quantity) => {
+    const result = moveToRegularCargo(stackIndex, quantity);
 
     if (!result.success) {
       throw new Error(`Transfer failed: ${result.reason}`);
@@ -325,14 +327,9 @@ export function TradePanel({ onClose }) {
                   detailsText += ` in ${systemName} (${ageText})`;
                 }
 
-                let profitText = '';
-                if (profit.direction === 'positive') {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
-                } else if (profit.direction === 'negative') {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
-                } else {
-                  profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
-                }
+                // Untagged mission cargo from old saves has no market price
+                const hasMarket = Number.isFinite(currentPrice);
+                const profitText = formatProfitText(currentPrice, profit);
 
                 return (
                   <div key={index} className="cargo-stack">
@@ -348,43 +345,51 @@ export function TradePanel({ onClose }) {
                       )}
                     </div>
 
-                    {stack.missionId ? (
-                      <div className="stack-actions">
+                    <div className="stack-actions">
+                      {stack.missionId ? (
                         <span className="mission-cargo-label">
                           Mission Cargo
                         </span>
-                      </div>
-                    ) : (
-                      <div className="stack-actions">
+                      ) : (
+                        hasMarket && (
+                          <>
+                            <button
+                              className="sell-btn"
+                              disabled={stack.qty < 1}
+                              onClick={() =>
+                                handleSellStack(index, 1, currentPrice)
+                              }
+                            >
+                              Sell 1
+                            </button>
+                            <button
+                              className="sell-btn"
+                              onClick={() =>
+                                handleSellStack(index, stack.qty, currentPrice)
+                              }
+                            >
+                              Sell All ({stack.qty})
+                            </button>
+                          </>
+                        )
+                      )}
+                      {/* Mission cargo too: smuggling contracts is the point */}
+                      {hasSmugglersPanel && (
                         <button
-                          className="sell-btn"
-                          disabled={stack.qty < 1}
+                          className="transfer-btn"
+                          disabled={hiddenCargoRemaining <= 0}
                           onClick={() =>
-                            handleSellStack(index, 1, currentPrice)
+                            // Move what fits rather than failing outright
+                            handleMoveToHidden(
+                              index,
+                              Math.min(stack.qty, hiddenCargoRemaining)
+                            )
                           }
                         >
-                          Sell 1
+                          Move to Hidden
                         </button>
-                        <button
-                          className="sell-btn"
-                          onClick={() =>
-                            handleSellStack(index, stack.qty, currentPrice)
-                          }
-                        >
-                          Sell All ({stack.qty})
-                        </button>
-                        {hasSmugglersPanel && (
-                          <button
-                            className="transfer-btn"
-                            onClick={() =>
-                              handleMoveToHidden(stack.good, stack.qty)
-                            }
-                          >
-                            Move to Hidden
-                          </button>
-                        )}
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 );
               })
@@ -449,14 +454,7 @@ export function TradePanel({ onClose }) {
                       detailsText += ` in ${purchaseSystem.name} (${ageText})`;
                     }
 
-                    let profitText = '';
-                    if (profit.direction === 'positive') {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Profit: +${profit.margin} ₡/unit (+${profit.percentage}%)`;
-                    } else if (profit.direction === 'negative') {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Loss: ${profit.margin} ₡/unit (${profit.percentage}%)`;
-                    } else {
-                      profitText = `Sell at: ${currentPrice} ₡/unit | Break even`;
-                    }
+                    const profitText = formatProfitText(currentPrice, profit);
 
                     return (
                       <div key={index} className="cargo-stack">
@@ -475,8 +473,12 @@ export function TradePanel({ onClose }) {
                         <div className="stack-actions">
                           <button
                             className="transfer-btn"
+                            disabled={cargoRemaining <= 0}
                             onClick={() =>
-                              handleMoveToRegular(stack.good, stack.qty)
+                              handleMoveToRegular(
+                                index,
+                                Math.min(stack.qty, cargoRemaining)
+                              )
                             }
                           >
                             Move to Regular

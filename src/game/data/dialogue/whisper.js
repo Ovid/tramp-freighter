@@ -20,6 +20,18 @@ import {
   hasMixedReputation,
   getKarmaFirstImpression,
 } from './faction-karma-conditions.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage... I maintain secure facilities for valued clients. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, held safely until you return. Consider it a service between associates.`,
+  requestFlag: 'whisper_storage_discussed',
+  storeConfirmText: 'That would be very helpful.',
+  storeDeclineText: 'Good to know that option exists.',
+  retrieveText:
+    'Cargo retrieval... Yes, I have your items secured. Let me transfer them back to your ship. Note that if your cargo hold is full, some items may need to remain in storage.',
+  retrieveFlag: 'whisper_cargo_retrieved',
+  retrieveDeclineText: 'Let me make some space first.',
+});
 
 /**
  * Whisper Dialogue Tree - Information Broker at Sirius A
@@ -34,7 +46,7 @@ import {
  * - greeting → intel_business → (intel_details | intel_prices) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const WHISPER_DIALOGUE = {
   greeting: {
@@ -129,15 +141,7 @@ export const WHISPER_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -147,17 +151,7 @@ export const WHISPER_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'I need information about authority patrol patterns.',
         next: 'authority_intel',
@@ -306,26 +300,6 @@ export const WHISPER_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: 'Cargo storage... I maintain secure facilities for valued clients. Up to ten units, held safely until you return. Consider it a service between associates.',
-    flags: ['whisper_storage_discussed'],
-    choices: [
-      {
-        text: 'That would be very helpful.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'Good to know that option exists.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: 'Loan repayment... Yes, I see the record. Five hundred credits, as agreed. Your prompt attention to obligations is noted and appreciated.',
     flags: ['whisper_loan_repaid'],
@@ -340,25 +314,6 @@ export const WHISPER_DIALOGUE = {
       },
       {
         text: 'I need more time to gather the credits.',
-        next: 'greeting',
-      },
-    ],
-  },
-
-  retrieve_cargo: {
-    text: 'Cargo retrieval... Yes, I have your items secured. Let me transfer them back to your ship. Note that if your cargo hold is full, some items may need to remain in storage.',
-    flags: ['whisper_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make some space first.',
         next: 'greeting',
       },
     ],
@@ -419,4 +374,6 @@ export const WHISPER_DIALOGUE = {
       },
     ],
   },
+
+  ...STORAGE.nodes,
 };

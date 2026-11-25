@@ -1,0 +1,43 @@
+/* Cargo storage picker: rows reuse trade.css stack styles */
+.cargo-storage-picker .picker-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Same look as the trade panel's .sell-btn */
+.cargo-storage-picker .picker-controls button {
+  padding: 6px 12px;
+  background-color: var(--bg-button);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 3px;
+  font-size: var(--font-size-normal);
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.cargo-storage-picker .picker-controls button:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--color-black);
+}
+
+.cargo-storage-picker .picker-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cargo-storage-picker .picker-qty {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.cargo-storage-footer {
+  margin-top: 1rem;
+}
+
+.cargo-storage-warning {
+  font-size: 0.9em;
+  opacity: 0.85;
+}

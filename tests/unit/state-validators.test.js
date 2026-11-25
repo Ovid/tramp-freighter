@@ -350,6 +350,77 @@ describe('State Validators Module', () => {
       };
     });
 
+    it('drops stored NPC cargo that has a missionId', () => {
+      partialState.npcs = {
+        rodriguez_procyon: {
+          storedCargo: [
+            { good: 'grain', qty: 2, buyPrice: 10 },
+            {
+              good: 'sealed_containers',
+              qty: 3,
+              buyPrice: 0,
+              missionId: 'active_mission',
+            },
+            {
+              good: 'medicine',
+              qty: 1,
+              buyPrice: 0,
+              missionId: 'gone_mission',
+            },
+          ],
+        },
+      };
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+
+      expect(normalized.npcs.rodriguez_procyon.storedCargo).toEqual([
+        { good: 'grain', qty: 2, buyPrice: 10 },
+      ]);
+    });
+
+    it('drops untagged mission goods that older saves stripped of their missionId', () => {
+      // These can't be sold, delivered or jettisoned, so they block space forever
+      const grain = { good: 'grain', qty: 2, buyPrice: 10 };
+      const tagged = {
+        good: 'registered_freight',
+        qty: 3,
+        buyPrice: 0,
+        missionId: 'active_mission',
+      };
+      partialState.ship.cargo = [
+        { ...grain },
+        { good: 'registered_freight', qty: 3, buyPrice: 0 },
+        { ...tagged },
+      ];
+      partialState.ship.hiddenCargo = [
+        { good: 'unmarked_crates', qty: 1, buyPrice: 0 },
+      ];
+      partialState.npcs = {
+        rodriguez_procyon: {
+          storedCargo: [
+            { ...grain },
+            { good: 'prohibited_tech', qty: 1, buyPrice: 0 },
+          ],
+        },
+      };
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+
+      expect(normalized.ship.cargo.map((s) => s.good)).toEqual([
+        'grain',
+        'registered_freight',
+      ]);
+      expect(normalized.ship.cargo[1].missionId).toBe('active_mission');
+      expect(normalized.ship.hiddenCargo).toEqual([]);
+      expect(normalized.npcs.rodriguez_procyon.storedCargo).toEqual([grain]);
+    });
+
+    it('leaves NPCs without storedCargo alone', () => {
+      partialState.npcs = { chen_barnards: { rep: 5 } };
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+      expect(normalized.npcs.chen_barnards).toEqual({ rep: 5 });
+    });
+
     it('should add missing ship condition fields', () => {
       const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 

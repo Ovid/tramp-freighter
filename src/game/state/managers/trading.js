@@ -94,6 +94,11 @@ export class TradingManager extends BaseManager {
       return { success: false, reason: 'Quantity must be positive' };
     }
 
+    // A missing price would write NaN into credits permanently
+    if (!Number.isFinite(salePrice)) {
+      return { success: false, reason: 'This good has no market price' };
+    }
+
     if (quantity > stack.qty) {
       return { success: false, reason: 'Not enough quantity in stack' };
     }

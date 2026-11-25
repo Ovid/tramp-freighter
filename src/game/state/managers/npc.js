@@ -7,6 +7,11 @@ import {
 } from '../../constants.js';
 import { ALL_NPCS } from '../../data/npc-data.js';
 import { SeededRandom } from '../../utils/seeded-random.js';
+import { pluralizeUnit } from '../../utils/string-utils.js';
+
+function totalUnits(stacks) {
+  return stacks.reduce((total, stack) => total + stack.qty, 0);
+}
 
 /**
  * NPCManager - Manages NPC reputation, benefits, loans, and storage
@@ -316,6 +321,7 @@ export class NPCManager extends BaseManager {
    * 2. Reputation tier meets requirement (Trusted for loan, Friendly for storage)
    * 3. Favor cooldown has passed (30 days since lastFavorDay)
    * 4. No outstanding loan for loan requests
+   * 5. Storage is not full (storage requests)
    *
    * @param {string} npcId - NPC identifier
    * @param {string} favorType - 'loan' or 'storage'
@@ -355,6 +361,11 @@ export class NPCManager extends BaseManager {
           available: false,
           reason: `Requires Friendly relationship (currently ${repTier.name})`,
         };
+      }
+      // >= because older saves can already hold more than the cap
+      const storedUnits = totalUnits(npcState.storedCargo ?? []);
+      if (storedUnits >= NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT) {
+        return { available: false, reason: 'Storage full' };
       }
     } else {
       return {
@@ -589,226 +600,186 @@ export class NPCManager extends BaseManager {
     }
   }
   /**
-   * Store cargo with NPC
+   * Check picker selections against the stacks they index into.
+   * Runs every check before anything changes, so nothing is half-applied.
    *
-   * Validates storage request with canRequestFavor, then removes up to 10 cargo units
-   * from ship and adds them to NPC's storedCargo array. Sets favor cooldown.
+   * @param {Array<{stackIndex: number, qty: number}>} selections
+   * @param {Array} source - Stacks the selections index into
+   * @param {boolean} rejectMissionCargo
+   * @returns {{ total: number } | { error: string }}
+   */
+  _checkSelections(selections, source, rejectMissionCargo) {
+    if (!Array.isArray(selections) || selections.length === 0) {
+      return { error: 'Nothing selected' };
+    }
+    // Integer check first: 0 and '0' differ in a Set but name the same slot
+    const seen = new Set();
+    let total = 0;
+    for (const selection of selections) {
+      const { stackIndex, qty } = selection ?? {};
+      if (!Number.isInteger(stackIndex) || stackIndex < 0) {
+        return { error: 'Invalid cargo stack' };
+      }
+      if (seen.has(stackIndex)) {
+        return { error: 'Cargo stack selected twice' };
+      }
+      seen.add(stackIndex);
+      if (!Number.isInteger(qty) || qty <= 0) {
+        return { error: 'Quantity must be a positive whole number' };
+      }
+      const stack = source[stackIndex];
+      if (!stack) {
+        return { error: 'Invalid cargo stack' };
+      }
+      if (rejectMissionCargo && stack.missionId) {
+        return { error: 'Mission cargo cannot be stored' };
+      }
+      if (qty > stack.qty) {
+        return { error: 'Not enough quantity in stack' };
+      }
+      total += qty;
+    }
+    return { total };
+  }
+
+  /**
+   * Build new source and target arrays from the original indices.
+   * Never splice while walking the selections: removing an earlier stack
+   * would shift the indices of later ones.
+   */
+  _moveSelections(selections, source, target) {
+    const taken = new Map(selections.map((s) => [s.stackIndex, s.qty]));
+    const newSource = [];
+    source.forEach((stack, index) => {
+      const left = stack.qty - (taken.get(index) ?? 0);
+      if (left > 0) newSource.push({ ...stack, qty: left });
+    });
+    const newTarget = target.map((stack) => ({ ...stack }));
+    for (const { stackIndex, qty } of selections) {
+      this.capabilities.addToCargoArray(newTarget, source[stackIndex], qty);
+    }
+    return { newSource, newTarget };
+  }
+
+  /**
+   * Store player-selected cargo with an NPC
+   *
+   * Mission cargo is refused, and the NPC never holds more than
+   * CARGO_STORAGE_LIMIT units in total. Sets the shared favor cooldown.
    *
    * @param {string} npcId - NPC identifier
+   * @param {Array<{stackIndex: number, qty: number}>} selections - Indexes into ship cargo
    * @returns {Object} { success: boolean, stored: number, message: string }
    */
-  storeCargo(npcId) {
+  storeCargo(npcId, selections) {
     if (!npcId || typeof npcId !== 'string') {
       throw new Error(
         'Invalid npcId: storeCargo requires a valid NPC identifier'
       );
     }
 
-    // Validate with canRequestFavor
     const availability = this.canRequestFavor(npcId, 'storage');
     if (!availability.available) {
-      return {
-        success: false,
-        stored: 0,
-        message: availability.reason,
-      };
+      return { success: false, stored: 0, message: availability.reason };
     }
 
-    // Get NPC state (validation already done in canRequestFavor)
     const npcState = this.getNPCState(npcId);
+    const storedCargo = npcState.storedCargo ?? [];
+    const shipCargo = this.capabilities.getShipCargo();
 
-    // Get current ship cargo
-    const currentShipCargo = [...this.capabilities.getShipCargo()];
+    const check = this._checkSelections(selections, shipCargo, true);
+    if (check.error) {
+      return { success: false, stored: 0, message: check.error };
+    }
 
-    // Calculate total cargo units to store (up to limit)
-    const totalCargoUnits = currentShipCargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
-    );
-    const unitsToStore = Math.min(
-      totalCargoUnits,
-      NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT
-    );
-
-    if (unitsToStore === 0) {
+    const room =
+      NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT - totalUnits(storedCargo);
+    if (check.total > room) {
       return {
         success: false,
         stored: 0,
-        message: 'No cargo to store',
+        message: `Only ${pluralizeUnit(room)} of storage left`,
       };
     }
 
-    // Initialize storedCargo if it doesn't exist
-    if (!npcState.storedCargo) {
-      npcState.storedCargo = [];
-    }
-
-    // Remove cargo from ship and add to NPC storage
-    let remainingToStore = unitsToStore;
-    const newShipCargo = [];
-    const cargoToAdd = [];
-
-    for (const stack of currentShipCargo) {
-      if (remainingToStore <= 0) {
-        // No more to store, keep remaining cargo on ship
-        newShipCargo.push(stack);
-      } else if (stack.qty <= remainingToStore) {
-        // Store entire stack
-        cargoToAdd.push({ ...stack });
-        remainingToStore -= stack.qty;
-      } else {
-        // Partial stack - store some, keep rest on ship
-        const storeQty = remainingToStore;
-        const keepQty = stack.qty - storeQty;
-
-        cargoToAdd.push({
-          ...stack,
-          qty: storeQty,
-        });
-
-        newShipCargo.push({
-          ...stack,
-          qty: keepQty,
-        });
-
-        remainingToStore = 0;
-      }
-    }
-
-    // Add stored cargo to NPC's storedCargo array
-    npcState.storedCargo.push(...cargoToAdd);
-
-    // Update ship cargo
-    this.capabilities.updateCargo(newShipCargo);
+    const { newSource, newTarget } = this._moveSelections(
+      selections,
+      shipCargo,
+      storedCargo
+    );
+    npcState.storedCargo = newTarget;
+    this.capabilities.updateCargo(newSource);
 
     const daysElapsed = this.capabilities.getDaysElapsed();
-
-    // Set lastFavorDay to current day
     npcState.lastFavorDay = daysElapsed;
-
-    // Update interaction tracking
     npcState.lastInteraction = daysElapsed;
     npcState.interactions += 1;
 
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
     this.capabilities.markDirty();
 
     return {
       success: true,
-      stored: unitsToStore,
-      message: `Stored ${unitsToStore} cargo units with ${this.validateAndGetNPCData(npcId).name}`,
+      stored: check.total,
+      message: `Stored ${pluralizeUnit(check.total)} with ${this.validateAndGetNPCData(npcId).name}`,
     };
   }
 
   /**
-   * Retrieve stored cargo from NPC
+   * Retrieve player-selected cargo from an NPC
    *
-   * Calculates available ship capacity and transfers min(storedCargo, availableCapacity)
-   * to ship. Leaves remainder in NPC storage if ship capacity is insufficient.
+   * Limited by free hold space, which already counts passengers.
+   * Getting your own cargo back is not a favor, so no cooldown.
    *
    * @param {string} npcId - NPC identifier
-   * @returns {Object} { success: boolean, retrieved: CargoStack[], remaining: CargoStack[] }
+   * @param {Array<{stackIndex: number, qty: number}>} selections - Indexes into storedCargo
+   * @returns {Object} { success: boolean, retrieved: number, message: string }
    */
-  retrieveCargo(npcId) {
+  retrieveCargo(npcId, selections) {
     if (!npcId || typeof npcId !== 'string') {
       throw new Error(
         'Invalid npcId: retrieveCargo requires a valid NPC identifier'
       );
     }
 
-    // Get NPC state
     const npcState = this.getNPCState(npcId);
+    const storedCargo = npcState.storedCargo ?? [];
 
-    // Initialize storedCargo if it doesn't exist
-    if (!npcState.storedCargo) {
-      npcState.storedCargo = [];
+    const check = this._checkSelections(selections, storedCargo, false);
+    if (check.error) {
+      return { success: false, retrieved: 0, message: check.error };
     }
 
-    // If no stored cargo, return empty result
-    if (npcState.storedCargo.length === 0) {
+    if (check.total > this.capabilities.getCargoRemaining()) {
       return {
-        success: true,
-        retrieved: [],
-        remaining: [],
+        success: false,
+        retrieved: 0,
+        message: 'Not enough cargo space',
       };
     }
 
-    // Calculate available ship capacity
-    const availableCapacity = this.capabilities.getCargoRemaining();
-
-    // Calculate total stored cargo units
-    const totalStoredUnits = npcState.storedCargo.reduce(
-      (total, stack) => total + stack.qty,
-      0
+    const { newSource, newTarget } = this._moveSelections(
+      selections,
+      storedCargo,
+      this.capabilities.getShipCargo()
     );
+    npcState.storedCargo = newSource;
+    this.capabilities.updateCargo(newTarget);
 
-    // Determine how much to transfer
-    const unitsToTransfer = Math.min(totalStoredUnits, availableCapacity);
-
-    if (unitsToTransfer === 0) {
-      // No capacity available, return current stored cargo as remaining
-      return {
-        success: true,
-        retrieved: [],
-        remaining: [...npcState.storedCargo],
-      };
-    }
-
-    // Transfer cargo from NPC storage to ship
-    let remainingToTransfer = unitsToTransfer;
-    const currentShipCargo = [...this.capabilities.getShipCargo()];
-    const retrievedCargo = [];
-    const remainingStoredCargo = [];
-
-    for (const stack of npcState.storedCargo) {
-      if (remainingToTransfer <= 0) {
-        // No more to transfer, keep remaining in storage
-        remainingStoredCargo.push(stack);
-      } else if (stack.qty <= remainingToTransfer) {
-        // Transfer entire stack
-        retrievedCargo.push({ ...stack });
-        remainingToTransfer -= stack.qty;
-      } else {
-        // Partial stack - transfer some, keep rest in storage
-        const transferQty = remainingToTransfer;
-        const keepQty = stack.qty - transferQty;
-
-        retrievedCargo.push({
-          ...stack,
-          qty: transferQty,
-        });
-
-        remainingStoredCargo.push({
-          ...stack,
-          qty: keepQty,
-        });
-
-        remainingToTransfer = 0;
-      }
-    }
-
-    // Add retrieved cargo to ship using the same stacking logic as storeCargo
-    for (const stack of retrievedCargo) {
-      this.capabilities.addToCargoArray(currentShipCargo, stack, stack.qty);
-    }
-
-    // Update ship cargo
-    this.capabilities.updateCargo(currentShipCargo);
-
-    // Update NPC's stored cargo
-    npcState.storedCargo = remainingStoredCargo;
-
-    // Update interaction tracking
     npcState.lastInteraction = this.capabilities.getDaysElapsed();
     npcState.interactions += 1;
 
-    if (retrievedCargo.length > 0) {
-      this.capabilities.markDirty();
-    }
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
+    this.capabilities.markDirty();
 
     return {
       success: true,
-      retrieved: retrievedCargo,
-      remaining: remainingStoredCargo,
+      retrieved: check.total,
+      message: `Retrieved ${pluralizeUnit(check.total)} from ${this.validateAndGetNPCData(npcId).name}`,
     };
   }
 }

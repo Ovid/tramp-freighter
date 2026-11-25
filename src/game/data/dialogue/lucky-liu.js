@@ -13,6 +13,18 @@ import {
   NPC_BENEFITS_CONFIG,
   COLE_DEBT_CONFIG,
 } from '../../constants.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage? Sure thing, sport. I got secure space in the back - up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, safe from sticky fingers and prying eyes. Consider it a favor between players. Sometimes you gotta stash your winnings before the next big game, right?`,
+  requestFlag: 'liu_storage_discussed',
+  storeConfirmText: 'That would really help my game.',
+  storeDeclineText: 'Thanks for looking out for a fellow player.',
+  retrieveText:
+    "Retrieve your stash? *heads to the back room* No problem, sport. Got your goods locked up tight - better security than most banks, and twice as discreet. Let me get your cargo transferred back to your ship. If your hold's getting crowded, we can work out the details.",
+  retrieveFlag: 'liu_cargo_retrieved',
+  retrieveDeclineText: 'Let me make some room first.',
+});
 
 /**
  * "Lucky" Liu Dialogue Tree - Gambler at Wolf 359
@@ -28,7 +40,7 @@ import {
  * - greeting → gambling_talk → (risk_philosophy | odds_discussion) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const LUCKY_LIU_DIALOGUE = {
   greeting: {
@@ -95,15 +107,7 @@ export const LUCKY_LIU_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -113,17 +117,7 @@ export const LUCKY_LIU_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'Nothing right now. See you around, Lucky.',
         next: null,
@@ -255,26 +249,6 @@ export const LUCKY_LIU_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: `Cargo storage? Sure thing, sport. I got secure space in the back - up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, safe from sticky fingers and prying eyes. Consider it a favor between players. Sometimes you gotta stash your winnings before the next big game, right?`,
-    flags: ['liu_storage_discussed'],
-    choices: [
-      {
-        text: 'That would really help my game.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'Thanks for looking out for a fellow player.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: `Loan repayment? *grins and checks his ledger* ${NPC_BENEFITS_CONFIG.EMERGENCY_LOAN_AMOUNT} credits, right on schedule. I like a player who knows when to cash out and settle their debts. Shows you understand the game - it's not just about the big wins, it's about staying in action.`,
     flags: ['liu_loan_repaid'],
@@ -294,22 +268,5 @@ export const LUCKY_LIU_DIALOGUE = {
     ],
   },
 
-  retrieve_cargo: {
-    text: "Retrieve your stash? *heads to the back room* No problem, sport. Got your goods locked up tight - better security than most banks, and twice as discreet. Let me get your cargo transferred back to your ship. If your hold's getting crowded, we can work out the details.",
-    flags: ['liu_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make some room first.',
-        next: 'greeting',
-      },
-    ],
-  },
+  ...STORAGE.nodes,
 };

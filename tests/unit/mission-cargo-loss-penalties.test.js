@@ -34,6 +34,34 @@ describe('MissionManager.failMissionsDueToCargoLoss – faction penalties', () =
     expect(modifySpy).not.toHaveBeenCalled();
   });
 
+  // Issue #50: losing regular cargo must not fail a mission whose cargo
+  // is safely in the hidden compartment
+  it('keeps missions whose cargo is in the hidden compartment', () => {
+    const state = gsm.getState();
+    state.missions.active = [
+      {
+        id: 'cargo_run_1',
+        type: 'delivery',
+        missionCargo: { good: 'unmarked_crates', quantity: 5 },
+        penalties: { failure: {} },
+      },
+    ];
+    state.ship.cargo = [];
+    state.ship.hiddenCargo = [
+      {
+        good: 'unmarked_crates',
+        qty: 5,
+        buyPrice: 0,
+        missionId: 'cargo_run_1',
+      },
+    ];
+
+    gsm.failMissionsDueToCargoLoss();
+
+    expect(state.missions.active).toHaveLength(1);
+    expect(state.missions.failed).toHaveLength(0);
+  });
+
   it('keeps missions whose cargo is still in the hold', () => {
     const state = gsm.getState();
     state.missions.active = [

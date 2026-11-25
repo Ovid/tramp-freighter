@@ -7,7 +7,7 @@ describe('getCompletableMissions – new cargo runs', () => {
   beforeEach(() => {
     state = {
       player: { currentSystem: 5, daysElapsed: 10 },
-      ship: { cargo: [] },
+      ship: { cargo: [], hiddenCargo: [] },
       missions: { active: [], board: [], completed: [], failed: [] },
       world: { visitedSystems: [] },
     };
@@ -18,6 +18,7 @@ describe('getCompletableMissions – new cargo runs', () => {
       getCurrentSystem: () => state.player.currentSystem,
       getCredits: () => 0,
       getShipCargo: () => state.ship.cargo,
+      getShipHiddenCargo: () => state.ship.hiddenCargo,
       getCargoRemaining: vi.fn(() => 100),
       getStats: () => ({}),
       getVisitedSystems: () => state.world.visitedSystems,
@@ -65,6 +66,24 @@ describe('getCompletableMissions – new cargo runs', () => {
     const completable = manager.getCompletableMissions();
     expect(completable).toHaveLength(1);
     expect(completable[0].id).toBe('cargo_run_123');
+  });
+
+  // Issue #50: smuggled mission cargo still counts as delivered
+  it('should include delivery mission when mission cargo is in the hidden compartment', () => {
+    state.player.currentSystem = 5;
+    state.ship.hiddenCargo = [
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_123' },
+    ];
+    state.missions.active = [
+      {
+        id: 'cargo_run_123',
+        type: 'delivery',
+        requirements: { destination: 5 },
+        missionCargo: { good: 'registered_freight', quantity: 10 },
+      },
+    ];
+
+    expect(manager.getCompletableMissions()).toHaveLength(1);
   });
 
   it('should not include delivery mission when mission cargo was lost', () => {

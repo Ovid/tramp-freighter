@@ -270,6 +270,27 @@ describe('DialoguePanel Lifecycle', () => {
       expect(clearedState.isActive).toBe(false);
       expect(clearedState.currentNpcId).toBeNull();
     });
+
+    it('should clear dialogue state when the parent unmounts the panel', async () => {
+      // Escape, undock, dock and jump all close the panel without its button
+      const { unmount } = render(
+        <GameProvider game={game}>
+          <DialoguePanel npcId="chen_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Wei Chen')).toBeInTheDocument();
+      });
+      expect(game.getDialogueState().isActive).toBe(true);
+
+      unmount();
+
+      const clearedState = game.getDialogueState();
+      expect(clearedState.isActive).toBe(false);
+      expect(clearedState.currentNpcId).toBeNull();
+      expect(clearedState.display).toBeNull();
+    });
   });
 
   describe('Multiple dialogue sessions', () => {

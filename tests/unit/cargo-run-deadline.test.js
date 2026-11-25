@@ -7,7 +7,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
   beforeEach(async () => {
     state = {
       player: { daysElapsed: 25 },
-      ship: { cargo: [] },
+      ship: { cargo: [], hiddenCargo: [] },
       missions: { active: [], board: [], completed: [], failed: [] },
     };
 
@@ -17,6 +17,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
       getCurrentSystem: () => 0,
       getCredits: () => 0,
       getShipCargo: () => state.ship.cargo,
+      getShipHiddenCargo: () => state.ship.hiddenCargo,
       getCargoRemaining: vi.fn(() => 100),
       getStats: () => ({}),
       getVisitedSystems: () => [],
@@ -65,6 +66,27 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
 
     expect(state.ship.cargo).toHaveLength(0);
     expect(state.missions.failed).toContain('cargo_run_expired');
+  });
+
+  // Issue #50: otherwise expired cargo sits in the hidden hold forever
+  it('should remove mission cargo from the hidden compartment when deadline expires', () => {
+    state.player.daysElapsed = 25;
+    state.ship.hiddenCargo = [
+      { good: 'unmarked_crates', qty: 5, missionId: 'cargo_run_expired' },
+    ];
+    state.missions.active = [
+      {
+        id: 'cargo_run_expired',
+        type: 'delivery',
+        deadlineDay: 20,
+        missionCargo: { good: 'unmarked_crates', quantity: 5, isIllegal: true },
+        penalties: { failure: {} },
+      },
+    ];
+
+    manager.checkMissionDeadlines();
+
+    expect(state.ship.hiddenCargo).toEqual([]);
   });
 
   it('should not remove cargo for non-expired missions', () => {

@@ -529,7 +529,7 @@ describe('ShipManager', () => {
       ];
       state.ship.hiddenCargo = [];
 
-      const result = gsm.shipManager.moveToHiddenCargo('grain', 5);
+      const result = gsm.shipManager.moveToHiddenCargo(0, 5);
       expect(result.success).toBe(true);
 
       // 5 units moved out of regular cargo
@@ -558,20 +558,20 @@ describe('ShipManager', () => {
         },
       ];
 
-      const result = gsm.shipManager.moveToHiddenCargo('grain', 5);
+      const result = gsm.shipManager.moveToHiddenCargo(0, 5);
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough hidden cargo space');
     });
 
-    it('moveToHiddenCargo fails if good not in cargo', () => {
+    it('moveToHiddenCargo fails for an invalid stack index', () => {
       const state = gsm.getState();
       state.ship.upgrades = ['smuggler_panels'];
       state.ship.hiddenCargo = [];
       state.ship.cargo = [];
 
-      const result = gsm.shipManager.moveToHiddenCargo('electronics', 5);
+      const result = gsm.shipManager.moveToHiddenCargo(0, 5);
       expect(result.success).toBe(false);
-      expect(result.reason).toBe('Good not found in cargo');
+      expect(result.reason).toBe('Invalid cargo stack');
     });
 
     it('moveToHiddenCargo fails when quantity exceeds available', () => {
@@ -584,7 +584,7 @@ describe('ShipManager', () => {
         gsm.state.ship.upgrades = [smugglingUpgrade[0]];
       }
 
-      const result = gsm.shipManager.moveToHiddenCargo('electronics', 20);
+      const result = gsm.shipManager.moveToHiddenCargo(0, 20);
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough quantity in cargo');
     });
@@ -604,7 +604,7 @@ describe('ShipManager', () => {
       gsm.state.ship.hiddenCargo = [
         { good: 'ore', qty: capabilities.hiddenCargoCapacity, buyPrice: 100 },
       ];
-      const result = gsm.shipManager.moveToHiddenCargo('electronics', 1);
+      const result = gsm.shipManager.moveToHiddenCargo(0, 1);
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough hidden cargo space');
     });
@@ -621,7 +621,7 @@ describe('ShipManager', () => {
 
       const capabilities = gsm.shipManager.calculateShipCapabilities();
       if (capabilities.hiddenCargoCapacity > 0) {
-        const result = gsm.shipManager.moveToHiddenCargo('electronics', 3);
+        const result = gsm.shipManager.moveToHiddenCargo(0, 3);
         expect(result.success).toBe(true);
         expect(gsm.state.ship.cargo[0].qty).toBe(7);
         expect(gsm.state.ship.hiddenCargo).toHaveLength(1);
@@ -641,7 +641,7 @@ describe('ShipManager', () => {
 
       const capabilities = gsm.shipManager.calculateShipCapabilities();
       if (capabilities.hiddenCargoCapacity >= 10) {
-        const result = gsm.shipManager.moveToHiddenCargo('electronics', 10);
+        const result = gsm.shipManager.moveToHiddenCargo(0, 10);
         expect(result.success).toBe(true);
         expect(gsm.state.ship.cargo).toHaveLength(0);
       }
@@ -663,7 +663,7 @@ describe('ShipManager', () => {
         },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('ore', 3);
+      const result = gsm.shipManager.moveToRegularCargo(0, 3);
       expect(result.success).toBe(true);
 
       // 3 units moved to regular cargo
@@ -701,20 +701,78 @@ describe('ShipManager', () => {
         },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('ore', 3);
+      const result = gsm.shipManager.moveToRegularCargo(0, 3);
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough regular cargo space');
     });
 
-    it('moveToRegularCargo fails when good not found in hidden cargo', () => {
+    it.each([0, -2, 1.5, NaN])(
+      'moveToHiddenCargo rejects quantity %s without moving cargo',
+      (qty) => {
+        const state = gsm.getState();
+        state.ship.upgrades = ['smuggler_panels'];
+        state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+        state.ship.hiddenCargo = [{ good: 'grain', qty: 2, buyPrice: 10 }];
+
+        const result = gsm.shipManager.moveToHiddenCargo(0, qty);
+        expect(result).toEqual({
+          success: false,
+          reason: 'Quantity must be a positive whole number',
+        });
+        expect(state.ship.cargo).toEqual([
+          { good: 'ore', qty: 5, buyPrice: 15 },
+        ]);
+        expect(state.ship.hiddenCargo).toEqual([
+          { good: 'grain', qty: 2, buyPrice: 10 },
+        ]);
+      }
+    );
+
+    it.each([0, -2, 1.5, NaN])(
+      'moveToRegularCargo rejects quantity %s without moving cargo',
+      (qty) => {
+        const state = gsm.getState();
+        state.ship.cargo = [{ good: 'grain', qty: 2, buyPrice: 10 }];
+        state.ship.hiddenCargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+
+        const result = gsm.shipManager.moveToRegularCargo(0, qty);
+        expect(result).toEqual({
+          success: false,
+          reason: 'Quantity must be a positive whole number',
+        });
+        expect(state.ship.cargo).toEqual([
+          { good: 'grain', qty: 2, buyPrice: 10 },
+        ]);
+        expect(state.ship.hiddenCargo).toEqual([
+          { good: 'ore', qty: 5, buyPrice: 15 },
+        ]);
+      }
+    );
+
+    it('moveToRegularCargo counts passenger space against the hold', () => {
+      const state = gsm.getState();
+      state.ship.upgrades = [];
+      state.ship.cargoCapacity = 5;
+      state.ship.cargo = [];
+      state.ship.hiddenCargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+      state.missions.active = [
+        { type: 'passenger', requirements: { cargoSpace: 3 } },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo(0, 3);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Not enough regular cargo space');
+    });
+
+    it('moveToRegularCargo fails for an invalid stack index', () => {
       gsm.state.ship.cargo = [];
       gsm.state.ship.hiddenCargo = [
         { good: 'electronics', qty: 5, buyPrice: 200 },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('grain', 5);
+      const result = gsm.shipManager.moveToRegularCargo(1, 5);
       expect(result.success).toBe(false);
-      expect(result.reason).toBe('Good not found in hidden cargo');
+      expect(result.reason).toBe('Invalid cargo stack');
     });
 
     it('moveToRegularCargo fails when quantity exceeds available', () => {
@@ -723,7 +781,7 @@ describe('ShipManager', () => {
         { good: 'electronics', qty: 5, buyPrice: 200 },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('electronics', 20);
+      const result = gsm.shipManager.moveToRegularCargo(0, 20);
       expect(result.success).toBe(false);
       expect(result.reason).toBe('Not enough quantity in hidden cargo');
     });
@@ -734,7 +792,7 @@ describe('ShipManager', () => {
         { good: 'electronics', qty: 5, buyPrice: 200 },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('electronics', 3);
+      const result = gsm.shipManager.moveToRegularCargo(0, 3);
       expect(result.success).toBe(true);
       expect(gsm.state.ship.hiddenCargo[0].qty).toBe(2);
       expect(gsm.state.ship.cargo).toHaveLength(1);
@@ -747,7 +805,7 @@ describe('ShipManager', () => {
         { good: 'electronics', qty: 5, buyPrice: 200 },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('electronics', 5);
+      const result = gsm.shipManager.moveToRegularCargo(0, 5);
       expect(result.success).toBe(true);
       expect(gsm.state.ship.hiddenCargo).toHaveLength(0);
     });
@@ -758,10 +816,34 @@ describe('ShipManager', () => {
         { good: 'electronics', qty: 5, buyPrice: 200 },
       ];
 
-      const result = gsm.shipManager.moveToRegularCargo('electronics', 2);
+      const result = gsm.shipManager.moveToRegularCargo(0, 2);
       expect(result.success).toBe(true);
       expect(gsm.state.ship.cargo).toHaveLength(1);
       expect(gsm.state.ship.cargo[0].qty).toBe(5);
+    });
+
+    // Issue #50: lookup by good name moved units from the wrong stack when
+    // two stacks shared a good (e.g. two missions both carrying pouches).
+    it('moves the stack at the given index, not the first with that good', () => {
+      gsm.state.ship.upgrades = ['smuggler_panels'];
+      gsm.state.ship.hiddenCargo = [];
+      gsm.state.ship.cargo = [
+        { good: 'diplomatic_pouches', qty: 5, buyPrice: 0, missionId: 'a' },
+        { good: 'diplomatic_pouches', qty: 5, buyPrice: 0, missionId: 'b' },
+      ];
+
+      expect(gsm.shipManager.moveToHiddenCargo(1, 5).success).toBe(true);
+      expect(gsm.state.ship.cargo.map((s) => s.missionId)).toEqual(['a']);
+      expect(gsm.state.ship.hiddenCargo[0].missionId).toBe('b');
+
+      gsm.state.ship.hiddenCargo.unshift({
+        good: 'diplomatic_pouches',
+        qty: 5,
+        buyPrice: 0,
+        missionId: 'c',
+      });
+      expect(gsm.shipManager.moveToRegularCargo(1, 5).success).toBe(true);
+      expect(gsm.state.ship.hiddenCargo.map((s) => s.missionId)).toEqual(['c']);
     });
 
     it('clearHiddenCargo clears hidden cargo array', () => {

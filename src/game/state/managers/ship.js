@@ -7,6 +7,11 @@ import {
 import { pickRandomFrom } from '../../utils/seeded-random.js';
 import { sanitizeShipName } from '../../utils/string-utils.js';
 
+// Same rule as NPC storage selections: a negative qty would move cargo the
+// other way past the capacity check, a fractional one leaves fractional stacks
+const INVALID_QTY_REASON = 'Quantity must be a positive whole number';
+const isPositiveWholeNumber = (qty) => Number.isInteger(qty) && qty > 0;
+
 /**
  * Ship Manager - Handles all ship-related operations
  *
@@ -572,19 +577,22 @@ export class ShipManager extends BaseManager {
   /**
    * Move cargo from regular cargo to hidden cargo
    *
-   * @param {string} good - Good type to move
+   * @param {number} cargoIndex - Index of the stack in regular cargo
    * @param {number} qty - Quantity to move
    * @returns {Object} { success: boolean, reason: string }
    */
-  moveToHiddenCargo(good, qty) {
+  moveToHiddenCargo(cargoIndex, qty) {
     this.validateState();
 
     const ship = this.capabilities.getOwnState();
 
-    // Find cargo stack with matching good
-    const cargoIndex = ship.cargo.findIndex((stack) => stack.good === good);
-    if (cargoIndex === -1) {
-      return { success: false, reason: 'Good not found in cargo' };
+    // By index, not good name: stacks can share a good (e.g. two missions)
+    if (!ship.cargo[cargoIndex]) {
+      return { success: false, reason: 'Invalid cargo stack' };
+    }
+
+    if (!isPositiveWholeNumber(qty)) {
+      return { success: false, reason: INVALID_QTY_REASON };
     }
 
     const cargoStack = ship.cargo[cargoIndex];
@@ -611,7 +619,7 @@ export class ShipManager extends BaseManager {
       ship.cargo.splice(cargoIndex, 1);
     }
 
-    // Add to hidden cargo (stacks with matching good and buyPrice)
+    // Add to hidden cargo (stacks with matching good, buyPrice and missionId)
     this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
 
     // Emit cargo change events (new references for React re-renders)
@@ -629,21 +637,21 @@ export class ShipManager extends BaseManager {
   /**
    * Move cargo from hidden cargo to regular cargo
    *
-   * @param {string} good - Good type to move
+   * @param {number} hiddenIndex - Index of the stack in hidden cargo
    * @param {number} qty - Quantity to move
    * @returns {Object} { success: boolean, reason: string }
    */
-  moveToRegularCargo(good, qty) {
+  moveToRegularCargo(hiddenIndex, qty) {
     this.validateState();
 
     const ship = this.capabilities.getOwnState();
 
-    // Find hidden cargo stack with matching good
-    const hiddenIndex = ship.hiddenCargo.findIndex(
-      (stack) => stack.good === good
-    );
-    if (hiddenIndex === -1) {
-      return { success: false, reason: 'Good not found in hidden cargo' };
+    if (!ship.hiddenCargo[hiddenIndex]) {
+      return { success: false, reason: 'Invalid cargo stack' };
+    }
+
+    if (!isPositiveWholeNumber(qty)) {
+      return { success: false, reason: INVALID_QTY_REASON };
     }
 
     const hiddenStack = ship.hiddenCargo[hiddenIndex];
@@ -651,11 +659,8 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Not enough quantity in hidden cargo' };
     }
 
-    // Check regular cargo capacity
-    const cargoUsed = ship.cargo.reduce((total, stack) => total + stack.qty, 0);
-    const cargoRemaining = ship.cargoCapacity - cargoUsed;
-
-    if (qty > cargoRemaining) {
+    // Passengers take hold space too
+    if (qty > this.capabilities.getCargoRemaining()) {
       return { success: false, reason: 'Not enough regular cargo space' };
     }
 
@@ -665,7 +670,7 @@ export class ShipManager extends BaseManager {
       ship.hiddenCargo.splice(hiddenIndex, 1);
     }
 
-    // Add to regular cargo (stacks with matching good and buyPrice)
+    // Add to regular cargo (stacks with matching good, buyPrice and missionId)
     this.addToCargoArray(ship.cargo, hiddenStack, qty);
 
     // Emit cargo change events (new references for React re-renders)
@@ -688,11 +693,12 @@ export class ShipManager extends BaseManager {
    * @param {number} qty - Quantity to add
    */
   addToCargoArray(cargoArray, sourceStack, qty) {
-    // Find existing stack with matching good and buyPrice
+    // Find existing stack with matching good, buyPrice and missionId
     const existingIndex = cargoArray.findIndex(
       (stack) =>
         stack.good === sourceStack.good &&
-        stack.buyPrice === sourceStack.buyPrice
+        stack.buyPrice === sourceStack.buyPrice &&
+        stack.missionId === sourceStack.missionId
     );
 
     if (existingIndex !== -1) {
@@ -700,14 +706,9 @@ export class ShipManager extends BaseManager {
       cargoArray[existingIndex].qty += qty;
     } else {
       // Create new stack
-      cargoArray.push({
-        good: sourceStack.good,
-        qty: qty,
-        buyPrice: sourceStack.buyPrice,
-        buySystem: sourceStack.buySystem,
-        buySystemName: sourceStack.buySystemName,
-        buyDate: sourceStack.buyDate,
-      });
+      // Spread so missionId survives; dropping it turns mission cargo into
+      // unpriced "sellable" goods (issue #57)
+      cargoArray.push({ ...sourceStack, qty });
     }
   }
 

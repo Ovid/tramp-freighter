@@ -22,6 +22,7 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
       getCurrentSystem: () => state.player.currentSystem,
       getCredits: () => 0,
       getShipCargo: () => [],
+      getShipHiddenCargo: () => [],
       getCargoRemaining: vi.fn(() => 100),
       getStats: () => ({}),
       getVisitedSystems: () => [],

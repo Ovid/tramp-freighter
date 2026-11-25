@@ -13,6 +13,18 @@ import {
   NPC_BENEFITS_CONFIG,
   COLE_DEBT_CONFIG,
 } from '../../constants.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage? Yeah, I can swing that. Got secure space here at the outpost - up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, climate controlled, the works. Consider it professional courtesy between traders. We gotta look out for each other in this business.`,
+  requestFlag: 'osman_storage_discussed',
+  storeConfirmText: 'That would really help me out.',
+  storeDeclineText: 'Professional courtesy appreciated.',
+  retrieveText:
+    "Retrieve your cargo? No problem, sport. *heads to storage* Got your stuff locked up tight - climate controlled, security monitored, the full package. Let me get it transferred back to your ship. If your hold's getting cramped, we can work something out.",
+  retrieveFlag: 'osman_cargo_retrieved',
+  retrieveDeclineText: 'Let me clear some space first.',
+});
 
 /**
  * Zara Osman Dialogue Tree - Trader at Luyten's Star
@@ -28,7 +40,7 @@ import {
  * - greeting → trading_business → (market_knowledge | competition_talk) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const ZARA_OSMAN_DIALOGUE = {
   greeting: {
@@ -96,15 +108,7 @@ export const ZARA_OSMAN_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -114,17 +118,7 @@ export const ZARA_OSMAN_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'Nothing right now. Catch you later.',
         next: null,
@@ -246,26 +240,6 @@ export const ZARA_OSMAN_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: 'Cargo storage? Yeah, I can swing that. Got secure space here at the outpost - up to ten units, climate controlled, the works. Consider it professional courtesy between traders. We gotta look out for each other in this business.',
-    flags: ['osman_storage_discussed'],
-    choices: [
-      {
-        text: 'That would really help me out.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'Professional courtesy appreciated.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: "Loan repayment? *checks her ledger* Right, five hundred credits. Good to see you're keeping your word - that's what separates the pros from the amateurs in this business. Reputation's everything in the trade.",
     flags: ['osman_loan_repaid'],
@@ -285,22 +259,5 @@ export const ZARA_OSMAN_DIALOGUE = {
     ],
   },
 
-  retrieve_cargo: {
-    text: "Retrieve your cargo? No problem, sport. *heads to storage* Got your stuff locked up tight - climate controlled, security monitored, the full package. Let me get it transferred back to your ship. If your hold's getting cramped, we can work something out.",
-    flags: ['osman_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me clear some space first.',
-        next: 'greeting',
-      },
-    ],
-  },
+  ...STORAGE.nodes,
 };

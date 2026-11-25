@@ -13,6 +13,18 @@ import {
   NPC_BENEFITS_CONFIG,
   COLE_DEBT_CONFIG,
 } from '../../constants.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage? Sure, I got secure space in the back of the shop. Up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units, safe from the elements and prying eyes. Consider it a favor between professionals - we mechanics gotta stick together, even if you're on the other side of the wrench.`,
+  requestFlag: 'rusty_storage_discussed',
+  storeConfirmText: 'That would be a huge help.',
+  storeDeclineText: 'I appreciate the offer, Rusty.',
+  retrieveText:
+    "Retrieve your cargo? Sure thing, captain. *heads to the back* Got your stuff safe and sound. Let me get it loaded back onto your ship. If your hold's getting tight, just say the word - we can work something out.",
+  retrieveFlag: 'rusty_cargo_retrieved',
+  retrieveDeclineText: 'Let me make some room first.',
+});
 
 /**
  * "Rusty" Rodriguez Dialogue Tree - Mechanic at Procyon
@@ -28,7 +40,7 @@ import {
  * - greeting → ship_talk → (ship_care | maintenance_matters) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const RUSTY_RODRIGUEZ_DIALOGUE = {
   greeting: {
@@ -96,15 +108,7 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -114,17 +118,7 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'Nothing right now. Thanks, Rusty.',
         next: null,
@@ -247,26 +241,6 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: "Cargo storage? Sure, I got secure space in the back of the shop. Up to ten units, safe from the elements and prying eyes. Consider it a favor between professionals - we mechanics gotta stick together, even if you're on the other side of the wrench.",
-    flags: ['rusty_storage_discussed'],
-    choices: [
-      {
-        text: 'That would be a huge help.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'I appreciate the offer, Rusty.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: "Loan repayment? *wipes hands on coveralls* Good to see you're keeping your word, captain. Five hundred credits, right? Your ship'll be proud - she likes it when her captain's reliable.",
     flags: ['rusty_loan_repaid'],
@@ -286,22 +260,5 @@ export const RUSTY_RODRIGUEZ_DIALOGUE = {
     ],
   },
 
-  retrieve_cargo: {
-    text: "Retrieve your cargo? Sure thing, captain. *heads to the back* Got your stuff safe and sound. Let me get it loaded back onto your ship. If your hold's getting tight, just say the word - we can work something out.",
-    flags: ['rusty_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make some room first.',
-        next: 'greeting',
-      },
-    ],
-  },
+  ...STORAGE.nodes,
 };

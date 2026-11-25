@@ -110,7 +110,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
           npcId,
           backstoryChoice.index,
           game
-        );
+        ).display;
 
         expect(backstoryDialogue).toBeDefined();
 
@@ -128,7 +128,7 @@ describe('Dialogue Flag Setting Timing Properties', () => {
             npcId,
             continueChoice.index,
             game
-          );
+          ).display;
 
           if (backstory2Dialogue) {
             // Check that the second backstory flag was set

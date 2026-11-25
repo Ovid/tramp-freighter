@@ -5,7 +5,7 @@ import {
   ENDGAME_CONFIG,
   INTELLIGENCE_CONFIG,
 } from '../constants.js';
-import { devLog } from '../utils/dev-logger.js';
+import { devLog, devWarn } from '../utils/dev-logger.js';
 import { generateEpilogue, generateStats } from '../data/epilogue-data.js';
 import { TradingManager } from './managers/trading.js';
 import { ShipManager } from './managers/ship.js';
@@ -374,6 +374,7 @@ export class GameCoordinator {
       getCurrentSystem: () => this.state.player.currentSystem,
       getCredits: () => this.state.player.credits,
       getShipCargo: () => this.state.ship.cargo,
+      getShipHiddenCargo: () => this.state.ship.hiddenCargo,
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       getStats: () => this.state.stats,
       getVisitedSystems: () => this.state.world.visitedSystems,
@@ -593,6 +594,13 @@ export class GameCoordinator {
     }
 
     let migratedState = this._applyMigrations(rawState);
+
+    // NaN credits persist as null (issue #57). The true balance is
+    // unrecoverable, but resetting it beats rejecting the whole save.
+    if (migratedState.player && migratedState.player.credits === null) {
+      devWarn('Save had corrupted credits (NaN), resetting to 0');
+      migratedState.player.credits = 0;
+    }
 
     if (!validateStateStructure(migratedState)) {
       return {
@@ -1154,8 +1162,12 @@ export class GameCoordinator {
     return await this.dialogueManager.startDialogue(npcId, nodeId);
   }
 
-  async selectDialogueChoice(npcId, choiceIndex) {
-    return await this.dialogueManager.selectDialogueChoice(npcId, choiceIndex);
+  async selectDialogueChoice(npcId, choiceIndex, options) {
+    return await this.dialogueManager.selectDialogueChoice(
+      npcId,
+      choiceIndex,
+      options
+    );
   }
 
   // ========================================================================
@@ -1198,12 +1210,12 @@ export class GameCoordinator {
     this.npcManager.checkLoanDefaults();
   }
 
-  storeCargo(npcId) {
-    return this.npcManager.storeCargo(npcId);
+  storeCargo(npcId, selections) {
+    return this.npcManager.storeCargo(npcId, selections);
   }
 
-  retrieveCargo(npcId) {
-    return this.npcManager.retrieveCargo(npcId);
+  retrieveCargo(npcId, selections) {
+    return this.npcManager.retrieveCargo(npcId, selections);
   }
 
   // ========================================================================
@@ -1295,12 +1307,12 @@ export class GameCoordinator {
   // HIDDEN CARGO SYSTEM
   // ========================================================================
 
-  moveToHiddenCargo(good, qty) {
-    return this.shipManager.moveToHiddenCargo(good, qty);
+  moveToHiddenCargo(index, qty) {
+    return this.shipManager.moveToHiddenCargo(index, qty);
   }
 
-  moveToRegularCargo(good, qty) {
-    return this.shipManager.moveToRegularCargo(good, qty);
+  moveToRegularCargo(index, qty) {
+    return this.shipManager.moveToRegularCargo(index, qty);
   }
 
   getHiddenCargo() {

@@ -13,6 +13,18 @@ import {
   NPC_BENEFITS_CONFIG,
   COLE_DEBT_CONFIG,
 } from '../../constants.js';
+import { buildStorageDialogue } from './storage-dialogue.js';
+
+const STORAGE = buildStorageDialogue({
+  requestText: `Cargo storage services are available under Station Protocol 8-C for established traders. We can accommodate up to ${NPC_BENEFITS_CONFIG.CARGO_STORAGE_LIMIT} units in our secure storage facility. All items are logged and tracked per standard inventory procedures.`,
+  requestFlag: 'kim_storage_discussed',
+  storeConfirmText: 'That would be very helpful.',
+  storeDeclineText: 'Good to know that service exists.',
+  retrieveText:
+    'Cargo retrieval request acknowledged. Per Station Protocol 8-C, I can transfer your stored items back to your vessel. Please note that transfer capacity is limited by your current cargo hold availability.',
+  retrieveFlag: 'kim_cargo_retrieved',
+  retrieveDeclineText: 'Let me make some space first.',
+});
 
 /**
  * Dr. Sarah Kim Dialogue Tree - Station Administrator at Tau Ceti
@@ -27,7 +39,7 @@ import {
  * - greeting → station_operations → (procedures_important | efficiency_matters) → greeting
  * - greeting → ask_tip (conditional on canGetTip) → tip_response → greeting
  * - greeting → request_loan (conditional on Trusted tier) → loan_response → greeting
- * - greeting → request_storage (conditional on Friendly tier) → storage_response → greeting
+ * - greeting → request_storage → picker → greeting (storage via buildStorageDialogue)
  */
 export const DR_SARAH_KIM_DIALOGUE = {
   greeting: {
@@ -100,17 +112,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
           return context.canRequestLoan.available;
         },
       },
-      {
-        text: 'Can you store some cargo for me?',
-        next: 'request_storage',
-        condition: (rep, context) => {
-          // Check both reputation requirement and favor availability
-          if (rep < REPUTATION_BOUNDS.FRIENDLY_MIN) return false;
-          // Fall back to reputation-only check if context not available (e.g., in tests)
-          if (!context || !context.canRequestStorage) return true;
-          return context.canRequestStorage.available;
-        },
-      },
+      STORAGE.storeGreetingChoice,
       {
         text: 'I want to repay my loan.',
         next: 'repay_loan',
@@ -120,17 +122,7 @@ export const DR_SARAH_KIM_DIALOGUE = {
           return Boolean(npcState.loanAmount && npcState.loanAmount > 0);
         },
       },
-      {
-        text: 'I want to retrieve my stored cargo.',
-        next: 'retrieve_cargo',
-        condition: (_rep, context) => {
-          // Check if NPC has stored cargo
-          const npcState = context.npcState;
-          return Boolean(
-            npcState.storedCargo && npcState.storedCargo.length > 0
-          );
-        },
-      },
+      STORAGE.retrieveGreetingChoice,
       {
         text: 'Nothing right now. Thank you.',
         next: null,
@@ -252,26 +244,6 @@ export const DR_SARAH_KIM_DIALOGUE = {
     ],
   },
 
-  request_storage: {
-    text: 'Cargo storage services are available under Station Protocol 8-C for established traders. We can accommodate up to ten units in our secure storage facility. All items are logged and tracked per standard inventory procedures.',
-    flags: ['kim_storage_discussed'],
-    choices: [
-      {
-        text: 'That would be very helpful.',
-        next: 'greeting',
-        repGain: 2,
-        action: (context) => {
-          return context.storeCargo();
-        },
-      },
-      {
-        text: 'Good to know that service exists.',
-        next: 'greeting',
-        repGain: 1,
-      },
-    ],
-  },
-
   repay_loan: {
     text: 'Loan repayment processing... Per Financial Regulation 12-A, I can confirm receipt of your five hundred credit repayment. Transaction logged and your account is now current. Thank you for your prompt attention to financial obligations.',
     flags: ['kim_loan_repaid'],
@@ -291,22 +263,5 @@ export const DR_SARAH_KIM_DIALOGUE = {
     ],
   },
 
-  retrieve_cargo: {
-    text: 'Cargo retrieval request acknowledged. Per Station Protocol 8-C, I can transfer your stored items back to your vessel. Please note that transfer capacity is limited by your current cargo hold availability.',
-    flags: ['kim_cargo_retrieved'],
-    choices: [
-      {
-        text: 'Transfer what you can to my ship.',
-        next: 'greeting',
-        repGain: 1,
-        action: (context) => {
-          return context.retrieveCargo();
-        },
-      },
-      {
-        text: 'Let me make some space first.',
-        next: 'greeting',
-      },
-    ],
-  },
+  ...STORAGE.nodes,
 };

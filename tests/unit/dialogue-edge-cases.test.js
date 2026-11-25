@@ -41,7 +41,7 @@ describe('Dialogue Engine Edge Cases', () => {
       const result = selectChoice(npcId, endingChoice.index, game);
 
       // Should return null to end dialogue
-      expect(result).toBeNull();
+      expect(result.display).toBeNull();
     });
 
     it('should return null for all NPCs when selecting ending choices', () => {
@@ -67,7 +67,7 @@ describe('Dialogue Engine Edge Cases', () => {
           showDialogue(npcId, 'greeting', game);
 
           const result = selectChoice(npcId, choice.index, game);
-          expect(result).toBeNull();
+          expect(result.display).toBeNull();
         }
       }
     });
@@ -267,7 +267,7 @@ describe('Dialogue Engine Edge Cases', () => {
       const choice = dialogue.choices.find((c) => c.next === 'small_talk');
       expect(choice).toBeDefined();
 
-      const nextDialogue = selectChoice(npcId, choice.index, game);
+      const nextDialogue = selectChoice(npcId, choice.index, game).display;
 
       // NPC information should remain consistent
       expect(nextDialogue.npcId).toBe('chen_barnards');
@@ -289,14 +289,18 @@ describe('Dialogue Engine Edge Cases', () => {
 
       // Select a choice that gives reputation gain
       const choice = dialogue.choices.find((c) => c.next === 'small_talk');
-      const nextDialogue = selectChoice(npcId, choice.index, game);
+      const nextDialogue = selectChoice(npcId, choice.index, game).display;
 
       // Find a choice with reputation gain in the small_talk node
       const repGainChoice = nextDialogue.choices.find(
         (c) => c.repGain && c.repGain > 0
       );
       if (repGainChoice) {
-        const finalDialogue = selectChoice(npcId, repGainChoice.index, game);
+        const finalDialogue = selectChoice(
+          npcId,
+          repGainChoice.index,
+          game
+        ).display;
 
         // Reputation tier should be updated in the final dialogue
         const finalRep = game.getNPCState(npcId).rep;

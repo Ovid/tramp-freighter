@@ -158,6 +158,21 @@ describe('useClickOutside hook', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it('does not call onClose on Escape when an aria-modal dialog is open', () => {
+    // e.g. the Upgrades purchase confirmation, which has no .modal-overlay
+    const onClose = vi.fn();
+    const { getByTestId } = render(
+      <div>
+        <div role="dialog" aria-modal="true" />
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+    getByTestId('inner-btn').focus();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('does not call onClose on Escape when another data-panel is open', () => {
     const onClose = vi.fn();
     render(

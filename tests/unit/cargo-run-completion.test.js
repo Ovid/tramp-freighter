@@ -17,6 +17,7 @@ describe('Cargo Run Mission Completion', () => {
             missionId: 'cargo_run_123',
           },
         ],
+        hiddenCargo: [],
       },
       missions: {
         active: [
@@ -47,6 +48,7 @@ describe('Cargo Run Mission Completion', () => {
       getCurrentSystem: () => state.player.currentSystem,
       getCredits: () => state.player.credits,
       getShipCargo: () => state.ship.cargo,
+      getShipHiddenCargo: () => state.ship.hiddenCargo,
       getCargoRemaining: vi.fn(() => 100),
       getStats: () => state.stats,
       getVisitedSystems: () => [],
@@ -109,6 +111,17 @@ describe('Cargo Run Mission Completion', () => {
     const result = manager.completeMission('cargo_run_123');
     expect(result.success).toBe(false);
     expect(result.reason).toMatch(/cargo/i);
+  });
+
+  // Issue #50: smuggled mission cargo completes and leaves the hidden hold
+  it('should complete and remove mission cargo from the hidden compartment', () => {
+    state.ship.hiddenCargo = state.ship.cargo;
+    state.ship.cargo = [];
+
+    const result = manager.completeMission('cargo_run_123');
+
+    expect(result.success).toBe(true);
+    expect(state.ship.hiddenCargo).toEqual([]);
   });
 
   it('should not require old-style cargo field for new cargo runs', () => {

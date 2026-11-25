@@ -44,9 +44,9 @@ describe('game-dialogue coverage', () => {
     it('provides working action callbacks', () => {
       const ctx = buildDialogueContext(gsm, 'chen_barnards');
       expect(typeof ctx.requestLoan).toBe('function');
-      expect(typeof ctx.storeCargo).toBe('function');
+      expect(ctx.storeCargo).toBeUndefined();
       expect(typeof ctx.repayLoan).toBe('function');
-      expect(typeof ctx.retrieveCargo).toBe('function');
+      expect(ctx.retrieveCargo).toBeUndefined();
     });
   });
 
@@ -145,7 +145,7 @@ describe('game-dialogue coverage', () => {
       const exitChoice = dialogue.choices.find((c) => !c.next);
       if (exitChoice) {
         const result = selectChoice('chen_barnards', exitChoice.index, gsm);
-        expect(result).toBeNull();
+        expect(result.display).toBeNull();
       }
     });
 
@@ -153,7 +153,11 @@ describe('game-dialogue coverage', () => {
       const dialogue = showDialogue('chen_barnards', 'greeting', gsm);
       const continueChoice = dialogue.choices.find((c) => c.next);
       if (continueChoice) {
-        const result = selectChoice('chen_barnards', continueChoice.index, gsm);
+        const result = selectChoice(
+          'chen_barnards',
+          continueChoice.index,
+          gsm
+        ).display;
         expect(result).toBeDefined();
         expect(result.text).toBeDefined();
       }
@@ -199,7 +203,7 @@ describe('game-dialogue coverage', () => {
         gsm.clearDialogueState();
         const result = selectChoice('chen_barnards', choice.index, gsm);
         // Should not throw
-        expect(result !== undefined).toBe(true);
+        expect(result.success).toBe(true);
       }
     });
   });

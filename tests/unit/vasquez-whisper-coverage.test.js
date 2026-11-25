@@ -100,23 +100,6 @@ describe('Captain Vasquez dialogue coverage', () => {
     });
   });
 
-  describe('request_storage action callback (line 449)', () => {
-    it('calls context.storeCargo()', () => {
-      const storeChoice = CAPTAIN_VASQUEZ_DIALOGUE.request_storage.choices.find(
-        (c) => c.text && c.text.includes('huge help')
-      );
-      expect(storeChoice).toBeDefined();
-      expect(storeChoice.action).toBeDefined();
-
-      const mockContext = {
-        storeCargo: vi.fn().mockReturnValue({ success: true }),
-      };
-      const result = storeChoice.action(mockContext);
-      expect(mockContext.storeCargo).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
-    });
-  });
-
   describe('repay_loan action callback (line 469)', () => {
     it('calls context.repayLoan()', () => {
       const repayChoice = CAPTAIN_VASQUEZ_DIALOGUE.repay_loan.choices.find(
@@ -130,24 +113,6 @@ describe('Captain Vasquez dialogue coverage', () => {
       };
       const result = repayChoice.action(mockContext);
       expect(mockContext.repayLoan).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
-    });
-  });
-
-  describe('retrieve_cargo action callback (line 488)', () => {
-    it('calls context.retrieveCargo()', () => {
-      const retrieveChoice =
-        CAPTAIN_VASQUEZ_DIALOGUE.retrieve_cargo.choices.find(
-          (c) => c.text && c.text.includes('Transfer what you can')
-        );
-      expect(retrieveChoice).toBeDefined();
-      expect(retrieveChoice.action).toBeDefined();
-
-      const mockContext = {
-        retrieveCargo: vi.fn().mockReturnValue({ success: true }),
-      };
-      const result = retrieveChoice.action(mockContext);
-      expect(mockContext.retrieveCargo).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
     });
   });
@@ -267,23 +232,6 @@ describe('Whisper dialogue coverage', () => {
     });
   });
 
-  describe('request_storage action callback (line 318)', () => {
-    it('calls context.storeCargo()', () => {
-      const storeChoice = WHISPER_DIALOGUE.request_storage.choices.find(
-        (c) => c.text && c.text.includes('very helpful')
-      );
-      expect(storeChoice).toBeDefined();
-      expect(storeChoice.action).toBeDefined();
-
-      const mockContext = {
-        storeCargo: vi.fn().mockReturnValue({ success: true }),
-      };
-      const result = storeChoice.action(mockContext);
-      expect(mockContext.storeCargo).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
-    });
-  });
-
   describe('repay_loan action callback (line 338)', () => {
     it('calls context.repayLoan()', () => {
       const repayChoice = WHISPER_DIALOGUE.repay_loan.choices.find(
@@ -297,23 +245,6 @@ describe('Whisper dialogue coverage', () => {
       };
       const result = repayChoice.action(mockContext);
       expect(mockContext.repayLoan).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
-    });
-  });
-
-  describe('retrieve_cargo action callback (line 357)', () => {
-    it('calls context.retrieveCargo()', () => {
-      const retrieveChoice = WHISPER_DIALOGUE.retrieve_cargo.choices.find(
-        (c) => c.text && c.text.includes('Transfer what you can')
-      );
-      expect(retrieveChoice).toBeDefined();
-      expect(retrieveChoice.action).toBeDefined();
-
-      const mockContext = {
-        retrieveCargo: vi.fn().mockReturnValue({ success: true }),
-      };
-      const result = retrieveChoice.action(mockContext);
-      expect(mockContext.retrieveCargo).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
     });
   });

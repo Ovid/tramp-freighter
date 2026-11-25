@@ -20,6 +20,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // The app chunk is ~580 kB and loads once per session, so the 500 kB
+    // default warned on every build; this still flags real growth
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks: {

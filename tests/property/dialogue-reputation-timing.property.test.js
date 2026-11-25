@@ -59,7 +59,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
           const initialRep = game.getNPCState(npcId).rep;
 
           // Select the choice
-          const nextDialogue = selectChoice(npcId, choice.index, game);
+          const nextDialogue = selectChoice(npcId, choice.index, game).display;
 
           expect(nextDialogue).toBeDefined();
 
@@ -125,7 +125,7 @@ describe('Dialogue Reputation Update Timing Properties', () => {
 
         // Select a choice that should increase reputation
         const choice = choicesWithRepGain[0];
-        const nextDialogue = selectChoice(npcId, choice.index, game);
+        const nextDialogue = selectChoice(npcId, choice.index, game).display;
 
         expect(nextDialogue).toBeDefined();
 

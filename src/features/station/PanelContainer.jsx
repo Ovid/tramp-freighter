@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { TradePanel } from '../trade/TradePanel';
 import { RefuelPanel } from '../refuel/RefuelPanel';
 import { RepairPanel } from '../repair/RepairPanel';
@@ -23,6 +24,35 @@ import { FinancePanel } from '../finance/FinancePanel';
  * @param {Function} onClose - Callback to close just this panel
  */
 export function PanelContainer({ activePanel, npcId, onClose }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      // A modal over the panel (cargo storage picker, upgrade confirmation,
+      // narrative event) owns Escape. Two queries, not a selector list:
+      // jsdom's nwsapi mismatches lists that mix class and attribute
+      if (document.querySelector('.modal-overlay')) return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      // Focus in another panel (dev admin, camera controls) means Escape is
+      // for it. The station menu is exempt: focus stays on the menu button
+      // that opened this panel.
+      const focusedPanel = document.activeElement?.closest('[data-panel]');
+      if (
+        focusedPanel &&
+        focusedPanel !== containerRef.current &&
+        focusedPanel.id !== 'station-interface'
+      )
+        return;
+      // Capture phase + stopPropagation: the panel sits above the station
+      // menu, so it takes this Escape and the menu must not undock as well
+      e.stopPropagation();
+      onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [onClose]);
+
   const renderPanel = () => {
     switch (activePanel) {
       case 'trade':
@@ -51,7 +81,7 @@ export function PanelContainer({ activePanel, npcId, onClose }) {
   };
 
   return (
-    <div className="panel-container" data-panel>
+    <div className="panel-container" ref={containerRef} data-panel>
       {renderPanel()}
     </div>
   );

@@ -7,7 +7,7 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
   beforeEach(() => {
     state = {
       player: { daysElapsed: 10 },
-      ship: { cargo: [] },
+      ship: { cargo: [], hiddenCargo: [] },
       missions: { active: [], board: [], completed: [], failed: [] },
     };
 
@@ -17,6 +17,7 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
       getCurrentSystem: () => state.player.currentSystem,
       getCredits: () => state.player.credits,
       getShipCargo: () => state.ship.cargo,
+      getShipHiddenCargo: () => state.ship.hiddenCargo,
       getCargoRemaining: vi.fn(() => 100),
       getStats: () => ({}),
       getVisitedSystems: () => [],
@@ -65,6 +66,25 @@ describe('MissionManager.abandonMission – cargo run cargo removal', () => {
 
     expect(state.ship.cargo).toHaveLength(1);
     expect(state.ship.cargo[0].good).toBe('ore');
+  });
+
+  // Issue #50: otherwise abandoned cargo sits in the hidden hold forever
+  it('should remove mission cargo from the hidden compartment when abandoning', () => {
+    state.ship.hiddenCargo = [
+      { good: 'registered_freight', qty: 10, missionId: 'cargo_run_123' },
+    ];
+    state.missions.active = [
+      {
+        id: 'cargo_run_123',
+        type: 'delivery',
+        missionCargo: { good: 'registered_freight', quantity: 10 },
+        penalties: { failure: {} },
+      },
+    ];
+
+    manager.abandonMission('cargo_run_123');
+
+    expect(state.ship.hiddenCargo).toEqual([]);
   });
 
   it('should not affect cargo when abandoning non-cargo-run missions', () => {

@@ -35,6 +35,12 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 // Special dialogue node identifiers
 const TIP_NODE_ID = 'ask_tip';
 
+// Picker choices take player input (selections) before they take effect
+const PICKER_OPERATIONS = {
+  store: 'storeCargo',
+  retrieve: 'retrieveCargo',
+};
+
 /**
  * Build a flat context object for dialogue text/condition/action functions.
  * Replaces direct gameStateManager access in dialogue data files.
@@ -81,9 +87,7 @@ export function buildDialogueContext(gameStateManager, npcId) {
 
     // Action callbacks (bound to npcId where appropriate)
     requestLoan: () => gameStateManager.requestLoan(npcId),
-    storeCargo: () => gameStateManager.storeCargo(npcId),
     repayLoan: () => gameStateManager.repayLoan(npcId),
-    retrieveCargo: () => gameStateManager.retrieveCargo(npcId),
     advanceQuest: (questId) => gameStateManager.advanceQuest(questId),
     claimStageRewards: (questId) => gameStateManager.claimStageRewards(questId),
     startPavonisRun: () => gameStateManager.startPavonisRun(),
@@ -208,6 +212,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
         text: choice.text,
         next: choice.next,
         repGain: choice.repGain || 0,
+        ...(choice.picker && { picker: choice.picker }),
       });
     }
   }
@@ -261,13 +266,26 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  * to NPC state before navigation. Closes dialogue when choice has no next node.
  * Executes any action functions associated with the choice (e.g., loan requests).
  *
+ * A picker choice ('store' or 'retrieve') runs the matching NPC storage
+ * operation with options.selections. If there are no selections or the
+ * operation fails, it returns { success: false, message, display: null }
+ * without granting repGain or advancing; on success the manager's message is
+ * included in the result.
+ *
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {number} choiceIndex - Index of selected choice from the current dialogue node's choices array
  * @param {GameCoordinator} gameStateManager - Game state manager instance for state modifications
- * @returns {Object|null} Next dialogue display object (same format as showDialogue) or null if dialogue ends
+ * @param {Object} [options]
+ * @param {Array<{stackIndex: number, qty: number}>} [options.selections] - Cargo picked for a picker choice
+ * @returns {Object} { success: boolean, message?: string, display: Object|null }
  * @throws {Error} If NPC ID is invalid or choice index is out of bounds
  */
-export function selectChoice(npcId, choiceIndex, gameStateManager) {
+export function selectChoice(
+  npcId,
+  choiceIndex,
+  gameStateManager,
+  options = {}
+) {
   // Validate NPC ID exists in NPC data
   validateNPCId(npcId);
 
@@ -302,6 +320,23 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
   }
 
   const selectedChoice = currentNode.choices[choiceIndex];
+
+  // The engine, not the UI, runs picker operations, so no caller can collect
+  // the repGain without the cargo actually moving (ADR 0001)
+  let message;
+  if (selectedChoice.picker) {
+    const operation = PICKER_OPERATIONS[selectedChoice.picker];
+    if (!operation) {
+      throw new Error(
+        `Unknown picker '${selectedChoice.picker}' in node ${currentNodeId} for NPC ${npcId}`
+      );
+    }
+    const outcome = gameStateManager[operation](npcId, options.selections);
+    if (!outcome.success) {
+      return { success: false, message: outcome.message, display: null };
+    }
+    message = outcome.message;
+  }
 
   // Build context for dialogue data file functions
   const context = buildDialogueContext(gameStateManager, npcId);
@@ -351,13 +386,18 @@ export function selectChoice(npcId, choiceIndex, gameStateManager) {
     );
   }
 
+  const withMessage = (display) =>
+    message === undefined
+      ? { success: true, display }
+      : { success: true, message, display };
+
   // Close dialogue if choice has no next node
   if (!selectedChoice.next) {
-    // Clear dialogue state in GameCoordinator
     gameStateManager.clearDialogueState();
-    return null;
+    return withMessage(null);
   }
 
-  // Advance to next dialogue node
-  return showDialogue(npcId, selectedChoice.next, gameStateManager);
+  return withMessage(
+    showDialogue(npcId, selectedChoice.next, gameStateManager)
+  );
 }
