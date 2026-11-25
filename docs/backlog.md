@@ -114,3 +114,17 @@ inside, so the `break` means one event per system. Check the effect on
 event frequency before changing it, because more events will fire.
 
 Found during pushback on `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## `npm run all` fails on knip
+
+All tests pass, but the final `knip` step of `npm run all` exits 1. It
+reports an unused file, `src/game/state/capabilities.js`, and an unused
+export, `YUMI_TANAKA_POSTCREDITS_DIALOGUE` in
+`src/game/data/dialogue-trees.js`. Commit `0f5fe1a` gives the same result,
+so this predates the navigation sphere branch.
+
+Possible fixes: delete what is truly unused, or tell knip about it (for
+example, `capabilities.js` may be documentation-only by design; the GSM
+refactor notes describe a capabilities object).
+
+Found while executing `docs/plans/2026-11-25-navigation-sphere-plan.md`.
