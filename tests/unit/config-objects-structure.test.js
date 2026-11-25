@@ -45,7 +45,7 @@ describe('Configuration Object Structure', () => {
     it('should have LABEL_CONFIG with expected properties', () => {
       expect(LABEL_CONFIG).toBeDefined();
       expect(LABEL_CONFIG.maxFontSize).toBeDefined();
-      expect(LABEL_CONFIG.minFontSize).toBeDefined();
+      expect(LABEL_CONFIG.hideDistance).toBeDefined();
       expect(LABEL_CONFIG.nearDistance).toBeDefined();
     });
 

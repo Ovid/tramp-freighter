@@ -25,11 +25,12 @@ import {
   updateSelectionRingAnimations,
   _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
-import { updateLabelScale } from '../../game/engine/stars';
+import { updateLabels } from '../../game/engine/stars';
 import {
   isDrag,
   minPickRadiusFor,
   pickStar,
+  pxToSpriteScale,
   rotationAngle,
   resolveAutoRotationSpeed,
 } from '../../game/engine/starmap-math';
@@ -143,6 +144,10 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       controls = sceneComponents.controls;
       lights = sceneComponents.lights;
       const stars = sceneComponents.stars;
+
+      // The renderer fills the window (scene.js onWindowResize), so its height is
+      // window.innerHeight. unitsPerPx turns CSS px into sprite scale.
+      let unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
 
       // Append renderer to container
       container.appendChild(renderer.domElement);
@@ -290,7 +295,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         }
 
         // Update label scale and opacity based on camera distance
-        updateLabelScale(stars, camera);
+        updateLabels(stars, camera, unitsPerPx);
 
         // Update selection ring animations (static in reduced-motion mode)
         updateSelectionRingAnimations(currentTime, reducedMotion);
@@ -325,6 +330,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Handle window resize
       const handleResize = () => {
         onWindowResize(camera, renderer);
+        unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
       };
       window.addEventListener('resize', handleResize);
 

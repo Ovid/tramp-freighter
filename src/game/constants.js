@@ -897,15 +897,17 @@ export const VISUAL_CONFIG = {
 /**
  * Label configuration for star system names
  *
- * Distance-based scaling provides depth perception without cluttering the view.
+ * Labels are a fixed size on screen (STARMAP_CONFIG.LABEL_HEIGHT_PX); distance
+ * only fades them, which gives depth without cluttering the view.
  */
 export const LABEL_CONFIG = {
-  maxFontSize: 18,
-  minFontSize: 8,
+  maxFontSize: 18, // canvas font size; screen size comes from LABEL_HEIGHT_PX
   maxOpacity: 1.0,
   minOpacity: 0.3, // Increased from 0.1 to make distant labels more visible at starting zoom
   nearDistance: 100,
   farDistance: 500,
+  hideDistance: 60, // labels nearer the camera than this hide (they obscure lanes)
+  anchorCenterY: -0.3, // sprite.center.y: lifts the label above its star
 };
 
 /**
