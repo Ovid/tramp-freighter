@@ -556,6 +556,7 @@ export const COLE_DEBT_CONFIG = {
  */
 export const DEFAULT_PREFERENCES = Object.freeze({
   jumpWarningsEnabled: true,
+  autoRotationSpeed: null, // degrees per second; null = not chosen yet
 });
 
 /**
