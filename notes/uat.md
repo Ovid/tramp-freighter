@@ -13,3 +13,4 @@
 - **After mobile testing:** `resize_window` back to desktop may not restore the original size. Take a fresh screenshot before using coordinates.
 - **Protect the user's save:** Before any test that jumps, trades, or otherwise mutates state, copy every localStorage key to a `uatbackup__` prefix via `javascript_tool`. To restore, first reload to the title screen (so no pending 500ms autosave can overwrite it), then copy the keys back, verify, and delete the backups.
 - **Testing the Jump Warning while docked:** Teleport (admin panel) to Sol, Dock, then target Procyon A (Contested) via System Info. The warning only appears for Contested/Dangerous destinations with jump warnings enabled.
+- **`resize_window` can silently no-op:** it may report success while `window.innerWidth` stays unchanged (likely a maximized window). Verify with `javascript_tool` (`window.innerWidth`) before trusting a mobile-layout screenshot.
