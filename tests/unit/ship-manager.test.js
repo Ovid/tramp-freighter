@@ -463,6 +463,13 @@ describe('ShipManager', () => {
       expect(def).toHaveProperty('cost');
     });
 
+    it('getUpgradeDefinition describes the Range Extender quest reward', () => {
+      // Ship Status hides any installed upgrade without a definition
+      const def = gsm.shipManager.getUpgradeDefinition('range_extender');
+      expect(def).not.toBeNull();
+      expect(def.name).toBe('Range Extender');
+    });
+
     it('getUpgradeDefinition returns null for unknown upgrade', () => {
       expect(gsm.shipManager.getUpgradeDefinition('fake')).toBeNull();
     });

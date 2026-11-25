@@ -167,7 +167,11 @@ export class ShipManager extends BaseManager {
    * @returns {Object|null} Upgrade definition or null if not found
    */
   getUpgradeDefinition(upgradeId) {
-    return SHIP_CONFIG.UPGRADES[upgradeId] || null;
+    return (
+      SHIP_CONFIG.UPGRADES[upgradeId] ||
+      SHIP_CONFIG.QUEST_UPGRADES[upgradeId] ||
+      null
+    );
   }
 
   /**

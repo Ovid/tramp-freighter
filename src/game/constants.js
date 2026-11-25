@@ -382,6 +382,16 @@ export const SHIP_CONFIG = {
       tradeoff: 'Takes up cargo space.',
     },
   },
+
+  // Quest rewards. Kept out of UPGRADES so the shop never offers them.
+  QUEST_UPGRADES: {
+    range_extender: {
+      name: 'Range Extender',
+      description: 'One-way jump to Delta Pavonis, beyond the wormhole network',
+      effects: {},
+      tradeoff: 'Single use. There is no coming back.',
+    },
+  },
 };
 
 /**
