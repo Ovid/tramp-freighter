@@ -195,7 +195,6 @@ export function SystemPanel({
             system={viewingSystem}
             starData={starData}
             dangerZone={dangerZone}
-            isCurrentSystem={isCurrentSystem}
           />
           {isCurrentSystem ? (
             <ConnectedSystems
@@ -217,7 +216,7 @@ export function SystemPanel({
   );
 }
 
-function SystemDetails({ system, starData, dangerZone, isCurrentSystem }) {
+function SystemDetails({ system, starData, dangerZone }) {
   return (
     <div className="system-details">
       <div className="system-property">
@@ -242,15 +241,15 @@ function SystemDetails({ system, starData, dangerZone, isCurrentSystem }) {
         </span>
       </div>
       <div className="system-property">
-        <span className="label">Status:</span>
+        <span className="label">Station:</span>
+        <span className="value">{system.st > 0 ? 'Available' : 'None'}</span>
+      </div>
+      <div className="system-property">
+        <span className="label">Network:</span>
         <span className="value">
-          {isCurrentSystem
-            ? system.st > 0
-              ? 'Station Available'
-              : 'No Station'
-            : system.r === 1
-              ? 'On the wormhole network'
-              : 'Off the wormhole network'}
+          {system.r === 1
+            ? 'On the wormhole network'
+            : 'Off the wormhole network'}
         </span>
       </div>
     </div>

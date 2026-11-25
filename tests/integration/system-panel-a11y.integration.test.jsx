@@ -108,9 +108,31 @@ describe('Integration: SystemPanel accessibility', () => {
     const describedBy = document.getElementById(
       button.getAttribute('aria-describedby')
     );
-    expect(describedBy.textContent).toMatch(/light-years, \d+% fuel, \d+ days?/);
+    expect(describedBy.textContent).toMatch(
+      /light-years, \d+% fuel, \d+ days?/
+    );
     expect(button.querySelector('div')).toBeNull();
   });
+
+  it.each([
+    ['current system', () => game.getState().player.currentSystem],
+    ['another system', () => 4],
+  ])(
+    'the %s view labels station and network rows separately',
+    (_label, getId) => {
+      const id = getId();
+      render(panel(id));
+      const system = STAR_DATA.find((s) => s.id === id);
+      const value = (label) =>
+        screen.getByText(label).parentElement.querySelector('.value')
+          .textContent;
+      expect(value('Station:')).toBe(system.st > 0 ? 'Available' : 'None');
+      expect(value('Network:')).toBe(
+        system.r === 1 ? 'On the wormhole network' : 'Off the wormhole network'
+      );
+      expect(screen.queryByText('Status:')).toBeNull();
+    }
+  );
 
   it('does not steal focus from the star map canvas', () => {
     const canvas = document.createElement('div');

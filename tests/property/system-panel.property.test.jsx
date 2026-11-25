@@ -40,7 +40,8 @@ describe('Property: System Panel', () => {
       // Should display system properties
       expect(screen.getByText(/Spectral Class:/i)).toBeInTheDocument();
       expect(screen.getByText(/Wormholes:/i)).toBeInTheDocument();
-      expect(screen.getByText(/Status:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Station:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Network:/i)).toBeInTheDocument();
 
       // Should NOT display jump information
       expect(screen.queryByText(/Distance:/i)).not.toBeInTheDocument();
