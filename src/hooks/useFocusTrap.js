@@ -9,7 +9,8 @@ const FOCUSABLE_SELECTOR =
  * behind the dialog.
  *
  * On activation: remembers the focused element and focuses the dialog's
- * first focusable element. On deactivation or unmount: restores focus.
+ * first focusable element. On deactivation or unmount: restores focus, or
+ * moves it to #main-content when the original element is gone.
  */
 export function useFocusTrap(ref, active = true) {
   useEffect(() => {
@@ -45,7 +46,13 @@ export function useFocusTrap(ref, active = true) {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      if (previous && document.body.contains(previous)) previous.focus();
+      // The opener is often unmounted by the dialog's own action (Proceed
+      // closes the panel that held the Jump button); don't strand focus on body.
+      if (previous && previous !== document.body && previous.isConnected) {
+        previous.focus();
+      } else {
+        document.getElementById('main-content')?.focus();
+      }
     };
   }, [ref, active]);
 }
