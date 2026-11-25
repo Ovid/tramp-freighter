@@ -19,7 +19,7 @@ function SystemStars({ star, starData }) {
   return (
     <div className="system-property system-stars">
       <span className="label">Stars:</span>
-      <ul className="value">
+      <ul className="value" role="list">
         {[star, ...companions].map((s) => (
           <li
             key={s.id}
@@ -357,10 +357,16 @@ function ConnectedSystems({
 
   return (
     <div className="connected-systems">
+      <h3 id={`${idPrefix}-heading`} className="connections-heading">
+        Wormhole Connections
+      </h3>
       {connectedSystems.length === 0 ? (
         <p className="no-connections">No wormhole connections</p>
       ) : (
-        <div className="connections-list">
+        <ul
+          className="connections-list"
+          aria-labelledby={`${idPrefix}-heading`}
+        >
           {connectedSystems.map((system) => {
             let destinationEvent = null;
             let destinationEventType = null;
@@ -382,55 +388,57 @@ function ConnectedSystems({
             // Name the button by system only; the stats and any event become
             // its description so each Tab doesn't read a paragraph.
             return (
-              <button
-                key={system.id}
-                className="connection-item"
-                aria-labelledby={`${ids}-name`}
-                aria-describedby={
-                  hasEvent ? `${ids}-details ${ids}-event` : `${ids}-details`
-                }
-                onClick={() => {
-                  if (selectStarById) {
-                    selectStarById(system.id);
+              <li key={system.id}>
+                <button
+                  className="connection-item"
+                  aria-labelledby={`${ids}-name`}
+                  aria-describedby={
+                    hasEvent ? `${ids}-details ${ids}-event` : `${ids}-details`
                   }
-                }}
-              >
-                <span id={`${ids}-name`} className="connection-name">
-                  {system.name}
-                </span>
-                <span className="connection-details" aria-hidden="true">
-                  {system.distance.toFixed(1)} LY • {fuelPercent}% fuel • {days}
-                </span>
-                <span id={`${ids}-details`} hidden>
-                  {`${system.distance.toFixed(1)} light-years, ${fuelPercent}% fuel, ${days}`}
-                </span>
-                {hasEvent && (
-                  <span
-                    id={`${ids}-event`}
-                    className="system-event-info destination-event"
-                  >
-                    <span className="event-indicator">
-                      <span className="event-icon" aria-hidden="true">
-                        📊
-                      </span>
-                      <span className="event-name">
-                        {destinationEventType.name} at {system.name}
-                      </span>
-                    </span>
-                    <span className="event-description">
-                      {destinationEventType.description}
-                    </span>
-                    <span className="event-time-remaining">
-                      {daysRemaining === 0
-                        ? 'Final day'
-                        : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
-                    </span>
+                  onClick={() => {
+                    if (selectStarById) {
+                      selectStarById(system.id);
+                    }
+                  }}
+                >
+                  <span id={`${ids}-name`} className="connection-name">
+                    {system.name}
                   </span>
-                )}
-              </button>
+                  <span className="connection-details" aria-hidden="true">
+                    {system.distance.toFixed(1)} LY • {fuelPercent}% fuel •{' '}
+                    {days}
+                  </span>
+                  <span id={`${ids}-details`} hidden>
+                    {`${system.distance.toFixed(1)} light-years, ${fuelPercent}% fuel, ${days}`}
+                  </span>
+                  {hasEvent && (
+                    <span
+                      id={`${ids}-event`}
+                      className="system-event-info destination-event"
+                    >
+                      <span className="event-indicator">
+                        <span className="event-icon" aria-hidden="true">
+                          📊
+                        </span>
+                        <span className="event-name">
+                          {destinationEventType.name} at {system.name}
+                        </span>
+                      </span>
+                      <span className="event-description">
+                        {destinationEventType.description}
+                      </span>
+                      <span className="event-time-remaining">
+                        {daysRemaining === 0
+                          ? 'Final day'
+                          : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
+                      </span>
+                    </span>
+                  )}
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </div>
   );

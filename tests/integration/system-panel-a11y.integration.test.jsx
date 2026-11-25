@@ -155,4 +155,22 @@ describe('Integration: SystemPanel accessibility', () => {
     expect(document.activeElement).toBe(opener);
     opener.remove();
   });
+
+  it('connections are a list under a Wormhole Connections heading', () => {
+    render(panel(game.getState().player.currentSystem));
+    const heading = screen.getByRole('heading', {
+      name: 'Wormhole Connections',
+    });
+    const list = screen.getByRole('list', { name: 'Wormhole Connections' });
+    expect(heading).toBeTruthy();
+    const items = list.querySelectorAll(':scope > li > .connection-item');
+    expect(items.length).toBeGreaterThan(0);
+  });
+
+  it('keeps list semantics on the stars list for Safari', () => {
+    render(panel(7));
+    expect(
+      document.querySelector('.system-stars ul').getAttribute('role')
+    ).toBe('list');
+  });
 });

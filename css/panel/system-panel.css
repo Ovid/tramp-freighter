@@ -177,10 +177,19 @@
   padding: 10px 0;
 }
 
+.connections-heading {
+  color: #00ff88;
+  font-size: var(--font-size-large);
+  margin: 0;
+}
+
 .connections-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .connection-item {
