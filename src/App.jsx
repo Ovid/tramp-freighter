@@ -190,7 +190,12 @@ export default function App({ devMode = false }) {
       );
     };
     const handleAlreadySampled = () => {
-      notificationCtx.showInfo('Scanner: Already sampled this station.');
+      notificationCtx.showInfo('Scanner: Already scanned this station.');
+    };
+    const handleNotFound = () => {
+      notificationCtx.showInfo(
+        'Scanner: No exotic matter here. Odds improve at the next distant station.'
+      );
     };
 
     game.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
@@ -198,7 +203,9 @@ export default function App({ devMode = false }) {
       EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
       handleAlreadySampled
     );
+    game.subscribe(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND, handleNotFound);
     return () => {
+      game.unsubscribe(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND, handleNotFound);
       game.unsubscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
       game.unsubscribe(
         EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,

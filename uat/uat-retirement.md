@@ -138,20 +138,20 @@ every narrative popup and dialogue node that matters.
 ### Phase D: Stage 2, Rare Materials
 
 12. "What do you need?" → accept (+5). The HUD shows **"0/5 samples"**.
-13. **Collect samples.** On each dock at a new station ≥ 15 LY from Sol, there
-    is a 60% chance of a notification "Scanner: Exotic matter detected… [n/5]".
-    Docking again at a station you already sampled shows "Already sampled
-    this station."
+13. **Collect samples.** On each dock at a new station ≥ 15 LY from Sol, the
+    scanner either finds a sample ("Scanner: Exotic matter detected… [n/5]")
+    or reports "Scanner: No exotic matter here. Odds improve at the next
+    distant station." The base chance is 60%, and each miss adds 20% to the
+    next scan (so never more than two misses in a row). Docking again at any
+    station already scanned shows "Scanner: Already scanned this station."
     Suggested loop from Barnard's (≥ 15 LY stations in **bold**):
     - Barnard's → **70 Ophiuchi** (16.6) → **Altair** (16.8, dead end) → 70 Oph → Barnard's
     - Barnard's → Struve 2398 → **Sigma Draconis** (18.9) → Struve 2398 → BD+68 946 → **Groombridge 1618** (15.9)
     - Groombridge 1618 → Alpha Centauri → L 143-23 → **L 145-141** (15.1) → **CD-40 9712** (19.4)
     - More options: `notes/star-connections.md` plus the table at the end of this file.
-14. **⚠ Re-roll check.** A failed roll doesn't mark the station as sampled. Undock
-    and dock again at the same station. If you can retry until it succeeds, the
-    60% chance means nothing. Record that as a finding with the number of tries.
-    (The roll also uses `Math.random()`, which CLAUDE.md forbids in gameplay
-    paths.)
+14. **Re-roll check.** After a miss, undock and dock again at the same
+    station. It must say "Already scanned" and must not roll again. Also check
+    that the scan after two misses in a row always succeeds.
 15. Go back to Tanaka with 5/5 samples. Choose "Took some searching…" and check
     **+₡3,000**, **Advanced Sensors** under ship upgrades, and the rep gain.
 

@@ -683,6 +683,7 @@ export const ENDGAME_CONFIG = {
   STAGE_2_EXOTIC_NEEDED: 5,
   STAGE_2_EXOTIC_DISTANCE: 15,
   STAGE_2_EXOTIC_CHANCE: 0.6,
+  STAGE_2_EXOTIC_MISS_BONUS: 0.2, // Each miss adds this to the next scan: 60% → 80% → 100%
   STAGE_2_REWARD_CREDITS: 3000,
   STAGE_2_REWARD_REP: 15,
   STAGE_3_REP: 50,
@@ -1960,6 +1961,7 @@ export const EVENT_NAMES = Object.freeze({
   QUEST_CHANGED: 'questChanged',
   EXOTIC_MATTER_COLLECTED: 'exoticMatterCollected',
   EXOTIC_MATTER_ALREADY_SAMPLED: 'exoticMatterAlreadySampled',
+  EXOTIC_MATTER_NOT_FOUND: 'exoticMatterNotFound',
 
   // Intelligence
   INTELLIGENCE_CHANGED: 'intelligenceChanged',

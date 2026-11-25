@@ -6,6 +6,7 @@ import {
   TANAKA_SUPPLY_CONFIG,
   calculateDistanceFromSol,
 } from '../../constants.js';
+import { SeededRandom } from '../../utils/seeded-random.js';
 
 export class QuestManager extends BaseManager {
   constructor(capabilities) {
@@ -317,7 +318,7 @@ export class QuestManager extends BaseManager {
     }
   }
 
-  onDock(systemId, rngFn = Math.random) {
+  onDock(systemId, rngFn) {
     const tanakaState = this.getQuestState('tanaka');
     if (!tanakaState || tanakaState.stage !== 2) return;
 
@@ -329,17 +330,42 @@ export class QuestManager extends BaseManager {
     if (distanceLY < ENDGAME_CONFIG.STAGE_2_EXOTIC_DISTANCE) return;
 
     if (!tanakaState.data.exoticStations) tanakaState.data.exoticStations = [];
+    if (!tanakaState.data.exoticFailedStations)
+      tanakaState.data.exoticFailedStations = [];
     if (
       (tanakaState.data.exoticMaterials || 0) >=
       ENDGAME_CONFIG.STAGE_2_EXOTIC_NEEDED
     )
       return;
-    if (tanakaState.data.exoticStations.includes(systemId)) {
+    if (
+      tanakaState.data.exoticStations.includes(systemId) ||
+      tanakaState.data.exoticFailedStations.includes(systemId)
+    ) {
       this.capabilities.emit(EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED);
       return;
     }
 
-    if (rngFn() >= ENDGAME_CONFIG.STAGE_2_EXOTIC_CHANCE) return;
+    // A failed scan is final for that station, or redocking re-rolls for
+    // free. Each miss raises the next chance so bad luck can't block the quest.
+    const misses = tanakaState.data.exoticMisses || 0;
+    const roll =
+      rngFn ??
+      (() => {
+        const day = Math.floor(this.capabilities.getDaysElapsed());
+        const rng = new SeededRandom(`${day}_${systemId}_exotic`);
+        return rng.next();
+      });
+    const chance =
+      ENDGAME_CONFIG.STAGE_2_EXOTIC_CHANCE +
+      misses * ENDGAME_CONFIG.STAGE_2_EXOTIC_MISS_BONUS;
+    if (roll() >= chance) {
+      tanakaState.data.exoticFailedStations.push(systemId);
+      tanakaState.data.exoticMisses = misses + 1;
+      this.capabilities.emit(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND);
+      this.capabilities.markDirty();
+      return;
+    }
+    tanakaState.data.exoticMisses = 0;
 
     tanakaState.data.exoticStations.push(systemId);
     tanakaState.data.exoticMaterials =
