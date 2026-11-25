@@ -250,12 +250,20 @@ export class JumpAnimationSystem {
    * @param {THREE.Camera} camera - Three.js camera
    * @param {Object} controls - Three.js OrbitControls instance
    * @param {Array} starData - Array of star system data
+   * @param {Function} prefersReducedMotion - Returns the live OS reduce-motion setting
    */
-  constructor(scene, camera, controls, starData) {
+  constructor(
+    scene,
+    camera,
+    controls,
+    starData,
+    prefersReducedMotion = () => false
+  ) {
     this.scene = scene;
     this.camera = camera;
     this.controls = controls;
     this.starData = starData;
+    this.prefersReducedMotion = prefersReducedMotion;
     this.isAnimating = false;
 
     // Create ship indicator sprite (reused across all jumps)
@@ -577,6 +585,13 @@ export class JumpAnimationSystem {
     // Prevent overlapping animations
     if (this.isAnimating) {
       console.warn('Animation already in progress, ignoring request');
+      return;
+    }
+
+    // The zoom/pan sequence is a vestibular trigger. Game state has already
+    // moved, so skipping it only needs the encounter reveal to still fire.
+    if (this.prefersReducedMotion()) {
+      onTravelNearEnd?.();
       return;
     }
 

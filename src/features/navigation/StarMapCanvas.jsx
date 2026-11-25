@@ -209,7 +209,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         scene,
         camera,
         controls,
-        starData
+        starData,
+        () => reducedMotionRef.current
       );
 
       // Register animation system with GameCoordinator for useAnimationLock hook
