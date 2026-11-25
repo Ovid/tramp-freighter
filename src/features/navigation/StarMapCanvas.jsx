@@ -26,6 +26,7 @@ import {
   _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
 import { updateLabelScale } from '../../game/engine/stars';
+import { isDrag } from '../../game/engine/starmap-math';
 import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
@@ -145,6 +146,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
 
       // Set up raycaster for star selection (only if stars exist)
       let handleCanvasClick = null;
+      let handlePointerDown = null;
       if (stars && stars.length > 0) {
         const raycaster = new THREE.Raycaster();
         const mouse = { x: 0, y: 0 };
@@ -160,8 +162,21 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           }
         });
 
+        let pointerDownAt = null;
+        handlePointerDown = (event) => {
+          pointerDownAt = {
+            x: event.clientX,
+            y: event.clientY,
+            pointerType: event.pointerType,
+          };
+        };
+
         // Handle star clicks
         handleCanvasClick = (event) => {
+          if (isDrag(pointerDownAt, { x: event.clientX, y: event.clientY })) {
+            return;
+          }
+
           // Convert to normalized device coordinates
           mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
           mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -196,6 +211,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           }
         };
 
+        renderer.domElement.addEventListener('pointerdown', handlePointerDown);
         renderer.domElement.addEventListener('click', handleCanvasClick);
       }
 
@@ -339,9 +355,13 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         // Remove resize listener
         window.removeEventListener('resize', handleResize);
 
-        // Remove click listener
+        // Remove click listeners
         if (renderer && renderer.domElement && handleCanvasClick) {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
+          renderer.domElement.removeEventListener(
+            'pointerdown',
+            handlePointerDown
+          );
         }
 
         // Clear animation system reference from GameCoordinator
