@@ -157,54 +157,38 @@ display time.
 
 Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
 
-## SystemPanel close button leaves the selection ring on
+## Stacked Modals would all close on one Escape
 
-`onClick={onClose}` in `src/features/navigation/SystemPanel.jsx` (both ×
-buttons) passes the click event as `keepSelection` to
-`handleCloseSystemPanel(keepSelection = false)` in `src/App.jsx`. The event
-object is truthy, so `deselectStar()` never runs and the 3D selection ring
-stays after closing.
+`src/components/Modal.jsx` listens for Escape on the document without
+stopping propagation, so if two Modals were open at once, one Escape would
+close both. No current flow stacks Modals, and `useFocusTrap` already notes
+the same one-at-a-time assumption.
 
-Possible fix: `onClick={() => onClose()}`.
-
-Found during the SystemPanel accessibility audit
-(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
-
-## Jump camera animation ignores reduced motion
-
-`playJumpAnimation` in `src/game/engine/game-animation.js` runs a 3–5 s
-zoom/pan with input locked, and never checks `prefers-reduced-motion`.
-`StarMapCanvas` and `CameraControls` already use `useReducedMotion`, and the
-CSS rule in `css/base.css` can't reach Three.js tweens. WCAG 2.3.3 (AAA);
-a vestibular trigger.
-
-Possible fix: pass the reduced-motion flag into `JumpAnimationSystem` and,
-when it is set, skip the tweens (move the ship marker, call
-`onTravelNearEnd()`, resolve).
+Possible fix: a shared stack so only the top Modal (and trap) handles keys.
+Do it when a flow first needs nested dialogs.
 
 Found during the SystemPanel accessibility audit
 (`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
 
-## useFocusTrap has no fallback when the element to restore is gone
+## Trade sale feedback is not announced
 
-`src/hooks/useFocusTrap.js` puts focus back on `previous` only if it is still
-in the document. When the dialog's trigger was unmounted (the SystemPanel
-Jump button after DangerWarningDialog "Proceed", or a Modal opened from an
-effect), focus is dropped to `<body>`. WCAG 2.4.3 (A), app-wide.
+`src/features/trade/TradePanel.jsx` shows Cole's withholding breakdown after a
+sale in a `validation-message` div with no `role`, so screen readers don't
+announce it. The other panels use `role="alert"` for this pattern.
 
-Possible fix: fall back to `#main-content` (already `tabIndex={-1}`) or an
-optional fallback ref.
+Possible fix: `role="status"` on that div. Testing it needs the mocked
+`sellGood` to return `withheld > 0` together with a sellable stack.
 
-Found during the SystemPanel accessibility audit
-(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+Found while fixing the SystemPanel accessibility audit.
 
-## Escape handling in Modal and DangerWarningDialog
+## Close buttons across panels are all named "Close"
 
-- `src/components/Modal.jsx` puts its Escape listener on the document and
-  doesn't stop propagation, so if Modals were stacked, they would all close
-  together. This doesn't happen in current flows.
-- `src/features/danger/DangerWarningDialog.jsx` has no Escape handler at all.
-  It isn't a trap, because Cancel works, but it breaks the dialog convention.
+Most panels' `×` buttons use `aria-label="Close"` (Trade, Refuel, Repair,
+Upgrades, Missions, Finance, Info Broker, Ship Status, Cargo, Outcome,
+Mechanical Failure, Dev Admin, the jump warning). When two are on screen,
+screen reader and voice control users can't tell them apart. SystemPanel now
+uses `Close <system> panel`.
 
-Found during the SystemPanel accessibility audit
-(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+Possible fix: name each after its panel, e.g. `Close trade panel`.
+
+Found while fixing the SystemPanel accessibility audit.
