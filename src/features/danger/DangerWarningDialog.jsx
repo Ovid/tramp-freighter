@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
@@ -29,6 +29,16 @@ export function DangerWarningDialog({
 }) {
   const dialogRef = useRef(null);
   useFocusTrap(dialogRef);
+
+  // Other panels stand down on Escape while a .modal-overlay is open, so this
+  // dialog has to handle it itself.
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
 
   // Subscribe to relevant game events for probability calculations
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);

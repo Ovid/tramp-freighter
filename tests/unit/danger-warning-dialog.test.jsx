@@ -241,6 +241,15 @@ describe('DangerWarningDialog', () => {
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
     });
 
+    it('should call onCancel when Escape is pressed', () => {
+      const mockOnCancel = vi.fn();
+      renderDangerWarningDialog({ onCancel: mockOnCancel });
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+    });
+
     it('should call onCancel when close button (×) is clicked', () => {
       const mockOnCancel = vi.fn();
       renderDangerWarningDialog({ onCancel: mockOnCancel });
