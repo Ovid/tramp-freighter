@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useGame } from '../../context/GameContext.jsx';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
+import { useFocusTrap } from '../../hooks/useFocusTrap.js';
 import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
 import '../../../css/panel/narrative-event.css';
 
@@ -18,6 +19,8 @@ export function NarrativeEventPanel({ event, onClose }) {
   const game = useGame();
   const notificationCtx = useNotificationContext();
   const [currentEvent, setCurrentEvent] = useState(event);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef);
 
   const handleChoice = useCallback(
     (choice) => {
@@ -70,33 +73,38 @@ export function NarrativeEventPanel({ event, onClose }) {
 
   const { content } = currentEvent;
 
+  // Backdrop blocks the starmap and station: the player must choose before
+  // undocking or jumping. Deliberately not click-to-dismiss.
   return (
-    <div
-      id="narrative-event-panel"
-      className="centered-panel visible"
-      data-panel
-      role="dialog"
-      aria-modal="true"
-      aria-label="Narrative event"
-    >
-      {content.speaker && (
-        <div className="event-speaker">{content.speaker}</div>
-      )}
-      <div className="event-text">
-        {content.text.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
-      </div>
-      <div className="event-choices">
-        {content.choices.map((choice, i) => (
-          <button
-            key={i}
-            className="event-choice-btn"
-            onClick={() => handleChoice(choice)}
-          >
-            {choice.text}
-          </button>
-        ))}
+    <div className="modal-overlay">
+      <div
+        ref={panelRef}
+        id="narrative-event-panel"
+        className="centered-panel visible"
+        data-panel
+        role="dialog"
+        aria-modal="true"
+        aria-label="Narrative event"
+      >
+        {content.speaker && (
+          <div className="event-speaker">{content.speaker}</div>
+        )}
+        <div className="event-text">
+          {content.text.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
+        </div>
+        <div className="event-choices">
+          {content.choices.map((choice, i) => (
+            <button
+              key={i}
+              className="event-choice-btn"
+              onClick={() => handleChoice(choice)}
+            >
+              {choice.text}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

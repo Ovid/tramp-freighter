@@ -365,4 +365,33 @@ describe('DangerWarningDialog', () => {
       expect(closeButton).not.toBeDisabled();
     });
   });
+
+  // Without a backdrop, stars behind the warning stayed clickable mid-decision.
+  it('blocks the starmap behind it with a backdrop that does not dismiss', () => {
+    const onProceed = vi.fn();
+    const onCancel = vi.fn();
+    renderDangerWarningDialog({ onProceed, onCancel });
+
+    const backdrop = screen.getByRole('alertdialog').closest('.modal-overlay');
+    expect(backdrop).not.toBeNull();
+
+    fireEvent.click(backdrop);
+    expect(onProceed).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  // The backdrop only blocks the pointer: keyboard focus must not stay on
+  // (or Tab back to) controls behind the warning, like the station's Undock.
+  it('moves keyboard focus into the warning and keeps Tab there', () => {
+    renderDangerWarningDialog();
+    const dialog = screen.getByRole('alertdialog');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+    fireEvent.keyDown(outside, { key: 'Tab' });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    outside.remove();
+  });
 });

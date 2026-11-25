@@ -261,4 +261,43 @@ describe('ConfirmModal Component', () => {
 
     expect(cancelCalled).toBe(true);
   });
+  // Pins focus behaviour before Modal moves onto the shared useFocusTrap hook
+  it('focuses the first control, wraps Tab, and restores focus on close', () => {
+    const { rerender } = render(
+      <>
+        <button>Opener</button>
+        <Modal isOpen={false} onClose={() => {}} title="T">
+          <button>Last</button>
+        </Modal>
+      </>
+    );
+    const opener = screen.getByText('Opener');
+    opener.focus();
+
+    rerender(
+      <>
+        <button>Opener</button>
+        <Modal isOpen={true} onClose={() => {}} title="T">
+          <button>Last</button>
+        </Modal>
+      </>
+    );
+    const close = screen.getByLabelText('Close modal');
+    const last = screen.getByText('Last');
+    expect(close).toHaveFocus();
+
+    last.focus();
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(close).toHaveFocus();
+
+    rerender(
+      <>
+        <button>Opener</button>
+        <Modal isOpen={false} onClose={() => {}} title="T">
+          <button>Last</button>
+        </Modal>
+      </>
+    );
+    expect(opener).toHaveFocus();
+  });
 });

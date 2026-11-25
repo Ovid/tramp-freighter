@@ -284,4 +284,45 @@ describe('NarrativeEventPanel', () => {
     fireEvent.click(screen.getByText('Try next'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  // Without a backdrop, clicks fell through to the starmap: a dock event
+  // could be left on screen after undocking, or while starting a jump.
+  it('blocks the world behind it with a backdrop that does not dismiss', () => {
+    render(<NarrativeEventPanel event={makeEvent()} onClose={onClose} />);
+
+    const backdrop = screen.getByRole('dialog').closest('.modal-overlay');
+    expect(backdrop).not.toBeNull();
+
+    fireEvent.click(backdrop);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  // The backdrop only blocks the pointer: without moving focus in, Tab from
+  // the station menu could still undock with this event on screen.
+  it('moves keyboard focus to the first choice when shown', () => {
+    render(<NarrativeEventPanel event={makeEvent()} onClose={onClose} />);
+    expect(screen.getByText('Accept the deal')).toHaveFocus();
+  });
+
+  it('keeps Tab inside the dialog, even when focus has escaped it', () => {
+    render(
+      <>
+        <button>Undock</button>
+        <NarrativeEventPanel event={makeEvent()} onClose={onClose} />
+      </>
+    );
+    const first = screen.getByText('Accept the deal');
+    const last = screen.getByText('Walk away');
+
+    last.focus();
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(first).toHaveFocus();
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(last).toHaveFocus();
+
+    screen.getByText('Undock').focus();
+    fireEvent.keyDown(document.activeElement, { key: 'Tab' });
+    expect(first).toHaveFocus();
+  });
 });
