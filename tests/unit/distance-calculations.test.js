@@ -16,7 +16,7 @@ import { NavigationSystem } from '../../src/game/game-navigation.js';
 const KNOWN_DISTANCES = {
   Sol: 0,
   'Alpha Centauri A': 4.37,
-  'Proxima Centauri C': 4.25,
+  'Proxima Centauri': 4.25,
   "Barnard's Star": 5.96,
   'Wolf 359': 7.86,
   'Lalande 21185': 8.29,
@@ -46,7 +46,7 @@ const TEST_STAR_DATA = [
     x: -21.56,
     y: -16.38,
     z: -52.5,
-    name: 'Proxima Centauri C',
+    name: 'Proxima Centauri',
     type: 'M5.5',
   },
   { id: 4, x: -0.98, y: -82.88, z: 6.86, name: "Barnard's Star", type: 'M5' },
@@ -101,7 +101,7 @@ describe('Distance Calculations', () => {
 
     it.each([
       ['Alpha Centauri A', 4.37],
-      ['Proxima Centauri C', 4.25],
+      ['Proxima Centauri', 4.25],
       ["Barnard's Star", 5.96],
       ['Wolf 1481', 20.0],
     ])('should calculate %s at ~%s LY', (starName, expectedLY) => {
@@ -155,9 +155,7 @@ describe('Distance Calculations', () => {
       const alphaCen = TEST_STAR_DATA.find(
         (s) => s.name === 'Alpha Centauri A'
       );
-      const proxima = TEST_STAR_DATA.find(
-        (s) => s.name === 'Proxima Centauri C'
-      );
+      const proxima = TEST_STAR_DATA.find((s) => s.name === 'Proxima Centauri');
       const distance = navSystem.calculateDistanceBetween(alphaCen, proxima);
       // These two stars are very close to each other
       expect(distance).toBeLessThan(1);

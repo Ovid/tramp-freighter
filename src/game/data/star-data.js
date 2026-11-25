@@ -1,5 +1,6 @@
 // Star System Data
-// Each star system has: id, x/y/z coordinates, name, spectral type, wormhole count (wh), station count (st), reachable flag (r)
+// Each star has: id, x/y/z coordinates, name, spectral type, wormhole count (wh), station count (st), reachable flag (r).
+// A companion star also has `primary`: the id of the star its system is drawn and named after.
 export const STAR_DATA = [
   { id: 0, x: 0, y: 0, z: 0, name: 'Sol', type: 'G2', wh: 8, st: 6, r: 1 },
   {
@@ -23,13 +24,14 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 1,
   },
   {
     id: 3,
     x: -21.56,
     y: -16.38,
     z: -52.5,
-    name: 'Proxima Centauri C',
+    name: 'Proxima Centauri',
     type: 'M5.5',
     wh: 0,
     st: 0,
@@ -89,6 +91,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 7,
   },
   {
     id: 9,
@@ -111,6 +114,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 9,
   },
   {
     id: 11,
@@ -188,6 +192,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 16,
   },
   {
     id: 18,
@@ -199,6 +204,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 16,
   },
   {
     id: 19,
@@ -221,6 +227,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 19,
   },
   {
     id: 21,
@@ -243,6 +250,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 21,
   },
   {
     id: 23,
@@ -265,6 +273,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 23,
   },
   {
     id: 25,
@@ -287,6 +296,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 25,
   },
   {
     id: 27,
@@ -320,6 +330,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 28,
   },
   {
     id: 30,
@@ -331,6 +342,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 28,
   },
   {
     id: 31,
@@ -419,6 +431,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 37,
   },
   {
     id: 39,
@@ -452,6 +465,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 40,
   },
   {
     id: 42,
@@ -485,6 +499,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 43,
   },
   {
     id: 45,
@@ -518,6 +533,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 46,
   },
   {
     id: 48,
@@ -650,6 +666,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 58,
   },
   {
     id: 60,
@@ -661,6 +678,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 58,
   },
   {
     id: 61,
@@ -683,6 +701,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 61,
   },
   {
     id: 63,
@@ -771,6 +790,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 69,
   },
   {
     id: 71,
@@ -782,6 +802,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 69,
   },
   {
     id: 72,
@@ -815,6 +836,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 73,
   },
   {
     id: 75,
@@ -848,6 +870,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 76,
   },
   {
     id: 78,
@@ -870,6 +893,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 78,
   },
   {
     id: 80,
@@ -947,6 +971,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 85,
   },
   {
     id: 87,
@@ -1024,6 +1049,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 92,
   },
   {
     id: 94,
@@ -1068,6 +1094,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 96,
   },
   {
     id: 98,
@@ -1101,6 +1128,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 99,
   },
   {
     id: 101,
@@ -1112,6 +1140,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 99,
   },
   {
     id: 102,
@@ -1123,6 +1152,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 99,
   },
   {
     id: 103,
@@ -1178,6 +1208,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 106,
   },
   {
     id: 108,
@@ -1211,6 +1242,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 109,
   },
   {
     id: 111,
@@ -1222,6 +1254,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 109,
   },
   {
     id: 112,
@@ -1244,6 +1277,7 @@ export const STAR_DATA = [
     wh: 0,
     st: 0,
     r: 0,
+    primary: 112,
   },
   {
     id: 114,
