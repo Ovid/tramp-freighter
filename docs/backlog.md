@@ -66,3 +66,23 @@ deliver what is left for the full reward. This may be on purpose (forgiving
 design). Confirm, then either check quantity or add a comment explaining why.
 
 Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## Mission Complete dialog ignores a failed claim
+
+`handleComplete` in `src/features/missions/MissionCompleteNotifier.jsx` calls
+`completeMission` and discards the result, then advances as though the claim
+succeeded. `getCompletableMissions` already pre-filters with the same checks,
+so a failure needs state to change between listing and clicking. Low risk, but
+a failed claim should show its `reason` rather than vanish silently.
+
+Found during rethink on issue #57.
+
+## Cole passenger favor template would crash on completion
+
+A Cole favor passenger template in `src/game/state/managers/debt.js` has no
+`passenger` object, so `calculatePassengerPayment` would throw on
+`mission.passenger.satisfaction`. Unreachable today: the `favorMission` from
+`checkCheckpoint` is discarded (`events.js`) and never reaches
+`missions.active`. Fix before wiring favor missions up.
+
+Found during rethink on issue #57.
