@@ -9,13 +9,15 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { MobileCameraToolbar } from './MobileCameraToolbar';
+import { RotationSpeedSlider } from './RotationSpeedSlider';
+import { resolveAutoRotationSpeed } from '../../game/engine/starmap-math';
+import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 import { EVENT_NAMES } from '../../game/constants';
 
 export function CameraControls({
   cameraState,
   onZoomIn,
   onZoomOut,
-  onToggleRotation,
   onToggleBoundary,
 }) {
   const game = useGame();
@@ -33,6 +35,12 @@ export function CameraControls({
 
   const { isMobile } = useMobile();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
+  const autoRotationSpeed = resolveAutoRotationSpeed(
+    preferences?.autoRotationSpeed,
+    prefersReducedMotion()
+  );
+  const setAutoRotationSpeed = (value) =>
+    game.setPreference('autoRotationSpeed', value);
 
   // Invalidate when location changes — visited set only grows on jump
   const visitedSet = useMemo(() => {
@@ -84,14 +92,12 @@ export function CameraControls({
           toggles={{
             showAntimatter: antimatter,
             showJumpWarnings: jumpWarningsEnabled,
-            showStarRotation: cameraState.autoRotationEnabled,
             showBoundary: cameraState.boundaryVisible,
           }}
           onToggle={(key) => {
             const handlers = {
               showAntimatter: toggleAntimatter,
               showJumpWarnings: toggleJumpWarnings,
-              showStarRotation: onToggleRotation,
               showBoundary: onToggleBoundary,
             };
             handlers[key]?.();
@@ -132,18 +138,16 @@ export function CameraControls({
           <div className="settings-header">Settings</div>
 
           <div className="settings-list">
-            {/* Toggle switches */}
             <label className="settings-toggle-row">
               <span className="settings-label">Star Rotation</span>
-              <input
-                type="checkbox"
-                className="settings-toggle-input"
-                checked={cameraState.autoRotationEnabled}
-                onChange={onToggleRotation}
-                aria-label="Star Rotation"
+              <RotationSpeedSlider
+                className="settings-range-input"
+                value={autoRotationSpeed}
+                onChange={setAutoRotationSpeed}
               />
-              <span className="settings-toggle-slider" />
             </label>
+
+            {/* Toggle switches */}
 
             <label className="settings-toggle-row">
               <span className="settings-label">Boundary</span>

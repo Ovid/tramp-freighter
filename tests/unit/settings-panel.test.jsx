@@ -13,17 +13,15 @@ vi.mock('../../src/features/achievements/AchievementsModal', () => ({
 }));
 
 // Mock GameContext
-vi.mock('../../src/context/GameContext', () => {
-  const hook = () => ({
-    getPreference: vi.fn((key) => {
-      if (key === 'jumpWarningsEnabled') return true;
-      return true;
-    }),
-    setPreference: vi.fn(),
-    getVisitedSystems: vi.fn(() => [0]),
-  });
-  return { useGame: hook };
-});
+// One shared object so tests can assert on setPreference calls
+const mockGame = vi.hoisted(() => ({
+  getPreference: vi.fn(() => true),
+  setPreference: vi.fn(),
+  getVisitedSystems: vi.fn(() => [0]),
+}));
+vi.mock('../../src/context/GameContext', () => ({
+  useGame: () => mockGame,
+}));
 
 // Mock StarmapContext
 vi.mock('../../src/context/StarmapContext', () => ({
@@ -47,10 +45,9 @@ vi.mock('../../src/context/MobileContext', () => ({
 
 describe('Settings Panel', () => {
   const defaultProps = {
-    cameraState: { autoRotationEnabled: true, boundaryVisible: true },
+    cameraState: { boundaryVisible: true },
     onZoomIn: vi.fn(),
     onZoomOut: vi.fn(),
-    onToggleRotation: vi.fn(),
     onToggleBoundary: vi.fn(),
   };
 
@@ -94,18 +91,21 @@ describe('Settings Panel', () => {
     render(<CameraControls {...defaultProps} />);
     fireEvent.click(screen.getByLabelText('Toggle settings'));
 
-    const rotationToggle = screen.getByLabelText('Star Rotation');
-    expect(rotationToggle.checked).toBe(true);
+    const rotationSlider = screen.getByLabelText('Star Rotation');
+    expect(rotationSlider.type).toBe('range');
+    expect(rotationSlider.value).toBe('3');
 
     const boundaryToggle = screen.getByLabelText('Boundary');
     expect(boundaryToggle.checked).toBe(true);
   });
 
-  it('clicking Star Rotation toggle calls onToggleRotation', () => {
+  it('changing the Star Rotation slider saves the preference', () => {
     render(<CameraControls {...defaultProps} />);
     fireEvent.click(screen.getByLabelText('Toggle settings'));
-    fireEvent.click(screen.getByLabelText('Star Rotation'));
-    expect(defaultProps.onToggleRotation).toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Star Rotation'), {
+      target: { value: '6' },
+    });
+    expect(mockGame.setPreference).toHaveBeenCalledWith('autoRotationSpeed', 6);
   });
 
   it('should collapse when clicking outside the settings panel', () => {
