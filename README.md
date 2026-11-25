@@ -84,6 +84,8 @@ Open `http://localhost:5173` in your browser.
 
 This is a personal project, but feedback, bug reports, and collaboration are welcome! Please open an issue if you encounter problems or have suggestions.
 
+Many thanks to [myrrhlin](https://github.com/myrrhlin) for excellent feedback and testing!
+
 ## License
 
 MIT License — see [LICENSE.md](LICENSE.md) for details.
