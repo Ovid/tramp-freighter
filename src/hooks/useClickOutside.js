@@ -23,8 +23,11 @@ export function useClickOutside(ref, onClose, enabled = true) {
       if (e.target.closest('#camera-controls')) return;
       if (e.target.closest('#dev-admin-btn')) return;
       if (e.target.closest('.modal-overlay')) return;
-      // Overlay-less dialogs (jump warning) unmount if we close on mousedown,
-      // swallowing their button's click — mirrors the Escape guard below
+      // aria-modal dialogs with no .modal-overlay or [data-panel] ancestor
+      // (encounter panels, dev panel preview) unmount if we close on
+      // mousedown, swallowing their button's click (issue #49). The jump
+      // warning now has an overlay, but keep this guard for those dialogs.
+      // Mirrors the Escape guard below.
       if (e.target.closest('[aria-modal="true"]')) return;
 
       onCloseRef.current();

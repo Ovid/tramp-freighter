@@ -219,6 +219,8 @@ describe('useClickOutside hook', () => {
 
   // Regression: issue #49 — pressing Proceed on the Jump Warning while docked
   // undocked the player on mousedown, unmounting the dialog before click fired.
+  // The jump warning now sits in a .modal-overlay; this covers the aria-modal
+  // dialogs that still have no overlay (encounter panels, dev panel preview).
   it('does not call onClose when mousedown fires inside an aria-modal dialog', () => {
     const onClose = vi.fn();
     render(
