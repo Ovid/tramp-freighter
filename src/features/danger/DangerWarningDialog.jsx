@@ -65,193 +65,198 @@ export function DangerWarningDialog({
   // Get zone display properties
   const zoneInfo = getZoneDisplayInfo(dangerZone);
 
+  // Backdrop blocks the starmap so stars can't be clicked mid-decision.
+  // Deliberately not click-to-dismiss: the player picks Proceed or Cancel.
   return (
-    <div
-      id="danger-warning-dialog"
-      className="panel-base visible"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="danger-warning-title"
-    >
-      <button className="close-btn" onClick={onCancel} aria-label="Close">
-        ×
-      </button>
-      <h2 id="danger-warning-title">Jump Warning</h2>
+    <div className="modal-overlay">
+      <div
+        id="danger-warning-dialog"
+        className="panel-base visible"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="danger-warning-title"
+      >
+        <button className="close-btn" onClick={onCancel} aria-label="Close">
+          ×
+        </button>
+        <h2 id="danger-warning-title">Jump Warning</h2>
 
-      <div className="warning-content">
-        {/* Destination Info Section */}
-        <div className="warning-section destination-info">
-          <h3>Destination</h3>
-          <div className="destination-details">
-            <div className="destination-name">{destinationSystemName}</div>
-            <div className="danger-classification">
-              <span className="classification-label">Security Level:</span>
-              <span
-                className={`classification-value ${dangerZone}`}
-                style={{ color: zoneInfo.color }}
-              >
-                {zoneInfo.name}
-              </span>
-            </div>
-            <div className="zone-description">{zoneInfo.description}</div>
-          </div>
-        </div>
-
-        {/* Risk Assessment Section */}
-        <div className="warning-section risk-assessment">
-          <h3>Risk Assessment</h3>
-          <div className="risk-grid">
-            <div className="risk-item">
-              <div className="risk-header">
-                <span className="risk-label">Pirate Encounters</span>
-                <span className={`risk-value ${getRiskLevel(pirateChance)}`}>
-                  {Math.round(pirateChance * 100)}%
-                </span>
-              </div>
-              <div className="risk-description">
-                Probability of hostile pirate encounters during jump
-              </div>
-            </div>
-
-            <div className="risk-item">
-              <div className="risk-header">
-                <span className="risk-label">Customs Inspections</span>
+        <div className="warning-content">
+          {/* Destination Info Section */}
+          <div className="warning-section destination-info">
+            <h3>Destination</h3>
+            <div className="destination-details">
+              <div className="destination-name">{destinationSystemName}</div>
+              <div className="danger-classification">
+                <span className="classification-label">Security Level:</span>
                 <span
-                  className={`risk-value ${getRiskLevel(inspectionChance)}`}
+                  className={`classification-value ${dangerZone}`}
+                  style={{ color: zoneInfo.color }}
                 >
-                  {Math.round(inspectionChance * 100)}%
+                  {zoneInfo.name}
                 </span>
               </div>
-              <div className="risk-description">
-                Probability of customs inspection upon arrival
-              </div>
+              <div className="zone-description">{zoneInfo.description}</div>
             </div>
           </div>
 
-          {/* Risk Factors */}
-          {(cargo?.length > 0 ||
-            (shipCondition?.engine && shipCondition.engine < 50) ||
-            upgrades?.includes('advanced_sensors') ||
-            (factions?.authorities && factions.authorities !== 0) ||
-            (factions?.outlaws && factions.outlaws !== 0)) && (
-            <div className="risk-factors">
-              <h4>Risk Modifiers</h4>
-              <div className="factors-list">
-                {cargo?.length > 0 && (
-                  <div className="factor">
-                    <span className="factor-icon">📦</span>
-                    <span className="factor-text">
-                      Cargo value affects pirate encounter chance
+          {/* Risk Assessment Section */}
+          <div className="warning-section risk-assessment">
+            <h3>Risk Assessment</h3>
+            <div className="risk-grid">
+              <div className="risk-item">
+                <div className="risk-header">
+                  <span className="risk-label">Pirate Encounters</span>
+                  <span className={`risk-value ${getRiskLevel(pirateChance)}`}>
+                    {Math.round(pirateChance * 100)}%
+                  </span>
+                </div>
+                <div className="risk-description">
+                  Probability of hostile pirate encounters during jump
+                </div>
+              </div>
+
+              <div className="risk-item">
+                <div className="risk-header">
+                  <span className="risk-label">Customs Inspections</span>
+                  <span
+                    className={`risk-value ${getRiskLevel(inspectionChance)}`}
+                  >
+                    {Math.round(inspectionChance * 100)}%
+                  </span>
+                </div>
+                <div className="risk-description">
+                  Probability of customs inspection upon arrival
+                </div>
+              </div>
+            </div>
+
+            {/* Risk Factors */}
+            {(cargo?.length > 0 ||
+              (shipCondition?.engine && shipCondition.engine < 50) ||
+              upgrades?.includes('advanced_sensors') ||
+              (factions?.authorities && factions.authorities !== 0) ||
+              (factions?.outlaws && factions.outlaws !== 0)) && (
+              <div className="risk-factors">
+                <h4>Risk Modifiers</h4>
+                <div className="factors-list">
+                  {cargo?.length > 0 && (
+                    <div className="factor">
+                      <span className="factor-icon">📦</span>
+                      <span className="factor-text">
+                        Cargo value affects pirate encounter chance
+                      </span>
+                    </div>
+                  )}
+                  {shipCondition?.engine != null &&
+                    shipCondition.engine < 50 && (
+                      <div className="factor warning">
+                        <span className="factor-icon">⚠️</span>
+                        <span className="factor-text">
+                          Poor engine condition increases pirate risk
+                        </span>
+                      </div>
+                    )}
+                  {upgrades?.includes('advanced_sensors') && (
+                    <div className="factor positive">
+                      <span className="factor-icon">📡</span>
+                      <span className="factor-text">
+                        Advanced sensors reduce pirate detection
+                      </span>
+                    </div>
+                  )}
+                  {factions?.authorities > 0 && (
+                    <div className="factor positive">
+                      <span className="factor-icon">🛡️</span>
+                      <span className="factor-text">
+                        Good authority standing reduces inspection risk
+                      </span>
+                    </div>
+                  )}
+                  {factions?.authorities < 0 && (
+                    <div className="factor warning">
+                      <span className="factor-icon">🛡️</span>
+                      <span className="factor-text">
+                        Poor authority standing increases inspection risk
+                      </span>
+                    </div>
+                  )}
+                  {factions?.outlaws > 0 && (
+                    <div className="factor positive">
+                      <span className="factor-icon">🏴‍☠️</span>
+                      <span className="factor-text">
+                        Outlaw reputation may deter some pirates
+                      </span>
+                    </div>
+                  )}
+                  {factions?.outlaws < 0 && (
+                    <div className="factor warning">
+                      <span className="factor-icon">🏴‍☠️</span>
+                      <span className="factor-text">
+                        Poor outlaw standing increases pirate aggression
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Safety Recommendations */}
+          {dangerZone !== 'safe' && (
+            <div className="warning-section safety-recommendations">
+              <h3>Safety Recommendations</h3>
+              <div className="recommendations-list">
+                {dangerZone === 'dangerous' && (
+                  <>
+                    <div className="recommendation critical">
+                      <span className="rec-icon">⚠️</span>
+                      <span className="rec-text">
+                        Dangerous zone - high pirate activity expected
+                      </span>
+                    </div>
+                    <div className="recommendation">
+                      <span className="rec-icon">🔧</span>
+                      <span className="rec-text">
+                        Ensure ship systems are in good condition
+                      </span>
+                    </div>
+                  </>
+                )}
+                {dangerZone === 'contested' && (
+                  <div className="recommendation warning">
+                    <span className="rec-icon">⚠️</span>
+                    <span className="rec-text">
+                      Contested zone - moderate risk of encounters
                     </span>
                   </div>
                 )}
-                {shipCondition?.engine != null && shipCondition.engine < 50 && (
-                  <div className="factor warning">
-                    <span className="factor-icon">⚠️</span>
-                    <span className="factor-text">
-                      Poor engine condition increases pirate risk
-                    </span>
-                  </div>
-                )}
-                {upgrades?.includes('advanced_sensors') && (
-                  <div className="factor positive">
-                    <span className="factor-icon">📡</span>
-                    <span className="factor-text">
-                      Advanced sensors reduce pirate detection
-                    </span>
-                  </div>
-                )}
-                {factions?.authorities > 0 && (
-                  <div className="factor positive">
-                    <span className="factor-icon">🛡️</span>
-                    <span className="factor-text">
-                      Good authority standing reduces inspection risk
-                    </span>
-                  </div>
-                )}
-                {factions?.authorities < 0 && (
-                  <div className="factor warning">
-                    <span className="factor-icon">🛡️</span>
-                    <span className="factor-text">
-                      Poor authority standing increases inspection risk
-                    </span>
-                  </div>
-                )}
-                {factions?.outlaws > 0 && (
-                  <div className="factor positive">
-                    <span className="factor-icon">🏴‍☠️</span>
-                    <span className="factor-text">
-                      Outlaw reputation may deter some pirates
-                    </span>
-                  </div>
-                )}
-                {factions?.outlaws < 0 && (
-                  <div className="factor warning">
-                    <span className="factor-icon">🏴‍☠️</span>
-                    <span className="factor-text">
-                      Poor outlaw standing increases pirate aggression
-                    </span>
-                  </div>
-                )}
+                <div className="recommendation">
+                  <span className="rec-icon">💰</span>
+                  <span className="rec-text">
+                    Consider cargo value vs. risk tolerance
+                  </span>
+                </div>
+                <div className="recommendation">
+                  <span className="rec-icon">🛣️</span>
+                  <span className="rec-text">
+                    Alternative routes through safer systems may be available
+                  </span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Safety Recommendations */}
-        {dangerZone !== 'safe' && (
-          <div className="warning-section safety-recommendations">
-            <h3>Safety Recommendations</h3>
-            <div className="recommendations-list">
-              {dangerZone === 'dangerous' && (
-                <>
-                  <div className="recommendation critical">
-                    <span className="rec-icon">⚠️</span>
-                    <span className="rec-text">
-                      Dangerous zone - high pirate activity expected
-                    </span>
-                  </div>
-                  <div className="recommendation">
-                    <span className="rec-icon">🔧</span>
-                    <span className="rec-text">
-                      Ensure ship systems are in good condition
-                    </span>
-                  </div>
-                </>
-              )}
-              {dangerZone === 'contested' && (
-                <div className="recommendation warning">
-                  <span className="rec-icon">⚠️</span>
-                  <span className="rec-text">
-                    Contested zone - moderate risk of encounters
-                  </span>
-                </div>
-              )}
-              <div className="recommendation">
-                <span className="rec-icon">💰</span>
-                <span className="rec-text">
-                  Consider cargo value vs. risk tolerance
-                </span>
-              </div>
-              <div className="recommendation">
-                <span className="rec-icon">🛣️</span>
-                <span className="rec-text">
-                  Alternative routes through safer systems may be available
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="warning-actions">
-        <button className="warning-btn primary" onClick={handleProceedClick}>
-          {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
-        </button>
-        <button className="warning-btn secondary" onClick={onCancel}>
-          Cancel Jump
-        </button>
+        {/* Action Buttons */}
+        <div className="warning-actions">
+          <button className="warning-btn primary" onClick={handleProceedClick}>
+            {dangerZone === 'dangerous' ? 'Accept Risk & Proceed' : 'Proceed'}
+          </button>
+          <button className="warning-btn secondary" onClick={onCancel}>
+            Cancel Jump
+          </button>
+        </div>
       </div>
     </div>
   );

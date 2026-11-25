@@ -284,4 +284,16 @@ describe('NarrativeEventPanel', () => {
     fireEvent.click(screen.getByText('Try next'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  // Without a backdrop, clicks fell through to the starmap: a dock event
+  // could be left on screen after undocking, or while starting a jump.
+  it('blocks the world behind it with a backdrop that does not dismiss', () => {
+    render(<NarrativeEventPanel event={makeEvent()} onClose={onClose} />);
+
+    const backdrop = screen.getByRole('dialog').closest('.modal-overlay');
+    expect(backdrop).not.toBeNull();
+
+    fireEvent.click(backdrop);
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

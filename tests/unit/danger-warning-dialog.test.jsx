@@ -365,4 +365,18 @@ describe('DangerWarningDialog', () => {
       expect(closeButton).not.toBeDisabled();
     });
   });
+
+  // Without a backdrop, stars behind the warning stayed clickable mid-decision.
+  it('blocks the starmap behind it with a backdrop that does not dismiss', () => {
+    const onProceed = vi.fn();
+    const onCancel = vi.fn();
+    renderDangerWarningDialog({ onProceed, onCancel });
+
+    const backdrop = screen.getByRole('alertdialog').closest('.modal-overlay');
+    expect(backdrop).not.toBeNull();
+
+    fireEvent.click(backdrop);
+    expect(onProceed).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+  });
 });

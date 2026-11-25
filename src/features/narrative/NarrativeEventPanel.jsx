@@ -70,33 +70,37 @@ export function NarrativeEventPanel({ event, onClose }) {
 
   const { content } = currentEvent;
 
+  // Backdrop blocks the starmap and station: the player must choose before
+  // undocking or jumping. Deliberately not click-to-dismiss.
   return (
-    <div
-      id="narrative-event-panel"
-      className="centered-panel visible"
-      data-panel
-      role="dialog"
-      aria-modal="true"
-      aria-label="Narrative event"
-    >
-      {content.speaker && (
-        <div className="event-speaker">{content.speaker}</div>
-      )}
-      <div className="event-text">
-        {content.text.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
-      </div>
-      <div className="event-choices">
-        {content.choices.map((choice, i) => (
-          <button
-            key={i}
-            className="event-choice-btn"
-            onClick={() => handleChoice(choice)}
-          >
-            {choice.text}
-          </button>
-        ))}
+    <div className="modal-overlay">
+      <div
+        id="narrative-event-panel"
+        className="centered-panel visible"
+        data-panel
+        role="dialog"
+        aria-modal="true"
+        aria-label="Narrative event"
+      >
+        {content.speaker && (
+          <div className="event-speaker">{content.speaker}</div>
+        )}
+        <div className="event-text">
+          {content.text.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
+        </div>
+        <div className="event-choices">
+          {content.choices.map((choice, i) => (
+            <button
+              key={i}
+              className="event-choice-btn"
+              onClick={() => handleChoice(choice)}
+            >
+              {choice.text}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
