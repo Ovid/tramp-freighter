@@ -27,6 +27,9 @@ const MISSION_GOODS = [
 const isOrphanedMissionGood = (stack) =>
   !stack.missionId && MISSION_GOODS.includes(stack.good);
 
+// Quest rewards live outside the shop list but are still real installed upgrades.
+const ALL_UPGRADES = { ...SHIP_CONFIG.UPGRADES, ...SHIP_CONFIG.QUEST_UPGRADES };
+
 /**
  * Validate and filter ship configuration IDs (quirks or upgrades).
  * Removes unknown IDs and warns about them.
@@ -517,7 +520,7 @@ export function migrateFromV1ToV2(state, systemData) {
   if (Array.isArray(state.ship.upgrades)) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
-      SHIP_CONFIG.UPGRADES,
+      ALL_UPGRADES,
       'upgrade'
     );
   }
@@ -729,7 +732,7 @@ export function addStateDefaults(state, systemData) {
   if (Array.isArray(state.ship.upgrades)) {
     state.ship.upgrades = validateShipConfigIds(
       state.ship.upgrades,
-      SHIP_CONFIG.UPGRADES,
+      ALL_UPGRADES,
       'upgrade'
     );
   }

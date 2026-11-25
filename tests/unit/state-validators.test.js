@@ -491,6 +491,14 @@ describe('State Validators Module', () => {
       expect(normalized.ship.cargo).toHaveLength(3);
     });
 
+    it('keeps quest-reward upgrades like the Range Extender on load', () => {
+      partialState.ship.upgrades = ['range_extender'];
+
+      const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
+
+      expect(normalized.ship.upgrades).toEqual(['range_extender']);
+    });
+
     it('should initialize missing price knowledge', () => {
       const normalized = addStateDefaults(partialState, TEST_STAR_DATA);
 

@@ -509,7 +509,7 @@ export class ShipManager extends BaseManager {
 
     // Apply each installed upgrade
     for (const upgradeId of ship.upgrades) {
-      const upgrade = SHIP_CONFIG.UPGRADES[upgradeId];
+      const upgrade = this.getUpgradeDefinition(upgradeId);
       if (!upgrade) {
         this.warn(`Unknown upgrade installed: ${upgradeId}`);
         continue;

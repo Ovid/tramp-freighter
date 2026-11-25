@@ -488,6 +488,17 @@ describe('ShipManager', () => {
       expect(capabilities.hiddenCargoCapacity).toBe(0);
     });
 
+    it('calculateShipCapabilities treats the Range Extender as a known upgrade', () => {
+      const state = gsm.getState();
+      state.ship.upgrades = ['range_extender'];
+      const warnSpy = vi.spyOn(gsm.shipManager, 'warn');
+
+      const capabilities = gsm.shipManager.calculateShipCapabilities();
+
+      expect(warnSpy).not.toHaveBeenCalled();
+      expect(capabilities.fuelCapacity).toBe(SHIP_CONFIG.FUEL_CAPACITY);
+    });
+
     it('calculateShipCapabilities with expanded_hold increases cargo', () => {
       const state = gsm.getState();
       state.ship.upgrades = ['expanded_hold'];
