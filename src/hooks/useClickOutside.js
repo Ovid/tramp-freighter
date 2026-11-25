@@ -23,6 +23,9 @@ export function useClickOutside(ref, onClose, enabled = true) {
       if (e.target.closest('#camera-controls')) return;
       if (e.target.closest('#dev-admin-btn')) return;
       if (e.target.closest('.modal-overlay')) return;
+      // Overlay-less dialogs (jump warning) unmount if we close on mousedown,
+      // swallowing their button's click — mirrors the Escape guard below
+      if (e.target.closest('[aria-modal="true"]')) return;
 
       onCloseRef.current();
     };

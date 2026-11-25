@@ -216,4 +216,21 @@ describe('useClickOutside hook', () => {
     fireEvent.mouseDown(document);
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  // Regression: issue #49 — pressing Proceed on the Jump Warning while docked
+  // undocked the player on mousedown, unmounting the dialog before click fired.
+  it('does not call onClose when mousedown fires inside an aria-modal dialog', () => {
+    const onClose = vi.fn();
+    render(
+      <div>
+        <div role="alertdialog" aria-modal="true">
+          <button data-testid="proceed-btn">Proceed</button>
+        </div>
+        <TestPanel onClose={onClose} />
+      </div>
+    );
+
+    fireEvent.mouseDown(document.querySelector('[data-testid="proceed-btn"]'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
