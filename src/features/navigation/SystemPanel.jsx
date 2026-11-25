@@ -253,7 +253,7 @@ function SystemDetails({ system, starData, dangerZone }) {
     <div className="system-details">
       <div className="system-property">
         <span className="label">Spectral Class:</span>
-        <span className="value">{system.type}</span>
+        <span className="value">{`${system.type} (${starKind(system.type)})`}</span>
       </div>
       <SystemStars star={system} starData={starData} />
       <div className="system-property">
@@ -263,7 +263,8 @@ function SystemDetails({ system, starData, dangerZone }) {
       <div className="system-property">
         <span className="label">Distance from Sol:</span>
         <span className="value">
-          {calculateDistanceFromSol(system).toFixed(1)} LY
+          {calculateDistanceFromSol(system).toFixed(1)}{' '}
+          <abbr title="light-years">LY</abbr>
         </span>
       </div>
       <div className="system-property">
@@ -299,7 +300,10 @@ function JumpSection({ validation, onJump }) {
         <div className="jump-information">
           <div className="jump-info-row">
             <span className="label">Jump Distance:</span>
-            <span className="value">{validation.distance.toFixed(1)} LY</span>
+            <span className="value">
+              {validation.distance.toFixed(1)}{' '}
+              <abbr title="light-years">LY</abbr>
+            </span>
           </div>
           <div className="jump-info-row">
             <span className="label">Fuel Cost:</span>

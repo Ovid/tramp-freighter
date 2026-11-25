@@ -224,4 +224,15 @@ describe('Integration: SystemPanel accessibility', () => {
     // The inline error still explains why Jump is disabled
     expect(screen.getByRole('alert').textContent).toMatch(/critically/);
   });
+
+  it('explains LY and the spectral class in plain words', () => {
+    render(panel(4));
+    expect(
+      document.querySelector('abbr[title="light-years"]').textContent
+    ).toBe('LY');
+    const spectral = screen.getByText('Spectral Class:').parentElement;
+    expect(spectral.querySelector('.value').textContent).toBe(
+      'M5 (red dwarf)'
+    );
+  });
 });
