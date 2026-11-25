@@ -28,6 +28,8 @@ import {
 import { updateLabelScale } from '../../game/engine/stars';
 import {
   isDrag,
+  minPickRadiusFor,
+  pickStar,
   rotationAngle,
   resolveAutoRotationSpeed,
 } from '../../game/engine/starmap-math';
@@ -145,24 +147,10 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Append renderer to container
       container.appendChild(renderer.domElement);
 
-      // Set up raycaster for star selection (only if stars exist)
+      // Set up star selection (only if stars exist)
       let handleCanvasClick = null;
       let handlePointerDown = null;
       if (stars && stars.length > 0) {
-        const raycaster = new THREE.Raycaster();
-        const mouse = { x: 0, y: 0 };
-
-        // Build clickable objects array
-        const clickableObjects = [];
-        stars.forEach((star) => {
-          if (star.sprite) {
-            clickableObjects.push(star.sprite);
-          }
-          if (star.label) {
-            clickableObjects.push(star.label);
-          }
-        });
-
         let pointerDownAt = null;
         handlePointerDown = (event) => {
           pointerDownAt = {
@@ -177,38 +165,26 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           if (isDrag(pointerDownAt, { x: event.clientX, y: event.clientY })) {
             return;
           }
+          // Screen space, not a raycast: labels don't block clicks and
+          // distant stars keep a usable target size
+          const rect = renderer.domElement.getBoundingClientRect();
+          const clickedStar = pickStar({
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+            width: rect.width,
+            height: rect.height,
+            camera,
+            stars,
+            minRadiusPx: minPickRadiusFor(pointerDownAt?.pointerType),
+          });
 
-          // Convert to normalized device coordinates
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(
-            clickableObjects,
-            false
-          );
-
-          if (intersects.length > 0) {
-            const clickedObject = intersects[0].object;
-            const clickedStar = stars.find(
-              (star) =>
-                star.sprite === clickedObject || star.label === clickedObject
-            );
-
-            if (clickedStar) {
-              // Select star visually and notify parent via callback
-              selectStar(clickedStar, scene, camera);
-              if (props.onSystemSelected) {
-                props.onSystemSelected(clickedStar.data.id);
-              }
-            }
+          if (clickedStar) {
+            selectStar(clickedStar, scene, camera);
+            props.onSystemSelected?.(clickedStar.data.id);
           } else {
-            // Clicked empty space - deselect
+            // Clicked empty space - deselect and close the system panel
             deselectStar();
-            // Close system panel when clicking empty space
-            if (props.onSystemDeselected) {
-              props.onSystemDeselected();
-            }
+            props.onSystemDeselected?.();
           }
         };
 

@@ -5,7 +5,6 @@ import { GameProvider } from '../../src/context/GameContext';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
-import * as THREE from 'three';
 import { STARMAP_CONFIG } from '../../src/game/constants.js';
 
 /**
@@ -97,6 +96,12 @@ vi.mock('../../src/game/engine/game-animation', () => {
   };
 });
 
+// Partial mock: the real isDrag runs, but picking is controlled by the test
+vi.mock('../../src/game/engine/starmap-math', async (importOriginal) => ({
+  ...(await importOriginal()),
+  pickStar: vi.fn(() => null),
+}));
+
 async function renderCanvas() {
   const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
   game.initNewGame();
@@ -118,16 +123,9 @@ async function renderCanvas() {
 }
 
 describe('StarMapCanvas drag versus click', () => {
-  // The mock sprites have no `layers`, so the real raycaster throws inside
-  // the click listener. A throw also leaves both callbacks uncalled, which
-  // would let the drag test pass on unfixed code. Stubbing the hit test
-  // makes an unfixed click reach onSystemDeselected. setFromCamera is stubbed
-  // because it warns about the mock camera.
-  beforeEach(() => {
-    vi.spyOn(THREE.Raycaster.prototype, 'setFromCamera').mockImplementation(
-      () => {}
-    );
-    vi.spyOn(THREE.Raycaster.prototype, 'intersectObjects').mockReturnValue([]);
+  beforeEach(async () => {
+    const { pickStar } = await import('../../src/game/engine/starmap-math');
+    vi.mocked(pickStar).mockClear();
   });
   afterEach(() => {
     cleanup();
@@ -163,5 +161,46 @@ describe('StarMapCanvas drag versus click', () => {
     );
 
     expect(onSystemDeselected).toHaveBeenCalledTimes(1);
+  });
+
+  it('a click without a drag picks relative to the canvas, and deselects on a miss', async () => {
+    const { canvas, onSystemDeselected } = await renderCanvas();
+    vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue({
+      left: 10,
+      top: 20,
+      width: 800,
+      height: 600,
+    });
+
+    canvas.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: 110, clientY: 120 })
+    );
+    canvas.dispatchEvent(
+      new MouseEvent('click', { clientX: 110, clientY: 120 })
+    );
+
+    const { pickStar } = await import('../../src/game/engine/starmap-math');
+    expect(pickStar).toHaveBeenCalledWith(
+      expect.objectContaining({ x: 100, y: 100, width: 800, height: 600 })
+    );
+    expect(onSystemDeselected).toHaveBeenCalledTimes(1);
+  });
+
+  it('a touch tap picks with the touch radius', async () => {
+    const { canvas } = await renderCanvas();
+
+    const down = new MouseEvent('pointerdown', { clientX: 100, clientY: 100 });
+    Object.defineProperty(down, 'pointerType', { value: 'touch' });
+    canvas.dispatchEvent(down);
+    canvas.dispatchEvent(
+      new MouseEvent('click', { clientX: 100, clientY: 100 })
+    );
+
+    const { pickStar } = await import('../../src/game/engine/starmap-math');
+    expect(pickStar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        minRadiusPx: STARMAP_CONFIG.MIN_PICK_RADIUS_TOUCH_PX,
+      })
+    );
   });
 });
