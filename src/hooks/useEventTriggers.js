@@ -149,6 +149,10 @@ export function useEventTriggers() {
 
       const state = game.getState();
       if (!state) return;
+      // The game is over once the player reaches Delta Pavonis. markVictory
+      // relocates the ship like a jump, and a random encounter or narrative
+      // there would replace the Epilogue.
+      if (state.meta?.victory) return;
       const day = Math.floor(state.player.daysElapsed);
       const system = state.player.currentSystem;
       const rng = new SeededRandom(`event-${eventType}-${day}-${system}`);
