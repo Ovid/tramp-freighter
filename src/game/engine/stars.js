@@ -351,7 +351,8 @@ const _labelBoxes = [];
  * @param {THREE.PerspectiveCamera} camera - The camera
  * @param {number} unitsPerPx - Sprite scale per CSS px (see pxToSpriteScale)
  * @param {{width: number, height: number}} viewport - Canvas size in CSS px
- * @param {Array} [pinnedStars] - Stars whose labels always show (null entries ignored)
+ * @param {Array} [pinnedStars] - Stars whose labels beat unpinned ones in declutter
+ *   and never fade; still hidden within hideDistance (null entries ignored)
  */
 export function updateLabels(
   stars,

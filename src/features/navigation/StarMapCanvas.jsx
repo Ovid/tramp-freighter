@@ -301,7 +301,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           camera.position.copy(controls.target).add(_tempOffset);
         }
 
-        // Selected and current-system labels always show; others declutter
+        // Selected and current-system labels win declutter over unpinned ones
         pinnedStars[0] = getSelectedStar();
         pinnedStars[1] = getCurrentSystemStar();
         updateLabels(stars, camera, unitsPerPx, viewport, pinnedStars);
