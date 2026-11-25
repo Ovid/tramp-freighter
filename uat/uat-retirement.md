@@ -118,11 +118,10 @@ every narrative popup and dialogue node that matters.
      +3 rep, with a 7-day cooldown. Check that the goods leave the hold and
      that you are not paid for them. Tanaka's reward is rep only, so say
      whether that trade-off is clear.
-8. **⚠ Rep-farming check (likely finding).** Run the conversation in step 7
-   a second time. Every dialogue `repGain` goes through `modifyRepRaw` with no
-   once-only guard, so the +6 loop seems repeatable as often as you like. If
-   it is, record it as an **Arbitrage FAIL**: it makes every rep gate trivial.
-   In Honest mode, do not use the loop past this one check.
+8. **Rep-farming check.** Run the conversation in step 7 a second time.
+   Conversation `repGain` is now paid once per choice, so the second run
+   should give **no** rep. If it pays +6 again, record it as an
+   **Arbitrage FAIL**: it makes every rep gate trivial.
    Reach rep 10 with supply runs instead.
 
 ### Phase C: Stage 1, Field Test
@@ -160,11 +159,11 @@ every narrative popup and dialogue node that matters.
 16. If hull < 70% or engine < 80%, check that Tanaka's greeting gives the
     matching hull or engine hint. Repair, then choose
     **"I'm ready for the prototype installation."** and accept.
-17. **⚠ Test-flight check.** Tanaka says "Take a test flight. Come back and we will
-    verify the readings." Stage 3 has **no objectives**, though, so talking to
-    her again straight away may already offer "Your work is impressive…".
-    If it does, record it as a narrative/mechanics mismatch. Then claim:
-    **+₡2,000**, +20 rep.
+17. **Diagnostics check.** Tanaka says "Give me a moment to run the
+    diagnostics, then we talk." Stage 3 has **no objectives**, so talking to
+    her again straight away should offer the claim, and she should say "The
+    diagnostics came back clean." Check that nothing mentions a test flight.
+    Then claim: **+₡2,000**, +20 rep.
 
 ### Phase F: Stage 4, Personal Request
 
@@ -215,8 +214,8 @@ every narrative popup and dialogue node that matters.
     People. Talk to her through a few rounds (it's fourth-wall comedy).
     Then **Return to Title**.
 34. **⚠ Reload after victory.** Reload the page and continue the save. In code,
-    `meta.victory` is set but never read, and the location is Delta Pavonis,
-    which has no wormholes. Record what happens: are you stuck in orbit, is
+    `meta.victory` is read only by the random-event guard (no encounters after
+    victory), and the location is Delta Pavonis, which has no wormholes. Record what happens: are you stuck in orbit, is
     there a sensible state, or does the game know it's over?
 
 ### Phase I: Wrap-up

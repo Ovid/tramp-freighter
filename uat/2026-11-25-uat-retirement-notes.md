@@ -93,7 +93,7 @@ and the supply option is hidden until you're carrying 5 of one. A player can't f
 - Research supply: 5 medicine (₡160) → trust +3, goods leave the hold, no credits ✅. The choice gives no preview of the cost or the reward.
   A second supply with 5 electronics after the 7-day cooldown (10 days later): +3.
 
-### B8 ❌ ARBITRAGE FAIL: rep farming
+### B8 ❌ → fixed. ARBITRAGE FAIL: rep farming
 Repeating "Tell me about your work" → "How much further?" → "Why Delta Pavonis?" → "I hope you find her." gave the same +6 again (6 → 12).
 Unlimited and free. **Every rep gate in the quest can be farmed.** Under Honest rules I treat those 6 points as tainted.
 Legitimate rep reached 12 (6 conversation + 3 + 3 supply) before I accepted Stage 1.
@@ -124,16 +124,16 @@ Legitimate rep reached 12 (6 conversation + 3 + 3 supply) before I accepted Stag
 
 Save check: `quests.tanaka.data.exoticStations` matches the stations above.
 
-### D14 ❌ Re-roll exploit
+### D14 ❌ → fixed. Re-roll exploit
 A failed roll doesn't mark the station. Undocking and redocking immediately re-rolls, with no time cost. Altair took 3 docks.
 The 60% chance is meaningless to a player willing to click Dock again. The code (quest-manager.js:320) also defaults to `rngFn = Math.random`,
 which CLAUDE.md forbids in gameplay paths. Under Honest rules I re-rolled only for the prescribed check.
 
 ### Economy, debt, and encounters in this stretch
-- F15 (clarity): **Cole's heat is invisible.** Each missed 30-day checkpoint (no payment since the last one) adds +10 heat. Above 20 heat,
+- F15 (clarity, → fixed): **Cole's heat is invisible.** Each missed 30-day checkpoint (no payment since the last one) adds +10 heat. Above 20 heat,
   withholding goes to **10%** and interest to **4%**. By 2167-11-30 my cut was 10% (₡95 on ₡945) without any message that I'd seen.
   Finance shows "Next interest" but not heat, checkpoints, or that a payment each period is expected. Paying (5 × ₡1,000) brought it back to 5% / 3%.
-- F16 (exploit-ish): heat drops **−3 per payment action**, whatever the amount (debt.js:255). Ten "Pay ₡100" clicks erase 30 heat for ₡1,000.
+- F16 (exploit-ish, → fixed): heat drops **−3 per payment action**, whatever the amount (debt.js:255). Ten "Pay ₡100" clicks erase 30 heat for ₡1,000.
 - Payments: 2167-09-22 ₡3,000; 2167-11-30 ₡5,000. Debt was ₡3,417 on 2168-01-20.
 - Second customs fine: L 143-23 (Standard security), 2 smuggling jobs (₡882 total). Cooperate → −₡1,000, cargo confiscated, both jobs gone.
   The outcome screen is headed "**SUCCESS**" even though I was fined and lost the cargo (wording). No "mission failed" notice for the two jobs.
@@ -151,7 +151,7 @@ which CLAUDE.md forbids in gameplay paths. Under Honest rules I re-rolled only f
 "Took some searching…" → ₡3,591 → **₡6,591 (+₡3,000)**, trust 46 → 64, **Advanced Sensor Array** in Ship Status → Upgrades
 ("See economic events one jump ahead"), "First Friend" achievement.
 
-### E16 ✅ / E17 ❌ Stage 3, The Prototype
+### E16 ✅ / E17 ❌ → fixed. Stage 3, The Prototype
 - Hull 81%, engine 83%, so I couldn't check the low-condition hints here (tested in G22 instead). "I'm ready for the prototype installation."
   → states "hull at seventy percent minimum, engine at eighty" ✅ → accept (+5, 69).
 - **E17 ❌ narrative/mechanics mismatch:** Tanaka says "Take a test flight. Come back and we will verify the readings."
@@ -232,7 +232,7 @@ The dialogue and jump text say "19.89 light-years". The star data gives 19.96 LY
 
 ### I35 ✅ User save restored: reloaded to the title, copied all 10 `uatbackup__*` keys back, verified, deleted the backups. The save is "Serendipity", ₡253.
 
-## Fixes applied (TDD: RED → GREEN; full suite 466 files / 4,628 tests green, lint and Prettier clean)
+## Fixes applied (TDD: RED → GREEN; full suite 467 files / 4,642 tests green, lint and Prettier clean)
 1. `GameCoordinator.startPavonisRun()` emits an incrementing counter instead of `true`, so the run can restart after NOT YET.
    Test: tests/integration/app-endgame-flow.integration.test.jsx "should restart the Pavonis Run after the player cancels once".
 2. `useEventTriggers.handleTrigger` returns early when `meta.victory` is set, so no encounter or narrative can hijack the ending or fire after victory.
@@ -242,6 +242,16 @@ The dialogue and jump text say "19.89 light-years". The star data gives 19.96 LY
 4. New `SHIP_CONFIG.QUEST_UPGRADES.range_extender`, and `ShipManager.getUpgradeDefinition` falls back to it, so Ship Status shows the
    Range Extender. It's kept out of `UPGRADES` so the shop never sells it. Test: tests/unit/ship-manager.test.js.
    ⚠️ Verified by unit test only. The UAT save had already finished the game, so I couldn't open Ship Status before the jump.
+   The save loader and `calculateShipCapabilities` also accept quest upgrades, so the Range Extender survives a reload.
+   Tests: tests/unit/state-validators.test.js, tests/unit/ship-manager.test.js.
+5. B8: conversation `repGain` is paid once per choice (claims stored per NPC in `repGainsClaimed`, keyed on node and choice text).
+   Penalties, cargo pickers, and action choices such as loans still pay every time the action succeeds, and nothing when it fails.
+   Test: tests/unit/dialogue-rep-once.test.js.
+6. D14: a failed exotic scan marks the station, so redocking can't re-roll. Each miss adds 20% to the next scan, so the third
+   scan after two misses always succeeds. The roll uses `SeededRandom` instead of `Math.random`.
+7. E17: Tanaka no longer asks for a test flight at Stage 3. She runs diagnostics on the spot, which matches the instant claim.
+8. F15/F16: Finance shows Cole's heat, tier, and days to the next check-in. Heat relief is now 1 point per ₡250 repaid,
+   so tiny repeated payments no longer erase heat.
 
 ## Honest-mode accounting
 - **Dev Admin: never used.**
