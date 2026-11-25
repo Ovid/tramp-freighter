@@ -394,7 +394,9 @@ export default function App({ devMode = false }) {
   useEffect(() => {
     if (epiloguePreviewEvent) {
       setShowDevAdmin(false);
-      game.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+      // Same path as the real ending, so the jump to Delta Pavonis can't
+      // trigger a random encounter over the Epilogue
+      game.markVictory();
       setViewMode(VIEW_MODES.EPILOGUE);
     }
   }, [epiloguePreviewEvent, game]);

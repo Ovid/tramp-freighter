@@ -175,16 +175,3 @@ uses `Close <system> panel`.
 Possible fix: name each after its panel, e.g. `Close trade panel`.
 
 Found while fixing the SystemPanel accessibility audit.
-
-## Dev Epilogue preview can be hijacked by a random event
-
-The dev Epilogue preview (`src/App.jsx`, `EPILOGUE_PREVIEW_TRIGGERED`) calls
-`game.devTeleport(DELTA_PAVONIS_ID)`. That emits `LOCATION_CHANGED`, so
-`useEventTriggers` rolls jump events. The new `meta.victory` guard doesn't
-cover it, because the preview never sets `meta.victory`, so an encounter or
-narrative can replace the preview. Dev-only, and not confirmed at runtime.
-
-Possible fix: have dev teleports skip jump triggers, or have the preview set a
-flag that `handleTrigger` checks.
-
-Found by `/agentic-review` on `ovid/uat-retirement` (paad backlog id `fb815b36`).
