@@ -17,21 +17,6 @@ for the same loop.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
 
-## Hidden cargo moves accept zero, negative or fractional quantities
-
-`moveToHiddenCargo` and `moveToRegularCargo` in
-`src/game/state/managers/ship.js` check only `qty > stack.qty` and the capacity
-limit. A negative `qty` passes both checks, so cargo moves the opposite way
-without any capacity check, and a fractional `qty` leaves fractional stacks.
-Today only the UI calls these functions.
-
-Possible fix: reject `qty` unless `Number.isInteger(qty) && qty > 0`, the same
-rule as the NPC storage selections.
-
-Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
-
-Re-confirmed by `/agentic-review` on 2026-11-25, branch `ovid/hidden-compartment` at `499e8f7`.
-
 ## Tanaka supply donation can take mission cargo
 
 `contributeSupply` in `src/game/state/managers/quest-manager.js` counts and

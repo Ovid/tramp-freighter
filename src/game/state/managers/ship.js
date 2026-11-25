@@ -7,6 +7,11 @@ import {
 import { pickRandomFrom } from '../../utils/seeded-random.js';
 import { sanitizeShipName } from '../../utils/string-utils.js';
 
+// Same rule as NPC storage selections: a negative qty would move cargo the
+// other way past the capacity check, a fractional one leaves fractional stacks
+const INVALID_QTY_REASON = 'Quantity must be a positive whole number';
+const isPositiveWholeNumber = (qty) => Number.isInteger(qty) && qty > 0;
+
 /**
  * Ship Manager - Handles all ship-related operations
  *
@@ -586,6 +591,10 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Invalid cargo stack' };
     }
 
+    if (!isPositiveWholeNumber(qty)) {
+      return { success: false, reason: INVALID_QTY_REASON };
+    }
+
     const cargoStack = ship.cargo[cargoIndex];
     if (qty > cargoStack.qty) {
       return { success: false, reason: 'Not enough quantity in cargo' };
@@ -639,6 +648,10 @@ export class ShipManager extends BaseManager {
 
     if (!ship.hiddenCargo[hiddenIndex]) {
       return { success: false, reason: 'Invalid cargo stack' };
+    }
+
+    if (!isPositiveWholeNumber(qty)) {
+      return { success: false, reason: INVALID_QTY_REASON };
     }
 
     const hiddenStack = ship.hiddenCargo[hiddenIndex];

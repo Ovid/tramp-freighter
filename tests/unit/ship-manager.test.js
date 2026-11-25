@@ -706,6 +706,49 @@ describe('ShipManager', () => {
       expect(result.reason).toBe('Not enough regular cargo space');
     });
 
+    it.each([0, -2, 1.5, NaN])(
+      'moveToHiddenCargo rejects quantity %s without moving cargo',
+      (qty) => {
+        const state = gsm.getState();
+        state.ship.upgrades = ['smuggler_panels'];
+        state.ship.cargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+        state.ship.hiddenCargo = [{ good: 'grain', qty: 2, buyPrice: 10 }];
+
+        const result = gsm.shipManager.moveToHiddenCargo(0, qty);
+        expect(result).toEqual({
+          success: false,
+          reason: 'Quantity must be a positive whole number',
+        });
+        expect(state.ship.cargo).toEqual([
+          { good: 'ore', qty: 5, buyPrice: 15 },
+        ]);
+        expect(state.ship.hiddenCargo).toEqual([
+          { good: 'grain', qty: 2, buyPrice: 10 },
+        ]);
+      }
+    );
+
+    it.each([0, -2, 1.5, NaN])(
+      'moveToRegularCargo rejects quantity %s without moving cargo',
+      (qty) => {
+        const state = gsm.getState();
+        state.ship.cargo = [{ good: 'grain', qty: 2, buyPrice: 10 }];
+        state.ship.hiddenCargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+
+        const result = gsm.shipManager.moveToRegularCargo(0, qty);
+        expect(result).toEqual({
+          success: false,
+          reason: 'Quantity must be a positive whole number',
+        });
+        expect(state.ship.cargo).toEqual([
+          { good: 'grain', qty: 2, buyPrice: 10 },
+        ]);
+        expect(state.ship.hiddenCargo).toEqual([
+          { good: 'ore', qty: 5, buyPrice: 15 },
+        ]);
+      }
+    );
+
     it('moveToRegularCargo counts passenger space against the hold', () => {
       const state = gsm.getState();
       state.ship.upgrades = [];
