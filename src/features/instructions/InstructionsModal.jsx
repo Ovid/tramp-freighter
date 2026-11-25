@@ -41,11 +41,11 @@ export function InstructionsModal({ isOpen, onClose, shipName }) {
         <section className="instructions-section">
           <h3>Navigation</h3>
           <p>
-            The starmap shows 117 real star systems connected by wormhole lanes.
-            To travel, click the <strong>System Info</strong> button in the
-            Quick Access panel to view a system's details, wormhole connections,
-            and the option to jump there. Every jump costs fuel and advances
-            time.
+            The starmap shows 117 real stars in 84 systems, connected by
+            wormhole lanes. To travel, click the <strong>System Info</strong>{' '}
+            button in the Quick Access panel to view a system's details,
+            wormhole connections, and the option to jump there. Every jump costs
+            fuel and advances time.
           </p>
         </section>
 

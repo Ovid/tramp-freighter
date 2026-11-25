@@ -111,7 +111,7 @@ export const CREDITS_SECTIONS = [
       'Sirius \u00b7 Wolf 359 \u00b7 Tau Ceti',
       'Epsilon Eridani \u00b7 Procyon \u00b7 Ross 154',
       "Luyten's Star",
-      'and 107 other star systems',
+      'and 74 other star systems',
       'that were kind enough not to move',
     ],
   },
