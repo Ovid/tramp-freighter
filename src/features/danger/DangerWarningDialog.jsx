@@ -256,7 +256,8 @@ export function DangerWarningDialog({
                 <div className="recommendation">
                   <span className="rec-icon">🛣️</span>
                   <span className="rec-text">
-                    Alternative routes through safer systems may be available
+                    For a safer route, open System Info and compare your
+                    wormhole connections
                   </span>
                 </div>
               </div>

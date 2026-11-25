@@ -208,11 +208,3 @@ Found during the SystemPanel accessibility audit
 
 Found during the SystemPanel accessibility audit
 (`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
-
-## DangerWarningDialog "alternative routes" text is vague
-
-`src/features/danger/DangerWarningDialog.jsx` says "Alternative routes through
-safer systems may be available" but doesn't name any or say how to find them.
-
-Found during the SystemPanel accessibility audit
-(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).

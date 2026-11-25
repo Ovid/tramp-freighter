@@ -210,7 +210,7 @@ describe('DangerWarningDialog', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          'Alternative routes through safer systems may be available'
+          'For a safer route, open System Info and compare your wormhole connections'
         )
       ).toBeInTheDocument();
     });
