@@ -10,9 +10,12 @@ Covers GitHub issues #51 (drag selects a star), #54 (rotation speed), #55
   name suffix, and that rule is unreliable. `Lalande 27173 D` has no B/C
   suffix. Six groups have companions at different coordinates from their
   primary. Proxima has no "A" star to group with.
-- Companion stars leak into gameplay. Rumors can name them
+- Unreachable stars leak into gameplay. Rumors can name them
   (`game-information-broker.js` `generateRumor`), and economic events can start
-  on them (`game-events.js`).
+  on them (`game-events.js`). This applies to the 33 companions and also to 10
+  primaries with no wormholes (for example Ross 882 and Wolf 1481). Delta
+  Pavonis is one of the 10. The player reaches it only through the victory run,
+  and the post-credits station has no market.
 - Players currently learn about companions only from an overlapping map label,
   plus the spectral class shown when they click it.
 - The map rotates `0.2` degrees **per frame**, so it spins twice as fast on a
@@ -53,10 +56,16 @@ less.
 - `SystemPanel.jsx`: the title is the system name. Multi-star systems get a
   "Stars" list in the form "Sirius A: A1, main-sequence star" and "Sirius B:
   DA2, white dwarf".
-- `game-information-broker.js` rumors and `game-events.js` events: skip
-  companions.
+- `game-information-broker.js` rumors (both the best-price rumor and the
+  event hint) and `game-events.js` events: skip every star that is not
+  connected in the wormhole graph (`getConnectedSystems(id).length === 0` from
+  `wormhole-graph.js`). This covers all 43 wormhole-less stars, including
+  companions and Delta Pavonis. See `paad/adrs/0002-gameplay-targets-wormhole-connected-systems.md`.
 - Instructions and credits: change the wording to "117 real stars in 84
   systems", and update `credits-data.test.js`.
+- Credits "Filmed on location" (`credits-data.js`): "and 107 other star
+  systems" becomes "and 74 other star systems" (84 systems minus the 10 named),
+  with a test. "Stars Featured: 117 of 131 known" counts stars and stays.
 
 **Old saves:** an economic event may already exist on a companion star. Such
 events expire and the lookups that read them already tolerate it, so no
@@ -64,9 +73,18 @@ migration is needed. A test loads such a save to confirm this.
 
 ## 2. Labels, reticle and picking (#55, #51)
 
+**Screen-size units**
+- With `sizeAttenuation: false`, a sprite's `scale` is a fraction of viewport
+  height, not pixels. On-screen height is `scale / tan(fov/2) × H/2`. Sizes are
+  therefore given in CSS px in `constants.js` (`LABEL_HEIGHT_PX`,
+  `RETICLE_SIZE_PX`, `CURRENT_SYSTEM_SIZE_PX`), and converted with
+  `scale = px × 2·tan(fov/2) / canvasHeight`. Recompute this in
+  `onWindowResize`, so sizes match on desktop and mobile in either
+  orientation. This is the same unit `pickStar` uses.
+
 **Labels**
 - Make labels sprites with `sizeAttenuation: false`, so they are a fixed size
-  on screen.
+  on screen (`LABEL_HEIGHT_PX`).
 - Anchor each label above its star with `sprite.center` instead of a +15
   world-unit offset.
 - `updateLabelScale` becomes `updateLabels`. Opacity still fades with
@@ -75,7 +93,9 @@ migration is needed. A test loads such a save to confirm this.
 **Reticle and current-system marker**
 - Change both from a world-space Mesh to a Sprite with
   `sizeAttenuation: false`. Remove the per-frame `lookAt`.
-- Pulse and spin stay, using scale and `material.rotation`.
+- Pulse and spin stay, using scale and `material.rotation`. The pulse
+  multiplies the px-derived base scale; it must not set scale to about 1,
+  which on a non-attenuated sprite fills most of the screen.
 
 **Picking (replaces the raycaster)**
 - New pure function `pickStar(...)`, which works as follows:
@@ -125,12 +145,17 @@ full suite, lint and format passing:
 - A `pickStar` property test (at least 100 runs): the result is never a star
   outside the pick radius.
 - Unit tests for the drag threshold, the label hide cutoff, `dt` scaling and
-  capping, preference defaults, the helper functions, and the companion
-  filtering in rumors and events.
+  capping, preference defaults, the helper functions, the px-to-scale
+  conversion, and the credits "74 other star systems" line.
+- Unit tests for the reachability filter in rumors and events: a companion and
+  a wormhole-less primary such as Ross 882 are never named and never get an
+  event.
 
 **UAT**
 - Check that wormhole lines stay readable in dense areas.
 - Check the reticle is the same size near and far.
+- Check labels and the reticle are the same pixel size on desktop and on a
+  phone in landscape and portrait.
 - Click a distant star sitting just beside a near one.
 - Drag the map and check the selection does not change.
 - Check rotation at 0, 3 and 12°/s, and with reduced motion on.
