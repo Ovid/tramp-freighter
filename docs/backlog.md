@@ -17,21 +17,6 @@ for the same loop.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
 
-## NPC storage changes don't emit `NPCS_CHANGED`
-
-`storeCargo` and `retrieveCargo` in `src/game/state/managers/npc.js` change
-`storedCargo` (and `interactions`/`lastFavorDay`) but never emit
-`EVENT_NAMES.NPCS_CHANGED`. Only `modifyRep` and `setNpcRep` emit it. Any
-component subscribed with `useGameEvent(NPCS_CHANGED)` keeps showing old NPC
-state until something else emits. Today that is `DevAdminPanel`. A component
-that reads the event only on mount (like the planned cargo storage picker) is
-unaffected.
-
-Possible fix: emit `NPCS_CHANGED` with a copy of NPC state after each storage
-mutation, the same way `modifyRep` does.
-
-Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
-
 ## Hidden cargo moves accept zero, negative or fractional quantities
 
 `moveToHiddenCargo` and `moveToRegularCargo` in
@@ -44,6 +29,8 @@ Possible fix: reject `qty` unless `Number.isInteger(qty) && qty > 0`, the same
 rule as the NPC storage selections.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+Re-confirmed by `/agentic-review` on 2026-11-25, branch `ovid/hidden-compartment` at `499e8f7`.
 
 ## Tanaka supply donation can take mission cargo
 
@@ -106,3 +93,5 @@ hold can fill it past capacity.
 Possible fix: use `getCargoRemaining()` for the capacity check.
 
 Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+Re-confirmed by `/agentic-review` on 2026-11-25, branch `ovid/hidden-compartment` at `499e8f7`.

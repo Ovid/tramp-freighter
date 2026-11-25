@@ -715,6 +715,9 @@ export class NPCManager extends BaseManager {
     npcState.lastInteraction = daysElapsed;
     npcState.interactions += 1;
 
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
     this.capabilities.markDirty();
 
     return {
@@ -768,6 +771,9 @@ export class NPCManager extends BaseManager {
     npcState.lastInteraction = this.capabilities.getDaysElapsed();
     npcState.interactions += 1;
 
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
     this.capabilities.markDirty();
 
     return {

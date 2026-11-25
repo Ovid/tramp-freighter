@@ -3,6 +3,7 @@ import { createTestGame } from '../test-utils.js';
 import {
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
+  EVENT_NAMES,
 } from '../../src/game/constants.js';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
@@ -119,6 +120,16 @@ describe('NPC cargo storage with selections', () => {
       game.storeCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]);
       expect(npcState.lastFavorDay).toBe(game.getState().player.daysElapsed);
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('emits NPCS_CHANGED with the new stored cargo', () => {
+      const listener = vi.fn();
+      game.subscribe(EVENT_NAMES.NPCS_CHANGED, listener);
+      game.storeCargo(NPC_ID, [{ stackIndex: 0, qty: 1 }]);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener.mock.calls[0][0][NPC_ID].storedCargo).toEqual([
+        { good: 'grain', qty: 1, buyPrice: 10 },
+      ]);
     });
 
     it('returns a pluralized message with the NPC name', () => {
@@ -249,6 +260,16 @@ describe('NPC cargo storage with selections', () => {
       game.updateCargo([{ good: 'grain', qty: 1, buyPrice: 10 }]);
       game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 2 }]);
       expect(hold()).toEqual([{ good: 'grain', qty: 3, buyPrice: 10 }]);
+    });
+
+    it('emits NPCS_CHANGED with the new stored cargo', () => {
+      const listener = vi.fn();
+      game.subscribe(EVENT_NAMES.NPCS_CHANGED, listener);
+      game.retrieveCargo(NPC_ID, [{ stackIndex: 0, qty: 4 }]);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(
+        listener.mock.calls[0][0][NPC_ID].storedCargo.map((s) => s.good)
+      ).toEqual(['ore', 'tritium']);
     });
 
     it('does not start the favor cooldown', () => {
