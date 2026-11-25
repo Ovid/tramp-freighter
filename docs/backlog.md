@@ -66,3 +66,22 @@ deliver what is left for the full reward. This may be on purpose (forgiving
 design). Confirm, then either check quantity or add a comment explaining why.
 
 Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
+
+## `60c8c6b6` — Narrative and jump-warning dialogs have no focus trap
+
+`NarrativeEventPanel` (`src/features/narrative/NarrativeEventPanel.jsx`) and
+`DangerWarningDialog` (`src/features/danger/DangerWarningDialog.jsx`) render
+inside a `.modal-overlay` that blocks pointer input. Neither moves focus into
+the dialog on mount or traps Tab, and the background is not `inert`. A keyboard
+user can Tab to StationMenu's undock/close button or to HUD buttons and press
+them, for example undocking while a dock narrative event is still open. This
+predates the backdrop; the backdrop only closed the pointer path.
+
+Possible fix: focus the first choice or Cancel button on mount and reuse the
+Tab focus trap from `src/components/Modal.jsx` (pull it out into a shared hook),
+or set `inert` on the app root while either dialog is mounted.
+
+Bug class: Error Handling. Severity: Suggestion. First seen 2026-11-25 on
+branch `ovid/jump-warning-proceed` at `510ac4c`.
+
+Found during agentic-review of `ovid/jump-warning-proceed`.
