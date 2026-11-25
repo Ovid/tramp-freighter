@@ -99,6 +99,19 @@ describe('Integration: SystemPanel accessibility', () => {
     expect(details).toContain(`${v.jumpTime} day`);
   });
 
+  it('names each connection button by system only, with details as its description', () => {
+    const currentId = game.getState().player.currentSystem;
+    render(panel(currentId));
+    const button = document.querySelector('.connection-item');
+    const name = button.querySelector('.connection-name').textContent;
+    expect(screen.getByRole('button', { name })).toBe(button);
+    const describedBy = document.getElementById(
+      button.getAttribute('aria-describedby')
+    );
+    expect(describedBy.textContent).toMatch(/light-years, \d+% fuel, \d+ days?/);
+    expect(button.querySelector('div')).toBeNull();
+  });
+
   it('does not steal focus from the star map canvas', () => {
     const canvas = document.createElement('div');
     canvas.className = 'starmap-container';

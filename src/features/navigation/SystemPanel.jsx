@@ -315,6 +315,7 @@ function ConnectedSystems({
   const capabilities = game.calculateShipCapabilities();
   const engineCondition = shipCondition?.engine ?? 100;
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');
+  const idPrefix = useId();
 
   const connectedSystems = game.navigationSystem
     .getConnectedSystems(currentSystem.id)
@@ -367,39 +368,58 @@ function ConnectedSystems({
               ? destinationEvent.endDay - currentDay
               : 0;
 
+            const days = `${system.jumpTime} day${system.jumpTime !== 1 ? 's' : ''}`;
+            const fuelPercent = Math.round(system.fuelCost);
+            const hasEvent = destinationEventType && daysRemaining >= 0;
+            const ids = `${idPrefix}-${system.id}`;
+
+            // Name the button by system only; the stats and any event become
+            // its description so each Tab doesn't read a paragraph.
             return (
               <button
                 key={system.id}
                 className="connection-item"
+                aria-labelledby={`${ids}-name`}
+                aria-describedby={
+                  hasEvent ? `${ids}-details ${ids}-event` : `${ids}-details`
+                }
                 onClick={() => {
                   if (selectStarById) {
                     selectStarById(system.id);
                   }
                 }}
               >
-                <div className="connection-name">{system.name}</div>
-                <div className="connection-details">
-                  {system.distance.toFixed(1)} LY •{' '}
-                  {Math.round(system.fuelCost)}% fuel • {system.jumpTime} day
-                  {system.jumpTime !== 1 ? 's' : ''}
-                </div>
-                {destinationEventType && daysRemaining >= 0 && (
-                  <div className="system-event-info destination-event">
-                    <div className="event-indicator">
-                      <span className="event-icon">📊</span>
+                <span id={`${ids}-name`} className="connection-name">
+                  {system.name}
+                </span>
+                <span className="connection-details" aria-hidden="true">
+                  {system.distance.toFixed(1)} LY • {fuelPercent}% fuel • {days}
+                </span>
+                <span id={`${ids}-details`} hidden>
+                  {`${system.distance.toFixed(1)} light-years, ${fuelPercent}% fuel, ${days}`}
+                </span>
+                {hasEvent && (
+                  <span
+                    id={`${ids}-event`}
+                    className="system-event-info destination-event"
+                  >
+                    <span className="event-indicator">
+                      <span className="event-icon" aria-hidden="true">
+                        📊
+                      </span>
                       <span className="event-name">
                         {destinationEventType.name} at {system.name}
                       </span>
-                    </div>
-                    <div className="event-description">
+                    </span>
+                    <span className="event-description">
                       {destinationEventType.description}
-                    </div>
-                    <div className="event-time-remaining">
+                    </span>
+                    <span className="event-time-remaining">
                       {daysRemaining === 0
                         ? 'Final day'
                         : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
-                    </div>
-                  </div>
+                    </span>
+                  </span>
                 )}
               </button>
             );

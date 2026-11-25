@@ -268,3 +268,12 @@
   border-color: #666;
   color: #666;
 }
+
+/* Connection buttons hold spans (buttons only allow phrasing content) */
+.connection-name,
+.connection-details,
+.connection-item .system-event-info,
+.connection-item .event-description,
+.connection-item .event-time-remaining {
+  display: block;
+}
