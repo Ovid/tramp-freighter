@@ -78,6 +78,27 @@ describe('Integration: SystemPanel accessibility', () => {
     expect(jumpBtn.getAttribute('aria-describedby')).toBe(alert.id);
   });
 
+  it('connection list shows the same fuel and time as the jump view, worn engine included', () => {
+    game.getState().ship.engine = 50;
+    const currentId = game.getState().player.currentSystem;
+    render(panel(currentId));
+    const button = document.querySelector('.connection-item');
+    const name = button.querySelector('.connection-name').textContent;
+    const target = STAR_DATA.find((s) => s.name === name);
+    const v = game.navigationSystem.validateJump(
+      currentId,
+      target.id,
+      100,
+      50,
+      game.applyQuirkModifiers.bind(game),
+      game.getState().ship.quirks,
+      game.calculateShipCapabilities().fuelConsumption
+    );
+    const details = button.querySelector('.connection-details').textContent;
+    expect(details).toContain(`${Math.round(v.fuelCost)}% fuel`);
+    expect(details).toContain(`${v.jumpTime} day`);
+  });
+
   it('does not steal focus from the star map canvas', () => {
     const canvas = document.createElement('div');
     canvas.className = 'starmap-container';

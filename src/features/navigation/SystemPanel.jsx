@@ -333,7 +333,10 @@ function ConnectedSystems({
         quirks,
         capabilities.fuelConsumption
       );
-      const jumpTime = game.navigationSystem.calculateJumpTime(distance);
+      const jumpTime = game.navigationSystem.calculateJumpTimeWithCondition(
+        distance,
+        engineCondition
+      );
 
       return {
         ...system,
@@ -376,8 +379,9 @@ function ConnectedSystems({
               >
                 <div className="connection-name">{system.name}</div>
                 <div className="connection-details">
-                  {system.distance.toFixed(1)} LY • {system.fuelCost.toFixed(1)}
-                  % fuel • {system.jumpTime}d
+                  {system.distance.toFixed(1)} LY •{' '}
+                  {Math.round(system.fuelCost)}% fuel • {system.jumpTime} day
+                  {system.jumpTime !== 1 ? 's' : ''}
                 </div>
                 {destinationEventType && daysRemaining >= 0 && (
                   <div className="system-event-info destination-event">

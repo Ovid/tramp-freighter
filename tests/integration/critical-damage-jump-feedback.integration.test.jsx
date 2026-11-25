@@ -39,6 +39,7 @@ vi.mock('../../src/context/GameContext', () => {
       calculateFuelCost: () => 15,
       calculateFuelCostWithCondition: () => 15,
       calculateJumpTime: () => 1,
+      calculateJumpTimeWithCondition: () => 1,
     },
     getState: () => ({
       ship: {
