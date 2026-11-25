@@ -280,4 +280,14 @@ describe('Captain Vasquez Tanaka Breadcrumbs', () => {
       expect(resolved).toMatch(/debt|credit|money/i);
     });
   });
+
+  describe('pavonis_prep_credits node text', () => {
+    it('quotes the same credit requirement that Tanaka enforces', () => {
+      const text = CAPTAIN_VASQUEZ_DIALOGUE.pavonis_prep_credits.text;
+      const resolved = typeof text === 'function' ? text(5) : text;
+      expect(resolved).toContain(
+        ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString('en-US')
+      );
+    });
+  });
 });

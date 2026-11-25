@@ -604,7 +604,7 @@ export const CAPTAIN_VASQUEZ_DIALOGUE = {
   },
 
   pavonis_prep_credits: {
-    text: '"Twenty-five thousand, at least. That\'s fuel, supplies, and margin for the unexpected. Plus your ship needs to be debt-free. No lender\'s going to let you fly off into the void owing them money."',
+    text: `"${ENDGAME_CONFIG.VICTORY_CREDITS.toLocaleString('en-US')} credits, at least. That's fuel, supplies, and margin for the unexpected. Plus your ship needs to be debt-free. No lender's going to let you fly off into the void owing them money."`,
     choices: [
       {
         text: '"That\'s a lot. I\'d better get trading."',
