@@ -59,6 +59,10 @@ export function DialoguePanel({ npcId, onClose }) {
     initializeDialogue();
   }, [npcId, startDialogue, clearDialogue]);
 
+  // Escape, undock, dock and jump unmount the panel without handleClose;
+  // stale active dialogue would be saved and flash on the next open
+  useEffect(() => clearDialogue, [clearDialogue]);
+
   const handleChoiceSelection = async (choice) => {
     if (!dialogueState.display || !npcId) return;
 
